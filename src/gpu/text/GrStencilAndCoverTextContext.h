@@ -28,26 +28,28 @@ class SkSurfaceProps;
  */
 class GrStencilAndCoverTextContext : public GrTextContext {
 public:
-    static GrStencilAndCoverTextContext* Create(GrContext*, const SkSurfaceProps&);
+    static GrStencilAndCoverTextContext* Create(GrContext*);
 
     void drawText(GrDrawContext* dc,
                   const GrClip&,  const GrPaint&, const SkPaint&,
-                  const SkMatrix& viewMatrix, const char text[], size_t byteLength, SkScalar x,
+                  const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
+                  size_t byteLength, SkScalar x,
                   SkScalar y, const SkIRect& clipBounds) override;
     void drawPosText(GrDrawContext*,
                      const GrClip&, const GrPaint&, const SkPaint&,
-                     const SkMatrix& viewMatrix,
+                     const SkMatrix& viewMatrix, const SkSurfaceProps&,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds) override;
     void drawTextBlob(GrDrawContext*, const GrClip&, const SkPaint&,
-                      const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
+                      const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
+                      SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 
     virtual ~GrStencilAndCoverTextContext();
 
 private:
-    GrStencilAndCoverTextContext(GrContext*, const SkSurfaceProps&);
+    GrStencilAndCoverTextContext(GrContext*);
 
     bool canDraw(const SkPaint& skPaint, const SkMatrix&) {
         return this->internalCanDraw(skPaint);
@@ -58,6 +60,7 @@ private:
     void uncachedDrawTextBlob(GrDrawContext* dc,
                               const GrClip& clip, const SkPaint& skPaint,
                               const SkMatrix& viewMatrix,
+                              const SkSurfaceProps&,
                               const SkTextBlob* blob,
                               SkScalar x, SkScalar y,
                               SkDrawFilter* drawFilter,
@@ -76,6 +79,7 @@ private:
                         int scalarsPerPosition, const SkPoint& offset);
 
         void draw(GrContext*, GrDrawContext*, GrPipelineBuilder*, GrColor, const SkMatrix&,
+                  const SkSurfaceProps&,
                   SkScalar x, SkScalar y, const SkIRect& clipBounds,
                   GrTextContext* fallbackTextContext, const SkPaint& originalSkPaint) const;
 

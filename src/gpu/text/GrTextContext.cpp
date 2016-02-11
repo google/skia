@@ -10,9 +10,8 @@
 
 #include "SkGlyphCache.h"
 
-GrTextContext::GrTextContext(GrContext* context, const SkSurfaceProps& surfaceProps)
-    : fContext(context)
-    , fSurfaceProps(surfaceProps) {
+GrTextContext::GrTextContext(GrContext* context)
+    : fContext(context) {
 }
 
 bool GrTextContext::ShouldDisableLCD(const SkPaint& paint) {

@@ -31,28 +31,31 @@ class SkGlyph;
  */
 class GrAtlasTextContext : public GrTextContext {
 public:
-    static GrAtlasTextContext* Create(GrContext*, const SkSurfaceProps&);
+    static GrAtlasTextContext* Create(GrContext*);
 
-    bool canDraw(const SkPaint&, const SkMatrix& viewMatrix);
+    bool canDraw(const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&);
     void drawText(GrDrawContext*, const GrClip&, const GrPaint&, const SkPaint&,
-                  const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                  SkScalar x, SkScalar y, const SkIRect& regionClipBounds) override;
+                  const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
+                  size_t byteLength, SkScalar x, SkScalar y,
+                  const SkIRect& regionClipBounds) override;
     void drawPosText(GrDrawContext*, const GrClip&, const GrPaint&,
-                     const SkPaint&, const SkMatrix& viewMatrix,
+                     const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& regionClipBounds) override;
     void drawTextBlob(GrDrawContext*, const GrClip&, const SkPaint&,
-                      const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
+                      const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
+                      SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 
 private:
-    GrAtlasTextContext(GrContext*, const SkSurfaceProps&);
+    GrAtlasTextContext(GrContext*);
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     void regenerateTextBlob(GrAtlasTextBlob* bmp, const SkPaint& skPaint, GrColor,
                             const SkMatrix& viewMatrix,
+                            const SkSurfaceProps&,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                             SkDrawFilter* drawFilter);
     inline static bool HasLCD(const SkTextBlob*);
@@ -60,10 +63,12 @@ private:
     // Test methods
     inline GrAtlasTextBlob* createDrawTextBlob(const GrPaint&,
                                                const SkPaint&, const SkMatrix& viewMatrix,
+                                               const SkSurfaceProps&,
                                                const char text[], size_t byteLength,
                                                SkScalar x, SkScalar y);
     inline GrAtlasTextBlob* createDrawPosTextBlob(const GrPaint&,
                                                   const SkPaint&, const SkMatrix& viewMatrix,
+                                                  const SkSurfaceProps&,
                                                   const char text[], size_t byteLength,
                                                   const SkScalar pos[], int scalarsPerPosition,
                                                   const SkPoint& offset);

@@ -30,16 +30,19 @@ public:
 
     virtual void drawText(GrDrawContext* dc,
                           const GrClip&,  const GrPaint&, const SkPaint&,
-                          const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                          const SkMatrix& viewMatrix,
+                          const SkSurfaceProps& props, const char text[], size_t byteLength,
                           SkScalar x, SkScalar y, const SkIRect& clipBounds) = 0;
     virtual void drawPosText(GrDrawContext* dc,
                              const GrClip&, const GrPaint&, const SkPaint&,
                              const SkMatrix& viewMatrix,
+                             const SkSurfaceProps& props,
                              const char text[], size_t byteLength,
                              const SkScalar pos[], int scalarsPerPosition,
                              const SkPoint& offset, const SkIRect& clipBounds) = 0;
-    virtual void drawTextBlob(GrDrawContext* dc, const GrClip&, const SkPaint&,
-                              const SkMatrix& viewMatrix, const SkTextBlob*,
+    virtual void drawTextBlob(GrDrawContext* dc, const GrClip&,
+                              const SkPaint&, const SkMatrix& viewMatrix,
+                              const SkSurfaceProps& props, const SkTextBlob*,
                               SkScalar x, SkScalar y,
                               SkDrawFilter*, const SkIRect& clipBounds) = 0;
 
@@ -47,9 +50,8 @@ public:
 
 protected:
     GrContext*                     fContext;
-    SkSurfaceProps                 fSurfaceProps;
 
-    GrTextContext(GrContext*, const SkSurfaceProps&);
+    GrTextContext(GrContext*);
 
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
     static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);

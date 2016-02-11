@@ -31,12 +31,8 @@ void GrDrawingManager::cleanup() {
     delete fNVPRTextContext;
     fNVPRTextContext = nullptr;
 
-    for (int i = 0; i < kNumPixelGeometries; ++i) {
-        delete fTextContexts[i][0];
-        fTextContexts[i][0] = nullptr;
-        delete fTextContexts[i][1];
-        fTextContexts[i][1] = nullptr;
-    }
+    delete fAtlasTextContext;
+    fAtlasTextContext = nullptr;
 
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
@@ -118,13 +114,11 @@ void GrDrawingManager::flush() {
     fFlushing = false;
 }
 
-GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props,
-                                             GrRenderTarget* rt) {
+GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props, GrRenderTarget* rt) {
     if (this->abandoned()) {
         return nullptr;
     }
 
-    SkASSERT(props.pixelGeometry() < kNumPixelGeometries);
     bool useDIF = props.isUseDeviceIndependentFonts();
 
     if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
@@ -132,18 +126,18 @@ GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props,
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
         if (sb) {
             if (!fNVPRTextContext) {
-                fNVPRTextContext = GrStencilAndCoverTextContext::Create(fContext, props);
+                fNVPRTextContext = GrStencilAndCoverTextContext::Create(fContext);
             }
 
             return fNVPRTextContext;
         }
     }
 
-    if (!fTextContexts[props.pixelGeometry()][useDIF]) {
-        fTextContexts[props.pixelGeometry()][useDIF] = GrAtlasTextContext::Create(fContext, props);
+    if (!fAtlasTextContext) {
+        fAtlasTextContext = GrAtlasTextContext::Create(fContext);
     }
 
-    return fTextContexts[props.pixelGeometry()][useDIF];
+    return fAtlasTextContext;
 }
 
 GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
