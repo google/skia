@@ -27,18 +27,20 @@ public:
      * @param srcInfo contains the source width and height
      * @param stream the stream of encoded image data
      * @param bitsPerPixel the number of bits used to store each pixel
-     * @param format the format of the bmp file
      * @param numColors the number of colors in the color table
      * @param bytesPerColor the number of bytes in the stream used to represent
                             each color in the color table
      * @param offset the offset of the image pixel data from the end of the
      *               headers
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
+     * @param isOpaque indicates if the bmp itself is opaque (before applying
+     *                 the icp mask, if there is one)
+     * @param inIco    indicates if the bmp is embedded in an ico file
      */
     SkBmpStandardCodec(const SkImageInfo& srcInfo, SkStream* stream,
             uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
-            uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
-            bool isIco);
+            uint32_t offset, SkCodec::SkScanlineOrder rowOrder, bool isOpaque,
+            bool inIco);
 
 protected:
 
@@ -90,6 +92,7 @@ private:
     SkAutoTDelete<SkSwizzler>           fSwizzler;
     const size_t                        fSrcRowBytes;
     SkAutoTDeleteArray<uint8_t>         fSrcBuffer;
+    const bool                          fIsOpaque;
     const bool                          fInIco;
     const size_t                        fAndMaskRowBytes; // only used for fInIco decodes
 

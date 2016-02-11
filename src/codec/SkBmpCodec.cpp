@@ -476,6 +476,14 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     }
 
     if (codecOut) {
+        // BMPs-in-ICOs contain an alpha mask after the image which means we
+        // cannot guarantee that an image is opaque, even if the bmp thinks
+        // it is.
+        bool isOpaque = kOpaque_SkAlphaType == alphaType;
+        if (inIco) {
+            alphaType = kUnpremul_SkAlphaType;
+        }
+
         // Set the image info
         const SkImageInfo& imageInfo = SkImageInfo::Make(width, height,
                 colorType, alphaType);
@@ -486,7 +494,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 // We require streams to have a memory base for Bmp-in-Ico decodes.
                 SkASSERT(!inIco || nullptr != stream->getMemoryBase());
                 *codecOut = new SkBmpStandardCodec(imageInfo, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder, inIco);
+                        bytesPerColor, offset - bytesRead, rowOrder, isOpaque, inIco);
                 return true;
             case kBitMask_BmpInputFormat:
                 // Bmp-in-Ico must be standard mode

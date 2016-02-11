@@ -15,43 +15,6 @@
 #include "SkTDArray.h"
 #include "SkTSort.h"
 
-static bool ico_conversion_possible(const SkImageInfo& dstInfo) {
-    // We only support kN32_SkColorType.
-    // This makes sense for BMP-in-ICO.  The presence of an AND
-    // mask (which changes colors and adds transparency) means that
-    // we cannot use k565 or kIndex8.
-    // FIXME: For PNG-in-ICO, we could technically support whichever
-    //        color types that the png supports.
-    if (kN32_SkColorType != dstInfo.colorType()) {
-        return false;
-    }
-
-    // We only support transparent alpha types.  This is necessary for
-    // BMP-in-ICOs since there will be an AND mask.
-    // FIXME: For opaque PNG-in-ICOs, we should be able to support kOpaque.
-    return kPremul_SkAlphaType == dstInfo.alphaType() ||
-            kUnpremul_SkAlphaType == dstInfo.alphaType();
-}
-
-static SkImageInfo fix_embedded_alpha(const SkImageInfo& dstInfo, SkAlphaType embeddedAlpha) {
-    // FIXME (msarett): ICO is considered non-opaque, even if the embedded BMP
-    // incorrectly claims it has no alpha.
-    switch (embeddedAlpha) {
-        case kPremul_SkAlphaType:
-        case kUnpremul_SkAlphaType:
-            // Use the requested alpha type if the embedded codec supports alpha.
-            embeddedAlpha = dstInfo.alphaType();
-            break;
-        case kOpaque_SkAlphaType:
-            // If the embedded codec claims it is opaque, decode as if it is opaque.
-            break;
-        default:
-            SkASSERT(false);
-            break;
-    }
-    return dstInfo.makeAlphaType(embeddedAlpha);
-}
-
 /*
  * Checks the start of the stream to see if the image is an Ico or Cur
  */
@@ -207,17 +170,6 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     }
     SkImageInfo info = codecs->operator[](maxIndex)->getInfo();
 
-    // ICOs contain an alpha mask after the image which means we cannot
-    // guarantee that an image is opaque, even if the sub-codec thinks it
-    // is.
-    // FIXME (msarett): The BMP decoder depends on the alpha type in order
-    // to decode correctly, otherwise it could report kUnpremul and we would
-    // not have to correct it here. Is there a better way?
-    // FIXME (msarett): This is only true for BMP in ICO - could a PNG in ICO
-    // be opaque? Is it okay that we missed out on the opportunity to mark
-    // such an image as opaque?
-    info = info.makeAlphaType(kUnpremul_SkAlphaType);
-
     // Note that stream is owned by the embedded codec, the ico does not need
     // direct access to the stream.
     return new SkIcoCodec(info, codecs.detach());
@@ -290,10 +242,6 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    if (!ico_conversion_possible(dstInfo)) {
-        return kInvalidConversion;
-    }
-
     int index = 0;
     SkCodec::Result result = kInvalidScale;
     while (true) {
@@ -303,9 +251,7 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index);
-        SkImageInfo decodeInfo = fix_embedded_alpha(dstInfo, embeddedCodec->getInfo().alphaType());
-        SkASSERT(decodeInfo.colorType() == kN32_SkColorType);
-        result = embeddedCodec->getPixels(decodeInfo, dst, dstRowBytes, &opts, colorTable,
+        result = embeddedCodec->getPixels(dstInfo, dst, dstRowBytes, &opts, colorTable,
                 colorCount);
 
         switch (result) {
@@ -313,7 +259,7 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
             case kIncompleteInput:
                 // The embedded codec will handle filling incomplete images, so we will indicate
                 // that all of the rows are initialized.
-                *rowsDecoded = decodeInfo.height();
+                *rowsDecoded = dstInfo.height();
                 return result;
             default:
                 // Continue trying to find a valid embedded codec on a failed decode.
@@ -329,10 +275,6 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
 
 SkCodec::Result SkIcoCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor colorTable[], int* colorCount) {
-    if (!ico_conversion_possible(dstInfo)) {
-        return kInvalidConversion;
-    }
-
     int index = 0;
     SkCodec::Result result = kInvalidScale;
     while (true) {
@@ -342,8 +284,7 @@ SkCodec::Result SkIcoCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         }
 
         SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index);
-        SkImageInfo decodeInfo = fix_embedded_alpha(dstInfo, embeddedCodec->getInfo().alphaType());
-        result = embeddedCodec->startScanlineDecode(decodeInfo, &options, colorTable, colorCount);
+        result = embeddedCodec->startScanlineDecode(dstInfo, &options, colorTable, colorCount);
         if (kSuccess == result) {
             fCurrScanlineCodec = embeddedCodec;
             return result;

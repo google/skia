@@ -17,7 +17,8 @@
 SkBmpStandardCodec::SkBmpStandardCodec(const SkImageInfo& info, SkStream* stream,
                                        uint16_t bitsPerPixel, uint32_t numColors,
                                        uint32_t bytesPerColor, uint32_t offset,
-                                       SkCodec::SkScanlineOrder rowOrder, bool inIco)
+                                       SkCodec::SkScanlineOrder rowOrder,
+                                       bool isOpaque, bool inIco)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
     , fNumColors(numColors)
@@ -26,6 +27,7 @@ SkBmpStandardCodec::SkBmpStandardCodec(const SkImageInfo& info, SkStream* stream
     , fSwizzler(nullptr)
     , fSrcRowBytes(SkAlign4(compute_row_bytes(this->getInfo().width(), this->bitsPerPixel())))
     , fSrcBuffer(new uint8_t [fSrcRowBytes])
+    , fIsOpaque(isOpaque)
     , fInIco(inIco)
     , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->getInfo().width(), 1)) : 0)
 {}
@@ -94,8 +96,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 
         // Choose the proper packing function
         SkPMColor (*packARGB) (uint32_t, uint32_t, uint32_t, uint32_t);
-        SkAlphaType encodedAlphaType = this->getInfo().alphaType();
-        if (kOpaque_SkAlphaType == encodedAlphaType || kUnpremul_SkAlphaType == dstAlphaType) {
+        if (fIsOpaque || kUnpremul_SkAlphaType == dstAlphaType) {
             packARGB = &SkPackARGB32NoCheck;
         } else {
             packARGB = &SkPremultiplyARGBInline;
@@ -108,7 +109,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
             uint8_t green = get_byte(cBuffer.get(), i*fBytesPerColor + 1);
             uint8_t red = get_byte(cBuffer.get(), i*fBytesPerColor + 2);
             uint8_t alpha;
-            if (kOpaque_SkAlphaType == encodedAlphaType) {
+            if (fIsOpaque) {
                 alpha = 0xFF;
             } else {
                 alpha = get_byte(cBuffer.get(), i*fBytesPerColor + 3);
@@ -172,7 +173,7 @@ bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
             config = SkSwizzler::kBGR;
             break;
         case 32:
-            if (kOpaque_SkAlphaType == this->getInfo().alphaType()) {
+            if (fIsOpaque) {
                 config = SkSwizzler::kBGRX;
             } else {
                 config = SkSwizzler::kBGRA;
