@@ -126,7 +126,7 @@ GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props, GrRend
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
         if (sb) {
             if (!fNVPRTextContext) {
-                fNVPRTextContext = GrStencilAndCoverTextContext::Create(fContext);
+                fNVPRTextContext = GrStencilAndCoverTextContext::Create();
             }
 
             return fNVPRTextContext;
@@ -134,7 +134,7 @@ GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props, GrRend
     }
 
     if (!fAtlasTextContext) {
-        fAtlasTextContext = GrAtlasTextContext::Create(fContext);
+        fAtlasTextContext = GrAtlasTextContext::Create();
     }
 
     return fAtlasTextContext;

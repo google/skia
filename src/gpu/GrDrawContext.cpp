@@ -120,7 +120,7 @@ void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
         fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
     }
 
-    fTextContext->drawText(this, clip, grPaint, skPaint, viewMatrix, fSurfaceProps,
+    fTextContext->drawText(fContext, this, clip, grPaint, skPaint, viewMatrix, fSurfaceProps,
                            text, byteLength, x, y, clipBounds);
 }
 
@@ -139,8 +139,8 @@ void GrDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
         fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
     }
 
-    fTextContext->drawPosText(this, clip, grPaint, skPaint, viewMatrix, fSurfaceProps, text,
-                              byteLength, pos, scalarsPerPosition, offset, clipBounds);
+    fTextContext->drawPosText(fContext, this, clip, grPaint, skPaint, viewMatrix, fSurfaceProps,
+                              text, byteLength, pos, scalarsPerPosition, offset, clipBounds);
 
 }
 
@@ -157,8 +157,8 @@ void GrDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
         fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
     }
 
-    fTextContext->drawTextBlob(this, clip, skPaint, viewMatrix, fSurfaceProps, blob, x, y, filter,
-                               clipBounds);
+    fTextContext->drawTextBlob(fContext, this, clip, skPaint, viewMatrix, fSurfaceProps, blob, x,
+                               y, filter, clipBounds);
 }
 
 void GrDrawContext::discard() {

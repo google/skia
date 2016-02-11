@@ -28,20 +28,20 @@ class SkSurfaceProps;
  */
 class GrStencilAndCoverTextContext : public GrTextContext {
 public:
-    static GrStencilAndCoverTextContext* Create(GrContext*);
+    static GrStencilAndCoverTextContext* Create();
 
-    void drawText(GrDrawContext* dc,
+    void drawText(GrContext*, GrDrawContext* dc,
                   const GrClip&,  const GrPaint&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                   size_t byteLength, SkScalar x,
                   SkScalar y, const SkIRect& clipBounds) override;
-    void drawPosText(GrDrawContext*,
+    void drawPosText(GrContext*, GrDrawContext*,
                      const GrClip&, const GrPaint&, const SkPaint&,
                      const SkMatrix& viewMatrix, const SkSurfaceProps&,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds) override;
-    void drawTextBlob(GrDrawContext*, const GrClip&, const SkPaint&,
+    void drawTextBlob(GrContext*, GrDrawContext*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
                       SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
@@ -49,7 +49,7 @@ public:
     virtual ~GrStencilAndCoverTextContext();
 
 private:
-    GrStencilAndCoverTextContext(GrContext*);
+    GrStencilAndCoverTextContext();
 
     bool canDraw(const SkPaint& skPaint, const SkMatrix&) {
         return this->internalCanDraw(skPaint);
@@ -57,7 +57,7 @@ private:
 
     bool internalCanDraw(const SkPaint&);
 
-    void uncachedDrawTextBlob(GrDrawContext* dc,
+    void uncachedDrawTextBlob(GrContext*, GrDrawContext* dc,
                               const GrClip& clip, const SkPaint& skPaint,
                               const SkMatrix& viewMatrix,
                               const SkSurfaceProps&,

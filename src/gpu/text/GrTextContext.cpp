@@ -10,10 +10,6 @@
 
 #include "SkGlyphCache.h"
 
-GrTextContext::GrTextContext(GrContext* context)
-    : fContext(context) {
-}
-
 bool GrTextContext::ShouldDisableLCD(const SkPaint& paint) {
     if (!SkXfermode::AsMode(paint.getXfermode(), nullptr) ||
         paint.getMaskFilter() ||

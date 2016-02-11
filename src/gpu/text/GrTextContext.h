@@ -28,19 +28,19 @@ class GrTextContext {
 public:
     virtual ~GrTextContext() {}
 
-    virtual void drawText(GrDrawContext* dc,
+    virtual void drawText(GrContext*, GrDrawContext* dc,
                           const GrClip&,  const GrPaint&, const SkPaint&,
                           const SkMatrix& viewMatrix,
                           const SkSurfaceProps& props, const char text[], size_t byteLength,
                           SkScalar x, SkScalar y, const SkIRect& clipBounds) = 0;
-    virtual void drawPosText(GrDrawContext* dc,
+    virtual void drawPosText(GrContext*, GrDrawContext* dc,
                              const GrClip&, const GrPaint&, const SkPaint&,
                              const SkMatrix& viewMatrix,
                              const SkSurfaceProps& props,
                              const char text[], size_t byteLength,
                              const SkScalar pos[], int scalarsPerPosition,
                              const SkPoint& offset, const SkIRect& clipBounds) = 0;
-    virtual void drawTextBlob(GrDrawContext* dc, const GrClip&,
+    virtual void drawTextBlob(GrContext*, GrDrawContext* dc, const GrClip&,
                               const SkPaint&, const SkMatrix& viewMatrix,
                               const SkSurfaceProps& props, const SkTextBlob*,
                               SkScalar x, SkScalar y,
@@ -49,10 +49,6 @@ public:
     static bool ShouldDisableLCD(const SkPaint& paint);
 
 protected:
-    GrContext*                     fContext;
-
-    GrTextContext(GrContext*);
-
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
     static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
