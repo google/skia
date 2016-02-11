@@ -9,6 +9,7 @@
 
 #include "nanobench.h"
 
+#include "AndroidCodecBench.h"
 #include "Benchmark.h"
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBench.h"
@@ -22,6 +23,7 @@
 #include "SKPBench.h"
 #include "Stats.h"
 
+#include "SkAndroidCodec.h"
 #include "SkBitmapRegionDecoder.h"
 #include "SkBBoxHierarchy.h"
 #include "SkCanvas.h"
@@ -546,12 +548,13 @@ public:
                       , fCurrentSKP(0)
                       , fCurrentUseMPD(0)
                       , fCurrentCodec(0)
+                      , fCurrentAndroidCodec(0)
                       , fCurrentBRDImage(0)
                       , fCurrentColorType(0)
                       , fCurrentAlphaType(0)
                       , fCurrentSubsetType(0)
                       , fCurrentBRDStrategy(0)
-                      , fCurrentBRDSampleSize(0)
+                      , fCurrentSampleSize(0)
                       , fCurrentAnimSKP(0) {
         for (int i = 0; i < FLAGS_skps.count(); i++) {
             if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
@@ -797,6 +800,37 @@ public:
             fCurrentColorType = 0;
         }
 
+        // Run AndroidCodecBenches
+        const int sampleSizes[] = { 2, 4, 8 };
+        for (; fCurrentAndroidCodec < fImages.count(); fCurrentAndroidCodec++) {
+            fSourceType = "image";
+            fBenchType = "skandroidcodec";
+
+            const SkString& path = fImages[fCurrentAndroidCodec];
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+                continue;
+            }
+            SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
+            SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+            if (!codec) {
+                // Nothing to time.
+                SkDebugf("Cannot find codec for %s\n", path.c_str());
+                continue;
+            }
+
+            while (fCurrentSampleSize < (int) SK_ARRAY_COUNT(sampleSizes)) {
+                int sampleSize = sampleSizes[fCurrentSampleSize];
+                fCurrentSampleSize++;
+                if (10 * sampleSize > SkTMin(codec->getInfo().width(), codec->getInfo().height())) {
+                    // Avoid benchmarking scaled decodes of already small images.
+                    break;
+                }
+
+                return new AndroidCodecBench(SkOSPath::Basename(path.c_str()), encoded, sampleSize);
+            }
+            fCurrentSampleSize = 0;
+        }
+
         // Run the BRDBenches
         // We will benchmark multiple BRD strategies.
         static const struct {
@@ -816,12 +850,10 @@ public:
         // sampleSize is used, the size of the subset that is decoded is always
         // (sampleSize*512)x(sampleSize*512).
         // There are a few good reasons to only test on power of two sample sizes at this time:
-        //     JPEG decodes using kOriginal_Strategy are broken for non-powers of two.
-        //         https://bug.skia.org/4319
         //     All use cases we are aware of only scale by powers of two.
         //     PNG decodes use the indicated sampling strategy regardless of the sample size, so
         //         these tests are sufficient to provide good coverage of our scaling options.
-        const uint32_t sampleSizes[] = { 1, 2, 4, 8, 16, 32, 64 };
+        const uint32_t brdSampleSizes[] = { 1, 2, 4, 8, 16 };
         const uint32_t minOutputSize = 512;
         for (; fCurrentBRDImage < fImages.count(); fCurrentBRDImage++) {
             const SkString& path = fImages[fCurrentBRDImage];
@@ -836,13 +868,12 @@ public:
                         strategies[fCurrentBRDStrategy].fStrategy;
 
                 while (fCurrentColorType < fColorTypes.count()) {
-                    while (fCurrentBRDSampleSize < (int) SK_ARRAY_COUNT(sampleSizes)) {
+                    while (fCurrentSampleSize < (int) SK_ARRAY_COUNT(brdSampleSizes)) {
                         while (fCurrentSubsetType <= kLastSingle_SubsetType) {
-
 
                             SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
                             const SkColorType colorType = fColorTypes[fCurrentColorType];
-                            uint32_t sampleSize = sampleSizes[fCurrentBRDSampleSize];
+                            uint32_t sampleSize = brdSampleSizes[fCurrentSampleSize];
                             int currentSubsetType = fCurrentSubsetType++;
 
                             int width = 0;
@@ -888,9 +919,9 @@ public:
                                     strategy, colorType, sampleSize, subset);
                         }
                         fCurrentSubsetType = 0;
-                        fCurrentBRDSampleSize++;
+                        fCurrentSampleSize++;
                     }
-                    fCurrentBRDSampleSize = 0;
+                    fCurrentSampleSize = 0;
                     fCurrentColorType++;
                 }
                 fCurrentColorType = 0;
@@ -955,12 +986,13 @@ private:
     int fCurrentSKP;
     int fCurrentUseMPD;
     int fCurrentCodec;
+    int fCurrentAndroidCodec;
     int fCurrentBRDImage;
     int fCurrentColorType;
     int fCurrentAlphaType;
     int fCurrentSubsetType;
     int fCurrentBRDStrategy;
-    int fCurrentBRDSampleSize;
+    int fCurrentSampleSize;
     int fCurrentAnimSKP;
 };
 
