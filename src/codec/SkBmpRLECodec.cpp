@@ -520,8 +520,13 @@ private:
     SkBmpRLECodec* fCodec;
 };
 
-SkSampler* SkBmpRLECodec::getSampler(bool createIfNecessary) {
-    if (!fSampler && createIfNecessary) {
+SkSampler* SkBmpRLECodec::getSampler(bool /*createIfNecessary*/) {
+    // We will always create an SkBmpRLESampler if one is requested.
+    // This allows clients to always use the SkBmpRLESampler's
+    // version of fill(), which does nothing since RLE decodes have
+    // already filled pixel memory.  This seems fine, since creating
+    // an SkBmpRLESampler is pretty inexpensive.
+    if (!fSampler) {
         fSampler.reset(new SkBmpRLESampler(this));
     }
 
