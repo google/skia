@@ -60,6 +60,26 @@ public:
                                         GrSLType coordType = kVec2f_GrSLType);
 
     /**
+    * Adds a #define directive to the top of the shader.
+    */
+    void define(const char* macro, const char* replacement) {
+        this->definitions().appendf("#define %s %s\n", macro, replacement);
+    }
+
+    void define(const char* macro, int replacement) {
+        this->definitions().appendf("#define %s %i\n", macro, replacement);
+    }
+
+    void definef(const char* macro, const char* replacement, ...) {
+       this->definitions().appendf("#define %s ", macro);
+       va_list args;
+       va_start(args, replacement);
+       this->definitions().appendVAList(replacement, args);
+       va_end(args);
+       this->definitions().append("\n");
+    }
+
+    /**
     * Called by GrGLSLProcessors to add code to one of the shaders.
     */
     void codeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
@@ -152,6 +172,7 @@ protected:
 
     SkString& versionDecl() { return fShaderStrings[kVersionDecl]; }
     SkString& extensions() { return fShaderStrings[kExtensions]; }
+    SkString& definitions() { return fShaderStrings[kDefinitions]; }
     SkString& precisionQualifier() { return fShaderStrings[kPrecisionQualifier]; }
     SkString& layoutQualifiers() { return fShaderStrings[kLayoutQualifiers]; }
     SkString& uniforms() { return fShaderStrings[kUniforms]; }
@@ -166,6 +187,7 @@ protected:
     enum {
         kVersionDecl,
         kExtensions,
+        kDefinitions,
         kPrecisionQualifier,
         kLayoutQualifiers,
         kUniforms,
