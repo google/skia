@@ -41,6 +41,7 @@
         'tools.gyp:proc_stats',
         'tools.gyp:sk_tool_utils',
         'tools.gyp:timer',
+        'tools.gyp:url_data_manager',
         'views.gyp:views',
       ],
       'conditions' : [

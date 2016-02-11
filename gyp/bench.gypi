@@ -19,6 +19,7 @@
     'skia_lib.gyp:skia_lib',
     'tools.gyp:resources',
     'tools.gyp:sk_tool_utils',
+    'tools.gyp:url_data_manager',
   ],
   'conditions': [
     ['skia_gpu == 1', {

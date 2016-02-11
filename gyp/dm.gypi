@@ -26,6 +26,7 @@
     'tools.gyp:crash_handler',
     'tools.gyp:proc_stats',
     'tools.gyp:sk_tool_utils',
+    'tools.gyp:url_data_manager',
     'tools.gyp:timer',
     'xml.gyp:xml',
     'xps.gyp:xps',

@@ -148,16 +148,17 @@
         'etc1.gyp:libetc1',
         'experimental.gyp:experimental',
         'flags.gyp:flags',
+        'jsoncpp.gyp:jsoncpp',
         'lua.gyp:lua',
         'pdf.gyp:pdf',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:resources',
         'tools.gyp:sk_tool_utils',
         'tools.gyp:timer',
+        'tools.gyp:url_data_manager',
         'views.gyp:views',
         'views_animated.gyp:views_animated',
         'xml.gyp:xml',
-        'jsoncpp.gyp:jsoncpp',
       ],
       'msvs_settings': {
         'VCLinkerTool': {

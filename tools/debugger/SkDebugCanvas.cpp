@@ -323,7 +323,7 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n) {
     result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
     Json::Value commands = Json::Value(Json::arrayValue);
     for (int i = 0; i < this->getSize() && i < n; i++) {
-        commands[i] = this->getDrawCommandAt(i)->toJSON();
+        commands[i] = this->getDrawCommandAt(i)->toJSON(urlDataManager);
     }
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;
     return result;
