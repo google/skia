@@ -36,12 +36,12 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         const char* dstTopLeftName;
         const char* dstCoordScaleName;
 
-        fDstTopLeftUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fDstTopLeftUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec2f_GrSLType,
                                                     kDefault_GrSLPrecision,
                                                     "DstTextureUpperLeft",
                                                     &dstTopLeftName);
-        fDstScaleUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fDstScaleUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                   kVec2f_GrSLType,
                                                   kDefault_GrSLPrecision,
                                                   "DstTextureCoordScale",

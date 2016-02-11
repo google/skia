@@ -38,7 +38,7 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    void appendUniformDecls(ShaderVisibility, SkString*) const override;
+    void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
 
     // Manually set uniform locations for all our uniforms.
     void bindUniformLocations(GrGLuint programID, const GrGLCaps& caps);

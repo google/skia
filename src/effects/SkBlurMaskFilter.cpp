@@ -724,12 +724,12 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     const char *profileSizeName;
 
     const char* precisionString = GrGLSLShaderVar::PrecisionString(args.fGLSLCaps, rbe.precision());
-    fProxyRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fProxyRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec4f_GrSLType,
                                                    rbe.precision(),
                                                    "proxyRect",
                                                    &rectName);
-    fProfileSizeUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fProfileSizeUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                      kFloat_GrSLType,
                                                      kDefault_GrSLPrecision,
                                                      "profileSize",
@@ -1066,17 +1066,17 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     // The proxy rect has left, top, right, and bottom edges correspond to
     // components x, y, z, and w, respectively.
 
-    fProxyRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fProxyRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec4f_GrSLType,
                                                    kDefault_GrSLPrecision,
                                                    "proxyRect",
                                                    &rectName);
-    fCornerRadiusUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fCornerRadiusUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                       kFloat_GrSLType,
                                                       kDefault_GrSLPrecision,
                                                       "cornerRadius",
                                                       &cornerRadiusName);
-    fBlurRadiusUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fBlurRadiusUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kFloat_GrSLType,
                                                     kDefault_GrSLPrecision,
                                                     "blurRadius",

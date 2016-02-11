@@ -32,12 +32,12 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
         );
         // TODO: Move the Xoom uniform array in both FS and VS bug workaround here.
 
-        if (GrGLSLUniformHandler::kVertex_Visibility & builderUniform.fVisibility) {
+        if (kVertex_GrShaderFlag & builderUniform.fVisibility) {
             uniform.fVSLocation = builderUniform.fLocation;
         } else {
             uniform.fVSLocation = kUnusedUniform;
         }
-        if (GrGLSLUniformHandler::kFragment_Visibility & builderUniform.fVisibility) {
+        if (kFragment_GrShaderFlag & builderUniform.fVisibility) {
             uniform.fFSLocation = builderUniform.fLocation;
         } else {
             uniform.fFSLocation = kUnusedUniform;

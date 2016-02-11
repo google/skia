@@ -28,7 +28,6 @@ typedef SkSTArray<8, GrGLSLFragmentProcessor*, true> GrGLSLFragProcs;
 class GrGLSLProgramBuilder {
 public:
     typedef GrGpu::DrawArgs DrawArgs;
-    typedef GrGLSLUniformHandler::ShaderVisibility ShaderVisibility;
     typedef GrGLSLUniformHandler::UniformHandle UniformHandle;
 
     virtual ~GrGLSLProgramBuilder() {}
@@ -41,7 +40,7 @@ public:
     const GrProgramDesc& desc() const { return *fArgs.fDesc; }
     const GrProgramDesc::KeyHeader& header() const { return fArgs.fDesc->header(); }
 
-    void appendUniformDecls(ShaderVisibility, SkString*) const;
+    void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {

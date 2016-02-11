@@ -115,7 +115,7 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
     const char *circleName;
     // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
     // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
-    fCircleUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fCircleUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                       "circle",
                                                       &circleName);
@@ -286,7 +286,7 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
     const char *ellipseName;
     // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
     // The last two terms can underflow on mediump, so we use highp.
-    fEllipseUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fEllipseUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                        kVec4f_GrSLType, kHigh_GrSLPrecision,
                                                        "ellipse",
                                                        &ellipseName);
@@ -297,7 +297,7 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
     const char* scaleName = nullptr;
     if (args.fGLSLCaps->floatPrecisionVaries()) {
         fScaleUniform = args.fUniformHandler->addUniform(
-            GrGLSLUniformHandler::kFragment_Visibility, kVec2f_GrSLType, kDefault_GrSLPrecision,
+            kFragment_GrShaderFlag, kVec2f_GrSLType, kDefault_GrSLPrecision,
             "scale", &scaleName);
     }
 

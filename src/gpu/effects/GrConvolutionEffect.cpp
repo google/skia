@@ -35,18 +35,18 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     const GrConvolutionEffect& ce = args.fFp.cast<GrConvolutionEffect>();
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fImageIncrementUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                     "ImageIncrement");
     if (ce.useBounds()) {
-        fBoundsUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fBoundsUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                 kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                 "Bounds");
     }
 
     int width = Gr1DKernelEffect::WidthFromRadius(ce.radius());
 
-    fKernelUni = uniformHandler->addUniformArray(GrGLSLUniformHandler::kFragment_Visibility,
+    fKernelUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag,
                                                  kFloat_GrSLType, kDefault_GrSLPrecision,
                                                  "Kernel", width);
 

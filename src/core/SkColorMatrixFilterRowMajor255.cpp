@@ -257,10 +257,10 @@ public:
 
         void emitCode(EmitArgs& args) override {
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-            fMatrixHandle = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+            fMatrixHandle = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                        kMat44f_GrSLType, kDefault_GrSLPrecision,
                                                        "ColorMatrix");
-            fVectorHandle = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+            fVectorHandle = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                        kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                        "ColorMatrixVector");
 

@@ -157,10 +157,10 @@ private:
 
 void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fInnerThresholdVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fInnerThresholdVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kFloat_GrSLType, kDefault_GrSLPrecision,
                                                     "inner_threshold");
-    fOuterThresholdVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fOuterThresholdVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kFloat_GrSLType, kDefault_GrSLPrecision,
                                                     "outer_threshold");
 

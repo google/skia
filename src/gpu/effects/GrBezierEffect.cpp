@@ -215,12 +215,11 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // TODO should we really be doing this?
     if (gp.coverageScale() != 0xff) {
         const char* coverageScale;
-        fCoverageScaleUniform = uniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kFloat_GrSLType,
-                                                         kHigh_GrSLPrecision,
-                                                         "Coverage",
-                                                         &coverageScale);
+        fCoverageScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                           kFloat_GrSLType,
+                                                           kHigh_GrSLPrecision,
+                                                           "Coverage",
+                                                           &coverageScale);
         fragBuilder->codeAppendf("%s = vec4(%s * %s);",
                                  args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
@@ -433,12 +432,11 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     if (0xff != gp.coverageScale()) {
         const char* coverageScale;
-        fCoverageScaleUniform = uniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kFloat_GrSLType,
-                                                         kDefault_GrSLPrecision,
-                                                         "Coverage",
-                                                         &coverageScale);
+        fCoverageScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                           kFloat_GrSLType,
+                                                           kDefault_GrSLPrecision,
+                                                           "Coverage",
+                                                           &coverageScale);
         fragBuilder->codeAppendf("%s = vec4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
     } else {
         fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);

@@ -23,8 +23,8 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
                                                                             int arrayCount,
                                                                             const char** outName) {
     SkASSERT(name && strlen(name));
-    SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_Visibility | kFragment_Visibility);
-    SkASSERT(0 == (~kVisibilityMask & visibility));
+    SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
+    SkASSERT(0 == (~kVisMask & visibility));
     SkASSERT(0 != visibility);
     SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
 
@@ -52,7 +52,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-void GrGLUniformHandler::appendUniformDecls(ShaderVisibility visibility, SkString* out) const {
+void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     for (int i = 0; i < fUniforms.count(); ++i) {
         if (fUniforms[i].fVisibility & visibility) {
             fUniforms[i].fVariable.appendDecl(fProgramBuilder->glslCaps(), out);

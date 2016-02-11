@@ -40,7 +40,7 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
     // x,y  - the center of the circle
     // z    - the distance at which the intensity starts falling off (e.g., the start of the table)
     // w    - the inverse of the profile texture size
-    fDataUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fDataUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec4f_GrSLType,
                                                     kDefault_GrSLPrecision,
                                                     "data",

@@ -227,7 +227,7 @@ void GLEdge2PtConicalEffect::emitCode(EmitArgs& args) {
     const Edge2PtConicalEffect& ge = args.fFp.cast<Edge2PtConicalEffect>();
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     this->emitUniforms(uniformHandler, ge);
-    fParamUni = uniformHandler->addUniformArray(GrGLSLUniformHandler::kFragment_Visibility,
+    fParamUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag,
                                                 kFloat_GrSLType, kDefault_GrSLPrecision,
                                                 "Conical2FSParams", 3);
 
@@ -510,7 +510,7 @@ void GLFocalOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     const FocalOutside2PtConicalEffect& ge = args.fFp.cast<FocalOutside2PtConicalEffect>();
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     this->emitUniforms(uniformHandler, ge);
-    fParamUni = uniformHandler->addUniformArray(GrGLSLUniformHandler::kFragment_Visibility,
+    fParamUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag,
                                                 kFloat_GrSLType, kDefault_GrSLPrecision,
                                                 "Conical2FSParams", 2);
     SkString tName("t");
@@ -720,7 +720,7 @@ void GLFocalInside2PtConicalEffect::emitCode(EmitArgs& args) {
     const FocalInside2PtConicalEffect& ge = args.fFp.cast<FocalInside2PtConicalEffect>();
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     this->emitUniforms(uniformHandler, ge);
-    fFocalUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fFocalUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                            kFloat_GrSLType, kDefault_GrSLPrecision,
                                            "Conical2FSParams");
     SkString tName("t");
@@ -972,10 +972,10 @@ void GLCircleInside2PtConicalEffect::emitCode(EmitArgs& args) {
     const CircleInside2PtConicalEffect& ge = args.fFp.cast<CircleInside2PtConicalEffect>();
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     this->emitUniforms(uniformHandler, ge);
-    fCenterUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fCenterUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
                                             "Conical2FSCenter");
-    fParamUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fParamUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                            kVec3f_GrSLType, kDefault_GrSLPrecision,
                                            "Conical2FSParams");
     SkString tName("t");
@@ -1209,10 +1209,10 @@ void GLCircleOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     const CircleOutside2PtConicalEffect& ge = args.fFp.cast<CircleOutside2PtConicalEffect>();
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     this->emitUniforms(uniformHandler, ge);
-    fCenterUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fCenterUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
                                             "Conical2FSCenter");
-    fParamUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fParamUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
                                            "Conical2FSParams");
     SkString tName("t");

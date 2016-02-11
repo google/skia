@@ -158,8 +158,7 @@ void GrGLSLShaderBuilder::finalize(uint32_t visibility) {
     this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
     this->compileAndAppendLayoutQualifiers();
     SkASSERT(visibility);
-    fProgramBuilder->appendUniformDecls((GrGLSLUniformHandler::ShaderVisibility) visibility,
-                                        &this->uniforms());
+    fProgramBuilder->appendUniformDecls((GrShaderFlags) visibility, &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
     this->appendDecls(fOutputs, &this->outputs());
     this->onFinalize();

@@ -238,11 +238,11 @@ void GrColorCubeEffect::GLSLProcessor::emitCode(EmitArgs& args) {
     }
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fColorCubeSizeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fColorCubeSizeUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kFloat_GrSLType, kDefault_GrSLPrecision,
                                                    "Size");
     const char* colorCubeSizeUni = uniformHandler->getUniformCStr(fColorCubeSizeUni);
-    fColorCubeInvSizeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fColorCubeInvSizeUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                       kFloat_GrSLType, kDefault_GrSLPrecision,
                                                       "InvSize");
     const char* colorCubeInvSizeUni = uniformHandler->getUniformCStr(fColorCubeInvSizeUni);

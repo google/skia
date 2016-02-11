@@ -672,7 +672,7 @@ public:
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
-            fUseEvenOdd = uniformHandler->addUniform(GrGLUniformHandler::kFragment_Visibility,
+            fUseEvenOdd = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kFloat_GrSLType, kLow_GrSLPrecision, 
                                                     "useEvenOdd");
             const char* useEvenOdd = uniformHandler->getUniformCStr(fUseEvenOdd);

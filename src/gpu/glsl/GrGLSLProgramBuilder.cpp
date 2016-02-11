@@ -255,8 +255,7 @@ void GrGLSLProgramBuilder::nameExpression(GrGLSLExpr4* output, const char* baseN
     *output = outName;
 }
 
-void GrGLSLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
-                                              SkString* out) const {
+void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     this->uniformHandler()->appendUniformDecls(visibility, out);
 }
 
@@ -265,7 +264,7 @@ void GrGLSLProgramBuilder::addRTAdjustmentUniform(GrSLPrecision precision,
                                                   const char** outName) {
         SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
         fUniformHandles.fRTAdjustmentUni =
-            this->uniformHandler()->addUniform(GrGLSLUniformHandler::kVertex_Visibility,
+            this->uniformHandler()->addUniform(kVertex_GrShaderFlag,
                                                kVec4f_GrSLType,
                                                precision,
                                                name,
@@ -276,7 +275,7 @@ void GrGLSLProgramBuilder::addRTHeightUniform(const char* name, const char** out
         SkASSERT(!fUniformHandles.fRTHeightUni.isValid());
         GrGLSLUniformHandler* uniformHandler = this->uniformHandler();
         fUniformHandles.fRTHeightUni =
-            uniformHandler->internalAddUniformArray(GrGLSLUniformHandler::kFragment_Visibility,
+            uniformHandler->internalAddUniformArray(kFragment_GrShaderFlag,
                                                     kFloat_GrSLType, kDefault_GrSLPrecision,
                                                     name, false, 0, outName);
 }
@@ -289,7 +288,7 @@ void GrGLSLProgramBuilder::cleanupFragmentProcessors() {
 
 void GrGLSLProgramBuilder::finalizeShaders() {
     this->varyingHandler()->finalize();
-    fVS.finalize(GrGLSLUniformHandler::kVertex_Visibility);
-    fFS.finalize(GrGLSLUniformHandler::kFragment_Visibility);
+    fVS.finalize(kVertex_GrShaderFlag);
+    fFS.finalize(kFragment_GrShaderFlag);
 
 }

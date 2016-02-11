@@ -49,7 +49,7 @@ public:
         // adjust based on gamma
         const char* distanceAdjustUniName = nullptr;
         // width, height, 1/(3*width)
-        fDistanceAdjustUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fDistanceAdjustUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                         kFloat_GrSLType, kDefault_GrSLPrecision,
                                                         "DistanceAdjust", &distanceAdjustUniName);
 #endif
@@ -316,7 +316,7 @@ public:
                              args.fTransformsOut);
 
         const char* textureSizeUniName = nullptr;
-        fTextureSizeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fTextureSizeUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                      kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                      "TextureSize", &textureSizeUniName);
 
@@ -594,7 +594,7 @@ public:
 
         // adjust width based on gamma
         const char* distanceAdjustUniName = nullptr;
-        fDistanceAdjustUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fDistanceAdjustUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                         kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                         "DistanceAdjust", &distanceAdjustUniName);
         fragBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);

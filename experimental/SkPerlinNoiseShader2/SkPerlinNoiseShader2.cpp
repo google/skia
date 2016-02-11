@@ -736,14 +736,14 @@ void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
-    fBaseFrequencyUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                    "baseFrequency");
     const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
 
     const char* stitchDataUni = nullptr;
     if (pne.stitchTiles()) {
-        fStitchDataUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fStitchDataUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                     "stitchData");
         stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
@@ -1139,17 +1139,17 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
-    fBaseFrequencyUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                    "baseFrequency");
     const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
 
-    fOctavesUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fOctavesUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                              kFloat_GrSLType, kDefault_GrSLPrecision,
                                              "octaves");
     const char* octavesUni = uniformHandler->getUniformCStr(fOctavesUni);
 
-    fZUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fZUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                        kFloat_GrSLType, kDefault_GrSLPrecision,
                                        "z");
     const char* zUni = uniformHandler->getUniformCStr(fZUni);

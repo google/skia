@@ -35,12 +35,11 @@ public:
         // Setup uniform color
         if (pathProc.overrides().readsColor()) {
             const char* stagedLocalVarName;
-            fColorUniform = args.fUniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kVec4f_GrSLType,
-                                                         kDefault_GrSLPrecision,
-                                                         "Color",
-                                                         &stagedLocalVarName);
+            fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kVec4f_GrSLType,
+                                                             kDefault_GrSLPrecision,
+                                                             "Color",
+                                                             &stagedLocalVarName);
             fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
         }
 

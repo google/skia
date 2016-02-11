@@ -116,16 +116,16 @@ private:
 
 void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fOffsetVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fOffsetVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
                                             "Offset");
-    fInvZoomVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fInvZoomVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
                                              "InvZoom");
-    fInvInsetVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fInvInsetVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                               kVec2f_GrSLType, kDefault_GrSLPrecision,
                                               "InvInset");
-    fBoundsVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fBoundsVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                             kVec4f_GrSLType, kDefault_GrSLPrecision,
                                             "Bounds");
 

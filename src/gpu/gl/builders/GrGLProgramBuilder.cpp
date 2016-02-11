@@ -88,10 +88,8 @@ void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
     for (int t = 0; t < numTextures; ++t) {
         name.printf("Sampler%d", t);
         GrSLType samplerType = get_sampler_type(processor.textureAccess(t));
-        localSamplerUniforms[t] =
-            fUniformHandler.addUniform(GrGLSLUniformHandler::kFragment_Visibility,
-                                       samplerType, kDefault_GrSLPrecision,
-                                       name.c_str());
+        localSamplerUniforms[t] = fUniformHandler.addUniform(kFragment_GrShaderFlag, samplerType,
+                                                             kDefault_GrSLPrecision, name.c_str());
         outSamplers->emplace_back(localSamplerUniforms[t], processor.textureAccess(t));
         if (kSamplerExternal_GrSLType == samplerType) {
             const char* externalFeatureString = this->glslCaps()->externalTextureExtensionString();

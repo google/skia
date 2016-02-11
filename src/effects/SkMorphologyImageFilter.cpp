@@ -271,11 +271,11 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     const GrMorphologyEffect& me = args.fFp.cast<GrMorphologyEffect>();
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fPixelSizeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fPixelSizeUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                kFloat_GrSLType, kDefault_GrSLPrecision,
                                                "PixelSize");
     const char* pixelSizeInc = uniformHandler->getUniformCStr(fPixelSizeUni);
-    fRangeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fRangeUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                            kVec2f_GrSLType, kDefault_GrSLPrecision,
                                            "Range");
     const char* range = uniformHandler->getUniformCStr(fRangeUni);

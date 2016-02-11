@@ -539,7 +539,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     const GrDisplacementMapEffect& displacementMap = args.fFp.cast<GrDisplacementMapEffect>();
     const GrTextureDomain& domain = displacementMap.domain();
 
-    fScaleUni = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fScaleUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                  kVec2f_GrSLType, kDefault_GrSLPrecision, "Scale");
     const char* scaleUni = args.fUniformHandler->getUniformCStr(fScaleUni);
     const char* dColor = "dColor";

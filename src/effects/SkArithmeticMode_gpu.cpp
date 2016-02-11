@@ -62,7 +62,7 @@ public:
         SkString dstColor("dstColor");
         this->emitChild(0, nullptr, &dstColor, args);
 
-        fKUni = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fKUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                  kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                  "k");
         const char* kUni = args.fUniformHandler->getUniformCStr(fKUni);
@@ -213,7 +213,7 @@ private:
                                  const char* outColor,
                                  const char* outColorSecondary,
                                  const GrXferProcessor& proc) override {
-        fKUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fKUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
                                            "k");
         const char* kUni = uniformHandler->getUniformCStr(fKUni);

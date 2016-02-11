@@ -44,6 +44,14 @@ enum GrShaderType {
 };
 static const int kGrShaderTypeCount = kLastkFragment_GrShaderType + 1;
 
+enum GrShaderFlags {
+    kNone_GrShaderFlags = 0,
+    kVertex_GrShaderFlag = 1 << kVertex_GrShaderType,
+    kGeometry_GrShaderFlag = 1 << kGeometry_GrShaderType,
+    kFragment_GrShaderFlag = 1 << kFragment_GrShaderType
+};
+GR_MAKE_BITFIELD_OPS(GrShaderFlags);
+
 /**
  * Precisions of shader language variables. Not all shading languages support precisions or actually
  * vary the internal precision based on the qualifiers. These currently only apply to float types (

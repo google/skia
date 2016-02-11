@@ -129,12 +129,11 @@ public:
                     fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
                 } else {
                     const char* fragCoverage;
-                    fCoverageUniform = uniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kFloat_GrSLType,
-                                                         kDefault_GrSLPrecision,
-                                                         "Coverage",
-                                                         &fragCoverage);
+                    fCoverageUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                  kFloat_GrSLType,
+                                                                  kDefault_GrSLPrecision,
+                                                                  "Coverage",
+                                                                  &fragCoverage);
                     fragBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, fragCoverage);
                 }
             }

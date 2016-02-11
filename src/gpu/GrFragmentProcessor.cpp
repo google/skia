@@ -226,10 +226,10 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
                 GLFP() : fHaveSetColor(false) {}
                 void emitCode(EmitArgs& args) override {
                     const char* colorName;
-                    fColorUni = args.fUniformHandler->addUniform(
-                                                         GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                         "Color", &colorName);
+                    fColorUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                 kVec4f_GrSLType,
+                                                                 kDefault_GrSLPrecision,
+                                                                 "Color", &colorName);
                     this->emitChild(0, colorName, args);
                 }
 

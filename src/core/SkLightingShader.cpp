@@ -185,22 +185,22 @@ public:
 
             // add uniforms
             const char* lightDirUniName = nullptr;
-            fLightDirUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+            fLightDirUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                       kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                       "LightDir", &lightDirUniName);
 
             const char* lightColorUniName = nullptr;
-            fLightColorUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+            fLightColorUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                         kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                         "LightColor", &lightColorUniName);
 
             const char* ambientColorUniName = nullptr;
-            fAmbientColorUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+            fAmbientColorUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                           kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                           "AmbientColor", &ambientColorUniName);
 
             const char* xformUniName = nullptr;
-            fXformUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+            fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                    "Xform", &xformUniName);
 

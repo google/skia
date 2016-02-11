@@ -104,7 +104,7 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
     const char *rectName;
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
-    fRectUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fRectUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec4f_GrSLType,
                                                     kDefault_GrSLPrecision,
                                                     "rect",
@@ -188,7 +188,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     const GrConvexPolyEffect& cpe = args.fFp.cast<GrConvexPolyEffect>();
 
     const char *edgeArrayName;
-    fEdgeUniform = args.fUniformHandler->addUniformArray(GrGLSLUniformHandler::kFragment_Visibility,
+    fEdgeUniform = args.fUniformHandler->addUniformArray(kFragment_GrShaderFlag,
                                                          kVec3f_GrSLType,
                                                          kDefault_GrSLPrecision,
                                                          "edges",

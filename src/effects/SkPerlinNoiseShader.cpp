@@ -598,14 +598,14 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
 
-    fBaseFrequencyUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+    fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                    "baseFrequency");
     const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
 
     const char* stitchDataUni = nullptr;
     if (pne.stitchTiles()) {
-        fStitchDataUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+        fStitchDataUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                     "stitchData");
         stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
