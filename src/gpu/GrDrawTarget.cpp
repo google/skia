@@ -406,19 +406,21 @@ void GrDrawTarget::discard(GrRenderTarget* renderTarget) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTarget::copySurface(GrSurface* dst,
+bool GrDrawTarget::copySurface(GrSurface* dst,
                                GrSurface* src,
                                const SkIRect& srcRect,
                                const SkIPoint& dstPoint) {
     GrBatch* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
-    if (batch) {
+    if (!batch) {
+        return false;
+    }
 #ifdef ENABLE_MDB
-        this->addDependency(src);
+    this->addDependency(src);
 #endif
 
-        this->recordBatch(batch);
-        batch->unref();
-    }
+    this->recordBatch(batch);
+    batch->unref();
+    return true;
 }
 
 template <class Left, class Right> static bool intersect(const Left& a, const Right& b) {

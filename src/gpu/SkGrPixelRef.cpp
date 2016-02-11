@@ -84,10 +84,10 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
     }
 
     // Blink is relying on the above copy being sent to GL immediately in the case when the source
-    // is a WebGL canvas backing store. We could have a TODO to remove this flush flag, but we have
+    // is a WebGL canvas backing store. We could have a TODO to remove this flush, but we have
     // a larger TODO to remove SkGrPixelRef entirely.
-    context->copySurface(dst->asRenderTarget(), texture, srcRect, SkIPoint::Make(0,0),
-                         GrContext::kFlushWrites_PixelOp);
+    context->copySurface(dst, texture, srcRect, SkIPoint::Make(0,0));
+    context->flushSurfaceWrites(dst);
 
     SkImageInfo info = SkImageInfo::Make(desc.fWidth, desc.fHeight, dstCT, kPremul_SkAlphaType,
                                          dstPT);
