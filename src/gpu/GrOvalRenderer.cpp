@@ -33,9 +33,10 @@
 // TODO(joshualitt) - Break this file up during GrBatch post implementation cleanup
 
 namespace {
-// TODO(joshualitt) add per vertex colors
+
 struct CircleVertex {
     SkPoint  fPos;
+    GrColor  fColor;
     SkPoint  fOffset;
     SkScalar fOuterRadius;
     SkScalar fInnerRadius;
@@ -43,6 +44,7 @@ struct CircleVertex {
 
 struct EllipseVertex {
     SkPoint  fPos;
+    GrColor  fColor;
     SkPoint  fOffset;
     SkPoint  fOuterRadii;
     SkPoint  fInnerRadii;
@@ -50,6 +52,7 @@ struct EllipseVertex {
 
 struct DIEllipseVertex {
     SkPoint  fPos;
+    GrColor  fColor;
     SkPoint  fOuterOffset;
     SkPoint  fInnerOffset;
 };
@@ -81,6 +84,7 @@ public:
     }
 
     const Attribute* inPosition() const { return fInPosition; }
+    const Attribute* inColor() const { return fInColor; }
     const Attribute* inCircleEdge() const { return fInCircleEdge; }
     GrColor color() const { return fColor; }
     bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
@@ -94,8 +98,7 @@ public:
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
-        GLSLProcessor()
-            : fColor(GrColor_ILLEGAL) {}
+        GLSLProcessor() {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
@@ -113,8 +116,7 @@ public:
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ce.colorIgnored()) {
-                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
-                                        &fColorUniform);
+                varyingHandler->addPassThroughAttribute(ce.inColor(), args.fOutputColor);
             }
 
             // Setup position
@@ -154,13 +156,6 @@ public:
 
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrPrimitiveProcessor& gp) override {
-            const CircleEdgeEffect& ce = gp.cast<CircleEdgeEffect>();
-            if (ce.color() != fColor) {
-                float c[4];
-                GrColorToRGBAFloat(ce.color(), c);
-                pdman.set4fv(fColorUniform, 1, c);
-                fColor = ce.color();
-            }
         }
 
         void setTransformData(const GrPrimitiveProcessor& primProc,
@@ -171,8 +166,6 @@ public:
         }
 
     private:
-        GrColor fColor;
-        UniformHandle fColorUniform;
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
@@ -192,6 +185,7 @@ private:
         this->initClassID<CircleEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
                                                        kHigh_GrSLPrecision));
+        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
         fInCircleEdge = &this->addVertexAttrib(Attribute("inCircleEdge",
                                                            kVec4f_GrVertexAttribType));
         fStroke = stroke;
@@ -200,6 +194,7 @@ private:
     GrColor fColor;
     SkMatrix fLocalMatrix;
     const Attribute* fInPosition;
+    const Attribute* fInColor;
     const Attribute* fInCircleEdge;
     bool fStroke;
     bool fUsesLocalCoords;
@@ -240,6 +235,7 @@ public:
     const char* name() const override { return "EllipseEdge"; }
 
     const Attribute* inPosition() const { return fInPosition; }
+    const Attribute* inColor() const { return fInColor; }
     const Attribute* inEllipseOffset() const { return fInEllipseOffset; }
     const Attribute* inEllipseRadii() const { return fInEllipseRadii; }
     GrColor color() const { return fColor; }
@@ -251,8 +247,7 @@ public:
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
-        GLSLProcessor()
-            : fColor(GrColor_ILLEGAL) {}
+        GLSLProcessor() {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
@@ -276,8 +271,7 @@ public:
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ee.colorIgnored()) {
-                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
-                                        &fColorUniform);
+                varyingHandler->addPassThroughAttribute(ee.inColor(), args.fOutputColor);
             }
 
             // Setup position
@@ -330,13 +324,6 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
-            const EllipseEdgeEffect& ee = gp.cast<EllipseEdgeEffect>();
-            if (ee.color() != fColor) {
-                float c[4];
-                GrColorToRGBAFloat(ee.color(), c);
-                pdman.set4fv(fColorUniform, 1, c);
-                fColor = ee.color();
-            }
         }
 
         void setTransformData(const GrPrimitiveProcessor& primProc,
@@ -347,9 +334,6 @@ public:
         }
 
     private:
-        GrColor fColor;
-        UniformHandle fColorUniform;
-
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
@@ -369,6 +353,7 @@ private:
         , fUsesLocalCoords(usesLocalCoords) {
         this->initClassID<EllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
+        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
         fInEllipseOffset = &this->addVertexAttrib(Attribute("inEllipseOffset",
                                                             kVec2f_GrVertexAttribType));
         fInEllipseRadii = &this->addVertexAttrib(Attribute("inEllipseRadii",
@@ -377,6 +362,7 @@ private:
     }
 
     const Attribute* fInPosition;
+    const Attribute* fInColor;
     const Attribute* fInEllipseOffset;
     const Attribute* fInEllipseRadii;
     GrColor fColor;
@@ -423,6 +409,7 @@ public:
     const char* name() const override { return "DIEllipseEdge"; }
 
     const Attribute* inPosition() const { return fInPosition; }
+    const Attribute* inColor() const { return fInColor; }
     const Attribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
     const Attribute* inEllipseOffsets1() const { return fInEllipseOffsets1; }
     GrColor color() const { return fColor; }
@@ -435,7 +422,7 @@ public:
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor()
-            : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {}
+            : fViewMatrix(SkMatrix::InvalidMatrix()) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
@@ -459,8 +446,7 @@ public:
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ee.colorIgnored()) {
-                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
-                                        &fColorUniform);
+                varyingHandler->addPassThroughAttribute(ee.inColor(), args.fOutputColor);
             }
 
             // Setup position
@@ -540,19 +526,10 @@ public:
                 GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
-
-            if (dee.color() != fColor) {
-                float c[4];
-                GrColorToRGBAFloat(dee.color(), c);
-                pdman.set4fv(fColorUniform, 1, c);
-                fColor = dee.color();
-            }
         }
 
     private:
         SkMatrix fViewMatrix;
-        GrColor fColor;
-        UniformHandle fColorUniform;
         UniformHandle fViewMatrixUniform;
 
         typedef GrGLSLGeometryProcessor INHERITED;
@@ -575,6 +552,7 @@ private:
         this->initClassID<DIEllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
                                                        kHigh_GrSLPrecision));
+        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
         fInEllipseOffsets0 = &this->addVertexAttrib(Attribute("inEllipseOffsets0",
                                                               kVec2f_GrVertexAttribType));
         fInEllipseOffsets1 = &this->addVertexAttrib(Attribute("inEllipseOffsets1",
@@ -583,6 +561,7 @@ private:
     }
 
     const Attribute* fInPosition;
+    const Attribute* fInColor;
     const Attribute* fInEllipseOffsets0;
     const Attribute* fInEllipseOffsets1;
     GrColor fColor;
@@ -722,6 +701,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& geom = fGeoData[i];
 
+            GrColor color = geom.fColor;
             SkScalar innerRadius = geom.fInnerRadius;
             SkScalar outerRadius = geom.fOuterRadius;
 
@@ -730,21 +710,25 @@ private:
             // The inner radius in the vertex data must be specified in normalized space.
             innerRadius = innerRadius / outerRadius;
             verts[0].fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
+            verts[0].fColor = color;
             verts[0].fOffset = SkPoint::Make(-1, -1);
             verts[0].fOuterRadius = outerRadius;
             verts[0].fInnerRadius = innerRadius;
 
             verts[1].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+            verts[1].fColor = color;
             verts[1].fOffset = SkPoint::Make(-1, 1);
             verts[1].fOuterRadius = outerRadius;
             verts[1].fInnerRadius = innerRadius;
 
             verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+            verts[2].fColor = color;
             verts[2].fOffset = SkPoint::Make(1, 1);
             verts[2].fOuterRadius = outerRadius;
             verts[2].fInnerRadius = innerRadius;
 
             verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+            verts[3].fColor = color;
             verts[3].fOffset = SkPoint::Make(1, -1);
             verts[3].fOuterRadius = outerRadius;
             verts[3].fInnerRadius = innerRadius;
@@ -766,11 +750,6 @@ private:
         CircleBatch* that = t->cast<CircleBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
-            return false;
-        }
-
-        // TODO use vertex color to avoid breaking batches
-        if (this->color() != that->color()) {
             return false;
         }
 
@@ -941,6 +920,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& geom = fGeoData[i];
 
+            GrColor color = geom.fColor;
             SkScalar xRadius = geom.fXRadius;
             SkScalar yRadius = geom.fYRadius;
 
@@ -954,21 +934,25 @@ private:
 
             // The inner radius in the vertex data must be specified in normalized space.
             verts[0].fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
+            verts[0].fColor = color;
             verts[0].fOffset = SkPoint::Make(-xRadius, -yRadius);
             verts[0].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[0].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[1].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+            verts[1].fColor = color;
             verts[1].fOffset = SkPoint::Make(-xRadius, yRadius);
             verts[1].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[1].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+            verts[2].fColor = color;
             verts[2].fOffset = SkPoint::Make(xRadius, yRadius);
             verts[2].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[2].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+            verts[3].fColor = color;
             verts[3].fOffset = SkPoint::Make(xRadius, -yRadius);
             verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
@@ -991,11 +975,6 @@ private:
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
-            return false;
-        }
-
-        // TODO use vertex color to avoid breaking batches
-        if (this->color() != that->color()) {
             return false;
         }
 
@@ -1208,6 +1187,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& geom = fGeoData[i];
 
+            GrColor color = geom.fColor;
             SkScalar xRadius = geom.fXRadius;
             SkScalar yRadius = geom.fYRadius;
 
@@ -1221,18 +1201,22 @@ private:
             SkScalar innerRatioY = yRadius / geom.fInnerYRadius;
 
             verts[0].fPos = SkPoint::Make(bounds.fLeft, bounds.fTop);
+            verts[0].fColor = color;
             verts[0].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy);
             verts[0].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, -innerRatioY - offsetDy);
 
             verts[1].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+            verts[1].fColor = color;
             verts[1].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy);
             verts[1].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, innerRatioY + offsetDy);
 
             verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+            verts[2].fColor = color;
             verts[2].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
             verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
 
             verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+            verts[3].fColor = color;
             verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
             verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
@@ -1253,11 +1237,6 @@ private:
         DIEllipseBatch* that = t->cast<DIEllipseBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
-            return false;
-        }
-
-        // TODO use vertex color to avoid breaking batches
-        if (this->color() != that->color()) {
             return false;
         }
 
@@ -1579,6 +1558,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
 
+            GrColor color = args.fColor;
             SkScalar outerRadius = args.fOuterRadius;
 
             const SkRect& bounds = args.fDevBounds;
@@ -1595,24 +1575,28 @@ private:
             SkScalar innerRadius = args.fInnerRadius / args.fOuterRadius;
             for (int i = 0; i < 4; ++i) {
                 verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(-1, yOuterRadii[i]);
                 verts->fOuterRadius = outerRadius;
                 verts->fInnerRadius = innerRadius;
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[i]);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(0, yOuterRadii[i]);
                 verts->fOuterRadius = outerRadius;
                 verts->fInnerRadius = innerRadius;
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[i]);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(0, yOuterRadii[i]);
                 verts->fOuterRadius = outerRadius;
                 verts->fInnerRadius = innerRadius;
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fRight, yCoords[i]);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(1, yOuterRadii[i]);
                 verts->fOuterRadius = outerRadius;
                 verts->fInnerRadius = innerRadius;
@@ -1635,11 +1619,6 @@ private:
         RRectCircleRendererBatch* that = t->cast<RRectCircleRendererBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
-            return false;
-        }
-
-        // TODO use vertex color to avoid breaking batches
-        if (this->color() != that->color()) {
             return false;
         }
 
@@ -1758,6 +1737,8 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
 
+            GrColor color = args.fColor;
+
             // Compute the reciprocals of the radii here to save time in the shader
             SkScalar xRadRecip = SkScalarInvert(args.fXRadius);
             SkScalar yRadRecip = SkScalarInvert(args.fYRadius);
@@ -1785,24 +1766,28 @@ private:
 
             for (int i = 0; i < 4; ++i) {
                 verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(xOuterRadius, yOuterOffsets[i]);
                 verts->fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
                 verts->fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fLeft + xOuterRadius, yCoords[i]);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(SK_ScalarNearlyZero, yOuterOffsets[i]);
                 verts->fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
                 verts->fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fRight - xOuterRadius, yCoords[i]);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(SK_ScalarNearlyZero, yOuterOffsets[i]);
                 verts->fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
                 verts->fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
                 verts++;
 
                 verts->fPos = SkPoint::Make(bounds.fRight, yCoords[i]);
+                verts->fColor = color;
                 verts->fOffset = SkPoint::Make(xOuterRadius, yOuterOffsets[i]);
                 verts->fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
                 verts->fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
@@ -1825,11 +1810,6 @@ private:
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
-            return false;
-        }
-
-        // TODO use vertex color to avoid breaking batches
-        if (this->color() != that->color()) {
             return false;
         }
 
