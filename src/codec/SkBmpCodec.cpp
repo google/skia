@@ -546,6 +546,7 @@ SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
     : INHERITED(info, stream)
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
+    , fSrcRowBytes(SkAlign4(compute_row_bytes(info.width(), fBitsPerPixel)))
 {}
 
 bool SkBmpCodec::onRewind() {
@@ -576,4 +577,13 @@ int SkBmpCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
 
     // Decode the requested rows
     return this->decodeRows(rowInfo, dst, rowBytes, this->options());
+}
+
+bool SkBmpCodec::skipRows(int count) {
+    const size_t bytesToSkip = count * fSrcRowBytes;
+    return this->stream()->skip(bytesToSkip) == bytesToSkip;
+}
+
+bool SkBmpCodec::onSkipScanlines(int count) {
+    return this->skipRows(count);
 }

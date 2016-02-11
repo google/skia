@@ -81,6 +81,7 @@ protected:
      */
     uint16_t bitsPerPixel() const { return fBitsPerPixel; }
     SkScanlineOrder onGetScanlineOrder() const override { return fRowOrder; }
+    size_t srcRowBytes() const { return fSrcRowBytes; }
 
     /*
      * To be overriden by bmp subclasses, which provide unique implementations.
@@ -127,15 +128,18 @@ private:
     virtual int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) = 0;
 
+    virtual bool skipRows(int count);
+
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const SkCodec::Options&,
             SkPMColor inputColorPtr[], int* inputColorCount) override;
 
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
 
-    // TODO(msarett): Override default skipping with something more clever.
+    bool onSkipScanlines(int count) override;
 
     const uint16_t          fBitsPerPixel;
     const SkScanlineOrder   fRowOrder;
+    const size_t            fSrcRowBytes;
 
     typedef SkCodec INHERITED;
 };

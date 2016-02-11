@@ -52,8 +52,8 @@ private:
     SkAutoTUnref<SkColorTable>   fColorTable;
     SkAutoTMalloc<uint8_t>       fSrcBuffer;
 
-    // FIXME: Override onSkipScanlines to avoid swizzling.
     int onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
+    bool onSkipScanlines(int count) override;
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor inputColorTable[], int* inputColorCount) override;
 

@@ -18,8 +18,7 @@ SkBmpMaskCodec::SkBmpMaskCodec(const SkImageInfo& info, SkStream* stream,
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fMasks(masks)
     , fMaskSwizzler(nullptr)
-    , fSrcRowBytes(SkAlign4(compute_row_bytes(this->getInfo().width(), this->bitsPerPixel())))
-    , fSrcBuffer(new uint8_t [fSrcRowBytes])
+    , fSrcBuffer(new uint8_t [this->srcRowBytes()])
 {}
 
 /*
@@ -92,7 +91,7 @@ int SkBmpMaskCodec::decodeRows(const SkImageInfo& dstInfo,
     const int height = dstInfo.height();
     for (int y = 0; y < height; y++) {
         // Read a row of the input
-        if (this->stream()->read(srcRow, fSrcRowBytes) != fSrcRowBytes) {
+        if (this->stream()->read(srcRow, this->srcRowBytes()) != this->srcRowBytes()) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
             return y;
         }

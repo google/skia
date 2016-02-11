@@ -181,6 +181,11 @@ int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
     return count;
 }
 
+bool SkWbmpCodec::onSkipScanlines(int count) {
+    const size_t bytesToSkip = count * fSrcRowBytes;
+    return this->stream()->skip(bytesToSkip) == bytesToSkip;
+}
+
 SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const Options& options, SkPMColor inputColorTable[], int* inputColorCount) {
     if (options.fSubset) {

@@ -84,8 +84,13 @@ private:
                      const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
                      uint8_t red, uint8_t green, uint8_t blue);
 
+    /*
+     * If dst is NULL, this is a signal to skip the rows.
+     */
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) override;
+
+    bool skipRows(int count) override;
 
     SkSampler* getSampler(bool createIfNecessary) override;
 

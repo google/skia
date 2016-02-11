@@ -201,7 +201,7 @@ size_t SkBmpRLECodec::checkForMoreData() {
 void SkBmpRLECodec::setPixel(void* dst, size_t dstRowBytes,
                              const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
                              uint8_t index) {
-    if (is_coord_necessary(x, fSampleX, dstInfo.width())) {
+    if (dst && is_coord_necessary(x, fSampleX, dstInfo.width())) {
         // Set the row
         uint32_t row = this->getDstRow(y, dstInfo.height());
 
@@ -234,7 +234,7 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
                                 const SkImageInfo& dstInfo, uint32_t x,
                                 uint32_t y, uint8_t red, uint8_t green,
                                 uint8_t blue) {
-    if (is_coord_necessary(x, fSampleX, dstInfo.width())) {
+    if (dst && is_coord_necessary(x, fSampleX, dstInfo.width())) {
         // Set the row
         uint32_t row = this->getDstRow(y, dstInfo.height());
 
@@ -316,7 +316,9 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
     // Because of the need for transparent pixels, kN32 is the only color
     // type that makes sense for the destination format.
     SkASSERT(kN32_SkColorType == dstInfo.colorType());
-    SkSampler::Fill(dstInfo, dst, dstRowBytes, SK_ColorTRANSPARENT, opts.fZeroInitialized);
+    if (dst) {
+        SkSampler::Fill(dstInfo, dst, dstRowBytes, SK_ColorTRANSPARENT, opts.fZeroInitialized);
+    }
 
     // Adjust the height and the dst if the previous call to decodeRows() left us
     // with lines that need to be skipped.
@@ -498,6 +500,13 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
             }
         }
     }
+}
+
+bool SkBmpRLECodec::skipRows(int count) {
+    const SkImageInfo rowInfo = SkImageInfo::Make(this->getInfo().width(), count, kN32_SkColorType,
+            kUnpremul_SkAlphaType);
+
+    return count == this->decodeRows(rowInfo, nullptr, 0, this->options());
 }
 
 // FIXME: Make SkBmpRLECodec have no knowledge of sampling.

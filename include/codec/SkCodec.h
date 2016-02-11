@@ -657,18 +657,7 @@ private:
         return kUnimplemented;
     }
 
-    // Naive default version just calls onGetScanlines on temp memory.
-    virtual bool onSkipScanlines(int countLines) {
-        // FIXME (msarett): Make this a pure virtual and always override this.
-        SkAutoMalloc storage(fDstInfo.minRowBytes());
-
-        // Note that we pass 0 to rowBytes so we continue to use the same memory.
-        // Also note that while getScanlines checks that rowBytes is big enough,
-        // onGetScanlines bypasses that check.
-        // Calling the virtual method also means we do not double count
-        // countLines.
-        return countLines == this->onGetScanlines(storage.get(), countLines, 0);
-    }
+    virtual bool onSkipScanlines(int /*countLines*/) { return false; }
 
     virtual int onGetScanlines(void* /*dst*/, int /*countLines*/, size_t /*rowBytes*/) { return 0; }
 

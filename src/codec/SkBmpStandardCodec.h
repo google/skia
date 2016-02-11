@@ -90,7 +90,6 @@ private:
     const uint32_t                      fBytesPerColor;
     const uint32_t                      fOffset;
     SkAutoTDelete<SkSwizzler>           fSwizzler;
-    const size_t                        fSrcRowBytes;
     SkAutoTDeleteArray<uint8_t>         fSrcBuffer;
     const bool                          fIsOpaque;
     const bool                          fInIco;
