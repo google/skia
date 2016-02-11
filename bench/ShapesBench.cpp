@@ -276,13 +276,13 @@ DEF_BENCH(return new ShapesBench(ShapesBench::kMixed_ShapesType, ShapesBench::kN
 // Donuts (small and large). These fall-back to path rendering due to non-orthogonal rotation
 // making them quite slow. Thus, reduce the counts substantially:
 DEF_BENCH(return new ShapesBench(ShapesBench::kRect_ShapesType, ShapesBench::kRect_ShapesType,
-                                 2000, SkISize::Make(32, 32), false);)
+                                 500, SkISize::Make(32, 32), false);)
 DEF_BENCH(return new ShapesBench(ShapesBench::kRRect_ShapesType, ShapesBench::kRRect_ShapesType,
-                                 2000, SkISize::Make(32, 32), false);)
+                                 500, SkISize::Make(32, 32), false);)
 DEF_BENCH(return new ShapesBench(ShapesBench::kRect_ShapesType, ShapesBench::kRect_ShapesType,
-                                 200, SkISize::Make(500, 500), false);)
+                                 50, SkISize::Make(500, 500), false);)
 DEF_BENCH(return new ShapesBench(ShapesBench::kRRect_ShapesType, ShapesBench::kRRect_ShapesType,
-                                 200, SkISize::Make(500, 500), false);)
+                                 50, SkISize::Make(500, 500), false);)
 
 #if ENABLE_COMMAND_LINE_SHAPES_BENCH
 DEF_BENCH(return new ShapesBench;)
