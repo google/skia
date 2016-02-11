@@ -196,5 +196,6 @@ GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt,
         return nullptr;
     }
 
-    return new GrDrawContext(this, rt, surfaceProps, fContext->getAuditTrail(), fSingleOwner);
+    return new GrDrawContext(fContext, this, rt, surfaceProps, fContext->getAuditTrail(),
+                             fSingleOwner);
 }

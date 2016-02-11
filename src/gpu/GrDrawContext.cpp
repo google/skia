@@ -50,7 +50,8 @@ private:
 // drawTargets to be picked up and added to by drawContexts lower in the call
 // stack. When this occurs with a closed drawTarget, a new one will be allocated
 // when the drawContext attempts to use it (via getDrawTarget).
-GrDrawContext::GrDrawContext(GrDrawingManager* drawingMgr,
+GrDrawContext::GrDrawContext(GrContext* context,
+                             GrDrawingManager* drawingMgr,
                              GrRenderTarget* rt,
                              const SkSurfaceProps* surfaceProps,
                              GrAuditTrail* auditTrail,
@@ -59,6 +60,7 @@ GrDrawContext::GrDrawContext(GrDrawingManager* drawingMgr,
     , fRenderTarget(rt)
     , fDrawTarget(SkSafeRef(rt->getLastDrawTarget()))
     , fTextContext(nullptr)
+    , fContext(context)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
     , fAuditTrail(auditTrail)
 #ifdef SK_DEBUG

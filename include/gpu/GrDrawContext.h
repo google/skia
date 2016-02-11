@@ -288,8 +288,8 @@ private:
 
     SkDEBUGCODE(void validate() const;)
 
-    GrDrawContext(GrDrawingManager*, GrRenderTarget*, const SkSurfaceProps* surfaceProps,
-                  GrAuditTrail*, GrSingleOwner*);
+    GrDrawContext(GrContext*, GrDrawingManager*, GrRenderTarget*,
+                  const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
 
     void internalDrawPath(GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
@@ -311,6 +311,7 @@ private:
     // it up. For this reason, the drawTarget should only ever be accessed via 'getDrawTarget'.
     GrDrawTarget*     fDrawTarget;
     GrTextContext*    fTextContext; // lazily gotten from GrContext::DrawingManager
+    GrContext*        fContext;
 
     SkSurfaceProps    fSurfaceProps;
     GrAuditTrail*     fAuditTrail;
