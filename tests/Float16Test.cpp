@@ -66,10 +66,23 @@ DEF_TEST(float_to_half, reporter) {
     REPORTER_ASSERT(reporter, 0 == memcmp(fscratch, fs, sizeof(fs)));
 }
 
+static uint32_t u(float f) {
+    uint32_t x;
+    memcpy(&x, &f, 4);
+    return x;
+}
+
 DEF_TEST(HalfToFloat_01, r) {
     for (uint16_t h = 0; h < 0x8000; h++) {
         float f = SkHalfToFloat(h);
         if (f >= 0 && f <= 1) {
+            float got = SkHalfToFloat_01(h)[0];
+            if (got != f) {
+                SkDebugf("0x%04x -> 0x%08x (%g), want 0x%08x (%g)\n",
+                        h,
+                        u(got), got,
+                        u(f), f);
+            }
             REPORTER_ASSERT(r, SkHalfToFloat_01(h)[0] == f);
             REPORTER_ASSERT(r, SkFloatToHalf_01(SkHalfToFloat_01(h)) == h);
         }

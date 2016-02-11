@@ -37,23 +37,30 @@ static inline uint64_t SkFloatToHalf_01(const Sk4f&);
 // TODO: NEON versions
 static inline Sk4f SkHalfToFloat_01(uint64_t hs) {
 #if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    // Load our 16-bit floats into the bottom 16 bits of each 32-bit lane, with zeroes on top.
+    // If our input is a normal 16-bit float, things are pretty easy:
+    //   - shift left by 13 to put the mantissa in the right place;
+    //   - the exponent is wrong, but it just needs to be rebiased;
+    //   - re-bias the exponent from 15-bias to 127-bias by adding (127-15).
+
+    // If our input is denormalized, we're going to do the same steps, plus a few more fix ups:
+    //   - the input is h = K*2^-14, for some 10-bit fixed point K in [0,1);
+    //   - by shifting left 13 and adding (127-15) to the exponent, we constructed the float value
+    //     2^-15*(1+K);
+    //   - we'd need to subtract 2^-15 and multiply by 2 to get back to K*2^-14, or equivallently
+    //     multiply by 2 then subtract 2^-14.
+    //
+    //   - We'll work that multiply by 2 into the rebias, by adding 1 more to the exponent.
+    //   - Conveniently, this leaves that rebias constant 2^-14, exactly what we want to subtract.
+
     __m128i h = _mm_unpacklo_epi16(_mm_loadl_epi64((const __m128i*)&hs), _mm_setzero_si128());
+    const __m128i is_denorm = _mm_cmplt_epi32(h, _mm_set1_epi32(1<<10));
 
-    // Fork into two paths, depending on whether the 16-bit float is denormalized.
-    __m128 is_denorm = _mm_castsi128_ps(_mm_cmplt_epi32(h, _mm_set1_epi32(0x0400)));
+    __m128i rebias = _mm_set1_epi32((127-15) << 23);
+    rebias = _mm_add_epi32(rebias, _mm_and_si128(is_denorm, _mm_set1_epi32(1<<23)));
 
-    // TODO: figure out, explain
-    const __m128 half = _mm_set1_ps(0.5f);
-    __m128 denorm = _mm_sub_ps(_mm_or_ps(_mm_castsi128_ps(h), half), half);
-
-    // If we're normalized, just shift ourselves so the exponent/mantissa dividing line
-    // is correct, then re-bias the exponent from 15 to 127.
-    __m128 norm = _mm_castsi128_ps(_mm_add_epi32(_mm_slli_epi32(h, 13),
-                                                 _mm_set1_epi32((127-15) << 23)));
-
-    return _mm_or_ps(_mm_and_ps   (is_denorm, denorm),
-                     _mm_andnot_ps(is_denorm, norm));
+    __m128i f = _mm_add_epi32(_mm_slli_epi32(h, 13), rebias);
+    return _mm_sub_ps(_mm_castsi128_ps(f),
+                      _mm_castsi128_ps(_mm_and_si128(is_denorm, rebias)));
 #else
     float fs[4];
     for (int i = 0; i < 4; i++) {
@@ -68,8 +75,8 @@ static inline uint64_t SkFloatToHalf_01(const Sk4f& fs) {
     // Scale our floats down by a tiny power of 2 to pull up our mantissa bits,
     // then shift back down to 16-bit float layout.  This doesn't round, so can be 1 bit small.
     // TODO: understand better.  Why this scale factor?
-    const __m128 scale = _mm_castsi128_ps(_mm_set1_epi32(15 << 23));
-    __m128i h = _mm_srli_epi32(_mm_castps_si128(_mm_mul_ps(fs.fVec, scale)), 13);
+    const __m128 rebias = _mm_castsi128_ps(_mm_set1_epi32((127 - (127 - 15)) << 23));
+    __m128i h = _mm_srli_epi32(_mm_castps_si128(_mm_mul_ps(fs.fVec, rebias)), 13);
 
     uint64_t r;
     _mm_storel_epi64((__m128i*)&r, _mm_packs_epi32(h,h));
