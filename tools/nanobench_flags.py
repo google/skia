@@ -33,6 +33,9 @@ def get_args(bot):
     args.append('--images')
     args.extend(['--gpuStatsDump', 'true'])
 
+  if 'Android' in bot and 'GPU' in bot:
+    args.extend(['--useThermalManager', '1,1,10,1000'])
+
   if 'Appurify' not in bot:
     args.extend(['--scales', '1.0', '1.1'])
 
@@ -129,6 +132,7 @@ def self_test():
   import coverage  # This way the bots don't need coverage.py to be installed.
   args = {}
   cases = [
+    'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
     'Perf-Android-Nexus7-Tegra3-Arm7-Release',
     'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
