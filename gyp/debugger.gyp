@@ -137,6 +137,7 @@
         'debugger_qt_mocs',
         'skia_lib.gyp:skia_lib',
         'jsoncpp.gyp:jsoncpp',
+        'tools.gyp:url_data_manager',
       ],
       'cflags': [
         # Clang gets confused by QWeakPointer, see http://llvm.org/bugs/show_bug.cgi?id=13127
