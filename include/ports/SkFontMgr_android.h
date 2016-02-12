@@ -39,6 +39,11 @@ struct SkFontMgr_Android_CustomFonts {
      *  In the new style (version > 21) fontsXml format is used, this should be NULL.
      */
     const char* fFallbackFontsXml;
+
+    /** Optional custom flag. If set to true the SkFontMgr will acquire all requisite
+     *  system IO resources on initialization.
+     */
+    bool fIsolated;
 };
 
 /** Create a font manager for Android. If 'custom' is NULL, use only system fonts. */
