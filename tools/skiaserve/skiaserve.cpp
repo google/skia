@@ -70,6 +70,8 @@ struct Request {
     UploadContext* fUploadContext;
     SkAutoTUnref<SkPicture> fPicture;
     SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
+    SkAutoTDelete<GrContextFactory> fContextFactory;
+    SkAutoTUnref<SkSurface> fSurface;
     UrlDataManager fUrlDataManager;
 };
 
@@ -87,9 +89,6 @@ SkSurface* setupSurface(GrContextFactory* factory) {
                                                     &props);
     SkASSERT(surface);
 
-    SkGLContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
-                                              GrContextFactory::kNone_GLContextOptions).fGLContext;
-    gl->makeCurrent();
     return surface;
 }
 
@@ -112,15 +111,15 @@ SkData* writeCanvasToPng(SkCanvas* canvas) {
     return png;
 }
 
-SkData* setupAndDrawToCanvasReturnPng(SkDebugCanvas* debugCanvas, int n) {
-    GrContextOptions grContextOpts;
-    SkAutoTDelete<GrContextFactory> factory(new GrContextFactory(grContextOpts));
-    SkAutoTUnref<SkSurface> surface(setupSurface(factory.get()));
-
-    SkASSERT(debugCanvas);
-    SkCanvas* canvas = surface->getCanvas();
-    debugCanvas->drawTo(canvas, n);
-    return writeCanvasToPng(canvas);
+SkData* setupAndDrawToCanvasReturnPng(Request* request, int n) {
+    GrContextFactory* factory = request->fContextFactory;
+    SkGLContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
+                                              GrContextFactory::kNone_GLContextOptions).fGLContext;
+    gl->makeCurrent();
+    SkASSERT(request->fDebugCanvas);
+    SkCanvas* target = request->fSurface->getCanvas();
+    request->fDebugCanvas->drawTo(target, n);
+    return writeCanvasToPng(target);
 }
 
 SkSurface* setupCpuSurface() {
@@ -287,7 +286,7 @@ public:
             sscanf(commands[1].c_str(), "%d", &n);
         }
 
-        SkAutoTUnref<SkData> data(setupAndDrawToCanvasReturnPng(request->fDebugCanvas, n));
+        SkAutoTUnref<SkData> data(setupAndDrawToCanvasReturnPng(request, n));
         return SendData(connection, data, "image/png");
     }
 };
@@ -336,6 +335,11 @@ public:
             fprintf(stderr, "Could not create picture from stream.\n");
             return MHD_NO;
         }
+
+        // create surface
+        GrContextOptions grContextOpts;
+        request->fContextFactory.reset(new GrContextFactory(grContextOpts));
+        request->fSurface.reset(setupSurface(request->fContextFactory.get()));
 
         // pour picture into debug canvas
         request->fDebugCanvas.reset(new SkDebugCanvas(kImageWidth, kImageHeight));
