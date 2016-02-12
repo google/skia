@@ -297,7 +297,7 @@ public:
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
             fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
-            fragBuilder->codeAppend("float edgeAlpha = clamp(-test*invlen, 0.0, 1.0);");
+            fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
 
             // for inner curve
             if (ee.isStroked()) {
@@ -1081,8 +1081,8 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
     // We've extended the outer x radius out half a pixel to antialias.
     // This will also expand the rect so all the pixels will be captured.
     // TODO: Consider if we should use sqrt(2)/2 instead
-    xRadius += SK_ScalarHalf;
-    yRadius += SK_ScalarHalf;
+    SkScalar geoXRadius = xRadius + SK_ScalarHalf;
+    SkScalar geoYRadius = yRadius + SK_ScalarHalf;
 
     EllipseBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;
@@ -1092,8 +1092,8 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
     geometry.fInnerXRadius = innerXRadius;
     geometry.fInnerYRadius = innerYRadius;
     geometry.fStroke = isStrokeOnly && innerXRadius > 0 && innerYRadius > 0;
-    geometry.fDevBounds = SkRect::MakeLTRB(center.fX - xRadius, center.fY - yRadius,
-                                           center.fX + xRadius, center.fY + yRadius);
+    geometry.fDevBounds = SkRect::MakeLTRB(center.fX - geoXRadius, center.fY - geoYRadius,
+                                           center.fX + geoXRadius, center.fY + geoYRadius);
 
     return EllipseBatch::Create(geometry);
 }
