@@ -19,6 +19,7 @@
           },
         }, {
           'type': 'static_library',
+          'cflags': [ '-w' ],
           'sources': [
             '../third_party/externals/zlib/adler32.c',
             '../third_party/externals/zlib/compress.c',

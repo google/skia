@@ -12,8 +12,25 @@
 set -e
 set -x
 
-export CC=clang
-export CXX=clang++
+here=$(cd `dirname $0`; echo `pwd`)
+cores=48
+
+echo "Bootstrapping CMake"
+pushd $here/../third_party/externals/cmake
+./bootstrap --parallel=$cores
+make -j $cores cmake
+popd
+
+echo "Building Clang"
+pushd $here/../third_party/externals/llvm
+mkdir -p out/
+cd out/
+$here/../third_party/externals/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+ninja
+popd
+
+export CC=$here/../third_party/externals/llvm/out/bin/clang
+export CXX=$here/../third_party/externals/llvm/out/bin/clang++
 $CC --version
 
 if [[ "$1" == "memory" ]]; then
