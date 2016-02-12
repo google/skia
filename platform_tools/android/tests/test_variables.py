@@ -22,3 +22,4 @@ BIN_DIR = os.path.join(ANDROID_DIR, 'bin')
 GYP_GEN_DIR = os.path.join(ANDROID_DIR, 'gyp_gen')
 
 ANDROID_MK = 'Android.mk'
+STATIC_DEPS_MK = 'skia_static_deps.mk'

@@ -108,7 +108,6 @@ DEBUGGING_HELP = (
 # NOTE: If neither SK_DEBUG or SK_RELEASE are defined then Skia checks NDEBUG to
 #       determine which build type to use.
 ###############################################################################
-
 """
 )
 
@@ -126,6 +125,45 @@ include $(BASE_PATH)/dm/Android.mk
 """
 )
 
+STATIC_HEADER = (
+"""
+###############################################################################
+# STATIC LIBRARY
+#
+# This target is only to be used internally for only one of two purposes...
+#  (1) statically linking into testing frameworks
+#  (2) as an inclusion target for the libskia.so shared library
+###############################################################################
+
+"""
+)
+
+SHARED_HEADER = (
+"""
+###############################################################################
+# SHARED LIBRARY
+###############################################################################
+
+"""
+)
+
+STATIC_DEPS_INFO = (
+"""
+###############################################################################
+# 
+# This file contains the shared and static dependencies needed by any target 
+# that attempts to statically link Skia (i.e. libskia_static build target).
+#
+# This is a workaround for the fact that the build system does not add these
+# transitive dependencies when it attempts to link libskia_static into another
+# library.
+#
+###############################################################################
+"""
+)
+
+CLEAR_VARS = ("""include $(CLEAR_VARS)\n""")
+LOCAL_PATH = ("""LOCAL_PATH:= $(call my-dir)\n""")
 
 class VarsDictData(object):
   """Helper class to keep a VarsDict along with a name and optional condition.
@@ -144,21 +182,42 @@ class VarsDictData(object):
     self.condition = condition
     self.name = name
 
-def write_local_path(f):
-  """Add the LOCAL_PATH line to the makefile.
+def write_static_deps_mk(target_dir, common, deviations_from_common):
+  """Given all the variables, write the final make file.
 
   Args:
-    f: File open for writing.
+    target_dir: The full path to the directory to write skia_static_includes.mk,
+      or None to use the current working directory.
+    common: VarsDict holding variables definitions common to all
+      configurations.
+    deviations_from_common: List of VarsDictData, one for each possible
+      configuration. VarsDictData.name will be appended to each key before
+      writing it to the makefile. VarsDictData.condition, if not None, will be
+      written to the makefile as a condition to determine whether to include
+      VarsDictData.vars_dict.
   """
-  f.write('LOCAL_PATH:= $(call my-dir)\n')
+  target_file = 'skia_static_deps.mk'
+  if target_dir:
+    target_file = os.path.join(target_dir, target_file)
+  with open(target_file, 'w') as f:
+    f.write(AUTOGEN_WARNING)
+    f.write(STATIC_DEPS_INFO)
 
-def write_clear_vars(f):
-  """Add the CLEAR_VARS line to the makefile.
+    for data in deviations_from_common:
+      var_dict_shared = data.vars_dict['LOCAL_SHARED_LIBRARIES']
+      var_dict_static = data.vars_dict['LOCAL_STATIC_LIBRARIES']
+      if data.condition and (var_dict_shared or var_dict_static):
+        f.write('ifeq ($(%s), true)\n' % data.condition)
+      write_group(f, 'LOCAL_SHARED_LIBRARIES', var_dict_shared, True)
+      write_group(f, 'LOCAL_STATIC_LIBRARIES', var_dict_static, True)
+      if data.condition and (var_dict_shared or var_dict_static):
+        f.write('endif\n\n')
 
-  Args:
-    f: File open for writing.
-  """
-  f.write('include $(CLEAR_VARS)\n')
+    write_group(f, 'LOCAL_SHARED_LIBRARIES', common['LOCAL_SHARED_LIBRARIES'],
+                True)
+    write_group(f, 'LOCAL_STATIC_LIBRARIES', common['LOCAL_STATIC_LIBRARIES'],
+                True)
+
 
 def write_android_mk(target_dir, common, deviations_from_common):
   """Given all the variables, write the final make file.
@@ -180,11 +239,12 @@ def write_android_mk(target_dir, common, deviations_from_common):
   with open(target_file, 'w') as f:
     f.write(AUTOGEN_WARNING)
     f.write('BASE_PATH := $(call my-dir)\n')
-    write_local_path(f)
+    f.write(LOCAL_PATH)
 
     f.write(DEBUGGING_HELP)
 
-    write_clear_vars(f)
+    f.write(STATIC_HEADER)
+    f.write(CLEAR_VARS)
 
     # need flags to enable feedback driven optimization (FDO) when requested
     # by the build system.
@@ -199,9 +259,11 @@ def write_android_mk(target_dir, common, deviations_from_common):
     f.write('# used for testing\n')
     f.write('#LOCAL_CFLAGS += -g -O0\n\n')
 
-    f.write('ifeq ($(NO_FALLBACK_FONT),true)\n')
-    f.write('\tLOCAL_CFLAGS += -DNO_FALLBACK_FONT\n')
-    f.write('endif\n\n')
+    # update the provided LOCAL_MODULE with a _static suffix
+    local_module = common['LOCAL_MODULE'][0]
+    static_local_module = local_module + '_static'
+    common['LOCAL_MODULE'].reset()
+    common['LOCAL_MODULE'].add(static_local_module)
 
     write_local_vars(f, common, False, None)
 
@@ -212,6 +274,18 @@ def write_android_mk(target_dir, common, deviations_from_common):
       if data.condition:
         f.write('endif\n\n')
 
+    f.write('LOCAL_MODULE_CLASS := STATIC_LIBRARIES\n')
+    f.write('include $(BUILD_STATIC_LIBRARY)\n\n')
+
+    f.write(SHARED_HEADER)
+    f.write(CLEAR_VARS)
+    f.write('LOCAL_MODULE_CLASS := SHARED_LIBRARIES\n')
+    f.write('LOCAL_MODULE := %s\n' % local_module)
+    f.write('LOCAL_WHOLE_STATIC_LIBRARIES := %s\n' % static_local_module)
+    write_group(f, 'LOCAL_EXPORT_C_INCLUDE_DIRS',
+                common['LOCAL_EXPORT_C_INCLUDE_DIRS'], False)
+    f.write('include $(BASE_PATH)/skia_static_deps.mk\n')
     f.write('include $(BUILD_SHARED_LIBRARY)\n')
+
     f.write(SKIA_TOOLS)
 

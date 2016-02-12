@@ -15,10 +15,8 @@
         'conditions': [
           ['skia_android_framework', {
               'libraries': [
-                  '-lskia',
-                  '-landroid',
+                  'skia_static.a',
                   '-lhwui',
-                  '-lutils',
               ],
               'include_dirs': [
                   '../../../frameworks/base/libs/hwui/',
