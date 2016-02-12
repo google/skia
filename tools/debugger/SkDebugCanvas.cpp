@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvasPriv.h"
 #include "SkClipStack.h"
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
@@ -422,7 +423,8 @@ void SkDebugCanvas::onDrawPicture(const SkPicture* picture,
                                   const SkMatrix* matrix,
                                   const SkPaint* paint) {
     this->addDrawCommand(new SkBeginDrawPictureCommand(picture, matrix, paint));
-    this->INHERITED::onDrawPicture(picture, matrix, paint);
+    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
+    picture->playback(this);
     this->addDrawCommand(new SkEndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
 }
 
