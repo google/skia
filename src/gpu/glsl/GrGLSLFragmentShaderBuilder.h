@@ -33,9 +33,7 @@ public:
      */
     enum GLSLFeature {
         kStandardDerivatives_GLSLFeature = kLastGLSLPrivateFeature + 1,
-        kPixelLocalStorage_GLSLFeature,
-        kSampleVariables_GLSLFeature,
-        kSampleMaskOverrideCoverage_GLSLFeature
+        kPixelLocalStorage_GLSLFeature
     };
 
     /**

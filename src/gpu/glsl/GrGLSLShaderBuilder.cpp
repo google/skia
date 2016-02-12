@@ -112,13 +112,11 @@ void GrGLSLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
     this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
 }
 
-bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
-    if (featureBit & fFeaturesAddedMask) {
-        return false;
+void GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
+    if (!(featureBit & fFeaturesAddedMask)) {
+        this->extensions().appendf("#extension %s: require\n", extensionName);
+        fFeaturesAddedMask |= featureBit;
     }
-    this->extensions().appendf("#extension %s: require\n", extensionName);
-    fFeaturesAddedMask |= featureBit;
-    return true;
 }
 
 void GrGLSLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
