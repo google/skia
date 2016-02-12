@@ -295,37 +295,8 @@ public:
 };
 
 
-template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, uint8_t>(const Sk4b& src) {
-    return _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128());
-}
-template<> /*static*/ inline Sk4i SkNx_cast<     int, uint8_t>(const Sk4b& src) {
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
-    const int _ = ~0;
-    return _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, 3,_,_,_));
-#else
-    return _mm_unpacklo_epi16(SkNx_cast<uint16_t>(src).fVec, _mm_setzero_si128());
-#endif
-}
-
-template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) {
-    return _mm_packus_epi16(src.fVec, src.fVec);
-}
-template<> /*static*/ inline Sk4i SkNx_cast<    int, uint16_t>(const Sk4h& src) {
-    return _mm_unpacklo_epi16(src.fVec, _mm_setzero_si128());
-}
-
-template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, int>(const Sk4i& src) {
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
-    const int _ = ~0;
-    return _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,4,8,12, _,_,_,_, _,_,_,_, _,_,_,_));
-#else
-    // We're on our way to 8-bit anyway, so we don't care that _mm_packs_epi32 clamps to int16_t.
-    Sk4h _16 = _mm_packs_epi32(src.fVec, src.fVec);
-    return SkNx_cast<uint8_t>(_16);
-#endif
-}
-template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, int>(const Sk4i& src) {
-    auto _32 = src.fVec;
+template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
+    auto _32 = _mm_cvttps_epi32(src.fVec);
     // Ideally we'd use _mm_packus_epi32 here.  But that's SSE4.1+.
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
     // With SSSE3, we can just shuffle the low 2 bytes from each lane right into place.
@@ -338,34 +309,48 @@ template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, int>(const Sk4i& src) {
 #endif
 }
 
-template<> /*static*/ inline Sk4f SkNx_cast<float,      int>(const Sk4i& src) {
-    return _mm_cvtepi32_ps(src.fVec);
-}
-template<> /*static*/ inline Sk4f SkNx_cast<float, uint16_t>(const Sk4h& src) {
-    return SkNx_cast<float>(SkNx_cast<int>(src));
-}
-template<> /*static*/ inline Sk4f SkNx_cast<float,  uint8_t>(const Sk4b& src) {
-    return SkNx_cast<float>(SkNx_cast<int>(src));
+template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
+    auto _32 = _mm_cvttps_epi32(src.fVec);
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    const int _ = ~0;
+    return _mm_shuffle_epi8(_32, _mm_setr_epi8(0,4,8,12, _,_,_,_, _,_,_,_, _,_,_,_));
+#else
+    auto _16 = _mm_packus_epi16(_32, _32);
+    return     _mm_packus_epi16(_16, _16);
+#endif
 }
 
-template<> /*static*/ inline Sk4i SkNx_cast<     int, float>(const Sk4f& src) {
-    return _mm_cvttps_epi32(src.fVec);
+template<> /*static*/ inline Sk4f SkNx_cast<float, uint8_t>(const Sk4b& src) {
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    const int _ = ~0;
+    auto _32 = _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, 3,_,_,_));
+#else
+    auto _16 = _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128()),
+         _32 = _mm_unpacklo_epi16(_16,     _mm_setzero_si128());
+#endif
+    return _mm_cvtepi32_ps(_32);
 }
-template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
-    return SkNx_cast<uint16_t>(SkNx_cast<int>(src));
-}
-template<> /*static*/ inline Sk4b SkNx_cast< uint8_t, float>(const Sk4f& src) {
-    return SkNx_cast<uint8_t>(SkNx_cast<int>(src));
+
+template<> /*static*/ inline Sk4f SkNx_cast<float, uint16_t>(const Sk4h& src) {
+    auto _32 = _mm_unpacklo_epi16(src.fVec, _mm_setzero_si128());
+    return _mm_cvtepi32_ps(_32);
 }
 
 static inline void Sk4f_ToBytes(uint8_t bytes[16],
                                 const Sk4f& a, const Sk4f& b, const Sk4f& c, const Sk4f& d) {
-    // We're on our way to 8-bit anyway, so we don't care that _mm_packs_epi32 clamps to int16_t.
     _mm_storeu_si128((__m128i*)bytes,
-                     _mm_packus_epi16(_mm_packs_epi32(_mm_cvttps_epi32(a.fVec),
-                                                      _mm_cvttps_epi32(b.fVec)),
-                                      _mm_packs_epi32(_mm_cvttps_epi32(c.fVec),
-                                                      _mm_cvttps_epi32(d.fVec))));
+                     _mm_packus_epi16(_mm_packus_epi16(_mm_cvttps_epi32(a.fVec),
+                                                       _mm_cvttps_epi32(b.fVec)),
+                                      _mm_packus_epi16(_mm_cvttps_epi32(c.fVec),
+                                                       _mm_cvttps_epi32(d.fVec))));
+}
+
+template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, uint8_t>(const Sk4b& src) {
+    return _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128());
+}
+
+template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) {
+    return _mm_packus_epi16(src.fVec, src.fVec);
 }
 
 #endif//SkNx_sse_DEFINED
