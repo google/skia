@@ -51,7 +51,7 @@ deps = {
   # Mojo SDK for Mojo RPC experiments.
   "third_party/externals/mojo/public" : "https://chromium.googlesource.com/external/github.com/domokit/mojo_sdk@172be18ea745ab29aea132e6cb952e726dc32543",
 
-
+  # xSAN bots build Clang from scratch.
   "third_party/externals/llvm": "https://llvm.googlesource.com/llvm@release_38",
   "third_party/externals/llvm/tools/clang": "https://llvm.googlesource.com/clang@release_38",
   "third_party/externals/llvm/projects/compiler-rt": "https://llvm.googlesource.com/compiler-rt@release_38",
