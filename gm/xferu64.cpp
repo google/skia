@@ -96,8 +96,6 @@ static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, uint32_t u64
  *  Test SkXfer4fProcs directly for src-over, comparing them to current SkColor blits.
  */
 DEF_SIMPLE_GM(xfer_u64_srcover, canvas, 580, 760) {
-    return; // disable for now, until we understand the failures on Nexus 5 etc.
-
     const int IW = 50;
     const SkScalar W = IW;
     const SkScalar H = 100;
