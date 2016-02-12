@@ -153,13 +153,6 @@ public:
                              const SkTime::DateTime* /* creationDate */,
                              const SkTime::DateTime* /* modifiedDate */) {}
 
-    // This version is deprecated.
-    void setMetadata(const SkTArray<SkDocument::Attribute>& att,
-                     const SkTime::DateTime* creation,
-                     const SkTime::DateTime* modified) {
-        this->setMetadata(&att[0], att.count(), creation, modified);
-    }
-
 protected:
     SkDocument(SkWStream*, void (*)(SkWStream*, bool aborted));
 
