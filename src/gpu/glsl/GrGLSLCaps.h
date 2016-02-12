@@ -54,6 +54,10 @@ public:
 
     bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
 
+    bool flatInterpolationSupport() const { return fFlatInterpolationSupport; }
+
+    bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
+
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -105,6 +109,11 @@ public:
         return fExternalTextureExtensionString;
     }
 
+    const char* noperspectiveInterpolationExtensionString() const {
+        SkASSERT(this->noperspectiveInterpolationSupport());
+        return fNoPerspectiveInterpolationExtensionString;
+    }
+
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
      * texture in generated shader code. Swizzling may be implemented in texture parameters or a
@@ -137,6 +146,8 @@ private:
     bool fBindlessTextureSupport : 1;
     bool fUsesPrecisionModifiers : 1;
     bool fCanUseAnyFunctionInShader : 1;
+    bool fFlatInterpolationSupport : 1;
+    bool fNoPerspectiveInterpolationSupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
@@ -148,6 +159,7 @@ private:
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;
+    const char* fNoPerspectiveInterpolationExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;

@@ -32,9 +32,8 @@ public:
      * if code is added that uses one of these features without calling enableFeature()
      */
     enum GLSLFeature {
-        kStandardDerivatives_GLSLFeature = 0,
-        kPixelLocalStorage_GLSLFeature = 1,
-        kLastGLSLFeature = kPixelLocalStorage_GLSLFeature
+        kStandardDerivatives_GLSLFeature = kLastGLSLPrivateFeature + 1,
+        kPixelLocalStorage_GLSLFeature
     };
 
     /**
@@ -167,17 +166,6 @@ private:
     void addVarying(GrGLSLVarying*, GrSLPrecision);
 
     void onFinalize() override;
-
-    /**
-     * Features that should only be enabled by GrGLSLFragmentShaderBuilder itself.
-     */
-    enum GLSLPrivateFeature {
-        kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1,
-        kBlendEquationAdvanced_GLSLPrivateFeature,
-        kBlendFuncExtended_GLSLPrivateFeature,
-        kExternalTexture_GLSLPrivateFeature,
-        kLastGLSLPrivateFeature = kBlendFuncExtended_GLSLPrivateFeature
-    };
 
     // Interpretation of FragPosKey when generating code
     enum {

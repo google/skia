@@ -142,6 +142,19 @@ protected:
     typedef GrTAllocator<GrGLSLShaderVar> VarArray;
     void appendDecls(const VarArray& vars, SkString* out) const;
 
+    /**
+     * Features that should only be enabled internally by the builders.
+     */
+    enum GLSLPrivateFeature {
+        kFragCoordConventions_GLSLPrivateFeature,
+        kBlendEquationAdvanced_GLSLPrivateFeature,
+        kBlendFuncExtended_GLSLPrivateFeature,
+        kExternalTexture_GLSLPrivateFeature,
+        kFramebufferFetch_GLSLPrivateFeature,
+        kNoPerspectiveInterpolation_GLSLPrivateFeature,
+        kLastGLSLPrivateFeature = kNoPerspectiveInterpolation_GLSLPrivateFeature
+    };
+
     /*
      * A general function which enables an extension in a shader if the feature bit is not present
      */
@@ -215,6 +228,7 @@ protected:
 
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
+    friend class GrGLSLVaryingHandler; // to access noperspective interpolation feature.
     friend class GrGLPathProgramBuilder; // to access fInputs.
     friend class GrVkProgramBuilder;
 };

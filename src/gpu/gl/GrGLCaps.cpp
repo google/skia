@@ -596,6 +596,24 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
 
     glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
 
+    if (kGL_GrGLStandard == standard) {
+        glslCaps->fFlatInterpolationSupport = ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+    } else {
+        glslCaps->fFlatInterpolationSupport =
+            ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // This is the value for GLSL ES 3.0.
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        glslCaps->fNoPerspectiveInterpolationSupport =
+            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+    } else {
+        if (ctxInfo.hasExtension("GL_NV_shader_noperspective_interpolation")) {
+            glslCaps->fNoPerspectiveInterpolationSupport = true;
+            glslCaps->fNoPerspectiveInterpolationExtensionString =
+                "GL_NV_shader_noperspective_interpolation";
+        }
+    }
+
     // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
     glslCaps->fDropsTileOnZeroDivide = kQualcomm_GrGLVendor == ctxInfo.vendor();
 

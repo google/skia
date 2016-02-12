@@ -328,7 +328,7 @@ public:
                                    delta3.vsOut(), v3.vsOut(), v1.vsOut(), v1.vsOut(), v3.vsOut());
 
             GrGLSLVertToFrag windings(kInt_GrSLType);
-            varyingHandler->addVarying("windings", &windings, kLow_GrSLPrecision);
+            varyingHandler->addFlatVarying("windings", &windings, kLow_GrSLPrecision);
             vsBuilder->codeAppendf("%s = %s;", 
                                    windings.vsOut(), te.inWindings()->fName);
 
@@ -513,7 +513,7 @@ public:
                                    ep1.vsOut());
 
             GrGLSLVertToFrag windings(kInt_GrSLType);
-            varyingHandler->addVarying("windings", &windings, kLow_GrSLPrecision);
+            varyingHandler->addFlatVarying("windings", &windings, kLow_GrSLPrecision);
             vsBuilder->codeAppendf("%s = %s;", 
                                    windings.vsOut(), qe.inWindings()->fName);
 

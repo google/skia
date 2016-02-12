@@ -24,8 +24,14 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
              glPB->fArgs.fPrimitiveProcessor->numAttribs() == 0);
 #endif
     this->addVarying(name, v, fsPrecision);
-    VaryingInfo& varyingInfo = fPathProcVaryingInfos.push_back();
-    varyingInfo.fVariable = fFragInputs.back();
+    auto varyingInfo = fPathProcVaryingInfos.push_back();
     varyingInfo.fLocation = fPathProcVaryingInfos.count() - 1;
     return VaryingHandle(varyingInfo.fLocation);
+}
+
+void GrGLVaryingHandler::onFinalize() {
+    SkASSERT(fPathProcVaryingInfos.empty() || fPathProcVaryingInfos.count() == fFragInputs.count());
+    for (int i = 0; i < fPathProcVaryingInfos.count(); ++i) {
+        fPathProcVaryingInfos[i].fVariable = fFragInputs[i];
+    }
 }

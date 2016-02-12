@@ -176,7 +176,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
 
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
     if (glslCaps->fbFetchSupport()) {
-        this->addFeature(1 << (GrGLSLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
+        this->addFeature(1 << kFramebufferFetch_GLSLPrivateFeature,
                          glslCaps->fbFetchExtensionString());
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+

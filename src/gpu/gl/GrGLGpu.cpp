@@ -285,7 +285,8 @@ GrGLGpu::~GrGLGpu() {
 }
 
 void GrGLGpu::createPLSSetupProgram() {
-    const char* version = this->glCaps().glslCaps()->versionDeclString();
+    const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
+    const char* version = glslCaps->versionDeclString();
 
     GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
     GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
@@ -295,13 +296,19 @@ void GrGLGpu::createPLSSetupProgram() {
     GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
     
     SkString vshaderTxt(version);
-    aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    if (glslCaps->noperspectiveInterpolationSupport()) {
+        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+            vshaderTxt.appendf("#extension %s : require\n", extension);
+        }
+        vTexCoord.addModifier("noperspective");
+    }
+    aVertex.appendDecl(glslCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    uTexCoordXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    uTexCoordXform.appendDecl(glslCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    uPosXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    uPosXform.appendDecl(glslCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    vTexCoord.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vTexCoord.appendDecl(glslCaps, &vshaderTxt);
     vshaderTxt.append(";");
     
     vshaderTxt.append(
@@ -313,17 +320,20 @@ void GrGLGpu::createPLSSetupProgram() {
     );
 
     SkString fshaderTxt(version);
+    if (glslCaps->noperspectiveInterpolationSupport()) {
+        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+            fshaderTxt.appendf("#extension %s : require\n", extension);
+        }
+    }
     fshaderTxt.append("#extension ");
-    fshaderTxt.append(this->glCaps().glslCaps()->fbFetchExtensionString());
+    fshaderTxt.append(glslCaps->fbFetchExtensionString());
     fshaderTxt.append(" : require\n");
     fshaderTxt.append("#extension GL_EXT_shader_pixel_local_storage : require\n");
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
-                                                 *this->glCaps().glslCaps(),
-                                                 &fshaderTxt);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps, &fshaderTxt);
     vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-    vTexCoord.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+    vTexCoord.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
-    uTexture.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+    uTexture.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
 
     fshaderTxt.appendf(
@@ -3300,7 +3310,8 @@ void GrGLGpu::createCopyPrograms() {
     for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
         fCopyPrograms[i].fProgram = 0;
     }
-    const char* version = this->glCaps().glslCaps()->versionDeclString();
+    const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
+    const char* version = glslCaps->versionDeclString();
     static const GrSLType kSamplerTypes[3] = { kSampler2D_GrSLType, kSamplerExternal_GrSLType,
                                                kSampler2DRect_GrSLType };
     SkASSERT(3 == SK_ARRAY_COUNT(fCopyPrograms));
@@ -3326,13 +3337,20 @@ void GrGLGpu::createCopyPrograms() {
                                    GrShaderVar::kOut_TypeModifier);
 
         SkString vshaderTxt(version);
-        aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+        if (glslCaps->noperspectiveInterpolationSupport()) {
+            if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+                vshaderTxt.appendf("#extension %s : require\n", extension);
+            }
+            vTexCoord.addModifier("noperspective");
+        }
+
+        aVertex.appendDecl(glslCaps, &vshaderTxt);
         vshaderTxt.append(";");
-        uTexCoordXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+        uTexCoordXform.appendDecl(glslCaps, &vshaderTxt);
         vshaderTxt.append(";");
-        uPosXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+        uPosXform.appendDecl(glslCaps, &vshaderTxt);
         vshaderTxt.append(";");
-        vTexCoord.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+        vTexCoord.appendDecl(glslCaps, &vshaderTxt);
         vshaderTxt.append(";");
 
         vshaderTxt.append(
@@ -3345,21 +3363,25 @@ void GrGLGpu::createCopyPrograms() {
         );
 
         SkString fshaderTxt(version);
+        if (glslCaps->noperspectiveInterpolationSupport()) {
+            if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+                fshaderTxt.appendf("#extension %s : require\n", extension);
+            }
+        }
         if (kSamplerTypes[i] == kSamplerExternal_GrSLType) {
             fshaderTxt.appendf("#extension %s : require\n",
-                               this->glCaps().glslCaps()->externalTextureExtensionString());
+                               glslCaps->externalTextureExtensionString());
         }
-        GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
-                                                     *this->glCaps().glslCaps(),
+        GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps,
                                                      &fshaderTxt);
         vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-        vTexCoord.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+        vTexCoord.appendDecl(glslCaps, &fshaderTxt);
         fshaderTxt.append(";");
-        uTexture.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+        uTexture.appendDecl(glslCaps, &fshaderTxt);
         fshaderTxt.append(";");
         const char* fsOutName;
-        if (this->glCaps().glslCaps()->mustDeclareFragmentShaderOutput()) {
-            oFragColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+        if (glslCaps->mustDeclareFragmentShaderOutput()) {
+            oFragColor.appendDecl(glslCaps, &fshaderTxt);
             fshaderTxt.append(";");
             fsOutName = oFragColor.c_str();
         } else {

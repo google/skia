@@ -51,7 +51,9 @@ public:
     GrGLSLShaderVar(const GrGLSLShaderVar& var)
         : GrShaderVar(var.c_str(), var.getType(), var.getTypeModifier(),
                       var.getArrayCount(), var.getPrecision())
-        , fUseUniformFloatArrays(var.fUseUniformFloatArrays) {
+        , fUseUniformFloatArrays(var.fUseUniformFloatArrays)
+        , fLayoutQualifier(var.fLayoutQualifier)
+        , fExtraModifiers(var.fExtraModifiers) {
         SkASSERT(kVoid_GrSLType != var.getType());
     }
 
@@ -71,11 +73,15 @@ public:
              const SkString& name,
              GrSLPrecision precision = kDefault_GrSLPrecision,
              const char* layoutQualifier = nullptr,
+             const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
         INHERITED::set(type, name, typeModifier, precision);
         fLayoutQualifier = layoutQualifier;
+        if (extraModifiers) {
+            fExtraModifiers.printf("%s ", extraModifiers);
+        }
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -87,11 +93,15 @@ public:
              const char* name,
              GrSLPrecision precision = kDefault_GrSLPrecision,
              const char* layoutQualifier = nullptr,
+             const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
         INHERITED::set(type, name, typeModifier, precision);
         fLayoutQualifier = layoutQualifier;
+        if (extraModifiers) {
+            fExtraModifiers.printf("%s ", extraModifiers);
+        }
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -104,11 +114,15 @@ public:
              int count,
              GrSLPrecision precision = kDefault_GrSLPrecision,
              const char* layoutQualifier = nullptr,
+             const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
         INHERITED::set(type, name, typeModifier, precision, count);
         fLayoutQualifier = layoutQualifier;
+        if (extraModifiers) {
+            fExtraModifiers.printf("%s ", extraModifiers);
+        }
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -121,11 +135,15 @@ public:
              int count,
              GrSLPrecision precision = kDefault_GrSLPrecision,
              const char* layoutQualifier = nullptr,
+             const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
         INHERITED::set(type, name, typeModifier, precision, count);
         fLayoutQualifier = layoutQualifier;
+        if (extraModifiers) {
+            fExtraModifiers.printf("%s ", extraModifiers);
+        }
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -136,6 +154,12 @@ public:
         fLayoutQualifier = layoutQualifier;
     }
 
+    void addModifier(const char* modifier) {
+        if (modifier) {
+            fExtraModifiers.appendf("%s ", modifier);
+        }
+    }
+
     /**
      * Write a declaration of this variable to out.
      */
@@ -144,11 +168,8 @@ public:
         if (!fLayoutQualifier.isEmpty()) {
             out->appendf("layout(%s) ", fLayoutQualifier.c_str());
         }
+        out->append(fExtraModifiers);
         if (this->getTypeModifier() != kNone_TypeModifier) {
-            if (GrSLTypeIsIntType(fType) && (this->getTypeModifier() == kVaryingIn_TypeModifier ||
-                                             this->getTypeModifier() == kVaryingOut_TypeModifier)) {
-                out->append("flat ");
-            }
             out->append(TypeModifierString(glslCaps, this->getTypeModifier()));
             out->append(" ");
         }
@@ -234,9 +255,10 @@ private:
 
     /// Work around driver bugs on some hardware that don't correctly
     /// support uniform float []
-    bool            fUseUniformFloatArrays;
+    bool        fUseUniformFloatArrays;
 
-    SkString        fLayoutQualifier;
+    SkString    fLayoutQualifier;
+    SkString    fExtraModifiers;
 
     typedef GrShaderVar INHERITED;
 };
