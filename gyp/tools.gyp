@@ -19,6 +19,7 @@
       'dependencies': [
         'chrome_fuzz',
         'dump_record',
+        'get_images_from_skps',
         'gpuveto',
         'imgblur',
         'imgconv',
@@ -278,6 +279,17 @@
             'flags.gyp:flags',
             'skia_lib.gyp:skia_lib'
         ],
+    },
+    {
+        'target_name': 'get_images_from_skps',
+        'type': 'executable',
+        'sources': [
+            '../tools/get_images_from_skps.cpp',
+         ],
+         'dependencies': [
+            'flags.gyp:flags',
+            'skia_lib.gyp:skia_lib',
+         ],
     },
     {
       'target_name': 'gpuveto',

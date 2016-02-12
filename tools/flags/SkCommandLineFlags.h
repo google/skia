@@ -108,6 +108,11 @@ public:
     static void SetUsage(const char* usage);
 
     /**
+     *  Call this to display the help message. Should be called after SetUsage.
+     */
+    static void PrintUsage();
+
+    /**
      *  Call at the beginning of main to parse flags created by DEFINE_x, above.
      *  Must only be called once.
      */

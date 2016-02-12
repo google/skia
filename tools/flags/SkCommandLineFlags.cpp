@@ -150,6 +150,10 @@ void SkCommandLineFlags::SetUsage(const char* usage) {
     gUsage.set(usage);
 }
 
+void SkCommandLineFlags::PrintUsage() {
+    SkDebugf("%s", gUsage.c_str());
+}
+
 // Maximum line length for the help message.
 #define LINE_LENGTH 72
 
