@@ -130,8 +130,6 @@ BASE_SRCS_UNIX = struct(
     ],
     exclude = [
         "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
-        # TODO(benjaminwagner): Can this be enabled?
-        "src/codec/SkRaw*",
         "src/opts/*arm*",
         "src/opts/*mips*",
         "src/opts/*NEON*",
@@ -181,8 +179,6 @@ BASE_SRCS_ANDROID = struct(
     ],
     exclude = [
         "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
-        # TODO(benjaminwagner): Can this be enabled?
-        "src/codec/SkRaw*",
         "src/opts/*mips*",
         "src/opts/*SSE2*",
         "src/opts/*SSSE3*",
@@ -484,12 +480,14 @@ DEFINES_UNIX = [
     "SK_BUILD_FOR_UNIX",
     "SK_SAMPLES_FOR_X",
     "SK_SFNTLY_SUBSETTER",
+    "SK_CODEC_DECODES_RAW",
 ]
 
 DEFINES_ANDROID = [
     "SK_BUILD_FOR_ANDROID",
     # TODO(benjaminwagner): Try to get png library updated?
     "SK_PNG_NO_INDEX_SUPPORTED",
+    "SK_CODEC_DECODES_RAW",
 ]
 
 DEFINES_IOS = [
