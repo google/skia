@@ -77,10 +77,20 @@ public:
         kLast_MSFBOType = kMixedSamples_MSFBOType
     };
 
+    enum BlitFramebufferSupport {
+        kNone_BlitFramebufferSupport,
+        /**
+         * ANGLE exposes a limited blit framebuffer extension that does not allow for stretching
+         * or mirroring.
+         */
+        kNoScalingNoMirroring_BlitFramebufferSupport,
+        kFull_BlitFramebufferSupport
+    };
+
     enum InvalidateFBType {
         kNone_InvalidateFBType,
         kDiscard_InvalidateFBType,       //<! glDiscardFramebuffer()
-        kInvalidate_InvalidateFBType,     //<! glInvalidateFramebuffer()
+        kInvalidate_InvalidateFBType,    //<! glInvalidateFramebuffer()
 
         kLast_InvalidateFBType = kInvalidate_InvalidateFBType
     };
@@ -202,7 +212,7 @@ public:
     MSFBOType msFBOType() const { return fMSFBOType; }
 
     /**
-     * Does the supported MSAA FBO extension have MSAA renderbuffers?
+     * Does the preferred MSAA FBO extension have MSAA renderbuffers?
      */
     bool usesMSAARenderBuffers() const {
         return kNone_MSFBOType != fMSFBOType &&
@@ -210,6 +220,11 @@ public:
                kES_EXT_MsToTexture_MSFBOType != fMSFBOType &&
                kMixedSamples_MSFBOType != fMSFBOType;
     }
+
+    /**
+     * What functionality is supported by glBlitFramebuffer.
+     */
+    BlitFramebufferSupport blitFramebufferSupport() const { return fBlitFramebufferSupport; }
 
     /**
      * Is the MSAA FBO extension one where the texture is multisampled when bound to an FBO and
@@ -402,6 +417,8 @@ private:
     bool fExternalTextureSupport : 1;
     bool fRectangleTextureSupport : 1;
     bool fTextureSwizzleSupport : 1;
+
+    BlitFramebufferSupport fBlitFramebufferSupport;
 
     /** Number type of the components (with out considering number of bits.) */
     enum FormatType {

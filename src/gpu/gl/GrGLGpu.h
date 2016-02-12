@@ -317,11 +317,18 @@ private:
     // ensures that such operations don't negatively interact with tracking bound textures.
     void setScratchTextureUnit();
 
-    // bounds is region that may be modified and therefore has to be resolved.
+    // bounds is region that may be modified.
     // nullptr means whole target. Can be an empty rect.
     void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
+    // Handles cases where a surface will be updated without a call to flushRenderTarget
+    void didWriteToSurface(GrSurface*, const SkIRect* bounds) const;
+
+    // Need not be called if flushRenderTarget is used.
+    void flushViewport(const GrGLIRect&);
 
     void flushStencil(const GrStencilSettings&);
+
+    // rt is used only if useHWAA is true.
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled);
 
     // helper for onCreateTexture and writeTexturePixels

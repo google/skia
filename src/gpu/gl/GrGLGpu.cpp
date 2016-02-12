@@ -2438,7 +2438,7 @@ void GrGLGpu::performFlushWorkaround() {
     }
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) {
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds) {
     SkASSERT(target);
 
     uint32_t rtID = target->getUniqueID();
@@ -2459,11 +2459,7 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
         }
 #endif
         fHWBoundRenderTargetUniqueID = rtID;
-        const GrGLIRect& vp = target->getViewport();
-        if (fHWViewport != vp) {
-            vp.pushToGLViewport(this->glInterface());
-            fHWViewport = vp;
-        }
+        this->flushViewport(target->getViewport());
         if (this->glCaps().srgbWriteControl()) {
             bool enableSRGBWrite = GrPixelConfigIsSRGB(target->config());
             if (enableSRGBWrite && kYes_TriState != fHWSRGBFramebuffer) {
@@ -2475,11 +2471,24 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
             }
         }
     }
+    this->didWriteToSurface(target, bounds);
+}
 
+void GrGLGpu::flushViewport(const GrGLIRect& viewport) {
+    if (fHWViewport != viewport) {
+        viewport.pushToGLViewport(this->glInterface());
+        fHWViewport = viewport;
+    }
+}
+
+void GrGLGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds) const {
+    SkASSERT(surface);
     // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
-    if (nullptr == bound || !bound->isEmpty()) {
-        target->flagAsNeedingResolve(bound);
-        if (GrTexture *texture = target->asTexture()) {
+    if (nullptr == bounds || !bounds->isEmpty()) {
+        if (GrRenderTarget* target = surface->asRenderTarget()) {
+            target->flagAsNeedingResolve(bounds);
+        }
+        if (GrTexture* texture = surface->asTexture()) {
             texture->texturePriv().dirtyMipMaps(true);
         }
     }
@@ -2759,6 +2768,8 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
 }
 
 void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled) {
+    // rt is only optional if useHWAA is false.
+    SkASSERT(rt || !useHWAA);
     SkASSERT(!useHWAA || rt->isStencilBufferMultisampled());
 
     if (this->glCaps().multisampleDisableSupport()) {
@@ -3068,8 +3079,19 @@ static inline bool can_blit_framebuffer(const GrSurface* dst,
                                         const GrSurface* src,
                                         const GrGLGpu* gpu) {
     if (gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) &&
-        gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
-        gpu->glCaps().usesMSAARenderBuffers()) {
+        gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0)) {
+        switch (gpu->glCaps().blitFramebufferSupport()) {
+            case GrGLCaps::kNone_BlitFramebufferSupport:
+                return false;
+            case GrGLCaps::kNoScalingNoMirroring_BlitFramebufferSupport:
+                // Our copy surface doesn't support scaling so just check for mirroring.
+                if (dst->origin() != src->origin()) {
+                    return false;
+                }
+                break;
+            case GrGLCaps::kFull_BlitFramebufferSupport:
+                break;
+        }
         // ES3 doesn't allow framebuffer blits when the src has MSAA and the configs don't match
         // or the rects are not the same (not just the same size but have the same edges).
         if (GrGLCaps::kES_3_0_MSFBOType == gpu->glCaps().msFBOType() &&
@@ -3140,7 +3162,7 @@ static inline bool can_copy_texsubimage(const GrSurface* dst,
 void GrGLGpu::bindSurfaceFBOForCopy(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
                                     TempFBOTarget tempFBOTarget) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
-    if (nullptr == rt) {
+    if (!rt) {
         SkASSERT(surface->asTexture());
         GrGLuint texID = static_cast<GrGLTexture*>(surface->asTexture())->textureID();
         GrGLenum target = static_cast<GrGLTexture*>(surface->asTexture())->target();
@@ -3250,7 +3272,9 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
         this->glCaps().glslCaps()->configOutputSwizzle(dst->config())) {
         return false;
     }
-    if (src->asTexture() && dst->asRenderTarget()) {
+    // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
+    bool preferCopy = SkToBool(dst->asRenderTarget());
+    if (preferCopy && src->asTexture()) {
         this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
         return true;
     }
@@ -3262,6 +3286,11 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 
     if (can_blit_framebuffer(dst, src, this)) {
         return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstPoint);
+    }
+
+    if (!preferCopy && src->asTexture()) {
+        this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
+        return true;
     }
 
     return false;
@@ -3560,9 +3589,12 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
     this->bindTexture(0, params, srcTex);
 
-    GrGLRenderTarget* dstRT = static_cast<GrGLRenderTarget*>(dst->asRenderTarget());
+    GrGLIRect dstVP;
+    this->bindSurfaceFBOForCopy(dst, GR_GL_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
+    this->flushViewport(dstVP);
+    fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
-    this->flushRenderTarget(dstRT, &dstRect);
 
     int progIdx = TextureTargetToCopyProgramIdx(srcTex->target());
 
@@ -3618,13 +3650,16 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(true);
     this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
-    this->flushHWAAState(dstRT, false, false);
+    this->flushHWAAState(nullptr, false, false);
     this->disableScissor();
     GrStencilSettings stencil;
     stencil.setDisabled();
     this->flushStencil(stencil);
 
     GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
+    this->unbindTextureFBOForCopy(GR_GL_FRAMEBUFFER, dst);
+    this->didWriteToSurface(dst, &dstRect);
+
 }
 
 void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
@@ -3634,7 +3669,7 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
     SkASSERT(can_copy_texsubimage(dst, src, this));
     GrGLIRect srcVP;
     this->bindSurfaceFBOForCopy(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
-    GrGLTexture* dstTex = static_cast<GrGLTexture*>(dst->asTexture());
+    GrGLTexture* dstTex = static_cast<GrGLTexture *>(dst->asTexture());
     SkASSERT(dstTex);
     // We modified the bound FBO
     fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
@@ -3655,10 +3690,13 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
         dstY = dstPoint.fY;
     }
     GL_CALL(CopyTexSubImage2D(dstTex->target(), 0,
-                                dstPoint.fX, dstY,
-                                srcGLRect.fLeft, srcGLRect.fBottom,
-                                srcGLRect.fWidth, srcGLRect.fHeight));
+                              dstPoint.fX, dstY,
+                              srcGLRect.fLeft, srcGLRect.fBottom,
+                              srcGLRect.fWidth, srcGLRect.fHeight));
     this->unbindTextureFBOForCopy(GR_GL_FRAMEBUFFER, src);
+    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                        srcRect.width(), srcRect.height());
+    this->didWriteToSurface(dst, &dstRect);
 }
 
 bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
@@ -3719,6 +3757,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
                             GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
     this->unbindTextureFBOForCopy(GR_GL_DRAW_FRAMEBUFFER, dst);
     this->unbindTextureFBOForCopy(GR_GL_READ_FRAMEBUFFER, src);
+    this->didWriteToSurface(dst, &dstRect);
     return true;
 }
 

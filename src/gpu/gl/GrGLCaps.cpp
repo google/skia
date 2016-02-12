@@ -54,6 +54,8 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRGBA8888PixelsOpsAreSlow = false;
     fPartialFBOReadIsSlow = false;
 
+    fBlitFramebufferSupport = kNone_BlitFramebufferSupport;
+
     fShaderCaps.reset(new GrGLSLCaps(contextOptions));
 
     this->init(contextOptions, ctxInfo, glInterface);
@@ -766,15 +768,28 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
             fMSFBOType = kES_Apple_MSFBOType;
         }
+
+        // Above determined the preferred MSAA approach, now decide whether glBlitFramebuffer
+        // is available.
+        if (ctxInfo.version() >= GR_GL_VER(3, 0)) {
+            fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
+        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+            // The CHROMIUM extension uses the ANGLE version of glBlitFramebuffer and includes its
+            // limitations.
+            fBlitFramebufferSupport = kNoScalingNoMirroring_BlitFramebufferSupport;
+        }
     } else {
         if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
+            fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
         } else if ((ctxInfo.version() >= GR_GL_VER(3,0)) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = GrGLCaps::kDesktop_ARB_MSFBOType;
+            fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
         } else if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
                    ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
             fMSFBOType = GrGLCaps::kDesktop_EXT_MSFBOType;
+            fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
         }
     }
 }
