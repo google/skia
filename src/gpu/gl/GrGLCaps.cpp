@@ -553,9 +553,19 @@ const char* get_glsl_version_decl_string(GrGLStandard standard, GrGLSLGeneration
                     return "#version 330 compatibility\n";
                 }
             }
+        case k400_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == standard);
+            if (isCoreProfile) {
+                return "#version 400\n";
+            } else {
+                return "#version 400 compatibility\n";
+            }
         case k310es_GrGLSLGeneration:
             SkASSERT(kGLES_GrGLStandard == standard);
             return "#version 310 es\n";
+        case k320es_GrGLSLGeneration:
+            SkASSERT(kGLES_GrGLStandard == standard);
+            return "#version 320 es\n";
     }
     return "<no version>";
 }
@@ -595,6 +605,22 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     }
 
     glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
+
+    if (kGL_GrGLStandard == standard) {
+        glslCaps->fSampleVariablesSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
+    } else {
+        if (ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
+            glslCaps->fSampleVariablesSupport = true;
+        } else if (ctxInfo.hasExtension("GL_OES_sample_variables")) {
+            glslCaps->fSampleVariablesSupport = true;
+            glslCaps->fSampleVariablesExtensionString = "GL_OES_sample_variables";
+        }
+    }
+
+    if (glslCaps->fSampleVariablesSupport) {
+        glslCaps->fSampleMaskOverrideCoverageSupport =
+            ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage");
+    }
 
     if (kGL_GrGLStandard == standard) {
         glslCaps->fFlatInterpolationSupport = ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;

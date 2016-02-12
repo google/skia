@@ -54,6 +54,10 @@ public:
 
     bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
 
+    bool sampleVariablesSupport() const { return fSampleVariablesSupport; }
+
+    bool sampleMaskOverrideCoverageSupport() const { return fSampleMaskOverrideCoverageSupport; }
+
     bool flatInterpolationSupport() const { return fFlatInterpolationSupport; }
 
     bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
@@ -87,6 +91,11 @@ public:
     const char* shaderDerivativeExtensionString() const {
         SkASSERT(this->shaderDerivativeSupport());
         return fShaderDerivativeExtensionString;
+    }
+
+    const char* sampleVariablesExtensionString() const {
+        SkASSERT(this->sampleVariablesSupport());
+        return fSampleVariablesExtensionString;
     }
     
     // Returns the string of an extension that will do all necessary coord transfomations needed
@@ -146,6 +155,8 @@ private:
     bool fBindlessTextureSupport : 1;
     bool fUsesPrecisionModifiers : 1;
     bool fCanUseAnyFunctionInShader : 1;
+    bool fSampleVariablesSupport : 1;
+    bool fSampleMaskOverrideCoverageSupport : 1;
     bool fFlatInterpolationSupport : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
 
@@ -156,6 +167,7 @@ private:
     const char* fVersionDeclString;
 
     const char* fShaderDerivativeExtensionString;
+    const char* fSampleVariablesExtensionString;
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;

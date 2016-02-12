@@ -77,25 +77,46 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
 }
 
 bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
+    const GrGLSLCaps& glslCaps = *fProgramBuilder->glslCaps();
     switch (feature) {
-        case kStandardDerivatives_GLSLFeature: {
-            if (!fProgramBuilder->glslCaps()->shaderDerivativeSupport()) {
+        case kStandardDerivatives_GLSLFeature:
+            if (!glslCaps.shaderDerivativeSupport()) {
                 return false;
             }
-            const char* extension = fProgramBuilder->glslCaps()->shaderDerivativeExtensionString();
-            if (extension) {
+            if (const char* extension = glslCaps.shaderDerivativeExtensionString()) {
                 this->addFeature(1 << kStandardDerivatives_GLSLFeature, extension);
             }
             return true;
-        }
-        case kPixelLocalStorage_GLSLFeature: {
+        case kPixelLocalStorage_GLSLFeature:
             if (fProgramBuilder->glslCaps()->pixelLocalStorageSize() <= 0) {
                 return false;
             }
             this->addFeature(1 << kPixelLocalStorage_GLSLFeature,
                              "GL_EXT_shader_pixel_local_storage");
             return true;
-        }
+        case kSampleVariables_GLSLFeature:
+            if (!glslCaps.sampleVariablesSupport()) {
+                return false;
+            }
+            if (const char* extension = glslCaps.sampleVariablesExtensionString()) {
+                this->addFeature(1 << kSampleVariables_GLSLFeature, extension);
+            }
+            return true;
+        case kSampleMaskOverrideCoverage_GLSLFeature:
+            if (!glslCaps.sampleMaskOverrideCoverageSupport()) {
+                return false;
+            }
+            if (!this->enableFeature(kSampleVariables_GLSLFeature)) {
+                return false;
+            }
+            if (this->addFeature(1 << kSampleMaskOverrideCoverage_GLSLFeature,
+                                 "GL_NV_sample_mask_override_coverage")) {
+                // Redeclare gl_SampleMask with layout(override_coverage) if we haven't already.
+                fOutputs.push_back().set(kInt_GrSLType, GrShaderVar::kOut_TypeModifier,
+                                         "gl_SampleMask", 1, kHigh_GrSLPrecision,
+                                         "override_coverage");
+            }
+            return true;
         default:
             SkFAIL("Unexpected GLSLFeature requested.");
             return false;

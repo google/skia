@@ -23,10 +23,13 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fCanUseAnyFunctionInShader = true;
     fCanUseMinAndAbsTogether = true;
     fMustForceNegatedAtanParamToFloat = false;
+    fSampleVariablesSupport = false;
+    fSampleMaskOverrideCoverageSupport = false;
     fFlatInterpolationSupport = false;
     fNoPerspectiveInterpolationSupport = false;
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
+    fSampleVariablesExtensionString = nullptr;
     fFragCoordConventionsExtensionString = nullptr;
     fSecondaryOutputExtensionString = nullptr;
     fExternalTextureExtensionString = nullptr;
@@ -61,6 +64,9 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Can use min() and abs() together: %s\n", (fCanUseMinAndAbsTogether ? "YES" : "NO"));
     r.appendf("Must force negated atan param to float: %s\n", (fMustForceNegatedAtanParamToFloat ?
                                                                "YES" : "NO"));
+    r.appendf("Sample variables support: %s\n", (fSampleVariablesSupport ? "YES" : "NO"));
+    r.appendf("Sample mask override coverage support: %s\n", (fSampleMaskOverrideCoverageSupport ?
+                                                              "YES" : "NO"));
     r.appendf("Flat interpolation support: %s\n", (fFlatInterpolationSupport ?  "YES" : "NO"));
     r.appendf("No perspective interpolation support: %s\n", (fNoPerspectiveInterpolationSupport ?
                                                              "YES" : "NO"));
