@@ -436,16 +436,19 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
     // Initialize color table and copy to the client if necessary
     this->initializeColorTable(dstInfo, inputColorPtr, inputColorCount);
 
-    this->initializeSwizzler(dstInfo, opts);
-    return kSuccess;
+    return this->initializeSwizzler(dstInfo, opts);
 }
 
-void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
+SkCodec::Result SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     const SkIRect* frameRect = fFrameIsSubset ? &fFrameRect : nullptr;
     fSwizzler.reset(SkSwizzler::CreateSwizzler(SkSwizzler::kIndex, colorPtr, dstInfo, opts,
             frameRect));
-    SkASSERT(fSwizzler);
+
+    if (nullptr != fSwizzler.get()) {
+        return kSuccess;
+    }
+    return kUnimplemented;
 }
 
 bool SkGifCodec::readRow() {

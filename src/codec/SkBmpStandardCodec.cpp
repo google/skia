@@ -152,9 +152,9 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
     return true;
 }
 
-void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
+bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
     // Get swizzler configuration
-    SkSwizzler::SrcConfig config = SkSwizzler::kUnknown;
+    SkSwizzler::SrcConfig config;
     switch (this->bitsPerPixel()) {
         case 1:
             config = SkSwizzler::kIndex1;
@@ -180,6 +180,7 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
             break;
         default:
             SkASSERT(false);
+            return false;
     }
 
     // Get a pointer to the color table if it exists
@@ -187,7 +188,11 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
 
     // Create swizzler
     fSwizzler.reset(SkSwizzler::CreateSwizzler(config, colorPtr, dstInfo, opts));
-    SkASSERT(fSwizzler);
+
+    if (nullptr == fSwizzler.get()) {
+        return false;
+    }
+    return true;
 }
 
 SkCodec::Result SkBmpStandardCodec::prepareToDecode(const SkImageInfo& dstInfo,
@@ -202,8 +207,11 @@ SkCodec::Result SkBmpStandardCodec::prepareToDecode(const SkImageInfo& dstInfo,
     // Copy the color table to the client if necessary
     copy_color_table(dstInfo, this->fColorTable, inputColorPtr, inputColorCount);
 
-    // Initialize a swizzler
-    this->initializeSwizzler(dstInfo, options);
+    // Initialize a swizzler if necessary
+    if (!this->initializeSwizzler(dstInfo, options)) {
+        SkCodecPrintf("Error: cannot initialize swizzler.\n");
+        return SkCodec::kInvalidConversion;
+    }
     return SkCodec::kSuccess;
 }
 

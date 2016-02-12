@@ -162,6 +162,15 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
         ctable = nullptr;
     }
 
+    {
+        SkAlphaType canonical;
+        if (!SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &canonical)
+            || canonical != info.alphaType())
+        {
+            return kInvalidConversion;
+        }
+    }
+
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }

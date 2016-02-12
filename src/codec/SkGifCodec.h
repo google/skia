@@ -128,7 +128,7 @@ private:
      * @param options  Informs the swizzler if destination memory is zero initialized.
      *                 Contains subset information.
      */
-    void initializeSwizzler(const SkImageInfo& dstInfo,
+    Result initializeSwizzler(const SkImageInfo& dstInfo,
             const Options& options);
 
     SkSampler* getSampler(bool createIfNecessary) override {

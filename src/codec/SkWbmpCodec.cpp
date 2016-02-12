@@ -30,19 +30,6 @@ static inline void setup_color_table(SkColorType colorType,
     }
 }
 
-static inline bool valid_color_type(SkColorType colorType, SkAlphaType alphaType) {
-    switch (colorType) {
-        case kN32_SkColorType:
-        case kIndex_8_SkColorType:
-            return true;
-        case kGray_8_SkColorType:
-        case kRGB_565_SkColorType:
-            return kOpaque_SkAlphaType == alphaType;
-        default:
-            return false;
-    }
-}
-
 static bool read_byte(SkStream* stream, uint8_t* data)
 {
     return stream->read(data, 1) == 1;
@@ -97,6 +84,16 @@ bool SkWbmpCodec::onRewind() {
 
 SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
         const Options& opts) {
+    // Create the swizzler based on the desired color type
+    switch (info.colorType()) {
+        case kIndex_8_SkColorType:
+        case kN32_SkColorType:
+        case kRGB_565_SkColorType:
+        case kGray_8_SkColorType:
+            break;
+        default:
+            return nullptr;
+    }
     return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info, opts);
 }
 
@@ -127,8 +124,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
         return kUnimplemented;
     }
 
-    if (!valid_color_type(info.colorType(), info.alphaType()) ||
-            !valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
+    if (!valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
         return kInvalidConversion;
     }
 
@@ -137,7 +133,9 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
 
     // Initialize the swizzler
     SkAutoTDelete<SkSwizzler> swizzler(this->initializeSwizzler(info, ctable, options));
-    SkASSERT(swizzler);
+    if (nullptr == swizzler.get()) {
+        return kInvalidConversion;
+    }
 
     // Perform the decode
     SkISize size = info.dimensions();
@@ -195,8 +193,7 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    if (!valid_color_type(dstInfo.colorType(), dstInfo.alphaType()) ||
-            !valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
+    if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
         return kInvalidConversion;
     }
 
@@ -210,7 +207,9 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 
     // Initialize the swizzler
     fSwizzler.reset(this->initializeSwizzler(dstInfo, get_color_ptr(fColorTable.get()), options));
-    SkASSERT(fSwizzler);
+    if (nullptr == fSwizzler.get()) {
+        return kInvalidConversion;
+    }
 
     fSrcBuffer.reset(fSrcRowBytes);
 

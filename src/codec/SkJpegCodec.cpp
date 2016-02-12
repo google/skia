@@ -372,7 +372,6 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     }
 
     fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, dstInfo, options));
-    SkASSERT(fSwizzler);
     fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
     fSrcRow = fStorage.get();
 }

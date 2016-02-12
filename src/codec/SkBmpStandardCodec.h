@@ -72,7 +72,7 @@ private:
      */
     bool createColorTable(SkAlphaType alphaType, int* colorCount);
 
-    void initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
+    bool initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
 
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) override;

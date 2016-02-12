@@ -57,12 +57,25 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-SkCodec::Result SkBmpMaskCodec::prepareToDecode(const SkImageInfo& dstInfo,
-        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    // Initialize the mask swizzler
+bool SkBmpMaskCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
+    // Create the swizzler
     fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(dstInfo, this->getInfo(), fMasks,
             this->bitsPerPixel(), options));
-    SkASSERT(fMaskSwizzler);
+
+    if (nullptr == fMaskSwizzler.get()) {
+        return false;
+    }
+
+    return true;
+}
+
+SkCodec::Result SkBmpMaskCodec::prepareToDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+    // Initialize a the mask swizzler
+    if (!this->initializeSwizzler(dstInfo, options)) {
+        SkCodecPrintf("Error: cannot initialize swizzler.\n");
+        return SkCodec::kInvalidConversion;
+    }
 
     return SkCodec::kSuccess;
 }
