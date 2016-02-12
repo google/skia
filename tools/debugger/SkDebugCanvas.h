@@ -37,6 +37,12 @@ public:
     void setOverdrawViz(bool overdrawViz);
     bool getOverdrawViz() const { return fOverdrawViz; }
 
+    /**
+     * Set the color of the clip visualization. An alpha of zero renders the clip invisible.
+     */
+    void setClipVizColor(SkColor clipVizColor) { this->fClipVizColor = clipVizColor; }
+    SkColor getClipVizColor() const { return fClipVizColor; }
+
     bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
 
     void setPicture(SkPicture* picture) { fPicture = picture; }
@@ -141,9 +147,9 @@ public:
     SkString clipStackData() const { return fClipStackData; }
 
     /**
-        Returns a JSON object representing up to N draws, where N is <= SkDebugCanvas::getSize().
-        The encoder may use the UrlDataManager to store binary data such as images, referring to
-        them via URLs embedded in the JSON.
+        Returns a JSON object representing up to the Nth draw, where N is less than
+        SkDebugCanvas::getSize(). The encoder may use the UrlDataManager to store binary data such 
+        as images, referring to them via URLs embedded in the JSON.
      */
     Json::Value toJSON(UrlDataManager& urlDataManager, int n);
 
@@ -238,6 +244,7 @@ private:
     bool fOverdrawViz;
     bool fOverrideFilterQuality;
     SkFilterQuality fFilterQuality;
+    SkColor fClipVizColor;
 
     SkAutoTUnref<SkNWayCanvas> fPaintFilterCanvas;
 

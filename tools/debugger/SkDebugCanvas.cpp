@@ -67,7 +67,8 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
         , fMegaVizMode(false)
         , fOverdrawViz(false)
         , fOverrideFilterQuality(false)
-        , fFilterQuality(kNone_SkFilterQuality) {
+        , fFilterQuality(kNone_SkFilterQuality)
+        , fClipVizColor(SK_ColorTRANSPARENT) {
     fUserMatrix.reset();
 
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
@@ -233,6 +234,17 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         }
     }
 
+    if (SkColorGetA(fClipVizColor) != 0) {
+        canvas->save();
+        #define LARGE_COORD 1000000000
+        canvas->clipRect(SkRect::MakeLTRB(-LARGE_COORD, -LARGE_COORD, LARGE_COORD, LARGE_COORD),
+                       SkRegion::kReverseDifference_Op);
+        SkPaint clipPaint;
+        clipPaint.setColor(fClipVizColor);
+        canvas->drawPaint(clipPaint);
+        canvas->restore();
+    }
+
     if (fMegaVizMode) {
         canvas->save();
         // nuke the CTM
@@ -323,7 +335,7 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n) {
     Json::Value result = Json::Value(Json::objectValue);
     result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
     Json::Value commands = Json::Value(Json::arrayValue);
-    for (int i = 0; i < this->getSize() && i < n; i++) {
+    for (int i = 0; i < this->getSize() && i <= n; i++) {
         commands[i] = this->getDrawCommandAt(i)->toJSON(urlDataManager);
     }
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;

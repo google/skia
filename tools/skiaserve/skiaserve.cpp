@@ -232,7 +232,7 @@ public:
         if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
             int n;
             if (commands.count() == 1) {
-                n = request->fDebugCanvas->getSize();
+                n = request->fDebugCanvas->getSize() - 1;
             } else {
                 sscanf(commands[1].c_str(), "%d", &n);
             }
@@ -288,6 +288,36 @@ public:
 
         SkAutoTUnref<SkData> data(setupAndDrawToCanvasReturnPng(request, n));
         return SendData(connection, data, "image/png");
+    }
+};
+
+/**
+   Updates the clip visualization alpha. On all subsequent /img requests, the clip will be drawn in
+   black with the specified alpha. 0 = no visible clip, 255 = fully opaque clip.
+ */
+class ClipAlphaHandler : public UrlHandler {
+public:
+    bool canHandle(const char* method, const char* url) override {
+        static const char* kBasePath = "/clipAlpha/";
+        return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
+               0 == strncmp(url, kBasePath, strlen(kBasePath));
+    }
+
+    int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
+               const char* upload_data, size_t* upload_data_size) override {
+        SkTArray<SkString> commands;
+        SkStrSplit(url, "/", &commands);
+
+        if (!request->fPicture.get() || commands.count() != 2) {
+            return MHD_NO;
+        }
+
+        int alpha;
+        sscanf(commands[1].c_str(), "%d", &alpha);
+
+        request->fDebugCanvas->setClipVizColor(SkColorSetARGB(alpha, 0, 0, 0));
+        return SendOK(connection);
     }
 };
 
@@ -508,6 +538,7 @@ public:
         fHandlers.push_back(new RootHandler);
         fHandlers.push_back(new PostHandler);
         fHandlers.push_back(new ImgHandler);
+        fHandlers.push_back(new ClipAlphaHandler);
         fHandlers.push_back(new CmdHandler);
         fHandlers.push_back(new InfoHandler);
         fHandlers.push_back(new DownloadHandler);
