@@ -297,7 +297,7 @@ public:
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
             fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
-            fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+            fragBuilder->codeAppend("float edgeAlpha = clamp(-test*invlen, 0.0, 1.0);");
 
             // for inner curve
             if (ee.isStroked()) {
