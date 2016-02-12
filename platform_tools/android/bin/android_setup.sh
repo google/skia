@@ -75,17 +75,6 @@ if [ -z "$ANDROID_HOME" ]; then
   exportVar ANDROID_HOME $ANDROID_SDK_ROOT
 fi
 
-# check to see that gclient sync ran successfully
-THIRD_PARTY_EXTERNAL_DIR=${SCRIPT_DIR}/../third_party/externals
-if [ ! -d "$THIRD_PARTY_EXTERNAL_DIR" ]; then
-	echo ""
-	echo "ERROR: Unable to find the required third_party dependencies needed to build."
-	echo "       To fix this add the following line to your .gclient file and run 'gclient sync'"
-	echo "        target_os = ['android']"
-	echo ""
-	exit 1;
-fi
-
 # Helper function to configure the GYP defines to the appropriate values
 # based on the target device.
 setup_device() {
