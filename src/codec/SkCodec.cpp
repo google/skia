@@ -11,9 +11,7 @@
 #include "SkData.h"
 #include "SkGifCodec.h"
 #include "SkIcoCodec.h"
-#if !defined(GOOGLE3)
 #include "SkJpegCodec.h"
-#endif
 #include "SkPngCodec.h"
 #ifdef SK_CODEC_DECODES_RAW
 #include "SkRawCodec.h"
@@ -28,9 +26,7 @@ struct DecoderProc {
 };
 
 static const DecoderProc gDecoderProcs[] = {
-#if !defined(GOOGLE3)
     { SkJpegCodec::IsJpeg, SkJpegCodec::NewFromStream },
-#endif
     { SkWebpCodec::IsWebp, SkWebpCodec::NewFromStream },
     { SkGifCodec::IsGif, SkGifCodec::NewFromStream },
     { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },

@@ -129,7 +129,6 @@ BASE_SRCS_UNIX = struct(
         "src/ports/**/*.h",
     ],
     exclude = [
-        "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
         "src/opts/*arm*",
         "src/opts/*mips*",
         "src/opts/*NEON*",
@@ -178,7 +177,6 @@ BASE_SRCS_ANDROID = struct(
         "src/ports/**/*.h",
     ],
     exclude = [
-        "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
         "src/opts/*mips*",
         "src/opts/*SSE2*",
         "src/opts/*SSSE3*",
@@ -477,6 +475,7 @@ COPTS_ALL = []
 ################################################################################
 
 DEFINES_UNIX = [
+    "PNG_SKIP_SETJMP_CHECK",
     "SK_BUILD_FOR_UNIX",
     "SK_SAMPLES_FOR_X",
     "SK_SFNTLY_SUBSETTER",

@@ -86,7 +86,12 @@ SkJpegCodec::SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream,
  * Return the row bytes of a particular image type and width
  */
 static size_t get_row_bytes(const j_decompress_ptr dinfo) {
-    size_t colorBytes = (dinfo->out_color_space == JCS_RGB565) ? 2 : dinfo->out_color_components;
+#ifdef TURBO_HAS_565
+    const size_t colorBytes = (dinfo->out_color_space == JCS_RGB565) ? 2 :
+            dinfo->out_color_components;
+#else
+    const size_t colorBytes = dinfo->out_color_components;
+#endif
     return dinfo->output_width * colorBytes;
 
 }
@@ -184,12 +189,16 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else {
-                // Check the byte ordering of the RGBA color space for the
-                // current platform
-#if defined(SK_PMCOLOR_IS_RGBA)
-                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
+#ifdef LIBJPEG_TURBO_VERSION
+            // Check the byte ordering of the RGBA color space for the
+            // current platform
+    #ifdef SK_PMCOLOR_IS_RGBA
+            fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
+    #else
+            fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
+    #endif
 #else
-                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
+            fDecoderMgr->dinfo()->out_color_space = JCS_RGB;
 #endif
             }
             return true;
@@ -197,8 +206,12 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else {
+#ifdef TURBO_HAS_565
                 fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
                 fDecoderMgr->dinfo()->out_color_space = JCS_RGB565;
+#else
+                fDecoderMgr->dinfo()->out_color_space = JCS_RGB;
+#endif
             }
             return true;
         case kGray_8_SkColorType:
@@ -290,7 +303,8 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     // If it's not, we want to know because it means our strategy is not optimal.
     SkASSERT(1 == dinfo->rec_outbuf_height);
 
-    if (JCS_CMYK == dinfo->out_color_space) {
+    J_COLOR_SPACE colorSpace = dinfo->out_color_space;
+    if (JCS_CMYK == colorSpace || JCS_RGB == colorSpace) {
         this->initializeSwizzler(dstInfo, options);
     }
 
@@ -353,6 +367,10 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
         }
     }
 
+    if (JCS_RGB == fDecoderMgr->dinfo()->out_color_space) {
+        srcConfig = SkSwizzler::kRGB;
+    }
+
     fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, dstInfo, options));
     fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
     fSrcRow = fStorage.get();
@@ -394,7 +412,8 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 
     // We will need a swizzler if we are performing a subset decode or
     // converting from CMYK.
-    if (options.fSubset || JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
+    J_COLOR_SPACE colorSpace = fDecoderMgr->dinfo()->out_color_space;
+    if (options.fSubset || JCS_CMYK == colorSpace || JCS_RGB == colorSpace) {
         this->initializeSwizzler(dstInfo, options);
     }
 

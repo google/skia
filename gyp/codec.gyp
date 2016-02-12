@@ -66,6 +66,7 @@
       },
       'defines': [
         'TURBO_HAS_SKIP',
+        'TURBO_HAS_565',
       ],
       'conditions': [
         ['skia_codec_decodes_raw', {
