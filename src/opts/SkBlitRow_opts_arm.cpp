@@ -10,15 +10,15 @@
 
 #include "SkBlitRow_opts_arm_neon.h"
 
-static const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm[] = {
+extern const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm[] = {
     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 };
 
-static const SkBlitRow::ColorProc16 sk_blitrow_platform_565_colorprocs_arm[] = {
+extern const SkBlitRow::ColorProc16 sk_blitrow_platform_565_colorprocs_arm[] = {
     nullptr, nullptr,
 };
 
-static const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[] = {
+extern const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[] = {
     nullptr, nullptr, nullptr, nullptr,
 };
 
