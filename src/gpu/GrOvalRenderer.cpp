@@ -1081,8 +1081,8 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
     // We've extended the outer x radius out half a pixel to antialias.
     // This will also expand the rect so all the pixels will be captured.
     // TODO: Consider if we should use sqrt(2)/2 instead
-    SkScalar geoXRadius = xRadius + SK_ScalarHalf;
-    SkScalar geoYRadius = yRadius + SK_ScalarHalf;
+    xRadius += SK_ScalarHalf;
+    yRadius += SK_ScalarHalf;
 
     EllipseBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;
@@ -1092,8 +1092,8 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
     geometry.fInnerXRadius = innerXRadius;
     geometry.fInnerYRadius = innerYRadius;
     geometry.fStroke = isStrokeOnly && innerXRadius > 0 && innerYRadius > 0;
-    geometry.fDevBounds = SkRect::MakeLTRB(center.fX - geoXRadius, center.fY - geoYRadius,
-                                           center.fX + geoXRadius, center.fY + geoYRadius);
+    geometry.fDevBounds = SkRect::MakeLTRB(center.fX - xRadius, center.fY - yRadius,
+                                           center.fX + xRadius, center.fY + yRadius);
 
     return EllipseBatch::Create(geometry);
 }
