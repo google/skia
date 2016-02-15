@@ -44,7 +44,6 @@ protected:
 
 private:
 
-    bool initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fMaskSwizzler);
         return fMaskSwizzler;
