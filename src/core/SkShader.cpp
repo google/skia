@@ -117,8 +117,19 @@ SkShader::Context::ShadeProc SkShader::Context::asAShadeProc(void** ctx) {
     return nullptr;
 }
 
-void SkShader::Context::shadeSpan4f(int x, int y, SkPM4f[], int count) {
-    SkASSERT(false && "shadeSpan4f called but not implemented");
+void SkShader::Context::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
+    const int N = 128;
+    SkPMColor tmp[N];
+    while (count > 0) {
+        int n = SkTMin(count, N);
+        this->shadeSpan(x, y, tmp, n);
+        for (int i = 0; i < n; ++i) {
+            dst[i] = SkPM4f::FromPMColor(tmp[i]);
+        }
+        dst += n;
+        x += n;
+        count -= n;
+    }
 }
 
 #include "SkColorPriv.h"

@@ -41,9 +41,12 @@ public:
         fSurfaceProps = props;
     }
 
+    SkImageInfo info() const { return fBitmap.info(); }
     const SkBitmap& getBitmap() const { return fBitmap; }
 
     void    resize(int width, int height);
+    void    resize(const SkImageInfo&);
+    void    setColorType(SkColorType, SkColorProfileType);
 
     bool    isDirty() const { return !fDirtyRgn.isEmpty(); }
     bool    update(SkIRect* updateArea);

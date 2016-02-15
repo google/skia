@@ -11,149 +11,339 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 #include "SkBlitMask.h"
+#include "SkTemplates.h"
+
+template <typename State> class SkState_Blitter : public SkRasterBlitter {
+    typedef SkRasterBlitter INHERITED;
+    State fState;
+
+public:
+    SkState_Blitter(const SkPixmap& device, const SkPaint& paint)
+        : INHERITED(device)
+        , fState(device.info(), paint, nullptr)
+    {}
+
+    void blitH(int x, int y, int width) override {
+        SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
+        
+        fState.fProc1(fState, State::WritableAddr(fDevice, x, y), fState.fPM4f, width, nullptr);
+    }
+
+    void blitV(int x, int y, int height, SkAlpha alpha) override {
+        SkASSERT(x >= 0 && y >= 0 && y + height <= fDevice.height());
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        size_t                 deviceRB = fDevice.rowBytes();
+        
+        for (int i = 0; i < height; ++i) {
+            fState.fProc1(fState, device, fState.fPM4f, 1, &alpha);
+            device = (typename State::DstType*)((char*)device + deviceRB);
+        }
+    }
+
+    void blitRect(int x, int y, int width, int height) override {
+        SkASSERT(x >= 0 && y >= 0 &&
+                 x + width <= fDevice.width() && y + height <= fDevice.height());
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        size_t        deviceRB = fDevice.rowBytes();
+        
+        do {
+            fState.fProc1(fState, device, fState.fPM4f, width, nullptr);
+            y += 1;
+            device = (typename State::DstType*)((char*)device + deviceRB);
+        } while (--height > 0);
+    }
+
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        
+        for (;;) {
+            int count = *runs;
+            if (count <= 0) {
+                break;
+            }
+            int aa = *antialias;
+            if (aa) {
+                if (aa == 255) {
+                    fState.fProc1(fState, device, fState.fPM4f, count, nullptr);
+                } else {
+                    for (int i = 0; i < count; ++i) {
+                        fState.fProc1(fState, &device[i], fState.fPM4f, 1, antialias);
+                    }
+                }
+            }
+            device += count;
+            runs += count;
+            antialias += count;
+            x += count;
+        }
+    }
+
+    void blitMask(const SkMask& mask, const SkIRect& clip) override {
+        // we only handle kA8
+        if (SkMask::kA8_Format != mask.fFormat) {
+            this->INHERITED::blitMask(mask, clip);
+            return;
+        }
+        
+        SkASSERT(mask.fBounds.contains(clip));
+        
+        const int x = clip.fLeft;
+        const int width = clip.width();
+        const int y = clip.fTop;
+        const int height = clip.height();
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        const size_t dstRB = fDevice.rowBytes();
+        const uint8_t* maskRow = (const uint8_t*)mask.getAddr(x, y);
+        const size_t maskRB = mask.fRowBytes;
+        
+        for (int i = 0; i < height; ++i) {
+            fState.fProc1(fState, device, fState.fPM4f, width, maskRow);
+            device = (typename State::DstType*)((char*)device + dstRB);
+            maskRow += maskRB;
+        }
+    }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename State> class SkState_Shader_Blitter : public SkShaderBlitter {
+public:
+    SkState_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
+                           SkShader::Context* shaderContext)
+        : INHERITED(device, paint, shaderContext)
+        , fState(device.info(), paint, shaderContext)
+    {}
+    
+    void blitH(int x, int y, int width) override {
+        SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
+        fState.fProcN(fState, device, fState.fBuffer, width, nullptr);
+    }
+
+    void blitV(int x, int y, int height, SkAlpha alpha) override {
+        SkASSERT(x >= 0 && y >= 0 && y + height <= fDevice.height());
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        size_t      deviceRB = fDevice.rowBytes();
+        const int   bottom = y + height;
+        
+        if (fConstInY) {
+            fShaderContext->shadeSpan4f(x, y, fState.fBuffer, 1);
+        }
+        for (; y < bottom; ++y) {
+            if (!fConstInY) {
+                fShaderContext->shadeSpan4f(x, y, fState.fBuffer, 1);
+            }
+            fState.fProcN(fState, device, fState.fBuffer, 1, &alpha);
+            device = (typename State::DstType*)((char*)device + deviceRB);
+        }
+    }
+
+    void blitRect(int x, int y, int width, int height) override {
+        SkASSERT(x >= 0 && y >= 0 &&
+                 x + width <= fDevice.width() && y + height <= fDevice.height());
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        size_t        deviceRB = fDevice.rowBytes();
+        const int       bottom = y + height;
+        
+        if (fConstInY) {
+            fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
+        }
+        for (; y < bottom; ++y) {
+            if (!fConstInY) {
+                fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
+            }
+            fState.fProcN(fState, device, fState.fBuffer, width, nullptr);
+            device = (typename State::DstType*)((char*)device + deviceRB);
+        }
+    }
+
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        
+        for (;;) {
+            int count = *runs;
+            if (count <= 0) {
+                break;
+            }
+            int aa = *antialias;
+            if (aa) {
+                fShaderContext->shadeSpan4f(x, y, fState.fBuffer, count);
+                if (aa == 255) {
+                    fState.fProcN(fState, device, fState.fBuffer, count, nullptr);
+                } else {
+                    for (int i = 0; i < count; ++i) {
+                        fState.fProcN(fState, &device[i], &fState.fBuffer[i], 1, antialias);
+                    }
+                }
+            }
+            device += count;
+            runs += count;
+            antialias += count;
+            x += count;
+        }
+    }
+
+    void blitMask(const SkMask& mask, const SkIRect& clip) override {
+        // we only handle kA8
+        if (SkMask::kA8_Format != mask.fFormat) {
+            this->INHERITED::blitMask(mask, clip);
+            return;
+        }
+        
+        SkASSERT(mask.fBounds.contains(clip));
+        
+        const int x = clip.fLeft;
+        const int width = clip.width();
+        int y = clip.fTop;
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        const size_t deviceRB = fDevice.rowBytes();
+        const uint8_t* maskRow = (const uint8_t*)mask.getAddr(x, y);
+        const size_t maskRB = mask.fRowBytes;
+        
+        if (fConstInY) {
+            fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
+        }
+        for (; y < clip.fBottom; ++y) {
+            if (!fConstInY) {
+                fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
+            }
+            fState.fProcN(fState, device, fState.fBuffer, width, maskRow);
+            device = (typename State::DstType*)((char*)device + deviceRB);
+            maskRow += maskRB;
+        }
+    }
+    
+private:
+    State   fState;
+
+    typedef SkShaderBlitter INHERITED;
+};
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-SkARGB32_Shader4f_Blitter::SkARGB32_Shader4f_Blitter(const SkPixmap& device,
-        const SkPaint& paint, SkShader::Context* shaderContext)
-    : INHERITED(device, paint, shaderContext)
-{
-    const uint32_t shaderFlags = shaderContext->getFlags();
-
-    SkASSERT(shaderFlags & SkShader::kSupports4f_Flag);
-
-    fBuffer = (SkPM4f*)sk_malloc_throw(device.width() * (sizeof(SkPM4f)));
-
-    fState.fXfer = SkSafeRef(paint.getXfermode());
-    fState.fFlags = 0;
-    if (shaderFlags & SkShader::kOpaqueAlpha_Flag) {
-        fState.fFlags |= SkXfermode::kSrcIsOpaque_PM4fFlag;
-    }
-    if (device.info().isSRGB()) {
-        fState.fFlags |= SkXfermode::kDstIsSRGB_PM4fFlag;
-    }
-    if (fState.fXfer) {
-        fProc1 = fState.fXfer->getPM4fProc1(fState.fFlags);
-        fProcN = fState.fXfer->getPM4fProcN(fState.fFlags);
-    } else {
-        fProc1 = SkXfermode::GetPM4fProc1(SkXfermode::kSrcOver_Mode, fState.fFlags);
-        fProcN = SkXfermode::GetPM4fProcN(SkXfermode::kSrcOver_Mode, fState.fFlags);
-    }
-
-    fConstInY = SkToBool(shaderFlags & SkShader::kConstInY32_Flag);
+static bool is_opaque(const SkPaint& paint, const SkShader::Context* shaderContext) {
+    return shaderContext ? SkToBool(shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag)
+    : 0xFF == paint.getAlpha();
 }
 
-SkARGB32_Shader4f_Blitter::~SkARGB32_Shader4f_Blitter() {
-    SkSafeUnref(fState.fXfer);
-    sk_free(fBuffer);
-}
-
-void SkARGB32_Shader4f_Blitter::blitH(int x, int y, int width) {
-    SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
-
-    uint32_t* device = fDevice.writable_addr32(x, y);
-    fShaderContext->shadeSpan4f(x, y, fBuffer, width);
-    fProcN(fState, device, fBuffer, width, nullptr);
-}
-
-void SkARGB32_Shader4f_Blitter::blitRect(int x, int y, int width, int height) {
-    SkASSERT(x >= 0 && y >= 0 &&
-             x + width <= fDevice.width() && y + height <= fDevice.height());
-
-    uint32_t*   device = fDevice.writable_addr32(x, y);
-    size_t      deviceRB = fDevice.rowBytes();
-
-    if (fConstInY) {
-        fShaderContext->shadeSpan4f(x, y, fBuffer, width);
-        do {
-            fProcN(fState, device, fBuffer, width, nullptr);
-            y += 1;
-            device = (uint32_t*)((char*)device + deviceRB);
-        } while (--height > 0);
-    } else {
-        do {
-            fShaderContext->shadeSpan4f(x, y, fBuffer, width);
-            fProcN(fState, device, fBuffer, width, nullptr);
-            y += 1;
-            device = (uint32_t*)((char*)device + deviceRB);
-        } while (--height > 0);
-    }
-}
-
-void SkARGB32_Shader4f_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
-                                        const int16_t runs[]) {
-    uint32_t* device = fDevice.writable_addr32(x, y);
-
-    for (;;) {
-        int count = *runs;
-        if (count <= 0) {
-            break;
+struct State32 : SkXfermode::PM4fState {
+    typedef uint32_t        DstType;
+    
+    SkXfermode::PM4fProc1   fProc1;
+    SkXfermode::PM4fProcN   fProcN;
+    SkPM4f                  fPM4f;
+    SkPM4f*                 fBuffer;
+    
+    State32(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext) {
+        fXfer = SkSafeRef(paint.getXfermode());
+        fFlags = 0;
+        if (is_opaque(paint, shaderContext)) {
+            fFlags |= SkXfermode::kSrcIsOpaque_PM4fFlag;
         }
-        int aa = *antialias;
-        if (aa) {
-            fShaderContext->shadeSpan4f(x, y, fBuffer, count);
-            if (aa == 255) {
-                fProcN(fState, device, fBuffer, count, nullptr);
-            } else {
-                // count is almost always 1
-                for (int i = count - 1; i >= 0; --i) {
-                    fProcN(fState, &device[i], &fBuffer[i], 1, antialias);
-                }
-            }
+        if (info.isSRGB()) {
+            fFlags |= SkXfermode::kDstIsSRGB_PM4fFlag;
         }
-        device += count;
-        runs += count;
-        antialias += count;
-        x += count;
+        if (fXfer) {
+            fProc1 = fXfer->getPM4fProc1(fFlags);
+            fProcN = fXfer->getPM4fProcN(fFlags);
+        } else {
+            fProc1 = SkXfermode::GetPM4fProc1(SkXfermode::kSrcOver_Mode, fFlags);
+            fProcN = SkXfermode::GetPM4fProcN(SkXfermode::kSrcOver_Mode, fFlags);
+        }
+
+        fBuffer = nullptr;
+        if (shaderContext) {
+            fBuffer = new SkPM4f[info.width()];
+        } else {
+            fPM4f = SkColor4f::FromColor(paint.getColor()).premul();
+        }
     }
-}
-
-void SkARGB32_Shader4f_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
-    // we only handle kA8
-    if (SkMask::kA8_Format != mask.fFormat) {
-        this->INHERITED::blitMask(mask, clip);
-        return;
+    
+    ~State32() {
+        SkSafeUnref(fXfer);
+        delete[] fBuffer;
     }
+    
+    static DstType* WritableAddr(const SkPixmap& device, int x, int y) {
+        return device.writable_addr32(x, y);
+    }
+};
 
-    SkASSERT(mask.fBounds.contains(clip));
+struct State64 : SkXfermode::U64State {
+    typedef uint64_t        DstType;
+    
+    SkXfermode::U64Proc1    fProc1;
+    SkXfermode::U64ProcN    fProcN;
+    SkPM4f                  fPM4f;
+    SkPM4f*                 fBuffer;
+    
+    State64(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext) {
+        fXfer = SkSafeRef(paint.getXfermode());
+        fFlags = 0;
+        if (is_opaque(paint, shaderContext)) {
+            fFlags |= SkXfermode::kSrcIsOpaque_PM4fFlag;
+        }
+        if (kRGBA_F16_SkColorType == info.colorType()) {
+            fFlags |= SkXfermode::kDstIsFloat16_U64Flag;
+        }
+        
+        SkXfermode::Mode mode;
+        if (SkXfermode::AsMode(fXfer, &mode)) {
+            mode = SkXfermode::kSrcOver_Mode;
+        }
+        fProc1 = SkXfermode::GetU64Proc1(mode, fFlags);
+        fProcN = SkXfermode::GetU64ProcN(mode, fFlags);
+        
+        fBuffer = nullptr;
+        if (shaderContext) {
+            fBuffer = new SkPM4f[info.width()];
+        } else {
+            fPM4f = SkColor4f::FromColor(paint.getColor()).premul();
+        }
+    }
+    
+    ~State64() {
+        SkSafeUnref(fXfer);
+        delete[] fBuffer;
+    }
+    
+    static DstType* WritableAddr(const SkPixmap& device, int x, int y) {
+        return device.writable_addr64(x, y);
+    }
+};
 
-    const int x = clip.fLeft;
-    const int width = clip.width();
-    int y = clip.fTop;
-    int height = clip.height();
-
-    char* dstRow = (char*)fDevice.writable_addr32(x, y);
-    const size_t dstRB = fDevice.rowBytes();
-    const uint8_t* maskRow = (const uint8_t*)mask.getAddr(x, y);
-    const size_t maskRB = mask.fRowBytes;
-
-    do {
-        fShaderContext->shadeSpan4f(x, y, fBuffer, width);
-        fProcN(fState, reinterpret_cast<SkPMColor*>(dstRow), fBuffer, width, maskRow);
-        dstRow += dstRB;
-        maskRow += maskRB;
-        y += 1;
-    } while (--height > 0);
-}
-
-void SkARGB32_Shader4f_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
-    SkASSERT(x >= 0 && y >= 0 && y + height <= fDevice.height());
-
-    uint32_t*   device = fDevice.writable_addr32(x, y);
-    size_t      deviceRB = fDevice.rowBytes();
-
-    if (fConstInY) {
-        fShaderContext->shadeSpan4f(x, y, fBuffer, 1);
-        do {
-            fProcN(fState, device, fBuffer, 1, &alpha);
-            device = (uint32_t*)((char*)device + deviceRB);
-        } while (--height > 0);
+template <typename State> SkBlitter* create(const SkPixmap& device, const SkPaint& paint,
+                                            SkShader::Context* shaderContext,
+                                            SkTBlitterAllocator* allocator) {
+    SkASSERT(allocator != nullptr);
+    
+    if (shaderContext) {
+        return allocator->createT<SkState_Shader_Blitter<State>>(device, paint, shaderContext);
     } else {
-        do {
-            fShaderContext->shadeSpan4f(x, y, fBuffer, 1);
-            fProcN(fState, device, fBuffer, 1, &alpha);
-            y += 1;
-            device = (uint32_t*)((char*)device + deviceRB);
-        } while (--height > 0);
+        SkColor color = paint.getColor();
+        if (0 == SkColorGetA(color)) {
+            return nullptr;
+        }
+        return allocator->createT<SkState_Blitter<State>>(device, paint);
     }
+}
+
+SkBlitter* SkBlitter_ARGB32_Create(const SkPixmap& device, const SkPaint& paint,
+                                   SkShader::Context* shaderContext,
+                                   SkTBlitterAllocator* allocator) {
+    return create<State32>(device, paint, shaderContext, allocator);
+}
+
+SkBlitter* SkBlitter_ARGB64_Create(const SkPixmap& device, const SkPaint& paint,
+                                   SkShader::Context* shaderContext,
+                                   SkTBlitterAllocator* allocator) {
+    return create<State64>(device, paint, shaderContext, allocator);
 }

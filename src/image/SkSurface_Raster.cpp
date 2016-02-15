@@ -57,6 +57,9 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
         case kN32_SkColorType:
             shift = 2;
             break;
+        case kRGBA_F16_SkColorType:
+            shift = 3;
+            break;
         default:
             return false;
     }

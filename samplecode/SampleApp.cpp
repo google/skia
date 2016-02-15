@@ -42,6 +42,25 @@
 class GrContext;
 #endif
 
+const struct {
+    SkColorType         fColorType;
+    SkColorProfileType  fProfileType;
+    const char*         fName;
+} gConfig[] = {
+    { kN32_SkColorType,      kLinear_SkColorProfileType, "L32" },
+    { kN32_SkColorType,        kSRGB_SkColorProfileType, "S32" },
+    { kRGBA_F16_SkColorType, kLinear_SkColorProfileType, "F16" },
+};
+
+static const char* find_config_name(const SkImageInfo& info) {
+    for (const auto& config : gConfig) {
+        if (config.fColorType == info.colorType() && config.fProfileType == info.profileType()) {
+            return config.fName;
+        }
+    }
+    return "???";
+}
+
 // Should be 3x + 1
 #define kMaxFatBitsScale    28
 
@@ -876,6 +895,10 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu->setTitle("Global Settings");
     int itemID;
 
+    itemID = fAppMenu->appendList("ColorType", "ColorType", sinkID, 0,
+                                  gConfig[0].fName, gConfig[1].fName, gConfig[2].fName, nullptr);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'C');
+
     itemID = fAppMenu->appendList("Device Type", "Device Type", sinkID, 0,
                                   "Raster",
                                   "OpenGL",
@@ -1557,6 +1580,10 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->setDeviceType((DeviceType)selected);
         return true;
     }
+    if (SkOSMenu::FindListIndex(evt, "ColorType", &selected)) {
+        this->setDeviceColorType(gConfig[selected].fColorType, gConfig[selected].fProfileType);
+        return true;
+    }
     if (SkOSMenu::FindSwitchState(evt, "Slide Show", nullptr)) {
         this->toggleSlideshow();
         return true;
@@ -1761,13 +1788,24 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
 void SampleWindow::setDeviceType(DeviceType type) {
     if (type == fDeviceType)
         return;
+    
+    fDevManager->tearDownBackend(this);
+    
+    fDeviceType = type;
+    
+    fDevManager->setUpBackend(this, fMSAASampleCount);
+    
+    this->updateTitle();
+    this->inval(nullptr);
+}
+
+void SampleWindow::setDeviceColorType(SkColorType ct, SkColorProfileType pt) {
+    this->setColorType(ct, pt);
 
     fDevManager->tearDownBackend(this);
-
-    fDeviceType = type;
-
+    
     fDevManager->setUpBackend(this, fMSAASampleCount);
-
+    
     this->updateTitle();
     this->inval(nullptr);
 }
@@ -2026,6 +2064,8 @@ void SampleWindow::updateTitle() {
                        fDevManager->getGrRenderTarget()->numColorSamples());
     }
 #endif
+
+    title.appendf(" %s", find_config_name(this->info()));
 
     this->setTitle(title.c_str());
 }

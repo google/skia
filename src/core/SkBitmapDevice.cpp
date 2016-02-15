@@ -55,6 +55,8 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
             break;
         case kN32_SkColorType:
             break;
+        case kRGBA_F16_SkColorType:
+            break;
         default:
             return false;
     }

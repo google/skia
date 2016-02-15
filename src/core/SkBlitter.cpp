@@ -20,13 +20,7 @@
 #include "SkXfermodeInterpretation.h"
 
 // define this for testing srgb blits
-//#define SK_SUPPORT_SRGB_RASTER
-
-#ifdef SK_SUPPORT_SRGB_RASTER
-    #define ALLOW_SRGB  true
-#else
-    #define ALLOW_SRGB  false
-#endif
+//#define SK_FORCE_PM4f_FOR_L32_BLITS
 
 SkBlitter::~SkBlitter() {}
 
@@ -913,21 +907,30 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
             break;
 
         case kN32_SkColorType:
-            if (shader) {
-                if (shaderContext->supports4f() && ALLOW_SRGB) {
-                    blitter = allocator->createT<SkARGB32_Shader4f_Blitter>(
-                                                                  device, *paint, shaderContext);
-                } else {
-                    blitter = allocator->createT<SkARGB32_Shader_Blitter>(
-                            device, *paint, shaderContext);
-                }
-            } else if (paint->getColor() == SK_ColorBLACK) {
-                blitter = allocator->createT<SkARGB32_Black_Blitter>(device, *paint);
-            } else if (paint->getAlpha() == 0xFF) {
-                blitter = allocator->createT<SkARGB32_Opaque_Blitter>(device, *paint);
+#ifdef SK_FORCE_PM4f_FOR_L32_BLITS
+            if (true)
+#else
+            if (device.info().isSRGB())
+#endif
+            {
+                blitter = SkBlitter_ARGB32_Create(device, *paint, shaderContext, allocator);
             } else {
-                blitter = allocator->createT<SkARGB32_Blitter>(device, *paint);
+                if (shader) {
+                        blitter = allocator->createT<SkARGB32_Shader_Blitter>(
+                                device, *paint, shaderContext);
+                } else if (paint->getColor() == SK_ColorBLACK) {
+                    blitter = allocator->createT<SkARGB32_Black_Blitter>(device, *paint);
+                } else if (paint->getAlpha() == 0xFF) {
+                    blitter = allocator->createT<SkARGB32_Opaque_Blitter>(device, *paint);
+                } else {
+                    blitter = allocator->createT<SkARGB32_Blitter>(device, *paint);
+                }
             }
+            break;
+
+        case kRGBA_F16_SkColorType:
+        // kU16_SkColorType:
+            blitter = SkBlitter_ARGB64_Create(device, *paint, shaderContext, allocator);
             break;
 
         default:
@@ -972,6 +975,7 @@ SkShaderBlitter::SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
 
     fShader->ref();
     fShaderFlags = fShaderContext->getFlags();
+    fConstInY = SkToBool(fShaderFlags & SkShader::kConstInY32_Flag);
 }
 
 SkShaderBlitter::~SkShaderBlitter() {

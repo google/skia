@@ -118,6 +118,7 @@ public:
     void draw(SkCanvas*) override;
 
     void setDeviceType(DeviceType type);
+    void setDeviceColorType(SkColorType, SkColorProfileType);
     void toggleRendering();
     void toggleSlideshow();
     void toggleFPS();
