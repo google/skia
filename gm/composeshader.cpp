@@ -9,7 +9,6 @@
 
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
-#include "SkComposeShader.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkShader.h"
@@ -36,7 +35,7 @@ static SkShader* make_shader(SkXfermode::Mode mode) {
 
     SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
 
-    return new SkComposeShader(shaderA, shaderB, xfer);
+    return SkShader::CreateComposeShader(shaderA, shaderB, xfer);
 }
 
 class ComposeShaderGM : public skiagm::GM {
@@ -194,11 +193,11 @@ protected:
         SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(SkXfermode::kDstOver_Mode));
 
         // gradient should appear over color bitmap
-        SkAutoTUnref<SkShader> shader0(new SkComposeShader(fLinearGradientShader,
+        SkAutoTUnref<SkShader> shader0(SkShader::CreateComposeShader(fLinearGradientShader,
                                                            fColorBitmapShader,
                                                            xfer));
         // gradient should appear over alpha8 bitmap colorized by the paint color
-        SkAutoTUnref<SkShader> shader1(new SkComposeShader(fLinearGradientShader,
+        SkAutoTUnref<SkShader> shader1(SkShader::CreateComposeShader(fLinearGradientShader,
                                                            fAlpha8BitmapShader,
                                                            xfer));
 
@@ -226,7 +225,7 @@ protected:
     }
     
 private:
-    /** This determines the length and width of the bitmaps used in the SkComposeShaders.  Values
+    /** This determines the length and width of the bitmaps used in the ComposeShaders.  Values
      *  above 20 may cause an SkASSERT to fail in SkSmallAllocator. However, larger values will
      *  work in a release build.  You can change this parameter and then compile a release build
      *  to have this GM draw larger bitmaps for easier visual inspection.

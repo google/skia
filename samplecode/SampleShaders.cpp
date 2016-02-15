@@ -16,7 +16,6 @@
 #include "SkShader.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
-#include "SkComposeShader.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTime.h"
@@ -38,7 +37,7 @@ static SkShader* make_bitmapfade(const SkBitmap& bm)
 
     SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
 
-    SkShader* shader = new SkComposeShader(shaderB, shaderA, mode);
+    SkShader* shader = SkShader::CreateComposeShader(shaderB, shaderA, mode);
     shaderA->unref();
     shaderB->unref();
     mode->unref();
@@ -71,7 +70,7 @@ public:
 
         SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
 
-        fShader = new SkComposeShader(shaderA, shaderB, mode);
+        fShader = SkShader::CreateComposeShader(shaderA, shaderB, mode);
         shaderA->unref();
         shaderB->unref();
         mode->unref();

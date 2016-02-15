@@ -28,7 +28,6 @@
 #include "SkPictureRecorder.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkComposeShader.h"
 #include "SkCornerPathEffect.h"
 #include "SkPathMeasure.h"
 #include "SkPicture.h"
@@ -511,7 +510,7 @@ protected:
         SkShader* shaderB = SkGradientShader::CreateLinear(pts, colors2, nullptr,
             2, SkShader::kClamp_TileMode);
         SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
-        SkShader* result = new SkComposeShader(shaderA, shaderB, mode);
+        SkShader* result = SkShader::CreateComposeShader(shaderA, shaderB, mode);
         shaderA->unref();
         shaderB->unref();
         mode->unref();

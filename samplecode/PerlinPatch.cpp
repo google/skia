@@ -11,7 +11,6 @@
 #include "SkGradientShader.h"
 #include "SkPatchUtils.h"
 #include "SkPerlinNoiseShader2/SkPerlinNoiseShader2.h"
-#include "SkComposeShader.h"
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
     //draw control points
@@ -148,7 +147,7 @@ protected:
         SkScalar scaleFreq = 2.0;
         fShader1 = SkPerlinNoiseShader2::CreateImprovedNoise(fXFreq/scaleFreq, fYFreq/scaleFreq, 4,
                                                              fSeed);
-        fShaderCompose = new SkComposeShader(fShader0, fShader1);
+        fShaderCompose = SkShader::CreateComposeShader(fShader0, fShader1, nullptr);
 
         paint.setShader(fShaderCompose);
         canvas->drawPatch(fPts, nullptr, texCoords, xfer, paint);

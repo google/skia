@@ -332,7 +332,6 @@
         '<(skia_include_path)/core/SkColor.h',
         '<(skia_include_path)/core/SkColorFilter.h',
         '<(skia_include_path)/core/SkColorPriv.h',
-        '<(skia_include_path)/core/SkComposeShader.h',
         '<(skia_include_path)/core/SkData.h',
         '<(skia_include_path)/core/SkDeque.h',
         '<(skia_include_path)/core/SkDevice.h',
