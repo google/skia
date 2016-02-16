@@ -299,7 +299,7 @@ class ClipAlphaHandler : public UrlHandler {
 public:
     bool canHandle(const char* method, const char* url) override {
         static const char* kBasePath = "/clipAlpha/";
-        return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
+        return 0 == strcmp(method, MHD_HTTP_METHOD_POST) &&
                0 == strncmp(url, kBasePath, strlen(kBasePath));
     }
 
