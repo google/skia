@@ -35,6 +35,7 @@
         'gputest.gyp:skgputest',
         'json.gyp:json',
         'jsoncpp.gyp:jsoncpp',
+        'libpng.gyp:libpng',
         'microhttpd.gyp:microhttpd',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',

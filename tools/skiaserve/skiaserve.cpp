@@ -22,6 +22,7 @@
 
 #include <sys/socket.h>
 #include <microhttpd.h>
+#include "png.h"
 
 // To get image decoders linked in we have to do the below magic
 #include "SkForceLinking.h"
@@ -92,6 +93,34 @@ SkSurface* setupSurface(GrContextFactory* factory) {
     return surface;
 }
 
+static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
+    SkWStream* out = (SkWStream*) png_get_io_ptr(png_ptr);
+    out->write(data, length);
+}
+
+static void write_png(const png_bytep rgba, png_uint_32 width, png_uint_32 height, SkWStream& out) {
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    SkASSERT(png != nullptr);
+    png_infop info_ptr = png_create_info_struct(png);
+    SkASSERT(info_ptr != nullptr);
+    if (setjmp(png_jmpbuf(png))) {
+        SkFAIL("png encode error");
+    }
+    png_set_IHDR(png, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    png_set_compression_level(png, 1);
+    png_bytepp rows = (png_bytepp) sk_malloc_throw(height * sizeof(png_byte*));
+    for (png_size_t y = 0; y < height; ++y) {
+        rows[y] = (png_bytep) rgba + y * width * 4;
+    }
+    png_set_filter(png, 0, PNG_NO_FILTERS);
+    png_set_rows(png, info_ptr, &rows[0]);
+    png_set_write_fn(png, &out, write_png_callback, NULL);
+    png_write_png(png, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    png_destroy_write_struct(&png, NULL);
+    sk_free(rows);
+}
+
 SkData* writeCanvasToPng(SkCanvas* canvas) {
     // capture pixels
     SkBitmap bmp;
@@ -102,13 +131,9 @@ SkData* writeCanvasToPng(SkCanvas* canvas) {
     }
 
     // write to png
-    // TODO encoding to png can be quite slow, we should investigate bmp
-    SkData* png = SkImageEncoder::EncodeData(bmp, SkImageEncoder::kPNG_Type, 100);
-    if (!png) {
-        fprintf(stderr, "Can't encode to png\n");
-        return nullptr;
-    }
-    return png;
+    SkDynamicMemoryWStream buffer;
+    write_png((const png_bytep) bmp.getPixels(), bmp.width(), bmp.height(), buffer);
+    return buffer.copyToData();
 }
 
 SkData* setupAndDrawToCanvasReturnPng(Request* request, int n) {
