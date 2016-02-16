@@ -119,6 +119,10 @@ def gyp_defines(builder_dict):
   if builder_dict.get('extra_config') == 'Shared':
     gyp_defs['skia_shared_lib'] = '1'
 
+  # Build fastest Skia possible.
+  if builder_dict.get('extra_config') == 'Fast':
+    gyp_defs['skia_fast'] = '1'
+
   # PDF viewer in GM.
   if (builder_dict.get('os') == 'Mac10.8' and
       builder_dict.get('arch') == 'x86_64' and
@@ -337,6 +341,7 @@ def self_test():
         ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-'
          'SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD',
+        'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast',
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
         'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
         'Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86-Release-ANGLE',
