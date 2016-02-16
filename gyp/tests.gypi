@@ -32,11 +32,6 @@
     [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]', {
         'sources!': [ '../tests/FontMgrAndroidParserTest.cpp', ],
     }],
-    [ 'skia_android_framework == 1', {
-      'libraries': [
-        '-ldl',
-      ],
-    }],
     [ 'not skia_pdf', {
       'dependencies!': [ 'pdf.gyp:pdf', 'zlib.gyp:zlib' ],
       'dependencies': [ 'pdf.gyp:nopdf' ],

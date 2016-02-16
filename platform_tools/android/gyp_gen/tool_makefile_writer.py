@@ -42,6 +42,8 @@ def write_tool_android_mk(target_dir, var_dict):
 
     f.write(SKIA_RESOURCES)
     f.write('include $(LOCAL_PATH)/../skia_static_deps.mk\n')
+    if 'libhwui_static' in var_dict['LOCAL_STATIC_LIBRARIES']:
+      f.write('include frameworks/base/libs/hwui/hwui_static_deps.mk\n')
     f.write('include $(BUILD_NATIVE_TEST)\n')
 
 

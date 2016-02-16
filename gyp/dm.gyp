@@ -16,10 +16,7 @@
           ['skia_android_framework', {
               'libraries': [
                   'skia_static.a',
-                  '-lhwui',
-              ],
-              'include_dirs': [
-                  '../../../frameworks/base/libs/hwui/',
+                  'hwui_static.a',
               ],
               'sources': [
                 '../dm/DMSrcSinkAndroid.cpp',
