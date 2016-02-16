@@ -21,11 +21,14 @@ pushd $here/../third_party/externals/cmake
 make -j $cores cmake
 popd
 
+cmake=$here/../third_party/externals/cmake/bin/cmake
+
 echo "Building Clang"
 pushd $here/../third_party/externals/llvm
 mkdir -p out/
 cd out/
-$here/../third_party/externals/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+rm -f CMakeCache.txt   # Force CMake to re-configure, in case DEPS has changed.
+$cmake -DCMAKE_BUILD_TYPE=Release -G Ninja ..
 ninja
 popd
 
@@ -34,7 +37,20 @@ export CXX=$here/../third_party/externals/llvm/out/bin/clang++
 $CC --version
 
 if [[ "$1" == "memory" ]]; then
+    echo "Building libc++ with MSAN"
+    pushd $here/../third_party/externals/llvm
+    mkdir -p msan_out/
+    cd msan_out/
+    rm -f CMakeCache.txt   # Force CMake to re-configure, in case DEPS has changed.
+    $cmake -DLLVM_USE_SANITIZER=MemoryWithOrigins -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+    ninja cxx cxxabi   # No need to build all of LLVM+Clang with MSAN, just libc++.
+    popd
+
+    msan_out=$here/../third_party/externals/llvm/msan_out
+
     export GYP_DEFINES="skia_gpu=0 skia_no_fontconfig=1 skia_freetype_static=1 ${GYP_DEFINES}"
+    export CXXFLAGS="-stdlib=libc++ -I$msan_out/include ${CXX_FLAGS}"
+    export LDFLAGS="-stdlib=libc++ -L$msan_out/lib -Wl,-rpath,$msan_out/lib ${LDFLAGS}"
 fi
 export GYP_DEFINES="skia_sanitizer=$1 ${GYP_DEFINES}"
 

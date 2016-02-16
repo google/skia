@@ -2290,19 +2290,7 @@
     "serialize-8888", 
     "gm", 
     "_", 
-    "image-cacherator-from-ctable", 
-    "_", 
-    "image", 
-    "_", 
-    ".wbmp", 
-    "_", 
-    "image", 
-    "_", 
-    ".png", 
-    "_", 
-    "image", 
-    "_", 
-    ".bmp"
+    "image-cacherator-from-ctable"
   ], 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN": [
     "--pre_log", 

@@ -188,12 +188,6 @@ def get_args(bot):
   if 'ANGLE' in bot and 'Debug' in bot:
     match.append('~GLPrograms') # skia:4717
 
-  # Hacking around trying to get the MSAN bot green.
-  if 'MSAN' in bot:
-    blacklist.extend(('_ image _ .wbmp').split(' '))  # skia:4900
-    blacklist.extend(('_ image _ .png').split(' '))  # I8 .png color tables
-    blacklist.extend(('_ image _ .bmp').split(' '))  # I8 .bmp color tables
-
   if blacklist:
     args.append('--blacklist')
     args.extend(blacklist)
