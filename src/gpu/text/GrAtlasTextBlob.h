@@ -17,6 +17,7 @@
 #include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
 
+class GrBlobRegenHelper;
 struct GrDistanceFieldAdjustTable;
 class GrMemoryPool;
 class GrTextContext;
@@ -107,6 +108,8 @@ public:
     bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
     void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
     void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
+
+    int runCount() const { return fRunCount; }
 
     void push_back_run(int currRun) {
         SkASSERT(currRun < fRunCount);
@@ -254,6 +257,13 @@ public:
     void initThrowawayBlob(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
         this->setupViewMatrix(viewMatrix, x, y);
     }
+
+    void regenInBatch(GrDrawBatch::Target* target, GrBatchFontCache* fontCache,
+                      GrBlobRegenHelper *helper, int run, int subRun, SkGlyphCache** cache,
+                      SkTypeface** typeface, GrFontScaler** scaler,
+                      const SkDescriptor** desc, size_t vertexStride,
+                      GrColor color, SkScalar transX, SkScalar transY,
+                      void** vertices, size_t* byteCount, int* glyphCount);
 
     const Key& key() const { return fKey; }
 
@@ -453,6 +463,17 @@ private:
         bool fDrawAsPaths;
     };
 
+    template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
+    void regenInBatch(GrDrawBatch::Target* target,
+                      GrBatchFontCache* fontCache,
+                      GrBlobRegenHelper* helper,
+                      Run* run, Run::SubRunInfo* info, SkGlyphCache** cache,
+                      SkTypeface** typeface, GrFontScaler** scaler,
+                      const SkDescriptor** desc,
+                      int glyphCount, size_t vertexStride,
+                      GrColor color, SkScalar transX,
+                      SkScalar transY) const;
+
     inline GrDrawBatch* createBatch(const Run::SubRunInfo& info,
                                     int glyphCount, int run, int subRun,
                                     GrColor color, SkScalar transX, SkScalar transY,
@@ -510,8 +531,6 @@ private:
     SkScalar fMinMaxScale;
     int fRunCount;
     uint8_t fTextType;
-
-    friend class GrAtlasTextBatch; // We might be able to get rid of this friending
 };
 
 #endif

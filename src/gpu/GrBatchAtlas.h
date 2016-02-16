@@ -9,10 +9,11 @@
 #define GrBatchAtlas_DEFINED
 
 #include "GrTexture.h"
-#include "batches/GrDrawBatch.h"
 #include "SkPoint.h"
 #include "SkTDArray.h"
 #include "SkTInternalLList.h"
+
+#include "batches/GrDrawBatch.h"
 
 class GrRectanizer;
 

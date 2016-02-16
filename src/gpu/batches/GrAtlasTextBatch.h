@@ -21,8 +21,6 @@ public:
     static const int kIndicesPerGlyph = 6;
 
     typedef GrAtlasTextBlob Blob;
-    typedef Blob::Run Run;
-    typedef Run::SubRunInfo TextInfo;
     struct Geometry {
         Blob* fBlob;
         int fRun;
@@ -140,13 +138,6 @@ private:
                kLCDDistanceField_MaskType == fMaskType;
     }
 
-    template <bool regenTexCoords, bool regenPos, bool regenCol, bool regenGlyphs>
-    inline void regenBlob(Target* target, FlushInfo* flushInfo, Blob* blob, Run* run,
-                          TextInfo* info, SkGlyphCache** cache,
-                          SkTypeface** typeface, GrFontScaler** scaler, const SkDescriptor** desc,
-                          const GrGeometryProcessor* gp, int glyphCount, size_t vertexStride,
-                          GrColor color, SkScalar transX, SkScalar transY) const;
-
     inline void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const;
 
     GrColor color() const { return fBatch.fColor; }
@@ -191,7 +182,37 @@ private:
     SkAutoTUnref<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fFilteredColor;
 
+    friend class GrBlobRegenHelper; // Needs to trigger flushes
+
     typedef GrVertexBatch INHERITED;
+};
+
+/*
+ * A simple helper class to abstract the interface GrAtlasTextBlob needs to regenerate itself.
+ * It'd be nicer if this was nested, but we need to forward declare it in GrAtlasTextBlob.h
+ */
+class GrBlobRegenHelper {
+public:
+    GrBlobRegenHelper(const GrAtlasTextBatch* batch,
+                      GrVertexBatch::Target* target,
+                      GrAtlasTextBatch::FlushInfo* flushInfo,
+                      const GrGeometryProcessor* gp)
+        : fBatch(batch)
+        , fTarget(target)
+        , fFlushInfo(flushInfo)
+        , fGP(gp) {}
+
+    void flush();
+
+    void incGlyphCount(int glyphCount = 1) {
+        fFlushInfo->fGlyphsToFlush += glyphCount;
+    }
+
+private:
+    const GrAtlasTextBatch* fBatch;
+    GrVertexBatch::Target* fTarget;
+    GrAtlasTextBatch::FlushInfo* fFlushInfo;
+    const GrGeometryProcessor* fGP;
 };
 
 #endif

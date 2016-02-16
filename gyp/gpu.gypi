@@ -292,6 +292,7 @@
 
       # text
       '<(skia_src_path)/gpu/text/GrAtlasTextBlob.cpp',
+      '<(skia_src_path)/gpu/text/GrAtlasTextBlob_regenInBatch.cpp',
       '<(skia_src_path)/gpu/text/GrAtlasTextBlob.h',
       '<(skia_src_path)/gpu/text/GrAtlasTextContext.cpp',
       '<(skia_src_path)/gpu/text/GrAtlasTextContext.h',
