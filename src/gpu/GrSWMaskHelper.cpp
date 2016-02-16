@@ -279,7 +279,7 @@ void GrSWMaskHelper::toTexture(GrTexture *texture) {
     desc.fWidth = fPixels.width();
     desc.fHeight = fPixels.height();
     desc.fConfig = texture->config();
-        
+
     // First see if we should compress this texture before uploading.
     switch (fCompressionMode) {
         case kNone_CompressionMode:

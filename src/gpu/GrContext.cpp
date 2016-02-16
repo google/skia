@@ -268,7 +268,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     }
 
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
-    if (!fGpu->getWritePixelsInfo(surface, width, height, rowBytes, srcConfig, &drawPreference,
+    if (!fGpu->getWritePixelsInfo(surface, width, height, srcConfig, &drawPreference,
                                   &tempDrawInfo)) {
         return false;
     }

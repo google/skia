@@ -296,7 +296,7 @@ public:
                              GrPixelConfig readConfig, DrawPreference*,
                              ReadPixelTempDrawInfo*) override { return false; }
 
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height, size_t rowBytes,
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override { return false; }
 

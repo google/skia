@@ -659,7 +659,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                                   size_t rowBytes, GrPixelConfig srcConfig,
+                                   GrPixelConfig srcConfig,
                                    DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
     if (kIndex_8_GrPixelConfig == srcConfig || GrPixelConfigIsCompressed(dstSurface->config())) {

@@ -220,7 +220,7 @@ public:
      * that would allow a successful transfer of the src pixels to the dst. The passed width,
      * height, and rowBytes, must be non-zero and already reflect clipping to the dst bounds.
      */
-    bool getWritePixelsInfo(GrSurface* dstSurface, int width, int height, size_t rowBytes,
+    bool getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                             GrPixelConfig srcConfig, DrawPreference*, WritePixelTempDrawInfo*);
 
     /**
@@ -532,7 +532,7 @@ private:
     virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight,
                                      size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,
                                      ReadPixelTempDrawInfo*) = 0;
-    virtual bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height, size_t rowBytes,
+    virtual bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                       GrPixelConfig srcConfig, DrawPreference*,
                                       WritePixelTempDrawInfo*) = 0;
 

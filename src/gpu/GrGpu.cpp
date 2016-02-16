@@ -268,7 +268,7 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size
 
     return true;
 }
-bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height, size_t rowBytes,
+bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                GrPixelConfig srcConfig, DrawPreference* drawPreference,
                                WritePixelTempDrawInfo* tempDrawInfo) {
     SkASSERT(drawPreference);
@@ -289,7 +289,7 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height, siz
         }
     }
 
-    if (!this->onGetWritePixelsInfo(dstSurface, width, height, rowBytes, srcConfig, drawPreference,
+    if (!this->onGetWritePixelsInfo(dstSurface, width, height, srcConfig, drawPreference,
                                     tempDrawInfo)) {
         return false;
     }

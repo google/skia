@@ -157,7 +157,7 @@ void HelloWorldWindow::draw(SkCanvas* canvas) {
     if (kRaster_DeviceType == fType) {
         // need to send the raster bits to the (gpu) window
         SkImage* snap = fSurface->newImageSnapshot();
-        size_t rowBytes;
+        size_t rowBytes = 0;
         SkImageInfo info;
         const void* pixels = snap->peekPixels(&info, &rowBytes);
         fRenderTarget->writePixels(0, 0, snap->width(), snap->height(),
