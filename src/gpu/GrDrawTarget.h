@@ -144,7 +144,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    void copySurface(GrSurface* dst,
+    bool copySurface(GrSurface* dst,
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
