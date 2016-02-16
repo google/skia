@@ -49,7 +49,11 @@ static int32_t read_bytes_callback(GifFileType* fileType, GifByteType* out, int3
  * Open the gif file
  */
 static GifFileType* open_gif(SkStream* stream) {
+#if GIFLIB_MAJOR < 5
+    return DGifOpen(stream, read_bytes_callback);
+#else
     return DGifOpen(stream, read_bytes_callback, nullptr);
+#endif
 }
 
 /*
@@ -117,7 +121,11 @@ inline uint32_t get_output_row_interlaced(uint32_t encodedRow, uint32_t height) 
  * It is used in a SkAutoTCallIProc template
  */
 void SkGifCodec::CloseGif(GifFileType* gif) {
-    DGifCloseFile(gif, NULL);
+#if GIFLIB_MAJOR < 5 || (GIFLIB_MAJOR == 5 && GIFLIB_MINOR == 0)
+    DGifCloseFile(gif);
+#else
+    DGifCloseFile(gif, nullptr);
+#endif
 }
 
 /*
@@ -126,7 +134,11 @@ void SkGifCodec::CloseGif(GifFileType* gif) {
  */
 void SkGifCodec::FreeExtension(SavedImage* image) {
     if (NULL != image->ExtensionBlocks) {
+#if GIFLIB_MAJOR < 5
+        FreeExtension(image);
+#else
         GifFreeExtensions(&image->ExtensionBlockCount, &image->ExtensionBlocks);
+#endif
     }
 }
 
@@ -311,10 +323,15 @@ SkCodec::Result SkGifCodec::ReadUpToFirstImage(GifFileType* gif, uint32_t* trans
                 // Create an extension block with our data
                 while (nullptr != extData) {
                     // Add a single block
+
+#if GIFLIB_MAJOR < 5
+                    if (AddExtensionBlock(&saveExt, extData[0],
+                                          &extData[1]) == GIF_ERROR) {
+#else
                     if (GIF_ERROR == GifAddExtensionBlock(&saveExt.ExtensionBlockCount,
                                                           &saveExt.ExtensionBlocks,
-                                                          extFunction, extData[0], &extData[1]))
-                    {
+                                                          extFunction, extData[0], &extData[1])) {
+#endif
                         return gif_error("Could not add extension block.\n", kIncompleteInput);
                     }
                     // Move to the next block

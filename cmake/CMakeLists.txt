@@ -113,7 +113,6 @@ if (WIN32)
 endif()
 
 remove_srcs(../src/gpu/gl/angle/*)  # TODO
-remove_srcs(../src/codec/* ../src/android/*)  # TODO: Requires Chromium's libjpeg-turbo, and incompatible giflib.
 
 # Certain files must be compiled with support for SSSE3, SSE4.1, AVX, or AVX2 intrinsics.
 file (GLOB_RECURSE ssse3_srcs ../src/*ssse3*.cpp ../src/*SSSE3*.cpp)
@@ -145,6 +144,16 @@ if (UNIX AND NOT APPLE)
     find_package (JPEG)
     find_package (PNG)
 endif()
+
+# Decide whether to turn on SkCodec.
+# TODO (skbug.com/4956): We should be able to turn specific codecs on and off rather than
+#                        disabling all of them if one library is missing.
+if (NOT (GIF_FOUND AND JPEG_FOUND AND PNG_FOUND AND WEBP_INCLUDE_DIRS AND WEBP_LIBRARIES))
+    remove_srcs(../src/codec/* ../src/android/*)
+endif()
+
+# Do not compile SkRawCodec.
+remove_srcs(../src/codec/*Raw*.cpp)
 
 # TODO: macro away this if (found) ... else() ... endif() stuff.
 
@@ -179,6 +188,8 @@ endif()
 if (PNG_FOUND)
     list (APPEND private_includes ${PNG_INCLUDE_DIRS})
     list (APPEND libs             ${PNG_LIBRARIES})
+    add_definitions(-DPNG_SKIP_SETJMP_CHECK)
+    add_definitions(-DPNG_SKIP_SKIA_OPTS)
 else()
     remove_srcs(../src/images/*png*)
 endif()
