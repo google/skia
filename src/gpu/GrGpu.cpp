@@ -280,10 +280,13 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height, siz
         return false;
     }
 
-    if (this->caps()->useDrawInsteadOfPartialRenderTargetWrite() &&
-        SkToBool(dstSurface->asRenderTarget()) &&
-        (width < dstSurface->width() || height < dstSurface->height())) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    if (SkToBool(dstSurface->asRenderTarget())) {
+        if (this->caps()->useDrawInsteadOfAllRenderTargetWrites()) {
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        } else if (this->caps()->useDrawInsteadOfPartialRenderTargetWrite() &&
+                   (width < dstSurface->width() || height < dstSurface->height())) {
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        }
     }
 
     if (!this->onGetWritePixelsInfo(dstSurface, width, height, rowBytes, srcConfig, drawPreference,

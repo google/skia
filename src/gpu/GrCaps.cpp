@@ -115,6 +115,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fDrawPathMasksToCompressedTextureSupport = options.fDrawPathToCompressedTexture;
     fGeometryBufferMapThreshold = options.fGeometryBufferMapThreshold;
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
+    fUseDrawInsteadOfAllRenderTargetWrites = false;
 
     fPreferVRAMUseOverFlushes = true;
 }

@@ -151,6 +151,10 @@ public:
         return fUseDrawInsteadOfPartialRenderTargetWrite;
     }
 
+    bool useDrawInsteadOfAllRenderTargetWrites() const {
+        return fUseDrawInsteadOfAllRenderTargetWrites;
+    }
+
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
     /**
@@ -280,6 +284,7 @@ protected:
     // Driver workaround
     bool fUseDrawInsteadOfClear                      : 1;
     bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
+    bool fUseDrawInsteadOfAllRenderTargetWrites      : 1;
 
     // ANGLE workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

@@ -456,6 +456,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fUseDrawInsteadOfPartialRenderTargetWrite = true;
     }
 
+    // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
+    if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
+        fUseDrawInsteadOfPartialRenderTargetWrite = true;
+        fUseDrawInsteadOfAllRenderTargetWrites = true;
+    }
+
 #ifdef SK_BUILD_FOR_WIN
     // On ANGLE deferring flushes can lead to GPU starvation
     fPreferVRAMUseOverFlushes = !isANGLE;
