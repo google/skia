@@ -145,7 +145,6 @@ static bool get_geometry(const SkPath& path, const SkMatrix& m, PLSVertices& tri
     SkPath linesOnlyPath;
     linesOnlyPath.setFillType(path.getFillType());
     SkSTArray<15, SkPoint, true> quadPoints;
-    SkPathPriv::FirstDirection dir = SkPathPriv::FirstDirection::kUnknown_FirstDirection;
     SkPath::Iter iter(path, true);
     bool done = false;
     while (!done) {
@@ -175,7 +174,7 @@ static bool get_geometry(const SkPath& path, const SkMatrix& m, PLSVertices& tri
             case SkPath::kCubic_Verb: {
                 m.mapPoints(pts, 4);
                 SkSTArray<15, SkPoint, true> quads;
-                GrPathUtils::convertCubicToQuads(pts, kCubicTolerance, false, dir, &quads);
+                GrPathUtils::convertCubicToQuads(pts, kCubicTolerance, &quads);
                 int count = quads.count();
                 for (int q = 0; q < count; q += 3) {
                     linesOnlyPath.lineTo(quads[q + 2]);

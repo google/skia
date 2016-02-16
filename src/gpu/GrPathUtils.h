@@ -108,21 +108,22 @@ namespace GrPathUtils {
 
     // Converts a cubic into a sequence of quads. If working in device space
     // use tolScale = 1, otherwise set based on stretchiness of the matrix. The
-    // result is sets of 3 points in quads (TODO: share endpoints in returned
-    // array)
+    // result is sets of 3 points in quads.
+    void convertCubicToQuads(const SkPoint p[4],
+                             SkScalar tolScale,
+                             SkTArray<SkPoint, true>* quads);
+
     // When we approximate a cubic {a,b,c,d} with a quadratic we may have to
     // ensure that the new control point lies between the lines ab and cd. The
     // convex path renderer requires this. It starts with a path where all the
     // control points taken together form a convex polygon. It relies on this
     // property and the quadratic approximation of cubics step cannot alter it.
-    // Setting constrainWithinTangents to true enforces this property. When this
-    // is true the cubic must be simple and dir must specify the orientation of
-    // the cubic. Otherwise, dir is ignored.
-    void convertCubicToQuads(const SkPoint p[4],
-                             SkScalar tolScale,
-                             bool constrainWithinTangents,
-                             SkPathPriv::FirstDirection dir,
-                             SkTArray<SkPoint, true>* quads);
+    // This variation enforces this constraint. The cubic must be simple and dir
+    // must specify the orientation of the contour containing the cubic.
+    void convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
+                                                SkScalar tolScale,
+                                                SkPathPriv::FirstDirection dir,
+                                                SkTArray<SkPoint, true>* quads);
 
     // Chops the cubic bezier passed in by src, at the double point (intersection point)
     // if the curve is a cubic loop. If it is a loop, there will be two parametric values for

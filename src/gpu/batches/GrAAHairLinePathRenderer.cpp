@@ -345,17 +345,14 @@ static int gather_lines_and_quads(const SkPath& path,
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(devClipBounds, ibounds)) {
                     PREALLOC_PTARRAY(32) q;
-                    // we don't need a direction if we aren't constraining the subdivision
-                    const SkPathPriv::FirstDirection kDummyDir = SkPathPriv::kCCW_FirstDirection;
                     // We convert cubics to quadratics (for now).
                     // In perspective have to do conversion in src space.
                     if (persp) {
                         SkScalar tolScale =
-                            GrPathUtils::scaleToleranceToSrc(SK_Scalar1, m,
-                                                             path.getBounds());
-                        GrPathUtils::convertCubicToQuads(pathPts, tolScale, false, kDummyDir, &q);
+                            GrPathUtils::scaleToleranceToSrc(SK_Scalar1, m, path.getBounds());
+                        GrPathUtils::convertCubicToQuads(pathPts, tolScale, &q);
                     } else {
-                        GrPathUtils::convertCubicToQuads(devPts, SK_Scalar1, false, kDummyDir, &q);
+                        GrPathUtils::convertCubicToQuads(devPts, SK_Scalar1, &q);
                     }
                     for (int i = 0; i < q.count(); i += 3) {
                         SkPoint* qInDevSpace;

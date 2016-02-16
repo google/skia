@@ -254,7 +254,7 @@ static inline void add_cubic_segments(const SkPoint pts[4],
                                       SkPathPriv::FirstDirection dir,
                                       SegmentArray* segments) {
     SkSTArray<15, SkPoint, true> quads;
-    GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, true, dir, &quads);
+    GrPathUtils::convertCubicToQuadsConstrainToTangents(pts, SK_Scalar1, dir, &quads);
     int count = quads.count();
     for (int q = 0; q < count; q += 3) {
         add_quad_segment(&quads[q], segments);
