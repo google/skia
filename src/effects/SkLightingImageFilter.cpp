@@ -185,35 +185,55 @@ inline SkPoint3 bottomRightNormal(int m[9], SkScalar surfaceScale) {
                          surfaceScale);
 }
 
-template <class LightingType, class LightType> void lightBitmap(const LightingType& lightingType,
-                                                                const SkImageFilterLight* light,
-                                                                const SkBitmap& src,
-                                                                SkBitmap* dst,
-                                                                SkScalar surfaceScale,
-                                                                const SkIRect& bounds) {
+
+class UncheckedPixelFetcher {
+public:
+    static inline uint32_t Fetch(const SkBitmap& src, int x, int y, const SkIRect& bounds) {
+        return SkGetPackedA32(*src.getAddr32(x, y));
+    }
+};
+
+// The DecalPixelFetcher is used when the destination crop rect exceeds the input bitmap bounds.
+class DecalPixelFetcher {
+public:
+    static inline uint32_t Fetch(const SkBitmap& src, int x, int y, const SkIRect& bounds) {
+        if (x < bounds.fLeft || x >= bounds.fRight || y < bounds.fTop || y >= bounds.fBottom) {
+            return 0;
+        } else {
+            return SkGetPackedA32(*src.getAddr32(x, y));
+        }
+    }
+};
+
+template <class LightingType, class LightType, class PixelFetcher>
+void lightBitmap(const LightingType& lightingType,
+                 const SkImageFilterLight* light,
+                 const SkBitmap& src,
+                 SkBitmap* dst,
+                 SkScalar surfaceScale,
+                 const SkIRect& bounds) {
     SkASSERT(dst->width() == bounds.width() && dst->height() == bounds.height());
     const LightType* l = static_cast<const LightType*>(light);
     int left = bounds.left(), right = bounds.right();
     int bottom = bounds.bottom();
     int y = bounds.top();
+    SkIRect srcBounds = src.bounds();
     SkPMColor* dptr = dst->getAddr32(0, 0);
     {
         int x = left;
-        const SkPMColor* row1 = src.getAddr32(x, y);
-        const SkPMColor* row2 = src.getAddr32(x, y + 1);
         int m[9];
-        m[4] = SkGetPackedA32(*row1++);
-        m[5] = SkGetPackedA32(*row1++);
-        m[7] = SkGetPackedA32(*row2++);
-        m[8] = SkGetPackedA32(*row2++);
+        m[4] = PixelFetcher::Fetch(src, x,     y,     srcBounds);
+        m[5] = PixelFetcher::Fetch(src, x + 1, y,     srcBounds);
+        m[7] = PixelFetcher::Fetch(src, x,     y + 1, srcBounds);
+        m[8] = PixelFetcher::Fetch(src, x + 1, y + 1, srcBounds);
         SkPoint3 surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
         *dptr++ = lightingType.light(topLeftNormal(m, surfaceScale), surfaceToLight,
                                      l->lightColor(surfaceToLight));
         for (++x; x < right - 1; ++x)
         {
             shiftMatrixLeft(m);
-            m[5] = SkGetPackedA32(*row1++);
-            m[8] = SkGetPackedA32(*row2++);
+            m[5] = PixelFetcher::Fetch(src, x + 1, y,     srcBounds);
+            m[8] = PixelFetcher::Fetch(src, x + 1, y + 1, srcBounds);
             surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
             *dptr++ = lightingType.light(topNormal(m, surfaceScale), surfaceToLight,
                                          l->lightColor(surfaceToLight));
@@ -226,24 +246,21 @@ template <class LightingType, class LightType> void lightBitmap(const LightingTy
 
     for (++y; y < bottom - 1; ++y) {
         int x = left;
-        const SkPMColor* row0 = src.getAddr32(x, y - 1);
-        const SkPMColor* row1 = src.getAddr32(x, y);
-        const SkPMColor* row2 = src.getAddr32(x, y + 1);
         int m[9];
-        m[1] = SkGetPackedA32(*row0++);
-        m[2] = SkGetPackedA32(*row0++);
-        m[4] = SkGetPackedA32(*row1++);
-        m[5] = SkGetPackedA32(*row1++);
-        m[7] = SkGetPackedA32(*row2++);
-        m[8] = SkGetPackedA32(*row2++);
+        m[1] = PixelFetcher::Fetch(src, x,     y - 1, srcBounds);
+        m[2] = PixelFetcher::Fetch(src, x + 1, y - 1, srcBounds);
+        m[4] = PixelFetcher::Fetch(src, x,     y,     srcBounds);
+        m[5] = PixelFetcher::Fetch(src, x + 1, y,     srcBounds);
+        m[7] = PixelFetcher::Fetch(src, x,     y + 1, srcBounds);
+        m[8] = PixelFetcher::Fetch(src, x + 1, y + 1, srcBounds);
         SkPoint3 surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
         *dptr++ = lightingType.light(leftNormal(m, surfaceScale), surfaceToLight,
                                      l->lightColor(surfaceToLight));
         for (++x; x < right - 1; ++x) {
             shiftMatrixLeft(m);
-            m[2] = SkGetPackedA32(*row0++);
-            m[5] = SkGetPackedA32(*row1++);
-            m[8] = SkGetPackedA32(*row2++);
+            m[2] = PixelFetcher::Fetch(src, x + 1, y - 1, srcBounds);
+            m[5] = PixelFetcher::Fetch(src, x + 1, y,     srcBounds);
+            m[8] = PixelFetcher::Fetch(src, x + 1, y + 1, srcBounds);
             surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
             *dptr++ = lightingType.light(interiorNormal(m, surfaceScale), surfaceToLight,
                                          l->lightColor(surfaceToLight));
@@ -256,21 +273,19 @@ template <class LightingType, class LightType> void lightBitmap(const LightingTy
 
     {
         int x = left;
-        const SkPMColor* row0 = src.getAddr32(x, bottom - 2);
-        const SkPMColor* row1 = src.getAddr32(x, bottom - 1);
         int m[9];
-        m[1] = SkGetPackedA32(*row0++);
-        m[2] = SkGetPackedA32(*row0++);
-        m[4] = SkGetPackedA32(*row1++);
-        m[5] = SkGetPackedA32(*row1++);
+        m[1] = PixelFetcher::Fetch(src, x,     bottom - 2, srcBounds);
+        m[2] = PixelFetcher::Fetch(src, x + 1, bottom - 2, srcBounds);
+        m[4] = PixelFetcher::Fetch(src, x,     bottom - 1, srcBounds);
+        m[5] = PixelFetcher::Fetch(src, x + 1, bottom - 1, srcBounds);
         SkPoint3 surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
         *dptr++ = lightingType.light(bottomLeftNormal(m, surfaceScale), surfaceToLight,
                                      l->lightColor(surfaceToLight));
         for (++x; x < right - 1; ++x)
         {
             shiftMatrixLeft(m);
-            m[2] = SkGetPackedA32(*row0++);
-            m[5] = SkGetPackedA32(*row1++);
+            m[2] = PixelFetcher::Fetch(src, x + 1, bottom - 2, srcBounds);
+            m[5] = PixelFetcher::Fetch(src, x + 1, bottom - 1, srcBounds);
             surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
             *dptr++ = lightingType.light(bottomNormal(m, surfaceScale), surfaceToLight,
                                          l->lightColor(surfaceToLight));
@@ -279,6 +294,22 @@ template <class LightingType, class LightType> void lightBitmap(const LightingTy
         surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
         *dptr++ = lightingType.light(bottomRightNormal(m, surfaceScale), surfaceToLight,
                                      l->lightColor(surfaceToLight));
+    }
+}
+
+template <class LightingType, class LightType>
+void lightBitmap(const LightingType& lightingType,
+                 const SkImageFilterLight* light,
+                 const SkBitmap& src,
+                 SkBitmap* dst,
+                 SkScalar surfaceScale,
+                 const SkIRect& bounds) {
+    if (src.bounds().contains(bounds)) {
+        lightBitmap<LightingType, LightType, UncheckedPixelFetcher>(
+            lightingType, light, src, dst, surfaceScale, bounds);
+    } else {
+        lightBitmap<LightingType, LightType, DecalPixelFetcher>(
+            lightingType, light, src, dst, surfaceScale, bounds);
     }
 }
 
@@ -1187,8 +1218,10 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
     if (src.colorType() != kN32_SkColorType) {
         return false;
     }
+    SkIRect srcBounds = src.bounds();
+    srcBounds.offset(srcOffset);
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &bounds, &src)) {
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return false;
     }
 
@@ -1331,8 +1364,10 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
+    SkIRect srcBounds = src.bounds();
+    srcBounds.offset(srcOffset);
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &bounds, &src)) {
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return false;
     }
 
