@@ -228,7 +228,9 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
     SkIRect bounds;
     // Since computeDisplacement does bounds checking on color pixel access, we don't need to pad
     // the color bitmap to bounds here.
-    if (!this->applyCropRect(ctx, color, colorOffset, &bounds)) {
+    SkIRect srcBounds = color.bounds();
+    srcBounds.offset(colorOffset);
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return false;
     }
     SkIRect displBounds;
@@ -396,10 +398,12 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     if (!this->filterInputGPU(0, proxy, src, ctx, &displacementBM, &displacementOffset)) {
         return false;
     }
+    SkIRect srcBounds = colorBM.bounds();
+    srcBounds.offset(colorOffset);
     SkIRect bounds;
     // Since GrDisplacementMapEffect does bounds checking on color pixel access, we don't need to
     // pad the color bitmap to bounds here.
-    if (!this->applyCropRect(ctx, colorBM, colorOffset, &bounds)) {
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return false;
     }
     SkIRect displBounds;

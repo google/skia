@@ -62,8 +62,10 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset))
         return false;
 
+    SkIRect srcBounds = src.bounds();
+    srcBounds.offset(srcOffset);
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, src, srcOffset, &bounds)) {
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return false;
     }
 

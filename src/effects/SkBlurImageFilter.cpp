@@ -82,8 +82,10 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    SkIRect srcBounds, dstBounds;
-    if (!this->applyCropRect(this->mapContext(ctx), src, srcOffset, &dstBounds, &srcBounds)) {
+    SkIRect srcBounds = src.bounds();
+    srcBounds.offset(srcOffset);
+    SkIRect dstBounds;
+    if (!this->applyCropRect(this->mapContext(ctx), srcBounds, &dstBounds)) {
         return false;
     }
     if (!srcBounds.intersect(dstBounds)) {
@@ -204,8 +206,10 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
     if (!this->filterInputGPU(0, proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
-    SkIRect srcBounds, dstBounds;
-    if (!this->applyCropRect(this->mapContext(ctx), input, srcOffset, &dstBounds, &srcBounds)) {
+    SkIRect srcBounds = input.bounds();
+    srcBounds.offset(srcOffset);
+    SkIRect dstBounds;
+    if (!this->applyCropRect(this->mapContext(ctx), srcBounds, &dstBounds)) {
         return false;
     }
     if (!srcBounds.intersect(dstBounds)) {

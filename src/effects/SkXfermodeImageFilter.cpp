@@ -57,11 +57,15 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkIRect bounds, foregroundBounds;
-    if (!applyCropRect(ctx, foreground, foregroundOffset, &foregroundBounds)) {
+    SkIRect foregroundSrcBounds = foreground.bounds();
+    foregroundSrcBounds.offset(foregroundOffset);
+    if (!applyCropRect(ctx, foregroundSrcBounds, &foregroundBounds)) {
         foregroundBounds.setEmpty();
         foreground.reset();
     }
-    if (!applyCropRect(ctx, background, backgroundOffset, &bounds)) {
+    SkIRect backgroundSrcBounds = background.bounds();
+    backgroundSrcBounds.offset(backgroundOffset);
+    if (!applyCropRect(ctx, backgroundSrcBounds, &bounds)) {
         bounds.setEmpty();
         background.reset();
     }

@@ -394,16 +394,9 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
     return true;
 }
 
-bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,
-                                  const SkIPoint& srcOffset, SkIRect* dstBounds,
-                                  SkIRect* srcBounds) const {
-    SkIRect storage;
-    if (!srcBounds) {
-        srcBounds = &storage;
-    }
-    src.getBounds(srcBounds);
-    srcBounds->offset(srcOffset);
-    this->onFilterNodeBounds(*srcBounds, ctx.ctm(), dstBounds, kForward_MapDirection);
+bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
+                                  SkIRect* dstBounds) const {
+    this->onFilterNodeBounds(srcBounds, ctx.ctm(), dstBounds, kForward_MapDirection);
     fCropRect.applyTo(*dstBounds, ctx.ctm(), dstBounds);
     // Intersect against the clip bounds, in case the crop rect has
     // grown the bounds beyond the original clip. This can happen for

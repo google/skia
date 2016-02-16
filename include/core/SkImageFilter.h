@@ -390,26 +390,25 @@ protected:
         return false;
     }
 
-    /** Given a "src" bitmap and its "srcOffset", computes source and
-     *  destination bounds for this filter. Initial bounds are the
-     *  "src" bitmap bounds offset by "srcOffset". "dstBounds" are
-     *  computed by transforming the crop rect by the context's CTM,
-     *  applying it to the initial bounds, and intersecting the result
-     *  with the context's clip bounds.  "srcBounds" (if non-null) are
-     *  computed by intersecting the initial bounds with "dstBounds", to
-     *  ensure that we never sample outside of the crop rect (this restriction
-     *  may be relaxed in the future).
+    /** Given a "srcBounds" rect, computes destination bounds for this
+     *  destination bounds for this filter. "dstBounds" are computed by
+     *  transforming the crop rect by the context's CTM, applying it to the
+     *  initial bounds, and intersecting the result with the context's clip
+     *  bounds.  "srcBounds" (if non-null) are computed by intersecting the
+     *  initial bounds with "dstBounds", to ensure that we never sample
+     *  outside of the crop rect (this restriction may be relaxed in the
+     *  future).
      */
-    bool applyCropRect(const Context&, const SkBitmap& src, const SkIPoint& srcOffset,
-                       SkIRect* dstBounds, SkIRect* srcBounds = nullptr) const;
+    bool applyCropRect(const Context&, const SkIRect& srcBounds, SkIRect* dstBounds) const;
 
-    /** Same as the above call, except that if the resulting crop rect is not
-     *  entirely contained by the source bitmap's bounds, it creates a new
-     *  bitmap in "result" and pads the edges with transparent black. In that
-     *  case, the srcOffset is modified to be the same as the bounds, since no
-     *  further adjustment is needed by the caller. This version should only
-     *  be used by filters which are not capable of processing a smaller
-     *  source bitmap into a larger destination.
+    /** A variant of the above call which takes the original source bitmap and
+     *  source offset. If the resulting crop rect is not entirely contained by
+     *  the source bitmap's bounds, it creates a new bitmap in "result" and
+     *  pads the edges with transparent black. In that case, the srcOffset is
+     *  modified to be the same as the bounds, since no further adjustment is
+     *  needed by the caller. This version should only be used by filters
+     *  which are not capable of processing a smaller source bitmap into a
+     *  larger destination.
      */
     bool applyCropRect(const Context&, Proxy* proxy, const SkBitmap& src, SkIPoint* srcOffset,
                        SkIRect* bounds, SkBitmap* result) const;

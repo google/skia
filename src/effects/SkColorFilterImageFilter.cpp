@@ -66,7 +66,9 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, src, srcOffset, &bounds)) {
+    SkIRect srcBounds = src.bounds();
+    srcBounds.offset(srcOffset);
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return false;
     }
 

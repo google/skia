@@ -39,7 +39,7 @@ bool SkPaintImageFilter::onFilterImage(Proxy* proxy,
                                             SkBitmap* result,
                                             SkIPoint* offset) const {
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, source, SkIPoint::Make(0, 0), &bounds)) {
+    if (!this->applyCropRect(ctx, source.bounds(), &bounds)) {
         return false;
     }
 
