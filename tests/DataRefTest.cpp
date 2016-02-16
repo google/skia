@@ -328,3 +328,10 @@ DEF_TEST(RWBuffer_size, r) {
     REPORTER_ASSERT(r, !iter.next());
     REPORTER_ASSERT(r, 0 == iter.size());
 }
+
+// Tests that it is safe to destruct an SkRWBuffer without appending
+// anything to it.
+DEF_TEST(RWBuffer_noAppend, r) {
+    SkRWBuffer buffer;
+    REPORTER_ASSERT(r, 0 == buffer.size());
+}
