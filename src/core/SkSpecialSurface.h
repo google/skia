@@ -45,6 +45,8 @@ public:
     *  Returns an image of the current state of the surface pixels up to this
     *  point. The canvas returned by 'getCanvas' becomes invalidated by this
     *  call and no more drawing to this surface is allowed.
+    *
+    *  Note: the caller inherits a ref from this call that must be balanced
     */
     SkSpecialImage* newImageSnapshot();
 

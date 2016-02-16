@@ -15,7 +15,7 @@ public:
     SkSpecialImage_Base(const SkIRect& subset) : INHERITED(subset) { }
     virtual ~SkSpecialImage_Base() { }
 
-    virtual void onDraw(SkCanvas*, int x, int y, const SkPaint*) const = 0;
+    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
 
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
@@ -32,7 +32,7 @@ static inline const SkSpecialImage_Base* as_IB(const SkSpecialImage* image) {
     return static_cast<const SkSpecialImage_Base*>(image);
 }
 
-void SkSpecialImage::draw(SkCanvas* canvas, int x, int y, const SkPaint* paint) const {
+void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
     return as_IB(this)->onDraw(canvas, x, y, paint);
 }
 
@@ -64,7 +64,7 @@ public:
 
     ~SkSpecialImage_Image() override { }
 
-    void onDraw(SkCanvas* canvas, int x, int y, const SkPaint* paint) const override {
+    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
         SkRect dst = SkRect::MakeXYWH(x, y, this->subset().width(), this->subset().height());
 
         canvas->drawImageRect(fImage, this->subset(),
@@ -129,7 +129,7 @@ public:
 
     ~SkSpecialImage_Raster() override { }
 
-    void onDraw(SkCanvas* canvas, int x, int y, const SkPaint* paint) const override {
+    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
@@ -181,7 +181,7 @@ public:
 
     ~SkSpecialImage_Gpu() override { }
 
-    void onDraw(SkCanvas* canvas, int x, int y, const SkPaint* paint) const override {
+    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 

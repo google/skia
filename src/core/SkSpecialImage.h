@@ -37,7 +37,7 @@ public:
     /**
      *  Draw this SpecialImage into the canvas.
      */
-    void draw(SkCanvas*, int x, int y, const SkPaint*) const;
+    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
     static SkSpecialImage* NewFromImage(const SkIRect& subset, const SkImage*);
     static SkSpecialImage* NewFromRaster(const SkIRect& subset, const SkBitmap&);
