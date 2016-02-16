@@ -252,17 +252,11 @@ GrTexture* GrSWMaskHelper::createTexture() {
 
 void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrSurfaceDesc& desc,
                                      const void *data, size_t rowbytes) {
-    // If we aren't reusing scratch textures we don't need to flush before
-    // writing since no one else will be using 'texture'
-    bool reuseScratch = fContext->caps()->reuseScratchTextures();
-
     // Since we're uploading to it, and it's compressed, 'texture' shouldn't
     // have a render target.
     SkASSERT(nullptr == texture->asRenderTarget());
 
-    texture->writePixels(0, 0, desc.fWidth, desc.fHeight,
-                         desc.fConfig, data, rowbytes,
-                         reuseScratch ? 0 : GrContext::kDontFlush_PixelOpsFlag);
+    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig, data, rowbytes);
 }
 
 void GrSWMaskHelper::compressTextureData(GrTexture *texture, const GrSurfaceDesc& desc) {
