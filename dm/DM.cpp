@@ -354,14 +354,14 @@ static void push_codec_srcs(Path path) {
     uint32_t numColorTypes;
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
-            // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
-            // Further discussion on this topic is at https://bug.skia.org/3683 .
-            // This causes us to try to convert grayscale jpegs to kIndex8.  We currently
-            // fail non-fatally in this case.
             colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
             colorTypes[1] = CodecSrc::kGrayscale_Always_DstColorType;
-            colorTypes[2] = CodecSrc::kIndex8_Always_DstColorType;
-            numColorTypes = 3;
+            if (kWBMP_SkEncodedFormat == codec->getEncodedFormat()) {
+                colorTypes[2] = CodecSrc::kIndex8_Always_DstColorType;
+                numColorTypes = 3;
+            } else {
+                numColorTypes = 2;
+            }
             break;
         case kIndex_8_SkColorType:
             colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;

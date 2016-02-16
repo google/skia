@@ -321,12 +321,17 @@ bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
             *decodeInfo = decodeInfo->makeColorType(kIndex_8_SkColorType);
             break;
         case CodecSrc::kGrayscale_Always_DstColorType:
-            if (kRGB_565_SkColorType == canvasColorType) {
+            if (kRGB_565_SkColorType == canvasColorType ||
+                    kOpaque_SkAlphaType != decodeInfo->alphaType()) {
                 return false;
             }
             *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
             break;
         default:
+            if (kRGB_565_SkColorType == canvasColorType &&
+                    kOpaque_SkAlphaType != decodeInfo->alphaType()) {
+                return false;
+            }
             *decodeInfo = decodeInfo->makeColorType(canvasColorType);
             break;
     }
@@ -428,8 +433,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     // available.
                 case SkCodec::kIncompleteInput:
                     break;
-                case SkCodec::kInvalidConversion:
-                    return Error::Nonfatal("Incompatible colortype conversion");
                 default:
                     // Everything else is considered a failure.
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
@@ -700,8 +703,6 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                 case SkCodec::kSuccess:
                 case SkCodec::kIncompleteInput:
                     break;
-                case SkCodec::kInvalidConversion:
-                    return Error::Nonfatal("Cannot convert to requested color type.");
                 default:
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
