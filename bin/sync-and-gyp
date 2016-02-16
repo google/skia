@@ -8,10 +8,12 @@
 # This script will update Skia's dependencies as necessary and run
 # gyp if needed.
 
-# Depends on: Python, and Git.
+# Depends on: Python, Git, and depot_tools.
 #
 # Example usage:
 #
+#   git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+#   export PATH="${PWD}/depot_tools:${PATH}"
 #   git clone https://skia.googlesource.com/skia
 #   cd skia
 #   python bin/sync-and-gyp
@@ -41,9 +43,42 @@ if not os.path.isfile('DEPS'):
   sys.stderr.write('DEPS file missing')
   exit(1)
 
-env = os.environ.copy()
-env["GIT_SYNC_DEPS_QUIET"] = "1"
-subprocess.call(['python', 'tools/git-sync-deps'], env=env)
+deps_hasher = hashlib.sha1()
+with open('DEPS', 'r') as f:
+  deps_hasher.update(f.read())
+deps_hash = deps_hasher.hexdigest()
+current_deps_hash = None
+if os.path.isfile('.deps_sha1'):
+  with open('.deps_sha1', 'r') as f:
+    current_deps_hash = f.read().strip()
+
+default_gclient_config = '''
+solutions = [
+  { "name"        : ".",
+    "url"         : "https://skia.googlesource.com/skia.git",
+    "deps_file"   : "DEPS",
+    "managed"     : False,
+    "custom_deps" : {
+    },
+    "safesync_url": "",
+  },
+]
+cache_dir = None
+'''
+if current_deps_hash != deps_hash:
+  # `gclient sync` is very slow, so skip whenever we can.
+  if not os.path.isfile('.gclient'):
+    with open('.gclient', 'w') as o:
+      o.write(default_gclient_config)
+  try:
+    subprocess.check_call(['gclient', 'sync'])
+  except:
+    sys.stderr.write('\n`gclient sync` failed.\n')
+    os.remove('.deps_sha1')  # Unknown state.
+    exit(1)
+  # Only write hash after a successful sync.
+  with open('.deps_sha1', 'w') as o:
+    o.write(deps_hash)
 
 hasher = hashlib.sha1()
 
