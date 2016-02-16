@@ -59,7 +59,7 @@ GrDrawContext::GrDrawContext(GrContext* context,
     : fDrawingManager(drawingMgr)
     , fRenderTarget(rt)
     , fDrawTarget(SkSafeRef(rt->getLastDrawTarget()))
-    , fTextContext(nullptr)
+    , fAtlasTextContext(nullptr)
     , fContext(context)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
     , fAuditTrail(auditTrail)
@@ -116,12 +116,12 @@ void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawText");
 
-    if (!fTextContext) {
-        fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
+    if (!fAtlasTextContext) {
+        fAtlasTextContext = GrAtlasTextContext::Create();
     }
 
-    fTextContext->drawText(fContext, this, clip, grPaint, skPaint, viewMatrix, fSurfaceProps,
-                           text, byteLength, x, y, clipBounds);
+    fAtlasTextContext->drawText(fContext, this, clip, grPaint, skPaint, viewMatrix, fSurfaceProps,
+                                text, byteLength, x, y, clipBounds);
 }
 
 void GrDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
@@ -135,12 +135,13 @@ void GrDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawPosText");
 
-    if (!fTextContext) {
-        fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
+    if (!fAtlasTextContext) {
+        fAtlasTextContext = GrAtlasTextContext::Create();
     }
 
-    fTextContext->drawPosText(fContext, this, clip, grPaint, skPaint, viewMatrix, fSurfaceProps,
-                              text, byteLength, pos, scalarsPerPosition, offset, clipBounds);
+    fAtlasTextContext->drawPosText(fContext, this, clip, grPaint, skPaint, viewMatrix,
+                                   fSurfaceProps, text, byteLength, pos, scalarsPerPosition,
+                                   offset, clipBounds);
 
 }
 
@@ -153,12 +154,12 @@ void GrDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawTextBlob");
 
-    if (!fTextContext) {
-        fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
+    if (!fAtlasTextContext) {
+        fAtlasTextContext = GrAtlasTextContext::Create();
     }
 
-    fTextContext->drawTextBlob(fContext, this, clip, skPaint, viewMatrix, fSurfaceProps, blob, x,
-                               y, filter, clipBounds);
+    fAtlasTextContext->drawTextBlob(fContext, this, clip, skPaint, viewMatrix, fSurfaceProps, blob,
+                                    x, y, filter, clipBounds);
 }
 
 void GrDrawContext::discard() {

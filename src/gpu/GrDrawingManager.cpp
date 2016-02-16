@@ -8,6 +8,7 @@
 #include "GrDrawContext.h"
 #include "GrDrawingManager.h"
 #include "GrDrawTarget.h"
+#include "GrPathRenderingDrawContext.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "SkTTopoSort.h"
@@ -27,12 +28,6 @@ void GrDrawingManager::cleanup() {
     }
 
     fDrawTargets.reset();
-
-    delete fNVPRTextContext;
-    fNVPRTextContext = nullptr;
-
-    delete fAtlasTextContext;
-    fAtlasTextContext = nullptr;
 
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
@@ -114,32 +109,6 @@ void GrDrawingManager::flush() {
     fFlushing = false;
 }
 
-GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props, GrRenderTarget* rt) {
-    if (this->abandoned()) {
-        return nullptr;
-    }
-
-    bool useDIF = props.isUseDeviceIndependentFonts();
-
-    if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
-        rt->isStencilBufferMultisampled()) {
-        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
-        if (sb) {
-            if (!fNVPRTextContext) {
-                fNVPRTextContext = GrStencilAndCoverTextContext::Create();
-            }
-
-            return fNVPRTextContext;
-        }
-    }
-
-    if (!fAtlasTextContext) {
-        fAtlasTextContext = GrAtlasTextContext::Create();
-    }
-
-    return fAtlasTextContext;
-}
-
 GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     SkASSERT(fContext);
 
@@ -194,6 +163,21 @@ GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt,
                                              const SkSurfaceProps* surfaceProps) {
     if (this->abandoned()) {
         return nullptr;
+    }
+
+
+    bool useDIF = false;
+    if (surfaceProps) {
+        useDIF = surfaceProps->isUseDeviceIndependentFonts();
+    }
+
+    if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
+        rt->isStencilBufferMultisampled()) {
+        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
+        if (sb) {
+            return new GrPathRenderingDrawContext(fContext, this, rt, surfaceProps,
+                                                  fContext->getAuditTrail(), fSingleOwner);
+        }
     }
 
     return new GrDrawContext(fContext, this, rt, surfaceProps, fContext->getAuditTrail(),

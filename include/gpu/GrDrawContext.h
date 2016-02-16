@@ -52,17 +52,17 @@ public:
     // TODO: it is odd that we need both the SkPaint in the following 3 methods.
     // We should extract the text parameters from SkPaint and pass them separately
     // akin to GrStrokeInfo (GrTextInfo?)
-    void drawText(const GrClip&,  const GrPaint&, const SkPaint&,
-                  const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                  SkScalar x, SkScalar y, const SkIRect& clipBounds);
-    void drawPosText(const GrClip&, const GrPaint&, const SkPaint&,
-                     const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                     const SkScalar pos[], int scalarsPerPosition,
-                     const SkPoint& offset, const SkIRect& clipBounds);
-    void drawTextBlob(const GrClip&, const SkPaint&,
-                      const SkMatrix& viewMatrix, const SkTextBlob*,
-                      SkScalar x, SkScalar y,
-                      SkDrawFilter*, const SkIRect& clipBounds);
+    virtual void drawText(const GrClip&,  const GrPaint&, const SkPaint&,
+                          const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                          SkScalar x, SkScalar y, const SkIRect& clipBounds);
+    virtual void drawPosText(const GrClip&, const GrPaint&, const SkPaint&,
+                             const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                             const SkScalar pos[], int scalarsPerPosition,
+                             const SkPoint& offset, const SkIRect& clipBounds);
+    virtual void drawTextBlob(const GrClip&, const SkPaint&,
+                              const SkMatrix& viewMatrix, const SkTextBlob*,
+                              SkScalar x, SkScalar y,
+                              SkDrawFilter*, const SkIRect& clipBounds);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -282,14 +282,20 @@ public:
     // Functions intended for internal use only.
     void internal_drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch);
 
+protected:
+    GrDrawContext(GrContext*, GrDrawingManager*, GrRenderTarget*,
+                  const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
+
+    GrDrawingManager* drawingManager() { return fDrawingManager; }
+    GrAuditTrail* auditTrail() { return fAuditTrail; }
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
+    
+    SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
+    SkDEBUGCODE(void validate() const;)
+
 private:
     friend class GrAtlasTextBlob; // for access to drawBatch
     friend class GrDrawingManager; // for ctor
-
-    SkDEBUGCODE(void validate() const;)
-
-    GrDrawContext(GrContext*, GrDrawingManager*, GrRenderTarget*,
-                  const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
 
     void internalDrawPath(GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
@@ -310,7 +316,7 @@ private:
     // In MDB-mode the drawTarget can be closed by some other drawContext that has picked
     // it up. For this reason, the drawTarget should only ever be accessed via 'getDrawTarget'.
     GrDrawTarget*     fDrawTarget;
-    GrTextContext*    fTextContext; // lazily gotten from GrContext::DrawingManager
+    GrTextContext*    fAtlasTextContext; // lazily gotten from GrContext::DrawingManager
     GrContext*        fContext;
 
     SkSurfaceProps    fSurfaceProps;

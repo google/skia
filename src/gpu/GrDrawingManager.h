@@ -38,8 +38,6 @@ public:
 
     GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps*);
 
-    GrTextContext* textContext(const SkSurfaceProps& props, GrRenderTarget* rt);
-
     // The caller automatically gets a ref on the returned drawTarget. It must 
     // be balanced by an unref call.
     GrDrawTarget* newDrawTarget(GrRenderTarget* rt);
@@ -60,8 +58,6 @@ private:
         , fOptionsForDrawTargets(optionsForDrawTargets)
         , fSingleOwner(singleOwner)
         , fAbandoned(false)
-        , fNVPRTextContext(nullptr)
-        , fAtlasTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushState(context->getGpu(), context->resourceProvider())
@@ -86,9 +82,6 @@ private:
 
     bool                        fAbandoned;
     SkTDArray<GrDrawTarget*>    fDrawTargets;
-
-    GrTextContext*              fNVPRTextContext;
-    GrTextContext*              fAtlasTextContext;
 
     GrPathRendererChain*        fPathRendererChain;
     GrSoftwarePathRenderer*     fSoftwarePathRenderer;
