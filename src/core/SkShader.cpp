@@ -201,7 +201,7 @@ SkShader::Context::MatrixClass SkShader::Context::ComputeMatrixClass(const SkMat
     MatrixClass mc = kLinear_MatrixClass;
 
     if (mat.hasPerspective()) {
-        if (mat.fixedStepInX(0, nullptr, nullptr)) {
+        if (mat.isFixedStepInX()) {
             mc = kFixedStepInX_MatrixClass;
         } else {
             mc = kPerspective_MatrixClass;

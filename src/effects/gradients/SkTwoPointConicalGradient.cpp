@@ -261,10 +261,9 @@ void SkTwoPointConicalGradient::TwoPointConicalGradientContext::shadeSpan(
         SkScalar dy, fy = srcPt.fY;
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-            SkFixed fixedX, fixedY;
-            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &fixedX, &fixedY);
-            dx = SkFixedToScalar(fixedX);
-            dy = SkFixedToScalar(fixedY);
+            const auto step = fDstToIndex.fixedStepInX(SkIntToScalar(y));
+            dx = step.fX;
+            dy = step.fY;
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
             dx = fDstToIndex.getScaleX();

@@ -287,10 +287,9 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
         SkGradFixed dx, fx = SkScalarToGradFixed(srcPt.fX);
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-            SkFixed dxStorage[1];
-            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), dxStorage, nullptr);
+            const auto step = fDstToIndex.fixedStepInX(SkIntToScalar(y));
             // todo: do we need a real/high-precision value for dx here?
-            dx = SkFixedToGradFixed(dxStorage[0]);
+            dx = SkScalarToGradFixed(step.fX);
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
             dx = SkScalarToGradFixed(fDstToIndex.getScaleX());
@@ -747,4 +746,3 @@ void SkLinearGradient::LinearGradientContext::shade4_clamp(int x, int y, SkPMCol
         }
     }
 }
-

@@ -591,11 +591,16 @@ public:
         return GetMapPtsProc(this->getType());
     }
 
-    /** If the matrix can be stepped in X (not complex perspective)
-        then return true and if step[XY] is not null, return the step[XY] value.
-        If it cannot, return false and ignore step.
+    /** Returns true if the matrix can be stepped in X (not complex
+        perspective).
     */
-    bool fixedStepInX(SkScalar y, SkFixed* stepX, SkFixed* stepY) const;
+    bool isFixedStepInX() const;
+
+    /** If the matrix can be stepped in X (not complex perspective)
+        then return the step value.
+        If it cannot, behavior is undefined.
+    */
+    SkVector fixedStepInX(SkScalar y) const;
 
     /** Efficient comparison of two matrices. It distinguishes between zero and
      *  negative zero. It will return false when the sign of zero values is the

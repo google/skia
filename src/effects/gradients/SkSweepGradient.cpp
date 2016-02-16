@@ -92,11 +92,9 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
         SkScalar dy, fy = srcPt.fY;
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-            SkFixed storage[2];
-            (void)matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf,
-                                      &storage[0], &storage[1]);
-            dx = SkFixedToScalar(storage[0]);
-            dy = SkFixedToScalar(storage[1]);
+            const auto step = matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf);
+            dx = step.fX;
+            dy = step.fY;
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
             dx = matrix.getScaleX();
