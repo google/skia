@@ -366,7 +366,7 @@ void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrDrawContext* dc,
         return;
     }
 
-    runPaint.setFlags(GrTextContext::FilterTextFlags(props, runPaint));
+    runPaint.setFlags(GrTextUtils::FilterTextFlags(props, runPaint));
 
     switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:

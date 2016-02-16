@@ -20,7 +20,6 @@
 class GrBlobRegenHelper;
 struct GrDistanceFieldAdjustTable;
 class GrMemoryPool;
-class GrTextContext;
 class SkDrawFilter;
 class SkTextBlob;
 class SkTextBlobRunIterator;

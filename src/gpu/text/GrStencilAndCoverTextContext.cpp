@@ -159,7 +159,7 @@ void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
             continue;
         }
 
-        runPaint.setFlags(FilterTextFlags(props, runPaint));
+        runPaint.setFlags(GrTextUtils::FilterTextFlags(props, runPaint));
 
         GrPaint grPaint;
         if (!SkPaintToGrPaint(context, runPaint, viewMatrix, &grPaint)) {
@@ -572,7 +572,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  const SkSurfaceProps& props,
                                                  SkScalar x, SkScalar y,
                                                  const SkIRect& clipBounds,
-                                                 GrTextContext* fallbackTextContext,
+                                                 GrAtlasTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
     SkASSERT(fInstanceData);
     SkASSERT(dc->accessRenderTarget()->isStencilBufferMultisampled() || !fFont.isAntiAlias());

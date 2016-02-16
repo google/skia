@@ -81,6 +81,12 @@ public:
                                   const char text[], size_t byteLength,
                                   const SkScalar pos[], int scalarsPerPosition,
                                   const SkPoint& offset, const SkIRect& clipBounds);
+
+    static bool ShouldDisableLCD(const SkPaint& paint);
+
+    static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
+    static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
+
 private:
     static void InitDistanceFieldPaint(GrAtlasTextBlob* blob,
                                        SkPaint* skPaint,

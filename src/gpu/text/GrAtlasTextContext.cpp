@@ -190,7 +190,7 @@ void GrAtlasTextContext::RegenerateTextBlob(GrAtlasTextBlob* cacheBlob,
             continue;
         }
 
-        runPaint.setFlags(FilterTextFlags(props, runPaint));
+        runPaint.setFlags(GrTextUtils::FilterTextFlags(props, runPaint));
 
         cacheBlob->push_back_run(run);
 
@@ -373,9 +373,6 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
         gContextID = context->uniqueID();
         delete gTextContext;
 
-        // We don't yet test the fall back to paths in the GrTextContext base class.  This is mostly
-        // because we don't really want to have a gpu device here.
-        // We enable distance fields by twiddling a knob on the paint
         gTextContext = GrAtlasTextContext::Create();
     }
 

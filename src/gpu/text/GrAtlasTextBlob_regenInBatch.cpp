@@ -8,6 +8,7 @@
 #include "GrAtlasTextBlob.h"
 
 #include "GrBatchFlushState.h"
+#include "GrTextUtils.h"
 
 #include "SkDistanceFieldGen.h"
 #include "SkGlyphCache.h"
@@ -146,7 +147,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
             }
             *desc = newDesc;
             *cache = SkGlyphCache::DetachCache(run->fTypeface, *desc);
-            *scaler = GrTextContext::GetGrFontScaler(*cache);
+            *scaler = GrTextUtils::GetGrFontScaler(*cache);
             *typeface = run->fTypeface;
         }
 

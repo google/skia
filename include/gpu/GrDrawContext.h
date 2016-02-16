@@ -14,6 +14,7 @@
 #include "SkSurfaceProps.h"
 #include "../private/GrSingleOwner.h"
 
+class GrAtlasTextContext;
 class GrAuditTrail;
 class GrClip;
 class GrContext;
@@ -27,7 +28,6 @@ class GrPipelineBuilder;
 class GrRenderTarget;
 class GrStrokeInfo;
 class GrSurface;
-class GrTextContext;
 class SkDrawFilter;
 struct SkIPoint;
 struct SkIRect;
@@ -310,17 +310,17 @@ private:
 
     GrDrawTarget* getDrawTarget();
 
-    GrDrawingManager* fDrawingManager;
-    GrRenderTarget*   fRenderTarget;
+    GrDrawingManager*   fDrawingManager;
+    GrRenderTarget*     fRenderTarget;
 
     // In MDB-mode the drawTarget can be closed by some other drawContext that has picked
     // it up. For this reason, the drawTarget should only ever be accessed via 'getDrawTarget'.
-    GrDrawTarget*     fDrawTarget;
-    GrTextContext*    fAtlasTextContext; // lazily gotten from GrContext::DrawingManager
-    GrContext*        fContext;
+    GrDrawTarget*       fDrawTarget;
+    GrAtlasTextContext* fAtlasTextContext;
+    GrContext*          fContext;
 
-    SkSurfaceProps    fSurfaceProps;
-    GrAuditTrail*     fAuditTrail;
+    SkSurfaceProps      fSurfaceProps;
+    GrAuditTrail*       fAuditTrail;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)

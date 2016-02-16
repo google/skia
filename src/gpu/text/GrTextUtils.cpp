@@ -13,7 +13,6 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
-#include "GrTextContext.h"
 
 #include "SkDistanceFieldGen.h"
 #include "SkDrawProcs.h"
@@ -59,7 +58,7 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
 
     // Get GrFontScaler from cache
     SkGlyphCache* cache = blob->setupCache(runIndex, props, skPaint, &viewMatrix, false);
-    GrFontScaler* fontScaler = GrTextContext::GetGrFontScaler(cache);
+    GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessText(
         skPaint.getTextEncoding(), text, byteLength,
@@ -100,7 +99,7 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
 
     // Get GrFontScaler from cache
     SkGlyphCache* cache = blob->setupCache(runIndex, props, skPaint, &viewMatrix, false);
-    GrFontScaler* fontScaler = GrTextContext::GetGrFontScaler(cache);
+    GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessPosText(
         skPaint.getTextEncoding(), text, byteLength,
@@ -342,7 +341,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
 
     SkGlyphCache* cache = blob->setupCache(runIndex, props, dfPaint, nullptr, true);
     SkDrawCacheProc glyphCacheProc = dfPaint.getDrawCacheProc();
-    GrFontScaler* fontScaler = GrTextContext::GetGrFontScaler(cache);
+    GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     const char* stop = text + byteLength;
 
@@ -535,4 +534,48 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context,
         }
         pos += scalarsPerPosition;
     }
+}
+
+bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
+    return !SkXfermode::AsMode(paint.getXfermode(), nullptr) ||
+           paint.getMaskFilter() ||
+           paint.getRasterizer() ||
+           paint.getPathEffect() ||
+           paint.isFakeBoldText() ||
+           paint.getStyle() != SkPaint::kFill_Style;
+}
+
+uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint) {
+    uint32_t flags = paint.getFlags();
+
+    if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
+        return flags;
+    }
+
+    if (kUnknown_SkPixelGeometry == surfaceProps.pixelGeometry() || ShouldDisableLCD(paint)) {
+        flags &= ~SkPaint::kLCDRenderText_Flag;
+        flags |= SkPaint::kGenA8FromLCD_Flag;
+    }
+
+    return flags;
+}
+
+static void glyph_cache_aux_proc(void* data) {
+    GrFontScaler* scaler = (GrFontScaler*)data;
+    SkSafeUnref(scaler);
+}
+
+GrFontScaler* GrTextUtils::GetGrFontScaler(SkGlyphCache* cache) {
+    void* auxData;
+    GrFontScaler* scaler = nullptr;
+
+    if (cache->getAuxProcData(glyph_cache_aux_proc, &auxData)) {
+        scaler = (GrFontScaler*)auxData;
+    }
+    if (nullptr == scaler) {
+        scaler = new GrFontScaler(cache);
+        cache->setAuxProc(glyph_cache_aux_proc, scaler);
+    }
+
+    return scaler;
 }

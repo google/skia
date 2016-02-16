@@ -308,8 +308,6 @@
       '<(skia_src_path)/gpu/text/GrStencilAndCoverTextContext.h',
       '<(skia_src_path)/gpu/text/GrTextBlobCache.cpp',
       '<(skia_src_path)/gpu/text/GrTextBlobCache.h',
-      '<(skia_src_path)/gpu/text/GrTextContext.cpp',
-      '<(skia_src_path)/gpu/text/GrTextContext.h',
       '<(skia_src_path)/gpu/text/GrTextUtils.cpp',
       '<(skia_src_path)/gpu/text/GrTextUtils.h',
 

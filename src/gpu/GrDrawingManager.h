@@ -18,13 +18,8 @@ class GrContext;
 class GrDrawContext;
 class GrSingleOWner;
 class GrSoftwarePathRenderer;
-class GrTextContext;
 
-// Currently the DrawingManager creates a separate GrTextContext for each
-// combination of text drawing options (pixel geometry x DFT use)
-// and hands the appropriate one back given the DrawContext's request.
-//
-// It allocates a new GrDrawContext for each GrRenderTarget
+// The GrDrawingManager allocates a new GrDrawContext for each GrRenderTarget
 // but all of them still land in the same GrDrawTarget!
 //
 // In the future this class will allocate a new GrDrawContext for

@@ -8,8 +8,6 @@
 #ifndef GrAtlasTextContext_DEFINED
 #define GrAtlasTextContext_DEFINED
 
-#include "GrTextContext.h"
-
 #include "GrAtlasTextBlob.h"
 #include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
@@ -27,9 +25,9 @@ class GrTextBlobCache;
 class SkGlyph;
 
 /*
- * This class implements GrTextContext using standard bitmap fonts, and can also process textblobs.
+ * Renders text using some kind of an atlas, ie BitmapText or DistanceField text
  */
-class GrAtlasTextContext : public GrTextContext {
+class GrAtlasTextContext {
 public:
     static GrAtlasTextContext* Create();
 
@@ -38,16 +36,16 @@ public:
     void drawText(GrContext*, GrDrawContext*, const GrClip&, const GrPaint&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                   size_t byteLength, SkScalar x, SkScalar y,
-                  const SkIRect& regionClipBounds) override;
+                  const SkIRect& regionClipBounds);
     void drawPosText(GrContext*, GrDrawContext*, const GrClip&, const GrPaint&,
                      const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
-                     const SkPoint& offset, const SkIRect& regionClipBounds) override;
+                     const SkPoint& offset, const SkIRect& regionClipBounds);
     void drawTextBlob(GrContext*, GrDrawContext*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
                       SkScalar x, SkScalar y,
-                      SkDrawFilter*, const SkIRect& clipBounds) override;
+                      SkDrawFilter*, const SkIRect& clipBounds);
 
 private:
     GrAtlasTextContext();
@@ -87,8 +85,6 @@ private:
 #ifdef GR_TEST_UTILS
     DRAW_BATCH_TEST_FRIEND(TextBlobBatch);
 #endif
-
-    typedef GrTextContext INHERITED;
 };
 
 #endif
