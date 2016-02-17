@@ -308,7 +308,8 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     GrWrapTextureInBitmap(layer->texture(), layer->texture()->width(), layer->texture()->height(),
                           false, &src);
 
-    if (!layer->filter()->filterImage(&proxy, src, filterContext, &filteredBitmap, &offset)) {
+    if (!layer->filter()->filterImageDeprecated(&proxy, src, filterContext,
+                                                &filteredBitmap, &offset)) {
         // Filtering failed. Press on with the unfiltered version.
         return;
     }

@@ -23,8 +23,8 @@ protected:
     SkMagnifierImageFilter(const SkRect& srcRect, SkScalar inset, SkImageFilter* input);
     void flatten(SkWriteBuffer&) const override;
 
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
     bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
                              const SkIRect& bounds) const override;

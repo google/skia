@@ -53,8 +53,8 @@ public:
       : SkImageFilter(0, nullptr), fReporter(reporter), fExpectedMatrix(expectedMatrix) {
     }
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context& ctx,
-                               SkBitmap* result, SkIPoint* offset) const override {
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context& ctx,
+                                 SkBitmap* result, SkIPoint* offset) const override {
         REPORTER_ASSERT(fReporter, ctx.ctm() == fExpectedMatrix);
         return true;
     }
@@ -321,8 +321,10 @@ static void test_crop_rects(SkImageFilter::Proxy* proxy, skiatest::Reporter* rep
         SkString str;
         str.printf("filter %d", static_cast<int>(i));
         SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
-        REPORTER_ASSERT_MESSAGE(reporter, filter->filterImage(proxy, bitmap, ctx,
-                                &result, &offset), str.c_str());
+        REPORTER_ASSERT_MESSAGE(reporter,
+                                filter->filterImageDeprecated(proxy, bitmap, ctx, 
+                                                              &result, &offset),
+                                str.c_str());
         REPORTER_ASSERT_MESSAGE(reporter, offset.fX == 20 && offset.fY == 30, str.c_str());
     }
 
@@ -366,13 +368,21 @@ static void test_negative_blur_sigma(SkImageFilter::Proxy* proxy, skiatest::Repo
     SkBitmap positiveResult2, negativeResult2;
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr);
-    REPORTER_ASSERT(reporter, positiveFilter->filterImage(proxy, gradient, ctx, &positiveResult1, &offset));
-    REPORTER_ASSERT(reporter, negativeFilter->filterImage(proxy, gradient, ctx, &negativeResult1, &offset));
+    REPORTER_ASSERT(reporter,
+                    positiveFilter->filterImageDeprecated(proxy, gradient, ctx,
+                                                          &positiveResult1, &offset));
+    REPORTER_ASSERT(reporter,
+                    negativeFilter->filterImageDeprecated(proxy, gradient, ctx,
+                                                          &negativeResult1, &offset));
     SkMatrix negativeScale;
     negativeScale.setScale(-SK_Scalar1, SK_Scalar1);
     SkImageFilter::Context negativeCTX(negativeScale, SkIRect::MakeWH(32, 32), nullptr);
-    REPORTER_ASSERT(reporter, positiveFilter->filterImage(proxy, gradient, negativeCTX, &negativeResult2, &offset));
-    REPORTER_ASSERT(reporter, negativeFilter->filterImage(proxy, gradient, negativeCTX, &positiveResult2, &offset));
+    REPORTER_ASSERT(reporter,
+                    positiveFilter->filterImageDeprecated(proxy, gradient, negativeCTX,
+                                                          &negativeResult2, &offset));
+    REPORTER_ASSERT(reporter,
+                    negativeFilter->filterImageDeprecated(proxy, gradient, negativeCTX,
+                                                          &positiveResult2, &offset));
     SkAutoLockPixels lockP1(positiveResult1);
     SkAutoLockPixels lockP2(positiveResult2);
     SkAutoLockPixels lockN1(negativeResult1);
@@ -662,7 +672,7 @@ DEF_TEST(ImageFilterMergeResultSize, reporter) {
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(0, 0, 100, 100), nullptr);
     SkBitmap result;
     SkIPoint offset;
-    REPORTER_ASSERT(reporter, merge->filterImage(&proxy, bitmap, ctx, &result, &offset));
+    REPORTER_ASSERT(reporter, merge->filterImageDeprecated(&proxy, bitmap, ctx, &result, &offset));
     REPORTER_ASSERT(reporter, result.width() == 20 && result.height() == 20);
 }
 
@@ -912,7 +922,8 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkBitmapDevice device(bitmap, props);
     SkImageFilter::DeviceProxy proxy(&device);
-    REPORTER_ASSERT(reporter, !imageFilter->filterImage(&proxy, bitmap, ctx, &result, &offset));
+    REPORTER_ASSERT(reporter,
+                    !imageFilter->filterImageDeprecated(&proxy, bitmap, ctx, &result, &offset));
 }
 
 DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
@@ -1160,7 +1171,8 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
     SkBitmap result;
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
-    REPORTER_ASSERT(reporter, composedFilter->filterImage(&proxy, bitmap, ctx, &result, &offset));
+    REPORTER_ASSERT(reporter,
+                    composedFilter->filterImageDeprecated(&proxy, bitmap, ctx, &result, &offset));
     REPORTER_ASSERT(reporter, offset.fX == 1 && offset.fY == 0);
 }
 
@@ -1178,7 +1190,8 @@ DEF_TEST(PartialCropRect, reporter) {
     SkBitmap result;
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
-    REPORTER_ASSERT(reporter, filter->filterImage(&proxy, bitmap, ctx, &result, &offset));
+    REPORTER_ASSERT(reporter,
+                    filter->filterImageDeprecated(&proxy, bitmap, ctx, &result, &offset));
     REPORTER_ASSERT(reporter, offset.fX == 0);
     REPORTER_ASSERT(reporter, offset.fY == 0);
     REPORTER_ASSERT(reporter, result.width() == 20);

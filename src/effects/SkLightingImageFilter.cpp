@@ -355,8 +355,8 @@ protected:
 
 #if SK_SUPPORT_GPU
     bool canFilterImageGPU() const override { return true; }
-    bool filterImageGPU(Proxy*, const SkBitmap& src, const Context&,
-                        SkBitmap* result, SkIPoint* offset) const override;
+    bool filterImageGPUDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                  SkBitmap* result, SkIPoint* offset) const override;
     virtual GrFragmentProcessor* getFragmentProcessor(GrTexture*,
                                                       const SkMatrix&,
                                                       const SkIRect* srcBounds,
@@ -393,14 +393,14 @@ void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 }
 
-bool SkLightingImageFilterInternal::filterImageGPU(Proxy* proxy,
-                                                   const SkBitmap& src,
-                                                   const Context& ctx,
-                                                   SkBitmap* result,
-                                                   SkIPoint* offset) const {
+bool SkLightingImageFilterInternal::filterImageGPUDeprecated(Proxy* proxy,
+                                                             const SkBitmap& src,
+                                                             const Context& ctx,
+                                                             SkBitmap* result,
+                                                             SkIPoint* offset) const {
     SkBitmap input = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPU(0, proxy, src, ctx, &input, &srcOffset)) {
+    if (!this->filterInputGPUDeprecated(0, proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
     SkIRect srcBounds = input.bounds();
@@ -487,8 +487,8 @@ protected:
     SkDiffuseLightingImageFilter(SkImageFilterLight* light, SkScalar surfaceScale,
                                  SkScalar kd, SkImageFilter* input, const CropRect* cropRect);
     void flatten(SkWriteBuffer& buffer) const override;
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
     GrFragmentProcessor* getFragmentProcessor(GrTexture*, const SkMatrix&, const SkIRect* bounds,
                                               BoundaryMode) const override;
@@ -515,8 +515,8 @@ protected:
     SkSpecularLightingImageFilter(SkImageFilterLight* light, SkScalar surfaceScale, SkScalar ks,
                                   SkScalar shininess, SkImageFilter* input, const CropRect*);
     void flatten(SkWriteBuffer& buffer) const override;
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
     GrFragmentProcessor* getFragmentProcessor(GrTexture*, const SkMatrix&, const SkIRect* bounds,
                                               BoundaryMode) const override;
@@ -1223,14 +1223,14 @@ void SkDiffuseLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fKD);
 }
 
-bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
-                                                 const SkBitmap& source,
-                                                 const Context& ctx,
-                                                 SkBitmap* dst,
-                                                 SkIPoint* offset) const {
+bool SkDiffuseLightingImageFilter::onFilterImageDeprecated(Proxy* proxy,
+                                                           const SkBitmap& source,
+                                                           const Context& ctx,
+                                                           SkBitmap* dst,
+                                                           SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -1367,14 +1367,14 @@ void SkSpecularLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fShininess);
 }
 
-bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
-                                                  const SkBitmap& source,
-                                                  const Context& ctx,
-                                                  SkBitmap* dst,
-                                                  SkIPoint* offset) const {
+bool SkSpecularLightingImageFilter::onFilterImageDeprecated(Proxy* proxy,
+                                                            const SkBitmap& source,
+                                                            const Context& ctx,
+                                                            SkBitmap* dst,
+                                                            SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 

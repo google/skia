@@ -231,9 +231,9 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fCropRect.flags());
 }
 
-bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
-                                const Context& context,
-                                SkBitmap* result, SkIPoint* offset) const {
+bool SkImageFilter::filterImageDeprecated(Proxy* proxy, const SkBitmap& src,
+                                          const Context& context,
+                                          SkBitmap* result, SkIPoint* offset) const {
     SkASSERT(result);
     SkASSERT(offset);
     uint32_t srcGenID = fUsesSrcInput ? src.getGenerationID() : 0;
@@ -248,7 +248,7 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
      *  the filter to do it.
      */
     if ((proxy && proxy->filterImage(this, src, context, result, offset)) ||
-        this->onFilterImage(proxy, src, context, result, offset)) {
+        this->onFilterImageDeprecated(proxy, src, context, result, offset)) {
         if (context.cache()) {
             context.cache()->set(key, *result, *offset);
             SkAutoMutexAcquire mutex(fMutex);
@@ -259,14 +259,14 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
     return false;
 }
 
-bool SkImageFilter::filterInput(int index, Proxy* proxy, const SkBitmap& src,
-                                const Context& ctx,
-                                SkBitmap* result, SkIPoint* offset) const {
+bool SkImageFilter::filterInputDeprecated(int index, Proxy* proxy, const SkBitmap& src,
+                                          const Context& ctx,
+                                          SkBitmap* result, SkIPoint* offset) const {
     SkImageFilter* input = this->getInput(index);
     if (!input) {
         return true;
     }
-    return input->filterImage(proxy, src, this->mapContext(ctx), result, offset);
+    return input->filterImageDeprecated(proxy, src, this->mapContext(ctx), result, offset);
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst,
@@ -319,8 +319,8 @@ bool SkImageFilter::canComputeFastBounds() const {
     return true;
 }
 
-bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const Context&,
-                                  SkBitmap*, SkIPoint*) const {
+bool SkImageFilter::onFilterImageDeprecated(Proxy*, const SkBitmap&, const Context&,
+                                            SkBitmap*, SkIPoint*) const {
     return false;
 }
 
@@ -328,18 +328,18 @@ bool SkImageFilter::canFilterImageGPU() const {
     return this->asFragmentProcessor(nullptr, nullptr, SkMatrix::I(), SkIRect());
 }
 
-bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                   SkBitmap* result, SkIPoint* offset) const {
+bool SkImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
+                                             SkBitmap* result, SkIPoint* offset) const {
 #if SK_SUPPORT_GPU
     SkBitmap input = src;
     SkASSERT(fInputCount == 1);
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPU(0, proxy, src, ctx, &input, &srcOffset)) {
+    if (!this->filterInputGPUDeprecated(0, proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
     GrTexture* srcTexture = input.getTexture();
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, input, &srcOffset, &bounds, &input)) {
+    if (!this->applyCropRectDeprecated(ctx, proxy, input, &srcOffset, &bounds, &input)) {
         return false;
     }
     GrContext* context = srcTexture->getContext();
@@ -406,8 +406,9 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
     return dstBounds->intersect(ctx.clipBounds());
 }
 
-bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitmap& src,
-                                  SkIPoint* srcOffset, SkIRect* bounds, SkBitmap* dst) const {
+bool SkImageFilter::applyCropRectDeprecated(const Context& ctx, Proxy* proxy, const SkBitmap& src,
+                                            SkIPoint* srcOffset, SkIRect* bounds,
+                                            SkBitmap* dst) const {
     SkIRect srcBounds;
     src.getBounds(&srcBounds);
     srcBounds.offset(*srcOffset);
@@ -495,9 +496,9 @@ SkImageFilter* SkImageFilter::newWithLocalMatrix(const SkMatrix& matrix) const {
 
 #if SK_SUPPORT_GPU
 
-bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
-                                   const SkBitmap& src, const Context& ctx,
-                                   SkBitmap* result, SkIPoint* offset) const {
+bool SkImageFilter::filterInputGPUDeprecated(int index, SkImageFilter::Proxy* proxy,
+                                             const SkBitmap& src, const Context& ctx,
+                                             SkBitmap* result, SkIPoint* offset) const {
     SkImageFilter* input = this->getInput(index);
     if (!input) {
         return true;
@@ -506,7 +507,7 @@ bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
     // matrix with no clip and that the matrix, clip, and render target set before this function was
     // called are restored before we return to the caller.
     GrContext* context = src.getTexture()->getContext();
-    if (input->filterImage(proxy, src, this->mapContext(ctx), result, offset)) {
+    if (input->filterImageDeprecated(proxy, src, this->mapContext(ctx), result, offset)) {
         if (!result->getTexture()) {
             const SkImageInfo info = result->info();
             if (kUnknown_SkColorType == info.colorType()) {

@@ -39,16 +39,16 @@ public:
         return new SimpleOffsetFilter(dx, dy, input);
     }
 
-    virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                               SkBitmap* dst, SkIPoint* offset) const override {
+    bool onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
+                                 SkBitmap* dst, SkIPoint* offset) const override {
         SkBitmap source = src;
         SkIPoint srcOffset = SkIPoint::Make(0, 0);
-        if (!this->filterInput(0, proxy, src, ctx, &source, &srcOffset)) {
+        if (!this->filterInputDeprecated(0, proxy, src, ctx, &source, &srcOffset)) {
             return false;
         }
 
         SkIRect bounds;
-        if (!this->applyCropRect(ctx, proxy, source, &srcOffset, &bounds, &source)) {
+        if (!this->applyCropRectDeprecated(ctx, proxy, source, &srcOffset, &bounds, &source)) {
             return false;
         }
 

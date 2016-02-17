@@ -34,8 +34,8 @@ protected:
         SkASSERT(inputs[0]);
         SkASSERT(inputs[1]);
     }
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* loc) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* loc) const override;
     bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
 
 private:

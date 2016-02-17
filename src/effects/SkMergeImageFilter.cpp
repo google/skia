@@ -55,9 +55,9 @@ SkMergeImageFilter::~SkMergeImageFilter() {
     }
 }
 
-bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
-                                       const Context& ctx,
-                                       SkBitmap* result, SkIPoint* offset) const {
+bool SkMergeImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                 const Context& ctx,
+                                                 SkBitmap* result, SkIPoint* offset) const {
     int inputCount = this->countInputs();
     if (inputCount < 1) {
         return false;
@@ -73,7 +73,7 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     for (int i = 0; i < inputCount; ++i) {
         inputs[i] = src;
         offsets[i].setZero();
-        if (!this->filterInput(i, proxy, src, ctx, &inputs[i], &offsets[i])) {
+        if (!this->filterInputDeprecated(i, proxy, src, ctx, &inputs[i], &offsets[i])) {
             inputs[i].reset();
             continue;
         }

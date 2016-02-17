@@ -294,9 +294,9 @@ void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fInset);
 }
 
-bool SkMagnifierImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
-                                           const Context&, SkBitmap* dst,
-                                           SkIPoint* offset) const {
+bool SkMagnifierImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                     const Context&, SkBitmap* dst,
+                                                     SkIPoint* offset) const {
     if ((src.colorType() != kN32_SkColorType) ||
         (fSrcRect.width() >= src.width()) ||
         (fSrcRect.height() >= src.height())) {

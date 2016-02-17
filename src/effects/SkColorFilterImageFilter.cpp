@@ -55,13 +55,13 @@ SkColorFilterImageFilter::~SkColorFilterImageFilter() {
     fColorFilter->unref();
 }
 
-bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
-                                             const Context& ctx,
-                                             SkBitmap* result,
-                                             SkIPoint* offset) const {
+bool SkColorFilterImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& source,
+                                                       const Context& ctx,
+                                                       SkBitmap* result,
+                                                       SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 

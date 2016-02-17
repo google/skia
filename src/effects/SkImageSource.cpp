@@ -64,8 +64,8 @@ void SkImageSource::flatten(SkWriteBuffer& buffer) const {
     buffer.writeImage(fImage);
 }
 
-bool SkImageSource::onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                  SkBitmap* result, SkIPoint* offset) const {
+bool SkImageSource::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
+                                            SkBitmap* result, SkIPoint* offset) const {
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
     SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());

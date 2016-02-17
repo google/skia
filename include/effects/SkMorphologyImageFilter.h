@@ -60,12 +60,12 @@ public:
         return new SkDilateImageFilter(radiusX, radiusY, input, cropRect);
     }
 
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
-    bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context&,
-                        SkBitmap* result, SkIPoint* offset) const override;
+    bool filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context&,
+                                  SkBitmap* result, SkIPoint* offset) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -89,12 +89,12 @@ public:
         return new SkErodeImageFilter(radiusX, radiusY, input, cropRect);
     }
 
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
-    bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context&,
-                        SkBitmap* result, SkIPoint* offset) const override;
+    bool filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context&,
+                                  SkBitmap* result, SkIPoint* offset) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

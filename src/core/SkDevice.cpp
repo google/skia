@@ -415,7 +415,7 @@ void SkBaseDevice::drawBitmapAsSprite(const SkDraw& draw, const SkBitmap& bitmap
         const SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-x, -y);
         SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
-        if (filter->filterImage(&proxy, bitmap, ctx, &dst, &offset)) {
+        if (filter->filterImageDeprecated(&proxy, bitmap, ctx, &dst, &offset)) {
             SkPaint tmpUnfiltered(paint);
             tmpUnfiltered.setImageFilter(nullptr);
             this->drawSprite(draw, dst, x + offset.x(), y + offset.y(), tmpUnfiltered);

@@ -28,13 +28,13 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
-                       SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
+                                 SkIPoint* offset) const override;
     void onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
                             SkIRect* dst, MapDirection) const override;
     bool canFilterImageGPU() const override { return true; }
-    bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx, SkBitmap* result,
-                        SkIPoint* offset) const override;
+    bool filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
+                                  SkBitmap* result, SkIPoint* offset) const override;
 
 private:
     SkBlurImageFilter(SkScalar sigmaX,

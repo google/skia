@@ -28,8 +28,8 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override;
 
 private:
     explicit SkImageSource(const SkImage*);

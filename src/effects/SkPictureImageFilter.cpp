@@ -84,8 +84,9 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Context& ctx,
-                                         SkBitmap* result, SkIPoint* offset) const {
+bool SkPictureImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap&,
+                                                   const Context& ctx,
+                                                   SkBitmap* result, SkIPoint* offset) const {
     if (!fPicture) {
         offset->fX = offset->fY = 0;
         return true;

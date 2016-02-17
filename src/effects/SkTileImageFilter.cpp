@@ -35,12 +35,12 @@ SkImageFilter* SkTileImageFilter::Create(const SkRect& srcRect, const SkRect& ds
     return new SkTileImageFilter(srcRect, dstRect, input);
 }
 
-bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
-                                      const Context& ctx,
-                                      SkBitmap* dst, SkIPoint* offset) const {
+bool SkTileImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                const Context& ctx,
+                                                SkBitmap* dst, SkIPoint* offset) const {
     SkBitmap source = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(0, proxy, src, ctx, &source, &srcOffset)) {
+    if (!this->filterInputDeprecated(0, proxy, src, ctx, &source, &srcOffset)) {
         return false;
     }
 

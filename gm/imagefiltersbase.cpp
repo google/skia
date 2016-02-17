@@ -34,8 +34,8 @@ public:
 protected:
     FailImageFilter() : INHERITED(0, nullptr) {}
 
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override {
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override {
         return false;
     }
 
@@ -76,8 +76,8 @@ public:
 protected:
     IdentityImageFilter(SkImageFilter* input) : INHERITED(1, &input) {}
 
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override {
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override {
         *result = src;
         offset->set(0, 0);
         return true;

@@ -62,7 +62,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
                                                  SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -71,7 +71,8 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(this->mapContext(ctx), proxy, src, &srcOffset, &bounds, &src)) {
+    if (!this->applyCropRectDeprecated(this->mapContext(ctx), proxy, src, &srcOffset,
+                                       &bounds, &src)) {
         return false;
     }
 
@@ -127,16 +128,16 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
     return true;
 }
 
-bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
-                                       const SkBitmap& source, const Context& ctx,
-                                       SkBitmap* dst, SkIPoint* offset) const {
+bool SkErodeImageFilter::onFilterImageDeprecated(Proxy* proxy,
+                                                 const SkBitmap& source, const Context& ctx,
+                                                 SkBitmap* dst, SkIPoint* offset) const {
     return this->filterImageGeneric(SkOpts::erode_x, SkOpts::erode_y,
                                     proxy, source, ctx, dst, offset);
 }
 
-bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
-                                        const SkBitmap& source, const Context& ctx,
-                                        SkBitmap* dst, SkIPoint* offset) const {
+bool SkDilateImageFilter::onFilterImageDeprecated(Proxy* proxy,
+                                                  const SkBitmap& source, const Context& ctx,
+                                                  SkBitmap* dst, SkIPoint* offset) const {
     return this->filterImageGeneric(SkOpts::dilate_x, SkOpts::dilate_y,
                                     proxy, source, ctx, dst, offset);
 }
@@ -607,11 +608,12 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
                                                     SkIPoint* offset) const {
     SkBitmap input = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPU(0, proxy, src, ctx, &input, &srcOffset)) {
+    if (!this->filterInputGPUDeprecated(0, proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
     SkIRect bounds;
-    if (!this->applyCropRect(this->mapContext(ctx), proxy, input, &srcOffset, &bounds, &input)) {
+    if (!this->applyCropRectDeprecated(this->mapContext(ctx), proxy, input, &srcOffset,
+                                       &bounds, &input)) {
         return false;
     }
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
@@ -643,13 +645,15 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
     return true;
 }
 
-bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                         SkBitmap* result, SkIPoint* offset) const {
+bool SkDilateImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                   const Context& ctx,
+                                                   SkBitmap* result, SkIPoint* offset) const {
     return this->filterImageGPUGeneric(true, proxy, src, ctx, result, offset);
 }
 
-bool SkErodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                        SkBitmap* result, SkIPoint* offset) const {
+bool SkErodeImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                  const Context& ctx,
+                                                  SkBitmap* result, SkIPoint* offset) const {
     return this->filterImageGPUGeneric(false, proxy, src, ctx, result, offset);
 }
 

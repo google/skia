@@ -27,8 +27,8 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
     bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
                              const SkIRect& bounds) const override;
@@ -331,9 +331,9 @@ void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRegion(fRegion);
 }
 
-bool SkAlphaThresholdFilterImpl::onFilterImage(Proxy* proxy, const SkBitmap& src,
-                                               const Context& ctx, SkBitmap* dst,
-                                               SkIPoint* offset) const {
+bool SkAlphaThresholdFilterImpl::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                         const Context& ctx, SkBitmap* dst,
+                                                         SkIPoint* offset) const {
     SkASSERT(src.colorType() == kN32_SkColorType);
 
     if (src.colorType() != kN32_SkColorType) {

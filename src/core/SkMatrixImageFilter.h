@@ -44,10 +44,10 @@ protected:
                         SkImageFilter* input);
     void flatten(SkWriteBuffer&) const override;
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* loc) const override;
-    virtual void onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
-                                    SkIRect* dst, MapDirection) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* loc) const override;
+    void onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
+                            SkIRect* dst, MapDirection) const override;
 
 private:
     SkMatrix              fTransform;

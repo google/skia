@@ -1129,7 +1129,7 @@ bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
     if (filter->canFilterImageGPU()) {
         SkBitmap bm;
         GrWrapTextureInBitmap(texture, width, height, false, &bm);
-        return filter->filterImageGPU(&proxy, bm, ctx, result, offset);
+        return filter->filterImageGPUDeprecated(&proxy, bm, ctx, result, offset);
     } else {
         return false;
     }

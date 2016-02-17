@@ -264,14 +264,14 @@ static SkBitmap unpremultiplyBitmap(SkImageFilter::Proxy* proxy, const SkBitmap&
     return result;
 }
 
-bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
-                                                   const SkBitmap& source,
-                                                   const Context& ctx,
-                                                   SkBitmap* result,
-                                                   SkIPoint* offset) const {
+bool SkMatrixConvolutionImageFilter::onFilterImageDeprecated(Proxy* proxy,
+                                                             const SkBitmap& source,
+                                                             const Context& ctx,
+                                                             SkBitmap* result,
+                                                             SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -280,7 +280,8 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(this->mapContext(ctx), proxy, src, &srcOffset, &bounds, &src)) {
+    if (!this->applyCropRectDeprecated(this->mapContext(ctx), proxy, src, &srcOffset,
+                                       &bounds, &src)) {
         return false;
     }
 

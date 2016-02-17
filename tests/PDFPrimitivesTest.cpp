@@ -369,8 +369,8 @@ class DummyImageFilter : public SkImageFilter {
 public:
     DummyImageFilter(bool visited = false) : SkImageFilter(0, nullptr), fVisited(visited) {}
     ~DummyImageFilter() override {}
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const override {
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                 SkBitmap* result, SkIPoint* offset) const override {
         fVisited = true;
         offset->fX = offset->fY = 0;
         *result = src;

@@ -27,9 +27,9 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
-                                            const Context&,
-                                            SkBitmap* result, SkIPoint*) const {
+bool SkDownSampleImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                      const Context&,
+                                                      SkBitmap* result, SkIPoint*) const {
     SkScalar scale = fScale;
     if (scale > SK_Scalar1 || scale <= 0) {
         return false;

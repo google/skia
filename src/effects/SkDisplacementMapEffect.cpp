@@ -210,15 +210,15 @@ void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fScale);
 }
 
-bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
-                                            const SkBitmap& src,
-                                            const Context& ctx,
-                                            SkBitmap* dst,
-                                            SkIPoint* offset) const {
+bool SkDisplacementMapEffect::onFilterImageDeprecated(Proxy* proxy,
+                                                      const SkBitmap& src,
+                                                      const Context& ctx,
+                                                      SkBitmap* dst,
+                                                      SkIPoint* offset) const {
     SkBitmap displ = src, color = src;
     SkIPoint colorOffset = SkIPoint::Make(0, 0), displOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(1, proxy, src, ctx, &color, &colorOffset) ||
-        !this->filterInput(0, proxy, src, ctx, &displ, &displOffset)) {
+    if (!this->filterInputDeprecated(1, proxy, src, ctx, &color, &colorOffset) ||
+        !this->filterInputDeprecated(0, proxy, src, ctx, &displ, &displOffset)) {
         return false;
     }
     if ((displ.colorType() != kN32_SkColorType) ||
@@ -234,7 +234,7 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
         return false;
     }
     SkIRect displBounds;
-    if (!this->applyCropRect(ctx, proxy, displ, &displOffset, &displBounds, &displ)) {
+    if (!this->applyCropRectDeprecated(ctx, proxy, displ, &displOffset, &displBounds, &displ)) {
         return false;
     }
     if (!bounds.intersect(displBounds)) {
@@ -386,16 +386,17 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                             SkBitmap* result, SkIPoint* offset) const {
+bool SkDisplacementMapEffect::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                       const Context& ctx,
+                                                       SkBitmap* result, SkIPoint* offset) const {
     SkBitmap colorBM = src;
     SkIPoint colorOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPU(1, proxy, src, ctx, &colorBM, &colorOffset)) {
+    if (!this->filterInputGPUDeprecated(1, proxy, src, ctx, &colorBM, &colorOffset)) {
         return false;
     }
     SkBitmap displacementBM = src;
     SkIPoint displacementOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPU(0, proxy, src, ctx, &displacementBM, &displacementOffset)) {
+    if (!this->filterInputGPUDeprecated(0, proxy, src, ctx, &displacementBM, &displacementOffset)) {
         return false;
     }
     SkIRect srcBounds = colorBM.bounds();
@@ -407,8 +408,8 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
         return false;
     }
     SkIRect displBounds;
-    if (!this->applyCropRect(ctx, proxy, displacementBM,
-                             &displacementOffset, &displBounds, &displacementBM)) {
+    if (!this->applyCropRectDeprecated(ctx, proxy, displacementBM,
+                                       &displacementOffset, &displBounds, &displacementBM)) {
         return false;
     }
     if (!bounds.intersect(displBounds)) {

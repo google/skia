@@ -145,8 +145,8 @@ public:
      *  If the result image cannot be created, return false, in which case both
      *  the result and offset parameters will be ignored by the caller.
      */
-    bool filterImage(Proxy*, const SkBitmap& src, const Context&,
-                     SkBitmap* result, SkIPoint* offset) const;
+    bool filterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                               SkBitmap* result, SkIPoint* offset) const;
 
     enum MapDirection {
         kForward_MapDirection,
@@ -185,8 +185,8 @@ public:
      *  relative to the src when it is drawn. The default implementation does
      *  single-pass processing using asFragmentProcessor().
      */
-    virtual bool filterImageGPU(Proxy*, const SkBitmap& src, const Context&,
-                                SkBitmap* result, SkIPoint* offset) const;
+    virtual bool filterImageGPUDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                          SkBitmap* result, SkIPoint* offset) const;
 
     /**
      *  Returns whether this image filter is a color filter and puts the color filter into the
@@ -267,8 +267,9 @@ public:
     // has a GPU implementation, it will be invoked directly.
     // Otherwise, the filter will be processed in software and
     // uploaded to the GPU.
-    bool filterInputGPU(int index, SkImageFilter::Proxy* proxy, const SkBitmap& src, const Context&,
-                        SkBitmap* result, SkIPoint* offset) const;
+    bool filterInputGPUDeprecated(int index, SkImageFilter::Proxy* proxy,
+                                  const SkBitmap& src, const Context&,
+                                  SkBitmap* result, SkIPoint* offset) const;
 #endif
 
     SK_TO_STRING_PUREVIRT()
@@ -341,8 +342,8 @@ protected:
      *  case both the result and offset parameters will be ignored by the
      *  caller.
      */
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const;
+    virtual bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                                         SkBitmap* result, SkIPoint* offset) const;
 
     /**
      * This function recurses into its inputs with the given clip rect (first
@@ -379,8 +380,8 @@ protected:
     // "offset" untouched, and returns true. If the input is non-null, it
     // calls filterImage() on that input, and returns true on success.
     // i.e., return !getInput(index) || getInput(index)->filterImage(...);
-    bool filterInput(int index, Proxy*, const SkBitmap& src, const Context&,
-                     SkBitmap* result, SkIPoint* offset) const;
+    bool filterInputDeprecated(int index, Proxy*, const SkBitmap& src, const Context&,
+                               SkBitmap* result, SkIPoint* offset) const;
 
     /**
      *  Return true (and return a ref'd colorfilter) if this node in the DAG is just a
@@ -410,8 +411,8 @@ protected:
      *  which are not capable of processing a smaller source bitmap into a
      *  larger destination.
      */
-    bool applyCropRect(const Context&, Proxy* proxy, const SkBitmap& src, SkIPoint* srcOffset,
-                       SkIRect* bounds, SkBitmap* result) const;
+    bool applyCropRectDeprecated(const Context&, Proxy* proxy, const SkBitmap& src,
+                                 SkIPoint* srcOffset, SkIRect* bounds, SkBitmap* result) const;
 
     /**
      *  Returns true if the filter can be expressed a single-pass

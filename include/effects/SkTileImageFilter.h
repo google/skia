@@ -21,8 +21,8 @@ public:
     */
     static SkImageFilter* Create(const SkRect& src, const SkRect& dst, SkImageFilter* input);
 
-    bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                       SkBitmap* dst, SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
+                                 SkBitmap* dst, SkIPoint* offset) const override;
     bool onFilterBounds(const SkIRect& src, const SkMatrix&,
                         SkIRect* dst, MapDirection) const override;
     void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;

@@ -69,12 +69,12 @@ static void getBox3Params(SkScalar s, int *kernelSize, int* kernelSize3, int *lo
     }
 }
 
-bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
-                                      const SkBitmap& source, const Context& ctx,
-                                      SkBitmap* dst, SkIPoint* offset) const {
+bool SkBlurImageFilter::onFilterImageDeprecated(Proxy* proxy,
+                                                const SkBitmap& source, const Context& ctx,
+                                                SkBitmap* dst, SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -198,12 +198,13 @@ void SkBlurImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& c
                 SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
 }
 
-bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                       SkBitmap* result, SkIPoint* offset) const {
+bool SkBlurImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                 const Context& ctx,
+                                                 SkBitmap* result, SkIPoint* offset) const {
 #if SK_SUPPORT_GPU
     SkBitmap input = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPU(0, proxy, src, ctx, &input, &srcOffset)) {
+    if (!this->filterInputGPUDeprecated(0, proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
     SkIRect srcBounds = input.bounds();
