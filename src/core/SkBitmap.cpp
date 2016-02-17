@@ -563,6 +563,8 @@ void* SkBitmap::getAddr(int x, int y) const {
     return base;
 }
 
+#include "SkHalf.h"
+
 SkColor SkBitmap::getColor(int x, int y) const {
     SkASSERT((unsigned)x < (unsigned)this->width());
     SkASSERT((unsigned)y < (unsigned)this->height());
@@ -598,6 +600,18 @@ SkColor SkBitmap::getColor(int x, int y) const {
             uint32_t* addr = this->getAddr32(x, y);
             SkPMColor c = SkSwizzle_RGBA_to_PMColor(addr[0]);
             return SkUnPreMultiply::PMColorToColor(c);
+        }
+        case kRGBA_F16_SkColorType: {
+            const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
+            Sk4f p4 = SkHalfToFloat_01(addr[0]);
+            if (p4[3]) {
+                float inva = 1 / p4[3];
+                p4 = p4 * Sk4f(inva, inva, inva, 1);
+            }
+            SkColor c;
+            SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
+            // p4 is RGBA, but we want BGRA, so we need to swap next
+            return SkSwizzle_RB(c);
         }
         default:
             SkASSERT(false);

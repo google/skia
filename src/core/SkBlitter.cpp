@@ -127,6 +127,10 @@ static uint8_t generate_right_mask(int maskBitCount) {
 void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     SkASSERT(mask.fBounds.contains(clip));
 
+    if (mask.fFormat == SkMask::kLCD16_Format) {
+        return; // needs to be handled by subclass
+    }
+
     if (mask.fFormat == SkMask::kBW_Format) {
         int cx = clip.fLeft;
         int cy = clip.fTop;
