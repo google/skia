@@ -15,6 +15,7 @@
       'include_dirs': [
         '../bench',
         '../gm',
+        '../include/private',
         '../src/core',
         '../tools/VisualBench',
       ],

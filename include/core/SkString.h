@@ -10,8 +10,8 @@
 #ifndef SkString_DEFINED
 #define SkString_DEFINED
 
+#include "../private/SkTArray.h"
 #include "SkScalar.h"
-#include "SkTArray.h"
 
 #include <stdarg.h>
 

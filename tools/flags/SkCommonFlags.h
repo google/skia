@@ -8,8 +8,8 @@
 #ifndef SK_COMMON_FLAGS_H
 #define SK_COMMON_FLAGS_H
 
+#include "../private/SkTArray.h"
 #include "SkCommandLineFlags.h"
-#include "SkTArray.h"
 #include "SkString.h"
 
 DECLARE_bool(cpu);

@@ -9,7 +9,6 @@
 #define GrTypesPriv_DEFINED
 
 #include "GrTypes.h"
-#include "SkTArray.h"
 #include "SkRect.h"
 
  /**

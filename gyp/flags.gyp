@@ -31,6 +31,7 @@
       'type': 'static_library',
       'include_dirs': [
           '../include/gpu',
+          '../include/private',
           '../src/gpu',
       ],
       'sources': [
@@ -46,6 +47,7 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/gpu',
+          '../include/private',
           '../src/gpu',
           '../tools/flags',
         ],

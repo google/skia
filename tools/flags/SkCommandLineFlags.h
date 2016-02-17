@@ -8,8 +8,8 @@
 #ifndef SK_COMMAND_LINE_FLAGS_H
 #define SK_COMMAND_LINE_FLAGS_H
 
+#include "../private/SkTArray.h"
 #include "SkString.h"
-#include "SkTArray.h"
 #include "SkTDArray.h"
 
 /**

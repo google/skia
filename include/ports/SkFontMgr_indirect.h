@@ -8,12 +8,12 @@
 #ifndef SkFontMgr_indirect_DEFINED
 #define SkFontMgr_indirect_DEFINED
 
+#include "../private/SkMutex.h"
+#include "../private/SkTArray.h"
 #include "SkDataTable.h"
 #include "SkFontMgr.h"
-#include "../private/SkMutex.h"
 #include "SkRefCnt.h"
 #include "SkRemotableFontMgr.h"
-#include "SkTArray.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
 

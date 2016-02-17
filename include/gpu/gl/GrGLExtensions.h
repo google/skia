@@ -8,9 +8,9 @@
 #ifndef GrGLExtensions_DEFINED
 #define GrGLExtensions_DEFINED
 
+#include "../../private/SkTArray.h"
 #include "GrGLFunctions.h"
 #include "SkString.h"
-#include "SkTArray.h"
 
 struct GrGLInterface;
 

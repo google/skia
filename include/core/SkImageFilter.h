@@ -8,6 +8,7 @@
 #ifndef SkImageFilter_DEFINED
 #define SkImageFilter_DEFINED
 
+#include "../private/SkTArray.h"
 #include "../private/SkTemplates.h"
 #include "../private/SkMutex.h"
 #include "SkFilterQuality.h"
@@ -15,7 +16,6 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkSurfaceProps.h"
-#include "SkTArray.h"
 
 class GrFragmentProcessor;
 class GrTexture;

@@ -8,8 +8,8 @@
 #ifndef ThermalManager_DEFINED
 #define ThermalManager_DEFINED
 
+#include "../private/SkTArray.h"
 #include "SkString.h"
-#include "SkTArray.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_UNIX)
 #    define THERMAL_MANAGER_SUPPORTED
