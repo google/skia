@@ -1965,7 +1965,7 @@ size_t SkPath::writeToMemory(void* storage) const {
     SkDEBUGCODE(this->validate();)
 
     if (nullptr == storage) {
-        const int byteCount = sizeof(int32_t) + fPathRef->writeSize();
+        const int byteCount = sizeof(int32_t) * 2 + fPathRef->writeSize();
         return SkAlign4(byteCount);
     }
 
@@ -1978,6 +1978,7 @@ size_t SkPath::writeToMemory(void* storage) const {
                      kCurrent_Version;
 
     buffer.write32(packed);
+    buffer.write32(fLastMoveToIndex);
 
     fPathRef->writeToBuffer(&buffer);
 
@@ -1994,6 +1995,9 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     }
 
     unsigned version = packed & 0xFF;
+    if (version >= kPathPrivLastMoveToIndex_Version && !buffer.readS32(&fLastMoveToIndex)) {
+        return 0;
+    }
 
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;

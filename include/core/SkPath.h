@@ -1075,8 +1075,8 @@ private:
 
     enum SerializationVersions {
         kPathPrivFirstDirection_Version = 1,
-
-        kCurrent_Version = 1
+        kPathPrivLastMoveToIndex_Version = 2,
+        kCurrent_Version = 2
     };
 
     SkAutoTUnref<SkPathRef>                            fPathRef;
