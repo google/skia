@@ -97,6 +97,7 @@ BASE_SRCS_ALL = struct(
         "src/doc/SkDocument_PDF_None.cpp",  # We use SkDocument_PDF.cpp.
         "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
         "src/gpu/gl/GrGLDefaultInterface_native.cpp",
+        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
         "src/gpu/gl/angle/*",  # Requires SK_ANGLE define.
@@ -122,6 +123,7 @@ BASE_SRCS_UNIX = struct(
         "src/android/*",
         "src/codec/*",
         "src/fonts/SkFontMgr_fontconfig.cpp",
+        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
         "src/images/*",
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
@@ -169,6 +171,7 @@ BASE_SRCS_ANDROID = struct(
     include = [
         "src/android/*",
         "src/codec/*",
+        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
         "src/images/*",
         # TODO(benjaminwagner): Figure out how to compile with EGL.
         "src/opts/**/*.cpp",
@@ -212,6 +215,8 @@ BASE_SRCS_ANDROID = struct(
 # Platform-dependent SRCS for google3-default iOS.
 BASE_SRCS_IOS = struct(
     include = [
+        "src/gpu/gl/GrGLDefaultInterface_native.cpp",
+        "src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp",
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
