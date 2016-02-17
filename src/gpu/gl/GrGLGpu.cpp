@@ -2427,7 +2427,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
-void GrGLGpu::performFlushWorkaround() {
+void GrGLGpu::finishDrawTarget() {
     if (fPLSHasBeenUsed) {
         /* There is an ARM driver bug where if we use PLS, and then draw a frame which does not 
          * use PLS, it leaves garbage all over the place. As a workaround, we use PLS in a 

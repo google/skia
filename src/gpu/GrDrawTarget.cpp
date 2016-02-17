@@ -214,7 +214,7 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
         fBatches[i]->draw(flushState);
     }
 
-    fGpu->performFlushWorkaround();
+    fGpu->finishDrawTarget();
 }
 
 void GrDrawTarget::reset() {

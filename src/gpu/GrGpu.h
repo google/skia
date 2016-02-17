@@ -349,8 +349,9 @@ public:
 
     void draw(const DrawArgs&, const GrVertices&);
 
-    // Called by drawtarget when flushing. Provides a hook for working around an ARM PLS driver bug.
-    virtual void performFlushWorkaround();
+    // Called by drawtarget when flushing. 
+    // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
+    virtual void finishDrawTarget() {}
 
     ///////////////////////////////////////////////////////////////////////////
     // Debugging and Stats
