@@ -326,8 +326,16 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
     }
 
     SkASSERT(scaleSize.width() >= 0 && scaleSize.height() >= 0);
+
+#ifndef SK_SUPPORT_LEGACY_ANISOTROPIC_MIPMAP_SCALE
     // Use the smallest scale to match the GPU impl.
     const SkScalar scale = SkTMin(scaleSize.width(), scaleSize.height());
+#else
+    // Ideally we'd pick the smaller scale, to match Ganesh.  But ignoring one of the
+    // scales can produce some atrocious results, so for now we use the geometric mean.
+    // (https://bugs.chromium.org/p/skia/issues/detail?id=4863)
+    const SkScalar scale = SkScalarSqrt(scaleSize.width() * scaleSize.height());
+#endif
 
     if (scale >= SK_Scalar1 || scale <= 0 || !SkScalarIsFinite(scale)) {
         return false;
