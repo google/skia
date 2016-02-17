@@ -29,11 +29,10 @@ protected:
     GrPathRenderingDrawContext(GrContext* ctx, GrDrawingManager* mgr, GrRenderTarget* rt,
                                const SkSurfaceProps* surfaceProps, GrAuditTrail* at,
                                GrSingleOwner* so)
-        : INHERITED(ctx, mgr, rt, surfaceProps, at, so)
-        , fStencilAndCoverTextContext(nullptr) {}
+        : INHERITED(ctx, mgr, rt, surfaceProps, at, so) {}
 
 private:
-    GrStencilAndCoverTextContext* fStencilAndCoverTextContext;
+    SkAutoTDelete<GrStencilAndCoverTextContext> fStencilAndCoverTextContext;
 
     friend class GrDrawingManager; // for ctor
 

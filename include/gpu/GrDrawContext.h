@@ -310,17 +310,17 @@ private:
 
     GrDrawTarget* getDrawTarget();
 
-    GrDrawingManager*   fDrawingManager;
-    GrRenderTarget*     fRenderTarget;
+    GrDrawingManager*                 fDrawingManager;
+    GrRenderTarget*                   fRenderTarget;
 
     // In MDB-mode the drawTarget can be closed by some other drawContext that has picked
     // it up. For this reason, the drawTarget should only ever be accessed via 'getDrawTarget'.
-    GrDrawTarget*       fDrawTarget;
-    GrAtlasTextContext* fAtlasTextContext;
-    GrContext*          fContext;
+    GrDrawTarget*                     fDrawTarget;
+    SkAutoTDelete<GrAtlasTextContext> fAtlasTextContext;
+    GrContext*                        fContext;
 
-    SkSurfaceProps      fSurfaceProps;
-    GrAuditTrail*       fAuditTrail;
+    SkSurfaceProps                    fSurfaceProps;
+    GrAuditTrail*                     fAuditTrail;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
