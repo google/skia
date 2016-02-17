@@ -10,14 +10,11 @@
 
 #include "SkCodec.h"
 #include "SkImageInfo.h"
-#include "SkJpegDecoderMgr.h"
-#include "SkJpegUtility_codec.h"
+#include "SkSwizzler.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 
-extern "C" {
-    #include "jpeglib.h"
-}
+class JpegDecoderMgr;
 
 /*
  *

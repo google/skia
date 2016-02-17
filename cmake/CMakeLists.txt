@@ -145,13 +145,6 @@ if (UNIX AND NOT APPLE)
     find_package (PNG)
 endif()
 
-# Decide whether to turn on SkCodec.
-# TODO (skbug.com/4956): We should be able to turn specific codecs on and off rather than
-#                        disabling all of them if one library is missing.
-if (NOT (GIF_FOUND AND JPEG_FOUND AND PNG_FOUND AND WEBP_INCLUDE_DIRS AND WEBP_LIBRARIES))
-    remove_srcs(../src/codec/* ../src/android/*)
-endif()
-
 # Do not compile SkRawCodec.
 remove_srcs(../src/codec/*Raw*.cpp)
 
@@ -167,15 +160,20 @@ endif()
 if (GIF_FOUND)
     list (APPEND private_includes ${GIF_INCLUDE_DIRS})
     list (APPEND libs             ${GIF_LIBRARIES})
+    add_definitions(-DSK_CODEC_DECODES_GIF)
 else()
     remove_srcs(../src/images/*gif*)
+    remove_srcs(../src/codec/*Gif*)
 endif()
 
 if (JPEG_FOUND)
     list (APPEND private_includes ${JPEG_INCLUDE_DIRS})
     list (APPEND libs             ${JPEG_LIBRARIES})
+    add_definitions(-DSK_CODEC_DECODES_JPEG)
 else()
     remove_srcs(../src/images/*jpeg*)
+    remove_srcs(../src/images/*Jpeg*)
+    remove_srcs(../src/codec/*Jpeg*)
 endif()
 
 if (LUA_FOUND)
@@ -190,8 +188,12 @@ if (PNG_FOUND)
     list (APPEND libs             ${PNG_LIBRARIES})
     add_definitions(-DPNG_SKIP_SETJMP_CHECK)
     add_definitions(-DPNG_SKIP_SKIA_OPTS)
+    add_definitions(-DSK_CODEC_DECODES_PNG)
 else()
     remove_srcs(../src/images/*png*)
+    remove_srcs(../src/images/*ico*)
+    remove_srcs(../src/codec/*Png*)
+    remove_srcs(../src/codec/*Ico*)
 endif()
 
 if (ZLIB_FOUND)
@@ -205,8 +207,10 @@ endif()
 if (WEBP_INCLUDE_DIRS AND WEBP_LIBRARIES)
     list (APPEND private_includes ${WEBP_INCLUDE_DIRS})
     list (APPEND libs             ${WEBP_LIBRARIES})
+    add_definitions(-DSK_CODEC_DECODES_WEBP)
 else()
     remove_srcs(../src/images/*webp*)
+    remove_srcs(../src/codec/*Webp*)
 endif()
 
 if (FREETYPE_FOUND)

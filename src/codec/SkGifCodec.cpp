@@ -13,6 +13,8 @@
 #include "SkSwizzler.h"
 #include "SkUtils.h"
 
+#include "gif_lib.h"
+
 /*
  * Checks the start of the stream to see if the image is a gif
  */

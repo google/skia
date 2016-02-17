@@ -22,10 +22,9 @@
         'libpng.gyp:libpng',
         'libwebp.gyp:libwebp',
       ],
-      'cflags':[
-        # FIXME: This gets around a longjmp warning. See
-        # http://build.chromium.org/p/client.skia.compile/builders/Build-Ubuntu-GCC-x86_64-Release-Trybot/builds/113/steps/build%20most/logs/stdio
-        '-Wno-clobbered -Wno-error',
+      'cflags':[   
+        # FIXME: This gets around a warning: "Argument might be clobbered by longjmp". 
+        '-Wno-clobbered -Wno-error',   
       ],
       'include_dirs': [
         '../include/codec',
@@ -65,6 +64,17 @@
         ],
       },
       'defines': [
+        # Turn on all of the codecs, since we know that we have all of the
+        # necessary dependencies.  Clients that are missing some of the
+        # required decoding libraries may choose to turn the codecs on or
+        # off individually.
+        'SK_CODEC_DECODES_GIF',
+        'SK_CODEC_DECODES_JPEG',
+        'SK_CODEC_DECODES_PNG',
+        'SK_CODEC_DECODES_WEBP',
+
+        # Turn on libjpeg-turbo optimizations since we know that the
+        # appropriate version of libjpeg-turbo is present.      
         'TURBO_HAS_SKIP',
         'TURBO_HAS_565',
       ],

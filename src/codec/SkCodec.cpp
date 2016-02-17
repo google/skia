@@ -12,10 +12,10 @@
 #include "SkGifCodec.h"
 #include "SkIcoCodec.h"
 #include "SkJpegCodec.h"
+#ifdef SK_CODEC_DECODES_PNG
 #include "SkPngCodec.h"
-#ifdef SK_CODEC_DECODES_RAW
-#include "SkRawCodec.h"
 #endif
+#include "SkRawCodec.h"
 #include "SkStream.h"
 #include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
@@ -26,10 +26,18 @@ struct DecoderProc {
 };
 
 static const DecoderProc gDecoderProcs[] = {
+#ifdef SK_CODEC_DECODES_JPEG
     { SkJpegCodec::IsJpeg, SkJpegCodec::NewFromStream },
+#endif
+#ifdef SK_CODEC_DECODES_WEBP
     { SkWebpCodec::IsWebp, SkWebpCodec::NewFromStream },
+#endif
+#ifdef SK_CODEC_DECODES_GIF
     { SkGifCodec::IsGif, SkGifCodec::NewFromStream },
+#endif
+#ifdef SK_CODEC_DECODES_PNG
     { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
+#endif
     { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream },
     { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewFromStream }
 };
@@ -77,9 +85,12 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
 
     // PNG is special, since we want to be able to supply an SkPngChunkReader.
     // But this code follows the same pattern as the loop.
+#ifdef SK_CODEC_DECODES_PNG
     if (SkPngCodec::IsPng(buffer, bytesRead)) {
         return SkPngCodec::NewFromStream(streamDeleter.detach(), chunkReader);
-    } else {
+    } else
+#endif
+    {
         for (DecoderProc proc : gDecoderProcs) {
             if (proc.IsFormat(buffer, bytesRead)) {
                 return proc.NewFromStream(streamDeleter.detach());

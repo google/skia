@@ -8,9 +8,7 @@
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
-#ifdef SK_CODEC_DECODES_RAW
 #include "SkRawAdapterCodec.h"
-#endif
 #include "SkSampledCodec.h"
 #include "SkWebpAdapterCodec.h"
 
@@ -31,15 +29,23 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
     }
 
     switch (codec->getEncodedFormat()) {
+#ifdef SK_CODEC_DECODES_PNG
+        case kPNG_SkEncodedFormat:
+        case kICO_SkEncodedFormat:
+#endif
+#ifdef SK_CODEC_DECODES_JPEG
+        case kJPEG_SkEncodedFormat:
+#endif
+#ifdef SK_CODEC_DECODES_GIF
+        case kGIF_SkEncodedFormat:
+#endif
+        case kBMP_SkEncodedFormat:
+        case kWBMP_SkEncodedFormat:
+            return new SkSampledCodec(codec.detach());
+#ifdef SK_CODEC_DECODES_WEBP
         case kWEBP_SkEncodedFormat:
             return new SkWebpAdapterCodec((SkWebpCodec*) codec.detach());
-        case kPNG_SkEncodedFormat:
-        case kJPEG_SkEncodedFormat:
-        case kWBMP_SkEncodedFormat:
-        case kBMP_SkEncodedFormat:
-        case kGIF_SkEncodedFormat:
-        case kICO_SkEncodedFormat:
-            return new SkSampledCodec(codec.detach());
+#endif
 #ifdef SK_CODEC_DECODES_RAW
         case kRAW_SkEncodedFormat:
             return new SkRawAdapterCodec((SkRawCodec*)codec.detach());

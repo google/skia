@@ -10,7 +10,8 @@
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
 
-#include "gif_lib.h"
+struct GifFileType;
+struct SavedImage;
 
 /*
  *
