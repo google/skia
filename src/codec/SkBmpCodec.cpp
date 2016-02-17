@@ -432,6 +432,12 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
             if (kRLE_BmpInputFormat != inputFormat && !inIco) {
                 colorType = kIndex_8_SkColorType;
             }
+
+            // Mask bmps must have 16, 24, or 32 bits per pixel.
+            if (kBitMask_BmpInputFormat == inputFormat) {
+                SkCodecPrintf("Error: invalid input value of bits per pixel for mask bmp.\n");
+                return false;
+            }
         case 24:
         case 32:
             break;
