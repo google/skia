@@ -57,6 +57,7 @@
         '../src/codec/SkWebpCodec.cpp',
 
         '../src/codec/SkCodecImageGenerator.cpp',
+        '../src/ports/SkImageGenerator_skia.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
