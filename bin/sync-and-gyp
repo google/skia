@@ -76,6 +76,12 @@ cache_dir = None
 '''
 if current_deps_hash != deps_hash:
   # `gclient sync` is very slow, so skip whenever we can.
+  try:
+    subprocess.call(['gclient', '--version'])
+  except:
+    sys.stdout.write('gclient missing from $PATH, please install ' +
+                     'depot_tools\n    https://skia.org/user/quick/desktop\n')
+    exit(1)
   if not os.path.isfile('.gclient'):
     with open('.gclient', 'w') as o:
       o.write(default_gclient_config)
@@ -85,7 +91,10 @@ if current_deps_hash != deps_hash:
     subprocess.check_call(gclient_sync_command)
   except:
     sys.stderr.write('\n`gclient sync` failed.\n')
-    os.remove('.deps_sha1')  # Unknown state.
+    try:
+      os.remove('.deps_sha1')  # Unknown state.
+    except:
+      pass
     exit(1)
   # Only write hash after a successful sync.
   with open('.deps_sha1', 'w') as o:
