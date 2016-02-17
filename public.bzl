@@ -215,6 +215,8 @@ BASE_SRCS_ANDROID = struct(
 # Platform-dependent SRCS for google3-default iOS.
 BASE_SRCS_IOS = struct(
     include = [
+        "src/android/*",
+        "src/codec/*",
         "src/gpu/gl/GrGLDefaultInterface_native.cpp",
         "src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp",
         "src/opts/**/*.cpp",
@@ -224,6 +226,12 @@ BASE_SRCS_IOS = struct(
         "src/utils/mac/*.cpp",
     ],
     exclude = [
+        "src/codec/*Gif*.cpp",
+        "src/codec/*Ico*.cpp",
+        "src/codec/*Jpeg*.cpp",
+        "src/codec/*Webp*.cpp",
+        "src/codec/*Png*",
+        "src/codec/*Raw*.cpp",
         "src/opts/*mips*",
         "src/opts/*NEON*",
         "src/opts/*neon*",
