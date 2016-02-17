@@ -8,7 +8,9 @@
 #include "SkMipMap.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkMath.h"
 #include "SkNx.h"
+#include "SkTypes.h"
 
 //
 // ColorTypeFilter is the "Type" we pass to some downsample template functions.
@@ -249,6 +251,8 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         return nullptr;
     }
 
+    SkASSERT(countLevels == SkMipMap::ComputeLevelCount(src.width(), src.height()));
+
     size_t storageSize = SkMipMap::AllocLevelsSize(countLevels, size);
     if (0 == storageSize) {
         return nullptr;
@@ -318,6 +322,46 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     return mipmap;
 }
 
+int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
+    // OpenGL's spec requires that each mipmap level have height/width equal to
+    // max(1, floor(original_height / 2^i)
+    // (or original_width) where i is the mipmap level.
+    // Continue scaling down until both axes are size 1.
+    //
+    // This means it maintains isotropic space (both axes scaling down
+    // at the same rate) until one axis hits size 1.
+    // At that point, OpenGL continues to scale down into anisotropic space
+    // (where the scales are not the same between axes).
+    //
+    // Skia currently does not go into anisotropic space.
+    // Once an axis hits size 1 we stop.
+    // All this means is rather than use the largest axis we will use the
+    // smallest axis.
+
+    const int smallestAxis = SkTMin(baseWidth, baseHeight);
+    if (smallestAxis < 2) {
+        // SkMipMap::Build requires a minimum size of 2.
+        return 0;
+    }
+    const int leadingZeros = SkCLZ(static_cast<uint32_t>(smallestAxis));
+    // If the value 00011010 has 3 leading 0s then it has 5 significant bits
+    // (the bits which are not leading zeros)
+    const int significantBits = (sizeof(uint32_t) * 8) - leadingZeros;
+    // This is making the assumption that the size of a byte is 8 bits
+    // and that sizeof(uint32_t)'s implementation-defined behavior is 4.
+    int mipLevelCount = significantBits;
+
+    // SkMipMap does not include the base mip level.
+    // For example, it contains levels 1-x instead of 0-x.
+    // This is because the image used to create SkMipMap is the base level.
+    // So subtract 1 from the mip level count.
+    if (mipLevelCount > 0) {
+        --mipLevelCount;
+    }
+
+    return mipLevelCount;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
@@ -379,3 +423,22 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     return Build(srcPixmap, fact);
 }
 
+int SkMipMap::countLevels() const {
+    return fCount;
+}
+
+bool SkMipMap::getLevel(int index, Level* levelPtr) const {
+    if (NULL == fLevels) {
+        return false;
+    }
+    if (index < 0) {
+        return false;
+    }
+    if (index > fCount - 1) {
+        return false;
+    }
+    if (levelPtr) {
+        *levelPtr = fLevels[index];
+    }
+    return true;
+}

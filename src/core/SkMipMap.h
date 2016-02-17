@@ -23,12 +23,18 @@ public:
     static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc);
     static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
+    // This function lets you determine how many levels a SkMipMap will have without
+    // creating that mipmap.
+    static int ComputeLevelCount(int baseWidth, int baseHeight);
+
     struct Level {
         SkPixmap    fPixmap;
         SkSize      fScale; // < 1.0
     };
 
     bool extractLevel(const SkSize& scale, Level*) const;
+    int countLevels() const;
+    bool getLevel(int index, Level*) const;
 
 protected:
     void onDataChange(void* oldData, void* newData) override {
