@@ -47,31 +47,31 @@ struct CommonBitmapFPBenchmark : public Benchmark {
     }
 
     const char* onGetName() override {
-        SkString name {"SkBitmapFP"};
+        fName.set("SkBitmapFP");
         if (fM.getType() & SkMatrix::kPerspective_Mask) {
-            name.append("Perspective");
+            fName.append("Perspective");
         } else if (fM.getType() & SkMatrix::kAffine_Mask) {
-            name.append("Affine");
+            fName.append("Affine");
         } else if (fM.getType() & SkMatrix::kScale_Mask) {
-            name.append("Scale");
+            fName.append("Scale");
         } else if (fM.getType() & SkMatrix::kTranslate_Mask) {
-            name.append("Translate");
+            fName.append("Translate");
         } else {
-            name.append("Identity");
+            fName.append("Identity");
         }
 
-        name.append(tileName("X", fXTile));
-        name.append(tileName("Y", fYTile));
+        fName.append(tileName("X", fXTile));
+        fName.append(tileName("Y", fYTile));
 
         if (fUseBilerp) {
-            name.append("Filter");
+            fName.append("Filter");
         } else {
-            name.append("Nearest");
+            fName.append("Nearest");
         }
 
-        name.appendf("%s", BaseName().c_str());
+        fName.appendf("%s", BaseName().c_str());
 
-        return name.c_str();
+        return fName.c_str();
     }
 
     void onPreDraw(SkCanvas*) override {
@@ -96,6 +96,7 @@ struct CommonBitmapFPBenchmark : public Benchmark {
 
     virtual SkString BaseName() = 0;
 
+    SkString fName;
     SkISize fSrcSize;
     SkColorProfileType fColorProfile;
     SkMatrix fM;
@@ -116,6 +117,7 @@ struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {
         SkShader::TileMode xTile,
         SkShader::TileMode yTile)
             : CommonBitmapFPBenchmark(srcSize, colorProfile, m, useBilerp, xTile, yTile) { }
+
     SkString BaseName() override {
         SkString name;
         if (fInfo.isSRGB()) {
@@ -154,6 +156,7 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
         SkShader::TileMode xTile,
         SkShader::TileMode yTile)
             : CommonBitmapFPBenchmark(srcSize, colorProfile, m, useBilerp, xTile, yTile) { }
+
     SkString BaseName() override {
         SkString name{"Orig"};
         return name;
@@ -172,7 +175,6 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
             fPaint.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
         }
         fPaint.setShader(shader)->unref();
-
     }
 
     void onPostDraw(SkCanvas*) override {
