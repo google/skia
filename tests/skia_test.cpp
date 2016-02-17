@@ -12,7 +12,6 @@
 #include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
-#include "SkRunnable.h"
 #include "SkTArray.h"
 #include "SkTaskGroup.h"
 #include "SkTemplates.h"
@@ -72,15 +71,14 @@ private:
     const int fTotal;
 };
 
-// Deletes self when run.
-class SkTestRunnable : public SkRunnable {
+class SkTestRunnable {
 public:
     SkTestRunnable(const Test& test,
                    Status* status,
                    GrContextFactory* grContextFactory = nullptr)
         : fTest(test), fStatus(status), fGrContextFactory(grContextFactory) {}
 
-  virtual void run() {
+  void operator()() {
       struct TestReporter : public skiatest::Reporter {
       public:
           TestReporter() : fError(false), fTestCount(0) {}
@@ -105,7 +103,6 @@ public:
       }
       fStatus->endTest(fTest.name, !reporter.fError, elapsed,
                        reporter.fTestCount);
-      delete this;
   }
 
 private:
@@ -190,7 +187,7 @@ int test_main() {
         } else if (test.needsGpu) {
             gpuTests.push_back(&test);
         } else {
-            cpuTests.add(new SkTestRunnable(test, &status));
+            cpuTests.add(SkTestRunnable(test, &status));
         }
     }
 
@@ -204,7 +201,7 @@ int test_main() {
 
     // Run GPU tests on this thread.
     for (int i = 0; i < gpuTests.count(); i++) {
-        (new SkTestRunnable(*gpuTests[i], &status, grContextFactoryPtr))->run();
+        SkTestRunnable(*gpuTests[i], &status, grContextFactoryPtr)();
     }
 
     // Block until threaded tests finish.

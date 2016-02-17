@@ -8,7 +8,6 @@
 #define PathOpsThreadedCommon_DEFINED
 
 #include "SkGraphics.h"
-#include "SkRunnable.h"
 #include "SkTDArray.h"
 
 #define PATH_STR_SIZE 512
@@ -44,7 +43,7 @@ public:
     skiatest::Reporter* fReporter;
 };
 
-class PathOpsThreadedRunnable : public SkRunnable {
+class PathOpsThreadedRunnable {
 public:
     PathOpsThreadedRunnable(void (*testFun)(PathOpsThreadState*), int a, int b, int c, int d,
             PathOpsThreadedTestRunner* runner) {
@@ -73,7 +72,7 @@ public:
         fTestFun = testFun;
     }
 
-    void run() override {
+    void operator()() {
         SkBitmap bitmap;
         fState.fBitmap = &bitmap;
         char pathStr[PATH_STR_SIZE];

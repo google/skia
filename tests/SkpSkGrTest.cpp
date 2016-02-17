@@ -21,7 +21,6 @@
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkRTConf.h"
-#include "SkRunnable.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -142,7 +141,7 @@ struct SkpSkGrThreadedTestRunner {
     skiatest::Reporter* fReporter;
 };
 
-class SkpSkGrThreadedRunnable : public SkRunnable {
+class SkpSkGrThreadedRunnable {
 public:
     SkpSkGrThreadedRunnable(void (*testFun)(SkpSkGrThreadState*), int dirNo, const char* str,
             SkpSkGrThreadedTestRunner* runner) {
@@ -153,7 +152,7 @@ public:
         fTestFun = testFun;
     }
 
-    void run() override {
+    void operator()() {
         SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }
@@ -169,10 +168,8 @@ SkpSkGrThreadedTestRunner::~SkpSkGrThreadedTestRunner() {
 }
 
 void SkpSkGrThreadedTestRunner::render() {
-    // TODO: we don't really need to be using SkRunnables here anymore.
-    // We can just write the code we'd run right in the for loop.
     SkTaskGroup().batch(fRunnables.count(), [&](int i) {
-        fRunnables[i]->run();
+        fRunnables[i]();
     });
 }
 

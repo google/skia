@@ -17,6 +17,6 @@ PathOpsThreadedTestRunner::~PathOpsThreadedTestRunner() {
 
 void PathOpsThreadedTestRunner::render() {
     SkTaskGroup().batch(fRunnables.count(), [&](int i) {
-        fRunnables[i]->run();
+        (*fRunnables[i])();
     });
 }

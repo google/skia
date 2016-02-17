@@ -22,7 +22,6 @@
 #include "SkPathOpsDebug.h"
 #include "SkPicture.h"
 #include "SkRTConf.h"
-#include "SkRunnable.h"
 #include "SkTSort.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -260,9 +259,9 @@ struct TestRunner {
     SkTDArray<class TestRunnable*> fRunnables;
 };
 
-class TestRunnable : public SkRunnable {
+class TestRunnable {
 public:
-    void run() override {
+    void operator()() {
         SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }
@@ -305,10 +304,8 @@ TestRunner::~TestRunner() {
 }
 
 void TestRunner::render() {
-    // TODO: this doesn't really need to use SkRunnables any more.
-    // We can just write the code to run in the for-loop directly.
     SkTaskGroup().batch(fRunnables.count(), [&](int i) {
-        fRunnables[i]->run();
+        (*fRunnables[i])();
     });
 }
 
