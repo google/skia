@@ -237,6 +237,22 @@ DEF_TEST(SkNx_shuffle, r) {
     REPORTER_ASSERT(r, f4[3] == 20);
 }
 
+DEF_TEST(SkNx_int_float, r) {
+    Sk4f f(-2.3f, 1.0f, 0.45f, 0.6f);
+
+    Sk4i i = SkNx_cast<int>(f);
+    REPORTER_ASSERT(r, i[0] == -2);
+    REPORTER_ASSERT(r, i[1] ==  1);
+    REPORTER_ASSERT(r, i[2] ==  0);
+    REPORTER_ASSERT(r, i[3] ==  0);
+
+    f = SkNx_cast<float>(i);
+    REPORTER_ASSERT(r, f[0] == -2.0f);
+    REPORTER_ASSERT(r, f[1] ==  1.0f);
+    REPORTER_ASSERT(r, f[2] ==  0.0f);
+    REPORTER_ASSERT(r, f[3] ==  0.0f);
+}
+
 #include "SkRandom.h"
 
 DEF_TEST(SkNx_u16_float, r) {

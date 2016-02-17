@@ -294,6 +294,13 @@ public:
     __m128i fVec;
 };
 
+template<> /*static*/ inline Sk4f SkNx_cast<float, int>(const Sk4i& src) {
+    return _mm_cvtepi32_ps(src.fVec);
+}
+
+template <> /*static*/ inline Sk4i SkNx_cast<int, float>(const Sk4f& src) {
+    return _mm_cvttps_epi32(src.fVec);
+}
 
 template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
     auto _32 = _mm_cvttps_epi32(src.fVec);
