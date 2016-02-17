@@ -35,7 +35,6 @@
 
         '<(skia_src_path)/utils/SkBase64.cpp',
         '<(skia_src_path)/utils/SkBase64.h',
-        '<(skia_src_path)/utils/SkBitmapHasher.cpp',
         '<(skia_src_path)/utils/SkBitmapSourceDeserializer.cpp',
         '<(skia_src_path)/utils/SkBitmapSourceDeserializer.h',
         '<(skia_src_path)/utils/SkBitSet.cpp',
@@ -75,7 +74,6 @@
         '<(skia_src_path)/utils/SkRGBAToYUV.cpp',
         '<(skia_src_path)/utils/SkRGBAToYUV.h',
         '<(skia_src_path)/utils/SkRTConf.cpp',
-        '<(skia_src_path)/utils/SkSHA1.cpp',
         '<(skia_src_path)/utils/SkTextBox.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor.h',
