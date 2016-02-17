@@ -388,6 +388,7 @@ DEF_TEST(Codec, r) {
     // RAW
 #if defined(SK_CODEC_DECODES_RAW)
     check(r, "sample_1mp.dng", SkISize::Make(600, 338), false, false, false);
+    check(r, "sample_1mp_rotated.dng", SkISize::Make(600, 338), false, false, false);
     check(r, "dng_with_preview.dng", SkISize::Make(600, 338), true, false, false);
 #endif
 }
@@ -586,6 +587,7 @@ DEF_TEST(Codec_Dimensions, r) {
     // RAW
 #if defined(SK_CODEC_DECODES_RAW)
     test_dimensions(r, "sample_1mp.dng");
+    test_dimensions(r, "sample_1mp_rotated.dng");
     test_dimensions(r, "dng_with_preview.dng");
 #endif
 }

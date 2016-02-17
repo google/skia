@@ -398,14 +398,20 @@ private:
 
 class SkDngImage {
 public:
-    // Will take the ownership of the stream.
+    /*
+     * Initializes the object with the information from Piex in a first attempt. This way it can
+     * save time and storage to obtain the DNG dimensions and color filter array (CFA) pattern
+     * which is essential for the demosaicing of the sensor image.
+     * Note: this will take the ownership of the stream.
+     */
     static SkDngImage* NewFromStream(SkRawStream* stream) {
         SkAutoTDelete<SkDngImage> dngImage(new SkDngImage(stream));
-        if (!dngImage->readDng()) {
-            return nullptr;
+        if (!dngImage->initFromPiex()) {
+            if (!dngImage->readDng()) {
+                return nullptr;
+            }
         }
 
-        SkASSERT(dngImage->fNegative);
         return dngImage.release();
     }
 
@@ -477,6 +483,30 @@ public:
     }
 
 private:
+    void init(const int width, const int height, const dng_point& cfaPatternSize) {
+        fImageInfo = SkImageInfo::Make(width, height, kN32_SkColorType, kOpaque_SkAlphaType);
+
+        // The DNG SDK scales only during demosaicing, so scaling is only possible when
+        // a mosaic info is available.
+        fIsScalable = cfaPatternSize.v != 0 && cfaPatternSize.h != 0;
+        fIsXtransImage = fIsScalable ? (cfaPatternSize.v == 6 && cfaPatternSize.h == 6) : false;
+    }
+
+    bool initFromPiex() {
+        // Does not take the ownership of rawStream.
+        SkPiexStream piexStream(fStream.get());
+        ::piex::PreviewImageData imageData;
+        if (::piex::IsRaw(&piexStream)
+            && ::piex::GetPreviewImageData(&piexStream, &imageData) == ::piex::Error::kOk)
+        {
+            dng_point cfaPatternSize(imageData.cfa_pattern_dim[1], imageData.cfa_pattern_dim[0]);
+            this->init(static_cast<int>(imageData.full_width),
+                       static_cast<int>(imageData.full_height), cfaPatternSize);
+            return true;
+        }
+        return false;
+    }
+
     bool readDng() {
         // Due to the limit of DNG SDK, we need to reset host and info.
         fHost.reset(new SkDngHost(&fAllocator));
@@ -495,21 +525,15 @@ private:
             fNegative->PostParse(*fHost, *fDngStream, *fInfo);
             fNegative->SynchronizeMetadata();
 
-            fImageInfo = SkImageInfo::Make(
-                static_cast<int>(fNegative->DefaultCropSizeH().As_real64()),
-                static_cast<int>(fNegative->DefaultCropSizeV().As_real64()),
-                kN32_SkColorType, kOpaque_SkAlphaType);
-
-            // The DNG SDK scales only for at demosaicing, so only when a mosaic info
-            // is available also scale is available.
-            fIsScalable = fNegative->GetMosaicInfo() != nullptr;
-            fIsXtransImage = fIsScalable
-                ? (fNegative->GetMosaicInfo()->fCFAPatternSize.v == 6
-                   && fNegative->GetMosaicInfo()->fCFAPatternSize.h == 6)
-                : false;
+            dng_point cfaPatternSize(0, 0);
+            if (fNegative->GetMosaicInfo() != nullptr) {
+                cfaPatternSize = fNegative->GetMosaicInfo()->fCFAPatternSize;
+            }
+            this->init(static_cast<int>(fNegative->DefaultCropSizeH().As_real64()),
+                       static_cast<int>(fNegative->DefaultCropSizeV().As_real64()),
+                       cfaPatternSize);
             return true;
         } catch (...) {
-            fNegative.reset(nullptr);
             return false;
         }
     }
