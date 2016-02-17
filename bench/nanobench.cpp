@@ -609,7 +609,7 @@ public:
     static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic) {
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path)) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
             return false;
         }
 
