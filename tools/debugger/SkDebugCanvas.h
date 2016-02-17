@@ -151,7 +151,7 @@ public:
         SkDebugCanvas::getSize(). The encoder may use the UrlDataManager to store binary data such 
         as images, referring to them via URLs embedded in the JSON.
      */
-    Json::Value toJSON(UrlDataManager& urlDataManager, int n);
+    Json::Value toJSON(UrlDataManager& urlDataManager, int n, SkCanvas*);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inherited from SkCanvas

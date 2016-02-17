@@ -67,7 +67,7 @@ public:
         batch->fBounds = bounds;
     }
 
-    SkString toJson() const;
+    SkString toJson(bool prettyPrint = false) const;
 
     void reset() { SkASSERT(GR_BATCH_DEBUGGING_OUTPUT && fStack.empty()); fFrames.reset(); }
 

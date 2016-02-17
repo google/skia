@@ -87,14 +87,17 @@ static SkString pretty_print_json(SkString json) {
     return prettyPrintJson.prettify(json);
 }
 
-SkString GrAuditTrail::toJson() const {
+SkString GrAuditTrail::toJson(bool prettyPrint) const {
     SkString json;
     json.append("{");
     JsonifyTArray(&json, "Stacks", fFrames);
     json.append("}");
 
-    // TODO if this becomes a performance issue we should make pretty print configurable
-    return pretty_print_json(json);
+    if (prettyPrint) {
+        return pretty_print_json(json);
+    } else {
+        return json;
+    }
 }
 
 SkString GrAuditTrail::Frame::toJson() const {

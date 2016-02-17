@@ -8,6 +8,7 @@
 
 
 #include "SkDrawCommand.h"
+
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkDashPathEffect.h"
@@ -24,7 +25,13 @@
 #include "SkValidatingReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrRenderTarget.h"
+#endif
+
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
+#define SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL        "auditTrail"
 #define SKDEBUGCANVAS_ATTRIBUTE_MATRIX            "matrix"
 #define SKDEBUGCANVAS_ATTRIBUTE_COORDS            "coords"
 #define SKDEBUGCANVAS_ATTRIBUTE_BOUNDS            "bounds"
@@ -215,6 +222,37 @@ SkString SkDrawCommand::toString() const {
 Json::Value SkDrawCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result;
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMAND] = this->GetCommandString(fOpType);
+    return result;
+}
+
+Json::Value SkDrawCommand::drawToAndCollectJSON(SkCanvas* canvas,
+                                                UrlDataManager& urlDataManager) const {
+    Json::Value result;
+    result[SKDEBUGCANVAS_ATTRIBUTE_COMMAND] = this->GetCommandString(fOpType);
+
+    SkASSERT(canvas);
+
+#if SK_SUPPORT_GPU
+    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
+    if (rt) {
+        GrContext* ctx = rt->getContext();
+        if(ctx) {
+            this->execute(canvas);
+            GrAuditTrail* at = ctx->getAuditTrail();
+
+            // TODO if this is inefficient we could add a method to GrAuditTrail which takes
+            // a Json::Value and is only compiled in this file
+            Json::Value parsedFromString;
+            Json::Reader reader;
+            SkDEBUGCODE(bool parsingSuccessful = )reader.parse(at->toJson().c_str(),
+                                                               parsedFromString);
+            SkASSERT(parsingSuccessful);
+
+            result[SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL] = parsedFromString;
+            at->reset();
+        }
+    }
+#endif
     return result;
 }
 

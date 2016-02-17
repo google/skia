@@ -136,13 +136,18 @@ SkData* writeCanvasToPng(SkCanvas* canvas) {
     return buffer.copyToData();
 }
 
-SkData* setupAndDrawToCanvasReturnPng(Request* request, int n) {
+SkCanvas* getCanvasFromRequest(Request* request) {
     GrContextFactory* factory = request->fContextFactory;
     SkGLContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
                                               GrContextFactory::kNone_GLContextOptions).fGLContext;
     gl->makeCurrent();
     SkASSERT(request->fDebugCanvas);
     SkCanvas* target = request->fSurface->getCanvas();
+    return target;
+}
+
+SkData* setupAndDrawToCanvasReturnPng(Request* request, int n) {
+    SkCanvas* target = getCanvasFromRequest(request);
     request->fDebugCanvas->drawTo(target, n);
     return writeCanvasToPng(target);
 }
@@ -195,9 +200,9 @@ static int SendData(MHD_Connection* connection, const SkData* data, const char* 
     return ret;
 }
 
-static int SendJSON(MHD_Connection* connection, SkDebugCanvas* debugCanvas,
+static int SendJSON(MHD_Connection* connection, SkCanvas* canvas, SkDebugCanvas* debugCanvas,
                     UrlDataManager* urlDataManager, int n) {
-    Json::Value root = debugCanvas->toJSON(*urlDataManager, n);
+    Json::Value root = debugCanvas->toJSON(*urlDataManager, n, canvas);
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
 
@@ -261,7 +266,8 @@ public:
             } else {
                 sscanf(commands[1].c_str(), "%d", &n);
             }
-            return SendJSON(connection, request->fDebugCanvas, &request->fUrlDataManager, n);
+            return SendJSON(connection, getCanvasFromRequest(request), request->fDebugCanvas,
+                            &request->fUrlDataManager, n);
         }
 
         // /cmd/N, for now only delete supported
