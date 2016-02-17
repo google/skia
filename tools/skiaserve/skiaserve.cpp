@@ -72,7 +72,7 @@ struct Request {
     SkAutoTUnref<SkPicture> fPicture;
     SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
     SkAutoTDelete<GrContextFactory> fContextFactory;
-    SkAutoTDelete<SkBitmap> fBitmap;
+    SkAutoTUnref<SkSurface> fSurface;
     UrlDataManager fUrlDataManager;
 };
 
@@ -106,20 +106,12 @@ static void write_png(const png_bytep rgba, png_uint_32 width, png_uint_32 heigh
     if (setjmp(png_jmpbuf(png))) {
         SkFAIL("png encode error");
     }
-    png_set_IHDR(png, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+    png_set_IHDR(png, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_set_compression_level(png, 1);
     png_bytepp rows = (png_bytepp) sk_malloc_throw(height * sizeof(png_byte*));
-    png_bytep pixels = (png_bytep) sk_malloc_throw(width * height * 3);
     for (png_size_t y = 0; y < height; ++y) {
-        const png_bytep src = rgba + y * width * 4;
-        rows[y] = pixels + y * width * 3;
-        // convert from RGBA to RGB
-        for (png_size_t x = 0; x < width; ++x) {
-            rows[y][x * 3] = src[x * 4];
-            rows[y][x * 3 + 1] = src[x * 4 + 1];
-            rows[y][x * 3 + 2] = src[x * 4 + 2];
-        }
+        rows[y] = (png_bytep) rgba + y * width * 4;
     }
     png_set_filter(png, 0, PNG_NO_FILTERS);
     png_set_rows(png, info_ptr, &rows[0]);
@@ -129,7 +121,15 @@ static void write_png(const png_bytep rgba, png_uint_32 width, png_uint_32 heigh
     sk_free(rows);
 }
 
-SkData* writeBitmapToPng(SkBitmap& bmp) {
+SkData* writeCanvasToPng(SkCanvas* canvas) {
+    // capture pixels
+    SkBitmap bmp;
+    bmp.setInfo(canvas->imageInfo());
+    if (!canvas->readPixels(&bmp, 0, 0)) {
+        fprintf(stderr, "Can't read pixels\n");
+        return nullptr;
+    }
+
     // write to png
     SkDynamicMemoryWStream buffer;
     write_png((const png_bytep) bmp.getPixels(), bmp.width(), bmp.height(), buffer);
@@ -142,9 +142,9 @@ SkData* setupAndDrawToCanvasReturnPng(Request* request, int n) {
                                               GrContextFactory::kNone_GLContextOptions).fGLContext;
     gl->makeCurrent();
     SkASSERT(request->fDebugCanvas);
-    SkCanvas target(*request->fBitmap);
-    request->fDebugCanvas->drawTo(&target, n);
-    return writeBitmapToPng(*request->fBitmap);
+    SkCanvas* target = request->fSurface->getCanvas();
+    request->fDebugCanvas->drawTo(target, n);
+    return writeCanvasToPng(target);
 }
 
 SkSurface* setupCpuSurface() {
@@ -394,15 +394,11 @@ public:
         // create surface
         GrContextOptions grContextOpts;
         request->fContextFactory.reset(new GrContextFactory(grContextOpts));
+        request->fSurface.reset(setupSurface(request->fContextFactory.get()));
 
         // pour picture into debug canvas
         request->fDebugCanvas.reset(new SkDebugCanvas(kImageWidth, kImageHeight));
         request->fDebugCanvas->drawPicture(request->fPicture);
-
-        request->fBitmap.reset(new SkBitmap);
-        SkImageInfo imageInfo = SkImageInfo::Make(kImageWidth, kImageHeight, kRGBA_8888_SkColorType, 
-                                                  kOpaque_SkAlphaType);
-        request->fBitmap->allocPixels(imageInfo);
 
         // clear upload context
         delete request->fUploadContext;

@@ -199,7 +199,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 
     bool pathOpsMode = getAllowSimplifyClip();
     canvas->setAllowSimplifyClip(pathOpsMode);
-    canvas->clear(SK_ColorWHITE);
+    canvas->clear(SK_ColorTRANSPARENT);
     canvas->resetMatrix();
     if (!windowRect.isEmpty()) {
         canvas->clipRect(windowRect, SkRegion::kReplace_Op);
