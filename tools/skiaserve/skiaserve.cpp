@@ -106,12 +106,20 @@ static void write_png(const png_bytep rgba, png_uint_32 width, png_uint_32 heigh
     if (setjmp(png_jmpbuf(png))) {
         SkFAIL("png encode error");
     }
-    png_set_IHDR(png, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+    png_set_IHDR(png, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_set_compression_level(png, 1);
     png_bytepp rows = (png_bytepp) sk_malloc_throw(height * sizeof(png_byte*));
+    png_bytep pixels = (png_bytep) sk_malloc_throw(width * height * 3);
     for (png_size_t y = 0; y < height; ++y) {
-        rows[y] = (png_bytep) rgba + y * width * 4;
+        const png_bytep src = rgba + y * width * 4;
+        rows[y] = pixels + y * width * 3;
+        // convert from RGBA to RGB
+        for (png_size_t x = 0; x < width; ++x) {
+            rows[y][x * 3] = src[x * 4];
+            rows[y][x * 3 + 1] = src[x * 4 + 1];
+            rows[y][x * 3 + 2] = src[x * 4 + 2];
+        }
     }
     png_set_filter(png, 0, PNG_NO_FILTERS);
     png_set_rows(png, info_ptr, &rows[0]);
