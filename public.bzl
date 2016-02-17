@@ -216,6 +216,7 @@ BASE_SRCS_IOS = struct(
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
+        "src/utils/mac/*.cpp",
     ],
     exclude = [
         "src/opts/*mips*",
@@ -239,7 +240,6 @@ BASE_SRCS_IOS = struct(
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
-        "src/ports/SkDebug_stdio.cpp",
         "src/ports/SkFontMgr_custom.cpp",
         "src/ports/SkFontConfigInterface_direct_factory.cpp",
         "src/ports/SkFontConfigInterface_direct_google3_factory.cpp",
@@ -248,7 +248,6 @@ BASE_SRCS_IOS = struct(
         "src/ports/SkFontMgr_empty_factory.cpp",
         "src/ports/SkImageDecoder_CG.cpp",
         "src/ports/SkImageDecoder_WIC.cpp",
-        "src/ports/SkImageDecoder_empty.cpp",
         "src/ports/SkImageGenerator_none.cpp",
         "src/ports/SkTLS_none.cpp",
     ],
