@@ -198,6 +198,7 @@ typedef SkNx<4,   uint8_t> Sk4b;
 typedef SkNx<16,  uint8_t> Sk16b;
 typedef SkNx<4,  uint16_t> Sk4h;
 typedef SkNx<16, uint16_t> Sk16h;
+typedef SkNx<4,       int> Sk4i;
 
 typedef SkNx<4, int> Sk4i;
 

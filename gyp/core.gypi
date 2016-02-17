@@ -149,6 +149,8 @@
         '<(skia_src_path)/core/SkLight.h',
         '<(skia_src_path)/core/SkLightingShader.h',
         '<(skia_src_path)/core/SkLightingShader.cpp',
+        '<(skia_src_path)/core/SkLinearBitmapPipeline.cpp',
+        '<(skia_src_path)/core/SkLinearBitmapPipeline.h',
         '<(skia_src_path)/core/SkLineClipper.cpp',
         '<(skia_src_path)/core/SkLocalMatrixImageFilter.cpp',
         '<(skia_src_path)/core/SkLocalMatrixImageFilter.h',
