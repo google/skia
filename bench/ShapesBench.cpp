@@ -263,15 +263,15 @@ DEF_BENCH(return new ShapesBench(ShapesBench::kMixed_ShapesType, ShapesBench::kN
 
 // Large primitives (GPU bound, in theory):
 DEF_BENCH(return new ShapesBench(ShapesBench::kRect_ShapesType, ShapesBench::kNone_ShapesType,
-                                 1000, SkISize::Make(500, 500), false);)
+                                 100, SkISize::Make(500, 500), false);)
 DEF_BENCH(return new ShapesBench(ShapesBench::kOval_ShapesType, ShapesBench::kNone_ShapesType,
-                                 1000, SkISize::Make(500, 500), false);)
+                                 100, SkISize::Make(500, 500), false);)
 DEF_BENCH(return new ShapesBench(ShapesBench::kOval_ShapesType, ShapesBench::kNone_ShapesType,
-                                 1000, SkISize::Make(500, 501), false);)
+                                 100, SkISize::Make(500, 501), false);)
 DEF_BENCH(return new ShapesBench(ShapesBench::kRRect_ShapesType, ShapesBench::kNone_ShapesType,
-                                 1000, SkISize::Make(500, 500), false);)
+                                 100, SkISize::Make(500, 500), false);)
 DEF_BENCH(return new ShapesBench(ShapesBench::kMixed_ShapesType, ShapesBench::kNone_ShapesType,
-                                 1000, SkISize::Make(500, 501), false);)
+                                 100, SkISize::Make(500, 501), false);)
 
 // Donuts (small and large). These fall-back to path rendering due to non-orthogonal rotation
 // making them quite slow. Thus, reduce the counts substantially:
