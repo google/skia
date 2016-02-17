@@ -29,8 +29,8 @@ DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage)
     #define SK_DEFAULT_IMAGE_CACHE_LIMIT     (32 * 1024 * 1024)
 #endif
 
-void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t length) {
-    SkASSERT(SkAlign4(length) == length);
+void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataSize) {
+    SkASSERT(SkAlign4(dataSize) == dataSize);
 
     // fCount32 and fHash are not hashed
     static const int kUnhashedLocal32s = 2; // fCache32 + fHash
@@ -42,7 +42,7 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t lengt
     static_assert(sizeof(Key) == offsetof(Key, fNamespace) + sizeof(fNamespace),
                  "namespace_field_must_be_last");
 
-    fCount32 = SkToS32(kLocal32s + (length >> 2));
+    fCount32 = SkToS32(kLocal32s + (dataSize >> 2));
     fSharedID_lo = (uint32_t)sharedID;
     fSharedID_hi = (uint32_t)(sharedID >> 32);
     fNamespace = nameSpace;
