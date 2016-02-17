@@ -23,13 +23,20 @@
 #
 #   python bin/sync-and-gyp
 
+# To retreive and use all optional deps:
+#
+#   python bin/sync-and-gyp --deps=all
+#   ninja -C out/Debug && out/Debug/dm
+
 import fnmatch
 import hashlib
-import subprocess
 import os
+import subprocess
 import sys
 
 skia_dir = os.path.join(os.path.dirname(__file__), os.pardir)
+
+skia_opt_deps = [arg for arg in sys.argv[1:] if arg.startswith('--deps=')]
 
 skia_out = os.environ.get("SKIA_OUT")
 if skia_out:
@@ -47,6 +54,7 @@ if not os.path.isfile('DEPS'):
 deps_hasher = hashlib.sha1()
 with open('DEPS', 'r') as f:
   deps_hasher.update(f.read())
+deps_hasher.update(repr(skia_opt_deps))
 deps_hash = deps_hasher.hexdigest()
 current_deps_hash = None
 if os.path.isfile('.deps_sha1'):
@@ -71,8 +79,10 @@ if current_deps_hash != deps_hash:
   if not os.path.isfile('.gclient'):
     with open('.gclient', 'w') as o:
       o.write(default_gclient_config)
+  gclient_sync_command = ['gclient', 'sync'] + skia_opt_deps
   try:
-    subprocess.check_call(['gclient', 'sync'])
+    sys.stdout.write('%r\n' % gclient_sync_command)
+    subprocess.check_call(gclient_sync_command)
   except:
     sys.stderr.write('\n`gclient sync` failed.\n')
     os.remove('.deps_sha1')  # Unknown state.
