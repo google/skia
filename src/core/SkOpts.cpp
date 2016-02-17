@@ -18,7 +18,6 @@
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
-#include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
 namespace SK_OPTS_NS {
@@ -68,8 +67,6 @@ namespace SkOpts {
     // If our global compile options are set high enough, these defaults might even be
     // CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
     // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
-    decltype(memset16)               memset16 = sk_default::memset16;
-    decltype(memset32)               memset32 = sk_default::memset32;
     decltype(create_xfermode) create_xfermode = sk_default::create_xfermode;
     decltype(color_cube_filter_span) color_cube_filter_span = sk_default::color_cube_filter_span;
 

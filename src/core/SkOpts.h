@@ -23,10 +23,6 @@ namespace SkOpts {
 
     // Declare function pointers here...
 
-    // See SkUtils.h
-    extern void (*memset16)(uint16_t[], uint16_t, int);
-    extern void (*memset32)(uint32_t[], uint32_t, int);
-
     // May return nullptr if we haven't specialized the given Mode.
     extern SkXfermode* (*create_xfermode)(const ProcCoeff&, SkXfermode::Mode);
 

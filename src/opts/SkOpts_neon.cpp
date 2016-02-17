@@ -16,13 +16,10 @@
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
-#include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
 namespace SkOpts {
     void Init_neon() {
-        memset16        = sk_neon::memset16;
-        memset32        = sk_neon::memset32;
         create_xfermode = sk_neon::create_xfermode;
 
         box_blur_xx = sk_neon::box_blur_xx;
