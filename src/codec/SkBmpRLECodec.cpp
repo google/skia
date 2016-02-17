@@ -287,7 +287,7 @@ SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
     fRLEBytes = fOrigRLEBytes;
     if (!this->initializeStreamBuffer()) {
         SkCodecPrintf("Error: cannot initialize stream buffer.\n");
-        return SkCodec::kInvalidConversion;
+        return SkCodec::kInvalidInput;
     }
 
     return SkCodec::kSuccess;
