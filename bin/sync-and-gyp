@@ -27,6 +27,7 @@ import fnmatch
 import hashlib
 import subprocess
 import os
+import sys
 
 skia_dir = os.path.join(os.path.dirname(__file__), os.pardir)
 
