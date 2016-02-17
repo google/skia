@@ -132,7 +132,7 @@ struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {
         int width = fSrcSize.fWidth;
         int height = fSrcSize.fHeight;
 
-        SkPM4f* FPbuffer = new SkPM4f[width * height];
+        SkAutoTMalloc<SkPM4f> FPbuffer(width*height);
 
         SkLinearBitmapPipeline pipeline{fInvert, fXTile, fYTile, fInfo, fBitmap.get(), };
 
@@ -141,9 +141,6 @@ struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {
         for (int n = 0; n < 1000*loops; n++) {
             pipeline.shadeSpan4f(3, 6, FPbuffer, count);
         }
-
-        delete [] FPbuffer;
-
     }
 };
 
@@ -185,7 +182,7 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
         int width = fSrcSize.fWidth;
         int height = fSrcSize.fHeight;
 
-        SkPMColor *buffer4b = new SkPMColor[width * height];
+        SkAutoTMalloc<SkPMColor> buffer4b(width*height);
 
         uint32_t storage[200];
         SkASSERT(fPaint.getShader()->contextSize() <= sizeof(storage));
@@ -200,7 +197,6 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
         }
 
         ctx->~Context();
-        delete buffer4b;
     }
     SkPaint fPaint;
     SkAutoTUnref<SkImage> fImage;
