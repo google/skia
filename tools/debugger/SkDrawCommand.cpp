@@ -227,8 +227,7 @@ Json::Value SkDrawCommand::toJSON(UrlDataManager& urlDataManager) const {
 
 Json::Value SkDrawCommand::drawToAndCollectJSON(SkCanvas* canvas,
                                                 UrlDataManager& urlDataManager) const {
-    Json::Value result;
-    result[SKDEBUGCANVAS_ATTRIBUTE_COMMAND] = this->GetCommandString(fOpType);
+    Json::Value result = this->toJSON(urlDataManager);
 
     SkASSERT(canvas);
 
