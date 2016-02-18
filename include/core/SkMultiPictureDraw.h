@@ -8,8 +8,8 @@
 #ifndef SkMultiPictureDraw_DEFINED
 #define SkMultiPictureDraw_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkMatrix.h"
-#include "SkTDArray.h"
 
 class SkCanvas;
 class SkPaint;

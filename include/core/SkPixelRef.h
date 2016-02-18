@@ -9,15 +9,15 @@
 #define SkPixelRef_DEFINED
 
 #include "../private/SkAtomics.h"
+#include "../private/SkMutex.h"
+#include "../private/SkTDArray.h"
 #include "SkBitmap.h"
 #include "SkFilterQuality.h"
 #include "SkImageInfo.h"
-#include "../private/SkMutex.h"
 #include "SkPixmap.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "SkTDArray.h"
 
 class SkColorTable;
 class SkData;

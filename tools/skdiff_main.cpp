@@ -14,7 +14,7 @@
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
-#include "SkTDArray.h"
+#include "../private/SkTDArray.h"
 #include "../private/SkTSearch.h"
 
 #include <stdlib.h>

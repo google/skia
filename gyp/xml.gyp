@@ -13,6 +13,7 @@
         'skia_lib.gyp:skia_lib',
       ],
       'include_dirs': [
+        '../include/private',
         '../include/xml',
       ],
       'sources': [

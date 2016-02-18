@@ -10,7 +10,6 @@
 
 #include "SkColor.h"
 #include "SkFlattenable.h"
-#include "SkTDArray.h"
 #include "SkXfermode.h"
 
 class GrContext;

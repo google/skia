@@ -8,6 +8,7 @@
 #ifndef SkWindow_DEFINED
 #define SkWindow_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkView.h"
 #include "SkBitmap.h"
 #include "SkMatrix.h"
@@ -15,7 +16,6 @@
 #include "SkEvent.h"
 #include "SkKey.h"
 #include "SkSurfaceProps.h"
-#include "SkTDArray.h"
 
 class SkSurface;
 class SkOSMenu;

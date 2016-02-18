@@ -10,8 +10,8 @@
 #ifndef SkOSMenu_DEFINED
 #define SkOSMenu_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkEvent.h"
-#include "SkTDArray.h"
 
 class SkOSMenu {
 public:

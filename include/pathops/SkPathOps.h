@@ -8,8 +8,8 @@
 #define SkPathOps_DEFINED
 
 #include "../private/SkTArray.h"
+#include "../private/SkTDArray.h"
 #include "SkPreConfig.h"
-#include "SkTDArray.h"
 
 class SkPath;
 struct SkRect;

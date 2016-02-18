@@ -8,7 +8,7 @@
 #ifndef SkTouchGesture_DEFINED
 #define SkTouchGesture_DEFINED
 
-#include "SkTDArray.h"
+#include "../private/SkTDArray.h"
 #include "SkMatrix.h"
 
 struct SkFlingState {

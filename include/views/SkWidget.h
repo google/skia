@@ -12,7 +12,6 @@
 #include "SkDOM.h"
 #include "SkPaint.h"
 #include "SkString.h"
-#include "SkTDArray.h"
 #include "SkTextBox.h"
 #include "SkView.h"
 

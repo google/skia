@@ -9,8 +9,8 @@
 #define SK_COMMAND_LINE_FLAGS_H
 
 #include "../private/SkTArray.h"
+#include "../private/SkTDArray.h"
 #include "SkString.h"
-#include "SkTDArray.h"
 
 /**
  *  Including this file (and compiling SkCommandLineFlags.cpp) provides command line

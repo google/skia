@@ -10,8 +10,8 @@
 #ifndef SkLayer_DEFINED
 #define SkLayer_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkRefCnt.h"
-#include "SkTDArray.h"
 #include "SkColor.h"
 #include "SkMatrix.h"
 #include "SkPoint.h"

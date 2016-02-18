@@ -13,7 +13,6 @@
 #include "SkRect.h"
 #include "SkRRect.h"
 #include "SkRegion.h"
-#include "SkTDArray.h"
 #include "SkTLazy.h"
 
 class SkCanvasClipVisitor;

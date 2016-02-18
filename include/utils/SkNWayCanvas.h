@@ -9,8 +9,8 @@
 #ifndef SkNWayCanvas_DEFINED
 #define SkNWayCanvas_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkCanvas.h"
-#include "SkTDArray.h"
 
 class SK_API SkNWayCanvas : public SkCanvas {
 public:

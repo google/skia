@@ -8,8 +8,8 @@
 #ifndef SkPathMeasure_DEFINED
 #define SkPathMeasure_DEFINED
 
+#include "../private/SkTDArray.h"
 #include "SkPath.h"
-#include "SkTDArray.h"
 
 struct SkConic;
 

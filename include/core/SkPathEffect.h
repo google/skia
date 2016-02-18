@@ -14,7 +14,6 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkRect.h"
-#include "SkTDArray.h"
 
 class SkPath;
 class SkStrokeRec;

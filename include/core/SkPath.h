@@ -10,7 +10,6 @@
 
 #include "SkMatrix.h"
 #include "SkPathRef.h"
-#include "SkTDArray.h"
 #include "SkRefCnt.h"
 
 class SkReader32;
