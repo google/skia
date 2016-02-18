@@ -193,6 +193,33 @@ void SkPath::swap(SkPath& that) {
     }
 }
 
+bool SkPath::isInterpolatable(const SkPath& compare) const {
+    int count = fPathRef->countVerbs();
+    if (count != compare.fPathRef->countVerbs()) {
+        return false;
+    }
+    if (!count) {
+        return true;
+    }
+    if (memcmp(fPathRef->verbsMemBegin(), compare.fPathRef->verbsMemBegin(),
+               count)) {
+        return false;
+    }
+    return !SkToBool(memcmp(fPathRef->conicWeights(), compare.fPathRef->conicWeights(),
+            fPathRef->countWeights() * sizeof(*fPathRef->conicWeights())));
+}
+
+bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const {
+    int verbCount = fPathRef->countVerbs();
+    if (verbCount != ending.fPathRef->countVerbs()) {
+        return false;
+    }
+    out->reset();
+    out->addPath(*this);
+    fPathRef->interpolate(*ending.fPathRef, weight, out->fPathRef);
+    return true;
+}
+
 static inline bool check_edge_against_rect(const SkPoint& p0,
                                            const SkPoint& p1,
                                            const SkRect& rect,

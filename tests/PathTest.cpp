@@ -3904,6 +3904,49 @@ public:
     }
 };
 
+static void test_interp(skiatest::Reporter* reporter) {
+    SkPath p1, p2, out;
+    REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 0, &out));
+    REPORTER_ASSERT(reporter, p1 == out);
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 1, &out));
+    REPORTER_ASSERT(reporter, p1 == out);
+    p1.moveTo(0, 2);
+    p1.lineTo(0, 4);
+    REPORTER_ASSERT(reporter, !p1.isInterpolatable(p2));
+    REPORTER_ASSERT(reporter, !p1.interpolate(p2, 1, &out));
+    p2.moveTo(6, 0);
+    p2.lineTo(8, 0);
+    REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 0, &out));
+    REPORTER_ASSERT(reporter, p2 == out);
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 1, &out));
+    REPORTER_ASSERT(reporter, p1 == out);
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 0.5f, &out));
+    REPORTER_ASSERT(reporter, out.getBounds() == SkRect::MakeLTRB(3, 1, 4, 2));
+    p1.reset();
+    p1.moveTo(4, 4);
+    p1.conicTo(5, 4, 5, 5, 1 / SkScalarSqrt(2));
+    p2.reset();
+    p2.moveTo(4, 2);
+    p2.conicTo(7, 2, 7, 5, 1 / SkScalarSqrt(2));
+    REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
+    REPORTER_ASSERT(reporter, p1.interpolate(p2, 0.5f, &out));
+    REPORTER_ASSERT(reporter, out.getBounds() == SkRect::MakeLTRB(4, 3, 6, 5));
+    p2.reset();
+    p2.moveTo(4, 2);
+    p2.conicTo(6, 3, 6, 5, 1);
+    REPORTER_ASSERT(reporter, !p1.isInterpolatable(p2));
+    p2.reset();
+    p2.moveTo(4, 4);
+    p2.conicTo(5, 4, 5, 5, 0.5f);
+    REPORTER_ASSERT(reporter, !p1.isInterpolatable(p2));
+}
+
+DEF_TEST(PathInterp, reporter) {
+    test_interp(reporter);
+}
+
 DEF_TEST(PathContains, reporter) {
     test_contains(reporter);
 }

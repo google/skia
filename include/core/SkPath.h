@@ -37,6 +37,27 @@ public:
         return !(a == b);
     }
 
+    /** Return true if the paths contain an equal array of verbs and weights. Paths
+     *  with equal verb counts can be readily interpolated. If the paths contain one
+     *  or more conics, the conics' weights must also match.
+     *
+     *  @param compare  The path to compare.
+     *
+     *  @return true if the paths have the same verbs and weights.
+     */
+    bool isInterpolatable(const SkPath& compare) const;
+
+    /** Interpolate between two paths with same-sized point arrays.
+     *  The out path contains the verbs and weights of this path.
+     *  The out points are a weighted average of this path and the ending path. 
+     *
+     *  @param ending  The path to interpolate between.
+     *  @param weight  The weight, from 0 to 1. The output points are set to
+     *                 (this->points * weight) + ending->points * (1 - weight).
+     *  @return true if the paths could be interpolated.
+     */
+    bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     /** Returns true if the caller is the only owner of the underlying path data */
     bool unique() const { return fPathRef->unique(); }

@@ -299,6 +299,19 @@ void SkPathRef::copy(const SkPathRef& ref,
     SkDEBUGCODE(this->validate();)
 }
 
+
+void SkPathRef::interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const {
+    const SkScalar* inValues = &ending.getPoints()->fX;
+    SkScalar* outValues = &out->getPoints()->fX;
+    int count = out->countPoints() * 2;
+    for (int index = 0; index < count; ++index) {
+        outValues[index] = outValues[index] * weight + inValues[index] * (1 - weight);
+    }
+    out->fBoundsIsDirty = true;
+    out->fIsOval = false;
+    out->fIsRRect = false;
+}
+
 SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
                                         int numVbs,
                                         SkScalar** weights) {

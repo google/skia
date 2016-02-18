@@ -271,6 +271,8 @@ public:
      */
     uint32_t writeSize() const;
 
+    void interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const;
+
     /**
      * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the
      * same ID then they have the same verbs and points. However, two path refs may have the same
