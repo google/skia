@@ -98,7 +98,6 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     bmdst.peekPixels(&pmdst);
 
     SkPM4f* dstBits = new SkPM4f[ir.width()];
-    SkImageInfo info = SkImageInfo::MakeN32(ir.width(), ir.height(), kPremul_SkAlphaType);
 
     SkMatrix inv;
     bool trash = mat->invert(&inv);
@@ -120,8 +119,7 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
 
     SkLinearBitmapPipeline pipeline{
             inv, filterQuality,
-            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-            info, pmsrc.addr32()};
+            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, pmsrc};
 
     for (int y = 0; y < ir.height(); y++) {
         pipeline.shadeSpan4f(0, y, dstBits, ir.width());

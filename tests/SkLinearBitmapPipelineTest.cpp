@@ -41,13 +41,15 @@ DEF_TEST(SkBitmapFP, reporter) {
     const SkImageInfo info =
         SkImageInfo::MakeN32Premul(width, height, kLinear_SkColorProfileType);
 
+    SkPixmap srcPixmap{info, bitmap, static_cast<size_t>(4 * width)};
+
     SkLinearBitmapPipeline pipeline{invert, kNone_SkFilterQuality, SkShader::kClamp_TileMode,
-                                    SkShader::kClamp_TileMode, info, bitmap};
+                                    SkShader::kClamp_TileMode, srcPixmap};
 
     int count = 10;
 
     pipeline.shadeSpan4f(3, 6, FPbuffer, count);
-
+#if 0
     Pixel* pixelBuffer = (Pixel*)FPbuffer;
     for (int i = 0; i < count; i++) {
         printf("i: %d - (%g, %g, %g, %g)\n", i,
@@ -56,6 +58,7 @@ DEF_TEST(SkBitmapFP, reporter) {
                pixelBuffer[i][2] * 255.0f,
                pixelBuffer[i][3] * 255.0f);
     }
+#endif
 
     delete [] bitmap;
     delete [] FPbuffer;

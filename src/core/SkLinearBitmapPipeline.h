@@ -8,16 +8,12 @@
 #ifndef SkLinearBitmapPipeline_DEFINED
 #define SkLinearBitmapPipeline_DEFINED
 
-#include <algorithm>
-#include <cmath>
-#include <limits>
-#include <cstdio>
+
 #include "SkColor.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
-#include "SkShader.h"
-#include "SkSize.h"
 #include "SkNx.h"
+#include "SkShader.h"
 
 using Sk4fArg = const Sk4f&;
 
@@ -59,8 +55,7 @@ public:
         const SkMatrix& inverse,
         SkFilterQuality filterQuality,
         SkShader::TileMode xTile, SkShader::TileMode yTile,
-        const SkImageInfo& srcImageInfo,
-        const void* srcImageData);
+        const SkPixmap& srcPixmap);
 
     void shadeSpan4f(int x, int y, SkPM4f* dst, int count);
 

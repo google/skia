@@ -8,6 +8,12 @@
 #include "SkLinearBitmapPipeline.h"
 #include "SkPM4f.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include "SkColor.h"
+#include "SkSize.h"
+
 struct X {
     explicit X(SkScalar val) : fVal{val} { }
     explicit X(SkPoint pt) : fVal{pt.fX} { }
@@ -191,18 +197,18 @@ public:
 
     void pointListFew(int n, Sk4fArg xs, Sk4fArg ys) override {
         SkASSERT(0 < n && n < 4);
-        //                   px00  px10  px01  px11
-        const Sk4f kXOffsets{0.0f, 1.0f, 0.0f, 1.0f},
-                   kYOffsets{0.0f, 0.0f, 1.0f, 1.0f};
+        //                    px00   px10   px01  px11
+        const Sk4f kXOffsets{-0.5f,  0.5f, -0.5f, 0.5f},
+                   kYOffsets{-0.5f, -0.5f,  0.5f, 0.5f};
         if (n >= 1) fNext->bilerpList(Sk4f{xs[0]} + kXOffsets, Sk4f{ys[0]} + kYOffsets);
         if (n >= 2) fNext->bilerpList(Sk4f{xs[1]} + kXOffsets, Sk4f{ys[1]} + kYOffsets);
         if (n >= 3) fNext->bilerpList(Sk4f{xs[2]} + kXOffsets, Sk4f{ys[2]} + kYOffsets);
     }
 
     void pointList4(Sk4fArg xs, Sk4fArg ys) override {
-        //                   px00  px10  px01  px11
-        const Sk4f kXOffsets{0.0f, 1.0f, 0.0f, 1.0f},
-                   kYOffsets{0.0f, 0.0f, 1.0f, 1.0f};
+        //                    px00   px10   px01  px11
+        const Sk4f kXOffsets{-0.5f,  0.5f, -0.5f, 0.5f},
+                   kYOffsets{-0.5f, -0.5f,  0.5f, 0.5f};
         fNext->bilerpList(Sk4f{xs[0]} + kXOffsets, Sk4f{ys[0]} + kYOffsets);
         fNext->bilerpList(Sk4f{xs[1]} + kXOffsets, Sk4f{ys[1]} + kYOffsets);
         fNext->bilerpList(Sk4f{xs[2]} + kXOffsets, Sk4f{ys[2]} + kYOffsets);
@@ -456,21 +462,21 @@ private:
 
 static BilerpProcessorInterface* choose_pixel_sampler(
     PixelPlacerInterface* next,
-    const SkImageInfo& imageInfo,
-    const void* imageData,
+    const SkPixmap& srcPixmap,
     SkLinearBitmapPipeline::SampleStage* sampleStage) {
+    const SkImageInfo& imageInfo = srcPixmap.info();
     switch (imageInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
             if (kN32_SkColorType == imageInfo.colorType()) {
                 if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
                     sampleStage->Initialize<Sampler<Passthrough8888<kSRGB_SkColorProfileType>>>(
-                        next, imageInfo.width(),
-                        (uint32_t*)imageData);
+                        next, static_cast<int>(srcPixmap.rowBytes() / 4),
+                        srcPixmap.addr32());
                 } else {
                     sampleStage->Initialize<Sampler<Passthrough8888<kLinear_SkColorProfileType>>>(
-                        next, imageInfo.width(),
-                        (uint32_t*)imageData);
+                        next, static_cast<int>(srcPixmap.rowBytes() / 4),
+                        srcPixmap.addr32());
                 }
             } else {
                 SkFAIL("Not implemented. No 8888 Swizzle");
@@ -536,16 +542,14 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     const SkMatrix& inverse,
     SkFilterQuality filterQuality,
     SkShader::TileMode xTile, SkShader::TileMode yTile,
-    const SkImageInfo& srcImageInfo,
-    const void* srcImageData) {
-    SkSize size;
-    size = srcImageInfo.dimensions();
+    const SkPixmap& srcPixmap) {
+    SkSize size = SkSize::Make(srcPixmap.width(), srcPixmap.height());
+    const SkImageInfo& srcImageInfo = srcPixmap.info();
 
     // As the stages are built, the chooser function may skip a stage. For example, with the
     // identity matrix, the matrix stage is skipped, and the tilerStage is the first stage.
     auto placementStage = choose_pixel_placer(srcImageInfo.alphaType(), &fPixelStage);
-    auto samplerStage   = choose_pixel_sampler(placementStage, srcImageInfo,
-                                               srcImageData, &fSampleStage);
+    auto samplerStage   = choose_pixel_sampler(placementStage, srcPixmap, &fSampleStage);
     auto tilerStage     = choose_tiler(samplerStage, size, xTile, yTile, &fTileXOrBothStage,
                                        &fTileYStage);
     auto filterStage    = choose_filter(tilerStage, filterQuality, &fFilterStage);
