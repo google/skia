@@ -18,6 +18,9 @@ class GrTexture;
 class GrXPFactory;
 class SkString;
 
+struct SkPM4f;
+typedef SkPM4f (*SkXfermodeProc4f)(const SkPM4f& src, const SkPM4f& dst);
+
 /** \class SkXfermode
  *
  *  SkXfermode is the base class for objects that are called to implement custom

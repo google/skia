@@ -12,6 +12,7 @@
 #include "SkTDArray.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
+#include "SkPM4f.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"

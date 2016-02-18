@@ -12,6 +12,7 @@
 #include "SkXfermode.h"
 #include "SkBlitMask.h"
 #include "SkTemplates.h"
+#include "SkPM4f.h"
 
 template <typename State> class SkState_Blitter : public SkRasterBlitter {
     typedef SkRasterBlitter INHERITED;

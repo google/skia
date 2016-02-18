@@ -12,6 +12,7 @@
 #include "SkWriteBuffer.h"
 #include "SkUnPreMultiply.h"
 #include "SkString.h"
+#include "SkPM4f.h"
 
 #define SK_PMORDER_INDEX_A  (SK_A32_SHIFT / 8)
 #define SK_PMORDER_INDEX_R  (SK_R32_SHIFT / 8)

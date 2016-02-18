@@ -14,6 +14,7 @@
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkWriteBuffer.h"
+#include "SkPM4f.h"
 
 #define SkAlphaMulAlpha(a, b)   SkMulDiv255Round(a, b)
 

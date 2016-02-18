@@ -10,6 +10,7 @@
 #include "SkHalf.h"
 #include "SkOpts.h"
 #include "SkPixmap.h"
+#include "SkPM4f.h"
 #include "SkRandom.h"
 
 static bool eq_within_half_float(float a, float b) {

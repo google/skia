@@ -6,6 +6,7 @@
  */
 
 #include "SkLinearBitmapPipeline.h"
+#include "SkPM4f.h"
 
 struct X {
     explicit X(SkScalar val) : fVal{val} { }

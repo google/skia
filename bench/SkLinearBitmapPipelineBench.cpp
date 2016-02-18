@@ -8,6 +8,7 @@
 #include <memory>
 #include "SkColor.h"
 #include "SkLinearBitmapPipeline.h"
+#include "SkPM4f.h"
 #include "Benchmark.h"
 #include "SkShader.h"
 #include "SkImage.h"

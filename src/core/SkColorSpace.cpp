@@ -174,6 +174,7 @@ SkColorSpace::Result SkColorSpace::Concat(const SkColorSpace* src, const SkColor
 
 #include "SkColor.h"
 #include "SkNx.h"
+#include "SkPM4f.h"
 
 void SkApply3x3ToPM4f(const SkFloat3x3& m, const SkPM4f src[], SkPM4f dst[], int count) {
     SkASSERT(1 == SkPM4f::G);

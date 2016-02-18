@@ -11,6 +11,7 @@
 #include "SkXfermode.h"
 #include "SkHalf.h"
 #include "SkImage.h"
+#include "SkPM4f.h"
 
 static SkPMColor f16_to_pmcolor(uint64_t src) {
     SkPMColor dst;

@@ -11,6 +11,7 @@
 #include "SkMask.h"
 #include "SkPixmap.h"
 #include "SkUtils.h"
+#include "SkPM4f.h"
 
 void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* ctx) {
     SkASSERT(pm.addr() != nullptr);

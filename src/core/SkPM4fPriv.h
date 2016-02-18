@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkPM4f.h"
 #include "SkColorPriv.h"
 #include "SkNx.h"
 

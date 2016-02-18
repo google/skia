@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkImageInfo.h"
 #include "SkXfermode.h"
+#include "SkPM4f.h"
 
 static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, SkColorProfileType profile,
                       const SkAlpha aa[]) {

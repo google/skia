@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkLinearBitmapPipeline.h"
-
 #include "SkColor.h"
-
+#include "SkPM4f.h"
 #include "Test.h"
 
 struct SinkBilerpProcessor final : public PointProcessorInterface {

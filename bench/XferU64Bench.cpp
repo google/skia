@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkPM4f.h"
 #include "SkString.h"
 #include "SkXfermode.h"
 

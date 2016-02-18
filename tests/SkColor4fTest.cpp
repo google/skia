@@ -9,6 +9,7 @@
 #include "SkColorMatrixFilter.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkPM4f.h"
 #include "SkShader.h"
 
 #include "Test.h"
