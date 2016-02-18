@@ -86,7 +86,6 @@ def main():
           'to create).')
 
   chrome_target_dir_rel = os.path.join('out', args.chrome_build_type)
-  chrome_target_dir = os.path.join(chrome_src_dir, chrome_target_dir_rel)
 
   if not args.no_sync:
     try:
@@ -104,7 +103,9 @@ def main():
 
   if not args.no_sync:
     try:
-      subprocess.check_call(['gclient', 'sync'], cwd=chrome_src_dir)
+      os.environ['GYP_GENERATORS'] = 'ninja'
+      subprocess.check_call(['gclient', 'sync', '--reset', '--force'],
+          cwd=chrome_src_dir)
     except subprocess.CalledProcessError as error:
       sys.exit('Error (ret code: %s) calling "%s" in %s' % error.returncode,
           error.cmd, chrome_src_dir)
@@ -117,9 +118,33 @@ def main():
     sys.exit('Error (ret code: %s) calling "%s" in %s' % error.returncode,
         error.cmd, chrome_src_dir)
 
-  shared_lib_src = os.path.join(chrome_target_dir, 'lib',
-      'libcommand_buffer_gles2.so')
-  shared_lib_dst = os.path.join(args.output_dir, 'libcommand_buffer_gles2.so')
+  # The command buffer shared library will have a different extension on Linux,
+  # Mac, and Windows. Also, on Linux it will be in a 'lib' subdirectory and
+  # needs to be placed in a 'lib' subdirectory of the directory containing the
+  # Skia executable.
+  platform = sys.platform
+  if platform == 'cygwin':
+    platform = 'win32'
+
+  shared_lib_ext = '.so'
+  shared_lib_subdir = 'lib'
+  if platform == 'darwin':
+    shared_lib_ext = '.dylib'
+    shared_lib_subdir = ''
+  elif platform == 'win32':
+    shared_lib_ext = '.dll'
+    shared_lib_subdir = ''
+
+  shared_lib_src_dir = os.path.join(chrome_src_dir, chrome_target_dir_rel,
+                                    shared_lib_subdir)
+  shared_lib_dst_dir = os.path.join(args.output_dir, shared_lib_subdir)
+  # Make the subdir for the dst if does not exist
+  if shared_lib_subdir and not os.path.isdir(shared_lib_dst_dir):
+    os.mkdir(shared_lib_dst_dir)
+
+  shared_lib_name = 'libcommand_buffer_gles2' + shared_lib_ext
+  shared_lib_src = os.path.join(shared_lib_src_dir, shared_lib_name)
+  shared_lib_dst = os.path.join(shared_lib_dst_dir, shared_lib_name)
 
   if not os.path.isfile(shared_lib_src):
     sys.exit('Command buffer shared library not at expected location: ' +
