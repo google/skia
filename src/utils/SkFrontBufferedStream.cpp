@@ -22,10 +22,6 @@ public:
 
     bool rewind() override;
 
-    bool hasPosition() const override { return true; }
-
-    size_t getPosition() const override { return fOffset; }
-
     bool hasLength() const override { return fHasLength; }
 
     size_t getLength() const override { return fLength; }

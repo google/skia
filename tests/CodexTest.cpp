@@ -11,6 +11,7 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkData.h"
+#include "SkFrontBufferedStream.h"
 #include "SkImageDecoder.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
@@ -180,7 +181,7 @@ static void check(skiatest::Reporter* r,
 
     // Test full image decodes with SkCodec
     SkMD5::Digest codecDigest;
-    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     SkBitmap bm;
     SkCodec::Result expectedResult = isIncomplete ? SkCodec::kIncompleteInput : SkCodec::kSuccess;
     test_codec(r, codec.get(), bm, info, size, expectedResult, &codecDigest, nullptr);
@@ -313,8 +314,8 @@ static void check(skiatest::Reporter* r,
                    &codecDigest);
     }
 
-    // Test SkCodecImageGenerator
     if (!isIncomplete) {
+        // Test SkCodecImageGenerator
         SkAutoTDelete<SkStream> stream(resource(path));
         SkAutoTUnref<SkData> fullData(SkData::NewFromStream(stream, stream->getLength()));
         SkAutoTDelete<SkImageGenerator> gen(SkCodecImageGenerator::NewFromEncodedCodec(fullData));
@@ -323,6 +324,16 @@ static void check(skiatest::Reporter* r,
         SkAutoLockPixels autoLockPixels(bm);
         REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));
         compare_to_good_digest(r, codecDigest, bm);
+
+        // Test using SkFrontBufferedStream, as Android does
+        SkStream* bufferedStream = SkFrontBufferedStream::Create(new SkMemoryStream(fullData),
+                SkCodec::MinBufferedBytesNeeded());
+        REPORTER_ASSERT(r, bufferedStream);
+        codec.reset(SkCodec::NewFromStream(bufferedStream));
+        REPORTER_ASSERT(r, codec);
+        if (codec) {
+            test_info(r, codec.get(), info, SkCodec::kSuccess, &codecDigest);
+        }
     }
 
     // If we've just tested incomplete decodes, let's run the same test again on full decodes.

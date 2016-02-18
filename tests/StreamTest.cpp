@@ -266,12 +266,11 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
     for (size_t start = 0; start <= bufferSize; start++) {
         // Skip to the starting point
         REPORTER_ASSERT(r, bufferedStream->skip(start) == start);
-        REPORTER_ASSERT(r, bufferedStream->getPosition() == start);
 
         const size_t bytesPeeked = bufferedStream->peek(peekStorage.get(), bytesToPeek);
         if (0 == bytesPeeked) {
-            // Peeking should only fail completely if we have read beyond the buffer.
-            REPORTER_ASSERT(r, bufferedStream->getPosition() >= bufferSize);
+            // Peeking should only fail completely if we have read/skipped beyond the buffer.
+            REPORTER_ASSERT(r, start >= bufferSize);
             break;
         }
 

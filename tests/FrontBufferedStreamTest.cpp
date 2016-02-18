@@ -68,7 +68,7 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
     test_read(reporter, bufferedStream, gAbcs, bufferSize / 4);
 
     // Now test reading part of what was buffered, and buffering new data.
-    test_read(reporter, bufferedStream, gAbcs + bufferedStream->getPosition(), bufferSize / 2);
+    test_read(reporter, bufferedStream, gAbcs + bufferSize / 4, bufferSize / 2);
 
     // Now test reading what was buffered, buffering new data, and
     // reading directly from the stream.
@@ -96,7 +96,7 @@ static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t buf
     test_read(reporter, bufferedStream, gAbcs, bufferSize);
 
     // Read past the size of the buffer. At this point, we cannot return.
-    test_read(reporter, bufferedStream, gAbcs + bufferedStream->getPosition(), 1);
+    test_read(reporter, bufferedStream, gAbcs + memStream->getPosition(), 1);
     test_rewind(reporter, bufferedStream, false);
 }
 
@@ -116,7 +116,7 @@ static void test_skipping(skiatest::Reporter* reporter, size_t bufferSize) {
     bufferedStream->skip(bufferSize / 2);
 
     // Test that reading will still work.
-    test_read(reporter, bufferedStream, gAbcs + bufferedStream->getPosition(), bufferSize / 4);
+    test_read(reporter, bufferedStream, gAbcs + memStream->getPosition(), bufferSize / 4);
 
     test_rewind(reporter, bufferedStream, true);
     test_read(reporter, bufferedStream, gAbcs, bufferSize);
@@ -219,13 +219,12 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
     memStream->skip(arbitraryOffset);
     SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
 
-    // Since SkMemoryStream has a length and a position, bufferedStream must also.
+    // Since SkMemoryStream has a length, bufferedStream must also.
     REPORTER_ASSERT(reporter, bufferedStream->hasLength());
 
     const size_t amountToRead = 10;
     const size_t bufferedLength = bufferedStream->getLength();
-    size_t currentPosition = bufferedStream->getPosition();
-    REPORTER_ASSERT(reporter, 0 == currentPosition);
+    size_t currentPosition = 0;
 
     // Read the stream in chunks. After each read, the position must match currentPosition,
     // which sums the amount attempted to read, unless the end of the stream has been reached.
@@ -235,7 +234,7 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
         test_read(reporter, bufferedStream, gAbcs + arbitraryOffset + currentPosition,
                   amountToRead);
         currentPosition = SkTMin(currentPosition + amountToRead, bufferedLength);
-        REPORTER_ASSERT(reporter, bufferedStream->getPosition() == currentPosition);
+        REPORTER_ASSERT(reporter, memStream->getPosition() - arbitraryOffset == currentPosition);
     }
     REPORTER_ASSERT(reporter, bufferedStream->isAtEnd());
     REPORTER_ASSERT(reporter, bufferedLength == currentPosition);
