@@ -61,7 +61,6 @@ static void backward_insert_edge_based_on_x(SkEdge* edge SkDECLAREPARAM(int, cur
     }
 }
 
-#ifndef SK_SUPPORT_LEGACY_INSERT_NEW_EDGES
 // Start from the right side, searching backwards for the point to begin the new edge list
 // insertion, marching forwards from here. The implementation could have started from the left
 // of the prior insertion, and search to the right, or with some additional caching, binary
@@ -72,18 +71,8 @@ static SkEdge* backward_insert_start(SkEdge* prev, SkFixed x) {
     }
     return prev;
 }
-#endif
 
 static void insert_new_edges(SkEdge* newEdge, int curr_y) {
-#ifdef SK_SUPPORT_LEGACY_INSERT_NEW_EDGES
-    SkASSERT(newEdge->fFirstY >= curr_y);
-
-    while (newEdge->fFirstY == curr_y) {
-        SkEdge* next = newEdge->fNext;
-        backward_insert_edge_based_on_x(newEdge  SkPARAM(curr_y));
-        newEdge = next;
-    }
-#else
     if (newEdge->fFirstY != curr_y) {
         return;
     }
@@ -112,7 +101,6 @@ nextEdge:
         start = newEdge;
         newEdge = next;
     } while (newEdge->fFirstY == curr_y);
-#endif
 }
 
 #ifdef SK_DEBUG

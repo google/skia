@@ -64,9 +64,6 @@ SkEdgeBuilder::Combine SkEdgeBuilder::CombineVertical(const SkEdge* edge, SkEdge
 }
 
 static bool vertical_line(const SkEdge* edge) {
-#ifdef SK_SUPPORT_LEGACY_VERTICAL_EDGE  // this disables combining vertical overlapping edges
-    return false;
-#endif
     return !edge->fDX && !edge->fCurveCount;
 }
 
