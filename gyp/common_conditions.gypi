@@ -674,12 +674,6 @@
       },
     }],
 
-    [ 'skia_build_server', {
-      'defines': [
-        'GR_BATCH_DEBUGGING_OUTPUT=1',
-      ],
-    }],
-
   ], # end 'conditions'
   # The Xcode SYMROOT must be at the root. See build/common.gypi in chromium for more details
   'xcode_settings': {

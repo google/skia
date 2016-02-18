@@ -236,8 +236,9 @@ Json::Value SkDrawCommand::drawToAndCollectJSON(SkCanvas* canvas,
     if (rt) {
         GrContext* ctx = rt->getContext();
         if(ctx) {
-            this->execute(canvas);
             GrAuditTrail* at = ctx->getAuditTrail();
+            GrAuditTrail::AutoEnable enable(at);
+            this->execute(canvas);
 
             // TODO if this is inefficient we could add a method to GrAuditTrail which takes
             // a Json::Value and is only compiled in this file
