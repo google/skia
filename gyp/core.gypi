@@ -386,7 +386,6 @@
         '<(skia_include_path)/core/SkString.h',
         '<(skia_include_path)/core/SkStrokeRec.h',
         '<(skia_include_path)/core/SkSurface.h',
-        '<(skia_include_path)/core/SkTDStack.h',
         '<(skia_include_path)/core/SkTInternalLList.h',
         '<(skia_include_path)/core/SkTRegistry.h',
         '<(skia_include_path)/core/SkTextBlob.h',
