@@ -80,8 +80,31 @@ public:
         }
     }
 
+    void blitLCDMask(const SkMask& mask, const SkIRect& clip) {
+        auto proc = fState.getLCDProc(SkXfermode::kSrcIsSingle_LCDFlag);
+        
+        const int x = clip.fLeft;
+        const int width = clip.width();
+        const int y = clip.fTop;
+        const int height = clip.height();
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        const size_t dstRB = fDevice.rowBytes();
+        const uint16_t* maskRow = (const uint16_t*)mask.getAddr(x, y);
+        const size_t maskRB = mask.fRowBytes;
+        
+        for (int i = 0; i < height; ++i) {
+            proc(device, &fState.fPM4f, width, maskRow);
+            device = (typename State::DstType*)((char*)device + dstRB);
+            maskRow = (const uint16_t*)((const char*)maskRow + maskRB);
+        }
+    }
+    
     void blitMask(const SkMask& mask, const SkIRect& clip) override {
-        // we only handle kA8
+        if (SkMask::kLCD16_Format == mask.fFormat) {
+            this->blitLCDMask(mask, clip);
+            return;
+        }
         if (SkMask::kA8_Format != mask.fFormat) {
             this->INHERITED::blitMask(mask, clip);
             return;
@@ -190,8 +213,36 @@ public:
         }
     }
 
+    void blitLCDMask(const SkMask& mask, const SkIRect& clip) {
+        auto proc = fState.getLCDProc(0);
+        
+        const int x = clip.fLeft;
+        const int width = clip.width();
+        int y = clip.fTop;
+        
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        const size_t deviceRB = fDevice.rowBytes();
+        const uint16_t* maskRow = (const uint16_t*)mask.getAddr(x, y);
+        const size_t maskRB = mask.fRowBytes;
+        
+        if (fConstInY) {
+            fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
+        }
+        for (; y < clip.fBottom; ++y) {
+            if (!fConstInY) {
+                fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
+            }
+            proc(device, fState.fBuffer, width, maskRow);
+            device = (typename State::DstType*)((char*)device + deviceRB);
+            maskRow = (const uint16_t*)((const char*)maskRow + maskRB);
+        }
+    }
+
     void blitMask(const SkMask& mask, const SkIRect& clip) override {
-        // we only handle kA8
+        if (SkMask::kLCD16_Format == mask.fFormat) {
+            this->blitLCDMask(mask, clip);
+            return;
+        }
         if (SkMask::kA8_Format != mask.fFormat) {
             this->INHERITED::blitMask(mask, clip);
             return;
@@ -271,7 +322,15 @@ struct State32 : SkXfermode::PM4fState {
         SkSafeUnref(fXfer);
         delete[] fBuffer;
     }
-    
+
+    SkXfermode::LCD32Proc getLCDProc(uint32_t oneOrManyFlag) const {
+        uint32_t flags = fFlags & 1;
+        if (!(fFlags & SkXfermode::kDstIsSRGB_PM4fFlag)) {
+            flags |= SkXfermode::kDstIsLinearInt_LCDFlag;
+        }
+        return SkXfermode::GetLCD32Proc(flags | oneOrManyFlag);
+    }
+
     static DstType* WritableAddr(const SkPixmap& device, int x, int y) {
         return device.writable_addr32(x, y);
     }
@@ -313,6 +372,14 @@ struct State64 : SkXfermode::U64State {
     ~State64() {
         SkSafeUnref(fXfer);
         delete[] fBuffer;
+    }
+    
+    SkXfermode::LCD64Proc getLCDProc(uint32_t oneOrManyFlag) const {
+        uint32_t flags = fFlags & 1;
+        if (!(fFlags & SkXfermode::kDstIsFloat16_U64Flag)) {
+            flags |= SkXfermode::kDstIsLinearInt_LCDFlag;
+        }
+        return SkXfermode::GetLCD64Proc(flags | oneOrManyFlag);
     }
     
     static DstType* WritableAddr(const SkPixmap& device, int x, int y) {

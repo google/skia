@@ -422,3 +422,98 @@ SkXfermode::PM4fProcN SkXfermode::getPM4fProcN(uint32_t flags) const {
     Mode mode;
     return this->asMode(&mode) ? GetPM4fProcN(mode, flags) : xfer_pm4_proc_n;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkColorPriv.h"
+
+static Sk4f lcd16_to_unit_4f(uint16_t rgb) {
+    Sk4i rgbi = Sk4i(SkGetPackedR16(rgb), SkGetPackedG16(rgb), SkGetPackedB16(rgb), 0);
+    return SkNx_cast<float>(rgbi) * Sk4f(1.0f/31, 1.0f/63, 1.0f/31, 0);
+}
+
+template <DstType D>
+void src_1_lcd(uint32_t dst[], const SkPM4f* src, int count, const uint16_t lcd[]) {
+    const Sk4f s4 = Sk4f::Load(src->fVec);
+    
+    if (D == kLinear_Dst) {
+        // operate in bias-255 space for src and dst
+        const Sk4f s4bias = s4 * Sk4f(255);
+        for (int i = 0; i < count; ++i) {
+            uint16_t rgb = lcd[i];
+            if (0 == rgb) {
+                continue;
+            }
+            Sk4f d4bias = to_4f(dst[i]);
+            dst[i] = to_4b(lerp(s4bias, d4bias, lcd16_to_unit_4f(rgb))) | (SK_A32_MASK << SK_A32_SHIFT);
+        }
+    } else {    // kSRGB
+        for (int i = 0; i < count; ++i) {
+            uint16_t rgb = lcd[i];
+            if (0 == rgb) {
+                continue;
+            }
+            Sk4f d4 = load_dst<D>(dst[i]);
+            dst[i] = store_dst<D>(lerp(s4, d4, lcd16_to_unit_4f(rgb))) | (SK_A32_MASK << SK_A32_SHIFT);
+        }
+    }
+}
+
+template <DstType D>
+void src_n_lcd(uint32_t dst[], const SkPM4f src[], int count, const uint16_t lcd[]) {
+    for (int i = 0; i < count; ++i) {
+        uint16_t rgb = lcd[i];
+        if (0 == rgb) {
+            continue;
+        }
+        Sk4f s4 = Sk4f::Load(src[i].fVec);
+        Sk4f d4 = load_dst<D>(dst[i]);
+        dst[i] = store_dst<D>(lerp(s4, d4, lcd16_to_unit_4f(rgb))) | (SK_A32_MASK << SK_A32_SHIFT);
+    }
+}
+
+template <DstType D>
+void srcover_1_lcd(uint32_t dst[], const SkPM4f* src, int count, const uint16_t lcd[]) {
+    const Sk4f s4 = Sk4f::Load(src->fVec);
+    Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
+
+    for (int i = 0; i < count; ++i) {
+        uint16_t rgb = lcd[i];
+        if (0 == rgb) {
+            continue;
+        }
+        Sk4f d4 = load_dst<D>(dst[i]);
+        Sk4f r4 = s4 + d4 * dst_scale;
+        r4 = lerp(r4, d4, lcd16_to_unit_4f(rgb));
+        dst[i] = store_dst<D>(r4) | (SK_A32_MASK << SK_A32_SHIFT);
+    }
+}
+
+template <DstType D>
+void srcover_n_lcd(uint32_t dst[], const SkPM4f src[], int count, const uint16_t lcd[]) {
+    for (int i = 0; i < count; ++i) {
+        uint16_t rgb = lcd[i];
+        if (0 == rgb) {
+            continue;
+        }
+        Sk4f s4 = Sk4f::Load(src[i].fVec);
+        Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
+        Sk4f d4 = load_dst<D>(dst[i]);
+        Sk4f r4 = s4 + d4 * dst_scale;
+        r4 = lerp(r4, d4, lcd16_to_unit_4f(rgb));
+        dst[i] = store_dst<D>(r4) | (SK_A32_MASK << SK_A32_SHIFT);
+    }
+}
+
+SkXfermode::LCD32Proc SkXfermode::GetLCD32Proc(uint32_t flags) {
+    SkASSERT((flags & ~7) == 0);
+    flags &= 7;
+
+    const LCD32Proc procs[] = {
+        srcover_n_lcd<kSRGB_Dst>,   src_n_lcd<kSRGB_Dst>,
+        srcover_1_lcd<kSRGB_Dst>,   src_1_lcd<kSRGB_Dst>,
+
+        srcover_n_lcd<kLinear_Dst>, src_n_lcd<kLinear_Dst>,
+        srcover_1_lcd<kLinear_Dst>, src_1_lcd<kLinear_Dst>,
+    };
+    return procs[flags];
+}

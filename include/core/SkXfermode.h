@@ -248,6 +248,16 @@ public:
     static U64Proc1 GetU64Proc1(Mode, uint32_t flags);
     static U64ProcN GetU64ProcN(Mode, uint32_t flags);
 
+    enum LCDFlags {
+        kSrcIsOpaque_LCDFlag    = 1 << 0,   // else src(s) may have alpha < 1
+        kSrcIsSingle_LCDFlag    = 1 << 1,   // else src[count]
+        kDstIsLinearInt_LCDFlag = 1 << 2,   // else srgb/half-float
+    };
+    typedef void (*LCD32Proc)(uint32_t* dst, const SkPM4f* src, int count, const uint16_t lcd[]);
+    typedef void (*LCD64Proc)(uint64_t* dst, const SkPM4f* src, int count, const uint16_t lcd[]);
+    static LCD32Proc GetLCD32Proc(uint32_t flags);
+    static LCD64Proc GetLCD64Proc(uint32_t) { return nullptr; }
+
 protected:
     SkXfermode() {}
     /** The default implementation of xfer32/xfer16/xferA8 in turn call this
