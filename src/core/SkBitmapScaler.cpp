@@ -144,42 +144,20 @@ void SkResizeFilter::computeFilters(int srcSize,
   // downscale should "cover" the pixels around the pixel with *its center*
   // at coordinates (2.5, 2.5) in the source, not those around (0, 0).
   // Hence we need to scale coordinates (0.5, 0.5), not (0, 0).
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-  int destLimit = SkScalarTruncToInt(SkScalarCeilToScalar(destSubsetHi)
-        - SkScalarFloorToScalar(destSubsetLo));
-#else
   destSubsetLo = SkScalarFloorToScalar(destSubsetLo);
   destSubsetHi = SkScalarCeilToScalar(destSubsetHi);
   float srcPixel = (destSubsetLo + 0.5f) * invScale;
   int destLimit = SkScalarTruncToInt(destSubsetHi - destSubsetLo);
-#endif
   output->reserveAdditional(destLimit, SkScalarCeilToInt(destLimit * srcSupport * 2));
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-  for (int destSubsetI = SkScalarFloorToInt(destSubsetLo); destSubsetI < SkScalarCeilToInt(destSubsetHi);
-       destSubsetI++)
-#else
   for (int destI = 0; destI < destLimit; srcPixel += invScale, destI++)
-#endif
   {
     // Compute the (inclusive) range of source pixels the filter covers.
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-    float srcPixel = (static_cast<float>(destSubsetI) + 0.5f) * invScale;
-    int srcBegin = SkTMax(0, SkScalarFloorToInt(srcPixel - srcSupport));
-    int srcEnd = SkTMin(srcSize - 1, SkScalarCeilToInt(srcPixel + srcSupport));
-#else
     float srcBegin = SkTMax(0.f, SkScalarFloorToScalar(srcPixel - srcSupport));
     float srcEnd = SkTMin(srcSize - 1.f, SkScalarCeilToScalar(srcPixel + srcSupport));
-#endif
 
     // Compute the unnormalized filter value at each location of the source
     // it covers.
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-    float filterSum = 0.0f;  // Sub of the filter values for normalizing.
-    int filterCount = srcEnd - srcBegin + 1;
-    filterValuesArray.reset(filterCount);
-    for (int curFilterPixel = srcBegin; curFilterPixel <= srcEnd;
-         curFilterPixel++) {
-#endif
+
     // Sum of the filter values for normalizing.
     // Distance from the center of the filter, this is the filter coordinate
     // in source space. We also need to consider the center of the pixel
@@ -187,42 +165,22 @@ void SkResizeFilter::computeFilters(int srcSize,
     // example used above the distance from the center of the filter to
     // the pixel with coordinates (2, 2) should be 0, because its center
     // is at (2.5, 2.5).
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-      float srcFilterDist =
-          ((static_cast<float>(curFilterPixel) + 0.5f) - srcPixel);
-
-      // Since the filter really exists in dest space, map it there.
-      float destFilterDist = srcFilterDist * clampedScale;
-
-      // Compute the filter value at that location.
-      float filterValue = fBitmapFilter->evaluate(destFilterDist);
-      filterValuesArray[curFilterPixel - srcBegin] = filterValue;
-
-      filterSum += filterValue;
-    }
-#else
     float destFilterDist = (srcBegin + 0.5f - srcPixel) * clampedScale;
     int filterCount = SkScalarTruncToInt(srcEnd - srcBegin) + 1;
     SkASSERT(filterCount > 0);
     filterValuesArray.reset(filterCount);
     float filterSum = fBitmapFilter->evaluate_n(destFilterDist, clampedScale, filterCount,
                                                 filterValuesArray.begin());
-#endif
+
     // The filter must be normalized so that we don't affect the brightness of
     // the image. Convert to normalized fixed point.
     int fixedSum = 0;
     fixedFilterValuesArray.reset(filterCount);
     const float* filterValues = filterValuesArray.begin();
     SkConvolutionFilter1D::ConvolutionFixed* fixedFilterValues = fixedFilterValuesArray.begin();
-#ifndef SK_SUPPORT_LEGACY_BITMAP_FILTER
     float invFilterSum = 1 / filterSum;
-#endif
     for (int fixedI = 0; fixedI < filterCount; fixedI++) {
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-      int curFixed = SkConvolutionFilter1D::FloatToFixed(filterValues[fixedI] / filterSum);
-#else
       int curFixed = SkConvolutionFilter1D::FloatToFixed(filterValues[fixedI] * invFilterSum);
-#endif
       fixedSum += curFixed;
       fixedFilterValues[fixedI] = SkToS16(curFixed);
     }
@@ -237,11 +195,7 @@ void SkResizeFilter::computeFilters(int srcSize,
     fixedFilterValues[filterCount / 2] += leftovers;
 
     // Now it's ready to go.
-#ifdef SK_SUPPORT_LEGACY_BITMAP_FILTER
-    output->AddFilter(srcBegin, fixedFilterValues, filterCount);
-#else
     output->AddFilter(SkScalarFloorToInt(srcBegin), fixedFilterValues, filterCount);
-#endif
   }
 
   if (convolveProcs.fApplySIMDPadding) {
