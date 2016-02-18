@@ -424,7 +424,7 @@ protected:
     // emit code that gets a fragment's color from an expression for t; Has branches for 3 separate
     // control flows inside -- 2 color gradients, 3 color symmetric gradients (both using
     // native GLSL mix), and 4+ color gradients that use the traditional texture lookup.
-    void emitColor(GrGLSLFragmentBuilder* fragBuilder,
+    void emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                    GrGLSLUniformHandler* uniformHandler,
                    const GrGLSLCaps* caps,
                    const GrGradientEffect&,

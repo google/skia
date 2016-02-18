@@ -272,7 +272,7 @@ public:
     void emitCode(EmitArgs& args) override {
         const AvoidFP& avoid = args.fFp.cast<AvoidFP>();
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString dstColor("dstColor");
         this->emitChild(0, nullptr, &dstColor, args);
 

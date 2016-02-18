@@ -34,7 +34,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkAssertResult(fragBuilder->enableFeature(
                 GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
@@ -278,7 +278,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldPathGeoProc& dfTexEffect = args.fGP.cast<GrDistanceFieldPathGeoProc>();
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkAssertResult(fragBuilder->enableFeature(
                                      GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
@@ -495,7 +495,7 @@ public:
         // emit attributes
         varyingHandler->emitAttributes(dfTexEffect);
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // setup pass through color
         if (!dfTexEffect.colorIgnored()) {

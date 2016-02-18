@@ -14,7 +14,7 @@
 class GrGLSimpleTextureEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         fragBuilder->codeAppendf("%s = ", args.fOutputColor);
         fragBuilder->appendTextureLookupAndModulate(args.fInputColor,
                                                   args.fSamplers[0],

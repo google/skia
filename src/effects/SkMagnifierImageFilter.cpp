@@ -129,7 +129,7 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
                                             kVec4f_GrSLType, kDefault_GrSLPrecision,
                                             "Bounds");
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     fragBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     fragBuilder->codeAppendf("\t\tvec2 zoom_coord = %s + %s * %s;\n",

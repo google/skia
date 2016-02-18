@@ -16,7 +16,7 @@
 class GrBatchTracker;
 class GrPrimitiveProcessor;
 class GrGLSLCaps;
-class GrGLSLFragmentBuilder;
+class GrGLSLPPFragmentBuilder;
 class GrGLSLGPBuilder;
 class GrGLSLUniformHandler;
 class GrGLSLVaryingHandler;
@@ -35,7 +35,7 @@ public:
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
-                 GrGLSLFragmentBuilder* fragBuilder,
+                 GrGLSLPPFragmentBuilder* fragBuilder,
                  GrGLSLVaryingHandler* varyingHandler,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrGLSLCaps* caps,
@@ -57,7 +57,7 @@ public:
             , fTransformsIn(transformsIn)
             , fTransformsOut(transformsOut) {}
         GrGLSLVertexBuilder* fVertBuilder;
-        GrGLSLFragmentBuilder* fFragBuilder;
+        GrGLSLPPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
         GrGLSLUniformHandler* fUniformHandler;
         const GrGLSLCaps* fGLSLCaps;
@@ -92,7 +92,7 @@ public:
                                   const SkTArray<const GrCoordTransform*, true>& transforms) = 0;
 
 protected:
-    void setupUniformColor(GrGLSLFragmentBuilder* fragBuilder,
+    void setupUniformColor(GrGLSLPPFragmentBuilder* fragBuilder,
                            GrGLSLUniformHandler* uniformHandler,
                            const char* outputName,
                            UniformHandle* colorUniform);

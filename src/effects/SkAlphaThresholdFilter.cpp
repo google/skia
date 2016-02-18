@@ -164,7 +164,7 @@ void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
                                                     kFloat_GrSLType, kDefault_GrSLPrecision,
                                                     "outer_threshold");
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     SkString maskCoords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 1);
 

@@ -46,7 +46,7 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
                                                     "data",
                                                     &dataName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char *fragmentPos = fragBuilder->fragmentPosition();
 
     if (args.fInputColor) {

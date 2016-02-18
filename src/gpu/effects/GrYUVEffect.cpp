@@ -99,7 +99,7 @@ public:
         static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
         void emitCode(EmitArgs& args) override {
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             const char* colorSpaceMatrix = nullptr;
             fMatrixUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
@@ -225,7 +225,7 @@ public:
         GLSLProcessor() : fLastColorSpace(-1), fLastOutputChannels(-1) {}
 
         void emitCode(EmitArgs& args) override {
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             OutputChannels oc = args.fFp.cast<RGBToYUVEffect>().outputChannels();
 
             SkString outputColor("rgbColor");

@@ -68,12 +68,15 @@ GrGLSLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst) {
 
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program,
                                                          uint8_t fragPosKey)
-    : INHERITED(program)
+    : GrGLSLFragmentBuilder(program)
     , fSetupFragPosition(false)
     , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == fragPosKey)
+    , fHasCustomColorOutput(false)
     , fCustomColorOutputIndex(-1)
+    , fHasSecondaryOutput(false)
     , fHasReadDstColor(false)
     , fHasReadFragmentPosition(false) {
+    fSubstageIndices.push_back(0);
 }
 
 bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
@@ -263,7 +266,7 @@ void GrGLSLFragmentShaderBuilder::onFinalize() {
                                                  &this->precisionQualifier());
 }
 
-void GrGLSLFragmentBuilder::onBeforeChildProcEmitCode() {
+void GrGLSLFragmentShaderBuilder::onBeforeChildProcEmitCode() {
     SkASSERT(fSubstageIndices.count() >= 1);
     fSubstageIndices.push_back(0);
     // second-to-last value in the fSubstageIndices stack is the index of the child proc
@@ -271,7 +274,7 @@ void GrGLSLFragmentBuilder::onBeforeChildProcEmitCode() {
     fMangleString.appendf("_c%d", fSubstageIndices[fSubstageIndices.count() - 2]);
 }
 
-void GrGLSLFragmentBuilder::onAfterChildProcEmitCode() {
+void GrGLSLFragmentShaderBuilder::onAfterChildProcEmitCode() {
     SkASSERT(fSubstageIndices.count() >= 2);
     fSubstageIndices.pop_back();
     fSubstageIndices.back()++;

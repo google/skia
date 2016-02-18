@@ -43,7 +43,7 @@ public:
                                  GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipHeight,
                                  cte.inTextureCoords()->fName);
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
         if (!cte.colorIgnored()) {
             if (cte.hasVertexColor()) {

@@ -336,7 +336,7 @@ public:
                                  te.inPosition()->fName, te.localMatrix(), args.fTransformsIn, 
                                  args.fTransformsOut);
 
-            GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
                            GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
             SkAssertResult(fsBuilder->enableFeature(
@@ -524,7 +524,7 @@ public:
                                  qe.inPosition()->fName, qe.localMatrix(), args.fTransformsIn, 
                                  args.fTransformsOut);
 
-            GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
                            GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
             SkAssertResult(fsBuilder->enableFeature(
@@ -682,7 +682,7 @@ public:
                                  fe.inPosition()->fName, fe.localMatrix(), args.fTransformsIn, 
                                  args.fTransformsOut);
 
-            GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
                            GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
             fsBuilder->declAppendf(GR_GL_PLS_PATH_DATA_DECL);

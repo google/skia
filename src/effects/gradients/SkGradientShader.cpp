@@ -1020,7 +1020,7 @@ uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
     return key;
 }
 
-void GrGLGradientEffect::emitColor(GrGLSLFragmentBuilder* fragBuilder,
+void GrGLGradientEffect::emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                                    GrGLSLUniformHandler* uniformHandler,
                                    const GrGLSLCaps* glslCaps,
                                    const GrGradientEffect& ge,

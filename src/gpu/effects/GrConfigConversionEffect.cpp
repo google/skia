@@ -26,7 +26,7 @@ public:
         SkString tmpDecl;
         tmpVar.appendDecl(args.fGLSLCaps, &tmpDecl);
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         fragBuilder->codeAppendf("%s;", tmpDecl.c_str());
 

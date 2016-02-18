@@ -562,7 +562,7 @@ public:
             varyingHandler->addVarying("QuadEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge()->fName);
 
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // Setup pass through color
             if (!qe.colorIgnored()) {
                 this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,

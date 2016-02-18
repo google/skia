@@ -113,7 +113,7 @@ public:
             varyingHandler->addVarying("CircleEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), ce.inCircleEdge()->fName);
 
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ce.colorIgnored()) {
                 varyingHandler->addPassThroughAttribute(ce.inColor(), args.fOutputColor);
@@ -268,7 +268,7 @@ public:
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
                                    ee.inEllipseRadii()->fName);
 
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ee.colorIgnored()) {
                 varyingHandler->addPassThroughAttribute(ee.inColor(), args.fOutputColor);
@@ -443,7 +443,7 @@ public:
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
                                    ee.inEllipseOffsets1()->fName);
 
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ee.colorIgnored()) {
                 varyingHandler->addPassThroughAttribute(ee.inColor(), args.fOutputColor);

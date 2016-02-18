@@ -594,7 +594,7 @@ const GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
 void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     const GrPerlinNoiseEffect& pne = args.fFp.cast<GrPerlinNoiseEffect>();
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
 

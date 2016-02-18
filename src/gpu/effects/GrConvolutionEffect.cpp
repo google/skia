@@ -50,7 +50,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                                                  kFloat_GrSLType, kDefault_GrSLPrecision,
                                                  "Kernel", width);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
 
     fragBuilder->codeAppendf("%s = vec4(0, 0, 0, 0);", args.fOutputColor);

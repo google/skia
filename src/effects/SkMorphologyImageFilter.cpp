@@ -281,7 +281,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
                                            "Range");
     const char* range = uniformHandler->getUniformCStr(fRangeUni);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* func;
     switch (me.type()) {
