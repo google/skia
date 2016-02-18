@@ -53,20 +53,23 @@ public:
     /**
      *  Use an existing (renderTarget-capable) GrTexture as the backing store.
      */
-    static SkSpecialSurface* NewFromTexture(const SkIRect& subset, GrTexture*,
+    static SkSpecialSurface* NewFromTexture(SkImageFilter::Proxy* proxy,
+                                            const SkIRect& subset, GrTexture*,
                                             const SkSurfaceProps* = nullptr);
 
     /**
      *  Allocate a new GPU-backed SkSpecialSurface. If the requested surface cannot
      *  be created, nullptr will be returned.
      */
-    static SkSpecialSurface* NewRenderTarget(GrContext*, const GrSurfaceDesc&,
+    static SkSpecialSurface* NewRenderTarget(SkImageFilter::Proxy* proxy,
+                                             GrContext*, const GrSurfaceDesc&,
                                              const SkSurfaceProps* = nullptr);
 
     /**
      * Use and existing SkBitmap as the backing store.
      */
-    static SkSpecialSurface* NewFromBitmap(const SkIRect& subset, SkBitmap& bm,
+    static SkSpecialSurface* NewFromBitmap(SkImageFilter::Proxy* proxy,
+                                           const SkIRect& subset, SkBitmap& bm,
                                            const SkSurfaceProps* = nullptr);
 
     /**
@@ -76,18 +79,25 @@ public:
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, nullptr will be returned.
      */
-    static SkSpecialSurface* NewRaster(const SkImageInfo&, const SkSurfaceProps* = nullptr);
+    static SkSpecialSurface* NewRaster(SkImageFilter::Proxy* proxy,
+                                       const SkImageInfo&, const SkSurfaceProps* = nullptr);
 
 protected:
-    SkSpecialSurface(const SkIRect& subset, const SkSurfaceProps*);
+    SkSpecialSurface(SkImageFilter::Proxy*, const SkIRect& subset, const SkSurfaceProps*);
 
     // For testing only
     friend class TestingSpecialSurfaceAccess;
     const SkIRect& subset() const { return fSubset; }
 
+    // TODO: remove this ASAP (see skbug.com/4965)
+    SkImageFilter::Proxy* proxy() const { return fProxy; }
+
 private:
     const SkSurfaceProps fProps;
     const SkIRect        fSubset;
+
+    // TODO: remove this ASAP (see skbug.com/4965)
+    SkImageFilter::Proxy* fProxy;
 
     typedef SkRefCnt INHERITED;
 };

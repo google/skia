@@ -59,7 +59,7 @@ static void test_surface(SkSpecialSurface* surf, skiatest::Reporter* reporter, i
 DEF_TEST(SpecialSurface_Raster, reporter) {
 
     SkImageInfo info = SkImageInfo::MakeN32(kSmallerSize, kSmallerSize, kOpaque_SkAlphaType);
-    SkAutoTUnref<SkSpecialSurface> surf(SkSpecialSurface::NewRaster(info));
+    SkAutoTUnref<SkSpecialSurface> surf(SkSpecialSurface::NewRaster(nullptr, info));
 
     test_surface(surf, reporter, 0);
 }
@@ -71,7 +71,7 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 
     const SkIRect subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    SkAutoTUnref<SkSpecialSurface> surf(SkSpecialSurface::NewFromBitmap(subset, bm));
+    SkAutoTUnref<SkSpecialSurface> surf(SkSpecialSurface::NewFromBitmap(nullptr, subset, bm));
 
     test_surface(surf, reporter, kPad);
 
@@ -87,7 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, context) {
     desc.fWidth  = kSmallerSize;
     desc.fHeight = kSmallerSize;
 
-    SkAutoTUnref<SkSpecialSurface> surf(SkSpecialSurface::NewRenderTarget(context, desc));
+    SkAutoTUnref<SkSpecialSurface> surf(SkSpecialSurface::NewRenderTarget(nullptr, context, desc));
 
     test_surface(surf, reporter, 0);
 }
@@ -105,7 +105,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu2, reporter, context) {
 
     const SkIRect subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    SkAutoTUnref<SkSpecialSurface> surf(SkSpecialSurface::NewFromTexture(subset, temp));
+    SkAutoTUnref<SkSpecialSurface> surf(SkSpecialSurface::NewFromTexture(nullptr, subset, temp));
 
     test_surface(surf, reporter, kPad);
 

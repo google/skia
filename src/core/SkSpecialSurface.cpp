@@ -13,8 +13,9 @@
  ///////////////////////////////////////////////////////////////////////////////
 class SkSpecialSurface_Base : public SkSpecialSurface {
 public:
-    SkSpecialSurface_Base(const SkIRect& subset, const SkSurfaceProps* props)
-        : INHERITED(subset, props)
+    SkSpecialSurface_Base(SkImageFilter::Proxy* proxy,
+                          const SkIRect& subset, const SkSurfaceProps* props)
+        : INHERITED(proxy, subset, props)
         , fCanvas(nullptr) {
     }
 
@@ -40,9 +41,12 @@ static SkSpecialSurface_Base* as_SB(SkSpecialSurface* surface) {
     return static_cast<SkSpecialSurface_Base*>(surface);
 }
 
-SkSpecialSurface::SkSpecialSurface(const SkIRect& subset, const SkSurfaceProps* props)
+SkSpecialSurface::SkSpecialSurface(SkImageFilter::Proxy* proxy,
+                                   const SkIRect& subset,
+                                   const SkSurfaceProps* props)
     : fProps(SkSurfacePropsCopyOrDefault(props))
-    , fSubset(subset) {
+    , fSubset(subset)
+    , fProxy(proxy) {
     SkASSERT(fSubset.width() > 0);
     SkASSERT(fSubset.height() > 0);
 }
@@ -62,8 +66,11 @@ SkSpecialImage* SkSpecialSurface::newImageSnapshot() {
 
 class SkSpecialSurface_Raster : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Raster(SkPixelRef* pr, const SkIRect& subset, const SkSurfaceProps* props)
-        : INHERITED(subset, props) {   
+    SkSpecialSurface_Raster(SkImageFilter::Proxy* proxy,
+                            SkPixelRef* pr,
+                            const SkIRect& subset,
+                            const SkSurfaceProps* props)
+        : INHERITED(proxy, subset, props) {   
         const SkImageInfo& info = pr->info();
 
         fBitmap.setInfo(info, info.minRowBytes());
@@ -75,7 +82,7 @@ public:
     ~SkSpecialSurface_Raster() override { }
 
     SkSpecialImage* onNewImageSnapshot() override {
-        return SkSpecialImage::NewFromRaster(this->subset(), fBitmap);
+        return SkSpecialImage::NewFromRaster(this->proxy(), this->subset(), fBitmap);
     }
 
 private:
@@ -84,12 +91,14 @@ private:
     typedef SkSpecialSurface_Base INHERITED;
 };
 
-SkSpecialSurface* SkSpecialSurface::NewFromBitmap(const SkIRect& subset, SkBitmap& bm,
+SkSpecialSurface* SkSpecialSurface::NewFromBitmap(SkImageFilter::Proxy* proxy,
+                                                  const SkIRect& subset, SkBitmap& bm,
                                                   const SkSurfaceProps* props) {
-    return new SkSpecialSurface_Raster(bm.pixelRef(), subset, props);
+    return new SkSpecialSurface_Raster(proxy, bm.pixelRef(), subset, props);
 }
 
-SkSpecialSurface* SkSpecialSurface::NewRaster(const SkImageInfo& info,
+SkSpecialSurface* SkSpecialSurface::NewRaster(SkImageFilter::Proxy* proxy,
+                                              const SkImageInfo& info,
                                               const SkSurfaceProps* props) {
     SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, 0, nullptr));
     if (nullptr == pr.get()) {
@@ -98,7 +107,7 @@ SkSpecialSurface* SkSpecialSurface::NewRaster(const SkImageInfo& info,
 
     const SkIRect subset = SkIRect::MakeWH(pr->info().width(), pr->info().height());
 
-    return new SkSpecialSurface_Raster(pr, subset, props);
+    return new SkSpecialSurface_Raster(proxy, pr, subset, props);
 }
 
 #if SK_SUPPORT_GPU
@@ -108,8 +117,11 @@ SkSpecialSurface* SkSpecialSurface::NewRaster(const SkImageInfo& info,
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Gpu(GrTexture* texture, const SkIRect& subset, const SkSurfaceProps* props)
-        : INHERITED(subset, props)
+    SkSpecialSurface_Gpu(SkImageFilter::Proxy* proxy,
+                         GrTexture* texture,
+                         const SkIRect& subset,
+                         const SkSurfaceProps* props)
+        : INHERITED(proxy, subset, props)
         , fTexture(SkRef(texture)) {
 
         SkASSERT(fTexture->asRenderTarget());
@@ -126,7 +138,8 @@ public:
     ~SkSpecialSurface_Gpu() override { }
 
     SkSpecialImage* onNewImageSnapshot() override {
-        return SkSpecialImage::NewFromGpu(this->subset(), fTexture);
+        return SkSpecialImage::NewFromGpu(this->proxy(), this->subset(),
+                                          kNeedNewImageUniqueID_SpecialImage, fTexture);
     }
 
 private:
@@ -135,16 +148,19 @@ private:
     typedef SkSpecialSurface_Base INHERITED;
 };
 
-SkSpecialSurface* SkSpecialSurface::NewFromTexture(const SkIRect& subset, GrTexture* texture,
+SkSpecialSurface* SkSpecialSurface::NewFromTexture(SkImageFilter::Proxy* proxy, 
+                                                   const SkIRect& subset,
+                                                   GrTexture* texture,
                                                    const SkSurfaceProps* props) {
     if (!texture->asRenderTarget()) {
         return nullptr;
     }
 
-    return new SkSpecialSurface_Gpu(texture, subset, props);
+    return new SkSpecialSurface_Gpu(proxy, texture, subset, props);
 }
 
-SkSpecialSurface* SkSpecialSurface::NewRenderTarget(GrContext* context,
+SkSpecialSurface* SkSpecialSurface::NewRenderTarget(SkImageFilter::Proxy* proxy,
+                                                    GrContext* context,
                                                     const GrSurfaceDesc& desc,
                                                     const SkSurfaceProps* props) {
     if (!context || !SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
@@ -158,17 +174,20 @@ SkSpecialSurface* SkSpecialSurface::NewRenderTarget(GrContext* context,
 
     const SkIRect subset = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
 
-    return new SkSpecialSurface_Gpu(temp, subset, props);
+    return new SkSpecialSurface_Gpu(proxy, temp, subset, props);
 }
 
 #else
 
-SkSpecialSurface* SkSpecialSurface::NewFromTexture(const SkIRect& subset, GrTexture*,
+SkSpecialSurface* SkSpecialSurface::NewFromTexture(SkImageFilter::Proxy* proxy,
+                                                   const SkIRect& subset,
+                                                   GrTexture*,
                                                    const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSpecialSurface* SkSpecialSurface::NewRenderTarget(GrContext* context,
+SkSpecialSurface* SkSpecialSurface::NewRenderTarget(SkImageFilter::Proxy* proxy,
+                                                    GrContext* context,
                                                     const GrSurfaceDesc& desc,
                                                     const SkSurfaceProps* props) {
     return nullptr;
