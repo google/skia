@@ -205,7 +205,8 @@ bool SkPath::isInterpolatable(const SkPath& compare) const {
                count)) {
         return false;
     }
-    return !SkToBool(memcmp(fPathRef->conicWeights(), compare.fPathRef->conicWeights(),
+    return !fPathRef->countWeights() ||
+            !SkToBool(memcmp(fPathRef->conicWeights(), compare.fPathRef->conicWeights(),
             fPathRef->countWeights() * sizeof(*fPathRef->conicWeights())));
 }
 
