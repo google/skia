@@ -134,7 +134,15 @@ struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {
 
         SkAutoTMalloc<SkPM4f> FPbuffer(width*height);
 
-        SkLinearBitmapPipeline pipeline{fInvert, fXTile, fYTile, fInfo, fBitmap.get(), };
+        SkFilterQuality filterQuality;
+        if (fUseBilerp) {
+            filterQuality = SkFilterQuality::kLow_SkFilterQuality;
+        } else {
+            filterQuality = SkFilterQuality::kNone_SkFilterQuality;
+        }
+
+        SkLinearBitmapPipeline pipeline{
+            fInvert, filterQuality, fXTile, fYTile, fInfo, fBitmap.get() };
 
         int count = 100;
 

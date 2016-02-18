@@ -28,6 +28,23 @@ public:
     virtual void pointList4(Sk4fArg xs, Sk4fArg ys) = 0;
 };
 
+class BilerpProcessorInterface : public PointProcessorInterface {
+public:
+    // The x's and y's are setup in the following order:
+    // +--------+--------+
+    // |        |        |
+    // |  px00  |  px10  |
+    // |    0   |    1   |
+    // +--------+--------+
+    // |        |        |
+    // |  px01  |  px11  |
+    // |    2   |    3   |
+    // +--------+--------+
+    // These pixels coordinates are arranged in the following order in xs and ys:
+    // px00  px10  px01  px11
+    virtual void bilerpList(Sk4fArg xs, Sk4fArg ys) = 0;
+};
+
 class PixelPlacerInterface {
 public:
     virtual ~PixelPlacerInterface() { }
@@ -40,6 +57,7 @@ class SkLinearBitmapPipeline {
 public:
     SkLinearBitmapPipeline(
         const SkMatrix& inverse,
+        SkFilterQuality filterQuality,
         SkShader::TileMode xTile, SkShader::TileMode yTile,
         const SkImageInfo& srcImageInfo,
         const void* srcImageData);
@@ -73,13 +91,15 @@ public:
     };
 
     using MatrixStage = PolymorphicUnion<PointProcessorInterface, 112>;
-    using TileStage   = PolymorphicUnion<PointProcessorInterface,  96>;
-    using SampleStage = PolymorphicUnion<PointProcessorInterface,  80>;
+    using FilterStage = PolymorphicUnion<PointProcessorInterface,   8>;
+    using TileStage   = PolymorphicUnion<BilerpProcessorInterface, 96>;
+    using SampleStage = PolymorphicUnion<BilerpProcessorInterface, 80>;
     using PixelStage  = PolymorphicUnion<PixelPlacerInterface,     80>;
 
 private:
     PointProcessorInterface* fFirstStage;
     MatrixStage fMatrixStage;
+    FilterStage fFilterStage;
     TileStage   fTileXOrBothStage;
     TileStage   fTileYStage;
     SampleStage fSampleStage;

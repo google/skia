@@ -104,6 +104,12 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     bool trash = mat->invert(&inv);
     sk_ignore_unused_variable(trash);
 
+    SkFilterQuality filterQuality;
+    if (useBilerp) {
+        filterQuality = SkFilterQuality::kLow_SkFilterQuality;
+    } else {
+        filterQuality = SkFilterQuality::kNone_SkFilterQuality;
+    }
 
     uint32_t flags = 0;
     //if (kSRGB_SkColorProfileType == profile) {
@@ -113,8 +119,9 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     auto procN = SkXfermode::GetPM4fProcN(SkXfermode::kSrcOver_Mode, flags);
 
     SkLinearBitmapPipeline pipeline{
-            inv, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, info, pmsrc.addr32()};
-
+            inv, filterQuality,
+            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+            info, pmsrc.addr32()};
 
     for (int y = 0; y < ir.height(); y++) {
         pipeline.shadeSpan4f(0, y, dstBits, ir.width());

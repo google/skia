@@ -22,14 +22,13 @@ struct Y {
     explicit Y(SkPoint pt) : fVal{pt.fY} { }
     explicit Y(SkSize s) : fVal{s.fHeight} { }
     explicit Y(SkISize s) : fVal(s.fHeight) { }
-
     operator float () const {return fVal;}
 private:
     float fVal;
 };
 
 template<typename Strategy, typename Next>
-class PointProcessor : public PointProcessorInterface {
+class PointProcessor final : public PointProcessorInterface {
 public:
     template <typename... Args>
     PointProcessor(Next* next, Args&&... args)
@@ -55,12 +54,49 @@ private:
     Strategy fStrategy;
 };
 
-class SkippedStage final : public PointProcessorInterface {
+template<typename Strategy, typename Next>
+class BilerpProcessor final : public BilerpProcessorInterface  {
+public:
+    template <typename... Args>
+    BilerpProcessor(Next* next, Args&&... args)
+        : fNext{next}
+        , fStrategy{std::forward<Args>(args)...}{ }
+
     void pointListFew(int n, Sk4fArg xs, Sk4fArg ys) override {
-        SkFAIL("Abort tiler.");
+        Sk4f newXs = xs;
+        Sk4f newYs = ys;
+        fStrategy.processPoints(&newXs, &newYs);
+        fNext->pointListFew(n, newXs, newYs);
+    }
+
+    void pointList4(Sk4fArg xs, Sk4fArg ys) override {
+        Sk4f newXs = xs;
+        Sk4f newYs = ys;
+        fStrategy.processPoints(&newXs, &newYs);
+        fNext->pointList4(newXs, newYs);
+    }
+
+    void bilerpList(Sk4fArg xs, Sk4fArg ys) override {
+        Sk4f newXs = xs;
+        Sk4f newYs = ys;
+        fStrategy.processPoints(&newXs, &newYs);
+        fNext->bilerpList(newXs, newYs);
+    }
+
+private:
+    Next* const fNext;
+    Strategy fStrategy;
+};
+
+class SkippedStage final : public BilerpProcessorInterface {
+    void pointListFew(int n, Sk4fArg xs, Sk4fArg ys) override {
+        SkFAIL("Skipped stage.");
     }
     void pointList4(Sk4fArg Xs, Sk4fArg Ys) override {
-        SkFAIL("Abort point processor.");
+        SkFAIL("Skipped stage.");
+    }
+    virtual void bilerpList(Sk4fArg xs, Sk4fArg ys) override {
+        SkFAIL("Skipped stage.");
     }
 };
 
@@ -147,6 +183,48 @@ static PointProcessorInterface* choose_matrix(
     return matrixProc->get();
 }
 
+template <typename Next = BilerpProcessorInterface>
+class ExpandBilerp final : public PointProcessorInterface {
+public:
+    ExpandBilerp(Next* next) : fNext{next} { }
+
+    void pointListFew(int n, Sk4fArg xs, Sk4fArg ys) override {
+        SkASSERT(0 < n && n < 4);
+        //                   px00  px10  px01  px11
+        const Sk4f kXOffsets{0.0f, 1.0f, 0.0f, 1.0f},
+                   kYOffsets{0.0f, 0.0f, 1.0f, 1.0f};
+        if (n >= 1) fNext->bilerpList(Sk4f{xs[0]} + kXOffsets, Sk4f{ys[0]} + kYOffsets);
+        if (n >= 2) fNext->bilerpList(Sk4f{xs[1]} + kXOffsets, Sk4f{ys[1]} + kYOffsets);
+        if (n >= 3) fNext->bilerpList(Sk4f{xs[2]} + kXOffsets, Sk4f{ys[2]} + kYOffsets);
+    }
+
+    void pointList4(Sk4fArg xs, Sk4fArg ys) override {
+        //                   px00  px10  px01  px11
+        const Sk4f kXOffsets{0.0f, 1.0f, 0.0f, 1.0f},
+                   kYOffsets{0.0f, 0.0f, 1.0f, 1.0f};
+        fNext->bilerpList(Sk4f{xs[0]} + kXOffsets, Sk4f{ys[0]} + kYOffsets);
+        fNext->bilerpList(Sk4f{xs[1]} + kXOffsets, Sk4f{ys[1]} + kYOffsets);
+        fNext->bilerpList(Sk4f{xs[2]} + kXOffsets, Sk4f{ys[2]} + kYOffsets);
+        fNext->bilerpList(Sk4f{xs[3]} + kXOffsets, Sk4f{ys[3]} + kYOffsets);
+    }
+
+private:
+    Next* const fNext;
+};
+
+static PointProcessorInterface* choose_filter(
+    BilerpProcessorInterface* next,
+    SkFilterQuality filterQuailty,
+    SkLinearBitmapPipeline::FilterStage* filterProc) {
+    if (SkFilterQuality::kNone_SkFilterQuality == filterQuailty) {
+        filterProc->Initialize<SkippedStage>();
+        return next;
+    } else {
+        filterProc->Initialize<ExpandBilerp<>>(next);
+        return filterProc->get();
+    }
+}
+
 class ClampStrategy {
 public:
     ClampStrategy(X max)
@@ -172,8 +250,8 @@ private:
     const Sk4f fXMax{SK_FloatInfinity};
     const Sk4f fYMax{SK_FloatInfinity};
 };
-template <typename Next = PointProcessorInterface>
-using Clamp = PointProcessor<ClampStrategy, Next>;
+template <typename Next = BilerpProcessorInterface>
+using Clamp = BilerpProcessor<ClampStrategy, Next>;
 
 class RepeatStrategy {
 public:
@@ -201,11 +279,11 @@ private:
     const Sk4f fYInvMax{0.0f};
 };
 
-template <typename Next = PointProcessorInterface>
-using Repeat = PointProcessor<RepeatStrategy, Next>;
+template <typename Next = BilerpProcessorInterface>
+using Repeat = BilerpProcessor<RepeatStrategy, Next>;
 
-static PointProcessorInterface* choose_tiler(
-    PointProcessorInterface* next,
+static BilerpProcessorInterface* choose_tiler(
+    BilerpProcessorInterface* next,
     SkSize dimensions,
     SkShader::TileMode xMode,
     SkShader::TileMode yMode,
@@ -307,8 +385,41 @@ private:
     const Sk4i fWidth;
 };
 
+// Explaination of the math:
+//              1 - x      x
+//           +--------+--------+
+//           |        |        |
+//  1 - y    |  px00  |  px10  |
+//           |        |        |
+//           +--------+--------+
+//           |        |        |
+//    y      |  px01  |  px11  |
+//           |        |        |
+//           +--------+--------+
+//
+//
+// Given a pixelxy each is multiplied by a different factor derived from the fractional part of x
+// and y:
+// * px00 -> (1 - x)(1 - y) = 1 - x - y + xy
+// * px10 -> x(1 - y) = x - xy
+// * px01 -> (1 - x)y = y - xy
+// * px11 -> xy
+// So x * y is calculated first and then used to calculate all the other factors.
+static Sk4f bilerp4(Sk4fArg xs, Sk4fArg ys, Sk4fArg px00, Sk4fArg px10,
+                                            Sk4fArg px01, Sk4fArg px11) {
+    // Calculate fractional xs and ys.
+    Sk4f fxs = xs - xs.floor();
+    Sk4f fys = ys - ys.floor();
+    Sk4f fxys{fxs * fys};
+    Sk4f sum =  px11 * fxys;
+    sum = sum + px01 * (fys - fxys);
+    sum = sum + px10 * (fxs - fxys);
+    sum = sum + px00 * (Sk4f{1.0f} - fxs - fys + fxys);
+    return sum;
+}
+
 template <typename SourceStrategy>
-class Sampler final : public PointProcessorInterface {
+class Sampler final : public BilerpProcessorInterface {
 public:
     template <typename... Args>
     Sampler(PixelPlacerInterface* next, Args&&... args)
@@ -330,12 +441,19 @@ public:
         fNext->place4Pixels(px0, px1, px2, px3);
     }
 
+    void bilerpList(Sk4fArg xs, Sk4fArg ys) override {
+        Sk4f px00, px10, px01, px11;
+        fStrategy.get4Pixels(xs, ys, &px00, &px10, &px01, &px11);
+        Sk4f pixel = bilerp4(xs, ys, px00, px10, px01, px11);
+        fNext->placePixel(pixel);
+    }
+
 private:
     PixelPlacerInterface* const fNext;
     SourceStrategy fStrategy;
 };
 
-static PointProcessorInterface* choose_pixel_sampler(
+static BilerpProcessorInterface* choose_pixel_sampler(
     PixelPlacerInterface* next,
     const SkImageInfo& imageInfo,
     const void* imageData,
@@ -415,6 +533,7 @@ static PixelPlacerInterface* choose_pixel_placer(
 
 SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     const SkMatrix& inverse,
+    SkFilterQuality filterQuality,
     SkShader::TileMode xTile, SkShader::TileMode yTile,
     const SkImageInfo& srcImageInfo,
     const void* srcImageData) {
@@ -428,7 +547,8 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
                                                srcImageData, &fSampleStage);
     auto tilerStage     = choose_tiler(samplerStage, size, xTile, yTile, &fTileXOrBothStage,
                                        &fTileYStage);
-    fFirstStage         = choose_matrix(tilerStage, inverse, &fMatrixStage);
+    auto filterStage    = choose_filter(tilerStage, filterQuality, &fFilterStage);
+    fFirstStage         = choose_matrix(filterStage, inverse, &fMatrixStage);
 }
 
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {

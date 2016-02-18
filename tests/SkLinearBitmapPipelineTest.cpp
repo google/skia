@@ -41,7 +41,7 @@ DEF_TEST(SkBitmapFP, reporter) {
     const SkImageInfo info =
         SkImageInfo::MakeN32Premul(width, height, kLinear_SkColorProfileType);
 
-    SkLinearBitmapPipeline pipeline{invert, SkShader::kClamp_TileMode,
+    SkLinearBitmapPipeline pipeline{invert, kNone_SkFilterQuality, SkShader::kClamp_TileMode,
                                     SkShader::kClamp_TileMode, info, bitmap};
 
     int count = 10;
