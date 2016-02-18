@@ -16,9 +16,19 @@ class Fuzz : SkNoncopyable {
 public:
     explicit Fuzz(SkData*);
 
+    bool nextBool();
     uint8_t  nextB();
     uint32_t nextU();
+    // This can be nan, +- infinity, 0, anything.
     float    nextF();
+
+    // Return the next fuzzed value [min, max) as an unsigned 32bit integer.
+    uint32_t nextRangeU(uint32_t min, uint32_t max);
+    /**
+     *  Returns next fuzzed value [min...max) as a float.
+     *  Will not be Infinity or NaN.
+     */
+    float    nextRangeF(float    min, float    max);
 
     void signalBug   ();  // Tell afl-fuzz these inputs found a bug.
     void signalBoring();  // Tell afl-fuzz these inputs are not worth testing.

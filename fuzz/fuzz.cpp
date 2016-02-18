@@ -17,6 +17,7 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 
+#include <cmath>
 #include <signal.h>
 #include <stdlib.h>
 
@@ -114,8 +115,8 @@ static void dump_png(SkBitmap bitmap) {
 int fuzz_img(SkData* bytes, uint8_t scale, uint8_t mode) {
     // We can scale 1x, 2x, 4x, 8x, 16x
     scale = scale % 5;
-    float fscale = pow(2.0f, scale);
-    SkDebugf("Scaling factor: %d\n", fscale);
+    float fscale = (float)pow(2.0f, scale);
+    SkDebugf("Scaling factor: %f\n", fscale);
 
     // We have 4 different modes of decoding, just like DM.
     mode = mode % 4;
@@ -393,6 +394,31 @@ T Fuzz::nextT() {
 }
 
 uint8_t  Fuzz::nextB() { return this->nextT<uint8_t >(); }
+bool  Fuzz::nextBool() { return nextB()&1; }
 uint32_t Fuzz::nextU() { return this->nextT<uint32_t>(); }
 float    Fuzz::nextF() { return this->nextT<float   >(); }
 
+
+uint32_t Fuzz::nextRangeU(uint32_t min, uint32_t max) {
+    if (min > max) {
+        SkDebugf("Check mins and maxes (%d, %d)\n", min, max);
+        this->signalBoring();
+    }
+    uint32_t range = max - min + 1;
+    if (0 == range) {
+        return this->nextU();
+    } else {
+        return min + this->nextU() % range;
+    }
+}
+float Fuzz::nextRangeF(float min, float max) {
+    if (min > max) {
+        SkDebugf("Check mins and maxes (%f, %f)\n", min, max);
+        this->signalBoring();
+    }
+    float f = std::abs(this->nextF());
+    if (!std::isnormal(f) && f != 0.0) {
+        this->signalBoring();
+    }
+    return min + fmod(f, (max - min + 1));
+}
