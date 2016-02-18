@@ -57,11 +57,20 @@ template <DstType D> uint64_t store_to_dst(const Sk4f& x4) {
     return (D == kU16_Dst) ? store_to_u16(x4) : SkFloatToHalf_01(x4);
 }
 
+static inline Sk4f pm_to_rgba_order(const Sk4f& x) {
+    if (SkPM4f::R == 0) {
+        return x;   // we're already RGBA
+    } else {
+        // we're BGRA, so swap R and B
+        return SkNx_shuffle<2, 1, 0, 3>(x);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <DstType D> void src_1(const SkXfermode::U64State& state, uint64_t dst[],
                                 const SkPM4f& src, int count, const SkAlpha aa[]) {
-    const Sk4f s4 = unit_to_dst_bias<D>(Sk4f::Load(src.fVec));
+    const Sk4f s4 = pm_to_rgba_order(unit_to_dst_bias<D>(Sk4f::Load(src.fVec)));
     if (aa) {
         for (int i = 0; i < count; ++i) {
             const Sk4f d4 = load_from_dst<D>(dst[i]);
@@ -76,13 +85,13 @@ template <DstType D> void src_n(const SkXfermode::U64State& state, uint64_t dst[
                                 const SkPM4f src[], int count, const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
-            const Sk4f s4 = unit_to_dst_bias<D>(Sk4f::Load(src[i].fVec));
+            const Sk4f s4 = pm_to_rgba_order(unit_to_dst_bias<D>(Sk4f::Load(src[i].fVec)));
             const Sk4f d4 = load_from_dst<D>(dst[i]);
             dst[i] = store_to_dst<D>(lerp_by_coverage(s4, d4, aa[i]));
         }
     } else {
         for (int i = 0; i < count; ++i) {
-            const Sk4f s4 = unit_to_dst_bias<D>(Sk4f::Load(src[i].fVec));
+            const Sk4f s4 = pm_to_rgba_order(unit_to_dst_bias<D>(Sk4f::Load(src[i].fVec)));
             dst[i] = store_to_dst<D>(s4);
         }
     }
@@ -99,7 +108,7 @@ const U64ProcPair gU64Procs_Src[] = {
 
 template <DstType D> void srcover_1(const SkXfermode::U64State& state, uint64_t dst[],
                                     const SkPM4f& src, int count, const SkAlpha aa[]) {
-    const Sk4f s4 = Sk4f::Load(src.fVec);
+    const Sk4f s4 = pm_to_rgba_order(Sk4f::Load(src.fVec));
     const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
     const Sk4f s4bias = unit_to_dst_bias<D>(s4);
     for (int i = 0; i < count; ++i) {
@@ -116,7 +125,7 @@ template <DstType D> void srcover_1(const SkXfermode::U64State& state, uint64_t 
 template <DstType D> void srcover_n(const SkXfermode::U64State& state, uint64_t dst[],
                                     const SkPM4f src[], int count, const SkAlpha aa[]) {
     for (int i = 0; i < count; ++i) {
-        const Sk4f s4 = Sk4f::Load(src[i].fVec);
+        const Sk4f s4 = pm_to_rgba_order(Sk4f::Load(src[i].fVec));
         const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
         const Sk4f s4bias = unit_to_dst_bias<D>(s4);
         const Sk4f d4bias = load_from_dst<D>(dst[i]);
