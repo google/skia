@@ -320,8 +320,10 @@ static Sk4f color_4f(const Sk4f& s, const Sk4f& d) {
     float Sb = sb;
     SetLum(&Sr, &Sg, &Sb, sa * da, Lum(dr, dg, db) * sa);
     
-    return color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Sr, Sg, Sb),
-                       sa + da - sa * da);
+    Sk4f res = color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Sr, Sg, Sb),
+                           sa + da - sa * da);
+    // Can return tiny negative values ...
+    return Sk4f::Max(res, Sk4f(0));
 }
 
 static Sk4f luminosity_4f(const Sk4f& s, const Sk4f& d) {
@@ -340,8 +342,10 @@ static Sk4f luminosity_4f(const Sk4f& s, const Sk4f& d) {
     float Db = db;
     SetLum(&Dr, &Dg, &Db, sa * da, Lum(sr, sg, sb) * da);
     
-    return color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Dr, Dg, Db),
-                       sa + da - sa * da);
+    Sk4f res = color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Dr, Dg, Db),
+                           sa + da - sa * da);
+    // Can return tiny negative values ...
+    return Sk4f::Max(res, Sk4f(0));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -921,8 +925,7 @@ static Sk4f as_4f(const SkPM4f& pm4) {
     return Sk4f::Load(pm4.fVec);
 }
 
-template <Sk4f (blend)(const Sk4f&, const Sk4f&)> SkPM4f proc_4f(const SkPM4f& s, const SkPM4f& d) {
-    SkPM4f r = as_pm4f(blend(as_4f(s), as_4f(d)));
+static void assert_unit(const SkPM4f& r) {
 #ifdef SK_DEBUG
     const float min = 0;
     const float max = 1;
@@ -930,6 +933,13 @@ template <Sk4f (blend)(const Sk4f&, const Sk4f&)> SkPM4f proc_4f(const SkPM4f& s
         SkASSERT(r.fVec[i] >= min && r.fVec[i] <= max);
     }
 #endif
+}
+
+template <Sk4f (blend)(const Sk4f&, const Sk4f&)> SkPM4f proc_4f(const SkPM4f& s, const SkPM4f& d) {
+    assert_unit(s);
+    assert_unit(d);
+    SkPM4f r = as_pm4f(blend(as_4f(s), as_4f(d)));
+    assert_unit(r);
     return r;
 }
 
