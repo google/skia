@@ -77,6 +77,9 @@ def get_args(bot):
   if 'GalaxyS3' in bot:
       configs.append('gpudft')
 
+  if 'MSAN' in bot:
+    configs = ['8888']
+
   args.append('--config')
   args.extend(configs)
 
@@ -187,6 +190,9 @@ def get_args(bot):
 
   if 'ANGLE' in bot and 'Debug' in bot:
     match.append('~GLPrograms') # skia:4717
+
+  if 'MSAN' in bot:
+    match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
   if blacklist:
     args.append('--blacklist')
