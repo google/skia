@@ -85,6 +85,7 @@ def _PythonChecks(input_api, output_api):
       'R0201',  # Method could be a function.
       'E1003',  # Using class name in super.
       'W0613',  # Unused argument.
+      'W0105',  # String statement has no effect.
   )
   # Run Pylint on only the modified python files. Unfortunately it still runs
   # Pylint on the whole file instead of just the modified lines.
