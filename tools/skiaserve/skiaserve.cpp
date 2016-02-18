@@ -129,18 +129,26 @@ static void write_png(const png_bytep rgba, png_uint_32 width, png_uint_32 heigh
     sk_free(rows);
 }
 
-SkData* writeCanvasToPng(SkCanvas* canvas) {
-    // capture pixels
-    SkBitmap bmp;
-    bmp.setInfo(canvas->imageInfo());
-    if (!canvas->readPixels(&bmp, 0, 0)) {
+SkBitmap* getBitmapFromCanvas(SkCanvas* canvas) {
+    SkBitmap* bmp = new SkBitmap();
+    SkImageInfo info = SkImageInfo::Make(kImageWidth, kImageHeight, kRGBA_8888_SkColorType,
+                kOpaque_SkAlphaType);
+    bmp->setInfo(info);
+    if (!canvas->readPixels(bmp, 0, 0)) {
         fprintf(stderr, "Can't read pixels\n");
         return nullptr;
     }
+    return bmp;
+}
+
+SkData* writeCanvasToPng(SkCanvas* canvas) {
+    // capture pixels
+    SkAutoTDelete<SkBitmap> bmp(getBitmapFromCanvas(canvas));
+    SkASSERT(bmp);
 
     // write to png
     SkDynamicMemoryWStream buffer;
-    write_png((const png_bytep) bmp.getPixels(), bmp.width(), bmp.height(), buffer);
+    write_png((const png_bytep) bmp->getPixels(), bmp->width(), bmp->height(), buffer);
     return buffer.copyToData();
 }
 
@@ -154,10 +162,14 @@ SkCanvas* getCanvasFromRequest(Request* request) {
     return target;
 }
 
-SkData* setupAndDrawToCanvasReturnPng(Request* request, int n) {
+void drawToCanvas(Request* request, int n) {
     SkCanvas* target = getCanvasFromRequest(request);
     request->fDebugCanvas->drawTo(target, n);
-    return writeCanvasToPng(target);
+}
+
+SkData* drawToPng(Request* request, int n) {
+    drawToCanvas(request, n);
+    return writeCanvasToPng(getCanvasFromRequest(request));
 }
 
 SkSurface* setupCpuSurface() {
@@ -325,8 +337,94 @@ public:
             sscanf(commands[1].c_str(), "%d", &n);
         }
 
-        SkAutoTUnref<SkData> data(setupAndDrawToCanvasReturnPng(request, n));
+        SkAutoTUnref<SkData> data(drawToPng(request, n));
         return SendData(connection, data, "image/png");
+    }
+};
+
+class BreakHandler : public UrlHandler {
+public:
+    bool canHandle(const char* method, const char* url) override {
+        static const char* kBasePath = "/break";
+        return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
+               0 == strncmp(url, kBasePath, strlen(kBasePath));
+    }
+
+    static SkColor GetPixel(Request* request, int x, int y) {
+        SkCanvas* canvas = getCanvasFromRequest(request);
+        canvas->flush();
+        SkAutoTDelete<SkBitmap> bitmap(getBitmapFromCanvas(canvas));
+        SkASSERT(bitmap);
+        bitmap->lockPixels();
+        uint8_t* start = ((uint8_t*) bitmap->getPixels()) + (y * kImageWidth + x) * 4;
+        SkColor result = SkColorSetARGB(start[3], start[0], start[1], start[2]);
+        bitmap->unlockPixels();
+        return result;
+    }
+
+    int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
+               const char* upload_data, size_t* upload_data_size) override {
+        SkTArray<SkString> commands;
+        SkStrSplit(url, "/", &commands);
+
+        if (!request->fPicture.get() || commands.count() != 4) {
+            return MHD_NO;
+        }
+
+        // /break/<n>/<x>/<y>
+        int n;
+        sscanf(commands[1].c_str(), "%d", &n);
+        int x;
+        sscanf(commands[2].c_str(), "%d", &x);
+        int y;
+        sscanf(commands[3].c_str(), "%d", &y);
+
+        int count = request->fDebugCanvas->getSize();
+        SkASSERT(n < count);
+
+        SkCanvas* canvas = getCanvasFromRequest(request);
+        canvas->clear(SK_ColorWHITE);
+        int saveCount = canvas->save();
+        for (int i = 0; i <= n; ++i) {
+            request->fDebugCanvas->getDrawCommandAt(i)->execute(canvas);
+        }
+        SkColor target = GetPixel(request, x, y);
+        Json::Value response(Json::objectValue);
+        Json::Value startColor(Json::arrayValue);
+        startColor.append(Json::Value(SkColorGetR(target)));
+        startColor.append(Json::Value(SkColorGetG(target)));
+        startColor.append(Json::Value(SkColorGetB(target)));
+        startColor.append(Json::Value(SkColorGetA(target)));
+        response["startColor"] = startColor;
+        response["endColor"] = startColor;
+        response["endOp"] = Json::Value(n);
+        for (int i = n + 1; i < n + count; ++i) {
+            int index = i % count;
+            if (index == 0) {
+                // reset canvas for wraparound
+                canvas->restoreToCount(saveCount);
+                canvas->clear(SK_ColorWHITE);
+                saveCount = canvas->save();
+            }
+            request->fDebugCanvas->getDrawCommandAt(index)->execute(canvas);
+            SkColor current = GetPixel(request, x, y);
+            if (current != target) {
+                Json::Value endColor(Json::arrayValue);
+                endColor.append(Json::Value(SkColorGetR(current)));
+                endColor.append(Json::Value(SkColorGetG(current)));
+                endColor.append(Json::Value(SkColorGetB(current)));
+                endColor.append(Json::Value(SkColorGetA(current)));
+                response["endColor"] = endColor;
+                response["endOp"] = Json::Value(index);
+                break;
+            }
+        }
+        canvas->restoreToCount(saveCount);
+        SkDynamicMemoryWStream stream;
+        stream.writeText(Json::FastWriter().write(response).c_str());
+        SkAutoTUnref<SkData> data(stream.copyToData());
+        return SendData(connection, data, "application/json");
     }
 };
 
@@ -583,6 +681,7 @@ public:
         fHandlers.push_back(new DownloadHandler);
         fHandlers.push_back(new DataHandler);
         fHandlers.push_back(new FaviconHandler);
+        fHandlers.push_back(new BreakHandler);
     }
 
     ~UrlManager() {
