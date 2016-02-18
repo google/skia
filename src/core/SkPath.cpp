@@ -214,6 +214,9 @@ bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) con
     if (verbCount != ending.fPathRef->countVerbs()) {
         return false;
     }
+    if (!verbCount) {
+        return true;
+    }
     out->reset();
     out->addPath(*this);
     fPathRef->interpolate(*ending.fPathRef, weight, out->fPathRef);
