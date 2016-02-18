@@ -7,8 +7,12 @@
 
 #include "GrAuditTrail.h"
 
-void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const FrameArray& array) {
+void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const FrameArray& array,
+                                 bool addComma) {
     if (array.count()) {
+        if (addComma) {
+            json->appendf(",");
+        }
         json->appendf("\"%s\": [", name);
         for (int i = 0; i < array.count(); i++) {
             json->append(array[i]->toJson());
@@ -90,7 +94,7 @@ static SkString pretty_print_json(SkString json) {
 SkString GrAuditTrail::toJson(bool prettyPrint) const {
     SkString json;
     json.append("{");
-    JsonifyTArray(&json, "Stacks", fFrames);
+    JsonifyTArray(&json, "Stacks", fFrames, false);
     json.append("}");
 
     if (prettyPrint) {
@@ -103,8 +107,8 @@ SkString GrAuditTrail::toJson(bool prettyPrint) const {
 SkString GrAuditTrail::Frame::toJson() const {
     SkString json;
     json.append("{");
-    json.appendf("\"Name\": \"%s\",", fName);
-    JsonifyTArray(&json, "Frames", fChildren);
+    json.appendf("\"Name\": \"%s\"", fName);
+    JsonifyTArray(&json, "Frames", fChildren, true);
     json.append("}");
     return json;
 }

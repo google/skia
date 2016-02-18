@@ -92,7 +92,8 @@ private:
         SkRect fBounds;
     };
 
-    static void JsonifyTArray(SkString* json, const char* name, const FrameArray& array);
+    static void JsonifyTArray(SkString* json, const char* name, const FrameArray& array,
+                              bool addComma);
 
     FrameArray fFrames;
     SkTArray<Frame*> fStack;
