@@ -22,12 +22,13 @@ public:
 
     typedef GrAtlasTextBlob Blob;
     struct Geometry {
+        SkMatrix fViewMatrix;
         Blob* fBlob;
+        SkScalar fX;
+        SkScalar fY;
         int fRun;
         int fSubRun;
         GrColor fColor;
-        SkScalar fTransX;
-        SkScalar fTransY;
     };
 
     static GrAtlasTextBatch* CreateBitmap(GrMaskFormat maskFormat, int glyphCount,
@@ -79,9 +80,9 @@ public:
     void init() {
         const Geometry& geo = fGeoData[0];
         fBatch.fColor = geo.fColor;
-        fBatch.fViewMatrix = geo.fBlob->viewMatrix();
 
-        geo.fBlob->computeSubRunBounds(&fBounds, geo.fRun, geo.fSubRun);
+        geo.fBlob->computeSubRunBounds(&fBounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX,
+                                       geo.fY);
     }
 
     const char* name() const override { return "TextBatch"; }
@@ -141,7 +142,7 @@ private:
     inline void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const;
 
     GrColor color() const { return fBatch.fColor; }
-    const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
+    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     int numGlyphs() const { return fBatch.fNumGlyphs; }
 
@@ -154,7 +155,6 @@ private:
 
     struct BatchTracker {
         GrColor fColor;
-        SkMatrix fViewMatrix;
         bool fUsesLocalCoords;
         bool fColorIgnored;
         bool fCoverageIgnored;

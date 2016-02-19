@@ -165,8 +165,7 @@ void GrAtlasTextBlob::appendLargeGlyph(GrGlyph* glyph, GrFontScaler* scaler, con
     fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y, scale, applyVM));
 }
 
-bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
-                                     const SkPaint& paint,
+bool GrAtlasTextBlob::mustRegenerate(const SkPaint& paint,
                                      GrColor color, const SkMaskFilter::BlurRec& blurRec,
                                      const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
     // If we have LCD text then our canonical color will be set to transparent, in this case we have
@@ -177,11 +176,11 @@ bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
         return true;
     }
 
-    if (fViewMatrix.hasPerspective() != viewMatrix.hasPerspective()) {
+    if (fInitialViewMatrix.hasPerspective() != viewMatrix.hasPerspective()) {
         return true;
     }
 
-    if (fViewMatrix.hasPerspective() && !fViewMatrix.cheapEqualTo(viewMatrix)) {
+    if (fInitialViewMatrix.hasPerspective() && !fInitialViewMatrix.cheapEqualTo(viewMatrix)) {
         return true;
     }
 
@@ -205,17 +204,17 @@ bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
     // for mixed blobs if this becomes an issue.
     if (this->hasBitmap() && this->hasDistanceField()) {
         // Identical viewmatrices and we can reuse in all cases
-        if (fViewMatrix.cheapEqualTo(viewMatrix) && x == fX && y == fY) {
+        if (fInitialViewMatrix.cheapEqualTo(viewMatrix) && x == fInitialX && y == fInitialY) {
             return false;
         }
         return true;
     }
 
     if (this->hasBitmap()) {
-        if (fViewMatrix.getScaleX() != viewMatrix.getScaleX() ||
-            fViewMatrix.getScaleY() != viewMatrix.getScaleY() ||
-            fViewMatrix.getSkewX() != viewMatrix.getSkewX() ||
-            fViewMatrix.getSkewY() != viewMatrix.getSkewY()) {
+        if (fInitialViewMatrix.getScaleX() != viewMatrix.getScaleX() ||
+            fInitialViewMatrix.getScaleY() != viewMatrix.getScaleY() ||
+            fInitialViewMatrix.getSkewX() != viewMatrix.getSkewX() ||
+            fInitialViewMatrix.getSkewY() != viewMatrix.getSkewY()) {
             return true;
         }
 
@@ -224,38 +223,26 @@ bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
         // This cool bit of math will determine the necessary translation to apply to the already
         // generated vertex coordinates to move them to the correct position
         SkScalar transX = viewMatrix.getTranslateX() +
-                          viewMatrix.getScaleX() * (x - fX) +
-                          viewMatrix.getSkewX() * (y - fY) -
-                          fViewMatrix.getTranslateX();
+                          viewMatrix.getScaleX() * (x - fInitialX) +
+                          viewMatrix.getSkewX() * (y - fInitialY) -
+                          fInitialViewMatrix.getTranslateX();
         SkScalar transY = viewMatrix.getTranslateY() +
-                          viewMatrix.getSkewY() * (x - fX) +
-                          viewMatrix.getScaleY() * (y - fY) -
-                          fViewMatrix.getTranslateY();
-        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY) ) {
+                          viewMatrix.getSkewY() * (x - fInitialX) +
+                          viewMatrix.getScaleY() * (y - fInitialY) -
+                          fInitialViewMatrix.getTranslateY();
+        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY)) {
             return true;
         }
-
-        (*outTransX) = transX;
-        (*outTransY) = transY;
     } else if (this->hasDistanceField()) {
         // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
         // distance field being generated, so we have to regenerate in those cases
         SkScalar newMaxScale = viewMatrix.getMaxScale();
-        SkScalar oldMaxScale = fViewMatrix.getMaxScale();
+        SkScalar oldMaxScale = fInitialViewMatrix.getMaxScale();
         SkScalar scaleAdjust = newMaxScale / oldMaxScale;
         if (scaleAdjust < fMaxMinScale || scaleAdjust > fMinMaxScale) {
             return true;
         }
-
-        (*outTransX) = x - fX;
-        (*outTransY) = y - fY;
     }
-
-    // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
-    // offsets.  Note, we offset the vertex bounds right before flushing
-    fViewMatrix = viewMatrix;
-    fX = x;
-    fY = y;
 
     // It is possible that a blob has neither distanceField nor bitmaptext.  This is in the case
     // when all of the runs inside the blob are drawn as paths.  In this case, we always regenerate
@@ -266,7 +253,8 @@ bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
 inline GrDrawBatch* GrAtlasTextBlob::createBatch(
                                               const Run::SubRunInfo& info,
                                               int glyphCount, int run, int subRun,
-                                              GrColor color, SkScalar transX, SkScalar transY,
+                                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                              GrColor color,
                                               const SkPaint& skPaint, const SkSurfaceProps& props,
                                               const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                               GrBatchFontCache* cache) {
@@ -296,12 +284,13 @@ inline GrDrawBatch* GrAtlasTextBlob::createBatch(
         batch = GrAtlasTextBatch::CreateBitmap(format, glyphCount, cache);
     }
     GrAtlasTextBatch::Geometry& geometry = batch->geometry();
+    geometry.fViewMatrix = viewMatrix;
     geometry.fBlob = SkRef(this);
     geometry.fRun = run;
     geometry.fSubRun = subRun;
     geometry.fColor = subRunColor;
-    geometry.fTransX = transX;
-    geometry.fTransY = transY;
+    geometry.fX = x;
+    geometry.fY = y;
     batch->init();
 
     return batch;
@@ -309,8 +298,8 @@ inline GrDrawBatch* GrAtlasTextBlob::createBatch(
 
 inline
 void GrAtlasTextBlob::flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBuilder,
-                               int run, GrColor color,
-                               SkScalar transX, SkScalar transY,
+                               int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                               GrColor color,
                                const SkPaint& skPaint, const SkSurfaceProps& props,
                                const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                GrBatchFontCache* cache) {
@@ -322,26 +311,48 @@ void GrAtlasTextBlob::flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBui
         }
 
         SkAutoTUnref<GrDrawBatch> batch(this->createBatch(info, glyphCount, run,
-                                                          subRun, color, transX, transY,
+                                                          subRun, viewMatrix, x, y, color,
                                                           skPaint, props,
                                                           distanceAdjustTable, cache));
         dc->drawBatch(pipelineBuilder, batch);
     }
 }
 
+static void calculate_translation(bool applyVM,
+                                  const SkMatrix& newViewMatrix, SkScalar newX, SkScalar newY,
+                                  const SkMatrix& currentViewMatrix, SkScalar currentX,
+                                  SkScalar currentY, SkScalar* transX, SkScalar* transY) {
+    if (applyVM) {
+        *transX = newViewMatrix.getTranslateX() +
+                  newViewMatrix.getScaleX() * (newX - currentX) +
+                  newViewMatrix.getSkewX() * (newY - currentY) -
+                  currentViewMatrix.getTranslateX();
+
+        *transY = newViewMatrix.getTranslateY() +
+                  newViewMatrix.getSkewY() * (newX - currentX) +
+                  newViewMatrix.getScaleY() * (newY - currentY) -
+                  currentViewMatrix.getTranslateY();
+    } else {
+        *transX = newX - currentX;
+        *transY = newY - currentY;
+    }
+}
+
+
 void GrAtlasTextBlob::flushBigGlyphs(GrContext* context, GrDrawContext* dc,
                                      const GrClip& clip, const SkPaint& skPaint,
-                                     SkScalar transX, SkScalar transY,
+                                     const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                      const SkIRect& clipBounds) {
+    SkScalar transX, transY;
     for (int i = 0; i < fBigGlyphs.count(); i++) {
         GrAtlasTextBlob::BigGlyph& bigGlyph = fBigGlyphs[i];
-        bigGlyph.fVx += transX;
-        bigGlyph.fVy += transY;
+        calculate_translation(bigGlyph.fApplyVM, viewMatrix, x, y,
+                              fInitialViewMatrix, fInitialX, fInitialY, &transX, &transY);
         SkMatrix ctm;
         ctm.setScale(bigGlyph.fScale, bigGlyph.fScale);
-        ctm.postTranslate(bigGlyph.fVx, bigGlyph.fVy);
+        ctm.postTranslate(bigGlyph.fX + transX, bigGlyph.fY + transY);
         if (bigGlyph.fApplyVM) {
-            ctm.postConcat(fViewMatrix);
+            ctm.postConcat(viewMatrix);
         }
 
         GrBlurUtils::drawPathWithMaskFilter(context, dc, clip, bigGlyph.fPath,
@@ -399,8 +410,7 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
                                   const GrClip& clip,
                                   const SkMatrix& viewMatrix,
                                   const SkIRect& clipBounds,
-                                  SkScalar x, SkScalar y,
-                                  SkScalar transX, SkScalar transY) {
+                                  SkScalar x, SkScalar y) {
     // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
     // it as paths
     GrPipelineBuilder pipelineBuilder(grPaint, dc->accessRenderTarget(), clip);
@@ -414,13 +424,12 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
                                   drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }
-        this->flushRun(dc, &pipelineBuilder, run, color,
-                       transX, transY, skPaint, props,
+        this->flushRun(dc, &pipelineBuilder, run, viewMatrix, x, y, color, skPaint, props,
                        distanceAdjustTable, context->getBatchFontCache());
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(context, dc, clip, skPaint, transX, transY, clipBounds);
+    this->flushBigGlyphs(context, dc, clip, skPaint, viewMatrix, x, y, clipBounds);
 }
 
 void GrAtlasTextBlob::flushThrowaway(GrContext* context,
@@ -430,27 +439,30 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context,
                                      const SkPaint& skPaint,
                                      const GrPaint& grPaint,
                                      const GrClip& clip,
-                                     const SkIRect& clipBounds) {
+                                     const SkMatrix& viewMatrix,
+                                     const SkIRect& clipBounds,
+                                     SkScalar x, SkScalar y) {
     GrPipelineBuilder pipelineBuilder(grPaint, dc->accessRenderTarget(), clip);
 
     GrColor color = grPaint.getColor();
     for (int run = 0; run < fRunCount; run++) {
-        this->flushRun(dc, &pipelineBuilder, run, color, 0, 0, skPaint, props,
+        this->flushRun(dc, &pipelineBuilder, run, viewMatrix, x, y, color, skPaint, props,
                        distanceAdjustTable, context->getBatchFontCache());
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(context, dc, clip, skPaint, 0, 0, clipBounds);
+    this->flushBigGlyphs(context, dc, clip, skPaint, viewMatrix, x, y, clipBounds);
 }
 
 GrDrawBatch* GrAtlasTextBlob::test_createBatch(
                                               int glyphCount, int run, int subRun,
-                                              GrColor color, SkScalar transX, SkScalar transY,
+                                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                              GrColor color,
                                               const SkPaint& skPaint, const SkSurfaceProps& props,
                                               const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                               GrBatchFontCache* cache) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
-    return this->createBatch(info, glyphCount, run, subRun, color, transX, transY, skPaint,
+    return this->createBatch(info, glyphCount, run, subRun, viewMatrix, x, y, color, skPaint,
                              props, distanceAdjustTable, cache);
 }
 
@@ -476,7 +488,6 @@ void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlo
     }
 
     SkASSERT_RELEASE(l.fKey == r.fKey);
-    SkASSERT_RELEASE(l.fViewMatrix.cheapEqualTo(r.fViewMatrix));
     //SkASSERT_RELEASE(l.fPaintColor == r.fPaintColor); // Colors might not actually be identical
     SkASSERT_RELEASE(l.fMaxMinScale == r.fMaxMinScale);
     SkASSERT_RELEASE(l.fMinMaxScale == r.fMinMaxScale);
@@ -539,4 +550,14 @@ void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlo
             SkASSERT_RELEASE(lSubRun.hasUseLCDText() == rSubRun.hasUseLCDText());
         }
     }
+}
+
+void GrAtlasTextBlob::Run::SubRunInfo::computeTranslation(const SkMatrix& viewMatrix,
+                                                          SkScalar x, SkScalar y, SkScalar* transX,
+                                                          SkScalar* transY) {
+    calculate_translation(!this->drawAsDistanceFields(), viewMatrix, x, y,
+                          fCurrentViewMatrix, fX, fY, transX, transY);
+    fCurrentViewMatrix = viewMatrix;
+    fX = x;
+    fY = y;
 }

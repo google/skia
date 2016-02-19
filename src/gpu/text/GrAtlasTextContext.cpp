@@ -109,9 +109,6 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
         cacheBlob.reset(SkSafeRef(cache->find(key)));
     }
 
-    SkScalar transX = 0.f;
-    SkScalar transY = 0.f;
-
     // Though for the time being runs in the textblob can override the paint, they only touch font
     // info.
     GrPaint grPaint;
@@ -120,8 +117,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
     }
 
     if (cacheBlob) {
-        if (cacheBlob->mustRegenerate(&transX, &transY, skPaint, grPaint.getColor(), blurRec,
-                                      viewMatrix, x, y)) {
+        if (cacheBlob->mustRegenerate(skPaint, grPaint.getColor(), blurRec, viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
@@ -160,7 +156,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
     }
 
     cacheBlob->flushCached(context, dc, blob, props, fDistanceAdjustTable, skPaint,
-                           grPaint, drawFilter, clip, viewMatrix, clipBounds, x, y, transX, transY);
+                           grPaint, drawFilter, clip, viewMatrix, clipBounds, x, y);
 }
 
 void GrAtlasTextContext::RegenerateTextBlob(GrAtlasTextBlob* cacheBlob,
@@ -321,7 +317,7 @@ void GrAtlasTextContext::drawText(GrContext* context,
                                viewMatrix, props,
                                text, byteLength, x, y));
         blob->flushThrowaway(context, dc, props, fDistanceAdjustTable, skPaint, paint,
-                             clip, regionClipBounds);
+                             clip, viewMatrix, regionClipBounds, x, y);
         return;
     }
 
@@ -351,7 +347,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context,
                                   pos, scalarsPerPosition,
                                   offset));
         blob->flushThrowaway(context, dc, props, fDistanceAdjustTable, skPaint, paint,
-                             clip, regionClipBounds);
+                             clip, viewMatrix, regionClipBounds, offset.fX, offset.fY);
         return;
     }
 
@@ -408,9 +404,9 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
 
     // We'd like to be able to test this with random translations, but currently the vertex
     // bounds and vertices will get out of sync
-    SkScalar transX = 0.f;//SkIntToScalar(random->nextU());
-    SkScalar transY = 0.f;//SkIntToScalar(random->nextU());
-    return blob->test_createBatch(textLen, 0, 0, color, transX, transY, skPaint,
+    SkScalar x = 0.f;//SkIntToScalar(random->nextU());
+    SkScalar y = 0.f;//SkIntToScalar(random->nextU());
+    return blob->test_createBatch(textLen, 0, 0, viewMatrix, x, y, color, skPaint,
                                   gSurfaceProps, gTextContext->dfAdjustTable(),
                                   context->getBatchFontCache());
 }

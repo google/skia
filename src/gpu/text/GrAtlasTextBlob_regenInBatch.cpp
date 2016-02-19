@@ -235,13 +235,17 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
                                    int runIndex, int subRunIndex, SkGlyphCache** cache,
                                    SkTypeface** typeface, GrFontScaler** scaler,
                                    const SkDescriptor** desc, size_t vertexStride,
-                                   GrColor color, SkScalar transX,
-                                   SkScalar transY,
+                                   const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                   GrColor color,
                                    void** vertices, size_t* byteCount, int* glyphCount) {
     Run& run = fRuns[runIndex];
     Run::SubRunInfo& info = run.fSubRunInfo[subRunIndex];
 
     uint64_t currentAtlasGen = fontCache->atlasGeneration(info.maskFormat());
+
+    // Compute translation if any
+    SkScalar transX, transY;
+    info.computeTranslation(viewMatrix, x, y, &transX, &transY);
 
     // Because the GrBatchFontCache may evict the strike a blob depends on using for
     // generating its texture coords, we have to track whether or not the strike has

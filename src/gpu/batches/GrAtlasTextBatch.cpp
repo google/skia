@@ -34,8 +34,8 @@ SkString GrAtlasTextBatch::dumpInfo() const {
         str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f Runs: %d\n",
                     i,
                     fGeoData[i].fColor,
-                    fGeoData[i].fTransX,
-                    fGeoData[i].fTransY,
+                    fGeoData[i].fX,
+                    fGeoData[i].fY,
                     fGeoData[i].fBlob->runCount());
     }
 
@@ -148,10 +148,10 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         Blob* blob = args.fBlob;
         size_t byteCount;
         void* blobVertices;
-        int glyphCount;
+        int subRunGlyphCount;
         blob->regenInBatch(target, fFontCache, &helper, args.fRun, args.fSubRun, &cache,
-                           &typeface, &scaler, &desc, vertexStride, args.fColor, args.fTransX,
-                           args.fTransY, &blobVertices, &byteCount, &glyphCount);
+                           &typeface, &scaler, &desc, vertexStride, args.fViewMatrix, args.fX,
+                           args.fY, args.fColor, &blobVertices, &byteCount, &subRunGlyphCount);
 
         // now copy all vertices
         memcpy(currVertex, blobVertices, byteCount);
@@ -161,10 +161,10 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         SkRect rect;
         rect.setLargestInverted();
         SkPoint* vertex = (SkPoint*) ((char*)blobVertices);
-        rect.growToInclude(vertex, vertexStride, kVerticesPerGlyph * glyphCount);
+        rect.growToInclude(vertex, vertexStride, kVerticesPerGlyph * subRunGlyphCount);
 
         if (this->usesDistanceFields()) {
-            fBatch.fViewMatrix.mapRect(&rect);
+            args.fViewMatrix.mapRect(&rect);
         }
         SkASSERT(fBounds.contains(rect));
 #endif
