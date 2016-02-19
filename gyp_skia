@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright 2011 The Android Open Source Project
 #
@@ -78,8 +78,6 @@ if __name__ == '__main__':
   args = sys.argv[1:]
 
   if not os.getenv(ENVVAR_GYP_GENERATORS):
-    print ('%s environment variable not set, using default' %
-           ENVVAR_GYP_GENERATORS)
     if sys.platform.startswith('darwin'):
       default_gyp_generators = 'ninja,xcode'
     elif sys.platform.startswith('win'):
@@ -89,7 +87,8 @@ if __name__ == '__main__':
     else:
       default_gyp_generators = 'ninja'
     os.environ[ENVVAR_GYP_GENERATORS] = default_gyp_generators
-  print '%s is "%s"' % (ENVVAR_GYP_GENERATORS, os.getenv(ENVVAR_GYP_GENERATORS))
+    print ('%s environment variable not set, using default, %s' %
+           (ENVVAR_GYP_GENERATORS, default_gyp_generators))
 
   vs2013_runtime_dll_dirs = None
   if os.getenv('CHROME_HEADLESS', '0') == '1':
@@ -147,9 +146,6 @@ if __name__ == '__main__':
   # to fit in RAM. We don't need to be nearly as conservative as Chrome.  We'll
   # just turn that feature off.
   os.environ['GYP_LINK_CONCURRENCY'] = '9001'
-
-  print 'Updating projects from gyp files...'
-  sys.stdout.flush()
 
   if '--dry-run' in args:
     args.remove('--dry-run')
