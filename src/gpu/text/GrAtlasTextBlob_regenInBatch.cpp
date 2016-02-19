@@ -21,6 +21,7 @@
 template <bool regenPos, bool regenCol, bool regenTexCoords>
 inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexStride,
                            bool useDistanceFields, SkScalar transX, SkScalar transY,
+                           int32_t log2Width, int32_t log2Height,
                            GrColor color) {
     int u0, v0, u1, v1;
     if (regenTexCoords) {
@@ -39,6 +40,20 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
             u1 = u0 + width;
             v1 = v0 + height;
         }
+
+        // normalize
+        u0 *= 65535;
+        u0 >>= log2Width;
+        u1 *= 65535;
+        u1 >>= log2Width;
+        v0 *= 65535;
+        v0 >>= log2Height;
+        v1 *= 65535;
+        v1 >>= log2Height;
+        SkASSERT(u0 >= 0 && u0 <= 65535);
+        SkASSERT(u1 >= 0 && u1 <= 65535);
+        SkASSERT(v0 >= 0 && v0 <= 65535);
+        SkASSERT(v1 >= 0 && v1 <= 65535);
     }
 
     // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
@@ -59,8 +74,9 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
     }
 
     if (regenTexCoords) {
-        SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + texCoordOffset);
-        textureCoords->set(u0, v0);
+        uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
+        textureCoords[0] = (uint16_t) u0;
+        textureCoords[1] = (uint16_t) v0;
     }
     vertex += vertexStride;
 
@@ -77,8 +93,9 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
     }
 
     if (regenTexCoords) {
-        SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + texCoordOffset);
-        textureCoords->set(u0, v1);
+        uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
+        textureCoords[0] = (uint16_t)u0;
+        textureCoords[1] = (uint16_t)v1;
     }
     vertex += vertexStride;
 
@@ -95,8 +112,9 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
     }
 
     if (regenTexCoords) {
-        SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + texCoordOffset);
-        textureCoords->set(u1, v1);
+        uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
+        textureCoords[0] = (uint16_t)u1;
+        textureCoords[1] = (uint16_t)v1;
     }
     vertex += vertexStride;
 
@@ -113,8 +131,9 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
     }
 
     if (regenTexCoords) {
-        SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + texCoordOffset);
-        textureCoords->set(u1, v0);
+        uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
+        textureCoords[0] = (uint16_t)u1;
+        textureCoords[1] = (uint16_t)v0;
     }
 }
 
@@ -161,6 +180,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
     bool brokenRun = false;
     for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
         GrGlyph* glyph = nullptr;
+        int log2Width = 0, log2Height = 0;
         if (regenTexCoords) {
             size_t glyphOffset = glyphIdx + info->glyphStartIndex();
 
@@ -187,6 +207,8 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
             }
             fontCache->addGlyphToBulkAndSetUseToken(info->bulkUseToken(), glyph,
                                                     target->currentToken());
+            log2Width = fontCache->log2Width(info->maskFormat());
+            log2Height = fontCache->log2Height(info->maskFormat());
         }
 
         intptr_t vertex = reinterpret_cast<intptr_t>(fVertices);
@@ -194,7 +216,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
         vertex += vertexStride * glyphIdx * GrAtlasTextBatch::kVerticesPerGlyph;
         regen_vertices<regenPos, regenCol, regenTexCoords>(vertex, glyph, vertexStride,
                                                            info->drawAsDistanceFields(), transX,
-                                                           transY, color);
+                                                           transY, log2Width, log2Height, color);
         helper->incGlyphCount();
     }
 

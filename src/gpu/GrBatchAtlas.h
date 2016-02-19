@@ -22,6 +22,8 @@ struct GrBatchAtlasConfig {
     int numPlotsY() const { return fHeight / fPlotWidth; }
     int fWidth;
     int fHeight;
+    int fLog2Width;
+    int fLog2Height;
     int fPlotWidth;
     int fPlotHeight;
 };
