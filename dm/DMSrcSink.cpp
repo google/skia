@@ -1043,17 +1043,18 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 // passing the Sink draw() arguments, a size, and a function draws into an SkCanvas.
 // Several examples below.
 
+template <typename Fn>
 static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkString* log,
-                            SkISize size, std::function<Error(SkCanvas*)> draw) {
+                            SkISize size, const Fn& draw) {
     class ProxySrc : public Src {
     public:
-        ProxySrc(SkISize size, std::function<Error(SkCanvas*)> draw) : fSize(size), fDraw(draw) {}
+        ProxySrc(SkISize size, const Fn& draw) : fSize(size), fDraw(draw) {}
         Error   draw(SkCanvas* canvas) const override { return fDraw(canvas); }
         Name                    name() const override { sk_throw(); return ""; } // Won't be called.
         SkISize                 size() const override { return fSize; }
     private:
-        SkISize                         fSize;
-        std::function<Error(SkCanvas*)> fDraw;
+        SkISize   fSize;
+        const Fn& fDraw;
     };
     return sink->draw(ProxySrc(size, draw), bitmap, stream, log);
 }

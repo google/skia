@@ -77,14 +77,6 @@ def get_args(bot):
   if 'GalaxyS3' in bot:
       configs.append('gpudft')
 
-  if 'MSAN' in bot:
-    configs = [
-        '565',
-        '8888',
-        'pdf',
-        'pdf_poppler',
-    ]
-
   args.append('--config')
   args.extend(configs)
 
