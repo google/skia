@@ -313,7 +313,13 @@ SkImage* SkReadBuffer::readImage() {
     }
 
     const SkIRect subset = SkIRect::MakeXYWH(originX, originY, width, height);
-    return SkImage::NewFromEncoded(encoded, &subset);
+    SkImage* image = SkImage::NewFromEncoded(encoded, &subset);
+    if (image) {
+        return image;
+    }
+
+    return SkImage::NewFromGenerator(
+            new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height)));
 }
 
 SkTypeface* SkReadBuffer::readTypeface() {
