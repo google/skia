@@ -4,8 +4,10 @@ License: libpng license
 License File: LICENSE, pulled out of png.h
 Description: png compression/decompression library
 Local Modifications: (1) Created pnglibconf.h from pnglibconf.h.prebuilt (a
-    rename with a few additional settings enabled). (2) Pulled LICENSE into
-    its own file.
+    rename with a few additional settings enabled). (2) Copied LICENSE into
+    this directory. (Originally it was pulled from png.h, but libpng has
+    now provided a separate LICENSE file for convenience, which we use
+    directly.)
 
 FAQ:
 Q: Why does this directory exist?
