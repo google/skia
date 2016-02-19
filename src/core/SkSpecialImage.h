@@ -41,6 +41,8 @@ class SkSpecialImage : public SkRefCnt {
 public:
     int width() const { return fSubset.width(); }
     int height() const { return fSubset.height(); }
+    const SkIRect& subset() const { return fSubset; }
+
     uint32_t uniqueID() const { return fUniqueID; }
     virtual bool isOpaque() const { return false; }
     virtual size_t getSize() const = 0;
@@ -78,10 +80,9 @@ protected:
         , fProxy(proxy) {
     }
 
-    // The following 3 are for testing and shouldn't be used. (see skbug.com/4965)
+    // The following 2 are for testing and shouldn't be used.
     friend class TestingSpecialImageAccess;
     friend class TestingSpecialSurfaceAccess;
-    const SkIRect& subset() const { return fSubset; }
 
     /**
      *  If the SpecialImage is backed by cpu pixels, return the const address

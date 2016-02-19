@@ -23,6 +23,7 @@ class SkBaseDevice;
 class SkBitmap;
 class SkColorFilter;
 struct SkIPoint;
+class SkSpecialImage;
 
 /**
  *  Base class for image filters. If one is installed in the paint, then
@@ -42,7 +43,9 @@ public:
         static Cache* Create(size_t maxBytes);
         static Cache* Get();
         virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const = 0;
+        virtual SkSpecialImage* get(const Key& key, SkIPoint* offset) const = 0;
         virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
+        virtual void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) = 0;
         virtual void purge() {}
         virtual void purgeByKeys(const Key[], int) {}
     };
