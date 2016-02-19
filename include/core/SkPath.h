@@ -922,7 +922,7 @@ public:
         kQuad_Verb,     //!< iter.next returns 3 points
         kConic_Verb,    //!< iter.next returns 3 points + iter.conicWeight()
         kCubic_Verb,    //!< iter.next returns 4 points
-        kClose_Verb,    //!< iter.next returns 1 point (contour's moveTo pt)
+        kClose_Verb,    //!< iter.next returns 0 points
         kDone_Verb,     //!< iter.next returns 0 points
     };
 
