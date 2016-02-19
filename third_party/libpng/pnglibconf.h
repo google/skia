@@ -1,8 +1,8 @@
-/* libpng 1.6.19 STANDARD API DEFINITION */
+/* libpng 1.6.22beta03 STANDARD API DEFINITION */
 
 /* pnglibconf.h - library build configuration */
 
-/* Libpng version 1.6.19 - November 12, 2015 */
+/* Libpng version 1.6.22beta03 - February 8, 2016 */
 
 /* Copyright (c) 1998-2015 Glenn Randers-Pehrson */
 
@@ -109,6 +109,7 @@
 #define PNG_SIMPLIFIED_READ_SUPPORTED
 #define PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
 #define PNG_SIMPLIFIED_WRITE_BGR_SUPPORTED
+#define PNG_SIMPLIFIED_WRITE_STDIO_SUPPORTED
 #define PNG_SIMPLIFIED_WRITE_SUPPORTED
 #define PNG_STDIO_SUPPORTED
 #define PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
@@ -211,13 +212,4 @@
 #define PNG_sCAL_PRECISION 5
 #define PNG_sRGB_PROFILE_CHECKS 2
 /* end of settings */
-
-/* custom settings */
-#define PNG_ARM_NEON_API_SUPPORTED
-#define PNG_ARM_NEON_CHECK_SUPPORTED
-#if defined(__SSE2__)
-    #define PNG_FILTER_OPTIMIZATIONS sk_png_init_filter_functions_sse2
-#endif
-/* end of custom settings */
-
 #endif /* PNGLCONF_H */

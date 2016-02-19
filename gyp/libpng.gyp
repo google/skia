@@ -65,38 +65,30 @@
         '../third_party/externals/libpng/pngwutil.c',
       ],
       'conditions': [
-        [ 'skia_os == "ios"', {
-          # explicitly disable looking for NEON on iOS builds
+        [ '"x86" in skia_arch_type', {
           'defines': [
-            'PNG_ARM_NEON_OPT=0',
+            'PNG_INTEL_SSE_OPT=1',
           ],
-        }, { # skia_os != "ios"
-          'dependencies': [
-            'libpng.gyp:libpng_static_neon',
+          'sources': [
+            '../third_party/externals/libpng/contrib/intel/intel_init.c',
+            '../third_party/externals/libpng/contrib/intel/filter_sse2_intrinsics.c',
           ],
         }],
-      ],
-    },
-    {
-      'target_name': 'libpng_static_neon',
-      'type': 'static_library',
-      'include_dirs': [
-        # Needed for generated pnglibconf.h and pngprefix.h
-        '../third_party/libpng',
-        '../third_party/externals/libpng',
-      ],
-      'dependencies': [
-        'zlib.gyp:zlib',
-      ],
-     'sources': [
-        '../third_party/externals/libpng/arm/arm_init.c',
-        '../third_party/externals/libpng/arm/filter_neon.S',
-        '../third_party/externals/libpng/arm/filter_neon_intrinsics.c',
-      ],
-      'conditions': [
-        ['arm_neon_optional', {
-          'cflags': [
-            '-mfpu=neon',
+        [ '(("arm64" == skia_arch_type) or                   \
+            ("arm" == skia_arch_type and arm_neon == 1)) and \
+           ("ios" != skia_os)', {
+          'defines': [
+            'PNG_ARM_NEON_OPT=2',
+            'PNG_ARM_NEON_IMPLEMENTATION=1',
+          ],
+          'sources': [
+            '../third_party/externals/libpng/arm/arm_init.c',
+            '../third_party/externals/libpng/arm/filter_neon_intrinsics.c',
+          ],
+        }],
+        [ '"ios" == skia_os', {
+          'defines': [
+            'PNG_ARM_NEON_OPT=0',
           ],
         }],
       ],

@@ -48,7 +48,6 @@
         '../src/codec/SkMaskSwizzler.cpp',
         '../src/codec/SkMasks.cpp',
         '../src/codec/SkPngCodec.cpp',
-        '../src/codec/SkPngFilters.cpp',
         '../src/codec/SkSampler.cpp',
         '../src/codec/SkSampledCodec.cpp',
         '../src/codec/SkSwizzler.cpp',

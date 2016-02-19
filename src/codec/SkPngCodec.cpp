@@ -12,29 +12,10 @@
 #include "SkMath.h"
 #include "SkOpts.h"
 #include "SkPngCodec.h"
-#include "SkPngFilters.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
-
-// png_struct::read_filter[] was added in libpng 1.5.7.
-#if defined(__SSE2__) && PNG_LIBPNG_VER >= 10507 && !defined(PNG_SKIP_SKIA_OPTS)
-    #include "pngstruct.h"
-
-    extern "C" void sk_png_init_filter_functions_sse2(png_structp png, unsigned int bpp) {
-        if (bpp == 3) {
-            png->read_filter[PNG_FILTER_VALUE_SUB  -1] =   sk_sub3_sse2;
-            png->read_filter[PNG_FILTER_VALUE_AVG  -1] =   sk_avg3_sse2;
-            png->read_filter[PNG_FILTER_VALUE_PAETH-1] = sk_paeth3_sse2;
-        }
-        if (bpp == 4) {
-            png->read_filter[PNG_FILTER_VALUE_SUB  -1] =   sk_sub4_sse2;
-            png->read_filter[PNG_FILTER_VALUE_AVG  -1] =   sk_avg4_sse2;
-            png->read_filter[PNG_FILTER_VALUE_PAETH-1] = sk_paeth4_sse2;
-        }
-    }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Callback functions
