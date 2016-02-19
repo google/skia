@@ -76,23 +76,6 @@ struct Request {
     UrlDataManager fUrlDataManager;
 };
 
-// TODO factor this out into functions, also handle CPU path
-SkSurface* setupSurface(GrContextFactory* factory) {
-    GrContext* context = factory->get(GrContextFactory::kNative_GLContextType,
-                                      GrContextFactory::kNone_GLContextOptions);
-    int maxRTSize = context->caps()->maxRenderTargetSize();
-    SkImageInfo info = SkImageInfo::Make(SkTMin(kImageWidth, maxRTSize),
-                                         SkTMin(kImageHeight, maxRTSize),
-                                         kN32_SkColorType, kPremul_SkAlphaType);
-    uint32_t flags = 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    SkSurface* surface = SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0,
-                                                    &props);
-    SkASSERT(surface);
-
-    return surface;
-}
-
 static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
     SkWStream* out = (SkWStream*) png_get_io_ptr(png_ptr);
     out->write(data, length);
@@ -172,10 +155,24 @@ SkData* drawToPng(Request* request, int n) {
     return writeCanvasToPng(getCanvasFromRequest(request));
 }
 
-SkSurface* setupCpuSurface() {
+SkSurface* createCPUSurface() {
     SkImageInfo info = SkImageInfo::Make(kImageWidth, kImageHeight, kN32_SkColorType,
                                          kPremul_SkAlphaType);
     return SkSurface::NewRaster(info);
+}
+
+SkSurface* createGPUSurface(Request* request) {
+    GrContext* context = request->fContextFactory->get(GrContextFactory::kNative_GLContextType,
+                                                       GrContextFactory::kNone_GLContextOptions);
+    int maxRTSize = context->caps()->maxRenderTargetSize();
+    SkImageInfo info = SkImageInfo::Make(SkTMin(kImageWidth, maxRTSize),
+                                         SkTMin(kImageHeight, maxRTSize),
+                                         kN32_SkColorType, kPremul_SkAlphaType);
+    uint32_t flags = 0;
+    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurface* surface = SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0,
+                                                    &props);
+    return surface;
 }
 
 static const size_t kBufferSize = 1024;
@@ -200,6 +197,15 @@ static int SendOK(MHD_Connection* connection) {
                                                              (void*)data,
                                                              MHD_RESPMEM_PERSISTENT);
     int ret = MHD_queue_response(connection, 200, response);
+    MHD_destroy_response(response);
+    return ret;
+}
+
+static int SendError(MHD_Connection* connection, const char* msg) {
+    MHD_Response* response = MHD_create_response_from_buffer(strlen(msg),
+                                                             (void*) msg,
+                                                             MHD_RESPMEM_PERSISTENT);
+    int ret = MHD_queue_response(connection, 500, response);
     MHD_destroy_response(response);
     return ret;
 }
@@ -458,6 +464,44 @@ public:
     }
 };
 
+/**
+   Controls whether GPU rendering is enabled. Posting to /enableGPU/1 turns GPU on, /enableGPU/0 
+   disables it.
+ */
+class EnableGPUHandler : public UrlHandler {
+public:
+    bool canHandle(const char* method, const char* url) override {
+        static const char* kBasePath = "/enableGPU/";
+        return 0 == strcmp(method, MHD_HTTP_METHOD_POST) &&
+               0 == strncmp(url, kBasePath, strlen(kBasePath));
+    }
+
+    int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
+               const char* upload_data, size_t* upload_data_size) override {
+        SkTArray<SkString> commands;
+        SkStrSplit(url, "/", &commands);
+
+        if (commands.count() != 2) {
+            return MHD_NO;
+        }
+
+        int enable;
+        sscanf(commands[1].c_str(), "%d", &enable);
+
+        if (enable) {
+            SkSurface* surface = createGPUSurface(request);
+            if (surface) {
+                request->fSurface.reset(surface);
+                return SendOK(connection);
+            }
+            return SendError(connection, "Unable to create GPU surface");
+        }
+        request->fSurface.reset(createCPUSurface());
+        return SendOK(connection);
+    }
+};
+
 class PostHandler : public UrlHandler {
 public:
     bool canHandle(const char* method, const char* url) override {
@@ -502,11 +546,6 @@ public:
             fprintf(stderr, "Could not create picture from stream.\n");
             return MHD_NO;
         }
-
-        // create surface
-        GrContextOptions grContextOpts;
-        request->fContextFactory.reset(new GrContextFactory(grContextOpts));
-        request->fSurface.reset(setupSurface(request->fContextFactory.get()));
 
         // pour picture into debug canvas
         request->fDebugCanvas.reset(new SkDebugCanvas(kImageWidth, kImageHeight));
@@ -575,7 +614,7 @@ public:
         }
 
         // drawTo
-        SkAutoTUnref<SkSurface> surface(setupCpuSurface());
+        SkAutoTUnref<SkSurface> surface(createCPUSurface());
         SkCanvas* canvas = surface->getCanvas();
 
         int n;
@@ -676,6 +715,7 @@ public:
         fHandlers.push_back(new PostHandler);
         fHandlers.push_back(new ImgHandler);
         fHandlers.push_back(new ClipAlphaHandler);
+        fHandlers.push_back(new EnableGPUHandler);
         fHandlers.push_back(new CmdHandler);
         fHandlers.push_back(new InfoHandler);
         fHandlers.push_back(new DownloadHandler);
@@ -723,6 +763,12 @@ int answer_to_connection(void* cls, struct MHD_Connection* connection,
 
 int skiaserve_main() {
     Request request(SkString("/data")); // This simple server has one request
+
+    // create surface
+    GrContextOptions grContextOpts;
+    request.fContextFactory.reset(new GrContextFactory(grContextOpts));
+    request.fSurface.reset(createCPUSurface());
+
     struct MHD_Daemon* daemon;
     // TODO Add option to bind this strictly to an address, e.g. localhost, for security.
     daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, FLAGS_port, nullptr, nullptr,
