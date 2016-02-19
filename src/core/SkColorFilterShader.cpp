@@ -49,9 +49,6 @@ uint32_t SkColorFilterShader::FilterShaderContext::getFlags() const {
     if (!(filterF & SkColorFilter::kAlphaUnchanged_Flag)) {
         shaderF &= ~SkShader::kOpaqueAlpha_Flag;
     }
-    if (!(filterF & SkColorFilter::kSupports4f_Flag)) {
-        shaderF &= ~SkShader::kSupports4f_Flag;
-    }
     return shaderF;
 }
 

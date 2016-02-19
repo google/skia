@@ -47,7 +47,6 @@ void SkColorMatrixFilterRowMajor255::initState() {
     } else {
         fFlags = kAlphaUnchanged_Flag;
     }
-    fFlags |= kSupports4f_Flag;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

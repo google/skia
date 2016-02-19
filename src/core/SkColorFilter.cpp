@@ -13,6 +13,7 @@
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 #include "SkPM4f.h"
+#include "SkNx.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
@@ -30,11 +31,20 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
     return false;
 }
 
-void SkColorFilter::filterSpan4f(const SkPM4f[], int count, SkPM4f[]) const {
-    if (this->supports4f()) {
-        SkASSERT(false && "colorfilter supports4f but didn't override");
-    } else {
-        SkASSERT(false && "filterSpan4f called but not supported");
+void SkColorFilter::filterSpan4f(const SkPM4f[], int count, SkPM4f span[]) const {
+    const int N = 128;
+    SkPMColor tmp[N];
+    while (count > 0) {
+        int n = SkTMin(count, N);
+        for (int i = 0; i < n; ++i) {
+            SkNx_cast<uint8_t>(Sk4f::Load(span[i].fVec) * Sk4f(255) + Sk4f(0.5f)).store(&tmp[i]);
+        }
+        this->filterSpan(tmp, n, tmp);
+        for (int i = 0; i < n; ++i) {
+            span[i] = SkPM4f::FromPMColor(tmp[i]);
+        }
+        span += n;
+        count -= n;
     }
 }
 
@@ -75,8 +85,6 @@ public:
     }
     
     void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override {
-        SkASSERT(fInner->supports4f());
-        SkASSERT(fOuter->supports4f());
         fInner->filterSpan4f(shader, count, result);
         fOuter->filterSpan4f(result, count, result);
     }

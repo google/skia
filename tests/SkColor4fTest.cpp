@@ -188,14 +188,11 @@ DEF_TEST(Color4f_colorfilter, reporter) {
 
     for (const auto& rec : recs) {
         SkAutoTUnref<SkColorFilter> filter(rec.fFact());
-        REPORTER_ASSERT(reporter, filter->supports4f() == rec.fSupports4f);
-        if (filter->supports4f()) {
-            SkPMColor dst4b[N];
-            filter->filterSpan(src4b, N, dst4b);
-            SkPM4f dst4f[N];
-            filter->filterSpan4f(src4f, N, dst4f);
-            compare_spans(dst4f, dst4b, N, reporter);
-        }
+        SkPMColor dst4b[N];
+        filter->filterSpan(src4b, N, dst4b);
+        SkPM4f dst4f[N];
+        filter->filterSpan4f(src4f, N, dst4f);
+        compare_spans(dst4f, dst4b, N, reporter);
     }
 }
 

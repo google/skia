@@ -73,16 +73,11 @@ public:
         /** If set the filter methods will not change the alpha channel of the colors.
         */
         kAlphaUnchanged_Flag = 1 << 0,
-        kSupports4f_Flag     = 1 << 1,
     };
 
     /** Returns the flags for this filter. Override in subclasses to return custom flags.
     */
     virtual uint32_t getFlags() const { return 0; }
-
-    bool supports4f() const {
-        return SkToBool(this->getFlags() & kSupports4f_Flag);
-    }
 
     /**
      *  If this subclass can optimally createa composition with the inner filter, return it as
