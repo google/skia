@@ -48,22 +48,16 @@ GrBatchFontCache::GrBatchFontCache(GrContext* context)
     // setup default atlas configs
     fAtlasConfigs[kA8_GrMaskFormat].fWidth = 2048;
     fAtlasConfigs[kA8_GrMaskFormat].fHeight = 2048;
-    fAtlasConfigs[kA8_GrMaskFormat].fLog2Width = 11;
-    fAtlasConfigs[kA8_GrMaskFormat].fLog2Height = 11;
     fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = 512;
     fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = 256;
 
     fAtlasConfigs[kA565_GrMaskFormat].fWidth = 1024;
     fAtlasConfigs[kA565_GrMaskFormat].fHeight = 2048;
-    fAtlasConfigs[kA565_GrMaskFormat].fLog2Width = 10;
-    fAtlasConfigs[kA565_GrMaskFormat].fLog2Height = 11;
     fAtlasConfigs[kA565_GrMaskFormat].fPlotWidth = 256;
     fAtlasConfigs[kA565_GrMaskFormat].fPlotHeight = 256;
 
     fAtlasConfigs[kARGB_GrMaskFormat].fWidth = 1024;
     fAtlasConfigs[kARGB_GrMaskFormat].fHeight = 2048;
-    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Width = 10;
-    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Height = 11;
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = 256;
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = 256;
 }

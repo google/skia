@@ -171,9 +171,6 @@ public:
         return this->getAtlas(format)->atlasGeneration();
     }
 
-    int log2Width(GrMaskFormat format) { return fAtlasConfigs[format].fLog2Width; }
-    int log2Height(GrMaskFormat format) { return fAtlasConfigs[format].fLog2Height; }
-
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended debug only
     void dump() const;

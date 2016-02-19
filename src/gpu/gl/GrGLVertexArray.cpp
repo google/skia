@@ -21,7 +21,7 @@ static const AttribLayout gLayouts[kGrVertexAttribTypeCount] = {
     {4, GR_GL_FLOAT, false},         // kVec4f_GrVertexAttribType
     {1, GR_GL_UNSIGNED_BYTE, true},  // kUByte_GrVertexAttribType
     {4, GR_GL_UNSIGNED_BYTE, true},  // kVec4ub_GrVertexAttribType
-    {2, GR_GL_UNSIGNED_SHORT, true},         // kVec2s_GrVertexAttribType
+    {2, GR_GL_SHORT, false},         // kVec2s_GrVertexAttribType
     {1, GR_GL_INT, false},           // kInt_GrVertexAttribType
     {1, GR_GL_UNSIGNED_INT, false},  // kUint_GrVertexAttribType
 };
@@ -32,7 +32,7 @@ GR_STATIC_ASSERT(2 == kVec3f_GrVertexAttribType);
 GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
 GR_STATIC_ASSERT(4 == kUByte_GrVertexAttribType);
 GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
-GR_STATIC_ASSERT(6 == kVec2us_GrVertexAttribType);
+GR_STATIC_ASSERT(6 == kVec2s_GrVertexAttribType);
 GR_STATIC_ASSERT(7 == kInt_GrVertexAttribType);
 GR_STATIC_ASSERT(8 == kUint_GrVertexAttribType);
 
