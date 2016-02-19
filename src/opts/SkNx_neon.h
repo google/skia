@@ -365,6 +365,14 @@ public:
 #undef SHIFT16
 #undef SHIFT8
 
+template<> inline Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
+    return vqmovn_u32(vcvtq_u32_f32(src.fVec));
+}
+
+template<> inline Sk4f SkNx_cast<float, uint16_t>(const Sk4h& src) {
+    return vcvtq_f32_u32(vmovl_u16(src.fVec));
+}
+
 template<> inline Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
     uint32x4_t _32 = vcvtq_u32_f32(src.fVec);
     uint16x4_t _16 = vqmovn_u32(_32);

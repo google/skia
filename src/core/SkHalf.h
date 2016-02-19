@@ -34,9 +34,29 @@ static inline uint64_t SkFloatToHalf_01(const Sk4f&);
 // Like the serial versions in SkHalf.cpp, these are based on
 // https://fgiesen.wordpress.com/2012/03/28/half-to-float-done-quic/
 
-// TODO: NEON versions
+// GCC 4.9 lacks the intrinsics to use ARMv8 f16<->f32 instructions, so we use inline assembly.
+
 static inline Sk4f SkHalfToFloat_01(uint64_t hs) {
-#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if !defined(SKNX_NO_SIMD) && defined(SK_CPU_ARM64)
+    float32x4_t fs;
+    asm ("fmov  %d[fs], %[hs]        \n"   // vcreate_f16(hs)
+         "fcvtl %[fs].4s, %[fs].4h   \n"   // vcvt_f32_f16(...)
+        : [fs] "=w" (fs)                   // =w: write-only NEON register
+        : [hs] "r" (hs));                  //  r: read-only 64-bit general register
+    return fs;
+
+#elif !defined(SKNX_NO_SIMD) && defined(SK_ARM_HAS_NEON)
+    // NEON makes this pretty easy:
+    //   - denormals are 10-bit * 2^-14 == 24-bit fixed point;
+    //   - handle normals the same way as in SSE: align mantissa, then rebias exponent.
+    uint32x4_t h = vmovl_u16(vcreate_u16(hs)),
+               is_denorm = vcltq_u32(h, vdupq_n_u32(1<<10));
+    float32x4_t denorm = vcvtq_n_f32_u32(h, 24),
+                  norm = vreinterpretq_f32_u32(vaddq_u32(vshlq_n_u32(h, 13),
+                                                         vdupq_n_u32((127-15) << 23)));
+    return vbslq_f32(is_denorm, denorm, norm);
+
+#elif !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     // If our input is a normal 16-bit float, things are pretty easy:
     //   - shift left by 13 to put the mantissa in the right place;
     //   - the exponent is wrong, but it just needs to be rebiased;
@@ -71,26 +91,34 @@ static inline Sk4f SkHalfToFloat_01(uint64_t hs) {
 }
 
 static inline uint64_t SkFloatToHalf_01(const Sk4f& fs) {
-#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    // Scale our floats down by a tiny power of 2 to pull up our mantissa bits,
-    // then shift back down to 16-bit float layout.  This doesn't round, so can be 1 bit small.
-    // TODO: understand better.  Why this scale factor?
-    const __m128 rebias = _mm_castsi128_ps(_mm_set1_epi32((127 - (127 - 15)) << 23));
-    __m128i h = _mm_srli_epi32(_mm_castps_si128(_mm_mul_ps(fs.fVec, rebias)), 13);
-
     uint64_t r;
+#if !defined(SKNX_NO_SIMD) && defined(SK_CPU_ARM64)
+    float32x4_t vec = fs.fVec;
+    asm ("fcvtn %[vec].4h, %[vec].4s  \n"   // vcvt_f16_f32(vec)
+         "fmov  %[r], %d[vec]         \n"   // vst1_f16(&r, ...)
+        : [r] "=r" (r)                      // =r: write-only 64-bit general register
+        , [vec] "+w" (vec));                // +w: read-write NEON register
+
+// TODO: ARMv7 NEON float->half?
+
+#elif !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    // Scale down from 127-bias to 15-bias, then cut off bottom 13 mantissa bits.
+    // This doesn't round, so it can be 1 bit too small.
+    const __m128 rebias = _mm_castsi128_ps(_mm_set1_epi32((127 - (127-15)) << 23));
+    __m128i h = _mm_srli_epi32(_mm_castps_si128(_mm_mul_ps(fs.fVec, rebias)), 13);
     _mm_storel_epi64((__m128i*)&r, _mm_packs_epi32(h,h));
-    return r;
+
 #else
     SkHalf hs[4];
     for (int i = 0; i < 4; i++) {
         hs[i] = SkFloatToHalf(fs[i]);
     }
-    return (uint64_t)hs[3] << 48
-         | (uint64_t)hs[2] << 32
-         | (uint64_t)hs[1] << 16
-         | (uint64_t)hs[0] <<  0;
+    r = (uint64_t)hs[3] << 48
+      | (uint64_t)hs[2] << 32
+      | (uint64_t)hs[1] << 16
+      | (uint64_t)hs[0] <<  0;
 #endif
+    return r;
 }
 
 #endif
