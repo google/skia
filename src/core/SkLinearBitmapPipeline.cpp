@@ -16,9 +16,9 @@
 
 struct X {
     explicit X(SkScalar val) : fVal{val} { }
-    explicit X(SkPoint pt) : fVal{pt.fX} { }
-    explicit X(SkSize s) : fVal{s.fWidth} { }
-    explicit X(SkISize s) : fVal(s.fWidth) { }
+    explicit X(SkPoint pt)   : fVal{pt.fX} { }
+    explicit X(SkSize s)     : fVal{s.fWidth} { }
+    explicit X(SkISize s)    : fVal(s.fWidth) { }
     operator float () const {return fVal;}
 private:
     float fVal;
@@ -26,13 +26,33 @@ private:
 
 struct Y {
     explicit Y(SkScalar val) : fVal{val} { }
-    explicit Y(SkPoint pt) : fVal{pt.fY} { }
-    explicit Y(SkSize s) : fVal{s.fHeight} { }
-    explicit Y(SkISize s) : fVal(s.fHeight) { }
+    explicit Y(SkPoint pt)   : fVal{pt.fY} { }
+    explicit Y(SkSize s)     : fVal{s.fHeight} { }
+    explicit Y(SkISize s)    : fVal(s.fHeight) { }
     operator float () const {return fVal;}
 private:
     float fVal;
 };
+
+template <typename Stage>
+void span_fallback(SkPoint start, SkScalar length, int count, Stage* stage) {
+    // If count == 1 use PointListFew instead.
+    SkASSERT(count > 1);
+
+    float dx = length / (count - 1);
+    Sk4f Xs = Sk4f(X(start)) + Sk4f{0.0f, 1.0f, 2.0f, 3.0f} * Sk4f{dx};
+    Sk4f Ys{Y(start)};
+    Sk4f fourDx = {4.0f * dx};
+
+    while (count >= 4) {
+        stage->pointList4(Xs, Ys);
+        Xs = Xs + fourDx;
+        count -= 4;
+    }
+    if (count > 0) {
+        stage->pointListFew(count, Xs, Ys);
+    }
+}
 
 template<typename Strategy, typename Next>
 class PointProcessor final : public PointProcessorInterface {
@@ -54,6 +74,10 @@ public:
         Sk4f newYs = ys;
         fStrategy.processPoints(&newXs, &newYs);
         fNext->pointList4(newXs, newYs);
+    }
+
+    void pointSpan(SkPoint start, SkScalar length, int count) override {
+        span_fallback(start, length, count, this);
     }
 
 private:
@@ -90,6 +114,10 @@ public:
         fNext->bilerpList(newXs, newYs);
     }
 
+    void pointSpan(SkPoint start, SkScalar length, int count) override {
+        span_fallback(start, length, count, this);
+    }
+
 private:
     Next* const fNext;
     Strategy fStrategy;
@@ -102,7 +130,10 @@ class SkippedStage final : public BilerpProcessorInterface {
     void pointList4(Sk4fArg Xs, Sk4fArg Ys) override {
         SkFAIL("Skipped stage.");
     }
-    virtual void bilerpList(Sk4fArg xs, Sk4fArg ys) override {
+    void bilerpList(Sk4fArg xs, Sk4fArg ys) override {
+        SkFAIL("Skipped stage.");
+    }
+    void pointSpan(SkPoint start, SkScalar length, int count) override {
         SkFAIL("Skipped stage.");
     }
 };
@@ -213,6 +244,10 @@ public:
         fNext->bilerpList(Sk4f{xs[1]} + kXOffsets, Sk4f{ys[1]} + kYOffsets);
         fNext->bilerpList(Sk4f{xs[2]} + kXOffsets, Sk4f{ys[2]} + kYOffsets);
         fNext->bilerpList(Sk4f{xs[3]} + kXOffsets, Sk4f{ys[3]} + kYOffsets);
+    }
+
+    void pointSpan(SkPoint start, SkScalar length, int count) override {
+        span_fallback(start, length, count, this);
     }
 
 private:
@@ -455,6 +490,10 @@ public:
         fNext->placePixel(pixel);
     }
 
+    void pointSpan(SkPoint start, SkScalar length, int count) override {
+        span_fallback(start, length, count, this);
+    }
+
 private:
     PixelPlacerInterface* const fNext;
     SourceStrategy fStrategy;
@@ -557,18 +596,16 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
 }
 
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {
+    SkASSERT(count > 0);
     fPixelStage->setDestination(dst);
-
-    Sk4f Xs = Sk4f(x) + Sk4f{0.5f, 1.5f, 2.5f, 3.5f};
-    Sk4f Ys(y);
-    Sk4f fours{4.0f};
-
-    while (count >= 4) {
-        fFirstStage->pointList4(Xs, Ys);
-        Xs = Xs + fours;
-        count -= 4;
-    }
-    if (count > 0) {
-        fFirstStage->pointListFew(count, Xs, Ys);
+    // Adjust points by 0.5, 0.5 to sample from the center of the pixels.
+    if (count == 1) {
+        fFirstStage->pointListFew(1, Sk4f{x + 0.5f}, Sk4f{y + 0.5f});
+    } else {
+        // The count and length arguments start out in a precise relation in order to keep the
+        // math correct through the different stages. Count is the number of pixel to produce.
+        // Since the code samples at pixel centers, length is the distance from the center of the
+        // first pixel to the center of the last pixel. This implies that length is count-1.
+        fFirstStage->pointSpan(SkPoint{x + 0.5f, y + 0.5f}, count - 1, count);
     }
 }

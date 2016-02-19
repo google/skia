@@ -22,6 +22,19 @@ public:
     virtual ~PointProcessorInterface() { }
     virtual void pointListFew(int n, Sk4fArg xs, Sk4fArg ys) = 0;
     virtual void pointList4(Sk4fArg xs, Sk4fArg ys) = 0;
+
+    // The pointSpan method efficiently process horizontal spans of pixels.
+    // * start - the point where to start the span.
+    // * length - the number of pixels to traverse in source space.
+    // * count - the number of pixels to produce in destination space.
+    // Both start and length are mapped through the inversion matrix to produce values in source
+    // space. After the matrix operation, the tilers may break the spans up into smaller spans.
+    // The tilers can produce spans that seem nonsensical.
+    // * The clamp tiler can create spans with length of 0. This indicates to copy an edge pixel out
+    //   to the edge of the destination scan.
+    // * The mirror tiler can produce spans with negative length. This indicates that the source
+    //   should be traversed in the opposite direction to the destination pixels.
+    virtual void pointSpan(SkPoint start, SkScalar length, int count) = 0;
 };
 
 class BilerpProcessorInterface : public PointProcessorInterface {
