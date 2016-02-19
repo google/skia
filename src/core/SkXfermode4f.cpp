@@ -427,7 +427,11 @@ SkXfermode::PM4fProcN SkXfermode::getPM4fProcN(uint32_t flags) const {
 #include "SkColorPriv.h"
 
 static Sk4f lcd16_to_unit_4f(uint16_t rgb) {
+#ifdef SK_PMCOLOR_IS_RGBA
     Sk4i rgbi = Sk4i(SkGetPackedR16(rgb), SkGetPackedG16(rgb), SkGetPackedB16(rgb), 0);
+#else
+    Sk4i rgbi = Sk4i(SkGetPackedB16(rgb), SkGetPackedG16(rgb), SkGetPackedR16(rgb), 0);
+#endif
     return SkNx_cast<float>(rgbi) * Sk4f(1.0f/31, 1.0f/63, 1.0f/31, 0);
 }
 
