@@ -147,11 +147,9 @@ DEF_TEST(ImageFilterCache_RasterBacked, reporter) {
     test_explicit_purging(reporter, fullImg, subsetImg);
 }
 
-DEF_TEST(ImageFilterCache_ImageBacked, reporter) {
-    SkBitmap srcBM = create_bm();
 
-    SkAutoTUnref<SkImage> srcImage(SkImage::NewFromBitmap(srcBM));
-
+// Shared test code for both the raster and gpu-backed image cases
+static void test_image_backed(skiatest::Reporter* reporter, SkImage* srcImage) {
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
     SkAutoTUnref<SkSpecialImage> fullImg(SkSpecialImage::NewFromImage(full, srcImage));
@@ -166,10 +164,18 @@ DEF_TEST(ImageFilterCache_ImageBacked, reporter) {
     test_explicit_purging(reporter, fullImg, subsetImg);
 }
 
+DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
+    SkBitmap srcBM = create_bm();
+
+    SkAutoTUnref<SkImage> srcImage(SkImage::NewFromBitmap(srcBM));
+
+    test_image_backed(reporter, srcImage);
+}
+
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, context) {
+static GrTexture* create_texture(GrContext* context) {
     SkBitmap srcBM = create_bm();
 
     GrSurfaceDesc desc;
@@ -178,9 +184,34 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, context
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    SkAutoTUnref<GrTexture> srcTexture(context->textureProvider()->createTexture(desc, false,
-                                                                                 srcBM.getPixels(),
-                                                                                 0));
+    return context->textureProvider()->createTexture(desc, false, srcBM.getPixels(), 0);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, context) {
+    SkAutoTUnref<GrTexture> srcTexture(create_texture(context));
+    if (!srcTexture) {
+        return;
+    }
+
+    GrBackendTextureDesc backendDesc;
+    backendDesc.fConfig = kSkia8888_GrPixelConfig;
+    backendDesc.fFlags = kNone_GrBackendTextureFlag;
+    backendDesc.fWidth = kFullSize;
+    backendDesc.fHeight = kFullSize;
+    backendDesc.fSampleCnt = 0;
+    backendDesc.fTextureHandle = srcTexture->getTextureHandle();
+    SkAutoTUnref<SkImage> srcImage(SkImage::NewFromTexture(context, backendDesc,
+                                                           kPremul_SkAlphaType));
+    if (!srcImage) {
+        return;
+    }
+
+    test_image_backed(reporter, srcImage);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, context) {
+
+    SkAutoTUnref<GrTexture> srcTexture(create_texture(context));
     if (!srcTexture) {
         return;
     }
