@@ -36,27 +36,33 @@ public:
             // newMinRadius must be float in order to give the actual value of the radius.
             // The newMinRadius will always be smaller than limit. The largest that minRadius can be
             // is 1/2 the ratio of minRadius : (minRadius + maxRadius), therefore in the resulting
-            // division, minRadius can be no larger than 1/2 limit + ULP.
+            // division, minRadius can be no larger than 1/2 limit + ULP. The newMinRadius can be
+            // 1/2 a ULP off at this point.
             float newMinRadius = *minRadius;
 
             // Because newMaxRadius is the result of a double to float conversion, it can be larger
             // than limit, but only by one ULP.
             float newMaxRadius = (float)(limit - newMinRadius);
 
-            // If newMaxRadius forces the total over the limit, then it needs to be
-            // reduced by one ULP to be less than limit - newMinRadius.
+            // The total sum of newMinRadius and newMaxRadius can be upto 1.5 ULPs off. If the
+            // sum is greater than the limit then newMaxRadius may have to be reduced twice.
             // Note: nextafterf is a c99 call and should be std::nextafter, but this is not
             // implemented in the GCC ARM compiler.
             if (newMaxRadius + newMinRadius > limit) {
                 newMaxRadius = nextafterf(newMaxRadius, 0.0f);
+                if (newMaxRadius + newMinRadius > limit) {
+                    newMaxRadius = nextafterf(newMaxRadius, 0.0f);
+                }
             }
             *maxRadius = newMaxRadius;
         }
 
         SkASSERTF(*a >= 0.0f && *b >= 0.0f, "a: %g, b: %g, limit: %g, scale: %g", *a, *b, limit,
                   scale);
-        SkASSERTF(*a + *b <= limit, "\nlimit: %.10f, a: %.10f, b: %.10f, scale: %.20f",
-                  limit, *a, *b, scale);
+
+        SkASSERTF(*a + *b <= limit,
+                  "\nlimit: %.17f, sum: %.17f, a: %.10f, b: %.10f, scale: %.20f",
+                  limit, *a + *b, *a, *b, scale);
     }
 };
 #endif // ScaleToSides_DEFINED

@@ -12,6 +12,13 @@
 
 DEF_TEST(ScaleToSides, reporter) {
     double interestingValues[] = {
+        // From sample app - PathFuzzer
+        260.01662826538085938,
+        63.61007690429687500,
+        795.98901367187500000,
+        217.71697616577148438,
+        686.15960693359375000,
+        556.57641601562500000,
         // From skp bitbucket
         111.60000228881836,
         55.800003051757813,
