@@ -78,7 +78,7 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
 // Test purging when the max cache size is exceeded
 static void test_internal_purge(skiatest::Reporter* reporter, SkSpecialImage* image) {
     SkASSERT(image->getSize());
-    static const size_t kCacheSize = image->getSize() + 10;
+    const size_t kCacheSize = image->getSize() + 10;
     SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(kCacheSize));
 
     SkIRect clip = SkIRect::MakeWH(100, 100);
@@ -219,14 +219,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, context
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
     SkAutoTUnref<SkSpecialImage> fullImg(SkSpecialImage::NewFromGpu(
-                                                                nullptr, full, 
+                                                                nullptr, full,
                                                                 kNeedNewImageUniqueID_SpecialImage,
                                                                 srcTexture));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     SkAutoTUnref<SkSpecialImage> subsetImg(SkSpecialImage::NewFromGpu(
-                                                                nullptr, subset, 
+                                                                nullptr, subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
                                                                 srcTexture));
 
