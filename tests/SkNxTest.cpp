@@ -19,11 +19,11 @@ static void test_Nf(skiatest::Reporter* r) {
         float vals[4];
         v.store(vals);
         bool ok = close(vals[0], a) && close(vals[1], b)
-               && close(v.template kth<0>(), a) && close(v.template kth<1>(), b);
+               && close(   v[0], a) && close(   v[1], b);
         REPORTER_ASSERT(r, ok);
         if (N == 4) {
             ok = close(vals[2], c) && close(vals[3], d)
-              && close(v.template kth<2>(), c) && close(v.template kth<3>(), d);
+              && close(   v[2], c) && close(   v[3], d);
             REPORTER_ASSERT(r, ok);
         }
     };
@@ -92,10 +92,10 @@ void test_Ni(skiatest::Reporter* r) {
           case 2: REPORTER_ASSERT(r, vals[0] == a && vals[1] == b);
         }
         switch (N) {
-          case 8: REPORTER_ASSERT(r, v.template kth<4>() == e && v.template kth<5>() == f &&
-                                     v.template kth<6>() == g && v.template kth<7>() == h);
-          case 4: REPORTER_ASSERT(r, v.template kth<2>() == c && v.template kth<3>() == d);
-          case 2: REPORTER_ASSERT(r, v.template kth<0>() == a && v.template kth<1>() == b);
+          case 8: REPORTER_ASSERT(r, v[4] == e && v[5] == f &&
+                                     v[6] == g && v[7] == h);
+          case 4: REPORTER_ASSERT(r, v[2] == c && v[3] == d);
+          case 2: REPORTER_ASSERT(r, v[0] == a && v[1] == b);
         }
     };
 
@@ -118,7 +118,7 @@ void test_Ni(skiatest::Reporter* r) {
     assert_eq(a >> 2, 0,0,0,1,1,1,1,2);
     assert_eq(a << 1, 2,4,6,8,10,12,14,16);
 
-    REPORTER_ASSERT(r, a.template kth<1>() == 2);
+    REPORTER_ASSERT(r, a[1] == 2);
 }
 
 DEF_TEST(SkNx, r) {
@@ -136,8 +136,8 @@ DEF_TEST(SkNi_min_lt, r) {
     for (int a = 0; a < (1<<8); a++) {
     for (int b = 0; b < (1<<8); b++) {
         Sk16b aw(a), bw(b);
-        REPORTER_ASSERT(r, Sk16b::Min(aw, bw).kth<0>() == SkTMin(a, b));
-        REPORTER_ASSERT(r, !(aw < bw).kth<0>() == !(a < b));
+        REPORTER_ASSERT(r, Sk16b::Min(aw, bw)[0] == SkTMin(a, b));
+        REPORTER_ASSERT(r, !(aw < bw)[0] == !(a < b));
     }}
 
     // Exhausting the 16x16 bit space is kind of slow, so only do that in release builds.
@@ -146,12 +146,12 @@ DEF_TEST(SkNi_min_lt, r) {
     for (int i = 0; i < (1<<16); i++) {
         uint16_t a = rand.nextU() >> 16,
                  b = rand.nextU() >> 16;
-        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b)).kth<0>() == SkTMin(a, b));
+        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b))[0] == SkTMin(a, b));
     }
 #else
     for (int a = 0; a < (1<<16); a++) {
     for (int b = 0; b < (1<<16); b++) {
-        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b)).kth<0>() == SkTMin(a, b));
+        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b))[0] == SkTMin(a, b));
     }}
 #endif
 }
@@ -163,7 +163,7 @@ DEF_TEST(SkNi_saturatedAdd, r) {
         if (exact > 255) { exact = 255; }
         if (exact <   0) { exact =   0; }
 
-        REPORTER_ASSERT(r, Sk16b(a).saturatedAdd(Sk16b(b)).kth<0>() == exact);
+        REPORTER_ASSERT(r, Sk16b(a).saturatedAdd(Sk16b(b))[0] == exact);
     }
     }
 }
@@ -178,11 +178,11 @@ DEF_TEST(Sk4px_muldiv255round, r) {
              bv = Sk4px::DupAlpha(b);
 
         // This way should always be exactly correct.
-        int correct = (av * bv).div255().kth<0>();
+        int correct = (av * bv).div255()[0];
         REPORTER_ASSERT(r, correct == exact);
 
         // We're a bit more flexible on this method: correct for 0 or 255, otherwise off by <=1.
-        int fast = av.approxMulDiv255(bv).kth<0>();
+        int fast = av.approxMulDiv255(bv)[0];
         REPORTER_ASSERT(r, fast-exact >= -1 && fast-exact <= 1);
         if (a == 0 || a == 255 || b == 0 || b == 255) {
             REPORTER_ASSERT(r, fast == exact);
@@ -209,18 +209,18 @@ DEF_TEST(Sk4px_widening, r) {
 
 DEF_TEST(SkNx_abs, r) {
     auto fs = Sk4f(0.0f, -0.0f, 2.0f, -4.0f).abs();
-    REPORTER_ASSERT(r, fs.kth<0>() == 0.0f);
-    REPORTER_ASSERT(r, fs.kth<1>() == 0.0f);
-    REPORTER_ASSERT(r, fs.kth<2>() == 2.0f);
-    REPORTER_ASSERT(r, fs.kth<3>() == 4.0f);
+    REPORTER_ASSERT(r, fs[0] == 0.0f);
+    REPORTER_ASSERT(r, fs[1] == 0.0f);
+    REPORTER_ASSERT(r, fs[2] == 2.0f);
+    REPORTER_ASSERT(r, fs[3] == 4.0f);
 }
 
 DEF_TEST(SkNx_floor, r) {
     auto fs = Sk4f(0.4f, -0.4f, 0.6f, -0.6f).floor();
-    REPORTER_ASSERT(r, fs.kth<0>() ==  0.0f);
-    REPORTER_ASSERT(r, fs.kth<1>() == -1.0f);
-    REPORTER_ASSERT(r, fs.kth<2>() ==  0.0f);
-    REPORTER_ASSERT(r, fs.kth<3>() == -1.0f);
+    REPORTER_ASSERT(r, fs[0] ==  0.0f);
+    REPORTER_ASSERT(r, fs[1] == -1.0f);
+    REPORTER_ASSERT(r, fs[2] ==  0.0f);
+    REPORTER_ASSERT(r, fs[3] == -1.0f);
 }
 
 DEF_TEST(SkNx_shuffle, r) {
@@ -260,19 +260,19 @@ DEF_TEST(SkNx_u16_float, r) {
         // u16 --> float
         auto h4 = Sk4h(15, 17, 257, 65535);
         auto f4 = SkNx_cast<float>(h4);
-        REPORTER_ASSERT(r, f4.kth<0>() == 15.0f);
-        REPORTER_ASSERT(r, f4.kth<1>() == 17.0f);
-        REPORTER_ASSERT(r, f4.kth<2>() == 257.0f);
-        REPORTER_ASSERT(r, f4.kth<3>() == 65535.0f);
+        REPORTER_ASSERT(r, f4[0] == 15.0f);
+        REPORTER_ASSERT(r, f4[1] == 17.0f);
+        REPORTER_ASSERT(r, f4[2] == 257.0f);
+        REPORTER_ASSERT(r, f4[3] == 65535.0f);
     }
     {
         // float -> u16
         auto f4 = Sk4f(15, 17, 257, 65535);
         auto h4 = SkNx_cast<uint16_t>(f4);
-        REPORTER_ASSERT(r, h4.kth<0>() == 15);
-        REPORTER_ASSERT(r, h4.kth<1>() == 17);
-        REPORTER_ASSERT(r, h4.kth<2>() == 257);
-        REPORTER_ASSERT(r, h4.kth<3>() == 65535);
+        REPORTER_ASSERT(r, h4[0] == 15);
+        REPORTER_ASSERT(r, h4[1] == 17);
+        REPORTER_ASSERT(r, h4[2] == 257);
+        REPORTER_ASSERT(r, h4[3] == 65535);
     }
 
     // starting with any u16 value, we should be able to have a perfect round-trip in/out of floats

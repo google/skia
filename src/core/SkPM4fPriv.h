@@ -10,12 +10,12 @@
 #include "SkNx.h"
 
 static inline float get_alpha(const Sk4f& f4) {
-    return f4.kth<SkPM4f::A>();
+    return f4[SkPM4f::A];
 }
 
 static inline Sk4f set_alpha(const Sk4f& f4, float alpha) {
     static_assert(3 == SkPM4f::A, "");
-    return Sk4f(f4.kth<0>(), f4.kth<1>(), f4.kth<2>(), alpha);
+    return Sk4f(f4[0], f4[1], f4[2], alpha);
 }
 
 static inline uint32_t to_4b(const Sk4f& f4) {

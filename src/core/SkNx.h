@@ -74,8 +74,6 @@ public:
         return k < N/2 ? fLo[k] : fHi[k-N/2];
     }
 
-    template <int k> T kth() const { return (*this)[k]; }
-
     bool allTrue() const { return fLo.allTrue() && fHi.allTrue(); }
     bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
@@ -138,8 +136,6 @@ public:
         SkASSERT(0 == k);
         return fVal;
     }
-
-    template <int k> T kth() const { return (*this)[k]; }
 
     bool allTrue() const { return fVal != 0; }
     bool anyTrue() const { return fVal != 0; }

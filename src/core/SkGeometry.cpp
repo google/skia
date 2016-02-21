@@ -1029,7 +1029,7 @@ void SkConic::chopAt(SkScalar t1, SkScalar t2, SkConic* dst) const {
     dst->fPts[1] = to_point(bXY / bZZ);
     dst->fPts[2] = to_point(cXY / cZZ);
     Sk2s ww = bZZ / (aZZ * cZZ).sqrt();
-    dst->fW = ww.kth<0>();
+    dst->fW = ww[0];
 }
 
 SkPoint SkConic::evalAt(SkScalar t) const {

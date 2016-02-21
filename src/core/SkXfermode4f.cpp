@@ -203,10 +203,10 @@ template <DstType D> void src_1(const SkXfermode::PM4fState& state, uint32_t dst
             const Sk4f& s4_255 = s4 * Sk4f(255);
             while (count >= 4) {
                 Sk4f aa4 = SkNx_cast<float>(Sk4b::Load(aa)) * Sk4f(1/255.f);
-                Sk4f r0 = lerp(s4_255, to_4f(dst[0]), Sk4f(aa4.kth<0>())) + Sk4f(0.5f);
-                Sk4f r1 = lerp(s4_255, to_4f(dst[1]), Sk4f(aa4.kth<1>())) + Sk4f(0.5f);
-                Sk4f r2 = lerp(s4_255, to_4f(dst[2]), Sk4f(aa4.kth<2>())) + Sk4f(0.5f);
-                Sk4f r3 = lerp(s4_255, to_4f(dst[3]), Sk4f(aa4.kth<3>())) + Sk4f(0.5f);
+                Sk4f r0 = lerp(s4_255, to_4f(dst[0]), Sk4f(aa4[0])) + Sk4f(0.5f);
+                Sk4f r1 = lerp(s4_255, to_4f(dst[1]), Sk4f(aa4[1])) + Sk4f(0.5f);
+                Sk4f r2 = lerp(s4_255, to_4f(dst[2]), Sk4f(aa4[2])) + Sk4f(0.5f);
+                Sk4f r3 = lerp(s4_255, to_4f(dst[3]), Sk4f(aa4[3])) + Sk4f(0.5f);
                 Sk4f_ToBytes((uint8_t*)dst, r0, r1, r2, r3);
                 
                 dst += 4;
@@ -221,10 +221,10 @@ template <DstType D> void src_1(const SkXfermode::PM4fState& state, uint32_t dst
                  *  it would be faster (and possibly allow more code sharing with kLinear) to
                  *  stay in that space.
                  */
-                Sk4f r0 = lerp(s4, load_dst<D>(dst[0]), Sk4f(aa4.kth<0>()));
-                Sk4f r1 = lerp(s4, load_dst<D>(dst[1]), Sk4f(aa4.kth<1>()));
-                Sk4f r2 = lerp(s4, load_dst<D>(dst[2]), Sk4f(aa4.kth<2>()));
-                Sk4f r3 = lerp(s4, load_dst<D>(dst[3]), Sk4f(aa4.kth<3>()));
+                Sk4f r0 = lerp(s4, load_dst<D>(dst[0]), Sk4f(aa4[0]));
+                Sk4f r1 = lerp(s4, load_dst<D>(dst[1]), Sk4f(aa4[1]));
+                Sk4f r2 = lerp(s4, load_dst<D>(dst[2]), Sk4f(aa4[2]));
+                Sk4f r3 = lerp(s4, load_dst<D>(dst[3]), Sk4f(aa4[3]));
                 Sk4f_ToBytes((uint8_t*)dst,
                              linear_unit_to_srgb_255f(r0),
                              linear_unit_to_srgb_255f(r1),

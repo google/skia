@@ -326,7 +326,7 @@ static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
         min = Sk2s::Min(min, pair);
         max = Sk2s::Max(max, pair);
     }
-    return { min.kth<0>(), min.kth<1>(), max.kth<0>(), max.kth<1>() };
+    return { min[0], min[1], max[0], max[1] };
 }
 
 static bool is_inverted(const SkRect& r) {

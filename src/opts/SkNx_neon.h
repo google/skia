@@ -111,7 +111,6 @@ public:
         union { float32x2_t v; float fs[2]; } pun = {fVec};
         return pun.fs[k&1];
     }
-    template <int k> float kth() const { return (*this)[k]; }
 
     bool allTrue() const {
         auto v = vreinterpret_u32_f32(fVec);
@@ -203,7 +202,6 @@ public:
         union { float32x4_t v; float fs[4]; } pun = {fVec};
         return pun.fs[k&3];
     }
-    template <int k> float kth() const { return (*this)[k]; }
 
     bool allTrue() const {
         auto v = vreinterpretq_u32_f32(fVec);
@@ -255,7 +253,6 @@ public:
         union { uint16x4_t v; uint16_t us[4]; } pun = {fVec};
         return pun.us[k&3];
     }
-    template <int k> uint16_t kth() const { return (*this)[k]; }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbsl_u16(fVec, t.fVec, e.fVec);
@@ -294,7 +291,6 @@ public:
         union { uint16x8_t v; uint16_t us[8]; } pun = {fVec};
         return pun.us[k&7];
     }
-    template <int k> uint16_t kth() const { return (*this)[k]; }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbslq_u16(fVec, t.fVec, e.fVec);
@@ -352,7 +348,6 @@ public:
         union { uint8x16_t v; uint8_t us[16]; } pun = {fVec};
         return pun.us[k&15];
     }
-    template <int k> uint8_t kth() const { return (*this)[k]; }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbslq_u8(fVec, t.fVec, e.fVec);

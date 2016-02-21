@@ -65,7 +65,6 @@ public:
         union { __m128 v; float fs[4]; } pun = {fVec};
         return pun.fs[k&1];
     }
-    template <int k> float kth() const { return (*this)[k]; }
 
     bool allTrue() const { return 0xff == (_mm_movemask_epi8(_mm_castps_si128(fVec)) & 0xff); }
     bool anyTrue() const { return 0x00 != (_mm_movemask_epi8(_mm_castps_si128(fVec)) & 0xff); }
@@ -117,7 +116,6 @@ public:
         union { __m128 v; float fs[4]; } pun = {fVec};
         return pun.fs[k&3];
     }
-    template <int k> float kth() const { return (*this)[k]; }
 
     bool allTrue() const { return 0xffff == _mm_movemask_epi8(_mm_castps_si128(fVec)); }
     bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castps_si128(fVec)); }
@@ -159,7 +157,6 @@ public:
         union { __m128i v; int is[4]; } pun = {fVec};
         return pun.is[k&3];
     }
-    template <int k> int kth() const { return (*this)[k]; }
 
     __m128i fVec;
 };
@@ -188,7 +185,6 @@ public:
         union { __m128i v; uint16_t us[8]; } pun = {fVec};
         return pun.us[k&3];
     }
-    template <int k> uint16_t kth() const { return (*this)[k]; }
 
     __m128i fVec;
 };
@@ -232,7 +228,6 @@ public:
         union { __m128i v; uint16_t us[8]; } pun = {fVec};
         return pun.us[k&7];
     }
-    template <int k> uint16_t kth() const { return (*this)[k]; }
 
     __m128i fVec;
 };
@@ -284,7 +279,6 @@ public:
         union { __m128i v; uint8_t us[16]; } pun = {fVec};
         return pun.us[k&15];
     }
-    template <int k> uint8_t kth() const { return (*this)[k]; }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return _mm_or_si128(_mm_and_si128   (fVec, t.fVec),

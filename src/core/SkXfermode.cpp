@@ -50,15 +50,15 @@ static inline int clamp_div255round(int prod) {
 ///////////////////////////////////////////////////////////////////////////////
 #include "SkNx.h"
 
-static Sk4f     alpha(const Sk4f& color) { return Sk4f(color.kth<3>()); }
-static Sk4f inv_alpha(const Sk4f& color) { return Sk4f(1 - color.kth<3>()); }
+static Sk4f     alpha(const Sk4f& color) { return Sk4f(color[3]); }
+static Sk4f inv_alpha(const Sk4f& color) { return Sk4f(1 - color[3]); }
 static Sk4f     pin_1(const Sk4f& value) { return Sk4f::Min(value, Sk4f(1)); }
 
 static Sk4f color_alpha(const Sk4f& color, float newAlpha) {
-    return Sk4f(color.kth<0>(), color.kth<1>(), color.kth<2>(), newAlpha);
+    return Sk4f(color[0], color[1], color[2], newAlpha);
 }
 static Sk4f color_alpha(const Sk4f& color, const Sk4f& newAlpha) {
-    return color_alpha(color, newAlpha.kth<3>());
+    return color_alpha(color, newAlpha[3]);
 }
 
 static Sk4f set_argb(float a, float r, float g, float b) {
@@ -264,15 +264,15 @@ static inline void SetLum(float* r, float* g, float* b, float a, float l) {
 }
 
 static Sk4f hue_4f(const Sk4f& s, const Sk4f& d) {
-    float sa = s.kth<SkPM4f::A>();
-    float sr = s.kth<SkPM4f::R>();
-    float sg = s.kth<SkPM4f::G>();
-    float sb = s.kth<SkPM4f::B>();
+    float sa = s[SkPM4f::A];
+    float sr = s[SkPM4f::R];
+    float sg = s[SkPM4f::G];
+    float sb = s[SkPM4f::B];
     
-    float da = d.kth<SkPM4f::A>();
-    float dr = d.kth<SkPM4f::R>();
-    float dg = d.kth<SkPM4f::G>();
-    float db = d.kth<SkPM4f::B>();
+    float da = d[SkPM4f::A];
+    float dr = d[SkPM4f::R];
+    float dg = d[SkPM4f::G];
+    float db = d[SkPM4f::B];
 
     float Sr = sr;
     float Sg = sg;
@@ -285,15 +285,15 @@ static Sk4f hue_4f(const Sk4f& s, const Sk4f& d) {
 }
 
 static Sk4f saturation_4f(const Sk4f& s, const Sk4f& d) {
-    float sa = s.kth<SkPM4f::A>();
-    float sr = s.kth<SkPM4f::R>();
-    float sg = s.kth<SkPM4f::G>();
-    float sb = s.kth<SkPM4f::B>();
+    float sa = s[SkPM4f::A];
+    float sr = s[SkPM4f::R];
+    float sg = s[SkPM4f::G];
+    float sb = s[SkPM4f::B];
     
-    float da = d.kth<SkPM4f::A>();
-    float dr = d.kth<SkPM4f::R>();
-    float dg = d.kth<SkPM4f::G>();
-    float db = d.kth<SkPM4f::B>();
+    float da = d[SkPM4f::A];
+    float dr = d[SkPM4f::R];
+    float dg = d[SkPM4f::G];
+    float db = d[SkPM4f::B];
     
     float Dr = dr;
     float Dg = dg;
@@ -306,15 +306,15 @@ static Sk4f saturation_4f(const Sk4f& s, const Sk4f& d) {
 }
 
 static Sk4f color_4f(const Sk4f& s, const Sk4f& d) {
-    float sa = s.kth<SkPM4f::A>();
-    float sr = s.kth<SkPM4f::R>();
-    float sg = s.kth<SkPM4f::G>();
-    float sb = s.kth<SkPM4f::B>();
+    float sa = s[SkPM4f::A];
+    float sr = s[SkPM4f::R];
+    float sg = s[SkPM4f::G];
+    float sb = s[SkPM4f::B];
     
-    float da = d.kth<SkPM4f::A>();
-    float dr = d.kth<SkPM4f::R>();
-    float dg = d.kth<SkPM4f::G>();
-    float db = d.kth<SkPM4f::B>();
+    float da = d[SkPM4f::A];
+    float dr = d[SkPM4f::R];
+    float dg = d[SkPM4f::G];
+    float db = d[SkPM4f::B];
 
     float Sr = sr;
     float Sg = sg;
@@ -328,15 +328,15 @@ static Sk4f color_4f(const Sk4f& s, const Sk4f& d) {
 }
 
 static Sk4f luminosity_4f(const Sk4f& s, const Sk4f& d) {
-    float sa = s.kth<SkPM4f::A>();
-    float sr = s.kth<SkPM4f::R>();
-    float sg = s.kth<SkPM4f::G>();
-    float sb = s.kth<SkPM4f::B>();
+    float sa = s[SkPM4f::A];
+    float sr = s[SkPM4f::R];
+    float sg = s[SkPM4f::G];
+    float sb = s[SkPM4f::B];
     
-    float da = d.kth<SkPM4f::A>();
-    float dr = d.kth<SkPM4f::R>();
-    float dg = d.kth<SkPM4f::G>();
-    float db = d.kth<SkPM4f::B>();
+    float da = d[SkPM4f::A];
+    float dr = d[SkPM4f::R];
+    float dg = d[SkPM4f::G];
+    float db = d[SkPM4f::B];
     
     float Dr = dr;
     float Dg = dg;

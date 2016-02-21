@@ -66,8 +66,8 @@ static SkBitmap make_bitmap3(int w, int h) {
     SkScalar s = SkIntToScalar(w);
     Sk4f p(s, -s, -s, s);
     Sk4f d(5);
-    while (p.kth<1>() < s) {
-        canvas.drawLine(p.kth<0>(),p.kth<1>(), p.kth<2>(), p.kth<3>(), paint);
+    while (p[1] < s) {
+        canvas.drawLine(p[0],p[1], p[2], p[3], paint);
         p = p + d;
     }
     return bm;
