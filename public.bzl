@@ -114,6 +114,9 @@ BASE_SRCS_ALL = struct(
         "src/xml/SkBML_Verbs.h",
         "src/xml/SkBML_XMLParser.cpp",
         "src/xml/SkXMLPullParser.cpp",
+
+        # Currently exclude all vulkan specific files
+        "src/gpu/vk/*",
     ],
 )
 
