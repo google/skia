@@ -629,7 +629,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
 
 SkGlyphCache* GrStencilAndCoverTextContext::TextRun::getGlyphCache() const {
     if (!fDetachedGlyphCache) {
-        fDetachedGlyphCache = fFont.detachCache(nullptr, nullptr, true /*ignoreGamma*/);
+        fDetachedGlyphCache = fFont.detachCache(nullptr, SkPaint::FakeGamma::Off, nullptr);
     }
     return fDetachedGlyphCache;
 }

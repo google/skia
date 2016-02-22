@@ -11,12 +11,12 @@
 #include "SkChunkAlloc.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
+#include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"
 #include "SkTemplates.h"
 #include "SkTDArray.h"
 
-class SkPaint;
 class SkTraceMemoryDump;
 
 class SkGlyphCache_Globals;
@@ -137,6 +137,7 @@ public:
         the global cache list (after which the caller should not reference it anymore.
     */
     static void AttachCache(SkGlyphCache*);
+    using AttachCacheFunctor = SkFunctionWrapper<void, SkGlyphCache, AttachCache>;
 
     /** Detach a strike from the global cache matching the specified descriptor. Once detached,
         it can be queried/modified by the current thread, and when finished, be reattached to the
@@ -271,74 +272,40 @@ private:
     AuxProcRec*            fAuxProcList;
 };
 
-class SkAutoGlyphCacheBase {
+class SkAutoGlyphCache : public skstd::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor> {
 public:
-    SkGlyphCache* getCache() const { return fCache; }
+    /** deprecated: use get() */
+    SkGlyphCache* getCache() const { return this->get(); }
 
-    void release() {
-        if (fCache) {
-            SkGlyphCache::AttachCache(fCache);
-            fCache = nullptr;
-        }
-    }
-
-protected:
-    // Hide the constructors so we can't create one of these directly. Create SkAutoGlyphCache or
-    // SkAutoGlyphCacheNoCache instead.
-    SkAutoGlyphCacheBase(SkGlyphCache* cache) : fCache(cache) {}
-    SkAutoGlyphCacheBase(SkTypeface* typeface, const SkDescriptor* desc) {
-        fCache = SkGlyphCache::DetachCache(typeface, desc);
-    }
-    SkAutoGlyphCacheBase(const SkPaint& /*paint*/,
-                         const SkSurfaceProps* /*surfaceProps*/,
-                         const SkMatrix* /*matrix*/) {
-        fCache = nullptr;
-    }
-    SkAutoGlyphCacheBase() {
-        fCache = nullptr;
-    }
-    ~SkAutoGlyphCacheBase() {
-        if (fCache) {
-            SkGlyphCache::AttachCache(fCache);
-        }
-    }
-
-    SkGlyphCache*   fCache;
-
-private:
-    static bool DetachProc(const SkGlyphCache*, void*);
-};
-
-class SkAutoGlyphCache : public SkAutoGlyphCacheBase {
-public:
-    SkAutoGlyphCache(SkGlyphCache* cache) : SkAutoGlyphCacheBase(cache) {}
-    SkAutoGlyphCache(SkTypeface* typeface, const SkDescriptor* desc) :
-        SkAutoGlyphCacheBase(typeface, desc) {}
+    SkAutoGlyphCache(SkGlyphCache* cache) : INHERITED(cache) {}
+    SkAutoGlyphCache(SkTypeface* typeface, const SkDescriptor* desc)
+        : INHERITED(SkGlyphCache::DetachCache(typeface, desc))
+    {}
+    /** deprecated: always enables fake gamma */
     SkAutoGlyphCache(const SkPaint& paint,
                      const SkSurfaceProps* surfaceProps,
-                     const SkMatrix* matrix) {
-        fCache = paint.detachCache(surfaceProps, matrix, false);
-    }
-
+                     const SkMatrix* matrix)
+        : INHERITED(paint.detachCache(surfaceProps, SkPaint::FakeGamma::On, matrix))
+    {}
+    SkAutoGlyphCache(const SkPaint& paint,
+                     const SkSurfaceProps* surfaceProps,
+                     SkPaint::FakeGamma fakeGamma,
+                     const SkMatrix* matrix)
+        : INHERITED(paint.detachCache(surfaceProps, fakeGamma, matrix))
+    {}
 private:
-    SkAutoGlyphCache() : SkAutoGlyphCacheBase() {}
+    using INHERITED = skstd::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor>;
 };
-#define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 
-class SkAutoGlyphCacheNoGamma : public SkAutoGlyphCacheBase {
+class SkAutoGlyphCacheNoGamma : public SkAutoGlyphCache {
 public:
-    SkAutoGlyphCacheNoGamma(SkGlyphCache* cache) : SkAutoGlyphCacheBase(cache) {}
-    SkAutoGlyphCacheNoGamma(SkTypeface* typeface, const SkDescriptor* desc) :
-        SkAutoGlyphCacheBase(typeface, desc) {}
     SkAutoGlyphCacheNoGamma(const SkPaint& paint,
                             const SkSurfaceProps* surfaceProps,
-                            const SkMatrix* matrix) {
-        fCache = paint.detachCache(surfaceProps, matrix, true);
-    }
-
-private:
-    SkAutoGlyphCacheNoGamma() : SkAutoGlyphCacheBase() {}
+                            const SkMatrix* matrix)
+        : SkAutoGlyphCache(paint, surfaceProps, SkPaint::FakeGamma::Off, matrix)
+    {}
 };
+#define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
 
 #endif

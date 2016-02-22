@@ -139,6 +139,9 @@ private:
     bool SK_WARN_UNUSED_RESULT
     computeConservativeLocalClipBounds(SkRect* bounds) const;
 
+    /** Returns the current setting for using fake gamma. */
+    SkPaint::FakeGamma SK_WARN_UNUSED_RESULT fakeGamma() const;
+
 public:
     SkPixmap        fDst;
     const SkMatrix* fMatrix;        // required

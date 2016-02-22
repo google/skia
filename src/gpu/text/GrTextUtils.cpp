@@ -57,7 +57,8 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
     GrBatchTextStrike* currStrike = nullptr;
 
     // Get GrFontScaler from cache
-    SkGlyphCache* cache = blob->setupCache(runIndex, props, skPaint, &viewMatrix, false);
+    SkGlyphCache* cache = blob->setupCache(runIndex, props, SkPaint::FakeGamma::On,
+                                           skPaint, &viewMatrix);
     GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessText(
@@ -98,7 +99,8 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
     GrBatchTextStrike* currStrike = nullptr;
 
     // Get GrFontScaler from cache
-    SkGlyphCache* cache = blob->setupCache(runIndex, props, skPaint, &viewMatrix, false);
+    SkGlyphCache* cache = blob->setupCache(runIndex, props, SkPaint::FakeGamma::On,
+                                           skPaint, &viewMatrix);
     GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessPosText(
@@ -258,7 +260,7 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
 
     SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
     SkAutoDescriptor desc;
-    skPaint.getScalerContextDescriptor(&desc, props, nullptr, true);
+    skPaint.getScalerContextDescriptor(&desc, props, SkPaint::FakeGamma::Off, nullptr);
     SkGlyphCache* origPaintCache = SkGlyphCache::DetachCache(skPaint.getTypeface(),
                                                              desc.getDesc());
 
@@ -339,7 +341,8 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
 
     GrBatchTextStrike* currStrike = nullptr;
 
-    SkGlyphCache* cache = blob->setupCache(runIndex, props, dfPaint, nullptr, true);
+    SkGlyphCache* cache = blob->setupCache(runIndex, props, SkPaint::FakeGamma::Off,
+                                           dfPaint, nullptr);
     SkDrawCacheProc glyphCacheProc = dfPaint.getDrawCacheProc();
     GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 

@@ -1098,7 +1098,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         metrics = &storage;
     }
 
-    paint.descriptorProc(nullptr, zoomPtr, FontMetricsDescProc, metrics, true);
+    paint.descriptorProc(nullptr, FakeGamma::Off, zoomPtr, FontMetricsDescProc, metrics);
 
     if (scale) {
         metrics->fTop = SkScalarMul(metrics->fTop, scale);
@@ -1690,12 +1690,13 @@ static void write_out_descriptor(SkDescriptor* desc, const SkScalerContext::Rec&
 
 static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
                            const SkSurfaceProps* surfaceProps,
-                           const SkMatrix* deviceMatrix, bool ignoreGamma,
+                           bool fakeGamma,
+                           const SkMatrix* deviceMatrix,
                            const SkPathEffect* pe, SkWriteBuffer* peBuffer,
                            const SkMaskFilter* mf, SkWriteBuffer* mfBuffer,
                            const SkRasterizer* ra, SkWriteBuffer* raBuffer) {
     SkScalerContext::MakeRec(paint, surfaceProps, deviceMatrix, rec);
-    if (ignoreGamma) {
+    if (!fakeGamma) {
         rec->ignorePreBlend();
     }
 
@@ -1785,7 +1786,8 @@ static void test_desc(const SkScalerContext::Rec& rec,
 /* see the note on ignoreGamma on descriptorProc */
 void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
                                          const SkSurfaceProps& surfaceProps,
-                                         const SkMatrix* deviceMatrix, bool ignoreGamma) const {
+                                         FakeGamma fakeGamma,
+                                         const SkMatrix* deviceMatrix) const {
     SkScalerContext::Rec    rec;
 
     SkPathEffect*   pe = this->getPathEffect();
@@ -1793,7 +1795,8 @@ void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
     SkRasterizer*   ra = this->getRasterizer();
 
     SkWriteBuffer   peBuffer, mfBuffer, raBuffer;
-    size_t descSize = fill_out_rec(*this, &rec, &surfaceProps, deviceMatrix, ignoreGamma,
+    size_t descSize = fill_out_rec(*this, &rec,
+                                   &surfaceProps, FakeGamma::On == fakeGamma, deviceMatrix,
                                    pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
 
     ad->reset(descSize);
@@ -1814,9 +1817,10 @@ void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
  *  contrast = 0, luminanceColor = transparent black.
  */
 void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
+                             FakeGamma fakeGamma,
                              const SkMatrix* deviceMatrix,
                              void (*proc)(SkTypeface*, const SkDescriptor*, void*),
-                             void* context, bool ignoreGamma) const {
+                             void* context) const {
     SkScalerContext::Rec    rec;
 
     SkPathEffect*   pe = this->getPathEffect();
@@ -1824,7 +1828,8 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
     SkRasterizer*   ra = this->getRasterizer();
 
     SkWriteBuffer   peBuffer, mfBuffer, raBuffer;
-    size_t descSize = fill_out_rec(*this, &rec, surfaceProps, deviceMatrix, ignoreGamma,
+    size_t descSize = fill_out_rec(*this, &rec,
+                                   surfaceProps, FakeGamma::On == fakeGamma, deviceMatrix,
                                    pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
 
     SkAutoDescriptor    ad(descSize);
@@ -1842,10 +1847,10 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
 }
 
 SkGlyphCache* SkPaint::detachCache(const SkSurfaceProps* surfaceProps,
-                                   const SkMatrix* deviceMatrix,
-                                   bool ignoreGamma) const {
+                                   FakeGamma fakeGamma,
+                                   const SkMatrix* deviceMatrix) const {
     SkGlyphCache* cache;
-    this->descriptorProc(surfaceProps, deviceMatrix, DetachDescProc, &cache, ignoreGamma);
+    this->descriptorProc(surfaceProps, fakeGamma, deviceMatrix, DetachDescProc, &cache);
     return cache;
 }
 
@@ -2417,7 +2422,7 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
         fPaint.setPathEffect(nullptr);
     }
 
-    fCache = fPaint.detachCache(nullptr, nullptr, false);
+    fCache = fPaint.detachCache(nullptr, SkPaint::FakeGamma::On, nullptr);
 
     SkPaint::Style  style = SkPaint::kFill_Style;
     SkPathEffect*   pe = nullptr;
