@@ -95,6 +95,7 @@ remove_srcs(
     ../src/gpu/gl/command_buffer/*
     ../src/gpu/gl/egl/*
     ../src/gpu/gl/iOS/*
+    ../src/gpu/vk/*
     ../src/opts/SkBitmapProcState_opts_none.cpp
     ../src/opts/SkBlitMask_opts_none.cpp
     ../src/opts/SkBlitRow_opts_none.cpp
