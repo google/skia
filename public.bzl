@@ -443,6 +443,7 @@ DM_INCLUDES = [
     "gm",
     "src/codec",
     "src/effects",
+    "src/effects/gradients",
     "src/fonts",
     "src/pathops",
     "src/pipe/utils",
