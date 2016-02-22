@@ -67,6 +67,17 @@ public:
     GrGLSLFPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
 
     /**
+     * Subtracts sample coverage from the fragment. Any sample whose corresponding bit is not found
+     * in the mask will not be written out to the framebuffer.
+     *
+     * @param mask      int that contains the sample mask. Bit N corresponds to the Nth sample.
+     * @param invert    perform a bit-wise NOT on the provided mask before applying it?
+     *
+     * Requires GLSL support for sample variables.
+     */
+    virtual void maskSampleCoverage(const char* mask, bool invert = false) = 0;
+
+    /**
      * Fragment procs with child procs should call these functions before/after calling emitCode
      * on a child proc.
      */
@@ -83,6 +94,20 @@ class GrGLSLPPFragmentBuilder : public GrGLSLFPFragmentBuilder {
 public:
     /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
     GrGLSLPPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
+
+    /**
+     * Overrides the fragment's sample coverage. The provided mask determines which samples will now
+     * be written out to the framebuffer. Note that this mask can be reduced by a future call to
+     * maskSampleCoverage.
+     *
+     * If a primitive processor uses this method, it must guarantee that every codepath through the
+     * shader overrides the sample mask at some point.
+     *
+     * @param mask    int that contains the new coverage mask. Bit N corresponds to the Nth sample.
+     *
+     * Requires NV_sample_mask_override_coverage.
+     */
+    virtual void overrideSampleCoverage(const char* mask) = 0;
 };
 
 /*
@@ -127,6 +152,8 @@ public:
     const char* fragmentPosition() override;
 
     // GrGLSLFPFragmentBuilder interface.
+    void maskSampleCoverage(const char* mask, bool invert = false) override;
+    void overrideSampleCoverage(const char* mask) override;
     const SkString& getMangleString() const override { return fMangleString; }
     void onBeforeChildProcEmitCode() override;
     void onAfterChildProcEmitCode() override;
@@ -197,6 +224,7 @@ private:
     bool fHasCustomColorOutput;
     int  fCustomColorOutputIndex;
     bool fHasSecondaryOutput;
+    bool fHasInitializedSampleMask;
 
     // some state to verify shaders and effects are consistent, this is reset between effects by
     // the program creator

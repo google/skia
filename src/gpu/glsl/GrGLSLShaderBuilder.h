@@ -152,13 +152,17 @@ protected:
         kExternalTexture_GLSLPrivateFeature,
         kFramebufferFetch_GLSLPrivateFeature,
         kNoPerspectiveInterpolation_GLSLPrivateFeature,
-        kLastGLSLPrivateFeature = kNoPerspectiveInterpolation_GLSLPrivateFeature
+        kSampleVariables_GLSLPrivateFeature,
+        kSampleMaskOverrideCoverage_GLSLPrivateFeature,
+        kLastGLSLPrivateFeature = kSampleMaskOverrideCoverage_GLSLPrivateFeature
     };
 
     /*
      * A general function which enables an extension in a shader if the feature bit is not present
+     *
+     * @return true if the feature bit was not yet present, false otherwise.
      */
-    void addFeature(uint32_t featureBit, const char* extensionName);
+    bool addFeature(uint32_t featureBit, const char* extensionName);
 
     enum InterfaceQualifier {
         kOut_InterfaceQualifier,

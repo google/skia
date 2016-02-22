@@ -74,6 +74,7 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     , fHasCustomColorOutput(false)
     , fCustomColorOutputIndex(-1)
     , fHasSecondaryOutput(false)
+    , fHasInitializedSampleMask(false)
     , fHasReadDstColor(false)
     , fHasReadFragmentPosition(false) {
     fSubstageIndices.push_back(0);
@@ -167,6 +168,47 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
         SkASSERT(fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
         return kCoordName;
     }
+}
+
+void GrGLSLFragmentShaderBuilder::maskSampleCoverage(const char* mask, bool invert) {
+    const GrGLSLCaps& glslCaps = *fProgramBuilder->glslCaps();
+    if (!glslCaps.sampleVariablesSupport()) {
+        SkDEBUGFAIL("Attempted to mask sample coverage without support.");
+        return;
+    }
+    if (const char* extension = glslCaps.sampleVariablesExtensionString()) {
+        this->addFeature(1 << kSampleVariables_GLSLPrivateFeature, extension);
+    }
+    if (!fHasInitializedSampleMask) {
+        this->codePrependf("gl_SampleMask[0] = -1;");
+        fHasInitializedSampleMask = true;
+    }
+    if (invert) {
+        this->codeAppendf("gl_SampleMask[0] &= ~(%s);", mask);
+    } else {
+        this->codeAppendf("gl_SampleMask[0] &= %s;", mask);
+    }
+}
+
+void GrGLSLFragmentShaderBuilder::overrideSampleCoverage(const char* mask) {
+    const GrGLSLCaps& glslCaps = *fProgramBuilder->glslCaps();
+    if (!glslCaps.sampleMaskOverrideCoverageSupport()) {
+        SkDEBUGFAIL("Attempted to override sample coverage without support.");
+        return;
+    }
+    SkASSERT(glslCaps.sampleVariablesSupport());
+    if (const char* extension = glslCaps.sampleVariablesExtensionString()) {
+        this->addFeature(1 << kSampleVariables_GLSLPrivateFeature, extension);
+    }
+    if (this->addFeature(1 << kSampleMaskOverrideCoverage_GLSLPrivateFeature,
+                         "GL_NV_sample_mask_override_coverage")) {
+        // Redeclare gl_SampleMask with layout(override_coverage) if we haven't already.
+        fOutputs.push_back().set(kInt_GrSLType, GrShaderVar::kOut_TypeModifier,
+                                 "gl_SampleMask", 1, kHigh_GrSLPrecision,
+                                 "override_coverage");
+    }
+    this->codeAppendf("gl_SampleMask[0] = %s;", mask);
+    fHasInitializedSampleMask = true;
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {

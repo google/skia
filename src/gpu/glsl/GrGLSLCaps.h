@@ -58,6 +58,10 @@ public:
 
     bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
 
+    bool sampleVariablesSupport() const { return fSampleVariablesSupport; }
+
+    bool sampleMaskOverrideCoverageSupport() const { return fSampleMaskOverrideCoverageSupport; }
+
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -88,7 +92,7 @@ public:
         SkASSERT(this->shaderDerivativeSupport());
         return fShaderDerivativeExtensionString;
     }
-    
+
     // Returns the string of an extension that will do all necessary coord transfomations needed
     // when reading the fragment position. If such an extension does not exisits, this function
     // returns a nullptr, and all transforms of the frag position must be done manually in the
@@ -112,6 +116,11 @@ public:
     const char* noperspectiveInterpolationExtensionString() const {
         SkASSERT(this->noperspectiveInterpolationSupport());
         return fNoPerspectiveInterpolationExtensionString;
+    }
+
+    const char* sampleVariablesExtensionString() const {
+        SkASSERT(this->sampleVariablesSupport());
+        return fSampleVariablesExtensionString;
     }
 
     /**
@@ -148,6 +157,8 @@ private:
     bool fCanUseAnyFunctionInShader : 1;
     bool fFlatInterpolationSupport : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
+    bool fSampleVariablesSupport : 1;
+    bool fSampleMaskOverrideCoverageSupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
@@ -160,6 +171,7 @@ private:
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
+    const char* fSampleVariablesExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
