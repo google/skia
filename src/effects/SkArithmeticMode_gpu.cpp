@@ -19,8 +19,6 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
-static const bool gUseUnpremul = false;
-
 static void add_arithmetic_code(GrGLSLFragmentBuilder* fragBuilder,
                                 const char* srcColor,
                                 const char* dstColor,
@@ -32,22 +30,13 @@ static void add_arithmetic_code(GrGLSLFragmentBuilder* fragBuilder,
         fragBuilder->codeAppend("const vec4 src = vec4(1);");
     } else {
         fragBuilder->codeAppendf("vec4 src = %s;", srcColor);
-        if (gUseUnpremul) {
-            fragBuilder->codeAppend("src.rgb = clamp(src.rgb / src.a, 0.0, 1.0);");
-        }
     }
 
     fragBuilder->codeAppendf("vec4 dst = %s;", dstColor);
-    if (gUseUnpremul) {
-        fragBuilder->codeAppend("dst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);");
-    }
-
     fragBuilder->codeAppendf("%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;",
                              outputColor, kUni, kUni, kUni, kUni);
     fragBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
-    if (gUseUnpremul) {
-        fragBuilder->codeAppendf("%s.rgb *= %s.a;", outputColor, outputColor);
-    } else if (enforcePMColor) {
+    if (enforcePMColor) {
         fragBuilder->codeAppendf("%s.rgb = min(%s.rgb, %s.a);",
                                  outputColor, outputColor, outputColor);
     }
