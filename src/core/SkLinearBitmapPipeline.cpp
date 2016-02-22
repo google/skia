@@ -54,6 +54,19 @@ void span_fallback(SkPoint start, SkScalar length, int count, Stage* stage) {
     }
 }
 
+// PointProcessor uses a strategy to help complete the work of the different stages. The strategy
+// must implement the following methods:
+// * processPoints(xs, ys) - must mutate the xs and ys for the stage.
+// * maybeProcessSpan(start, length, count) - This represents a horizontal series of pixels
+//   to work over.
+//   start - is the starting pixel. This is in destination space before the matrix stage, and in
+//           source space after the matrix stage.
+//   length - is this distance between the first pixel center and the last pixel center. Like start,
+//           this is in destination space before the matrix stage, and in source space after.
+//   count - the number of pixels in source space to produce.
+//   next - a pointer to the next stage.
+//   maybeProcessSpan - returns false if it can not process the span and needs to fallback to
+//                      point lists for processing.
 template<typename Strategy, typename Next>
 class PointProcessor final : public PointProcessorInterface {
 public:
@@ -77,7 +90,9 @@ public:
     }
 
     void pointSpan(SkPoint start, SkScalar length, int count) override {
-        span_fallback(start, length, count, this);
+        if (!fStrategy.maybeProcessSpan(start, length, count, fNext)) {
+            span_fallback(start, length, count, this);
+        }
     }
 
 private:
@@ -85,6 +100,7 @@ private:
     Strategy fStrategy;
 };
 
+// See PointProcessor for responsibilities of Strategy.
 template<typename Strategy, typename Next>
 class BilerpProcessor final : public BilerpProcessorInterface  {
 public:
@@ -115,7 +131,9 @@ public:
     }
 
     void pointSpan(SkPoint start, SkScalar length, int count) override {
-        span_fallback(start, length, count, this);
+        if (!fStrategy.maybeProcessSpan(start, length, count, fNext)) {
+            span_fallback(start, length, count, this);
+        }
     }
 
 private:
@@ -143,9 +161,16 @@ public:
     TranslateMatrixStrategy(SkVector offset)
         : fXOffset{X(offset)}
         , fYOffset{Y(offset)} { }
+
     void processPoints(Sk4f* xs, Sk4f* ys) {
         *xs = *xs + fXOffset;
         *ys = *ys + fYOffset;
+    }
+
+    template <typename Next>
+    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
+        next->pointSpan(start + SkPoint{fXOffset[0], fYOffset[0]}, length, count);
+        return true;
     }
 
 private:
@@ -162,6 +187,15 @@ public:
     void processPoints(Sk4f* xs, Sk4f* ys) {
         *xs = *xs * fXScale + fXOffset;
         *ys = *ys * fYScale + fYOffset;
+    }
+
+    template <typename Next>
+    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
+        SkPoint newStart =
+            SkPoint{X(start) * fXScale[0] + fXOffset[0], Y(start) * fYScale[0] + fYOffset[0]};
+        SkScalar newLength = length * fXScale[0];
+        next->pointSpan(newStart, newLength, count);
+        return true;
     }
 
 private:
@@ -183,6 +217,11 @@ public:
 
         *xs = newXs;
         *ys = newYs;
+    }
+
+    template <typename Next>
+    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
+        return false;
     }
 
 private:
@@ -286,6 +325,11 @@ public:
         *ys = Sk4f::Min(Sk4f::Max(*ys, fYMin), fYMax);
     }
 
+    template <typename Next>
+    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
+        return false;
+    }
+
 private:
     const Sk4f fXMin{SK_FloatNegativeInfinity};
     const Sk4f fYMin{SK_FloatNegativeInfinity};
@@ -312,6 +356,11 @@ public:
         Sk4f baseY = (divY * fYMax);
         *xs = *xs - baseX;
         *ys = *ys - baseY;
+    }
+
+    template <typename Next>
+    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
+        return false;
     }
 
 private:
