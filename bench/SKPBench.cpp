@@ -110,21 +110,22 @@ SkIPoint SKPBench::onGetSize() {
 
 void SKPBench::onDraw(int loops, SkCanvas* canvas) {
     SkASSERT(fDoLooping || 1 == loops);
-    if (fUseMultiPictureDraw) {
-        for (int i = 0; i < loops; i++) {
+    while (1) {
+        if (fUseMultiPictureDraw) {
             this->drawMPDPicture();
-        }
-    } else {
-        for (int i = 0; i < loops; i++) {
+        } else {
             this->drawPicture();
         }
-    }
+        if (0 == --loops) {
+            break;
+        }
 #if SK_SUPPORT_GPU
-    // Ensure the GrContext doesn't batch across draw loops.
-    if (GrContext* context = canvas->getGrContext()) {
-        context->flush();
-    }
+        // Ensure the GrContext doesn't batch across draw loops.
+        if (GrContext* context = canvas->getGrContext()) {
+            context->flush();
+        }
 #endif
+    }
 }
 
 void SKPBench::drawMPDPicture() {
