@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkGeometry.h"
 #include "SkGlyphCache.h"
+#include "SkImageFilter.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkOpts.h"
@@ -63,6 +64,12 @@ void SkGraphics::Init() {
 void SkGraphics::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
   SkResourceCache::DumpMemoryStatistics(dump);
   SkGlyphCache::DumpMemoryStatistics(dump);
+}
+
+void SkGraphics::PurgeAllCaches() {
+    SkGraphics::PurgeFontCache();
+    SkGraphics::PurgeResourceCache();
+    SkImageFilter::PurgeCache();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
