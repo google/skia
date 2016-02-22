@@ -60,10 +60,6 @@ private:
     };
 
     MipMapsStatus   fMipMapsStatus;
-    // These two shift a fixed-point value into normalized coordinates	
-    // for this texture if the texture is power of two sized.
-    int             fShiftFixedX;
-    int             fShiftFixedY;
 
     friend class GrTexturePriv;
 
