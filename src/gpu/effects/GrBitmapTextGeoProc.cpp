@@ -31,16 +31,12 @@ public:
 
         // compute numbers to be hardcoded to convert texture coordinates from int to float
         SkASSERT(cte.numTextures() == 1);
-        GrTexture* atlas = cte.textureAccess(0).getTexture();
+        SkDEBUGCODE(GrTexture* atlas = cte.textureAccess(0).getTexture());
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
-        SkScalar recipWidth = 1.0f / atlas->width();
-        SkScalar recipHeight = 1.0f / atlas->height();
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
-        varyingHandler->addVarying("TextureCoords", &v);
-        vertBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", v.vsOut(),
-                                 GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,
-                                 GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipHeight,
+        varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
+        vertBuilder->codeAppendf("%s = %s;", v.vsOut(),
                                  cte.inTextureCoords()->fName);
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -150,7 +146,8 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
     }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2s_GrVertexAttribType));
+                                                        kVec2us_GrVertexAttribType,
+                                                        kHigh_GrSLPrecision));
     this->addTextureAccess(&fTextureAccess);
 }
 
