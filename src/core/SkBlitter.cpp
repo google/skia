@@ -938,9 +938,11 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
             break;
 
         default:
-            SkDEBUGFAIL("unsupported device config");
-            blitter = allocator->createT<SkNullBlitter>();
             break;
+    }
+
+    if (!blitter) {
+        blitter = allocator->createT<SkNullBlitter>();
     }
 
     if (shader3D) {

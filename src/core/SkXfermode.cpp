@@ -95,7 +95,7 @@ static Sk4f overlay_4f(const Sk4f& s, const Sk4f& d) {
     Sk4f two = Sk4f(2);
     Sk4f rc = (two * d <= da).thenElse(two * s * d,
                                        sa * da - two * (da - d) * (sa - s));
-    return s + d - s * da + color_alpha(rc - d * sa, 0);
+    return pin_1(s + d - s * da + color_alpha(rc - d * sa, 0));
 }
 
 static Sk4f hardlight_4f(const Sk4f& s, const Sk4f& d) {
@@ -1341,6 +1341,15 @@ SkXfermodeProc4f SkXfermode::GetProc4f(Mode mode) {
         proc = gProcCoeffs[mode].fProc4f;
     }
     return proc;
+}
+
+static SkPM4f missing_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return src;
+}
+
+SkXfermodeProc4f SkXfermode::getProc4f() const {
+    Mode mode;
+    return this->asMode(&mode) ? GetProc4f(mode) : missing_proc4f;
 }
 
 bool SkXfermode::ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst) {

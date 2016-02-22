@@ -30,8 +30,12 @@ static Sk4f lerp_by_coverage(const Sk4f& src, const Sk4f& dst, uint8_t srcCovera
     return dst + (src - dst) * Sk4f(srcCoverage * (1/255.0f));
 }
 
-template <DstType D> Sk4f unit_to_dst_bias(const Sk4f& x4) {
+template <DstType D> Sk4f unit_to_bias(const Sk4f& x4) {
     return (D == kU16_Dst) ? x4 * Sk4f(65535) : x4;
+}
+
+template <DstType D> Sk4f bias_to_unit(const Sk4f& x4) {
+    return (D == kU16_Dst) ? x4 * Sk4f(1.0f/65535) : x4;
 }
 
 // returns value already biased by 65535
@@ -68,9 +72,58 @@ static inline Sk4f pm_to_rgba_order(const Sk4f& x) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <DstType D> void xfer_u64_1(const SkXfermode::U64State& state, uint64_t dst[],
+                                     const SkPM4f& src, int count, const SkAlpha aa[]) {
+    SkXfermodeProc4f proc = state.fXfer->getProc4f();
+    SkPM4f d;
+    if (aa) {
+        for (int i = 0; i < count; ++i) {
+            Sk4f d4 = bias_to_unit<D>(load_from_dst<D>(dst[i]));
+            d4.store(d.fVec);
+            Sk4f r4 = unit_to_bias<D>(Sk4f::Load(proc(src, d).fVec));
+            dst[i] = store_to_dst<D>(lerp_by_coverage(r4, d4, aa[i]));
+        }
+    } else {
+        for (int i = 0; i < count; ++i) {
+            bias_to_unit<D>(load_from_dst<D>(dst[i])).store(d.fVec);
+            Sk4f r4 = unit_to_bias<D>(Sk4f::Load(proc(src, d).fVec));
+            dst[i] = store_to_dst<D>(r4);
+        }
+    }
+}
+
+template <DstType D> void xfer_u64_n(const SkXfermode::U64State& state, uint64_t dst[],
+                                     const SkPM4f src[], int count, const SkAlpha aa[]) {
+    SkXfermodeProc4f proc = state.fXfer->getProc4f();
+    SkPM4f d;
+    if (aa) {
+        for (int i = 0; i < count; ++i) {
+            Sk4f d4 = bias_to_unit<D>(load_from_dst<D>(dst[i]));
+            d4.store(d.fVec);
+            Sk4f r4 = unit_to_bias<D>(Sk4f::Load(proc(src[i], d).fVec));
+            dst[i] = store_to_dst<D>(lerp_by_coverage(r4, d4, aa[i]));
+        }
+    } else {
+        for (int i = 0; i < count; ++i) {
+            bias_to_unit<D>(load_from_dst<D>(dst[i])).store(d.fVec);
+            Sk4f r4 = unit_to_bias<D>(Sk4f::Load(proc(src[i], d).fVec));
+            dst[i] = store_to_dst<D>(r4);
+        }
+    }
+}
+
+const U64ProcPair gU64Procs_General[] = {
+    { xfer_u64_1<kU16_Dst>, xfer_u64_n<kU16_Dst> },   // U16     alpha
+    { xfer_u64_1<kU16_Dst>, xfer_u64_n<kU16_Dst> },   // U16     opaque
+    { xfer_u64_1<kF16_Dst>, xfer_u64_n<kF16_Dst> },   // F16     alpha
+    { xfer_u64_1<kF16_Dst>, xfer_u64_n<kF16_Dst> },   // F16     opaque
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <DstType D> void src_1(const SkXfermode::U64State& state, uint64_t dst[],
                                 const SkPM4f& src, int count, const SkAlpha aa[]) {
-    const Sk4f s4 = pm_to_rgba_order(unit_to_dst_bias<D>(Sk4f::Load(src.fVec)));
+    const Sk4f s4 = pm_to_rgba_order(unit_to_bias<D>(Sk4f::Load(src.fVec)));
     if (aa) {
         for (int i = 0; i < count; ++i) {
             const Sk4f d4 = load_from_dst<D>(dst[i]);
@@ -85,13 +138,13 @@ template <DstType D> void src_n(const SkXfermode::U64State& state, uint64_t dst[
                                 const SkPM4f src[], int count, const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
-            const Sk4f s4 = pm_to_rgba_order(unit_to_dst_bias<D>(Sk4f::Load(src[i].fVec)));
+            const Sk4f s4 = pm_to_rgba_order(unit_to_bias<D>(Sk4f::Load(src[i].fVec)));
             const Sk4f d4 = load_from_dst<D>(dst[i]);
             dst[i] = store_to_dst<D>(lerp_by_coverage(s4, d4, aa[i]));
         }
     } else {
         for (int i = 0; i < count; ++i) {
-            const Sk4f s4 = pm_to_rgba_order(unit_to_dst_bias<D>(Sk4f::Load(src[i].fVec)));
+            const Sk4f s4 = pm_to_rgba_order(unit_to_bias<D>(Sk4f::Load(src[i].fVec)));
             dst[i] = store_to_dst<D>(s4);
         }
     }
@@ -110,7 +163,7 @@ template <DstType D> void srcover_1(const SkXfermode::U64State& state, uint64_t 
                                     const SkPM4f& src, int count, const SkAlpha aa[]) {
     const Sk4f s4 = pm_to_rgba_order(Sk4f::Load(src.fVec));
     const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
-    const Sk4f s4bias = unit_to_dst_bias<D>(s4);
+    const Sk4f s4bias = unit_to_bias<D>(s4);
     for (int i = 0; i < count; ++i) {
         const Sk4f d4bias = load_from_dst<D>(dst[i]);
         const Sk4f r4bias = s4bias + d4bias * dst_scale;
@@ -127,7 +180,7 @@ template <DstType D> void srcover_n(const SkXfermode::U64State& state, uint64_t 
     for (int i = 0; i < count; ++i) {
         const Sk4f s4 = pm_to_rgba_order(Sk4f::Load(src[i].fVec));
         const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
-        const Sk4f s4bias = unit_to_dst_bias<D>(s4);
+        const Sk4f s4bias = unit_to_bias<D>(s4);
         const Sk4f d4bias = load_from_dst<D>(dst[i]);
         const Sk4f r4bias = s4bias + d4bias * dst_scale;
         if (aa) {
@@ -157,7 +210,7 @@ static U64ProcPair find_procs(SkXfermode::Mode mode, uint32_t flags) {
         default:
             break;
     }
-    return { nullptr, nullptr };
+    return gU64Procs_General[flags];
 }
 
 SkXfermode::U64Proc1 SkXfermode::GetU64Proc1(Mode mode, uint32_t flags) {

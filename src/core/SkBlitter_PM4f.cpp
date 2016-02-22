@@ -356,7 +356,7 @@ struct State64 : SkXfermode::U64State {
         }
         
         SkXfermode::Mode mode;
-        if (SkXfermode::AsMode(fXfer, &mode)) {
+        if (!SkXfermode::AsMode(fXfer, &mode)) {
             mode = SkXfermode::kSrcOver_Mode;
         }
         fProc1 = SkXfermode::GetU64Proc1(mode, fFlags);

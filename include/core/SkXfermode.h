@@ -149,6 +149,8 @@ public:
     static SkXfermodeProc GetProc(Mode mode);
     static SkXfermodeProc4f GetProc4f(Mode);
 
+    virtual SkXfermodeProc4f getProc4f() const;
+
     /**
      *  If the specified mode can be represented by a pair of Coeff, then return
      *  true and set (if not NULL) the corresponding coeffs. If the mode is

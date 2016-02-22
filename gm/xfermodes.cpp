@@ -293,55 +293,17 @@ private:
 DEF_GM( return new XfermodesGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkNx.h"
-
-static SkPMColor apply_proc(SkPMColor src, SkPMColor dst, SkXfermodeProc4f proc, float src_alpha) {
-    SkPM4f src4 = SkPM4f::FromPMColor(src);
-    for (int i = 0; i < 4; ++i) {
-        src4.fVec[i] *= src_alpha;
-    }
-    SkPM4f dst4 = SkPM4f::FromPMColor(dst);
-    SkPM4f res4 = proc(src4, dst4);
-    SkPMColor res;
-    SkNx_cast<uint8_t>(Sk4f::Load(res4.fVec) * Sk4f(255) + Sk4f(0.5f)).store(&res);
-    return res;
-}
-
-static bool apply_mode(const SkPixmap& res, const SkPixmap& src, const SkPixmap& dst,
-                       SkXfermode* xfer, float src_alpha) {
-    SkXfermode::Mode mode;
-    if (!xfer) {
-        mode = SkXfermode::kSrcOver_Mode;
-    } else if (!xfer->asMode(&mode)) {
-        return false;
-    }
-    SkXfermodeProc4f proc = SkXfermode::GetProc4f(mode);
-    if (!proc) {
-        return false;
-    }
-
-    for (int y = 0; y < res.height(); ++y) {
-        for (int x = 0; x < res.width(); ++x) {
-            *res.writable_addr32(x, y) = apply_proc(*src.addr32(x, y), *dst.addr32(x, y),
-                                                    proc, src_alpha);
-        }
-    }
-    return true;
-}
 
 void draw_mode(const SkBitmap& srcB, const SkBitmap& dstB,
                SkCanvas* canvas, SkXfermode* mode, SkScalar x, SkScalar y, float src_alpha) {
-    SkBitmap resB;
-    resB.allocN32Pixels(64, 64);
+    canvas->saveLayer(SkRect::MakeXYWH(x, y, 64, 64), nullptr);
+    canvas->drawBitmap(srcB, x, y, nullptr);
 
-    SkPixmap srcPM, dstPM, resPM;
-    srcB.peekPixels(&srcPM);
-    dstB.peekPixels(&dstPM);
-    resB.peekPixels(&resPM);
+    SkPaint paint;
+    paint.setXfermode(mode);
+    canvas->drawBitmap(dstB, x, y, &paint);
 
-    if (apply_mode(resPM, srcPM, dstPM, mode, src_alpha)) {
-        canvas->drawBitmap(resB, x, y, nullptr);
-    }
+    canvas->restore();
 }
 
 DEF_SIMPLE_GM(xfermodes_proc4f, canvas, 1000, 1000) {

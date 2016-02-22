@@ -60,7 +60,14 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
             blitter = SkSpriteBlitter::ChooseD16(source, paint, allocator);
             break;
         case kN32_SkColorType:
-            blitter = SkSpriteBlitter::ChooseD32(source, paint, allocator);
+            if (dst.info().isSRGB()) {
+                blitter = SkSpriteBlitter::ChooseS32(source, paint, allocator);
+            } else {
+                blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
+            }
+            break;
+        case kRGBA_F16_SkColorType:
+            blitter = SkSpriteBlitter::ChooseF16(source, paint, allocator);
             break;
         default:
             blitter = nullptr;

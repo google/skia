@@ -1167,6 +1167,22 @@ static void draw_filter_into_device(SkBaseDevice* src, const SkImageFilter* filt
     c.drawBitmap(srcBM, x, y, &p);
 }
 
+static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool isOpaque,
+                                   const SkPaint* paint) {
+    // need to force L32 for now if we have an image filter. Once filters support other colortypes
+    // e.g. sRGB or F16, we can remove this check
+    const bool hasImageFilter = paint && paint->getImageFilter();
+
+    SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    if ((prev.bytesPerPixel() < 4) || hasImageFilter) {
+        // force to L32
+        return SkImageInfo::MakeN32(w, h, alphaType);
+    } else {
+        // keep the same characteristics as the prev
+        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, prev.profileType());
+    }
+}
+
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
     const SkRect* bounds = rec.fBounds;
     const SkPaint* paint = rec.fPaint;
@@ -1202,14 +1218,15 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             geo = kUnknown_SkPixelGeometry;
         }
     }
-    SkImageInfo info = SkImageInfo::MakeN32(ir.width(), ir.height(),
-                        isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
 
     SkBaseDevice* device = this->getTopDevice();
     if (nullptr == device) {
         SkDebugf("Unable to find device for layer.");
         return;
     }
+
+    SkImageInfo info = make_layer_info(device->imageInfo(), ir.width(), ir.height(), isOpaque,
+                                       paint);
 
     bool forceSpriteOnRestore = false;
     {
@@ -2200,8 +2217,20 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
         paint = lazy.init();
     }
 
-    const bool drawAsSprite = this->canDrawBitmapAsSprite(x, y, image->width(), image->height(),
-                                                          *paint);
+    bool drawAsSprite = this->canDrawBitmapAsSprite(x, y, image->width(), image->height(),
+                                                    *paint);
+    if (drawAsSprite && paint->getImageFilter()) {
+        SkBitmap bitmap;
+        if (!as_IB(image)->asBitmapForImageFilters(&bitmap)) {
+            drawAsSprite = false;
+        } else{
+            // Until imagefilters are updated, they cannot handle any src type but N32...
+            if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().isSRGB()) {
+                drawAsSprite = false;
+            }
+        }
+    }
+
     LOOPER_BEGIN_DRAWBITMAP(*paint, drawAsSprite, &bounds)
 
     while (iter.next()) {
@@ -2277,8 +2306,15 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
         bounds = &storage;
     }
 
-    const bool drawAsSprite = bounds && this->canDrawBitmapAsSprite(x, y, bitmap.width(),
-                                                                    bitmap.height(), *paint);
+    bool drawAsSprite = bounds && this->canDrawBitmapAsSprite(x, y, bitmap.width(), bitmap.height(),
+                                                              *paint);
+    if (drawAsSprite && paint->getImageFilter()) {
+        // Until imagefilters are updated, they cannot handle any src type but N32...
+        if (bitmap.info().colorType() != kN32_SkColorType || bitmap.info().isSRGB()) {
+            drawAsSprite = false;
+        }
+    }
+
     LOOPER_BEGIN_DRAWBITMAP(*paint, drawAsSprite, bounds)
 
     while (iter.next()) {

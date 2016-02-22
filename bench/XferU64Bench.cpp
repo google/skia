@@ -17,15 +17,16 @@
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XferU64Bench : public Benchmark {
 public:
-    XferU64Bench(bool doN, uint32_t flags)
+    XferU64Bench(SkXfermode::Mode mode, const char name[], bool doN, uint32_t flags)
         : fDoN(doN)
         , fFlags(flags & ~USE_AA)
     {
-        SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode;
+        fXfer.reset(SkXfermode::Create(mode));
 
         fProc1 = SkXfermode::GetU64Proc1(mode, fFlags);
         fProcN = SkXfermode::GetU64ProcN(mode, fFlags);
-        fName.printf("xferu64_%s_%c_%s_%s",
+        fName.printf("xferu64_%s_%s_%c_%s_%s",
+                     name,
                      (flags & USE_AA) ? "aa" : "bw",
                      fDoN ? 'N' : '1',
                      (flags & SkXfermode::kSrcIsOpaque_U64Flag) ? "opaque" : "alpha",
@@ -50,7 +51,7 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(int loops, SkCanvas*) override {
-        const SkXfermode::U64State state{ nullptr, fFlags };
+        const SkXfermode::U64State state{ fXfer, fFlags };
 
         for (int i = 0; i < loops * INNER_LOOPS; ++i) {
             if (fDoN) {
@@ -62,6 +63,7 @@ protected:
     }
 
 private:
+    SkAutoTUnref<SkXfermode> fXfer;
     SkString             fName;
     SkXfermode::U64Proc1 fProc1;
     SkXfermode::U64ProcN fProcN;
@@ -84,24 +86,25 @@ private:
 #define F10 (SkXfermode::kDstIsFloat16_U64Flag)
 #define F11 (SkXfermode::kDstIsFloat16_U64Flag | SkXfermode::kSrcIsOpaque_U64Flag)
 
-#if 0
-DEF_BENCH( return new XferU64Bench(true,  F10 | USE_AA); )
-DEF_BENCH( return new XferU64Bench(true,  F11 | USE_AA); )
-DEF_BENCH( return new XferU64Bench(true,  F10); )
-DEF_BENCH( return new XferU64Bench(true,  F11); )
+#define MODE    SkXfermode::kSrcOver_Mode
+#define NAME    "srcover"
 
-DEF_BENCH( return new XferU64Bench(true,  F00 | USE_AA); )
-DEF_BENCH( return new XferU64Bench(true,  F01 | USE_AA); )
-DEF_BENCH( return new XferU64Bench(true,  F00); )
-DEF_BENCH( return new XferU64Bench(true,  F01); )
-#endif
+DEF_BENCH( return new XferU64Bench(MODE, NAME, true,  F10 | USE_AA); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, true,  F11 | USE_AA); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, true,  F10); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, true,  F11); )
 
-DEF_BENCH( return new XferU64Bench(false, F10 | USE_AA); )
-DEF_BENCH( return new XferU64Bench(false, F11 | USE_AA); )
-DEF_BENCH( return new XferU64Bench(false, F10); )
-DEF_BENCH( return new XferU64Bench(false, F11); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, true,  F00 | USE_AA); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, true,  F01 | USE_AA); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, true,  F00); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, true,  F01); )
 
-DEF_BENCH( return new XferU64Bench(false, F00 | USE_AA); )
-DEF_BENCH( return new XferU64Bench(false, F01 | USE_AA); )
-DEF_BENCH( return new XferU64Bench(false, F00); )
-DEF_BENCH( return new XferU64Bench(false, F01); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, false, F10 | USE_AA); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, false, F11 | USE_AA); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, false, F10); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, false, F11); )
+
+DEF_BENCH( return new XferU64Bench(MODE, NAME, false, F00 | USE_AA); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, false, F01 | USE_AA); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, false, F00); )
+DEF_BENCH( return new XferU64Bench(MODE, NAME, false, F01); )

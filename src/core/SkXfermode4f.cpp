@@ -45,75 +45,52 @@ static Sk4f linear_unit_to_srgb_255f(const Sk4f& l4) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static Sk4f scale_255_round(const SkPM4f& pm4) {
-    return Sk4f::Load(pm4.fVec) * Sk4f(255) + Sk4f(0.5f);
-}
-
-static void pm4f_to_linear_32(SkPMColor dst[], const SkPM4f src[], int count) {
-    while (count >= 4) {
-        src[0].assertIsUnit();
-        src[1].assertIsUnit();
-        src[2].assertIsUnit();
-        src[3].assertIsUnit();
-        Sk4f_ToBytes((uint8_t*)dst,
-                     scale_255_round(src[0]), scale_255_round(src[1]),
-                     scale_255_round(src[2]), scale_255_round(src[3]));
-        src += 4;
-        dst += 4;
-        count -= 4;
-    }
-    for (int i = 0; i < count; ++i) {
-        src[i].assertIsUnit();
-        SkNx_cast<uint8_t>(scale_255_round(src[i])).store((uint8_t*)&dst[i]);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// These are our fallback impl for the SkPM4f procs...
-//
-// They just convert the src color(s) into a linear SkPMColor value(s), and then
-// call the existing virtual xfer32. This clear throws away data (converting floats to bytes)
-// in the src, and ignores the sRGB flag, but should draw about the same as if the caller
-// had passed in SkPMColor values directly.
-//
-
-void xfer_pm4_proc_1(const SkXfermode::PM4fState& state, uint32_t dst[], const SkPM4f& src,
-                     int count, const SkAlpha aa[]) {
-    uint32_t pm;
-    pm4f_to_linear_32(&pm, &src, 1);
-
-    const int N = 128;
-    SkPMColor tmp[N];
-    sk_memset32(tmp, pm, SkMin32(count, N));
-    while (count > 0) {
-        const int n = SkMin32(count, N);
-        state.fXfer->xfer32(dst, tmp, n, aa);
-
-        dst += n;
-        if (aa) {
-            aa += n;
+template <DstType D> void general_1(const SkXfermode::PM4fState& state, uint32_t dst[],
+                                    const SkPM4f& src, int count, const SkAlpha aa[]) {
+    SkXfermodeProc4f proc = state.fXfer->getProc4f();
+    SkPM4f d;
+    if (aa) {
+        for (int i = 0; i < count; ++i) {
+            Sk4f d4 = load_dst<D>(dst[i]);
+            d4.store(d.fVec);
+            Sk4f r4 = Sk4f::Load(proc(src, d).fVec);
+            dst[i] = store_dst<D>(lerp(r4, d4, aa[i]));
         }
-        count -= n;
-    }
-}
-
-void xfer_pm4_proc_n(const SkXfermode::PM4fState& state, uint32_t dst[], const SkPM4f src[],
-                     int count, const SkAlpha aa[]) {
-    const int N = 128;
-    SkPMColor tmp[N];
-    while (count > 0) {
-        const int n = SkMin32(count, N);
-        pm4f_to_linear_32(tmp, src, n);
-        state.fXfer->xfer32(dst, tmp, n, aa);
-
-        src += n;
-        dst += n;
-        if (aa) {
-            aa += n;
+    } else {
+        for (int i = 0; i < count; ++i) {
+            load_dst<D>(dst[i]).store(d.fVec);
+            Sk4f r4 = Sk4f::Load(proc(src, d).fVec);
+            dst[i] = store_dst<D>(r4);
         }
-        count -= n;
     }
 }
+
+template <DstType D> void general_n(const SkXfermode::PM4fState& state, uint32_t dst[],
+                                    const SkPM4f src[], int count, const SkAlpha aa[]) {
+    SkXfermodeProc4f proc = state.fXfer->getProc4f();
+    SkPM4f d;
+    if (aa) {
+        for (int i = 0; i < count; ++i) {
+            Sk4f d4 = load_dst<D>(dst[i]);
+            d4.store(d.fVec);
+            Sk4f r4 = Sk4f::Load(proc(src[i], d).fVec);
+            dst[i] = store_dst<D>(lerp(r4, d4, aa[i]));
+        }
+    } else {
+        for (int i = 0; i < count; ++i) {
+            load_dst<D>(dst[i]).store(d.fVec);
+            Sk4f r4 = Sk4f::Load(proc(src[i], d).fVec);
+            dst[i] = store_dst<D>(r4);
+        }
+    }
+}
+
+const XferProcPair gProcs_General[] = {
+    { general_1<kLinear_Dst>,   general_n<kLinear_Dst>  },   // linear   alpha
+    { general_1<kLinear_Dst>,   general_n<kLinear_Dst>  },   // linear   opaque
+    { general_1<kSRGB_Dst>,     general_n<kSRGB_Dst>    },   // srgb     alpha
+    { general_1<kSRGB_Dst>,     general_n<kSRGB_Dst>    },   // srgb     opaque
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -402,7 +379,7 @@ static XferProcPair find_procs(SkXfermode::Mode mode, uint32_t flags) {
         default:
             break;
     }
-    return { xfer_pm4_proc_1, xfer_pm4_proc_n };
+    return gProcs_General[flags];
 }
 
 SkXfermode::PM4fProc1 SkXfermode::GetPM4fProc1(Mode mode, uint32_t flags) {
@@ -414,13 +391,19 @@ SkXfermode::PM4fProcN SkXfermode::GetPM4fProcN(Mode mode, uint32_t flags) {
 }
 
 SkXfermode::PM4fProc1 SkXfermode::getPM4fProc1(uint32_t flags) const {
+    SkASSERT(0 == (flags & ~3));
+    flags &= 3;
+
     Mode mode;
-    return this->asMode(&mode) ? GetPM4fProc1(mode, flags) : xfer_pm4_proc_1;
+    return this->asMode(&mode) ? GetPM4fProc1(mode, flags) : gProcs_General[flags].fP1;
 }
 
 SkXfermode::PM4fProcN SkXfermode::getPM4fProcN(uint32_t flags) const {
+    SkASSERT(0 == (flags & ~3));
+    flags &= 3;
+
     Mode mode;
-    return this->asMode(&mode) ? GetPM4fProcN(mode, flags) : xfer_pm4_proc_n;
+    return this->asMode(&mode) ? GetPM4fProcN(mode, flags) : gProcs_General[flags].fPN;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

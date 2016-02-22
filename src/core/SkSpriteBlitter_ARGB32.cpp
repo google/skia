@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkSpriteBlitter.h"
 #include "SkBlitRow.h"
@@ -256,8 +254,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkPixmap& source, const SkPaint& paint,
-        SkTBlitterAllocator* allocator) {
+SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPaint& paint,
+                                            SkTBlitterAllocator* allocator) {
     SkASSERT(allocator != nullptr);
 
     if (paint.getMaskFilter() != nullptr) {

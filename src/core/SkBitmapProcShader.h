@@ -75,7 +75,7 @@ private:
 // an Sk3DBlitter in SkDraw.cpp
 // Note that some contexts may contain other contexts (e.g. for compose shaders), but we've not
 // yet found a situation where the size below isn't big enough.
-typedef SkSmallAllocator<3, 1160> SkTBlitterAllocator;
+typedef SkSmallAllocator<3, 1280> SkTBlitterAllocator;
 
 // If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.
