@@ -45,11 +45,19 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkAlphaThresholdFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAlphaThresholdFilterImpl)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
+static bool outside_unit(SkScalar x) {
+    return x < 0 || x > 1;
+}
 
 SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
                                               SkScalar innerThreshold,
                                               SkScalar outerThreshold,
                                               SkImageFilter* input) {
+    if (outside_unit(innerThreshold) || outside_unit(outerThreshold) ||
+        innerThreshold > outerThreshold)
+    {
+        return nullptr;
+    }
     return new SkAlphaThresholdFilterImpl(region, innerThreshold, outerThreshold, input);
 }
 
@@ -334,7 +342,6 @@ void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
 bool SkAlphaThresholdFilterImpl::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
                                                          const Context& ctx, SkBitmap* dst,
                                                          SkIPoint* offset) const {
-    SkASSERT(src.colorType() == kN32_SkColorType);
 
     if (src.colorType() != kN32_SkColorType) {
         return false;
