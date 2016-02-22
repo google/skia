@@ -522,6 +522,31 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
+        case kCroppedScanline_Mode: {
+            const int width = decodeInfo.width();
+            const int height = decodeInfo.height();
+            // This value is chosen because, as we move across the image, it will sometimes
+            // align with the jpeg block sizes and it will sometimes not.  This allows us
+            // to test interestingly different code paths in the implementation.
+            const int tileSize = 36;
+
+            SkCodec::Options opts;
+            SkIRect subset;
+            for (int x = 0; x < width; x += tileSize) {
+                subset = SkIRect::MakeXYWH(x, 0, SkTMin(tileSize, width - x), height);
+                opts.fSubset = &subset;
+                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &opts,
+                        colorPtr, colorCountPtr)) {
+                    return "Could not start scanline decoder.";
+                }
+
+                codec->getScanlines(bitmap.getAddr(x, 0), height, bitmap.rowBytes());
+            }
+
+            premultiply_if_necessary(bitmap);
+            canvas->drawBitmap(bitmap, 0, 0);
+            break;
+        }
         case kSubset_Mode: {
             // Arbitrarily choose a divisor.
             int divisor = 2;

@@ -354,23 +354,28 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
     const int linesRemaining = linesRequested - linesDecoded;
     SkSampler* sampler = this->getSampler(false);
 
+    int fillWidth = info.width();
+    if (fOptions.fSubset) {
+        fillWidth = fOptions.fSubset->width();
+    }
+
     switch (this->getScanlineOrder()) {
         case kTopDown_SkScanlineOrder:
         case kNone_SkScanlineOrder: {
-            const SkImageInfo fillInfo = info.makeWH(info.width(), linesRemaining);
+            const SkImageInfo fillInfo = info.makeWH(fillWidth, linesRemaining);
             fillDst = SkTAddOffset<void>(dst, linesDecoded * rowBytes);
             fill_proc(fillInfo, fillDst, rowBytes, fillValue, zeroInit, sampler);
             break;
         }
         case kBottomUp_SkScanlineOrder: {
             fillDst = dst;
-            const SkImageInfo fillInfo = info.makeWH(info.width(), linesRemaining);
+            const SkImageInfo fillInfo = info.makeWH(fillWidth, linesRemaining);
             fill_proc(fillInfo, fillDst, rowBytes, fillValue, zeroInit, sampler);
             break;
         }
         case kOutOfOrder_SkScanlineOrder: {
             SkASSERT(1 == linesRequested || this->getInfo().height() == linesRequested);
-            const SkImageInfo fillInfo = info.makeWH(info.width(), 1);
+            const SkImageInfo fillInfo = info.makeWH(fillWidth, 1);
             for (int srcY = linesDecoded; srcY < linesRequested; srcY++) {
                 fillDst = SkTAddOffset<void>(dst, this->outputScanline(srcY) * rowBytes);
                 fill_proc(fillInfo, fillDst, rowBytes, fillValue, zeroInit, sampler);

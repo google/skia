@@ -84,6 +84,13 @@
             'raw_codec',
           ],
         },],
+        ['skia_android_framework == 0', {
+          'defines': [
+            # TODO (msarett): Add this optimization to Android.
+            # https://buganizer.corp.google.com/u/0/issues/27290496
+            'TURBO_HAS_CROP',
+          ],
+        },],
       ],
     }, {
       # RAW codec needs exceptions. Due to that, it is a separate target. Its usage can be

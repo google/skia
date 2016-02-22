@@ -242,6 +242,9 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kStripe_Mode:
             folder.append("stripe");
             break;
+        case CodecSrc::kCroppedScanline_Mode:
+            folder.append("crop");
+            break;
         case CodecSrc::kSubset_Mode:
             folder.append("codec_subset");
             break;
@@ -346,31 +349,38 @@ static void push_codec_srcs(Path path) {
     // SkJpegCodec natively supports scaling to: 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875
     const float nativeScales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
 
-    const CodecSrc::Mode nativeModes[] = { CodecSrc::kCodec_Mode, CodecSrc::kCodecZeroInit_Mode,
-            CodecSrc::kScanline_Mode, CodecSrc::kStripe_Mode, CodecSrc::kSubset_Mode,
-            CodecSrc::kGen_Mode };
+    SkTArray<CodecSrc::Mode> nativeModes;
+    nativeModes.push_back(CodecSrc::kCodec_Mode);
+    nativeModes.push_back(CodecSrc::kCodecZeroInit_Mode);
+    nativeModes.push_back(CodecSrc::kGen_Mode);
+    switch (codec->getEncodedFormat()) {
+        case SkEncodedFormat::kJPEG_SkEncodedFormat:
+            nativeModes.push_back(CodecSrc::kScanline_Mode);
+            nativeModes.push_back(CodecSrc::kStripe_Mode);
+            nativeModes.push_back(CodecSrc::kCroppedScanline_Mode);
+            break;
+        case SkEncodedFormat::kWEBP_SkEncodedFormat:
+            nativeModes.push_back(CodecSrc::kSubset_Mode);
+            break;
+        default:
+            nativeModes.push_back(CodecSrc::kScanline_Mode);
+            nativeModes.push_back(CodecSrc::kStripe_Mode);
+            break;
+    }
 
-    CodecSrc::DstColorType colorTypes[3];
-    uint32_t numColorTypes;
+    SkTArray<CodecSrc::DstColorType> colorTypes;
+    colorTypes.push_back(CodecSrc::kGetFromCanvas_DstColorType);
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
-            colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
-            colorTypes[1] = CodecSrc::kGrayscale_Always_DstColorType;
+            colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
             if (kWBMP_SkEncodedFormat == codec->getEncodedFormat()) {
-                colorTypes[2] = CodecSrc::kIndex8_Always_DstColorType;
-                numColorTypes = 3;
-            } else {
-                numColorTypes = 2;
+                colorTypes.push_back(CodecSrc::kIndex8_Always_DstColorType);
             }
             break;
         case kIndex_8_SkColorType:
-            colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
-            colorTypes[1] = CodecSrc::kIndex8_Always_DstColorType;
-            numColorTypes = 2;
+            colorTypes.push_back(CodecSrc::kIndex8_Always_DstColorType);
             break;
         default:
-            colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
-            numColorTypes = 1;
             break;
     }
 
@@ -396,9 +406,16 @@ static void push_codec_srcs(Path path) {
         }
 
         for (float scale : nativeScales) {
-            for (uint32_t i = 0; i < numColorTypes; i++) {
+            for (CodecSrc::DstColorType colorType : colorTypes) {
                 for (SkAlphaType alphaType : alphaModes) {
-                    push_codec_src(path, mode, colorTypes[i], alphaType, scale);
+                    // Only test kCroppedScanline_Mode when the alpha type is opaque.  The test is
+                    // slow and won't be interestingly different with different alpha types.
+                    if (CodecSrc::kCroppedScanline_Mode == mode &&
+                            kOpaque_SkAlphaType != alphaType) {
+                        continue;
+                    }
+
+                    push_codec_src(path, mode, colorType, alphaType, scale);
                 }
             }
         }
@@ -422,12 +439,12 @@ static void push_codec_srcs(Path path) {
     const int sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
     for (int sampleSize : sampleSizes) {
-        for (uint32_t i = 0; i < numColorTypes; i++) {
+        for (CodecSrc::DstColorType colorType : colorTypes) {
             for (SkAlphaType alphaType : alphaModes) {
-                push_android_codec_src(path, AndroidCodecSrc::kFullImage_Mode, colorTypes[i],
+                push_android_codec_src(path, AndroidCodecSrc::kFullImage_Mode, colorType,
                         alphaType, sampleSize);
                 if (subset) {
-                    push_android_codec_src(path, AndroidCodecSrc::kDivisor_Mode, colorTypes[i],
+                    push_android_codec_src(path, AndroidCodecSrc::kDivisor_Mode, colorType,
                             alphaType, sampleSize);
                 }
             }

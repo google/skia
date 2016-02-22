@@ -110,6 +110,7 @@ public:
         kCodecZeroInit_Mode,
         kScanline_Mode,
         kStripe_Mode, // Tests the skipping of scanlines
+        kCroppedScanline_Mode, // Tests (jpeg) cropped scanline optimization
         kSubset_Mode, // For codecs that support subsets directly.
         kGen_Mode,    // Test SkCodecImageGenerator (includes YUV)
     };

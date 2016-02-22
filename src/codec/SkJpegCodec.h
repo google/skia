@@ -115,6 +115,10 @@ private:
     // scanline decoding
     SkAutoTMalloc<uint8_t>     fStorage;    // Only used if sampling is needed
     uint8_t*                   fSrcRow;     // Only used if sampling is needed
+    // libjpeg-turbo provides some subsetting.  In the case that libjpeg-turbo
+    // cannot take the exact the subset that we need, we will use the swizzler
+    // to further subset the output from libjpeg-turbo.
+    SkIRect                    fSwizzlerSubset;
     SkAutoTDelete<SkSwizzler>  fSwizzler;
     
     typedef SkCodec INHERITED;
