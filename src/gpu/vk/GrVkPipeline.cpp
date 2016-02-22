@@ -24,7 +24,7 @@ static inline const VkFormat& attrib_type_to_vkformat(GrVertexAttribType type) {
         VK_FORMAT_R32G32B32A32_SFLOAT, // kVec4f_GrVertexAttribType
         VK_FORMAT_R8_UNORM,            // kUByte_GrVertexAttribType
         VK_FORMAT_R8G8B8A8_UNORM,      // kVec4ub_GrVertexAttribType
-        VK_FORMAT_R16G16_SSCALED,      // kVec2s_GrVertexAttribType
+        VK_FORMAT_R16G16_UNORM,        // kVec2us_GrVertexAttribType
     };
     GR_STATIC_ASSERT(0 == kFloat_GrVertexAttribType);
     GR_STATIC_ASSERT(1 == kVec2f_GrVertexAttribType);
@@ -32,7 +32,7 @@ static inline const VkFormat& attrib_type_to_vkformat(GrVertexAttribType type) {
     GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
     GR_STATIC_ASSERT(4 == kUByte_GrVertexAttribType);
     GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
-    GR_STATIC_ASSERT(6 == kVec2s_GrVertexAttribType);
+    GR_STATIC_ASSERT(6 == kVec2us_GrVertexAttribType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFormats) == kGrVertexAttribTypeCount);
     return kFormats[type];
 }
