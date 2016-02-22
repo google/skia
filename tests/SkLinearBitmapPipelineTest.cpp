@@ -10,14 +10,6 @@
 #include "SkPM4f.h"
 #include "Test.h"
 
-struct SinkBilerpProcessor final : public PointProcessorInterface {
-    void pointListFew(int n, Sk4fArg xs, Sk4fArg ys) override { fXs = xs; fYs = ys; }
-    void pointList4(Sk4fArg Xs, Sk4fArg Ys) override { fXs = Xs; fYs = Ys; }
-    void pointSpan(SkPoint start, SkScalar length, int count) override { }
-    Sk4f fXs;
-    Sk4f fYs;
-};
-
 using Pixel = float[4];
 DEF_TEST(SkBitmapFP, reporter) {
 
