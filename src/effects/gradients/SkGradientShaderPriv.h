@@ -221,6 +221,8 @@ public:
     uint32_t getGradFlags() const { return fGradFlags; }
 
 protected:
+    class GradientShaderBase4fContext;
+
     SkGradientShaderBase(SkReadBuffer& );
     void flatten(SkWriteBuffer&) const override;
     SK_TO_STRING_OVERRIDE()

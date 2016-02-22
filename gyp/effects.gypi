@@ -64,6 +64,10 @@
     '<(skia_src_path)/effects/SkTileImageFilter.cpp',
     '<(skia_src_path)/effects/SkXfermodeImageFilter.cpp',
 
+    '<(skia_src_path)/effects/gradients/Sk4fGradientBase.cpp',
+    '<(skia_src_path)/effects/gradients/Sk4fGradientBase.h',
+    '<(skia_src_path)/effects/gradients/Sk4fLinearGradient.cpp',
+    '<(skia_src_path)/effects/gradients/Sk4fLinearGradient.h',
     '<(skia_src_path)/effects/gradients/SkClampRange.cpp',
     '<(skia_src_path)/effects/gradients/SkClampRange.h',
     '<(skia_src_path)/effects/gradients/SkGradientBitmapCache.cpp',

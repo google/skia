@@ -5,7 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "Sk4fLinearGradient.h"
 #include "SkLinearGradient.h"
+
+// define to test the 4f gradient path
+// #define USE_4fGRADIENTS
 
 static const float kInv255Float = 1.0f / 255;
 
@@ -43,6 +47,14 @@ static SkMatrix pts_to_unit_matrix(const SkPoint pts[2]) {
     return matrix;
 }
 
+static bool use_4f_context(uint32_t flags) {
+#ifdef USE_4fGRADIENTS
+    return true;
+#else
+    return SkToBool(flags & SkLinearGradient::kForce4fContext_PrivateFlag);
+#endif
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
@@ -70,11 +82,15 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
 }
 
 size_t SkLinearGradient::contextSize() const {
-    return sizeof(LinearGradientContext);
+    return use_4f_context(fGradFlags)
+        ? sizeof(LinearGradient4fContext)
+        : sizeof(LinearGradientContext);
 }
 
 SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return new (storage) LinearGradientContext(*this, rec);
+    return use_4f_context(fGradFlags)
+        ? static_cast<SkShader::Context*>(new (storage) LinearGradient4fContext(*this, rec))
+        : static_cast<SkShader::Context*>(new (storage) LinearGradientContext(*this, rec));
 }
 
 // This swizzles SkColor into the same component order as SkPMColor, but does not actually

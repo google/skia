@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkGradientShader.h"
+#include "SkLinearGradient.h"
 
 namespace skiagm {
 
@@ -593,9 +594,16 @@ DEF_GM( return new LinearGradientGM(true); )
 DEF_GM( return new LinearGradientGM(false); )
 
 class LinearGradientTinyGM : public GM {
+public:
+    LinearGradientTinyGM(uint32_t flags, const char* suffix = nullptr)
+    : fName("linear_gradient_tiny")
+    , fFlags(flags) {
+        fName.append(suffix);
+    }
+
 protected:
     SkString onShortName() override {
-        return SkString("linear_gradient_tiny");
+        return fName;
     }
 
     SkISize onISize() override {
@@ -631,7 +639,7 @@ protected:
             SkAutoCanvasRestore acr(canvas, true);
             SkAutoTUnref<SkShader> gradient(
                 SkGradientShader::CreateLinear(configs[i].pts, colors, configs[i].pos, kStopCount,
-                                               SkShader::kClamp_TileMode));
+                                               SkShader::kClamp_TileMode, fFlags, nullptr));
             canvas->translate(kRectSize * ((i % 4) * 1.5f + 0.25f),
                               kRectSize * ((i / 4) * 1.5f + 0.25f));
 
@@ -642,9 +650,12 @@ protected:
 
 private:
     typedef GM INHERITED;
-};
-DEF_GM( return new LinearGradientTinyGM(); )
 
+    SkString fName;
+    uint32_t fFlags;
+};
+DEF_GM( return new LinearGradientTinyGM(0); )
+DEF_GM( return new LinearGradientTinyGM(SkLinearGradient::kForce4fContext_PrivateFlag, "_4f"); )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -735,4 +746,36 @@ DEF_SIMPLE_GM(gradients_dup_color_stops, canvas, 704, 564) {
             canvas->translate(dx, 0);
         }
     }
+}
+
+static void draw_many_stops(SkCanvas* canvas, uint32_t flags) {
+    const unsigned kStopCount = 200;
+    const SkPoint pts[] = { {50, 50}, {450, 465}};
+
+    SkColor colors[kStopCount];
+    for (unsigned i = 0; i < kStopCount; i++) {
+        switch (i % 5) {
+        case 0: colors[i] = SK_ColorRED; break;
+        case 1: colors[i] = SK_ColorGREEN; break;
+        case 2: colors[i] = SK_ColorGREEN; break;
+        case 3: colors[i] = SK_ColorBLUE; break;
+        case 4: colors[i] = SK_ColorRED; break;
+        }
+    }
+
+    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateLinear(
+        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode, flags, nullptr));
+
+    SkPaint p;
+    p.setShader(shader);
+
+    canvas->drawRect(SkRect::MakeXYWH(0, 0, 500, 500), p);
+}
+
+DEF_SIMPLE_GM(gradient_many_stops, canvas, 500, 500) {
+    draw_many_stops(canvas, 0);
+}
+
+DEF_SIMPLE_GM(gradient_many_stops_4f, canvas, 500, 500) {
+    draw_many_stops(canvas, SkLinearGradient::kForce4fContext_PrivateFlag);
 }

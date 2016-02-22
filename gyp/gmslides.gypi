@@ -9,6 +9,7 @@
     # include dirs needed by particular GMs
     '../include/client/android',
     '../tools/debugger',
+    '../src/effects/gradients',
     '../src/images',
     '../src/lazy',
   ],
