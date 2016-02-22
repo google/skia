@@ -76,10 +76,27 @@ SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
                                       &this->props());
 }
 
-SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
+SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted, ForceCopyMode forceCopyMode) {
+    GrRenderTarget* rt = fDevice->accessRenderTarget();
+    SkASSERT(rt);
+    GrTexture* tex = rt->asTexture();
+    SkAutoTUnref<GrTexture> copy;
+    // TODO: Force a copy when the rt is an external resource.
+    if (kYes_ForceCopyMode == forceCopyMode || !tex) {
+        GrSurfaceDesc desc = fDevice->accessRenderTarget()->desc();
+        GrContext* ctx = fDevice->context();
+        desc.fFlags = desc.fFlags & !kRenderTarget_GrSurfaceFlag;
+        copy.reset(ctx->textureProvider()->createTexture(desc, kYes_Budgeted == budgeted));
+        if (!copy) {
+            return nullptr;
+        }
+        if (!ctx->copySurface(copy, rt)) {
+            return nullptr;
+        }
+        tex = copy;
+    }
     const SkImageInfo info = fDevice->imageInfo();
     SkImage* image = nullptr;
-    GrTexture* tex = fDevice->accessRenderTarget()->asTexture();
     if (tex) {
         image = new SkImage_Gpu(info.width(), info.height(), kNeedNewImageUniqueID,
                                 info.alphaType(), tex, budgeted);
@@ -94,7 +111,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
-    SkImage* image = this->getCachedImage(kNo_Budgeted);
+    SkAutoTUnref<SkImage> image(this->refCachedImage(kNo_Budgeted, kNo_ForceUnique));
     SkASSERT(image);
     if (rt->asTexture() == as_IB(image)->getTexture()) {
         this->fDevice->replaceRenderTarget(SkSurface::kRetain_ContentChangeMode == mode);

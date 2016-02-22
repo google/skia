@@ -323,6 +323,133 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessCopyOnWrite_Gpu, re
 }
 #endif
 
+static bool same_image(SkImage* a, SkImage* b,
+                       std::function<intptr_t(SkImage*)> getImageBackingStore) {
+    return getImageBackingStore(a) == getImageBackingStore(b);
+}
+
+static bool same_image_surf(SkImage* a, SkSurface* b,
+                            std::function<intptr_t(SkImage*)> getImageBackingStore,
+                            std::function<intptr_t(SkSurface*)> getSurfaceBackingStore) {
+    return getImageBackingStore(a) == getSurfaceBackingStore(b);
+}
+
+static void test_unique_image_snap(skiatest::Reporter* reporter, SkSurface* surface,
+                                   bool surfaceIsDirect,
+                                   std::function<intptr_t(SkImage*)> imageBackingStore,
+                                   std::function<intptr_t(SkSurface*)> surfaceBackingStore) {
+    std::function<intptr_t(SkImage*)> ibs = imageBackingStore;
+    std::function<intptr_t(SkSurface*)> sbs = surfaceBackingStore;
+    static const SkSurface::Budgeted kB = SkSurface::kNo_Budgeted;
+    {
+        SkAutoTUnref<SkImage> image(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        REPORTER_ASSERT(reporter, !same_image_surf(image, surface, ibs, sbs));
+        REPORTER_ASSERT(reporter, image->unique());
+    }
+    {
+        SkAutoTUnref<SkImage> image1(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        REPORTER_ASSERT(reporter, !same_image_surf(image1, surface, ibs, sbs));
+        REPORTER_ASSERT(reporter, image1->unique());
+        SkAutoTUnref<SkImage> image2(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        REPORTER_ASSERT(reporter, !same_image_surf(image2, surface, ibs, sbs));
+        REPORTER_ASSERT(reporter, !same_image(image1, image2, ibs));
+        REPORTER_ASSERT(reporter, image2->unique());
+    }
+    {
+        SkAutoTUnref<SkImage> image1(surface->newImageSnapshot(kB, SkSurface::kNo_ForceUnique));
+        SkAutoTUnref<SkImage> image2(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        SkAutoTUnref<SkImage> image3(surface->newImageSnapshot(kB, SkSurface::kNo_ForceUnique));
+        SkAutoTUnref<SkImage> image4(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        // Image 1 and 3 ought to be the same (or we're missing an optimization).
+        REPORTER_ASSERT(reporter, same_image(image1, image3, ibs));
+        // If the surface is not direct then images 1 and 3 should alias the surface's
+        // store.
+        REPORTER_ASSERT(reporter, !surfaceIsDirect == same_image_surf(image1, surface, ibs, sbs));
+        // Image 2 should not be shared with any other image.
+        REPORTER_ASSERT(reporter, !same_image(image1, image2, ibs) &&
+                                  !same_image(image3, image2, ibs) &&
+                                  !same_image(image4, image2, ibs));
+        REPORTER_ASSERT(reporter, image2->unique());
+        REPORTER_ASSERT(reporter, !same_image_surf(image2, surface, ibs, sbs));
+        // Image 4 should not be shared with any other image.
+        REPORTER_ASSERT(reporter, !same_image(image1, image4, ibs) &&
+                                  !same_image(image3, image4, ibs));
+        REPORTER_ASSERT(reporter, !same_image_surf(image4, surface, ibs, sbs));
+        REPORTER_ASSERT(reporter, image4->unique());
+    }
+}
+
+DEF_TEST(UniqueImageSnapshot, reporter) {
+    auto getImageBackingStore = [reporter](SkImage* image) {
+        SkPixmap pm;
+        bool success = image->peekPixels(&pm);
+        REPORTER_ASSERT(reporter, success);
+        return reinterpret_cast<intptr_t>(pm.addr());
+    };
+    auto getSufaceBackingStore = [reporter](SkSurface* surface) {
+        SkImageInfo info;
+        size_t rowBytes;
+        const void* pixels = surface->getCanvas()->peekPixels(&info, &rowBytes);
+        REPORTER_ASSERT(reporter, pixels);
+        return reinterpret_cast<intptr_t>(pixels);
+    };
+
+    SkAutoTUnref<SkSurface> surface(create_surface());
+    test_unique_image_snap(reporter, surface, false, getImageBackingStore, getSufaceBackingStore);
+    surface.reset(create_direct_surface());
+    test_unique_image_snap(reporter, surface, true, getImageBackingStore, getSufaceBackingStore);
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, context) {
+    for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
+        SkAutoTUnref<SkSurface> surface(surface_func(context, kOpaque_SkAlphaType, nullptr));
+
+        auto imageBackingStore = [reporter](SkImage* image) {
+            GrTexture* texture = as_IB(image)->peekTexture();
+            if (!texture) {
+                ERRORF(reporter, "Not texture backed.");
+                return static_cast<intptr_t>(0);
+            }
+            return static_cast<intptr_t>(texture->getUniqueID());
+        };
+
+        auto surfaceBackingStore = [reporter](SkSurface* surface) {
+            GrRenderTarget* rt =
+                surface->getCanvas()->internal_private_accessTopLayerRenderTarget();
+            if (!rt) {
+                ERRORF(reporter, "Not render target backed.");
+                return static_cast<intptr_t>(0);
+            }
+            return static_cast<intptr_t>(rt->getUniqueID());
+        };
+
+        test_unique_image_snap(reporter, surface, false, imageBackingStore, surfaceBackingStore);
+
+        // Test again with a "direct" render target;
+        GrBackendObject textureObject = context->getGpu()->createTestingOnlyBackendTexture(nullptr,
+            10, 10, kRGBA_8888_GrPixelConfig);
+        GrBackendTextureDesc desc;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+        desc.fWidth = 10;
+        desc.fHeight = 10;
+        desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+        desc.fTextureHandle = textureObject;
+        GrTexture* texture = context->textureProvider()->wrapBackendTexture(desc);
+        {
+            SkAutoTUnref<SkSurface> surface(
+                SkSurface::NewRenderTargetDirect(texture->asRenderTarget()));
+            // We should be able to pass true here, but disallowing copy on write for direct GPU
+            // surfaces is not yet implemented.
+            test_unique_image_snap(reporter, surface, false, imageBackingStore,
+                                   surfaceBackingStore);
+        }
+        texture->unref();
+        context->getGpu()->deleteTestingOnlyBackendTexture(textureObject);
+    }
+}
+#endif
+
 #if SK_SUPPORT_GPU
 // May we (soon) eliminate the need to keep testing this, by hiding the bloody device!
 static uint32_t get_legacy_gen_id(SkSurface* surface) {

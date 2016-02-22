@@ -24,7 +24,7 @@ public:
 
     SkCanvas* onNewCanvas() override;
     SkSurface* onNewSurface(const SkImageInfo&) override;
-    SkImage* onNewImageSnapshot(Budgeted) override;
+    SkImage* onNewImageSnapshot(Budgeted, ForceCopyMode) override;
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
@@ -118,18 +118,20 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-SkImage* SkSurface_Raster::onNewImageSnapshot(Budgeted) {
+SkImage* SkSurface_Raster::onNewImageSnapshot(Budgeted, ForceCopyMode forceCopyMode) {
     if (fWeOwnThePixels) {
         // SkImage_raster requires these pixels are immutable for its full lifetime.
         // We'll undo this via onRestoreBackingMutability() if we can avoid the COW.
         if (SkPixelRef* pr = fBitmap.pixelRef()) {
             pr->setTemporarilyImmutable();
         }
+    } else {
+        forceCopyMode = kYes_ForceCopyMode;
     }
+
     // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
     // Lock the shared pixel ref to ensure peekPixels() is usable.
-    return SkNewImageFromRasterBitmap(fBitmap,
-                                      fWeOwnThePixels ? kNo_ForceCopyMode : kYes_ForceCopyMode);
+    return SkNewImageFromRasterBitmap(fBitmap, forceCopyMode);
 }
 
 void SkSurface_Raster::onRestoreBackingMutability() {
@@ -141,8 +143,9 @@ void SkSurface_Raster::onRestoreBackingMutability() {
 
 void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing pixelrefs with the image?
-    SkASSERT(this->getCachedImage(kNo_Budgeted));
-    if (SkBitmapImageGetPixelRef(this->getCachedImage(kNo_Budgeted)) == fBitmap.pixelRef()) {
+    SkAutoTUnref<SkImage> cached(this->refCachedImage(kNo_Budgeted, kNo_ForceUnique));
+    SkASSERT(cached);
+    if (SkBitmapImageGetPixelRef(cached) == fBitmap.pixelRef()) {
         SkASSERT(fWeOwnThePixels);
         if (kDiscard_ContentChangeMode == mode) {
             fBitmap.allocPixels();

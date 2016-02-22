@@ -23,7 +23,7 @@ public:
     bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) override;
     SkCanvas* onNewCanvas() override;
     SkSurface* onNewSurface(const SkImageInfo&) override;
-    SkImage* onNewImageSnapshot(Budgeted) override;
+    SkImage* onNewImageSnapshot(Budgeted, ForceCopyMode) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
 
