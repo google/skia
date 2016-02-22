@@ -62,8 +62,8 @@ SkShader::Context* SkColorFilterShader::onCreateContext(const ContextRec& rec,
     return new (storage) FilterShaderContext(*this, shaderContext, rec);
 }
 
-size_t SkColorFilterShader::contextSize() const {
-    return sizeof(FilterShaderContext) + fShader->contextSize();
+size_t SkColorFilterShader::contextSize(const ContextRec& rec) const {
+    return sizeof(FilterShaderContext) + fShader->contextSize(rec);
 }
 
 SkColorFilterShader::FilterShaderContext::FilterShaderContext(

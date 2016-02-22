@@ -81,7 +81,7 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fEnd);
 }
 
-size_t SkLinearGradient::contextSize() const {
+size_t SkLinearGradient::contextSize(const ContextRec&) const {
     return use_4f_context(fGradFlags)
         ? sizeof(LinearGradient4fContext)
         : sizeof(LinearGradientContext);

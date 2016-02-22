@@ -571,7 +571,7 @@ SkShader::Context* SkPerlinNoiseShader2::onCreateContext(const ContextRec& rec,
     return new (storage) PerlinNoiseShaderContext(*this, rec);
 }
 
-size_t SkPerlinNoiseShader2::contextSize() const {
+size_t SkPerlinNoiseShader2::contextSize(const ContextRec&) const {
     return sizeof(PerlinNoiseShaderContext);
 }
 

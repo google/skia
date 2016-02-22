@@ -15,7 +15,7 @@ class SkSweepGradient : public SkGradientShaderBase {
 public:
     SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
 
-    size_t contextSize() const override;
+    size_t contextSize(const ContextRec&) const override;
 
     class SweepGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:

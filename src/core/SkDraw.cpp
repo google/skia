@@ -1697,7 +1697,7 @@ class SkTriColorShader : public SkShader {
 public:
     SkTriColorShader() {}
 
-    size_t contextSize() const override;
+    size_t contextSize(const ContextRec&) const override;
 
     class TriColorShaderContext : public SkShader::Context {
     public:
@@ -1771,7 +1771,7 @@ SkTriColorShader::TriColorShaderContext::TriColorShaderContext(const SkTriColorS
 
 SkTriColorShader::TriColorShaderContext::~TriColorShaderContext() {}
 
-size_t SkTriColorShader::contextSize() const {
+size_t SkTriColorShader::contextSize(const ContextRec&) const {
     return sizeof(TriColorShaderContext);
 }
 void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {

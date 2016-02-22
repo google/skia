@@ -19,8 +19,8 @@ public:
     , fProxyShader(SkRef(proxy))
     {}
 
-    size_t contextSize() const override {
-        return fProxyShader->contextSize();
+    size_t contextSize(const ContextRec& rec) const override {
+        return fProxyShader->contextSize(rec);
     }
 
     GradientType asAGradient(GradientInfo* info) const override {

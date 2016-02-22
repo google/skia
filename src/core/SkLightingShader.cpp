@@ -79,7 +79,7 @@ public:
                                                    SkFilterQuality) const override;
 #endif
 
-    size_t contextSize() const override;
+    size_t contextSize(const ContextRec&) const override;
 
     class LightingShaderContext : public SkShader::Context {
     public:
@@ -416,7 +416,7 @@ bool SkLightingShaderImpl::isOpaque() const {
     return fDiffuseMap.isOpaque();
 }
 
-size_t SkLightingShaderImpl::contextSize() const {
+size_t SkLightingShaderImpl::contextSize(const ContextRec&) const {
     return 2 * sizeof(SkBitmapProcState) + sizeof(LightingShaderContext);
 }
 

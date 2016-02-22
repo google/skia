@@ -72,7 +72,7 @@ public:
     }
 
 
-    size_t contextSize() const override;
+    size_t contextSize(const ContextRec&) const override;
 
     class PerlinNoiseShaderContext : public SkShader::Context {
     public:

@@ -34,7 +34,7 @@ public:
     SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode = NULL);
     virtual ~SkComposeShader();
 
-    size_t contextSize() const override;
+    size_t contextSize(const ContextRec&) const override;
 
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor*  asFragmentProcessor(GrContext*,

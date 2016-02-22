@@ -211,7 +211,7 @@ bool SkTwoPointConicalGradient::isOpaque() const {
     return false;
 }
 
-size_t SkTwoPointConicalGradient::contextSize() const {
+size_t SkTwoPointConicalGradient::contextSize(const ContextRec&) const {
     return sizeof(TwoPointConicalGradientContext);
 }
 

@@ -188,7 +188,7 @@ public:
      *  Override this if your subclass overrides createContext, to return the correct size of
      *  your subclass' context.
      */
-    virtual size_t contextSize() const;
+    virtual size_t contextSize(const ContextRec&) const;
 
     /**
      *  Returns true if this shader is just a bitmap, and if not null, returns the bitmap,

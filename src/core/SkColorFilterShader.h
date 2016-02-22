@@ -15,7 +15,7 @@ class SkColorFilterShader : public SkShader {
 public:
     SkColorFilterShader(SkShader* shader, SkColorFilter* filter);
     
-    size_t contextSize() const override;
+    size_t contextSize(const ContextRec&) const override;
     
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor* asFragmentProcessor(GrContext*,

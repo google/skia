@@ -20,7 +20,7 @@ class SK_API SkEmptyShader : public SkShader {
 public:
     SkEmptyShader() {}
 
-    size_t contextSize() const override {
+    size_t contextSize(const ContextRec&) const override {
         // Even though createContext returns nullptr we have to return a value of at least
         // sizeof(SkShader::Context) to satisfy SkSmallAllocator.
         return sizeof(SkShader::Context);

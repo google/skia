@@ -15,7 +15,7 @@ class SkRadialGradient : public SkGradientShaderBase {
 public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
 
-    size_t contextSize() const override;
+    size_t contextSize(const ContextRec&) const override;
 
     class RadialGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:

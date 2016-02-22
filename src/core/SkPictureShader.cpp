@@ -237,7 +237,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkM
     return tileShader.detach();
 }
 
-size_t SkPictureShader::contextSize() const {
+size_t SkPictureShader::contextSize(const ContextRec&) const {
     return sizeof(PictureShaderContext);
 }
 
@@ -266,7 +266,7 @@ SkPictureShader::PictureShaderContext::PictureShaderContext(
     : INHERITED(shader, rec)
     , fBitmapShader(SkRef(bitmapShader))
 {
-    fBitmapShaderContextStorage = sk_malloc_throw(bitmapShader->contextSize());
+    fBitmapShaderContextStorage = sk_malloc_throw(bitmapShader->contextSize(rec));
     fBitmapShaderContext = bitmapShader->createContext(rec, fBitmapShaderContextStorage);
     //if fBitmapShaderContext is null, we are invalid
 }

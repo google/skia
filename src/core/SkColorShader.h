@@ -26,7 +26,7 @@ public:
 
     bool isOpaque() const override;
 
-    size_t contextSize() const override {
+    size_t contextSize(const ContextRec&) const override {
         return sizeof(ColorShaderContext);
     }
 

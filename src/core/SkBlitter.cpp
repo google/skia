@@ -592,10 +592,10 @@ public:
         SkSafeUnref(fProxy);
     }
 
-    size_t contextSize() const override {
+    size_t contextSize(const ContextRec& rec) const override {
         size_t size = sizeof(Sk3DShaderContext);
         if (fProxy) {
-            size += fProxy->contextSize();
+            size += fProxy->contextSize(rec);
         }
         return size;
     }
@@ -876,7 +876,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     SkShader::Context* shaderContext = nullptr;
     if (shader) {
         SkShader::ContextRec rec(*paint, matrix, nullptr);
-        size_t contextSize = shader->contextSize();
+        size_t contextSize = shader->contextSize(rec);
         if (contextSize) {
             // Try to create the ShaderContext
             void* storage = allocator->reserveT<SkShader::Context>(contextSize);

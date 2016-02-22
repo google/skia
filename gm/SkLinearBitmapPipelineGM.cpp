@@ -67,11 +67,10 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
         paint.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
     }
     paint.setShader(shader)->unref();
-    SkASSERT(paint.getShader()->contextSize() <= sizeof(storage));
+    const SkShader::ContextRec rec(paint, *mat, nullptr);
+    SkASSERT(paint.getShader()->contextSize(rec) <= sizeof(storage));
 
-    SkShader::Context* ctx = paint.getShader()->createContext(
-        {paint, *mat, nullptr},
-        storage);
+    SkShader::Context* ctx = paint.getShader()->createContext(rec, storage);
 
     for (int y = 0; y < ir.height(); y++) {
         ctx->shadeSpan(0, y, pmdst.writable_addr32(0, y), ir.width());

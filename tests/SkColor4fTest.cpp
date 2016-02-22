@@ -148,9 +148,9 @@ DEF_TEST(Color4f_shader, reporter) {
     for (const auto& rec : recs) {
         uint32_t storage[200];
         paint.setShader(rec.fFact())->unref();
-        SkASSERT(paint.getShader()->contextSize() <= sizeof(storage));
-        SkShader::Context* ctx = paint.getShader()->createContext({paint, SkMatrix::I(), nullptr},
-                                                                  storage);
+        const SkShader::ContextRec contextRec(paint, SkMatrix::I(), nullptr);
+        SkASSERT(paint.getShader()->contextSize(contextRec) <= sizeof(storage));
+        SkShader::Context* ctx = paint.getShader()->createContext(contextRec, storage);
         REPORTER_ASSERT(reporter, ctx->supports4f() == rec.fSupports4f);
         if (ctx->supports4f()) {
             const int N = 100;

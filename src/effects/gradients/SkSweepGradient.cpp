@@ -45,7 +45,7 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fCenter);
 }
 
-size_t SkSweepGradient::contextSize() const {
+size_t SkSweepGradient::contextSize(const ContextRec&) const {
     return sizeof(SweepGradientContext);
 }
 

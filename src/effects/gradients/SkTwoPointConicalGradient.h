@@ -45,7 +45,7 @@ public:
                               bool flippedGrad, const Descriptor&);
 
 
-    size_t contextSize() const override;
+    size_t contextSize(const ContextRec&) const override;
 
     class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
