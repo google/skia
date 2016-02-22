@@ -140,6 +140,10 @@ public:
 
     SkScalar getResScale() const { return fResScale; }
 
+    bool isZeroLength() const {
+        return fInner.isZeroLength() && fOuter.isZeroLength();
+    }
+
 private:
     SkScalar    fRadius;
     SkScalar    fInvMiterLimit;
@@ -1394,13 +1398,22 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                 lastSegment = SkPath::kCubic_Verb;
                 break;
             case SkPath::kClose_Verb:
-                if (stroker.hasOnlyMoveTo() && SkPaint::kButt_Cap != this->getCap()) {
+                if (SkPaint::kButt_Cap != this->getCap()) {
                     /* If the stroke consists of a moveTo followed by a close, treat it
                        as if it were followed by a zero-length line. Lines without length
                        can have square and round end caps. */
-                    stroker.lineTo(stroker.moveToPt());
-                    lastSegment = SkPath::kLine_Verb;
-                    break;
+                    if (stroker.hasOnlyMoveTo()) {
+                        stroker.lineTo(stroker.moveToPt());
+                        goto ZERO_LENGTH;
+                    }
+                    /* If the stroke consists of a moveTo followed by one or more zero-length
+                       verbs, then followed by a close, treat is as if it were followed by a
+                       zero-length line. Lines without length can have square & round end caps. */
+                    if (stroker.isZeroLength()) {
+                ZERO_LENGTH:
+                        lastSegment = SkPath::kLine_Verb;
+                        break;
+                    }
                 }
                 stroker.close(lastSegment == SkPath::kLine_Verb);
                 break;

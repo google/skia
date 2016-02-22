@@ -1184,6 +1184,21 @@ bool SkPath::hasOnlyMoveTos() const {
     return true;
 }
 
+bool SkPath::isZeroLength() const {
+    int count = fPathRef->countPoints();
+    if (count < 2) {
+        return true;
+    }
+    const SkPoint* pts = fPathRef.get()->points();
+    const SkPoint& first = *pts;
+    for (int index = 1; index < count; ++index) {
+        if (first != pts[index]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                           Direction dir) {
     assert_known_direction(dir);
