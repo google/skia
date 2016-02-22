@@ -1072,11 +1072,14 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     if (!this->getClipDeviceBounds(&clipBounds)) {
         return false;
     }
+    SkASSERT(!clipBounds.isEmpty());
 
     const SkMatrix& ctm = fMCRec->fMatrix;  // this->getTotalMatrix()
 
     if (imageFilter) {
-        imageFilter->filterBounds(clipBounds, ctm, &clipBounds);
+        if (!imageFilter->filterBounds(clipBounds, ctm, &clipBounds) || clipBounds.isEmpty()) {
+            return false;
+        }
         if (bounds && !imageFilter->canComputeFastBounds()) {
             bounds = nullptr;
         }
@@ -1778,6 +1781,7 @@ bool SkCanvas::getClipDeviceBounds(SkIRect* bounds) const {
         return false;
     }
 
+    SkASSERT(!clip.getBounds().isEmpty());
     if (bounds) {
         *bounds = clip.getBounds();
     }

@@ -384,3 +384,17 @@ void SkDashPathEffect::toString(SkString* str) const {
     str->appendf("))");
 }
 #endif
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkPathEffect* SkDashPathEffect::Create(const SkScalar intervals[], int count, SkScalar phase) {
+    if ((count < 2) || !SkIsAlign2(count)) {
+        return nullptr;
+    }
+    for (int i = 0; i < count; i++) {
+        if (intervals[i] < 0) {
+            return nullptr;
+        }
+    }
+    return new SkDashPathEffect(intervals, count, phase);
+}

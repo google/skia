@@ -45,8 +45,6 @@ public:
         kTranslate_Style,   // translate the shape to each position
         kRotate_Style,      // rotate the shape about its center
         kMorph_Style,       // transform each point, and turn lines into curves
-
-        kStyleCount
     };
 
     /** Dash by replicating the specified path.
@@ -56,9 +54,7 @@ public:
         @param style how to transform path at each point (based on the current
                      position and tangent)
     */
-    static SkPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase, Style style) {
-        return new SkPath1DPathEffect(path, advance, phase, style);
-    }
+    static SkPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
     virtual bool filterPath(SkPath*, const SkPath&,
                             SkStrokeRec*, const SkRect*) const override;
