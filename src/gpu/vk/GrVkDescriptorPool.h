@@ -23,7 +23,7 @@ public:
         }
 
         void setTypeCount(VkDescriptorType type, uint8_t count);
-        uint32_t numPoolSizes() const;
+        int numPoolSizes() const;
 
         // Determines if for each i, that.fDescriptorTypeCount[i] <= fDescriptorTypeCount[i];
         bool isSuperSet(const DescriptorTypeCounts& that) const;
@@ -51,6 +51,5 @@ private:
 
     typedef GrVkResource INHERITED;
 };
-
 
 #endif

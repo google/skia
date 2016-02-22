@@ -14,7 +14,7 @@
 GrVkDescriptorPool::GrVkDescriptorPool(const GrVkGpu* gpu, const DescriptorTypeCounts& typeCounts)
     : INHERITED()
     , fTypeCounts(typeCounts) {
-    uint32_t numPools = fTypeCounts.numPoolSizes();
+    int numPools = fTypeCounts.numPoolSizes();
     SkAutoTDeleteArray<VkDescriptorPoolSize> poolSizes(new VkDescriptorPoolSize[numPools]);
     int currentPool = 0;
     for (int i = VK_DESCRIPTOR_TYPE_BEGIN_RANGE; i < VK_DESCRIPTOR_TYPE_END_RANGE; ++i) {
@@ -57,8 +57,8 @@ void GrVkDescriptorPool::freeGPUData(const GrVkGpu* gpu) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-uint32_t GrVkDescriptorPool::DescriptorTypeCounts::numPoolSizes() const {
-    uint32_t count = 0;
+int GrVkDescriptorPool::DescriptorTypeCounts::numPoolSizes() const {
+    int count = 0;
     for (int i = VK_DESCRIPTOR_TYPE_BEGIN_RANGE; i < VK_DESCRIPTOR_TYPE_END_RANGE; ++i) {
         count += fDescriptorTypeCount[i] ? 1 : 0;
     }
