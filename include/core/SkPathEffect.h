@@ -183,7 +183,13 @@ public:
         The reference counts for outer and inner are both incremented in the constructor,
         and decremented in the destructor.
     */
-    static SkComposePathEffect* Create(SkPathEffect* outer, SkPathEffect* inner) {
+    static SkPathEffect* Create(SkPathEffect* outer, SkPathEffect* inner) {
+        if (!outer) {
+            return SkSafeRef(inner);
+        }
+        if (!inner) {
+            return SkSafeRef(outer);
+        }
         return new SkComposePathEffect(outer, inner);
     }
 
@@ -220,7 +226,13 @@ public:
         The reference counts for first and second are both incremented in the constructor,
         and decremented in the destructor.
     */
-    static SkSumPathEffect* Create(SkPathEffect* first, SkPathEffect* second) {
+    static SkPathEffect* Create(SkPathEffect* first, SkPathEffect* second) {
+        if (!first) {
+            return SkSafeRef(second);
+        }
+        if (!second) {
+            return SkSafeRef(first);
+        }
         return new SkSumPathEffect(first, second);
     }
 

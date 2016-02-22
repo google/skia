@@ -204,7 +204,7 @@ static SkTypeface::Style make_typeface_style() {
 }
 
 static SkPath1DPathEffect::Style make_path_1d_path_effect_style() {
-    return static_cast<SkPath1DPathEffect::Style>(R(SkPath1DPathEffect::kStyleCount));
+    return static_cast<SkPath1DPathEffect::Style>(R((int)SkPath1DPathEffect::kLastEnum_Style + 1));
 }
 
 static SkColor make_color() {
@@ -527,9 +527,14 @@ static SkPaint make_paint() {
     paint.setXfermodeMode(make_xfermode());
     paint.setPathEffect(make_path_effect());
     paint.setMaskFilter(make_mask_filter());
-    SkAutoTUnref<SkTypeface> typeface(
-        SkTypeface::CreateFromName(make_font_name().c_str(), make_typeface_style()));
-    paint.setTypeface(typeface);
+
+    if (false) {
+        // our validating buffer does not support typefaces yet, so skip this for now
+        SkAutoTUnref<SkTypeface> typeface(
+                      SkTypeface::CreateFromName(make_font_name().c_str(), make_typeface_style()));
+        paint.setTypeface(typeface);
+    }
+
     SkLayerRasterizer::Builder rasterizerBuilder;
     SkPaint paintForRasterizer;
     if (R(2) == 1) {
