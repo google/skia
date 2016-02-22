@@ -67,13 +67,18 @@ struct UploadContext {
 };
 
 struct Request {
-    Request(SkString rootUrl) : fUploadContext(nullptr), fUrlDataManager(rootUrl) {}
+    Request(SkString rootUrl) 
+    : fUploadContext(nullptr)
+    , fUrlDataManager(rootUrl)
+    , fGPUEnabled(false) {}
+
     UploadContext* fUploadContext;
     SkAutoTUnref<SkPicture> fPicture;
     SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
     SkAutoTDelete<GrContextFactory> fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;
     UrlDataManager fUrlDataManager;
+    bool fGPUEnabled;
 };
 
 static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
@@ -226,9 +231,12 @@ static int SendData(MHD_Connection* connection, const SkData* data, const char* 
     return ret;
 }
 
-static int SendJSON(MHD_Connection* connection, SkCanvas* canvas, SkDebugCanvas* debugCanvas,
-                    UrlDataManager* urlDataManager, int n) {
+static int SendJSON(MHD_Connection* connection, Request* request, int n) {
+    SkCanvas* canvas = getCanvasFromRequest(request);
+    SkDebugCanvas* debugCanvas = request->fDebugCanvas;
+    UrlDataManager* urlDataManager = &request->fUrlDataManager;
     Json::Value root = debugCanvas->toJSON(*urlDataManager, n, canvas);
+    root["mode"] = Json::Value(request->fGPUEnabled ? "gpu" : "cpu");
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
 
@@ -292,8 +300,7 @@ public:
             } else {
                 sscanf(commands[1].c_str(), "%d", &n);
             }
-            return SendJSON(connection, getCanvasFromRequest(request), request->fDebugCanvas,
-                            &request->fUrlDataManager, n);
+            return SendJSON(connection, request, n);
         }
 
         // /cmd/N, for now only delete supported
@@ -493,11 +500,13 @@ public:
             SkSurface* surface = createGPUSurface(request);
             if (surface) {
                 request->fSurface.reset(surface);
+                request->fGPUEnabled = true;
                 return SendOK(connection);
             }
             return SendError(connection, "Unable to create GPU surface");
         }
         request->fSurface.reset(createCPUSurface());
+        request->fGPUEnabled = false;
         return SendOK(connection);
     }
 };
