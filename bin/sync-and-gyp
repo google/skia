@@ -74,10 +74,16 @@ solutions = [
 ]
 cache_dir = None
 '''
+
+# Must use gclient.bat rather than gclient on windows (at least on mingw)
+gclient = 'gclient'
+if sys.platform == 'win32' or sys.platform == 'cygwin':
+  gclient = 'gclient.bat'
+
 if current_deps_hash != deps_hash:
   # `gclient sync` is very slow, so skip whenever we can.
   try:
-    subprocess.call(['gclient', '--version'])
+    subprocess.call([gclient, '--version'])
   except:
     sys.stdout.write('gclient missing from $PATH, please install ' +
                      'depot_tools\n    https://skia.org/user/quick/desktop\n')
@@ -85,7 +91,7 @@ if current_deps_hash != deps_hash:
   if not os.path.isfile('.gclient'):
     with open('.gclient', 'w') as o:
       o.write(default_gclient_config)
-  gclient_sync_command = ['gclient', 'sync'] + skia_opt_deps
+  gclient_sync_command = [gclient, 'sync'] + skia_opt_deps
   try:
     sys.stdout.write('%r\n' % gclient_sync_command)
     subprocess.check_call(gclient_sync_command)
