@@ -1896,7 +1896,8 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             if (textures) {
                 SkMatrix tempM;
                 if (texture_to_matrix(state, vertices, textures, &tempM)) {
-                    SkShader::ContextRec rec(p, *fMatrix, &tempM);
+                    SkShader::ContextRec rec(p, *fMatrix, &tempM,
+                                             SkBlitter::PreferredShaderDest(fDst.info()));
                     if (!blitter->resetShaderContext(rec)) {
                         continue;
                     }

@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkImage.h"
@@ -67,7 +68,8 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
         paint.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
     }
     paint.setShader(shader)->unref();
-    const SkShader::ContextRec rec(paint, *mat, nullptr);
+    const SkShader::ContextRec rec(paint, *mat, nullptr,
+                                   SkBlitter::PreferredShaderDest(pmsrc.info()));
     SkASSERT(paint.getShader()->contextSize(rec) <= sizeof(storage));
 
     SkShader::Context* ctx = paint.getShader()->createContext(rec, storage);

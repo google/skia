@@ -148,7 +148,10 @@ DEF_TEST(Color4f_shader, reporter) {
     for (const auto& rec : recs) {
         uint32_t storage[200];
         paint.setShader(rec.fFact())->unref();
-        const SkShader::ContextRec contextRec(paint, SkMatrix::I(), nullptr);
+        // Encourage 4f context selection. At some point we may need
+        // to instantiate two separate contexts for optimal 4b/4f selection.
+        const SkShader::ContextRec contextRec(paint, SkMatrix::I(), nullptr,
+                                              SkShader::ContextRec::kPM4f_DstType);
         SkASSERT(paint.getShader()->contextSize(contextRec) <= sizeof(storage));
         SkShader::Context* ctx = paint.getShader()->createContext(contextRec, storage);
         REPORTER_ASSERT(reporter, ctx->supports4f() == rec.fSupports4f);

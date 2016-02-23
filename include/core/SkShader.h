@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkFlattenable.h"
+#include "SkImageInfo.h"
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
@@ -96,14 +97,22 @@ public:
      *  ContextRec acts as a parameter bundle for creating Contexts.
      */
     struct ContextRec {
-        ContextRec(const SkPaint& paint, const SkMatrix& matrix, const SkMatrix* localM)
+        enum DstType {
+            kPMColor_DstType, // clients prefer shading into PMColor dest
+            kPM4f_DstType,    // clients prefer shading into PM4f dest
+        };
+
+        ContextRec(const SkPaint& paint, const SkMatrix& matrix, const SkMatrix* localM,
+                   DstType dstType)
             : fPaint(&paint)
             , fMatrix(&matrix)
-            , fLocalMatrix(localM) {}
+            , fLocalMatrix(localM)
+            , fPreferredDstType(dstType) {}
 
-        const SkPaint*  fPaint;         // the current paint associated with the draw
-        const SkMatrix* fMatrix;        // the current matrix in the canvas
-        const SkMatrix* fLocalMatrix;   // optional local matrix
+        const SkPaint*  fPaint;            // the current paint associated with the draw
+        const SkMatrix* fMatrix;           // the current matrix in the canvas
+        const SkMatrix* fLocalMatrix;      // optional local matrix
+        const DstType   fPreferredDstType; // the "natural" client dest type
     };
 
     class Context : public ::SkNoncopyable {

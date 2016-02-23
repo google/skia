@@ -789,6 +789,16 @@ private:
 
 #include "SkCoreBlitters.h"
 
+SkShader::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageInfo& dstInfo) {
+#ifdef SK_FORCE_PM4f_FOR_L32_BLITS
+    return SkShader::ContextRec::kPM4f_DstType;
+#else
+    return (dstInfo.isSRGB() || dstInfo.colorType() == kRGBA_F16_SkColorType)
+            ? SkShader::ContextRec::kPM4f_DstType
+            : SkShader::ContextRec::kPMColor_DstType;
+#endif
+}
+
 SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& origPaint,
@@ -875,7 +885,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
      */
     SkShader::Context* shaderContext = nullptr;
     if (shader) {
-        SkShader::ContextRec rec(*paint, matrix, nullptr);
+        const SkShader::ContextRec rec(*paint, matrix, nullptr,
+                                       PreferredShaderDest(device.info()));
         size_t contextSize = shader->contextSize(rec);
         if (contextSize) {
             // Try to create the ShaderContext
@@ -961,7 +972,8 @@ class SkZeroShaderContext : public SkShader::Context {
 public:
     SkZeroShaderContext(const SkShader& shader, const SkShader::ContextRec& rec)
         // Override rec with the identity matrix, so it is guaranteed to be invertible.
-        : INHERITED(shader, SkShader::ContextRec(*rec.fPaint, SkMatrix::I(), nullptr)) {}
+        : INHERITED(shader, SkShader::ContextRec(*rec.fPaint, SkMatrix::I(), nullptr,
+                                                 rec.fPreferredDstType)) {}
 
     void shadeSpan(int x, int y, SkPMColor colors[], int count) override {
         sk_bzero(colors, count * sizeof(SkPMColor));

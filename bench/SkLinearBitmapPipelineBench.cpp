@@ -196,7 +196,8 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
         SkAutoTMalloc<SkPMColor> buffer4b(width*height);
 
         uint32_t storage[200];
-        const SkShader::ContextRec rec(fPaint, fM, nullptr);
+        const SkShader::ContextRec rec(fPaint, fM, nullptr,
+                                       SkShader::ContextRec::kPMColor_DstType);
         SkASSERT(fPaint.getShader()->contextSize(rec) <= sizeof(storage));
         SkShader::Context* ctx = fPaint.getShader()->createContext(rec, storage);
 

@@ -137,6 +137,8 @@ public:
                                    SkTBlitterAllocator*);
     ///@}
 
+    static SkShader::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
+
 protected:
     SkAutoMalloc fBlitMemory;
 };
