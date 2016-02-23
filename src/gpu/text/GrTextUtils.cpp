@@ -258,7 +258,7 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
         return;
     }
 
-    SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
+    SkPaint::GlyphCacheProc glyphCacheProc = skPaint.getGlyphCacheProc(true);
     SkAutoDescriptor desc;
     skPaint.getScalerContextDescriptor(&desc, props, SkPaint::FakeGamma::Off, nullptr);
     SkGlyphCache* origPaintCache = SkGlyphCache::DetachCache(skPaint.getTypeface(),
@@ -281,7 +281,7 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
     while (textPtr < stop) {
         // don't need x, y here, since all subpixel variants will have the
         // same advance
-        const SkGlyph& glyph = glyphCacheProc(origPaintCache, &textPtr, 0, 0);
+        const SkGlyph& glyph = glyphCacheProc(origPaintCache, &textPtr);
 
         SkFixed width = glyph.fAdvanceX + autokern.adjust(glyph);
         positions.push_back(SkFixedToScalar(stopX + SkFixedMul(origin, width)));
@@ -343,7 +343,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
 
     SkGlyphCache* cache = blob->setupCache(runIndex, props, SkPaint::FakeGamma::Off,
                                            dfPaint, nullptr);
-    SkDrawCacheProc glyphCacheProc = dfPaint.getDrawCacheProc();
+    SkPaint::GlyphCacheProc glyphCacheProc = dfPaint.getGlyphCacheProc(true);
     GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     const char* stop = text + byteLength;
@@ -352,7 +352,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
         while (text < stop) {
             const char* lastText = text;
             // the last 2 parameters are ignored
-            const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+            const SkGlyph& glyph = glyphCacheProc(cache, &text);
 
             if (glyph.fWidth) {
                 SkScalar x = offset.x() + pos[0];
@@ -381,7 +381,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
         while (text < stop) {
             const char* lastText = text;
             // the last 2 parameters are ignored
-            const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+            const SkGlyph& glyph = glyphCacheProc(cache, &text);
 
             if (glyph.fWidth) {
                 SkScalar x = offset.x() + pos[0];
@@ -507,9 +507,9 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context,
     paint.setStyle(SkPaint::kFill_Style);
     paint.setPathEffect(nullptr);
 
-    SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
-    SkAutoGlyphCache    autoCache(paint, &props, nullptr);
-    SkGlyphCache*       cache = autoCache.getCache();
+    SkPaint::GlyphCacheProc    glyphCacheProc = paint.getGlyphCacheProc(true);
+    SkAutoGlyphCache           autoCache(paint, &props, nullptr);
+    SkGlyphCache*              cache = autoCache.getCache();
 
     const char*        stop = text + byteLength;
     SkTextAlignProc    alignProc(paint.getTextAlign());
@@ -520,7 +520,7 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context,
     paint.setPathEffect(origPaint.getPathEffect());
 
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+        const SkGlyph& glyph = glyphCacheProc(cache, &text);
         if (glyph.fWidth) {
             const SkPath* path = cache->findPath(glyph);
             if (path) {

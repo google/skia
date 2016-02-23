@@ -25,7 +25,7 @@ protected:
     SkFixed         fPrevAdvance;
     const char*     fText;
     const char*     fStop;
-    SkMeasureCacheProc fGlyphCacheProc;
+    SkPaint::GlyphCacheProc fGlyphCacheProc;
 
     SkScalar        fXPos;      // accumulated xpos, returned in next
     SkAutoKern      fAutoKern;

@@ -440,7 +440,7 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
     SkASSERT(byteLength == 0 || text != nullptr);
 
     SkGlyphCache* glyphCache = this->getGlyphCache();
-    SkDrawCacheProc glyphCacheProc = fFont.getDrawCacheProc();
+    SkPaint::GlyphCacheProc glyphCacheProc = fFont.getGlyphCacheProc(true);
 
     fTotalGlyphCount = fFont.countText(text, byteLength);
     fInstanceData.reset(InstanceData::Alloc(GrPathRendering::kTranslate_PathTransformType,
@@ -457,7 +457,7 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
         while (textPtr < stop) {
             // We don't need x, y here, since all subpixel variants will have the
             // same advance.
-            const SkGlyph& glyph = glyphCacheProc(glyphCache, &textPtr, 0, 0);
+            const SkGlyph& glyph = glyphCacheProc(glyphCache, &textPtr);
 
             stopX += glyph.fAdvanceX;
             stopY += glyph.fAdvanceY;
@@ -484,7 +484,7 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
     SkFixed fy = SkScalarToFixed(y);
     FallbackBlobBuilder fallback;
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(glyphCache, &text, 0, 0);
+        const SkGlyph& glyph = glyphCacheProc(glyphCache, &text);
         fx += SkFixedMul(autokern.adjust(glyph), fixedSizeRatio);
         if (glyph.fWidth) {
             this->appendGlyph(glyph, SkPoint::Make(SkFixedToScalar(fx), SkFixedToScalar(fy)),
@@ -505,7 +505,7 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
     SkGlyphCache* glyphCache = this->getGlyphCache();
-    SkDrawCacheProc glyphCacheProc = fFont.getDrawCacheProc();
+    SkPaint::GlyphCacheProc glyphCacheProc = fFont.getGlyphCacheProc(true);
 
     fTotalGlyphCount = fFont.countText(text, byteLength);
     fInstanceData.reset(InstanceData::Alloc(GrPathRendering::kTranslate_PathTransformType,
@@ -517,7 +517,7 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
     SkTextAlignProc alignProc(fFont.getTextAlign());
     FallbackBlobBuilder fallback;
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(glyphCache, &text, 0, 0);
+        const SkGlyph& glyph = glyphCacheProc(glyphCache, &text);
         if (glyph.fWidth) {
             SkPoint tmsLoc;
             tmsProc(pos, &tmsLoc);

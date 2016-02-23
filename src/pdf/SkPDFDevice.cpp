@@ -80,7 +80,7 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
 }
 
 // Stolen from measure_text in SkDraw.cpp and then tweaked.
-static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
+static void align_text(SkPaint::GlyphCacheProc glyphCacheProc, const SkPaint& paint,
                        const uint16_t* glyphs, size_t len,
                        SkScalar* x, SkScalar* y) {
     if (paint.getTextAlign() == SkPaint::kLeft_Align) {
@@ -98,7 +98,7 @@ static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
 
     // TODO(vandebo): This probably needs to take kerning into account.
     while (start < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &start, 0, 0);
+        const SkGlyph& glyph = glyphCacheProc(cache, &start);
         xAdv += glyph.fAdvanceX;
         yAdv += glyph.fAdvanceY;
     };
@@ -1302,7 +1302,7 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     int numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    SkDrawCacheProc glyphCacheProc = textPaint.getDrawCacheProc();
+    SkPaint::GlyphCacheProc glyphCacheProc = textPaint.getGlyphCacheProc(true);
     align_text(glyphCacheProc, textPaint, glyphIDs, numGlyphs, &x, &y);
     content.entry()->fContent.writeText("BT\n");
     set_text_transform(x, y, textPaint.getTextSkewX(),
@@ -1378,7 +1378,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     size_t numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    SkDrawCacheProc glyphCacheProc = textPaint.getDrawCacheProc();
+    SkPaint::GlyphCacheProc glyphCacheProc = textPaint.getGlyphCacheProc(true);
     content.entry()->fContent.writeText("BT\n");
     this->updateFont(textPaint, glyphIDs[0], content.entry());
     for (size_t i = 0; i < numGlyphs; i++) {
