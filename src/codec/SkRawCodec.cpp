@@ -9,9 +9,7 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
-#if !defined(GOOGLE3)
 #include "SkJpegCodec.h"
-#endif
 #include "SkRawCodec.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
@@ -573,16 +571,12 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
         ::piex::Error error = ::piex::GetPreviewImageData(&piexStream, &imageData);
 
         if (error == ::piex::Error::kOk && imageData.preview.length > 0) {
-#if !defined(GOOGLE3)
             // transferBuffer() is destructive to the rawStream. Abandon the rawStream after this
             // function call.
             // FIXME: one may avoid the copy of memoryStream and use the buffered rawStream.
             SkMemoryStream* memoryStream =
                 rawStream->transferBuffer(imageData.preview.offset, imageData.preview.length);
             return memoryStream ? SkJpegCodec::NewFromStream(memoryStream) : nullptr;
-#else
-            return nullptr;
-#endif
         } else if (error == ::piex::Error::kFail) {
             return nullptr;
         }
