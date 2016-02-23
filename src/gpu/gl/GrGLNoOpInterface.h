@@ -363,6 +363,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetInfoLog(GrGLuint program,
                                               GrGLsizei* length,
                                               char* infolog);
 
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetMultisamplefv(GrGLenum pname, GrGLuint index, GrGLfloat* val);
+
 // can be used for both the program and shader params
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetShaderOrProgramiv(GrGLuint program,
                                                         GrGLenum pname,
