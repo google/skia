@@ -133,17 +133,13 @@ public:
         , fStrategy{std::forward<Args>(args)...}{ }
 
     void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) override {
-        Sk4f newXs = xs;
-        Sk4f newYs = ys;
-        fStrategy.processPoints(&newXs, &newYs);
-        fNext->pointListFew(n, newXs, newYs);
+        fStrategy.processPoints(&xs, &ys);
+        fNext->pointListFew(n, xs, ys);
     }
 
     void VECTORCALL pointList4(Sk4f xs, Sk4f ys) override {
-        Sk4f newXs = xs;
-        Sk4f newYs = ys;
-        fStrategy.processPoints(&newXs, &newYs);
-        fNext->pointList4(newXs, newYs);
+        fStrategy.processPoints(&xs, &ys);
+        fNext->pointList4(xs, ys);
     }
 
     void pointSpan(SkPoint start, SkScalar length, int count) override {
@@ -167,24 +163,18 @@ public:
         , fStrategy{std::forward<Args>(args)...}{ }
 
     void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) override {
-        Sk4f newXs = xs;
-        Sk4f newYs = ys;
-        fStrategy.processPoints(&newXs, &newYs);
-        fNext->pointListFew(n, newXs, newYs);
+        fStrategy.processPoints(&xs, &ys);
+        fNext->pointListFew(n, xs, ys);
     }
 
     void VECTORCALL pointList4(Sk4f xs, Sk4f ys) override {
-        Sk4f newXs = xs;
-        Sk4f newYs = ys;
-        fStrategy.processPoints(&newXs, &newYs);
-        fNext->pointList4(newXs, newYs);
+        fStrategy.processPoints(&xs, &ys);
+        fNext->pointList4(xs, ys);
     }
 
     void VECTORCALL bilerpList(Sk4f xs, Sk4f ys) override {
-        Sk4f newXs = xs;
-        Sk4f newYs = ys;
-        fStrategy.processPoints(&newXs, &newYs);
-        fNext->bilerpList(newXs, newYs);
+        fStrategy.processPoints(&xs, &ys);
+        fNext->bilerpList(xs, ys);
     }
 
     void pointSpan(SkPoint start, SkScalar length, int count) override {
@@ -202,7 +192,7 @@ class SkippedStage final : public SkLinearBitmapPipeline::BilerpProcessorInterfa
     void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) override {
         SkFAIL("Skipped stage.");
     }
-    void VECTORCALL pointList4(Sk4f Xs, Sk4f Ys) override {
+    void VECTORCALL pointList4(Sk4f xs, Sk4f ys) override {
         SkFAIL("Skipped stage.");
     }
     void VECTORCALL bilerpList(Sk4f xs, Sk4f ys) override {
