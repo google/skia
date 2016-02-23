@@ -74,7 +74,8 @@
         'SK_CODEC_DECODES_WEBP',
 
         # Turn on libjpeg-turbo optimizations since we know that the
-        # appropriate version of libjpeg-turbo is present.      
+        # appropriate version of libjpeg-turbo is present.
+        'TURBO_HAS_CROP',
         'TURBO_HAS_SKIP',
         'TURBO_HAS_565',
       ],
@@ -82,13 +83,6 @@
         ['skia_codec_decodes_raw', {
           'dependencies': [
             'raw_codec',
-          ],
-        },],
-        ['skia_android_framework == 0', {
-          'defines': [
-            # TODO (msarett): Add this optimization to Android.
-            # https://buganizer.corp.google.com/u/0/issues/27290496
-            'TURBO_HAS_CROP',
           ],
         },],
       ],
