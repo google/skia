@@ -9,7 +9,7 @@
 #include "SkLinearGradient.h"
 
 // define to test the 4f gradient path
-// #define USE_4fGRADIENTS
+// #define FORCE_4F_CONTEXT
 
 static const float kInv255Float = 1.0f / 255;
 
@@ -47,11 +47,18 @@ static SkMatrix pts_to_unit_matrix(const SkPoint pts[2]) {
     return matrix;
 }
 
-static bool use_4f_context(uint32_t flags) {
-#ifdef USE_4fGRADIENTS
+static bool use_4f_context(const SkShader::ContextRec& rec, uint32_t flags) {
+#ifdef FORCE_4F_CONTEXT
     return true;
 #else
-    return SkToBool(flags & SkLinearGradient::kForce4fContext_PrivateFlag);
+    // Perspective not supported in 4f yet.
+    if (rec.fMatrix->hasPerspective()
+        || (rec.fLocalMatrix && rec.fLocalMatrix->hasPerspective())) {
+        return false;
+    }
+
+    return rec.fPreferredDstType == SkShader::ContextRec::kPM4f_DstType
+        || SkToBool(flags & SkLinearGradient::kForce4fContext_PrivateFlag);
 #endif
 }
 
@@ -81,14 +88,14 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fEnd);
 }
 
-size_t SkLinearGradient::contextSize(const ContextRec&) const {
-    return use_4f_context(fGradFlags)
+size_t SkLinearGradient::contextSize(const ContextRec& rec) const {
+    return use_4f_context(rec, fGradFlags)
         ? sizeof(LinearGradient4fContext)
         : sizeof(LinearGradientContext);
 }
 
 SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return use_4f_context(fGradFlags)
+    return use_4f_context(rec, fGradFlags)
         ? static_cast<SkShader::Context*>(new (storage) LinearGradient4fContext(*this, rec))
         : static_cast<SkShader::Context*>(new (storage) LinearGradientContext(*this, rec));
 }

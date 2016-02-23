@@ -125,23 +125,26 @@ static SkShader* make_cf_sh() {
 }
 
 static void compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int count,
-                          skiatest::Reporter* reporter) {
+                          skiatest::Reporter* reporter, float tolerance = 1.0f/255) {
     for (int i = 0; i < count; ++i) {
         SkPM4f c0 = SkPM4f::FromPMColor(span4b[i]);
         SkPM4f c1 = span4f[i];
-        REPORTER_ASSERT(reporter, nearly_equal(c0, c1, 1.0f/255));
+        REPORTER_ASSERT(reporter, nearly_equal(c0, c1, tolerance));
     }
 }
 
 DEF_TEST(Color4f_shader, reporter) {
     struct {
-        SkShader*   (*fFact)();
-        bool        fSupports4f;
+        SkShader* (*fFact)();
+        bool      fSupports4f;
+        float     fTolerance;
     } recs[] = {
-        { make_color_sh, true },
-        { make_grad_sh,  false },
-        { make_image_sh, false },
-        { make_cf_sh,    true },
+        { make_color_sh, true,  1.0f/255   },
+        // PMColor 4f gradients are interpolated in 255-multiplied values, so we need a
+        // slightly relaxed tolerance to accommodate the cumulative precision deviation.
+        { make_grad_sh,  true,  1.001f/255 },
+        { make_image_sh, false, 1.0f/255   },
+        { make_cf_sh,    true,  1.0f/255   },
     };
 
     SkPaint paint;
@@ -161,7 +164,7 @@ DEF_TEST(Color4f_shader, reporter) {
             ctx->shadeSpan4f(0, 0, buffer4f, N);
             SkPMColor buffer4b[N];
             ctx->shadeSpan(0, 0, buffer4b, N);
-            compare_spans(buffer4f, buffer4b, N, reporter);
+            compare_spans(buffer4f, buffer4b, N, reporter, rec.fTolerance);
         }
         ctx->~Context();
     }
