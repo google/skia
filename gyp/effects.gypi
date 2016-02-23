@@ -53,6 +53,8 @@
     '<(skia_src_path)/effects/SkMergeImageFilter.cpp',
     '<(skia_src_path)/effects/SkMorphologyImageFilter.cpp',
     '<(skia_src_path)/effects/SkOffsetImageFilter.cpp',
+    '<(skia_src_path)/effects/SkPackBits.cpp',
+    '<(skia_src_path)/effects/SkPackBits.h',
     '<(skia_src_path)/effects/SkPaintFlagsDrawFilter.cpp',
     '<(skia_src_path)/effects/SkPaintImageFilter.cpp',
     '<(skia_src_path)/effects/SkPerlinNoiseShader.cpp',

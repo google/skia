@@ -17,7 +17,7 @@ public:
     /** Given the number of 8bit values that will be passed to Pack8,
         returns the worst-case size needed for the dst[] buffer.
     */
-    static size_t ComputeMaxSize8(int count);
+    static size_t ComputeMaxSize8(size_t srcSize);
 
     /** Write the src array into a packed format. The packing process may end
         up writing more bytes than it read, so dst[] must be large enough.
