@@ -22,6 +22,7 @@
 #include "SkMD5.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
+#include "SkSpinlock.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
@@ -83,7 +84,8 @@ static void fail(ImplicitString err) {
 
 static int32_t gPending = 0;  // Atomic.  Total number of running and queued tasks.
 
-SK_DECLARE_STATIC_MUTEX(gRunningAndTallyMutex);
+// We use a spinlock to make locking this in a signal handler _somewhat_ safe.
+SK_DECLARE_STATIC_SPINLOCK(gRunningAndTallyMutex);
 static SkTArray<SkString>        gRunning;
 static SkTHashMap<SkString, int> gNoteTally;
 
@@ -93,7 +95,7 @@ static void done(double ms,
     SkString id = SkStringPrintf("%s %s %s %s", config.c_str(), src.c_str(),
                                                 srcOptions.c_str(), name.c_str());
     {
-        SkAutoMutexAcquire lock(gRunningAndTallyMutex);
+        SkAutoTAcquire<SkPODSpinlock> lock(gRunningAndTallyMutex);
         for (int i = 0; i < gRunning.count(); i++) {
             if (gRunning[i] == id) {
                 gRunning.removeShuffle(i);
@@ -132,9 +134,32 @@ static void start(ImplicitString config, ImplicitString src,
                   ImplicitString srcOptions, ImplicitString name) {
     SkString id = SkStringPrintf("%s %s %s %s", config.c_str(), src.c_str(),
                                                 srcOptions.c_str(), name.c_str());
-    SkAutoMutexAcquire lock(gRunningAndTallyMutex);
+    SkAutoTAcquire<SkPODSpinlock> lock(gRunningAndTallyMutex);
     gRunning.push_back(id);
 }
+
+#if defined(SK_BUILD_FOR_WIN32)
+    static void setup_crash_handler() {
+        // TODO: custom crash handler like below to print out what was running
+        SetupCrashHandler();
+    }
+
+#else
+    #include <signal.h>
+    static void setup_crash_handler() {
+        const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
+        for (int sig : kSignals) {
+            signal(sig, [](int sig) {
+                SkAutoTAcquire<SkPODSpinlock> lock(gRunningAndTallyMutex);
+                SkDebugf("\nCaught signal %d [%s] while running %d tasks:\n",
+                         sig, strsignal(sig), gRunning.count());
+                for (auto& task : gRunning) {
+                    SkDebugf("\t%s\n", task.c_str());
+                }
+            });
+        }
+    }
+#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1101,7 +1126,7 @@ static void start_keepalive() {
             #endif
                 SkString running;
                 {
-                    SkAutoMutexAcquire lock(gRunningAndTallyMutex);
+                    SkAutoTAcquire<SkPODSpinlock> lock(gRunningAndTallyMutex);
                     for (int i = 0; i < gRunning.count(); i++) {
                         running.appendf("\n\t%s", gRunning[i].c_str());
                     }
@@ -1130,7 +1155,7 @@ extern SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style )
 
 int dm_main();
 int dm_main() {
-    SetupCrashHandler();
+    setup_crash_handler();
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
