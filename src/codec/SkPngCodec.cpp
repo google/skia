@@ -16,6 +16,7 @@
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
+#include "SkUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Callback functions

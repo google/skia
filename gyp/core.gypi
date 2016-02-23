@@ -301,6 +301,7 @@
         '<(skia_src_path)/core/SkTypefacePriv.h',
         '<(skia_src_path)/core/SkUnPreMultiply.cpp',
         '<(skia_src_path)/core/SkUtils.cpp',
+        '<(skia_src_path)/core/SkUtils.h',
         '<(skia_src_path)/core/SkValidatingReadBuffer.cpp',
         '<(skia_src_path)/core/SkValidatingReadBuffer.h',
         '<(skia_src_path)/core/SkValidationUtils.h',
@@ -397,7 +398,6 @@
         '<(skia_include_path)/core/SkTypeface.h',
         '<(skia_include_path)/core/SkTypes.h',
         '<(skia_include_path)/core/SkUnPreMultiply.h',
-        '<(skia_include_path)/core/SkUtils.h',
         '<(skia_include_path)/core/SkWriter32.h',
         '<(skia_include_path)/core/SkXfermode.h',
 

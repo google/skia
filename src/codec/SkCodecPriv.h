@@ -12,7 +12,6 @@
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
 
 #ifdef SK_PRINT_CODEC_MESSAGES
     #define SkCodecPrintf SkDebugf

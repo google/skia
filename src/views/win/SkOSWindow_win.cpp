@@ -147,7 +147,8 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             this->handleChar((SkUnichar) wParam);
             return true;
         case WM_CHAR: {
-            this->handleChar(SkUTF8_ToUnichar((char*)&wParam));
+            const uint16_t* c = reinterpret_cast<uint16_t*>(&wParam);
+            this->handleChar(SkUTF16_NextUnichar(&c));
             return true;
         } break;
         case WM_SIZE: {

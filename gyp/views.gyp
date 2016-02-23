@@ -23,6 +23,7 @@
         '../include/private',
         '../include/views',
         '../include/views/unix',
+        '../src/core',
         '../src/gpu',
       ],
       'sources': [

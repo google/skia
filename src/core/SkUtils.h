@@ -90,22 +90,4 @@ inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-class SkAutoTrace {
-public:
-    /** NOTE: label contents are not copied, just the ptr is
-        retained, so DON'T DELETE IT.
-    */
-    SkAutoTrace(const char label[]) : fLabel(label) {
-        SkDebugf("--- trace: %s Enter\n", fLabel);
-    }
-    ~SkAutoTrace() {
-        SkDebugf("--- trace: %s Leave\n", fLabel);
-    }
-private:
-    const char* fLabel;
-};
-#define SkAutoTrace(...) SK_REQUIRE_LOCAL_VAR(SkAutoTrace)
-
 #endif
