@@ -439,7 +439,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         case kScanline_Mode: {
             if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
                                                                 colorCountPtr)) {
-                return Error::Nonfatal("Could not start scanline decoder");
+                return "Could not start scanline decoder";
             }
 
             void* dst = bitmap.getAddr(0, 0);
@@ -479,12 +479,15 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
             // Decode odd stripes
             if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
-                                                                colorCountPtr)
-                    || SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
-                // This mode was designed to test the new skip scanlines API in libjpeg-turbo.
-                // Jpegs have kTopDown_SkScanlineOrder, and at this time, it is not interesting
-                // to run this test for image types that do not have this scanline ordering.
-                return Error::Nonfatal("Could not start top-down scanline decoder");
+                                                                colorCountPtr)) {
+                return "Could not start scanline decoder";
+            }
+
+            // This mode was designed to test the new skip scanlines API in libjpeg-turbo.
+            // Jpegs have kTopDown_SkScanlineOrder, and at this time, it is not interesting
+            // to run this test for image types that do not have this scanline ordering.
+            if (SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
+                return Error::Nonfatal("kStripe test is only interesting for kTopDown codecs.");
             }
 
             for (int i = 0; i < numStripes; i += 2) {
@@ -596,20 +599,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:
                             break;
-                        case SkCodec::kInvalidConversion:
-                            if (0 == (x|y)) {
-                                // First subset is okay to return unimplemented.
-                                return Error::Nonfatal("Incompatible colortype conversion");
-                            }
-                            // If the first subset succeeded, a later one should not fail.
-                            // fall through to failure
-                        case SkCodec::kUnimplemented:
-                            if (0 == (x|y)) {
-                                // First subset is okay to return unimplemented.
-                                return Error::Nonfatal("subset codec not supported");
-                            }
-                            // If the first subset succeeded, why would a later one fail?
-                            // fall through to failure
                         default:
                             return SkStringPrintf("subset codec failed to decode (%d, %d, %d, %d) "
                                                   "from %s with dimensions (%d x %d)\t error %d",
@@ -776,8 +765,6 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:
                             break;
-                        case SkCodec::kInvalidConversion:
-                            return Error::Nonfatal("Cannot convert to requested color type.");
                         default:
                             return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
                     }

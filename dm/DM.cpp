@@ -362,6 +362,8 @@ static void push_codec_srcs(Path path) {
         case SkEncodedFormat::kWEBP_SkEncodedFormat:
             nativeModes.push_back(CodecSrc::kSubset_Mode);
             break;
+        case SkEncodedFormat::kRAW_SkEncodedFormat:
+            break;
         default:
             nativeModes.push_back(CodecSrc::kScanline_Mode);
             nativeModes.push_back(CodecSrc::kStripe_Mode);
