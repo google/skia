@@ -31,6 +31,7 @@
 #endif
 
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
+#define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"
 #define SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL        "auditTrail"
 #define SKDEBUGCANVAS_ATTRIBUTE_MATRIX            "matrix"
 #define SKDEBUGCANVAS_ATTRIBUTE_COORDS            "coords"
@@ -222,6 +223,7 @@ SkString SkDrawCommand::toString() const {
 Json::Value SkDrawCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result;
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMAND] = this->GetCommandString(fOpType);
+    result[SKDEBUGCANVAS_ATTRIBUTE_VISIBLE] = Json::Value(this->isVisible());
     return result;
 }
 
