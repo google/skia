@@ -158,6 +158,11 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
         return;
     }
 
+    this->scaleRadii();
+}
+
+void SkRRect::scaleRadii() {
+
     // Proportionally scale down all radii to fit. Find the minimum ratio
     // of a side and the radii on that side (for all four sides) and use
     // that to scale down _all_ the radii. This algorithm is from the
@@ -420,7 +425,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
     }
 
-    SkDEBUGCODE(dst->validate();)
+    dst->scaleRadii();
 
     return true;
 }
