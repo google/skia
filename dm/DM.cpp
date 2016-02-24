@@ -9,7 +9,6 @@
 #include "DMJsonWriter.h"
 #include "DMSrcSink.h"
 #include "DMSrcSinkAndroid.h"
-#include "OverwriteLine.h"
 #include "ProcStats.h"
 #include "SkBBHFactory.h"
 #include "SkChecksum.h"
@@ -82,10 +81,10 @@ static void fail(ImplicitString err) {
     gFailures.push_back(err);
 }
 
-static int32_t gPending = 0;  // Atomic.  Total number of running and queued tasks.
 
 // We use a spinlock to make locking this in a signal handler _somewhat_ safe.
-SK_DECLARE_STATIC_SPINLOCK(gRunningAndTallyMutex);
+SK_DECLARE_STATIC_SPINLOCK(gMutex);
+static int32_t                   gPending;
 static SkTArray<SkString>        gRunning;
 static SkTHashMap<SkString, int> gNoteTally;
 
@@ -94,8 +93,9 @@ static void done(double ms,
                  ImplicitString name, ImplicitString note, ImplicitString log) {
     SkString id = SkStringPrintf("%s %s %s %s", config.c_str(), src.c_str(),
                                                 srcOptions.c_str(), name.c_str());
+    int pending;
     {
-        SkAutoTAcquire<SkPODSpinlock> lock(gRunningAndTallyMutex);
+        SkAutoTAcquire<SkPODSpinlock> lock(gMutex);
         for (int i = 0; i < gRunning.count(); i++) {
             if (gRunning[i] == id) {
                 gRunning.removeShuffle(i);
@@ -109,19 +109,7 @@ static void done(double ms,
                 gNoteTally.set(note, 1);
             }
         }
-    }
-    if (!log.isEmpty()) {
-        log.prepend("\n");
-    }
-    auto pending = sk_atomic_dec(&gPending)-1;
-    if (!FLAGS_quiet && note.isEmpty()) {
-        SkDebugf("%s(%4d/%-4dMB %6d) %s\t%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
-                                           , sk_tools::getCurrResidentSetSizeMB()
-                                           , sk_tools::getMaxResidentSetSizeMB()
-                                           , pending
-                                           , HumanizeMs(ms).c_str()
-                                           , id.c_str()
-                                           , log.c_str());
+        pending = --gPending;
     }
     // We write our dm.json file every once in a while in case we crash.
     // Notice this also handles the final dm.json when pending == 0.
@@ -134,8 +122,23 @@ static void start(ImplicitString config, ImplicitString src,
                   ImplicitString srcOptions, ImplicitString name) {
     SkString id = SkStringPrintf("%s %s %s %s", config.c_str(), src.c_str(),
                                                 srcOptions.c_str(), name.c_str());
-    SkAutoTAcquire<SkPODSpinlock> lock(gRunningAndTallyMutex);
+    SkAutoTAcquire<SkPODSpinlock> lock(gMutex);
     gRunning.push_back(id);
+}
+
+static void print_status() {
+    static SkMSec start_ms = SkTime::GetMSecs();
+
+    int curr = sk_tools::getCurrResidentSetSizeMB(),
+        peak = sk_tools::getMaxResidentSetSizeMB();
+    SkString elapsed = HumanizeMs(SkTime::GetMSecs() - start_ms);
+
+    SkAutoTAcquire<SkPODSpinlock> lock(gMutex);
+    SkDebugf("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
+             elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
+    for (auto& task : gRunning) {
+        SkDebugf("\t%s\n", task.c_str());
+    }
 }
 
 #if defined(SK_BUILD_FOR_WIN32)
@@ -150,12 +153,8 @@ static void start(ImplicitString config, ImplicitString src,
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
         for (int sig : kSignals) {
             signal(sig, [](int sig) {
-                SkAutoTAcquire<SkPODSpinlock> lock(gRunningAndTallyMutex);
-                SkDebugf("\nCaught signal %d [%s] while running %d tasks:\n",
-                         sig, strsignal(sig), gRunning.count());
-                for (auto& task : gRunning) {
-                    SkDebugf("\t%s\n", task.c_str());
-                }
+                SkDebugf("\nCaught signal %d [%s].\n", sig, strsignal(sig));
+                print_status();
             });
         }
     }
@@ -901,9 +900,6 @@ struct Task {
         if (!FLAGS_dryRun && note.isEmpty()) {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
-            if (FLAGS_pre_log) {
-                SkDebugf("\nRunning %s->%s", name.c_str(), task.sink.tag.c_str());
-            }
             start(task.sink.tag.c_str(), task.src.tag, task.src.options, name.c_str());
             Error err = task.sink->draw(*task.src, &bitmap, &stream, &log);
             if (!err.isEmpty()) {
@@ -1102,9 +1098,6 @@ static void run_test(skiatest::Test test) {
     if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
         start("unit", "test", "", test.name);
         GrContextFactory factory;
-        if (FLAGS_pre_log) {
-            SkDebugf("\nRunning test %s", test.name);
-        }
         test.proc(&reporter, &factory);
     }
     done(now_ms()-timerStart, "unit", "test", "", test.name, note, "");
@@ -1112,31 +1105,21 @@ static void run_test(skiatest::Test test) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// Some runs (mostly, Valgrind) are so slow that the bot framework thinks we've hung.
-// This prints something every once in a while so that it knows we're still working.
-static void start_keepalive() {
-    struct Loop {
-        static void forever(void*) {
-            for (;;) {
-                static const int kSec = 300;
-            #if defined(SK_BUILD_FOR_WIN)
-                Sleep(kSec * 1000);
-            #else
-                sleep(kSec);
-            #endif
-                SkString running;
-                {
-                    SkAutoTAcquire<SkPODSpinlock> lock(gRunningAndTallyMutex);
-                    for (int i = 0; i < gRunning.count(); i++) {
-                        running.appendf("\n\t%s", gRunning[i].c_str());
-                    }
-                }
-                SkDebugf("\nCurrently running:%s\n", running.c_str());
-            }
+DEFINE_int32(status_sec, 15, "Print status this often (and if we crash).");
+
+SkThread* start_status_thread() {
+    auto thread = new SkThread([] (void*) {
+        for (;;) {
+            print_status();
+        #if defined(SK_BUILD_FOR_WIN)
+            Sleep(FLAGS_status_sec * 1000);
+        #else
+            sleep(FLAGS_status_sec);
+        #endif
         }
-    };
-    static SkThread* intentionallyLeaked = new SkThread(Loop::forever);
-    intentionallyLeaked->start();
+    });
+    thread->start();
+    return thread;
 }
 
 #define PORTABLE_FONT_PREFIX "Toy Liberation "
@@ -1156,12 +1139,11 @@ extern SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style )
 int dm_main();
 int dm_main() {
     setup_crash_handler();
+
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
     gCreateTypefaceDelegate = &create_from_name;
-
-    start_keepalive();
 
     gather_gold();
     gather_uninteresting_hashes();
@@ -1173,8 +1155,9 @@ int dm_main() {
     gather_tests();
 
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
-    SkDebugf("%d srcs * %d sinks + %d tests == %d tasks\n",
+    SkDebugf("%d srcs * %d sinks + %d tests == %d tasks",
              gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
+    SkAutoTDelete<SkThread> statusThread(start_status_thread());
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
     SkTaskGroup parallel;
@@ -1220,13 +1203,12 @@ int dm_main() {
         SkDebugf("%d failures\n", gFailures.count());
         return 1;
     }
-    if (gPending > 0) {
-        SkDebugf("Hrm, we didn't seem to run everything we intended to!  Please file a bug.\n");
-        return 1;
-    }
-    #ifdef SK_PDF_IMAGE_STATS
+
+#ifdef SK_PDF_IMAGE_STATS
     SkPDFImageDumpStats();
-    #endif  // SK_PDF_IMAGE_STATS
+#endif  // SK_PDF_IMAGE_STATS
+
+    print_status();
     SkDebugf("Finished!\n");
     return 0;
 }
