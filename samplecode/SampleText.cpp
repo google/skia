@@ -27,41 +27,6 @@
 #include "SkStream.h"
 #include "SkXMLParser.h"
 
-static void test_breakText() {
-    SkPaint paint;
-    const char* text = "sdfkljAKLDFJKEWkldfjlk#$%&sdfs.dsj";
-    size_t length = strlen(text);
-    SkScalar width = paint.measureText(text, length);
-
-    SkScalar mm = 0;
-    SkScalar nn = 0;
-    for (SkScalar w = 0; w <= width; w += SK_Scalar1) {
-        SkScalar m;
-        size_t n = paint.breakText(text, length, w, &m);
-
-        SkASSERT(n <= length);
-        SkASSERT(m <= width);
-
-        if (n == 0) {
-            SkASSERT(m == 0);
-        } else {
-            // now assert that we're monotonic
-            if (n == nn) {
-                SkASSERT(m == mm);
-            } else {
-                SkASSERT(n > nn);
-                SkASSERT(m > mm);
-            }
-        }
-        nn = SkIntToScalar((unsigned int)n);
-        mm = m;
-    }
-
-    SkDEBUGCODE(size_t length2 =) paint.breakText(text, length, width, &mm);
-    SkASSERT(length2 == length);
-    SkASSERT(mm == width);
-}
-
 static const struct {
     const char* fName;
     uint32_t    fFlags;
@@ -109,8 +74,6 @@ public:
     TextSpeedView() {
         fHints = 0;
         fClickX = 0;
-
-        test_breakText();
     }
 
 protected:

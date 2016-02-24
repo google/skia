@@ -28,15 +28,6 @@ public:
     }
     virtual ~SkBitmapFilter() {}
 
-    SkFixed lookup(float x) const {
-        if (!fPrecomputed) {
-            precomputeTable();
-        }
-        int filter_idx = int(sk_float_abs(x * fLookupMultiplier));
-        SkASSERT(filter_idx < SKBITMAP_FILTER_TABLE_SIZE);
-        return fFilterTable[filter_idx];
-    }
-
     SkScalar lookupScalar(float x) const {
         if (!fPrecomputed) {
             precomputeTable();
@@ -67,19 +58,16 @@ protected:
     float fLookupMultiplier;
 
     mutable bool fPrecomputed;
-    mutable SkFixed fFilterTable[SKBITMAP_FILTER_TABLE_SIZE];
     mutable SkScalar fFilterTableScalar[SKBITMAP_FILTER_TABLE_SIZE];
 
 private:
     void precomputeTable() const {
         fPrecomputed = true;
-        SkFixed *ftp = fFilterTable;
         SkScalar *ftpScalar = fFilterTableScalar;
         for (int x = 0; x < SKBITMAP_FILTER_TABLE_SIZE; ++x) {
             float fx = ((float)x + .5f) * this->width() / SKBITMAP_FILTER_TABLE_SIZE;
             float filter_value = evaluate(fx);
             *ftpScalar++ = filter_value;
-            *ftp++ = SkFloatToFixed(filter_value);
         }
     }
 };
