@@ -1,6 +1,5 @@
 {
   "Pretend-iOS-Bot": [
-    "--pre_log", 
     "--matrix", 
     "0", 
     "1", 
@@ -220,7 +219,6 @@
     "image-cacherator-from-ctable"
   ], 
   "Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release": [
-    "--pre_log", 
     "--config", 
     "565", 
     "8888", 
@@ -502,7 +500,6 @@
     "~WritePixels"
   ], 
   "Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug": [
-    "--pre_log", 
     "--config", 
     "565", 
     "8888", 
@@ -787,7 +784,6 @@
     "~WritePixels"
   ], 
   "Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release": [
-    "--pre_log", 
     "--config", 
     "565", 
     "8888", 
@@ -1074,7 +1070,6 @@
     "~ReadPixels"
   ], 
   "Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release": [
-    "--pre_log", 
     "--config", 
     "565", 
     "8888", 
@@ -1353,7 +1348,6 @@
     ".SRW"
   ], 
   "Test-Android-GCC-Nexus9-GPU-TegraK1-Arm64-Debug": [
-    "--pre_log", 
     "--config", 
     "565", 
     "8888", 
@@ -1635,7 +1629,6 @@
     "--noRAW_threading"
   ], 
   "Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release": [
-    "--pre_log", 
     "--config", 
     "565", 
     "8888", 
@@ -1846,7 +1839,6 @@
     "--noRAW_threading"
   ], 
   "Test-Mac10.8-Clang-MacMini4.1-CPU-SSE4-x86_64-Release": [
-    "--pre_log", 
     "--matrix", 
     "0", 
     "1", 
@@ -2067,7 +2059,6 @@
     "image-cacherator-from-ctable"
   ], 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN": [
-    "--pre_log", 
     "--matrix", 
     "0", 
     "1", 
@@ -2296,7 +2287,6 @@
     "~Shared"
   ], 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN": [
-    "--pre_log", 
     "--matrix", 
     "0", 
     "1", 
@@ -2522,7 +2512,6 @@
     "image-cacherator-from-ctable"
   ], 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind": [
-    "--pre_log", 
     "--matrix", 
     "0", 
     "1", 
@@ -2770,7 +2759,6 @@
     "~Threaded"
   ], 
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": [
-    "--pre_log", 
     "--matrix", 
     "0", 
     "1", 
@@ -3094,7 +3082,6 @@
     "~Threaded"
   ], 
   "Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE": [
-    "--pre_log", 
     "--matrix", 
     "0", 
     "1", 

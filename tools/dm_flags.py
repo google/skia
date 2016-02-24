@@ -27,7 +27,7 @@ def lineno():
 
 cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
-  args = ['--pre_log']
+  args = []
 
   configs = ['565', '8888', 'gpu']
 
