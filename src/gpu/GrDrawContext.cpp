@@ -23,6 +23,8 @@
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrNinePatch.h" // TODO Factory
 
+#include "effects/GrRRectEffect.h"
+
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
@@ -494,13 +496,17 @@ void GrDrawContext::drawRRect(const GrClip& clip,
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
 
-    if (!GrOvalRenderer::DrawRRect(this->getDrawTarget(),
-                                   pipelineBuilder,
-                                   color,
-                                   viewMatrix,
-                                   paint.isAntiAlias(),
-                                   rrect,
-                                   strokeInfo)) {
+    GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+    SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(pipelineBuilder,
+                                                                     color,
+                                                                     viewMatrix,
+                                                                     paint.isAntiAlias(),
+                                                                     rrect,
+                                                                     strokeInfo,
+                                                                     shaderCaps));
+    if (batch) {
+        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    } else {
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rrect);
@@ -510,6 +516,77 @@ void GrDrawContext::drawRRect(const GrClip& clip,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static bool draw_drrect(GrDrawTarget* drawTarget,
+                        const GrPipelineBuilder& pipelineBuilder,
+                        GrColor color,
+                        const SkMatrix& viewMatrix,
+                        bool useAA,
+                        const SkRRect& origOuter,
+                        const SkRRect& origInner,
+                        GrShaderCaps* shaderCaps) {
+    bool applyAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
+    if (!origInner.isEmpty()) {
+        SkTCopyOnFirstWrite<SkRRect> inner(origInner);
+        if (!viewMatrix.isIdentity()) {
+            if (!origInner.transform(viewMatrix, inner.writable())) {
+                return false;
+            }
+        }
+        GrPrimitiveEdgeType edgeType = applyAA ?
+                kInverseFillAA_GrProcessorEdgeType :
+                kInverseFillBW_GrProcessorEdgeType;
+        // TODO this needs to be a geometry processor
+        GrFragmentProcessor* fp = GrRRectEffect::Create(edgeType, *inner);
+        if (nullptr == fp) {
+            return false;
+        }
+        arfps.set(&pipelineBuilder);
+        arfps.addCoverageFragmentProcessor(fp)->unref();
+    }
+
+    SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
+    SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(pipelineBuilder, color,
+                                                                     viewMatrix, useAA, origOuter,
+                                                                     fillRec, shaderCaps));
+    if (batch) {
+        drawTarget->drawBatch(pipelineBuilder, batch);    
+        return true;
+    }
+
+    SkASSERT(!origOuter.isEmpty());
+    SkTCopyOnFirstWrite<SkRRect> outer(origOuter);
+    if (!viewMatrix.isIdentity()) {
+        if (!origOuter.transform(viewMatrix, outer.writable())) {
+            return false;
+        }
+    }
+    GrPrimitiveEdgeType edgeType = applyAA ? kFillAA_GrProcessorEdgeType :
+                                             kFillBW_GrProcessorEdgeType;
+    SkAutoTUnref<GrFragmentProcessor> effect(GrRRectEffect::Create(edgeType, *outer));
+    if (!effect) {
+        return false;
+    }
+    if (!arfps.isSet()) {
+        arfps.set(&pipelineBuilder);
+    }
+
+    SkMatrix invert;
+    if (!viewMatrix.invert(&invert)) {
+        return false;
+    }
+
+    arfps.addCoverageFragmentProcessor(effect);
+    SkRect bounds = outer->getBounds();
+    if (applyAA) {
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+    }
+    batch.reset(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(), bounds, 
+                                                    nullptr, &invert));
+    drawTarget->drawBatch(pipelineBuilder, batch);    
+    return true;
+}
 
 void GrDrawContext::drawDRRect(const GrClip& clip,
                                const GrPaint& paint,
@@ -529,13 +606,10 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
-    if (!GrOvalRenderer::DrawDRRect(this->getDrawTarget(),
-                                    pipelineBuilder,
-                                    color,
-                                    viewMatrix,
-                                    paint.isAntiAlias(),
-                                    outer,
-                                    inner)) {
+
+    if (!draw_drrect(this->getDrawTarget(), pipelineBuilder,
+                     color, viewMatrix, paint.isAntiAlias(),
+                     outer, inner, fContext->caps()->shaderCaps())) {
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(inner);
@@ -571,13 +645,17 @@ void GrDrawContext::drawOval(const GrClip& clip,
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
 
-    if (!GrOvalRenderer::DrawOval(this->getDrawTarget(),
-                                  pipelineBuilder,
-                                  color,
-                                  viewMatrix,
-                                  paint.isAntiAlias(),
-                                  oval,
-                                  strokeInfo)) {
+    GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+    SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(pipelineBuilder,
+                                                                    color,
+                                                                    viewMatrix,
+                                                                    paint.isAntiAlias(),
+                                                                    oval,
+                                                                    strokeInfo,
+                                                                    shaderCaps));
+    if (batch) {
+        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    } else {
         SkPath path;
         path.setIsVolatile(true);
         path.addOval(oval);
@@ -729,13 +807,16 @@ void GrDrawContext::drawPath(const GrClip& clip,
         bool isOval = path.isOval(&ovalRect);
 
         if (isOval && !path.isInverseFillType()) {
-            if (GrOvalRenderer::DrawOval(this->getDrawTarget(),
-                                         pipelineBuilder,
-                                         color,
-                                         viewMatrix,
-                                         paint.isAntiAlias(),
-                                         ovalRect,
-                                         strokeInfo)) {
+            GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+            SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(pipelineBuilder,
+                                                                            color,
+                                                                            viewMatrix,
+                                                                            paint.isAntiAlias(),
+                                                                            ovalRect,
+                                                                            strokeInfo,
+                                                                            shaderCaps));
+            if (batch) {
+                this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
                 return;
             }
         }

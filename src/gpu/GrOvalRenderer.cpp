@@ -9,19 +9,14 @@
 
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
-#include "GrDrawTarget.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
-#include "GrVertexBuffer.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
-#include "SkTLazy.h"
-#include "batches/GrRectBatchFactory.h"
 #include "batches/GrVertexBatch.h"
-#include "effects/GrRRectEffect.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -585,35 +580,34 @@ const GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(GrProcessorTestData* 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrOvalRenderer::DrawOval(GrDrawTarget* target,
-                              const GrPipelineBuilder& pipelineBuilder,
-                              GrColor color,
-                              const SkMatrix& viewMatrix,
-                              bool useAA,
-                              const SkRect& oval,
-                              const SkStrokeRec& stroke) {
+GrDrawBatch* GrOvalRenderer::CreateOvalBatch(const GrPipelineBuilder& pipelineBuilder,
+                                             GrColor color,
+                                             const SkMatrix& viewMatrix,
+                                             bool useAA,
+                                             const SkRect& oval,
+                                             const SkStrokeRec& stroke,
+                                             GrShaderCaps* shaderCaps) {
     bool useCoverageAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
-
     if (!useCoverageAA) {
-        return false;
+        return nullptr;
     }
 
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
-        DrawCircle(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval, stroke);
+        return CreateCircleBatch(color, viewMatrix, oval, stroke);
+    }
+    
     // if we have shader derivative support, render as device-independent
-    } else if (target->caps()->shaderCaps()->shaderDerivativeSupport()) {
-        return DrawDIEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
-                             stroke);
+    if (shaderCaps->shaderDerivativeSupport()) {
+        return CreateDIEllipseBatch(color, viewMatrix, oval, stroke);
+    }
+    
     // otherwise axis-aligned ellipses only
-    } else if (viewMatrix.rectStaysRect()) {
-        return DrawEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
-                           stroke);
-    } else {
-        return false;
+    if (viewMatrix.rectStaysRect()) {
+        return CreateEllipseBatch(color, viewMatrix, oval, stroke);
     }
 
-    return true;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -788,7 +782,6 @@ private:
 
 static GrDrawBatch* create_circle_batch(GrColor color,
                                         const SkMatrix& viewMatrix,
-                                        bool useCoverageAA,
                                         const SkRect& circle,
                                         const SkStrokeRec& stroke) {
     SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
@@ -836,16 +829,11 @@ static GrDrawBatch* create_circle_batch(GrColor color,
     return CircleBatch::Create(geometry);
 }
 
-void GrOvalRenderer::DrawCircle(GrDrawTarget* target,
-                                const GrPipelineBuilder& pipelineBuilder,
-                                GrColor color,
-                                const SkMatrix& viewMatrix,
-                                bool useCoverageAA,
-                                const SkRect& circle,
-                                const SkStrokeRec& stroke) {
-    SkAutoTUnref<GrDrawBatch> batch(create_circle_batch(color, viewMatrix, useCoverageAA, circle,
-                                                        stroke));
-    target->drawBatch(pipelineBuilder, batch);
+GrDrawBatch* GrOvalRenderer::CreateCircleBatch(GrColor color,
+                                               const SkMatrix& viewMatrix,
+                                               const SkRect& circle,
+                                               const SkStrokeRec& stroke) {
+    return create_circle_batch(color, viewMatrix, circle, stroke);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1013,16 +1001,9 @@ private:
 
 static GrDrawBatch* create_ellipse_batch(GrColor color,
                                          const SkMatrix& viewMatrix,
-                                         bool useCoverageAA,
                                          const SkRect& ellipse,
                                          const SkStrokeRec& stroke) {
-#ifdef SK_DEBUG
-    {
-        // we should have checked for this previously
-        bool isAxisAlignedEllipse = viewMatrix.rectStaysRect();
-        SkASSERT(useCoverageAA && isAxisAlignedEllipse);
-    }
-#endif
+    SkASSERT(viewMatrix.rectStaysRect());
 
     // do any matrix crunching before we reset the draw state for device coords
     SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
@@ -1098,21 +1079,11 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
     return EllipseBatch::Create(geometry);
 }
 
-bool GrOvalRenderer::DrawEllipse(GrDrawTarget* target,
-                                 const GrPipelineBuilder& pipelineBuilder,
-                                 GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 bool useCoverageAA,
-                                 const SkRect& ellipse,
-                                 const SkStrokeRec& stroke) {
-    SkAutoTUnref<GrDrawBatch> batch(create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                                         stroke));
-    if (!batch) {
-        return false;
-    }
-
-    target->drawBatch(pipelineBuilder, batch);
-    return true;
+GrDrawBatch* GrOvalRenderer::CreateEllipseBatch(GrColor color,
+                                                const SkMatrix& viewMatrix,
+                                                const SkRect& ellipse,
+                                                const SkStrokeRec& stroke) {
+    return create_ellipse_batch(color, viewMatrix, ellipse, stroke);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1275,7 +1246,6 @@ private:
 
 static GrDrawBatch* create_diellipse_batch(GrColor color,
                                            const SkMatrix& viewMatrix,
-                                           bool useCoverageAA,
                                            const SkRect& ellipse,
                                            const SkStrokeRec& stroke) {
     SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
@@ -1351,20 +1321,11 @@ static GrDrawBatch* create_diellipse_batch(GrColor color,
     return DIEllipseBatch::Create(geometry, devBounds);
 }
 
-bool GrOvalRenderer::DrawDIEllipse(GrDrawTarget* target,
-                                   const GrPipelineBuilder& pipelineBuilder,
-                                   GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   bool useCoverageAA,
-                                   const SkRect& ellipse,
-                                   const SkStrokeRec& stroke) {
-    SkAutoTUnref<GrDrawBatch> batch(create_diellipse_batch(color, viewMatrix, useCoverageAA,
-                                                           ellipse, stroke));
-    if (!batch) {
-        return false;
-    }
-    target->drawBatch(pipelineBuilder, batch);
-    return true;
+GrDrawBatch* GrOvalRenderer::CreateDIEllipseBatch(GrColor color,
+                                                  const SkMatrix& viewMatrix,
+                                                  const SkRect& ellipse,
+                                                  const SkStrokeRec& stroke) {
+    return create_diellipse_batch(color, viewMatrix, ellipse, stroke);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1408,72 +1369,6 @@ static const GrIndexBuffer* ref_rrect_index_buffer(bool strokeOnly,
             gRRectOnlyIndexBufferKey);
 
     }
-}
-
-bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
-                                const GrPipelineBuilder& pipelineBuilder,
-                                GrColor color,
-                                const SkMatrix& viewMatrix,
-                                bool useAA,
-                                const SkRRect& origOuter,
-                                const SkRRect& origInner) {
-    bool applyAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
-    if (!origInner.isEmpty()) {
-        SkTCopyOnFirstWrite<SkRRect> inner(origInner);
-        if (!viewMatrix.isIdentity()) {
-            if (!origInner.transform(viewMatrix, inner.writable())) {
-                return false;
-            }
-        }
-        GrPrimitiveEdgeType edgeType = applyAA ?
-                kInverseFillAA_GrProcessorEdgeType :
-                kInverseFillBW_GrProcessorEdgeType;
-        // TODO this needs to be a geometry processor
-        GrFragmentProcessor* fp = GrRRectEffect::Create(edgeType, *inner);
-        if (nullptr == fp) {
-            return false;
-        }
-        arfps.set(&pipelineBuilder);
-        arfps.addCoverageFragmentProcessor(fp)->unref();
-    }
-
-    SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    if (DrawRRect(target, pipelineBuilder, color, viewMatrix, useAA, origOuter, fillRec)) {
-        return true;
-    }
-
-    SkASSERT(!origOuter.isEmpty());
-    SkTCopyOnFirstWrite<SkRRect> outer(origOuter);
-    if (!viewMatrix.isIdentity()) {
-        if (!origOuter.transform(viewMatrix, outer.writable())) {
-            return false;
-        }
-    }
-    GrPrimitiveEdgeType edgeType = applyAA ? kFillAA_GrProcessorEdgeType :
-                                             kFillBW_GrProcessorEdgeType;
-    GrFragmentProcessor* effect = GrRRectEffect::Create(edgeType, *outer);
-    if (nullptr == effect) {
-        return false;
-    }
-    if (!arfps.isSet()) {
-        arfps.set(&pipelineBuilder);
-    }
-
-    SkMatrix invert;
-    if (!viewMatrix.invert(&invert)) {
-        return false;
-    }
-
-    arfps.addCoverageFragmentProcessor(effect)->unref();
-    SkRect bounds = outer->getBounds();
-    if (applyAA) {
-        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
-    }
-    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(),
-                                                                        bounds, nullptr, &invert));
-    target->drawBatch(pipelineBuilder, batch);
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1995,36 +1890,30 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
     }
 }
 
-bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
-                               const GrPipelineBuilder& pipelineBuilder,
-                               GrColor color,
-                               const SkMatrix& viewMatrix,
-                               bool useAA,
-                               const SkRRect& rrect,
-                               const SkStrokeRec& stroke) {
-    if (rrect.isOval()) {
-        return DrawOval(target, pipelineBuilder, color, viewMatrix, useAA, rrect.getBounds(),
-                        stroke);
-    }
-
+GrDrawBatch* GrOvalRenderer::CreateRRectBatch(const GrPipelineBuilder& pipelineBuilder,
+                                              GrColor color,
+                                              const SkMatrix& viewMatrix,
+                                              bool useAA,
+                                              const SkRRect& rrect,
+                                              const SkStrokeRec& stroke,
+                                              GrShaderCaps* shaderCaps) {
     bool useCoverageAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
 
     // only anti-aliased rrects for now
     if (!useCoverageAA) {
-        return false;
+        return nullptr;
+    }
+
+    if (rrect.isOval()) {
+        return CreateOvalBatch(pipelineBuilder, color, viewMatrix, useAA,
+                               rrect.getBounds(), stroke, shaderCaps);
     }
 
     if (!viewMatrix.rectStaysRect() || !rrect.isSimple()) {
-        return false;
+        return nullptr;
     }
 
-    SkAutoTUnref<GrDrawBatch> batch(create_rrect_batch(color, viewMatrix, rrect, stroke));
-    if (!batch) {
-        return false;
-    }
-
-    target->drawBatch(pipelineBuilder, batch);
-    return true;
+    return create_rrect_batch(color, viewMatrix, rrect, stroke);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2034,27 +1923,22 @@ bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
 DRAW_BATCH_TEST_DEFINE(CircleBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
-    bool useCoverageAA = random->nextBool();
     SkRect circle = GrTest::TestSquare(random);
-    return create_circle_batch(color, viewMatrix, useCoverageAA, circle,
-                               GrTest::TestStrokeRec(random));
+    return create_circle_batch(color, viewMatrix, circle, GrTest::TestStrokeRec(random));
 }
 
 DRAW_BATCH_TEST_DEFINE(EllipseBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     SkRect ellipse = GrTest::TestSquare(random);
-    return create_ellipse_batch(color, viewMatrix, true, ellipse,
-                                GrTest::TestStrokeRec(random));
+    return create_ellipse_batch(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
 }
 
 DRAW_BATCH_TEST_DEFINE(DIEllipseBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
-    bool useCoverageAA = random->nextBool();
     SkRect ellipse = GrTest::TestSquare(random);
-    return create_diellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                  GrTest::TestStrokeRec(random));
+    return create_diellipse_batch(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
 }
 
 DRAW_BATCH_TEST_DEFINE(RRectBatch) {
