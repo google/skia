@@ -11,6 +11,39 @@
 #include "SkXfermode.h"
 #include "SkPM4f.h"
 
+#include "SkArithmeticMode.h"
+#include "SkPixelXorXfermode.h"
+#include "SkAvoidXfermode.h"
+
+#define kCustomShift    16
+#define kCustomMask     (~0xFFFF)
+
+enum CustomModes {
+    kArithmetic_CustomMode  = 1 << kCustomShift,
+    kPixelXor_CustomMode    = 2 << kCustomShift,
+    kAvoid_CustomMode       = 3 << kCustomShift,
+};
+
+static SkXfermode* make_custom(int customMode) {
+    switch (customMode) {
+        case kArithmetic_CustomMode: {
+            const SkScalar k1 = 0.25;
+            const SkScalar k2 = 0.75;
+            const SkScalar k3 = 0.75;
+            const SkScalar k4 = -0.25;
+            return SkArithmeticMode::Create(k1, k2, k3, k4);
+        }
+        case kPixelXor_CustomMode:
+            return SkPixelXorXfermode::Create(0xFF88CC44);
+        case kAvoid_CustomMode:
+            return SkAvoidXfermode::Create(0xFFFF0000, 0x44, SkAvoidXfermode::kAvoidColor_Mode);
+        default:
+            break;
+    }
+    SkASSERT(false);
+    return nullptr;
+}
+
 enum SrcType {
     //! A WxH image with a rectangle in the lower right.
     kRectangleImage_SrcType               = 0x01,
@@ -73,6 +106,10 @@ const struct {
     { SkXfermode::kSaturation_Mode,   "Saturation",   kBasic_SrcType },
     { SkXfermode::kColor_Mode,        "Color",        kBasic_SrcType },
     { SkXfermode::kLuminosity_Mode,   "Luminosity",   kBasic_SrcType },
+
+    { SkXfermode::Mode(0xFFFF),       "Arithmetic",   kBasic_SrcType + kArithmetic_CustomMode   },
+    { SkXfermode::Mode(0xFFFF),       "PixelXor",     kBasic_SrcType + kPixelXor_CustomMode     },
+    { SkXfermode::Mode(0xFFFF),       "Avoid",        kBasic_SrcType + kAvoid_CustomMode        },
 };
 
 static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
@@ -214,7 +251,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1990, 640);
+        return SkISize::Make(1990, 660);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -242,10 +279,15 @@ protected:
             SkScalar x = x0, y = y0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
                 if ((gModes[i].fSourceTypeMask & sourceType) == 0) {
+                    SkDebugf("skip %d %s for type %x\n", i, gModes[i].fLabel, sourceType);
                     continue;
                 }
-                SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-                SkAutoUnref aur(mode);
+                SkAutoTUnref<SkXfermode> mode;
+                if (gModes[i].fSourceTypeMask & kCustomMask) {
+                    mode.reset(make_custom(gModes[i].fSourceTypeMask & kCustomMask));
+                } else {
+                    mode.reset(SkXfermode::Create(gModes[i].fMode));
+                }
                 SkRect r;
                 r.set(x, y, x+w, y+h);
 
