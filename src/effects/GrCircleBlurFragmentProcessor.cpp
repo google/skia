@@ -209,9 +209,11 @@ static uint8_t* create_profile(float halfWH, float sigma) {
     compute_profile_offset_and_size(halfWH, sigma, &offset, &numSteps);
 
     uint8_t* weights = new uint8_t[numSteps];
-    for (int i = 0; i < numSteps; ++i) {
+    for (int i = 0; i < numSteps - 1; ++i) {
         weights[i] = eval_at(offset+i, halfWH, halfKernel.get(), kernelWH);
     }
+    // Ensure the tail of the Gaussian goes to zero.
+    weights[numSteps-1] = 0;
 
     return weights;
 }
