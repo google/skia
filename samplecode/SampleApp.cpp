@@ -744,6 +744,7 @@ DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to 
 DEFINE_bool(sort, false, "Sort samples by title.");
 DEFINE_bool(list, false, "List samples?");
 DEFINE_bool(gpu, false, "Start up with gpu?");
+DEFINE_bool(redraw, false, "Force continuous redrawing, for profiling or debugging tools.");
 DEFINE_string(key, "", "");  // dummy to enable gm tests that have platform-specific names
 #ifdef SAMPLE_PDF_FILE_VIEWER
 DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
@@ -1101,7 +1102,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
         this->postInvalDelay();
     }
 
-    if (this->sendAnimatePulse()) {
+    if (this->sendAnimatePulse() || FLAGS_redraw) {
         this->inval(nullptr);
     }
 
