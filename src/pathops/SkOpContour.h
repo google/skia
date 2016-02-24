@@ -269,7 +269,9 @@ public:
         SkASSERT(fCount > 0);
         SkOpSegment* segment = &fHead;
         do {
-            segment->moveMultiples();
+            if (!segment->moveMultiples()) {
+                return false;
+            }
         } while ((segment = segment->next()));
         return true;
     }

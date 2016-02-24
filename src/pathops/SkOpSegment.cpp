@@ -1297,12 +1297,14 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
 }
 
 // if a span has more than one intersection, merge the other segments' span as needed
-void SkOpSegment::moveMultiples() {
+bool SkOpSegment::moveMultiples() {
     debugValidate();
     SkOpSpanBase* test = &fHead;
     do {
         int addCount = test->spanAddsCount();
-        SkASSERT(addCount >= 1);
+        if (addCount < 1) {
+            return false;
+        }
         if (addCount == 1) {
             continue;
         }
@@ -1393,6 +1395,7 @@ checkNextSpan:
         ;
     } while ((test = test->final() ? nullptr : test->upCast()->next()));
     debugValidate();
+    return true;
 }
 
 // Move nearby t values and pts so they all hang off the same span. Alignment happens later.

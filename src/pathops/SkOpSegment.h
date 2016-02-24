@@ -271,7 +271,7 @@ public:
     bool markWinding(SkOpSpan* , int winding, int oppWinding);
     bool match(const SkOpPtT* span, const SkOpSegment* parent, double t, const SkPoint& pt) const;
     bool missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator);
-    void moveMultiples();
+    bool moveMultiples();
     void moveNearby();
 
     SkOpSegment* next() const {

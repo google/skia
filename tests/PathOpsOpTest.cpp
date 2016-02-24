@@ -5564,6 +5564,18 @@ DEF_TEST(PathOpsOp, reporter) {
     }
 }
 
+static void fuzz535151(skiatest::Reporter* reporter, const char* filename) {
+    SkPath one;
+    one.setFillType(SkPath::kWinding_FillType);
+    SkPath two;
+    two.setFillType(SkPath::kWinding_FillType);
+    two.moveTo(0, 0);
+    two.lineTo(0, 50);
+    two.lineTo(4.29497e+09f, 50);
+    SkPath dummy;
+    REPORTER_ASSERT(reporter, !Op(one, two, kIntersect_SkPathOp, &dummy));
+}
+
 static void bufferOverflow(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.addRect(0,0, 300,170141183460469231731687303715884105728.f);
@@ -5781,6 +5793,7 @@ path.lineTo(SkBits2Float(0x40f8fbe0), SkBits2Float(0xcf223cc0));  // 7.78075f, -
 }
 
 static struct TestDesc failTests[] = {
+    TEST(fuzz535151),
     TEST(fuzz753_91),
     TEST(fuzz714),
     TEST(fuzz487a),

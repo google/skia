@@ -425,11 +425,14 @@ static bool missingCoincidence(SkOpContourHead* contourList,
     return result;
 }
 
-static void moveMultiples(SkOpContourHead* contourList) {
+static bool moveMultiples(SkOpContourHead* contourList) {
     SkOpContour* contour = contourList;
     do {
-        contour->moveMultiples();
+        if (!contour->moveMultiples()) {
+            return false;
+        }
     } while ((contour = contour->next()));
+    return true;
 }
 
 static void moveNearby(SkOpContourHead* contourList) {
@@ -451,7 +454,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     SkOpGlobalState* globalState = contourList->globalState();
     // combine t values when multiple intersections occur on some segments but not others
     DEBUG_COINCIDENCE_HEALTH(contourList, "start");
-    moveMultiples(contourList);
+    if (!moveMultiples(contourList)) {
+        return false;
+    }
     DEBUG_COINCIDENCE_HEALTH(contourList, "moveMultiples");
     findCollapsed(contourList);
     DEBUG_COINCIDENCE_HEALTH(contourList, "findCollapsed");
