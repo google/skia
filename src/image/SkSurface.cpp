@@ -199,6 +199,10 @@ bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess 
     return asSB(this)->onGetRenderTargetHandle(obj, access);
 }
 
+void SkSurface::prepareForExternalIO() {
+  asSB(this)->onPrepareForExternalIO();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
@@ -219,6 +223,11 @@ SkSurface* SkSurface::NewFromBackendTexture(GrContext*, const GrBackendTextureDe
 
 SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext*, const GrBackendRenderTargetDesc&,
                                                  const SkSurfaceProps*) {
+    return nullptr;
+}
+
+SkSurface* NewFromBackendTextureAsRenderTarget(GrContext*, const GrBackendTextureDesc&,
+                                               const SkSurfaceProps*) {
     return nullptr;
 }
 

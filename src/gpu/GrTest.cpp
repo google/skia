@@ -345,6 +345,11 @@ private:
         return nullptr;
     }
 
+    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
+                                                       GrWrapOwnership) override {
+        return nullptr;
+    }
+
     GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override { return nullptr; }
 
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override { return nullptr; }

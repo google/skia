@@ -227,4 +227,11 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
     return rt->renderTargetPriv().getStencilAttachment();
 }
 
+GrRenderTarget* GrResourceProvider::wrapBackendTextureAsRenderTarget(
+        const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+    return this->gpu()->wrapBackendTextureAsRenderTarget(desc, ownership);
+}
 

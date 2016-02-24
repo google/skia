@@ -147,6 +147,15 @@ public:
 
     const GrCaps* caps() { return this->gpu()->caps(); }
 
+     /**
+      * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided
+      * texture has a format that cannot be textured from by Skia, but we want to raster to it.
+      *
+      * @return GrRenderTarget object or NULL on failure.
+      */
+     GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc,
+                                                      GrWrapOwnership = kBorrow_GrWrapOwnership);
+
 private:
     const GrIndexBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
                                                     int patternSize,

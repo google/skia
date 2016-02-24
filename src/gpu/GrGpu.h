@@ -97,14 +97,19 @@ public:
                              const void* srcData, size_t rowBytes);
 
     /**
-     * Implements GrContext::wrapBackendTexture
+     * Implements GrTextureProvider::wrapBackendTexture
      */
     GrTexture* wrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership);
 
     /**
-     * Implements GrContext::wrapBackendTexture
+     * Implements GrTextureProvider::wrapBackendTexture
      */
     GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc&, GrWrapOwnership);
+
+    /**
+     * Implements GrTextureProvider::wrapBackendTextureAsRenderTarget
+     */
+    GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&, GrWrapOwnership);
 
     /**
      * Creates a vertex buffer.
@@ -512,6 +517,8 @@ private:
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                                       GrWrapOwnership) = 0;
+    virtual GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
+                                                               GrWrapOwnership) = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
     virtual GrTransferBuffer* onCreateTransferBuffer(size_t size, TransferType type) = 0;

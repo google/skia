@@ -7,6 +7,7 @@
 
 #include "SkSurface_Gpu.h"
 
+#include "GrResourceProvider.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
@@ -125,6 +126,10 @@ void SkSurface_Gpu::onDiscard() {
     fDevice->accessRenderTarget()->discard();
 }
 
+void SkSurface_Gpu::onPrepareForExternalIO() {
+    fDevice->accessRenderTarget()->prepareForExternalIO();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurfaceProps* props) {
@@ -176,6 +181,25 @@ SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext* context,
         return nullptr;
     }
     SkAutoTUnref<GrRenderTarget> rt(context->textureProvider()->wrapBackendRenderTarget(desc));
+    if (!rt) {
+        return nullptr;
+    }
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(rt, props,
+                                                         SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+    return new SkSurface_Gpu(device);
+}
+
+SkSurface* SkSurface::NewFromBackendTextureAsRenderTarget(GrContext* context,
+                                                          const GrBackendTextureDesc& desc,
+                                                          const SkSurfaceProps* props) {
+    if (nullptr == context) {
+        return nullptr;
+    }
+    SkAutoTUnref<GrRenderTarget> rt(
+            context->resourceProvider()->wrapBackendTextureAsRenderTarget(desc));
     if (!rt) {
         return nullptr;
     }

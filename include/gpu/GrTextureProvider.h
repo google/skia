@@ -98,7 +98,7 @@ public:
      * the client will resolve to a texture). Currently wrapped render targets
      * always use the kBorrow_GrWrapOwnership semantics.
      *
-     * @return GrTexture object or NULL on failure.
+     * @return GrRenderTarget object or NULL on failure.
      */
      GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
 

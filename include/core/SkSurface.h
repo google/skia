@@ -108,7 +108,6 @@ public:
         return NewFromBackendTexture(ctx, desc, props);
     }
 
-
     /**
      *  Used to wrap a pre-existing 3D API rendering target as a SkSurface. Skia will not assume
      *  ownership of the render target and the client must ensure the render target is valid for the
@@ -116,6 +115,17 @@ public:
      */
     static SkSurface* NewFromBackendRenderTarget(GrContext*, const GrBackendRenderTargetDesc&,
                                                  const SkSurfaceProps*);
+
+    /**
+     *  Used to wrap a pre-existing 3D API texture as a SkSurface. Skia will treat the texture as
+     *  a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
+     *  the associated render target objects (but not the provided texture). The kRenderTarget flag
+     *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
+     *  of the texture and the client must ensure the texture is valid for the lifetime of the
+     *  SkSurface.
+     */
+    static SkSurface* NewFromBackendTextureAsRenderTarget(
+            GrContext*, const GrBackendTextureDesc&, const SkSurfaceProps*);
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
@@ -291,6 +301,11 @@ public:
                     int srcX, int srcY);
 
     const SkSurfaceProps& props() const { return fProps; }
+
+    /**
+     * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
+     */
+    void prepareForExternalIO();
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps*);

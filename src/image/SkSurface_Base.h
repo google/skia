@@ -75,6 +75,11 @@ public:
      */
     virtual void onRestoreBackingMutability() {}
 
+    /**
+     * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
+     */
+    virtual void onPrepareForExternalIO() {}
+
     inline SkCanvas* getCachedCanvas();
     inline SkImage* refCachedImage(Budgeted, ForceUnique);
 

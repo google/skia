@@ -547,11 +547,6 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     }
 #endif
 
-    int maxSize = this->caps()->maxTextureSize();
-    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
-        return nullptr;
-    }
-
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
 
@@ -657,7 +652,72 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     return GrGLRenderTarget::CreateWrapped(this, desc, idDesc, wrapDesc.fStencilBits);
 }
 
+GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc,
+                                                            GrWrapOwnership ownership) {
+#ifdef SK_IGNORE_GL_TEXTURE_TARGET
+    if (!desc.fTextureHandle) {
+        return nullptr;
+    }
+#else
+    const GrGLTextureInfo* info = reinterpret_cast<const GrGLTextureInfo*>(desc.fTextureHandle);
+    if (!info || !info->fID) {
+        return nullptr;
+    }
+#endif
+
+    GrGLTexture::IDDesc idDesc;
+    GrSurfaceDesc surfDesc;
+
+#ifdef SK_IGNORE_GL_TEXTURE_TARGET
+    idDesc.fInfo.fID = static_cast<GrGLuint>(desc.fTextureHandle);
+    // We only support GL_TEXTURE_2D at the moment.
+    idDesc.fInfo.fTarget = GR_GL_TEXTURE_2D;
+#else
+    idDesc.fInfo = *info;
+#endif
+
+    if (GR_GL_TEXTURE_RECTANGLE != idDesc.fInfo.fTarget &&
+        GR_GL_TEXTURE_2D != idDesc.fInfo.fTarget) {
+        // Only texture rectangle and texture 2d are supported. We do not check whether texture
+        // rectangle is supported by Skia - if the caller provided us with a texture rectangle,
+        // we assume the necessary support exists.
+        return nullptr;
+    }
+
+    switch (ownership) {
+        case kAdopt_GrWrapOwnership:
+            idDesc.fLifeCycle = GrGpuResource::kAdopted_LifeCycle;
+            break;
+        case kBorrow_GrWrapOwnership:
+            idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
+            break;
+    }
+
+    surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
+    surfDesc.fWidth = desc.fWidth;
+    surfDesc.fHeight = desc.fHeight;
+    surfDesc.fConfig = desc.fConfig;
+    surfDesc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
+    // FIXME:  this should be calling resolve_origin(), but Chrome code is currently
+    // assuming the old behaviour, which is that backend textures are always
+    // BottomLeft, even for non-RT's.  Once Chrome is fixed, change this to:
+    // glTexDesc.fOrigin = resolve_origin(desc.fOrigin, renderTarget);
+    if (kDefault_GrSurfaceOrigin == desc.fOrigin) {
+        surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    } else {
+        surfDesc.fOrigin = desc.fOrigin;
+    }
+
+    GrGLRenderTarget::IDDesc rtIDDesc;
+    if (!this->createRenderTargetObjects(surfDesc, GrGpuResource::kUncached_LifeCycle,
+                                         idDesc.fInfo, &rtIDDesc)) {
+        return nullptr;
+    }
+    return GrGLRenderTarget::CreateWrapped(this, surfDesc, rtIDDesc, 0);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
+
 bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                    GrPixelConfig srcConfig,
                                    DrawPreference* drawPreference,
@@ -1534,9 +1594,6 @@ bool GrGLGpu::createTextureExternalAllocatorImpl(
 GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
                                                                      int width,
                                                                      int height) {
-    // All internally created RTs are also textures. We don't create
-    // SBs for a client's standalone RT (that is a RT that isn't also a texture).
-    SkASSERT(rt->asTexture());
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 

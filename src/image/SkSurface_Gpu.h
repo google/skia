@@ -26,6 +26,7 @@ public:
     SkImage* onNewImageSnapshot(Budgeted, ForceCopyMode) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
+    void onPrepareForExternalIO() override;
 
     SkGpuDevice* getDevice() { return fDevice; }
 
