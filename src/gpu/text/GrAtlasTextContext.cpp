@@ -389,9 +389,15 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     const char* text = "The quick brown fox jumps over the lazy dog.";
     int textLen = (int)strlen(text);
 
-    // Setup clip
-    GrClip clip;
-
+    // create some random x/y offsets, including negative offsets
+    static const int kMaxTrans = 1024;
+    int xPos = (random->nextU() % 2) * 2 - 1;
+    int yPos = (random->nextU() % 2) * 2 - 1;
+    int xInt = (random->nextU() % kMaxTrans) * xPos;
+    int yInt = (random->nextU() % kMaxTrans) * yPos;
+    SkScalar x = SkIntToScalar(xInt);
+    SkScalar y = SkIntToScalar(yInt);
+    
     // right now we don't handle textblobs, nor do we handle drawPosText.  Since we only
     // intend to test the batch with this unit test, that is okay.
     SkAutoTUnref<GrAtlasTextBlob> blob(
@@ -400,12 +406,8 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
                                                *context->caps()->shaderCaps(), grPaint, skPaint,
                                                viewMatrix,
                                                gSurfaceProps, text,
-                                               static_cast<size_t>(textLen), 0, 0));
+                                               static_cast<size_t>(textLen), x, y));
 
-    // We'd like to be able to test this with random translations, but currently the vertex
-    // bounds and vertices will get out of sync
-    SkScalar x = 0.f;//SkIntToScalar(random->nextU());
-    SkScalar y = 0.f;//SkIntToScalar(random->nextU());
     return blob->test_createBatch(textLen, 0, 0, viewMatrix, x, y, color, skPaint,
                                   gSurfaceProps, gTextContext->dfAdjustTable(),
                                   context->getBatchFontCache());
