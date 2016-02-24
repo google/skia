@@ -63,7 +63,7 @@ SkGradientShaderBase::
 GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderBase& shader,
                                                          const ContextRec& rec)
     : INHERITED(shader, rec)
-    , fFlags(this->INHERITED::getFlags() | kSupports4f_Flag)
+    , fFlags(this->INHERITED::getFlags())
 #ifdef SK_SUPPORT_LEGACY_GRADIENT_DITHERING
     , fDither(true)
 #else

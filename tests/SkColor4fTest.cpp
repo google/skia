@@ -157,8 +157,7 @@ DEF_TEST(Color4f_shader, reporter) {
                                               SkShader::ContextRec::kPM4f_DstType);
         SkASSERT(paint.getShader()->contextSize(contextRec) <= sizeof(storage));
         SkShader::Context* ctx = paint.getShader()->createContext(contextRec, storage);
-        REPORTER_ASSERT(reporter, ctx->supports4f() == rec.fSupports4f);
-        if (ctx->supports4f()) {
+        if (rec.fSupports4f) {
             const int N = 100;
             SkPM4f buffer4f[N];
             ctx->shadeSpan4f(0, 0, buffer4f, N);

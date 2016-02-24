@@ -82,7 +82,10 @@ public:
             shadeSpan().
          */
         kConstInY32_Flag = 1 << 1,
-        kSupports4f_Flag = 1 << 2,
+
+        /** hint for the blitter that 4f is the preferred shading mode.
+         */
+        kPrefers4f_Flag  = 1 << 2,
     };
 
     /**
@@ -129,10 +132,6 @@ public:
          *  faster.
          */
         virtual uint32_t getFlags() const { return 0; }
-
-        bool supports4f() const {
-            return SkToBool(this->getFlags() & kSupports4f_Flag);
-        }
 
         /**
          *  Called for each span of the object being drawn. Your subclass should

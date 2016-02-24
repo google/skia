@@ -298,7 +298,7 @@ SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shade
     c4.fA *= rec.fPaint->getAlpha() / 255.0f;
     fPM4f = c4.premul();
 
-    fFlags = kConstInY32_Flag | kSupports4f_Flag;
+    fFlags = kConstInY32_Flag;
     if (255 == a) {
         fFlags |= kOpaqueAlpha_Flag;
     }
