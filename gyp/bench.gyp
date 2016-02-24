@@ -41,6 +41,11 @@
             'tools.gyp:android_utils',
           ],
         }],
+        [ 'skia_pdf',
+          { 'dependencies': [ 'pdf.gyp:pdf' ],
+            'include_dirs': [ '../src/pdf' ], },
+          { 'dependencies': [ 'pdf.gyp:nopdf' ], }
+        ],
       ],
     },
   ],
