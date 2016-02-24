@@ -7,13 +7,10 @@
 
 #include "Benchmark.h"
 #include "Resources.h"
-#include "SkImage.h"
-#include "SkPixmap.h"
 #include "SkData.h"
-
-#if SK_SUPPORT_PDF
-
+#include "SkImage.h"
 #include "SkPDFBitmap.h"
+#include "SkPixmap.h"
 
 namespace {
 struct NullWStream : public SkWStream {
@@ -23,13 +20,7 @@ struct NullWStream : public SkWStream {
     size_t fN;
 };
 
-static void test_pdf_image_serialization(SkImage* img) {
-    SkAutoTUnref<SkPDFObject> object(
-            SkPDFCreateBitmapObject(img, nullptr));
-    if (!object) {
-        SkDEBUGFAIL("");
-        return;
-    }
+static void test_pdf_object_serialization(SkPDFObject* object) {
     // SkDebugWStream wStream;
     NullWStream wStream;
     SkPDFSubstituteMap substitutes;
@@ -72,7 +63,13 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            test_pdf_image_serialization(fImage);
+            SkAutoTUnref<SkPDFObject> object(
+                    SkPDFCreateBitmapObject(fImage, nullptr));
+            SkASSERT(object);
+            if (!object) {
+                return;
+            }
+            test_pdf_object_serialization(object);
         }
     }
 
@@ -105,7 +102,13 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            test_pdf_image_serialization(fImage);
+            SkAutoTUnref<SkPDFObject> object(
+                    SkPDFCreateBitmapObject(fImage, nullptr));
+            SkASSERT(object);
+            if (!object) {
+                return;
+            }
+            test_pdf_object_serialization(object);
         }
     }
 
@@ -113,8 +116,36 @@ private:
     SkAutoTUnref<SkImage> fImage;
 };
 
+/** Test calling DEFLATE on a 78k PDF command stream. Used for measuring
+    alternate zlib settings, usage, and library versions. */
+class PDFCompressionBench : public Benchmark {
+public:
+    PDFCompressionBench() {}
+    virtual ~PDFCompressionBench() {}
+
+protected:
+    const char* onGetName() override { return "PDFCompression"; }
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+    void onDelayedSetup() override {
+        fAsset.reset(GetResourceAsStream("pdf_command_stream.txt"));
+    }
+    void onDraw(int loops, SkCanvas*) override {
+        SkASSERT(fAsset);
+        if (!fAsset) { return; }
+        while (loops-- > 0) {
+            SkAutoTUnref<SkPDFObject> object(
+                    new SkPDFSharedStream(fAsset->duplicate()));
+            test_pdf_object_serialization(object);
+        }
+    }
+
+private:
+    SkAutoTDelete<SkStreamAsset> fAsset;
+};
+
 }  // namespace
 DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
-
-#endif  // SK_SUPPORT_PDF
+DEF_BENCH(return new PDFCompressionBench;)

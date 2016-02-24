@@ -25,8 +25,8 @@
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
         'tools.gyp:proc_stats',
-        'tools.gyp:timer',
         'tools.gyp:thermal_manager',
+        'tools.gyp:timer',
       ],
       'conditions': [
         ['skia_android_framework', {
@@ -41,11 +41,6 @@
             'tools.gyp:android_utils',
           ],
         }],
-        [ 'skia_pdf',
-          { 'dependencies': [ 'pdf.gyp:pdf' ],
-            'include_dirs': [ '../src/pdf' ], },
-          { 'dependencies': [ 'pdf.gyp:nopdf' ], }
-        ],
       ],
     },
   ],
