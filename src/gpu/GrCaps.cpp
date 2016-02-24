@@ -92,7 +92,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fCompressedTexSubImageSupport = false;
     fOversizedStencilSupport = false;
     fTextureBarrierSupport = false;
-    fSampleLocationsSupport = false;
     fUsesMixedSamples = false;
     fSupportsInstancedDraws = false;
     fFullClearIsFree = false;
@@ -166,7 +165,6 @@ SkString GrCaps::dump() const {
     r.appendf("Compressed Update Support          : %s\n", gNY[fCompressedTexSubImageSupport]);
     r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
     r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
-    r.appendf("Sample Locations Support           : %s\n", gNY[fSampleLocationsSupport]);
     r.appendf("Uses Mixed Samples                 : %s\n", gNY[fUsesMixedSamples]);
     r.appendf("Supports instanced draws           : %s\n", gNY[fSupportsInstancedDraws]);
     r.appendf("Full screen clear is free          : %s\n", gNY[fFullClearIsFree]);
