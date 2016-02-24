@@ -279,7 +279,6 @@ protected:
             SkScalar x = x0, y = y0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
                 if ((gModes[i].fSourceTypeMask & sourceType) == 0) {
-                    SkDebugf("skip %d %s for type %x\n", i, gModes[i].fLabel, sourceType);
                     continue;
                 }
                 SkAutoTUnref<SkXfermode> mode;
