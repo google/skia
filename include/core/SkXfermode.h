@@ -220,38 +220,23 @@ public:
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
     SK_DEFINE_FLATTENABLE_TYPE(SkXfermode)
 
-    enum PM4fFlags {
-        kSrcIsOpaque_PM4fFlag  = 1 << 0,
-        kDstIsSRGB_PM4fFlag    = 1 << 1,
+    enum D32Flags {
+        kSrcIsOpaque_D32Flag  = 1 << 0,
+        kSrcIsSingle_D32Flag  = 1 << 1,
+        kDstIsSRGB_D32Flag    = 1 << 2,
     };
-    struct PM4fState {
-        const SkXfermode* fXfer;
-        uint32_t          fFlags;
-    };
-    typedef void (*PM4fProc1)(const PM4fState&, uint32_t dst[], const SkPM4f& src,
-                              int count, const SkAlpha coverage[]);
-    typedef void (*PM4fProcN)(const PM4fState&, uint32_t dst[], const SkPM4f src[],
-                              int count, const SkAlpha coverage[]);
+    typedef void (*D32Proc)(const SkXfermode*, uint32_t dst[], const SkPM4f src[],
+                            int count, const SkAlpha coverage[]);
+    static D32Proc GetD32Proc(SkXfermode*, uint32_t flags);
 
-    static PM4fProc1 GetPM4fProc1(Mode, uint32_t flags);
-    static PM4fProcN GetPM4fProcN(Mode, uint32_t flags);
-    virtual PM4fProc1 getPM4fProc1(uint32_t flags) const;
-    virtual PM4fProcN getPM4fProcN(uint32_t flags) const;
-
-    enum U64Flags {
-        kSrcIsOpaque_U64Flag  = 1 << 0,
-        kDstIsFloat16_U64Flag = 1 << 1, // else U16 bit components
+    enum D64Flags {
+        kSrcIsOpaque_D64Flag  = 1 << 0,
+        kSrcIsSingle_D64Flag  = 1 << 1,
+        kDstIsFloat16_D64Flag = 1 << 2, // else U16 bit components
     };
-    struct U64State {
-        const SkXfermode* fXfer;
-        uint32_t          fFlags;
-    };
-    typedef void (*U64Proc1)(const U64State&, uint64_t dst[], const SkPM4f& src, int count,
-                             const SkAlpha coverage[]);
-    typedef void (*U64ProcN)(const U64State&, uint64_t dst[], const SkPM4f src[], int count,
-                             const SkAlpha coverage[]);
-    static U64Proc1 GetU64Proc1(Mode, uint32_t flags);
-    static U64ProcN GetU64ProcN(Mode, uint32_t flags);
+    typedef void (*D64Proc)(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
+                            const SkAlpha coverage[]);
+    static D64Proc GetD64Proc(SkXfermode*, uint32_t flags);
 
     enum LCDFlags {
         kSrcIsOpaque_LCDFlag    = 1 << 0,   // else src(s) may have alpha < 1
@@ -274,6 +259,9 @@ protected:
         be implemented if your subclass has overridden xfer32/xfer16/xferA8
     */
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;
+
+    virtual D32Proc onGetD32Proc(uint32_t flags) const;
+    virtual D64Proc onGetD64Proc(uint32_t flags) const;
 
 private:
     enum {

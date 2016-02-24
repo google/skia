@@ -15,20 +15,22 @@
 #define INNER_LOOPS 1000
 
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
-class Xfer4fBench : public Benchmark {
+class XferD32Bench : public Benchmark {
 public:
-    Xfer4fBench(SkXfermode::Mode mode, const char name[], bool doN, uint32_t flags)
+    XferD32Bench(SkXfermode::Mode mode, const char name[], bool doN, uint32_t flags)
         : fDoN(doN)
         , fFlags(flags & ~USE_AA)
     {
-        fProc1 = SkXfermode::GetPM4fProc1(mode, fFlags);
-        fProcN = SkXfermode::GetPM4fProcN(mode, fFlags);
+        fXfer.reset(SkXfermode::Create(mode));
+        
+        fProc1 = SkXfermode::GetD32Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_D32Flag);
+        fProcN = SkXfermode::GetD32Proc(fXfer, fFlags);
         fName.printf("xfer4f_%s_%s_%c_%s_%s",
                      name,
                      (flags & USE_AA) ? "aa" : "bw",
                      fDoN ? 'N' : '1',
-                     (flags & SkXfermode::kSrcIsOpaque_PM4fFlag) ? "opaque" : "alpha",
-                     (flags & SkXfermode::kDstIsSRGB_PM4fFlag) ? "srgb" : "linear");
+                     (flags & SkXfermode::kSrcIsOpaque_D32Flag) ? "opaque" : "alpha",
+                     (flags & SkXfermode::kDstIsSRGB_D32Flag) ? "srgb" : "linear");
 
         for (int i = 0; i < N; ++i) {
             fSrc[i] = {{ 1, 1, 1, 1 }};
@@ -49,24 +51,23 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(int loops, SkCanvas*) override {
-        const SkXfermode::PM4fState state{ nullptr, fFlags };
-
         for (int i = 0; i < loops * INNER_LOOPS; ++i) {
             if (fDoN) {
-                fProcN(state, fDst, fSrc, N, fAA);
+                fProcN(fXfer, fDst, fSrc, N, fAA);
             } else {
-                fProc1(state, fDst, fSrc[0], N, fAA);
+                fProc1(fXfer, fDst, fSrc, N, fAA);
             }
         }
     }
 
 private:
-    SkString        fName;
-    SkXfermode::PM4fProc1 fProc1;
-    SkXfermode::PM4fProcN fProcN;
-    const SkAlpha*  fAA;
-    bool            fDoN;
-    uint32_t        fFlags;
+    SkAutoTUnref<SkXfermode> fXfer;
+    SkString             fName;
+    SkXfermode::D32Proc  fProc1;
+    SkXfermode::D32Proc  fProcN;
+    const SkAlpha*       fAA;
+    bool                 fDoN;
+    uint32_t             fFlags;
 
     enum {
         N = 1000,
@@ -79,26 +80,26 @@ private:
 };
 
 #define F00 0
-#define F01 (SkXfermode::kSrcIsOpaque_PM4fFlag)
-#define F10 (SkXfermode::kDstIsSRGB_PM4fFlag)
-#define F11 (SkXfermode::kSrcIsOpaque_PM4fFlag | SkXfermode::kDstIsSRGB_PM4fFlag)
+#define F01 (SkXfermode::kSrcIsOpaque_D32Flag)
+#define F10 (SkXfermode::kDstIsSRGB_D32Flag)
+#define F11 (SkXfermode::kSrcIsOpaque_D32Flag | SkXfermode::kDstIsSRGB_D32Flag)
 
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", false, F10); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", false, F00); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", false, F11); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", false, F01); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F10); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F00); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F11); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F01); )
 
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", true,  F10); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", true,  F00); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", true,  F11); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", true,  F01); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F10); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F00); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F11); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F01); )
 
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", false, F10 | USE_AA); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", false, F00 | USE_AA); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", false, F11 | USE_AA); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", false, F01 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F10 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F00 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F11 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F01 | USE_AA); )
 
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", true,  F10 | USE_AA); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", true,  F00 | USE_AA); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", true,  F11 | USE_AA); )
-DEF_BENCH( return new Xfer4fBench(SkXfermode::kSrcOver_Mode, "srcover", true,  F01 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F10 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F00 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F11 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F01 | USE_AA); )

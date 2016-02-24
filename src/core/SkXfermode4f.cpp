@@ -9,11 +9,6 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
-struct XferProcPair {
-    SkXfermode::PM4fProc1 fP1;
-    SkXfermode::PM4fProcN fPN;
-};
-
 enum DstType {
     kLinear_Dst,
     kSRGB_Dst,
@@ -45,29 +40,29 @@ static Sk4f linear_unit_to_srgb_255f(const Sk4f& l4) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <DstType D> void general_1(const SkXfermode::PM4fState& state, uint32_t dst[],
-                                    const SkPM4f& src, int count, const SkAlpha aa[]) {
-    SkXfermodeProc4f proc = state.fXfer->getProc4f();
+template <DstType D> void general_1(const SkXfermode* xfer, uint32_t dst[],
+                                    const SkPM4f* src, int count, const SkAlpha aa[]) {
+    SkXfermodeProc4f proc = xfer->getProc4f();
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
             Sk4f d4 = load_dst<D>(dst[i]);
             d4.store(d.fVec);
-            Sk4f r4 = Sk4f::Load(proc(src, d).fVec);
+            Sk4f r4 = Sk4f::Load(proc(*src, d).fVec);
             dst[i] = store_dst<D>(lerp(r4, d4, aa[i]));
         }
     } else {
         for (int i = 0; i < count; ++i) {
             load_dst<D>(dst[i]).store(d.fVec);
-            Sk4f r4 = Sk4f::Load(proc(src, d).fVec);
+            Sk4f r4 = Sk4f::Load(proc(*src, d).fVec);
             dst[i] = store_dst<D>(r4);
         }
     }
 }
 
-template <DstType D> void general_n(const SkXfermode::PM4fState& state, uint32_t dst[],
+template <DstType D> void general_n(const SkXfermode* xfer, uint32_t dst[],
                                     const SkPM4f src[], int count, const SkAlpha aa[]) {
-    SkXfermodeProc4f proc = state.fXfer->getProc4f();
+    SkXfermodeProc4f proc = xfer->getProc4f();
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
@@ -85,16 +80,16 @@ template <DstType D> void general_n(const SkXfermode::PM4fState& state, uint32_t
     }
 }
 
-const XferProcPair gProcs_General[] = {
-    { general_1<kLinear_Dst>,   general_n<kLinear_Dst>  },   // linear   alpha
-    { general_1<kLinear_Dst>,   general_n<kLinear_Dst>  },   // linear   opaque
-    { general_1<kSRGB_Dst>,     general_n<kSRGB_Dst>    },   // srgb     alpha
-    { general_1<kSRGB_Dst>,     general_n<kSRGB_Dst>    },   // srgb     opaque
+const SkXfermode::D32Proc gProcs_General[] = {
+    general_n<kLinear_Dst>, general_n<kLinear_Dst>,
+    general_1<kLinear_Dst>, general_1<kLinear_Dst>,
+    general_n<kSRGB_Dst>,   general_n<kSRGB_Dst>,
+    general_1<kSRGB_Dst>,   general_1<kSRGB_Dst>,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void clear_linear_n(const SkXfermode::PM4fState& state, uint32_t dst[], const SkPM4f[],
+static void clear_linear(const SkXfermode*, uint32_t dst[], const SkPM4f[],
                            int count, const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
@@ -109,45 +104,34 @@ static void clear_linear_n(const SkXfermode::PM4fState& state, uint32_t dst[], c
             }
         }
     } else {
-        sk_bzero(dst, count * sizeof(SkPMColor));
+        sk_memset32(dst, 0, count);
     }
 }
 
-static void clear_linear_1(const SkXfermode::PM4fState& state, uint32_t dst[], const SkPM4f&,
-                           int count, const SkAlpha coverage[]) {
-    clear_linear_n(state, dst, nullptr, count, coverage);
-}
-
-static void clear_srgb_n(const SkXfermode::PM4fState& state, uint32_t dst[], const SkPM4f[],
-                           int count, const SkAlpha aa[]) {
+static void clear_srgb(const SkXfermode*, uint32_t dst[], const SkPM4f[],
+                       int count, const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
-            unsigned a = aa[i];
-            if (a) {
-                Sk4f d = Sk4f_fromS32(dst[i]) * Sk4f((255 - a) * (1/255.0f));
+            if (aa[i]) {
+                Sk4f d = Sk4f_fromS32(dst[i]) * Sk4f((255 - aa[i]) * (1/255.0f));
                 dst[i] = Sk4f_toS32(d);
             }
         }
     } else {
-        sk_bzero(dst, count * sizeof(SkPMColor));
+        sk_memset32(dst, 0, count);
     }
 }
 
-static void clear_srgb_1(const SkXfermode::PM4fState& state, uint32_t dst[], const SkPM4f&,
-                           int count, const SkAlpha coverage[]) {
-    clear_srgb_n(state, dst, nullptr, count, coverage);
-}
-
-const XferProcPair gProcs_Clear[] = {
-    { clear_linear_1, clear_linear_n },       // linear   [alpha]
-    { clear_linear_1, clear_linear_n },       // linear   [opaque]
-    { clear_srgb_1,   clear_srgb_n   },       // srgb     [alpha]
-    { clear_srgb_1,   clear_srgb_n   },       // srgb     [opaque]
+const SkXfermode::D32Proc gProcs_Clear[] = {
+    clear_linear,   clear_linear,
+    clear_linear,   clear_linear,
+    clear_srgb,     clear_srgb,
+    clear_srgb,     clear_srgb,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <DstType D> void src_n(const SkXfermode::PM4fState& state, uint32_t dst[],
+template <DstType D> void src_n(const SkXfermode*, uint32_t dst[],
                                 const SkPM4f src[], int count, const SkAlpha aa[]) {
     for (int i = 0; i < count; ++i) {
         unsigned a = 0xFF;
@@ -170,9 +154,9 @@ static Sk4f lerp(const Sk4f& src, const Sk4f& dst, const Sk4f& src_scale) {
     return dst + (src - dst) * src_scale;
 }
 
-template <DstType D> void src_1(const SkXfermode::PM4fState& state, uint32_t dst[],
-                                const SkPM4f& src, int count, const SkAlpha aa[]) {
-    const Sk4f s4 = Sk4f::Load(src.fVec);
+template <DstType D> void src_1(const SkXfermode*, uint32_t dst[],
+                                const SkPM4f* src, int count, const SkAlpha aa[]) {
+    const Sk4f s4 = Sk4f::Load(src->fVec);
 
     if (aa) {
         if (D == kLinear_Dst) {
@@ -223,31 +207,24 @@ template <DstType D> void src_1(const SkXfermode::PM4fState& state, uint32_t dst
     }
 }
 
-const XferProcPair gProcs_Src[] = {
-    { src_1<kLinear_Dst>, src_n<kLinear_Dst> },       // linear   [alpha]
-    { src_1<kLinear_Dst>, src_n<kLinear_Dst> },       // linear   [opaque]
-    { src_1<kSRGB_Dst>,   src_n<kSRGB_Dst>   },       // srgb     [alpha]
-    { src_1<kSRGB_Dst>,   src_n<kSRGB_Dst>   },       // srgb     [opaque]
+const SkXfermode::D32Proc gProcs_Src[] = {
+    src_n<kLinear_Dst>, src_n<kLinear_Dst>,
+    src_1<kLinear_Dst>, src_1<kLinear_Dst>,
+    src_n<kSRGB_Dst>,   src_n<kSRGB_Dst>,
+    src_1<kSRGB_Dst>,   src_1<kSRGB_Dst>,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void dst_n(const SkXfermode::PM4fState& state, uint32_t dst[], const SkPM4f[],
-                         int count, const SkAlpha aa[]) {}
+static void dst(const SkXfermode*, uint32_t dst[], const SkPM4f[], int count, const SkAlpha aa[]) {}
 
-static void dst_1(const SkXfermode::PM4fState& state, uint32_t dst[], const SkPM4f&,
-                  int count, const SkAlpha coverage[]) {}
-
-const XferProcPair gProcs_Dst[] = {
-    { dst_1, dst_n },
-    { dst_1, dst_n },
-    { dst_1, dst_n },
-    { dst_1, dst_n },
+const SkXfermode::D32Proc gProcs_Dst[] = {
+    dst, dst, dst, dst, dst, dst, dst, dst,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <DstType D> void srcover_n(const SkXfermode::PM4fState& state, uint32_t dst[],
+template <DstType D> void srcover_n(const SkXfermode*, uint32_t dst[],
                                     const SkPM4f src[], int count, const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
@@ -273,9 +250,9 @@ template <DstType D> void srcover_n(const SkXfermode::PM4fState& state, uint32_t
     }
 }
 
-static void srcover_linear_dst_1(const SkXfermode::PM4fState& state, uint32_t dst[],
-                                 const SkPM4f& src, int count, const SkAlpha aa[]) {
-    const Sk4f s4 = Sk4f::Load(src.fVec);
+static void srcover_linear_dst_1(const SkXfermode*, uint32_t dst[],
+                                 const SkPM4f* src, int count, const SkAlpha aa[]) {
+    const Sk4f s4 = Sk4f::Load(src->fVec);
     const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
     
     if (aa) {
@@ -316,9 +293,9 @@ static void srcover_linear_dst_1(const SkXfermode::PM4fState& state, uint32_t ds
     }
 }
 
-static void srcover_srgb_dst_1(const SkXfermode::PM4fState& state, uint32_t dst[],
-                               const SkPM4f& src, int count, const SkAlpha aa[]) {
-    Sk4f s4 = Sk4f::Load(src.fVec);
+static void srcover_srgb_dst_1(const SkXfermode*, uint32_t dst[],
+                               const SkPM4f* src, int count, const SkAlpha aa[]) {
+    Sk4f s4 = Sk4f::Load(src->fVec);
     Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
 
     if (aa) {
@@ -358,18 +335,19 @@ static void srcover_srgb_dst_1(const SkXfermode::PM4fState& state, uint32_t dst[
     }
 }
 
-const XferProcPair gProcs_SrcOver[] = {
-    { srcover_linear_dst_1, srcover_n<kLinear_Dst> },   // linear   alpha
-    { src_1<kLinear_Dst>,   src_n<kLinear_Dst>     },   // linear   opaque [ we are src-mode ]
-    { srcover_srgb_dst_1,   srcover_n<kSRGB_Dst>   },   // srgb     alpha
-    { src_1<kSRGB_Dst>,     src_n<kSRGB_Dst>       },   // srgb     opaque [ we are src-mode ]
+const SkXfermode::D32Proc gProcs_SrcOver[] = {
+    srcover_n<kLinear_Dst>, src_n<kLinear_Dst>,
+    srcover_linear_dst_1,   src_1<kLinear_Dst>,
+
+    srcover_n<kSRGB_Dst>,   src_n<kSRGB_Dst>,
+    srcover_srgb_dst_1,     src_1<kSRGB_Dst>,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static XferProcPair find_procs(SkXfermode::Mode mode, uint32_t flags) {
-    SkASSERT(0 == (flags & ~3));
-    flags &= 3;
+static SkXfermode::D32Proc find_proc(SkXfermode::Mode mode, uint32_t flags) {
+    SkASSERT(0 == (flags & ~7));
+    flags &= 7;
 
     switch (mode) {
         case SkXfermode::kClear_Mode:   return gProcs_Clear[flags];
@@ -382,28 +360,16 @@ static XferProcPair find_procs(SkXfermode::Mode mode, uint32_t flags) {
     return gProcs_General[flags];
 }
 
-SkXfermode::PM4fProc1 SkXfermode::GetPM4fProc1(Mode mode, uint32_t flags) {
-    return find_procs(mode, flags).fP1;
-}
-
-SkXfermode::PM4fProcN SkXfermode::GetPM4fProcN(Mode mode, uint32_t flags) {
-    return find_procs(mode, flags).fPN;
-}
-
-SkXfermode::PM4fProc1 SkXfermode::getPM4fProc1(uint32_t flags) const {
-    SkASSERT(0 == (flags & ~3));
-    flags &= 3;
+SkXfermode::D32Proc SkXfermode::onGetD32Proc(uint32_t flags) const {
+    SkASSERT(0 == (flags & ~7));
+    flags &= 7;
 
     Mode mode;
-    return this->asMode(&mode) ? GetPM4fProc1(mode, flags) : gProcs_General[flags].fP1;
+    return this->asMode(&mode) ? find_proc(mode, flags) : gProcs_General[flags];
 }
 
-SkXfermode::PM4fProcN SkXfermode::getPM4fProcN(uint32_t flags) const {
-    SkASSERT(0 == (flags & ~3));
-    flags &= 3;
-
-    Mode mode;
-    return this->asMode(&mode) ? GetPM4fProcN(mode, flags) : gProcs_General[flags].fPN;
+SkXfermode::D32Proc SkXfermode::GetD32Proc(SkXfermode* xfer, uint32_t flags) {
+    return xfer ? xfer->onGetD32Proc(flags) : find_proc(SkXfermode::kSrcOver_Mode, flags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

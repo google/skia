@@ -928,8 +928,9 @@ static Sk4f as_4f(const SkPM4f& pm4) {
 
 static void assert_unit(const SkPM4f& r) {
 #ifdef SK_DEBUG
-    const float min = 0;
-    const float max = 1;
+    const float eps = 0.00001f;
+    const float min = 0 - eps;
+    const float max = 1 + eps;
     for (int i = 0; i < 4; ++i) {
         SkASSERT(r.fVec[i] >= min && r.fVec[i] <= max);
     }

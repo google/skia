@@ -27,7 +27,8 @@ public:
     void blitH(int x, int y, int width) override {
         SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
         
-        fState.fProc1(fState, State::WritableAddr(fDevice, x, y), fState.fPM4f, width, nullptr);
+        fState.fProc1(fState.fXfer, State::WritableAddr(fDevice, x, y),
+                      &fState.fPM4f, width, nullptr);
     }
 
     void blitV(int x, int y, int height, SkAlpha alpha) override {
@@ -37,7 +38,7 @@ public:
         size_t                 deviceRB = fDevice.rowBytes();
         
         for (int i = 0; i < height; ++i) {
-            fState.fProc1(fState, device, fState.fPM4f, 1, &alpha);
+            fState.fProc1(fState.fXfer, device, &fState.fPM4f, 1, &alpha);
             device = (typename State::DstType*)((char*)device + deviceRB);
         }
     }
@@ -50,7 +51,7 @@ public:
         size_t        deviceRB = fDevice.rowBytes();
         
         do {
-            fState.fProc1(fState, device, fState.fPM4f, width, nullptr);
+            fState.fProc1(fState.fXfer, device, &fState.fPM4f, width, nullptr);
             y += 1;
             device = (typename State::DstType*)((char*)device + deviceRB);
         } while (--height > 0);
@@ -67,10 +68,10 @@ public:
             int aa = *antialias;
             if (aa) {
                 if (aa == 255) {
-                    fState.fProc1(fState, device, fState.fPM4f, count, nullptr);
+                    fState.fProc1(fState.fXfer, device, &fState.fPM4f, count, nullptr);
                 } else {
                     for (int i = 0; i < count; ++i) {
-                        fState.fProc1(fState, &device[i], fState.fPM4f, 1, antialias);
+                        fState.fProc1(fState.fXfer, &device[i], &fState.fPM4f, 1, antialias);
                     }
                 }
             }
@@ -124,7 +125,7 @@ public:
         const size_t maskRB = mask.fRowBytes;
         
         for (int i = 0; i < height; ++i) {
-            fState.fProc1(fState, device, fState.fPM4f, width, maskRow);
+            fState.fProc1(fState.fXfer, device, &fState.fPM4f, width, maskRow);
             device = (typename State::DstType*)((char*)device + dstRB);
             maskRow += maskRB;
         }
@@ -146,7 +147,7 @@ public:
         
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
-        fState.fProcN(fState, device, fState.fBuffer, width, nullptr);
+        fState.fProcN(fState.fXfer, device, fState.fBuffer, width, nullptr);
     }
 
     void blitV(int x, int y, int height, SkAlpha alpha) override {
@@ -163,7 +164,7 @@ public:
             if (!fConstInY) {
                 fShaderContext->shadeSpan4f(x, y, fState.fBuffer, 1);
             }
-            fState.fProcN(fState, device, fState.fBuffer, 1, &alpha);
+            fState.fProcN(fState.fXfer, device, fState.fBuffer, 1, &alpha);
             device = (typename State::DstType*)((char*)device + deviceRB);
         }
     }
@@ -183,7 +184,7 @@ public:
             if (!fConstInY) {
                 fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
             }
-            fState.fProcN(fState, device, fState.fBuffer, width, nullptr);
+            fState.fProcN(fState.fXfer, device, fState.fBuffer, width, nullptr);
             device = (typename State::DstType*)((char*)device + deviceRB);
         }
     }
@@ -200,10 +201,10 @@ public:
             if (aa) {
                 fShaderContext->shadeSpan4f(x, y, fState.fBuffer, count);
                 if (aa == 255) {
-                    fState.fProcN(fState, device, fState.fBuffer, count, nullptr);
+                    fState.fProcN(fState.fXfer, device, fState.fBuffer, count, nullptr);
                 } else {
                     for (int i = 0; i < count; ++i) {
-                        fState.fProcN(fState, &device[i], &fState.fBuffer[i], 1, antialias);
+                        fState.fProcN(fState.fXfer, &device[i], &fState.fBuffer[i], 1, antialias);
                     }
                 }
             }
@@ -267,7 +268,7 @@ public:
             if (!fConstInY) {
                 fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
             }
-            fState.fProcN(fState, device, fState.fBuffer, width, maskRow);
+            fState.fProcN(fState.fXfer, device, fState.fBuffer, width, maskRow);
             device = (typename State::DstType*)((char*)device + deviceRB);
             maskRow += maskRB;
         }
@@ -286,47 +287,45 @@ static bool is_opaque(const SkPaint& paint, const SkShader::Context* shaderConte
     : 0xFF == paint.getAlpha();
 }
 
-struct State32 : SkXfermode::PM4fState {
-    typedef uint32_t        DstType;
-    
-    SkXfermode::PM4fProc1   fProc1;
-    SkXfermode::PM4fProcN   fProcN;
-    SkPM4f                  fPM4f;
-    SkPM4f*                 fBuffer;
-    
-    State32(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext) {
-        fXfer = SkSafeRef(paint.getXfermode());
-        fFlags = 0;
-        if (is_opaque(paint, shaderContext)) {
-            fFlags |= SkXfermode::kSrcIsOpaque_PM4fFlag;
-        }
-        if (info.isSRGB()) {
-            fFlags |= SkXfermode::kDstIsSRGB_PM4fFlag;
-        }
-        if (fXfer) {
-            fProc1 = fXfer->getPM4fProc1(fFlags);
-            fProcN = fXfer->getPM4fProcN(fFlags);
-        } else {
-            fProc1 = SkXfermode::GetPM4fProc1(SkXfermode::kSrcOver_Mode, fFlags);
-            fProcN = SkXfermode::GetPM4fProcN(SkXfermode::kSrcOver_Mode, fFlags);
-        }
-
-        fBuffer = nullptr;
+struct State4f {
+    State4f(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext) {
+        fXfer = paint.getXfermode();
         if (shaderContext) {
-            fBuffer = new SkPM4f[info.width()];
+            fBuffer.reset(info.width());
         } else {
             fPM4f = SkColor4f::FromColor(paint.getColor()).premul();
         }
-    }
-    
-    ~State32() {
-        SkSafeUnref(fXfer);
-        delete[] fBuffer;
+        fFlags = 0;
     }
 
+    SkXfermode*             fXfer;
+    SkPM4f                  fPM4f;
+    SkAutoTMalloc<SkPM4f>   fBuffer;
+    uint32_t                fFlags;
+};
+
+struct State32 : State4f {
+    typedef uint32_t    DstType;
+    
+    SkXfermode::D32Proc fProc1;
+    SkXfermode::D32Proc fProcN;
+    
+    State32(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext)
+        : State4f(info, paint, shaderContext)
+    {
+        if (is_opaque(paint, shaderContext)) {
+            fFlags |= SkXfermode::kSrcIsOpaque_D32Flag;
+        }
+        if (info.isSRGB()) {
+            fFlags |= SkXfermode::kDstIsSRGB_D32Flag;
+        }
+        fProc1 = SkXfermode::GetD32Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_D32Flag);
+        fProcN = SkXfermode::GetD32Proc(fXfer, fFlags);
+    }
+    
     SkXfermode::LCD32Proc getLCDProc(uint32_t oneOrManyFlag) const {
         uint32_t flags = fFlags & 1;
-        if (!(fFlags & SkXfermode::kDstIsSRGB_PM4fFlag)) {
+        if (!(fFlags & SkXfermode::kDstIsSRGB_D32Flag)) {
             flags |= SkXfermode::kDstIsLinearInt_LCDFlag;
         }
         return SkXfermode::GetLCD32Proc(flags | oneOrManyFlag);
@@ -337,47 +336,28 @@ struct State32 : SkXfermode::PM4fState {
     }
 };
 
-struct State64 : SkXfermode::U64State {
-    typedef uint64_t        DstType;
+struct State64 : State4f {
+    typedef uint64_t    DstType;
     
-    SkXfermode::U64Proc1    fProc1;
-    SkXfermode::U64ProcN    fProcN;
-    SkPM4f                  fPM4f;
-    SkPM4f*                 fBuffer;
+    SkXfermode::D64Proc fProc1;
+    SkXfermode::D64Proc fProcN;
     
-    State64(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext) {
-        fXfer = SkSafeRef(paint.getXfermode());
-        fFlags = 0;
+    State64(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext)
+        : State4f(info, paint, shaderContext)
+    {
         if (is_opaque(paint, shaderContext)) {
-            fFlags |= SkXfermode::kSrcIsOpaque_PM4fFlag;
+            fFlags |= SkXfermode::kSrcIsOpaque_D64Flag;
         }
         if (kRGBA_F16_SkColorType == info.colorType()) {
-            fFlags |= SkXfermode::kDstIsFloat16_U64Flag;
+            fFlags |= SkXfermode::kDstIsFloat16_D64Flag;
         }
-        
-        SkXfermode::Mode mode;
-        if (!SkXfermode::AsMode(fXfer, &mode)) {
-            mode = SkXfermode::kSrcOver_Mode;
-        }
-        fProc1 = SkXfermode::GetU64Proc1(mode, fFlags);
-        fProcN = SkXfermode::GetU64ProcN(mode, fFlags);
-        
-        fBuffer = nullptr;
-        if (shaderContext) {
-            fBuffer = new SkPM4f[info.width()];
-        } else {
-            fPM4f = SkColor4f::FromColor(paint.getColor()).premul();
-        }
+        fProc1 = SkXfermode::GetD64Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_D64Flag);
+        fProcN = SkXfermode::GetD64Proc(fXfer, fFlags);
     }
-    
-    ~State64() {
-        SkSafeUnref(fXfer);
-        delete[] fBuffer;
-    }
-    
+
     SkXfermode::LCD64Proc getLCDProc(uint32_t oneOrManyFlag) const {
         uint32_t flags = fFlags & 1;
-        if (!(fFlags & SkXfermode::kDstIsFloat16_U64Flag)) {
+        if (!(fFlags & SkXfermode::kDstIsFloat16_D64Flag)) {
             flags |= SkXfermode::kDstIsLinearInt_LCDFlag;
         }
         return SkXfermode::GetLCD64Proc(flags | oneOrManyFlag);

@@ -115,8 +115,7 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     //if (kSRGB_SkColorProfileType == profile) {
         //flags |= SkXfermode::kDstIsSRGB_PM4fFlag;
     //}
-    const SkXfermode::PM4fState state { nullptr, flags };
-    auto procN = SkXfermode::GetPM4fProcN(SkXfermode::kSrcOver_Mode, flags);
+    auto procN = SkXfermode::GetD32Proc(nullptr, flags);
 
     SkLinearBitmapPipeline pipeline{
             inv, filterQuality,
@@ -124,7 +123,7 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
 
     for (int y = 0; y < ir.height(); y++) {
         pipeline.shadeSpan4f(0, y, dstBits, ir.width());
-        procN(state, pmdst.writable_addr32(0, y), dstBits, ir.width(), nullptr);
+        procN(nullptr, pmdst.writable_addr32(0, y), dstBits, ir.width(), nullptr);
     }
 
     delete [] dstBits;
