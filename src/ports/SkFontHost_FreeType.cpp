@@ -1750,13 +1750,14 @@ bool SkTypeface_FreeType::Scanner::scanFont(
 {
     for (int i = 0; i < axisDefinitions.count(); ++i) {
         const Scanner::AxisDefinition& axisDefinition = axisDefinitions[i];
+        const SkScalar axisMin = SkFixedToScalar(axisDefinition.fMinimum);
+        const SkScalar axisMax = SkFixedToScalar(axisDefinition.fMaximum);
         axisValues[i] = axisDefinition.fDefault;
         for (int j = 0; j < requestedAxisCount; ++j) {
             const SkFontMgr::FontParameters::Axis& axisSpecified = requestedAxes[j];
             if (axisDefinition.fTag == axisSpecified.fTag) {
-                SkFixed axisValue = SkScalarToFixed(axisSpecified.fStyleValue);
-                axisValues[i] = SkTPin(axisValue, axisDefinition.fMinimum, axisDefinition.fMaximum);
-                if (axisValues[i] != axisValue) {
+                const SkScalar axisValue = SkTPin(axisSpecified.fStyleValue, axisMin, axisMax);
+                if (axisSpecified.fStyleValue != axisValue) {
                     SkDEBUGF(("Requested font axis value out of range: "
                               "%s '%c%c%c%c' %f; pinned to %f.\n",
                               name.c_str(),
@@ -1765,8 +1766,9 @@ bool SkTypeface_FreeType::Scanner::scanFont(
                               (axisDefinition.fTag >>  8) & 0xFF,
                               (axisDefinition.fTag      ) & 0xFF,
                               SkScalarToDouble(axisSpecified.fStyleValue),
-                              SkFixedToDouble(axisValues[i])));
+                              SkScalarToDouble(axisValue)));
                 }
+                axisValues[i] = SkScalarToFixed(axisValue);
                 break;
             }
         }
