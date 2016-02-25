@@ -52,9 +52,10 @@ static float std_floor(float x) {
 static void test_floor_value(skiatest::Reporter* reporter, float value) {
     float fast = fast_floor(value);
     float std = std_floor(value);
-    REPORTER_ASSERT(reporter, std == fast);
-//    SkDebugf("value[%1.9f] std[%g] fast[%g] equal[%d]\n",
-//             value, std, fast, std == fast);
+    if (std != fast) {
+        ERRORF(reporter, "fast_floor(%.9g) == %.9g != %.9g == std_floor(%.9g)",
+               value, fast, std, value);
+    }
 }
 
 static void test_floor(skiatest::Reporter* reporter) {
@@ -150,7 +151,7 @@ static void test_blend31() {
 
                 if (r0 != r1 && r0 != r2) {
                     SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
-                                  src,   dst, a,        r0,      f);
+                                 src,   dst, a,        r0,      f);
                     failed += 1;
                 }
                 if (r0 > 255) {
@@ -176,11 +177,8 @@ static void test_blend(skiatest::Reporter* reporter) {
                     float diff = sk_float_abs(f1 - r1);
                     diff = sk_float_abs(diff - 0.5f);
                     if (diff > (1 / 255.f)) {
-#ifdef SK_DEBUG
-                        SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
-                                 src, dst, a, r0, f1);
-#endif
-                        REPORTER_ASSERT(reporter, false);
+                        ERRORF(reporter, "src:%d dst:%d a:%d "
+                               "result:%d float:%g\n", src, dst, a, r0, f1);
                     }
                 }
             }

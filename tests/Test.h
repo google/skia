@@ -106,6 +106,13 @@ void RunWithGPUTestContexts(T testFunction, GPUTestContexts contexts, Reporter* 
         REPORT_FAILURE(r, "", SkStringPrintf(__VA_ARGS__)); \
     } while (0)
 
+#define INFOF(REPORTER, ...)         \
+    do {                             \
+        if ((REPORTER)->verbose()) { \
+            SkDebugf(__VA_ARGS__);   \
+        }                            \
+    } while (0)
+
 #define DEF_TEST(name, reporter)                                     \
     static void test_##name(skiatest::Reporter*, GrContextFactory*); \
     skiatest::TestRegistry name##TestRegistry(                       \
@@ -152,9 +159,7 @@ void RunWithGPUTestContexts(T testFunction, GPUTestContexts contexts, Reporter* 
         SkDynamicMemoryWStream testStream;                                    \
         SkAutoTUnref<SkDocument> testDoc(SkDocument::CreatePDF(&testStream)); \
         if (!testDoc) {                                                       \
-            if ((REPORTER) && (REPORTER)->verbose()) {                        \
-                SkDebugf("PDF disabled; %s test skipped.", #TEST_NAME);       \
-            }                                                                 \
+            INFOF(REPORTER, "PDF disabled; %s test skipped.", #TEST_NAME);    \
             return;                                                           \
         }                                                                     \
     } while (false)

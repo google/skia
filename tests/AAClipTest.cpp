@@ -262,17 +262,18 @@ static void test_irect(skiatest::Reporter* reporter) {
             bool nonEmptyAA = clip2.op(clip0, clip1, op);
             bool nonEmptyBW = rgn2.op(rgn0, rgn1, op);
             if (nonEmptyAA != nonEmptyBW || clip2.getBounds() != rgn2.getBounds()) {
-                SkDebugf("[%d %d %d %d] %s [%d %d %d %d] = BW:[%d %d %d %d] AA:[%d %d %d %d]\n",
-                         r0.fLeft, r0.fTop, r0.right(), r0.bottom(),
-                         gRgnOpNames[j],
-                         r1.fLeft, r1.fTop, r1.right(), r1.bottom(),
-                         rgn2.getBounds().fLeft, rgn2.getBounds().fTop,
-                         rgn2.getBounds().right(), rgn2.getBounds().bottom(),
-                         clip2.getBounds().fLeft, clip2.getBounds().fTop,
-                         clip2.getBounds().right(), clip2.getBounds().bottom());
+                ERRORF(reporter, "%s %s "
+                       "[%d %d %d %d] %s [%d %d %d %d] = BW:[%d %d %d %d] AA:[%d %d %d %d]\n",
+                       nonEmptyAA == nonEmptyBW ? "true" : "false",
+                       clip2.getBounds() == rgn2.getBounds() ? "true" : "false",
+                       r0.fLeft, r0.fTop, r0.right(), r0.bottom(),
+                       gRgnOpNames[j],
+                       r1.fLeft, r1.fTop, r1.right(), r1.bottom(),
+                       rgn2.getBounds().fLeft, rgn2.getBounds().fTop,
+                       rgn2.getBounds().right(), rgn2.getBounds().bottom(),
+                       clip2.getBounds().fLeft, clip2.getBounds().fTop,
+                       clip2.getBounds().right(), clip2.getBounds().bottom());
             }
-            REPORTER_ASSERT(reporter, nonEmptyAA == nonEmptyBW);
-            REPORTER_ASSERT(reporter, clip2.getBounds() == rgn2.getBounds());
 
             SkMask maskBW, maskAA;
             copyToMask(rgn2, &maskBW);

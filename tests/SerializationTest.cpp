@@ -357,7 +357,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
         SkString filename = GetResourcePath("/fonts/test.ttc");
         SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFile(filename.c_str(), 1));
         if (!typeface) {
-            SkDebugf("Could not run fontstream test because test.ttc not found.");
+            INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
         } else {
             serialize_and_compare_typeface(typeface, "A!", reporter);
         }
@@ -367,13 +367,13 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
         // Load typeface as stream to create with axis settings.
         SkAutoTDelete<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
         if (!distortable) {
-            SkDebugf("Could not run fontstream test because Distortable.ttf not found.");
+            INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
             SkFixed axis = SK_FixedSqrt2;
             SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFontData(
                 new SkFontData(distortable.detach(), 0, &axis, 1)));
             if (!typeface) {
-                SkDebugf("Could not run fontstream test because Distortable.ttf not created.");
+                INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {
                 serialize_and_compare_typeface(typeface, "abc", reporter);
             }

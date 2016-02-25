@@ -10,6 +10,7 @@
 #include "DMSrcSink.h"
 #include "DMSrcSinkAndroid.h"
 #include "ProcStats.h"
+#include "Resources.h"
 #include "SkBBHFactory.h"
 #include "SkChecksum.h"
 #include "SkCodec.h"
@@ -1145,6 +1146,13 @@ int dm_main() {
     SkTaskGroup::Enabler enabled(FLAGS_threads);
     gCreateTypefaceDelegate = &create_from_name;
 
+    {
+        SkString testResourcePath = GetResourcePath("color_wheel.png");
+        SkFILEStream testResource(testResourcePath.c_str());
+        if (!testResource.isValid()) {
+            SkDebugf("Some resources are missing.  Do you need to set --resourcePath?\n");
+        }
+    }
     gather_gold();
     gather_uninteresting_hashes();
 

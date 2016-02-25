@@ -164,9 +164,8 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
     for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
         size_t n = rstream.readPackedUInt();
         if (sizes[i] != n) {
-            SkDebugf("-- %d: sizes:%x n:%x\n", i, sizes[i], n);
+            ERRORF(reporter, "sizes:%x != n:%x\n", i, sizes[i], n);
         }
-        REPORTER_ASSERT(reporter, sizes[i] == n);
     }
 }
 

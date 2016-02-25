@@ -21,7 +21,7 @@ static void codec_yuv(skiatest::Reporter* reporter,
                   SkISize expectedSizes[3]) {
     SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
-        SkDebugf("Missing resource '%s'\n", path);
+        INFOF(reporter, "Missing resource '%s'\n", path);
         return;
     }
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));

@@ -42,9 +42,9 @@ static SkData* load_resource(
         skiatest::Reporter* r, const char* test, const char* filename) {
     SkString path(GetResourcePath(filename));
     SkData* data = SkData::NewFromFileName(path.c_str());
-    if (!data && r->verbose()) {
-        SkDebugf("\n%s: Resource '%s' can not be found.\n",
-                 test, filename);
+    if (!data) {
+        INFOF(r, "\n%s: Resource '%s' can not be found.\n",
+              test, filename);
     }
     return data;  // May return nullptr.
 }
@@ -143,9 +143,7 @@ DEF_TEST(JpegIdentification, r) {
             ERRORF(r, "%s failed jfif type test", kTests[i].path);
             continue;
         }
-        if (r->verbose()) {
-            SkDebugf("\nJpegIdentification: %s [%d x %d]\n", kTests[i].path,
-                     info.fSize.width(), info.fSize.height());
-        }
+        INFOF(r, "\nJpegIdentification: %s [%d x %d]\n", kTests[i].path,
+              info.fSize.width(), info.fSize.height());
     }
 }
