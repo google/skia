@@ -30,14 +30,12 @@
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string(source, "https://debugger.skia.org", "Where to load the web UI from.");
-DEFINE_string(faviconDir, "tools/skiaserve", "The directory of the favicon");
 DEFINE_int32(port, 8888, "The port to listen on.");
 
 // TODO probably want to make this configurable
 static const int kImageWidth = 1920;
 static const int kImageHeight = 1080;
 
-// TODO move to template file
 SkString generateTemplate(SkString source) {
     SkString debuggerTemplate;
     debuggerTemplate.appendf(
@@ -49,7 +47,8 @@ SkString generateTemplate(SkString source) {
         "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=egde,chrome=1\">\n"
         "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
         "    <script src=\"%s/res/js/core.js\" type=\"text/javascript\" charset=\"utf-8\"></script>\n"
-            "    <link href=\"%s/res/vul/elements.html\" rel=\"import\" />\n"
+        "    <link href=\"%s/res/vul/elements.html\" rel=\"import\" />\n"
+        "    <link rel='shortcut icon' href='https://debugger.skia.org/res/img/favicon.ico' type='image/x-icon'/ >"
         "</head>\n"
         "<body class=\"fullbleed layout vertical\">\n"
             "  <debugger-app-sk>This is the app."
@@ -67,7 +66,7 @@ struct UploadContext {
 };
 
 struct Request {
-    Request(SkString rootUrl) 
+    Request(SkString rootUrl)
     : fUploadContext(nullptr)
     , fUrlDataManager(rootUrl)
     , fGPUEnabled(false) {}
@@ -680,28 +679,6 @@ public:
     }
 };
 
-class FaviconHandler : public UrlHandler {
-public:
-    bool canHandle(const char* method, const char* url) override {
-        return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
-               0 == strcmp(url, "/favicon.ico");
-    }
-
-    int handle(Request* request, MHD_Connection* connection,
-               const char* url, const char* method,
-               const char* upload_data, size_t* upload_data_size) override {
-        SkString dir(FLAGS_faviconDir[0]);
-        dir.append("/favicon.ico");
-        FILE* ico = fopen(dir.c_str(), "r");
-
-        SkAutoTUnref<SkData> data(SkData::NewFromFILE(ico));
-        int ret = SendData(connection, data, "image/vnd.microsoft.icon");
-        fclose(ico);
-        return ret;
-    }
-};
-
-
 class RootHandler : public UrlHandler {
 public:
     bool canHandle(const char* method, const char* url) override {
@@ -729,7 +706,6 @@ public:
         fHandlers.push_back(new InfoHandler);
         fHandlers.push_back(new DownloadHandler);
         fHandlers.push_back(new DataHandler);
-        fHandlers.push_back(new FaviconHandler);
         fHandlers.push_back(new BreakHandler);
     }
 
