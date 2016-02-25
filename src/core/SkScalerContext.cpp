@@ -724,13 +724,17 @@ void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
     // If the 'total' matrix is singular, set the 'scale' to something finite and zero the matrices.
     // All underlying ports have issues with zero text size, so use the matricies to zero.
 
-    // Map the vectors [1,1] and [1,-1] (the EM) through the 'total' matrix.
+    // Map the vectors [0,1], [1,0], [1,1] and [1,-1] (the EM) through the 'total' matrix.
     // If the length of one of these vectors is less than 1/256 then an EM filling square will
     // never affect any pixels.
-    SkVector diag[2] = { { A.getScaleX() + A.getSkewX(), A.getScaleY() + A.getSkewY() },
+    SkVector diag[4] = { { A.getScaleX()               ,                 A.getSkewY() },
+                         {                 A.getSkewX(), A.getScaleY()                },
+                         { A.getScaleX() + A.getSkewX(), A.getScaleY() + A.getSkewY() },
                          { A.getScaleX() - A.getSkewX(), A.getScaleY() - A.getSkewY() }, };
     if (diag[0].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
-        diag[1].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero)
+        diag[1].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
+        diag[2].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
+        diag[3].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero)
     {
         s->fX = SK_Scalar1;
         s->fY = SK_Scalar1;
