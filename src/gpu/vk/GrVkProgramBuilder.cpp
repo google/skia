@@ -107,18 +107,18 @@ bool GrVkProgramBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
     shaderc_compile_options_set_forced_version_profile(options, 140, shaderc_profile_none);
 
     shaderc_shader_kind shadercStage = vk_shader_stage_to_shaderc_kind(stage);
-    shaderc_spv_module_t module = shaderc_compile_into_spv(compiler,
-                                                           shaderString.c_str(),
-                                                           strlen(shaderString.c_str()),
-                                                           shadercStage,
-                                                           "shader",
-                                                           "main",
-                                                           options);
+    shaderc_compilation_result_t result = shaderc_compile_into_spv(compiler,
+                                                                   shaderString.c_str(),
+                                                                   strlen(shaderString.c_str()),
+                                                                   shadercStage,
+                                                                   "shader",
+                                                                   "main",
+                                                                   options);
     shaderc_compile_options_release(options);
 #ifdef SK_DEBUG
-    if (shaderc_module_get_num_errors(module)) {
+    if (shaderc_result_get_num_errors(result)) {
         SkDebugf("%s\n", shaderString.c_str());
-        SkDebugf("%s\n", shaderc_module_get_error_message(module));
+        SkDebugf("%s\n", shaderc_result_get_error_message(result));
         return false;
     }
 #endif
@@ -128,14 +128,14 @@ bool GrVkProgramBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
     moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     moduleCreateInfo.pNext = nullptr;
     moduleCreateInfo.flags = 0;
-    moduleCreateInfo.codeSize = shaderc_module_get_length(module);
-    moduleCreateInfo.pCode = (const uint32_t*)shaderc_module_get_bytes(module);
+    moduleCreateInfo.codeSize = shaderc_result_get_length(result);
+    moduleCreateInfo.pCode = (const uint32_t*)shaderc_result_get_bytes(result);
 
     VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateShaderModule(gpu->device(),
                                                                      &moduleCreateInfo,
                                                                      nullptr,
                                                                      shaderModule));
-    shaderc_module_release(module);
+    shaderc_result_release(result);
     if (err) {
         return false;
     }

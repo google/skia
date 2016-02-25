@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SHADERC_H_
-#define SHADERC_H_
+#ifndef SHADERC_SHADERC_H_
+#define SHADERC_SHADERC_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,14 +63,13 @@ typedef enum {
   shaderc_profile_es,
 } shaderc_profile;
 
-// Used in the result module (shaderc_spv_module) to indicate the status of an
-// compilation.
+// Indicate the status of a compilation.
 typedef enum {
   shaderc_compilation_status_success = 0,
   shaderc_compilation_status_invalid_stage,  // error stage deduction
   shaderc_compilation_status_compilation_error,
-  shaderc_compilation_status_internal_error, // unexpected failure
-  shaderc_compilation_status_null_result_module,
+  shaderc_compilation_status_internal_error,  // unexpected failure
+  shaderc_compilation_status_null_result_object,
 } shaderc_compilation_status;
 
 // Usage examples:
@@ -78,20 +77,20 @@ typedef enum {
 // Aggressively release compiler resources, but spend time in initialization
 // for each new use.
 //      shaderc_compiler_t compiler = shaderc_compiler_initialize();
-//      shader_spv_module_t module = shaderc_compile_into_spv(compiler,
-//                    "int main() {}", 13, shaderc_glsl_vertex_shader, "main");
-//      // Do stuff with module compilation results.
-//      shaderc_module_release(module);
+//      shaderc_compilation_result_t result = shaderc_compile_into_spv(
+//          compiler, "int main() {}", 13, shaderc_glsl_vertex_shader, "main");
+//      // Do stuff with compilation results.
+//      shaderc_result_release(result);
 //      shaderc_compiler_release(compiler);
 //
 // Keep the compiler object around for a long time, but pay for extra space
 // occupied.
 //      shaderc_compiler_t compiler = shaderc_compiler_initialize();
 //      // On the same, other or multiple simultaneous threads.
-//      shader_spv_module_t module = shaderc_compile_into_spv(compiler,
-//                    "int main() {}", 13, shaderc_glsl_vertex_shader, "main");
-//      // Do stuff with module compilation results.
-//      shaderc_module_release(module);
+//      shaderc_compilation_result_t result = shaderc_compile_into_spv(
+//          compiler, "int main() {}", 13, shaderc_glsl_vertex_shader, "main");
+//      // Do stuff with compilation results.
+//      shaderc_result_release(result);
 //      // Once no more compilations are to happen.
 //      shaderc_compiler_release(compiler);
 
@@ -136,27 +135,23 @@ shaderc_compile_options_t shaderc_compile_options_clone(
 // NULL to this function, and doing such will have no effect.
 void shaderc_compile_options_release(shaderc_compile_options_t options);
 
-// Adds a predefined macro to the compilation options. This has the
-// same effect as passing -Dname=value to the command-line compiler.
-// If value is NULL, it has the effect same as passing -Dname to the
-// command-line compiler. If a macro definition with the same name has
-// previously been added, the value is replaced with the new value.
-// The null-terminated strings that the name and value parameters point to
-// must remain valid for the duration of the call, but can be modified or
-// deleted after this function has returned.
+// Adds a predefined macro to the compilation options. This has the same
+// effect as passing -Dname=value to the command-line compiler.  If value
+// is NULL, it has the same effect as passing -Dname to the command-line
+// compiler. If a macro definition with the same name has previously been
+// added, the value is replaced with the new value. The macro name and
+// value are passed in with char pointers, which point to their data, and
+// the lengths of their data. The strings that the name and value pointers
+// point to must remain valid for the duration of the call, but can be
+// modified or deleted after this function has returned. In case of adding
+// a valueless macro, the value argument should be a null pointer or the
+// value_length should be 0u.
 void shaderc_compile_options_add_macro_definition(
-    shaderc_compile_options_t options, const char* name, const char* value);
+    shaderc_compile_options_t options, const char* name, size_t name_length,
+    const char* value, size_t value_length);
 
 // Sets the compiler mode to generate debug information in the output.
 void shaderc_compile_options_set_generate_debug_info(
-    shaderc_compile_options_t options);
-
-// Sets the compiler mode to emit a disassembly text instead of a binary. In
-// this mode, the byte array result in the shaderc_spv_module returned
-// from shaderc_compile_into_spv() will consist of SPIR-V assembly text.
-// Note the preprocessing only mode overrides this option, and this option
-// overrides the default mode generating a SPIR-V binary.
-void shaderc_compile_options_set_disassembly_mode(
     shaderc_compile_options_t options);
 
 // Forces the GLSL language version and profile to a given pair. The version
@@ -167,39 +162,9 @@ void shaderc_compile_options_set_disassembly_mode(
 void shaderc_compile_options_set_forced_version_profile(
     shaderc_compile_options_t options, int version, shaderc_profile profile);
 
-// To support file inclusion, libshaderc invokes a callback into its client to
-// resolve the full path and content of the included file.
-// The client callback should follow the specified function signature below, and
-// it should be passed to libshaderc through the corresponding setter function.
-// When the including of a file is done, libshaderc will call another client
-// callback to clean up the resources used for the including process. The client
-// should implement the clean up method and pass it to libshaderc together with
-// the response method.
-
-// The struct that contains the information to be returned to the libshaderc.
-// The client-side implemented response method should return a pointer of this
-// struct. The underlying data is owned by client code.
-struct shaderc_includer_response {
-  const char* path;
-  size_t path_length;
-  const char* content;
-  size_t content_length;
-};
-
-// The function signature of the client-side implemented response method. It
-// returns a pointer to shaderc_includer_response struct.
-typedef shaderc_includer_response* (*shaderc_includer_response_get_fn)(
-    void* user_data, const char* filename);
-
-// The function signature of the client-side implemented clean-up method.
-// Includer will call this callback function when the including process is done
-// with the fullpath and content data.
-typedef void (*shaderc_includer_response_release_fn)(
-    void* user_data, shaderc_includer_response* data);
-
-// Sets the callback functions for the includer. When the includer queries for
-// the full path and content of a file, client's method will be called to
-// response. And when the query is done, client will be notified to clean up.
+// Response to a request for #include content.  "Includer" is client code that
+// resolves #include arguments into objects of this type.
+//
 // TODO: File inclusion needs to be context-aware.
 // e.g.
 //  In file: /path/to/main_shader.vert:
@@ -210,16 +175,31 @@ typedef void (*shaderc_includer_response_release_fn)(
 //  go to /path/to/include/b to find the file b.
 //  This needs context info from compiler to client includer, and may needs
 //  interface changes.
+struct shaderc_includer_response {
+  const char* path;
+  size_t path_length;
+  const char* content;
+  size_t content_length;
+};
+
+// A function mapping a #include argument to its includer response.  The
+// includer retains memory ownership of the response object.
+typedef shaderc_includer_response* (*shaderc_includer_response_get_fn)(
+    void* user_data, const char* filename);
+
+// A function to destroy an includer response when it's no longer needed.
+typedef void (*shaderc_includer_response_release_fn)(
+    void* user_data, shaderc_includer_response* data);
+
+// Sets includer callback functions. When a compiler encounters a #include in
+// the source, it will query the includer by invoking getter on user_data and
+// the #include argument.  The includer must respond with a
+// shaderc_includer_response object that remains valid until releaser is invoked
+// on it.  When the compiler is done processing the response, it will invoke
+// releaser on user_data and the response pointer.
 void shaderc_compile_options_set_includer_callbacks(
     shaderc_compile_options_t options, shaderc_includer_response_get_fn getter,
-    shaderc_includer_response_release_fn releasor, void* user_data);
-
-// Sets the compiler mode to do only preprocessing. The byte array result in the
-// module returned by the compilation is the text of the preprocessed shader.
-// This option overrides all other compilation modes, such as disassembly mode
-// and the default mode of compilation to SPIR-V binary.
-void shaderc_compile_options_set_preprocessing_only_mode(
-    shaderc_compile_options_t options);
+    shaderc_includer_response_release_fn releaser, void* user_data);
 
 // Sets the compiler mode to suppress warnings, overriding warnings-as-errors
 // mode. When both suppress-warnings and warnings-as-errors modes are
@@ -242,8 +222,9 @@ void shaderc_compile_options_set_target_env(shaderc_compile_options_t options,
 void shaderc_compile_options_set_warnings_as_errors(
     shaderc_compile_options_t options);
 
-// An opaque handle to the results of a call to shaderc_compile_into_spv().
-typedef struct shaderc_spv_module* shaderc_spv_module_t;
+// An opaque handle to the results of a call to any shaderc_compile_into_*()
+// function.
+typedef struct shaderc_compilation_result* shaderc_compilation_result_t;
 
 // Takes a GLSL source string and the associated shader kind, input file
 // name, compiles it according to the given additional_options. If the shader
@@ -256,59 +237,72 @@ typedef struct shaderc_spv_module* shaderc_spv_module_t;
 // The input_file_name is a null-termintated string. It is used as a tag to
 // identify the source string in cases like emitting error messages. It
 // doesn't have to be a 'file name'.
-// By default the source string will be compiled into SPIR-V binary
-// and a shaderc_spv_module will be returned to hold the results of the
-// compilation. When disassembly mode or preprocessing only mode is enabled
-// in the additional_options, the source string will be compiled into char
-// strings and held by the returned shaderc_spv_module.  The entry_point_name
-// null-terminated string defines the name of the entry point to associate
-// with this GLSL source. If the additional_options parameter is not NULL,
-// then the compilation is modified by any options present. May be safely
-// called from multiple threads without explicit synchronization. If there
-// was failure in allocating the compiler object NULL will be returned.
-shaderc_spv_module_t shaderc_compile_into_spv(
+// The source string will be compiled into SPIR-V binary and a
+// shaderc_compilation_result will be returned to hold the results.
+// The entry_point_name null-terminated string defines the name of the entry
+// point to associate with this GLSL source. If the additional_options
+// parameter is not null, then the compilation is modified by any options
+// present.  May be safely called from multiple threads without explicit
+// synchronization. If there was failure in allocating the compiler object,
+// null will be returned.
+shaderc_compilation_result_t shaderc_compile_into_spv(
     const shaderc_compiler_t compiler, const char* source_text,
     size_t source_text_size, shaderc_shader_kind shader_kind,
     const char* input_file_name, const char* entry_point_name,
     const shaderc_compile_options_t additional_options);
 
-// The following functions, operating on shaderc_spv_module_t objects, offer
-// only the basic thread-safety guarantee.
+// Like shaderc_compile_into_spv, but the result contains SPIR-V assembly text
+// instead of a SPIR-V binary module.  The SPIR-V assembly syntax is as defined
+// by the SPIRV-Tools open source project.
+shaderc_compilation_result_t shaderc_compile_into_spv_assembly(
+    const shaderc_compiler_t compiler, const char* source_text,
+    size_t source_text_size, shaderc_shader_kind shader_kind,
+    const char* input_file_name, const char* entry_point_name,
+    const shaderc_compile_options_t additional_options);
 
-// Releases the resources held by module.  It is invalid to use module for any
-// further operations.
-void shaderc_module_release(shaderc_spv_module_t module);
+// Like shaderc_compile_into_spv, but the result contains preprocessed source
+// code instead of a SPIR-V binary module
+shaderc_compilation_result_t shaderc_compile_into_preprocessed_text(
+    const shaderc_compiler_t compiler, const char* source_text,
+    size_t source_text_size, shaderc_shader_kind shader_kind,
+    const char* input_file_name, const char* entry_point_name,
+    const shaderc_compile_options_t additional_options);
 
-// Returns true if the result in module was a successful compilation.
-bool shaderc_module_get_success(const shaderc_spv_module_t module);
+// The following functions, operating on shaderc_compilation_result_t objects,
+// offer only the basic thread-safety guarantee.
 
-// Returns the number of bytes in a SPIR-V module result string. When the module
-// is compiled with disassembly mode or preprocessing only mode, the result
-// string is a char string. Otherwise, the result string is binary string.
-size_t shaderc_module_get_length(const shaderc_spv_module_t module);
+// Releases the resources held by the result object. It is invalid to use the
+// result object for any further operations.
+void shaderc_result_release(shaderc_compilation_result_t result);
+
+// Returns the number of bytes of the compilation output data in a result
+// object.
+size_t shaderc_result_get_length(const shaderc_compilation_result_t result);
 
 // Returns the number of warnings generated during the compilation.
-size_t shaderc_module_get_num_warnings(const shaderc_spv_module_t module);
+size_t shaderc_result_get_num_warnings(
+    const shaderc_compilation_result_t result);
 
 // Returns the number of errors generated during the compilation.
-size_t shaderc_module_get_num_errors(const shaderc_spv_module_t module);
+size_t shaderc_result_get_num_errors(const shaderc_compilation_result_t result);
 
 // Returns the compilation status, indicating whether the compilation succeeded,
 // or failed due to some reasons, like invalid shader stage or compilation
 // errors.
-shaderc_compilation_status shaderc_module_get_compilation_status(
-    const shaderc_spv_module_t);
+shaderc_compilation_status shaderc_result_get_compilation_status(
+    const shaderc_compilation_result_t);
 
-// Returns a pointer to the start of the SPIR-V bytes, either SPIR-V binary or
-// char string. When the source string is compiled into SPIR-V binary, this is
-// guaranteed to be castable to a uint32_t*. If the source string is compiled in
-// disassembly mode or preprocessing only mode, the pointer will point to the
-// result char string.
-const char* shaderc_module_get_bytes(const shaderc_spv_module_t module);
+// Returns a pointer to the start of the compilation output data bytes, either
+// SPIR-V binary or char string. When the source string is compiled into SPIR-V
+// binary, this is guaranteed to be castable to a uint32_t*. If the result
+// contains assembly text or preprocessed source text, the pointer will point to
+// the resulting array of characters.
+const char* shaderc_result_get_bytes(const shaderc_compilation_result_t result);
 
 // Returns a null-terminated string that contains any error messages generated
 // during the compilation.
-const char* shaderc_module_get_error_message(const shaderc_spv_module_t module);
+const char* shaderc_result_get_error_message(
+    const shaderc_compilation_result_t result);
 
 // Provides the version & revision of the SPIR-V which will be produced
 void shaderc_get_spv_version(unsigned int* version, unsigned int* revision);
@@ -324,4 +318,4 @@ bool shaderc_parse_version_profile(const char* str, int* version,
 }
 #endif  // __cplusplus
 
-#endif  // SHADERC_H_
+#endif  // SHADERC_SHADERC_H_

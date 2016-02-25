@@ -250,13 +250,7 @@
                   'VCLinkerTool': {
                     'AdditionalDependencies': [
                       'vulkan-1.lib',
-                      'shaderc.lib',
-                      'shaderc_util.lib',
-                      'glslang.lib',
-                      'OSDependent.lib',
-                      'OGLCompiler.lib',
-                      'SPIRV-Tools.lib',
-                      'SPIRV.lib',
+                      'shaderc_combined.lib'
                     ],
                   },
                 },
