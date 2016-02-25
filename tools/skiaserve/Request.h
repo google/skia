@@ -32,6 +32,18 @@ struct Request {
     , fUrlDataManager(rootUrl)
     , fGPUEnabled(false) {}
 
+    SkSurface* createCPUSurface();
+    SkSurface* createGPUSurface();
+    SkData* drawToPng(int n);
+    void drawToCanvas(int n);
+    SkCanvas* getCanvas();
+    SkData* writeCanvasToPng(SkCanvas* canvas);
+    SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
+
+    // TODO probably want to make this configurable
+    static const int kImageWidth;
+    static const int kImageHeight;
+
     UploadContext* fUploadContext;
     SkAutoTUnref<SkPicture> fPicture;
     SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
