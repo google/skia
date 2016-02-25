@@ -23,8 +23,6 @@
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrNinePatch.h" // TODO Factory
 
-#include "effects/GrRRectEffect.h"
-
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
@@ -512,113 +510,6 @@ void GrDrawContext::drawRRect(const GrClip& clip,
         path.addRRect(rrect);
         this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
                                paint.isAntiAlias(), path, strokeInfo);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-static bool draw_drrect(GrDrawTarget* drawTarget,
-                        const GrPipelineBuilder& pipelineBuilder,
-                        GrColor color,
-                        const SkMatrix& viewMatrix,
-                        bool useAA,
-                        const SkRRect& origOuter,
-                        const SkRRect& origInner,
-                        GrShaderCaps* shaderCaps) {
-    bool applyAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
-    if (!origInner.isEmpty()) {
-        SkTCopyOnFirstWrite<SkRRect> inner(origInner);
-        if (!viewMatrix.isIdentity()) {
-            if (!origInner.transform(viewMatrix, inner.writable())) {
-                return false;
-            }
-        }
-        GrPrimitiveEdgeType edgeType = applyAA ?
-                kInverseFillAA_GrProcessorEdgeType :
-                kInverseFillBW_GrProcessorEdgeType;
-        // TODO this needs to be a geometry processor
-        GrFragmentProcessor* fp = GrRRectEffect::Create(edgeType, *inner);
-        if (nullptr == fp) {
-            return false;
-        }
-        arfps.set(&pipelineBuilder);
-        arfps.addCoverageFragmentProcessor(fp)->unref();
-    }
-
-    SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(pipelineBuilder, color,
-                                                                     viewMatrix, useAA, origOuter,
-                                                                     fillRec, shaderCaps));
-    if (batch) {
-        drawTarget->drawBatch(pipelineBuilder, batch);    
-        return true;
-    }
-
-    SkASSERT(!origOuter.isEmpty());
-    SkTCopyOnFirstWrite<SkRRect> outer(origOuter);
-    if (!viewMatrix.isIdentity()) {
-        if (!origOuter.transform(viewMatrix, outer.writable())) {
-            return false;
-        }
-    }
-    GrPrimitiveEdgeType edgeType = applyAA ? kFillAA_GrProcessorEdgeType :
-                                             kFillBW_GrProcessorEdgeType;
-    SkAutoTUnref<GrFragmentProcessor> effect(GrRRectEffect::Create(edgeType, *outer));
-    if (!effect) {
-        return false;
-    }
-    if (!arfps.isSet()) {
-        arfps.set(&pipelineBuilder);
-    }
-
-    SkMatrix invert;
-    if (!viewMatrix.invert(&invert)) {
-        return false;
-    }
-
-    arfps.addCoverageFragmentProcessor(effect);
-    SkRect bounds = outer->getBounds();
-    if (applyAA) {
-        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
-    }
-    batch.reset(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(), bounds, 
-                                                    nullptr, &invert));
-    drawTarget->drawBatch(pipelineBuilder, batch);    
-    return true;
-}
-
-void GrDrawContext::drawDRRect(const GrClip& clip,
-                               const GrPaint& paint,
-                               const SkMatrix& viewMatrix,
-                               const SkRRect& outer,
-                               const SkRRect& inner) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawDRRect");
-
-    if (outer.isEmpty()) {
-       return;
-    }
-
-    AutoCheckFlush acf(fDrawingManager);
-
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-    GrColor color = paint.getColor();
-
-    if (!draw_drrect(this->getDrawTarget(), pipelineBuilder,
-                     color, viewMatrix, paint.isAntiAlias(),
-                     outer, inner, fContext->caps()->shaderCaps())) {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addRRect(inner);
-        path.addRRect(outer);
-        path.setFillType(SkPath::kEvenOdd_FillType);
-
-        GrStrokeInfo fillRec(SkStrokeRec::kFill_InitStyle);
-        this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
-                               paint.isAntiAlias(), path, fillRec);
     }
 }
 

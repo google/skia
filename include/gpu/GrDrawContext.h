@@ -141,23 +141,6 @@ public:
                    const GrStrokeInfo&);
 
     /**
-     *  Shortcut for drawing an SkPath consisting of nested rrects using a paint.
-     *  Does not support stroking. The result is undefined if outer does not contain
-     *  inner.
-     *
-     *  @param paint        describes how to color pixels.
-     *  @param viewMatrix   transformation matrix
-     *  @param outer        the outer roundrect
-     *  @param inner        the inner roundrect
-     */
-    void drawDRRect(const GrClip&,
-                    const GrPaint&,
-                    const SkMatrix& viewMatrix,
-                    const SkRRect& outer,
-                    const SkRRect& inner);
-
-
-    /**
      * Draws a path.
      *
      * @param paint         describes how to color pixels.

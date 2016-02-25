@@ -44,6 +44,7 @@
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrDashingEffect.h"
+#include "effects/GrRRectEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 #include "text/GrTextUtils.h"
@@ -559,6 +560,66 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
     fDrawContext->drawRRect(fClip, grPaint, *draw.fMatrix, rect, strokeInfo);
 }
 
+bool SkGpuDevice::drawFilledDRRect(const SkMatrix& viewMatrix, const SkRRect& origOuter,
+                                   const SkRRect& origInner, const SkPaint& paint) {
+    SkASSERT(!origInner.isEmpty());
+    SkASSERT(!origOuter.isEmpty());
+
+    bool applyAA = paint.isAntiAlias() && !fRenderTarget->isUnifiedMultisampled();
+
+    GrPrimitiveEdgeType innerEdgeType = applyAA ? kInverseFillAA_GrProcessorEdgeType :
+                                                  kInverseFillBW_GrProcessorEdgeType;
+    GrPrimitiveEdgeType outerEdgeType = applyAA ? kFillAA_GrProcessorEdgeType :
+                                                  kFillBW_GrProcessorEdgeType;
+
+    SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
+    SkMatrix inverseVM;
+    if (!viewMatrix.isIdentity()) {
+        if (!origInner.transform(viewMatrix, inner.writable())) {
+            return false;
+        }
+        if (!origOuter.transform(viewMatrix, outer.writable())) {
+            return false;
+        }
+        if (!viewMatrix.invert(&inverseVM)) {
+            return false;
+        }
+    } else {
+        inverseVM.reset();
+    }         
+
+    GrPaint grPaint;
+
+    if (!SkPaintToGrPaint(this->context(), paint, viewMatrix, &grPaint)) {
+        return false;
+    }
+
+    grPaint.setAntiAlias(false);
+
+    // TODO these need to be a geometry processors
+    SkAutoTUnref<GrFragmentProcessor> innerEffect(GrRRectEffect::Create(innerEdgeType, *inner));
+    if (!innerEffect) {
+        return false;
+    }
+
+    SkAutoTUnref<GrFragmentProcessor> outerEffect(GrRRectEffect::Create(outerEdgeType, *outer));
+    if (!outerEffect) {
+        return false;
+    }
+
+    grPaint.addCoverageFragmentProcessor(innerEffect);
+    grPaint.addCoverageFragmentProcessor(outerEffect);
+
+    SkRect bounds = outer->getBounds();
+    if (applyAA) {
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+    }
+  
+    fDrawContext->fillRectWithLocalMatrix(fClip, grPaint, SkMatrix::I(), bounds, inverseVM);
+    return true;
+}
+
+
 void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
                              const SkRRect& inner, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -566,16 +627,20 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
 
+    if (outer.isEmpty()) {
+       return;
+    }
+
+    if (inner.isEmpty()) {
+        return this->drawRRect(draw, outer, paint);
+    }
+
     SkStrokeRec stroke(paint);
 
     if (stroke.isFillStyle() && !paint.getMaskFilter() && !paint.getPathEffect()) {
-        GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix, &grPaint)) {
+        if (this->drawFilledDRRect(*draw.fMatrix, outer, inner, paint)) {
             return;
         }
-
-        fDrawContext->drawDRRect(fClip, grPaint, *draw.fMatrix, outer, inner);
-        return;
     }
 
     SkPath path;

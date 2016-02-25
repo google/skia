@@ -251,6 +251,9 @@ private:
                                  const GrClip&,
                                  const SkPaint&);
 
+    bool drawFilledDRRect(const SkMatrix& viewMatrix, const SkRRect& outer,
+                          const SkRRect& inner, const SkPaint& paint);
+
     void drawProducerNine(const SkDraw&, GrTextureProducer*, const SkIRect& center,
                           const SkRect& dst, const SkPaint&);
 
