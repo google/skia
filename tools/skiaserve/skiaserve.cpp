@@ -7,18 +7,14 @@
 
 #include "GrCaps.h"
 #include "GrContextFactory.h"
+
+#include "Request.h"
+
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
-#include "SkDebugCanvas.h"
 #include "SkJSONCanvas.h"
-#include "SkJSONCPP.h"
-#include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPixelSerializer.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-
-#include "UrlDataManager.h"
 
 #include <sys/socket.h>
 #include <microhttpd.h>
@@ -58,27 +54,6 @@ SkString generateTemplate(SkString source) {
     return debuggerTemplate;
 
 }
-
-struct UploadContext {
-    SkDynamicMemoryWStream fStream;
-    MHD_PostProcessor* fPostProcessor;
-    MHD_Connection* connection;
-};
-
-struct Request {
-    Request(SkString rootUrl)
-    : fUploadContext(nullptr)
-    , fUrlDataManager(rootUrl)
-    , fGPUEnabled(false) {}
-
-    UploadContext* fUploadContext;
-    SkAutoTUnref<SkPicture> fPicture;
-    SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
-    SkAutoTDelete<GrContextFactory> fContextFactory;
-    SkAutoTUnref<SkSurface> fSurface;
-    UrlDataManager fUrlDataManager;
-    bool fGPUEnabled;
-};
 
 static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
     SkWStream* out = (SkWStream*) png_get_io_ptr(png_ptr);
