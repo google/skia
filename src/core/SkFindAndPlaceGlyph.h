@@ -367,7 +367,7 @@ private:
     static SkPoint SubpixelPositionRounding(SkAxisAlignment axisAlignment) {
         switch (axisAlignment) {
             case kX_SkAxisAlignment:
-                return {SkFixedToScalar(SkGlyph::kSubpixelRound), SK_ScalarHalf};
+                return {kSubpixelRounding, SK_ScalarHalf};
             case kY_SkAxisAlignment:
                 return {SK_ScalarHalf, kSubpixelRounding};
             case kNone_SkAxisAlignment:
