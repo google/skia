@@ -442,3 +442,57 @@ uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
     return flags;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+
+void SkBaseDevice::LogDrawScaleFactor(const SkMatrix& matrix, SkFilterQuality filterQuality) {
+#if SK_HISTOGRAMS_ENABLED
+    enum ScaleFactor {
+        kUpscale_ScaleFactor,
+        kNoScale_ScaleFactor,
+        kDownscale_ScaleFactor,
+        kLargeDownscale_ScaleFactor,
+    };
+
+    SkASSERT(filterQuality != kNone_SkFilterQuality);
+    enum { kScaleFactorCount = kLargeDownscale_ScaleFactor + 1 };
+    float rawScaleFactor = matrix.getMinScale();
+
+    ScaleFactor scaleFactor;
+    if (rawScaleFactor < 0.5f) {
+        scaleFactor = kLargeDownscale_ScaleFactor;
+    } else if (rawScaleFactor < 1.0f) {
+        scaleFactor = kDownscale_ScaleFactor;
+    } else if (rawScaleFactor > 1.0f) {
+        scaleFactor = kUpscale_ScaleFactor;
+    } else {
+        scaleFactor = kNoScale_ScaleFactor;
+    }
+
+    switch (filterQuality) {
+        case kNone_SkFilterQuality:
+            SK_HISTOGRAM_ENUMERATION("DrawScaleFactor.NoneFilterQuality", scaleFactor,
+                                     kScaleFactorCount);
+            break;
+        case kLow_SkFilterQuality:
+            SK_HISTOGRAM_ENUMERATION("DrawScaleFactor.LowFilterQuality", scaleFactor,
+                                     kScaleFactorCount);
+            break;
+        case kMedium_SkFilterQuality:
+            SK_HISTOGRAM_ENUMERATION("DrawScaleFactor.MediumFilterQuality", scaleFactor,
+                                     kScaleFactorCount);
+            break;
+        case kHigh_SkFilterQuality:
+            SK_HISTOGRAM_ENUMERATION("DrawScaleFactor.HighFilterQuality", scaleFactor,
+                                     kScaleFactorCount);
+            break;
+    }
+
+    // Also log filter quality independent scale factor.
+    SK_HISTOGRAM_ENUMERATION("DrawScaleFactor.AnyFilterQuality", scaleFactor, kScaleFactorCount);
+
+    // Also log an overall histogram of filter quality.
+    enum { kFilterQualityCount = kHigh_SkFilterQuality + 1 };
+    SK_HISTOGRAM_ENUMERATION("FilterQuality", filterQuality, kFilterQualityCount);
+#endif
+}
+

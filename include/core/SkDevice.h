@@ -376,6 +376,9 @@ protected:
         return NULL;
     }
 
+    // A helper function used by derived classes to log the scale factor of a bitmap or image draw.
+    static void LogDrawScaleFactor(const SkMatrix&, SkFilterQuality);
+
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
