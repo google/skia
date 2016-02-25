@@ -198,49 +198,9 @@ public:
             }
 
             SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
-            for (int i = 0; i < axisDefinitions.count(); ++i) {
-                const Scanner::AxisDefinition& axisDefinition = axisDefinitions[i];
-                axisValues[i] = axisDefinition.fDefault;
-                for (int j = 0; j < fontFile.fAxes.count(); ++j) {
-                    const FontFileInfo::Axis& axisSpecified = fontFile.fAxes[j];
-                    if (axisDefinition.fTag == axisSpecified.fTag) {
-                        axisValues[i] = SkTPin(axisSpecified.fValue, axisDefinition.fMinimum,
-                                                                     axisDefinition.fMaximum);
-                        if (axisValues[i] != axisSpecified.fValue) {
-                            SkDEBUGF(("Requested font axis value out of range: "
-                                      "%s '%c%c%c%c' %f; pinned to %f.\n",
-                                      familyName.c_str(),
-                                      (axisDefinition.fTag >> 24) & 0xFF,
-                                      (axisDefinition.fTag >> 16) & 0xFF,
-                                      (axisDefinition.fTag >>  8) & 0xFF,
-                                      (axisDefinition.fTag      ) & 0xFF,
-                                      SkFixedToDouble(axisSpecified.fValue),
-                                      SkFixedToDouble(axisValues[i])));
-                        }
-                        break;
-                    }
-                }
-                // TODO: warn on defaulted axis?
-            }
-
-            SkDEBUGCODE(
-                // Check for axis specified, but not matched in font.
-                for (int i = 0; i < fontFile.fAxes.count(); ++i) {
-                    SkFourByteTag skTag = fontFile.fAxes[i].fTag;
-                    bool found = false;
-                    for (int j = 0; j < axisDefinitions.count(); ++j) {
-                        if (skTag == axisDefinitions[j].fTag) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        SkDEBUGF(("Requested font axis not found: %s '%c%c%c%c'\n",
-                                    familyName.c_str(), (skTag >> 24) & 0xFF,
-                                    (skTag >> 16) & 0xFF, (skTag >> 8) & 0xFF, (skTag)&0xFF));
-                    }
-                }
-            )
+            Scanner::computeAxisValues(axisDefinitions,
+                                       fontFile.fAxes.begin(), fontFile.fAxes.count(),
+                                       axisValues, familyName);
 
             fStyles.push_back().reset(new SkTypeface_AndroidSystem(
                     pathName, cacheFontFiles, ttcIndex, axisValues.get(), axisDefinitions.count(),
