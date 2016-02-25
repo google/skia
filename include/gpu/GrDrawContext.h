@@ -100,7 +100,7 @@ public:
                   const GrPaint& paint,
                   const SkMatrix& viewMatrix,
                   const SkRect&,
-                  const GrStrokeInfo* strokeInfo = nullptr);
+                  const GrStrokeInfo* strokeInfo = NULL);
 
     /**
      * Maps a rectangle of shader coordinates to a rectangle and fills that rectangle.
@@ -280,11 +280,12 @@ private:
     friend class GrAtlasTextBlob; // for access to drawBatch
     friend class GrDrawingManager; // for ctor
 
-    void internalDrawPath(const GrClip& clip,
-                          const GrPaint& paint,
+    void internalDrawPath(GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
-                          const SkPath& path,
-                          const GrStrokeInfo& strokeInfo);
+                          GrColor,
+                          bool useAA,
+                          const SkPath&,
+                          const GrStrokeInfo&);
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
     // the drawTarget.
