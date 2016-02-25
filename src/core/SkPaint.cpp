@@ -925,7 +925,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     GlyphCacheProc   glyphCacheProc = paint.getGlyphCacheProc(false);
     const int        xyIndex = paint.isVerticalText() ? 1 : 0;
     // use 64bits for our accumulator, to avoid overflowing 16.16
-    Sk48Dot16        max = SkScalarToFixed(maxWidth);
+    Sk48Dot16        max = SkScalarTo48Dot16(maxWidth);
     Sk48Dot16        width = 0;
 
     SkAutoKern  autokern;

@@ -22,7 +22,6 @@ typedef int32_t             SkFixed;
 #define SK_FixedHalf        (1 << 15)
 #define SK_FixedMax         (0x7FFFFFFF)
 #define SK_FixedMin         (-SK_FixedMax)
-#define SK_FixedNaN         ((int) 0x80000000)
 #define SK_FixedPI          (0x3243F)
 #define SK_FixedSqrt2       (92682)
 #define SK_FixedTanPIOver8  (0x6A0A)

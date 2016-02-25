@@ -463,8 +463,7 @@ struct SK_API SkRect {
 
     /**
      *  Returns true iff all values in the rect are finite. If any are
-     *  infinite or NaN (or SK_FixedNaN when SkScalar is fixed) then this
-     *  returns false.
+     *  infinite or NaN then this returns false.
      */
     bool isFinite() const {
         float accum = 0;
