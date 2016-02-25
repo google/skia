@@ -137,6 +137,11 @@ private:
 
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
+    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
+                                                       GrWrapOwnership) override {
+        SkDebugf("onWrapBackendTextureAsRenderTarget not yet implemented for Vulkan\n");
+        return NULL;
+    }
 
     GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override;
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override;
