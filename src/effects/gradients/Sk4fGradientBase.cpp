@@ -207,14 +207,28 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
                                 clamp_color, clamp_pos,
                                 componentScale);
     } else if (shader.fTileMode == SkShader::kMirror_TileMode) {
+        const int count = fIntervals.count();
         // synthetic flipped intervals in [1 .. 2)
-        for (int i = fIntervals.count() - 1; i >= 0; --i) {
+        for (int i = count - 1; i >= 0; --i) {
             const Interval& interval = fIntervals[i];
             const SkScalar p0 = interval.fP0;
             const SkScalar p1 = interval.fP1;
             Sk4f dc = Sk4f::Load(interval.fDc.fVec);
             Sk4f c = Sk4f::Load(interval.fC0.fVec) + dc * Sk4f(p1 - p0);
             fIntervals.emplace_back(c, dc * Sk4f(-1), 2 - p1, 2 - p0);
+        }
+
+        if (!dx_is_pos) {
+            // When dx is negative, our initial invervals are in (1..0] order.
+            // The loop above appends their flipped counterparts, pivoted in 2: (1..0](2..1]
+            // To achieve the expected monotonic interval order, we need to
+            // swap the two halves: (2..1](1..0]
+            // TODO: we can probably avoid this late swap with some additional logic during
+            //       the initial interval buildup.
+            SkASSERT(fIntervals.count() == count * 2)
+            for (int i = 0; i < count; ++i) {
+                SkTSwap(fIntervals[i], fIntervals[count + i]);
+            }
         }
     }
 
