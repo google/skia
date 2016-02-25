@@ -2123,15 +2123,19 @@ void SkPaint::toString(SkString* str) const {
         SkDynamicMemoryWStream ostream;
         typeface->serialize(&ostream);
         SkAutoTDelete<SkStreamAsset> istream(ostream.detachAsStream());
-        SkFontDescriptor descriptor(istream);
 
-        str->append("<dt>Font Family Name:</dt><dd>");
-        str->append(descriptor.getFamilyName());
-        str->append("</dd><dt>Font Full Name:</dt><dd>");
-        str->append(descriptor.getFullName());
-        str->append("</dd><dt>Font PS Name:</dt><dd>");
-        str->append(descriptor.getPostscriptName());
-        str->append("</dd>");
+        SkFontDescriptor descriptor;
+        if (!SkFontDescriptor::Deserialize(istream, &descriptor)) {
+            str->append("<dt>FontDescriptor deserialization failed</dt>");
+        } else {
+            str->append("<dt>Font Family Name:</dt><dd>");
+            str->append(descriptor.getFamilyName());
+            str->append("</dd><dt>Font Full Name:</dt><dd>");
+            str->append(descriptor.getFullName());
+            str->append("</dd><dt>Font PS Name:</dt><dd>");
+            str->append(descriptor.getPostscriptName());
+            str->append("</dd>");
+        }
     }
 
     str->append("<dt>TextSize:</dt><dd>");

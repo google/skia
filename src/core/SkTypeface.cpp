@@ -180,7 +180,12 @@ SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
     if (gDeserializeTypefaceDelegate) {
         return (*gDeserializeTypefaceDelegate)(stream);
     }
-    SkFontDescriptor desc(stream);
+
+    SkFontDescriptor desc;
+    if (!SkFontDescriptor::Deserialize(stream, &desc)) {
+        return nullptr;
+    }
+
     SkFontData* data = desc.detachFontData();
     if (data) {
         SkTypeface* typeface = SkTypeface::CreateFromFontData(data);
