@@ -11,7 +11,6 @@
 #include "GrBatchTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
-#include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
 #include "SkRRect.h"
@@ -580,18 +579,11 @@ const GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(GrProcessorTestData* 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawBatch* GrOvalRenderer::CreateOvalBatch(const GrPipelineBuilder& pipelineBuilder,
-                                             GrColor color,
+GrDrawBatch* GrOvalRenderer::CreateOvalBatch(GrColor color,
                                              const SkMatrix& viewMatrix,
-                                             bool useAA,
                                              const SkRect& oval,
                                              const SkStrokeRec& stroke,
                                              GrShaderCaps* shaderCaps) {
-    bool useCoverageAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
-    if (!useCoverageAA) {
-        return nullptr;
-    }
-
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
         return CreateCircleBatch(color, viewMatrix, oval, stroke);
@@ -1890,23 +1882,13 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
     }
 }
 
-GrDrawBatch* GrOvalRenderer::CreateRRectBatch(const GrPipelineBuilder& pipelineBuilder,
-                                              GrColor color,
+GrDrawBatch* GrOvalRenderer::CreateRRectBatch(GrColor color,
                                               const SkMatrix& viewMatrix,
-                                              bool useAA,
                                               const SkRRect& rrect,
                                               const SkStrokeRec& stroke,
                                               GrShaderCaps* shaderCaps) {
-    bool useCoverageAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
-
-    // only anti-aliased rrects for now
-    if (!useCoverageAA) {
-        return nullptr;
-    }
-
     if (rrect.isOval()) {
-        return CreateOvalBatch(pipelineBuilder, color, viewMatrix, useAA,
-                               rrect.getBounds(), stroke, shaderCaps);
+        return CreateOvalBatch(color, viewMatrix, rrect.getBounds(), stroke, shaderCaps);
     }
 
     if (!viewMatrix.rectStaysRect() || !rrect.isSimple()) {

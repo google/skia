@@ -8,12 +8,13 @@
 #ifndef GrOvalRenderer_DEFINED
 #define GrOvalRenderer_DEFINED
 
-#include "GrPaint.h"
+#include "GrColor.h"
 
 class GrDrawBatch;
-class GrPipelineBuilder;
 class GrShaderCaps;
+class SkMatrix;
 struct SkRect;
+class SkRRect;
 class SkStrokeRec;
 
 /*
@@ -21,17 +22,13 @@ class SkStrokeRec;
  */
 class GrOvalRenderer {
 public:
-    static GrDrawBatch* CreateOvalBatch(const GrPipelineBuilder&,
-                                        GrColor,
+    static GrDrawBatch* CreateOvalBatch(GrColor,
                                         const SkMatrix& viewMatrix,
-                                        bool useAA,
                                         const SkRect& oval,
                                         const SkStrokeRec& stroke,
                                         GrShaderCaps* shaderCaps);
-    static GrDrawBatch* CreateRRectBatch(const GrPipelineBuilder&,
-                                         GrColor,
+    static GrDrawBatch* CreateRRectBatch(GrColor,
                                          const SkMatrix& viewMatrix,
-                                         bool useAA,
                                          const SkRRect& rrect,
                                          const SkStrokeRec& stroke,
                                          GrShaderCaps* shaderCaps);

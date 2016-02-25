@@ -494,23 +494,25 @@ void GrDrawContext::drawRRect(const GrClip& clip,
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
 
-    GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-    SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(pipelineBuilder,
-                                                                     color,
-                                                                     viewMatrix,
-                                                                     paint.isAntiAlias(),
-                                                                     rrect,
-                                                                     strokeInfo,
-                                                                     shaderCaps));
-    if (batch) {
-        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
-    } else {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addRRect(rrect);
-        this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
-                               paint.isAntiAlias(), path, strokeInfo);
+    if (should_apply_coverage_aa(paint, fRenderTarget)) {
+        GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+
+        SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(color,
+                                                                         viewMatrix,
+                                                                         rrect,
+                                                                         strokeInfo,
+                                                                         shaderCaps));
+        if (batch) {
+            this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+            return;
+        }
     }
+
+    SkPath path;
+    path.setIsVolatile(true);
+    path.addRRect(rrect);
+    this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
+                           paint.isAntiAlias(), path, strokeInfo);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -535,24 +537,25 @@ void GrDrawContext::drawOval(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
-
-    GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-    SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(pipelineBuilder,
-                                                                    color,
-                                                                    viewMatrix,
-                                                                    paint.isAntiAlias(),
-                                                                    oval,
-                                                                    strokeInfo,
-                                                                    shaderCaps));
-    if (batch) {
-        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
-    } else {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addOval(oval);
-        this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
-                               paint.isAntiAlias(), path, strokeInfo);
+    
+    if (should_apply_coverage_aa(paint, fRenderTarget)) {
+        GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+        SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(color,
+                                                                        viewMatrix,
+                                                                        oval,
+                                                                        strokeInfo,
+                                                                        shaderCaps));
+        if (batch) {
+            this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+            return;
+        }
     }
+
+    SkPath path;
+    path.setIsVolatile(true);
+    path.addOval(oval);
+    this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
+                           paint.isAntiAlias(), path, strokeInfo);
 }
 
 void GrDrawContext::drawImageNine(const GrClip& clip,
@@ -680,10 +683,8 @@ void GrDrawContext::drawPath(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-    if (!strokeInfo.isDashed()) {
-        bool useCoverageAA = should_apply_coverage_aa(paint, pipelineBuilder.getRenderTarget());
-
-        if (useCoverageAA && strokeInfo.getWidth() < 0 && !path.isConvex()) {
+    if (should_apply_coverage_aa(paint, fRenderTarget) && !strokeInfo.isDashed()) {
+        if (strokeInfo.getWidth() < 0 && !path.isConvex()) {
             // Concave AA paths are expensive - try to avoid them for special cases
             SkRect rects[2];
 
@@ -699,10 +700,8 @@ void GrDrawContext::drawPath(const GrClip& clip,
 
         if (isOval && !path.isInverseFillType()) {
             GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-            SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(pipelineBuilder,
-                                                                            color,
+            SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(color,
                                                                             viewMatrix,
-                                                                            paint.isAntiAlias(),
                                                                             ovalRect,
                                                                             strokeInfo,
                                                                             shaderCaps));
