@@ -169,7 +169,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
 #endif
 #if SK_COMMAND_BUFFER
     REPORTER_ASSERT(reporter, configs[4]->asConfigGpu()->getContextType() ==
-                    GrContextFactory::kCommandBuffer_GLContextType);
+                    GrContextFactory::kCommandBufferES2_GLContextType);
 
 #else
     REPORTER_ASSERT(reporter, !configs[4]->asConfigGpu());

@@ -1224,7 +1224,8 @@ void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* repo
         GrContextFactory::kANGLE_GL_GLContextType,
 #endif
 #if SK_COMMAND_BUFFER
-        GrContextFactory::kCommandBuffer_GLContextType,
+        GrContextFactory::kCommandBufferES2_GLContextType,
+        GrContextFactory::kCommandBufferES3_GLContextType,
 #endif
 #if SK_MESA
         GrContextFactory::kMESA_GLContextType,

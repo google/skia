@@ -114,7 +114,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else {
         // Qualcomm Adreno drivers appear to have issues with texture storage.
         fTexStorageSupport = (version >= GR_GL_VER(3,0) &&
-                              kQualcomm_GrGLVendor != ctxInfo.vendor()) ||
+                              kQualcomm_GrGLVendor != ctxInfo.vendor()) &&
                              ctxInfo.hasExtension("GL_EXT_texture_storage");
     }
 
@@ -360,12 +360,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else {
         // Unextended GLES2 doesn't have any buffer mapping.
         fMapBufferFlags = kNone_MapBufferType;
-        if (ctxInfo.hasExtension("GL_CHROMIUM_map_sub")) {
-            fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
-            fMapBufferType = kChromium_MapBufferType;
-        } else if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_map_buffer_range")) {
+        if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_map_buffer_range")) {
             fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
             fMapBufferType = kMapBufferRange_MapBufferType;
+        } else if (ctxInfo.hasExtension("GL_CHROMIUM_map_sub")) {
+            fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
+            fMapBufferType = kChromium_MapBufferType;
         } else if (ctxInfo.hasExtension("GL_OES_mapbuffer")) {
             fMapBufferFlags = kCanMap_MapFlag;
             fMapBufferType = kMapBuffer_MapBufferType;
@@ -518,6 +518,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (contextOptions.fUseShaderSwizzling) {
         fTextureSwizzleSupport = false;
+    }
+
+    // TODO: remove after command buffer supports full ES 3.0.
+    if (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3, 0) &&
+        kChromium_GrGLDriver == ctxInfo.driver()) {
+        fTexStorageSupport = false;
+        fSupportsInstancedDraws = false;
+        fTextureSwizzleSupport = false;
+        SkASSERT(ctxInfo.hasExtension("GL_CHROMIUM_map_sub"));
+        fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
+        fMapBufferType = kChromium_MapBufferType;
     }
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have

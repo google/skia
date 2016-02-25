@@ -40,7 +40,7 @@ public:
         kANGLE_BackEndType,
 #endif // SK_ANGLE
 #if SK_COMMAND_BUFFER
-        kCommandBuffer_BackEndType,
+        kCommandBufferES2_BackEndType,
 #endif // SK_COMMAND_BUFFER
     };
 
