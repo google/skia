@@ -17,7 +17,6 @@
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkFontMgr.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkMD5.h"
 #include "SkMutex.h"
@@ -65,8 +64,8 @@ DEFINE_string(uninterestingHashesFile, "",
 
 DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
+DEFINE_bool(simpleCodec, false, "Only decode images to native scale");
 
-__SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -239,6 +238,12 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
 
 static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorType dstColorType,
         SkAlphaType dstAlphaType, float scale) {
+    if (FLAGS_simpleCodec) {
+        if (mode != CodecSrc::kCodec_Mode || dstColorType != CodecSrc::kGetFromCanvas_DstColorType
+                || scale != 1.0f)
+            // Only decode in the simple case.
+            return;
+    }
     SkString folder;
     switch (mode) {
         case CodecSrc::kCodec_Mode:
@@ -355,8 +360,6 @@ static void push_codec_srcs(Path path) {
     }
 
     // Native Scales
-    // TODO (msarett): Implement scaling tests for SkImageDecoder in order to compare with these
-    //                 tests.  SkImageDecoder supports downscales by integer factors.
     // SkJpegCodec natively supports scaling to: 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875
     const float nativeScales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
 
@@ -432,6 +435,10 @@ static void push_codec_srcs(Path path) {
                 }
             }
         }
+    }
+
+    if (FLAGS_simpleCodec) {
+        return;
     }
 
     // https://bug.skia.org/4428
@@ -613,6 +620,10 @@ static bool gather_srcs() {
 
     for (auto image : images) {
         push_codec_srcs(image);
+        if (FLAGS_simpleCodec) {
+            continue;
+        }
+
         const char* ext = strrchr(image.c_str(), '.');
         if (ext && brd_supported(ext+1)) {
             push_brd_srcs(image);
