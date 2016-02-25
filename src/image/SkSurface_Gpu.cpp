@@ -86,7 +86,7 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted, ForceCopyMode forc
     if (kYes_ForceCopyMode == forceCopyMode || !tex) {
         GrSurfaceDesc desc = fDevice->accessRenderTarget()->desc();
         GrContext* ctx = fDevice->context();
-        desc.fFlags = desc.fFlags & !kRenderTarget_GrSurfaceFlag;
+        desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
         copy.reset(ctx->textureProvider()->createTexture(desc, kYes_Budgeted == budgeted));
         if (!copy) {
             return nullptr;
