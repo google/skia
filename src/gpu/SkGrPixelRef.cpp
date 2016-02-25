@@ -78,7 +78,7 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
     desc.fConfig = SkImageInfo2GrPixelConfig(dstCT, kPremul_SkAlphaType, dstPT);
     desc.fTextureStorageAllocator = texture->desc().fTextureStorageAllocator;
 
-    GrTexture* dst = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+    GrTexture* dst = context->textureProvider()->createTexture(desc, SkBudgeted::kNo, nullptr, 0);
     if (nullptr == dst) {
         return nullptr;
     }

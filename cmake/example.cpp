@@ -54,7 +54,7 @@ static std::shared_ptr<SkSurface> create_opengl_surface(int w, int h) {
     std::cout << "Using opengl surface" << std::endl;
     std::shared_ptr<GrContext> grContext = adopt(GrContext::Create(kOpenGL_GrBackend, 0));
     return adopt(SkSurface::NewRenderTarget(grContext.get(),
-                                            SkSurface::kNo_Budgeted,
+                                            SkBudgeted::kNo,
                                             SkImageInfo::MakeN32Premul(w,h)));
 }
 

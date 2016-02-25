@@ -25,7 +25,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, context) {
     desc.fHeight    = kYSize;
 
     SkAutoTUnref<GrTexture> texture(
-        context->textureProvider()->createTexture(desc, false, nullptr, 0));
+        context->textureProvider()->createTexture(desc, SkBudgeted::kYes, nullptr, 0));
     if (!texture) {
         return;
     }

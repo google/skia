@@ -24,7 +24,7 @@ public:
 
     SkCanvas* onNewCanvas() override;
     SkSurface* onNewSurface(const SkImageInfo&) override;
-    SkImage* onNewImageSnapshot(Budgeted, ForceCopyMode) override;
+    SkImage* onNewImageSnapshot(SkBudgeted, ForceCopyMode) override;
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
@@ -118,7 +118,7 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-SkImage* SkSurface_Raster::onNewImageSnapshot(Budgeted, ForceCopyMode forceCopyMode) {
+SkImage* SkSurface_Raster::onNewImageSnapshot(SkBudgeted, ForceCopyMode forceCopyMode) {
     if (fWeOwnThePixels) {
         // SkImage_raster requires these pixels are immutable for its full lifetime.
         // We'll undo this via onRestoreBackingMutability() if we can avoid the COW.
@@ -143,7 +143,7 @@ void SkSurface_Raster::onRestoreBackingMutability() {
 
 void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing pixelrefs with the image?
-    SkAutoTUnref<SkImage> cached(this->refCachedImage(kNo_Budgeted, kNo_ForceUnique));
+    SkAutoTUnref<SkImage> cached(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
     SkASSERT(cached);
     if (SkBitmapImageGetPixelRef(cached) == fBitmap.pixelRef()) {
         SkASSERT(fWeOwnThePixels);

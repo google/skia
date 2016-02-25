@@ -184,7 +184,7 @@ static GrTexture* create_texture(GrContext* context) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    return context->textureProvider()->createTexture(desc, false, srcBM.getPixels(), 0);
+    return context->textureProvider()->createTexture(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, context) {

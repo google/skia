@@ -174,7 +174,7 @@ SkSurface* createGPUSurface(Request* request) {
                                          kN32_SkColorType, kPremul_SkAlphaType);
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    SkSurface* surface = SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0,
+    SkSurface* surface = SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0,
                                                     &props);
     return surface;
 }

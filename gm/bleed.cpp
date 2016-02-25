@@ -236,8 +236,8 @@ bool make_oversized_texture_bitmap(GrContext* ctx, TestPixels* result, int width
     desc.fConfig = config;
     desc.fWidth = width + kXPad;
     desc.fHeight = height + kYPad;
-    SkAutoTUnref<GrTexture> texture(ctx->textureProvider()->createTexture(desc, true, pixels.get(),
-                                                                          rowBytes));
+    SkAutoTUnref<GrTexture> texture(ctx->textureProvider()->createTexture(
+            desc, SkBudgeted::kYes, pixels.get(), rowBytes));
 
     if (!texture) {
         return false;

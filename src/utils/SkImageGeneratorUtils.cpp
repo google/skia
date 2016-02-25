@@ -69,7 +69,7 @@ protected:
         desc.fWidth = subset->width();
         desc.fHeight = subset->height();
 
-        GrTexture* dst = fCtx->textureProvider()->createTexture(desc, false);
+        GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
         fCtx->copySurface(dst, fTexture, *subset, SkIPoint::Make(0, 0));
         return dst;
     }

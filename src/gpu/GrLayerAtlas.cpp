@@ -66,7 +66,7 @@ void GrLayerAtlas::createBackingTexture() {
     desc.fHeight = fBackingTextureSize.height();
     desc.fConfig = fPixelConfig;
 
-    fTexture.reset(fTexProvider->createTexture(desc, true, nullptr, 0));
+    fTexture.reset(fTexProvider->createTexture(desc, SkBudgeted::kYes, nullptr, 0));
 
     fTexture->resourcePriv().setUniqueKey(get_layer_atlas_key());
 }

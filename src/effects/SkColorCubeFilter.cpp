@@ -315,7 +315,7 @@ const GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* con
         context->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!textureCube) {
         textureCube.reset(context->textureProvider()->createTexture(
-            desc, true, fCubeData->data(), 0));
+            desc, SkBudgeted::kYes, fCubeData->data(), 0));
         if (textureCube) {
             context->textureProvider()->assignUniqueKeyToTexture(key, textureCube);
         } else {

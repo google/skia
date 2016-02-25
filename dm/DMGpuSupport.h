@@ -36,7 +36,7 @@ static inline SkSurface* NewGpuSurface(GrContextFactory* grFactory,
                                        bool useDIText) {
     uint32_t flags = useDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    return SkSurface::NewRenderTarget(grFactory->get(type, options), SkSurface::kNo_Budgeted,
+    return SkSurface::NewRenderTarget(grFactory->get(type, options), SkBudgeted::kNo,
                                       info, samples, &props);
 }
 

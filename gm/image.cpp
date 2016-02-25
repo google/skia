@@ -177,7 +177,7 @@ protected:
 
 #if SK_SUPPORT_GPU
         surf2.reset(SkSurface::NewRenderTarget(canvas->getGrContext(),
-                                               SkSurface::kNo_Budgeted, info));
+                                               SkBudgeted::kNo, info));
 #endif
 
         test_surface(canvas, surf0, true);
@@ -262,7 +262,7 @@ static SkImage* make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkC
 
 static SkImage* make_gpu(const SkImageInfo& info, GrContext* ctx, void (*draw)(SkCanvas*)) {
     if (!ctx) { return nullptr; }
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo, info));
     draw(surface->getCanvas());
     return surface->newImageSnapshot();
 }
@@ -487,7 +487,7 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
         // Create a texture image
         [context, render_image]() -> SkImage* {
             SkAutoTUnref<SkSurface> surface(
-                SkSurface::NewRenderTarget(context, SkSurface::kYes_Budgeted,
+                SkSurface::NewRenderTarget(context, SkBudgeted::kYes,
                                            SkImageInfo::MakeN32Premul(kSize, kSize)));
             if (!surface) {
                 return nullptr;

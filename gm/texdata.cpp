@@ -70,7 +70,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
                 desc.fWidth     = 2 * S;
                 desc.fHeight    = 2 * S;
                 GrTexture* texture = ctx->textureProvider()->createTexture(
-                    desc, false, gTextureData.get(), 0);
+                    desc, SkBudgeted::kNo, gTextureData.get(), 0);
 
                 if (!texture) {
                     return;

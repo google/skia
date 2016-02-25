@@ -93,7 +93,7 @@ public:
      *
      * @return    The texture object if successful, otherwise nullptr.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted,
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                              const void* srcData, size_t rowBytes);
 
     /**

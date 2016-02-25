@@ -99,7 +99,7 @@ protected:
             SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
             SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                                  SkSurfaceProps::kLegacyFontHost_InitType);
-            surface.reset(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0,
+            surface.reset(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo, info, 0,
                                                      &props));
             canvas = surface.get() ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix

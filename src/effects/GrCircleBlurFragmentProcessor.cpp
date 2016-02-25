@@ -247,7 +247,7 @@ GrTexture* GrCircleBlurFragmentProcessor::CreateCircleBlurProfileTexture(
     if (!blurProfile) {
         SkAutoTDeleteArray<uint8_t> profile(create_profile(halfWH, sigma));
 
-        blurProfile = textureProvider->createTexture(texDesc, true, profile.get(), 0);
+        blurProfile = textureProvider->createTexture(texDesc, SkBudgeted::kYes, profile.get(), 0);
         if (blurProfile) {
             textureProvider->assignUniqueKeyToTexture(key, blurProfile);
         }

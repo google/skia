@@ -124,7 +124,7 @@ static SkImage* create_codec_image() {
 #if SK_SUPPORT_GPU
 static SkImage* create_gpu_image(GrContext* context) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted,
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, SkBudgeted::kNo,
                                                                info));
     draw_image_test_pattern(surface->getCanvas());
     return surface->newImageSnapshot();
@@ -696,7 +696,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_NewFromTexture, reporter, context) {
     desc.fHeight = h;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fSampleCnt = 0;
-    SkAutoTUnref<GrTexture> tex(provider->createTexture(desc, false, storage, w * 4));
+    SkAutoTUnref<GrTexture> tex(provider->createTexture(desc, SkBudgeted::kNo, storage, w * 4));
     if (!tex) {
         REPORTER_ASSERT(reporter, false);
         return;

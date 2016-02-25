@@ -116,9 +116,9 @@ void gpuToGpu(skiatest::Reporter* reporter, GrContext* context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
     SkAutoTUnref<SkSurface> sourceSurface(
-        SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info));
+        SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info));
     SkAutoTUnref<SkSurface> destinationSurface(
-        SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info));
+        SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info));
 
     runShaderTest(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
@@ -127,7 +127,7 @@ void gpuToRaster(skiatest::Reporter* reporter, GrContext* context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
     SkAutoTUnref<SkSurface> sourceSurface(SkSurface::NewRenderTarget(context,
-        SkSurface::kNo_Budgeted, info));
+        SkBudgeted::kNo, info));
     SkAutoTUnref<SkSurface> destinationSurface(SkSurface::NewRaster(info));
 
     runShaderTest(reporter, sourceSurface.get(), destinationSurface.get(), info);
@@ -138,7 +138,7 @@ void rasterToGpu(skiatest::Reporter* reporter, GrContext* context) {
 
     SkAutoTUnref<SkSurface> sourceSurface(SkSurface::NewRaster(info));
     SkAutoTUnref<SkSurface> destinationSurface(SkSurface::NewRenderTarget(context,
-        SkSurface::kNo_Budgeted, info));
+        SkBudgeted::kNo, info));
 
     runShaderTest(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }

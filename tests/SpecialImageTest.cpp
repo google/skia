@@ -135,7 +135,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, context) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc, false,
+    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc, SkBudgeted::kNo,
                                                                               bm.getPixels(), 0));
     if (!texture) {
         return;
