@@ -29,6 +29,7 @@
         '../tools/debugger/SkOverdrawMode.h',
         '../tools/debugger/SkOverdrawMode.cpp',
         '<!@(python find.py ../tools/skiaserve "*.cpp")',
+        '<!@(python find.py ../tools/skiaserve/urlhandlers "*.cpp")',
       ],
       'dependencies': [
         'flags.gyp:flags',
