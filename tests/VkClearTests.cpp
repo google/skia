@@ -58,7 +58,7 @@ void basic_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelC
     surfDesc.fHeight = 5;
     surfDesc.fConfig = config;
     surfDesc.fSampleCnt = 0;
-    GrTexture* tex = gpu->createTexture(surfDesc, false, nullptr, 0);
+    GrTexture* tex = gpu->createTexture(surfDesc, SkBudgeted::kNo, nullptr, 0);
     SkASSERT(tex);
     SkASSERT(tex->asRenderTarget());
     SkIRect rect = SkIRect::MakeWH(5, 5);
@@ -113,7 +113,7 @@ void sub_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelCon
     surfDesc.fHeight = height;
     surfDesc.fConfig = config;
     surfDesc.fSampleCnt = 0;
-    GrTexture* tex = gpu->createTexture(surfDesc, false, nullptr, 0);
+    GrTexture* tex = gpu->createTexture(surfDesc, SkBudgeted::kNo, nullptr, 0);
     SkASSERT(tex);
     SkASSERT(tex->asRenderTarget());
 
