@@ -147,7 +147,7 @@ SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
     return new SkGpuDevice(rt, width, height, props, flags);
 }
 
-SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgeted,
+SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkBudgeted budgeted,
                                  const SkImageInfo& info, int sampleCount,
                                  const SkSurfaceProps* props, InitContents init,
                                  GrTextureStorageAllocator customAllocator) {
@@ -185,7 +185,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
 }
 
 GrRenderTarget* SkGpuDevice::CreateRenderTarget(
-        GrContext* context, SkSurface::Budgeted budgeted, const SkImageInfo& origInfo,
+        GrContext* context, SkBudgeted budgeted, const SkImageInfo& origInfo,
         int sampleCount, GrTextureStorageAllocator textureStorageAllocator) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
@@ -216,8 +216,7 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
     desc.fTextureStorageAllocator = textureStorageAllocator;
-    GrTexture* texture = context->textureProvider()->createTexture(
-        desc, SkToBool(budgeted), nullptr, 0);
+    GrTexture* texture = context->textureProvider()->createTexture(desc, budgeted, nullptr, 0);
     if (nullptr == texture) {
         return nullptr;
     }
@@ -321,9 +320,7 @@ void SkGpuDevice::clearAll() {
 void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     ASSERT_SINGLE_OWNER
 
-    SkSurface::Budgeted budgeted =
-            fRenderTarget->resourcePriv().isBudgeted() ? SkSurface::kYes_Budgeted
-                                                       : SkSurface::kNo_Budgeted;
+    SkBudgeted budgeted = fRenderTarget->resourcePriv().isBudgeted();
 
     SkAutoTUnref<GrRenderTarget> newRT(CreateRenderTarget(
         this->context(), budgeted, this->imageInfo(), fRenderTarget->desc().fSampleCnt,
@@ -1784,7 +1781,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     if (kNever_TileUsage == cinfo.fTileUsage) {
         texture.reset(fContext->textureProvider()->createApproxTexture(desc));
     } else {
-        texture.reset(fContext->textureProvider()->createTexture(desc, true));
+        texture.reset(fContext->textureProvider()->createTexture(desc, SkBudgeted::kYes));
     }
 
     if (texture) {
@@ -1802,7 +1799,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
     ASSERT_SINGLE_OWNER
     // TODO: Change the signature of newSurface to take a budgeted parameter.
-    static const SkSurface::Budgeted kBudgeted = SkSurface::kNo_Budgeted;
+    static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::NewRenderTarget(fContext, kBudgeted, info, fRenderTarget->desc().fSampleCnt,
                                       &props);
 }

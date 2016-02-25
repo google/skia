@@ -63,7 +63,8 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         }
     }
 
-    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(rtDesc, true));
+    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(rtDesc,
+                                                                           SkBudgeted::kYes));
     if (!copy) {
         return nullptr;
     }

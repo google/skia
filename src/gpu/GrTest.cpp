@@ -74,8 +74,8 @@ void GrContext::getTestTarget(GrTestTarget* tar, GrRenderTarget* rt) {
         desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fSampleCnt = 0;
 
-        SkAutoTUnref<GrTexture> texture(this->textureProvider()->createTexture(desc, false,
-                                                                               nullptr, 0));
+        SkAutoTUnref<GrTexture> texture(this->textureProvider()->createTexture(
+            desc, SkBudgeted::kNo, nullptr, 0));
         if (nullptr == texture) {
             return;
         }

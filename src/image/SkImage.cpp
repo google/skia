@@ -288,8 +288,7 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
     if (GrTexture* tex = pr->getTexture()) {
         SkAutoTUnref<GrTexture> unrefCopy;
         if (!bm.isImmutable()) {
-            const bool notBudgeted = false;
-            tex = GrDeepCopyTexture(tex, notBudgeted);
+            tex = GrDeepCopyTexture(tex, SkBudgeted::kNo);
             if (nullptr == tex) {
                 return nullptr;
             }
@@ -297,7 +296,7 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
         }
         const SkImageInfo info = bm.info();
         return new SkImage_Gpu(info.width(), info.height(), bm.getGenerationID(), info.alphaType(),
-                               tex, SkSurface::kNo_Budgeted);
+                               tex, SkBudgeted::kNo);
     }
 #endif
 

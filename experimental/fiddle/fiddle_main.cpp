@@ -112,7 +112,7 @@ int main() {
             SkAutoTUnref<SkSurface> surface(
                     SkSurface::NewRenderTarget(
                             grContext,
-                            SkSurface::kNo_Budgeted,
+                            SkBudgeted::kNo,
                             SkImageInfo::MakeN32Premul(options.size)));
             if (!surface) {
                 fputs("Unable to get render surface.\n", stderr);

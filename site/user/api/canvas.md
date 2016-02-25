@@ -90,7 +90,7 @@ example, we use a `GrContextFactory` to create a context.
         GrContext* context = grFactory.get(GrContextFactory::kNative_GLContextType);
         SkImageInfo info = SkImageInfo:: MakeN32Premul(width, height);
         SkAutoTUnref<SkSurface> gpuSurface(
-                SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info));
+                SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info));
         if (!gpuSurface) {
             SkDebugf("SkSurface::NewRenderTarget returned null\n");
             return;

@@ -109,7 +109,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, context) 
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkAutoTUnref<SkBaseDevice> device(
-        SkGpuDevice::Create(context, SkSurface::kNo_Budgeted, info, 0, &props,
+        SkGpuDevice::Create(context, SkBudgeted::kNo, info, 0, &props,
                             SkGpuDevice::kUninit_InitContents));
     test_premul_alpha_roundtrip(reporter, device);
 }

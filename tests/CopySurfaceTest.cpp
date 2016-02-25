@@ -68,11 +68,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, context) {
                             dstDesc.fFlags = dFlags;
 
                             SkAutoTUnref<GrTexture> src(
-                                context->textureProvider()->createTexture(srcDesc, false,
+                                context->textureProvider()->createTexture(srcDesc, SkBudgeted::kNo,
                                                                           srcPixels.get(),
                                                                           kRowBytes));
                             SkAutoTUnref<GrTexture> dst(
-                                context->textureProvider()->createTexture(dstDesc, false,
+                                context->textureProvider()->createTexture(dstDesc, SkBudgeted::kNo,
                                                                           dstPixels.get(),
                                                                           kRowBytes));
                             if (!src || !dst) {

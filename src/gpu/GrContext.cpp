@@ -423,7 +423,8 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         }
         SkAutoTUnref<GrTexture> temp;
         if (tempDrawInfo.fUseExactScratch) {
-            temp.reset(this->textureProvider()->createTexture(tempDrawInfo.fTempSurfaceDesc, true));
+            temp.reset(this->textureProvider()->createTexture(tempDrawInfo.fTempSurfaceDesc,
+                                                              SkBudgeted::kYes));
         } else {
             temp.reset(this->textureProvider()->createApproxTexture(tempDrawInfo.fTempSurfaceDesc));
         }

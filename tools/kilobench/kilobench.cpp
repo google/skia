@@ -193,7 +193,7 @@ struct GPUTarget {
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
         fSurface.reset(SkSurface::NewRenderTarget(context,
-                                                  SkSurface::kNo_Budgeted, info,
+                                                  SkBudgeted::kNo, info,
                                                   numSamples, &props));
         fGL = factory->getContextInfo(ctxType, ctxOptions).fGLContext;
         if (!fSurface.get()) {

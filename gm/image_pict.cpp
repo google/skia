@@ -211,7 +211,7 @@ public:
         : SkImageGenerator(info)
         , fCtx(SkRef(ctx))
     {
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted,
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo,
                                                                    info, 0));
         surface->getCanvas()->clear(0);
         surface->getCanvas()->translate(-100, -100);
@@ -233,7 +233,7 @@ protected:
         desc.fWidth = subset->width();
         desc.fHeight = subset->height();
 
-        GrTexture* dst = fCtx->textureProvider()->createTexture(desc, false);
+        GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
         fCtx->copySurface(dst, fTexture, *subset, SkIPoint::Make(0, 0));
         return dst;
     }
@@ -326,7 +326,7 @@ protected:
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
         SkAutoTUnref<SkImage> image(new SkImage_Gpu(cache->info().width(), cache->info().height(),
                                                     cache->uniqueID(), kPremul_SkAlphaType, texture,
-                                                    SkSurface::kNo_Budgeted));
+                                                    SkBudgeted::kNo));
         canvas->drawImage(image, x, y);
 #endif
     }

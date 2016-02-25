@@ -37,7 +37,7 @@ static SkImage* make_texture(GrContext* ctx, const SkPicture* pic, const SkImage
     if (!ctx) {
         return nullptr;
     }
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted,
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo,
                                                                info, 0));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);

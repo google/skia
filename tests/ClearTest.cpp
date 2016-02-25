@@ -55,7 +55,7 @@ static bool reset_dc(SkAutoTUnref<GrDrawContext>* dc, SkAutoTUnref<GrSurface>* r
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
-    rtKeepAlive->reset(context->textureProvider()->createTexture(desc, true));
+    rtKeepAlive->reset(context->textureProvider()->createTexture(desc, SkBudgeted::kYes));
     if (!(*rtKeepAlive)) {
         return false;
     }

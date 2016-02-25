@@ -203,7 +203,8 @@ void GrTextureStripAtlas::lockTexture() {
 
     fTexture = fDesc.fContext->textureProvider()->findAndRefTextureByUniqueKey(key);
     if (nullptr == fTexture) {
-        fTexture = fDesc.fContext->textureProvider()->createTexture(texDesc, true, nullptr, 0);
+        fTexture = fDesc.fContext->textureProvider()->createTexture(texDesc, SkBudgeted::kYes,
+                                                                    nullptr, 0);
         if (!fTexture) {
             return;
         }

@@ -1329,7 +1329,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(ImageFilterCropRect_Gpu, reporter, context) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
-                                                         SkSurface::kNo_Budgeted,
+                                                         SkBudgeted::kNo,
                                                          SkImageInfo::MakeN32Premul(100, 100),
                                                          0,
                                                          &props,
@@ -1343,7 +1343,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(HugeBlurImageFilter_Gpu, reporter, context) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
-                                                         SkSurface::kNo_Budgeted,
+                                                         SkBudgeted::kNo,
                                                          SkImageInfo::MakeN32Premul(100, 100),
                                                          0,
                                                          &props,
@@ -1357,7 +1357,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(XfermodeImageFilterCroppedInput_Gpu, reporter, co
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
-                                                         SkSurface::kNo_Budgeted,
+                                                         SkBudgeted::kNo,
                                                          SkImageInfo::MakeN32Premul(1, 1),
                                                          0,
                                                          &props,
@@ -1371,7 +1371,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestNegativeBlurSigma_Gpu, reporter, context) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
-                                                         SkSurface::kNo_Budgeted,
+                                                         SkBudgeted::kNo,
                                                          SkImageInfo::MakeN32Premul(1, 1),
                                                          0,
                                                          &props,
@@ -1383,7 +1383,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestNegativeBlurSigma_Gpu, reporter, context) {
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(BlurLargeImage_Gpu, reporter, context) {
     SkAutoTUnref<SkSurface> surface(
-        SkSurface::NewRenderTarget(context, SkSurface::kYes_Budgeted,
+        SkSurface::NewRenderTarget(context, SkBudgeted::kYes,
                                    SkImageInfo::MakeN32Premul(100, 100)));
     test_large_blur_input(reporter, surface->getCanvas());
 }

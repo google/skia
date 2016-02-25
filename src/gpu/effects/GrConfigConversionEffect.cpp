@@ -176,16 +176,19 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> readTex(context->textureProvider()->createTexture(desc, true, nullptr, 0));
+    SkAutoTUnref<GrTexture> readTex(context->textureProvider()->createTexture(
+        desc, SkBudgeted::kYes, nullptr, 0));
     if (!readTex.get()) {
         return;
     }
-    SkAutoTUnref<GrTexture> tempTex(context->textureProvider()->createTexture(desc, true, nullptr, 0));
+    SkAutoTUnref<GrTexture> tempTex(context->textureProvider()->createTexture(
+        desc, SkBudgeted::kYes, nullptr, 0));
     if (!tempTex.get()) {
         return;
     }
     desc.fFlags = kNone_GrSurfaceFlags;
-    SkAutoTUnref<GrTexture> dataTex(context->textureProvider()->createTexture(desc, true, data, 0));
+    SkAutoTUnref<GrTexture> dataTex(context->textureProvider()->createTexture(
+        desc, SkBudgeted::kYes, data, 0));
     if (!dataTex.get()) {
         return;
     }

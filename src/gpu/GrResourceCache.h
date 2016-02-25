@@ -220,7 +220,7 @@ public:
             if (resource->cacheAccess().isAdopted()) {
                 ++fAdopted;
             }
-            if (!resource->resourcePriv().isBudgeted()) {
+            if (SkBudgeted::kNo  == resource->resourcePriv().isBudgeted()) {
                 fUnbudgetedSize += resource->gpuMemorySize();
             }
         }

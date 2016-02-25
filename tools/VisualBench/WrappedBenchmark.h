@@ -105,7 +105,7 @@ public:
 private:
     void setupOffScreen(SkCanvas* canvas) override {
         fOffScreen.reset(SkSurface::NewRenderTarget(canvas->getGrContext(),
-                                                    SkSurface::kNo_Budgeted,
+                                                    SkBudgeted::kNo,
                                                     canvas->imageInfo(),
                                                     fNumSamples,
                                                     &this->surfaceProps()));

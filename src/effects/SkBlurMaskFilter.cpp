@@ -794,7 +794,7 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
     if (!blurProfile) {
         SkAutoTDeleteArray<uint8_t> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
-        blurProfile = textureProvider->createTexture(texDesc, true, profile.get(), 0);
+        blurProfile = textureProvider->createTexture(texDesc, SkBudgeted::kYes, profile.get(), 0);
         if (blurProfile) {
             textureProvider->assignUniqueKeyToTexture(key, blurProfile);
         }
@@ -999,7 +999,7 @@ const GrFragmentProcessor* GrRRectBlurEffect::Create(GrTextureProvider* texProvi
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
         blurNinePatchTexture.reset(
-            texProvider->createTexture(texDesc, true, blurredMask.fImage, 0));
+            texProvider->createTexture(texDesc, SkBudgeted::kYes , blurredMask.fImage, 0));
         SkMask::FreeImage(blurredMask.fImage);
         if (!blurNinePatchTexture) {
             return nullptr;

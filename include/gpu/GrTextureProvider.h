@@ -29,11 +29,11 @@ public:
      *                  implies tightly packed rows. For compressed pixel configs, this
      *                  field is ignored.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* srcData,
                              size_t rowBytes);
 
     /** Shortcut for creating a texture with no initial data to upload. */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted) {
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
         return this->createTexture(desc, budgeted, NULL, 0);
     }
 
@@ -73,7 +73,7 @@ public:
         if (kApprox_ScratchTexMatch == match) {
             return this->createApproxTexture(desc);
         } else {
-            return this->createTexture(desc, true);
+            return this->createTexture(desc, SkBudgeted::kYes);
         }
     }
 
