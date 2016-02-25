@@ -102,7 +102,7 @@ public:
     GrTexture* wrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership);
 
     /**
-     * Implements GrTextureProvider::wrapBackendTexture
+     * Implements GrTextureProvider::wrapBackendRenderTarget
      */
     GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc&, GrWrapOwnership);
 
