@@ -1192,6 +1192,9 @@ int dm_main() {
     parallel.wait();
     gDefinitelyThreadSafeWork.wait();
 
+    // We'd better have run everything.
+    SkASSERT(gPending == 0);
+
     // At this point we're back in single-threaded land.
     sk_tool_utils::release_portable_typefaces();
 
