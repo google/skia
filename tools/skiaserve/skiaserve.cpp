@@ -9,6 +9,7 @@
 #include "GrContextFactory.h"
 
 #include "Request.h"
+#include "Response.h"
 
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
@@ -19,36 +20,14 @@
 #include <sys/socket.h>
 #include <microhttpd.h>
 
+using namespace Response;
+
 // To get image decoders linked in we have to do the below magic
 #include "SkForceLinking.h"
 #include "SkImageDecoder.h"
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-DEFINE_string(source, "https://debugger.skia.org", "Where to load the web UI from.");
 DEFINE_int32(port, 8888, "The port to listen on.");
-
-SkString generateTemplate(SkString source) {
-    SkString debuggerTemplate;
-    debuggerTemplate.appendf(
-        "<!DOCTYPE html>\n"
-        "<html>\n"
-        "<head>\n"
-        "    <title>SkDebugger</title>\n"
-        "    <meta charset=\"utf-8\" />\n"
-        "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=egde,chrome=1\">\n"
-        "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-        "    <script src=\"%s/res/js/core.js\" type=\"text/javascript\" charset=\"utf-8\"></script>\n"
-        "    <link href=\"%s/res/vul/elements.html\" rel=\"import\" />\n"
-        "    <link rel='shortcut icon' href='https://debugger.skia.org/res/img/favicon.ico' type='image/x-icon'/ >"
-        "</head>\n"
-        "<body class=\"fullbleed layout vertical\">\n"
-            "  <debugger-app-sk>This is the app."
-            "  </debugger-app-sk>\n"
-        "</body>\n"
-        "</html>", source.c_str(), source.c_str());
-    return debuggerTemplate;
-
-}
 
 static const size_t kBufferSize = 1024;
 
@@ -62,78 +41,6 @@ static int process_upload_data(void* cls, enum MHD_ValueKind kind,
         uc->fStream.write(data, size);
     }
     return MHD_YES;
-}
-
-// SendOK just sends an empty response with a 200 OK status code.
-static int SendOK(MHD_Connection* connection) {
-    const char* data = "";
-
-    MHD_Response* response = MHD_create_response_from_buffer(strlen(data),
-                                                             (void*)data,
-                                                             MHD_RESPMEM_PERSISTENT);
-    int ret = MHD_queue_response(connection, 200, response);
-    MHD_destroy_response(response);
-    return ret;
-}
-
-static int SendError(MHD_Connection* connection, const char* msg) {
-    MHD_Response* response = MHD_create_response_from_buffer(strlen(msg),
-                                                             (void*) msg,
-                                                             MHD_RESPMEM_PERSISTENT);
-    int ret = MHD_queue_response(connection, 500, response);
-    MHD_destroy_response(response);
-    return ret;
-}
-
-static int SendData(MHD_Connection* connection, const SkData* data, const char* type,
-                    bool setContentDisposition = false, const char* dispositionString = nullptr) {
-    MHD_Response* response = MHD_create_response_from_buffer(data->size(),
-                                                             const_cast<void*>(data->data()),
-                                                             MHD_RESPMEM_MUST_COPY);
-    MHD_add_response_header(response, "Content-Type", type);
-
-    if (setContentDisposition) {
-        MHD_add_response_header(response, "Content-Disposition", dispositionString);
-    }
-
-    int ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
-    MHD_destroy_response(response);
-    return ret;
-}
-
-static int SendJSON(MHD_Connection* connection, Request* request, int n) {
-    SkCanvas* canvas = request->getCanvas();
-    SkDebugCanvas* debugCanvas = request->fDebugCanvas;
-    UrlDataManager* urlDataManager = &request->fUrlDataManager;
-    Json::Value root = debugCanvas->toJSON(*urlDataManager, n, canvas);
-    root["mode"] = Json::Value(request->fGPUEnabled ? "gpu" : "cpu");
-    SkDynamicMemoryWStream stream;
-    stream.writeText(Json::FastWriter().write(root).c_str());
-
-    SkAutoTUnref<SkData> data(stream.copyToData());
-    return SendData(connection, data, "application/json");
-}
-
-static int SendTemplate(MHD_Connection* connection, bool redirect = false,
-                        const char* redirectUrl = nullptr) {
-    SkString debuggerTemplate = generateTemplate(SkString(FLAGS_source[0]));
-
-    MHD_Response* response = MHD_create_response_from_buffer(
-        debuggerTemplate.size(),
-        (void*) const_cast<char*>(debuggerTemplate.c_str()),
-        MHD_RESPMEM_MUST_COPY);
-    MHD_add_response_header (response, "Access-Control-Allow-Origin", "*");
-
-    int status = MHD_HTTP_OK;
-
-    if (redirect) {
-        MHD_add_response_header (response, "Location", redirectUrl);
-        status = MHD_HTTP_SEE_OTHER;
-    }
-
-    int ret = MHD_queue_response(connection, status, response);
-    MHD_destroy_response(response);
-    return ret;
 }
 
 class UrlHandler {
