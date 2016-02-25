@@ -124,8 +124,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool doReplace
         desc.fHeight = kHeight;
         desc.fSampleCnt = 0;
 
-        texture.reset(context->textureProvider()->createTexture(
-                desc, SkBudgeted::kNo, nullptr, 0));
+        texture.reset(context->textureProvider()->createTexture(desc, false, nullptr, 0));
         layer->setTexture(texture, SkIRect::MakeWH(kWidth, kHeight), false);
     }
 

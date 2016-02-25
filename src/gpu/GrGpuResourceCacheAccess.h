@@ -27,7 +27,7 @@ private:
      */
     bool isScratch() const {
         return !fResource->getUniqueKey().isValid() && fResource->fScratchKey.isValid() &&
-                SkBudgeted::kYes == fResource->resourcePriv().isBudgeted();
+                fResource->resourcePriv().isBudgeted();
     }
 
     /**

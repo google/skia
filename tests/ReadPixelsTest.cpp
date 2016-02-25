@@ -396,7 +396,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, context) {
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
         SkAutoTUnref<GrTexture> surfaceTexture(
-            context->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+            context->textureProvider()->createTexture(desc, false));
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(surfaceTexture->asRenderTarget()));
         desc.fFlags = kNone_GrSurfaceFlags;
         test_readpixels(reporter, surface, kLast_BitmapInit);
@@ -452,7 +452,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, context) {
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
         desc.fFlags = kNone_GrSurfaceFlags;
-        texture.reset(context->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+        texture.reset(context->textureProvider()->createTexture(desc, false));
         test_readpixels_texture(reporter, texture);
     }
 }
@@ -603,8 +603,8 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(ReadPixels_Subset_Gpu, reporter, context) {
 
     // do they draw the same?
     const SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    SkAutoTUnref<SkSurface> surfA(SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0));
-    SkAutoTUnref<SkSurface> surfB(SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0));
+    SkAutoTUnref<SkSurface> surfA(SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
+    SkAutoTUnref<SkSurface> surfB(SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
 
     if (false) {
         //

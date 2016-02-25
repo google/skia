@@ -54,7 +54,7 @@ static SkSurface* create_gpu_surface(GrContext* context, SkAlphaType at = kPremu
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
+    return SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0, nullptr);
 }
 static SkSurface* create_gpu_scratch_surface(GrContext* context,
                                              SkAlphaType at = kPremul_SkAlphaType,
@@ -63,7 +63,7 @@ static SkSurface* create_gpu_scratch_surface(GrContext* context,
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::NewRenderTarget(context, SkBudgeted::kYes, info, 0, nullptr);
+    return SkSurface::NewRenderTarget(context, SkSurface::kYes_Budgeted, info, 0, nullptr);
 }
 #endif
 
@@ -77,7 +77,7 @@ DEF_TEST(SurfaceEmpty, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceEmpty_Gpu, reporter, context) {
     const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
     REPORTER_ASSERT(reporter, nullptr ==
-                    SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr));
+                    SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0, nullptr));
 }
 #endif
 
@@ -340,7 +340,7 @@ static void test_unique_image_snap(skiatest::Reporter* reporter, SkSurface* surf
                                    std::function<intptr_t(SkSurface*)> surfaceBackingStore) {
     std::function<intptr_t(SkImage*)> ibs = imageBackingStore;
     std::function<intptr_t(SkSurface*)> sbs = surfaceBackingStore;
-    static const SkBudgeted kB = SkBudgeted::kNo;
+    static const SkSurface::Budgeted kB = SkSurface::kNo_Budgeted;
     {
         SkAutoTUnref<SkImage> image(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
         REPORTER_ASSERT(reporter, !same_image_surf(image, surface, ibs, sbs));
@@ -699,18 +699,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceGetTexture_Gpu, reporter, context) {
 #include "SkImage_Gpu.h"
 #include "SkSurface_Gpu.h"
 
-static SkBudgeted is_budgeted(SkSurface* surf) {
-    return ((SkSurface_Gpu*)surf)->getDevice()->accessRenderTarget()->resourcePriv().isBudgeted();
+static SkSurface::Budgeted is_budgeted(SkSurface* surf) {
+    return ((SkSurface_Gpu*)surf)->getDevice()->accessRenderTarget()->resourcePriv().isBudgeted() ?
+        SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
 }
 
-static SkBudgeted is_budgeted(SkImage* image) {
-    return ((SkImage_Gpu*)image)->getTexture()->resourcePriv().isBudgeted();
+static SkSurface::Budgeted is_budgeted(SkImage* image) {
+    return ((SkImage_Gpu*)image)->getTexture()->resourcePriv().isBudgeted() ?
+        SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBudget, reporter, context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8,8);
-    for (auto sbudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
-        for (auto ibudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
+    for (int i = 0; i < 2; ++i) {
+        SkSurface::Budgeted sbudgeted = i ? SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
+        for (int j = 0; j < 2; ++j) {
+            SkSurface::Budgeted ibudgeted = j ? SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
             SkAutoTUnref<SkSurface>
                 surface(SkSurface::NewRenderTarget(context, sbudgeted, info, 0));
             SkASSERT(surface);

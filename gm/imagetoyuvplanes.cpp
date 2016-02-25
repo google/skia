@@ -16,7 +16,7 @@ static SkImage* create_image(GrContext* context, int width, int height) {
     SkAutoTUnref<SkSurface> surface;
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
     if (context) {
-        surface.reset(SkSurface::NewRenderTarget(context,  SkBudgeted::kYes, info, 0));
+        surface.reset(SkSurface::NewRenderTarget(context,  SkSurface::kYes_Budgeted, info, 0));
     } else {
         surface.reset(SkSurface::NewRaster(info));
     }

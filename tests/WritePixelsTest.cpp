@@ -413,8 +413,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, context) {
         desc.fHeight = DEV_H;
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
-        SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
-                                                                                  SkBudgeted::kNo));
+        SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc, false));
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(texture->asRenderTarget()));
         test_write_pixels(reporter, surface);
     }

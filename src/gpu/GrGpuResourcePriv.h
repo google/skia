@@ -44,10 +44,10 @@ public:
     /**
      * Does the resource count against the resource budget?
      */
-    SkBudgeted isBudgeted() const {
+    bool isBudgeted() const {
         bool ret = GrGpuResource::kCached_LifeCycle == fResource->fLifeCycle;
         SkASSERT(ret || !fResource->getUniqueKey().isValid());
-        return SkBudgeted(ret);
+        return ret;
     }
 
     /** 

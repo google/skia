@@ -1146,8 +1146,7 @@ static void draw_filter_into_device(SkBaseDevice* src, const SkImageFilter* filt
         // TODO: we should actually only copy the portion of the source needed to apply the image
         // filter
         GrContext* context = srcRT->getContext();
-        SkAutoTUnref<GrTexture> tex(context->textureProvider()->createTexture(srcRT->desc(),
-                                                                              SkBudgeted::kYes));
+        SkAutoTUnref<GrTexture> tex(context->textureProvider()->createTexture(srcRT->desc(), true));
 
         context->copySurface(tex, srcRT);
 

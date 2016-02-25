@@ -68,12 +68,12 @@ DEF_TEST(ImageIsOpaqueTest, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, context) {
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
     SkAutoTUnref<SkSurface> surfaceTransparent(
-        SkSurface::NewRenderTarget(context, SkBudgeted::kNo, infoTransparent));
+        SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, infoTransparent));
     check_isopaque(reporter, surfaceTransparent, false);
 
     SkImageInfo infoOpaque = SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType);
     SkAutoTUnref<SkSurface> surfaceOpaque(
-        SkSurface::NewRenderTarget(context,SkBudgeted::kNo, infoOpaque));
+        SkSurface::NewRenderTarget(context,SkSurface::kNo_Budgeted, infoOpaque));
 
     check_isopaque(reporter, surfaceOpaque, true);
 }

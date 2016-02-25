@@ -82,7 +82,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuDrawPath, reporter, context) {
         for (auto& sampleCount : {0, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
             SkAutoTUnref<SkSurface> surface(
-                SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info,
+                SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info,
                                            sampleCount, nullptr));
             if (!surface) {
                 continue;

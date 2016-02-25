@@ -439,17 +439,6 @@ template <typename T> static inline const T& SkTPin(const T& value, const T& min
     return SkTMax(SkTMin(value, max), min);
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  Indicates whether an allocation should count against a cache budget.
- */
-enum class SkBudgeted : bool {
-    kNo  = false,
-    kYes = true
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /** Use to combine multiple bits in a bitmask in a type safe way.

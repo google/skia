@@ -212,7 +212,7 @@ static GrTexture* load_etc1_texture(GrContext* ctx, const SkBitmap &bm, GrSurfac
         return nullptr;
     }
 
-    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, startOfTexData, 0);
+    return ctx->textureProvider()->createTexture(desc, true, startOfTexData, 0);
 }
 
 GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bmp) {
@@ -233,7 +233,7 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bmp) {
 
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
-            return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, storage.get(),
+            return ctx->textureProvider()->createTexture(desc, true, storage.get(),
                                                          bitmap->width());
         } else {
             bmp.copyTo(&tmpBitmap, kN32_SkColorType);
@@ -265,7 +265,7 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bmp) {
         return nullptr;
     }
 
-    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, bitmap->getPixels(),
+    return ctx->textureProvider()->createTexture(desc, true, bitmap->getPixels(),
                                                  bitmap->rowBytes());
 }
 

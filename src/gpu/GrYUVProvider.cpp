@@ -98,7 +98,7 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
         bool needsExactTexture = (yuvDesc.fWidth  != yuvInfo.fSize[0].fWidth) ||
                                  (yuvDesc.fHeight != yuvInfo.fSize[0].fHeight);
         if (needsExactTexture) {
-            yuvTextures[i].reset(ctx->textureProvider()->createTexture(yuvDesc, SkBudgeted::kYes));
+            yuvTextures[i].reset(ctx->textureProvider()->createTexture(yuvDesc, true));
         } else {
             yuvTextures[i].reset(ctx->textureProvider()->createApproxTexture(yuvDesc));
         }
@@ -112,8 +112,7 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
     GrSurfaceDesc rtDesc = desc;
     rtDesc.fFlags = rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
 
-    SkAutoTUnref<GrTexture> result(ctx->textureProvider()->createTexture(rtDesc, SkBudgeted::kYes,
-                                                                         nullptr, 0));
+    SkAutoTUnref<GrTexture> result(ctx->textureProvider()->createTexture(rtDesc, true, nullptr, 0));
     if (!result) {
         return nullptr;
     }

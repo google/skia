@@ -46,7 +46,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fOrigin = 0 == origin ?
             kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
         SkAutoTUnref<GrTexture> fpTexture(context->textureProvider()->createTexture(
-            desc, SkBudgeted::kNo, controlPixelData.begin(), 0));
+            desc, false, controlPixelData.begin(), 0));
         // Floating point textures are NOT supported everywhere
         if (nullptr == fpTexture) {
             continue;

@@ -56,6 +56,6 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* textureImage);
 // surface needs to perform a copy-on-write
 extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
 
-GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted);
+GrTexture* GrDeepCopyTexture(GrTexture* src, bool isBudgeted);
 
 #endif

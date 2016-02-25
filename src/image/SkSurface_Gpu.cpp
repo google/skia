@@ -72,12 +72,12 @@ SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     int sampleCount = rt->numColorSamples();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
-    static const SkBudgeted kBudgeted = SkBudgeted::kNo;
+    static const Budgeted kBudgeted = kNo_Budgeted;
     return SkSurface::NewRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
                                       &this->props());
 }
 
-SkImage* SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyMode forceCopyMode) {
+SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted, ForceCopyMode forceCopyMode) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     SkASSERT(rt);
     GrTexture* tex = rt->asTexture();
@@ -87,7 +87,7 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyMode fo
         GrSurfaceDesc desc = fDevice->accessRenderTarget()->desc();
         GrContext* ctx = fDevice->context();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
-        copy.reset(ctx->textureProvider()->createTexture(desc, budgeted));
+        copy.reset(ctx->textureProvider()->createTexture(desc, kYes_Budgeted == budgeted));
         if (!copy) {
             return nullptr;
         }
@@ -112,7 +112,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
-    SkAutoTUnref<SkImage> image(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
+    SkAutoTUnref<SkImage> image(this->refCachedImage(kNo_Budgeted, kNo_ForceUnique));
     SkASSERT(image);
     if (rt->asTexture() == as_IB(image)->getTexture()) {
         this->fDevice->replaceRenderTarget(SkSurface::kRetain_ContentChangeMode == mode);
@@ -141,7 +141,7 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurf
     return new SkSurface_Gpu(device);
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, SkBudgeted budgeted, const SkImageInfo& info,
+SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const SkImageInfo& info,
                                       int sampleCount, const SkSurfaceProps* props,
                                       GrTextureStorageAllocator customAllocator) {
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(

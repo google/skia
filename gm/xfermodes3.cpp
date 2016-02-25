@@ -128,7 +128,7 @@ private:
         SkImageInfo baseInfo = baseCanvas->imageInfo();
         SkImageInfo info = SkImageInfo::Make(w, h, baseInfo.colorType(), baseInfo.alphaType(),
                                              baseInfo.profileType());
-        return SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
+        return SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0, nullptr);
 #else
         return nullptr;
 #endif

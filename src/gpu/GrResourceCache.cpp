@@ -136,7 +136,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     fHighWaterCount = SkTMax(this->getResourceCount(), fHighWaterCount);
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
-    if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+    if (resource->resourcePriv().isBudgeted()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
         TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
@@ -167,7 +167,7 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
     size_t size = resource->gpuMemorySize();
     SkDEBUGCODE(--fCount;)
     fBytes -= size;
-    if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+    if (resource->resourcePriv().isBudgeted()) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
         TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
@@ -375,7 +375,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
 
-    if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
+    if (!resource->resourcePriv().isBudgeted()) {
         // Check whether this resource could still be used as a scratch resource.
         if (!resource->cacheAccess().isExternal() &&
             resource->resourcePriv().getScratchKey().isValid()) {
@@ -414,7 +414,7 @@ void GrResourceCache::didChangeGpuMemorySize(const GrGpuResource* resource, size
 #if GR_CACHE_STATS
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
-    if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+    if (resource->resourcePriv().isBudgeted()) {
         fBudgetedBytes += delta;
         TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
                        fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
@@ -433,7 +433,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 
     size_t size = resource->gpuMemorySize();
 
-    if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+    if (resource->resourcePriv().isBudgeted()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
 #if GR_CACHE_STATS
@@ -664,7 +664,7 @@ void GrResourceCache::validate() const {
                 SkASSERT(fScratchMap->countForKey(resource->resourcePriv().getScratchKey()));
                 SkASSERT(!resource->cacheAccess().isExternal());
             } else if (resource->resourcePriv().getScratchKey().isValid()) {
-                SkASSERT(SkBudgeted::kNo == resource->resourcePriv().isBudgeted() ||
+                SkASSERT(!resource->resourcePriv().isBudgeted() ||
                          resource->getUniqueKey().isValid());
                 ++fCouldBeScratch;
                 SkASSERT(fScratchMap->countForKey(resource->resourcePriv().getScratchKey()));
@@ -675,10 +675,10 @@ void GrResourceCache::validate() const {
                 ++fContent;
                 SkASSERT(fUniqueHash->find(uniqueKey) == resource);
                 SkASSERT(!resource->cacheAccess().isExternal());
-                SkASSERT(SkBudgeted::kYes == resource->resourcePriv().isBudgeted());
+                SkASSERT(resource->resourcePriv().isBudgeted());
             }
 
-            if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+            if (resource->resourcePriv().isBudgeted()) {
                 ++fBudgetedCount;
                 fBudgetedBytes += resource->gpuMemorySize();
             }

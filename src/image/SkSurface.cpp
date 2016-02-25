@@ -79,7 +79,7 @@ SkSurface_Base::~SkSurface_Base() {
 }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkImage* image = this->newImageSnapshot(SkBudgeted::kYes);
+    SkImage* image = this->newImageSnapshot(kYes_Budgeted);
     if (image) {
         canvas->drawImage(image, x, y, paint);
         image->unref();
@@ -163,12 +163,12 @@ SkCanvas* SkSurface::getCanvas() {
     return asSB(this)->getCachedCanvas();
 }
 
-SkImage* SkSurface::newImageSnapshot(SkBudgeted budgeted) {
+SkImage* SkSurface::newImageSnapshot(Budgeted budgeted) {
     // the caller will call unref() to balance this
     return asSB(this)->refCachedImage(budgeted, kNo_ForceUnique);
 }
 
-SkImage* SkSurface::newImageSnapshot(SkBudgeted budgeted, ForceUnique unique) {
+SkImage* SkSurface::newImageSnapshot(Budgeted budgeted, ForceUnique unique) {
     // the caller will call unref() to balance this
     return asSB(this)->refCachedImage(budgeted, unique);
 }
@@ -211,7 +211,7 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProp
     return nullptr;
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&, int,
+SkSurface* SkSurface::NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, int,
                                       const SkSurfaceProps*, GrTextureStorageAllocator) {
     return nullptr;
 }

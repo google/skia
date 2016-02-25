@@ -161,8 +161,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, context) {
     desc.fConfig = kSRGBA_8888_GrPixelConfig;
     if (context->caps()->isConfigRenderable(desc.fConfig, false) &&
         context->caps()->isConfigTexturable(desc.fConfig)) {
-        SkAutoTUnref<GrTexture> tex(context->textureProvider()->createTexture(
-                desc, SkBudgeted::kNo));
+        SkAutoTUnref<GrTexture> tex(context->textureProvider()->createTexture(desc, false));
         if (!tex) {
             ERRORF(reporter, "Could not create SRGBA texture.");
             return;
@@ -201,7 +200,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, context) {
         }
 
         desc.fConfig = kRGBA_8888_GrPixelConfig;
-        tex.reset(context->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+        tex.reset(context->textureProvider()->createTexture(desc, false));
         if (!tex) {
             ERRORF(reporter, "Could not create RGBA texture.");
             return;

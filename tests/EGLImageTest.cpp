@@ -73,8 +73,7 @@ static void test_copy_surface(skiatest::Reporter* reporter, GrContext* context,
     copyDesc.fWidth = externalTexture->width();
     copyDesc.fHeight = externalTexture->height();
     copyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(
-            copyDesc, SkBudgeted::kYes));
+    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(copyDesc, true));
     context->copySurface(copy, externalTexture);
     test_read_pixels(reporter, context, copy, expectedPixelValues);
 }

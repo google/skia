@@ -2197,7 +2197,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
         desc.fConfig = rtConfig;
         desc.fWidth = desc.fHeight = 16;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        SkAutoTUnref<GrTexture> temp(this->createTexture(desc, SkBudgeted::kNo, nullptr, 0));
+        SkAutoTUnref<GrTexture> temp(this->createTexture(desc, false, nullptr, 0));
         if (!temp) {
             return false;
         }

@@ -26,10 +26,8 @@ DEF_GPUTEST_FOR_NULL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, context)
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fSampleCnt = 0;
-    GrSurface* texRT1 = context->textureProvider()->createTexture(
-        desc, SkBudgeted::kNo, nullptr, 0);
-    GrSurface* texRT2 = context->textureProvider()->createTexture(
-        desc, SkBudgeted::kNo, nullptr, 0);
+    GrSurface* texRT1 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+    GrSurface* texRT2 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
     REPORTER_ASSERT(reporter, nullptr != texRT1);
     REPORTER_ASSERT(reporter, nullptr != texRT2);
     GrTexture* tex = texRT1->asTexture();

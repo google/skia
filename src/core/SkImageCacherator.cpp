@@ -203,7 +203,7 @@ static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrS
     }
 
     desc.fConfig = config;
-    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, rawStart, 0);
+    return ctx->textureProvider()->createTexture(desc, true, rawStart, 0);
 }
 
 class Generator_GrYUVProvider : public GrYUVProvider {

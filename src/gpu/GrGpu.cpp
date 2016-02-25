@@ -88,7 +88,7 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
     }
 }
 
-GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
+GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
                                 const void* srcData, size_t rowBytes) {
     GrSurfaceDesc desc = origDesc;
 
@@ -120,9 +120,8 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
         }
     }
 
-    GrGpuResource::LifeCycle lifeCycle = SkBudgeted::kYes == budgeted ?
-                                            GrGpuResource::kCached_LifeCycle :
-                                            GrGpuResource::kUncached_LifeCycle;
+    GrGpuResource::LifeCycle lifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
+                                                    GrGpuResource::kUncached_LifeCycle;
 
     desc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
     // Attempt to catch un- or wrongly initialized sample counts;

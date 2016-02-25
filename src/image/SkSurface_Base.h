@@ -43,7 +43,7 @@ public:
      *  must faithfully represent the current contents, even if the surface
      *  is changed after this called (e.g. it is drawn to via its canvas).
      */
-    virtual SkImage* onNewImageSnapshot(SkBudgeted, ForceCopyMode) = 0;
+    virtual SkImage* onNewImageSnapshot(Budgeted, ForceCopyMode) = 0;
 
     /**
      *  Default implementation:
@@ -81,7 +81,7 @@ public:
     virtual void onPrepareForExternalIO() {}
 
     inline SkCanvas* getCachedCanvas();
-    inline SkImage* refCachedImage(SkBudgeted, ForceUnique);
+    inline SkImage* refCachedImage(Budgeted, ForceUnique);
 
     bool hasCachedImage() const { return fCachedImage != nullptr; }
 
@@ -114,7 +114,7 @@ SkCanvas* SkSurface_Base::getCachedCanvas() {
     return fCachedCanvas;
 }
 
-SkImage* SkSurface_Base::refCachedImage(SkBudgeted budgeted, ForceUnique unique) {
+SkImage* SkSurface_Base::refCachedImage(Budgeted budgeted, ForceUnique unique) {
     SkImage* snap = fCachedImage;
     if (kYes_ForceUnique == unique && snap && !snap->unique()) {
         snap = nullptr;

@@ -22,13 +22,13 @@ public:
      *  An "image" can be a subset/window into a larger texture, so we explicit take the
      *  width and height.
      */
-    SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, GrTexture*, SkBudgeted);
+    SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, GrTexture*, SkSurface::Budgeted);
     ~SkImage_Gpu() override;
 
     void applyBudgetDecision() const {
         GrTexture* tex = this->getTexture();
         SkASSERT(tex);
-        if (SkBudgeted::kYes == fBudgeted) {
+        if (fBudgeted) {
             tex->resourcePriv().makeBudgeted();
         } else {
             tex->resourcePriv().makeUnbudgeted();
@@ -45,7 +45,7 @@ public:
                       int srcX, int srcY, CachingHint) const override;
 
     SkSurface* onNewSurface(const SkImageInfo& info) const override {
-        return SkSurface::NewRenderTarget(fTexture->getContext(), SkBudgeted::kNo, info);
+        return SkSurface::NewRenderTarget(fTexture->getContext(), SkSurface::kNo_Budgeted, info);
     }
 
     bool asBitmapForImageFilters(SkBitmap* bitmap) const override;
@@ -53,7 +53,7 @@ public:
 private:
     SkAutoTUnref<GrTexture>     fTexture;
     const SkAlphaType           fAlphaType;
-    const SkBudgeted            fBudgeted;
+    const SkSurface::Budgeted   fBudgeted;
     mutable SkAtomic<bool>      fAddedRasterVersionToCache;
 
 

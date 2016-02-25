@@ -20,7 +20,7 @@
 #include "SkPixelRef.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
-                         SkBudgeted budgeted)
+                         SkSurface::Budgeted budgeted)
     : INHERITED(w, h, uniqueID)
     , fTexture(SkRef(tex))
     , fAlphaType(at)
@@ -140,7 +140,8 @@ SkImage* SkImage_Gpu::onNewSubset(const SkIRect& subset) const {
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
 
-    GrTexture* subTx = ctx->textureProvider()->createTexture(desc, fBudgeted);
+    GrTexture* subTx = ctx->textureProvider()->createTexture(desc,
+                                                             SkSurface::kYes_Budgeted == fBudgeted);
     if (!subTx) {
         return nullptr;
     }
@@ -166,7 +167,7 @@ static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextur
         tex->setRelease(releaseProc, releaseCtx);
     }
 
-    const SkBudgeted budgeted = SkBudgeted::kNo;
+    const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
     return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, tex, budgeted);
 }
 
@@ -192,20 +193,22 @@ SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc&
         return nullptr;
     }
 
-    SkAutoTUnref<GrTexture> dst(GrDeepCopyTexture(src, SkBudgeted::kYes));
+    const bool isBudgeted = true;
+    SkAutoTUnref<GrTexture> dst(GrDeepCopyTexture(src, isBudgeted));
     if (!dst) {
         return nullptr;
     }
 
+    const SkSurface::Budgeted budgeted = SkSurface::kYes_Budgeted;
     return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, dst,
-                           SkBudgeted::kYes);
+                           budgeted);
 }
 
 SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorSpace,
                                          const GrBackendObject yuvTextureHandles[3],
                                          const SkISize yuvSizes[3],
                                          GrSurfaceOrigin origin) {
-    const SkBudgeted budgeted = SkBudgeted::kYes;
+    const SkSurface::Budgeted budgeted = SkSurface::kYes_Budgeted;
 
     if (yuvSizes[0].fWidth <= 0 || yuvSizes[0].fHeight <= 0 ||
         yuvSizes[1].fWidth <= 0 || yuvSizes[1].fHeight <= 0 ||
@@ -256,7 +259,7 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     dstDesc.fConfig = kRGBA_8888_GrPixelConfig;
     dstDesc.fSampleCnt = 0;
 
-    SkAutoTUnref<GrTexture> dst(ctx->textureProvider()->createTexture(dstDesc, SkBudgeted::kYes));
+    SkAutoTUnref<GrTexture> dst(ctx->textureProvider()->createTexture(dstDesc, true));
     if (!dst) {
         return nullptr;
     }
@@ -285,7 +288,7 @@ static SkImage* create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, u
         return nullptr;
     }
     return new SkImage_Gpu(texture->width(), texture->height(), id, at, texture,
-                           SkBudgeted::kNo);
+                           SkSurface::kNo_Budgeted);
 }
 
 SkImage* SkImage::newTextureImage(GrContext *context) const {
@@ -312,7 +315,7 @@ SkImage* SkImage::newTextureImage(GrContext *context) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted budgeted) {
+GrTexture* GrDeepCopyTexture(GrTexture* src, bool budgeted) {
     GrContext* ctx = src->getContext();
 
     GrSurfaceDesc desc = src->desc();
