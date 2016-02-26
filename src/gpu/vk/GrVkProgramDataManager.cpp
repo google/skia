@@ -74,7 +74,11 @@ void GrVkProgramDataManager::set1fv(UniformHandle u,
     }
     buffer = static_cast<char*>(buffer) + uni.fOffset;
     SkASSERT(sizeof(float) == 4);
-    memcpy(buffer, v, arrayCount * sizeof(float));
+    for (int i = 0; i < arrayCount; ++i) {
+        const float* curVec = &v[i];
+        memcpy(buffer, curVec, sizeof(float));
+        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
+    }
 }
 
 void GrVkProgramDataManager::set2f(UniformHandle u, float v0, float v1) const {
@@ -114,7 +118,11 @@ void GrVkProgramDataManager::set2fv(UniformHandle u,
     }
     buffer = static_cast<char*>(buffer) + uni.fOffset;
     SkASSERT(sizeof(float) == 4);
-    memcpy(buffer, v, arrayCount * 2* sizeof(float));
+    for (int i = 0; i < arrayCount; ++i) {
+        const float* curVec = &v[2 * i];
+        memcpy(buffer, curVec, 2 * sizeof(float));
+        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
+    }
 }
 
 void GrVkProgramDataManager::set3f(UniformHandle u, float v0, float v1, float v2) const {
@@ -154,7 +162,11 @@ void GrVkProgramDataManager::set3fv(UniformHandle u,
     }
     buffer = static_cast<char*>(buffer) + uni.fOffset;
     SkASSERT(sizeof(float) == 4);
-    memcpy(buffer, v, arrayCount * 3 * sizeof(float));
+    for (int i = 0; i < arrayCount; ++i) {
+        const float* curVec = &v[3 * i];
+        memcpy(buffer, curVec, 3 * sizeof(float));
+        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
+    }
 }
 
 void GrVkProgramDataManager::set4f(UniformHandle u, float v0, float v1, float v2, float v3) const {
@@ -215,7 +227,7 @@ void GrVkProgramDataManager::setMatrix3f(UniformHandle u, const float matrix[]) 
     memcpy(buffer, &matrix[0], 3 * sizeof(float));
     buffer = static_cast<char*>(buffer) + 4*sizeof(float);
     memcpy(buffer, &matrix[3], 3 * sizeof(float));
-    buffer = static_cast<char*>(buffer) + 4 * sizeof(float);
+    buffer = static_cast<char*>(buffer) + 4*sizeof(float);
     memcpy(buffer, &matrix[6], 3 * sizeof(float));
 }
 
@@ -241,11 +253,11 @@ void GrVkProgramDataManager::setMatrix3fv(UniformHandle u,
     for (int i = 0; i < arrayCount; ++i) {
         const float* matrix = &matrices[9 * i];
         memcpy(buffer, &matrix[0], 3 * sizeof(float));
-        buffer = static_cast<char*>(buffer)+4 * sizeof(float);
+        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
         memcpy(buffer, &matrix[3], 3 * sizeof(float));
-        buffer = static_cast<char*>(buffer)+4 * sizeof(float);
+        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
         memcpy(buffer, &matrix[6], 3 * sizeof(float));
-        buffer = static_cast<char*>(buffer)+4 * sizeof(float);
+        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
     }
 }
 

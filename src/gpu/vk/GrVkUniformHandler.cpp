@@ -11,6 +11,9 @@
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
+// This alignment mask will give correct alignments for using the std430 block layout. If you want
+// the std140 alignment, you can use this, but then make sure if you have an array type it is
+// aligned to 16 bytes (i.e. has mask of 0xF).
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
     SkASSERT(GrSLTypeIsFloatType(type));
     static const uint32_t kAlignments[kGrSLTypeCount] = {
@@ -37,6 +40,44 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     return kAlignments[type];
 }
 
+/** Returns the size in bytes taken up in vulkanbuffers for floating point GrSLTypes.
+    For non floating point type returns 0 */
+static inline uint32_t grsltype_to_vk_size(GrSLType type) {
+    SkASSERT(GrSLTypeIsFloatType(type));
+    static const uint32_t kSizes[] = {
+        0,                        // kVoid_GrSLType
+        sizeof(float),            // kFloat_GrSLType
+        2 * sizeof(float),        // kVec2f_GrSLType
+        3 * sizeof(float),        // kVec3f_GrSLType
+        4 * sizeof(float),        // kVec4f_GrSLType
+        12 * sizeof(float),       // kMat33f_GrSLType
+        16 * sizeof(float),       // kMat44f_GrSLType
+        0,                        // kSampler2D_GrSLType
+        0,                        // kSamplerExternal_GrSLType
+        0,                        // kSampler2DRect_GrSLType
+        0,                        // kBool_GrSLType
+        0,                        // kInt_GrSLType
+        0,                        // kUint_GrSLType
+    };
+    return kSizes[type];
+
+    GR_STATIC_ASSERT(0 == kVoid_GrSLType);
+    GR_STATIC_ASSERT(1 == kFloat_GrSLType);
+    GR_STATIC_ASSERT(2 == kVec2f_GrSLType);
+    GR_STATIC_ASSERT(3 == kVec3f_GrSLType);
+    GR_STATIC_ASSERT(4 == kVec4f_GrSLType);
+    GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
+    GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
+    GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
+    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
+    GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
+    GR_STATIC_ASSERT(10 == kBool_GrSLType);
+    GR_STATIC_ASSERT(11 == kInt_GrSLType);
+    GR_STATIC_ASSERT(12 == kUint_GrSLType);
+    GR_STATIC_ASSERT(13 == kGrSLTypeCount);
+}
+
+
 // Given the current offset into the ubo, calculate the offset for the uniform we're trying to add
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
@@ -45,16 +86,23 @@ void get_ubo_aligned_offset(uint32_t* uniformOffset,
                             GrSLType type,
                             int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
+    // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
+    if (arrayCount) {
+        alignmentMask = 0xF;
+    }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;
     }
     *uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
-    // We use a 0 arrayCount to indicate it is not an array type but we still need to count the one
-    // object.
-    int count = arrayCount ? arrayCount : 1;
-    *currentOffset = *uniformOffset + count * (uint32_t)GrSLTypeSize(type);
+    if (arrayCount) {
+        uint32_t elementSize = SkTMax<uint32_t>(16, grsltype_to_vk_size(type));
+        SkASSERT(0 == (elementSize & 0xF));
+        *currentOffset = *uniformOffset + elementSize * arrayCount;
+    } else {
+        *currentOffset = *uniformOffset + grsltype_to_vk_size(type);
+    }
 }
 
 GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
@@ -147,3 +195,4 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }
+
