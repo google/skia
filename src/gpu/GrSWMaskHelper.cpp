@@ -127,7 +127,6 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
     SkPaint paint;
     if (stroke.isHairlineStyle()) {
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(SK_Scalar1);
     } else {
         if (stroke.isFillStyle()) {
             paint.setStyle(SkPaint::kFill_Style);

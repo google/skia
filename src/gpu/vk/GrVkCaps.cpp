@@ -120,6 +120,8 @@ void GrVkCaps::initGLSLCaps(const GrVkInterface* interface, VkPhysicalDevice phy
             glslCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
         }
     }
+
+    glslCaps->fShaderDerivativeSupport = true;
 }
 
 static void format_supported_for_feature(const GrVkInterface* interface,
