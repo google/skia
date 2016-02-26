@@ -346,12 +346,6 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if defined(SK_HISTOGRAM_ENUMERATION) && defined(SK_HISTOGRAM_BOOLEAN)
-#  define SK_HISTOGRAMS_ENABLED 1
-#else
-#  define SK_HISTOGRAMS_ENABLED 0
-#endif
-
 #ifndef SK_HISTOGRAM_BOOLEAN
 #  define SK_HISTOGRAM_BOOLEAN(name, value)
 #endif

@@ -988,9 +988,8 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   bool bicubic) {
     ASSERT_SINGLE_OWNER
 
-    // This is the funnel for all paths that draw tiled bitmaps/images. Log histogram entries.
+    // This is the funnel for all paths that draw tiled bitmaps/images. Log histogram entry.
     SK_HISTOGRAM_BOOLEAN("DrawTiled", true);
-    LogDrawScaleFactor(viewMatrix, origPaint.getFilterQuality());
 
     // The following pixel lock is technically redundant, but it is desirable
     // to lock outside of the tile loop to prevent redecoding the whole image
