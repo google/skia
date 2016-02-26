@@ -29,8 +29,8 @@ public:
 #endif
 
     static SkSpriteBlitter* ChooseD16(const SkPixmap& source, const SkPaint&, SkTBlitterAllocator*);
-    static SkSpriteBlitter* ChooseLegacy32(const SkPixmap& source, const SkPaint&, SkTBlitterAllocator*);
-    static SkSpriteBlitter* ChooseNew32(const SkPixmap& source, const SkPaint&, SkTBlitterAllocator*, SkColorProfileType dstPt);
+    static SkSpriteBlitter* ChooseL32(const SkPixmap& source, const SkPaint&, SkTBlitterAllocator*);
+    static SkSpriteBlitter* ChooseS32(const SkPixmap& source, const SkPaint&, SkTBlitterAllocator*);
     static SkSpriteBlitter* ChooseF16(const SkPixmap& source, const SkPaint&, SkTBlitterAllocator*);
 
 protected:

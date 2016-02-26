@@ -60,11 +60,10 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
             blitter = SkSpriteBlitter::ChooseD16(source, paint, allocator);
             break;
         case kN32_SkColorType:
-            if (dst.info().isSRGB() || source.info().isSRGB()) {
-                blitter = SkSpriteBlitter::ChooseNew32(source, paint, allocator,
-                                                       dst.info().profileType());
+            if (dst.info().isSRGB()) {
+                blitter = SkSpriteBlitter::ChooseS32(source, paint, allocator);
             } else {
-                blitter = SkSpriteBlitter::ChooseLegacy32(source, paint, allocator);
+                blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
             }
             break;
         case kRGBA_F16_SkColorType:
