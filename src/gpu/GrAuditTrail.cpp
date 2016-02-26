@@ -6,8 +6,35 @@
  */
 
 #include "GrAuditTrail.h"
+#include "batches/GrBatch.h"
 
-void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const FrameArray& array,
+void GrAuditTrail::batchingResultCombined(GrBatch* combiner) {
+    int* indexPtr = fIDLookup.find(combiner);
+    SkASSERT(indexPtr);
+    int index = *indexPtr;
+    SkASSERT(index < fBatches.count());
+    Batch& batch = *fBatches[index];
+
+    // if this is our first child, we also push back a copy of the original batch and its
+    // bounds
+    if (batch.fChildren.empty()) {
+        Batch* firstBatch = new Batch;
+        firstBatch->fName = batch.fName;
+        firstBatch->fBounds = batch.fBounds;
+        fEvents.emplace_back(firstBatch);
+        batch.fChildren.push_back(firstBatch);
+    } 
+    batch.fChildren.push_back(fCurrentBatch);
+    batch.fBounds = combiner->bounds();
+}
+
+void GrAuditTrail::batchingResultNew(GrBatch* batch) {
+    fIDLookup.set(batch, fBatches.count());
+    fBatches.push_back(fCurrentBatch);
+}
+
+template <typename T>
+void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const T& array,
                                  bool addComma) {
     if (array.count()) {
         if (addComma) {
@@ -91,10 +118,14 @@ static SkString pretty_print_json(SkString json) {
     return prettyPrintJson.prettify(json);
 }
 
-SkString GrAuditTrail::toJson(bool prettyPrint) const {
+SkString GrAuditTrail::toJson(bool batchList, bool prettyPrint) const {
     SkString json;
     json.append("{");
-    JsonifyTArray(&json, "Stacks", fFrames, false);
+    if (!batchList) {
+        JsonifyTArray(&json, "Stacks", fFrames, false);
+    } else {
+        JsonifyTArray(&json, "Batches", fBatches, false);
+    }
     json.append("}");
 
     if (prettyPrint) {
@@ -122,6 +153,7 @@ SkString GrAuditTrail::Batch::toJson() const {
     json.appendf("\"Right\": %f,", fBounds.fRight);
     json.appendf("\"Top\": %f,", fBounds.fTop);
     json.appendf("\"Bottom\": %f", fBounds.fBottom);
+    JsonifyTArray(&json, "Children", fChildren, true);
     json.append("}");
     json.append("}");
     return json;

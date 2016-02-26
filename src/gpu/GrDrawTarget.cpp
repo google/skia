@@ -460,6 +460,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
             if (candidate->combineIfPossible(batch, *this->caps())) {
                 GrBATCH_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
                     candidate->uniqueID());
+                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate);
                 return;
             }
             // Stop going backwards if we would cause a painter's order violation.
@@ -479,6 +480,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
     } else {
         GrBATCH_INFO("\t\tFirstBatch\n");
     }
+    GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, batch);
     fBatches.push_back().reset(SkRef(batch));
 }
 

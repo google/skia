@@ -12,6 +12,9 @@
 #include "SkRect.h"
 #include "SkString.h"
 #include "SkTArray.h"
+#include "SkTHash.h"
+
+class GrBatch;
 
 /*
  * GrAuditTrail collects a list of draw ops, detailed information about those ops, and can dump them
@@ -64,13 +67,30 @@ public:
         GrAuditTrail* fAuditTrail;
     };
 
+    class AutoManageBatchList {
+    public:
+        AutoManageBatchList(GrAuditTrail* auditTrail)
+            : fAutoEnable(auditTrail)
+            , fAuditTrail(auditTrail) {
+        }
+
+        ~AutoManageBatchList() {
+            fAuditTrail->fullReset();
+        }
+
+    private:
+        AutoEnable fAutoEnable;
+        GrAuditTrail* fAuditTrail;
+    };
+
     void pushFrame(const char* name) {
         SkASSERT(fEnabled);
         Frame* frame = new Frame;
+        fEvents.emplace_back(frame);
         if (fStack.empty()) {
-            fFrames.emplace_back(frame);
+            fFrames.push_back(frame);
         } else {
-            fStack.back()->fChildren.emplace_back(frame);
+            fStack.back()->fChildren.push_back(frame);
         }
 
         frame->fUniqueID = fUniqueID++;
@@ -86,17 +106,39 @@ public:
     void addBatch(const char* name, const SkRect& bounds) {
         SkASSERT(fEnabled && !fStack.empty());
         Batch* batch = new Batch;
-        fStack.back()->fChildren.emplace_back(batch);
+        fEvents.emplace_back(batch);
+        fStack.back()->fChildren.push_back(batch);
         batch->fName = name;
         batch->fBounds = bounds;
+        fCurrentBatch = batch;
     }
 
-    SkString toJson(bool prettyPrint = false) const;
+    void batchingResultCombined(GrBatch* combiner);
+
+    void batchingResultNew(GrBatch* batch);
+
+    SkString toJson(bool batchList = false, bool prettyPrint = false) const;
 
     bool isEnabled() { return fEnabled; }
     void setEnabled(bool enabled) { fEnabled = enabled; }
 
-    void reset() { SkASSERT(fEnabled && fStack.empty()); fFrames.reset(); }
+    void reset() { 
+        SkASSERT(fEnabled && fStack.empty());
+        fFrames.reset();
+    }
+
+    void resetBatchList() {
+        SkASSERT(fEnabled);
+        fBatches.reset();
+        fIDLookup.reset();
+    }
+
+    void fullReset() {
+        SkASSERT(fEnabled);
+        this->reset();
+        this->resetBatchList();
+        fEvents.reset(); // must be last, frees all of the memory
+    }
 
 private:
     // TODO if performance becomes an issue, we can move to using SkVarAlloc
@@ -108,24 +150,32 @@ private:
         uint64_t fUniqueID;
     };
 
-    typedef SkTArray<SkAutoTDelete<Event>, true> FrameArray;
     struct Frame : public Event {
         SkString toJson() const override;
-        FrameArray fChildren;
+        SkTArray<Event*> fChildren;
     };
 
     struct Batch : public Event {
         SkString toJson() const override;
         SkRect fBounds;
+        SkTArray<Batch*> fChildren;
     };
+    typedef SkTArray<SkAutoTDelete<Event>, true> EventArrayPool;
 
-    static void JsonifyTArray(SkString* json, const char* name, const FrameArray& array,
+    template <typename T>
+    static void JsonifyTArray(SkString* json, const char* name, const T& array,
                               bool addComma);
 
+    // We store both an array of frames, and also a flatter array just of the batches
     bool fEnabled;
-    FrameArray fFrames;
+    EventArrayPool fEvents; // manages the lifetimes of the events
+    SkTArray<Event*> fFrames;
     SkTArray<Frame*> fStack;
     uint64_t fUniqueID;
+   
+    Batch* fCurrentBatch;
+    SkTHashMap<GrBatch*, int> fIDLookup;
+    SkTArray<Batch*> fBatches;
 };
 
 #define GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, invoke, ...) \
@@ -141,5 +191,11 @@ private:
 
 #define GR_AUDIT_TRAIL_ADDBATCH(audit_trail, batchname, bounds) \
     GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addBatch, batchname, bounds);
+
+#define GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(audit_trail, combiner) \
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, batchingResultCombined, combiner);
+
+#define GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(audit_trail, batch) \
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, batchingResultNew, batch);
 
 #endif
