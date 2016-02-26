@@ -1033,7 +1033,9 @@ Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-RasterSink::RasterSink(SkColorType colorType) : fColorType(colorType) {}
+RasterSink::RasterSink(SkColorType colorType, SkColorProfileType profileType)
+    : fColorType(colorType)
+    , fProfileType(profileType) {}
 
 Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
     const SkISize size = src.size();
@@ -1042,7 +1044,8 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
     (void)SkColorTypeValidateAlphaType(fColorType, alphaType, &alphaType);
 
     SkMallocPixelRef::ZeroedPRFactory factory;
-    dst->allocPixels(SkImageInfo::Make(size.width(), size.height(), fColorType, alphaType),
+    dst->allocPixels(SkImageInfo::Make(size.width(), size.height(),
+                                       fColorType, alphaType, fProfileType),
                      &factory,
                      nullptr/*colortable*/);
     SkCanvas canvas(*dst);

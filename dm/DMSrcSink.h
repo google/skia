@@ -249,13 +249,14 @@ public:
 
 class RasterSink : public Sink {
 public:
-    explicit RasterSink(SkColorType);
+    explicit RasterSink(SkColorType, SkColorProfileType=kLinear_SkColorProfileType);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
 private:
-    SkColorType    fColorType;
+    SkColorType        fColorType;
+    SkColorProfileType fProfileType;
 };
 
 class SKPSink : public Sink {
