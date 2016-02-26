@@ -9,6 +9,7 @@
 #define GrTextureProvider_DEFINED
 
 #include "GrTexture.h"
+#include "GrTypes.h"
 #include "SkImageFilter.h"
 
 class GrSingleOwner;
@@ -22,8 +23,18 @@ public:
      * Creates a new texture in the resource cache and returns it. The caller owns a
      * ref on the returned texture which must be balanced by a call to unref.
      *
-     * @param desc      Description of the texture properties.
-     * @param budgeted  Does the texture count against the resource cache budget?
+     * @param desc          Description of the texture properties.
+     * @param budgeted      Does the texture count against the resource cache budget?
+     * @param texels        A contiguous array of mipmap levels
+     * @param mipLevelCount The amount of elements in the texels array
+     */
+    GrTexture* createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                      const GrMipLevel* texels, int mipLevelCount);
+
+    /**
+     * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
+     * It then calls createTexture with that SkTArray.
+     *
      * @param srcData   Pointer to the pixel values (optional).
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows. For compressed pixel configs, this

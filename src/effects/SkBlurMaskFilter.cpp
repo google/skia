@@ -782,6 +782,7 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
     texDesc.fWidth = profileSize;
     texDesc.fHeight = 1;
     texDesc.fConfig = kAlpha_8_GrPixelConfig;
+    texDesc.fIsMipMapped = false;
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
@@ -997,6 +998,7 @@ const GrFragmentProcessor* GrRRectBlurEffect::Create(GrTextureProvider* texProvi
         texDesc.fWidth = texSide;
         texDesc.fHeight = texSide;
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
+        texDesc.fIsMipMapped = false;
 
         blurNinePatchTexture.reset(
             texProvider->createTexture(texDesc, SkBudgeted::kYes , blurredMask.fImage, 0));

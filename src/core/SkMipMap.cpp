@@ -233,7 +233,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
 
     // whip through our loop to compute the exact size needed
     size_t  size = 0;
-    int     countLevels = 0;
+    int countLevels = 0;
     {
         int width = src.width();
         int height = src.height();

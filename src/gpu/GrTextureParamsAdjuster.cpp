@@ -432,9 +432,15 @@ const GrFragmentProcessor* GrTextureAdjuster::createFragmentProcessor(
 
 GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params) {
     CopyParams copyParams;
+    bool willBeMipped = params.filterMode() == GrTextureParams::kMipMap_FilterMode;
+
+    if (!fContext->caps()->mipMapSupport()) {
+        willBeMipped = false;
+    }
+
     if (!fContext->getGpu()->makeCopyForTextureParams(this->width(), this->height(), params,
                                                       &copyParams)) {
-        return this->refOriginalTexture();
+        return this->refOriginalTexture(willBeMipped);
     }
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey);
@@ -445,7 +451,7 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params) {
         }
     }
 
-    GrTexture* result = this->generateTextureForParams(copyParams);
+    GrTexture* result = this->generateTextureForParams(copyParams, willBeMipped);
     if (!result) {
         return nullptr;
     }
@@ -499,8 +505,9 @@ const GrFragmentProcessor* GrTextureMaker::createFragmentProcessor(
                                            filterOrNullForBicubic);
 }
 
-GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams) {
-    SkAutoTUnref<GrTexture> original(this->refOriginalTexture());
+GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams,
+                                                    bool willBeMipped) {
+    SkAutoTUnref<GrTexture> original(this->refOriginalTexture(willBeMipped));
     if (!original) {
         return nullptr;
     }

@@ -10,9 +10,10 @@
 
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrTextureParamsAdjuster.h"
 #include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
+#include "GrTextureParamsAdjuster.h"
+#include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "GrYUVProvider.h"
 
@@ -23,8 +24,10 @@
 #include "SkErrorInternals.h"
 #include "SkGrPixelRef.h"
 #include "SkMessageBus.h"
+#include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
+#include "SkTemplates.h"
 #include "SkTextureCompressor.h"
 #include "SkYUVPlanesCache.h"
 #include "effects/GrBicubicEffect.h"
@@ -283,6 +286,65 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
     };
 
     pixelRef->addGenIDChangeListener(new Invalidator(key));
+}
+
+GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap)
+{
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
+    if (kIndex_8_SkColorType != bitmap.colorType() && !bitmap.readyToDraw()) {
+        GrTexture* texture = load_etc1_texture(ctx, bitmap, desc);
+        if (texture) {
+            return texture;
+        }
+    }
+
+    GrTexture* texture = create_texture_from_yuv(ctx, bitmap, desc);
+    if (texture) {
+        return texture;
+    }
+
+    SkASSERT(sizeof(int) <= sizeof(uint32_t));
+    if (bitmap.width() < 0 || bitmap.height() < 0) {
+        return nullptr;
+    }
+
+    SkAutoPixmapUnlock srcUnlocker;
+    if (!bitmap.requestLock(&srcUnlocker)) {
+        return nullptr;
+    }
+    const SkPixmap& pixmap = srcUnlocker.pixmap();
+    // Try to catch where we might have returned nullptr for src crbug.com/492818
+    if (nullptr == pixmap.addr()) {
+        sk_throw();
+    }
+
+    SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
+    if (!mipmaps) {
+        return nullptr;
+    }
+
+    const int mipLevelCount = mipmaps->countLevels() + 1;
+    if (mipLevelCount < 1) {
+        return nullptr;
+    }
+
+    const bool isMipMapped = mipLevelCount > 1;
+    desc.fIsMipMapped = isMipMapped;
+
+    SkAutoTDeleteArray<GrMipLevel> texels(new GrMipLevel[mipLevelCount]);
+
+    texels[0].fPixels = pixmap.addr();
+    texels[0].fRowBytes = pixmap.rowBytes();
+
+    for (int i = 1; i < mipLevelCount; ++i) {
+        SkMipMap::Level generatedMipLevel;
+        mipmaps->getLevel(i - 1, &generatedMipLevel);
+        texels[i].fPixels = generatedMipLevel.fPixmap.addr();
+        texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
+    }
+
+    return ctx->textureProvider()->createMipMappedTexture(desc, SkBudgeted::kYes, texels.get(),
+                                                          mipLevelCount);
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,

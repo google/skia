@@ -21,7 +21,9 @@
 #include "GrGLVertexBuffer.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
+#include "GrTypes.h"
 #include "GrXferProcessor.h"
+#include "SkTArray.h"
 #include "SkTypes.h"
 
 class GrPipeline;
@@ -145,10 +147,11 @@ private:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
-                               const void* srcData, size_t rowBytes) override;
+                               const SkTArray<GrMipLevel>& texels) override;
     GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
                                          GrGpuResource::LifeCycle lifeCycle,
-                                         const void* srcData) override;
+                                         const SkTArray<GrMipLevel>& texels) override;
+
     GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override;
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override;
     GrTransferBuffer* onCreateTransferBuffer(size_t size, TransferType type) override;
@@ -165,13 +168,13 @@ private:
     // texture. Otherwise, create the texture directly.
     // Returns whether the texture is successfully created. On success, the
     // result is stored in |info|.
-    // The texture is populated with |srcData|, if it exists.
+    // The texture is populated with |texels|, if it exists.
     // The texture parameters are cached in |initialTexParams|.
     bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
-                           bool renderTarget, const void* srcData,
-                           GrGLTexture::TexParams* initialTexParams, size_t rowBytes);
+                           bool renderTarget, GrGLTexture::TexParams* initialTexParams,
+                           const SkTArray<GrMipLevel>& texels);
     bool createTextureExternalAllocatorImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
-                                            const void* srcData, size_t rowBytes);
+                                            const SkTArray<GrMipLevel>& texels);
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
 
@@ -203,8 +206,8 @@ private:
 
     bool onWritePixels(GrSurface*,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, const void* buffer,
-                       size_t rowBytes) override;
+                       GrPixelConfig config,
+                       const SkTArray<GrMipLevel>& texels) override;
 
     bool onTransferPixels(GrSurface*,
                           int left, int top, int width, int height,
@@ -344,8 +347,7 @@ private:
                        UploadType uploadType,
                        int left, int top, int width, int height,
                        GrPixelConfig dataConfig,
-                       const void* data,
-                       size_t rowBytes);
+                       const SkTArray<GrMipLevel>& texels);
 
     // helper for onCreateCompressedTexture. If width and height are
     // set to -1, then this function will use desc.fWidth and desc.fHeight
@@ -355,7 +357,7 @@ private:
     // with new data.
     bool uploadCompressedTexData(const GrSurfaceDesc& desc,
                                  GrGLenum target,
-                                 const void* data,
+                                 const SkTArray<GrMipLevel>& texels,
                                  UploadType uploadType = kNewTexture_UploadType,
                                  int left = 0, int top = 0,
                                  int width = -1, int height = -1);

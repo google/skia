@@ -22,6 +22,7 @@
 #include "GrTransferBuffer.h"
 #include "GrVertexBuffer.h"
 #include "GrVertices.h"
+#include "SkTypes.h"
 
 GrVertices& GrVertices::operator =(const GrVertices& di) {
     fPrimitiveType  = di.fPrimitiveType;
@@ -88,74 +89,105 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
     }
 }
 
-GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
-                                const void* srcData, size_t rowBytes) {
-    GrSurfaceDesc desc = origDesc;
-
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
-        return nullptr;
+/**
+ * Prior to creating a texture, make sure the type of texture being created is
+ * supported by calling check_texture_creation_params.
+ *
+ * @param caps The capabilities of the GL device.
+ * @param desc The descriptor of the texture to create.
+ * @param isRT Indicates if the texture can be a render target.
+ */
+static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDesc& desc,
+                                          bool* isRT) {
+    if (!caps.isConfigTexturable(desc.fConfig)) {
+        return false;
     }
 
-    bool isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (isRT && !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
-        return nullptr;
+    *isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    if (*isRT && !caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return false;
     }
 
     // We currently do not support multisampled textures
-    if (!isRT && desc.fSampleCnt > 0) {
+    if (!*isRT && desc.fSampleCnt > 0) {
+        return false;
+    }
+
+    if (*isRT) {
+        int maxRTSize = caps.maxRenderTargetSize();
+        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
+            return false;
+        }
+    } else {
+        int maxSize = caps.maxTextureSize();
+        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+            return false;
+        }
+    }
+    return true;
+}
+
+GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
+                                const SkTArray<GrMipLevel>& texels) {
+    GrSurfaceDesc desc = origDesc;
+
+    const GrCaps* caps = this->caps();
+    bool isRT = false;
+    bool textureCreationParamsValid = check_texture_creation_params(*caps, desc, &isRT);
+    if (!textureCreationParamsValid) {
         return nullptr;
     }
 
-    GrTexture *tex = nullptr;
-
-    if (isRT) {
-        int maxRTSize = this->caps()->maxRenderTargetSize();
-        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
-            return nullptr;
-        }
-    } else {
-        int maxSize = this->caps()->maxTextureSize();
-        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
-            return nullptr;
-        }
-    }
-
-    GrGpuResource::LifeCycle lifeCycle = SkBudgeted::kYes == budgeted ?
-                                            GrGpuResource::kCached_LifeCycle :
-                                            GrGpuResource::kUncached_LifeCycle;
-
-    desc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
-    // Attempt to catch un- or wrongly initialized sample counts;
+    desc.fSampleCnt = SkTMin(desc.fSampleCnt, caps->maxSampleCount());
+    // Attempt to catch un- or wrongly intialized sample counts;
     SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
 
     desc.fOrigin = resolve_origin(desc.fOrigin, isRT);
+
+    GrTexture* tex = nullptr;
+    GrGpuResource::LifeCycle lifeCycle = SkBudgeted::kYes == budgeted ?
+                                            GrGpuResource::kCached_LifeCycle :
+                                            GrGpuResource::kUncached_LifeCycle;
 
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         // We shouldn't be rendering into this
         SkASSERT(!isRT);
         SkASSERT(0 == desc.fSampleCnt);
 
-        if (!this->caps()->npotTextureTileSupport() &&
+        if (!caps->npotTextureTileSupport() &&
             (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
             return nullptr;
         }
 
         this->handleDirtyContext();
-        tex = this->onCreateCompressedTexture(desc, lifeCycle, srcData);
+        tex = this->onCreateCompressedTexture(desc, lifeCycle, texels);
     } else {
         this->handleDirtyContext();
-        tex = this->onCreateTexture(desc, lifeCycle, srcData, rowBytes);
-    }
-    if (!this->caps()->reuseScratchTextures() && !isRT) {
-        tex->resourcePriv().removeScratchKey();
+        tex = this->onCreateTexture(desc, lifeCycle, texels);
     }
     if (tex) {
+        if (!caps->reuseScratchTextures() && !isRT) {
+            tex->resourcePriv().removeScratchKey();
+        }
         fStats.incTextureCreates();
-        if (srcData) {
-            fStats.incTextureUploads();
+        if (!texels.empty()) {
+            if (texels[0].fPixels) {
+                fStats.incTextureUploads();
+            }
         }
     }
     return tex;
+}
+
+GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                const void* srcData, size_t rowBytes) {
+    GrMipLevel level;
+    level.fPixels = srcData;
+    level.fRowBytes = rowBytes;
+    SkSTArray<1, GrMipLevel> levels;
+    levels.push_back(level);
+
+    return this->createTexture(desc, budgeted, levels);
 }
 
 GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
@@ -355,18 +387,40 @@ bool GrGpu::readPixels(GrSurface* surface,
 
 bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
-                        GrPixelConfig config, const void* buffer,
-                        size_t rowBytes) {
-    if (!buffer || !surface) {
+                        GrPixelConfig config, const SkTArray<GrMipLevel>& texels) {
+    if (!surface) {
+        return false;
+    }
+    bool validMipDataFound = false;
+    for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
+        if (texels[currentMipLevel].fPixels != nullptr) {
+            validMipDataFound = true;
+            break;
+        }
+    }
+    if (!validMipDataFound) {
         return false;
     }
 
     this->handleDirtyContext();
-    if (this->onWritePixels(surface, left, top, width, height, config, buffer, rowBytes)) {
+    if (this->onWritePixels(surface, left, top, width, height, config, texels)) {
         fStats.incTextureUploads();
         return true;
     }
     return false;
+}
+
+bool GrGpu::writePixels(GrSurface* surface,
+                        int left, int top, int width, int height,
+                        GrPixelConfig config, const void* buffer,
+                        size_t rowBytes) {
+    GrMipLevel mipLevel;
+    mipLevel.fPixels = buffer;
+    mipLevel.fRowBytes = rowBytes;
+    SkSTArray<1, GrMipLevel> texels;
+    texels.push_back(mipLevel);
+
+    return this->writePixels(surface, left, top, width, height, config, texels);
 }
 
 bool GrGpu::transferPixels(GrSurface* surface,

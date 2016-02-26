@@ -10,6 +10,7 @@
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "../private/GrSingleOwner.h"
+#include "SkTArray.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
@@ -29,9 +30,10 @@ GrTextureProvider::GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingl
     {
 }
 
-GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                            const void* srcData, size_t rowBytes) {
+GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                     const GrMipLevel* texels, int mipLevelCount) {
     ASSERT_SINGLE_OWNER
+
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -41,20 +43,38 @@ GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgete
     }
     if (!GrPixelConfigIsCompressed(desc.fConfig) &&
         !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
-        static const uint32_t kFlags = kExact_ScratchTextureFlag |
-                                       kNoCreate_ScratchTextureFlag;
-        if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
-            if (!srcData || texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                                 srcData, rowBytes)) {
-                if (SkBudgeted::kNo == budgeted) {
-                    texture->resourcePriv().makeUnbudgeted();
+        if (mipLevelCount < 2) {
+            const GrMipLevel& baseMipLevel = texels[0];
+            static const uint32_t kFlags = kExact_ScratchTextureFlag |
+                                           kNoCreate_ScratchTextureFlag;
+            if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
+                if (texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                         baseMipLevel.fPixels, baseMipLevel.fRowBytes)) {
+                    if (SkBudgeted::kNo == budgeted) {
+                        texture->resourcePriv().makeUnbudgeted();
+                    }
+                    return texture;
                 }
-                return texture;
+                texture->unref();
             }
-            texture->unref();
         }
     }
-    return fGpu->createTexture(desc, budgeted, srcData, rowBytes);
+
+    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
+    for (int i = 0; i < mipLevelCount; ++i) {
+        texelsShallowCopy.push_back(texels[i]);
+    }
+    return fGpu->createTexture(desc, budgeted, texelsShallowCopy);
+}
+
+GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                            const void* srcData, size_t rowBytes) {
+    const int mipLevelCount = 1;
+    GrMipLevel texels[mipLevelCount];
+    texels[0].fPixels = srcData;
+    texels[0].fRowBytes = rowBytes;
+
+    return this->createMipMappedTexture(desc, budgeted, texels, mipLevelCount);
 }
 
 GrTexture* GrTextureProvider::createApproxTexture(const GrSurfaceDesc& desc) {

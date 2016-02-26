@@ -328,12 +328,12 @@ private:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
-                               const void* srcData, size_t rowBytes) override {
+                               const SkTArray<GrMipLevel>& texels) override {
         return nullptr;
     }
 
     GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
-                                         const void* srcData) override {
+                                         const SkTArray<GrMipLevel>& texels) override {
         return nullptr;
     }
 
@@ -372,8 +372,7 @@ private:
 
     bool onWritePixels(GrSurface* surface,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, const void* buffer,
-                       size_t rowBytes) override {
+                       GrPixelConfig config, const SkTArray<GrMipLevel>& texels) override {
         return false;
     }
 

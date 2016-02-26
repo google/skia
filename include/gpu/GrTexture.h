@@ -45,7 +45,7 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    GrTexture(GrGpu*, LifeCycle, const GrSurfaceDesc&);
+    GrTexture(GrGpu*, LifeCycle, const GrSurfaceDesc&, bool wasMipMapDataProvided);
 
     void validateDesc() const;
 
@@ -60,6 +60,7 @@ private:
     };
 
     MipMapsStatus   fMipMapsStatus;
+    int fMaxMipMapLevel;
 
     friend class GrTexturePriv;
 

@@ -39,6 +39,14 @@ public:
         return GrTexture::kNotAllocated_MipMapsStatus != fTexture->fMipMapsStatus;
     }
 
+    void setMaxMipMapLevel(int maxMipMapLevel) const {
+        fTexture->fMaxMipMapLevel = maxMipMapLevel;
+    }
+
+    int maxMipMapLevel() const {
+        return fTexture->fMaxMipMapLevel;
+    }
+
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
 
 private:

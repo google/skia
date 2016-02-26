@@ -239,7 +239,8 @@ static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
  *  5. Ask the generator to return RGB(A) data, which the GPU can convert
  */
 GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key,
-                                          const SkImage* client, SkImage::CachingHint chint) {
+                                          const SkImage* client, SkImage::CachingHint chint,
+                                          bool willBeMipped) {
     // Values representing the various texture lock paths we can take. Used for logging the path
     // taken to a histogram.
     enum LockTexturePath {
@@ -301,7 +302,12 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
     if (this->tryLockAsBitmap(&bitmap, client, chint)) {
-        GrTexture* tex = GrUploadBitmapToTexture(ctx, bitmap);
+        GrTexture* tex = nullptr;
+        if (willBeMipped) {
+            tex = GrGenerateMipMapsAndUploadToTexture(ctx, bitmap);
+        } else {
+            tex = GrUploadBitmapToTexture(ctx, bitmap);
+        }
         if (tex) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);

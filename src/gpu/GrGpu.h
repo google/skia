@@ -13,8 +13,10 @@
 #include "GrStencil.h"
 #include "GrSwizzle.h"
 #include "GrTextureParamsAdjuster.h"
+#include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "SkPath.h"
+#include "SkTArray.h"
 
 class GrBatchTracker;
 class GrContext;
@@ -82,16 +84,30 @@ public:
      *
      * @param desc        describes the texture to be created.
      * @param budgeted    does this texture count against the resource cache budget?
-     * @param srcData     texel data to load texture. Begins with full-size
-     *                    palette data for paletted textures. For compressed
-     *                    formats it contains the compressed pixel data. Otherwise,
-     *                    it contains width*height texels. If nullptr texture data
-     *                    is uninitialized.
-     * @param rowBytes    the number of bytes between consecutive rows. Zero
-     *                    means rows are tightly packed. This field is ignored
-     *                    for compressed formats.
-     *
+     * @param texels      array of mipmap levels containing texel data to load.
+     *                    Each level begins with full-size palette data for paletted textures.
+     *                    For compressed formats the level contains the compressed pixel data.
+     *                    Otherwise, it contains width*height texels. If there is only one
+     *                    element and it contains nullptr fPixels, texture data is
+     *                    uninitialized.
      * @return    The texture object if successful, otherwise nullptr.
+     */
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                             const SkTArray<GrMipLevel>& texels);
+
+    /**
+     * This function is a shim which creates a SkTArGrMipLevell> of size 1.
+     * It then calls createTexture with that SkTArray.
+     *
+     * @param srcData  texel data to load texture. Begins with full-size
+     *                 palette data for paletted texture. For compressed
+     *                 formats it contains the compressed pixel data. Otherwise,
+     *                 it contains width*height texels. If nullptr texture data
+     *                 is uninitialized.
+     * @param rowBytes the number of bytes between consecutive rows. Zero
+     *                 means rows are tightly packed. This field is ignored
+     *                 for compressed pixel formats.
+     * @return    The texture object if successful, otherwise, nullptr.
      */
     GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                              const void* srcData, size_t rowBytes);
@@ -260,9 +276,20 @@ public:
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
-     * @param buffer        memory to read pixels from
-     * @param rowBytes      number of bytes between consecutive rows. Zero
-     *                      means rows are tightly packed.
+     * @param texels        array of mipmap levels containing texture data
+     */
+    bool writePixels(GrSurface* surface,
+                     int left, int top, int width, int height,
+                     GrPixelConfig config,
+                     const SkTArray<GrMipLevel>& texels);
+
+    /**
+     * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
+     * It then calls writePixels with that SkTArray.
+     *
+     * @param buffer   memory to read pixels from.
+     * @param rowBytes number of bytes between consecutive rows. Zero
+     *                 means rows are tightly packed.
      */
     bool writePixels(GrSurface* surface,
                      int left, int top, int width, int height,
@@ -510,10 +537,11 @@ private:
     // onCreateTexture/CompressedTexture are called.
     virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
                                        GrGpuResource::LifeCycle lifeCycle,
-                                       const void* srcData, size_t rowBytes) = 0;
+                                       const SkTArray<GrMipLevel>& texels) = 0;
     virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
                                                  GrGpuResource::LifeCycle lifeCycle,
-                                                 const void* srcData) = 0;
+                                                 const SkTArray<GrMipLevel>& texels) = 0;
+
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                                       GrWrapOwnership) = 0;
@@ -555,8 +583,8 @@ private:
     // overridden by backend-specific derived class to perform the surface write
     virtual bool onWritePixels(GrSurface*,
                                int left, int top, int width, int height,
-                               GrPixelConfig config, const void* buffer,
-                               size_t rowBytes) = 0;
+                               GrPixelConfig config,
+                               const SkTArray<GrMipLevel>& texels) = 0;
 
     // overridden by backend-specific derived class to perform the surface write
     virtual bool onTransferPixels(GrSurface*,

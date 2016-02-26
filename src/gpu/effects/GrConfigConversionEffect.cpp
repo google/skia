@@ -175,6 +175,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fIsMipMapped = false;
 
     SkAutoTUnref<GrTexture> readTex(context->textureProvider()->createTexture(
         desc, SkBudgeted::kYes, nullptr, 0));

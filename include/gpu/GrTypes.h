@@ -8,9 +8,9 @@
 #ifndef GrTypes_DEFINED
 #define GrTypes_DEFINED
 
+#include "SkMath.h"
 #include "SkTypes.h"
 #include "GrConfig.h"
-#include "SkMath.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -425,6 +425,11 @@ enum GrSurfaceOrigin {
     kBottomLeft_GrSurfaceOrigin,
 };
 
+struct GrMipLevel {
+    const void* fPixels;
+    size_t fRowBytes;
+};
+
 /**
  * An container of function pointers which consumers of Skia can fill in and
  * pass to Skia. Skia will use these function pointers in place of its backend
@@ -487,7 +492,8 @@ struct GrSurfaceDesc {
     , fWidth(0)
     , fHeight(0)
     , fConfig(kUnknown_GrPixelConfig)
-    , fSampleCnt(0) {
+    , fSampleCnt(0)
+    , fIsMipMapped(false) {
     }
 
     GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags
@@ -515,6 +521,8 @@ struct GrSurfaceDesc {
      * usual texture creation method (e.g. TexImage2D in OpenGL).
      */
     GrTextureStorageAllocator fTextureStorageAllocator;
+
+    bool                   fIsMipMapped; //!< Indicates if the texture has mipmaps
 };
 
 // Legacy alias

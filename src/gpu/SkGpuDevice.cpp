@@ -217,6 +217,7 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
     desc.fTextureStorageAllocator = textureStorageAllocator;
+    desc.fIsMipMapped = false;
     GrTexture* texture = context->textureProvider()->createTexture(desc, budgeted, nullptr, 0);
     if (nullptr == texture) {
         return nullptr;

@@ -310,6 +310,7 @@ const GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* con
     desc.fWidth = fCache.cubeDimension();
     desc.fHeight = fCache.cubeDimension() * fCache.cubeDimension();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fIsMipMapped = false;
 
     SkAutoTUnref<GrTexture> textureCube(
         context->textureProvider()->findAndRefTextureByUniqueKey(key));

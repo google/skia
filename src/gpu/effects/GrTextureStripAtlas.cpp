@@ -194,6 +194,7 @@ void GrTextureStripAtlas::lockTexture() {
     texDesc.fWidth = fDesc.fWidth;
     texDesc.fHeight = fDesc.fHeight;
     texDesc.fConfig = fDesc.fConfig;
+    texDesc.fIsMipMapped = false;
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;

@@ -15,14 +15,22 @@
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, idDesc.fLifeCycle, desc)
-    , INHERITED(gpu, idDesc.fLifeCycle, desc) {
+    , INHERITED(gpu, idDesc.fLifeCycle, desc, false) {
+    this->init(desc, idDesc);
+    this->registerWithCache();
+}
+
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
+                         bool wasMipMapDataProvided)
+    : GrSurface(gpu, idDesc.fLifeCycle, desc)
+    , INHERITED(gpu, idDesc.fLifeCycle, desc, wasMipMapDataProvided) {
     this->init(desc, idDesc);
     this->registerWithCache();
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc, Derived)
     : GrSurface(gpu, idDesc.fLifeCycle, desc)
-    , INHERITED(gpu, idDesc.fLifeCycle, desc) {
+    , INHERITED(gpu, idDesc.fLifeCycle, desc, false) {
     this->init(desc, idDesc);
 }
 

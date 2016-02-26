@@ -119,6 +119,8 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
  */
 GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
+GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&);
+
 //////////////////////////////////////////////////////////////////////////////
 
 GR_STATIC_ASSERT((int)kZero_GrBlendCoeff == (int)SkXfermode::kZero_Coeff);
