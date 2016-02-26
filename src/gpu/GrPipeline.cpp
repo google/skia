@@ -184,23 +184,14 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
                                                 int* firstColorProcessorIdx,
                                                 int* firstCoverageProcessorIdx) {
     fIgnoresCoverage = SkToBool(flags & GrXferProcessor::kIgnoreCoverage_OptFlag);
-    fReadsFragPosition = this->getXferProcessor().willReadFragmentPosition();
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorProcessorIdx = pipelineBuilder.numColorFragmentProcessors();
-    } else {
-        if (colorPOI.readsFragPosition()) {
-            fReadsFragPosition = true;
-        }
     }
 
     if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
         *firstCoverageProcessorIdx = pipelineBuilder.numCoverageFragmentProcessors();
-    } else {
-        if (coveragePOI.readsFragPosition()) {
-            fReadsFragPosition = true;
-        }
     }
 }
 

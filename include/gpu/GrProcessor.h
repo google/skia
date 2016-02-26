@@ -79,8 +79,17 @@ public:
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
-    /** Will this processor read the fragment position? */
-    bool willReadFragmentPosition() const { return fWillReadFragmentPosition; }
+    /**
+     * Platform specific built-in features that a processor can request for the fragment shader.
+     */
+    enum RequiredFeatures {
+        kNone_RequiredFeatures             = 0,
+        kFragmentPosition_RequiredFeature  = 1
+    };
+
+    GR_DECL_BITFIELD_OPS_FRIENDS(RequiredFeatures);
+
+    RequiredFeatures requiredFeatures() const { return fRequiredFeatures; }
 
     void* operator new(size_t size);
     void operator delete(void* target);
@@ -100,7 +109,7 @@ public:
     uint32_t classID() const { SkASSERT(kIllegalProcessorClassID != fClassID); return fClassID; }
 
 protected:
-    GrProcessor() : fClassID(kIllegalProcessorClassID), fWillReadFragmentPosition(false) {}
+    GrProcessor() : fClassID(kIllegalProcessorClassID), fRequiredFeatures(kNone_RequiredFeatures) {}
 
     /**
      * Subclasses call this from their constructor to register GrTextureAccesses. The processor
@@ -117,7 +126,11 @@ protected:
      * position in the FS then it must call this method from its constructor. Otherwise, the
      * request to access the fragment position will be denied.
      */
-    void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
+    void setWillReadFragmentPosition() { fRequiredFeatures |= kFragmentPosition_RequiredFeature; }
+
+    void combineRequiredFeatures(const GrProcessor& other) {
+        fRequiredFeatures |= other.fRequiredFeatures;
+    }
 
     template <typename PROC_SUBCLASS> void initClassID() {
          static uint32_t kClassID = GenClassID();
@@ -145,9 +158,11 @@ private:
     };
     static int32_t gCurrProcessorClassID;
 
-    bool                                         fWillReadFragmentPosition;
+    RequiredFeatures fRequiredFeatures;
 
     typedef GrProgramElement INHERITED;
 };
+
+GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
 
 #endif

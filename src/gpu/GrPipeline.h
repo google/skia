@@ -160,7 +160,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool readsFragPosition() const { return fReadsFragPosition; }
     bool ignoresCoverage() const { return fIgnoresCoverage; }
 
 private:
@@ -200,7 +199,6 @@ private:
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentProcessorArray              fFragmentProcessors;
-    bool                                fReadsFragPosition;
     bool                                fIgnoresCoverage;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.

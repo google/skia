@@ -99,7 +99,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
-    verify(proc);
+    SkDEBUGCODE(verify(proc);)
 
     fFS.codeAppend("}");
 }
@@ -147,7 +147,7 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
-    verify(fp);
+    SkDEBUGCODE(verify(fp);)
     fFragmentProcessors.push_back(fragProc);
 
     fFS.codeAppend("}");
@@ -194,7 +194,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
-    verify(xp);
+    SkDEBUGCODE(verify(xp);)
     fFS.codeAppend("}");
 }
 
@@ -214,17 +214,20 @@ void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {
     }
 }
 
+#ifdef SK_DEBUG
 void GrGLSLProgramBuilder::verify(const GrPrimitiveProcessor& gp) {
-    SkASSERT(fFS.hasReadFragmentPosition() == gp.willReadFragmentPosition());
+    SkASSERT(fFS.usedProcessorFeatures() == gp.requiredFeatures());
 }
 
 void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
+    SkASSERT(fFS.usedProcessorFeatures() == xp.requiredFeatures());
     SkASSERT(fFS.hasReadDstColor() == xp.willReadDstColor());
 }
 
 void GrGLSLProgramBuilder::verify(const GrFragmentProcessor& fp) {
-    SkASSERT(fFS.hasReadFragmentPosition() == fp.willReadFragmentPosition());
+    SkASSERT(fFS.usedProcessorFeatures() == fp.requiredFeatures());
 }
+#endif
 
 void GrGLSLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name, bool mangle) {
     if ('\0' == prefix) {

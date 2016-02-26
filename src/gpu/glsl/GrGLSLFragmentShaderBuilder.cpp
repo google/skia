@@ -74,10 +74,16 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     , fHasCustomColorOutput(false)
     , fCustomColorOutputIndex(-1)
     , fHasSecondaryOutput(false)
-    , fHasInitializedSampleMask(false)
-    , fHasReadDstColor(false)
-    , fHasReadFragmentPosition(false) {
+    , fHasInitializedSampleMask(false) {
     fSubstageIndices.push_back(0);
+#ifdef SK_DEBUG
+    fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
+    fHasReadDstColor = false;
+#endif
+}
+
+bool GrGLSLFragmentShaderBuilder::hasFragmentPosition() const {
+    return 0 != fProgramBuilder->header().fFragPosKey;
 }
 
 bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
@@ -123,7 +129,8 @@ SkString GrGLSLFragmentShaderBuilder::ensureFSCoords2D(const GrGLSLTransformedCo
 }
 
 const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
-    fHasReadFragmentPosition = true;
+    SkASSERT(this->hasFragmentPosition());
+    SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kFragmentPosition_RequiredFeature;)
 
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
     // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
@@ -212,7 +219,7 @@ void GrGLSLFragmentShaderBuilder::overrideSampleCoverage(const char* mask) {
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
-    fHasReadDstColor = true;
+    SkDEBUGCODE(fHasReadDstColor = true;)
 
     const char* override = fProgramBuilder->primitiveProcessor().getDestColorOverride();
     if (override != nullptr) {

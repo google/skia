@@ -10,6 +10,7 @@
 
 #include "GrGLSLShaderBuilder.h"
 
+#include "GrProcessor.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 
 class GrRenderTarget;
@@ -165,20 +166,24 @@ public:
     void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
 
 private:
+    bool hasFragmentPosition() const;
+
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader
     void enableCustomOutput();
     void enableSecondaryOutput();
     const char* getPrimaryColorOutputName() const;
     const char* getSecondaryColorOutputName() const;
 
+#ifdef SK_DEBUG
     // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
     // state to track this.  The reset call is called per processor emitted.
+    GrProcessor::RequiredFeatures usedProcessorFeatures() const { return fUsedProcessorFeatures; }
     bool hasReadDstColor() const { return fHasReadDstColor; }
-    bool hasReadFragmentPosition() const { return fHasReadFragmentPosition; }
-    void reset() {
+    void resetVerification() {
+        fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
         fHasReadDstColor = false;
-        fHasReadFragmentPosition = false;
     }
+#endif
 
     static const char* DeclaredColorOutputName() { return "fsColorOut"; }
     static const char* DeclaredSecondaryColorOutputName() { return "fsSecondaryColorOut"; }
@@ -226,10 +231,12 @@ private:
     bool fHasSecondaryOutput;
     bool fHasInitializedSampleMask;
 
+#ifdef SK_DEBUG
     // some state to verify shaders and effects are consistent, this is reset between effects by
     // the program creator
+    GrProcessor::RequiredFeatures fUsedProcessorFeatures;
     bool fHasReadDstColor;
-    bool fHasReadFragmentPosition;
+#endif
 
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;

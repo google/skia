@@ -105,7 +105,7 @@ private:
     // fragment shader are cleared.
     void reset() {
         this->addStage();
-        fFS.reset();
+        SkDEBUGCODE(fFS.resetVerification();)
     }
     void addStage() { fStageIndex++; }
 
@@ -141,9 +141,11 @@ private:
                                 GrPixelLocalStorageState plsState);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
 
+#ifdef SK_DEBUG
     void verify(const GrPrimitiveProcessor&);
     void verify(const GrXferProcessor&);
     void verify(const GrFragmentProcessor&);
+#endif
 
     virtual void emitSamplers(const GrProcessor& processor,
                               GrGLSLTextureSampler::TextureSamplerArray* outSamplers) = 0;

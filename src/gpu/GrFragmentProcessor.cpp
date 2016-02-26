@@ -96,9 +96,7 @@ int GrFragmentProcessor::registerChildProcessor(const GrFragmentProcessor* child
     int index = fChildProcessors.count();
     fChildProcessors.push_back(SkRef(child));
 
-    if (child->willReadFragmentPosition()) {
-        this->setWillReadFragmentPosition();
-    }
+    this->combineRequiredFeatures(*child);
 
     if (child->usesLocalCoords()) {
         fUsesLocalCoords = true;

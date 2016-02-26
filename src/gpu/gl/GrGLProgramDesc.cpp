@@ -120,6 +120,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
         glDesc->key().reset();
         return false;
     }
+    GrProcessor::RequiredFeatures requiredFeatures = primProc.requiredFeatures();
 
     for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
         const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
@@ -127,6 +128,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
             glDesc->key().reset();
             return false;
         }
+        requiredFeatures |= fp.requiredFeatures();
     }
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
@@ -135,6 +137,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
         glDesc->key().reset();
         return false;
     }
+    requiredFeatures |= xp.requiredFeatures();
 
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
@@ -144,7 +147,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    if (pipeline.readsFragPosition()) {
+    if (requiredFeatures & GrProcessor::kFragmentPosition_RequiredFeature) {
         header->fFragPosKey =
                 GrGLSLFragmentShaderBuilder::KeyForFragmentPosition(pipeline.getRenderTarget());
     } else {
