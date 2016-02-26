@@ -21,8 +21,6 @@ namespace Response {
     int SendData(MHD_Connection* connection, const SkData* data, const char* type,
                  bool setContentDisposition = false, const char* dispositionString = nullptr);
 
-    int SendJSON(MHD_Connection* connection, Request* request, int n);
-
     int SendTemplate(MHD_Connection* connection, bool redirect = false,
                      const char* redirectUrl = nullptr);
 }

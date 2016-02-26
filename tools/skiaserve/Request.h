@@ -39,6 +39,14 @@ struct Request {
     SkCanvas* getCanvas();
     SkData* writeCanvasToPng(SkCanvas* canvas);
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
+    bool hasPicture() const { return SkToBool(fPicture.get()); }
+    int getLastOp() const { return fDebugCanvas->getSize() - 1; }
+
+    // Returns the json list of ops as an SkData
+    SkData* getJsonOps(int n);
+
+    // Returns a json list of batches as an SkData
+    SkData* getJsonBatchList(int n);
 
     // TODO probably want to make this configurable
     static const int kImageWidth;

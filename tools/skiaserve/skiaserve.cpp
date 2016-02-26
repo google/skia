@@ -41,6 +41,7 @@ public:
         fHandlers.push_back(new DownloadHandler);
         fHandlers.push_back(new DataHandler);
         fHandlers.push_back(new BreakHandler);
+        fHandlers.push_back(new BatchesHandler);
     }
 
     ~UrlManager() {

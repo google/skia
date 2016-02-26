@@ -111,3 +111,41 @@ SkSurface* Request::createGPUSurface() {
     return surface;
 }
 
+SkData* Request::getJsonOps(int n) {
+    SkCanvas* canvas = this->getCanvas();
+    Json::Value root = fDebugCanvas->toJSON(fUrlDataManager, n, canvas);
+    root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
+    SkDynamicMemoryWStream stream;
+    stream.writeText(Json::FastWriter().write(root).c_str());
+
+    return stream.copyToData();
+}
+
+SkData* Request::getJsonBatchList(int n) {
+    SkCanvas* canvas = this->getCanvas();
+    SkASSERT(fGPUEnabled);
+
+    // TODO if this is inefficient we could add a method to GrAuditTrail which takes
+    // a Json::Value and is only compiled in this file
+    Json::Value parsedFromString;
+#if SK_SUPPORT_GPU
+    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
+    SkASSERT(rt);
+    GrContext* ctx = rt->getContext();
+    SkASSERT(ctx);
+    GrAuditTrail* at = ctx->getAuditTrail();
+    GrAuditTrail::AutoManageBatchList enable(at);
+    
+    fDebugCanvas->drawTo(canvas, n);
+
+    Json::Reader reader;
+    SkDEBUGCODE(bool parsingSuccessful = )reader.parse(at->toJson(true).c_str(),
+                                                       parsedFromString);
+    SkASSERT(parsingSuccessful);
+#endif
+
+    SkDynamicMemoryWStream stream;
+    stream.writeText(Json::FastWriter().write(parsedFromString).c_str());
+
+    return stream.copyToData();
+}

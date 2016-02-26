@@ -24,7 +24,7 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
     SkTArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
-    if (!request->fPicture.get() || commands.count() > 3) {
+    if (!request->hasPicture() || commands.count() > 3) {
         return MHD_NO;
     }
 
@@ -32,11 +32,13 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
     if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
         int n;
         if (commands.count() == 1) {
-            n = request->fDebugCanvas->getSize() - 1;
+            n = request->getLastOp();
         } else {
             sscanf(commands[1].c_str(), "%d", &n);
         }
-        return SendJSON(connection, request, n);
+        
+        SkAutoTUnref<SkData> data(request->getJsonOps(n));
+        return SendData(connection, data, "application/json");
     }
 
     // /cmd/N, for now only delete supported

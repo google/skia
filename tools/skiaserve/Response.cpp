@@ -77,19 +77,6 @@ int SendData(MHD_Connection* connection, const SkData* data, const char* type,
     return ret;
 }
 
-int SendJSON(MHD_Connection* connection, Request* request, int n) {
-    SkCanvas* canvas = request->getCanvas();
-    SkDebugCanvas* debugCanvas = request->fDebugCanvas;
-    UrlDataManager* urlDataManager = &request->fUrlDataManager;
-    Json::Value root = debugCanvas->toJSON(*urlDataManager, n, canvas);
-    root["mode"] = Json::Value(request->fGPUEnabled ? "gpu" : "cpu");
-    SkDynamicMemoryWStream stream;
-    stream.writeText(Json::FastWriter().write(root).c_str());
-
-    SkAutoTUnref<SkData> data(stream.copyToData());
-    return SendData(connection, data, "application/json");
-}
-
 int SendTemplate(MHD_Connection* connection, bool redirect, const char* redirectUrl) {
     SkString debuggerTemplate = generate_template(SkString(FLAGS_source[0]));
 
