@@ -462,7 +462,7 @@
       '<(skia_src_path)/gpu/vk/GrVkProgram.h',
       '<(skia_src_path)/gpu/vk/GrVkProgramBuilder.cpp',
       '<(skia_src_path)/gpu/vk/GrVkProgramBuilder.h',
-      '<(skia_src_path)/gpu/vk/GrVkProgramDataManager.cpp',
+    #  '<(skia_src_path)/gpu/vk/GrVkProgramDataManager.cpp',
       '<(skia_src_path)/gpu/vk/GrVkProgramDataManager.h',
       '<(skia_src_path)/gpu/vk/GrVkProgramDesc.cpp',
       '<(skia_src_path)/gpu/vk/GrVkProgramDesc.h',
