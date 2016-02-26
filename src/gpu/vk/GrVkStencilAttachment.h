@@ -15,7 +15,7 @@
 class GrVkImageView;
 class GrVkGpu;
 
-class GrVkStencilAttachment : public GrStencilAttachment {
+class GrVkStencilAttachment : public GrStencilAttachment, public GrVkImage {
 public:
     struct Format {
         VkFormat  fInternalFormat;
@@ -30,7 +30,7 @@ public:
 
     ~GrVkStencilAttachment() override;
 
-    const GrVkImage::Resource* imageResource() const { return fImageResource;  }
+    const GrVkImage::Resource* imageResource() const { return this->resource(); }
     const GrVkImageView* stencilView() const { return fStencilView; }
 
     VkFormat vkFormat() const { return fFormat.fInternalFormat; }
@@ -53,10 +53,7 @@ private:
 
     Format fFormat;
 
-    const GrVkImage::Resource* fImageResource;
     const GrVkImageView*       fStencilView;
-
-    typedef GrStencilAttachment INHERITED;
 };
 
 #endif

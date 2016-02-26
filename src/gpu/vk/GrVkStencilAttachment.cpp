@@ -19,12 +19,12 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImage::Resource* imageResource,
                                              const GrVkImageView* stencilView)
-    : INHERITED(gpu, lifeCycle, desc.fWidth, desc.fHeight, format.fStencilBits, desc.fSamples)
+    : GrStencilAttachment(gpu, lifeCycle, desc.fWidth, desc.fHeight,
+                          format.fStencilBits, desc.fSamples)
+    , GrVkImage(imageResource)
     , fFormat(format)
-    , fImageResource(imageResource)
     , fStencilView(stencilView) {
     this->registerWithCache();
-    imageResource->ref();
     stencilView->ref();
 }
 
@@ -68,7 +68,6 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
 
 GrVkStencilAttachment::~GrVkStencilAttachment() {
     // should have been released or abandoned first
-    SkASSERT(!fImageResource);
     SkASSERT(!fStencilView);
 }
 
@@ -83,20 +82,18 @@ size_t GrVkStencilAttachment::onGpuMemorySize() const {
 void GrVkStencilAttachment::onRelease() {
     GrVkGpu* gpu = this->getVkGpu();
 
-    fImageResource->unref(gpu);
-    fImageResource = nullptr;
+    this->releaseImage(gpu);
 
     fStencilView->unref(gpu);
     fStencilView = nullptr;
-    INHERITED::onRelease();
+    GrStencilAttachment::onRelease();
 }
 
 void GrVkStencilAttachment::onAbandon() {
-    fImageResource->unrefAndAbandon();
-    fImageResource = nullptr;
+    this->abandonImage();
     fStencilView->unrefAndAbandon();
     fStencilView = nullptr;
-    INHERITED::onAbandon();
+    GrStencilAttachment::onAbandon();
 }
 
 GrVkGpu* GrVkStencilAttachment::getVkGpu() const {
