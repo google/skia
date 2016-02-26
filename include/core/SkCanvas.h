@@ -54,7 +54,7 @@ class SkTextBlob;
 */
 class SK_API SkCanvas : public SkRefCnt {
     enum PrivateSaveLayerFlags {
-        kDontClipToLayer_PrivateSaveLayerFlag   = 1 << 31,
+        kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
     };
     
 public:

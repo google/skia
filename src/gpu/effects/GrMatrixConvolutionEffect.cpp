@@ -114,7 +114,7 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
     const GrMatrixConvolutionEffect& m = processor.cast<GrMatrixConvolutionEffect>();
     SkASSERT(m.kernelSize().width() <= 0x7FFF && m.kernelSize().height() <= 0xFFFF);
     uint32_t key = m.kernelSize().width() << 16 | m.kernelSize().height();
-    key |= m.convolveAlpha() ? 1 << 31 : 0;
+    key |= m.convolveAlpha() ? 1U << 31 : 0;
     b->add32(key);
     b->add32(GrTextureDomain::GLDomain::DomainKey(m.domain()));
 }
