@@ -1024,7 +1024,9 @@ GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTextur
 
 bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRRectBlurEffect& rrbe = other.cast<GrRRectBlurEffect>();
-    return fRRect.getSimpleRadii().fX == rrbe.fRRect.getSimpleRadii().fX && fSigma == rrbe.fSigma;
+    return fRRect.getSimpleRadii().fX == rrbe.fRRect.getSimpleRadii().fX &&
+           fSigma == rrbe.fSigma &&
+           fRRect.rect() == rrbe.fRRect.rect();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1117,7 +1119,7 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
 void GrGLRRectBlurEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                     const GrProcessor& proc) {
     const GrRRectBlurEffect& brre = proc.cast<GrRRectBlurEffect>();
-    SkRRect rrect = brre.getRRect();
+    const SkRRect& rrect = brre.getRRect();
 
     float blurRadius = 3.f*SkScalarCeilToScalar(brre.getSigma()-1/6.0f);
     pdman.set1f(fBlurRadiusUniform, blurRadius);
