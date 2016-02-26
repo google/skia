@@ -1225,6 +1225,8 @@ int dm_main() {
 
     // We'd better have run everything.
     SkASSERT(gPending == 0);
+    // Make sure we've flushed all our results to disk.
+    JsonWriter::DumpJson();
 
     // At this point we're back in single-threaded land.
     sk_tool_utils::release_portable_typefaces();
