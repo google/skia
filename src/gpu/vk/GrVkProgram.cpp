@@ -202,10 +202,10 @@ void GrVkProgram::writeUniformBuffers(const GrVkGpu* gpu) {
     uint32_t firstUniformWrite = 0;
     uint32_t uniformBindingUpdateCount = 0;
 
+    VkDescriptorBufferInfo vertBufferInfo;
     // Vertex Uniform Buffer
     if (fVertexUniformBuffer.get()) {
         ++uniformBindingUpdateCount;
-        VkDescriptorBufferInfo vertBufferInfo;
         memset(&vertBufferInfo, 0, sizeof(VkDescriptorBufferInfo));
         vertBufferInfo.buffer = fVertexUniformBuffer->buffer();
         vertBufferInfo.offset = 0;
@@ -223,13 +223,13 @@ void GrVkProgram::writeUniformBuffers(const GrVkGpu* gpu) {
         descriptorWrites[0].pTexelBufferView = nullptr;
     }
 
+    VkDescriptorBufferInfo fragBufferInfo;
     // Fragment Uniform Buffer
     if (fFragmentUniformBuffer.get()) {
         if (0 == uniformBindingUpdateCount) {
             firstUniformWrite = 1;
         }
         ++uniformBindingUpdateCount;
-        VkDescriptorBufferInfo fragBufferInfo;
         memset(&fragBufferInfo, 0, sizeof(VkDescriptorBufferInfo));
         fragBufferInfo.buffer = fFragmentUniformBuffer->buffer();
         fragBufferInfo.offset = 0;
