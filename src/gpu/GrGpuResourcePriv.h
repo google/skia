@@ -50,7 +50,12 @@ public:
         return SkBudgeted(ret);
     }
 
-    /** 
+    /**
+     * Is the resource object wrapping an externally allocated GPU resource?
+     */
+    bool isExternal() const { return fResource->isExternal(); }
+
+    /**
      * If this resource can be used as a scratch resource this returns a valid scratch key.
      * Otherwise it returns a key for which isNullScratch is true. The resource may currently be
      * used as a uniquely keyed resource rather than scratch. Check isScratch().

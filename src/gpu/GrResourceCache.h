@@ -211,7 +211,7 @@ public:
             if (resource->cacheAccess().isScratch()) {
                 ++fScratch;
             }
-            if (resource->cacheAccess().isExternal()) {
+            if (resource->resourcePriv().isExternal()) {
                 ++fExternal;
             }
             if (resource->cacheAccess().isBorrowed()) {

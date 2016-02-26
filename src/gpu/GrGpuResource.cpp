@@ -169,7 +169,7 @@ void GrGpuResource::setScratchKey(const GrScratchKey& scratchKey) {
     SkASSERT(!fScratchKey.isValid());
     SkASSERT(scratchKey.isValid());
     // Wrapped resources can never have a scratch key.
-    if (this->cacheAccess().isExternal()) {
+    if (this->resourcePriv().isExternal()) {
         return;
     }
     fScratchKey = scratchKey;

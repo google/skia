@@ -31,11 +31,6 @@ private:
     }
 
     /**
-     * Is the resource object wrapping an externally allocated GPU resource?
-     */
-    bool isExternal() const { return fResource->isExternal(); }
-
-    /**
      * Is the resource object wrapping an externally allocated GPU resource that Skia has not taken
      * ownership of.
      */

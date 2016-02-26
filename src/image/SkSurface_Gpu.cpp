@@ -82,8 +82,10 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyMode fo
     SkASSERT(rt);
     GrTexture* tex = rt->asTexture();
     SkAutoTUnref<GrTexture> copy;
-    // TODO: Force a copy when the rt is an external resource.
-    if (kYes_ForceCopyMode == forceCopyMode || !tex) {
+    // If the original render target is a buffer originally created by the client, then we don't
+    // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
+    // copy-on-write.
+    if (kYes_ForceCopyMode == forceCopyMode || !tex || rt->resourcePriv().isExternal()) {
         GrSurfaceDesc desc = fDevice->accessRenderTarget()->desc();
         GrContext* ctx = fDevice->context();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;

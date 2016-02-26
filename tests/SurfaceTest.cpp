@@ -439,9 +439,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, context) {
         {
             SkAutoTUnref<SkSurface> surface(
                 SkSurface::NewRenderTargetDirect(texture->asRenderTarget()));
-            // We should be able to pass true here, but disallowing copy on write for direct GPU
-            // surfaces is not yet implemented.
-            test_unique_image_snap(reporter, surface, false, imageBackingStore,
+            test_unique_image_snap(reporter, surface, true, imageBackingStore,
                                    surfaceBackingStore);
         }
         texture->unref();
