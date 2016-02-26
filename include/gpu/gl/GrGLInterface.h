@@ -202,6 +202,7 @@ public:
         GrGLFunction<GrGLGetErrorProc> fGetError;
         GrGLFunction<GrGLGetFramebufferAttachmentParameterivProc> fGetFramebufferAttachmentParameteriv;
         GrGLFunction<GrGLGetIntegervProc> fGetIntegerv;
+        GrGLFunction<GrGLGetMultisamplefvProc> fGetMultisamplefv;
         GrGLFunction<GrGLGetQueryObjecti64vProc> fGetQueryObjecti64v;
         GrGLFunction<GrGLGetQueryObjectivProc> fGetQueryObjectiv;
         GrGLFunction<GrGLGetQueryObjectui64vProc> fGetQueryObjectui64v;

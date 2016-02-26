@@ -162,6 +162,9 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetBufferParameteriv);
     GET_PROC(GetError);
     GET_PROC(GetIntegerv);
+    if (glVer >= GR_GL_VER(3,2) || extensions.has("GL_ARB_texture_multisample")) {
+        GET_PROC(GetMultisamplefv);
+    }
     GET_PROC(GetQueryObjectiv);
     GET_PROC(GetQueryObjectuiv);
     if (glVer >= GR_GL_VER(3,3) || extensions.has("GL_ARB_timer_query")) {
@@ -609,6 +612,11 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetBufferParameteriv);
     GET_PROC(GetError);
     GET_PROC(GetIntegerv);
+
+    if (version >= GR_GL_VER(3,1)) {
+        GET_PROC(GetMultisamplefv);
+    }
+
     GET_PROC(GetProgramInfoLog);
     GET_PROC(GetProgramiv);
     GET_PROC(GetShaderInfoLog);

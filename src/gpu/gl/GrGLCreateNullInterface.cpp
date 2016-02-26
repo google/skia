@@ -402,6 +402,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fGetBufferParameteriv = nullGLGetBufferParameteriv;
     functions->fGetError = noOpGLGetError;
     functions->fGetIntegerv = noOpGLGetIntegerv;
+    functions->fGetMultisamplefv = noOpGLGetMultisamplefv;
     functions->fGetQueryObjecti64v = noOpGLGetQueryObjecti64v;
     functions->fGetQueryObjectiv = noOpGLGetQueryObjectiv;
     functions->fGetQueryObjectui64v = noOpGLGetQueryObjectui64v;

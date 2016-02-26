@@ -500,6 +500,14 @@ bool GrGLInterface::validate() const {
     }
 
     if ((kGL_GrGLStandard == fStandard &&
+         (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_texture_multisample"))) ||
+        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
+        if (NULL == fFunctions.fGetMultisamplefv) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    if ((kGL_GrGLStandard == fStandard &&
          (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_program_interface_query"))) ||
         (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
         if (nullptr == fFunctions.fGetProgramResourceLocation) {

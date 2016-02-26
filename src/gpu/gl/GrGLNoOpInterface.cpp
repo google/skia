@@ -561,6 +561,12 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetInfoLog(GrGLuint program,
    }
 }
 
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetMultisamplefv(GrGLenum pname,
+                                                    GrGLuint index,
+                                                    GrGLfloat* val) {
+    val[0] = val[1] = 0.5f;
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetShaderOrProgramiv(GrGLuint program,
                                                         GrGLenum pname,
                                                         GrGLint* params) {
