@@ -304,6 +304,42 @@ private:
 DEF_GM( return new GradientsDegenrate2PointGM(true); )
 DEF_GM( return new GradientsDegenrate2PointGM(false); )
 
+/* bug.skia.org/517
+<canvas id="canvas"></canvas>
+<script>
+var c = document.getElementById("canvas");
+var ctx = c.getContext("2d");
+ctx.fillStyle = '#ff0';
+ctx.fillRect(0, 0, 100, 50);
+
+var g = ctx.createRadialGradient(200, 25, 20, 200, 25, 10);
+g.addColorStop(0, '#0f0');
+g.addColorStop(0.003, '#f00');  // 0.004 makes this work
+g.addColorStop(1, '#ff0');
+ctx.fillStyle = g;
+ctx.fillRect(0, 0, 100, 50);
+</script>
+*/
+
+// should draw only green
+DEF_SIMPLE_GM(small_color_stop, canvas, 100, 150) {
+    SkColor colors[] = { SK_ColorGREEN, SK_ColorRED, SK_ColorYELLOW };
+    SkScalar pos[] = { 0, 0.003f, SK_Scalar1 };  // 0.004f makes this work
+    SkPoint c0 = { 200, 25 };
+    SkScalar r0 = 20;
+    SkPoint c1 = { 200, 25 };
+    SkScalar r1 = 10;
+    SkShader* s = SkGradientShader::CreateTwoPointConical(c0, r0, c1, r1, colors,
+                                                          pos, SK_ARRAY_COUNT(pos),
+                                                          SkShader::kClamp_TileMode);
+    SkPaint paint;
+    paint.setColor(SK_ColorYELLOW);
+    canvas->drawRect(SkRect::MakeWH(100, 150), paint);
+    paint.setShader(s)->unref();
+    canvas->drawRect(SkRect::MakeWH(100, 150), paint);
+}
+
+
 /// Tests correctness of *optimized* codepaths in gradients.
 
 class ClampedGradientsGM : public GM {
