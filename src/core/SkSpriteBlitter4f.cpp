@@ -82,8 +82,12 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseF16(const SkPixmap& source, const SkPain
 
 class Sprite_sRGB : public Sprite_4f {
 public:
-    Sprite_sRGB(const SkPixmap& src, const SkPaint& paint) : INHERITED(src, paint) {
-        uint32_t flags = SkXfermode::kDstIsSRGB_D32Flag;
+    Sprite_sRGB(const SkPixmap& src, const SkPaint& paint, SkColorProfileType dstPt)
+        : INHERITED(src, paint) {
+        uint32_t flags = 0;
+        if (kSRGB_SkColorProfileType == dstPt) {
+            flags |= SkXfermode::kDstIsSRGB_D32Flag;
+        }
         if (src.isOpaque()) {
             flags |= SkXfermode::kSrcIsOpaque_D32Flag;
         }
@@ -111,8 +115,9 @@ private:
 };
 
 
-SkSpriteBlitter* SkSpriteBlitter::ChooseS32(const SkPixmap& source, const SkPaint& paint,
-                                            SkTBlitterAllocator* allocator) {
+SkSpriteBlitter* SkSpriteBlitter::ChooseNew32(const SkPixmap& source, const SkPaint& paint,
+                                              SkTBlitterAllocator* allocator,
+                                              SkColorProfileType dstPt) {
     SkASSERT(allocator != nullptr);
     
     if (paint.getMaskFilter() != nullptr) {
@@ -122,7 +127,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseS32(const SkPixmap& source, const SkPain
     switch (source.colorType()) {
         case kN32_SkColorType:
         case kRGBA_F16_SkColorType:
-            return allocator->createT<Sprite_sRGB>(source, paint);
+            return allocator->createT<Sprite_sRGB>(source, paint, dstPt);
         default:
             return nullptr;
     }

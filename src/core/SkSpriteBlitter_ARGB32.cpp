@@ -254,8 +254,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPaint& paint,
-                                            SkTBlitterAllocator* allocator) {
+SkSpriteBlitter* SkSpriteBlitter::ChooseLegacy32(const SkPixmap& source, const SkPaint& paint,
+                                                 SkTBlitterAllocator* allocator) {
     SkASSERT(allocator != nullptr);
 
     if (paint.getMaskFilter() != nullptr) {
