@@ -27,18 +27,14 @@ struct UploadContext {
 };
 
 struct Request {
-    Request(SkString rootUrl) 
-    : fUploadContext(nullptr)
-    , fUrlDataManager(rootUrl)
-    , fGPUEnabled(false) {}
+    Request(SkString rootUrl); 
 
-    SkSurface* createCPUSurface();
-    SkSurface* createGPUSurface();
     SkData* drawToPng(int n);
     void drawToCanvas(int n);
     SkCanvas* getCanvas();
     SkData* writeCanvasToPng(SkCanvas* canvas);
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
+    bool enableGPU(bool enable);
     bool hasPicture() const { return SkToBool(fPicture.get()); }
     int getLastOp() const { return fDebugCanvas->getSize() - 1; }
 
@@ -48,6 +44,9 @@ struct Request {
     // Returns a json list of batches as an SkData
     SkData* getJsonBatchList(int n);
 
+    // Returns json with the viewMatrix and clipRect
+    SkData* getJsonInfo(int n);
+
     // TODO probably want to make this configurable
     static const int kImageWidth;
     static const int kImageHeight;
@@ -55,9 +54,14 @@ struct Request {
     UploadContext* fUploadContext;
     SkAutoTUnref<SkPicture> fPicture;
     SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
+    UrlDataManager fUrlDataManager;
+    
+private:
+    SkSurface* createCPUSurface();
+    SkSurface* createGPUSurface();
+    
     SkAutoTDelete<GrContextFactory> fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;
-    UrlDataManager fUrlDataManager;
     bool fGPUEnabled;
 };
 

@@ -5,9 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "GrCaps.h"
-#include "GrContextFactory.h"
-
 #include "Request.h"
 #include "Response.h"
 
@@ -83,11 +80,6 @@ int answer_to_connection(void* cls, struct MHD_Connection* connection,
 
 int skiaserve_main() {
     Request request(SkString("/data")); // This simple server has one request
-
-    // create surface
-    GrContextOptions grContextOpts;
-    request.fContextFactory.reset(new GrContextFactory(grContextOpts));
-    request.fSurface.reset(request.createCPUSurface());
 
     struct MHD_Daemon* daemon;
     // TODO Add option to bind this strictly to an address, e.g. localhost, for security.

@@ -32,17 +32,10 @@ int EnableGPUHandler::handle(Request* request, MHD_Connection* connection,
     int enable;
     sscanf(commands[1].c_str(), "%d", &enable);
 
-    if (enable) {
-        SkSurface* surface = request->createGPUSurface();
-        if (surface) {
-            request->fSurface.reset(surface);
-            request->fGPUEnabled = true;
-            return SendOK(connection);
-        }
+    bool success = request->enableGPU(enable);
+    if (!success) {
         return SendError(connection, "Unable to create GPU surface");
     }
-    request->fSurface.reset(request->createCPUSurface());
-    request->fGPUEnabled = false;
     return SendOK(connection);
 }
 

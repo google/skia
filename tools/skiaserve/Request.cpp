@@ -9,6 +9,8 @@
 
 #include "png.h"
 
+#include "SkJSONCanvas.h"
+
 const int Request::kImageWidth = 1920;
 const int Request::kImageHeight = 1080;
 
@@ -46,6 +48,16 @@ static void write_png(const png_bytep rgba, png_uint_32 width, png_uint_32 heigh
     png_write_png(png, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     png_destroy_write_struct(&png, NULL);
     sk_free(rows);
+}
+
+Request::Request(SkString rootUrl)
+    : fUploadContext(nullptr)
+    , fUrlDataManager(rootUrl)
+    , fGPUEnabled(false) {
+    // create surface
+    GrContextOptions grContextOpts;
+    fContextFactory.reset(new GrContextFactory(grContextOpts));
+    fSurface.reset(this->createCPUSurface());
 }
 
 SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
@@ -111,6 +123,21 @@ SkSurface* Request::createGPUSurface() {
     return surface;
 }
 
+bool Request::enableGPU(bool enable) {    
+    if (enable) {
+        SkSurface* surface = this->createGPUSurface();
+        if (surface) {
+            fSurface.reset(surface);
+            fGPUEnabled = true;
+            return true;
+        }
+        return false;
+    }
+    fSurface.reset(this->createCPUSurface());
+    fGPUEnabled = false;
+    return true;
+}
+
 SkData* Request::getJsonOps(int n) {
     SkCanvas* canvas = this->getCanvas();
     Json::Value root = fDebugCanvas->toJSON(fUrlDataManager, n, canvas);
@@ -148,4 +175,25 @@ SkData* Request::getJsonBatchList(int n) {
     stream.writeText(Json::FastWriter().write(parsedFromString).c_str());
 
     return stream.copyToData();
+}
+
+SkData* Request::getJsonInfo(int n) {
+    // drawTo
+    SkAutoTUnref<SkSurface> surface(this->createCPUSurface());
+    SkCanvas* canvas = surface->getCanvas();
+
+    // TODO this is really slow and we should cache the matrix and clip
+    fDebugCanvas->drawTo(canvas, n);
+
+    // make some json
+    SkMatrix vm = fDebugCanvas->getCurrentMatrix();
+    SkIRect clip = fDebugCanvas->getCurrentClip();
+    Json::Value info(Json::objectValue);
+    info["ViewMatrix"] = SkJSONCanvas::MakeMatrix(vm);
+    info["ClipRect"] = SkJSONCanvas::MakeIRect(clip);
+
+    std::string json = Json::FastWriter().write(info);
+
+    // We don't want the null terminator so strlen is correct
+    return SkData::NewWithCopy(json.c_str(), strlen(json.c_str()));
 }
