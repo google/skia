@@ -472,7 +472,12 @@ SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
                                      SkPixelSerializer* pixelSerializer) {
     SkAutoTUnref<SkData> data(image->refEncoded());
     SkJFIFInfo info;
-    if (data && SkIsJFIF(data, &info)) {
+    if (data && SkIsJFIF(data, &info) &&
+        (!pixelSerializer ||
+         pixelSerializer->useEncodedData(data->data(), data->size()))) {
+        // If there is a SkPixelSerializer, give it a chance to
+        // re-encode the JPEG with more compression by returning false
+        // from useEncodedData.
         bool yuv = info.fType == SkJFIFInfo::kYCbCr;
         if (info.fSize == image->dimensions()) {  // Sanity check.
             // hold on to data, not image.
