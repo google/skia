@@ -163,6 +163,8 @@ class SkPicturePlayback(object):
     self._alternate_upload_dir = parse_options.alternate_upload_dir
     self._telemetry_binaries_dir = os.path.join(parse_options.chrome_src_path,
                                                 'tools', 'perf')
+    self._catapult_dir = os.path.join(parse_options.chrome_src_path,
+                                      'third_party', 'catapult')
 
     self._local_skp_dir = os.path.join(
         parse_options.output_dir, ROOT_PLAYBACK_DIR_NAME, SKPICTURES_DIR_NAME)
@@ -251,7 +253,7 @@ class SkPicturePlayback(object):
         # Create an archive of the specified webpages if '--record=True' is
         # specified.
         record_wpr_cmd = (
-          'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
+          'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
           'DISPLAY=%s' % X11_DISPLAY,
           os.path.join(self._telemetry_binaries_dir, 'record_wpr'),
           '--extra-browser-args="%s"' % self._browser_args,
@@ -289,7 +291,7 @@ class SkPicturePlayback(object):
         self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
 
       run_benchmark_cmd = (
-          'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
+          'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
           'DISPLAY=%s' % X11_DISPLAY,
           'timeout', '300',
           os.path.join(self._telemetry_binaries_dir, 'run_benchmark'),
