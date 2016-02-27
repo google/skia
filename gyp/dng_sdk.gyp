@@ -127,16 +127,7 @@
       'msvs_settings': {
         'VCCLCompilerTool': {
           'WarningLevel': '0',
-          'AdditionalOptions': [
-            '/wd4189',
-            '/DqDNGBigEndian#0',
-            '/DqDNGReportErrors#0',
-            '/DqDNGThreadSafe#1',
-            '/DqDNGUseLibJPEG#1',
-            '/DqDNGUseXMP#0',
-            '/DqDNGValidate#0',
-            '/DqDNGValidateTarget#1',
-          ],
+          'AdditionalOptions': ['/wd4189', ],
         },
       },
     }],
