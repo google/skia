@@ -157,7 +157,6 @@
         'tools.gyp:timer',
         'tools.gyp:url_data_manager',
         'views.gyp:views',
-        'views_animated.gyp:views_animated',
         'xml.gyp:xml',
       ],
       'msvs_settings': {
