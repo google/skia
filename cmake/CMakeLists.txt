@@ -57,7 +57,7 @@ remove_srcs (../src/ports/SkFontMgr_custom*.cpp)
 
 # Skia sure ships a lot of code no one uses.
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)
-foreach (include animator svg svg/parser views views/animated xml)
+foreach (include animator svg svg/parser views xml)
   file (GLOB globed_include ../include/${include})
   list (REMOVE_ITEM public_includes ${globed_include})
 endforeach()
