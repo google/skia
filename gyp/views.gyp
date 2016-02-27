@@ -42,7 +42,6 @@
         '../include/views/SkTouchGesture.h',
         '../include/views/SkView.h',
         '../include/views/SkViewInflate.h',
-        '../include/views/SkWidget.h',
         '../include/views/SkWindow.h',
 
         '../src/views/SkBGViewArtist.cpp',
@@ -50,7 +49,6 @@
         '../src/views/SkEventSink.cpp',
         '../src/views/SkOSMenu.cpp',
         '../src/views/SkParsePaint.cpp',
-        '../src/views/SkProgressView.cpp',
         '../src/views/SkStackViewLayout.cpp',
         '../src/views/SkTagList.cpp',
         '../src/views/SkTagList.h',
@@ -59,7 +57,6 @@
         '../src/views/SkViewInflate.cpp',
         '../src/views/SkViewPriv.cpp',
         '../src/views/SkViewPriv.h',
-        '../src/views/SkWidgets.cpp',
         '../src/views/SkWindow.cpp',
             
         # Unix
