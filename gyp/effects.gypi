@@ -102,7 +102,6 @@
     '<(skia_include_path)/effects/SkDashPathEffect.h',
     '<(skia_include_path)/effects/SkDiscretePathEffect.h',
     '<(skia_include_path)/effects/SkDisplacementMapEffect.h',
-    '<(skia_include_path)/effects/SkDrawExtraPathEffect.h',
     '<(skia_include_path)/effects/SkDropShadowImageFilter.h',
     '<(skia_include_path)/effects/SkEmbossMaskFilter.h',
     '<(skia_include_path)/effects/SkGradientShader.h',
