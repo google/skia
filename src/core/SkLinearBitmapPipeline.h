@@ -29,9 +29,13 @@ public:
     template<typename Base, size_t kSize>
     class PolymorphicUnion {
     public:
-        PolymorphicUnion() {}
+        PolymorphicUnion() : fIsInitialized{false} {}
 
-        ~PolymorphicUnion() { get()->~Base(); }
+        ~PolymorphicUnion() {
+            if (fIsInitialized) {
+                get()->~Base();
+            }
+        }
 
         template<typename Variant, typename... Args>
         void Initialize(Args&&... args) {
@@ -39,6 +43,7 @@ public:
                       "Size Variant: %d, Space: %d", sizeof(Variant), sizeof(fSpace));
 
             new(&fSpace) Variant(std::forward<Args>(args)...);
+            fIsInitialized = true;
         };
 
         Base* get() const { return reinterpret_cast<Base*>(&fSpace); }
@@ -49,6 +54,7 @@ public:
         struct SK_STRUCT_ALIGN(16) Space {
             char space[kSize];
         };
+        bool fIsInitialized;
         mutable Space fSpace;
     };
 

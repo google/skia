@@ -273,21 +273,6 @@ private:
     Strategy fStrategy;
 };
 
-class SkippedStage final : public SkLinearBitmapPipeline::BilerpProcessorInterface {
-    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
-        SkFAIL("Skipped stage.");
-    }
-    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
-        SkFAIL("Skipped stage.");
-    }
-    void VECTORCALL bilerpList(Sk4s xs, Sk4s ys) override {
-        SkFAIL("Skipped stage.");
-    }
-    void pointSpan(Span span) override {
-        SkFAIL("Skipped stage.");
-    }
-};
-
 class TranslateMatrixStrategy {
 public:
     TranslateMatrixStrategy(SkVector offset)
@@ -390,7 +375,6 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_matrix(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()});
     } else {
-        matrixProc->Initialize<SkippedStage>();
         return next;
     }
     return matrixProc->get();
@@ -447,7 +431,6 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_filter(
     SkFilterQuality filterQuailty,
     SkLinearBitmapPipeline::FilterStage* filterProc) {
     if (SkFilterQuality::kNone_SkFilterQuality == filterQuailty) {
-        filterProc->Initialize<SkippedStage>();
         return next;
     } else {
         filterProc->Initialize<ExpandBilerp<>>(next);
@@ -689,7 +672,6 @@ static SkLinearBitmapPipeline::BilerpProcessorInterface* choose_tiler(
                 SkFAIL("Not implemented.");
                 break;
         }
-        tileProcY->Initialize<SkippedStage>();
     } else {
         switch (yMode) {
             case SkShader::kClamp_TileMode:
