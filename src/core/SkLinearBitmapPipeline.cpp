@@ -13,34 +13,133 @@
 #include <limits>
 #include "SkColor.h"
 #include "SkSize.h"
+#include <tuple>
 
 // Tweak ABI of functions that pass Sk4f by value to pass them via registers.
-#if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+  #if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
      #define VECTORCALL __vectorcall
- #elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)
+  #elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)
      #define VECTORCALL __attribute__((pcs("aapcs-vfp")))
- #else
+  #else
      #define VECTORCALL
- #endif
+  #endif
+
+namespace {
+struct X {
+    explicit X(SkScalar val) : fVal{val} { }
+    explicit X(SkPoint pt)   : fVal{pt.fX} { }
+    explicit X(SkSize s)     : fVal{s.fWidth} { }
+    explicit X(SkISize s)    : fVal(s.fWidth) { }
+    operator SkScalar () const {return fVal;}
+private:
+    SkScalar fVal;
+};
+
+struct Y {
+    explicit Y(SkScalar val) : fVal{val} { }
+    explicit Y(SkPoint pt)   : fVal{pt.fY} { }
+    explicit Y(SkSize s)     : fVal{s.fHeight} { }
+    explicit Y(SkISize s)    : fVal(s.fHeight) { }
+    operator SkScalar () const {return fVal;}
+private:
+    SkScalar fVal;
+};
+
+// The Span class enables efficient processing horizontal spans of pixels.
+// * start - the point where to start the span.
+// * length - the number of pixels to traverse in source space.
+// * count - the number of pixels to produce in destination space.
+// Both start and length are mapped through the inversion matrix to produce values in source
+// space. After the matrix operation, the tilers may break the spans up into smaller spans.
+// The tilers can produce spans that seem nonsensical.
+// * The clamp tiler can create spans with length of 0. This indicates to copy an edge pixel out
+//   to the edge of the destination scan.
+// * The mirror tiler can produce spans with negative length. This indicates that the source
+//   should be traversed in the opposite direction to the destination pixels.
+class Span {
+public:
+    Span(SkPoint start, SkScalar length, int count)
+            : fStart(start)
+            , fLength(length)
+            , fCount{count} {
+        SkASSERT(std::isfinite(length));
+    }
+
+    operator std::tuple<SkPoint&, SkScalar&, int&>() {
+        return std::tie(fStart, fLength, fCount);
+    }
+
+    bool isEmpty() const { return 0 == fCount; }
+    SkScalar length() const { return fLength; }
+    SkScalar startX() const { return X(fStart); }
+    SkScalar endX() const { return startX() + length(); }
+    void clear() {
+        fCount = 0;
+    }
+
+    bool completelyWithin(SkScalar xMin, SkScalar xMax) const {
+        SkScalar sMin, sMax;
+        std::tie(sMin, sMax) = std::minmax(startX(), endX());
+        return xMin <= sMin && sMax <= xMax;
+    }
+
+    void offset(SkScalar offsetX) {
+        fStart.offset(offsetX, 0.0f);
+    }
+
+    Span breakAt(SkScalar breakX, SkScalar dx) {
+        SkASSERT(std::isfinite(breakX));
+        SkASSERT(std::isfinite(dx));
+        SkASSERT(dx != 0.0f);
+
+        if (this->isEmpty()) {
+            return Span{{0.0, 0.0}, 0.0f, 0};
+        }
+
+        int dxSteps = SkScalarFloorToInt((breakX - this->startX()) / dx);
+        if (dxSteps < 0) {
+            // The span is wholly after breakX.
+            return Span{{0.0, 0.0}, 0.0f, 0};
+        } else if (dxSteps > fCount) {
+            // The span is wholly before breakX.
+            Span answer = *this;
+            this->clear();
+            return answer;
+        }
+
+        // Calculate the values for the span to cleave off.
+        SkPoint newStart = fStart;
+        SkScalar newLength = dxSteps * dx;
+        int newCount = dxSteps + 1;
+        SkASSERT(newCount > 0);
+
+        // Update this span to reflect the break.
+        SkScalar lengthToStart = newLength + dx;
+        fLength -= lengthToStart;
+        fCount -= newCount;
+        fStart = {this->startX() + lengthToStart, Y(fStart)};
+
+        return Span{newStart, newLength, newCount};
+    }
+
+    void clampToSinglePixel(SkPoint pixel) {
+        fStart = pixel;
+        fLength = 0.0f;
+    }
+
+private:
+    SkPoint  fStart;
+    SkScalar fLength;
+    int      fCount;
+};
+}  // namespace
 
 class SkLinearBitmapPipeline::PointProcessorInterface {
 public:
     virtual ~PointProcessorInterface() { }
-    virtual void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) = 0;
-    virtual void VECTORCALL pointList4(Sk4f xs, Sk4f ys) = 0;
-
-    // The pointSpan method efficiently process horizontal spans of pixels.
-    // * start - the point where to start the span.
-    // * length - the number of pixels to traverse in source space.
-    // * count - the number of pixels to produce in destination space.
-    // Both start and length are mapped through the inversion matrix to produce values in source
-    // space. After the matrix operation, the tilers may break the spans up into smaller spans.
-    // The tilers can produce spans that seem nonsensical.
-    // * The clamp tiler can create spans with length of 0. This indicates to copy an edge pixel out
-    //   to the edge of the destination scan.
-    // * The mirror tiler can produce spans with negative length. This indicates that the source
-    //   should be traversed in the opposite direction to the destination pixels.
-    virtual void pointSpan(SkPoint start, SkScalar length, int count) = 0;
+    virtual void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) = 0;
+    virtual void VECTORCALL pointList4(Sk4s xs, Sk4s ys) = 0;
+    virtual void pointSpan(Span span) = 0;
 };
 
 class SkLinearBitmapPipeline::BilerpProcessorInterface
@@ -58,7 +157,7 @@ public:
     // +--------+--------+
     // These pixels coordinates are arranged in the following order in xs and ys:
     // px00  px10  px01  px11
-    virtual void VECTORCALL bilerpList(Sk4f xs, Sk4f ys) = 0;
+    virtual void VECTORCALL bilerpList(Sk4s xs, Sk4s ys) = 0;
 };
 
 class SkLinearBitmapPipeline::PixelPlacerInterface {
@@ -70,57 +169,38 @@ public:
 };
 
 namespace  {
-
-struct X {
-    explicit X(SkScalar val) : fVal{val} { }
-    explicit X(SkPoint pt)   : fVal{pt.fX} { }
-    explicit X(SkSize s)     : fVal{s.fWidth} { }
-    explicit X(SkISize s)    : fVal(s.fWidth) { }
-    operator float () const {return fVal;}
-private:
-    float fVal;
-};
-
-struct Y {
-    explicit Y(SkScalar val) : fVal{val} { }
-    explicit Y(SkPoint pt)   : fVal{pt.fY} { }
-    explicit Y(SkSize s)     : fVal{s.fHeight} { }
-    explicit Y(SkISize s)    : fVal(s.fHeight) { }
-    operator float () const {return fVal;}
-private:
-    float fVal;
-};
-
 template <typename Stage>
-void span_fallback(SkPoint start, SkScalar length, int count, Stage* stage) {
-    // If count == 1 use PointListFew instead.
-    SkASSERT(count > 1);
-
-    float dx = length / (count - 1);
-    Sk4f Xs = Sk4f(X(start)) + Sk4f{0.0f, 1.0f, 2.0f, 3.0f} * Sk4f{dx};
-    Sk4f Ys{Y(start)};
-    Sk4f fourDx = {4.0f * dx};
+void span_fallback(Span span, Stage* stage) {
+    SkPoint start;
+    SkScalar length;
+    int count;
+    std::tie(start, length, count) = span;
+    Sk4f xs{X(start)};
+    Sk4f ys{Y(start)};
+    Sk4s fourDx;
+    if (count > 1) {
+        SkScalar dx = length / (count - 1);
+        xs = xs + Sk4f{0.0f, 1.0f, 2.0f, 3.0f} * dx;
+        // Only used if count is >= 4.
+        fourDx = Sk4f{4.0f * dx};
+    }
 
     while (count >= 4) {
-        stage->pointList4(Xs, Ys);
-        Xs = Xs + fourDx;
+        stage->pointList4(xs, ys);
+        xs = xs + fourDx;
         count -= 4;
     }
     if (count > 0) {
-        stage->pointListFew(count, Xs, Ys);
+        stage->pointListFew(count, xs, ys);
     }
 }
 
 // PointProcessor uses a strategy to help complete the work of the different stages. The strategy
 // must implement the following methods:
 // * processPoints(xs, ys) - must mutate the xs and ys for the stage.
-// * maybeProcessSpan(start, length, count) - This represents a horizontal series of pixels
+// * maybeProcessSpan(span, next) - This represents a horizontal series of pixels
 //   to work over.
-//   start - is the starting pixel. This is in destination space before the matrix stage, and in
-//           source space after the matrix stage.
-//   length - is this distance between the first pixel center and the last pixel center. Like start,
-//           this is in destination space before the matrix stage, and in source space after.
-//   count - the number of pixels in source space to produce.
+//   span - encapsulation of span.
 //   next - a pointer to the next stage.
 //   maybeProcessSpan - returns false if it can not process the span and needs to fallback to
 //                      point lists for processing.
@@ -132,19 +212,21 @@ public:
         : fNext{next}
         , fStrategy{std::forward<Args>(args)...}{ }
 
-    void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
         fNext->pointListFew(n, xs, ys);
     }
 
-    void VECTORCALL pointList4(Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
         fNext->pointList4(xs, ys);
     }
 
-    void pointSpan(SkPoint start, SkScalar length, int count) override {
-        if (!fStrategy.maybeProcessSpan(start, length, count, fNext)) {
-            span_fallback(start, length, count, this);
+    // The span you pass must not be empty.
+    void pointSpan(Span span) override {
+        SkASSERT(!span.isEmpty());
+        if (!fStrategy.maybeProcessSpan(span, fNext)) {
+            span_fallback(span, this);
         }
     }
 
@@ -162,24 +244,25 @@ public:
         : fNext{next}
         , fStrategy{std::forward<Args>(args)...}{ }
 
-    void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
         fNext->pointListFew(n, xs, ys);
     }
 
-    void VECTORCALL pointList4(Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
         fNext->pointList4(xs, ys);
     }
 
-    void VECTORCALL bilerpList(Sk4f xs, Sk4f ys) override {
+    void VECTORCALL bilerpList(Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
         fNext->bilerpList(xs, ys);
     }
 
-    void pointSpan(SkPoint start, SkScalar length, int count) override {
-        if (!fStrategy.maybeProcessSpan(start, length, count, fNext)) {
-            span_fallback(start, length, count, this);
+    void pointSpan(Span span) override {
+        SkASSERT(!span.isEmpty());
+        if (!fStrategy.maybeProcessSpan(span, fNext)) {
+            span_fallback(span, this);
         }
     }
 
@@ -189,16 +272,16 @@ private:
 };
 
 class SkippedStage final : public SkLinearBitmapPipeline::BilerpProcessorInterface {
-    void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkFAIL("Skipped stage.");
     }
-    void VECTORCALL pointList4(Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         SkFAIL("Skipped stage.");
     }
-    void VECTORCALL bilerpList(Sk4f xs, Sk4f ys) override {
+    void VECTORCALL bilerpList(Sk4s xs, Sk4s ys) override {
         SkFAIL("Skipped stage.");
     }
-    void pointSpan(SkPoint start, SkScalar length, int count) override {
+    void pointSpan(Span span) override {
         SkFAIL("Skipped stage.");
     }
 };
@@ -209,19 +292,21 @@ public:
         : fXOffset{X(offset)}
         , fYOffset{Y(offset)} { }
 
-    void processPoints(Sk4f* xs, Sk4f* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) {
         *xs = *xs + fXOffset;
         *ys = *ys + fYOffset;
     }
 
     template <typename Next>
-    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
-        next->pointSpan(start + SkPoint{fXOffset[0], fYOffset[0]}, length, count);
+    bool maybeProcessSpan(Span span, Next* next) {
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
+        next->pointSpan(Span{start + SkPoint{fXOffset[0], fYOffset[0]}, length, count});
         return true;
     }
 
 private:
-    const Sk4f fXOffset, fYOffset;
+    const Sk4s fXOffset, fYOffset;
 };
 template <typename Next = SkLinearBitmapPipeline::PointProcessorInterface>
 using TranslateMatrix = PointProcessor<TranslateMatrixStrategy, Next>;
@@ -231,23 +316,25 @@ public:
     ScaleMatrixStrategy(SkVector offset, SkVector scale)
         : fXOffset{X(offset)}, fYOffset{Y(offset)}
         ,  fXScale{X(scale)},   fYScale{Y(scale)} { }
-    void processPoints(Sk4f* xs, Sk4f* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) {
         *xs = *xs * fXScale + fXOffset;
         *ys = *ys * fYScale + fYOffset;
     }
 
     template <typename Next>
-    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) {
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
         SkPoint newStart =
             SkPoint{X(start) * fXScale[0] + fXOffset[0], Y(start) * fYScale[0] + fYOffset[0]};
         SkScalar newLength = length * fXScale[0];
-        next->pointSpan(newStart, newLength, count);
+        next->pointSpan(Span{newStart, newLength, count});
         return true;
     }
 
 private:
-    const Sk4f fXOffset, fYOffset;
-    const Sk4f fXScale, fYScale;
+    const Sk4s fXOffset, fYOffset;
+    const Sk4s fXScale, fYScale;
 };
 template <typename Next = SkLinearBitmapPipeline::PointProcessorInterface>
 using ScaleMatrix = PointProcessor<ScaleMatrixStrategy, Next>;
@@ -258,23 +345,23 @@ public:
         : fXOffset{X(offset)}, fYOffset{Y(offset)}
         , fXScale{X(scale)},   fYScale{Y(scale)}
         , fXSkew{X(skew)},     fYSkew{Y(skew)} { }
-    void processPoints(Sk4f* xs, Sk4f* ys) {
-        Sk4f newXs = fXScale * *xs +  fXSkew * *ys + fXOffset;
-        Sk4f newYs =  fYSkew * *xs + fYScale * *ys + fYOffset;
+    void processPoints(Sk4s* xs, Sk4s* ys) {
+        Sk4s newXs = fXScale * *xs +  fXSkew * *ys + fXOffset;
+        Sk4s newYs =  fYSkew * *xs + fYScale * *ys + fYOffset;
 
         *xs = newXs;
         *ys = newYs;
     }
 
     template <typename Next>
-    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) {
         return false;
     }
 
 private:
-    const Sk4f fXOffset, fYOffset;
-    const Sk4f fXScale,  fYScale;
-    const Sk4f fXSkew,   fYSkew;
+    const Sk4s fXOffset, fYOffset;
+    const Sk4s fXScale,  fYScale;
+    const Sk4s fXSkew,   fYSkew;
 };
 template <typename Next = SkLinearBitmapPipeline::PointProcessorInterface>
 using AffineMatrix = PointProcessor<AffineMatrixStrategy, Next>;
@@ -312,28 +399,29 @@ class ExpandBilerp final : public SkLinearBitmapPipeline::PointProcessorInterfac
 public:
     ExpandBilerp(Next* next) : fNext{next} { }
 
-    void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(0 < n && n < 4);
         //                    px00   px10   px01  px11
-        const Sk4f kXOffsets{-0.5f,  0.5f, -0.5f, 0.5f},
+        const Sk4s kXOffsets{-0.5f,  0.5f, -0.5f, 0.5f},
                    kYOffsets{-0.5f, -0.5f,  0.5f, 0.5f};
-        if (n >= 1) fNext->bilerpList(Sk4f{xs[0]} + kXOffsets, Sk4f{ys[0]} + kYOffsets);
-        if (n >= 2) fNext->bilerpList(Sk4f{xs[1]} + kXOffsets, Sk4f{ys[1]} + kYOffsets);
-        if (n >= 3) fNext->bilerpList(Sk4f{xs[2]} + kXOffsets, Sk4f{ys[2]} + kYOffsets);
+        if (n >= 1) fNext->bilerpList(Sk4s{xs[0]} + kXOffsets, Sk4s{ys[0]} + kYOffsets);
+        if (n >= 2) fNext->bilerpList(Sk4s{xs[1]} + kXOffsets, Sk4s{ys[1]} + kYOffsets);
+        if (n >= 3) fNext->bilerpList(Sk4s{xs[2]} + kXOffsets, Sk4s{ys[2]} + kYOffsets);
     }
 
     void VECTORCALL pointList4(Sk4f xs, Sk4f ys) override {
         //                    px00   px10   px01  px11
         const Sk4f kXOffsets{-0.5f,  0.5f, -0.5f, 0.5f},
                    kYOffsets{-0.5f, -0.5f,  0.5f, 0.5f};
-        fNext->bilerpList(Sk4f{xs[0]} + kXOffsets, Sk4f{ys[0]} + kYOffsets);
-        fNext->bilerpList(Sk4f{xs[1]} + kXOffsets, Sk4f{ys[1]} + kYOffsets);
-        fNext->bilerpList(Sk4f{xs[2]} + kXOffsets, Sk4f{ys[2]} + kYOffsets);
-        fNext->bilerpList(Sk4f{xs[3]} + kXOffsets, Sk4f{ys[3]} + kYOffsets);
+        fNext->bilerpList(Sk4s{xs[0]} + kXOffsets, Sk4s{ys[0]} + kYOffsets);
+        fNext->bilerpList(Sk4s{xs[1]} + kXOffsets, Sk4s{ys[1]} + kYOffsets);
+        fNext->bilerpList(Sk4s{xs[2]} + kXOffsets, Sk4s{ys[2]} + kYOffsets);
+        fNext->bilerpList(Sk4s{xs[3]} + kXOffsets, Sk4s{ys[3]} + kYOffsets);
     }
 
-    void pointSpan(SkPoint start, SkScalar length, int count) override {
-        span_fallback(start, length, count, this);
+    void pointSpan(Span span) override {
+        SkASSERT(!span.isEmpty());
+        span_fallback(span, fNext);
     }
 
 private:
@@ -367,24 +455,106 @@ public:
         , fXMax{X(max) - 1.0f}
         , fYMax{Y(max) - 1.0f} { }
 
-    void processPoints(Sk4f* xs, Sk4f* ys) {
-        *xs = Sk4f::Min(Sk4f::Max(*xs, fXMin), fXMax);
-        *ys = Sk4f::Min(Sk4f::Max(*ys, fYMin), fYMax);
+    void processPoints(Sk4s* xs, Sk4s* ys) {
+        *xs = Sk4s::Min(Sk4s::Max(*xs, fXMin), fXMax);
+        *ys = Sk4s::Min(Sk4s::Max(*ys, fYMin), fYMax);
     }
 
     template <typename Next>
-    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
-        return false;
+    bool maybeProcessSpan(Span originalSpan, Next* next) {
+        SkASSERT(!originalSpan.isEmpty());
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = originalSpan;
+        SkScalar xMin = fXMin[0];
+        SkScalar xMax = fXMax[0] + 1.0f;
+        SkScalar yMin = fYMin[0];
+        SkScalar yMax = fYMax[0];
+        SkScalar x = X(start);
+        SkScalar y = std::min(std::max<SkScalar>(yMin, Y(start)), yMax);
+
+        Span span{{x, y}, length, count};
+
+        if (span.completelyWithin(xMin, xMax)) {
+            next->pointSpan(span);
+            return true;
+        }
+        if (1 == count || 0.0f == length) {
+            return false;
+        }
+
+        SkScalar dx = length / (count - 1);
+
+        //    A                 B     C
+        // +-------+-------+-------++-------+-------+-------+     +-------+-------++------
+        // |  *---*|---*---|*---*--||-*---*-|---*---|*---...|     |--*---*|---*---||*---*....
+        // |       |       |       ||       |       |       | ... |       |       ||
+        // |       |       |       ||       |       |       |     |       |       ||
+        // +-------+-------+-------++-------+-------+-------+     +-------+-------++------
+        //                         ^                                              ^
+        //                         | xMin                                  xMax-1 | xMax
+        //
+        //     *---*---*---... - track of samples. * = sample
+        //
+        //     +-+                                 ||
+        //     | |  - pixels in source space.      || - tile border.
+        //     +-+                                 ||
+        //
+        // The length from A to B is the length in source space or 4 * dx or (count - 1) * dx
+        // where dx is the distance between samples. There are 5 destination pixels
+        // corresponding to 5 samples specified in the A, B span. The distance from A to the next
+        // span starting at C is 5 * dx, so count * dx.
+        // Remember, count is the number of pixels needed for the destination and the number of
+        // samples.
+        // Overall Strategy:
+        // * Under - for portions of the span < xMin, take the color at pixel {xMin, y} and use it
+        //   to fill in the 5 pixel sampled from A to B.
+        // * Middle - for the portion of the span between xMin and xMax sample normally.
+        // * Over - for the portion of the span > xMax, take the color at pixel {xMax-1, y} and
+        //   use it to fill in the rest of the destination pixels.
+        if (dx >= 0) {
+            Span leftClamped = span.breakAt(xMin, dx);
+            if (!leftClamped.isEmpty()) {
+                leftClamped.clampToSinglePixel({xMin, y});
+                next->pointSpan(leftClamped);
+            }
+            Span middle = span.breakAt(xMax, dx);
+            if (!middle.isEmpty()) {
+                next->pointSpan(middle);
+            }
+            if (!span.isEmpty()) {
+                span.clampToSinglePixel({xMax - 1, y});
+                next->pointSpan(span);
+            }
+        } else {
+            Span rightClamped = span.breakAt(xMax, dx);
+            if (!rightClamped.isEmpty()) {
+                rightClamped.clampToSinglePixel({xMax - 1, y});
+                next->pointSpan(rightClamped);
+            }
+            Span middle = span.breakAt(xMin, dx);
+            if (!middle.isEmpty()) {
+                next->pointSpan(middle);
+            }
+            if (!span.isEmpty()) {
+                span.clampToSinglePixel({xMin, y});
+                next->pointSpan(span);
+            }
+        }
+        return true;
     }
 
 private:
-    const Sk4f fXMin{SK_FloatNegativeInfinity};
-    const Sk4f fYMin{SK_FloatNegativeInfinity};
-    const Sk4f fXMax{SK_FloatInfinity};
-    const Sk4f fYMax{SK_FloatInfinity};
+    const Sk4s fXMin{SK_FloatNegativeInfinity};
+    const Sk4s fYMin{SK_FloatNegativeInfinity};
+    const Sk4s fXMax{SK_FloatInfinity};
+    const Sk4s fYMax{SK_FloatInfinity};
 };
 template <typename Next = SkLinearBitmapPipeline::BilerpProcessorInterface>
 using Clamp = BilerpProcessor<ClampStrategy, Next>;
+
+static SkScalar tile_mod(SkScalar x, SkScalar base) {
+    return x - std::floor(x / base) * base;
+}
 
 class RepeatStrategy {
 public:
@@ -396,25 +566,91 @@ public:
         , fYMax{Y(max)}
         , fYInvMax{1.0f / Y(max)} { }
 
-    void processPoints(Sk4f* xs, Sk4f* ys) {
-        Sk4f divX = (*xs * fXInvMax).floor();
-        Sk4f divY = (*ys * fYInvMax).floor();
-        Sk4f baseX = (divX * fXMax);
-        Sk4f baseY = (divY * fYMax);
+    void processPoints(Sk4s* xs, Sk4s* ys) {
+        Sk4s divX = (*xs * fXInvMax).floor();
+        Sk4s divY = (*ys * fYInvMax).floor();
+        Sk4s baseX = (divX * fXMax);
+        Sk4s baseY = (divY * fYMax);
         *xs = *xs - baseX;
         *ys = *ys - baseY;
     }
 
     template <typename Next>
-    bool maybeProcessSpan(SkPoint start, SkScalar length, int count, Next* next) {
-        return false;
+    bool maybeProcessSpan(Span originalSpan, Next* next) {
+        SkASSERT(!originalSpan.isEmpty());
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = originalSpan;
+        // Make x and y in range on the tile.
+        SkScalar x = tile_mod(X(start), fXMax[0]);
+        SkScalar y = tile_mod(Y(start), fYMax[0]);
+        SkScalar xMax = fXMax[0];
+        SkScalar xMin = 0.0f;
+        SkScalar dx = length / (count - 1);
+
+        // No need trying to go fast because the steps are larger than a tile or there is one point.
+        if (SkScalarAbs(dx) >= xMax || count <= 1) {
+            return false;
+        }
+
+        //             A        B     C                  D                Z
+        // +-------+-------+-------++-------+-------+-------++     +-------+-------++------
+        // |       |   *---|*---*--||-*---*-|---*---|*---*--||     |--*---*|       ||
+        // |       |       |       ||       |       |       || ... |       |       ||
+        // |       |       |       ||       |       |       ||     |       |       ||
+        // +-------+-------+-------++-------+-------+-------++     +-------+-------++------
+        //                         ^^                       ^^                     ^^
+        //                    xMax || xMin             xMax || xMin           xMax || xMin
+        //
+        //     *---*---*---... - track of samples. * = sample
+        //
+        //     +-+                                 ||
+        //     | |  - pixels in source space.      || - tile border.
+        //     +-+                                 ||
+        //
+        //
+        // The given span starts at A and continues on through several tiles to sample point Z.
+        // The idea is to break this into several spans one on each tile the entire span
+        // intersects. The A to B span only covers a partial tile and has a count of 3 and the
+        // distance from A to B is (count - 1) * dx or 2 * dx. The distance from A to the start of
+        // the next span is count * dx or 3 * dx. Span C to D covers an entire tile has a count
+        // of 5 and a length of 4 * dx. Remember, count is the number of pixels needed for the
+        // destination and the number of samples.
+        //
+        // Overall Strategy:
+        // While the span hangs over the edge of the tile, draw the span covering the tile then
+        // slide the span over to the next tile.
+
+        // The guard could have been count > 0, but then a bunch of math would be done in the
+        // common case.
+
+        Span span({x,y}, length, count);
+        if (dx > 0) {
+            while (!span.isEmpty() && span.endX() > xMax) {
+                Span toDraw = span.breakAt(xMax, dx);
+                next->pointSpan(toDraw);
+                span.offset(-xMax);
+            }
+        } else {
+            while (!span.isEmpty() && span.endX() < xMin) {
+                Span toDraw = span.breakAt(xMin, dx);
+                next->pointSpan(toDraw);
+                span.offset(xMax);
+            }
+        }
+
+        // All on a single tile.
+        if (!span.isEmpty()) {
+            next->pointSpan(span);
+        }
+
+        return true;
     }
 
 private:
-    const Sk4f fXMax{0.0f};
-    const Sk4f fXInvMax{0.0f};
-    const Sk4f fYMax{0.0f};
-    const Sk4f fYInvMax{0.0f};
+    const Sk4s fXMax{0.0f};
+    const Sk4s fXInvMax{0.0f};
+    const Sk4s fYMax{0.0f};
+    const Sk4s fYInvMax{0.0f};
 };
 
 template <typename Next = SkLinearBitmapPipeline::BilerpProcessorInterface>
@@ -469,9 +705,9 @@ static SkLinearBitmapPipeline::BilerpProcessorInterface* choose_tiler(
 
 class sRGBFast {
 public:
-    static Sk4f VECTORCALL sRGBToLinear(Sk4f pixel) {
-        Sk4f l = pixel * pixel;
-        return Sk4f{l[0], l[1], l[2], pixel[3]};
+    static Sk4s VECTORCALL sRGBToLinear(Sk4s pixel) {
+        Sk4s l = pixel * pixel;
+        return Sk4s{l[0], l[1], l[2], pixel[3]};
     }
 };
 
@@ -481,9 +717,9 @@ public:
     Passthrough8888(int width, const uint32_t* src)
         : fSrc{src}, fWidth{width}{ }
 
-    void VECTORCALL getFewPixels(int n, Sk4f xs, Sk4f ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
-        Sk4i XIs = SkNx_cast<int, float>(xs);
-        Sk4i YIs = SkNx_cast<int, float>(ys);
+    void VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
+        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
+        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
         Sk4i bufferLoc = YIs * fWidth + XIs;
         switch (n) {
             case 3:
@@ -497,9 +733,9 @@ public:
         }
     }
 
-    void VECTORCALL get4Pixels(Sk4f xs, Sk4f ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
-        Sk4i XIs = SkNx_cast<int, float>(xs);
-        Sk4i YIs = SkNx_cast<int, float>(ys);
+    void VECTORCALL get4Pixels(Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
+        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
         Sk4i bufferLoc = YIs * fWidth + XIs;
         *px0 = getPixel(fSrc, bufferLoc[0]);
         *px1 = getPixel(fSrc, bufferLoc[1]);
@@ -543,12 +779,12 @@ private:
 // * px01 -> (1 - x)y = y - xy
 // * px11 -> xy
 // So x * y is calculated first and then used to calculate all the other factors.
-static Sk4f VECTORCALL bilerp4(Sk4f xs, Sk4f ys, Sk4f px00, Sk4f px10,
+static Sk4s VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
                                                  Sk4f px01, Sk4f px11) {
     // Calculate fractional xs and ys.
-    Sk4f fxs = xs - xs.floor();
-    Sk4f fys = ys - ys.floor();
-    Sk4f fxys{fxs * fys};
+    Sk4s fxs = xs - xs.floor();
+    Sk4s fys = ys - ys.floor();
+    Sk4s fxys{fxs * fys};
     Sk4f sum =  px11 * fxys;
     sum = sum + px01 * (fys - fxys);
     sum = sum + px10 * (fxs - fxys);
@@ -564,7 +800,7 @@ public:
         : fNext{next}
         , fStrategy{std::forward<Args>(args)...} { }
 
-    void VECTORCALL pointListFew(int n, Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         SkASSERT(0 < n && n < 4);
         Sk4f px0, px1, px2;
         fStrategy.getFewPixels(n, xs, ys, &px0, &px1, &px2);
@@ -573,21 +809,21 @@ public:
         if (n >= 3) fNext->placePixel(px2);
     }
 
-    void VECTORCALL pointList4(Sk4f xs, Sk4f ys) override {
+    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         Sk4f px0, px1, px2, px3;
         fStrategy.get4Pixels(xs, ys, &px0, &px1, &px2, &px3);
         fNext->place4Pixels(px0, px1, px2, px3);
     }
 
-    void VECTORCALL bilerpList(Sk4f xs, Sk4f ys) override {
+    void VECTORCALL bilerpList(Sk4s xs, Sk4s ys) override {
         Sk4f px00, px10, px01, px11;
         fStrategy.get4Pixels(xs, ys, &px00, &px10, &px01, &px11);
         Sk4f pixel = bilerp4(xs, ys, px00, px10, px01, px11);
         fNext->placePixel(pixel);
     }
 
-    void pointSpan(SkPoint start, SkScalar length, int count) override {
-        span_fallback(start, length, count, this);
+    void pointSpan(Span span) override {
+        span_fallback(span, this);
     }
 
 private:
@@ -697,14 +933,9 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {
     SkASSERT(count > 0);
     fPixelStage->setDestination(dst);
-    // Adjust points by 0.5, 0.5 to sample from the center of the pixels.
-    if (count == 1) {
-        fFirstStage->pointListFew(1, Sk4f{x + 0.5f}, Sk4f{y + 0.5f});
-    } else {
-        // The count and length arguments start out in a precise relation in order to keep the
-        // math correct through the different stages. Count is the number of pixel to produce.
-        // Since the code samples at pixel centers, length is the distance from the center of the
-        // first pixel to the center of the last pixel. This implies that length is count-1.
-        fFirstStage->pointSpan(SkPoint{x + 0.5f, y + 0.5f}, count - 1, count);
-    }
+    // The count and length arguments start out in a precise relation in order to keep the
+    // math correct through the different stages. Count is the number of pixel to produce.
+    // Since the code samples at pixel centers, length is the distance from the center of the
+    // first pixel to the center of the last pixel. This implies that length is count-1.
+    fFirstStage->pointSpan(Span{SkPoint{x + 0.5f, y + 0.5f}, count - 1.0f, count});
 }

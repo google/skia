@@ -143,7 +143,7 @@ static void draw_rect_none(SkCanvas* canvas, const SkRect& r, SkColor c) {
 /*
  *  Test SkXfer4fProcs directly for src-over, comparing them to current SkColor blits.
  */
-DEF_SIMPLE_GM(linear_pipeline, canvas, 580, 1400) {
+DEF_SIMPLE_GM(linear_pipeline, canvas, 580, 2200) {
     const int IW = 50;
     const SkScalar W = IW;
     const SkScalar H = 100;
@@ -156,14 +156,20 @@ DEF_SIMPLE_GM(linear_pipeline, canvas, 580, 1400) {
     canvas->translate(20, 20);
 
     SkMatrix mi = SkMatrix::I();
+    SkMatrix mlr;
+    mlr.setScale(-1.0f, 1.0f, 20, 0.0f);
     SkMatrix mt;
     mt.setTranslate(8, 8);
+    SkMatrix mt2;
+    mt2.setTranslate(-18, -18);
     SkMatrix ms;
     ms.setScale(2.7f, 2.7f);
+    SkMatrix ms2;
+    ms2.setScale(-0.2f, 0.2f);
     SkMatrix mr;
     mr.setRotate(10);
 
-    const SkMatrix* mats[] = {nullptr, &mi, &mt, &ms, &mr};
+    const SkMatrix* mats[] = {nullptr, &mi, &mlr, &mt, &mt2, &ms, &ms2, &mr};
 
     const SkRect r = SkRect::MakeWH(W, H);
     bool useBilerp = false;
