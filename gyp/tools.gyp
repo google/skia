@@ -271,6 +271,10 @@
         'sources': [
             '../tools/get_images_from_skps.cpp',
          ],
+         'include_dirs': [
+             '../include/private',
+             '../src/core',
+         ],
          'dependencies': [
             'flags.gyp:flags',
             'skia_lib.gyp:skia_lib',
@@ -415,7 +419,7 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/private',
-          '../tools', 
+          '../tools',
         ],
       },
     },
