@@ -171,7 +171,7 @@ class BotInfo(object):
     self.upload_perf_results = self.spec['upload_perf_results']
     self.perf_data_dir = os.path.join(self.swarm_out_dir, 'perfdata',
                                       self.name, 'data')
-    self.resource_dir = os.path.join(self.build_dir, 'resources')
+    self.resource_dir = os.path.join(self.skia_dir, 'resources')
     self.images_dir = os.path.join(self.build_dir, 'images')
     self.local_skp_dir = os.path.join(self.build_dir, 'playback', 'skps')
     self.dm_flags = self.spec['dm_flags']
