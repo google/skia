@@ -59,7 +59,7 @@ public:
 
 private:
     bool fDone;
-    SkPODSpinlock fSpinlock;
+    SkSpinlock fSpinlock;
 };
 
 // We've pulled a pretty standard double-checked locking implementation apart

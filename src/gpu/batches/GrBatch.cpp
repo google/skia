@@ -20,7 +20,7 @@
 // memory barrier between accesses of a context on different threads. Also, there may be multiple
 // GrContexts and those contexts may be in use concurrently on different threads.
 namespace {
-SK_DECLARE_STATIC_SPINLOCK(gBatchSpinlock);
+static SkSpinlock gBatchSpinlock;
 class MemoryPoolAccessor {
 public:
     MemoryPoolAccessor() { gBatchSpinlock.acquire(); }

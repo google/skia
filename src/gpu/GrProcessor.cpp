@@ -81,7 +81,7 @@ void GrProcessorTestFactory<GrXPFactory>::VerifyFactoryCount() {
 // memory barrier between accesses of a context on different threads. Also, there may be multiple
 // GrContexts and those contexts may be in use concurrently on different threads.
 namespace {
-SK_DECLARE_STATIC_SPINLOCK(gProcessorSpinlock);
+static SkSpinlock gProcessorSpinlock;
 class MemoryPoolAccessor {
 public:
     MemoryPoolAccessor() { gProcessorSpinlock.acquire(); }

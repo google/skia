@@ -84,7 +84,7 @@ static void fail(const SkString& err) {
 
 
 // We use a spinlock to make locking this in a signal handler _somewhat_ safe.
-SK_DECLARE_STATIC_SPINLOCK(gMutex);
+static SkSpinlock gMutex;
 static int32_t            gPending;
 static SkTArray<SkString> gRunning;
 
@@ -92,7 +92,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     int pending;
     {
-        SkAutoTAcquire<SkPODSpinlock> lock(gMutex);
+        SkAutoTAcquire<SkSpinlock> lock(gMutex);
         for (int i = 0; i < gRunning.count(); i++) {
             if (gRunning[i] == id) {
                 gRunning.removeShuffle(i);
@@ -110,7 +110,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 
 static void start(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
-    SkAutoTAcquire<SkPODSpinlock> lock(gMutex);
+    SkAutoTAcquire<SkSpinlock> lock(gMutex);
     gRunning.push_back(id);
 }
 
@@ -121,7 +121,7 @@ static void print_status() {
         peak = sk_tools::getMaxResidentSetSizeMB();
     SkString elapsed = HumanizeMs(SkTime::GetMSecs() - start_ms);
 
-    SkAutoTAcquire<SkPODSpinlock> lock(gMutex);
+    SkAutoTAcquire<SkSpinlock> lock(gMutex);
     SkDebugf("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
              elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
     for (auto& task : gRunning) {
@@ -1242,7 +1242,7 @@ int dm_main() {
         if (src->veto(sink->flags()) ||
             is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
                            src.options.c_str(), src->name().c_str())) {
-            SkAutoTAcquire<SkPODSpinlock> lock(gMutex);
+            SkAutoTAcquire<SkSpinlock> lock(gMutex);
             gPending--;
             continue;
         }
