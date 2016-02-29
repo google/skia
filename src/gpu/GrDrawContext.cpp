@@ -23,6 +23,8 @@
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrNinePatch.h" // TODO Factory
 
+#include "effects/GrRRectEffect.h"
+
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
@@ -513,6 +515,93 @@ void GrDrawContext::drawRRect(const GrClip& clip,
     path.addRRect(rrect);
     this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
                            paint.isAntiAlias(), path, strokeInfo);
+}
+
+bool GrDrawContext::drawFilledDRRect(const GrClip& clip,
+                                     const GrPaint& paintIn,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRRect& origOuter,
+                                     const SkRRect& origInner) {
+    SkASSERT(!origInner.isEmpty());
+    SkASSERT(!origOuter.isEmpty());
+
+    bool applyAA = paintIn.isAntiAlias() && !fRenderTarget->isUnifiedMultisampled();
+
+    GrPrimitiveEdgeType innerEdgeType = applyAA ? kInverseFillAA_GrProcessorEdgeType :
+                                                  kInverseFillBW_GrProcessorEdgeType;
+    GrPrimitiveEdgeType outerEdgeType = applyAA ? kFillAA_GrProcessorEdgeType :
+                                                  kFillBW_GrProcessorEdgeType;
+
+    SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
+    SkMatrix inverseVM;
+    if (!viewMatrix.isIdentity()) {
+        if (!origInner.transform(viewMatrix, inner.writable())) {
+            return false;
+        }
+        if (!origOuter.transform(viewMatrix, outer.writable())) {
+            return false;
+        }
+        if (!viewMatrix.invert(&inverseVM)) {
+            return false;
+        }
+    } else {
+        inverseVM.reset();
+    }         
+
+    GrPaint grPaint(paintIn);
+    grPaint.setAntiAlias(false);
+
+    // TODO these need to be a geometry processors
+    SkAutoTUnref<GrFragmentProcessor> innerEffect(GrRRectEffect::Create(innerEdgeType, *inner));
+    if (!innerEffect) {
+        return false;
+    }
+
+    SkAutoTUnref<GrFragmentProcessor> outerEffect(GrRRectEffect::Create(outerEdgeType, *outer));
+    if (!outerEffect) {
+        return false;
+    }
+
+    grPaint.addCoverageFragmentProcessor(innerEffect);
+    grPaint.addCoverageFragmentProcessor(outerEffect);
+
+    SkRect bounds = outer->getBounds();
+    if (applyAA) {
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+    }
+  
+    this->fillRectWithLocalMatrix(clip, grPaint, SkMatrix::I(), bounds, inverseVM);
+    return true;
+}
+
+void GrDrawContext::drawDRRect(const GrClip& clip,
+                               const GrPaint& paint,
+                               const SkMatrix& viewMatrix,
+                               const SkRRect& outer,
+                               const SkRRect& inner) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawDRRect");
+
+    SkASSERT(!outer.isEmpty());
+    SkASSERT(!inner.isEmpty());
+
+    AutoCheckFlush acf(fDrawingManager);
+
+    if (this->drawFilledDRRect(clip, paint, viewMatrix, outer, inner)) {
+        return;
+    }
+
+    SkPath path;
+    path.setIsVolatile(true);
+    path.addRRect(inner);
+    path.addRRect(outer);
+    path.setFillType(SkPath::kEvenOdd_FillType);
+
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    this->internalDrawPath(&pipelineBuilder, viewMatrix, paint.getColor(),
+                            paint.isAntiAlias(), path, GrStrokeInfo::FillInfo());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
