@@ -4,7 +4,7 @@
   ],
   'variables': {
     'command': [
-      'python', 'compile_skia.py', '<(BUILDER_NAME)', '${ISOLATED_OUTDIR}/out',
+      'python', 'compile_skia.py', '--builder_name', '<(BUILDER_NAME)', '--swarm_out_dir', '${ISOLATED_OUTDIR}/out',
     ],
   },
 }

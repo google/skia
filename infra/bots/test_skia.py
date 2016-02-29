@@ -14,11 +14,16 @@ import sys
 
 def main():
   parser = argparse.ArgumentParser()
+  parser.add_argument('--master_name', required=True)
   parser.add_argument('--builder_name', required=True)
+  parser.add_argument('--build_number', required=True)
+  parser.add_argument('--slave_name', required=True)
+  parser.add_argument('--revision', required=True)
   parser.add_argument('--swarm_out_dir', required=True)
   args = parser.parse_args()
   bot = common.BotInfo(args.builder_name, os.path.abspath(args.swarm_out_dir))
-  bot.compile_steps()
+  bot.test_steps(args.revision, args.master_name, args.slave_name,
+                 args.build_number)
 
 
 if __name__ == '__main__':

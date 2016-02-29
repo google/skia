@@ -71,10 +71,10 @@ class DefaultFlavorUtils(object):
     self._bot_info = bot_info
     self.chrome_path = os.path.join(os.path.expanduser('~'), 'src')
 
-  def step(self, cmd, **kwargs):
+  def run(self, cmd, **kwargs):
     """Runs a step as appropriate for this flavor."""
-    path_to_app = self._bot_info.out_dir.join(
-        self._bot_info.configuration, cmd[0])
+    path_to_app = os.path.join(self._bot_info.out_dir,
+                               self._bot_info.configuration, cmd[0])
     if (sys.platform == 'linux' and
         'x86_64' in self._bot_info.bot_name and
         not 'TSAN' in self._bot_info.bot_name):
@@ -141,7 +141,8 @@ class DefaultFlavorUtils(object):
 
   def create_clean_host_dir(self, path):
     """Convenience function for creating a clean directory."""
-    shutil.rmtree(path)
+    if os.path.exists(path):
+      shutil.rmtree(path)
     os.makedirs(path)
 
   def install(self):
@@ -161,7 +162,7 @@ class DefaultFlavorUtils(object):
     """
     join = lambda p: os.path.join(self._bot_info.build_dir, p)
     return DeviceDirs(
-        dm_dir=join('dm'),
+        dm_dir=os.path.join(self._bot_info.swarm_out_dir, 'dm'),
         perf_data_dir=self._bot_info.perf_data_dir,
         resource_dir=self._bot_info.resource_dir,
         images_dir=join('images'),

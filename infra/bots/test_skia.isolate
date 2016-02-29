@@ -1,0 +1,12 @@
+{
+  'includes': [
+    'images.isolate',
+    'skia_repo.isolate',
+    'skps.isolate',
+  ],
+  'variables': {
+    'command': [
+      'python', 'test_skia.py', '--master_name', '<(MASTER_NAME)', '--builder_name', '<(BUILDER_NAME)', '--build_number', '<(BUILD_NUMBER)', '--slave_name', '<(SLAVE_NAME)', '--revision', '<(REVISION)', '--swarm_out_dir', '${ISOLATED_OUTDIR}',
+    ],
+  },
+}
