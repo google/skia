@@ -30,10 +30,6 @@ class GrRenderTarget;
  */
 class SK_API SkSurface : public SkRefCnt {
 public:
-    static const SkBudgeted kYes_Budgeted = SkBudgeted::kYes;
-    static const SkBudgeted kNo_Budgeted = SkBudgeted::kNo;
-    using Budgeted = SkBudgeted;
-    
     /**
      *  Create a new surface, using the specified pixels/rowbytes as its
      *  backend.
