@@ -423,7 +423,19 @@ public:
 
     void pointSpan(Span span) override {
         SkASSERT(!span.isEmpty());
-        span_fallback(span, fNext);
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
+        float dx = length / (count - 1);
+
+        Sk4f Xs = Sk4f{X(start)} + Sk4f{-0.5f,  0.5f, -0.5f, 0.5f};
+        Sk4f Ys = Sk4f{Y(start)} + Sk4f{-0.5f, -0.5f,  0.5f, 0.5f};
+
+        Sk4f dXs{dx};
+        while (count > 0) {
+            fNext->bilerpList(Xs, Ys);
+            Xs = Xs + dXs;
+            count -= 1;
+        }
     }
 
 private:
