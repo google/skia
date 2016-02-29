@@ -43,6 +43,10 @@ public:
     void setClipVizColor(SkColor clipVizColor) { this->fClipVizColor = clipVizColor; }
     SkColor getClipVizColor() const { return fClipVizColor; }
 
+    void setDrawGpuBatchBounds(bool drawGpuBatchBounds) { 
+        fDrawGpuBatchBounds = drawGpuBatchBounds; 
+    }
+
     bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
 
     void setPicture(SkPicture* picture) { fPicture = picture; }
@@ -245,6 +249,7 @@ private:
     bool fOverrideFilterQuality;
     SkFilterQuality fFilterQuality;
     SkColor fClipVizColor;
+    bool fDrawGpuBatchBounds;
 
     SkAutoTUnref<SkNWayCanvas> fPaintFilterCanvas;
 

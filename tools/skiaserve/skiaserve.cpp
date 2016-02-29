@@ -39,6 +39,7 @@ public:
         fHandlers.push_back(new DataHandler);
         fHandlers.push_back(new BreakHandler);
         fHandlers.push_back(new BatchesHandler);
+        fHandlers.push_back(new BatchBoundsHandler);
     }
 
     ~UrlManager() {

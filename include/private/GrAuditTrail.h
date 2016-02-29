@@ -125,6 +125,19 @@ public:
 
     void setClientID(int clientID) { fClientID = clientID; }
 
+    // We could just return our internal bookkeeping struct if copying the data out becomes
+    // a performance issue, but until then its nice to decouple
+    struct BatchInfo {
+        SkRect fBounds;
+        struct Batch {
+            int fClientID;
+            SkRect fBounds;
+        };
+        SkTArray<Batch> fBatches;
+    };
+
+    void getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID);
+
     void fullReset() {
         SkASSERT(fEnabled);
         fBatchList.reset();

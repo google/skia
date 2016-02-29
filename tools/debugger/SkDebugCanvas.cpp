@@ -13,6 +13,12 @@
 #include "SkPaintFilterCanvas.h"
 #include "SkOverdrawMode.h"
 
+#if SK_SUPPORT_GPU
+#include "GrAuditTrail.h"
+#include "GrContext.h"
+#include "GrRenderTarget.h"
+#endif
+
 #define SKDEBUGCANVAS_VERSION            1
 #define SKDEBUGCANVAS_ATTRIBUTE_VERSION  "version"
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMANDS "commands"
@@ -68,7 +74,8 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
         , fOverdrawViz(false)
         , fOverrideFilterQuality(false)
         , fFilterQuality(kNone_SkFilterQuality)
-        , fClipVizColor(SK_ColorTRANSPARENT) {
+        , fClipVizColor(SK_ColorTRANSPARENT)
+        , fDrawGpuBatchBounds(true) {
     fUserMatrix.reset();
 
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
@@ -209,16 +216,36 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     if (fPaintFilterCanvas) {
         fPaintFilterCanvas->addCanvas(canvas);
         canvas = fPaintFilterCanvas.get();
+    
     }
 
     if (fMegaVizMode) {
         this->markActiveCommands(index);
     }
+   
+    // If we have a GPU backend we can also visualize the batching information
+#if SK_SUPPORT_GPU
+    GrAuditTrail* at = nullptr;
+    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
+    if (rt && fDrawGpuBatchBounds) {
+        GrContext* ctx = rt->getContext();
+        if (ctx) {
+            at = ctx->getAuditTrail();
+        }
+    }
+#endif
 
     for (int i = 0; i <= index; i++) {
         if (i == index && fFilter) {
             canvas->clear(0xAAFFFFFF);
         }
+   
+#if SK_SUPPORT_GPU
+        GrAuditTrail::AutoCollectBatches* acb = nullptr;
+        if (at) {
+            acb = new GrAuditTrail::AutoCollectBatches(at, i);
+        }
+#endif
 
         if (fCommandVector[i]->isVisible()) {
             if (fMegaVizMode && fCommandVector[i]->active()) {
@@ -232,6 +259,11 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
                 fCommandVector[i]->execute(canvas);
             }
         }
+#if SK_SUPPORT_GPU
+        if (at && acb) {
+            delete acb;
+        }
+#endif
     }
 
     if (SkColorGetA(fClipVizColor) != 0) {
@@ -294,6 +326,34 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     if (fPaintFilterCanvas) {
         fPaintFilterCanvas->removeAll();
     }
+
+#if SK_SUPPORT_GPU
+    // draw any batches if required and issue a full reset onto GrAuditTrail
+    if (at) {
+        GrAuditTrail::AutoEnable ae(at);
+        SkTArray<GrAuditTrail::BatchInfo> childrenBounds;
+        at->getBoundsByClientID(&childrenBounds, index);
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(1);
+        for (int i = 0; i < childrenBounds.count(); i++) {
+            paint.setColor(SK_ColorBLACK);
+            canvas->drawRect(childrenBounds[i].fBounds, paint);
+            for (int j = 0; j < childrenBounds[i].fBatches.count(); j++) {
+                const GrAuditTrail::BatchInfo::Batch& batch = childrenBounds[i].fBatches[j];
+                if (batch.fClientID != index) {
+                    paint.setColor(SK_ColorBLUE);
+                } else {
+                    paint.setColor(SK_ColorRED);
+                }
+                canvas->drawRect(batch.fBounds, paint);
+            }
+        }
+
+        at->fullReset();
+    }
+    
+#endif
 }
 
 void SkDebugCanvas::deleteDrawCommandAt(int index) {

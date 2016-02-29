@@ -40,6 +40,40 @@ void GrAuditTrail::batchingResultNew(GrBatch* batch) {
     fBatchList.emplace_back(batchNode);
 }
 
+void GrAuditTrail::getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID) {
+    Batches** batchesLookup = fClientIDLookup.find(clientID);
+    if (batchesLookup) {
+        // We track which batchlistID we're currently looking at.  If it changes, then we
+        // need to push back a new batch info struct.  We happen to know that batches are
+        // in sequential order in the batchlist, otherwise we'd have to do more bookkeeping
+        int currentBatchListID = kGrAuditTrailInvalidID;
+        for (int i = 0; i < (*batchesLookup)->count(); i++) {
+            const Batch* batch = (**batchesLookup)[i];
+
+            // Because we will copy out all of the batches associated with a given
+            // batch list id everytime the id changes, we only have to update our struct
+            // when the id changes.
+            if (kGrAuditTrailInvalidID == currentBatchListID ||
+                batch->fBatchListID != currentBatchListID) {
+                BatchInfo& outBatchInfo = outInfo->push_back();
+                currentBatchListID = batch->fBatchListID;
+                
+                // copy out all of the batches so the client can display them even if
+                // they have a different clientID
+                const BatchNode* bn = fBatchList[currentBatchListID];
+                outBatchInfo.fBounds = bn->fBounds;
+                for (int j = 0; j < bn->fChildren.count(); j++) {
+                    BatchInfo::Batch& outBatch = outBatchInfo.fBatches.push_back();
+                    const Batch* currentBatch = bn->fChildren[j];
+                    outBatch.fBounds = currentBatch->fBounds;
+                    outBatch.fClientID = currentBatch->fClientID;
+                }
+            }
+        }
+    }
+}
+
+
 template <typename T>
 void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const T& array,
                                  bool addComma) {
