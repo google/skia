@@ -1053,12 +1053,19 @@ struct Task {
                             const char* ext,
                             SkStream* data, size_t len,
                             const SkBitmap* bitmap) {
+        bool gammaCorrect = false;
+        if (bitmap) {
+            gammaCorrect = bitmap->profileType() == kSRGB_SkColorProfileType
+                        || bitmap->  colorType() == kRGBA_F16_SkColorType;
+        }
+
         JsonWriter::BitmapResult result;
         result.name          = task.src->name();
         result.config        = task.sink.tag;
         result.sourceType    = task.src.tag;
         result.sourceOptions = task.src.options;
         result.ext           = ext;
+        result.gammaCorrect  = gammaCorrect;
         result.md5           = md5;
         JsonWriter::AddBitmapResult(result);
 
