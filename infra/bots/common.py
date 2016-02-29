@@ -155,7 +155,7 @@ class BotInfo(object):
     self.spec = self.get_bot_spec(bot_name)
     self.bot_cfg = self.spec['builder_cfg']
     if self.bot_cfg['role'] == 'Build':
-      self.out_dir = os.path.join(swarm_out_dir, 'out')
+      self.out_dir = swarm_out_dir
     else:
       self.out_dir = 'out'
     self.configuration = self.spec['configuration']
