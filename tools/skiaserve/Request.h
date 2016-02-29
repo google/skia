@@ -60,8 +60,6 @@ private:
     void drawToCanvas(int n);
     SkSurface* createCPUSurface();
     SkSurface* createGPUSurface();
-    GrAuditTrail* getAuditTrail(SkCanvas*);
-    void cleanupAuditTrail(SkCanvas*);
     
     SkAutoTUnref<SkPicture> fPicture;
     SkAutoTDelete<GrContextFactory> fContextFactory;

@@ -28,8 +28,27 @@ class GrBatch;
 class GrAuditTrail {
 public:
     GrAuditTrail() 
-    : fClientID(kInvalidID)
-    , fEnabled(false) {}
+    : fEnabled(false)
+    , fUniqueID(0) {}
+
+    class AutoFrame {
+    public:
+        AutoFrame(GrAuditTrail* auditTrail, const char* name)
+            : fAuditTrail(auditTrail) {
+            if (fAuditTrail->fEnabled) {
+                fAuditTrail->pushFrame(name);
+            }
+        }
+
+        ~AutoFrame() {
+            if (fAuditTrail->fEnabled) {
+                fAuditTrail->popFrame();
+            }
+        }
+
+    private:
+        GrAuditTrail* fAuditTrail;
+    };
 
     class AutoEnable {
     public:
@@ -64,113 +83,99 @@ public:
         GrAuditTrail* fAuditTrail;
     };
 
-    class AutoCollectBatches {
-    public:
-        AutoCollectBatches(GrAuditTrail* auditTrail, int clientID)
-            : fAutoEnable(auditTrail)
-            , fAuditTrail(auditTrail) {
-            fAuditTrail->setClientID(clientID);
+    void pushFrame(const char* name) {
+        SkASSERT(fEnabled);
+        Frame* frame = new Frame;
+        fEvents.emplace_back(frame);
+        if (fStack.empty()) {
+            fFrames.push_back(frame);
+        } else {
+            fStack.back()->fChildren.push_back(frame);
         }
 
-        ~AutoCollectBatches() { fAuditTrail->setClientID(kInvalidID); }
+        frame->fUniqueID = fUniqueID++;
+        frame->fName = name;
+        fStack.push_back(frame);
+    }
 
-    private:
-        AutoEnable fAutoEnable;
-        GrAuditTrail* fAuditTrail;
-    };
+    void popFrame() {
+        SkASSERT(fEnabled);
+        fStack.pop_back();
+    }
 
     void addBatch(const char* name, const SkRect& bounds) {
-        SkASSERT(fEnabled);
+        SkASSERT(fEnabled && !fStack.empty());
         Batch* batch = new Batch;
-        fBatchPool.emplace_back(batch);
+        fEvents.emplace_back(batch);
+        fStack.back()->fChildren.push_back(batch);
         batch->fName = name;
         batch->fBounds = bounds;
-        batch->fClientID = kInvalidID;
-        batch->fBatchListID = kInvalidID;
-        batch->fChildID = kInvalidID;
         fCurrentBatch = batch;
-        
-        if (fClientID != kInvalidID) {
-            batch->fClientID = fClientID;
-            Batches** batchesLookup = fClientIDLookup.find(fClientID);
-            Batches* batches = nullptr;
-            if (!batchesLookup) {
-                batches = new Batches;
-                fClientIDLookup.set(fClientID, batches);
-            } else {
-                batches = *batchesLookup;
-            }
-
-            batches->push_back(fCurrentBatch);
-        }
     }
 
     void batchingResultCombined(GrBatch* combiner);
 
     void batchingResultNew(GrBatch* batch);
 
-    // Because batching is heavily dependent on sequence of draw calls, these calls will only
-    // produce valid information for the given draw sequence which preceeded them.
-    // Specifically, future draw calls may change the batching and thus would invalidate
-    // the json.  What this means is that for some sequence of draw calls N, the below toJson
-    // calls will only produce JSON which reflects N draw calls.  This JSON may or may not be
-    // accurate for N + 1 or N - 1 draws depending on the actual batching algorithm used.
-    SkString toJson(bool prettyPrint = false) const;
-
-    // returns a json string of all of the batches associated with a given client id
-    SkString toJson(int clientID, bool prettyPrint = false) const;
+    SkString toJson(bool batchList = false, bool prettyPrint = false) const;
 
     bool isEnabled() { return fEnabled; }
     void setEnabled(bool enabled) { fEnabled = enabled; }
 
-    void setClientID(int clientID) { fClientID = clientID; }
+    void reset() { 
+        SkASSERT(fEnabled && fStack.empty());
+        fFrames.reset();
+    }
+
+    void resetBatchList() {
+        SkASSERT(fEnabled);
+        fBatches.reset();
+        fIDLookup.reset();
+    }
 
     void fullReset() {
         SkASSERT(fEnabled);
-        fBatchList.reset();
-        fIDLookup.reset();
-        // free all client batches
-        fClientIDLookup.foreach([](const int&, Batches** batches) { delete *batches; });
-        fClientIDLookup.reset();
-        fBatchPool.reset(); // must be last, frees all of the memory
+        this->reset();
+        this->resetBatchList();
+        fEvents.reset(); // must be last, frees all of the memory
     }
-
-    static const int kInvalidID;
 
 private:
     // TODO if performance becomes an issue, we can move to using SkVarAlloc
-    struct Batch {
-        SkString toJson() const;
-        SkString fName;
-        SkRect fBounds;
-        int fClientID;
-        int fBatchListID;
-        int fChildID;
-    };
-    typedef SkTArray<SkAutoTDelete<Batch>, true> BatchPool;
+    struct Event {
+        virtual ~Event() {}
+        virtual SkString toJson() const=0;
 
-    typedef SkTArray<Batch*> Batches;
-
-    struct BatchNode {
-        SkString toJson() const;
-        SkRect fBounds;
-        Batches fChildren;
+        const char* fName;
+        uint64_t fUniqueID;
     };
-    typedef SkTArray<SkAutoTDelete<BatchNode>, true> BatchList;
+
+    struct Frame : public Event {
+        SkString toJson() const override;
+        SkTArray<Event*> fChildren;
+    };
+
+    struct Batch : public Event {
+        SkString toJson() const override;
+        SkRect fBounds;
+        SkTArray<Batch*> fChildren;
+    };
+    typedef SkTArray<SkAutoTDelete<Event>, true> EventArrayPool;
 
     template <typename T>
     static void JsonifyTArray(SkString* json, const char* name, const T& array,
                               bool addComma);
 
-    Batch* fCurrentBatch;
-    BatchPool fBatchPool;
-    SkTHashMap<GrBatch*, int> fIDLookup;
-    SkTHashMap<int, Batches*> fClientIDLookup;
-    BatchList fBatchList;
-
-    // The client cas pass in an optional client ID which we will use to mark the batches
-    int fClientID;
+    // We store both an array of frames, and also a flatter array just of the batches
     bool fEnabled;
+    EventArrayPool fEvents; // manages the lifetimes of the events
+    SkTArray<Event*> fFrames;
+    SkTArray<Frame*> fStack;
+    uint64_t fUniqueID;
+   
+    Batch* fCurrentBatch;
+    SkTHashMap<GrBatch*, int> fIDLookup;
+    SkTArray<Batch*> fBatches;
 };
 
 #define GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, invoke, ...) \
@@ -179,11 +184,10 @@ private:
     }
 
 #define GR_AUDIT_TRAIL_AUTO_FRAME(audit_trail, framename) \
-    // TODO fill out the frame stuff
-    //GrAuditTrail::AutoFrame SK_MACRO_APPEND_LINE(auto_frame)(audit_trail, framename);
+    GrAuditTrail::AutoFrame SK_MACRO_APPEND_LINE(auto_frame)(audit_trail, framename);
 
 #define GR_AUDIT_TRAIL_RESET(audit_trail) \
-    //GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, reset);
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, reset);
 
 #define GR_AUDIT_TRAIL_ADDBATCH(audit_trail, batchname, bounds) \
     GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addBatch, batchname, bounds);

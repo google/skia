@@ -152,36 +152,12 @@ bool Request::initPictureFromStream(SkStream* stream) {
     return true;
 }
 
-GrAuditTrail* Request::getAuditTrail(SkCanvas* canvas) {
-    GrAuditTrail* at = nullptr;
-#if SK_SUPPORT_GPU
-    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-    if (rt) {
-        GrContext* ctx = rt->getContext();
-        if (ctx) {
-            at = ctx->getAuditTrail();
-        }
-    }
-#endif
-    return at;
-}
-
-void Request::cleanupAuditTrail(SkCanvas* canvas) {
-    GrAuditTrail* at = this->getAuditTrail(canvas);
-    if (at) {
-        GrAuditTrail::AutoEnable ae(at);
-        at->fullReset();
-    }
-}
-
 SkData* Request::getJsonOps(int n) {
     SkCanvas* canvas = this->getCanvas();
     Json::Value root = fDebugCanvas->toJSON(fUrlDataManager, n, canvas);
     root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
-
-    this->cleanupAuditTrail(canvas);
 
     return stream.copyToData();
 }
@@ -194,7 +170,11 @@ SkData* Request::getJsonBatchList(int n) {
     // a Json::Value and is only compiled in this file
     Json::Value parsedFromString;
 #if SK_SUPPORT_GPU
-    GrAuditTrail* at = this->getAuditTrail(canvas);
+    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
+    SkASSERT(rt);
+    GrContext* ctx = rt->getContext();
+    SkASSERT(ctx);
+    GrAuditTrail* at = ctx->getAuditTrail();
     GrAuditTrail::AutoManageBatchList enable(at);
     
     fDebugCanvas->drawTo(canvas, n);

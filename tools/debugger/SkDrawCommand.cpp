@@ -228,8 +228,7 @@ Json::Value SkDrawCommand::toJSON(UrlDataManager& urlDataManager) const {
 }
 
 Json::Value SkDrawCommand::drawToAndCollectJSON(SkCanvas* canvas,
-                                                UrlDataManager& urlDataManager,
-                                                int opIndex) const {
+                                                UrlDataManager& urlDataManager) const {
     Json::Value result = this->toJSON(urlDataManager);
 
     SkASSERT(canvas);
@@ -240,18 +239,19 @@ Json::Value SkDrawCommand::drawToAndCollectJSON(SkCanvas* canvas,
         GrContext* ctx = rt->getContext();
         if(ctx) {
             GrAuditTrail* at = ctx->getAuditTrail();
-            GrAuditTrail::AutoCollectBatches enable(at, opIndex);
+            GrAuditTrail::AutoEnable enable(at);
             this->execute(canvas);
 
             // TODO if this is inefficient we could add a method to GrAuditTrail which takes
             // a Json::Value and is only compiled in this file
             Json::Value parsedFromString;
             Json::Reader reader;
-            SkDEBUGCODE(bool parsingSuccessful = )reader.parse(at->toJson(opIndex).c_str(),
+            SkDEBUGCODE(bool parsingSuccessful = )reader.parse(at->toJson().c_str(),
                                                                parsedFromString);
             SkASSERT(parsingSuccessful);
 
             result[SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL] = parsedFromString;
+            at->reset();
         }
     }
 #endif
