@@ -725,7 +725,8 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
                 return nullptr;
             }
             return new GPUSink(contextType, contextOptions, gpuConfig->getSamples(),
-                               gpuConfig->getUseDIText(), FLAGS_gpu_threading);
+                               gpuConfig->getUseDIText(), gpuConfig->getColorType(),
+                               gpuConfig->getProfileType(), FLAGS_gpu_threading);
         }
     }
 #endif

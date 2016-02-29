@@ -23,11 +23,11 @@ static const char defaultConfigs[] =
 
 static const char configHelp[] =
     "Options: 565 8888 debug gpu gpudebug gpudft gpunull "
-    "msaa16 msaa4 nonrendering null nullgpu nvprmsaa16 nvprmsaa4 "
+    "msaa16 msaa4 gpuf16 gpusrgb nonrendering null nullgpu nvprmsaa16 nvprmsaa4 "
     "pdf pdf_poppler skp svg xps"
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
-    " angle"
+    " angle anglesrgb"
 #endif
     " angle-gl"
 #endif
@@ -47,7 +47,7 @@ static const char configExtendedHelp[] =
     "Possible backends and options:\n"
 #if SK_SUPPORT_GPU
     "\n"
-    "gpu(api=string,dit=bool,nvpr=bool,samples=int)\tGPU backend\n"
+    "gpu(api=string,color=string,dit=bool,nvpr=bool,samples=int)\tGPU backend\n"
     "\tapi\ttype: string\tdefault: native.\n"
     "\t    Select graphics API to use with gpu backend.\n"
     "\t    Options:\n"
@@ -69,6 +69,12 @@ static const char configExtendedHelp[] =
 #if SK_MESA
     "\t\tmesa\t\t\tUse MESA.\n"
 #endif
+    "\tcolor\ttype: string\tdefault: 8888.\n"
+    "\t    Select framebuffer color format.\n"
+    "\t    Options:\n"
+    "\t\t8888\t\t\tLinear 8888.\n"
+    "\t\tf16 \t\t\tLinear 16-bit floating point.\n"
+    "\t\tsrgb\t\t\tsRGB 8888.\n"
     "\tdit\ttype: bool\tdefault: false.\n"
     "\t    Use device independent text.\n"
     "\tnvpr\ttype: bool\tdefault: false.\n"
@@ -82,6 +88,8 @@ static const char configExtendedHelp[] =
     "\tmsaa16   \t= gpu(samples=16)\n"
     "\tnvprmsaa4\t= gpu(nvpr=true,samples=4)\n"
     "\tnvprmsaa16\t= gpu(nvpr=true,samples=16)\n"
+    "\tgpuf16    \t= gpu(color=f16)\n"
+    "\tgpusrgb   \t= gpu(color=srgb)\n"
     "\tgpudft    \t= gpu(dit=true)\n"
     "\tgpudebug  \t= gpu(api=debug)\n"
     "\tgpunull   \t= gpu(api=null)\n"
@@ -90,6 +98,7 @@ static const char configExtendedHelp[] =
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     "\tangle     \t= gpu(api=angle)\n"
+    "\tanglesrgb \t= gpu(api=angle,color=srgb)\n"
 #endif
     "\tangle-gl  \t= gpu(api=angle-gl)\n"
 #endif
@@ -115,6 +124,8 @@ static const struct {
     { "msaa16",     "gpu", "samples=16" },
     { "nvprmsaa4",  "gpu", "nvpr=true,samples=4,dit=true" },
     { "nvprmsaa16", "gpu", "nvpr=true,samples=16,dit=true" },
+    { "gpuf16",     "gpu", "color=f16" },
+    { "gpusrgb",    "gpu", "color=srgb" },
     { "gpudft",     "gpu", "dit=true" },
     { "gpudebug",   "gpu", "api=debug" },
     { "gpunull",    "gpu", "api=null" },
@@ -123,6 +134,7 @@ static const struct {
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     , { "angle",      "gpu", "api=angle" }
+    , { "anglesrgb",  "gpu", "api=angle,color=srgb" }
 #endif
     , { "angle-gl",   "gpu", "api=angle-gl" }
 #endif
@@ -149,12 +161,15 @@ SkCommandLineConfig::~SkCommandLineConfig() {
 #if SK_SUPPORT_GPU
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     const SkString& tag, const SkTArray<SkString>& viaParts,
-    ContextType contextType, bool useNVPR, bool useDIText, int samples)
+    ContextType contextType, bool useNVPR, bool useDIText, int samples,
+    SkColorType colorType, SkColorProfileType profileType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fUseNVPR(useNVPR)
         , fUseDIText(useDIText)
-        , fSamples(samples) {
+        , fSamples(samples)
+        , fColorType(colorType)
+        , fProfileType(profileType) {
 }
 static bool parse_option_int(const SkString& value, int* outInt) {
     if (value.isEmpty()) {
@@ -231,6 +246,26 @@ static bool parse_option_gpu_api(const SkString& value,
 #endif
     return false;
 }
+static bool parse_option_gpu_color(const SkString& value,
+                                   SkColorType* outColorType,
+                                   SkColorProfileType* outProfileType) {
+    if (value.equals("8888")) {
+        *outColorType = kRGBA_8888_SkColorType;
+        *outProfileType = kLinear_SkColorProfileType;
+        return true;
+    }
+    if (value.equals("f16")) {
+        *outColorType = kRGBA_F16_SkColorType;
+        *outProfileType = kLinear_SkColorProfileType;
+        return true;
+    }
+    if (value.equals("srgb")) {
+        *outColorType = kRGBA_8888_SkColorType;
+        *outProfileType = kSRGB_SkColorProfileType;
+        return true;
+    }
+    return false;
+}
 
 SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
                                                       const SkTArray<SkString>& vias,
@@ -244,6 +279,9 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     bool useDIText = false;
     bool seenSamples = false;
     int samples = 0;
+    bool seenColor = false;
+    SkColorType colorType = kRGBA_8888_SkColorType;
+    SkColorProfileType profileType = kLinear_SkColorProfileType;
 
     SkTArray<SkString> optionParts;
     SkStrSplit(options.c_str(), ",", kStrict_SkStrSplitMode, &optionParts);
@@ -268,12 +306,16 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         } else if (key.equals("samples") && !seenSamples) {
             valueOk = parse_option_int(value, &samples);
             seenSamples = true;
+        } else if (key.equals("color") && !seenColor) {
+            valueOk = parse_option_gpu_color(value, &colorType, &profileType);
+            seenColor = true;
         }
         if (!valueOk) {
             return nullptr;
         }
     }
-    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText, samples);
+    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText, samples,
+                                      colorType, profileType);
 }
 #endif
 
