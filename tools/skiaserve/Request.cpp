@@ -149,6 +149,9 @@ bool Request::initPictureFromStream(SkStream* stream) {
     // pour picture into debug canvas
     fDebugCanvas.reset(new SkDebugCanvas(kImageWidth, Request::kImageHeight));
     fDebugCanvas->drawPicture(fPicture);
+
+    // for some reason we need to 'flush' the debug canvas by drawing all of the ops
+    fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
     return true;
 }
 
@@ -194,13 +197,14 @@ SkData* Request::getJsonBatchList(int n) {
     // a Json::Value and is only compiled in this file
     Json::Value parsedFromString;
 #if SK_SUPPORT_GPU
+    // we use the toJSON method on debug canvas, but then just ignore the results and pull
+    // the information we care about from the audit trail
+    fDebugCanvas->toJSON(fUrlDataManager, n, canvas); 
+
     GrAuditTrail* at = this->getAuditTrail(canvas);
     GrAuditTrail::AutoManageBatchList enable(at);
-    
-    fDebugCanvas->drawTo(canvas, n);
-
     Json::Reader reader;
-    SkDEBUGCODE(bool parsingSuccessful = )reader.parse(at->toJson(true).c_str(),
+    SkDEBUGCODE(bool parsingSuccessful = )reader.parse(at->toJson().c_str(),
                                                        parsedFromString);
     SkASSERT(parsingSuccessful);
 #endif
