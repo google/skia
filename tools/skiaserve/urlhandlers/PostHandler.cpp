@@ -62,19 +62,11 @@ int PostHandler::handle(Request* request, MHD_Connection* connection,
     MHD_destroy_post_processor(uc->fPostProcessor);
     uc->fPostProcessor = nullptr;
 
-    // parse picture from stream
-    request->fPicture.reset(
-        SkPicture::CreateFromStream(request->fUploadContext->fStream.detachAsStream()));
-    if (!request->fPicture.get()) {
+    if (!request->initPictureFromStream(request->fUploadContext->fStream.detachAsStream())) {
         fprintf(stderr, "Could not create picture from stream.\n");
         return MHD_NO;
     }
-
-    // pour picture into debug canvas
-    request->fDebugCanvas.reset(new SkDebugCanvas(Request::kImageWidth,
-                                                  Request::kImageHeight));
-    request->fDebugCanvas->drawPicture(request->fPicture);
-
+    
     // clear upload context
     delete request->fUploadContext;
     request->fUploadContext = nullptr;

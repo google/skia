@@ -136,6 +136,20 @@ bool Request::enableGPU(bool enable) {
     fSurface.reset(this->createCPUSurface());
     fGPUEnabled = false;
     return true;
+} 
+
+bool Request::initPictureFromStream(SkStream* stream) {
+    // parse picture from stream
+    fPicture.reset(SkPicture::CreateFromStream(stream));
+    if (!fPicture.get()) {
+        fprintf(stderr, "Could not create picture from stream.\n");
+        return false;
+    }
+
+    // pour picture into debug canvas
+    fDebugCanvas.reset(new SkDebugCanvas(kImageWidth, Request::kImageHeight));
+    fDebugCanvas->drawPicture(fPicture);
+    return true;
 }
 
 GrAuditTrail* Request::getAuditTrail(SkCanvas* canvas) {

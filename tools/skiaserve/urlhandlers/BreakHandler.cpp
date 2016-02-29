@@ -38,7 +38,7 @@ int BreakHandler::handle(Request* request, MHD_Connection* connection,
     SkTArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
-    if (!request->fPicture.get() || commands.count() != 4) {
+    if (!request->hasPicture() || commands.count() != 4) {
         return MHD_NO;
     }
 

@@ -30,13 +30,13 @@ struct Request {
     Request(SkString rootUrl); 
 
     SkData* drawToPng(int n);
-    void drawToCanvas(int n);
     SkCanvas* getCanvas();
-    SkData* writeCanvasToPng(SkCanvas* canvas);
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
     bool enableGPU(bool enable);
     bool hasPicture() const { return SkToBool(fPicture.get()); }
     int getLastOp() const { return fDebugCanvas->getSize() - 1; }
+
+    bool initPictureFromStream(SkStream*);
 
     // Returns the json list of ops as an SkData
     SkData* getJsonOps(int n);
@@ -52,16 +52,18 @@ struct Request {
     static const int kImageHeight;
 
     UploadContext* fUploadContext;
-    SkAutoTUnref<SkPicture> fPicture;
     SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
     UrlDataManager fUrlDataManager;
     
 private:
+    SkData* writeCanvasToPng(SkCanvas* canvas);
+    void drawToCanvas(int n);
     SkSurface* createCPUSurface();
     SkSurface* createGPUSurface();
     GrAuditTrail* getAuditTrail(SkCanvas*);
     void cleanupAuditTrail(SkCanvas*);
     
+    SkAutoTUnref<SkPicture> fPicture;
     SkAutoTDelete<GrContextFactory> fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;
     bool fGPUEnabled;
