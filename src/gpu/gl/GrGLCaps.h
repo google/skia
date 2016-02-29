@@ -133,6 +133,11 @@ public:
         }
     }
 
+    bool isConfigTexSupportEnabled(GrPixelConfig config) const {
+        SkASSERT(kGrPixelConfigCnt > config);
+        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
+    }
+
     /** Returns the mapping between GrPixelConfig components and GL internal format components. */
     const GrSwizzle& configSwizzle(GrPixelConfig config) const {
         return fConfigTable[config].fSwizzle;
@@ -274,9 +279,6 @@ public:
     /// Is there support for texture parameter GL_TEXTURE_USAGE
     bool textureUsageSupport() const { return fTextureUsageSupport; }
 
-    /// Is there support for glTexStorage
-    bool texStorageSupport() const { return fTexStorageSupport; }
-
     /// Is there support for GL_RED and GL_R8
     bool textureRedSupport() const { return fTextureRedSupport; }
 
@@ -396,7 +398,6 @@ private:
     bool fPackRowLengthSupport : 1;
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
-    bool fTexStorageSupport : 1;
     bool fTextureRedSupport : 1;
     bool fImagingSupport  : 1;
     bool fVertexArrayObjectSupport : 1;
@@ -482,6 +483,7 @@ private:
             kTextureable_Flag             = 0x2,
             kRenderable_Flag              = 0x4,
             kRenderableWithMSAA_Flag      = 0x8,
+            kCanUseTexStorage_Flag        = 0x10,
         };
         uint32_t fFlags;
 

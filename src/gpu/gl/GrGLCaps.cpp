@@ -33,7 +33,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fPackRowLengthSupport = false;
     fPackFlipYSupport = false;
     fTextureUsageSupport = false;
-    fTexStorageSupport = false;
     fTextureRedSupport = false;
     fImagingSupport = false;
     fVertexArrayObjectSupport = false;
@@ -105,18 +104,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     fTextureUsageSupport = (kGLES_GrGLStandard == standard) &&
                             ctxInfo.hasExtension("GL_ANGLE_texture_usage");
-
-    if (kGL_GrGLStandard == standard) {
-        // The EXT version can apply to either GL or GLES.
-        fTexStorageSupport = version >= GR_GL_VER(4,2) ||
-                             ctxInfo.hasExtension("GL_ARB_texture_storage") ||
-                             ctxInfo.hasExtension("GL_EXT_texture_storage");
-    } else {
-        // Qualcomm Adreno drivers appear to have issues with texture storage.
-        fTexStorageSupport = (version >= GR_GL_VER(3,0) &&
-                              kQualcomm_GrGLVendor != ctxInfo.vendor()) &&
-                             ctxInfo.hasExtension("GL_EXT_texture_storage");
-    }
 
     if (kGL_GrGLStandard == standard) {
         fTextureBarrierSupport = version >= GR_GL_VER(4,5) ||
@@ -530,7 +517,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // TODO: remove after command buffer supports full ES 3.0.
     if (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3, 0) &&
         kChromium_GrGLDriver == ctxInfo.driver()) {
-        fTexStorageSupport = false;
         fSupportsInstancedDraws = false;
         fTextureSwizzleSupport = false;
         SkASSERT(ctxInfo.hasExtension("GL_CHROMIUM_map_sub"));
@@ -1036,7 +1022,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Pack Flip Y support: %s\n", (fPackFlipYSupport ? "YES": "NO"));
 
     r.appendf("Texture Usage support: %s\n", (fTextureUsageSupport ? "YES": "NO"));
-    r.appendf("Texture Storage support: %s\n", (fTexStorageSupport ? "YES": "NO"));
     r.appendf("GL_R support: %s\n", (fTextureRedSupport ? "YES": "NO"));
     r.appendf("GL_ARB_imaging support: %s\n", (fImagingSupport ? "YES": "NO"));
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
@@ -1313,6 +1298,25 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
+    bool texStorageSupported = false;
+    if (kGL_GrGLStandard == standard) {
+        // The EXT version can apply to either GL or GLES.
+        texStorageSupported = version >= GR_GL_VER(4,2) ||
+                              ctxInfo.hasExtension("GL_ARB_texture_storage") ||
+                              ctxInfo.hasExtension("GL_EXT_texture_storage");
+    } else {
+        // Qualcomm Adreno drivers appear to have issues with texture storage.
+        texStorageSupported = (version >= GR_GL_VER(3,0) &&
+                               kQualcomm_GrGLVendor != ctxInfo.vendor()) &&
+                               ctxInfo.hasExtension("GL_EXT_texture_storage");
+    }
+
+    // TODO: remove after command buffer supports full ES 3.0
+    if (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0) &&
+        kChromium_GrGLDriver == ctxInfo.driver()) {
+        texStorageSupported = false;
+    }
+
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fBaseInternalFormat = 0;
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fSizedInternalFormat = 0;
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = 0;
@@ -1335,6 +1339,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             ctxInfo.hasExtension("GL_ARM_rgba8")) {
             fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= allRenderFlags;
         }
+    }
+    if (texStorageSupported) {
+        fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
@@ -1373,6 +1380,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             }
         }
     }
+    if (texStorageSupported) {
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
     fConfigTable[kBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     // We only enable srgb support if both textures and FBOs support srgb.
@@ -1408,6 +1418,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
                                                          allRenderFlags;
     }
+    if (texStorageSupported) {
+        fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
     fConfigTable[kSRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
@@ -1428,6 +1441,16 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     } else {
         fConfigTable[kRGB_565_GrPixelConfig].fFlags |= allRenderFlags;
     }
+    // 565 is not a sized internal format on desktop GL. So on desktop with
+    // 565 we always use an unsized internal format to let the system pick
+    // the best sized format to convert the 565 data to. Since TexStorage
+    // only allows sized internal formats we disallow it.
+    //
+    // TODO: As of 4.2, regular GL supports 565. This logic is due for an
+    // update.
+    if (texStorageSupported && kGL_GrGLStandard != standard) {
+        fConfigTable[kRGB_565_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
     fConfigTable[kRGB_565_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
@@ -1443,6 +1466,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
     } else {
         fConfigTable[kRGBA_4444_GrPixelConfig].fFlags |= allRenderFlags;
+    }
+    if (texStorageSupported) {
+        fConfigTable[kRGBA_4444_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kRGBA_4444_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
@@ -1466,6 +1492,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // desktop ARB extension/3.0+ supports ALPHA8 as renderable.
         // Core profile removes ALPHA8 support, but we should have chosen R8 in that case.
         fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= allRenderFlags;
+    }
+    if (texStorageSupported) {
+        fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
     // Check for [half] floating point texture support
@@ -1514,6 +1543,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fConfigTable[kRGBA_float_GrPixelConfig].fFlags |= fpRenderFlags;
         }
     }
+    if (texStorageSupported) {
+        fConfigTable[kRGBA_float_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
     fConfigTable[kRGBA_float_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     if (this->textureRedSupport()) {
@@ -1545,6 +1577,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= fpRenderFlags;
         }
     }
+    if (texStorageSupported) {
+        fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
 
     fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
     fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA16F;
@@ -1563,6 +1598,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
              ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
         }
+    }
+    if (texStorageSupported) {
+        fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kRGBA_half_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 

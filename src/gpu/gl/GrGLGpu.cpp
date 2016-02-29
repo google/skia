@@ -916,7 +916,7 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
  *
  * @param desc           The surface descriptor for the texture being created.
  * @param interface      The GL interface in use.
- * @param target         The GL target to which the texture is bound
+ * @param caps           The capabilities of the GL device.
  * @param internalFormat The data format used for the internal storage of the texture.
  * @param externalFormat The data format used for the external storage of the texture.
  * @param externalType   The type of the data used for the external storage of the texture.
@@ -928,6 +928,7 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
  */
 static void allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc,
                                                        const GrGLInterface& interface,
+                                                       const GrGLCaps& caps,
                                                        GrGLenum target,
                                                        GrGLenum internalFormat,
                                                        GrGLenum externalFormat,
@@ -936,27 +937,70 @@ static void allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
                                                        int baseWidth, int baseHeight,
                                                        bool* succeeded) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
-    *succeeded = true;
-    for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
-        int twoToTheMipLevel = 1 << currentMipLevel;
-        int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
-        int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
-        const void* currentMipData = texels[currentMipLevel].fPixels;
-        // Even if curremtMipData is nullptr, continue to call TexImage2D.
-        // This will allocate texture memory which we can later populate.
+
+    bool useTexStorage = caps.isConfigTexSupportEnabled(desc.fConfig);
+    // We can only use TexStorage if we know we will not later change the storage requirements.
+    // This means if we may later want to add mipmaps, we cannot use TexStorage.
+    // Right now, we cannot know if we will later add mipmaps or not.
+    // The only time we can use TexStorage is when we already have the
+    // mipmaps.
+    useTexStorage &= texels.count() > 1;
+
+    if (useTexStorage) {
+        // We never resize or change formats of textures.
         GL_ALLOC_CALL(&interface,
-                      TexImage2D(target,
-                                 currentMipLevel,
-                                 internalFormat,
-                                 currentWidth,
-                                 currentHeight,
-                                 0, // border
-                                 externalFormat, externalType,
-                                 currentMipData));
+                      TexStorage2D(target,
+                                   texels.count(),
+                                   internalFormat,
+                                   desc.fWidth, desc.fHeight));
         GrGLenum error = check_alloc_error(desc, &interface);
         if (error != GR_GL_NO_ERROR) {
             *succeeded = false;
-            break;
+        } else {
+            for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
+                const void* currentMipData = texels[currentMipLevel].fPixels;
+                if (currentMipData == nullptr) {
+                    continue;
+                }
+                int twoToTheMipLevel = 1 << currentMipLevel;
+                int currentWidth = SkTMax(1, desc.fWidth / twoToTheMipLevel);
+                int currentHeight = SkTMax(1, desc.fHeight / twoToTheMipLevel);
+
+                GR_GL_CALL(&interface,
+                           TexSubImage2D(target,
+                                         currentMipLevel,
+                                         0, // left
+                                         0, // top
+                                         currentWidth,
+                                         currentHeight,
+                                         externalFormat, externalType,
+                                         currentMipData));
+            }
+            *succeeded = true;
+        }
+    } else {
+        *succeeded = true;
+        for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
+            int twoToTheMipLevel = 1 << currentMipLevel;
+            int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
+            int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
+            const void* currentMipData = texels[currentMipLevel].fPixels;
+            // Even if curremtMipData is nullptr, continue to call TexImage2D.
+            // This will allocate texture memory which we can later populate.
+            GL_ALLOC_CALL(&interface,
+                          TexImage2D(target,
+                                     currentMipLevel,
+                                     internalFormat,
+                                     currentWidth,
+                                     currentHeight,
+                                     0, // border
+                                     externalFormat, externalType,
+                                     currentMipData));
+            GrGLenum error = check_alloc_error(desc, &interface);
+            if (error != GR_GL_NO_ERROR) {
+                *succeeded = false;
+                break;
+            }
         }
     }
 }
@@ -966,40 +1010,86 @@ static void allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
  *
  * @param desc           The surface descriptor for the texture being created.
  * @param interface      The GL interface in use.
- * @param target         The GL target to which the texture is bound
+ * @param caps           The capabilities of the GL device.
  * @param internalFormat The data format used for the internal storage of the texture.
  * @param texels         The texel data of the texture being created.
- * @param baseWidth      The width of the texture's base mipmap level
- * @param baseHeight     The height of the texture's base mipmap level
  */
 static bool allocate_and_populate_compressed_texture(const GrSurfaceDesc& desc,
                                                      const GrGLInterface& interface,
+                                                     const GrGLCaps& caps,
                                                      GrGLenum target, GrGLenum internalFormat,
                                                      const SkTArray<GrMipLevel>& texels,
                                                      int baseWidth, int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
-    for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
-        int twoToTheMipLevel = 1 << currentMipLevel;
-        int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
-        int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
 
-        // Make sure that the width and height that we pass to OpenGL
-        // is a multiple of the block size.
-        size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, baseWidth, baseHeight);
+    bool useTexStorage = caps.isConfigTexSupportEnabled(desc.fConfig);
+    // We can only use TexStorage if we know we will not later change the storage requirements.
+    // This means if we may later want to add mipmaps, we cannot use TexStorage.
+    // Right now, we cannot know if we will later add mipmaps or not.
+    // The only time we can use TexStorage is when we already have the
+    // mipmaps.
+    useTexStorage &= texels.count() > 1;
 
+    if (useTexStorage) {
+        // We never resize or change formats of textures.
         GL_ALLOC_CALL(&interface,
-                      CompressedTexImage2D(target,
-                                           currentMipLevel,
-                                           internalFormat,
-                                           currentWidth,
-                                           currentHeight,
-                                           0, // border
-                                           SkToInt(dataSize),
-                                           texels[currentMipLevel].fPixels));
-
+                      TexStorage2D(target,
+                                   texels.count(),
+                                   internalFormat,
+                                   baseWidth, baseHeight));
         GrGLenum error = check_alloc_error(desc, &interface);
         if (error != GR_GL_NO_ERROR) {
             return false;
+        } else {
+            for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
+                const void* currentMipData = texels[currentMipLevel].fPixels;
+                if (currentMipData == nullptr) {
+                    continue;
+                }
+
+                int twoToTheMipLevel = 1 << currentMipLevel;
+                int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
+                int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
+
+                // Make sure that the width and height that we pass to OpenGL
+                // is a multiple of the block size.
+                size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, currentWidth,
+                                                             currentHeight);
+                GR_GL_CALL(&interface, CompressedTexSubImage2D(target,
+                                                               currentMipLevel,
+                                                               0, // left
+                                                               0, // top
+                                                               currentWidth,
+                                                               currentHeight,
+                                                               internalFormat,
+                                                               SkToInt(dataSize),
+                                                               currentMipData));
+            }
+        }
+    } else {
+        for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
+            int twoToTheMipLevel = 1 << currentMipLevel;
+            int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
+            int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
+
+            // Make sure that the width and height that we pass to OpenGL
+            // is a multiple of the block size.
+            size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, baseWidth, baseHeight);
+
+            GL_ALLOC_CALL(&interface,
+                          CompressedTexImage2D(target,
+                                               currentMipLevel,
+                                               internalFormat,
+                                               currentWidth,
+                                               currentHeight,
+                                               0, // border
+                                               SkToInt(dataSize),
+                                               texels[currentMipLevel].fPixels));
+
+            GrGLenum error = check_alloc_error(desc, &interface);
+            if (error != GR_GL_NO_ERROR) {
+                return false;
+            }
         }
     }
 
@@ -1191,7 +1281,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height &&
         !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
-        allocate_and_populate_uncompressed_texture(desc, *interface, target,
+        allocate_and_populate_uncompressed_texture(desc, *interface, caps, target,
                                                    internalFormat, externalFormat,
                                                    externalType, texelsShallowCopy,
                                                    width, height, &succeeded);
@@ -1268,8 +1358,8 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
     }
 
     if (kNewTexture_UploadType == uploadType) {
-        return allocate_and_populate_compressed_texture(desc, *interface, target, internalFormat,
-                                                        texels, width, height);
+        return allocate_and_populate_compressed_texture(desc, *interface, caps, target,
+                                                        internalFormat, texels, width, height);
     } else {
         // Paletted textures can't be updated.
         if (GR_GL_PALETTE8_RGBA8 == internalFormat) {
