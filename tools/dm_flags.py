@@ -31,15 +31,6 @@ def get_args(bot):
 
   configs = ['565', '8888', 'gpu']
 
-  if 'Android' not in bot:
-    configs.extend(('upright-matrix-8888', 'upright-matrix-gpu'))
-    args.extend('--matrix 0 1 1 0'.split(' '))
-
-  if '-GCE-' in bot:
-    configs.append('sp-8888')
-    configs.extend(['twice-8888', '2ndpic-8888'])
-    configs.extend(['remote-8888', 'remote_cache-8888'])
-
   if '-TSAN' not in bot:
     if ('TegraK1'  in bot or
         'GTX550Ti' in bot or
@@ -141,18 +132,12 @@ def get_args(bot):
                'drawfilter',
                'path_stroke_with_zero_length',
                'textblobgeometrychange']:
-    blacklist.extend([    'sp-8888', 'gm', '_', test])
-    blacklist.extend([   'pic-8888', 'gm', '_', test])
-    blacklist.extend(['2ndpic-8888', 'gm', '_', test])
-  for test in ['patch_primitive']:
-    blacklist.extend(['sp-8888', 'gm', '_', test])
+    blacklist.extend(['pic-8888', 'gm', '_', test])
   # skia:4703
   for test in ['image-cacherator-from-picture',
                'image-cacherator-from-raster',
                'image-cacherator-from-ctable']:
-    blacklist.extend([       'sp-8888', 'gm', '_', test])
     blacklist.extend([      'pic-8888', 'gm', '_', test])
-    blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
     blacklist.extend(['serialize-8888', 'gm', '_', test])
 
   # Extensions for RAW images
