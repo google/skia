@@ -38,7 +38,7 @@ SkImage_Gpu::~SkImage_Gpu() {
 }
 
 extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
-    if (as_IB(image)->getTexture()) {
+    if (as_IB(image)->peekTexture()) {
         ((SkImage_Gpu*)image)->applyBudgetDecision();
     }
 }

@@ -19,6 +19,9 @@
         'bench.gypi',
         'gmslides.gypi',
       ],
+      'include_dirs' : [
+        '../src/image',
+      ],
       'dependencies': [
         'flags.gyp:flags_common',
         'jsoncpp.gyp:jsoncpp',

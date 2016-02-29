@@ -169,10 +169,10 @@ GrTexture* SkImage::getTexture() const {
     return as_IB(this)->peekTexture();
 }
 
-bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->getTexture()); }
+bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekTexture()); }
 
 GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO) const {
-    GrTexture* texture = as_IB(this)->getTexture();
+    GrTexture* texture = as_IB(this)->peekTexture();
     if (texture) {
         GrContext* context = texture->getContext();
         if (context) {            

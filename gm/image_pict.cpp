@@ -217,7 +217,7 @@ public:
         surface->getCanvas()->translate(-100, -100);
         surface->getCanvas()->drawPicture(pic);
         SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-        fTexture.reset(SkRef(image->getTexture()));
+        fTexture.reset(SkRef(as_IB(image)->peekTexture()));
     }
 protected:
     GrTexture* onGenerateTexture(GrContext* ctx, const SkIRect* subset) override {

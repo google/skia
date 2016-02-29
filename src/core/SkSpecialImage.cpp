@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkImage_Base.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 
@@ -33,24 +34,24 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-static inline const SkSpecialImage_Base* as_IB(const SkSpecialImage* image) {
+static inline const SkSpecialImage_Base* as_SIB(const SkSpecialImage* image) {
     return static_cast<const SkSpecialImage_Base*>(image);
 }
 
 void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
-    return as_IB(this)->onDraw(canvas, x, y, paint);
+    return as_SIB(this)->onDraw(canvas, x, y, paint);
 }
 
 bool SkSpecialImage::peekPixels(SkPixmap* pixmap) const {
-    return as_IB(this)->onPeekPixels(pixmap);
+    return as_SIB(this)->onPeekPixels(pixmap);
 }
 
 GrTexture* SkSpecialImage::peekTexture() const {
-    return as_IB(this)->onPeekTexture();
+    return as_SIB(this)->onPeekTexture();
 }
 
 SkSpecialSurface* SkSpecialImage::newSurface(const SkImageInfo& info) const {
-    return as_IB(this)->onNewSurface(info);
+    return as_SIB(this)->onNewSurface(info);
 }
 
 #if SK_SUPPORT_GPU
@@ -72,7 +73,7 @@ SkSpecialImage* SkSpecialImage::internal_fromBM(SkImageFilter::Proxy* proxy,
 }
 
 bool SkSpecialImage::internal_getBM(SkBitmap* result) {
-    const SkSpecialImage_Base* ib = as_IB(this);
+    const SkSpecialImage_Base* ib = as_SIB(this);
 
     // TODO: need to test offset case! (see skbug.com/4967)
     return ib->getBitmap(result);
@@ -102,8 +103,8 @@ public:
 
     size_t getSize() const override {
 #if SK_SUPPORT_GPU
-        if (fImage->getTexture()) {
-            return fImage->getTexture()->gpuMemorySize();
+        if (GrTexture* texture = as_IB(fImage.get())->peekTexture()) {
+            return texture->gpuMemorySize();
         } else
 #endif
         {
@@ -128,7 +129,7 @@ public:
         return fImage->peekPixels(pixmap);
     }
 
-    GrTexture* onPeekTexture() const override { return fImage->getTexture(); }
+    GrTexture* onPeekTexture() const override { return as_IB(fImage.get())->peekTexture(); }
 
     bool getBitmap(SkBitmap* result) const override {
         return false;
@@ -136,7 +137,7 @@ public:
 
     SkSpecialSurface* onNewSurface(const SkImageInfo& info) const override {
 #if SK_SUPPORT_GPU
-        GrTexture* texture = fImage->getTexture();
+        GrTexture* texture = as_IB(fImage.get())->peekTexture();
         if (texture) {
             GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info);
             desc.fFlags = kRenderTarget_GrSurfaceFlag;

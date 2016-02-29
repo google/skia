@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkImage_Base.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 
@@ -85,9 +86,8 @@ static SkImage* makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
     SkBitmap tempBM;
 
 #if SK_SUPPORT_GPU
-    if (image->getTexture()) {
-        GrWrapTextureInBitmap(image->getTexture(),
-                              image->width(), image->height(), image->isOpaque(), &tempBM);
+    if (GrTexture* texture = as_IB(image)->peekTexture()) {
+        GrWrapTextureInBitmap(texture, image->width(), image->height(), image->isOpaque(), &tempBM);
     } else 
 #endif
     {

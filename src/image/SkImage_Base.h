@@ -74,7 +74,7 @@ private:
     typedef SkImage INHERITED;
 };
 
-static inline SkImage_Base* as_IB(SkImage* image) {
+static inline SkImage_Base*     as_IB(SkImage* image) {
     return static_cast<SkImage_Base*>(image);
 }
 

@@ -21,6 +21,7 @@
         '../src/core',
         '../src/effects',
         '../src/images',
+        '../src/image',
         '../src/pdf',
       ],
       'sources': [

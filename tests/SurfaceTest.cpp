@@ -653,13 +653,13 @@ static void test_crbug263329(skiatest::Reporter* reporter,
     // be recycling a texture that is held by an existing image.
     canvas2->clear(5);
     SkAutoTUnref<SkImage> image4(surface2->newImageSnapshot());
-    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image3)->getTexture());
+    REPORTER_ASSERT(reporter, as_IB(image4)->peekTexture() != as_IB(image3)->peekTexture());
     // The following assertion checks crbug.com/263329
-    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image2)->getTexture());
-    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image1)->getTexture());
-    REPORTER_ASSERT(reporter, as_IB(image3)->getTexture() != as_IB(image2)->getTexture());
-    REPORTER_ASSERT(reporter, as_IB(image3)->getTexture() != as_IB(image1)->getTexture());
-    REPORTER_ASSERT(reporter, as_IB(image2)->getTexture() != as_IB(image1)->getTexture());
+    REPORTER_ASSERT(reporter, as_IB(image4)->peekTexture() != as_IB(image2)->peekTexture());
+    REPORTER_ASSERT(reporter, as_IB(image4)->peekTexture() != as_IB(image1)->peekTexture());
+    REPORTER_ASSERT(reporter, as_IB(image3)->peekTexture() != as_IB(image2)->peekTexture());
+    REPORTER_ASSERT(reporter, as_IB(image3)->peekTexture() != as_IB(image1)->peekTexture());
+    REPORTER_ASSERT(reporter, as_IB(image2)->peekTexture() != as_IB(image1)->peekTexture());
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, context) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
@@ -673,20 +673,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, context) {
 DEF_TEST(SurfaceGetTexture, reporter) {
     SkAutoTUnref<SkSurface> surface(create_surface());
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-    REPORTER_ASSERT(reporter, as_IB(image)->getTexture() == nullptr);
+    REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == nullptr);
     surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
-    REPORTER_ASSERT(reporter, as_IB(image)->getTexture() == nullptr);
+    REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == nullptr);
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceGetTexture_Gpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, context) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         SkAutoTUnref<SkSurface> surface(surface_func(context, kPremul_SkAlphaType, nullptr));
         SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-        GrTexture* texture = as_IB(image)->getTexture();
+        GrTexture* texture = as_IB(image)->peekTexture();
         REPORTER_ASSERT(reporter, texture);
         REPORTER_ASSERT(reporter, 0 != texture->getTextureHandle());
         surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
-        REPORTER_ASSERT(reporter, as_IB(image)->getTexture() == texture);
+        REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == texture);
     }
 }
 #endif
@@ -702,7 +702,7 @@ static SkBudgeted is_budgeted(SkSurface* surf) {
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
-    return ((SkImage_Gpu*)image)->getTexture()->resourcePriv().isBudgeted();
+    return ((SkImage_Gpu*)image)->peekTexture()->resourcePriv().isBudgeted();
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBudget, reporter, context) {
@@ -874,8 +874,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, context) {
             SkBaseDevice* d =
                 s->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
             return d->accessRenderTarget(); },
-        [] (SkSurface* s){ SkAutoTUnref<SkImage> i(s->newImageSnapshot());
-                           return i->getTexture(); },
         [] (SkSurface* s){ SkAutoTUnref<SkImage> i(s->newImageSnapshot());
                            return as_IB(i)->peekTexture(); },
     };

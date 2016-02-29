@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkImage_Base.h"
 #include "SkImageGenerator.h"
 #include "SkCanvas.h"
 #include "SkMatrix.h"
@@ -154,6 +155,6 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIR
     if (!image.get()) {
         return nullptr;
     }
-    return SkSafeRef(image->getTexture());
+    return SkSafeRef(as_IB(image)->peekTexture());
 }
 #endif

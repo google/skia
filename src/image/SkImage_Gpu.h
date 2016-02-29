@@ -26,12 +26,10 @@ public:
     ~SkImage_Gpu() override;
 
     void applyBudgetDecision() const {
-        GrTexture* tex = this->getTexture();
-        SkASSERT(tex);
         if (SkBudgeted::kYes == fBudgeted) {
-            tex->resourcePriv().makeBudgeted();
+            fTexture->resourcePriv().makeBudgeted();
         } else {
-            tex->resourcePriv().makeUnbudgeted();
+            fTexture->resourcePriv().makeUnbudgeted();
         }
     }
 

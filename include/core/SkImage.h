@@ -199,7 +199,7 @@ public:
      */
     void preroll(GrContext* = nullptr) const;
 
-    // DEPRECATED
+    // DEPRECATED - currently used by Canvas2DLayerBridge in Chromium.
     GrTexture* getTexture() const;
 
     /**
