@@ -856,15 +856,11 @@ GPUSink::GPUSink(GrContextFactory::GLContextType ct,
                  GrContextFactory::GLContextOptions options,
                  int samples,
                  bool diText,
-                 SkColorType colorType,
-                 SkColorProfileType profileType,
                  bool threaded)
     : fContextType(ct)
     , fContextOptions(options)
     , fSampleCount(samples)
     , fUseDIText(diText)
-    , fColorType(colorType)
-    , fProfileType(profileType)
     , fThreaded(threaded) {}
 
 void PreAbandonGpuContextErrorHandler(SkError, void*) {}
@@ -886,8 +882,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     GrContextFactory factory(grOptions);
     const SkISize size = src.size();
     const SkImageInfo info =
-        SkImageInfo::Make(size.width(), size.height(), fColorType,
-                          kPremul_SkAlphaType, fProfileType);
+        SkImageInfo::Make(size.width(), size.height(), kN32_SkColorType, kPremul_SkAlphaType);
 #if SK_SUPPORT_GPU
     const int maxDimension = factory.getContextInfo(fContextType, fContextOptions).
             fGrContext->caps()->maxTextureSize();
