@@ -25,7 +25,6 @@
 #include "SkXfermode.h"
 
 #include "SkStream.h"
-#include "SkXMLParser.h"
 
 static const struct {
     const char* fName;

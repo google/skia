@@ -28,7 +28,6 @@
 
 #include "SkStream.h"
 #include "SkSurface.h"
-#include "SkXMLParser.h"
 
 #include "SkGlyphCache.h"
 

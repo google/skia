@@ -25,7 +25,6 @@
 #include "SkXfermode.h"
 
 #include "SkStream.h"
-#include "SkXMLParser.h"
 #include "SkColorPriv.h"
 #include "SkImageDecoder.h"
 #include "SkBlurMaskFilter.h"

@@ -23,7 +23,6 @@
 #include "SkXfermode.h"
 
 #include "SkStream.h"
-#include "SkXMLParser.h"
 
 class PointsView : public SampleView {
 public:
