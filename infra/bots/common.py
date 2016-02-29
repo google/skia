@@ -296,7 +296,7 @@ class BotInfo(object):
 
       # Obtain the list of already-generated hashes.
       hash_filename = 'uninteresting_hashes.txt'
-      host_hashes_file = self.tmp_dir.join(hash_filename)
+      host_hashes_file = os.path.join(self.tmp_dir, hash_filename)
       hashes_file = self.flavor.device_path_join(
           self.device_dirs.tmp_dir, hash_filename)
 
