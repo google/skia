@@ -129,20 +129,56 @@ static void print_status() {
     }
 }
 
+// Yo dawg, I heard you like signals so I caught a signal in your
+// signal handler so you can handle signals while you handle signals.
+// Let's not get into that situation.  Only print if we're the first ones to get a crash signal.
+static std::atomic<bool> in_signal_handler{false};
+
 #if defined(SK_BUILD_FOR_WIN32)
-    static void setup_crash_handler() {
-        // TODO: custom crash handler like below to print out what was running
-        SetupCrashHandler();
+    static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
+        static const struct {
+            const char* name;
+            int code;
+        } kExceptions[] = {
+        #define _(E) {#E, E}
+            _(EXCEPTION_ACCESS_VIOLATION),
+            _(EXCEPTION_BREAKPOINT),
+            _(EXCEPTION_INT_DIVIDE_BY_ZERO),
+            _(EXCEPTION_STACK_OVERFLOW),
+            // TODO: more?
+        #undef _
+        };
+
+        if (!in_signal_handler.exchange(true)) {
+            const DWORD code = e->ExceptionRecord->ExceptionCode;
+            SkDebugf("\nCaught exception %u", code);
+            for (const auto& exception : kExceptions) {
+                if (exception.code == code) {
+                    SkDebugf(" %s", exception.name);
+                }
+            }
+            SkDebugf("\n");
+            print_status();
+        }
+        // Execute default exception handler... hopefully, exit.
+        return EXCEPTION_EXECUTE_HANDLER;
     }
+    static void setup_crash_handler() { SetUnhandledExceptionFilter(handler); }
 
 #else
     #include <signal.h>
+
     static void setup_crash_handler() {
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
         for (int sig : kSignals) {
             signal(sig, [](int sig) {
-                SkDebugf("\nCaught signal %d [%s].\n", sig, strsignal(sig));
-                print_status();
+                if (!in_signal_handler.exchange(true)) {
+                    SkDebugf("\nCaught signal %d [%s].\n", sig, strsignal(sig));
+                    print_status();
+                }
+                // Reraise this signal to the default handler... hopefully, exit.
+                signal(sig, SIG_DFL);
+                raise(sig);
             });
         }
     }
