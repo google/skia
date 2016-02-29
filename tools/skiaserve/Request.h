@@ -59,6 +59,8 @@ struct Request {
 private:
     SkSurface* createCPUSurface();
     SkSurface* createGPUSurface();
+    GrAuditTrail* getAuditTrail(SkCanvas*);
+    void cleanupAuditTrail(SkCanvas*);
     
     SkAutoTDelete<GrContextFactory> fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;

@@ -8,29 +8,36 @@
 #include "GrAuditTrail.h"
 #include "batches/GrBatch.h"
 
+const int GrAuditTrail::kInvalidID = -1;
+
 void GrAuditTrail::batchingResultCombined(GrBatch* combiner) {
     int* indexPtr = fIDLookup.find(combiner);
     SkASSERT(indexPtr);
     int index = *indexPtr;
-    SkASSERT(index < fBatches.count());
-    Batch& batch = *fBatches[index];
+    SkASSERT(index < fBatchList.count());
+    BatchNode& batch = *fBatchList[index];
 
-    // if this is our first child, we also push back a copy of the original batch and its
-    // bounds
-    if (batch.fChildren.empty()) {
-        Batch* firstBatch = new Batch;
-        firstBatch->fName = batch.fName;
-        firstBatch->fBounds = batch.fBounds;
-        fEvents.emplace_back(firstBatch);
-        batch.fChildren.push_back(firstBatch);
-    } 
+    // set the ids for the child batch
+    fCurrentBatch->fBatchListID = index;
+    fCurrentBatch->fChildID = batch.fChildren.count();
+
+    // Update the bounds and store a pointer to the new batch
     batch.fChildren.push_back(fCurrentBatch);
     batch.fBounds = combiner->bounds();
 }
 
 void GrAuditTrail::batchingResultNew(GrBatch* batch) {
-    fIDLookup.set(batch, fBatches.count());
-    fBatches.push_back(fCurrentBatch);
+    // Our algorithm doesn't bother to reorder inside of a BatchNode
+    // so the ChildID will start at 0
+    fCurrentBatch->fBatchListID = fBatchList.count();
+    fCurrentBatch->fChildID = 0;
+
+    // We use the batch pointer as a key to find the batchnode we are 'glomming' batches onto
+    fIDLookup.set(batch, fCurrentBatch->fBatchListID);
+    BatchNode* batchNode = new BatchNode;
+    batchNode->fBounds = fCurrentBatch->fBounds;
+    batchNode->fChildren.push_back(fCurrentBatch);
+    fBatchList.emplace_back(batchNode);
 }
 
 template <typename T>
@@ -118,14 +125,10 @@ static SkString pretty_print_json(SkString json) {
     return prettyPrintJson.prettify(json);
 }
 
-SkString GrAuditTrail::toJson(bool batchList, bool prettyPrint) const {
+SkString GrAuditTrail::toJson(bool prettyPrint) const {
     SkString json;
     json.append("{");
-    if (!batchList) {
-        JsonifyTArray(&json, "Stacks", fFrames, false);
-    } else {
-        JsonifyTArray(&json, "Batches", fBatches, false);
-    }
+    JsonifyTArray(&json, "Batches", fBatchList, false);
     json.append("}");
 
     if (prettyPrint) {
@@ -135,26 +138,48 @@ SkString GrAuditTrail::toJson(bool batchList, bool prettyPrint) const {
     }
 }
 
-SkString GrAuditTrail::Frame::toJson() const {
+SkString GrAuditTrail::toJson(int clientID, bool prettyPrint) const {
     SkString json;
     json.append("{");
-    json.appendf("\"Name\": \"%s\"", fName);
-    JsonifyTArray(&json, "Frames", fChildren, true);
-    json.append("}");
-    return json;
+    Batches** batches = fClientIDLookup.find(clientID);
+    if (batches) {
+        JsonifyTArray(&json, "Batches", **batches, false);
+    }
+    json.appendf("}");
+
+    if (prettyPrint) {
+        return pretty_print_json(json);
+    } else {
+        return json;
+    }
+}
+
+static void skrect_to_json(SkString* json, const char* name, const SkRect& rect) {
+    json->appendf("\"%s\": {", name);
+    json->appendf("\"Left\": %f,", rect.fLeft);
+    json->appendf("\"Right\": %f,", rect.fRight);
+    json->appendf("\"Top\": %f,", rect.fTop);
+    json->appendf("\"Bottom\": %f", rect.fBottom);
+    json->append("}");
 }
 
 SkString GrAuditTrail::Batch::toJson() const {
     SkString json;
     json.append("{");
-    json.appendf("\"Name\": \"%s\",", fName);
-    json.append("\"Bounds\": {");
-    json.appendf("\"Left\": %f,", fBounds.fLeft);
-    json.appendf("\"Right\": %f,", fBounds.fRight);
-    json.appendf("\"Top\": %f,", fBounds.fTop);
-    json.appendf("\"Bottom\": %f", fBounds.fBottom);
-    JsonifyTArray(&json, "Children", fChildren, true);
+    json.appendf("\"Name\": \"%s\",", fName.c_str());
+    json.appendf("\"ClientID\": \"%d\",", fClientID);
+    json.appendf("\"BatchListID\": \"%d\",", fBatchListID);
+    json.appendf("\"ChildID\": \"%d\",", fChildID);
+    skrect_to_json(&json, "Bounds", fBounds);
     json.append("}");
+    return json;
+}
+
+SkString GrAuditTrail::BatchNode::toJson() const {
+    SkString json;
+    json.append("{");
+    skrect_to_json(&json, "Bounds", fBounds);
+    JsonifyTArray(&json, "Batches", fChildren, true);
     json.append("}");
     return json;
 }
