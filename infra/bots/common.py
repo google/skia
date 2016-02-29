@@ -295,6 +295,8 @@ class BotInfo(object):
         self.flavor.create_clean_device_dir(self.device_dirs.dm_dir)
 
       # Obtain the list of already-generated hashes.
+      if not os.path.isdir(self.tmp_dir):
+        os.makedirs(self.tmp_dir)
       hash_filename = 'uninteresting_hashes.txt'
       host_hashes_file = os.path.join(self.tmp_dir, hash_filename)
       hashes_file = self.flavor.device_path_join(
