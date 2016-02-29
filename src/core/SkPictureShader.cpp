@@ -197,14 +197,18 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkM
     }
 #endif
 
-    SkISize tileSize = scaledSize.toRound();
+#ifdef SK_SUPPORT_LEGACY_PICTURESHADER_ROUNDING
+    const SkISize tileSize = scaledSize.toRound();
+#else
+    const SkISize tileSize = scaledSize.toCeil();
+#endif
     if (tileSize.isEmpty()) {
         return SkShader::CreateEmptyShader();
     }
 
     // The actual scale, compensating for rounding & clamping.
-    SkSize tileScale = SkSize::Make(SkIntToScalar(tileSize.width()) / fTile.width(),
-                                    SkIntToScalar(tileSize.height()) / fTile.height());
+    const SkSize tileScale = SkSize::Make(SkIntToScalar(tileSize.width()) / fTile.width(),
+                                          SkIntToScalar(tileSize.height()) / fTile.height());
 
     SkAutoTUnref<SkShader> tileShader;
     BitmapShaderKey key(fPicture->uniqueID(),
