@@ -587,9 +587,8 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
     SkPaint::Align textAlignment,
     SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph) {
 
-    SkAxisAlignment axisAlignment = SkComputeAxisAlignmentForHText(matrix);
+    SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
     uint32_t mtype = matrix.getType();
-
     LookupGlyph glyphFinder(textEncoding, cache);
 
     // Specialized code for handling the most common case for blink. The while loop is totally
@@ -710,7 +709,8 @@ inline void SkFindAndPlaceGlyph::ProcessText(
     GlyphFindAndPlace<ProcessOneGlyph> findAndPosition{
         [&](typename GlyphFindAndPlace<ProcessOneGlyph>::Variants* to_init) {
             if (cache->isSubpixel()) {
-                SkAxisAlignment axisAlignment = SkComputeAxisAlignmentForHText(matrix);
+                SkAxisAlignment axisAlignment =
+                    cache->getScalerContext()->computeAxisAlignmentForHText();
                 InitSubpixel<ProcessOneGlyph, SkPaint::kLeft_Align>(
                     to_init, axisAlignment, glyphFinder);
             } else {

@@ -1359,13 +1359,10 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
      *  direction, ask for the path, and then scale the path back down.
      */
     if (fDoSubPosition) {
-        SkMatrix m;
-        fRec.getSingleMatrix(&m);
-
         // start out by assuming that we want no hining in X and Y
         scaleX = scaleY = kScaleForSubPixelPositionHinting;
         // now see if we need to restore hinting for axis-aligned baselines
-        switch (SkComputeAxisAlignmentForHText(m)) {
+        switch (this->computeAxisAlignmentForHText()) {
             case kX_SkAxisAlignment:
                 scaleY = SK_Scalar1; // want hinting in the Y direction
                 break;

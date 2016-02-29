@@ -1318,7 +1318,7 @@ static bool too_big_for_lcd(const SkScalerContext::Rec& rec, bool checkPost2x2) 
  *  typically returns the same looking resuts for tiny changes in the matrix.
  */
 static SkScalar sk_relax(SkScalar x) {
-    int n = sk_float_round2int(x * 1024);
+    SkScalar n = SkScalarRoundToScalar(x * 1024);
     return n / 1024.0f;
 }
 

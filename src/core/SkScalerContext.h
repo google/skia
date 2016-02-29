@@ -20,6 +20,12 @@ class SkMaskFilter;
 class SkPathEffect;
 class SkRasterizer;
 
+enum SkAxisAlignment {
+    kNone_SkAxisAlignment,
+    kX_SkAxisAlignment,
+    kY_SkAxisAlignment
+};
+
 /*
  *  To allow this to be forward-declared, it must be its own typename, rather
  *  than a nested struct inside SkScalerContext (where it started).
@@ -245,6 +251,13 @@ public:
 
     const Rec& getRec() const { return fRec; }
 
+    /**
+    *  Return the axis (if any) that the baseline for horizontal text should land on.
+    *  As an example, the identity matrix will return kX_SkAxisAlignment
+    */
+    SkAxisAlignment computeAxisAlignmentForHText();
+
+
 protected:
     Rec         fRec;
 
@@ -337,22 +350,6 @@ private:
 #define kPathEffect_SkDescriptorTag     SkSetFourByteTag('p', 't', 'h', 'e')
 #define kMaskFilter_SkDescriptorTag     SkSetFourByteTag('m', 's', 'k', 'f')
 #define kRasterizer_SkDescriptorTag     SkSetFourByteTag('r', 'a', 's', 't')
-
-///////////////////////////////////////////////////////////////////////////////
-
-enum SkAxisAlignment {
-    kNone_SkAxisAlignment,
-    kX_SkAxisAlignment,
-    kY_SkAxisAlignment
-};
-
-/**
- *  Return the axis (if any) that the baseline for horizontal text will land on
- *  after running through the specified matrix.
- *
- *  As an example, the identity matrix will return kX_SkAxisAlignment
- */
-SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix);
 
 ///////////////////////////////////////////////////////////////////////////////
 
