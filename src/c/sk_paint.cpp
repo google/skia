@@ -212,3 +212,11 @@ void sk_paint_set_text_skew_x(sk_paint_t* cpaint, float skew) {
     AsPaint(cpaint)->setTextSkewX(skew);
 }
 
+size_t sk_paint_break_text(const sk_paint_t* cpaint, const void* text, size_t length, float maxWidth, float* measuredWidth) {
+    return AsPaint(cpaint)->breakText(text, length, maxWidth, measuredWidth);
+}
+
+float sk_paint_measure_text(const sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* bounds) {
+    return AsPaint(cpaint)->measureText(text, length, AsRect(bounds));
+}
+

@@ -44,6 +44,10 @@ static inline sk_rect_t ToRect(const SkRect& rect) {
     return reinterpret_cast<const sk_rect_t&>(rect);
 }
 
+static inline SkRect* AsRect(sk_rect_t* crect) {
+    return reinterpret_cast<SkRect*>(crect);
+}
+
 static inline const SkRect* AsRect(const sk_rect_t* crect) {
     return reinterpret_cast<const SkRect*>(crect);
 }
