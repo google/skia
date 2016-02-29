@@ -303,6 +303,8 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
     SkBitmap bitmap;
     if (this->tryLockAsBitmap(&bitmap, client, chint)) {
         GrTexture* tex = nullptr;
+        // disable mipmapping until we generate anisotropic mipmap levels
+        willBeMipped = false;
         if (willBeMipped) {
             tex = GrGenerateMipMapsAndUploadToTexture(ctx, bitmap);
         } else {
