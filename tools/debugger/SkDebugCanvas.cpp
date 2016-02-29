@@ -75,7 +75,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
         , fOverrideFilterQuality(false)
         , fFilterQuality(kNone_SkFilterQuality)
         , fClipVizColor(SK_ColorTRANSPARENT)
-        , fDrawGpuBatchBounds(true) {
+        , fDrawGpuBatchBounds(false) {
     fUserMatrix.reset();
 
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped

@@ -47,6 +47,8 @@ public:
         fDrawGpuBatchBounds = drawGpuBatchBounds; 
     }
 
+    bool getDrawGpuBatchBounds() const { return fDrawGpuBatchBounds; }
+
     bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
 
     void setPicture(SkPicture* picture) { fPicture = picture; }
