@@ -56,7 +56,7 @@ void JsonWriter::DumpJson() {
             result["key"]["config"]            = gBitmapResults[i].config.c_str();
             result["key"]["source_type"]       = gBitmapResults[i].sourceType.c_str();
             result["options"]["ext"]           = gBitmapResults[i].ext.c_str();
-            result["options"]["gamma_correct"] = gBitmapResults[i].gammaCorrect;
+            result["options"]["gamma_correct"] = gBitmapResults[i].gammaCorrect ? "yes" : "no";
             result["md5"]                      = gBitmapResults[i].md5.c_str();
 
             // Source options only need to be part of the key if they exist.
@@ -115,7 +115,7 @@ bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
         br.config       = r["key"]["config"].asCString();
         br.sourceType   = r["key"]["source_type"].asCString();
         br.ext          = r["options"]["ext"].asCString();
-        br.gammaCorrect = r["options"]["gamma_correct"].asBool();
+        br.gammaCorrect = 0 == strcmp("yes", r["options"]["gamma_correct"].asCString());
         br.md5          = r["md5"].asCString();
 
         if (!r["key"]["source_options"].isNull()) {
