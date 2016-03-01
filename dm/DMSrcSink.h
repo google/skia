@@ -213,8 +213,7 @@ public:
 class GPUSink : public Sink {
 public:
     GPUSink(GrContextFactory::GLContextType, GrContextFactory::GLContextOptions,
-            int samples, bool diText, SkColorType colorType, SkColorProfileType profileType,
-            bool threaded);
+            int samples, bool diText, bool threaded);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     bool serial() const override { return !fThreaded; }
@@ -225,8 +224,6 @@ private:
     GrContextFactory::GLContextOptions fContextOptions;
     int                                fSampleCount;
     bool                               fUseDIText;
-    SkColorType                        fColorType;
-    SkColorProfileType                 fProfileType;
     bool                               fThreaded;
 };
 

@@ -52,23 +52,18 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
   public:
     typedef GrContextFactory::GLContextType ContextType;
     SkCommandLineConfigGpu(const SkString& tag, const SkTArray<SkString>& viaParts,
-                           ContextType contextType, bool useNVPR, bool useDIText, int samples,
-                           SkColorType colorType, SkColorProfileType profileType);
+                           ContextType contextType, bool useNVPR, bool useDIText, int samples);
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
     ContextType getContextType() const { return fContextType; }
     bool getUseNVPR() const { return fUseNVPR; }
     bool getUseDIText() const { return fUseDIText; }
     int getSamples() const { return fSamples; }
-    SkColorType getColorType() const { return fColorType; }
-    SkColorProfileType getProfileType() const { return fProfileType; }
 
   private:
     ContextType fContextType;
     bool fUseNVPR;
     bool fUseDIText;
     int fSamples;
-    SkColorType fColorType;
-    SkColorProfileType fProfileType;
 };
 #endif
 

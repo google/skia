@@ -43,9 +43,6 @@ DEF_TEST(ParseConfigs_Gpu, reporter) {
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseNVPR() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseDIText() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorType() == kN32_SkColorType);
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getProfileType()
-                    == kLinear_SkColorProfileType);
 #endif
 }
 
@@ -68,8 +65,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
         "nonrendering", "null", "nullgpu", "nvprmsaa16", "nvprmsaa4", "pdf", "pdf_poppler",
-        "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
-        "gpuf16", "gpusrgb", "anglesrgb"
+        "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui"
     });
 
     SkCommandLineConfigArray configs;
@@ -105,22 +101,11 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, !configs[17]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[18]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[23]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[24]->asConfigGpu()->getColorType()
-                    == kRGBA_F16_SkColorType);
-    REPORTER_ASSERT(reporter, configs[24]->asConfigGpu()->getProfileType()
-                    == kLinear_SkColorProfileType);
-    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorType()
-                    == kN32_SkColorType);
-    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getProfileType()
-                    == kSRGB_SkColorProfileType);
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     REPORTER_ASSERT(reporter, configs[19]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getProfileType()
-                    == kSRGB_SkColorProfileType);
 #else
     REPORTER_ASSERT(reporter, !configs[19]->asConfigGpu());
-    REPORTER_ASSERT(reporter, !configs[26]->asConfigGpu());
 #endif
     REPORTER_ASSERT(reporter, configs[20]->asConfigGpu());
 #else
