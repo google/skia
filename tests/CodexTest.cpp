@@ -12,7 +12,6 @@
 #include "SkCodecImageGenerator.h"
 #include "SkData.h"
 #include "SkFrontBufferedStream.h"
-#include "SkImageDecoder.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -918,10 +917,10 @@ DEF_TEST(Codec_webp_peek, r) {
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
 }
 
-// SkCodec's wbmp decoder was initially more restrictive than SkImageDecoder.
-// It required the second byte to be zero. But SkImageDecoder allowed a couple
-// of bits to be 1 (so long as they do not overlap with 0x9F). Test that
-// SkCodec now supports an image with these bits set.
+// SkCodec's wbmp decoder was initially unnecessarily restrictive.
+// It required the second byte to be zero. The wbmp specification allows
+// a couple of bits to be 1 (so long as they do not overlap with 0x9F).
+// Test that SkCodec now supports an image with these bits set.
 DEF_TEST(Codec_wbmp, r) {
     const char* path = "mandrill.wbmp";
     SkAutoTDelete<SkStream> stream(resource(path));
@@ -935,11 +934,7 @@ DEF_TEST(Codec_wbmp, r) {
     uint8_t* writeableData = static_cast<uint8_t*>(data->writable_data());
     writeableData[1] = static_cast<uint8_t>(~0x9F);
 
-    // SkImageDecoder supports this.
-    SkBitmap bitmap;
-    REPORTER_ASSERT(r, SkImageDecoder::DecodeMemory(data->data(), data->size(), &bitmap));
-
-    // So SkCodec should, too.
+    // SkCodec should support this.
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, codec);
     if (!codec) {

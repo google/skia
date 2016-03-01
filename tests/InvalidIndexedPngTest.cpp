@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "CodecPriv.h"
 #include "SkBitmap.h"
-#include "SkForceLinking.h"
-#include "SkImageDecoder.h"
 #include "Test.h"
 
 // A valid 1x1 indexed PNG.
@@ -30,9 +29,8 @@ unsigned char gPngData[] = {
 // As a result, we do not have any REPORTER_ASSERT statements
 DEF_TEST(InvalidIndexedPng, reporter) {
     SkBitmap image;
-    SkForceLinking(false);
     // Make our PNG invalid by changing a byte.
     gPngData[sizeof(gPngData) - 1] = 1;
 
-    SkImageDecoder::DecodeMemory(gPngData, sizeof(gPngData), &image);
+    decode_memory(gPngData, sizeof(gPngData), &image);
 }
