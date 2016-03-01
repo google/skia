@@ -36,6 +36,7 @@ void GrAuditTrail::batchingResultNew(GrBatch* batch) {
     fIDLookup.set(batch, fCurrentBatch->fBatchListID);
     BatchNode* batchNode = new BatchNode;
     batchNode->fBounds = fCurrentBatch->fBounds;
+    batchNode->fRenderTargetUniqueID = batch->renderTargetUniqueID();
     batchNode->fChildren.push_back(fCurrentBatch);
     fBatchList.emplace_back(batchNode);
 }
@@ -62,6 +63,7 @@ void GrAuditTrail::getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientI
                 // they have a different clientID
                 const BatchNode* bn = fBatchList[currentBatchListID];
                 outBatchInfo.fBounds = bn->fBounds;
+                outBatchInfo.fRenderTargetUniqueID = bn->fRenderTargetUniqueID;
                 for (int j = 0; j < bn->fChildren.count(); j++) {
                     BatchInfo::Batch& outBatch = outBatchInfo.fBatches.push_back();
                     const Batch* currentBatch = bn->fChildren[j];
@@ -212,6 +214,7 @@ SkString GrAuditTrail::Batch::toJson() const {
 SkString GrAuditTrail::BatchNode::toJson() const {
     SkString json;
     json.append("{");
+    json.appendf("\"RenderTarget\": \"%u\",", fRenderTargetUniqueID);
     skrect_to_json(&json, "Bounds", fBounds);
     JsonifyTArray(&json, "Batches", fChildren, true);
     json.append("}");

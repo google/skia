@@ -129,6 +129,7 @@ public:
     // a performance issue, but until then its nice to decouple
     struct BatchInfo {
         SkRect fBounds;
+        uint32_t fRenderTargetUniqueID;
         struct Batch {
             int fClientID;
             SkRect fBounds;
@@ -168,6 +169,7 @@ private:
         SkString toJson() const;
         SkRect fBounds;
         Batches fChildren;
+        uint32_t fRenderTargetUniqueID;
     };
     typedef SkTArray<SkAutoTDelete<BatchNode>, true> BatchList;
 

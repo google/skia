@@ -17,6 +17,7 @@
 #include "GrAuditTrail.h"
 #include "GrContext.h"
 #include "GrRenderTarget.h"
+#include "SkGpuDevice.h"
 #endif
 
 #define SKDEBUGCANVAS_VERSION            1
@@ -330,6 +331,12 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 #if SK_SUPPORT_GPU
     // draw any batches if required and issue a full reset onto GrAuditTrail
     if (at) {
+        // get the render target of the top device so we can ignore batches drawn offscreen
+        SkBaseDevice* bd = canvas->getDevice_just_for_deprecated_compatibility_testing();
+        SkGpuDevice* gbd = reinterpret_cast<SkGpuDevice*>(bd);
+        uint32_t rtID = gbd->accessRenderTarget()->getUniqueID();
+
+        // get the bounding boxes to draw
         GrAuditTrail::AutoEnable ae(at);
         SkTArray<GrAuditTrail::BatchInfo> childrenBounds;
         at->getBoundsByClientID(&childrenBounds, index);
@@ -337,6 +344,10 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(1);
         for (int i = 0; i < childrenBounds.count(); i++) {
+            if (childrenBounds[i].fRenderTargetUniqueID != rtID) {
+                // offscreen draw, ignore for now
+                continue;
+            }
             paint.setColor(SK_ColorBLACK);
             canvas->drawRect(childrenBounds[i].fBounds, paint);
             for (int j = 0; j < childrenBounds[i].fBatches.count(); j++) {
