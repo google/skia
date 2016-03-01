@@ -125,12 +125,12 @@ DEF_TEST(MipMap_ComputeLevelCount, reporter) {
         {100, 0, 0},
         {0, 0, 0},
         // 1
-        {1, 100, 0},
-        {100, 1, 0},
+        {1, 100, 6},
+        {100, 1, 6},
         {1, 1, 0},
         // 2
-        {2, 100, 1},
-        {100, 2, 1},
+        {2, 100, 6},
+        {100, 2, 6},
         {2, 2, 1},
 
         // Test a handful of boundaries such as 63x63 and 64x64
@@ -142,9 +142,9 @@ DEF_TEST(MipMap_ComputeLevelCount, reporter) {
         {256, 256, 8},
 
         // Test different dimensions, such as 256x64
-        {64, 129, 6},
-        {255, 32, 5},
-        {500, 1000, 8}
+        {64, 129, 7},
+        {255, 32, 7},
+        {500, 1000, 9}
     };
 
     for (auto& currentTest : tests) {
