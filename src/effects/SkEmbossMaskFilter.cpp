@@ -17,15 +17,6 @@ SkMaskFilter* SkEmbossMaskFilter::Create(SkScalar blurSigma, const Light& light)
     return new SkEmbossMaskFilter(blurSigma, light);
 }
 
-static inline int pin2byte(int n) {
-    if (n < 0) {
-        n = 0;
-    } else if (n > 0xFF) {
-        n = 0xFF;
-    }
-    return n;
-}
-
 SkMaskFilter* SkBlurMaskFilter::CreateEmboss(const SkScalar direction[3],
                                              SkScalar ambient, SkScalar specular,
                                              SkScalar blurRadius) {
@@ -39,17 +30,14 @@ SkMaskFilter* SkBlurMaskFilter::CreateEmboss(SkScalar blurSigma, const SkScalar 
         return nullptr;
     }
 
-    // ambient should be 0...1 as a scalar
-    int am = pin2byte(SkScalarToFixed(ambient) >> 8);
-
-    // specular should be 0..15.99 as a scalar
-    int sp = pin2byte(SkScalarToFixed(specular) >> 12);
-
     SkEmbossMaskFilter::Light   light;
 
     memcpy(light.fDirection, direction, sizeof(light.fDirection));
-    light.fAmbient = SkToU8(am);
-    light.fSpecular = SkToU8(sp);
+    // ambient should be 0...1 as a scalar
+    light.fAmbient = SkUnitScalarClampToByte(ambient);
+    // specular should be 0..15.99 as a scalar
+    static const SkScalar kSpecularMultiplier = SkIntToScalar(255) / 16;
+    light.fSpecular = static_cast<U8CPU>(SkScalarPin(specular, 0, 16) * kSpecularMultiplier + 0.5);
 
     return SkEmbossMaskFilter::Create(blurSigma, light);
 }

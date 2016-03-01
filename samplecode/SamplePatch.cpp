@@ -109,20 +109,8 @@ static void eval_sheet(const SkPoint edge[], int nu, int nv, int iu, int iv,
     pt->set(x, y);
 }
 
-static int ScalarTo255(SkScalar v) {
-    int scale = SkScalarToFixed(v) >> 8;
-    if (scale < 0) {
-        scale = 0;
-    } else if (scale > 255) {
-        scale = 255;
-    }
-    return scale;
-}
-
 static SkColor make_color(SkScalar s, SkScalar t) {
-    int cs = ScalarTo255(s);
-    int ct = ScalarTo255(t);
-    return SkColorSetARGB(0xFF, cs, 0, 0) + SkColorSetARGB(0, 0, ct, 0);
+    return SkColorSetARGB(0xFF, SkUnitScalarClampToByte(s), SkUnitScalarClampToByte(t), 0);
 }
 
 void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
