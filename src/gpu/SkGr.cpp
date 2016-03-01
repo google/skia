@@ -370,12 +370,13 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProf
         case kARGB_4444_SkColorType:
             return kRGBA_4444_GrPixelConfig;
         case kRGBA_8888_SkColorType:
-            //if (kSRGB_SkColorProfileType == pt) {
-            //    return kSRGBA_8888_GrPixelConfig;
-            //}
-            return kRGBA_8888_GrPixelConfig;
+            return (kSRGB_SkColorProfileType == pt)
+                ? kSRGBA_8888_GrPixelConfig
+                : kRGBA_8888_GrPixelConfig;
         case kBGRA_8888_SkColorType:
-            return kBGRA_8888_GrPixelConfig;
+            return (kSRGB_SkColorProfileType == pt)
+                ? kSRGBA_8888_GrPixelConfig // Does not preserve byte order!
+                : kBGRA_8888_GrPixelConfig;
         case kIndex_8_SkColorType:
             return kIndex_8_GrPixelConfig;
         case kGray_8_SkColorType:
