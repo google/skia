@@ -165,23 +165,37 @@ static std::atomic<bool> in_signal_handler{false};
     }
     static void setup_crash_handler() { SetUnhandledExceptionFilter(handler); }
 
-#else
+#elif !defined(SK_BUILD_FOR_ANDROID)
+    #include <execinfo.h>
     #include <signal.h>
+    #include <stdlib.h>
 
     static void setup_crash_handler() {
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
         for (int sig : kSignals) {
             signal(sig, [](int sig) {
                 if (!in_signal_handler.exchange(true)) {
-                    SkDebugf("\nCaught signal %d [%s].\n", sig, strsignal(sig));
-                    print_status();
+                    SkAutoTAcquire<SkSpinlock> lock(gMutex);
+                    SkDebugf("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
+                    for (auto& task : gRunning) {
+                        SkDebugf("\t%s\n", task.c_str());
+                    }
+
+                    void* stack[64];
+                    int count = backtrace(stack, SK_ARRAY_COUNT(stack));
+                    char** symbols = backtrace_symbols(stack, count);
+                    SkDebugf("\nStack trace:\n");
+                    for (int i = 0; i < count; i++) {
+                        SkDebugf("    %s\n", symbols[i]);
+                    }
                 }
-                // Reraise this signal to the default handler... hopefully, exit.
-                signal(sig, SIG_DFL);
-                raise(sig);
+                _Exit(sig);
             });
         }
     }
+
+#else  // Android
+    static void setup_crash_handler() {}
 #endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
