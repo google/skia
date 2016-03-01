@@ -263,14 +263,11 @@ class FailingStream : public SkStream {
 public:
     FailingStream()
     : fAtEnd(false)
-    , fReadAfterEnd(false)
     {}
+
     size_t read(void* buffer, size_t size) override {
-        if (fAtEnd) {
-            fReadAfterEnd = true;
-        } else {
-            fAtEnd = true;
-        }
+        SkASSERT(!fAtEnd);
+        fAtEnd = true;
         return 0;
     }
 
@@ -278,12 +275,8 @@ public:
         return fAtEnd;
     }
 
-    bool readAfterEnd() const {
-        return fReadAfterEnd;
-    }
 private:
     bool fAtEnd;
-    bool fReadAfterEnd;
 };
 
 DEF_TEST(ShortFrontBufferedStream, reporter) {
@@ -293,5 +286,4 @@ DEF_TEST(ShortFrontBufferedStream, reporter) {
     // This will fail to create a codec.  However, what we really want to test is that we
     // won't read past the end of the stream.
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
-    REPORTER_ASSERT(reporter, !failingStream->readAfterEnd());
 }
