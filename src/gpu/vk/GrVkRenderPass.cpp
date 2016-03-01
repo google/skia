@@ -22,7 +22,7 @@ void setup_simple_vk_attachment_description(VkAttachmentDescription* attachment,
     attachment->loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
     attachment->storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     attachment->stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-    attachment->storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
     attachment->initialLayout = layout;
     attachment->finalLayout = layout;
 }

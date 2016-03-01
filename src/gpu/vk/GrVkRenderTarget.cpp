@@ -196,7 +196,6 @@ GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu,
     GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, desc, lifeCycle, imageResource);
     // Create() will increment the refCount of the image resource if it succeeds
     imageResource->unref(gpu);
-
     return rt;
 }
 

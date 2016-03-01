@@ -114,6 +114,12 @@ public:
                          uint32_t subRangeCount,
                          const VkImageSubresourceRange* subRanges);
 
+    void clearDepthStencilImage(const GrVkGpu* gpu,
+                                GrVkImage* image,
+                                const VkClearDepthStencilValue* color,
+                                uint32_t subRangeCount,
+                                const VkImageSubresourceRange* subRanges);
+
     void copyImage(const GrVkGpu* gpu,
                    GrVkImage* srcImage,
                    VkImageLayout srcLayout,

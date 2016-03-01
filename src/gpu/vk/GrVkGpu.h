@@ -92,9 +92,7 @@ public:
                                                                 int width,
                                                                 int height) override;
 
-    void clearStencil(GrRenderTarget* target) override {
-        SkDebugf("clearStencil not yet implemented for Vulkan\n");
-    }
+    void clearStencil(GrRenderTarget* target) override;
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {
         SkDebugf("drawDebugWireRect not yet implemented for Vulkan\n");
@@ -149,9 +147,7 @@ private:
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
 
-    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override {
-        SkDebugf("onClearStencilClip not yet implemented for Vulkan\n");
-    }
+    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
 
     void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override;
 

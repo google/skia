@@ -168,8 +168,8 @@ void setup_depth_stencil_state(const GrVkGpu* gpu,
         stencilInfo->front.depthFailOp = stencilInfo->front.failOp;
         stencilInfo->front.compareOp = stencil_func_to_vk_compare_op(stencilSettings.func(face));
         stencilInfo->front.compareMask = stencilSettings.funcMask(face);
-        stencilInfo->front.writeMask = 0;
-        stencilInfo->front.reference = 0;
+        stencilInfo->front.writeMask = stencilSettings.writeMask(face);
+        stencilInfo->front.reference = stencilSettings.funcRef(face);
 
         // Set back face
         face = GrStencilSettings::kBack_Face;
@@ -178,8 +178,8 @@ void setup_depth_stencil_state(const GrVkGpu* gpu,
         stencilInfo->back.depthFailOp = stencilInfo->front.failOp;
         stencilInfo->back.compareOp = stencil_func_to_vk_compare_op(stencilSettings.func(face));
         stencilInfo->back.compareMask = stencilSettings.funcMask(face);
-        stencilInfo->back.writeMask = 0;
-        stencilInfo->back.reference = 0;
+        stencilInfo->back.writeMask = stencilSettings.writeMask(face);
+        stencilInfo->back.reference = stencilSettings.funcRef(face);
     }
     stencilInfo->minDepthBounds = 0.0f;
     stencilInfo->maxDepthBounds = 1.0f;
@@ -366,8 +366,13 @@ void setup_color_blend_state(const GrVkGpu* gpu,
         attachmentState->dstAlphaBlendFactor = blend_coeff_to_vk_blend(dstCoeff);
         attachmentState->alphaBlendOp = blend_equation_to_vk_blend_op(equation);
     }
-    attachmentState->colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                      VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+    if (!blendInfo.fWriteColor) {
+        attachmentState->colorWriteMask = 0;
+    } else {
+        attachmentState->colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    }
 
     memset(colorBlendInfo, 0, sizeof(VkPipelineColorBlendStateCreateInfo));
     colorBlendInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

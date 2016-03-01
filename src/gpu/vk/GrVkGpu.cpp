@@ -520,6 +520,12 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::Li
     if (renderTarget) {
         tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, desc, lifeCycle,
                                                                     imageDesc);
+#if 0
+        // This clear can be included to fix warning described in htttps://bugs.skia.org/5045
+        // Obviously we do not want to be clearling needlessly every time we create a render target.
+        SkIRect rect = SkIRect::MakeWH(tex->width(), tex->height());
+        this->clear(rect, GrColor_TRANSPARENT_BLACK, tex->asRenderTarget());
+#endif
     } else {
         tex = GrVkTexture::CreateNewTexture(this, desc, lifeCycle, imageDesc);
     }
@@ -882,6 +888,118 @@ void GrVkGpu::finishDrawTarget() {
     this->submitCommandBuffer(kSkip_SyncQueue);
 }
 
+void GrVkGpu::clearStencil(GrRenderTarget* target) {
+    if (nullptr == target) {
+        return;
+    }
+    GrStencilAttachment* stencil = target->renderTargetPriv().getStencilAttachment();
+    GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+
+
+    VkClearDepthStencilValue vkStencilColor;
+    memset(&vkStencilColor, 0, sizeof(VkClearDepthStencilValue));
+
+    VkImageLayout origDstLayout = vkStencil->currentLayout();
+
+    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);;
+    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+    vkStencil->setImageLayout(this,
+                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                              srcAccessMask,
+                              dstAccessMask,
+                              srcStageMask,
+                              dstStageMask,
+                              false);
+
+
+    VkImageSubresourceRange subRange;
+    memset(&subRange, 0, sizeof(VkImageSubresourceRange));
+    subRange.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
+    subRange.baseMipLevel = 0;
+    subRange.levelCount = 1;
+    subRange.baseArrayLayer = 0;
+    subRange.layerCount = 1;
+
+    // TODO: I imagine that most times we want to clear a stencil it will be at the beginning of a
+    // draw. Thus we should look into using the load op functions on the render pass to clear out
+    // the stencil there.
+    fCurrentCmdBuffer->clearDepthStencilImage(this, vkStencil, &vkStencilColor, 1, &subRange);
+}
+
+void GrVkGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
+    SkASSERT(target);
+
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
+    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
+    GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)sb;
+
+    // this should only be called internally when we know we have a
+    // stencil buffer.
+    SkASSERT(sb);
+    int stencilBitCount = sb->bits();
+
+    // The contract with the callers does not guarantee that we preserve all bits in the stencil
+    // during this clear. Thus we will clear the entire stencil to the desired value.
+
+    VkClearDepthStencilValue vkStencilColor;
+    memset(&vkStencilColor, 0, sizeof(VkClearDepthStencilValue));
+    if (insideClip) {
+        vkStencilColor.stencil = (1 << (stencilBitCount - 1));
+    } else {
+        vkStencilColor.stencil = 0;
+    }
+
+    VkImageLayout origDstLayout = vkStencil->currentLayout();
+    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
+    VkAccessFlags dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    VkPipelineStageFlags srcStageMask =
+        GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    vkStencil->setImageLayout(this,
+                              VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                              srcAccessMask,
+                              dstAccessMask,
+                              srcStageMask,
+                              dstStageMask,
+                              false);
+
+    VkClearRect clearRect;
+    // Flip rect if necessary
+    SkIRect vkRect = rect;
+
+    if (kBottomLeft_GrSurfaceOrigin == vkRT->origin()) {
+        vkRect.fTop = vkRT->height() - rect.fBottom;
+        vkRect.fBottom = vkRT->height() - rect.fTop;
+    }
+
+    clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
+    clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
+
+    clearRect.baseArrayLayer = 0;
+    clearRect.layerCount = 1;
+
+    const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
+    SkASSERT(renderPass);
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
+
+    uint32_t stencilIndex;
+    SkAssertResult(renderPass->stencilAttachmentIndex(&stencilIndex));
+
+    VkClearAttachment attachment;
+    attachment.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
+    attachment.colorAttachment = 0; // this value shouldn't matter
+    attachment.clearValue.depthStencil = vkStencilColor;
+
+    fCurrentCmdBuffer->clearAttachments(this, 1, &attachment, 1, &clearRect);
+    fCurrentCmdBuffer->endRenderPass(this);
+
+    return;
+}
+
 void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
@@ -896,7 +1014,7 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
         VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
         VkAccessFlags dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         VkPipelineStageFlags srcStageMask =
-            GrVkMemory::LayoutToPipelineStageFlags(vkRT->currentLayout());
+            GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
         VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         vkRT->setImageLayout(this,
                              VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
@@ -907,12 +1025,14 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
                              false);
 
         VkClearRect clearRect;
-        clearRect.rect.offset = { rect.fLeft, rect.fTop };
-        clearRect.rect.extent = { (uint32_t)rect.width(), (uint32_t)rect.height() };
-        clearRect.baseArrayLayer = 0;
-        clearRect.layerCount = 1;
-
-
+        // Flip rect if necessary
+        SkIRect vkRect = rect;
+        if (kBottomLeft_GrSurfaceOrigin == vkRT->origin()) {
+            vkRect.fTop = vkRT->height() - rect.fBottom;
+            vkRect.fBottom = vkRT->height() - rect.fTop;
+        }
+        clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
+        clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
 
         const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
         SkASSERT(renderPass);
@@ -1201,7 +1321,6 @@ void GrVkGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
     const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
     SkASSERT(renderPass);
 
-
     GrVkProgram* program = GrVkProgramBuilder::CreateProgram(this, args,
                                                              vertices.primitiveType(),
                                                              *renderPass);
@@ -1233,6 +1352,26 @@ void GrVkGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
                          srcStageMask,
                          dstStageMask,
                          false);
+
+    // If we are using a stencil attachment we also need to update its layout
+    if (!args.fPipeline->getStencil().isDisabled()) {
+        GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment();
+        GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+        VkImageLayout origDstLayout = vkStencil->currentLayout();
+        VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
+        VkAccessFlags dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+        VkPipelineStageFlags srcStageMask =
+            GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
+        VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        vkStencil->setImageLayout(this,
+                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                  srcAccessMask,
+                                  dstAccessMask,
+                                  srcStageMask,
+                                  dstStageMask,
+                                  false);
+    }
 
     if (vertices.isIndexed()) {
         fCurrentCmdBuffer->drawIndexed(this,

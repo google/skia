@@ -104,7 +104,6 @@ void GrVkCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
     fActiveRenderPass = renderPass;
     this->addResource(renderPass);
     target.addResources(*this);
-
 }
 
 void GrVkCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
@@ -293,6 +292,22 @@ void GrVkCommandBuffer::clearColorImage(const GrVkGpu* gpu,
                                                       color,
                                                       subRangeCount,
                                                       subRanges));
+}
+
+void GrVkCommandBuffer::clearDepthStencilImage(const GrVkGpu* gpu,
+                                               GrVkImage* image,
+                                               const VkClearDepthStencilValue* color,
+                                               uint32_t subRangeCount,
+                                               const VkImageSubresourceRange* subRanges) {
+    SkASSERT(fIsActive);
+    SkASSERT(!fActiveRenderPass);
+    this->addResource(image->resource());
+    GR_VK_CALL(gpu->vkInterface(), CmdClearDepthStencilImage(fCmdBuffer,
+                                                             image->textureImage(),
+                                                             image->currentLayout(),
+                                                             color,
+                                                             subRangeCount,
+                                                             subRanges));
 }
 
 void GrVkCommandBuffer::clearAttachments(const GrVkGpu* gpu,
