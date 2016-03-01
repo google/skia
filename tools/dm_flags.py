@@ -36,6 +36,7 @@ def get_args(bot):
     args.extend('--matrix 0 1 1 0'.split(' '))
 
   if '-GCE-' in bot:
+    configs.extend(['f16', 'srgb'])
     configs.append('sp-8888')
     configs.extend(['twice-8888', '2ndpic-8888'])
     configs.extend(['remote-8888', 'remote_cache-8888'])
@@ -88,6 +89,11 @@ def get_args(bot):
     args.extend(('--threads', '0'))
 
   blacklist = []
+
+  # TODO: ???
+  blacklist.extend('f16 _ _ dstreadshuffle'.split(' '))
+  blacklist.extend('f16 image _ _'.split(' '))
+  blacklist.extend('srgb image _ _'.split(' '))
 
   # Certain gm's on win7 gpu and pdf are never finishing and keeping the test
   # running forever
