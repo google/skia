@@ -326,7 +326,13 @@ GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
     GrBackendRenderTargetDesc desc;
     desc.fWidth = SkScalarRoundToInt(this->width());
     desc.fHeight = SkScalarRoundToInt(this->height());
-    desc.fConfig = kSkia8888_GrPixelConfig;
+    // TODO: Query the actual framebuffer for sRGB capable. However, to
+    // preserve old (fake-linear) behavior, we don't do this. Instead, rely
+    // on the flag (currently driven via 'C' mode in SampleApp).
+    desc.fConfig = (info().profileType() == kSRGB_SkColorProfileType ||
+                    info().colorType() == kRGBA_F16_SkColorType)
+        ? kSRGBA_8888_GrPixelConfig // This may not be the right byte-order
+        : kSkia8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fSampleCnt = attachmentInfo.fSampleCount;
     desc.fStencilBits = attachmentInfo.fStencilBits;
