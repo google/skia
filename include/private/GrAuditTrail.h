@@ -79,31 +79,7 @@ public:
         GrAuditTrail* fAuditTrail;
     };
 
-    void addBatch(const char* name, const SkRect& bounds) {
-        SkASSERT(fEnabled);
-        Batch* batch = new Batch;
-        fBatchPool.emplace_back(batch);
-        batch->fName = name;
-        batch->fBounds = bounds;
-        batch->fClientID = kGrAuditTrailInvalidID;
-        batch->fBatchListID = kGrAuditTrailInvalidID;
-        batch->fChildID = kGrAuditTrailInvalidID;
-        fCurrentBatch = batch;
-        
-        if (fClientID != kGrAuditTrailInvalidID) {
-            batch->fClientID = fClientID;
-            Batches** batchesLookup = fClientIDLookup.find(fClientID);
-            Batches* batches = nullptr;
-            if (!batchesLookup) {
-                batches = new Batches;
-                fClientIDLookup.set(fClientID, batches);
-            } else {
-                batches = *batchesLookup;
-            }
-
-            batches->push_back(fCurrentBatch);
-        }
-    }
+    void addBatch(const char* name, const SkRect& bounds);
 
     void batchingResultCombined(GrBatch* combiner);
 
@@ -139,15 +115,7 @@ public:
 
     void getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID);
 
-    void fullReset() {
-        SkASSERT(fEnabled);
-        fBatchList.reset();
-        fIDLookup.reset();
-        // free all client batches
-        fClientIDLookup.foreach([](const int&, Batches** batches) { delete *batches; });
-        fClientIDLookup.reset();
-        fBatchPool.reset(); // must be last, frees all of the memory
-    }
+    void fullReset();
 
     static const int kGrAuditTrailInvalidID;
 
