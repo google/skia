@@ -138,7 +138,7 @@ static std::atomic<bool> in_signal_handler{false};
     static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
         static const struct {
             const char* name;
-            int code;
+            DWORD code;
         } kExceptions[] = {
         #define _(E) {#E, E}
             _(EXCEPTION_ACCESS_VIOLATION),
