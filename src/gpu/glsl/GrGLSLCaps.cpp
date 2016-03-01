@@ -25,6 +25,7 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fMustForceNegatedAtanParamToFloat = false;
     fFlatInterpolationSupport = false;
     fNoPerspectiveInterpolationSupport = false;
+    fMultisampleInterpolationSupport = false;
     fSampleVariablesSupport = false;
     fSampleMaskOverrideCoverageSupport = false;
     fVersionDeclString = nullptr;
@@ -33,6 +34,7 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fSecondaryOutputExtensionString = nullptr;
     fExternalTextureExtensionString = nullptr;
     fNoPerspectiveInterpolationExtensionString = nullptr;
+    fMultisampleInterpolationExtensionString = nullptr;
     fSampleVariablesExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
@@ -67,6 +69,8 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Flat interpolation support: %s\n", (fFlatInterpolationSupport ?  "YES" : "NO"));
     r.appendf("No perspective interpolation support: %s\n", (fNoPerspectiveInterpolationSupport ?
                                                              "YES" : "NO"));
+    r.appendf("Multisample interpolation support: %s\n", (fMultisampleInterpolationSupport ?
+                                                          "YES" : "NO"));
     r.appendf("Sample variables support: %s\n", (fSampleVariablesSupport ? "YES" : "NO"));
     r.appendf("Sample mask override coverage support: %s\n", (fSampleMaskOverrideCoverageSupport ?
                                                               "YES" : "NO"));

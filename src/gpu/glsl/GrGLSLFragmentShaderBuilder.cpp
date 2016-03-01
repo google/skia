@@ -87,25 +87,31 @@ bool GrGLSLFragmentShaderBuilder::hasFragmentPosition() const {
 }
 
 bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
+    const GrGLSLCaps& glslCaps = *fProgramBuilder->glslCaps();
     switch (feature) {
-        case kStandardDerivatives_GLSLFeature: {
-            if (!fProgramBuilder->glslCaps()->shaderDerivativeSupport()) {
+        case kStandardDerivatives_GLSLFeature:
+            if (!glslCaps.shaderDerivativeSupport()) {
                 return false;
             }
-            const char* extension = fProgramBuilder->glslCaps()->shaderDerivativeExtensionString();
-            if (extension) {
+            if (const char* extension = glslCaps.shaderDerivativeExtensionString()) {
                 this->addFeature(1 << kStandardDerivatives_GLSLFeature, extension);
             }
             return true;
-        }
-        case kPixelLocalStorage_GLSLFeature: {
-            if (fProgramBuilder->glslCaps()->pixelLocalStorageSize() <= 0) {
+        case kPixelLocalStorage_GLSLFeature:
+            if (glslCaps.pixelLocalStorageSize() <= 0) {
                 return false;
             }
             this->addFeature(1 << kPixelLocalStorage_GLSLFeature,
                              "GL_EXT_shader_pixel_local_storage");
             return true;
-        }
+        case kMultisampleInterpolation_GLSLFeature:
+            if (!glslCaps.multisampleInterpolationSupport()) {
+                return false;
+            }
+            if (const char* extension = glslCaps.multisampleInterpolationExtensionString()) {
+                this->addFeature(1 << kMultisampleInterpolation_GLSLFeature, extension);
+            }
+            return true;
         default:
             SkFAIL("Unexpected GLSLFeature requested.");
             return false;

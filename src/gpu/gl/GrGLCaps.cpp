@@ -640,6 +640,19 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     }
 
     if (kGL_GrGLStandard == standard) {
+        glslCaps->fMultisampleInterpolationSupport =
+                ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
+    } else {
+        if (ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
+            glslCaps->fMultisampleInterpolationSupport = true;
+        } else if (ctxInfo.hasExtension("GL_OES_shader_multisample_interpolation")) {
+            glslCaps->fMultisampleInterpolationSupport = true;
+            glslCaps->fMultisampleInterpolationExtensionString =
+                "GL_OES_shader_multisample_interpolation";
+        }
+    }
+
+    if (kGL_GrGLStandard == standard) {
         glslCaps->fSampleVariablesSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
     } else {
         if (ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
