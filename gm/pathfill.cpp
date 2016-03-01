@@ -213,6 +213,28 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+DEF_SIMPLE_GM(rotatedcubicpath, canvas, 200, 200) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kFill_Style);
+
+    canvas->translate(50, 50);
+    SkPath path;
+    path.moveTo(48,-23);
+    path.cubicTo(48,-29.5, 6,-30, 6,-30);
+    path.cubicTo(6,-30, 2,0, 2,0);
+    path.cubicTo(2,0, 44,-21.5, 48,-23);
+    path.close();
+
+    p.setColor(SK_ColorBLUE);
+    canvas->drawPath(path, p);
+
+    // Rotated path, which is not antialiased on GPU
+    p.setColor(SK_ColorRED);
+    canvas->rotate(90);
+    canvas->drawPath(path, p);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new PathFillGM; )
