@@ -745,7 +745,16 @@ public:
         *px3 = this->getPixel(fSrc, bufferLoc[3]);
     }
 
-    Sk4f getPixel(const uint32_t* src, int index) {
+    void get4Pixels(const void* vsrc, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+        const uint32_t* src = static_cast<const uint32_t*>(vsrc);
+        *px0 = this->getPixel(src, index + 0);
+        *px1 = this->getPixel(src, index + 1);
+        *px2 = this->getPixel(src, index + 2);
+        *px3 = this->getPixel(src, index + 3);
+    }
+
+    Sk4f getPixel(const void* vsrc, int index) {
+        const uint32_t* src = static_cast<const uint32_t*>(vsrc);
         Sk4b bytePixel = Sk4b::Load((uint8_t *)(&src[index]));
         Sk4f pixel = SkNx_cast<float, uint8_t>(bytePixel);
         if (colorOrder == ColorOrder::kBGRA) {
@@ -829,6 +838,89 @@ public:
     }
 
     void pointSpan(Span span) override {
+        SkASSERT(!span.isEmpty());
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
+        if (length < (count - 1)) {
+            this->pointSpanSlowRate(span);
+        } else if (length == (count - 1)) {
+            this->pointSpanUnitRate(span);
+        } else {
+            this->pointSpanFastRate(span);
+        }
+    }
+
+private:
+    // When moving through source space more slowly than dst space (zoomed in),
+    // we'll be sampling from the same source pixel more than once.
+    void pointSpanSlowRate(Span span) {
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
+        SkScalar x = X(start);
+        SkFixed fx = SkScalarToFixed(x);
+        SkScalar dx = length / (count - 1);
+        SkFixed fdx = SkScalarToFixed(dx);
+
+        const void* row = fStrategy.row((int)std::floor(Y(start)));
+        SkLinearBitmapPipeline::PixelPlacerInterface* next = fNext;
+
+        int ix = SkFixedFloorToInt(fx);
+        int prevIX = ix;
+        Sk4f fpixel = fStrategy.getPixel(row, ix);
+
+        // When dx is less than one, each pixel is used more than once. Using the fixed point fx
+        // allows the code to quickly check that the same pixel is being used. The code uses this
+        // same pixel check to do the sRGB and normalization only once.
+        auto getNextPixel = [&]() {
+            if (ix != prevIX) {
+                fpixel = fStrategy.getPixel(row, ix);
+                prevIX = ix;
+            }
+            fx += fdx;
+            ix = SkFixedFloorToInt(fx);
+            return fpixel;
+        };
+
+        while (count >= 4) {
+            Sk4f px0 = getNextPixel();
+            Sk4f px1 = getNextPixel();
+            Sk4f px2 = getNextPixel();
+            Sk4f px3 = getNextPixel();
+            next->place4Pixels(px0, px1, px2, px3);
+            count -= 4;
+        }
+        while (count > 0) {
+            next->placePixel(getNextPixel());
+            count -= 1;
+        }
+    }
+
+    // We're moving through source space at a rate of 1 source pixel per 1 dst pixel.
+    // We'll never re-use pixels, but we can at least load contiguous pixels.
+    void pointSpanUnitRate(Span span) {
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = span;
+        int ix = SkScalarFloorToInt(X(start));
+        const void* row = fStrategy.row((int)std::floor(Y(start)));
+        SkLinearBitmapPipeline::PixelPlacerInterface* next = fNext;
+        while (count >= 4) {
+            Sk4f px0, px1, px2, px3;
+            fStrategy.get4Pixels(row, ix, &px0, &px1, &px2, &px3);
+            next->place4Pixels(px0, px1, px2, px3);
+            ix += 4;
+            count -= 4;
+        }
+
+        while (count > 0) {
+            next->placePixel(fStrategy.getPixel(row, ix));
+            ix += 1;
+            count -= 1;
+        }
+    }
+
+    // We're moving through source space faster than dst (zoomed out),
+    // so we'll never reuse a source pixel or be able to do contiguous loads.
+    void pointSpanFastRate(Span span) {
         span_fallback(span, this);
     }
 
