@@ -707,11 +707,17 @@ public:
     }
 };
 
-template <SkColorProfileType colorProfile>
-class Passthrough8888 {
+enum class ColorOrder {
+    kRGBA = false,
+    kBGRA = true,
+};
+template <SkColorProfileType colorProfile, ColorOrder colorOrder>
+class Pixel8888 {
 public:
-    Passthrough8888(int width, const uint32_t* src)
-        : fSrc{src}, fWidth{width}{ }
+    Pixel8888(int width, const uint32_t* src) : fSrc{src}, fWidth{width}{ }
+    Pixel8888(const SkPixmap& srcPixmap)
+        : fSrc{srcPixmap.addr32()}
+        , fWidth{static_cast<int>(srcPixmap.rowBytes() / 4)} { }
 
     void VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
         Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
@@ -719,11 +725,11 @@ public:
         Sk4i bufferLoc = YIs * fWidth + XIs;
         switch (n) {
             case 3:
-                *px2 = getPixel(fSrc, bufferLoc[2]);
+                *px2 = this->getPixel(fSrc, bufferLoc[2]);
             case 2:
-                *px1 = getPixel(fSrc, bufferLoc[1]);
+                *px1 = this->getPixel(fSrc, bufferLoc[1]);
             case 1:
-                *px0 = getPixel(fSrc, bufferLoc[0]);
+                *px0 = this->getPixel(fSrc, bufferLoc[0]);
             default:
                 break;
         }
@@ -733,24 +739,28 @@ public:
         Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
         Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
         Sk4i bufferLoc = YIs * fWidth + XIs;
-        *px0 = getPixel(fSrc, bufferLoc[0]);
-        *px1 = getPixel(fSrc, bufferLoc[1]);
-        *px2 = getPixel(fSrc, bufferLoc[2]);
-        *px3 = getPixel(fSrc, bufferLoc[3]);
+        *px0 = this->getPixel(fSrc, bufferLoc[0]);
+        *px1 = this->getPixel(fSrc, bufferLoc[1]);
+        *px2 = this->getPixel(fSrc, bufferLoc[2]);
+        *px3 = this->getPixel(fSrc, bufferLoc[3]);
     }
 
-    const uint32_t* row(int y) { return fSrc + y * fWidth[0]; }
-
-private:
     Sk4f getPixel(const uint32_t* src, int index) {
         Sk4b bytePixel = Sk4b::Load((uint8_t *)(&src[index]));
         Sk4f pixel = SkNx_cast<float, uint8_t>(bytePixel);
+        if (colorOrder == ColorOrder::kBGRA) {
+            pixel = SkNx_shuffle<2, 1, 0, 3>(pixel);
+        }
         pixel = pixel * Sk4f{1.0f/255.0f};
         if (colorProfile == kSRGB_SkColorProfileType) {
             pixel = sRGBFast::sRGBToLinear(pixel);
         }
         return pixel;
     }
+
+    const uint32_t* row(int y) { return fSrc + y * fWidth[0]; }
+
+private:
     const uint32_t* const fSrc;
     const Sk4i fWidth;
 };
@@ -827,6 +837,11 @@ private:
     SourceStrategy fStrategy;
 };
 
+using Pixel8888SRGB = Pixel8888<kSRGB_SkColorProfileType, ColorOrder::kRGBA>;
+using Pixel8888LRGB = Pixel8888<kLinear_SkColorProfileType, ColorOrder::kRGBA>;
+using Pixel8888SBGR = Pixel8888<kSRGB_SkColorProfileType, ColorOrder::kBGRA>;
+using Pixel8888LBGR = Pixel8888<kLinear_SkColorProfileType, ColorOrder::kBGRA>;
+
 static SkLinearBitmapPipeline::BilerpProcessorInterface* choose_pixel_sampler(
     SkLinearBitmapPipeline::PixelPlacerInterface* next,
     const SkPixmap& srcPixmap,
@@ -834,19 +849,17 @@ static SkLinearBitmapPipeline::BilerpProcessorInterface* choose_pixel_sampler(
     const SkImageInfo& imageInfo = srcPixmap.info();
     switch (imageInfo.colorType()) {
         case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            if (kN32_SkColorType == imageInfo.colorType()) {
-                if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                    sampleStage->Initialize<Sampler<Passthrough8888<kSRGB_SkColorProfileType>>>(
-                        next, static_cast<int>(srcPixmap.rowBytes() / 4),
-                        srcPixmap.addr32());
-                } else {
-                    sampleStage->Initialize<Sampler<Passthrough8888<kLinear_SkColorProfileType>>>(
-                        next, static_cast<int>(srcPixmap.rowBytes() / 4),
-                        srcPixmap.addr32());
-                }
+            if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
+                sampleStage->Initialize<Sampler<Pixel8888SRGB>>(next, srcPixmap);
             } else {
-                SkFAIL("Not implemented. No 8888 Swizzle");
+                sampleStage->Initialize<Sampler<Pixel8888LRGB>>(next, srcPixmap);
+            }
+            break;
+        case kBGRA_8888_SkColorType:
+            if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
+                sampleStage->Initialize<Sampler<Pixel8888SBGR>>(next, srcPixmap);
+            } else {
+                sampleStage->Initialize<Sampler<Pixel8888LBGR>>(next, srcPixmap);
             }
             break;
         default:

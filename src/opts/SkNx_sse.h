@@ -235,11 +235,20 @@ public:
 template <>
 class SkNx<4, uint8_t> {
 public:
-    SkNx(const __m128i& vec) : fVec(vec) {}
-
     SkNx() {}
+    SkNx(const __m128i& vec) : fVec(vec) {}
+    SkNx(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+        : fVec(_mm_setr_epi8(a,b,c,d, 0,0,0,0, 0,0,0,0, 0,0,0,0)) {}
+
+
     static SkNx Load(const void* ptr) { return _mm_cvtsi32_si128(*(const int*)ptr); }
     void store(void* ptr) const { *(int*)ptr = _mm_cvtsi128_si32(fVec); }
+
+    uint8_t operator[](int k) const {
+        SkASSERT(0 <= k && k < 4);
+        union { __m128i v; uint8_t us[16]; } pun = {fVec};
+        return pun.us[k&3];
+    }
 
     // TODO as needed
 
