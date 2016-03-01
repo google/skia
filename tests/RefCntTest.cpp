@@ -79,3 +79,93 @@ DEF_TEST(RefCnt, reporter) {
     test_refCnt(reporter);
     test_weakRefCnt(reporter);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static int gRefCounter;
+static int gUnrefCounter;
+static int gNewCounter;
+static int gDeleteCounter;
+
+#define check(reporter, ref, unref, make, kill)             \
+    REPORTER_ASSERT(reporter, gRefCounter == ref);          \
+    REPORTER_ASSERT(reporter, gUnrefCounter == unref);      \
+    REPORTER_ASSERT(reporter, gNewCounter == make);         \
+    REPORTER_ASSERT(reporter, gDeleteCounter == kill);
+
+
+class Effect {
+public:
+    Effect() : fRefCnt(1) {
+        gNewCounter += 1;
+    }
+
+    int fRefCnt;
+
+    void ref() {
+        gRefCounter += 1;
+        fRefCnt += 1;
+    }
+    void unref() {
+        gUnrefCounter += 1;
+
+        SkASSERT(fRefCnt > 0);
+        if (0 == --fRefCnt) {
+            gDeleteCounter += 1;
+            delete this;
+        }
+    }
+
+    int* method() const { return new int; }
+};
+
+static sk_sp<Effect> Create() {
+    return sk_sp<Effect>(new Effect);
+}
+
+class Paint {
+public:
+    sk_sp<Effect> fEffect;
+
+    const sk_sp<Effect>& get() const { return fEffect; }
+
+    void set(sk_sp<Effect> value) {
+        fEffect = std::move(value);
+    }
+};
+
+DEF_TEST(sk_sp, reporter) {
+    gRefCounter = 0;
+    gUnrefCounter = 0;
+    gNewCounter = 0;
+    gDeleteCounter = 0;
+
+    Paint paint;
+    REPORTER_ASSERT(reporter, paint.fEffect.get() == nullptr);
+    REPORTER_ASSERT(reporter, !paint.get());
+    check(reporter, 0, 0, 0, 0);
+
+    paint.set(Create());
+    check(reporter, 0, 0, 1, 0);
+    REPORTER_ASSERT(reporter, paint.fEffect.get()->fRefCnt == 1);
+
+    paint.set(nullptr);
+    check(reporter, 0, 1, 1, 1);
+
+    auto e = Create();
+    REPORTER_ASSERT(reporter, sizeof(e) == sizeof(void*));
+
+    check(reporter, 0, 1, 2, 1);
+    paint.set(e);
+    check(reporter, 1, 1, 2, 1);
+    REPORTER_ASSERT(reporter, paint.fEffect.get()->fRefCnt == 2);
+
+    Paint paint2;
+    paint2.set(paint.get());
+    check(reporter, 2, 1, 2, 1);
+    REPORTER_ASSERT(reporter, paint.fEffect.get()->fRefCnt == 3);
+
+    delete paint.get()->method();
+    check(reporter, 2, 1, 2, 1);
+}
+

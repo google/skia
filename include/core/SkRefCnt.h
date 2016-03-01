@@ -227,4 +227,103 @@ private:
     mutable int32_t fRefCnt;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Shared pointer class to wrap classes that support a ref()/unref() interface.
+ *
+ *  This can be used for classes inheriting from SkRefCnt, but it also works for other
+ *  classes that match the interface, but have different internal choices: e.g. the hosted class
+ *  may have its ref/unref be thread-safe, but that is not assumed/imposed by sk_sp.
+ */
+template <typename T> class sk_sp {
+public:
+    sk_sp() : fPtr(nullptr) {}
+    sk_sp(std::nullptr_t) : fPtr(nullptr) {}
+
+    /**
+     *  Shares the underlying object by calling ref(), so that both the argument and the newly
+     *  created sk_sp both have a reference to it.
+     */
+    sk_sp(const sk_sp<T>& that) : fPtr(SkSafeRef(that.get())) {}
+
+    /**
+     *  Move the underlying object from the argument to the newly created sk_sp. Afterwards only
+     *  the new sk_sp will have a reference to the object, and the argument will point to null.
+     *  No call to ref() or unref() will be made.
+     */
+    sk_sp(sk_sp<T>&& that) : fPtr(that.release()) {}
+
+    /**
+     *  Adopt the bare pointer into the newly created sk_sp.
+     *  No call to ref() or unref() will be made.
+     */
+    explicit sk_sp(T* obj) : fPtr(obj) {}
+
+    /**
+     *  Calls unref() on the underlying object pointer.
+     */
+    ~sk_sp() {
+        SkSafeUnref(fPtr);
+    }
+
+    sk_sp<T>& operator=(std::nullptr_t) { this->reset(); }
+
+    /**
+     *  Shares the underlying object referenced by the argument by calling ref() on it. If this
+     *  sk_sp previously had a reference to an object (i.e. not null) it will call unref() on that
+     *  object.
+     */
+    sk_sp<T>& operator=(const sk_sp<T>& that) {
+        this->reset(SkSafeRef(that.get()));
+        return *this;
+    }
+
+    /**
+     *  Move the underlying object from the argument to the sk_sp. If the sk_sp previously held
+     *  a reference to another object, unref() will be called on that object. No call to ref()
+     *  will be made.
+     */
+    sk_sp<T>& operator=(sk_sp<T>&& that) {
+        this->reset(that.release());
+        return *this;
+    }
+
+    bool operator==(std::nullptr_t) const { return this->get() == nullptr; }
+    bool operator!=(std::nullptr_t) const { return this->get() != nullptr; }
+
+    bool operator==(const sk_sp<T>& that) const { return this->get() == that.get(); }
+    bool operator!=(const sk_sp<T>& that) const { return this->get() != that.get(); }
+
+    explicit operator bool() const { return this->get() != nullptr; }
+
+    T* get() const { return fPtr; }
+    T* operator->() const { return fPtr; }
+
+    /**
+     *  Adopt the new bare pointer, and call unref() on any previously held object (if not null).
+     *  No call to ref() will be made.
+     */
+    void reset(T* ptr = nullptr) {
+        if (fPtr != ptr) {
+            SkSafeUnref(fPtr);
+            fPtr = ptr;
+        }
+    }
+
+    /**
+     *  Return the bare pointer, and set the internal object pointer to nullptr.
+     *  The caller must assume ownership of the object, and manage its reference count directly.
+     *  No call to unref() will be made.
+     */
+    T* SK_WARN_UNUSED_RESULT release() {
+        T* ptr = fPtr;
+        fPtr = nullptr;
+        return ptr;
+    }
+
+private:
+    T*  fPtr;
+};
+
 #endif
