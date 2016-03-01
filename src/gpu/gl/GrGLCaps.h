@@ -342,6 +342,8 @@ public:
      */
     bool srgbWriteControl() const { return fSRGBWriteControl; }
 
+    bool mipMapLevelAndLodControlSupport() const { return fMipMapLevelAndLodControlSupport; }
+
     /**
      * Returns a string containing the caps info.
      */
@@ -418,6 +420,7 @@ private:
     bool fExternalTextureSupport : 1;
     bool fRectangleTextureSupport : 1;
     bool fTextureSwizzleSupport : 1;
+    bool fMipMapLevelAndLodControlSupport : 1;
 
     BlitFramebufferSupport fBlitFramebufferSupport;
 

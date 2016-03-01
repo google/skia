@@ -52,6 +52,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fSRGBWriteControl = false;
     fRGBA8888PixelsOpsAreSlow = false;
     fPartialFBOReadIsSlow = false;
+    fMipMapLevelAndLodControlSupport = false;
 
     fBlitFramebufferSupport = kNone_BlitFramebufferSupport;
 
@@ -243,6 +244,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else {
         if (version >= GR_GL_VER(3,0)) {
             fTextureSwizzleSupport = true;
+        }
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        fMipMapLevelAndLodControlSupport = true;
+    } else if (kGLES_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(3,0)) {
+            fMipMapLevelAndLodControlSupport = true;
         }
     }
 

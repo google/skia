@@ -3344,14 +3344,17 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
         GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, newTexParams.fMinFilter));
     }
     if (setAll || newTexParams.fMaxMipMapLevel != oldTexParams.fMaxMipMapLevel) {
-        if (newTexParams.fMaxMipMapLevel != 0) {
-            this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_LOD, 0));
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_BASE_LEVEL, 0));
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LOD,
-                                  newTexParams.fMaxMipMapLevel));
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LEVEL,
-                                  newTexParams.fMaxMipMapLevel));
+        // These are not supported in ES2 contexts
+        if (this->glCaps().mipMapLevelAndLodControlSupport()) {
+            if (newTexParams.fMaxMipMapLevel != 0) {
+                this->setTextureUnit(unitIdx);
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_LOD, 0));
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_BASE_LEVEL, 0));
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LOD,
+                                      newTexParams.fMaxMipMapLevel));
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LEVEL,
+                                      newTexParams.fMaxMipMapLevel));
+            }
         }
     }
     if (setAll || newTexParams.fWrapS != oldTexParams.fWrapS) {
