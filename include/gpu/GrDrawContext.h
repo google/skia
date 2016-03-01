@@ -100,7 +100,7 @@ public:
                   const GrPaint& paint,
                   const SkMatrix& viewMatrix,
                   const SkRect&,
-                  const GrStrokeInfo* strokeInfo = NULL);
+                  const GrStrokeInfo* strokeInfo = nullptr);
 
     /**
      * Maps a rectangle of shader coordinates to a rectangle and fills that rectangle.
@@ -302,12 +302,11 @@ private:
                           const SkRRect& origOuter,
                           const SkRRect& origInner);
 
-    void internalDrawPath(GrPipelineBuilder*,
+    void internalDrawPath(const GrClip& clip,
+                          const GrPaint& paint,
                           const SkMatrix& viewMatrix,
-                          GrColor,
-                          bool useAA,
-                          const SkPath&,
-                          const GrStrokeInfo&);
+                          const SkPath& path,
+                          const GrStrokeInfo& strokeInfo);
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
     // the drawTarget.
