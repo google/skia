@@ -35,7 +35,7 @@ public:
     }
     void setSampleCount(int sampleCount);
 
-signals:
+Q_SIGNALS:
     void drawComplete();
 
 protected:

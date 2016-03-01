@@ -662,7 +662,7 @@ void SkDebuggerGUI::populateDirectoryWidget() {
     }
 
     // add any new files
-    foreach (QString f, files) {
+    Q_FOREACH (QString f, files) {
         if (f.contains(r) && fDirectoryWidget.findItems(f, Qt::MatchExactly).size() == 0) {
             fDirectoryWidget.addItem(f);
         }

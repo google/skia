@@ -45,7 +45,7 @@ void SkRasterWidget::paintEvent(QPaintEvent* event) {
         fDebugger->draw(fSurface->getCanvas());
         fSurface->getCanvas()->flush();
         fNeedImageUpdate = false;
-        emit drawComplete();
+        Q_EMIT drawComplete();
     }
 
     SkImageInfo info;

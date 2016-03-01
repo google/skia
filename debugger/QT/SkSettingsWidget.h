@@ -81,9 +81,9 @@ public:
         return fPathOpsCheckBox.isChecked();
     }
 
-private slots:
+private Q_SLOTS:
 
-signals:
+Q_SIGNALS:
     void visualizationsChanged();
     void texFilterSettingsChanged();
 #if SK_SUPPORT_GPU

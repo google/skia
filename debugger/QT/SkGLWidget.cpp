@@ -79,7 +79,7 @@ void SkGLWidget::paintGL() {
         fDebugger->draw(fCanvas.get());
         // TODO(chudy): Implement an optional flush button in Gui.
         fCanvas->flush();
-        emit drawComplete();
+        Q_EMIT drawComplete();
     }
 }
 
