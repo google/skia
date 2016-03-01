@@ -331,6 +331,11 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 #if SK_SUPPORT_GPU
     // draw any batches if required and issue a full reset onto GrAuditTrail
     if (at) {
+        // we pick three colorblind-safe colors, 75% alpha
+        static const SkColor kTotalBounds = SkColorSetARGB(0xC0, 0x6A, 0x3D, 0x9A);
+        static const SkColor kOpBatchBounds = SkColorSetARGB(0xC0, 0xE3, 0x1A, 0x1C);
+        static const SkColor kOtherBatchBounds = SkColorSetARGB(0xC0, 0xFF, 0x7F, 0x00);
+
         // get the render target of the top device so we can ignore batches drawn offscreen
         SkBaseDevice* bd = canvas->getDevice_just_for_deprecated_compatibility_testing();
         SkGpuDevice* gbd = reinterpret_cast<SkGpuDevice*>(bd);
@@ -348,14 +353,14 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
                 // offscreen draw, ignore for now
                 continue;
             }
-            paint.setColor(SK_ColorBLACK);
+            paint.setColor(kTotalBounds);
             canvas->drawRect(childrenBounds[i].fBounds, paint);
             for (int j = 0; j < childrenBounds[i].fBatches.count(); j++) {
                 const GrAuditTrail::BatchInfo::Batch& batch = childrenBounds[i].fBatches[j];
                 if (batch.fClientID != index) {
-                    paint.setColor(SK_ColorBLUE);
+                    paint.setColor(kOtherBatchBounds);
                 } else {
-                    paint.setColor(SK_ColorRED);
+                    paint.setColor(kOpBatchBounds);
                 }
                 canvas->drawRect(batch.fBounds, paint);
             }
