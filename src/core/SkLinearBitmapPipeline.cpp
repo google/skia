@@ -132,6 +132,39 @@ private:
     SkScalar fLength;
     int      fCount;
 };
+
+// BilerpSpans are similar to Spans, but they represent four source samples converting to single
+// destination pixel per count. The pixels for the four samples are collect along two horizontal
+// lines; one starting at {x, y0} and the other starting at {x, y1}. There are two distinct lines
+// to deal with the edge case of the tile mode. For example, y0 may be at the last y position in
+// a tile while y1 would be at the first.
+// The step of a Bilerp (dx) is still length / (count - 1) and the start to the next sample is
+// still dx * count, but the bounds are complicated by the sampling kernel so that the pixels
+// touched are from x to x + length + 1.
+class BilerpSpan {
+public:
+    BilerpSpan(SkScalar x, SkScalar y0, SkScalar y1, SkScalar length, int count)
+        : fX{x}, fY0{y0}, fY1{y1}, fLength{length}, fCount{count} {
+        SkASSERT(count >= 0);
+        SkASSERT(std::isfinite(length));
+        SkASSERT(std::isfinite(x));
+        SkASSERT(std::isfinite(y0));
+        SkASSERT(std::isfinite(y1));
+    }
+
+    operator std::tuple<SkScalar&, SkScalar&, SkScalar&, SkScalar&, int&>() {
+        return std::tie(fX, fY0, fY1, fLength, fCount);
+    }
+
+    bool isEmpty() const { return 0 == fCount; }
+
+private:
+    SkScalar fX;
+    SkScalar fY0;
+    SkScalar fY1;
+    SkScalar fLength;
+    int      fCount;
+};
 }  // namespace
 
 class SkLinearBitmapPipeline::PointProcessorInterface {
@@ -158,6 +191,7 @@ public:
     // These pixels coordinates are arranged in the following order in xs and ys:
     // px00  px10  px01  px11
     virtual void VECTORCALL bilerpList(Sk4s xs, Sk4s ys) = 0;
+    virtual void bilerpSpan(BilerpSpan span) = 0;
 };
 
 class SkLinearBitmapPipeline::PixelPlacerInterface {
@@ -194,6 +228,26 @@ void span_fallback(Span span, Stage* stage) {
     }
     if (count > 0) {
         stage->pointListFew(count, xs, ys);
+    }
+}
+
+template <typename Next>
+void bilerp_span_fallback(BilerpSpan span, Next* next) {
+    SkScalar x, y0, y1; SkScalar length; int count;
+    std::tie(x, y0, y1, length, count) = span;
+
+    SkASSERT(!span.isEmpty());
+    float dx = length / (count - 1);
+
+    Sk4f xs = Sk4f{x} + Sk4f{0.0f,  1.0f, 0.0f, 1.0f};
+    Sk4f ys = Sk4f{y0, y0,  y1, y1};
+
+    // If count == 1 then dx will be inf or NaN, but that is ok because the resulting addition is
+    // never used.
+    while (count > 0) {
+        next->bilerpList(xs, ys);
+        xs = xs + dx;
+        count -= 1;
     }
 }
 
@@ -265,6 +319,13 @@ public:
         SkASSERT(!span.isEmpty());
         if (!fStrategy.maybeProcessSpan(span, fNext)) {
             span_fallback(span, this);
+        }
+    }
+
+    void bilerpSpan(BilerpSpan bSpan) override {
+        SkASSERT(!bSpan.isEmpty());
+        if (!fStrategy.maybeProcessBilerpSpan(bSpan, fNext)) {
+            bilerp_span_fallback(bSpan, this);
         }
     }
 
@@ -409,17 +470,9 @@ public:
         SkASSERT(!span.isEmpty());
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
-        float dx = length / (count - 1);
-
-        Sk4f Xs = Sk4f{X(start)} + Sk4f{-0.5f,  0.5f, -0.5f, 0.5f};
-        Sk4f Ys = Sk4f{Y(start)} + Sk4f{-0.5f, -0.5f,  0.5f, 0.5f};
-
-        Sk4f dXs{dx};
-        while (count > 0) {
-            fNext->bilerpList(Xs, Ys);
-            Xs = Xs + dXs;
-            count -= 1;
-        }
+        // Adjust the span so that it is in the correct phase with the pixel.
+        BilerpSpan bSpan{X(start) - 0.5f, Y(start) - 0.5f, Y(start) + 0.5f, length, count};
+        fNext->bilerpSpan(bSpan);
     }
 
 private:
@@ -540,6 +593,11 @@ public:
         return true;
     }
 
+    template <typename Next>
+    bool maybeProcessBilerpSpan(BilerpSpan bSpan, Next* next) {
+        return false;
+    }
+
 private:
     const Sk4s fXMin{SK_FloatNegativeInfinity};
     const Sk4s fYMin{SK_FloatNegativeInfinity};
@@ -641,6 +699,11 @@ public:
         }
 
         return true;
+    }
+
+    template <typename Next>
+    bool maybeProcessBilerpSpan(BilerpSpan bSpan, Next* next) {
+        return false;
     }
 
 private:
@@ -922,6 +985,10 @@ private:
     // so we'll never reuse a source pixel or be able to do contiguous loads.
     void pointSpanFastRate(Span span) {
         span_fallback(span, this);
+    }
+
+    void bilerpSpan(BilerpSpan span) override {
+        bilerp_span_fallback(span, this);
     }
 
 private:
