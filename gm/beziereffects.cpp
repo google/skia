@@ -12,7 +12,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrDrawContextPriv.h"
+#include "GrDrawContext.h"
 #include "GrContext.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
@@ -226,7 +226,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, klmSigns[c]));
 
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -367,7 +367,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, 1.f));
 
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -603,7 +603,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(BezierQuadTestBatch::Create(gp, geometry,
                                                                                 DevToUV));
 
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {

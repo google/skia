@@ -101,7 +101,7 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, GrDrawBatch*, const SkIRect* scissorRect = nullptr);
+    void drawBatch(const GrPipelineBuilder&, GrDrawBatch*);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or

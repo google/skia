@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrDrawContext.h"
 #include "GrPipelineBuilder.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
@@ -132,7 +132,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
                 x += renderRect.width() + kTestPad;
             }

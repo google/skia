@@ -15,7 +15,7 @@
 #include "GrAutoLocaleSetter.h"
 #include "GrBatchTest.h"
 #include "GrContextFactory.h"
-#include "GrDrawContextPriv.h"
+#include "GrDrawContext.h"
 #include "GrDrawingManager.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
@@ -361,7 +361,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             return false;
         }
 
-        drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+        drawContext->internal_drawBatch(pipelineBuilder, batch);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -398,7 +398,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 return false;
             }
 
-            drawContext->drawContextPriv().testingOnly_drawBatch(builder, batch);
+            drawContext->internal_drawBatch(builder, batch);
             drawingManager->flush();
         }
     }

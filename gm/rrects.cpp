@@ -8,7 +8,7 @@
 #include "gm.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrDrawContext.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
@@ -137,8 +137,7 @@ protected:
                             SkAutoTUnref<GrDrawBatch> batch(
                                     GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
                                                                         bounds, nullptr, nullptr));
-                            drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder,
-                                                                                 batch);
+                            drawContext->internal_drawBatch(pipelineBuilder, batch);
                         } else {
                             drew = false;
                         }

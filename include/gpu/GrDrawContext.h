@@ -11,7 +11,6 @@
 #include "GrColor.h"
 #include "GrRenderTarget.h"
 #include "SkRefCnt.h"
-#include "SkRegion.h"
 #include "SkSurfaceProps.h"
 #include "../private/GrSingleOwner.h"
 
@@ -20,7 +19,6 @@ class GrAuditTrail;
 class GrClip;
 class GrContext;
 class GrDrawBatch;
-class GrDrawContextPriv;
 class GrDrawPathBatchBase;
 class GrDrawingManager;
 class GrDrawTarget;
@@ -279,9 +277,9 @@ public:
 
     GrRenderTarget* accessRenderTarget() { return fRenderTarget; }
 
-    // Provides access to functions that aren't part of the public API.
-    GrDrawContextPriv drawContextPriv();
-    const GrDrawContextPriv drawContextPriv() const;
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Functions intended for internal use only.
+    void internal_drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch);
 
 protected:
     GrDrawContext(GrContext*, GrDrawingManager*, GrRenderTarget*,
@@ -297,17 +295,12 @@ protected:
 private:
     friend class GrAtlasTextBlob; // for access to drawBatch
     friend class GrDrawingManager; // for ctor
-    friend class GrDrawContextPriv;
 
     bool drawFilledDRRect(const GrClip& clip,
                           const GrPaint& paint,
                           const SkMatrix& viewMatrix,
                           const SkRRect& origOuter,
                           const SkRRect& origInner);
-
-    GrDrawBatch* getFillRectBatch(const GrPaint& paint,
-                                  const SkMatrix& viewMatrix,
-                                  const SkRect& rect);
 
     void internalDrawPath(const GrClip& clip,
                           const GrPaint& paint,

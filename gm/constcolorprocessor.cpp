@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrDrawContext.h"
 #include "GrPipelineBuilder.h"
 #include "SkGrPriv.h"
 #include "SkGradientShader.h"
@@ -118,7 +118,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

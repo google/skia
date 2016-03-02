@@ -14,7 +14,7 @@
 
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrDrawContextPriv.h"
+#include "GrDrawContext.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
 #include "SkColorPriv.h"
@@ -205,7 +205,7 @@ protected:
 
                 SkAutoTUnref<GrDrawBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
 
-                drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                drawContext->internal_drawBatch(pipelineBuilder, batch);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + 10.f);
             }
@@ -252,7 +252,7 @@ protected:
 
                 SkAutoTUnref<GrDrawBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
 
-                drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
+                drawContext->internal_drawBatch(pipelineBuilder, batch);
 
                 x += SkScalarCeilToScalar(rect.width() + 10.f);
             }

@@ -221,25 +221,13 @@ void GrDrawTarget::reset() {
     fBatches.reset();
 }
 
-void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
-                             GrDrawBatch* batch,
-                             const SkIRect* scissorRect) {
+void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch) {
     // Setup clip
     GrPipelineBuilder::AutoRestoreStencil ars;
     GrAppliedClip clip;
-
-    if (scissorRect) {
-        SkASSERT(GrClip::kWideOpen_ClipType == pipelineBuilder.clip().clipType());
-        if (!fClipMaskManager->setupScissorClip(pipelineBuilder, &ars, *scissorRect,
-                                                &batch->bounds(), &clip)) {
-            return;
-        }
-    } else {
-        if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &batch->bounds(), &clip)) {
-            return;
-        }
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &batch->bounds(), &clip)) {
+        return;
     }
-
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     if (clip.clipCoverageFragmentProcessor()) {
         arfps.set(&pipelineBuilder);
