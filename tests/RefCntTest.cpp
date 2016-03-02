@@ -134,11 +134,26 @@ public:
     }
 };
 
-DEF_TEST(sk_sp, reporter) {
+struct EffectImpl : public Effect {
+    static sk_sp<EffectImpl> Create() {
+        return sk_sp<EffectImpl>(new EffectImpl);
+    }
+    int fValue;
+};
+static sk_sp<Effect> make_effect() {
+    auto foo = EffectImpl::Create();
+    foo->fValue = 42;
+    return std::move(foo);
+}
+
+static void reset_counters() {
     gRefCounter = 0;
     gUnrefCounter = 0;
     gNewCounter = 0;
     gDeleteCounter = 0;
+}
+DEF_TEST(sk_sp, reporter) {
+    reset_counters();
 
     Paint paint;
     REPORTER_ASSERT(reporter, paint.fEffect.get() == nullptr);
@@ -167,5 +182,68 @@ DEF_TEST(sk_sp, reporter) {
 
     delete paint.get()->method();
     check(reporter, 2, 1, 2, 1);
+
+    paint.set(nullptr);
+    e = nullptr;
+    paint2.set(nullptr);
+    check(reporter, 2, 4, 2, 2);
+
+    reset_counters();
+    {
+        // Test convertible sk_sp assignment.
+        check(reporter, 0, 0, 0, 0);
+        sk_sp<Effect> foo(nullptr);
+        REPORTER_ASSERT(reporter, !foo);
+        foo = make_effect();
+        REPORTER_ASSERT(reporter, foo);
+        check(reporter, 0, 0, 1, 0);
+    }
+    check(reporter, 0, 1, 1, 1);
+
+    // Test passing convertible rvalue into funtion.
+    reset_counters();
+    paint.set(EffectImpl::Create());
+    check(reporter, 0, 0, 1, 0);
+    paint.set(nullptr);
+    check(reporter, 0, 1, 1, 1);
+
+    reset_counters();
+    auto baz = EffectImpl::Create();
+    check(reporter, 0, 0, 1, 0);
+    paint.set(std::move(baz));
+    check(reporter, 0, 0, 1, 0);
+    REPORTER_ASSERT(reporter, !baz);
+    paint.set(nullptr);
+    check(reporter, 0, 1, 1, 1);
+
+    reset_counters();
+    {
+        // test comparison operator with convertible type.
+        sk_sp<EffectImpl> bar1 = EffectImpl::Create();
+        sk_sp<Effect> bar2(bar1);  // convertible copy constructor
+        check(reporter, 1, 0, 1, 0);
+        REPORTER_ASSERT(reporter, bar1);
+        REPORTER_ASSERT(reporter, bar2);
+        REPORTER_ASSERT(reporter, bar1 == bar2);
+        REPORTER_ASSERT(reporter, bar2 == bar1);
+        REPORTER_ASSERT(reporter, !(bar1 != bar2));
+        REPORTER_ASSERT(reporter, !(bar2 != bar1));
+        sk_sp<Effect> bar3(nullptr);
+        bar3 = bar1;  // convertible copy assignment
+        check(reporter, 2, 0, 1, 0);
+
+    }
+    check(reporter, 2, 3, 1, 1);
+
+    // test passing convertible copy into funtion.
+    reset_counters();
+    baz = EffectImpl::Create();
+    check(reporter, 0, 0, 1, 0);
+    paint.set(baz);
+    check(reporter, 1, 0, 1, 0);
+    baz = nullptr;
+    check(reporter, 1, 1, 1, 0);
+    paint.set(nullptr);
+    check(reporter, 1, 2, 1, 1);
 }
 

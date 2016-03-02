@@ -247,6 +247,9 @@ public:
      *  created sk_sp both have a reference to it.
      */
     sk_sp(const sk_sp<T>& that) : fPtr(SkSafeRef(that.get())) {}
+    template <typename U,
+              typename = skstd::enable_if_t<skstd::is_convertible<U, T>::value>>
+    sk_sp(const sk_sp<U>& that) : fPtr(SkSafeRef(that.get())) {}
 
     /**
      *  Move the underlying object from the argument to the newly created sk_sp. Afterwards only
@@ -254,6 +257,9 @@ public:
      *  No call to ref() or unref() will be made.
      */
     sk_sp(sk_sp<T>&& that) : fPtr(that.release()) {}
+    template <typename U,
+              typename = skstd::enable_if_t<skstd::is_convertible<U, T>::value>>
+    sk_sp(sk_sp<U>&& that) : fPtr(that.release()) {}
 
     /**
      *  Adopt the bare pointer into the newly created sk_sp.
@@ -268,7 +274,7 @@ public:
         SkSafeUnref(fPtr);
     }
 
-    sk_sp<T>& operator=(std::nullptr_t) { this->reset(); }
+    sk_sp<T>& operator=(std::nullptr_t) { this->reset(); return *this; }
 
     /**
      *  Shares the underlying object referenced by the argument by calling ref() on it. If this
@@ -276,6 +282,12 @@ public:
      *  object.
      */
     sk_sp<T>& operator=(const sk_sp<T>& that) {
+        this->reset(SkSafeRef(that.get()));
+        return *this;
+    }
+    template <typename U,
+              typename = skstd::enable_if_t<skstd::is_convertible<U, T>::value>>
+    sk_sp<T>& operator=(const sk_sp<U>& that) {
         this->reset(SkSafeRef(that.get()));
         return *this;
     }
@@ -289,12 +301,20 @@ public:
         this->reset(that.release());
         return *this;
     }
+    template <typename U,
+              typename = skstd::enable_if_t<skstd::is_convertible<U, T>::value>>
+    sk_sp<T>& operator=(sk_sp<U>&& that) {
+        this->reset(that.release());
+        return *this;
+    }
 
     bool operator==(std::nullptr_t) const { return this->get() == nullptr; }
     bool operator!=(std::nullptr_t) const { return this->get() != nullptr; }
 
-    bool operator==(const sk_sp<T>& that) const { return this->get() == that.get(); }
-    bool operator!=(const sk_sp<T>& that) const { return this->get() != that.get(); }
+    template <typename U>
+    bool operator==(const sk_sp<U>& that) const { return this->get() == that.get(); }
+    template <typename U>
+    bool operator!=(const sk_sp<U>& that) const { return this->get() != that.get(); }
 
     explicit operator bool() const { return this->get() != nullptr; }
 
