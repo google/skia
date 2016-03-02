@@ -671,7 +671,7 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
     SkBitmapProcState* diffuseState = new (diffuseStateStorage) SkBitmapProcState(fDiffuseMap,
                                               SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     SkASSERT(diffuseState);
-    if (!diffuseState->chooseProcs(diffTotalInv, *rec.fPaint)) {
+    if (!diffuseState->setup(diffTotalInv, *rec.fPaint)) {
         diffuseState->~SkBitmapProcState();
         return nullptr;
     }
@@ -680,7 +680,7 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
     SkBitmapProcState* normalState = new (normalStateStorage) SkBitmapProcState(fNormalMap,
                                             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     SkASSERT(normalState);
-    if (!normalState->chooseProcs(normTotalInv, *rec.fPaint)) {
+    if (!normalState->setup(normTotalInv, *rec.fPaint)) {
         diffuseState->~SkBitmapProcState();
         normalState->~SkBitmapProcState();
         return nullptr;

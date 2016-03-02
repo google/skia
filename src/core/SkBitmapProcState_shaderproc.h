@@ -19,7 +19,7 @@ void SCALE_FILTER_NAME(const void* sIn, int x, int y, SkPMColor* SK_RESTRICT col
                              SkMatrix::kScale_Mask)) == 0);
     SkASSERT(s.fInvKy == 0);
     SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
+    SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
     const unsigned maxX = s.fPixmap.width() - 1;

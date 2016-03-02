@@ -17,7 +17,7 @@ static void SI8_opaque_D32_nofilter_DX_mips_dsp(const SkBitmapProcState& s,
                                                 int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
-    SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
+    SkASSERT(kNone_SkFilterQuality == s.fFilterQuality);
     const SkPMColor* SK_RESTRICT table = s.fPixmap.ctable()->readColors();
     const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fPixmap.addr();
     srcAddr = (const uint8_t*)((const char*)srcAddr + xy[0] * s.fPixmap.rowBytes());
@@ -246,7 +246,7 @@ void SkBitmapProcState::platformProcs() {
 
     switch (fPixmap.colorType()) {
         case kIndex_8_SkColorType:
-            if (justDx && kNone_SkFilterQuality == fFilterLevel) {
+            if (justDx && kNone_SkFilterQuality == fFilterQuality) {
                 if (isOpaque) {
                     fSampleProc32 = SI8_opaque_D32_nofilter_DX_mips_dsp;
                     fShaderProc32 = nullptr;

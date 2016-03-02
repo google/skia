@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkBitmapProcShader_DEFINED
 #define SkBitmapProcShader_DEFINED
@@ -23,7 +21,7 @@ public:
 
     bool isOpaque() const override;
 
-    size_t contextSize(const ContextRec&) const override { return ContextSize(); }
+    size_t contextSize(const ContextRec& rec) const override { return ContextSize(rec); }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
@@ -34,25 +32,6 @@ public:
 #endif
 
 protected:
-    class BitmapProcShaderContext : public SkShader::Context {
-    public:
-        // The context takes ownership of the state. It will call its destructor
-        // but will NOT free the memory.
-        BitmapProcShaderContext(const SkShader&, const ContextRec&, SkBitmapProcState*);
-        ~BitmapProcShaderContext() override;
-
-        void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
-        ShadeProc asAShadeProc(void** ctx) override;
-
-        uint32_t getFlags() const override { return fFlags; }
-
-    private:
-        SkBitmapProcState*  fState;
-        uint32_t            fFlags;
-
-        typedef SkShader::Context INHERITED;
-    };
-    
     void flatten(SkWriteBuffer&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
     bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
@@ -63,7 +42,7 @@ protected:
 private:
     friend class SkImageShader;
 
-    static size_t ContextSize();
+    static size_t ContextSize(const ContextRec&);
     static Context* MakeContext(const SkShader&, TileMode tmx, TileMode tmy,
                                 const SkBitmapProvider&, const ContextRec&, void* storage);
 

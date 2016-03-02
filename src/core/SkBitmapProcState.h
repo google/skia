@@ -27,10 +27,40 @@ typedef SkFixed3232    SkFractionalInt;
 
 class SkPaint;
 
-struct SkBitmapProcState {
-    SkBitmapProcState(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
-    SkBitmapProcState(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy);
-    ~SkBitmapProcState();
+struct SkBitmapProcInfo {
+    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
+    SkBitmapProcInfo(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy);
+    ~SkBitmapProcInfo();
+
+    const SkBitmapProvider fProvider;
+
+    SkPixmap            fPixmap;
+    SkMatrix            fInvMatrix;         // copy of what is in fBMState, can we remove the dup?
+    SkColor             fPaintColor;
+    SkShader::TileMode  fTileModeX;
+    SkShader::TileMode  fTileModeY;
+    SkFilterQuality     fFilterQuality;
+    SkMatrix::TypeMask  fInvType;
+
+    bool init(const SkMatrix& inverse, const SkPaint&);
+
+private:
+    enum {
+        kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
+    };
+    SkAlignedSStorage<kBMStateSize> fBMStateStorage;
+    SkBitmapController::State* fBMState;
+};
+
+struct SkBitmapProcState : public SkBitmapProcInfo {
+    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy)
+        : SkBitmapProcInfo(prov, tmx, tmy) {}
+    SkBitmapProcState(const SkBitmap& bitmap, SkShader::TileMode tmx, SkShader::TileMode tmy)
+        : SkBitmapProcInfo(bitmap, tmx, tmy) {}
+
+    bool setup(const SkMatrix& inv, const SkPaint& paint) {
+        return this->init(inv, paint) && this->chooseProcs();
+    }
 
     typedef void (*ShaderProc32)(const void* ctx, int x, int y, SkPMColor[], int count);
 
@@ -50,11 +80,7 @@ struct SkBitmapProcState {
     typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
-    SkPixmap            fPixmap;
-    SkMatrix            fInvMatrix;         // copy of what is in fBMState, can we remove the dup?
-
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
-
     SkFractionalInt     fInvSxFractionalInt;
     SkFractionalInt     fInvKyFractionalInt;
 
@@ -66,14 +92,10 @@ struct SkBitmapProcState {
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
 
-    SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
     SkFixed             fInvSx;             // chooseProcs
     SkFixed             fInvKy;             // chooseProcs
+    SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
     uint16_t            fAlphaScale;        // chooseProcs
-    uint8_t             fInvType;           // chooseProcs
-    uint8_t             fTileModeX;         // CONSTRUCTOR
-    uint8_t             fTileModeY;         // CONSTRUCTOR
-    uint8_t             fFilterLevel;       // chooseProcs
 
     /** Platforms implement this, and can optionally overwrite only the
         following fields:
@@ -114,26 +136,15 @@ struct SkBitmapProcState {
     SampleProc32 getSampleProc32() const { return fSampleProc32; }
 
 private:
-    friend class SkBitmapProcShader;
-    friend class SkLightingShaderImpl;
-
     ShaderProc32        fShaderProc32;      // chooseProcs
     ShaderProc16        fShaderProc16;      // chooseProcs
     // These are used if the shaderproc is nullptr
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
 
-    const SkBitmapProvider fProvider;
-
-    enum {
-        kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
-    };
-    SkAlignedSStorage<kBMStateSize> fBMStateStorage;
-    SkBitmapController::State* fBMState;
-
     MatrixProc chooseMatrixProc(bool trivial_matrix);
-    bool chooseProcs(const SkMatrix& inv, const SkPaint&);
-    bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp, const SkPaint& paint);
+    bool chooseProcs(); // caller must have called init() first (on our base-class)
+    bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp);
     ShaderProc32 chooseShaderProc32();
 
     // Return false if we failed to setup for fast translate (e.g. overflow)
@@ -199,7 +210,7 @@ public:
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
 
         SkFixed biasX, biasY;
-        if (s.fFilterLevel == kNone_SkFilterQuality) {
+        if (s.fFilterQuality == kNone_SkFilterQuality) {
             // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
             // consistently WRT geometry.  Note that we only need the bias for positive scales:
             // for negative scales, the rounding is intrinsically correct.
