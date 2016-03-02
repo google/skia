@@ -276,7 +276,8 @@ class BotInfo(object):
         flat.append(self.bot_cfg[k])
     return flat
 
-  def test_steps(self, got_revision, master_name, slave_name, build_number):
+  def test_steps(self, got_revision, master_name, slave_name, build_number,
+                 issue=None, patchset=None):
     """Run the DM test."""
     self.build_number = build_number
     self.got_revision = got_revision
@@ -319,9 +320,13 @@ class BotInfo(object):
       'build_number', self.build_number,
     ]
     if self.is_trybot:
+      if not issue:
+        raise Exception('issue is required for trybots.')
+      if not patchset:
+        raise Exception('patchset is required for trybots.')
       properties.extend([
-        'issue',    self.m.properties['issue'],
-        'patchset', self.m.properties['patchset'],
+        'issue',    issue,
+        'patchset', patchset,
       ])
 
     args = [
@@ -361,10 +366,91 @@ class BotInfo(object):
 
     # See skia:2789.
     if ('Valgrind' in self.name and
-        self.builder_cfg.get('cpu_or_gpu') == 'GPU'):
+        self.bot_cfg.get('cpu_or_gpu') == 'GPU'):
       abandonGpuContext = list(args)
       abandonGpuContext.append('--abandonGpuContext')
       self.flavor.run(abandonGpuContext)
       preAbandonGpuContext = list(args)
       preAbandonGpuContext.append('--preAbandonGpuContext')
       self.flavor.run(preAbandonGpuContext)
+
+    self.flavor.cleanup_steps()
+
+  def perf_steps(self, got_revision, master_name, slave_name, build_number,
+                 issue=None, patchset=None):
+    """Run Skia benchmarks."""
+    self.build_number = build_number
+    self.got_revision = got_revision
+    self.master_name = master_name
+    self.slave_name = slave_name
+    self._run_once(self.install)
+    if self.upload_perf_results:
+      self.flavor.create_clean_device_dir(self.device_dirs.perf_data_dir)
+
+    # Run nanobench.
+    properties = [
+      '--properties',
+      'gitHash',      self.got_revision,
+      'build_number', self.build_number,
+    ]
+    if self.is_trybot:
+      if not issue:
+        raise Exception('issue is required for trybots.')
+      if not patchset:
+        raise Exception('patchset is required for trybots.')
+      properties.extend([
+        'issue',    issue,
+        'patchset', patchset,
+      ])
+
+    target = 'nanobench'
+    if 'VisualBench' in self.name:
+      target = 'visualbench'
+    args = [
+        target,
+        '--undefok',   # This helps branches that may not know new flags.
+        '-i',       self.device_dirs.resource_dir,
+        '--skps',   self.device_dirs.skp_dir,
+        '--images', self.flavor.device_path_join(
+            self.device_dirs.images_dir, 'dm'),  # Using DM images for now.
+    ]
+
+    skip_flag = None
+    if self.bot_cfg.get('cpu_or_gpu') == 'CPU':
+      skip_flag = '--nogpu'
+    elif self.bot_cfg.get('cpu_or_gpu') == 'GPU':
+      skip_flag = '--nocpu'
+    if skip_flag:
+      args.append(skip_flag)
+    args.extend(self.nanobench_flags)
+
+    if self.upload_perf_results:
+      json_path = self.flavor.device_path_join(
+          self.device_dirs.perf_data_dir,
+          'nanobench_%s.json' % self.got_revision)
+      args.extend(['--outResultsFile', json_path])
+      args.extend(properties)
+
+      keys_blacklist = ['configuration', 'role', 'is_trybot']
+      args.append('--key')
+      for k in sorted(self.bot_cfg.keys()):
+        if not k in keys_blacklist:
+          args.extend([k, self.bot_cfg[k]])
+
+    self.flavor.run(args, env=self.default_env)
+
+    # See skia:2789.
+    if ('Valgrind' in self.name and
+        self.bot_cfg.get('cpu_or_gpu') == 'GPU'):
+      abandonGpuContext = list(args)
+      abandonGpuContext.extend(['--abandonGpuContext', '--nocpu'])
+      self.flavor.run(abandonGpuContext, env=self.default_env)
+
+    # Copy results to host.
+    if self.upload_perf_results:
+      if not os.path.exists(self.perf_data_dir):
+        os.makedirs(self.perf_data_dir)
+      self.flavor.copy_directory_contents_to_host(
+          self.device_dirs.perf_data_dir, self.perf_data_dir)
+
+    self.flavor.cleanup_steps()
