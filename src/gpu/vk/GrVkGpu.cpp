@@ -180,6 +180,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fVkCaps.reset(new GrVkCaps(options, fInterface, physDev));
     fCaps.reset(SkRef(fVkCaps.get()));
 
+    fResourceProvider.init();
+
     fCurrentCmdBuffer = fResourceProvider.createCommandBuffer();
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->begin(this);
@@ -267,6 +269,9 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     }
 
     // TODO: We're ignoring MIP levels here.
+    if (texels.empty() || !texels.begin()->fPixels) {
+        return false;
+    }
 
     // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
     if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
@@ -537,7 +542,7 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::Li
     }
 
     // TODO: We're ignoring MIP levels here.
-    if (!texels.empty()) {
+    if (!texels.empty() && texels.begin()->fPixels) {
         if (!this->uploadTexData(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                  texels.begin()->fPixels, texels.begin()->fRowBytes)) {
             tex->unref();

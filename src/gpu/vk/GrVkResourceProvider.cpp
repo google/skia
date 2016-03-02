@@ -17,11 +17,30 @@ SkTDynamicHash<GrVkResource, uint32_t> GrVkResource::fTrace;
 SkRandom GrVkResource::fRandom;
 #endif
 
-GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu) : fGpu(gpu) {
+GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu) : fGpu(gpu)
+                                                         , fPipelineCache(VK_NULL_HANDLE) {
 }
 
 GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fSimpleRenderPasses.count());
+    SkASSERT(VK_NULL_HANDLE == fPipelineCache);
+}
+
+void GrVkResourceProvider::init() {
+    VkPipelineCacheCreateInfo createInfo;
+    memset(&createInfo, 0, sizeof(VkPipelineCacheCreateInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
+    createInfo.initialDataSize = 0;
+    createInfo.pInitialData = nullptr;
+    VkResult result = GR_VK_CALL(fGpu->vkInterface(),
+                                 CreatePipelineCache(fGpu->device(), &createInfo, nullptr,
+                                                     &fPipelineCache));
+    SkASSERT(VK_SUCCESS == result);
+    if (VK_SUCCESS != result) {
+        fPipelineCache = VK_NULL_HANDLE;
+    }
 }
 
 GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
@@ -33,7 +52,7 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
                                                    VkPipelineLayout layout) {
 
     return GrVkPipeline::Create(fGpu, pipeline, primProc, shaderStageInfo, shaderStageCount,
-                                primitiveType, renderPass, layout);
+                                primitiveType, renderPass, layout, fPipelineCache);
 }
 
 
@@ -97,6 +116,8 @@ void GrVkResourceProvider::destroyResources() {
     SkASSERT(0 == GrVkResource::fTrace.count());
 #endif
 
+    GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineCache(fGpu->device(), fPipelineCache, nullptr));
+    fPipelineCache = VK_NULL_HANDLE;
 }
 
 void GrVkResourceProvider::abandonResources() {
@@ -115,4 +136,5 @@ void GrVkResourceProvider::abandonResources() {
 #ifdef SK_TRACE_VK_RESOURCES
     SkASSERT(0 == GrVkResource::fTrace.count());
 #endif
+    fPipelineCache = VK_NULL_HANDLE;
 }

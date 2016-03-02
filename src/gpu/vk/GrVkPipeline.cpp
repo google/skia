@@ -435,7 +435,8 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
                                    int shaderStageCount,
                                    GrPrimitiveType primitiveType,
                                    const GrVkRenderPass& renderPass,
-                                   VkPipelineLayout layout) {
+                                   VkPipelineLayout layout,
+                                   VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     VkVertexInputBindingDescription bindingDesc;
     // TODO: allocate this based on VkPhysicalDeviceLimits::maxVertexInputAttributes
@@ -495,7 +496,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
 
     VkPipeline vkPipeline;
     VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
-                                                                          VK_NULL_HANDLE, 1, 
+                                                                          cache, 1, 
                                                                           &pipelineCreateInfo, 
                                                                           nullptr, &vkPipeline));
     if (err) {

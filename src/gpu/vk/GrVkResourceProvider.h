@@ -28,6 +28,9 @@ public:
     GrVkResourceProvider(GrVkGpu* gpu);
     ~GrVkResourceProvider();
 
+    // Set up any initial vk objects
+    void init();
+
     GrVkPipeline* createPipeline(const GrPipeline& pipeline,
                                  const GrPrimitiveProcessor& primProc,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
@@ -65,6 +68,9 @@ public:
 
 private:
     GrVkGpu* fGpu;
+
+    // Central cache for creating pipelines
+    VkPipelineCache fPipelineCache;
 
     // Array of RenderPasses that only have a single color attachment, optional stencil attachment,
     // optional resolve attachment, and only one subpass

@@ -29,7 +29,8 @@ public:
                                 int shaderStageCount,
                                 GrPrimitiveType primitiveType,
                                 const GrVkRenderPass& renderPass,
-                                VkPipelineLayout layout);
+                                VkPipelineLayout layout,
+                                VkPipelineCache cache);
 
     VkPipeline pipeline() const { return fPipeline; }
 
