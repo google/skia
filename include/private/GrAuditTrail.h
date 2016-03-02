@@ -79,6 +79,11 @@ public:
         GrAuditTrail* fAuditTrail;
     };
 
+    void pushFrame(const char* framename) {
+        SkASSERT(fEnabled);
+        fCurrentStackTrace.push_back(SkString(framename));
+    }
+
     void addBatch(const char* name, const SkRect& bounds);
 
     void batchingResultCombined(GrBatch* combiner);
@@ -124,6 +129,7 @@ private:
     struct Batch {
         SkString toJson() const;
         SkString fName;
+        SkTArray<SkString> fStackTrace;
         SkRect fBounds;
         int fClientID;
         int fBatchListID;
@@ -150,6 +156,7 @@ private:
     SkTHashMap<GrBatch*, int> fIDLookup;
     SkTHashMap<int, Batches*> fClientIDLookup;
     BatchList fBatchList;
+    SkTArray<SkString> fCurrentStackTrace;
 
     // The client cas pass in an optional client ID which we will use to mark the batches
     int fClientID;
@@ -162,11 +169,10 @@ private:
     }
 
 #define GR_AUDIT_TRAIL_AUTO_FRAME(audit_trail, framename) \
-    // TODO fill out the frame stuff
-    //GrAuditTrail::AutoFrame SK_MACRO_APPEND_LINE(auto_frame)(audit_trail, framename);
+    GR_AUDIT_TRAIL_INVOKE_GUARD((audit_trail), pushFrame, framename);
 
 #define GR_AUDIT_TRAIL_RESET(audit_trail) \
-    //GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, reset);
+    //GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, fullReset);
 
 #define GR_AUDIT_TRAIL_ADDBATCH(audit_trail, batchname, bounds) \
     GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addBatch, batchname, bounds);

@@ -19,6 +19,10 @@ void GrAuditTrail::addBatch(const char* name, const SkRect& bounds) {
     batch->fClientID = kGrAuditTrailInvalidID;
     batch->fBatchListID = kGrAuditTrailInvalidID;
     batch->fChildID = kGrAuditTrailInvalidID;
+    
+    // consume the current stack trace if any
+    batch->fStackTrace = fCurrentStackTrace;
+    fCurrentStackTrace.reset();
     fCurrentBatch = batch;
     
     if (fClientID != kGrAuditTrailInvalidID) {
@@ -242,6 +246,16 @@ SkString GrAuditTrail::Batch::toJson() const {
     json.appendf("\"BatchListID\": \"%d\",", fBatchListID);
     json.appendf("\"ChildID\": \"%d\",", fChildID);
     skrect_to_json(&json, "Bounds", fBounds);
+    if (fStackTrace.count()) {
+        json.append(",\"Stack\": [");
+        for (int i = 0; i < fStackTrace.count(); i++) {
+            json.appendf("\"%s\"", fStackTrace[i].c_str());
+            if (i < fStackTrace.count() - 1) {
+                json.append(",");
+            }
+        }
+        json.append("]");
+    }
     json.append("}");
     return json;
 }
