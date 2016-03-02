@@ -82,6 +82,7 @@
       '<(skia_src_path)/gpu/GrDefaultGeoProcFactory.cpp',
       '<(skia_src_path)/gpu/GrDefaultGeoProcFactory.h',
       '<(skia_src_path)/gpu/GrDrawContext.cpp',
+      '<(skia_src_path)/gpu/GrDrawContextPriv.h',
       '<(skia_src_path)/gpu/GrPathRenderingDrawContext.cpp',
       '<(skia_src_path)/gpu/GrPathRenderingDrawContext.h',
       '<(skia_src_path)/gpu/GrDrawingManager.cpp',

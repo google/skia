@@ -155,14 +155,6 @@ public:
     }
 
     /**
-     * Sets a GrXPFactory that will ignore src color and perform a set operation between the draws
-     * output coverage and the destination. This is useful to render coverage masks as CSG.
-     */
-    void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false) {
-        fXPFactory.reset(GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage));
-    }
-
-    /**
      * Sets a GrXPFactory that disables color writes to the destination. This is useful when
      * rendering to the stencil buffer.
      */
