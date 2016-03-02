@@ -11,6 +11,7 @@
 #include "../private/SkAtomics.h"
 #include "../private/SkUniquePtr.h"
 #include "SkTypes.h"
+#include <utility>
 
 /** \class SkRefCntBase
 
@@ -325,5 +326,10 @@ public:
 private:
     T*  fPtr;
 };
+
+template <typename T, typename... Args>
+sk_sp<T> sk_make_sp(Args&&... args) {
+    return sk_sp<T>(new T(std::forward<Args>(args)...));
+}
 
 #endif

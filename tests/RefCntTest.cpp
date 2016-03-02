@@ -120,7 +120,7 @@ public:
 };
 
 static sk_sp<Effect> Create() {
-    return sk_sp<Effect>(new Effect);
+    return sk_make_sp<Effect>();
 }
 
 class Paint {
