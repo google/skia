@@ -19,7 +19,7 @@ class GrVkRenderTarget;
 
 class GrVkRenderPass : public GrVkResource {
 public:
-    GrVkRenderPass() : INHERITED(), fRenderPass(nullptr) {}
+    GrVkRenderPass() : INHERITED(), fRenderPass(VK_NULL_HANDLE) {}
     void initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& target);
 
     struct AttachmentsDescriptor {

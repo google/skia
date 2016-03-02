@@ -100,18 +100,18 @@ void GrVkProgram::freeGPUResources(const GrVkGpu* gpu) {
         GR_VK_CALL(gpu->vkInterface(), DestroyPipelineLayout(gpu->device(),
                                                              fPipelineLayout,
                                                              nullptr));
-        fPipelineLayout = nullptr;
+        fPipelineLayout = VK_NULL_HANDLE;
     }
 
     if (fDSLayout[0]) {
         GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorSetLayout(gpu->device(), fDSLayout[0],
                                                                   nullptr));
-        fDSLayout[0] = nullptr;
+        fDSLayout[0] = VK_NULL_HANDLE;
     }
     if (fDSLayout[1]) {
         GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorSetLayout(gpu->device(), fDSLayout[1],
                                                                   nullptr));
-        fDSLayout[1] = nullptr;
+        fDSLayout[1] = VK_NULL_HANDLE;
     }
 
     if (fVertexUniformBuffer) {
@@ -129,9 +129,9 @@ void GrVkProgram::abandonGPUResources() {
     fPipeline = nullptr;
     fDescriptorPool->unrefAndAbandon();
     fDescriptorPool = nullptr;
-    fPipelineLayout = nullptr;
-    fDSLayout[0] = nullptr;
-    fDSLayout[1] = nullptr;
+    fPipelineLayout = VK_NULL_HANDLE;
+    fDSLayout[0] = VK_NULL_HANDLE;
+    fDSLayout[1] = VK_NULL_HANDLE;
 
     fVertexUniformBuffer->abandon();
     fFragmentUniformBuffer->abandon();

@@ -29,7 +29,7 @@ public:
         VkDeviceMemory fAlloc;
         Flags          fFlags;
 
-        Resource() : INHERITED(), fImage(nullptr), fAlloc(nullptr), fFlags(kNo_Flags) {}
+        Resource() : INHERITED(), fImage(VK_NULL_HANDLE), fAlloc(VK_NULL_HANDLE), fFlags(kNo_Flags) {}
 
         Resource(VkImage image, VkDeviceMemory alloc, Flags flags)
             : fImage(image), fAlloc(alloc), fFlags(flags) {}
