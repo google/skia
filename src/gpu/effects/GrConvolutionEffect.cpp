@@ -46,9 +46,12 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
 
     int width = Gr1DKernelEffect::WidthFromRadius(ce.radius());
 
+    int arrayCount = (width + 3) / 4;
+    SkASSERT(4 * arrayCount >= width);
+
     fKernelUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag,
-                                                 kFloat_GrSLType, kDefault_GrSLPrecision,
-                                                 "Kernel", width);
+                                                 kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                 "Kernel", arrayCount);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
@@ -61,11 +64,13 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("vec2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
+    const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };
     for (int i = 0; i < width; i++) {
         SkString index;
         SkString kernelIndex;
-        index.appendS32(i);
+        index.appendS32(i/4);
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
+        kernelIndex.append(kVecSuffix[i & 0x3]);
 
         if (ce.useBounds()) {
             // We used to compute a bool indicating whether we're in bounds or not, cast it to a
@@ -119,7 +124,9 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     }
     int width = Gr1DKernelEffect::WidthFromRadius(conv.radius());
 
-    pdman.set1fv(fKernelUni, width, conv.kernel());
+    int arrayCount = (width + 3) / 4;
+    SkASSERT(4 * arrayCount >= width);
+    pdman.set4fv(fKernelUni, arrayCount, conv.kernel());
 }
 
 void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,

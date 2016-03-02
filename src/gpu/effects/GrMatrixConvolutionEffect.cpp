@@ -39,14 +39,17 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     int kWidth = mce.kernelSize().width();
     int kHeight = mce.kernelSize().height();
 
+    int arrayCount = (kWidth + 3) / 4;
+    SkASSERT(4 * arrayCount >= kWidth);
+
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                     "ImageIncrement");
     fKernelUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag,
-                                                 kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                 kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                  "Kernel",
-                                                 kWidth * kHeight);
+                                                 arrayCount);
     fKernelOffsetUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                   "KernelOffset");
@@ -67,10 +70,14 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("vec2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset, imgInc);
     fragBuilder->codeAppend("vec4 c;");
 
+    const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };
     for (int y = 0; y < kHeight; y++) {
         for (int x = 0; x < kWidth; x++) {
             GrGLSLShaderBuilder::ShaderBlock block(fragBuilder);
-            fragBuilder->codeAppendf("float k = %s[%d * %d + %d];", kernel, y, kWidth, x);
+            int offset = y*kWidth + x;
+
+            fragBuilder->codeAppendf("float k = %s[%d]%s;", kernel, offset / 4, 
+                                     kVecSuffix[offset & 0x3]);
             SkString coord;
             coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);
             fDomain.sampleTexture(fragBuilder,
@@ -130,7 +137,10 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     imageIncrement[1] = ySign / texture.height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
     pdman.set2fv(fKernelOffsetUni, 1, conv.kernelOffset());
-    pdman.set1fv(fKernelUni, conv.kernelSize().width() * conv.kernelSize().height(), conv.kernel());
+    int kernelCount = conv.kernelSize().width() * conv.kernelSize().height();
+    int arrayCount = (kernelCount + 3) / 4;
+    SkASSERT(4 * arrayCount >= kernelCount);
+    pdman.set4fv(fKernelUni, arrayCount, conv.kernel());
     pdman.set1f(fGainUni, conv.gain());
     pdman.set1f(fBiasUni, conv.bias());
     fDomain.setData(pdman, conv.domain(), texture.origin());
