@@ -9,7 +9,6 @@
 #include "GrFontScaler.h"
 #include "SkDescriptor.h"
 #include "SkDistanceFieldGen.h"
-#include "GrDistanceFieldGenFromVector.h"
 #include "SkGlyphCache.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -171,20 +170,28 @@ bool GrFontScaler::getPackedGlyphImage(const SkGlyph& glyph, int width, int heig
 bool GrFontScaler::getPackedGlyphDFImage(const SkGlyph& glyph, int width, int height, void* dst) {
     SkASSERT(glyph.fWidth + 2*SK_DistanceFieldPad == width);
     SkASSERT(glyph.fHeight + 2*SK_DistanceFieldPad == height);
-    const SkPath* path = fStrike->findPath(glyph);
-    if (nullptr == path) {
+    const void* image = fStrike->findImage(glyph);
+    if (nullptr == image) {
         return false;
     }
-
-    SkMatrix drawMatrix;
-    drawMatrix.setTranslate((SkScalar)-glyph.fLeft, (SkScalar)-glyph.fTop);
-
     // now generate the distance field
     SkASSERT(dst);
-    // Generate signed distance field directly from SkPath
-    GrGenerateDistanceFieldFromPath((unsigned char*)dst,
-                                    *path, drawMatrix,
-                                    width, height, width * sizeof(unsigned char));
+    SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
+    if (SkMask::kA8_Format == maskFormat) {
+        // make the distance field from the image
+        SkGenerateDistanceFieldFromA8Image((unsigned char*)dst,
+                                           (unsigned char*)image,
+                                           glyph.fWidth, glyph.fHeight,
+                                           glyph.rowBytes());
+    } else if (SkMask::kBW_Format == maskFormat) {
+        // make the distance field from the image
+        SkGenerateDistanceFieldFromBWImage((unsigned char*)dst,
+                                           (unsigned char*)image,
+                                           glyph.fWidth, glyph.fHeight,
+                                           glyph.rowBytes());
+    } else {
+        return false;
+    }
 
     return true;
 }
