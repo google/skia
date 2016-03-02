@@ -414,14 +414,15 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         }
 
         Config target = {
-            config->getTag(),
+            gpuConfig->getTag(),
             Benchmark::kGPU_Backend,
             kN32_SkColorType,
             kPremul_SkAlphaType,
             sampleCount,
             ctxType,
-            ctxOptions,        
-            false };
+            ctxOptions,
+            gpuConfig->getUseDIText()
+        };
 
         configs->push_back(target);
         return;
