@@ -39,8 +39,8 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     int kWidth = mce.kernelSize().width();
     int kHeight = mce.kernelSize().height();
 
-    int arrayCount = (kWidth + 3) / 4;
-    SkASSERT(4 * arrayCount >= kWidth);
+    int arrayCount = (kWidth * kHeight + 3) / 4;
+    SkASSERT(4 * arrayCount >= kWidth * kHeight);
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
