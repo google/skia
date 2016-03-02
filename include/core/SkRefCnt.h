@@ -316,7 +316,11 @@ public:
     template <typename U>
     bool operator!=(const sk_sp<U>& that) const { return this->get() != that.get(); }
 
-    explicit operator bool() const { return this->get() != nullptr; }
+    // MSVC 2013 does not work correctly with explicit operator bool.
+    // https://chromium-cpp.appspot.com/#core-blacklist
+    //explicit operator bool() const { return this->get() != nullptr; }
+
+    bool operator!() const { return this->get() == nullptr; }
 
     T* get() const { return fPtr; }
     T* operator->() const { return fPtr; }
