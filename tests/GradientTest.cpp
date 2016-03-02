@@ -6,7 +6,6 @@
  */
 
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
 #include "SkColorShader.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
@@ -234,33 +233,10 @@ static void test_linear_fuzz(skiatest::Reporter* reporter) {
     surface->getCanvas()->drawRect(r, paint);
 }
 
-// https://bugs.chromium.org/p/skia/issues/detail?id=5023
-// We should still shade pixels for which the radius is exactly 0.
-static void test_two_point_conical_zero_radius(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(5, 5));
-    surface->getCanvas()->clear(SK_ColorRED);
-
-    const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateTwoPointConical(
-        SkPoint::Make(2.5f, 2.5f), 0,
-        SkPoint::Make(3.0f, 3.0f), 10,
-        colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
-    SkPaint p;
-    p.setShader(shader);
-    surface->getCanvas()->drawPaint(p);
-
-    // r == 0 for the center pixel.
-    // verify that we draw it (no red bleed)
-    SkPMColor centerPMColor;
-    surface->readPixels(SkImageInfo::MakeN32Premul(1, 1), &centerPMColor, sizeof(SkPMColor), 2, 2);
-    REPORTER_ASSERT(reporter, SkGetPackedR32(centerPMColor) == 0);
-}
-
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
     TestConstantGradient(reporter);
     test_big_grad(reporter);
     test_nearly_vertical(reporter);
     test_linear_fuzz(reporter);
-    test_two_point_conical_zero_radius(reporter);
 }

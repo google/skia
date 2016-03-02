@@ -122,10 +122,10 @@ SkFixed TwoPtRadialContext::nextT() {
     // find_quad_roots returns the values sorted, so we start with the last
     float t = roots[countRoots - 1];
     float r = lerp(fRec.fRadius, fRec.fDRadius, t);
-    if (r < 0) {
+    if (r <= 0) {
         t = roots[0];   // might be the same as roots[countRoots-1]
         r = lerp(fRec.fRadius, fRec.fDRadius, t);
-        if (r < 0) {
+        if (r <= 0) {
             return TwoPtRadial::kDontDrawT;
         }
     }
