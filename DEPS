@@ -50,6 +50,12 @@ deps = {
 
   # Mojo SDK for Mojo RPC experiments.
   "third_party/externals/mojo/public" : "https://chromium.googlesource.com/external/github.com/domokit/mojo_sdk@172be18ea745ab29aea132e6cb952e726dc32543",
+  
+  # shaderc for the vulkan backend
+  "third_party/externals/shaderc" : "https://github.com/google/shaderc.git@f76848a36d539888828006b9b7c088b3f362b607",
+  "third_party/externals/shaderc/third_party/googletest" : "https://github.com/google/googletest.git@ff07a5de0e81580547f1685e101194ed1a4fcd56",
+  "third_party/externals/shaderc/third_party/glslang" : "https://github.com/google/glslang.git@5184353326ae52d63a1d7c7fccd66269aab768f7",
+  "third_party/externals/shaderc/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@c31a31942b3697f2f71148555e5ffa298a572dbd",
 
   # xSAN bots build Clang from scratch.
   "third_party/externals/llvm": "https://llvm.googlesource.com/llvm@release_38",
