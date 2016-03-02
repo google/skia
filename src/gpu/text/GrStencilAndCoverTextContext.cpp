@@ -8,7 +8,6 @@
 #include "GrStencilAndCoverTextContext.h"
 #include "GrAtlasTextContext.h"
 #include "GrDrawContext.h"
-#include "GrDrawTarget.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
 #include "GrResourceProvider.h"

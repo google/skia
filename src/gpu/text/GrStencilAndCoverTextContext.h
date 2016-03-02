@@ -8,7 +8,7 @@
 #ifndef GrStencilAndCoverTextContext_DEFINED
 #define GrStencilAndCoverTextContext_DEFINED
 
-#include "GrDrawTarget.h"
+#include "GrDrawContext.h"
 #include "GrStrokeInfo.h"
 #include "SkDrawFilter.h"
 #include "SkTextBlob.h"

@@ -14,7 +14,6 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrDrawTarget.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrStrokeInfo.h"
@@ -746,19 +745,13 @@ static GrDrawBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, cons
     return DashBatch::Create(geometry, cap, aaMode, fullDash);
 }
 
-bool GrDashingEffect::DrawDashLine(GrDrawTarget* target,
-                                   const GrPipelineBuilder& pipelineBuilder, GrColor color,
-                                   const SkMatrix& viewMatrix, const SkPoint pts[2],
-                                   bool useAA, const GrStrokeInfo& strokeInfo) {
-    SkAutoTUnref<GrDrawBatch> batch(
-            create_batch(color, viewMatrix, pts, useAA, strokeInfo,
-                         pipelineBuilder.getRenderTarget()->isUnifiedMultisampled()));
-    if (!batch) {
-        return false;
-    }
-
-    target->drawBatch(pipelineBuilder, batch);
-    return true;
+GrDrawBatch* GrDashingEffect::CreateDashLineBatch(GrColor color,
+                                                  const SkMatrix& viewMatrix,
+                                                  const SkPoint pts[2],
+                                                  bool useAA,
+                                                  bool msaaIsEnabled,
+                                                  const GrStrokeInfo& strokeInfo) {
+    return create_batch(color, viewMatrix, pts, useAA, strokeInfo, msaaIsEnabled);
 }
 
 //////////////////////////////////////////////////////////////////////////////

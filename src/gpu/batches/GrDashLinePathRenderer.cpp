@@ -20,8 +20,19 @@ bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 
 bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrDashLinePathRenderer::onDrawPath");
+    bool msaaIsEnabled = args.fPipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
     SkPoint pts[2];
     SkAssertResult(args.fPath->isLine(pts));
-    return GrDashingEffect::DrawDashLine(args.fTarget, *args.fPipelineBuilder, args.fColor,
-                                         *args.fViewMatrix, pts, args.fAntiAlias, *args.fStroke);
+    SkAutoTUnref<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fColor,
+                                                                         *args.fViewMatrix,
+                                                                         pts,
+                                                                         args.fAntiAlias,
+                                                                         msaaIsEnabled,
+                                                                         *args.fStroke));
+    if (!batch) {
+        return false;
+    }
+
+    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
+    return true;
 }

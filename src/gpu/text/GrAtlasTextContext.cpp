@@ -6,8 +6,8 @@
  */
 #include "GrAtlasTextContext.h"
 
+#include "GrContext.h"
 #include "GrDrawContext.h"
-#include "GrDrawTarget.h"
 #include "GrTextBlobCache.h"
 #include "GrTextUtils.h"
 
