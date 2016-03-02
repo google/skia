@@ -9,7 +9,7 @@
 
 #include "GrBatchAtlas.h"
 #include "GrContextOptions.h"
-#include "GrDrawContext.h"
+#include "GrDrawContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrResourceCache.h"
@@ -258,17 +258,17 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
-#define RETURN_IF_ABANDONED        if (fDrawingManager->abandoned()) { return; }
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fDrawContext->fSingleOwner);)
+#define RETURN_IF_ABANDONED        if (fDrawContext->fDrawingManager->abandoned()) { return; }
 
-void GrDrawContext::internal_drawBatch(const GrPipelineBuilder& pipelineBuilder,
-                                       GrDrawBatch* batch) {
+void GrDrawContextPriv::testingOnly_drawBatch(const GrPipelineBuilder& pipelineBuilder,
+                                              GrDrawBatch* batch) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::internal_drawBatch");
+    SkDEBUGCODE(fDrawContext->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::testingOnly_drawBatch");
 
-    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
 #undef ASSERT_SINGLE_OWNER

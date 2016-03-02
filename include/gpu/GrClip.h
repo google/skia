@@ -114,6 +114,13 @@ public:
         }
     }
 
+    void setIRect(const SkIRect& irect) {
+        this->reset();
+        fClipType = kIRect_ClipType;
+        fOrigin.setZero();
+        fClip.fIRect = irect;
+    }
+
     const SkIRect& irect() const {
         SkASSERT(kIRect_ClipType == fClipType);
         return fClip.fIRect;

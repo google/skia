@@ -69,6 +69,12 @@ public:
                        const SkRect* devBounds,
                        GrAppliedClip*);
 
+    bool setupScissorClip(const GrPipelineBuilder& pipelineBuilder,
+                          GrPipelineBuilder::AutoRestoreStencil* ars,
+                          const SkIRect& scissor,    
+                          const SkRect* devBounds,
+                          GrAppliedClip* out);
+
     void adjustPathStencilParams(const GrStencilAttachment*, GrStencilSettings*);
 
 private:
@@ -123,32 +129,26 @@ private:
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
-    GrTexture* createAlphaClipMask(int32_t elementsGenID,
-                                   GrReducedClip::InitialState initialState,
-                                   const GrReducedClip::ElementList& elements,
-                                   const SkVector& clipToMaskOffset,
-                                   const SkIRect& clipSpaceIBounds);
+    static GrTexture* CreateAlphaClipMask(GrContext*,
+                                          int32_t elementsGenID,
+                                          GrReducedClip::InitialState initialState,
+                                          const GrReducedClip::ElementList& elements,
+                                          const SkVector& clipToMaskOffset,
+                                          const SkIRect& clipSpaceIBounds);
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
-    GrTexture* createSoftwareClipMask(int32_t elementsGenID,
-                                      GrReducedClip::InitialState initialState,
-                                      const GrReducedClip::ElementList& elements,
-                                      const SkVector& clipToMaskOffset,
-                                      const SkIRect& clipSpaceIBounds);
+    static GrTexture* CreateSoftwareClipMask(GrContext*,
+                                             int32_t elementsGenID,
+                                             GrReducedClip::InitialState initialState,
+                                             const GrReducedClip::ElementList& elements,
+                                             const SkVector& clipToMaskOffset,
+                                             const SkIRect& clipSpaceIBounds);
 
-   bool useSWOnlyPath(const GrPipelineBuilder&,
-                      const GrRenderTarget* rt,
-                      const SkVector& clipToMaskOffset,
-                      const GrReducedClip::ElementList& elements);
-
-    // Draws a clip element into the target alpha mask. The caller should have already setup the
-    // desired blend operation. Optionally if the caller already selected a path renderer it can
-    // be passed. Otherwise the function will select one if the element is a path.
-    bool drawElement(GrPipelineBuilder*,
-                     const SkMatrix& viewMatrix,
-                     GrTexture* target,
-                     const SkClipStack::Element*,
-                     GrPathRenderer* pr = nullptr);
+   static bool UseSWOnlyPath(GrContext*,
+                             const GrPipelineBuilder&,
+                             const GrRenderTarget* rt,
+                             const SkVector& clipToMaskOffset,
+                             const GrReducedClip::ElementList& elements);
 
     /**
      * Called prior to return control back the GrGpu in setupClipping. It updates the
