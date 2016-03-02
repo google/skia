@@ -25,6 +25,83 @@ bool in_range(SkScalar x, SkScalar k1, SkScalar k2) {
         : (x >= k2 && x < k1);
 }
 
+class IntervalBuilder {
+public:
+    IntervalBuilder(const SkColor* colors, const SkScalar* pos, int count, bool reverse)
+        : fColors(colors)
+        , fPos(pos)
+        , fCount(count)
+        , fFirstPos(reverse ? SK_Scalar1 : 0)
+        , fBegin(reverse ? count - 1 : 0)
+        , fAdvance(reverse ? -1 : 1) {
+        SkASSERT(colors);
+        SkASSERT(count > 1);
+    }
+
+    template<typename F>
+    void build(F func) const {
+        if (!fPos) {
+            this->buildImplicitPos(func);
+            return;
+        }
+
+        const int end = fBegin + fAdvance * (fCount - 1);
+        const SkScalar lastPos = 1 - fFirstPos;
+        int prev = fBegin;
+        SkScalar prevPos = fFirstPos;
+
+        do {
+            const int curr = prev + fAdvance;
+            SkASSERT(curr >= 0 && curr < fCount);
+
+            // TODO: this sanitization should be done in SkGradientShaderBase
+            const SkScalar currPos = (fAdvance > 0)
+                ? SkTPin(fPos[curr], prevPos, lastPos)
+                : SkTPin(fPos[curr], lastPos, prevPos);
+
+            if (currPos != prevPos) {
+                SkASSERT((currPos - prevPos > 0) == (fAdvance > 0));
+                func(fColors[prev], fColors[curr], prevPos, currPos);
+            }
+
+            prev = curr;
+            prevPos = currPos;
+        } while (prev != end);
+    }
+
+private:
+    template<typename F>
+    void buildImplicitPos(F func) const {
+        // When clients don't provide explicit color stop positions (fPos == nullptr),
+        // the color stops are distributed evenly across the unit interval
+        // (implicit positioning).
+        const SkScalar dt = fAdvance * SK_Scalar1 / (fCount - 1);
+        const int end = fBegin + fAdvance * (fCount - 2);
+        int prev = fBegin;
+        SkScalar prevPos = fFirstPos;
+
+        while (prev != end) {
+            const int curr = prev + fAdvance;
+            SkASSERT(curr >= 0 && curr < fCount);
+
+            const SkScalar currPos = prevPos + dt;
+            func(fColors[prev], fColors[curr], prevPos, currPos);
+            prev = curr;
+            prevPos = currPos;
+        }
+
+        // emit the last interval with a pinned end position, to avoid precision issues
+        func(fColors[prev], fColors[prev + fAdvance], prevPos, 1 - fFirstPos);
+    }
+
+    const SkColor*  fColors;
+    const SkScalar* fPos;
+    const int       fCount;
+    const SkScalar  fFirstPos;
+    const int       fBegin;
+    const int       fAdvance;
+};
+
 } // anonymous namespace
 
 SkGradientShaderBase::GradientShaderBase4fContext::
@@ -134,69 +211,38 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
     SkASSERT(shader.fColorCount > 1);
     SkASSERT(shader.fOrigColors);
 
-    int direction = 1;
-    int first_index = 0;
-    int last_index = shader.fColorCount - 1;
-    SkScalar first_pos = 0;
-    SkScalar last_pos = 1;
     const bool dx_is_pos = fDstToPos.getScaleX() >= 0;
-    if (!dx_is_pos) {
-        direction = -direction;
-        SkTSwap(first_index, last_index);
-        SkTSwap(first_pos, last_pos);
-    }
+    const int first_index = dx_is_pos ? 0 : shader.fColorCount - 1;
+    const int last_index = shader.fColorCount - 1 - first_index;
+    const SkScalar first_pos = dx_is_pos ? 0 : SK_Scalar1;
+    const SkScalar last_pos = 1 - first_pos;
 
     if (shader.fTileMode == SkShader::kClamp_TileMode) {
-        // synthetic edge interval: -/+inf .. P0)
+        // synthetic edge interval: -/+inf .. P0
         const SkPMColor clamp_color = pack_color(shader.fOrigColors[first_index],
                                                  fColorsArePremul);
         const SkScalar clamp_pos = dx_is_pos ? SK_ScalarMin : SK_ScalarMax;
         fIntervals.emplace_back(clamp_color, clamp_pos,
                                 clamp_color, first_pos,
                                 componentScale);
+    } else if (shader.fTileMode == SkShader::kMirror_TileMode && !dx_is_pos) {
+        // synthetic mirror intervals injected before main intervals: (2 .. 1]
+        addMirrorIntervals(shader, componentScale, dx_is_pos);
     }
 
-    int prev = first_index;
-    int curr = prev + direction;
-    SkScalar prev_pos = first_pos;
-    if (shader.fOrigPos) {
-        // explicit positions
-        do {
-            // TODO: this sanitization should be done in SkGradientShaderBase
-            const SkScalar curr_pos = (dx_is_pos)
-                ? SkTPin(shader.fOrigPos[curr], prev_pos, last_pos)
-                : SkTPin(shader.fOrigPos[curr], last_pos, prev_pos);
-            if (curr_pos != prev_pos) {
-                fIntervals.emplace_back(
-                    pack_color(shader.fOrigColors[prev], fColorsArePremul),
-                    prev_pos,
-                    pack_color(shader.fOrigColors[curr], fColorsArePremul),
-                    curr_pos,
-                    componentScale);
-            }
-            prev = curr;
-            prev_pos = curr_pos;
-            curr += direction;
-        } while (prev != last_index);
-    } else {
-        // implicit positions
-        const SkScalar dt = direction * SK_Scalar1 / (shader.fColorCount - 1);
-        do {
-            const SkScalar curr_pos = prev_pos + dt;
-            fIntervals.emplace_back(
-                pack_color(shader.fOrigColors[prev], fColorsArePremul),
-                prev_pos,
-                pack_color(shader.fOrigColors[curr], fColorsArePremul),
-                curr_pos,
-                componentScale);
+    const IntervalBuilder builder(shader.fOrigColors,
+                                  shader.fOrigPos,
+                                  shader.fColorCount,
+                                  !dx_is_pos);
+    builder.build([this, &componentScale] (SkColor c0, SkColor c1, SkScalar p0, SkScalar p1) {
+        SkASSERT(fIntervals.empty() || fIntervals.back().fP1 == p0);
 
-            prev = curr;
-            prev_pos = curr_pos;
-            curr += direction;
-        } while (prev != last_index);
-        // pin the last pos to maintain accurate [0,1] pos coverage.
-        fIntervals.back().fP1 = last_pos;
-    }
+        fIntervals.emplace_back(pack_color(c0, fColorsArePremul),
+                                p0,
+                                pack_color(c1, fColorsArePremul),
+                                p1,
+                                componentScale);
+    });
 
     if (shader.fTileMode == SkShader::kClamp_TileMode) {
         // synthetic edge interval: Pn .. +/-inf
@@ -206,34 +252,32 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
         fIntervals.emplace_back(clamp_color, last_pos,
                                 clamp_color, clamp_pos,
                                 componentScale);
-    } else if (shader.fTileMode == SkShader::kMirror_TileMode) {
-        const int count = fIntervals.count();
-        // synthetic flipped intervals in [1 .. 2)
-        for (int i = count - 1; i >= 0; --i) {
-            const Interval& interval = fIntervals[i];
-            const SkScalar p0 = interval.fP0;
-            const SkScalar p1 = interval.fP1;
-            Sk4f dc = Sk4f::Load(interval.fDc.fVec);
-            Sk4f c = Sk4f::Load(interval.fC0.fVec) + dc * Sk4f(p1 - p0);
-            fIntervals.emplace_back(c, dc * Sk4f(-1), 2 - p1, 2 - p0);
-        }
-
-        if (!dx_is_pos) {
-            // When dx is negative, our initial invervals are in (1..0] order.
-            // The loop above appends their flipped counterparts, pivoted in 2: (1..0](2..1]
-            // To achieve the expected monotonic interval order, we need to
-            // swap the two halves: (2..1](1..0]
-            // TODO: we can probably avoid this late swap with some additional logic during
-            //       the initial interval buildup.
-            SkASSERT(fIntervals.count() == count * 2)
-            for (int i = 0; i < count; ++i) {
-                SkTSwap(fIntervals[i], fIntervals[count + i]);
-            }
-        }
+    } else if (shader.fTileMode == SkShader::kMirror_TileMode && dx_is_pos) {
+        // synthetic mirror intervals injected after main intervals: [1 .. 2)
+        addMirrorIntervals(shader, componentScale, dx_is_pos);
     }
 
     SkASSERT(fIntervals.count() > 0);
     fCachedInterval = fIntervals.begin();
+}
+
+void SkGradientShaderBase::
+GradientShaderBase4fContext::addMirrorIntervals(const SkGradientShaderBase& shader,
+                                                const Sk4f& componentScale, bool dx_is_pos) {
+    // Iterates in reverse order (vs main interval builder) and adds intervals reflected in 2.
+    const IntervalBuilder builder(shader.fOrigColors,
+                                  shader.fOrigPos,
+                                  shader.fColorCount,
+                                  dx_is_pos);
+    builder.build([this, &componentScale] (SkColor c0, SkColor c1, SkScalar p0, SkScalar p1) {
+        SkASSERT(fIntervals.empty() || fIntervals.back().fP1 == 2 - p0);
+
+        fIntervals.emplace_back(pack_color(c0, fColorsArePremul),
+                                2 - p0,
+                                pack_color(c1, fColorsArePremul),
+                                2 - p1,
+                                componentScale);
+    });
 }
 
 const SkGradientShaderBase::GradientShaderBase4fContext::Interval*

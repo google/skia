@@ -55,6 +55,9 @@ protected:
 private:
     using INHERITED = SkShader::Context;
 
+    void addMirrorIntervals(const SkGradientShaderBase&, const Sk4f& componentScale,
+                            bool dx_is_pos);
+
     mutable const Interval*      fCachedInterval;
 };
 
