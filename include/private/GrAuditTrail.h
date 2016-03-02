@@ -119,6 +119,7 @@ public:
     };
 
     void getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID);
+    void getBoundsByBatchListID(BatchInfo* outInfo, int batchListID);
 
     void fullReset();
 
@@ -146,6 +147,8 @@ private:
         uint32_t fRenderTargetUniqueID;
     };
     typedef SkTArray<SkAutoTDelete<BatchNode>, true> BatchList;
+
+    void copyOutFromBatchList(BatchInfo* outBatchInfo, int batchListID);
 
     template <typename T>
     static void JsonifyTArray(SkString* json, const char* name, const T& array,

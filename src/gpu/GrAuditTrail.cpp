@@ -71,6 +71,19 @@ void GrAuditTrail::batchingResultNew(GrBatch* batch) {
     fBatchList.emplace_back(batchNode);
 }
 
+void GrAuditTrail::copyOutFromBatchList(BatchInfo* outBatchInfo, int batchListID) {
+    SkASSERT(batchListID < fBatchList.count());
+    const BatchNode* bn = fBatchList[batchListID];
+    outBatchInfo->fBounds = bn->fBounds;
+    outBatchInfo->fRenderTargetUniqueID = bn->fRenderTargetUniqueID;
+    for (int j = 0; j < bn->fChildren.count(); j++) {
+        BatchInfo::Batch& outBatch = outBatchInfo->fBatches.push_back();
+        const Batch* currentBatch = bn->fChildren[j];
+        outBatch.fBounds = currentBatch->fBounds;
+        outBatch.fClientID = currentBatch->fClientID;
+    }
+}
+
 void GrAuditTrail::getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID) {
     Batches** batchesLookup = fClientIDLookup.find(clientID);
     if (batchesLookup) {
@@ -87,22 +100,17 @@ void GrAuditTrail::getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientI
             if (kGrAuditTrailInvalidID == currentBatchListID ||
                 batch->fBatchListID != currentBatchListID) {
                 BatchInfo& outBatchInfo = outInfo->push_back();
-                currentBatchListID = batch->fBatchListID;
                 
                 // copy out all of the batches so the client can display them even if
                 // they have a different clientID
-                const BatchNode* bn = fBatchList[currentBatchListID];
-                outBatchInfo.fBounds = bn->fBounds;
-                outBatchInfo.fRenderTargetUniqueID = bn->fRenderTargetUniqueID;
-                for (int j = 0; j < bn->fChildren.count(); j++) {
-                    BatchInfo::Batch& outBatch = outBatchInfo.fBatches.push_back();
-                    const Batch* currentBatch = bn->fChildren[j];
-                    outBatch.fBounds = currentBatch->fBounds;
-                    outBatch.fClientID = currentBatch->fClientID;
-                }
+                this->copyOutFromBatchList(&outBatchInfo, batch->fBatchListID);
             }
         }
     }
+}
+
+void GrAuditTrail::getBoundsByBatchListID(BatchInfo* outInfo, int batchListID) {
+    this->copyOutFromBatchList(outInfo, batchListID);
 }
 
 void GrAuditTrail::fullReset() {

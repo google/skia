@@ -93,13 +93,13 @@ SkCanvas* Request::getCanvas() {
     return target;
 }
 
-void Request::drawToCanvas(int n) {
+void Request::drawToCanvas(int n, int m) {
     SkCanvas* target = this->getCanvas();
-    fDebugCanvas->drawTo(target, n);
+    fDebugCanvas->drawTo(target, n, m);
 }
 
-SkData* Request::drawToPng(int n) {
-    this->drawToCanvas(n);
+SkData* Request::drawToPng(int n, int m) {
+    this->drawToCanvas(n, m);
     return writeCanvasToPng(this->getCanvas());
 }
 

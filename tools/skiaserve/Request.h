@@ -29,7 +29,8 @@ struct UploadContext {
 struct Request {
     Request(SkString rootUrl); 
 
-    SkData* drawToPng(int n);
+    // draws to skia draw op N, highlighting the Mth batch(-1 means no highlight)
+    SkData* drawToPng(int n, int m = -1);
     SkCanvas* getCanvas();
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
     bool enableGPU(bool enable);
@@ -57,7 +58,7 @@ struct Request {
     
 private:
     SkData* writeCanvasToPng(SkCanvas* canvas);
-    void drawToCanvas(int n);
+    void drawToCanvas(int n, int m = -1);
     SkSurface* createCPUSurface();
     SkSurface* createGPUSurface();
     GrAuditTrail* getAuditTrail(SkCanvas*);

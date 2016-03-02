@@ -68,8 +68,9 @@ public:
         Executes the draw calls up to the specified index.
         @param canvas  The canvas being drawn to
         @param index  The index of the final command being executed
+        @param m an optional Mth gpu batch to highlight, or -1
      */
-    void drawTo(SkCanvas* canvas, int index);
+    void drawTo(SkCanvas* canvas, int index, int m = -1);
 
     /**
         Returns the most recently calculated transformation matrix

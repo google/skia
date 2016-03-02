@@ -196,7 +196,7 @@ void SkDebugCanvas::markActiveCommands(int index) {
 
 }
 
-void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
+void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
 
@@ -228,7 +228,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 #if SK_SUPPORT_GPU
     GrAuditTrail* at = nullptr;
     GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-    if (rt && fDrawGpuBatchBounds) {
+    if (rt && (fDrawGpuBatchBounds || m != -1)) {
         GrContext* ctx = rt->getContext();
         if (ctx) {
             at = ctx->getAuditTrail();
@@ -344,7 +344,12 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         // get the bounding boxes to draw
         GrAuditTrail::AutoEnable ae(at);
         SkTArray<GrAuditTrail::BatchInfo> childrenBounds;
-        at->getBoundsByClientID(&childrenBounds, index);
+        if (m == -1) {
+            at->getBoundsByClientID(&childrenBounds, index);
+        } else {
+            // the client wants us to draw the mth batch
+            at->getBoundsByBatchListID(&childrenBounds.push_back(), m);
+        }
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(1);
