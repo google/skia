@@ -14,6 +14,7 @@
 
 #include "urlhandlers/UrlHandler.h"
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
 using namespace Response;
 
@@ -23,6 +24,7 @@ using namespace Response;
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_int32(port, 8888, "The port to listen on.");
+DEFINE_string(address, "localhost", "The address to bind to.");
 
 class UrlManager {
 public:
@@ -82,10 +84,18 @@ int answer_to_connection(void* cls, struct MHD_Connection* connection,
 int skiaserve_main() {
     Request request(SkString("/data")); // This simple server has one request
 
+    struct sockaddr_in address;
+    address.sin_family = AF_INET;
+    address.sin_port = htons(FLAGS_port);
+    inet_pton(AF_INET, FLAGS_address[0], &address.sin_addr);
+
+    printf("Visit http://%s:%d in your browser.\n", FLAGS_address[0], FLAGS_port);
+
     struct MHD_Daemon* daemon;
     // TODO Add option to bind this strictly to an address, e.g. localhost, for security.
     daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, FLAGS_port, nullptr, nullptr,
                               &answer_to_connection, &request,
+                              MHD_OPTION_SOCK_ADDR, &address,
                               MHD_OPTION_END);
     if (NULL == daemon) {
         return 1;
