@@ -123,10 +123,10 @@ private:
     }
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
-                               const void* srcData, size_t rowBytes) override;
+                               const SkTArray<GrMipLevel>&) override;
 
     GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
-                                         const void* srcData) override {
+                                         const SkTArray<GrMipLevel>&) override {
         SkDebugf("onCreateCompressedTexture not yet implemented for Vulkan\n");
         return NULL;
     }
@@ -159,7 +159,7 @@ private:
 
     bool onWritePixels(GrSurface* surface,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, const void* buffer, size_t rowBytes) override;
+                       GrPixelConfig config, const SkTArray<GrMipLevel>&) override;
 
     bool onTransferPixels(GrSurface*,
                           int left, int top, int width, int height,

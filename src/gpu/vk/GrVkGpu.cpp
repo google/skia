@@ -259,12 +259,14 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
 
 bool GrVkGpu::onWritePixels(GrSurface* surface,
                             int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer,
-                            size_t rowBytes) {
+                            GrPixelConfig config,
+                            const SkTArray<GrMipLevel>& texels) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
         return false;
     }
+
+    // TODO: We're ignoring MIP levels here.
 
     // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
     if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
@@ -299,7 +301,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
                                   false);
         }
         success = this->uploadTexData(vkTex, left, top, width, height, config,
-                                      buffer, rowBytes);
+                                      texels.begin()->fPixels, texels.begin()->fRowBytes);
     }
 
     if (success) {
@@ -464,7 +466,7 @@ bool GrVkGpu::uploadTexData(GrVkTexture* tex,
 
 ////////////////////////////////////////////////////////////////////////////////
 GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
-                                    const void* srcData, size_t rowBytes) {
+                                    const SkTArray<GrMipLevel>& texels) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
@@ -499,8 +501,8 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::Li
     // texture.
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-    VkFlags memProps = (srcData && linearTiling) ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT :
-                                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    VkFlags memProps = (!texels.empty() && linearTiling) ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT :
+                                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this ImageDesc describes the resolved texutre. Therefore we always have samples set
@@ -534,9 +536,10 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::Li
         return nullptr;
     }
 
-    if (srcData) {
-        if (!this->uploadTexData(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig, srcData,
-                                 rowBytes)) {
+    // TODO: We're ignoring MIP levels here.
+    if (!texels.empty()) {
+        if (!this->uploadTexData(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                 texels.begin()->fPixels, texels.begin()->fRowBytes)) {
             tex->unref();
             return nullptr;
         }
