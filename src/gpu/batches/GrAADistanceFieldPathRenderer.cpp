@@ -1,6 +1,7 @@
 
 /*
  * Copyright 2014 Google Inc.
+ * Copyright 2016 ARM Ltd.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -21,6 +22,7 @@
 #include "effects/GrDistanceFieldGeoProc.h"
 
 #include "SkDistanceFieldGen.h"
+#include "GrDistanceFieldGenFromVector.h"
 #include "SkRTConf.h"
 
 #define ATLAS_TEXTURE_WIDTH 2048
@@ -94,7 +96,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     if (args.fViewMatrix->hasPerspective()) {
         return false;
     }
-    
+
     // only support paths with bounds within kMediumMIP by kMediumMIP,
     // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP
     // the goal is to accelerate rendering of lots of small paths that may be scaling
@@ -109,7 +111,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
         }
         maxDim += extraWidth;
     }
-    
+
     return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
 }
 
@@ -153,7 +155,7 @@ public:
 
     const char* name() const override { return "AADistanceFieldPathBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         color->setKnownFourComponents(fGeoData[0].fColor);
@@ -357,44 +359,20 @@ private:
         drawMatrix.postScale(scale, scale);
         drawMatrix.postTranslate(kAntiAliasPad, kAntiAliasPad);
 
-        // setup bitmap backing
         SkASSERT(devPathBounds.fLeft == 0);
         SkASSERT(devPathBounds.fTop == 0);
-        SkAutoPixmapStorage dst;
-        if (!dst.tryAlloc(SkImageInfo::MakeA8(devPathBounds.width(),
-                                              devPathBounds.height()))) {
-            return false;
-        }
-        sk_bzero(dst.writable_addr(), dst.getSafeSize());
 
-        // rasterize path
-        SkPaint paint;
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setAntiAlias(antiAlias);
-
-        SkDraw draw;
-        sk_bzero(&draw, sizeof(draw));
-
-        SkRasterClip rasterClip;
-        rasterClip.setRect(devPathBounds);
-        draw.fRC = &rasterClip;
-        draw.fClip = &rasterClip.bwRgn();
-        draw.fMatrix = &drawMatrix;
-        draw.fDst = dst;
-
-        draw.drawPathCoverage(path, paint);
-
-        // generate signed distance field
-        devPathBounds.outset(SK_DistanceFieldPad, SK_DistanceFieldPad);
-        width = devPathBounds.width();
-        height = devPathBounds.height();
+        // setup signed distance field storage
+        SkIRect sdfPathBounds = devPathBounds.makeOutset(SK_DistanceFieldPad, SK_DistanceFieldPad);
+        width = sdfPathBounds.width();
+        height = sdfPathBounds.height();
         // TODO We should really generate this directly into the plot somehow
         SkAutoSMalloc<1024> dfStorage(width * height * sizeof(unsigned char));
 
-        // Generate signed distance field
-        SkGenerateDistanceFieldFromA8Image((unsigned char*)dfStorage.get(),
-                                           (const unsigned char*)dst.addr(),
-                                           dst.width(), dst.height(), dst.rowBytes());
+        // Generate signed distance field directly from SkPath
+        GrGenerateDistanceFieldFromPath((unsigned char*)dfStorage.get(),
+                                        path, drawMatrix,
+                                        width, height, width * sizeof(unsigned char));
 
         // add to atlas
         SkIPoint16 atlasLocation;
@@ -565,7 +543,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     // generated due to stroking it is important that the original path's id is used
     // for caching.
     geometry.fGenID = args.fPath->getGenerationID();
- 
+
     SkAutoTUnref<GrDrawBatch> batch(AADistanceFieldPathBatch::Create(geometry,
                                                                      *args.fViewMatrix, fAtlas,
                                                                      &fPathCache, &fPathList));
