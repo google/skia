@@ -18,11 +18,6 @@
 
 using namespace Response;
 
-// To get image decoders linked in we have to do the below magic
-#include "SkForceLinking.h"
-#include "SkImageDecoder.h"
-__SK_FORCE_IMAGE_DECODER_LINKING;
-
 DEFINE_int32(port, 8888, "The port to listen on.");
 DEFINE_string(address, "localhost", "The address to bind to.");
 

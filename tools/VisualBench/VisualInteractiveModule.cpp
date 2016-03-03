@@ -9,10 +9,6 @@
 
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
-#include "SkForceLinking.h"
-#include "SkImageDecoder.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 VisualInteractiveModule::VisualInteractiveModule(VisualBench* owner)
     : INHERITED(owner)

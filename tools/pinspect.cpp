@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
-#include "SkImageDecoder.h"
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkString.h"

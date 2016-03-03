@@ -34,11 +34,6 @@
  * support SKPs.
  */
 
-// To get image decoders linked in we have to do the below magic
-#include "SkForceLinking.h"
-#include "SkImageDecoder.h"
-__SK_FORCE_IMAGE_DECODER_LINKING;
-
 static const int kAutoTuneLoops = 0;
 
 static const int kDefaultLoops =

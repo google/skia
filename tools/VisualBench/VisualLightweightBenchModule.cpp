@@ -11,16 +11,12 @@
 #include "SkApplication.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkGr.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "Stats.h"
 #include "gl/GrGLInterface.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 // Between samples we reset context
 // Between frames we swap buffers

@@ -22,7 +22,6 @@
         'get_images_from_skps',
         'gpuveto',
         'imgblur',
-        'imgconv',
         'imgslice',
         'lua_app',
         'lua_pictures',
@@ -31,7 +30,6 @@
         'skhello',
         'skpinfo',
         'skpmaker',
-        'test_image_decoder',
         'test_public_includes',
         'whitelist_typefaces',
       ],
@@ -367,27 +365,6 @@
       ],
       'dependencies': [
         'flags.gyp:flags',
-        'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
-      'target_name': 'imgconv',
-      'type': 'executable',
-      'sources': [
-        '../tools/imgconv.cpp',
-      ],
-      'dependencies': [
-        'flags.gyp:flags',
-        'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
-      'target_name': 'test_image_decoder',
-      'type': 'executable',
-      'sources': [
-        '../tools/test_image_decoder.cpp',
-      ],
-      'dependencies': [
         'skia_lib.gyp:skia_lib',
       ],
     },
