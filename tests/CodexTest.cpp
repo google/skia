@@ -397,7 +397,8 @@ DEF_TEST(Codec, r) {
     check(r, "yellow_rose.png", SkISize::Make(400, 301), true, false, false);
 
     // RAW
-#if defined(SK_CODEC_DECODES_RAW)
+// Disable RAW tests for Win32.
+#if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
     check(r, "sample_1mp.dng", SkISize::Make(600, 338), false, false, false);
     check(r, "sample_1mp_rotated.dng", SkISize::Make(600, 338), false, false, false);
     check(r, "dng_with_preview.dng", SkISize::Make(600, 338), true, false, false);
@@ -596,7 +597,8 @@ DEF_TEST(Codec_Dimensions, r) {
     test_dimensions(r, "mandrill_16.png");
 
     // RAW
-#if defined(SK_CODEC_DECODES_RAW)
+// Disable RAW tests for Win32.
+#if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
     test_dimensions(r, "sample_1mp.dng");
     test_dimensions(r, "sample_1mp_rotated.dng");
     test_dimensions(r, "dng_with_preview.dng");
@@ -872,9 +874,10 @@ private:
     SkMemoryStream fStream;
 };
 
+// Disable RAW tests for Win32.
+#if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
 // Test that the RawCodec works also for not asset stream. This will test the code path using
 // SkRawBufferedStream instead of SkRawAssetStream.
-#if defined(SK_CODEC_DECODES_RAW)
 DEF_TEST(Codec_raw_notseekable, r) {
     const char* path = "dng_with_preview.dng";
     SkString fullPath(GetResourcePath(path));

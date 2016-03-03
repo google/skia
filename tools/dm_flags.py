@@ -165,6 +165,11 @@ def get_args(bot):
     for raw_ext in r:
       blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
+  # Blacklist RAW images on Win32 tests due to out-of-memory issue
+  if 'Win' in bot and not '64' in bot:
+    for raw_ext in r:
+      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
+
   match = []
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')

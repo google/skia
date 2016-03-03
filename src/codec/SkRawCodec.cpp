@@ -10,17 +10,20 @@
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkJpegCodec.h"
+#include "SkMutex.h"
 #include "SkRawCodec.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
 #include "SkSwizzler.h"
+#include "SkTArray.h"
 #include "SkTaskGroup.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
 #include "dng_area_task.h"
 #include "dng_color_space.h"
+#include "dng_errors.h"
 #include "dng_exceptions.h"
 #include "dng_host.h"
 #include "dng_info.h"
@@ -105,15 +108,30 @@ public:
         const std::vector<dng_rect> taskAreas = compute_task_areas(maxTasks, area, tileSize);
         const int numTasks = static_cast<int>(taskAreas.size());
 
+        SkMutex mutex;
+        SkTArray<dng_exception> exceptions;
         task.Start(numTasks, tileSize, &Allocator(), Sniffer());
         for (int taskIndex = 0; taskIndex < numTasks; ++taskIndex) {
-            taskGroup.add([&task, this, taskIndex, taskAreas, tileSize] {
-                task.ProcessOnThread(taskIndex, taskAreas[taskIndex], tileSize, this->Sniffer());
+            taskGroup.add([&mutex, &exceptions, &task, this, taskIndex, taskAreas, tileSize] {
+                try {
+                    task.ProcessOnThread(taskIndex, taskAreas[taskIndex], tileSize, this->Sniffer());
+                } catch (dng_exception& exception) {
+                    SkAutoMutexAcquire lock(mutex);
+                    exceptions.push_back(exception);
+                } catch (...) {
+                    SkAutoMutexAcquire lock(mutex);
+                    exceptions.push_back(dng_exception(dng_error_unknown));
+                }
             });
         }
 
         taskGroup.wait();
         task.Finish(numTasks);
+
+        // Currently we only re-throw the first catched exception.
+        if (!exceptions.empty()) {
+            Throw_dng_error(exceptions.front().ErrorCode(), nullptr, nullptr);
+        }
     }
 
     uint32 PerformAreaTaskThreads() override {
@@ -428,15 +446,15 @@ public:
             }
         }
 
-        // render() takes ownership of fHost, fInfo, fNegative and fDngStream when available.
-        SkAutoTDelete<dng_host> host(fHost.release());
-        SkAutoTDelete<dng_info> info(fInfo.release());
-        SkAutoTDelete<dng_negative> negative(fNegative.release());
-        SkAutoTDelete<dng_stream> dngStream(fDngStream.release());
-
         // DNG SDK preserves the aspect ratio, so it only needs to know the longer dimension.
         const int preferredSize = SkTMax(width, height);
         try {
+            // render() takes ownership of fHost, fInfo, fNegative and fDngStream when available.
+            SkAutoTDelete<dng_host> host(fHost.release());
+            SkAutoTDelete<dng_info> info(fInfo.release());
+            SkAutoTDelete<dng_negative> negative(fNegative.release());
+            SkAutoTDelete<dng_stream> dngStream(fDngStream.release());
+
             host->SetPreferredSize(preferredSize);
             host->ValidateSizes();
 
@@ -506,11 +524,12 @@ private:
     }
 
     bool readDng() {
-        // Due to the limit of DNG SDK, we need to reset host and info.
-        fHost.reset(new SkDngHost(&fAllocator));
-        fInfo.reset(new dng_info);
-        fDngStream.reset(new SkDngStream(fStream));
         try {
+            // Due to the limit of DNG SDK, we need to reset host and info.
+            fHost.reset(new SkDngHost(&fAllocator));
+            fInfo.reset(new dng_info);
+            fDngStream.reset(new SkDngStream(fStream));
+
             fHost->ValidateSizes();
             fInfo->Parse(*fHost, *fDngStream);
             fInfo->PostParse(*fHost);
