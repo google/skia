@@ -31,15 +31,10 @@ def get_args(bot):
 
   configs = ['565', '8888', 'gpu']
 
-  if 'Android' not in bot:
-    configs.extend(('upright-matrix-8888', 'upright-matrix-gpu'))
-    args.extend('--matrix 0 1 1 0'.split(' '))
-
   if '-GCE-' in bot:
-    configs.extend(['f16', 'srgb'])
-    configs.append('sp-8888')
-    configs.extend(['twice-8888', '2ndpic-8888'])
-    configs.extend(['remote-8888', 'remote_cache-8888'])
+    configs.extend(['f16', 'srgb'])              # Gamma-correct formats.
+    configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
+    configs.extend(['remote-8888', 'remote_cache-8888'])  # Hacking, WIP.
 
   if '-TSAN' not in bot:
     if ('TegraK1'  in bot or
