@@ -129,6 +129,7 @@ public:
 
     void setZoomCenter(float x, float y);
     void changeZoomLevel(float delta);
+    void changeOffset(SkVector delta);
     bool nextSample();
     bool previousSample();
     bool goToSample(int i);
@@ -172,6 +173,7 @@ private:
     SkTouchGesture fGesture;
     SkScalar fZoomLevel;
     SkScalar fZoomScale;
+    SkVector fOffset;
 
     DeviceType fDeviceType;
     DeviceManager* fDevManager;
@@ -209,7 +211,6 @@ private:
 
     int fMSAASampleCount;
 
-    int fScrollTestX, fScrollTestY;
     SkScalar fZoomCenterX, fZoomCenterY;
 
     //Stores global settings

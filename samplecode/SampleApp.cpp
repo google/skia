@@ -876,7 +876,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fHintingState = 0;
     fFilterQualityIndex = 0;
     fFlipAxis = 0;
-    fScrollTestX = fScrollTestY = 0;
 
     fMouseX = fMouseY = 0;
     fFatBitsScale = 8;
@@ -885,6 +884,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fZoomLevel = 0;
     fZoomScale = SK_Scalar1;
+    fOffset = { 0, 0 };
 
     fMagnify = false;
 
@@ -1062,14 +1062,14 @@ void SampleWindow::draw(SkCanvas* canvas) {
     if (kNo_Tiling == fTilingMode) {
         this->INHERITED::draw(canvas); // no looping or surfaces needed
     } else {
-        const int w = SkScalarRoundToInt(tile.width());
-        const int h = SkScalarRoundToInt(tile.height());
-        SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+        const SkScalar w = SkScalarCeilToScalar(tile.width());
+        const SkScalar h = SkScalarCeilToScalar(tile.height());
+        SkImageInfo info = SkImageInfo::MakeN32Premul(SkScalarTruncToInt(w), SkScalarTruncToInt(h));
         SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
         SkCanvas* tileCanvas = surface->getCanvas();
 
-        for (SkScalar y = 0; y < height(); y += tile.height()) {
-            for (SkScalar x = 0; x < width(); x += tile.width()) {
+        for (SkScalar y = 0; y < height(); y += h) {
+            for (SkScalar x = 0; x < width(); x += w) {
                 SkAutoCanvasRestore acr(tileCanvas, true);
                 tileCanvas->translate(-x, -y);
                 tileCanvas->clear(0);
@@ -1462,6 +1462,11 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     }
 }
 
+void SampleWindow::changeOffset(SkVector delta) {
+    fOffset += delta;
+    this->updateMatrix();
+}
+
 void SampleWindow::changeZoomLevel(float delta) {
     fZoomLevel += delta;
     if (fZoomLevel > 0) {
@@ -1479,6 +1484,7 @@ void SampleWindow::changeZoomLevel(float delta) {
 void SampleWindow::updateMatrix(){
     SkMatrix m;
     m.reset();
+
     if (fZoomLevel) {
         SkPoint center;
         //m = this->getLocalMatrix();//.invert(&m);
@@ -1490,6 +1496,8 @@ void SampleWindow::updateMatrix(){
         m.postScale(fZoomScale, fZoomScale);
         m.postTranslate(cx, cy);
     }
+
+    m.postTranslate(fOffset.fX, fOffset.fY);
 
     if (fFlipAxis) {
         m.preTranslate(fZoomCenterX, fZoomCenterY);
@@ -1685,13 +1693,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     if (0xFF != dx && 0xFF != dy) {
-        if ((dx | dy) == 0) {
-            fScrollTestX = fScrollTestY = 0;
-        } else {
-            fScrollTestX += dx;
-            fScrollTestY += dy;
-        }
-        this->inval(nullptr);
+        this->changeOffset({SkIntToScalar(dx / 32.0f), SkIntToScalar(dy / 32.0f)});
         return true;
     }
 
@@ -1855,6 +1857,10 @@ bool SampleWindow::onHandleKey(SkKey key) {
             }
         }
     }
+
+    int dx = 0xFF;
+    int dy = 0xFF;
+
     switch (key) {
         case kRight_SkKey:
             if (this->nextSample()) {
@@ -1882,9 +1888,26 @@ bool SampleWindow::onHandleKey(SkKey key) {
         case kBack_SkKey:
             this->showOverview();
             return true;
+
+        case k5_SkKey: dx =  0; dy =  0; break;
+        case k8_SkKey: dx =  0; dy = -1; break;
+        case k6_SkKey: dx =  1; dy =  0; break;
+        case k2_SkKey: dx =  0; dy =  1; break;
+        case k4_SkKey: dx = -1; dy =  0; break;
+        case k7_SkKey: dx = -1; dy = -1; break;
+        case k9_SkKey: dx =  1; dy = -1; break;
+        case k3_SkKey: dx =  1; dy =  1; break;
+        case k1_SkKey: dx = -1; dy =  1; break;
+
         default:
             break;
     }
+
+    if (0xFF != dx && 0xFF != dy) {
+        this->changeOffset({SkIntToScalar(dx / 32.0f), SkIntToScalar(dy / 32.0f)});
+        return true;
+    }
+
     return this->INHERITED::onHandleKey(key);
 }
 
@@ -2048,6 +2071,9 @@ void SampleWindow::updateTitle() {
     title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : nullptr);
     title.prepend(gHintingStates[fHintingState].label);
 
+    if (fOffset.fX || fOffset.fY) {
+        title.prependf("(%.2f, %.2f) ", SkScalarToFloat(fOffset.fX), SkScalarToFloat(fOffset.fY));
+    }
     if (fZoomLevel) {
         title.prependf("{%.2f} ", SkScalarToFloat(fZoomLevel));
     }
