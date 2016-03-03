@@ -164,8 +164,30 @@ DEF_TEST(sk_sp, reporter) {
     check(reporter, 0, 0, 1, 0);
     REPORTER_ASSERT(reporter, paint.fEffect.get()->fRefCnt == 1);
 
+    if (paint.get()) {
+        REPORTER_ASSERT(reporter, true);
+    } else {
+        REPORTER_ASSERT(reporter, false);
+    }
+    if (!paint.get()) {
+        REPORTER_ASSERT(reporter, false);
+    } else {
+        REPORTER_ASSERT(reporter, true);
+    }
+
     paint.set(nullptr);
     check(reporter, 0, 1, 1, 1);
+
+    if (paint.get()) {
+        REPORTER_ASSERT(reporter, false);
+    } else {
+        REPORTER_ASSERT(reporter, true);
+    }
+    if (!paint.get()) {
+        REPORTER_ASSERT(reporter, true);
+    } else {
+        REPORTER_ASSERT(reporter, false);
+    }
 
     auto e = Create();
     REPORTER_ASSERT(reporter, sizeof(e) == sizeof(void*));
@@ -180,7 +202,12 @@ DEF_TEST(sk_sp, reporter) {
     check(reporter, 2, 1, 2, 1);
     REPORTER_ASSERT(reporter, paint.fEffect.get()->fRefCnt == 3);
 
+    // Test sk_sp::operator->
     delete paint.get()->method();
+    check(reporter, 2, 1, 2, 1);
+
+    // Test sk_sp::operator*
+    delete (*paint.get()).method();
     check(reporter, 2, 1, 2, 1);
 
     paint.set(nullptr);

@@ -238,6 +238,8 @@ private:
  *  may have its ref/unref be thread-safe, but that is not assumed/imposed by sk_sp.
  */
 template <typename T> class sk_sp {
+    /** Supports safe bool idiom. Obsolete with explicit operator bool. */
+    using unspecified_bool_type = T* sk_sp::*;
 public:
     sk_sp() : fPtr(nullptr) {}
     sk_sp(std::nullptr_t) : fPtr(nullptr) {}
@@ -316,10 +318,16 @@ public:
     template <typename U>
     bool operator!=(const sk_sp<U>& that) const { return this->get() != that.get(); }
 
+    T& operator*() const {
+        SkASSERT(this->get() != nullptr);
+        return *this->get();
+    }
+
     // MSVC 2013 does not work correctly with explicit operator bool.
     // https://chromium-cpp.appspot.com/#core-blacklist
+    // When explicit operator bool can be used, remove operator! and operator unspecified_bool_type.
     //explicit operator bool() const { return this->get() != nullptr; }
-
+    operator unspecified_bool_type() const { return this->get() ? &sk_sp::fPtr : nullptr; }
     bool operator!() const { return this->get() == nullptr; }
 
     T* get() const { return fPtr; }
