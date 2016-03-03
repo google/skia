@@ -252,6 +252,8 @@ protected:
     virtual void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
                            const SkColor[], int count, SkXfermode::Mode, const SkPaint&);
 
+    virtual void drawAnnotation(const SkDraw&, const SkRect&, const char[], SkData*) {}
+
     /** The SkDevice passed will be an SkDevice which was returned by a call to
         onCreateDevice on this device with kNeverTile_TileExpectation.
      */

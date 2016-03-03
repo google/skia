@@ -278,3 +278,44 @@ DEF_TEST(Writer32_misc, reporter) {
     test_rewind(reporter);
 }
 
+DEF_TEST(Writer32_data, reporter) {
+    const char* str = "0123456789";
+    SkAutoTUnref<SkData> data0(SkData::NewWithCString(str));
+    SkAutoTUnref<SkData> data1(SkData::NewEmpty());
+
+    const size_t sizes[] = {
+        SkWriter32::WriteDataSize(nullptr),
+        SkWriter32::WriteDataSize(data0),
+        SkWriter32::WriteDataSize(data1),
+    };
+    
+    SkSWriter32<1000> writer;
+    size_t sizeWritten = 0;
+
+    writer.writeData(nullptr);
+    sizeWritten += sizes[0];
+    REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
+    
+    writer.writeData(data0);
+    sizeWritten += sizes[1];
+    REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
+
+    writer.writeData(data1);
+    sizeWritten += sizes[2];
+    REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
+
+    SkAutoTUnref<SkData> result(writer.snapshotAsData());
+
+    SkReader32 reader(result->data(), result->size());
+    SkAutoTUnref<SkData> d0(reader.readData()),
+                         d1(reader.readData()),
+                         d2(reader.readData());
+
+    REPORTER_ASSERT(reporter, 0 == d0->size());
+    REPORTER_ASSERT(reporter, strlen(str)+1 == d1->size());
+    REPORTER_ASSERT(reporter, !memcmp(str, d1->data(), strlen(str)+1));
+    REPORTER_ASSERT(reporter, 0 == d2->size());
+    
+    REPORTER_ASSERT(reporter, reader.offset() == sizeWritten);
+    REPORTER_ASSERT(reporter, reader.eof());
+}

@@ -22,6 +22,7 @@ class GrRenderTarget;
 class SkBaseDevice;
 class SkCanvasClipVisitor;
 class SkClipStack;
+class SkData;
 class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
@@ -1072,6 +1073,18 @@ public:
     void drawDrawable(SkDrawable* drawable, const SkMatrix* = NULL);
     void drawDrawable(SkDrawable*, SkScalar x, SkScalar y);
 
+    /**
+     *  Send an "annotation" to the canvas. The annotation is a key/value pair, where the key is
+     *  a null-terminated utf8 string, and the value is a blob of data stored in an SkData
+     *  (which may be null). The annotation is associated with the specified rectangle.
+     *
+     *  The caller still retains its ownership of the data (if any).
+     *
+     *  Note: on may canvas types, this information is ignored, but some canvases (e.g. recording
+     *  a picture or drawing to a PDF document) will pass on this information.
+     */
+    void drawAnnotation(const SkRect&, const char key[], SkData* value);
+
     //////////////////////////////////////////////////////////////////////////
 #ifdef SK_INTERNAL
 #ifndef SK_SUPPORT_LEGACY_DRAWFILTER
@@ -1221,6 +1234,7 @@ protected:
     virtual void didConcat(const SkMatrix&) {}
     virtual void didSetMatrix(const SkMatrix&) {}
 
+    virtual void onDrawAnnotation(const SkRect&, const char key[], SkData* value);
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 
     virtual void onDrawText(const void* text, size_t byteLength, SkScalar x,

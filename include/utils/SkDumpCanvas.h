@@ -48,6 +48,7 @@ public:
         kDrawVertices_Verb,
         kDrawPatch_Verb,
         kDrawData_Verb, // obsolete
+        kDrawAnnotation_Verb,
 
         kCull_Verb
     };
@@ -120,6 +121,7 @@ protected:
     void onClipRegion(const SkRegion&, SkRegion::Op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawAnnotation(const SkRect&, const char key[], SkData* value) override;
 
     static const char* EdgeStyleToAAString(ClipEdgeStyle edgeStyle);
 
