@@ -45,6 +45,9 @@ public:
                               const SkPoint& end, SkScalar endRadius,
                               bool flippedGrad, const Descriptor&);
 
+
+    size_t contextSize(const ContextRec&) const override;
+
     class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         TwoPointConicalGradientContext(const SkTwoPointConicalGradient&, const ContextRec&);
@@ -79,7 +82,6 @@ public:
 protected:
     SkTwoPointConicalGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
-    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:

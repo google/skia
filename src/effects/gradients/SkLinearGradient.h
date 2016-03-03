@@ -33,6 +33,8 @@ public:
 
     SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 
+    size_t contextSize(const ContextRec&) const override;
+
     class LinearGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         LinearGradientContext(const SkLinearGradient&, const ContextRec&);
@@ -69,7 +71,6 @@ public:
 protected:
     SkLinearGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
-    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:

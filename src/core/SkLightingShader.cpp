@@ -79,6 +79,8 @@ public:
                                                    SkFilterQuality) const override;
 #endif
 
+    size_t contextSize(const ContextRec&) const override;
+
     class LightingShaderContext : public SkShader::Context {
     public:
         // The context takes ownership of the states. It will call their destructors
@@ -104,7 +106,6 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void*) const override;
     bool computeNormTotalInverse(const ContextRec& rec, SkMatrix* normTotalInverse) const;
 
@@ -415,6 +416,10 @@ bool SkLightingShaderImpl::isOpaque() const {
     return fDiffuseMap.isOpaque();
 }
 
+size_t SkLightingShaderImpl::contextSize(const ContextRec&) const {
+    return 2 * sizeof(SkBitmapProcState) + sizeof(LightingShaderContext);
+}
+
 SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(const SkLightingShaderImpl& shader,
                                                                    const ContextRec& rec,
                                                                    SkBitmapProcState* diffuseState,
@@ -648,10 +653,6 @@ bool SkLightingShaderImpl::computeNormTotalInverse(const ContextRec& rec,
         m = &total;
     }
     return m->invert(normTotalInverse);
-}
-
-size_t SkLightingShaderImpl::onContextSize(const ContextRec&) const {
-    return 2 * sizeof(SkBitmapProcState) + sizeof(LightingShaderContext);
 }
 
 SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,

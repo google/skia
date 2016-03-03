@@ -192,8 +192,11 @@ public:
 
     /**
      *  Return the size of a Context returned by createContext.
+     *
+     *  Override this if your subclass overrides createContext, to return the correct size of
+     *  your subclass' context.
      */
-    size_t contextSize(const ContextRec&) const;
+    virtual size_t contextSize(const ContextRec&) const;
 
     /**
      *  Returns true if this shader is just a bitmap, and if not null, returns the bitmap,
@@ -416,12 +419,6 @@ protected:
      *  Base class impl returns NULL.
      */
     virtual Context* onCreateContext(const ContextRec&, void* storage) const;
-
-    /**
-     *  Override this if your subclass overrides createContext, to return the correct size of
-     *  your subclass' context.
-     */
-    virtual size_t onContextSize(const ContextRec&) const;
 
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;

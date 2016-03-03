@@ -21,7 +21,7 @@ public:
 
     bool isOpaque() const override;
 
-    size_t onContextSize(const ContextRec& rec) const override { return ContextSize(rec); }
+    size_t contextSize(const ContextRec& rec) const override { return ContextSize(rec); }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
