@@ -113,6 +113,10 @@ public:
 
     static const char* GetCommandString(OpType type);
 
+    // Helper methods for converting things to JSON
+    static Json::Value MakeJsonIRect(const SkIRect&);
+    static Json::Value MakeJsonMatrix(const SkMatrix&);
+
 protected:
     SkTDArray<SkString*> fInfo;
 

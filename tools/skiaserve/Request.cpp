@@ -9,8 +9,6 @@
 
 #include "png.h"
 
-#include "SkJSONCanvas.h"
-
 const int Request::kImageWidth = 1920;
 const int Request::kImageHeight = 1080;
 
@@ -228,8 +226,8 @@ SkData* Request::getJsonInfo(int n) {
     SkMatrix vm = fDebugCanvas->getCurrentMatrix();
     SkIRect clip = fDebugCanvas->getCurrentClip();
     Json::Value info(Json::objectValue);
-    info["ViewMatrix"] = SkJSONCanvas::MakeMatrix(vm);
-    info["ClipRect"] = SkJSONCanvas::MakeIRect(clip);
+    info["ViewMatrix"] = SkDrawCommand::MakeJsonMatrix(vm);
+    info["ClipRect"] = SkDrawCommand::MakeJsonIRect(clip);
 
     std::string json = Json::FastWriter().write(info);
 

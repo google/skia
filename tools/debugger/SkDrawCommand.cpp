@@ -456,7 +456,7 @@ static Json::Value make_json_rect(const SkRect& rect) {
     return result;
 }
 
-static Json::Value make_json_irect(const SkIRect& rect) {
+Json::Value SkDrawCommand::MakeJsonIRect(const SkIRect& rect) {
     Json::Value result(Json::arrayValue);
     result.append(Json::Value(rect.left()));
     result.append(Json::Value(rect.top()));
@@ -475,7 +475,7 @@ static Json::Value make_json_rrect(const SkRRect& rrect) {
     return result;
 }
 
-static Json::Value make_json_matrix(const SkMatrix& matrix) {
+Json::Value SkDrawCommand::MakeJsonMatrix(const SkMatrix& matrix) {
     Json::Value result(Json::arrayValue);
     Json::Value row1(Json::arrayValue);
     row1.append(Json::Value(matrix[0]));
@@ -1707,7 +1707,7 @@ void SkConcatCommand::execute(SkCanvas* canvas) const {
 
 Json::Value SkConcatCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result = INHERITED::toJSON(urlDataManager);
-    result[SKDEBUGCANVAS_ATTRIBUTE_MATRIX] = make_json_matrix(fMatrix);
+    result[SKDEBUGCANVAS_ATTRIBUTE_MATRIX] = MakeJsonMatrix(fMatrix);
     return result;
 }
 
@@ -1819,7 +1819,7 @@ Json::Value SkDrawBitmapNineCommand::toJSON(UrlDataManager& urlDataManager) cons
     Json::Value encoded;
     if (flatten(fBitmap, &encoded, urlDataManager)) {
         result[SKDEBUGCANVAS_ATTRIBUTE_BITMAP] = encoded;
-        result[SKDEBUGCANVAS_ATTRIBUTE_CENTER] = make_json_irect(fCenter);
+        result[SKDEBUGCANVAS_ATTRIBUTE_CENTER] = MakeJsonIRect(fCenter);
         result[SKDEBUGCANVAS_ATTRIBUTE_DST] = make_json_rect(fDst);
         if (fPaintPtr != nullptr) {
             result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = make_json_paint(*fPaintPtr, urlDataManager);
@@ -2883,7 +2883,7 @@ Json::Value SkDrawTextOnPathCommand::toJSON(UrlDataManager& urlDataManager) cons
     Json::Value coords(Json::arrayValue);
     result[SKDEBUGCANVAS_ATTRIBUTE_PATH] = make_json_path(fPath);
     if (!fMatrix.isIdentity()) {
-        result[SKDEBUGCANVAS_ATTRIBUTE_MATRIX] = make_json_matrix(fMatrix);
+        result[SKDEBUGCANVAS_ATTRIBUTE_MATRIX] = MakeJsonMatrix(fMatrix);
     }
     result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = make_json_paint(fPaint, urlDataManager);
     return result;
@@ -3105,7 +3105,7 @@ void SkSetMatrixCommand::execute(SkCanvas* canvas) const {
 
 Json::Value SkSetMatrixCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result = INHERITED::toJSON(urlDataManager);
-    result[SKDEBUGCANVAS_ATTRIBUTE_MATRIX] = make_json_matrix(fMatrix);
+    result[SKDEBUGCANVAS_ATTRIBUTE_MATRIX] = MakeJsonMatrix(fMatrix);
     return result;
 }
 

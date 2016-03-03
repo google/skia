@@ -34,7 +34,6 @@
       'dependencies': [
         'flags.gyp:flags',
         'gputest.gyp:skgputest',
-        'json.gyp:json',
         'jsoncpp.gyp:jsoncpp',
         'libpng.gyp:libpng',
         'microhttpd.gyp:microhttpd',
