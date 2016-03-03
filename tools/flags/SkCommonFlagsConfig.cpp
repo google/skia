@@ -64,7 +64,6 @@ static const char configExtendedHelp[] =
 #endif
 #if SK_COMMAND_BUFFER
     "\t\tcommandbuffer\t\tUse command buffer.\n"
-    "\t\tcommandbuffer3\t\tUse command buffer ES 3.0 (experimental).\n"
 #endif
 #if SK_MESA
     "\t\tmesa\t\t\tUse MESA.\n"
@@ -215,11 +214,7 @@ static bool parse_option_gpu_api(const SkString& value,
 #endif
 #if SK_COMMAND_BUFFER
     if (value.equals("commandbuffer")) {
-        *outContextType = GrContextFactory::kCommandBufferES2_GLContextType;
-        return true;
-    }
-    if (value.equals("commandbuffer3")) {
-        *outContextType = GrContextFactory::kCommandBufferES3_GLContextType;
+        *outContextType = GrContextFactory::kCommandBuffer_GLContextType;
         return true;
     }
 #endif

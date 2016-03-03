@@ -39,7 +39,7 @@ public:
         kANGLE_DeviceType,
 #endif // SK_ANGLE
 #if SK_COMMAND_BUFFER
-        kCommandBufferES2_DeviceType,
+        kCommandBuffer_DeviceType,
 #endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
         kDeviceTypeCnt
@@ -53,7 +53,7 @@ public:
             case kANGLE_DeviceType:
     #endif // SK_ANGLE
     #if SK_COMMAND_BUFFER
-            case kCommandBufferES2_DeviceType:
+            case kCommandBuffer_DeviceType:
     #endif // SK_COMMAND_BUFFER
                 return true;
             default:

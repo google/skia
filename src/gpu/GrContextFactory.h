@@ -34,9 +34,7 @@ public:
         kANGLE_GL_GLContextType, //! ANGLE on OpenGL OpenGL ES context.
 #endif
 #if SK_COMMAND_BUFFER
-        kCommandBufferES2_GLContextType, //! Chromium command buffer OpenGL ES 2.0 context.
-        kCommandBufferES3_GLContextType, //! Chromium command buffer OpenGL ES 3.0 context.
-                                         //! Not ready for production.
+        kCommandBuffer_GLContextType, //! Chromium command buffer OpenGL ES context.
 #endif
 #if SK_MESA
         kMESA_GLContextType,  //! MESA OpenGL context
@@ -84,10 +82,8 @@ public:
                 return "angle-gl";
 #endif
 #if SK_COMMAND_BUFFER
-            case kCommandBufferES2_GLContextType:
+            case kCommandBuffer_GLContextType:
                 return "commandbuffer";
-            case kCommandBufferES3_GLContextType:
-                return "commandbuffer3";
 #endif
 #if SK_MESA
             case kMESA_GLContextType:

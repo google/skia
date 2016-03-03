@@ -618,7 +618,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, Attachme
         break;
 #endif // SK_ANGLE
 #if SK_COMMAND_BUFFER
-    case kCommandBufferES2_BackEndType:
+    case kCommandBuffer_BackEndType:
         result = attachCommandBuffer(msaaSampleCount, info);
         break;
 #endif // SK_COMMAND_BUFFER
@@ -651,7 +651,7 @@ void SkOSWindow::detach() {
         break;
 #endif // SK_ANGLE
 #if SK_COMMAND_BUFFER
-    case kCommandBufferES2_BackEndType:
+    case kCommandBuffer_BackEndType:
         detachCommandBuffer();
         break;
 #endif // SK_COMMAND_BUFFER
@@ -678,7 +678,7 @@ void SkOSWindow::present() {
         break;
 #endif // SK_ANGLE
 #if SK_COMMAND_BUFFER
-    case kCommandBufferES2_BackEndType:
+    case kCommandBuffer_BackEndType:
         presentCommandBuffer();
         break;
 #endif // SK_COMMAND_BUFFER

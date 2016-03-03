@@ -95,11 +95,8 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
             break;
 #endif
 #if SK_COMMAND_BUFFER
-        case kCommandBufferES2_GLContextType:
-            glCtx.reset(SkCommandBufferGLContext::CreateES2());
-            break;
-        case kCommandBufferES3_GLContextType:
-            glCtx.reset(SkCommandBufferGLContext::CreateES3());
+        case kCommandBuffer_GLContextType:
+            glCtx.reset(SkCommandBufferGLContext::Create());
             break;
 #endif
 #if SK_MESA

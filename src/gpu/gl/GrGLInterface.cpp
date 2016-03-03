@@ -216,15 +216,6 @@ bool GrGLInterface::validate() const {
     if (GR_GL_INVALID_VER == glVer) {
         RETURN_FALSE_INTERFACE
     }
-    // TODO: Remove this once command buffer implements full ES3.
-    bool ALLOW_MISSING_FUNCTIONS_FOR_INCOMPLETE_COMMAND_BUFFER_ES3 = false;
-    if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) {
-        const GrGLubyte* rendererUByte;
-        GR_GL_CALL_RET(this, rendererUByte, GetString(GR_GL_RENDERER));
-        const char* renderer = reinterpret_cast<const char*>(rendererUByte);
-        ALLOW_MISSING_FUNCTIONS_FOR_INCOMPLETE_COMMAND_BUFFER_ES3 =
-                0 == strcmp(renderer, "Chromium");
-    }
 
     // Now check that baseline ES/Desktop fns not covered above are present
     // and that we have fn pointers for any advertised fExtensions that we will
@@ -315,10 +306,8 @@ bool GrGLInterface::validate() const {
             }
         }
     } else if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_texture_storage")) {
-        if (!ALLOW_MISSING_FUNCTIONS_FOR_INCOMPLETE_COMMAND_BUFFER_ES3) {
-            if (nullptr == fFunctions.fTexStorage2D) {
-                RETURN_FALSE_INTERFACE
-            }
+        if (nullptr == fFunctions.fTexStorage2D) {
+            RETURN_FALSE_INTERFACE
         }
     }
 
@@ -491,11 +480,9 @@ bool GrGLInterface::validate() const {
     if (glVer >= GR_GL_VER(3,0) ||
         (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_EXT_map_buffer_range")) ||
         (kGL_GrGLStandard == fStandard && fExtensions.has("GL_ARB_map_buffer_range"))) {
-        if (!ALLOW_MISSING_FUNCTIONS_FOR_INCOMPLETE_COMMAND_BUFFER_ES3) {
-            if (nullptr == fFunctions.fMapBufferRange ||
-                nullptr == fFunctions.fFlushMappedBufferRange) {
-                RETURN_FALSE_INTERFACE;
-            }
+        if (nullptr == fFunctions.fMapBufferRange ||
+            nullptr == fFunctions.fFlushMappedBufferRange) {
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -583,16 +570,14 @@ bool GrGLInterface::validate() const {
                 nullptr == fFunctions.fDrawElementsInstanced) {
                 RETURN_FALSE_INTERFACE
             }
-        }
+        }    
     } else if (kGLES_GrGLStandard == fStandard) {
-        if (!ALLOW_MISSING_FUNCTIONS_FOR_INCOMPLETE_COMMAND_BUFFER_ES3) {
-            if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_draw_instanced")) {
-                if (nullptr == fFunctions.fDrawArraysInstanced ||
-                    nullptr == fFunctions.fDrawElementsInstanced) {
-                    RETURN_FALSE_INTERFACE
-                }
+        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_draw_instanced")) {
+            if (nullptr == fFunctions.fDrawArraysInstanced ||
+                nullptr == fFunctions.fDrawElementsInstanced) {
+                RETURN_FALSE_INTERFACE
             }
-        }
+        }    
     }
 
     if (kGL_GrGLStandard == fStandard) {
@@ -600,15 +585,13 @@ bool GrGLInterface::validate() const {
             if (nullptr == fFunctions.fVertexAttribDivisor) {
                 RETURN_FALSE_INTERFACE
             }
-        }
+        }    
     } else if (kGLES_GrGLStandard == fStandard) {
-        if (!ALLOW_MISSING_FUNCTIONS_FOR_INCOMPLETE_COMMAND_BUFFER_ES3) {
-            if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_instanced_arrays")) {
-                if (nullptr == fFunctions.fVertexAttribDivisor) {
-                    RETURN_FALSE_INTERFACE
-                }
+        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_instanced_arrays")) {
+            if (nullptr == fFunctions.fVertexAttribDivisor) {
+                RETURN_FALSE_INTERFACE
             }
-        }
+        }    
     }
 
     if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
