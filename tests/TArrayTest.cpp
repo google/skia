@@ -58,57 +58,43 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     // {0, 3, 2 }
 }
 
-namespace {
-SkTArray<int>* make() {
-    typedef SkTArray<int> IntArray;
-    return new IntArray;
-}
-
-template <int N> SkTArray<int>* make_s() {
-    typedef SkSTArray<N, int> IntArray;
-    return new IntArray;
-}
-}
-
 static void test_swap(skiatest::Reporter* reporter) {
-    typedef SkTArray<int>* (*ArrayMaker)();
-    ArrayMaker arrayMakers[] = {make, make_s<5>, make_s<10>, make_s<20>};
-    static int kSizes[] = {0, 1, 5, 10, 15, 20, 25};
-    for (size_t arrayA = 0; arrayA < SK_ARRAY_COUNT(arrayMakers); ++arrayA) {
-        for (size_t arrayB = arrayA; arrayB < SK_ARRAY_COUNT(arrayMakers); ++arrayB) {
-            for (size_t dataSizeA = 0; dataSizeA < SK_ARRAY_COUNT(kSizes); ++dataSizeA) {
-                for (size_t dataSizeB = 0; dataSizeB < SK_ARRAY_COUNT(kSizes); ++dataSizeB) {
-                    int curr = 0;
-                    SkTArray<int>* a = arrayMakers[arrayA]();
-                    SkTArray<int>* b = arrayMakers[arrayB]();
-                    for (int i = 0; i < kSizes[dataSizeA]; ++i) {
-                        a->push_back(curr++);
-                    }
-                    for (int i = 0; i < kSizes[dataSizeB]; ++i) {
-                        b->push_back(curr++);
-                    }
-                    a->swap(b);
-                    REPORTER_ASSERT(reporter, kSizes[dataSizeA] == b->count());
-                    REPORTER_ASSERT(reporter, kSizes[dataSizeB] == a->count());
-                    curr = 0;
-                    for (int i = 0; i < kSizes[dataSizeA]; ++i) {
-                        REPORTER_ASSERT(reporter, curr++ == (*b)[i]);
-                    }
-                    for (int i = 0; i < kSizes[dataSizeB]; ++i) {
-                        REPORTER_ASSERT(reporter, curr++ == (*a)[i]);
-                    }
-                    delete b;
+    SkTArray<int> arr;
+    SkSTArray< 5, int> arr5;
+    SkSTArray<10, int> arr10;
+    SkSTArray<20, int> arr20;
 
-                    a->swap(a);
-                    curr = kSizes[dataSizeA];
-                    for (int i = 0; i < kSizes[dataSizeB]; ++i) {
-                        REPORTER_ASSERT(reporter, curr++ == (*a)[i]);
-                    }
-                    delete a;
-                }
-            }
+    SkTArray<int>* arrays[] = { &arr, &arr5, &arr10, &arr20 };
+    int sizes[] = {0, 1, 5, 10, 15, 20, 25};
+
+    for (auto a : arrays) {
+    for (auto b : arrays) {
+        if (a == b) {
+            continue;
         }
-    }
+
+        for (auto sizeA : sizes) {
+        for (auto sizeB : sizes) {
+            a->reset();
+            b->reset();
+
+            int curr = 0;
+            for (int i = 0; i < sizeA; i++) { a->push_back(curr++); }
+            for (int i = 0; i < sizeB; i++) { b->push_back(curr++); }
+
+            a->swap(b);
+            REPORTER_ASSERT(reporter, b->count() == sizeA);
+            REPORTER_ASSERT(reporter, a->count() == sizeB);
+
+            curr = 0;
+            for (int x : *b) { REPORTER_ASSERT(reporter, x == curr++); }
+            for (int x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
+
+            a->swap(a);
+            curr = sizeA;
+            for (int x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
+        }}
+    }}
 }
 
 DEF_TEST(TArray, reporter) {
