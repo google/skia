@@ -235,17 +235,12 @@
           },
         }],
         [ 'skia_vulkan', {
-          'dependencies': [
-            'shaderc.gyp:shaderc_combined',
-          ],
           'include_dirs': [
-            '../third_party/', # To include files under third_party/vulkan
-            '../third_party/externals/shaderc/libshaderc/include',
+            '../third_party/' # To include files under third_party/vulkan
           ],
           'direct_dependent_settings': {
             'include_dirs': [
-              '../third_party/', # To include files under third_party/vulkan
-              '../third_party/externals/shaderc/libshaderc/include',
+              '../third_party/' # To include files under third_party/vulkan
             ],
           },
           'conditions' : [
@@ -255,6 +250,7 @@
                   'VCLinkerTool': {
                     'AdditionalDependencies': [
                       'vulkan-1.lib',
+                      'shaderc_combined.lib'
                     ],
                   },
                 },
@@ -266,6 +262,7 @@
                       'VCLinkerTool': {
                       'AdditionalLibraryDirectories': [
                           '../third_party/vulkan',
+                          '../third_party/shaderc/Debug',
                         ],
                       },
                     },
@@ -275,6 +272,7 @@
                       'VCLinkerTool': {
                         'AdditionalLibraryDirectories': [
                           '../third_party/vulkan',
+                          '../third_party/shaderc/Release',
                         ],
                       },
                     },
@@ -284,6 +282,7 @@
                       'VCLinkerTool': {
                         'AdditionalLibraryDirectories': [
                           '../third_party/vulkan',
+                          '../third_party/shaderc/Debug',
                         ],
                       },
                     },
@@ -293,6 +292,7 @@
                       'VCLinkerTool': {
                         'AdditionalLibraryDirectories': [
                           '../third_party/vulkan',
+                          '../third_party/shaderc/Release',
                         ],
                       },
                     },
