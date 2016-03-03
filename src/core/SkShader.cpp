@@ -86,9 +86,6 @@ bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShader::Context* SkShader::createContext(const ContextRec& rec, void* storage) const {
-    // We currently require 16byte alignment for some of our subclasses, so assert that here.
-    SkASSERT(SkIsAlign16((intptr_t)storage));
-
     if (!this->computeTotalInverse(rec, nullptr)) {
         return nullptr;
     }

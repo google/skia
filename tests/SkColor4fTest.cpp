@@ -149,7 +149,7 @@ DEF_TEST(Color4f_shader, reporter) {
 
     SkPaint paint;
     for (const auto& rec : recs) {
-        uint32_t storage[300];
+        uint32_t storage[200];
         paint.setShader(rec.fFact())->unref();
         // Encourage 4f context selection. At some point we may need
         // to instantiate two separate contexts for optimal 4b/4f selection.

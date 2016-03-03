@@ -21,9 +21,7 @@ public:
 
     bool isOpaque() const override;
 
-    size_t contextSize(const ContextRec& rec) const override {
-        return ContextSize(rec, fRawBitmap.info());
-    }
+    size_t contextSize(const ContextRec& rec) const override { return ContextSize(rec); }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
@@ -38,13 +36,13 @@ protected:
     Context* onCreateContext(const ContextRec&, void* storage) const override;
     bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
 
-    SkBitmap    fRawBitmap;
+    SkBitmap    fRawBitmap;   // experimental for RLE encoding
     uint8_t     fTileModeX, fTileModeY;
 
 private:
     friend class SkImageShader;
 
-    static size_t ContextSize(const ContextRec&, const SkImageInfo& srcInfo);
+    static size_t ContextSize(const ContextRec&);
     static Context* MakeContext(const SkShader&, TileMode tmx, TileMode tmy,
                                 const SkBitmapProvider&, const ContextRec&, void* storage);
 
@@ -56,7 +54,7 @@ private:
 // an Sk3DBlitter in SkDraw.cpp
 // Note that some contexts may contain other contexts (e.g. for compose shaders), but we've not
 // yet found a situation where the size below isn't big enough.
-typedef SkSmallAllocator<3, 2100> SkTBlitterAllocator;
+typedef SkSmallAllocator<3, 1500> SkTBlitterAllocator;
 
 // If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.
