@@ -16,7 +16,6 @@
 #include "SkColor.h"
 #include "SkDevice.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
@@ -400,7 +399,7 @@ void TestResult::testOne() {
             wStream.write(&bytes[0], length);
             wStream.flush();
         }
-        pic = SkPicture::CreateFromStream(&stream, &SkImageDecoder::DecodeMemory);
+        pic = SkPicture::CreateFromStream(&stream);
         if (!pic) {
             SkDebugf("unable to decode %s\n", fFilename);
             goto finish;

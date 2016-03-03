@@ -16,7 +16,6 @@
 #include "SkDevice.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPathOpsDebug.h"
@@ -32,8 +31,6 @@
 #include "SkTime.h"
 
 #include <stdlib.h>
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 /* add local exceptions here */
 /* TODO : add command flag interface */
@@ -470,7 +467,7 @@ void TestResult::testOne() {
             SkDebugf("invalid stream %s\n", path.c_str());
             goto finish;
         }
-        pic = SkPicture::CreateFromStream(&stream, &SkImageDecoder::DecodeMemory);
+        pic = SkPicture::CreateFromStream(&stream);
         if (!pic) {
             SkDebugf("unable to decode %s\n", fFilename);
             goto finish;

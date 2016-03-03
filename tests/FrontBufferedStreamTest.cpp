@@ -6,8 +6,8 @@
  */
 
 #include "SkBitmap.h"
+#include "SkCodec.h"
 #include "SkFrontBufferedStream.h"
-#include "SkImageDecoder.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTypes.h"
@@ -289,11 +289,9 @@ private:
 DEF_TEST(ShortFrontBufferedStream, reporter) {
     FailingStream* failingStream = new FailingStream;
     SkAutoTDelete<SkStreamRewindable> stream(SkFrontBufferedStream::Create(failingStream, 64));
-    SkBitmap bm;
-    // The return value of DecodeStream is not important. We are just using DecodeStream because
-    // it simulates a bug. DecodeStream will read the stream, then rewind, then attempt to read
-    // again. FrontBufferedStream::read should not continue to read its underlying stream beyond
-    // its end.
-    SkImageDecoder::DecodeStream(stream, &bm);
+
+    // This will fail to create a codec.  However, what we really want to test is that we
+    // won't read past the end of the stream.
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
     REPORTER_ASSERT(reporter, !failingStream->readAfterEnd());
 }

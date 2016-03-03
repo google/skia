@@ -418,26 +418,30 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* inp
         }
     }
 
-    // Gifs have the option to specify the color at a single index of the color
-    // table as transparent.  If the transparent index is greater than the
-    // colorCount, we know that there is no valid transparent color in the color
-    // table.  If there is not valid transparent index, we will try to use the
-    // backgroundIndex as the fill index.  If the backgroundIndex is also not
-    // valid, we will let fFillIndex default to 0 (it is set to zero in the
-    // constructor).  This behavior is not specified but matches
-    // SkImageDecoder_libgif.
-    uint32_t backgroundIndex = fGif->SBackGroundColor;
-    if (fTransIndex < colorCount) {
-        colorPtr[fTransIndex] = SK_ColorTRANSPARENT;
-        fFillIndex = fTransIndex;
-    } else if (backgroundIndex < colorCount) {
-        fFillIndex = backgroundIndex;
-    }
-
     // Fill in the color table for indices greater than color count.
     // This allows for predictable, safe behavior.
-    for (uint32_t i = colorCount; i < maxColors; i++) {
-        colorPtr[i] = colorPtr[fFillIndex];
+    if (colorCount > 0) {
+        // Gifs have the option to specify the color at a single index of the color
+        // table as transparent.  If the transparent index is greater than the
+        // colorCount, we know that there is no valid transparent color in the color
+        // table.  If there is not valid transparent index, we will try to use the
+        // backgroundIndex as the fill index.  If the backgroundIndex is also not
+        // valid, we will let fFillIndex default to 0 (it is set to zero in the
+        // constructor).  This behavior is not specified but matches
+        // SkImageDecoder_libgif.
+        uint32_t backgroundIndex = fGif->SBackGroundColor;
+        if (fTransIndex < colorCount) {
+            colorPtr[fTransIndex] = SK_ColorTRANSPARENT;
+            fFillIndex = fTransIndex;
+        } else if (backgroundIndex < colorCount) {
+            fFillIndex = backgroundIndex;
+        }
+
+        for (uint32_t i = colorCount; i < maxColors; i++) {
+            colorPtr[i] = colorPtr[fFillIndex];
+        }
+    } else {
+        sk_memset32(colorPtr, 0xFF000000, maxColors);
     }
 
     fColorTable.reset(new SkColorTable(colorPtr, maxColors));

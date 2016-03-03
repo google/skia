@@ -8,7 +8,8 @@
 #include "Resources.h"
 #include "Test.h"
 #include "SkBitmap.h"
-#include "SkImageDecoder.h"
+#include "SkCodec.h"
+#include "SkStream.h"
 #include "SkOSFile.h"
 
 DEF_TEST(BadImage, reporter) {
@@ -27,12 +28,18 @@ DEF_TEST(BadImage, reporter) {
 
     SkString resourcePath = GetResourcePath(badImagesFolder);
 
-    SkBitmap bm;
     for (size_t i = 0; i < SK_ARRAY_COUNT(badImages); ++i) {
         SkString fullPath = SkOSPath::Join(resourcePath.c_str(), badImages[i]);
-        bool success = SkImageDecoder::DecodeFile(fullPath.c_str(), &bm);
-        // These files are invalid, and should not decode. More importantly,
-        // though, we reached here without crashing.
-        REPORTER_ASSERT(reporter, !success);
+        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fullPath.c_str()));
+        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+
+        // These images are corrupt.  It's not important whether we succeed/fail in codec
+        // creation or decoding.  We just want to make sure that we don't crash.
+        if (codec) {
+            SkBitmap bm;
+            bm.allocPixels(codec->getInfo());
+            codec->getPixels(codec->getInfo(), bm.getPixels(),
+                    bm.rowBytes());
+        }
     }
 }
