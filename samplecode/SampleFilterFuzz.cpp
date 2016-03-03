@@ -9,6 +9,7 @@
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
 #include "SkArcToPathEffect.h"
+#include "SkAnnotation.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
@@ -544,6 +545,9 @@ static SkPaint make_paint() {
     paint.setRasterizer(rasterizer);
     paint.setImageFilter(make_image_filter());
     SkAutoDataUnref data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
+    SkAutoTUnref<SkAnnotation> annotation(
+        SkAnnotation::Create(make_string().c_str(), data));
+    paint.setAnnotation(annotation);
     paint.setTextAlign(make_paint_align());
     paint.setTextSize(make_scalar());
     paint.setTextScaleX(make_scalar());

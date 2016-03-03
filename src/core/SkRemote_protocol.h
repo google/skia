@@ -28,6 +28,7 @@ namespace SkRemote {
         kRasterizer,
         kDrawLooper,
         kImageFilter,
+        kAnnotation,
     };
 
 }  // namespace SkRemote

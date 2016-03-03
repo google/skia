@@ -79,13 +79,14 @@ namespace SkRemote {
         virtual ID define(SkRasterizer*)     = 0;
         virtual ID define(SkDrawLooper*)     = 0;
         virtual ID define(SkImageFilter*)    = 0;
+        virtual ID define(SkAnnotation*)     = 0;
 
         virtual void undefine(ID) = 0;
 
         // TODO: do these all belong here in CommonIDs?
         struct CommonIDs {
             ID misc, patheffect, shader, xfermode, maskfilter,
-               colorfilter, rasterizer, looper, imagefilter;
+               colorfilter, rasterizer, looper, imagefilter, annotation;
         };
 
         virtual void    save() = 0;

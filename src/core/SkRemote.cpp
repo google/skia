@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAnnotation.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
@@ -126,6 +127,7 @@ namespace SkRemote {
                 fIDs.rasterizer  = fEncoder->define(paint.getRasterizer());
                 fIDs.looper      = fEncoder->define(paint.getLooper());
                 fIDs.imagefilter = fEncoder->define(paint.getImageFilter());
+                fIDs.annotation  = fEncoder->define(paint.getAnnotation());
             }
             ~AutoCommonIDs() {
                 if (fEncoder) {
@@ -138,6 +140,7 @@ namespace SkRemote {
                     fEncoder->undefine(fIDs.rasterizer);
                     fEncoder->undefine(fIDs.looper);
                     fEncoder->undefine(fIDs.imagefilter);
+                    fEncoder->undefine(fIDs.annotation);
                 }
             }
 
@@ -458,6 +461,7 @@ namespace SkRemote {
         ID define(SkRasterizer*     v)O{return this->define(Type::kRasterizer,  &fRasterizer,  v);}
         ID define(SkDrawLooper*     v)O{return this->define(Type::kDrawLooper,  &fDrawLooper,  v);}
         ID define(SkImageFilter*    v)O{return this->define(Type::kImageFilter, &fImageFilter, v);}
+        ID define(SkAnnotation*     v)O{return this->define(Type::kAnnotation,  &fAnnotation,  v);}
     #undef O
 
 
@@ -476,6 +480,7 @@ namespace SkRemote {
                 case Type::kRasterizer:  return fRasterizer .remove(id);
                 case Type::kDrawLooper:  return fDrawLooper .remove(id);
                 case Type::kImageFilter: return fImageFilter.remove(id);
+                case Type::kAnnotation:  return fAnnotation .remove(id);
             };
         }
 
@@ -489,6 +494,7 @@ namespace SkRemote {
             paint->setRasterizer (fRasterizer .find(common.rasterizer));
             paint->setLooper     (fDrawLooper .find(common.looper));
             paint->setImageFilter(fImageFilter.find(common.imagefilter));
+            paint->setAnnotation (fAnnotation .find(common.annotation));
         }
 
         void    save() override { fCanvas->save(); }
@@ -611,6 +617,7 @@ namespace SkRemote {
         ReffedIDMap<SkRasterizer    , Type::kRasterizer > fRasterizer;
         ReffedIDMap<SkDrawLooper    , Type::kDrawLooper > fDrawLooper;
         ReffedIDMap<SkImageFilter   , Type::kImageFilter> fImageFilter;
+        ReffedIDMap<SkAnnotation    , Type::kAnnotation > fAnnotation;
 
         SkCanvas* fCanvas;
         uint64_t fNextID = 0;
@@ -646,6 +653,7 @@ namespace SkRemote {
             fRasterizer .foreach(undef);
             fDrawLooper .foreach(undef);
             fImageFilter.foreach(undef);
+            fAnnotation .foreach(undef);
         }
 
         template <typename Map, typename T>
@@ -671,6 +679,7 @@ namespace SkRemote {
         ID define(SkRasterizer*     v) override { return this->define(&fRasterizer , v); }
         ID define(SkDrawLooper*     v) override { return this->define(&fDrawLooper , v); }
         ID define(SkImageFilter*    v) override { return this->define(&fImageFilter, v); }
+        ID define(SkAnnotation*     v) override { return this->define(&fAnnotation , v); }
 
         void undefine(ID) override {}
 
@@ -740,6 +749,7 @@ namespace SkRemote {
         RefKeyMap<SkRasterizer    , Type::kRasterizer > fRasterizer;
         RefKeyMap<SkDrawLooper    , Type::kDrawLooper > fDrawLooper;
         RefKeyMap<SkImageFilter   , Type::kImageFilter> fImageFilter;
+        RefKeyMap<SkAnnotation    , Type::kAnnotation > fAnnotation;
 
         Encoder* fWrapped;
     };

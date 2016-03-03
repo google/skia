@@ -1973,12 +1973,6 @@ void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const Sk
     this->onDrawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
 }
 
-void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-    if (key) {
-        this->onDrawAnnotation(rect, key, value);
-    }
-}
-
 void SkCanvas::legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                     const SkPaint* paint, SrcRectConstraint constraint) {
     if (src) {
@@ -2727,17 +2721,6 @@ void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const 
     LOOPER_BEGIN(pnt, SkDrawFilter::kPath_Type, nullptr)
     while (iter.next()) {
         iter.fDevice->drawAtlas(iter, atlas, xform, tex, colors, count, mode, pnt);
-    }
-    LOOPER_END
-}
-
-void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-    SkASSERT(key);
-
-    SkPaint paint;
-    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, nullptr)
-    while (iter.next()) {
-        iter.fDevice->drawAnnotation(iter, rect, key, value);
     }
     LOOPER_END
 }

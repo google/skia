@@ -79,7 +79,6 @@ protected:
     void onClipRegion(const SkRegion&, SkRegion::Op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
-    void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
     class Iter;
 

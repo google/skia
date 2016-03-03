@@ -20,6 +20,9 @@
 
 class SkColorTable;
 
+#define CHECK_FOR_ANNOTATION(paint) \
+    do { if (paint.getAnnotation()) { return; } } while (0)
+
 static bool valid_for_bitmap_device(const SkImageInfo& info,
                                     SkAlphaType* newAlphaType) {
     if (info.width() < 0 || info.height() < 0) {
@@ -201,14 +204,18 @@ void SkBitmapDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 
 void SkBitmapDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
                                 const SkPoint pts[], const SkPaint& paint) {
+    CHECK_FOR_ANNOTATION(paint);
     draw.drawPoints(mode, count, pts, paint);
 }
 
 void SkBitmapDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
+    CHECK_FOR_ANNOTATION(paint);
     draw.drawRect(r, paint);
 }
 
 void SkBitmapDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
+    CHECK_FOR_ANNOTATION(paint);
+
     SkPath path;
     path.addOval(oval);
     // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
@@ -217,6 +224,8 @@ void SkBitmapDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPa
 }
 
 void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPaint& paint) {
+    CHECK_FOR_ANNOTATION(paint);
+
 #ifdef SK_IGNORE_BLURRED_RRECT_OPT
     SkPath  path;
 
@@ -232,6 +241,7 @@ void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const S
 void SkBitmapDevice::drawPath(const SkDraw& draw, const SkPath& path,
                               const SkPaint& paint, const SkMatrix* prePathMatrix,
                               bool pathIsMutable) {
+    CHECK_FOR_ANNOTATION(paint);
     draw.drawPath(path, paint, prePathMatrix, pathIsMutable);
 }
 

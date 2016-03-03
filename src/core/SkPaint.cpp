@@ -6,6 +6,7 @@
  */
 
 #include "SkPaint.h"
+#include "SkAnnotation.h"
 #include "SkAutoKern.h"
 #include "SkChecksum.h"
 #include "SkColorFilter.h"
@@ -53,6 +54,7 @@ SkPaint::SkPaint() {
     fRasterizer  = nullptr;
     fLooper      = nullptr;
     fImageFilter = nullptr;
+    fAnnotation  = nullptr;
 
     fTextSize   = SkPaintDefaults_TextSize;
     fTextScaleX = SK_Scalar1;
@@ -85,6 +87,7 @@ SkPaint::SkPaint(const SkPaint& src) {
     REF_COPY(fRasterizer);
     REF_COPY(fLooper);
     REF_COPY(fImageFilter);
+    REF_COPY(fAnnotation);
 
     COPY(fTextSize);
     COPY(fTextScaleX);
@@ -111,6 +114,7 @@ SkPaint::SkPaint(SkPaint&& src) {
     REF_MOVE(fRasterizer);
     REF_MOVE(fLooper);
     REF_MOVE(fImageFilter);
+    REF_MOVE(fAnnotation);
 
     MOVE(fTextSize);
     MOVE(fTextScaleX);
@@ -134,6 +138,7 @@ SkPaint::~SkPaint() {
     SkSafeUnref(fRasterizer);
     SkSafeUnref(fLooper);
     SkSafeUnref(fImageFilter);
+    SkSafeUnref(fAnnotation);
 }
 
 SkPaint& SkPaint::operator=(const SkPaint& src) {
@@ -153,6 +158,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     REF_COPY(fRasterizer);
     REF_COPY(fLooper);
     REF_COPY(fImageFilter);
+    REF_COPY(fAnnotation);
 
     COPY(fTextSize);
     COPY(fTextScaleX);
@@ -185,6 +191,7 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     REF_MOVE(fRasterizer);
     REF_MOVE(fLooper);
     REF_MOVE(fImageFilter);
+    REF_MOVE(fAnnotation);
 
     MOVE(fTextSize);
     MOVE(fTextScaleX);
@@ -211,6 +218,7 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         && EQUAL(fRasterizer)
         && EQUAL(fLooper)
         && EQUAL(fImageFilter)
+        && EQUAL(fAnnotation)
         && EQUAL(fTextSize)
         && EQUAL(fTextScaleX)
         && EQUAL(fTextSkewX)
@@ -410,6 +418,11 @@ SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
 SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
     SkRefCnt_SafeAssign(fImageFilter, imageFilter);
     return imageFilter;
+}
+
+SkAnnotation* SkPaint::setAnnotation(SkAnnotation* annotation) {
+    SkRefCnt_SafeAssign(fAnnotation, annotation);
+    return annotation;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1884,6 +1897,7 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
         asint(this->getColorFilter()) |
         asint(this->getRasterizer()) |
         asint(this->getLooper()) |
+        asint(this->getAnnotation()) |
         asint(this->getImageFilter())) {
         flatFlags |= kHasEffects_FlatFlag;
     }
@@ -1917,6 +1931,13 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
         buffer.writeFlattenable(this->getRasterizer());
         buffer.writeFlattenable(this->getLooper());
         buffer.writeFlattenable(this->getImageFilter());
+
+        if (fAnnotation) {
+            buffer.writeBool(true);
+            fAnnotation->writeToBuffer(buffer);
+        } else {
+            buffer.writeBool(false);
+        }
     }
 }
 
@@ -1960,14 +1981,8 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         SkSafeUnref(this->setLooper(buffer.readDrawLooper()));
         SkSafeUnref(this->setImageFilter(buffer.readImageFilter()));
 
-        if (buffer.isVersionLT(SkReadBuffer::kAnnotationsMovedToCanvas_Version)) {
-            // We used to store annotations here (string+skdata) if this bool was true
-            if (buffer.readBool()) {
-                // Annotations have moved to drawAnnotation, so we just drop this one on the floor.
-                SkString key;
-                buffer.readString(&key);
-                SkSafeUnref(buffer.readByteArrayAsData());
-            }
+        if (buffer.readBool()) {
+            this->setAnnotation(SkAnnotation::Create(buffer))->unref();
         }
     } else {
         this->setPathEffect(nullptr);
@@ -2187,6 +2202,12 @@ void SkPaint::toString(SkString* str) const {
     if (imageFilter) {
         str->append("<dt>ImageFilter:</dt><dd>");
         imageFilter->toString(str);
+        str->append("</dd>");
+    }
+
+    SkAnnotation* annotation = this->getAnnotation();
+    if (annotation) {
+        str->append("<dt>Annotation:</dt><dd>");
         str->append("</dd>");
     }
 
@@ -2416,7 +2437,7 @@ bool SkPaint::nothingToDraw() const {
 uint32_t SkPaint::getHash() const {
     // We're going to hash 10 pointers and 7 32-bit values, finishing up with fBitfields,
     // so fBitfields should be 10 pointers and 6 32-bit values from the start.
-    static_assert(offsetof(SkPaint, fBitfields) == 9 * sizeof(void*) + 6 * sizeof(uint32_t),
+    static_assert(offsetof(SkPaint, fBitfields) == 10 * sizeof(void*) + 6 * sizeof(uint32_t),
                   "SkPaint_notPackedTightly");
     return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(this),
                                offsetof(SkPaint, fBitfields) + sizeof(fBitfields));

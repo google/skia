@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnnotationKeys.h"
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkFixed.h"
@@ -547,85 +546,3 @@ DEF_TEST(Serialization, reporter) {
 
     TestPictureTypefaceSerialization(reporter);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkAnnotation.h"
-
-static SkPicture* copy_picture_via_serialization(SkPicture* src) {
-    SkDynamicMemoryWStream wstream;
-    src->serialize(&wstream);
-    SkAutoTDelete<SkStreamAsset> rstream(wstream.detachAsStream());
-    return SkPicture::CreateFromStream(rstream);
-}
-
-struct AnnotationRec {
-    const SkRect    fRect;
-    const char*     fKey;
-    SkData*         fValue;
-};
-
-class TestAnnotationCanvas : public SkCanvas {
-    skiatest::Reporter*     fReporter;
-    const AnnotationRec*    fRec;
-    int                     fCount;
-    int                     fCurrIndex;
-
-public:
-    TestAnnotationCanvas(skiatest::Reporter* reporter, const AnnotationRec rec[], int count)
-        : SkCanvas(100, 100)
-        , fReporter(reporter)
-        , fRec(rec)
-        , fCount(count)
-        , fCurrIndex(0)
-    {}
-
-    ~TestAnnotationCanvas() {
-        REPORTER_ASSERT(fReporter, fCount == fCurrIndex);
-    }
-
-protected:
-    void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-        REPORTER_ASSERT(fReporter, fCurrIndex < fCount);
-        REPORTER_ASSERT(fReporter, rect == fRec[fCurrIndex].fRect);
-        REPORTER_ASSERT(fReporter, !strcmp(key, fRec[fCurrIndex].fKey));
-        REPORTER_ASSERT(fReporter, value->equals(fRec[fCurrIndex].fValue));
-        fCurrIndex += 1;
-    }
-};
-
-/*
- *  Test the 3 annotation types by recording them into a picture, serializing, and then playing
- *  them back into another canvas.
- */
-DEF_TEST(Annotations, reporter) {
-    SkPictureRecorder recorder;
-    SkCanvas* recordingCanvas = recorder.beginRecording(SkRect::MakeWH(100, 100));
-    
-    const char* str0 = "rect-with-url";
-    const SkRect r0 = SkRect::MakeWH(10, 10);
-    SkAutoTUnref<SkData> d0(SkData::NewWithCString(str0));
-    SkAnnotateRectWithURL(recordingCanvas, r0, d0);
-    
-    const char* str1 = "named-destination";
-    const SkRect r1 = SkRect::MakeXYWH(5, 5, 0, 0); // collapsed to a point
-    SkAutoTUnref<SkData> d1(SkData::NewWithCString(str1));
-    SkAnnotateNamedDestination(recordingCanvas, {r1.x(), r1.y()}, d1);
-    
-    const char* str2 = "link-to-destination";
-    const SkRect r2 = SkRect::MakeXYWH(20, 20, 5, 6);
-    SkAutoTUnref<SkData> d2(SkData::NewWithCString(str2));
-    SkAnnotateLinkToDestination(recordingCanvas, r2, d2);
-
-    const AnnotationRec recs[] = {
-        { r0, SkAnnotationKeys::URL_Key(),                  d0 },
-        { r1, SkAnnotationKeys::Define_Named_Dest_Key(),    d1 },
-        { r2, SkAnnotationKeys::Link_Named_Dest_Key(),      d2 },
-    };
-
-    SkAutoTUnref<SkPicture> pict0(recorder.endRecording());
-    SkAutoTUnref<SkPicture> pict1(copy_picture_via_serialization(pict0));
-
-    TestAnnotationCanvas canvas(reporter, recs, SK_ARRAY_COUNT(recs));
-    canvas.drawPicture(pict1);
-}
-
