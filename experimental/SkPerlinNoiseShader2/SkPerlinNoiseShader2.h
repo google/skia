@@ -80,11 +80,8 @@ public:
     static SkShader* CreateTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
                                      int numOctaves, SkScalar seed,
                                      const SkISize* tileSize = NULL) {
-    return CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
+        return CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
     }
-
-
-    size_t contextSize(const ContextRec&) const override;
 
     class PerlinNoiseShaderContext : public SkShader::Context {
     public:
@@ -118,6 +115,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:

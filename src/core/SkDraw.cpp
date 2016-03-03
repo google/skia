@@ -1698,8 +1698,6 @@ class SkTriColorShader : public SkShader {
 public:
     SkTriColorShader() {}
 
-    size_t contextSize(const ContextRec&) const override;
-
     class TriColorShaderContext : public SkShader::Context {
     public:
         TriColorShaderContext(const SkTriColorShader& shader, const ContextRec&);
@@ -1722,6 +1720,7 @@ public:
     Factory getFactory() const override { sk_throw(); return nullptr; }
 
 protected:
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec& rec, void* storage) const override {
         return new (storage) TriColorShaderContext(*this, rec);
     }
@@ -1772,9 +1771,10 @@ SkTriColorShader::TriColorShaderContext::TriColorShaderContext(const SkTriColorS
 
 SkTriColorShader::TriColorShaderContext::~TriColorShaderContext() {}
 
-size_t SkTriColorShader::contextSize(const ContextRec&) const {
-    return sizeof(TriColorShaderContext);
+size_t SkTriColorShader::onContextSize(const ContextRec&) const {
+    return SkAlign16(sizeof(TriColorShaderContext));
 }
+
 void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     const int alphaScale = Sk255To256(this->getPaintAlpha());
 

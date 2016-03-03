@@ -40,8 +40,8 @@ SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius, const
     , fRadius(radius) {
 }
 
-size_t SkRadialGradient::contextSize(const ContextRec&) const {
-    return sizeof(RadialGradientContext);
+size_t SkRadialGradient::onContextSize(const ContextRec&) const {
+    return SkAlign16(sizeof(RadialGradientContext));
 }
 
 SkShader::Context* SkRadialGradient::onCreateContext(const ContextRec& rec, void* storage) const {

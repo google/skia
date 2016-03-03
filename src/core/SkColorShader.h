@@ -26,10 +26,6 @@ public:
 
     bool isOpaque() const override;
 
-    size_t contextSize(const ContextRec&) const override {
-        return sizeof(ColorShaderContext);
-    }
-
     class ColorShaderContext : public SkShader::Context {
     public:
         ColorShaderContext(const SkColorShader& shader, const ContextRec&);
@@ -61,6 +57,9 @@ protected:
     SkColorShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
+    size_t onContextSize(const ContextRec&) const override {
+        return sizeof(ColorShaderContext);
+    }
     bool onAsLuminanceColor(SkColor* lum) const override {
         *lum = fColor;
         return true;
