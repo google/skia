@@ -515,6 +515,11 @@ private:
         if (::piex::IsRaw(&piexStream)
             && ::piex::GetPreviewImageData(&piexStream, &imageData) == ::piex::Error::kOk)
         {
+            // Verify the size information, as it is only optional information for PIEX.
+            if (imageData.full_width == 0 || imageData.full_height == 0) {
+                return false;
+            }
+
             dng_point cfaPatternSize(imageData.cfa_pattern_dim[1], imageData.cfa_pattern_dim[0]);
             this->init(static_cast<int>(imageData.full_width),
                        static_cast<int>(imageData.full_height), cfaPatternSize);
@@ -670,7 +675,10 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
 
 SkISize SkRawCodec::onGetScaledDimensions(float desiredScale) const {
     SkASSERT(desiredScale <= 1.f);
+
     const SkISize dim = this->getInfo().dimensions();
+    SkASSERT(dim.fWidth != 0 && dim.fHeight != 0);
+
     if (!fDngImage->isScalable()) {
         return dim;
     }
