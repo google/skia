@@ -235,33 +235,42 @@
           },
         }],
         [ 'skia_vulkan', {
-          'variables': {
-            'conditions': [
-              [ 'skia_os == "win"', {
+          'conditions': [
+            [ 'skia_os == "win"', {
+             'variables': {
+                'vulkan_lib_name': '-lvulkan-1',
                 'vulkan_sdk_path' : '<!(echo %VK_SDK_PATH%)',
-              }, {
-                'vulkan_sdk_path' : '<!(echo $VK_SDK_PATH)',
-              }],
-            ],
-          },
+              },
+              'include_dirs': [
+                '<(vulkan_sdk_path)/Include',
+              ],
+              'direct_dependent_settings': {
+                'include_dirs': [
+                  '<(vulkan_sdk_path)/Include',
+                ],
+              },
+              'link_settings': {
+                'library_dirs': [ '<(vulkan_sdk_path)/Bin', ],
+              },
+            }, {
+              'variables': {
+                'vulkan_lib_name': '-lvulkan',
+              },
+            }],
+          ],
           'dependencies': [
             'shaderc.gyp:shaderc_combined',
           ],
           'include_dirs': [
-            '../third_party/', # To include files under third_party/vulkan
             '../third_party/externals/shaderc2/libshaderc/include',
-            '<(vulkan_sdk_path)/Include',
           ],
           'direct_dependent_settings': {
             'include_dirs': [
-              '../third_party/', # To include files under third_party/vulkan
               '../third_party/externals/shaderc2/libshaderc/include',
-              '<(vulkan_sdk_path)/Include',
             ],
           },
           'link_settings': {
-            'library_dirs': [ '<(vulkan_sdk_path)/Bin', ],
-            'libraries': [ '-lvulkan-1', ],
+            'libraries': [ '<(vulkan_lib_name)', ],
           },
         }, {
           'sources!': [
