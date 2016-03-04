@@ -235,72 +235,34 @@
           },
         }],
         [ 'skia_vulkan', {
+          'variables': {
+            'conditions': [
+              [ 'skia_os == "win"', {
+                'vulkan_sdk_path' : '<!(echo %VK_SDK_PATH%)',
+              }, {
+                'vulkan_sdk_path' : '<!(echo $VK_SDK_PATH)',
+              }],
+            ],
+          },
           'dependencies': [
             'shaderc.gyp:shaderc_combined',
           ],
           'include_dirs': [
             '../third_party/', # To include files under third_party/vulkan
             '../third_party/externals/shaderc2/libshaderc/include',
+            '<(vulkan_sdk_path)/Include',
           ],
           'direct_dependent_settings': {
             'include_dirs': [
               '../third_party/', # To include files under third_party/vulkan
               '../third_party/externals/shaderc2/libshaderc/include',
+              '<(vulkan_sdk_path)/Include',
             ],
           },
-          'conditions' : [
-            ['skia_os == "win"', {
-              'all_dependent_settings': {
-                'msvs_settings': {
-                  'VCLinkerTool': {
-                    'AdditionalDependencies': [
-                      'vulkan-1.lib',
-                    ],
-                  },
-                },
-              },
-              'link_settings': {
-                'configurations': {
-                  'Debug': {
-                    'msvs_settings': {
-                      'VCLinkerTool': {
-                      'AdditionalLibraryDirectories': [
-                          '../third_party/vulkan',
-                        ],
-                      },
-                    },
-                  },
-                  'Release': {
-                    'msvs_settings': {
-                      'VCLinkerTool': {
-                        'AdditionalLibraryDirectories': [
-                          '../third_party/vulkan',
-                        ],
-                      },
-                    },
-                  },
-                  'Debug_x64': {
-                    'msvs_settings': {
-                      'VCLinkerTool': {
-                        'AdditionalLibraryDirectories': [
-                          '../third_party/vulkan',
-                        ],
-                      },
-                    },
-                  },
-                  'Release_x64': {
-                      'msvs_settings': {
-                      'VCLinkerTool': {
-                        'AdditionalLibraryDirectories': [
-                          '../third_party/vulkan',
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-            }],
-          ],
+          'link_settings': {
+            'library_dirs': [ '<(vulkan_sdk_path)/Bin', ],
+            'libraries': [ '-lvulkan-1', ],
+          },
         }, {
           'sources!': [
             '<@(skgpu_vk_sources)',
