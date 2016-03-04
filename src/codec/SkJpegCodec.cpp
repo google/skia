@@ -568,10 +568,11 @@ static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
     // that of Y would be an extremely difficult change, given that clients
     // allocate memory as if the size of the Y plane is always the size of the
     // image.  However, this case is very, very rare.
-    if (!(1 == dinfo->comp_info[1].h_samp_factor) &&
-         (1 == dinfo->comp_info[1].v_samp_factor) &&
-         (1 == dinfo->comp_info[2].h_samp_factor) &&
-         (1 == dinfo->comp_info[2].v_samp_factor)) {
+    if  ((1 != dinfo->comp_info[1].h_samp_factor) ||
+         (1 != dinfo->comp_info[1].v_samp_factor) ||
+         (1 != dinfo->comp_info[2].h_samp_factor) ||
+         (1 != dinfo->comp_info[2].v_samp_factor))
+    {
         return false;
     }
 
