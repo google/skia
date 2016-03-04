@@ -111,6 +111,7 @@ void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar 
                            cache[next_dither_toggle(toggle) + fi],
                            count);
     } else {
+        const Sk4f min(SK_ScalarNearlyZero);
         const Sk4f max(255);
         const float scale = 255;
         sfx *= scale;
@@ -124,13 +125,13 @@ void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar 
 
         Sk4f tmpxy = fx4 * dx4 + fy4 * dy4;
         Sk4f tmpdxdy = sum_squares(dx4, dy4);
-        Sk4f R = sum_squares(fx4, fy4);
+        Sk4f R = Sk4f::Max(sum_squares(fx4, fy4), min);
         Sk4f dR = tmpxy + tmpxy + tmpdxdy;
         const Sk4f ddR = tmpdxdy + tmpdxdy;
 
         for (int i = 0; i < (count >> 2); ++i) {
             Sk4f dist = Sk4f::Min(fast_sqrt(R), max);
-            R = R + dR;
+            R = Sk4f::Max(R + dR, min);
             dR = dR + ddR;
 
             uint8_t fi[4];
