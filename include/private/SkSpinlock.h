@@ -8,6 +8,7 @@
 #ifndef SkSpinlock_DEFINED
 #define SkSpinlock_DEFINED
 
+#include "SkTypes.h"
 #include <atomic>
 
 class SkSpinlock {
@@ -26,7 +27,7 @@ public:
     }
 
 private:
-    void contendedAcquire();
+    SK_API void contendedAcquire();
 
     std::atomic<bool> fLocked{false};
 };
