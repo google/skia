@@ -49,6 +49,22 @@ GR_STATIC_ASSERT(3 == GrPathRendering::kTranslate_PathTransformType);
 GR_STATIC_ASSERT(4 == GrPathRendering::kAffine_PathTransformType);
 GR_STATIC_ASSERT(GrPathRendering::kAffine_PathTransformType == GrPathRendering::kLast_PathTransformType);
 
+#ifdef SK_DEBUG
+static const GrGLenum gXformType2ComponentCount[] = {
+    0,
+    1,
+    1,
+    2,
+    6
+};
+
+static void verify_floats(const float* floats, int count) {
+    for (int i = 0; i < count; ++i) {
+        SkASSERT(!SkScalarIsNaN(SkFloatToScalar(floats[i])));
+    }
+}
+#endif
+
 static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
     switch (op) {
         default:
@@ -155,6 +171,8 @@ void GrGLPathRendering::onDrawPaths(const DrawPathArgs& args, const GrPathRange*
                                     const void* indices, PathIndexType indexType,
                                     const float transformValues[], PathTransformType transformType,
                                     int count) {
+    SkDEBUGCODE(verify_floats(transformValues, gXformType2ComponentCount[transformType] * count));
+
     if (!this->gpu()->flushGLState(args)) {
         return;
     }
@@ -210,6 +228,7 @@ void GrGLPathRendering::setProgramPathFragmentInputTransform(GrGLuint program, G
         coefficients[7] = SkScalarToFloat(matrix[SkMatrix::kMPersp1]);
         coefficients[8] = SkScalarToFloat(matrix[SkMatrix::kMPersp2]);
     }
+    SkDEBUGCODE(verify_floats(coefficients, components * 3));
 
     GL_CALL(ProgramPathFragmentInputGen(program, location, genMode, components, coefficients));
 }
@@ -232,6 +251,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
 
     float glMatrix[4 * 4];
     fHWProjectionMatrixState.getRTAdjustedGLMatrix<4>(glMatrix);
+    SkDEBUGCODE(verify_floats(glMatrix, SK_ARRAY_COUNT(glMatrix)));
     GL_CALL(MatrixLoadf(GR_GL_PATH_PROJECTION, glMatrix));
 }
 

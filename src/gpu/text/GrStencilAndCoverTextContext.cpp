@@ -80,11 +80,13 @@ void GrStencilAndCoverTextContext::drawText(GrContext* context, GrDrawContext* d
     if (context->abandoned()) {
         return;
     } else if (this->canDraw(skPaint, viewMatrix)) {
-        TextRun run(skPaint);
-        GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget(), clip);
-        run.setText(text, byteLength, x, y);
-        run.draw(context, dc, &pipelineBuilder, paint.getColor(), viewMatrix, props, 0, 0,
-                 clipBounds, fFallbackTextContext, skPaint);
+        if (skPaint.getTextSize() > 0) {
+            TextRun run(skPaint);
+            GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget(), clip);
+            run.setText(text, byteLength, x, y);
+            run.draw(context, dc, &pipelineBuilder, paint.getColor(), viewMatrix, props, 0, 0,
+                     clipBounds, fFallbackTextContext, skPaint);
+        }
         return;
     } else if (fFallbackTextContext->canDraw(skPaint, viewMatrix, props,
                                              *context->caps()->shaderCaps())) {
@@ -113,11 +115,13 @@ void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrDrawContext
     if (context->abandoned()) {
         return;
     } else if (this->canDraw(skPaint, viewMatrix)) {
-        TextRun run(skPaint);
-        GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget(), clip);
-        run.setPosText(text, byteLength, pos, scalarsPerPosition, offset);
-        run.draw(context, dc, &pipelineBuilder, paint.getColor(), viewMatrix, props, 0, 0,
-                 clipBounds, fFallbackTextContext, skPaint);
+        if (skPaint.getTextSize() > 0) {
+            TextRun run(skPaint);
+            GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget(), clip);
+            run.setPosText(text, byteLength, pos, scalarsPerPosition, offset);
+            run.draw(context, dc, &pipelineBuilder, paint.getColor(), viewMatrix, props, 0, 0,
+                     clipBounds, fFallbackTextContext, skPaint);
+        }
         return;
     } else if (fFallbackTextContext->canDraw(skPaint, viewMatrix, props,
                                              *context->caps()->shaderCaps())) {
@@ -294,6 +298,9 @@ void GrStencilAndCoverTextContext::TextBlob::init(const SkTextBlob* skBlob,
     SkPaint runPaint(skPaint);
     for (SkTextBlobRunIterator iter(skBlob); !iter.done(); iter.next()) {
         iter.applyFontToPaint(&runPaint); // No need to re-seed the paint.
+        if (runPaint.getTextSize() <= 0) {
+            continue;
+        }
         TextRun* run = this->addToTail(runPaint);
 
         const char* text = reinterpret_cast<const char*>(iter.glyphs());
@@ -352,6 +359,7 @@ GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
       fFallbackGlyphCount(0),
       fDetachedGlyphCache(nullptr),
       fLastDrawnGlyphsID(SK_InvalidUniqueID) {
+    SkASSERT(fFont.getTextSize() > 0);
     SkASSERT(!fStroke.isHairlineStyle()); // Hairlines are not supported.
 
     // Setting to "fill" ensures that no strokes get baked into font outlines. (We use the GPU path

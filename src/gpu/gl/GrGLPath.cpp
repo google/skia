@@ -79,6 +79,14 @@ inline GrGLenum cap_to_gl_cap(SkPaint::Cap cap) {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gSkCapsToGrGLCaps) == SkPaint::kCapCount);
 }
 
+#ifdef SK_DEBUG
+inline void verify_floats(const float* floats, int count) {
+    for (int i = 0; i < count; ++i) {
+        SkASSERT(!SkScalarIsNaN(SkFloatToScalar(floats[i])));
+    }
+}
+#endif
+
 inline void points_to_coords(const SkPoint points[], size_t first_point, size_t amount,
                              GrGLfloat coords[]) {
     for (size_t i = 0;  i < amount; ++i) {
@@ -170,6 +178,7 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
                 continue;
         }
         SkDEBUGCODE(numCoords += num_coords(verb));
+        SkDEBUGCODE(verify_floats(coords, coordsForVerb));
         pathCoords.push_back_n(coordsForVerb, coords);
     }
     SkASSERT(verbCnt == pathCommands.count());
@@ -232,6 +241,7 @@ void GrGLPath::InitPathObjectPathData(GrGLGpu* gpu,
         }
         SkASSERT(verbCnt == pathCommands.count());
         SkASSERT(verbCoordCnt == pathCoords.count());
+        SkDEBUGCODE(verify_floats(&pathCoords[0], pathCoords.count()));
         GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, pathCommands.count(), &pathCommands[0],
                                                     pathCoords.count(), GR_GL_FLOAT,
                                                     &pathCoords[0]));

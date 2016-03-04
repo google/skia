@@ -73,6 +73,13 @@ protected:
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
 
+        // Zero size.
+        paint.measureText(text, strlen(text), &bounds);
+        yOffset += bounds.height();
+        paint.setTextSize(0);
+
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
+
         // build
         fBlob.reset(builder.build());
     }
