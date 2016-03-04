@@ -226,6 +226,11 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
         useLinearPipeline = false;
     }
 
+    //
+    // For now, only enable locally since we are hitting some crashers on the test bots
+    //
+    useLinearPipeline = false;
+
     if (useLinearPipeline) {
         void* infoStorage = (char*)storage + sizeof(LinearPipelineContext);
         SkBitmapProcInfo* info = new (infoStorage) SkBitmapProcInfo(provider, tmx, tmy);
