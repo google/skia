@@ -37,15 +37,6 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
     if (this->isAbandoned()) {
         return nullptr;
     }
-    if (mipLevelCount && !texels) {
-        return nullptr;
-    }
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            return nullptr;
-        }
-    }
-
     if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
         !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
@@ -57,8 +48,8 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
             static const uint32_t kFlags = kExact_ScratchTextureFlag |
                                            kNoCreate_ScratchTextureFlag;
             if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
-                if (!texels || texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                                    baseMipLevel.fPixels, baseMipLevel.fRowBytes)) {
+                if (texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                         baseMipLevel.fPixels, baseMipLevel.fRowBytes)) {
                     if (SkBudgeted::kNo == budgeted) {
                         texture->resourcePriv().makeUnbudgeted();
                     }
@@ -78,16 +69,12 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
 
 GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                             const void* srcData, size_t rowBytes) {
-    GrMipLevel tempTexels;
-    GrMipLevel* texels = nullptr;
-    int levelCount = 0;
-    if (srcData) {
-      tempTexels.fPixels = srcData;
-      tempTexels.fRowBytes = rowBytes;
-      texels = &tempTexels;
-      levelCount = 1;
-    }
-    return this->createMipMappedTexture(desc, budgeted, texels, levelCount);
+    const int mipLevelCount = 1;
+    GrMipLevel texels[mipLevelCount];
+    texels[0].fPixels = srcData;
+    texels[0].fRowBytes = rowBytes;
+
+    return this->createMipMappedTexture(desc, budgeted, texels, mipLevelCount);
 }
 
 GrTexture* GrTextureProvider::createApproxTexture(const GrSurfaceDesc& desc) {
@@ -150,7 +137,7 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
     }
 
     if (!(kNoCreate_ScratchTextureFlag & flags)) {
-        return fGpu->createTexture(*desc, SkBudgeted::kYes);
+        return fGpu->createTexture(*desc, SkBudgeted::kYes, nullptr, 0);
     }
 
     return nullptr;
