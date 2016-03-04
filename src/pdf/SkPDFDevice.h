@@ -11,6 +11,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
+#include "SkData.h"
 #include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -37,8 +38,6 @@ class SkRRect;
 // Private classes.
 struct ContentEntry;
 struct GraphicStateEntry;
-struct NamedDestination;
-struct RectWithData;
 
 /** \class SkPDFDevice
 
@@ -199,6 +198,22 @@ protected:
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
 private:
+    struct RectWithData {
+        SkRect rect;
+        SkData* data;
+        RectWithData(const SkRect& rect, SkData* data)
+            : rect(rect), data(SkRef(data)) {}
+        ~RectWithData() { data->unref(); }
+    };
+
+    struct NamedDestination {
+        SkData* nameData;
+        SkPoint point;
+        NamedDestination(SkData* nameData, const SkPoint& point)
+            : nameData(SkRef(nameData)), point(point) {}
+        ~NamedDestination() { nameData->unref(); }
+    };
+
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
     friend class ScopedContentEntry;
@@ -209,9 +224,9 @@ private:
     SkClipStack fExistingClipStack;
     SkRegion fExistingClipRegion;
 
-    SkTDArray<RectWithData*> fLinkToURLs;
-    SkTDArray<RectWithData*> fLinkToDestinations;
-    SkTDArray<NamedDestination*> fNamedDestinations;
+    SkTArray<RectWithData> fLinkToURLs;
+    SkTArray<RectWithData> fLinkToDestinations;
+    SkTArray<NamedDestination> fNamedDestinations;
 
     SkTDArray<SkPDFObject*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
