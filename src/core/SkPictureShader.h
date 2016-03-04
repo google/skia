@@ -25,8 +25,6 @@ public:
     static SkShader* Create(const SkPicture*, TileMode, TileMode, const SkMatrix*,
                                    const SkRect*);
 
-    size_t contextSize(const ContextRec&) const override;
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureShader)
 
@@ -40,6 +38,7 @@ public:
 protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
+    size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:

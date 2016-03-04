@@ -211,8 +211,8 @@ bool SkTwoPointConicalGradient::isOpaque() const {
     return false;
 }
 
-size_t SkTwoPointConicalGradient::contextSize(const ContextRec&) const {
-    return sizeof(TwoPointConicalGradientContext);
+size_t SkTwoPointConicalGradient::onContextSize(const ContextRec&) const {
+    return SkAlign16(sizeof(TwoPointConicalGradientContext));
 }
 
 SkShader::Context* SkTwoPointConicalGradient::onCreateContext(const ContextRec& rec,

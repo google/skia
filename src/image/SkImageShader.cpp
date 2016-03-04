@@ -42,7 +42,7 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque();
 }
 
-size_t SkImageShader::contextSize(const ContextRec& rec) const {
+size_t SkImageShader::onContextSize(const ContextRec& rec) const {
     return SkBitmapProcShader::ContextSize(rec);
 }
 
