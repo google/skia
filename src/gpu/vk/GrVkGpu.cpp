@@ -1041,6 +1041,8 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
         }
         clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
         clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
+        clearRect.baseArrayLayer = 0;
+        clearRect.layerCount = 1;
 
         const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
         SkASSERT(renderPass);
