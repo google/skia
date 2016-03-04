@@ -22,6 +22,9 @@ public:
 private:
     using INHERITED = GradientShaderBase4fContext;
 
+    void addMirrorIntervals(const SkLinearGradient&, const Sk4f& componentScale,
+                            bool dx_is_pos);
+
     template<typename DstType, TileMode>
     class LinearIntervalProcessor;
 
@@ -33,6 +36,10 @@ private:
 
     template <typename DstType, bool premul, SkShader::TileMode tileMode>
     void shadeSpanInternal(int x, int y, DstType[], int count) const;
+
+    const Interval* findInterval(SkScalar fx) const;
+
+    mutable const Interval*      fCachedInterval;
 };
 
 #endif // Sk4fLinearGradient_DEFINED
