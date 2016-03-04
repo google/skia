@@ -60,7 +60,7 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
     SkAutoTUnref<SkImage> image{SkImage::NewRasterCopy(
         info, pmsrc.addr32(), pmsrc.rowBytes())};
     SkPaint paint;
-    int32_t storage[200];
+    int32_t storage[300];
     SkShader* shader = image->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     if (useBilerp) {
         paint.setFilterQuality(SkFilterQuality::kLow_SkFilterQuality);

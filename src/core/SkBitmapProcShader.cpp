@@ -27,8 +27,7 @@ static bool only_scale_and_translate(const SkMatrix& matrix) {
 
 class BitmapProcInfoContext : public SkShader::Context {
 public:
-    // The context takes ownership of the info. It will call its destructor
-    // but will NOT free the memory.
+    // The info has been allocated elsewhere, but we are responsible for calling its destructor.
     BitmapProcInfoContext(const SkShader& shader, const SkShader::ContextRec& rec,
                             SkBitmapProcInfo* info)
         : INHERITED(shader, rec)
@@ -45,8 +44,6 @@ public:
     }
 
     ~BitmapProcInfoContext() override {
-        // The bitmap proc state has been created outside of the context on memory that will be freed
-        // elsewhere. Only call the destructor but leave the freeing of the memory to the caller.
         fInfo->~SkBitmapProcInfo();
     }
     
@@ -63,8 +60,6 @@ private:
 
 class BitmapProcShaderContext : public BitmapProcInfoContext {
 public:
-    // The context takes ownership of the state. It will call its destructor
-    // but will NOT free the memory.
     BitmapProcShaderContext(const SkShader& shader, const SkShader::ContextRec& rec,
                             SkBitmapProcState* state)
         : INHERITED(shader, rec, state)
@@ -116,11 +111,94 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkLinearBitmapPipeline.h"
+#include "SkPM4f.h"
+#include "SkXfermode.h"
 
-size_t SkBitmapProcShader::ContextSize(const ContextRec& rec) {
-    // The SkBitmapProcState is stored outside of the context object, with the context holding
-    // a pointer to it.
-    return sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState);
+class LinearPipelineContext : public BitmapProcInfoContext {
+public:
+    LinearPipelineContext(const SkShader& shader, const SkShader::ContextRec& rec,
+                          SkBitmapProcInfo* info)
+        : INHERITED(shader, rec, info)
+    {
+        // Need to ensure that our pipeline is created at a 16byte aligned address
+        fPipeline = (SkLinearBitmapPipeline*)SkAlign16((intptr_t)fStorage);
+        new (fPipeline) SkLinearBitmapPipeline(info->fInvMatrix, info->fFilterQuality,
+                                               info->fTileModeX, info->fTileModeY,
+                                               info->fPixmap);
+
+        // To implement the old shadeSpan entry-point, we need to efficiently convert our native
+        // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
+        //
+        sk_sp<SkXfermode> xfer(SkXfermode::Create(SkXfermode::kSrc_Mode));
+        fXferProc = SkXfermode::GetD32Proc(xfer.get(), 0);
+    }
+
+    ~LinearPipelineContext() override {
+        // since we did a manual new, we need to manually destroy as well.
+        fPipeline->~SkLinearBitmapPipeline();
+    }
+
+    void shadeSpan4f(int x, int y, SkPM4f dstC[], int count) override {
+        fPipeline->shadeSpan4f(x, y, dstC, count);
+    }
+
+    void shadeSpan(int x, int y, SkPMColor dstC[], int count) override {
+        const int N = 128;
+        SkPM4f  tmp[N];
+
+        while (count > 0) {
+            const int n = SkTMin(count, N);
+            fPipeline->shadeSpan4f(x, y, tmp, n);
+            fXferProc(nullptr, dstC, tmp, n, nullptr);
+            dstC += n;
+            x += n;
+            count -= n;
+        }
+    }
+
+private:
+    enum {
+        kActualSize = sizeof(SkLinearBitmapPipeline),
+        kPaddedSize = SkAlignPtr(kActualSize + 12),
+    };
+    void* fStorage[kPaddedSize / sizeof(void*)];
+    SkLinearBitmapPipeline* fPipeline;
+    SkXfermode::D32Proc     fXferProc;
+
+    typedef BitmapProcInfoContext INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImageInfo& srcInfo) {
+    // These src attributes are not supported in the new 4f context (yet)
+    //
+    if (srcInfo.bytesPerPixel() < 4 ||
+        kRGBA_F16_SkColorType == srcInfo.colorType()) {
+        return false;
+    }
+
+#if 0   // later we may opt-in to the new code even if the client hasn't requested it...
+    // These src attributes are only supported in the new 4f context
+    //
+    if (srcInfo.isSRGB() ||
+        kUnpremul_SkAlphaType == srcInfo.alphaType() ||
+        (4 == srcInfo.bytesPerPixel() && kN32_SkColorType != srcInfo.colorType()))
+    {
+        return true;
+    }
+#endif
+
+    // If we get here, we can reasonably use either context, respect the caller's preference
+    //
+    return SkShader::ContextRec::kPM4f_DstType == rec.fPreferredDstType;
+}
+
+size_t SkBitmapProcShader::ContextSize(const ContextRec& rec, const SkImageInfo& srcInfo) {
+    size_t size0 = sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState);
+    size_t size1 = sizeof(LinearPipelineContext) + sizeof(SkBitmapProcInfo);
+    return SkTMax(size0, size1);
 }
 
 SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
@@ -133,16 +211,38 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
         return nullptr;
     }
 
-    void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
-    SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(provider, tmx, tmy);
+    // Decide if we can/want to use the new linear pipeine
+    bool useLinearPipeline = choose_linear_pipeline(rec, provider.info());
 
-    SkASSERT(state);
-    if (!state->setup(totalInverse, *rec.fPaint)) {
-        state->~SkBitmapProcState();
-        return nullptr;
+    // New code doesn't support Mirror (YET), so we detect that here.
+    //
+    if (SkShader::kMirror_TileMode == tmx || SkShader::kMirror_TileMode == tmy) {
+        useLinearPipeline = false;
     }
 
-    return new (storage) BitmapProcShaderContext(shader, rec, state);
+    // New code doesn't support Mirror (YET), so we detect that here.
+    //
+    if (totalInverse.hasPerspective()) {
+        useLinearPipeline = false;
+    }
+
+    if (useLinearPipeline) {
+        void* infoStorage = (char*)storage + sizeof(LinearPipelineContext);
+        SkBitmapProcInfo* info = new (infoStorage) SkBitmapProcInfo(provider, tmx, tmy);
+        if (!info->init(totalInverse, *rec.fPaint)) {
+            info->~SkBitmapProcInfo();
+            return nullptr;
+        }
+        return new (storage) LinearPipelineContext(shader, rec, info);
+    } else {
+        void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
+        SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(provider, tmx, tmy);
+        if (!state->setup(totalInverse, *rec.fPaint)) {
+            state->~SkBitmapProcState();
+            return nullptr;
+        }
+        return new (storage) BitmapProcShaderContext(shader, rec, state);
+    }
 }
 
 SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, void* storage) const {
