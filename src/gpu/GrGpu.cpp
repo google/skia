@@ -98,7 +98,7 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
  * @param isRT Indicates if the texture can be a render target.
  */
 static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDesc& desc,
-                                          bool* isRT) {
+                                          bool* isRT, const SkTArray<GrMipLevel>& texels) {
     if (!caps.isConfigTexturable(desc.fConfig)) {
         return false;
     }
@@ -124,6 +124,12 @@ static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDes
             return false;
         }
     }
+
+    for (int i = 0; i < texels.count(); ++i) {
+        if (!texels[i].fPixels) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -133,7 +139,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
 
     const GrCaps* caps = this->caps();
     bool isRT = false;
-    bool textureCreationParamsValid = check_texture_creation_params(*caps, desc, &isRT);
+    bool textureCreationParamsValid = check_texture_creation_params(*caps, desc, &isRT, texels);
     if (!textureCreationParamsValid) {
         return nullptr;
     }
@@ -177,17 +183,6 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
         }
     }
     return tex;
-}
-
-GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                const void* srcData, size_t rowBytes) {
-    GrMipLevel level;
-    level.fPixels = srcData;
-    level.fRowBytes = rowBytes;
-    SkSTArray<1, GrMipLevel> levels;
-    levels.push_back(level);
-
-    return this->createTexture(desc, budgeted, levels);
 }
 
 GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
@@ -391,15 +386,10 @@ bool GrGpu::writePixels(GrSurface* surface,
     if (!surface) {
         return false;
     }
-    bool validMipDataFound = false;
     for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
-        if (texels[currentMipLevel].fPixels != nullptr) {
-            validMipDataFound = true;
-            break;
+        if (!texels[currentMipLevel].fPixels ) {
+            return false;
         }
-    }
-    if (!validMipDataFound) {
-        return false;
     }
 
     this->handleDirtyContext();

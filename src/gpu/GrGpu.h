@@ -96,22 +96,13 @@ public:
                              const SkTArray<GrMipLevel>& texels);
 
     /**
-     * This function is a shim which creates a SkTArGrMipLevell> of size 1.
-     * It then calls createTexture with that SkTArray.
-     *
-     * @param srcData  texel data to load texture. Begins with full-size
-     *                 palette data for paletted texture. For compressed
-     *                 formats it contains the compressed pixel data. Otherwise,
-     *                 it contains width*height texels. If nullptr texture data
-     *                 is uninitialized.
-     * @param rowBytes the number of bytes between consecutive rows. Zero
-     *                 means rows are tightly packed. This field is ignored
-     *                 for compressed pixel formats.
-     * @return    The texture object if successful, otherwise, nullptr.
+     * Simplified createTexture() interface when there is no initial texel data
+     * to upload.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                             const void* srcData, size_t rowBytes);
-
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
+        return this->createTexture(desc, budgeted, SkTArray<GrMipLevel>());
+    }
+    
     /**
      * Implements GrTextureProvider::wrapBackendTexture
      */

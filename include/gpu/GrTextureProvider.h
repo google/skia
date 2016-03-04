@@ -45,7 +45,7 @@ public:
 
     /** Shortcut for creating a texture with no initial data to upload. */
     GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
-        return this->createTexture(desc, budgeted, NULL, 0);
+        return this->createTexture(desc, budgeted, nullptr, 0);
     }
 
     /** Assigns a unique key to the texture. The texture will be findable via this key using
