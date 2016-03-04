@@ -158,6 +158,310 @@ SkColorSpace* SkColorSpace::NewNamed(Named named) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "SkFixed.h"
+#include "SkTemplates.h"
+
+#define SkColorSpacePrintf(...)
+
+#define return_if_false(pred, msg)                                   \
+    do {                                                             \
+        if (!(pred)) {                                               \
+            SkColorSpacePrintf("Invalid ICC Profile: %s.\n", (msg)); \
+            return false;                                            \
+        }                                                            \
+    } while (0)
+
+#define return_null(msg)                                             \
+    do {                                                             \
+        SkDebugf("Invalid ICC Profile: %s.\n", (msg));               \
+        return nullptr;                                              \
+    } while (0)
+
+static uint16_t read_big_endian_short(const uint8_t* ptr) {
+    return ptr[0] << 8 | ptr[1];
+}
+
+static uint32_t read_big_endian_int(const uint8_t* ptr) {
+    return ptr[0] << 24 | ptr[1] << 16 | ptr[2] << 8 | ptr[3];
+}
+
+// This is equal to the header size according to the ICC specification (128)
+// plus the size of the tag count (4).  We include the tag count since we
+// always require it to be present anyway.
+static const size_t kICCHeaderSize = 132;
+
+// Contains a signature (4), offset (4), and size (4).
+static const size_t kICCTagTableEntrySize = 12;
+
+static const uint32_t kRGB_ColorSpace  = SkSetFourByteTag('R', 'G', 'B', ' ');
+static const uint32_t kGray_ColorSpace = SkSetFourByteTag('G', 'R', 'A', 'Y');
+
+struct ICCProfileHeader {
+    // TODO (msarett):
+    // Can we ignore less of these fields?
+    uint32_t fSize;
+    uint32_t fCMMType_ignored;
+    uint32_t fVersion;
+    uint32_t fClassProfile;
+    uint32_t fColorSpace;
+    uint32_t fPCS;
+    uint32_t fDateTime_ignored[3];
+    uint32_t fSignature;
+    uint32_t fPlatformTarget_ignored;
+    uint32_t fFlags_ignored;
+    uint32_t fManufacturer_ignored;
+    uint32_t fDeviceModel_ignored;
+    uint32_t fDeviceAttributes_ignored[2];
+    uint32_t fRenderingIntent;
+    uint32_t fIlluminantXYZ_ignored[3];
+    uint32_t fCreator_ignored;
+    uint32_t fProfileId_ignored[4];
+    uint32_t fReserved_ignored[7];
+    uint32_t fTagCount;
+
+    void init(const uint8_t* src, size_t len) {
+        SkASSERT(kICCHeaderSize == sizeof(*this));
+
+        uint32_t* dst = (uint32_t*) this;
+        for (uint32_t i = 0; i < kICCHeaderSize / 4; i++, src+=4) {
+            dst[i] = read_big_endian_int(src);
+        }
+    }
+
+    bool valid() const {
+        // TODO (msarett):
+        // For now it's nice to fail loudly on invalid inputs.  But, can we
+        // recover from some of these errors?
+
+        return_if_false(fSize >= kICCHeaderSize, "Size is too small");
+
+        uint8_t majorVersion = fVersion >> 24;
+        return_if_false(majorVersion <= 4, "Unsupported version");
+
+        const uint32_t kDisplay_Profile = SkSetFourByteTag('m', 'n', 't', 'r');
+        const uint32_t kInput_Profile   = SkSetFourByteTag('s', 'c', 'n', 'r');
+        const uint32_t kOutput_Profile  = SkSetFourByteTag('p', 'r', 't', 'r');
+        // TODO (msarett):
+        // Should we also support DeviceLink, ColorSpace, Abstract, or NamedColor?
+        return_if_false(fClassProfile == kDisplay_Profile ||
+                        fClassProfile == kInput_Profile ||
+                        fClassProfile == kOutput_Profile,
+                        "Unsupported class profile");
+
+        // TODO (msarett):
+        // There are many more color spaces that we could try to support.
+        return_if_false(fColorSpace == kRGB_ColorSpace || fColorSpace == kGray_ColorSpace,
+                        "Unsupported color space");
+
+        const uint32_t kXYZ_PCSSpace = SkSetFourByteTag('X', 'Y', 'Z', ' ');
+        // TODO (msarett):
+        // Can we support PCS LAB as well?
+        return_if_false(fPCS == kXYZ_PCSSpace, "Unsupported PCS space");
+
+        return_if_false(fSignature == SkSetFourByteTag('a', 'c', 's', 'p'), "Bad signature");
+
+        // TODO (msarett):
+        // Should we treat different rendering intents differently?
+        // Valid rendering intents include kPerceptual (0), kRelative (1),
+        // kSaturation (2), and kAbsolute (3).
+        return_if_false(fRenderingIntent <= 3, "Bad rendering intent");
+
+        return_if_false(fTagCount <= 100, "Too many tags");
+
+        return true;
+    }
+};
+
+struct ICCTag {
+    uint32_t fSignature;
+    uint32_t fOffset;
+    uint32_t fLength;
+
+    const uint8_t* init(const uint8_t* src) {
+        fSignature = read_big_endian_int(src);
+        fOffset = read_big_endian_int(src + 4);
+        fLength = read_big_endian_int(src + 8);
+        return src + 12;
+    }
+
+    bool valid(size_t len) {
+        return_if_false(fOffset + fLength <= len, "Tag too large for ICC profile");
+        return true;
+    }
+
+    const uint8_t* addr(const uint8_t* src) const {
+        return src + fOffset;
+    }
+
+    static const ICCTag* Find(const ICCTag tags[], int count, uint32_t signature) {
+        for (int i = 0; i < count; ++i) {
+            if (tags[i].fSignature == signature) {
+                return &tags[i];
+            }
+        }
+        return nullptr;
+    }
+};
+
+// TODO (msarett):
+// Should we recognize more tags?
+static const uint32_t kTAG_rXYZ = SkSetFourByteTag('r', 'X', 'Y', 'Z');
+static const uint32_t kTAG_gXYZ = SkSetFourByteTag('g', 'X', 'Y', 'Z');
+static const uint32_t kTAG_bXYZ = SkSetFourByteTag('b', 'X', 'Y', 'Z');
+static const uint32_t kTAG_rTRC = SkSetFourByteTag('r', 'T', 'R', 'C');
+static const uint32_t kTAG_gTRC = SkSetFourByteTag('g', 'T', 'R', 'C');
+static const uint32_t kTAG_bTRC = SkSetFourByteTag('b', 'T', 'R', 'C');
+
+bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
+    if (len < 20) {
+        SkColorSpacePrintf("XYZ tag is too small (%d bytes)", len);
+        return false;
+    }
+
+    dst[0] = SkFixedToFloat(read_big_endian_int(src + 8));
+    dst[1] = SkFixedToFloat(read_big_endian_int(src + 12));
+    dst[2] = SkFixedToFloat(read_big_endian_int(src + 16));
+    SkColorSpacePrintf("XYZ %g %g %g\n", dst[0], dst[1], dst[2]);
+    return true;
+}
+
+static const uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
+static const uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', 'a');
+
+static bool load_gamma(float* gamma, const uint8_t* src, size_t len) {
+    if (len < 14) {
+        SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+        return false;
+    }
+
+    uint32_t type = read_big_endian_int(src);
+    switch (type) {
+        case kTAG_CurveType: {
+            uint32_t count = read_big_endian_int(src + 8);
+            if (0 == count) {
+                return false;
+            }
+
+            const uint16_t* table = (const uint16_t*) (src + 12);
+            if (1 == count) {
+                // Table entry is the exponent (bias 256).
+                uint16_t value = read_big_endian_short((const uint8_t*) table);
+                *gamma = value / 256.0f;
+                SkColorSpacePrintf("gamma %d %g\n", value, *gamma);
+                return true;
+            }
+
+            // Check length again if we have a table.
+            if (len < 12 + 2 * count) {
+                SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+                return false;
+            }
+
+            // Print the interpolation table.  For now, we ignore this and guess 2.2f.
+            for (uint32_t i = 0; i < count; i++) {
+                SkColorSpacePrintf("curve[%d] %d\n", i,
+                        read_big_endian_short((const uint8_t*) &table[i]));
+            }
+
+            *gamma = 2.2f;
+            return true;
+        }
+        case kTAG_ParaCurveType:
+            // Guess 2.2f.
+            SkColorSpacePrintf("parametric curve\n");
+            *gamma = 2.2f;
+            return true;
+        default:
+            SkColorSpacePrintf("Unsupported gamma tag type %d\n", type);
+            return false;
+    }
+}
+
+SkColorSpace* SkColorSpace::NewICC(const void* base, size_t len) {
+    const uint8_t* ptr = (const uint8_t*) base;
+
+    if (len < kICCHeaderSize) {
+        return_null("Data is not large enough to contain an ICC profile");
+    }
+
+    // Read the ICC profile header and check to make sure that it is valid.
+    ICCProfileHeader header;
+    header.init(ptr, len);
+    if (!header.valid()) {
+        return nullptr;
+    }
+
+    // Adjust ptr and len before reading the tags.
+    if (len < header.fSize) {
+        SkColorSpacePrintf("ICC profile might be truncated.\n");
+    } else if (len > header.fSize) {
+        SkColorSpacePrintf("Caller provided extra data beyond the end of the ICC profile.\n");
+        len = header.fSize;
+    }
+    ptr += kICCHeaderSize;
+    len -= kICCHeaderSize;
+
+    // Parse tag headers.
+    uint32_t tagCount = header.fTagCount;
+    SkColorSpacePrintf("ICC profile contains %d tags.\n", tagCount);
+    if (len < kICCTagTableEntrySize * tagCount) {
+        return_null("Not enough input data to read tag table entries");
+    }
+
+    SkAutoTArray<ICCTag> tags(tagCount);
+    for (uint32_t i = 0; i < tagCount; i++) {
+        ptr = tags[i].init(ptr);
+        SkColorSpacePrintf("[%d] %c%c%c%c %d %d\n", i, (tags[i].fSignature >> 24) & 0xFF,
+                (tags[i].fSignature >> 16) & 0xFF, (tags[i].fSignature >>  8) & 0xFF,
+                (tags[i].fSignature >>  0) & 0xFF, tags[i].fOffset, tags[i].fLength);
+
+        if (!tags[i].valid(kICCHeaderSize + len)) {
+            return_null("Tag is too large to fit in ICC profile");
+        }
+    }
+
+    // Load our XYZ and gamma matrices.
+    SkFloat3x3 toXYZ;
+    SkFloat3 gamma {{ 1.0f, 1.0f, 1.0f }};
+    switch (header.fColorSpace) {
+        case kRGB_ColorSpace: {
+            const ICCTag* r = ICCTag::Find(tags.get(), tagCount, kTAG_rXYZ);
+            const ICCTag* g = ICCTag::Find(tags.get(), tagCount, kTAG_gXYZ);
+            const ICCTag* b = ICCTag::Find(tags.get(), tagCount, kTAG_bXYZ);
+            if (!r || !g || !b) {
+                return_null("Need rgb tags for XYZ space");
+            }
+
+            if (!load_xyz(&toXYZ.fMat[0], r->addr((const uint8_t*) base), r->fLength) ||
+                !load_xyz(&toXYZ.fMat[3], g->addr((const uint8_t*) base), g->fLength) ||
+                !load_xyz(&toXYZ.fMat[6], b->addr((const uint8_t*) base), b->fLength))
+            {
+                return_null("Need valid rgb tags for XYZ space");
+            }
+
+            r = ICCTag::Find(tags.get(), tagCount, kTAG_rTRC);
+            g = ICCTag::Find(tags.get(), tagCount, kTAG_gTRC);
+            b = ICCTag::Find(tags.get(), tagCount, kTAG_bTRC);
+            if (!r || !load_gamma(&gamma.fVec[0], r->addr((const uint8_t*) base), r->fLength)) {
+                SkColorSpacePrintf("Failed to read R gamma tag.\n");
+            }
+            if (!g || !load_gamma(&gamma.fVec[1], g->addr((const uint8_t*) base), g->fLength)) {
+                SkColorSpacePrintf("Failed to read G gamma tag.\n");
+            }
+            if (!b || !load_gamma(&gamma.fVec[2], b->addr((const uint8_t*) base), b->fLength)) {
+                SkColorSpacePrintf("Failed to read B gamma tag.\n");
+            }
+            return SkColorSpace::NewRGB(toXYZ, gamma);
+        }
+        default:
+            break;
+    }
+
+    return_null("ICC profile contains unsupported colorspace");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 SkColorSpace::Result SkColorSpace::Concat(const SkColorSpace* src, const SkColorSpace* dst,
                                           SkFloat3x3* result) {
     if (!src || !dst || (src->named() == kDevice_Named) || (src->named() == dst->named())) {

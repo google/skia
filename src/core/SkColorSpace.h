@@ -56,6 +56,7 @@ public:
     static SkColorSpace* NewICC(const void*, size_t);
 
     SkFloat3 gamma() const { return fGamma; }
+    SkFloat3x3 xyz() const { return fToXYZD50; }
     Named named() const { return fNamed; }
     uint32_t uniqueID() const { return fUniqueID; }
 

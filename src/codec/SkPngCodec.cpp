@@ -165,6 +165,97 @@ bool SkPngCodec::IsPng(const char* buf, size_t bytesRead) {
     return !png_sig_cmp((png_bytep) buf, (png_size_t)0, bytesRead);
 }
 
+static float png_fixed_point_to_float(png_fixed_point x) {
+    // We multiply by the same factor that libpng used to convert
+    // fixed point -> double.  Since we want floats, we choose to
+    // do the conversion ourselves rather than convert
+    // fixed point -> double -> float.
+    return ((float) x) * 0.00001f;
+}
+
+// Returns a colorSpace object that represents any color space information in
+// the encoded data.  If the encoded data contains no color space, this will
+// return NULL.
+SkColorSpace* read_color_space(png_structp png_ptr, png_infop info_ptr) {
+
+    // First check for an ICC profile
+    png_bytep profile;
+    png_uint_32 length;
+    // The below variables are unused, however, we need to pass them in anyway or
+    // png_get_iCCP() will return nothing.
+    // Could knowing the |name| of the profile ever be interesting?  Maybe for debugging?
+    png_charp name;
+    // The |compression| is uninteresting since:
+    //   (1) libpng has already decompressed the profile for us.
+    //   (2) "deflate" is the only mode of decompression that libpng supports.
+    int compression;
+    if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile,
+            &length)) {
+        return SkColorSpace::NewICC(profile, length);
+    }
+
+    // Second, check for sRGB.
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_sRGB)) {
+
+        // sRGB chunks also store a rendering intent: Absolute, Relative,
+        // Perceptual, and Saturation.
+        // FIXME (msarett): Extract this information from the sRGB chunk once
+        //                  we are able to handle this information in
+        //                  SkColorSpace.
+        return SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    }
+
+    // Next, check for chromaticities.
+    png_fixed_point XYZ[9];
+    SkFloat3x3 toXYZD50;
+    png_fixed_point gamma;
+    SkFloat3 gammas;
+    if (png_get_cHRM_XYZ_fixed(png_ptr, info_ptr, &XYZ[0], &XYZ[1], &XYZ[2], &XYZ[3], &XYZ[4],
+            &XYZ[5], &XYZ[6], &XYZ[7], &XYZ[8])) {
+
+        // FIXME (msarett): Here we are treating XYZ values as D50 even though the color
+        //                  temperature is unspecified.  I suspect that this assumption
+        //                  is most often ok, but we could also calculate the color
+        //                  temperature (D value) and then convert the XYZ to D50.  Maybe
+        //                  we should add a new constructor to SkColorSpace that accepts
+        //                  XYZ with D-Unkown?
+        for (int i = 0; i < 9; i++) {
+            toXYZD50.fMat[i] = png_fixed_point_to_float(XYZ[i]);
+        }
+
+        if (PNG_INFO_gAMA != png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
+
+            // If the image does not specify gamma, let's choose linear.  Should we default
+            // to sRGB?  Most images are intended to be sRGB (gamma = 2.2f).
+            gamma = PNG_GAMMA_LINEAR;
+        }
+        gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] = png_fixed_point_to_float(gamma);
+
+        return SkColorSpace::NewRGB(toXYZD50, gammas);
+    }
+
+    // Last, check for gamma.
+    if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
+
+        // Guess a default value for cHRM?  Or should we just give up?
+        // Here we use the identity matrix as a default.
+        // FIXME (msarett): Should SkFloat3x3 have a method to set the identity matrix?
+        memset(toXYZD50.fMat, 0, 9 * sizeof(float));
+        toXYZD50.fMat[0] = toXYZD50.fMat[4] = toXYZD50.fMat[8] = 1.0f;
+
+        // Set the gammas.
+        gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] = png_fixed_point_to_float(gamma);
+
+        return SkColorSpace::NewRGB(toXYZD50, gammas);
+    }
+
+    // Finally, what should we do if there is no color space information in the PNG?
+    // The specification says that this indicates "gamma is unknown" and that the
+    // "color is device dependent".  I'm assuming we can represent this with NULL.
+    // But should we guess sRGB?  Most images are sRGB, even if they don't specify.
+    return nullptr;
+}
+
 // Reads the header and initializes the output fields, if not NULL.
 //
 // @param stream Input data. Will be read to get enough information to properly
@@ -330,8 +421,9 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
 }
 
 SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream, SkPngChunkReader* chunkReader,
-                       png_structp png_ptr, png_infop info_ptr, int bitDepth, int numberPasses)
-    : INHERITED(info, stream)
+                       png_structp png_ptr, png_infop info_ptr, int bitDepth, int numberPasses,
+                       SkColorSpace* colorSpace)
+    : INHERITED(info, stream, colorSpace)
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
@@ -541,8 +633,9 @@ uint32_t SkPngCodec::onGetFillValue(SkColorType colorType) const {
 class SkPngScanlineDecoder : public SkPngCodec {
 public:
     SkPngScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
-            SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
-        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1)
+            SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr, int bitDepth,
+            SkColorSpace* colorSpace)
+        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1, colorSpace)
         , fSrcRow(nullptr)
     {}
 
@@ -607,8 +700,9 @@ class SkPngInterlacedScanlineDecoder : public SkPngCodec {
 public:
     SkPngInterlacedScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
             SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses)
-        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, numberPasses)
+            int bitDepth, int numberPasses, SkColorSpace* colorSpace)
+        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, numberPasses,
+                    colorSpace)
         , fHeight(-1)
         , fCanSkipRewind(false)
     {
@@ -739,11 +833,14 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkRead
         return nullptr;
     }
 
+    SkAutoTUnref<SkColorSpace> colorSpace(read_color_space(png_ptr, info_ptr));
+
     if (1 == numberPasses) {
         return new SkPngScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,
-                                        png_ptr, info_ptr, bitDepth);
+                                        png_ptr, info_ptr, bitDepth, colorSpace);
     }
 
     return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,
-                                              png_ptr, info_ptr, bitDepth, numberPasses);
+                                              png_ptr, info_ptr, bitDepth, numberPasses,
+                                              colorSpace);
 }

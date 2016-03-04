@@ -10,6 +10,7 @@
 
 #include "../private/SkTemplates.h"
 #include "SkColor.h"
+#include "SkColorSpace.h"
 #include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
@@ -97,6 +98,13 @@ public:
      *  Return the ImageInfo associated with this codec.
      */
     const SkImageInfo& getInfo() const { return fSrcInfo; }
+
+    /**
+     *  Returns the color space associated with the codec.
+     *  Does not affect ownership.
+     *  Might be NULL.
+     */
+    SkColorSpace* getColorSpace() const { return fColorSpace; }
 
     /**
      *  Return a size that approximately supports the desired scale factor.
@@ -502,7 +510,11 @@ public:
     int outputScanline(int inputScanline) const;
 
 protected:
-    SkCodec(const SkImageInfo&, SkStream*);
+    /**
+     *  Takes ownership of SkStream*
+     *  Does not affect ownership of SkColorSpace*
+     */
+    SkCodec(const SkImageInfo&, SkStream*, SkColorSpace* = nullptr);
 
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
@@ -630,13 +642,15 @@ protected:
     virtual int onOutputScanline(int inputScanline) const;
 
 private:
-    const SkImageInfo       fSrcInfo;
-    SkAutoTDelete<SkStream> fStream;
-    bool                    fNeedsRewind;
+    const SkImageInfo           fSrcInfo;
+    SkAutoTDelete<SkStream>     fStream;
+    bool                        fNeedsRewind;
+    SkAutoTUnref<SkColorSpace>  fColorSpace;
+
     // These fields are only meaningful during scanline decodes.
-    SkImageInfo             fDstInfo;
-    SkCodec::Options        fOptions;
-    int                     fCurrScanline;
+    SkImageInfo                 fDstInfo;
+    SkCodec::Options            fOptions;
+    int                         fCurrScanline;
 
     /**
      *  Return whether these dimensions are supported as a scale.
