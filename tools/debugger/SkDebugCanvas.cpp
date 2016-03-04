@@ -20,9 +20,10 @@
 #include "SkGpuDevice.h"
 #endif
 
-#define SKDEBUGCANVAS_VERSION            1
-#define SKDEBUGCANVAS_ATTRIBUTE_VERSION  "version"
-#define SKDEBUGCANVAS_ATTRIBUTE_COMMANDS "commands"
+#define SKDEBUGCANVAS_VERSION                     1
+#define SKDEBUGCANVAS_ATTRIBUTE_VERSION           "version"
+#define SKDEBUGCANVAS_ATTRIBUTE_COMMANDS          "commands"
+#define SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL        "auditTrail"
 
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
 public:
@@ -331,6 +332,10 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
 #if SK_SUPPORT_GPU
     // draw any batches if required and issue a full reset onto GrAuditTrail
     if (at) {
+        // just in case there is global reordering, we flush the canvas before querying
+        // GrAuditTrail
+        canvas->flush();
+
         // we pick three colorblind-safe colors, 75% alpha
         static const SkColor kTotalBounds = SkColorSetARGB(0xC0, 0x6A, 0x3D, 0x9A);
         static const SkColor kOpBatchBounds = SkColorSetARGB(0xC0, 0xE3, 0x1A, 0x1C);
@@ -413,13 +418,50 @@ SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
 }
 
 Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanvas* canvas) {
+#if SK_SUPPORT_GPU
+    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
+    GrAuditTrail* at = nullptr;
+    if (rt) {
+        GrContext* ctx = rt->getContext();
+        if(ctx) {
+            at = ctx->getAuditTrail();
+
+            // loop over all of the commands and draw them, this is to collect reordering
+            // information
+            for (int i = 0; i < this->getSize() && i <= n; i++) {
+                GrAuditTrail::AutoCollectBatches enable(at, i);
+                fCommandVector[i]->execute(canvas);
+            }
+
+            // in case there is some kind of global reordering
+            canvas->flush();
+        }
+    }
+#endif
+    
+    // now collect json
     Json::Value result = Json::Value(Json::objectValue);
     result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
     Json::Value commands = Json::Value(Json::arrayValue);
     for (int i = 0; i < this->getSize() && i <= n; i++) {
-        commands[i] = this->getDrawCommandAt(i)->drawToAndCollectJSON(canvas, urlDataManager,
-                                                                      i);
+        commands[i] = this->getDrawCommandAt(i)->toJSON(urlDataManager);
+#if SK_SUPPORT_GPU
+        if (at) {
+            // TODO if this is inefficient we could add a method to GrAuditTrail which takes
+            // a Json::Value and is only compiled in this file
+            Json::Value parsedFromString;
+            Json::Reader reader;
+            SkAssertResult(reader.parse(at->toJson(i).c_str(), parsedFromString));
+
+            commands[i][SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL] = parsedFromString;
+        }
+#endif
     }
+#if SK_SUPPORT_GPU
+    if (at) {
+        at->fullReset();
+    }
+#endif
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;
     return result;
 }

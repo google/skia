@@ -25,14 +25,8 @@
 #include "SkValidatingReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrRenderTarget.h"
-#endif
-
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
 #define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"
-#define SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL        "auditTrail"
 #define SKDEBUGCANVAS_ATTRIBUTE_MATRIX            "matrix"
 #define SKDEBUGCANVAS_ATTRIBUTE_COORDS            "coords"
 #define SKDEBUGCANVAS_ATTRIBUTE_BOUNDS            "bounds"
@@ -224,37 +218,6 @@ Json::Value SkDrawCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result;
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMAND] = this->GetCommandString(fOpType);
     result[SKDEBUGCANVAS_ATTRIBUTE_VISIBLE] = Json::Value(this->isVisible());
-    return result;
-}
-
-Json::Value SkDrawCommand::drawToAndCollectJSON(SkCanvas* canvas,
-                                                UrlDataManager& urlDataManager,
-                                                int opIndex) const {
-    Json::Value result = this->toJSON(urlDataManager);
-
-    SkASSERT(canvas);
-
-#if SK_SUPPORT_GPU
-    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-    if (rt) {
-        GrContext* ctx = rt->getContext();
-        if(ctx) {
-            GrAuditTrail* at = ctx->getAuditTrail();
-            GrAuditTrail::AutoCollectBatches enable(at, opIndex);
-            this->execute(canvas);
-
-            // TODO if this is inefficient we could add a method to GrAuditTrail which takes
-            // a Json::Value and is only compiled in this file
-            Json::Value parsedFromString;
-            Json::Reader reader;
-            SkDEBUGCODE(bool parsingSuccessful = )reader.parse(at->toJson(opIndex).c_str(),
-                                                               parsedFromString);
-            SkASSERT(parsingSuccessful);
-
-            result[SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL] = parsedFromString;
-        }
-    }
-#endif
     return result;
 }
 

@@ -87,12 +87,16 @@ int skiaserve_main() {
     printf("Visit http://%s:%d in your browser.\n", FLAGS_address[0], FLAGS_port);
 
     struct MHD_Daemon* daemon;
-    // TODO Add option to bind this strictly to an address, e.g. localhost, for security.
-    daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, FLAGS_port, nullptr, nullptr,
+    daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY
+#ifdef SK_DEBUG
+                              | MHD_USE_DEBUG
+#endif  
+                              , FLAGS_port, nullptr, nullptr,
                               &answer_to_connection, &request,
                               MHD_OPTION_SOCK_ADDR, &address,
                               MHD_OPTION_END);
     if (NULL == daemon) {
+        SkDebugf("Could not initialize daemon\n");
         return 1;
     }
 

@@ -102,9 +102,6 @@ public:
 
     virtual Json::Value toJSON(UrlDataManager& urlDataManager) const;
 
-    Json::Value drawToAndCollectJSON(SkCanvas*, UrlDataManager& urlDataManager,
-                                     int opIndex) const;
-
     /* Converts a JSON representation of a command into a newly-allocated SkDrawCommand object. It
      * is the caller's responsibility to delete this object. This method may return null if an error
      * occurs.
