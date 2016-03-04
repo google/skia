@@ -12,16 +12,19 @@
 #include "GrVkResource.h"
 #include "GrVkUtil.h"
 #include "SkTArray.h"
+#include "SkTDynamicHash.h"
 
 #include "vulkan/vulkan.h"
 
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrTextureParams;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkPipeline;
 class GrVkRenderPass;
 class GrVkRenderTarget;
+class GrVkSampler;
 
 class GrVkResourceProvider {
 public:
@@ -55,6 +58,10 @@ public:
     GrVkDescriptorPool* findOrCreateCompatibleDescriptorPool(
                                         const GrVkDescriptorPool::DescriptorTypeCounts& typeCounts);
 
+    // Finds or creates a compatible GrVkSampler based on the GrTextureParams.
+    // The refcount is incremented and a pointer returned.
+    GrVkSampler* findOrCreateCompatibleSampler(const GrTextureParams&);
+
     // Destroy any cached resources. To be called before destroying the VkDevice.
     // The assumption is that all queues are idle and all command buffers are finished.
     // For resource tracing to work properly, this should be called after unrefing all other
@@ -78,6 +85,10 @@ private:
 
     // Array of CommandBuffers that are currently in flight
     SkSTArray<4, GrVkCommandBuffer*> fActiveCommandBuffers;
+
+    // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
+    // programs
+    SkTDynamicHash<GrVkSampler, uint8_t> fSamplers;
 };
 
 #endif

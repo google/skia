@@ -13,23 +13,31 @@
 #include "vulkan/vulkan.h"
 
 class GrTextureAccess;
+class GrTextureParams;
 class GrVkGpu;
 
 
 class GrVkSampler : public GrVkResource {
 public:
-    static GrVkSampler* Create(const GrVkGpu* gpu, const GrTextureAccess& textureAccess);
+    static GrVkSampler* Create(const GrVkGpu* gpu, const GrTextureParams&);
 
     VkSampler sampler() const { return fSampler; }
 
+    // Helpers for hashing GrVkSampler
+    static uint8_t GenerateKey(const GrTextureParams&);
+
+    static const uint8_t& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
+    static uint32_t Hash(const uint8_t& key) { return key; }
 private:
-    GrVkSampler(VkSampler sampler) : INHERITED(), fSampler(sampler) {}
+    GrVkSampler(VkSampler sampler, uint8_t key) : INHERITED(), fSampler(sampler), fKey(key) {}
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 
     VkSampler  fSampler;
+    uint8_t   fKey;
 
     typedef GrVkResource INHERITED;
 };
 
 #endif
+

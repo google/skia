@@ -33,7 +33,7 @@ public:
 
     GrVkPipeline* vkPipeline() const { return fPipeline; }
 
-    void setData(const GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&);
+    void setData(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&);
 
     void bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);
 
@@ -68,7 +68,7 @@ private:
 
     void writeUniformBuffers(const GrVkGpu* gpu);
 
-    void writeSamplers(const GrVkGpu* gpu, const SkTArray<const GrTextureAccess*>& textureBindings);
+    void writeSamplers(GrVkGpu* gpu, const SkTArray<const GrTextureAccess*>& textureBindings);
 
 
     /**

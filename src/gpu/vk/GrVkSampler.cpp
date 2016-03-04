@@ -23,7 +23,7 @@ static inline VkSamplerAddressMode tile_to_vk_sampler_address(SkShader::TileMode
     return gWrapModes[tm];
 }
 
-GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureAccess& textureAccess) {
+GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& params) {
 
     static VkFilter vkMinFilterModes[] = {
         VK_FILTER_NEAREST,
@@ -35,8 +35,6 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureAccess& text
         VK_FILTER_LINEAR,
         VK_FILTER_LINEAR
     };
-
-    const GrTextureParams& params = textureAccess.getParams();
 
     VkSamplerCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(VkSamplerCreateInfo));
@@ -65,10 +63,24 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureAccess& text
                                                           nullptr,
                                                           &sampler));
 
-    return new GrVkSampler(sampler);
+    return new GrVkSampler(sampler, GenerateKey(params));
 }
 
 void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(fSampler);
     GR_VK_CALL(gpu->vkInterface(), DestroySampler(gpu->device(), fSampler, nullptr));
 }
+
+uint8_t GrVkSampler::GenerateKey(const GrTextureParams& params) {
+
+    uint8_t key = params.filterMode();
+    
+    SkASSERT(params.filterMode() <= 3);
+    key |= (params.getTileModeX() << 2);
+
+    GR_STATIC_ASSERT(SkShader::kTileModeCount <= 4);
+    key |= (params.getTileModeY() << 4);
+
+    return key;
+}
+

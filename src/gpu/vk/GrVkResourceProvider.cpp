@@ -7,9 +7,11 @@
 
 #include "GrVkResourceProvider.h"
 
+#include "GrTextureParams.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderPass.h"
+#include "GrVkSampler.h"
 #include "GrVkUtil.h"
 
 #ifdef SK_TRACE_VK_RESOURCES
@@ -81,6 +83,17 @@ GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
     return new GrVkDescriptorPool(fGpu, typeCounts);
 }
 
+GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrTextureParams& params) {
+    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params));
+    if (!sampler) {
+        sampler = GrVkSampler::Create(fGpu, params);
+        fSamplers.add(sampler);
+    }
+    SkASSERT(sampler);
+    sampler->ref();
+    return sampler;
+}
+
 GrVkCommandBuffer* GrVkResourceProvider::createCommandBuffer() {
     GrVkCommandBuffer* cmdBuffer = GrVkCommandBuffer::Create(fGpu, fGpu->cmdPool());
     fActiveCommandBuffers.push_back(cmdBuffer);
@@ -112,6 +125,13 @@ void GrVkResourceProvider::destroyResources() {
     }
     fSimpleRenderPasses.reset();
 
+    // Iterate through all store GrVkSamplers and unref them before resetting the hash.
+    SkTDynamicHash<GrVkSampler, uint8_t>::Iter iter(&fSamplers);
+    for (; !iter.done(); ++iter) {
+        (*iter).unref(fGpu);
+    }
+    fSamplers.reset();
+
 #ifdef SK_TRACE_VK_RESOURCES
     SkASSERT(0 == GrVkResource::fTrace.count());
 #endif
@@ -132,6 +152,13 @@ void GrVkResourceProvider::abandonResources() {
         fSimpleRenderPasses[i]->unrefAndAbandon();
     }
     fSimpleRenderPasses.reset();
+
+    // Iterate through all store GrVkSamplers and unrefAndAbandon them before resetting the hash.
+    SkTDynamicHash<GrVkSampler, uint8_t>::Iter iter(&fSamplers);
+    for (; !iter.done(); ++iter) {
+        (*iter).unrefAndAbandon();
+    }
+    fSamplers.reset();
 
 #ifdef SK_TRACE_VK_RESOURCES
     SkASSERT(0 == GrVkResource::fTrace.count());

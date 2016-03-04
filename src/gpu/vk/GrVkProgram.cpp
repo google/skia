@@ -163,7 +163,7 @@ static void append_texture_bindings(const GrProcessor& processor,
     }
 }
 
-void GrVkProgram::setData(const GrVkGpu* gpu,
+void GrVkProgram::setData(GrVkGpu* gpu,
                           const GrPrimitiveProcessor& primProc,
                           const GrPipeline& pipeline) {
     // This is here to protect against someone calling setData multiple times in a row without
@@ -255,12 +255,13 @@ void GrVkProgram::writeUniformBuffers(const GrVkGpu* gpu) {
     }
 }
 
-void GrVkProgram::writeSamplers(const GrVkGpu* gpu,
+void GrVkProgram::writeSamplers(GrVkGpu* gpu,
                                 const SkTArray<const GrTextureAccess*>& textureBindings) {
     SkASSERT(fNumSamplers == textureBindings.count());
 
     for (int i = 0; i < textureBindings.count(); ++i) {
-        fSamplers.push(GrVkSampler::Create(gpu, *textureBindings[i]));
+        const GrTextureParams& params = textureBindings[i]->getParams();
+        fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params));
 
         GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->getTexture());
 
