@@ -10,6 +10,7 @@ import argparse
 import common
 import os
 import sys
+import utils
 
 
 def main():
@@ -17,8 +18,9 @@ def main():
   parser.add_argument('--builder_name', required=True)
   parser.add_argument('--swarm_out_dir', required=True)
   args = parser.parse_args()
-  bot = common.BotInfo(args.builder_name, os.path.abspath(args.swarm_out_dir))
-  bot.compile_steps()
+  with utils.print_timings():
+    bot = common.BotInfo(args.builder_name, os.path.abspath(args.swarm_out_dir))
+    bot.compile_steps()
 
 
 if __name__ == '__main__':

@@ -10,6 +10,7 @@ import argparse
 import common
 import os
 import sys
+import utils
 
 
 def main():
@@ -21,9 +22,10 @@ def main():
   parser.add_argument('--revision', required=True)
   parser.add_argument('--swarm_out_dir', required=True)
   args = parser.parse_args()
-  bot = common.BotInfo(args.builder_name, os.path.abspath(args.swarm_out_dir))
-  bot.perf_steps(args.revision, args.master_name, args.slave_name,
-                 args.build_number)
+  with utils.print_timings():
+    bot = common.BotInfo(args.builder_name, os.path.abspath(args.swarm_out_dir))
+    bot.perf_steps(args.revision, args.master_name, args.slave_name,
+                   args.build_number)
 
 
 if __name__ == '__main__':
