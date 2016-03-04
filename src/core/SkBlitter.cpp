@@ -593,7 +593,7 @@ public:
     }
 
     size_t onContextSize(const ContextRec& rec) const override {
-        size_t size = SkAlign16(sizeof(Sk3DShaderContext));
+        size_t size = sizeof(Sk3DShaderContext);
         if (fProxy) {
             size += fProxy->contextSize(rec);
         }

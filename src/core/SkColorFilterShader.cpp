@@ -63,7 +63,7 @@ SkShader::Context* SkColorFilterShader::onCreateContext(const ContextRec& rec,
 }
 
 size_t SkColorFilterShader::onContextSize(const ContextRec& rec) const {
-    return SkAlign16(sizeof(FilterShaderContext)) + fShader->contextSize(rec);
+    return sizeof(FilterShaderContext) + fShader->contextSize(rec);
 }
 
 SkColorFilterShader::FilterShaderContext::FilterShaderContext(

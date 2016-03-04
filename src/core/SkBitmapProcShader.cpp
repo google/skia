@@ -120,7 +120,7 @@ private:
 size_t SkBitmapProcShader::ContextSize(const ContextRec& rec) {
     // The SkBitmapProcState is stored outside of the context object, with the context holding
     // a pointer to it.
-    return SkAlign16(sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState));
+    return sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState);
 }
 
 SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,

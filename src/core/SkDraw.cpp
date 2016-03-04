@@ -1772,7 +1772,7 @@ SkTriColorShader::TriColorShaderContext::TriColorShaderContext(const SkTriColorS
 SkTriColorShader::TriColorShaderContext::~TriColorShaderContext() {}
 
 size_t SkTriColorShader::onContextSize(const ContextRec&) const {
-    return SkAlign16(sizeof(TriColorShaderContext));
+    return sizeof(TriColorShaderContext);
 }
 
 void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {

@@ -651,7 +651,7 @@ bool SkLightingShaderImpl::computeNormTotalInverse(const ContextRec& rec,
 }
 
 size_t SkLightingShaderImpl::onContextSize(const ContextRec&) const {
-    return SkAlign16(2 * sizeof(SkBitmapProcState) + sizeof(LightingShaderContext));
+    return 2 * sizeof(SkBitmapProcState) + sizeof(LightingShaderContext);
 }
 
 SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,

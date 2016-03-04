@@ -71,14 +71,13 @@ public:
      *  allocation if necessary.
      *  Unlike createT(), this method will not call the constructor of T.
      */
-    template<typename T> void* reserveT(size_t storageRequested = sizeof(T)) {
+    template<typename T> void* reserveT(size_t storageRequired = sizeof(T)) {
         SkASSERT(fNumObjects < kMaxObjects);
-        SkASSERT(storageRequested >= sizeof(T));
+        SkASSERT(storageRequired >= sizeof(T));
         if (kMaxObjects == fNumObjects) {
             return nullptr;
         }
         const size_t storageRemaining = sizeof(fStorage) - fStorageUsed;
-        const size_t storageRequired = SkAlign16(storageRequested);
         Rec* rec = &fRecs[fNumObjects];
         if (storageRequired > storageRemaining) {
             // Allocate on the heap. Ideally we want to avoid this situation,
@@ -92,7 +91,6 @@ public:
             // There is space in fStorage.
             rec->fStorageSize = storageRequired;
             rec->fHeapStorage = nullptr;
-            SkASSERT(SkIsAlign16(fStorageUsed));
             rec->fObj = static_cast<void*>(fStorage.fBytes + fStorageUsed);
             fStorageUsed += storageRequired;
         }

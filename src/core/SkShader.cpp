@@ -86,10 +86,6 @@ bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShader::Context* SkShader::createContext(const ContextRec& rec, void* storage) const {
-    // Currently we require each context to be allocated on 16byte boundary as some of our
-    // subclasses need that. Hence we check the ptr here.
-//    SkASSERT(SkIsAlign16((intptr_t)storage));
-
     if (!this->computeTotalInverse(rec, nullptr)) {
         return nullptr;
     }
@@ -101,13 +97,7 @@ SkShader::Context* SkShader::onCreateContext(const ContextRec& rec, void*) const
 }
 
 size_t SkShader::contextSize(const ContextRec& rec) const {
-    size_t size = this->onContextSize(rec);
-
-    // Currently we require each context to be allocated on 16byte boundary as some of our
-    // subclasses need that. Hence we check the size here.
-//    SkASSERT(SkIsAlign16(size));
-
-    return size;
+    return this->onContextSize(rec);
 }
 
 size_t SkShader::onContextSize(const ContextRec&) const {

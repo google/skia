@@ -572,7 +572,7 @@ SkShader::Context* SkPerlinNoiseShader2::onCreateContext(const ContextRec& rec,
 }
 
 size_t SkPerlinNoiseShader2::onContextSize(const ContextRec&) const {
-    return SkAlign16(sizeof(PerlinNoiseShaderContext));
+    return sizeof(PerlinNoiseShaderContext);
 }
 
 SkPerlinNoiseShader2::PerlinNoiseShaderContext::PerlinNoiseShaderContext(

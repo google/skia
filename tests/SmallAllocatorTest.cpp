@@ -81,16 +81,3 @@ DEF_TEST(SmallAllocator_pointer, reporter) {
     REPORTER_ASSERT(reporter, container != nullptr);
     REPORTER_ASSERT(reporter, container->getDummy() == &d);
 }
-
-#define check_alignment(reporter, ptr)  \
-    REPORTER_ASSERT(reporter, SkIsAlign16((intptr_t)ptr))
-
-DEF_TEST(SmallAllocator_alignment, reporter) {
-    const size_t totalBytes = 1 + 2 + 4 + 8;
-    SkSmallAllocator<4, totalBytes> alloc;
-
-    check_alignment(reporter, alloc.reserveT<uint8_t>());
-    check_alignment(reporter, alloc.reserveT<uint16_t>());
-    check_alignment(reporter, alloc.reserveT<uint32_t>());
-    check_alignment(reporter, alloc.reserveT<uint64_t>());
-}

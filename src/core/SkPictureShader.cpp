@@ -242,7 +242,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkM
 }
 
 size_t SkPictureShader::onContextSize(const ContextRec&) const {
-    return SkAlign16(sizeof(PictureShaderContext));
+    return sizeof(PictureShaderContext);
 }
 
 SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void* storage) const {

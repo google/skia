@@ -46,7 +46,7 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
 }
 
 size_t SkSweepGradient::onContextSize(const ContextRec&) const {
-    return SkAlign16(sizeof(SweepGradientContext));
+    return sizeof(SweepGradientContext);
 }
 
 SkShader::Context* SkSweepGradient::onCreateContext(const ContextRec& rec, void* storage) const {

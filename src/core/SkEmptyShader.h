@@ -27,7 +27,7 @@ protected:
     size_t onContextSize(const ContextRec&) const override {
         // Even though createContext returns nullptr we have to return a value of at least
         // sizeof(SkShader::Context) to satisfy SkSmallAllocator.
-        return SkAlign16(sizeof(SkShader::Context));
+        return sizeof(SkShader::Context);
     }
 
     SkShader::Context* onCreateContext(const ContextRec&, void*) const override {

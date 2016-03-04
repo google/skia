@@ -31,7 +31,7 @@ SkComposeShader::~SkComposeShader() {
 }
 
 size_t SkComposeShader::onContextSize(const ContextRec& rec) const {
-    return SkAlign16(sizeof(ComposeShaderContext))
+    return sizeof(ComposeShaderContext)
         + fShaderA->contextSize(rec)
         + fShaderB->contextSize(rec);
 }
@@ -76,7 +76,7 @@ template <typename T> void safe_call_destructor(T* obj) {
 }
 
 SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    char* aStorage = (char*) storage + SkAlign16(sizeof(ComposeShaderContext));
+    char* aStorage = (char*) storage + sizeof(ComposeShaderContext);
     char* bStorage = aStorage + fShaderA->contextSize(rec);
 
     // we preconcat our localMatrix (if any) with the device matrix
