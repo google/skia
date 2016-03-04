@@ -178,6 +178,8 @@ static float png_fixed_point_to_float(png_fixed_point x) {
 // return NULL.
 SkColorSpace* read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
+#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
+
     // First check for an ICC profile
     png_bytep profile;
     png_uint_32 length;
@@ -248,6 +250,8 @@ SkColorSpace* read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
         return SkColorSpace::NewRGB(toXYZD50, gammas);
     }
+
+#endif // LIBPNG >= 1.6
 
     // Finally, what should we do if there is no color space information in the PNG?
     // The specification says that this indicates "gamma is unknown" and that the
