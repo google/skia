@@ -155,9 +155,9 @@ class BotInfo(object):
     self.spec = self.get_bot_spec(bot_name)
     self.bot_cfg = self.spec['builder_cfg']
     if self.bot_cfg['role'] == 'Build':
-      self.out_dir = swarm_out_dir
+      self.out_dir = os.path.join(swarm_out_dir, 'out')
     else:
-      self.out_dir = os.path.join(self.skia_dir, 'out', self.name)
+      self.out_dir = os.path.join(os.pardir, 'out')
     self.configuration = self.spec['configuration']
     self.default_env = {
       'SKIA_OUT': self.out_dir,

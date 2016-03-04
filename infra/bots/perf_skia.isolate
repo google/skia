@@ -1,7 +1,8 @@
 {
   'includes': [
     'images.isolate',
-    'skia_repo.isolate',
+    'infrabots.isolate',
+    'resources.isolate',
     'skps.isolate',
   ],
   'variables': {
