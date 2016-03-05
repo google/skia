@@ -274,3 +274,19 @@ DEF_TEST(sk_sp, reporter) {
     check(reporter, 1, 2, 1, 1);
 }
 
+namespace {
+struct FooAbstract : public SkRefCnt {
+    virtual void f() = 0;
+};
+struct FooConcrete : public FooAbstract {
+    void f() override {}
+};
+}
+static sk_sp<FooAbstract> make_foo() {
+    // can not cast FooConcrete to FooAbstract.
+    // can cast FooConcrete* to FooAbstract*.
+    return sk_make_sp<FooConcrete>();
+}
+DEF_TEST(sk_make_sp, r) {
+    auto x = make_foo();
+}
