@@ -197,6 +197,8 @@ protected:
 
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
+    void drawAnnotation(const SkDraw&, const SkRect&, const char key[], SkData* value) override;
+
 private:
     struct RectWithData {
         SkRect rect;
@@ -318,10 +320,8 @@ private:
     bool handleInversePath(const SkDraw& d, const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = nullptr);
-    bool handlePointAnnotation(const SkPoint* points, size_t count,
-                               const SkMatrix& matrix, SkAnnotation* annot);
-    bool handlePathAnnotation(const SkPath& path, const SkDraw& d,
-                              SkAnnotation* annot);
+    void handlePointAnnotation(const SkPoint&, const SkMatrix&, const char key[], SkData* value);
+    void handlePathAnnotation(const SkPath&, const SkDraw& d, const char key[], SkData* value);
 
     typedef SkBaseDevice INHERITED;
 

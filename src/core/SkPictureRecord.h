@@ -204,6 +204,7 @@ protected:
     void onClipRegion(const SkRegion&, SkRegion::Op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
     int addPathToHeap(const SkPath& path);  // does not write to ops stream
 

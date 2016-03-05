@@ -7,7 +7,7 @@
 
 #include "SkPDFDevice.h"
 
-#include "SkAnnotation.h"
+#include "SkAnnotationKeys.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkClipStack.h"
@@ -753,6 +753,17 @@ void SkPDFDevice::cleanUp(bool clearFontUsage) {
     }
 }
 
+void SkPDFDevice::drawAnnotation(const SkDraw& d, const SkRect& rect, const char key[],
+                                 SkData* value) {
+    if (0 == rect.width() && 0 == rect.height()) {
+        handlePointAnnotation({ rect.x(), rect.y() }, *d.fMatrix, key, value);
+    } else {
+        SkPath path;
+        path.addRect(rect);
+        handlePathAnnotation(path, d, key, value);
+    }
+}
+
 void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
     SkPaint newPaint = paint;
     replace_srcmode_on_opaque_paint(&newPaint);
@@ -790,12 +801,6 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
 
     if (count == 0) {
         return;
-    }
-
-    if (SkAnnotation* annotation = passedPaint.getAnnotation()) {
-        if (handlePointAnnotation(points, count, *d.fMatrix, annotation)) {
-            return;
-        }
     }
 
     // SkDraw::drawPoints converts to multiple calls to fDevice->drawPath.
@@ -935,14 +940,6 @@ void SkPDFDevice::drawRect(const SkDraw& d,
         return;
     }
 
-    if (SkAnnotation* annotation = paint.getAnnotation()) {
-        SkPath path;
-        path.addRect(rect);
-        if (handlePathAnnotation(path, d, annotation)) {
-            return;
-        }
-    }
-
     ScopedContentEntry content(this, d, paint);
     if (!content.entry()) {
         return;
@@ -1019,12 +1016,6 @@ void SkPDFDevice::drawPath(const SkDraw& d,
 
     if (handleInversePath(d, origPath, paint, pathIsMutable, prePathMatrix)) {
         return;
-    }
-
-    if (SkAnnotation* annotation = paint.getAnnotation()) {
-        if (handlePathAnnotation(*pathPtr, d, annotation)) {
-            return;
-        }
     }
 
     ScopedContentEntry content(this, d.fClipStack, *d.fClip, matrix, paint);
@@ -1664,26 +1655,26 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
     return true;
 }
 
-bool SkPDFDevice::handlePointAnnotation(const SkPoint* points, size_t count,
+void SkPDFDevice::handlePointAnnotation(const SkPoint& point,
                                         const SkMatrix& matrix,
-                                        SkAnnotation* annotationInfo) {
-    SkData* nameData = annotationInfo->find(
-            SkAnnotationKeys::Define_Named_Dest_Key());
-    if (nameData) {
-        for (size_t i = 0; i < count; i++) {
-            SkPoint transformedPoint;
-            matrix.mapXY(points[i].x(), points[i].y(), &transformedPoint);
-            fNamedDestinations.emplace_back(nameData, transformedPoint);
-        }
-        return true;
+                                        const char key[], SkData* value) {
+    if (!value) {
+        return;
     }
-    return false;
+
+    if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
+        SkPoint transformedPoint;
+        matrix.mapXY(point.x(), point.y(), &transformedPoint);
+        fNamedDestinations.emplace_back(value, transformedPoint);
+    }
 }
 
-bool SkPDFDevice::handlePathAnnotation(const SkPath& path,
+void SkPDFDevice::handlePathAnnotation(const SkPath& path,
                                        const SkDraw& d,
-                                       SkAnnotation* annotation) {
-    SkASSERT(annotation);
+                                       const char key[], SkData* value) {
+    if (!value) {
+        return;
+    }
 
     SkPath transformedPath = path;
     transformedPath.transform(*d.fMatrix);
@@ -1692,24 +1683,15 @@ bool SkPDFDevice::handlePathAnnotation(const SkPath& path,
             false);
     SkRect transformedRect = SkRect::Make(clip.getBounds());
 
-    SkData* urlData = annotation->find(SkAnnotationKeys::URL_Key());
-    if (urlData) {
+    if (!strcmp(SkAnnotationKeys::URL_Key(), key)) {
         if (!transformedRect.isEmpty()) {
-            fLinkToURLs.emplace_back(transformedRect, urlData);
+            fLinkToURLs.emplace_back(transformedRect, value);
         }
-        return true;
-    }
-
-    SkData* linkToDestination =
-            annotation->find(SkAnnotationKeys::Link_Named_Dest_Key());
-    if (linkToDestination) {
+    } else if (!strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
         if (!transformedRect.isEmpty()) {
-            fLinkToDestinations.emplace_back(transformedRect, linkToDestination);
+            fLinkToDestinations.emplace_back(transformedRect, value);
         }
-        return true;
     }
-
-    return false;
 }
 
 void SkPDFDevice::appendAnnotations(SkPDFArray* array) const {

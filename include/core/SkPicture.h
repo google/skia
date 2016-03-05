@@ -192,10 +192,11 @@ private:
     // V41: Added serialization of SkBitmapSource's filterQuality parameter
     // V42: Added a bool to SkPictureShader serialization to indicate did-we-serialize-a-picture?
     // V43: Added DRAW_IMAGE and DRAW_IMAGE_RECT opt codes to serialized data
+    // V44: Move annotations from paint to drawAnnotation
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
-    static const uint32_t CURRENT_PICTURE_VERSION = 43;
+    static const uint32_t CURRENT_PICTURE_VERSION = 44;
 
     static_assert(MIN_PICTURE_VERSION <= 41,
                   "Remove kFontFileName and related code from SkFontDescriptor.cpp.");
@@ -205,7 +206,7 @@ private:
 
     static_assert(MIN_PICTURE_VERSION <= 43,
                   "Remove SkBitmapSourceDeserializer.");
-
+    
     static bool IsValidPictInfo(const SkPictInfo& info);
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
 

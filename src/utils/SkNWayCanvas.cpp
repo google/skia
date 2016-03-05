@@ -292,6 +292,13 @@ void SkNWayCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
     }
 }
 
+void SkNWayCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* data) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawAnnotation(rect, key, data);
+    }
+}
+
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
 SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     Iter iter(fList);

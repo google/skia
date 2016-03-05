@@ -117,6 +117,7 @@ DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.p
 DRAW(DrawAtlas, drawAtlas(r.atlas, r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
                                 r.xmode, r.indices, r.indexCount, r.paint));
+DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value));
 #undef DRAW
 
 template <> void Draw::draw(const DrawDrawable& r) {
@@ -517,6 +518,10 @@ private:
         return this->adjustAndMap(op.worstCaseBounds, nullptr);
     }
 
+    Bounds bounds(const DrawAnnotation& op) const {
+        return this->adjustAndMap(op.rect, nullptr);
+    }
+    
     static void AdjustTextForFontMetrics(SkRect* rect, const SkPaint& paint) {
 #ifdef SK_DEBUG
         SkRect correct = *rect;
