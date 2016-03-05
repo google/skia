@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -10,9 +9,6 @@
 #define SkAnnotation_DEFINED
 
 #include "SkTypes.h"
-
-// for chrome in PrintContextTest.cpp
-#define SK_SUPPORT_NEW_ANNOTATION_CANVAS_VIRTUAL
 
 class SkData;
 struct SkPoint;
