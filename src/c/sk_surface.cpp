@@ -54,6 +54,14 @@ sk_data_t* sk_image_encode(const sk_image_t* cimage) {
     return ToData(AsImage(cimage)->encode());
 }
 
+sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_image_encoder_t encoder, int quality) {
+	SkImageEncoder::Type t;
+	if (!find_sk(encoder, &t)){
+		return NULL;
+	}
+	return ToData(AsImage(cimage)->encode(t, quality));
+}
+
 void sk_image_ref(const sk_image_t* cimage) {
     AsImage(cimage)->ref();
 }

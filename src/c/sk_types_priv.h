@@ -561,6 +561,25 @@ const struct {
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_matrix_convolution_tilemode_t)
 #include "sk_c_from_to.h"
 
+const struct {
+	sk_image_encoder_t fC;
+	SkImageEncoder::Type fSK;
+} MAKE_FROM_TO_NAME(sk_image_encoder_t)[] = {
+	{ UNKNOWN_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kUnknown_Type },
+	{ BMP_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kBMP_Type },
+	{ GIF_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kGIF_Type },
+	{ ICO_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kICO_Type },
+	{ JPEG_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kJPEG_Type },
+	{ PNG_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kPNG_Type },
+	{ WBMP_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kWBMP_Type },
+	{ WEBP_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kWEBP_Type },
+	{ KTX_SK_IMAGE_ENCODER_TYPE, SkImageEncoder::kKTX_Type },
+};
+#define CType           sk_image_encoder_t
+#define SKType          SkImageEncoder::Type
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_image_encoder_t)
+#include "sk_c_from_to.h"
+
 static inline bool find_sk(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     SkColorType ct;
     SkAlphaType at;
