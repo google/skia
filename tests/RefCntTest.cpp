@@ -290,3 +290,21 @@ static sk_sp<FooAbstract> make_foo() {
 DEF_TEST(sk_make_sp, r) {
     auto x = make_foo();
 }
+
+// Test that reset() "adopts" ownership from the caller, even if we are given the same ptr twice
+//
+DEF_TEST(sk_sp_reset, r) {
+    SkRefCnt* rc = new SkRefCnt;
+    REPORTER_ASSERT(r, rc->unique());
+
+    sk_sp<SkRefCnt> sp;
+    sp.reset(rc);
+    // We have transfered our ownership over to sp
+    REPORTER_ASSERT(r, rc->unique());
+
+    rc->ref();  // now "rc" is also an owner
+    REPORTER_ASSERT(r, !rc->unique());
+
+    sp.reset(rc);   // this should transfer our ownership over to sp
+    REPORTER_ASSERT(r, rc->unique());
+}

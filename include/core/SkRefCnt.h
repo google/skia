@@ -338,10 +338,8 @@ public:
      *  No call to ref() will be made.
      */
     void reset(T* ptr = nullptr) {
-        if (fPtr != ptr) {
-            SkSafeUnref(fPtr);
-            fPtr = ptr;
-        }
+        SkSafeUnref(fPtr);
+        fPtr = ptr;
     }
 
     /**
