@@ -195,9 +195,17 @@ SK_API void sk_paint_set_text_skew_x(sk_paint_t* cpaint, float skew);
  */
 SK_API size_t sk_paint_break_text(const sk_paint_t* cpaint, const void* text, size_t length, float maxWidth, float* measuredWidth);
 /**
+ *  Return the number of bytes of text that were measured
+ */
+SK_API size_t sk_paint_break_utf16_text(const sk_paint_t* cpaint, const void* text, size_t length, float maxWidth, float* measuredWidth);
+/**
  *  Return the width of the text
  */
 SK_API float sk_paint_measure_text(const sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* cbounds);
+/**
+ *  Return the width of the UTF16 encoded text
+ */
+SK_API float sk_paint_measure_utf16_text(sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* cbounds);
 
 
 SK_C_PLUS_PLUS_END_GUARD

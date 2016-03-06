@@ -216,7 +216,37 @@ size_t sk_paint_break_text(const sk_paint_t* cpaint, const void* text, size_t le
     return AsPaint(cpaint)->breakText(text, length, maxWidth, measuredWidth);
 }
 
+size_t sk_paint_break_utf16_text(sk_paint_t* cpaint, const void* text, size_t length, float maxWidth, float* measuredWidth) {
+    SkPaint *paint = AsPaint(cpaint);
+    auto encoding = paint->getTextEncoding ();
+    int changed = 0;
+    if (encoding != SkPaint::kUTF16_TextEncoding){
+       changed = 1;
+        paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
+    }
+    auto ret = paint->breakText(text, length, maxWidth, measuredWidth);
+    if (changed != 0){
+       paint->setTextEncoding(encoding);
+    }
+    return ret;
+}
+
 float sk_paint_measure_text(const sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* bounds) {
     return AsPaint(cpaint)->measureText(text, length, AsRect(bounds));
+}
+
+float sk_paint_measure_utf16_text(sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* bounds) {
+    SkPaint *paint = AsPaint(cpaint);
+    auto encoding = paint->getTextEncoding ();
+    int changed = 0;
+    if (encoding != SkPaint::kUTF16_TextEncoding){
+       changed = 1;
+        paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
+    }
+    auto ret = paint->measureText(text, length, AsRect(bounds));
+    if (changed != 0){
+       paint->setTextEncoding(encoding);
+    }
+    return ret;
 }
 
