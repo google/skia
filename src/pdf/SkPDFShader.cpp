@@ -593,7 +593,7 @@ static SkPDFObject* create_smask_graphic_state(
     SkAutoTDelete<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
 
     SkAutoTUnref<SkPDFDict>
-        resources(get_gradient_resource_dict(luminosityShader, nullptr));
+        resources(get_gradient_resource_dict(luminosityShader.get(), nullptr));
 
     SkAutoTUnref<SkPDFFormXObject> alphaMask(
             new SkPDFFormXObject(alphaStream.get(), bbox, resources.get()));
@@ -806,17 +806,17 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
 
     SkAutoTUnref<SkPDFStream> function(
             make_ps_function(functionCode, domain.get()));
-    pdfShader->insertObjRef("Function", function.detach());
+    pdfShader->insertObjRef("Function", function.release());
 
-    SkPDFFunctionShader* pdfFunctionShader = new SkPDFFunctionShader(autoState->detach());
+    SkAutoTUnref<SkPDFFunctionShader> pdfFunctionShader(new SkPDFFunctionShader(autoState->detach()));
 
     pdfFunctionShader->insertInt("PatternType", 2);
     pdfFunctionShader->insertObject("Matrix",
                                     SkPDFUtils::MatrixToArray(finalMatrix));
-    pdfFunctionShader->insertObject("Shading", pdfShader.detach());
+    pdfFunctionShader->insertObject("Shading", pdfShader.release());
 
-    canon->addFunctionShader(pdfFunctionShader);
-    return pdfFunctionShader;
+    canon->addFunctionShader(pdfFunctionShader.get());
+    return pdfFunctionShader.release();
 }
 
 SkPDFImageShader* SkPDFImageShader::Create(

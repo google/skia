@@ -81,7 +81,8 @@ public:
 
     SkTHashMap<uint32_t, bool> fCanEmbedTypeface;
 
-    SkAutoTUnref<SkPixelSerializer> fPixelSerializer;
+    SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer.get(); }
+    void setPixelSerializer(SkPixelSerializer* ps)  { fPixelSerializer.reset(ps); }
 
 private:
     struct FontRec {
@@ -116,5 +117,7 @@ private:
 
     SkTHashMap<SkBitmapKey, const SkImage*> fBitmapToImageMap;
     SkTHashMap<uint32_t /*ImageUniqueID*/, SkPDFObject*> fPDFBitmapMap;
+
+    SkAutoTUnref<SkPixelSerializer> fPixelSerializer;
 };
 #endif  // SkPDFCanon_DEFINED

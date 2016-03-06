@@ -318,7 +318,7 @@ class SkPDFSharedStream final : public SkPDFObject {
 public:
     // Takes ownership of asset.
     SkPDFSharedStream(SkStreamAsset* data) : fAsset(data), fDict(new SkPDFDict) { SkASSERT(data); }
-    SkPDFDict* dict() { return fDict; }
+    SkPDFDict* dict() { return fDict.get(); }
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
                     const SkPDFSubstituteMap&) const override;

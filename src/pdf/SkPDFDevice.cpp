@@ -888,7 +888,7 @@ static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
     border->appendInt(0);  // Horizontal corner radius.
     border->appendInt(0);  // Vertical corner radius.
     border->appendInt(0);  // Width, 0 = no border.
-    annotation->insertObject("Border", border.detach());
+    annotation->insertObject("Border", border.release());
 
     SkAutoTUnref<SkPDFArray> rect(new SkPDFArray);
     rect->reserve(4);
@@ -896,9 +896,9 @@ static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
     rect->appendScalar(translatedRect.fTop);
     rect->appendScalar(translatedRect.fRight);
     rect->appendScalar(translatedRect.fBottom);
-    annotation->insertObject("Rect", rect.detach());
+    annotation->insertObject("Rect", rect.release());
 
-    return annotation.detach();
+    return annotation.release();
 }
 
 static SkPDFDict* create_link_to_url(const SkData* urlData, const SkRect& r) {
@@ -909,8 +909,8 @@ static SkPDFDict* create_link_to_url(const SkData* urlData, const SkRect& r) {
     SkAutoTUnref<SkPDFDict> action(new SkPDFDict("Action"));
     action->insertName("S", "URI");
     action->insertString("URI", url);
-    annotation->insertObject("A", action.detach());
-    return annotation.detach();
+    annotation->insertObject("A", action.release());
+    return annotation.release();
 }
 
 static SkPDFDict* create_link_named_dest(const SkData* nameData,
@@ -919,7 +919,7 @@ static SkPDFDict* create_link_named_dest(const SkData* nameData,
     SkString name(static_cast<const char *>(nameData->data()),
                   nameData->size() - 1);
     annotation->insertName("Dest", name);
-    return annotation.detach();
+    return annotation.release();
 }
 
 void SkPDFDevice::drawRect(const SkDraw& d,
@@ -1165,7 +1165,7 @@ void SkPDFDevice::drawImageRect(const SkDraw& draw,
         if (!autoImageUnref) {
             return;
         }
-        image = autoImageUnref;
+        image = autoImageUnref.get();
         // Since we did an extract, we need to adjust the matrix accordingly
         SkScalar dx = 0, dy = 0;
         if (srcIR.fLeft > 0) {
@@ -1533,7 +1533,7 @@ SkPDFArray* SkPDFDevice::copyMediaBox() const {
     mediaBox->appendInt(0);
     mediaBox->appendInt(fPageSize.fWidth);
     mediaBox->appendInt(fPageSize.fHeight);
-    return mediaBox.detach();
+    return mediaBox.release();
 }
 
 SkStreamAsset* SkPDFDevice::content() const {
@@ -1719,7 +1719,7 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
         pdfDest->appendScalar(p.y());
         pdfDest->appendInt(0);  // Leave zoom unchanged
         SkString name(static_cast<const char*>(dest.nameData->data()));
-        dict->insertObject(name, pdfDest.detach());
+        dict->insertObject(name, pdfDest.release());
     }
 }
 
@@ -1855,7 +1855,7 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
         lastContentEntry->fNext.reset(entry);
         setLastContentEntry(entry);
     }
-    newEntry.detach();
+    newEntry.release();
     return entry;
 }
 
@@ -2209,7 +2209,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         if (!autoImageUnref) {
             return;
         }
-        image = autoImageUnref;
+        image = autoImageUnref.get();
     }
     // Rasterize the bitmap using perspective in a new bitmap.
     if (origMatrix.hasPerspective()) {
@@ -2285,7 +2285,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         srcRect = nullptr;
 
         autoImageUnref.reset(surface->newImageSnapshot());
-        image = autoImageUnref;
+        image = autoImageUnref.get();
     }
 
     SkMatrix scaled;
@@ -2318,18 +2318,18 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         // rasterize a layer on this backend).  Fortuanely, this seems
         // to be how Chromium impements most color-filters.
         autoImageUnref.reset(color_filter(image, colorFilter));
-        image = autoImageUnref;
+        image = autoImageUnref.get();
         // TODO(halcanary): de-dupe this by caching filtered images.
         // (maybe in the resource cache?)
     }
     SkAutoTUnref<SkPDFObject> pdfimage(SkSafeRef(fCanon->findPDFBitmap(image)));
     if (!pdfimage) {
         pdfimage.reset(SkPDFCreateBitmapObject(
-                               image, fCanon->fPixelSerializer));
+                               image, fCanon->getPixelSerializer()));
         if (!pdfimage) {
             return;
         }
-        fCanon->addPDFBitmap(image->uniqueID(), pdfimage);
+        fCanon->addPDFBitmap(image->uniqueID(), pdfimage.get());
     }
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(pdfimage.get()),
                                 &content.entry()->fContent);

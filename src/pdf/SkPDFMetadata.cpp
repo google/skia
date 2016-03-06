@@ -45,7 +45,7 @@ SkPDFObject* SkPDFMetadata::createDocumentInformationDict() const {
     if (fModified) {
         dict->insertString("ModDate", pdf_date(*fModified.get()));
     }
-    return dict.detach();
+    return dict.release();
 }
 
 #ifdef SK_PDF_GENERATE_PDFA
@@ -92,7 +92,7 @@ SkPDFObject* SkPDFMetadata::CreatePdfId(const UUID& doc, const UUID& instance) {
             SkString(reinterpret_cast<const char*>(&doc), sizeof(UUID)));
     array->appendString(
             SkString(reinterpret_cast<const char*>(&instance), sizeof(UUID)));
-    return array.detach();
+    return array.release();
 }
 
 // Improvement on SkStringPrintf to allow for arbitrarily long output.

@@ -66,7 +66,7 @@ static void add_subdict(
         resources->insertObjRef(SkPDFResourceDict::getResourceName(type, i),
                                 SkRef(resourceList[i]));
     }
-    dst->insertObject(get_resource_type_name(type), resources.detach());
+    dst->insertObject(get_resource_type_name(type), resources.release());
 }
 
 SkPDFDict* SkPDFResourceDict::Create(
@@ -83,19 +83,19 @@ SkPDFDict* SkPDFResourceDict::Create(
     for (size_t i = 0; i < SK_ARRAY_COUNT(kProcs); i++) {
         procSets->appendName(kProcs[i]);
     }
-    dict->insertObject("ProcSets", procSets.detach());
+    dict->insertObject("ProcSets", procSets.release());
 
     if (gStateResources) {
-        add_subdict(*gStateResources, kExtGState_ResourceType, dict);
+        add_subdict(*gStateResources, kExtGState_ResourceType, dict.get());
     }
     if (patternResources) {
-        add_subdict(*patternResources, kPattern_ResourceType, dict);
+        add_subdict(*patternResources, kPattern_ResourceType, dict.get());
     }
     if (xObjectResources) {
-        add_subdict(*xObjectResources, kXObject_ResourceType, dict);
+        add_subdict(*xObjectResources, kXObject_ResourceType, dict.get());
     }
     if (fontResources) {
-        add_subdict(*fontResources, kFont_ResourceType, dict);
+        add_subdict(*fontResources, kFont_ResourceType, dict.get());
     }
-    return dict.detach();
+    return dict.release();
 }

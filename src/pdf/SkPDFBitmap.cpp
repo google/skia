@@ -387,7 +387,7 @@ public:
     void emitObject(SkWStream*  stream,
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& subs) const override {
-        emit_image_xobject(stream, fImage, true, nullptr, objNumMap, subs);
+        emit_image_xobject(stream, fImage.get(), true, nullptr, objNumMap, subs);
     }
 
 private:
@@ -404,7 +404,7 @@ public:
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& subs) const override {
-        emit_image_xobject(stream, fImage, false, fSMask, objNumMap, subs);
+        emit_image_xobject(stream, fImage.get(), false, fSMask.get(), objNumMap, subs);
     }
     void addResources(SkPDFObjNumMap* catalog,
                       const SkPDFSubstituteMap& subs) const override {
@@ -472,7 +472,7 @@ SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
                                      SkPixelSerializer* pixelSerializer) {
     SkAutoTUnref<SkData> data(image->refEncoded());
     SkJFIFInfo info;
-    if (data && SkIsJFIF(data, &info) &&
+    if (data && SkIsJFIF(data.get(), &info) &&
         (!pixelSerializer ||
          pixelSerializer->useEncodedData(data->data(), data->size()))) {
         // If there is a SkPixelSerializer, give it a chance to
@@ -484,7 +484,7 @@ SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
             #ifdef SK_PDF_IMAGE_STATS
             gJpegImageObjects.fetch_add(1);
             #endif
-            return new PDFJpegBitmap(info.fSize, data, yuv);
+            return new PDFJpegBitmap(info.fSize, data.get(), yuv);
         }
     }
 
@@ -493,10 +493,10 @@ SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
         SkAutoPixmapUnlock apu;
         if (as_IB(image)->getROPixels(&bm) && bm.requestLock(&apu)) {
             data.reset(pixelSerializer->encode(apu.pixmap()));
-            if (data && SkIsJFIF(data, &info)) {
+            if (data && SkIsJFIF(data.get(), &info)) {
                 bool yuv = info.fType == SkJFIFInfo::kYCbCr;
                 if (info.fSize == image->dimensions()) {  // Sanity check.
-                    return new PDFJpegBitmap(info.fSize, data, yuv);
+                    return new PDFJpegBitmap(info.fSize, data.get(), yuv);
                 }
             }
         }

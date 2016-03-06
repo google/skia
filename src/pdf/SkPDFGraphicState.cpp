@@ -139,11 +139,11 @@ static SkPDFObject* create_invert_function() {
     SkAutoTUnref<SkData> psInvertStream(
             SkData::NewWithoutCopy(psInvert, strlen(psInvert)));
 
-    SkPDFStream* invertFunction = new SkPDFStream(psInvertStream.get());
+    SkAutoTUnref<SkPDFStream> invertFunction(new SkPDFStream(psInvertStream.get()));
     invertFunction->insertInt("FunctionType", 4);
     invertFunction->insertObject("Domain", SkRef(domainAndRange.get()));
-    invertFunction->insertObject("Range", domainAndRange.detach());
-    return invertFunction;
+    invertFunction->insertObject("Range", domainAndRange.release());
+    return invertFunction.release();
 }
 
 SK_DECLARE_STATIC_ONCE_PTR(SkPDFObject, invertFunction);
@@ -165,9 +165,9 @@ SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
         sMaskDict->insertObjRef("TR", SkRef(invertFunction.get(create_invert_function)));
     }
 
-    SkPDFDict* result = new SkPDFDict("ExtGState");
-    result->insertObject("SMask", sMaskDict.detach());
-    return result;
+    SkAutoTUnref<SkPDFDict> result(new SkPDFDict("ExtGState"));
+    result->insertObject("SMask", sMaskDict.release());
+    return result.release();
 }
 
 static SkPDFDict* create_no_smask_graphic_state() {

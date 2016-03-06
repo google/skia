@@ -25,7 +25,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     this->setData(content.get());
 
     SkAutoTUnref<SkPDFArray> bboxArray(device->copyMediaBox());
-    this->init(nullptr, resourceDict.get(), bboxArray);
+    this->init(nullptr, resourceDict.get(), bboxArray.get());
 
     // We invert the initial transform and apply that to the xobject so that
     // it doesn't get applied twice. We can't just undo it because it's
@@ -49,7 +49,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkStream* content, SkRect bbox,
     setData(content);
 
     SkAutoTUnref<SkPDFArray> bboxArray(SkPDFUtils::RectToArray(bbox));
-    init("DeviceRGB", resourceDict, bboxArray);
+    this->init("DeviceRGB", resourceDict, bboxArray.get());
 }
 
 /**
@@ -72,7 +72,7 @@ void SkPDFFormXObject::init(const char* colorSpace,
         group->insertName("CS", colorSpace);
     }
     group->insertBool("I", true);  // Isolated.
-    this->insertObject("Group", group.detach());
+    this->insertObject("Group", group.release());
 }
 
 SkPDFFormXObject::~SkPDFFormXObject() {}
