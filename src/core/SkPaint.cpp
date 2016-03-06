@@ -44,6 +44,16 @@ static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
 //#define SK_REPORT_API_RANGE_CHECK
 
 SkPaint::SkPaint() {
+    fTypeface    = nullptr;
+    fPathEffect  = nullptr;
+    fShader      = nullptr;
+    fXfermode    = nullptr;
+    fMaskFilter  = nullptr;
+    fColorFilter = nullptr;
+    fRasterizer  = nullptr;
+    fLooper      = nullptr;
+    fImageFilter = nullptr;
+
     fTextSize   = SkPaintDefaults_TextSize;
     fTextScaleX = SK_Scalar1;
     fTextSkewX  = 0;
@@ -62,19 +72,20 @@ SkPaint::SkPaint() {
     fBitfields.fHinting      = SkPaintDefaults_Hinting;
 }
 
-SkPaint::SkPaint(const SkPaint& src)
-#define COPY_CTR(field) field(src.field)
-    : COPY_CTR(fTypeface)
-    , COPY_CTR(fPathEffect)
-    , COPY_CTR(fShader)
-    , COPY_CTR(fXfermode)
-    , COPY_CTR(fMaskFilter)
-    , COPY_CTR(fColorFilter)
-    , COPY_CTR(fRasterizer)
-    , COPY_CTR(fLooper)
-    , COPY_CTR(fImageFilter)
-{
+SkPaint::SkPaint(const SkPaint& src) {
 #define COPY(field) field = src.field
+#define REF_COPY(field) field = SkSafeRef(src.field)
+
+    REF_COPY(fTypeface);
+    REF_COPY(fPathEffect);
+    REF_COPY(fShader);
+    REF_COPY(fXfermode);
+    REF_COPY(fMaskFilter);
+    REF_COPY(fColorFilter);
+    REF_COPY(fRasterizer);
+    REF_COPY(fLooper);
+    REF_COPY(fImageFilter);
+
     COPY(fTextSize);
     COPY(fTextScaleX);
     COPY(fTextSkewX);
@@ -84,7 +95,7 @@ SkPaint::SkPaint(const SkPaint& src)
     COPY(fBitfields);
 
 #undef COPY
-#undef COPY_CTR
+#undef REF_COPY
 }
 
 SkPaint::SkPaint(SkPaint&& src) {
@@ -113,7 +124,17 @@ SkPaint::SkPaint(SkPaint&& src) {
 #undef REF_MOVE
 }
 
-SkPaint::~SkPaint() {}
+SkPaint::~SkPaint() {
+    SkSafeUnref(fTypeface);
+    SkSafeUnref(fPathEffect);
+    SkSafeUnref(fShader);
+    SkSafeUnref(fXfermode);
+    SkSafeUnref(fMaskFilter);
+    SkSafeUnref(fColorFilter);
+    SkSafeUnref(fRasterizer);
+    SkSafeUnref(fLooper);
+    SkSafeUnref(fImageFilter);
+}
 
 SkPaint& SkPaint::operator=(const SkPaint& src) {
     if (this == &src) {
@@ -121,16 +142,18 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     }
 
 #define COPY(field) field = src.field
+#define REF_COPY(field) SkSafeUnref(field); field = SkSafeRef(src.field)
 
-    COPY(fTypeface);
-    COPY(fPathEffect);
-    COPY(fShader);
-    COPY(fXfermode);
-    COPY(fMaskFilter);
-    COPY(fColorFilter);
-    COPY(fRasterizer);
-    COPY(fLooper);
-    COPY(fImageFilter);
+    REF_COPY(fTypeface);
+    REF_COPY(fPathEffect);
+    REF_COPY(fShader);
+    REF_COPY(fXfermode);
+    REF_COPY(fMaskFilter);
+    REF_COPY(fColorFilter);
+    REF_COPY(fRasterizer);
+    REF_COPY(fLooper);
+    REF_COPY(fImageFilter);
+
     COPY(fTextSize);
     COPY(fTextScaleX);
     COPY(fTextSkewX);
@@ -142,6 +165,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     return *this;
 
 #undef COPY
+#undef REF_COPY
 }
 
 SkPaint& SkPaint::operator=(SkPaint&& src) {
@@ -150,16 +174,18 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     }
 
 #define MOVE(field) field = std::move(src.field)
+#define REF_MOVE(field) SkSafeUnref(field); field = src.field; src.field = nullptr
 
-    MOVE(fTypeface);
-    MOVE(fPathEffect);
-    MOVE(fShader);
-    MOVE(fXfermode);
-    MOVE(fMaskFilter);
-    MOVE(fColorFilter);
-    MOVE(fRasterizer);
-    MOVE(fLooper);
-    MOVE(fImageFilter);
+    REF_MOVE(fTypeface);
+    REF_MOVE(fPathEffect);
+    REF_MOVE(fShader);
+    REF_MOVE(fXfermode);
+    REF_MOVE(fMaskFilter);
+    REF_MOVE(fColorFilter);
+    REF_MOVE(fRasterizer);
+    REF_MOVE(fLooper);
+    REF_MOVE(fImageFilter);
+
     MOVE(fTextSize);
     MOVE(fTextScaleX);
     MOVE(fTextSkewX);
@@ -171,6 +197,7 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     return *this;
 
 #undef MOVE
+#undef REF_MOVE
 }
 
 bool operator==(const SkPaint& a, const SkPaint& b) {
@@ -365,41 +392,24 @@ void SkPaint::setTextEncoding(TextEncoding encoding) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define MOVE_FIELD(Field) void SkPaint::set##Field(sk_sp<Sk##Field> f) { f##Field = std::move(f); }
-MOVE_FIELD(Typeface)
-MOVE_FIELD(Rasterizer)
-MOVE_FIELD(ImageFilter)
-MOVE_FIELD(Shader)
-MOVE_FIELD(ColorFilter)
-MOVE_FIELD(Xfermode)
-MOVE_FIELD(PathEffect)
-MOVE_FIELD(MaskFilter)
-#undef MOVE_FIELD
-void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fLooper = std::move(looper); }
+SkTypeface* SkPaint::setTypeface(SkTypeface* font) {
+    SkRefCnt_SafeAssign(fTypeface, font);
+    return font;
+}
 
-#define SET_PTR(Field)                              \
-    Sk##Field* SkPaint::set##Field(Sk##Field* f) {  \
-        this->f##Field.reset(SkSafeRef(f));         \
-        return f;                                   \
-    }
-SET_PTR(Typeface)
-SET_PTR(Rasterizer)
-SET_PTR(ImageFilter)
-SET_PTR(Shader)
-SET_PTR(ColorFilter)
-SET_PTR(Xfermode)
-SET_PTR(PathEffect)
-SET_PTR(MaskFilter)
-#undef SET_PTR
+SkRasterizer* SkPaint::setRasterizer(SkRasterizer* r) {
+    SkRefCnt_SafeAssign(fRasterizer, r);
+    return r;
+}
 
 SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
-    fLooper.reset(SkSafeRef(looper));
+    SkRefCnt_SafeAssign(fLooper, looper);
     return looper;
 }
 
-SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
-    fXfermode.reset(SkXfermode::Create(mode));
-    return fXfermode.get();
+SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
+    SkRefCnt_SafeAssign(fImageFilter, imageFilter);
+    return imageFilter;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1716,7 +1726,7 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
     test_desc(rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, desc, descSize);
 #endif
 
-    proc(fTypeface.get(), desc, context);
+    proc(fTypeface, desc, context);
 }
 
 SkGlyphCache* SkPaint::detachCache(const SkSurfaceProps* surfaceProps,
@@ -1969,6 +1979,39 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         this->setLooper(nullptr);
         this->setImageFilter(nullptr);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkShader* SkPaint::setShader(SkShader* shader) {
+    SkRefCnt_SafeAssign(fShader, shader);
+    return shader;
+}
+
+SkColorFilter* SkPaint::setColorFilter(SkColorFilter* filter) {
+    SkRefCnt_SafeAssign(fColorFilter, filter);
+    return filter;
+}
+
+SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
+    SkRefCnt_SafeAssign(fXfermode, mode);
+    return mode;
+}
+
+SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
+    SkSafeUnref(fXfermode);
+    fXfermode = SkXfermode::Create(mode);
+    return fXfermode;
+}
+
+SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect) {
+    SkRefCnt_SafeAssign(fPathEffect, effect);
+    return effect;
+}
+
+SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
+    SkRefCnt_SafeAssign(fMaskFilter, filter);
+    return filter;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2350,7 +2393,7 @@ bool SkPaint::nothingToDraw() const {
         return false;
     }
     SkXfermode::Mode mode;
-    if (SkXfermode::AsMode(fXfermode.get(), &mode)) {
+    if (SkXfermode::AsMode(fXfermode, &mode)) {
         switch (mode) {
             case SkXfermode::kSrcOver_Mode:
             case SkXfermode::kSrcATop_Mode:
@@ -2358,7 +2401,7 @@ bool SkPaint::nothingToDraw() const {
             case SkXfermode::kDstOver_Mode:
             case SkXfermode::kPlus_Mode:
                 if (0 == this->getAlpha()) {
-                    return !affects_alpha(fColorFilter.get()) && !affects_alpha(fImageFilter.get());
+                    return !affects_alpha(fColorFilter) && !affects_alpha(fImageFilter);
                 }
                 break;
             case SkXfermode::kDst_Mode:

@@ -476,7 +476,7 @@ public:
       The shader's reference count is not affected.
         @return the paint's shader (or NULL)
     */
-    SkShader* getShader() const { return fShader.get(); }
+    SkShader* getShader() const { return fShader; }
 
     /** Set or clear the shader object.
      *  Shaders specify the source color(s) for what is being drawn. If a paint
@@ -500,13 +500,12 @@ public:
      *  @return         shader
      */
     SkShader* setShader(SkShader* shader);
-    void setShader(sk_sp<SkShader>);
 
     /** Get the paint's colorfilter. If there is a colorfilter, its reference
         count is not changed.
         @return the paint's colorfilter (or NULL)
     */
-    SkColorFilter* getColorFilter() const { return fColorFilter.get(); }
+    SkColorFilter* getColorFilter() const { return fColorFilter; }
 
     /** Set or clear the paint's colorfilter, returning the parameter.
         <p />
@@ -516,14 +515,13 @@ public:
         @return         filter
     */
     SkColorFilter* setColorFilter(SkColorFilter* filter);
-    void setColorFilter(sk_sp<SkColorFilter>);
 
     /** Get the paint's xfermode object.
         <p />
       The xfermode's reference count is not affected.
         @return the paint's xfermode (or NULL)
     */
-    SkXfermode* getXfermode() const { return fXfermode.get(); }
+    SkXfermode* getXfermode() const { return fXfermode; }
 
     /** Set or clear the xfermode object.
         <p />
@@ -536,7 +534,6 @@ public:
         @return         xfermode
     */
     SkXfermode* setXfermode(SkXfermode* xfermode);
-    void setXfermode(sk_sp<SkXfermode>);
 
     /** Create an xfermode based on the specified Mode, and assign it into the
         paint, returning the mode that was set. If the Mode is SrcOver, then
@@ -549,7 +546,7 @@ public:
       The patheffect reference count is not affected.
         @return the paint's patheffect (or NULL)
     */
-    SkPathEffect* getPathEffect() const { return fPathEffect.get(); }
+    SkPathEffect* getPathEffect() const { return fPathEffect; }
 
     /** Set or clear the patheffect object.
         <p />
@@ -562,14 +559,13 @@ public:
         @return         effect
     */
     SkPathEffect* setPathEffect(SkPathEffect* effect);
-    void setPathEffect(sk_sp<SkPathEffect>);
 
     /** Get the paint's maskfilter object.
         <p />
       The maskfilter reference count is not affected.
         @return the paint's maskfilter (or NULL)
     */
-    SkMaskFilter* getMaskFilter() const { return fMaskFilter.get(); }
+    SkMaskFilter* getMaskFilter() const { return fMaskFilter; }
 
     /** Set or clear the maskfilter object.
         <p />
@@ -582,7 +578,6 @@ public:
         @return             maskfilter
     */
     SkMaskFilter* setMaskFilter(SkMaskFilter* maskfilter);
-    void setMaskFilter(sk_sp<SkMaskFilter>);
 
     // These attributes are for text/fonts
 
@@ -592,7 +587,7 @@ public:
         measuring text. The typeface reference count is not affected.
         @return the paint's typeface (or NULL)
     */
-    SkTypeface* getTypeface() const { return fTypeface.get(); }
+    SkTypeface* getTypeface() const { return fTypeface; }
 
     /** Set or clear the typeface object.
         <p />
@@ -605,14 +600,13 @@ public:
         @return         typeface
     */
     SkTypeface* setTypeface(SkTypeface* typeface);
-    void setTypeface(sk_sp<SkTypeface>);
 
     /** Get the paint's rasterizer (or NULL).
         <p />
         The raster controls how paths/text are turned into alpha masks.
         @return the paint's rasterizer (or NULL)
     */
-    SkRasterizer* getRasterizer() const { return fRasterizer.get(); }
+    SkRasterizer* getRasterizer() const { return fRasterizer; }
 
     /** Set or clear the rasterizer object.
         <p />
@@ -626,17 +620,15 @@ public:
         @return           rasterizer
     */
     SkRasterizer* setRasterizer(SkRasterizer* rasterizer);
-    void setRasterizer(sk_sp<SkRasterizer>);
 
-    SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
+    SkImageFilter* getImageFilter() const { return fImageFilter; }
     SkImageFilter* setImageFilter(SkImageFilter*);
-    void setImageFilter(sk_sp<SkImageFilter>);
 
     /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
      *  reference count.
      */
-    SkDrawLooper* getLooper() const { return fLooper.get(); }
+    SkDrawLooper* getLooper() const { return fLooper; }
 
     /**
      *  Set or clear the looper object.
@@ -650,7 +642,6 @@ public:
      *  @return looper
      */
     SkDrawLooper* setLooper(SkDrawLooper* looper);
-    void setLooper(sk_sp<SkDrawLooper>);
 
     enum Align {
         kLeft_Align,
@@ -1035,15 +1026,15 @@ public:
     SK_TO_STRING_NONVIRT()
 
 private:
-    sk_sp<SkTypeface>     fTypeface;
-    sk_sp<SkPathEffect>   fPathEffect;
-    sk_sp<SkShader>       fShader;
-    sk_sp<SkXfermode>     fXfermode;
-    sk_sp<SkMaskFilter>   fMaskFilter;
-    sk_sp<SkColorFilter>  fColorFilter;
-    sk_sp<SkRasterizer>   fRasterizer;
-    sk_sp<SkDrawLooper>   fLooper;
-    sk_sp<SkImageFilter>  fImageFilter;
+    SkTypeface*     fTypeface;
+    SkPathEffect*   fPathEffect;
+    SkShader*       fShader;
+    SkXfermode*     fXfermode;
+    SkMaskFilter*   fMaskFilter;
+    SkColorFilter*  fColorFilter;
+    SkRasterizer*   fRasterizer;
+    SkDrawLooper*   fLooper;
+    SkImageFilter*  fImageFilter;
 
     SkScalar        fTextSize;
     SkScalar        fTextScaleX;
