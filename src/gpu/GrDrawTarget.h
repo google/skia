@@ -45,10 +45,15 @@ class GrDrawTarget final : public SkRefCnt {
 public:
     /** Options for GrDrawTarget behavior. */
     struct Options {
-        Options () : fClipBatchToBounds(false), fDrawBatchBounds(false), fMaxBatchLookback(-1) {}
+        Options ()
+            : fClipBatchToBounds(false)
+            , fDrawBatchBounds(false)
+            , fMaxBatchLookback(-1)
+            , fMaxBatchLookahead(-1) {}
         bool fClipBatchToBounds;
         bool fDrawBatchBounds;
         int  fMaxBatchLookback;
+        int  fMaxBatchLookahead;
     };
 
     GrDrawTarget(GrRenderTarget*, GrGpu*, GrResourceProvider*, GrAuditTrail*, const Options&);
@@ -61,7 +66,9 @@ public:
 #ifdef ENABLE_MDB
         this->setFlag(kClosed_Flag);
 #endif
+        this->forwardCombine();
     }
+
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
     // TODO: this entry point is only needed in the non-MDB world. Remove when
@@ -216,6 +223,7 @@ private:
     };
 
     void recordBatch(GrBatch*);
+    void forwardCombine();
     bool installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
                                     const GrScissorState* scissor,
                                     GrDrawBatch* batch);
@@ -232,11 +240,6 @@ private:
     void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
                                            const GrStencilAttachment*,
                                            GrStencilSettings*);
-    bool setupClip(const GrPipelineBuilder&,
-                           GrPipelineBuilder::AutoRestoreFragmentProcessorState*,
-                           GrPipelineBuilder::AutoRestoreStencil*,
-                           GrScissorState*,
-                           const SkRect* devBounds);
 
     void addDependency(GrDrawTarget* dependedOn);
 
@@ -260,6 +263,7 @@ private:
 
     bool                                        fDrawBatchBounds;
     int                                         fMaxBatchLookback;
+    int                                         fMaxBatchLookahead;
 
     typedef SkRefCnt INHERITED;
 };

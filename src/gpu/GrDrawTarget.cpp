@@ -35,7 +35,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Experimentally we have found that most batching occurs within the first 10 comparisons.
-static const int kDefaultMaxBatchLookback = 10;
+static const int kDefaultMaxBatchLookback  = 10;
+static const int kDefaultMaxBatchLookahead = 10;
 
 GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider,
                            GrAuditTrail* auditTrail, const Options& options)
@@ -51,6 +52,8 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
     fDrawBatchBounds = options.fDrawBatchBounds;
     fMaxBatchLookback = (options.fMaxBatchLookback < 0) ? kDefaultMaxBatchLookback :
                                                           options.fMaxBatchLookback;
+    fMaxBatchLookahead = (options.fMaxBatchLookahead < 0) ? kDefaultMaxBatchLookahead :
+                                                           options.fMaxBatchLookahead;
 
     rt->setLastDrawTarget(this);
 
@@ -113,11 +116,15 @@ void GrDrawTarget::dump() const {
 #if 0
         SkDebugf("*******************************\n");
 #endif
-        SkDebugf("%d: %s\n", i, fBatches[i]->name());
+        if (fBatches[i]) {
+            SkDebugf("%d: <combined forward>\n", i);
+        } else {
+            SkDebugf("%d: %s\n", i, fBatches[i]->name());
 #if 0
-        SkString str = fBatches[i]->dumpInfo();
-        SkDebugf("%s\n", str.c_str());
+            SkString str = fBatches[i]->dumpInfo();
+            SkDebugf("%s\n", str.c_str());
 #endif
+        }
     }
 }
 #endif
@@ -193,7 +200,9 @@ void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
 
     // Loop over the batches that haven't yet generated their geometry
     for (int i = 0; i < fBatches.count(); ++i) {
-        fBatches[i]->prepare(flushState);
+        if (fBatches[i]) {
+            fBatches[i]->prepare(flushState);
+        }
     }
 }
 
@@ -201,6 +210,9 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     // Draw all the generated geometry.
     SkRandom random;
     for (int i = 0; i < fBatches.count(); ++i) {
+        if (!fBatches[i]) {
+            continue;
+        }
         if (fDrawBatchBounds) {
             const SkRect& bounds = fBatches[i]->bounds();
             SkIRect ibounds;
@@ -494,6 +506,48 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
     }
     GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, batch);
     fBatches.push_back().reset(SkRef(batch));
+}
+
+void GrDrawTarget::forwardCombine() {
+    for (int i = 0; i < fBatches.count() - 2; ++i) {
+        GrBatch* batch = fBatches[i];
+        int maxCandidateIdx = SkTMin(i + fMaxBatchLookahead, fBatches.count() - 1);
+        int j = i + 1;
+        while (true) {
+            GrBatch* candidate = fBatches[j];
+            // We cannot continue to search if the render target changes
+            if (candidate->renderTargetUniqueID() != batch->renderTargetUniqueID()) {
+                GrBATCH_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
+                             candidate->name(), candidate->uniqueID());
+                break;
+            }
+            if (j == i +1) {
+                // We assume batch would have combined with candidate when the candidate was added
+                // via backwards combining in recordBatch.
+                SkASSERT(!batch->combineIfPossible(candidate, *this->caps()));
+            } else if (batch->combineIfPossible(candidate, *this->caps())) {
+                GrBATCH_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
+                             candidate->uniqueID());
+                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate);
+                fBatches[j].reset(SkRef(batch));
+                fBatches[i].reset(nullptr);
+                break;
+            }
+            // Stop going traversing if we would cause a painter's order violation.
+            // TODO: The bounds used here do not fully consider the clip. It may be advantageous
+            // to clip each batch's bounds to the clip.
+            if (intersect(candidate->bounds(), batch->bounds())) {
+                GrBATCH_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
+                             candidate->uniqueID());
+                break;
+            }
+            ++j;
+            if (j > maxCandidateIdx) {
+                GrBATCH_INFO("\t\tReached max lookahead or end of batch array %d\n", i);
+                break;
+            }
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

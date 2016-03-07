@@ -869,6 +869,8 @@ DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
 DEFINE_bool(batchClip, false, "Clip each GrBatch to its device bounds for testing.");
 DEFINE_bool(batchBounds, false, "Draw a wireframe bounds of each GrBatch.");
 DEFINE_int32(batchLookback, -1, "Maximum GrBatch lookback for combining, negative means default.");
+DEFINE_int32(batchLookahead, -1, "Maximum GrBatch lookahead for combining, negative means "
+                                 "default.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions grOptions;
@@ -876,6 +878,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     grOptions.fClipBatchToBounds = FLAGS_batchClip;
     grOptions.fDrawBatchBounds = FLAGS_batchBounds;
     grOptions.fMaxBatchLookback = FLAGS_batchLookback;
+    grOptions.fMaxBatchLookahead = FLAGS_batchLookahead;
 
     src.modifyGrContextOptions(&grOptions);
 

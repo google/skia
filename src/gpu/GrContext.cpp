@@ -95,6 +95,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
     dtOptions.fClipBatchToBounds = options.fClipBatchToBounds;
     dtOptions.fDrawBatchBounds = options.fDrawBatchBounds;
     dtOptions.fMaxBatchLookback = options.fMaxBatchLookback;
+    dtOptions.fMaxBatchLookahead = options.fMaxBatchLookahead;
     fDrawingManager.reset(new GrDrawingManager(this, dtOptions, &fSingleOwner));
 
     // GrBatchFontCache will eventually replace GrFontCache

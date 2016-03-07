@@ -23,6 +23,7 @@ struct GrContextOptions {
         , fClipBatchToBounds(false)
         , fDrawBatchBounds(false)
         , fMaxBatchLookback(-1)
+        , fMaxBatchLookahead(-1)
         , fUseShaderSwizzling(false) {}
 
     // EXPERIMENTAL
@@ -64,8 +65,10 @@ struct GrContextOptions {
         of their dev bounds. */
     bool fDrawBatchBounds;
 
-    /** For debugging, override the default maximum look-back window for GrBatch combining. */
+    /** For debugging, override the default maximum look-back or look-ahead window for GrBatch
+        combining. */
     int fMaxBatchLookback;
+    int fMaxBatchLookahead;
 
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
