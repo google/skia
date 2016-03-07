@@ -17,6 +17,7 @@
 #include "SkRasterClip.h"
 #include "SkRSXform.h"
 #include "SkShader.h"
+#include "SkSpecialImage.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 
@@ -408,17 +409,27 @@ void SkBaseDevice::drawBitmapAsSprite(const SkDraw& draw, const SkBitmap& bitmap
     SkImageFilter* filter = paint.getImageFilter();
     if (filter && !this->canHandleImageFilter(filter)) {
         SkImageFilter::DeviceProxy proxy(this);
-        SkBitmap dst;
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix = *draw.fMatrix;
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         const SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-x, -y);
         SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
-        if (filter->filterImageDeprecated(&proxy, bitmap, ctx, &dst, &offset)) {
+
+        SkAutoTUnref<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, bitmap));
+        if (!srcImg) {
+            return; // something disastrous happened
+        }
+
+        SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
+        if (resultImg) {
             SkPaint tmpUnfiltered(paint);
             tmpUnfiltered.setImageFilter(nullptr);
-            this->drawSprite(draw, dst, x + offset.x(), y + offset.y(), tmpUnfiltered);
+            SkBitmap resultBM;
+            if (resultImg->internal_getBM(&resultBM)) {
+                // TODO: add drawSprite(SkSpecialImage) to SkDevice? (see skbug.com/5073)
+                this->drawSprite(draw, resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
+            }
         }
     } else {
         this->drawSprite(draw, bitmap, x, y, paint);

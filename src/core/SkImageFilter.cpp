@@ -272,7 +272,20 @@ bool SkImageFilter::filterInputDeprecated(int index, Proxy* proxy, const SkBitma
     if (!input) {
         return true;
     }
-    return input->filterImageDeprecated(proxy, src, this->mapContext(ctx), result, offset);
+
+    SkAutoTUnref<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src));
+    if (!specialSrc) {
+        return false;
+    }
+
+    SkAutoTUnref<SkSpecialImage> tmp(input->onFilterImage(specialSrc,
+                                                          this->mapContext(ctx),
+                                                          offset));
+    if (!tmp) {
+        return false;
+    }
+
+    return tmp->internal_getBM(result);
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst,
@@ -327,9 +340,15 @@ bool SkImageFilter::canComputeFastBounds() const {
 
 bool SkImageFilter::onFilterImageDeprecated(Proxy*, const SkBitmap&, const Context&,
                                             SkBitmap*, SkIPoint*) const {
+    // Only classes that now use the new SkSpecialImage-based path will not have
+    // onFilterImageDeprecated methods. For those classes we should never be
+    // calling this method.
+    SkASSERT(0);
     return false;
 }
 
+// SkImageFilter-derived classes that do not yet have their own onFilterImage
+// implementation convert back to calling the deprecated filterImage method
 SkSpecialImage* SkImageFilter::onFilterImage(SkSpecialImage* src, const Context& ctx,
                                              SkIPoint* offset) const {
     SkBitmap srcBM, resultBM;
@@ -338,6 +357,7 @@ SkSpecialImage* SkImageFilter::onFilterImage(SkSpecialImage* src, const Context&
         return nullptr;
     }
 
+    // This is the only valid call to the old filterImage path
     if (!this->filterImageDeprecated(src->internal_getProxy(), srcBM, ctx, &resultBM, offset)) {
         return nullptr;
     }
@@ -583,27 +603,39 @@ bool SkImageFilter::filterInputGPUDeprecated(int index, SkImageFilter::Proxy* pr
     if (!input) {
         return true;
     }
-    // Ensure that GrContext calls under filterImage and filterImageGPU below will see an identity
-    // matrix with no clip and that the matrix, clip, and render target set before this function was
-    // called are restored before we return to the caller.
-    GrContext* context = src.getTexture()->getContext();
-    if (input->filterImageDeprecated(proxy, src, this->mapContext(ctx), result, offset)) {
-        if (!result->getTexture()) {
-            const SkImageInfo info = result->info();
-            if (kUnknown_SkColorType == info.colorType()) {
-                return false;
-            }
-            SkAutoTUnref<GrTexture> resultTex(
-                GrRefCachedBitmapTexture(context, *result, GrTextureParams::ClampNoFilter()));
-            if (!resultTex) {
-                return false;
-            }
-            result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
-        }
-        return true;
-    } else {
+
+    SkAutoTUnref<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src));
+    if (!specialSrc) {
         return false;
     }
+
+    SkAutoTUnref<SkSpecialImage> tmp(input->onFilterImage(specialSrc,
+                                                          this->mapContext(ctx),
+                                                          offset));
+    if (!tmp) {
+        return false;
+    }
+
+    if (!tmp->internal_getBM(result)) {
+        return false;
+    }
+
+    if (!result->getTexture()) {
+        GrContext* context = src.getTexture()->getContext();
+
+        const SkImageInfo info = result->info();
+        if (kUnknown_SkColorType == info.colorType()) {
+            return false;
+        }
+        SkAutoTUnref<GrTexture> resultTex(
+            GrRefCachedBitmapTexture(context, *result, GrTextureParams::ClampNoFilter()));
+        if (!resultTex) {
+            return false;
+        }
+        result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
+    }
+
+    return true;
 }
 #endif
 

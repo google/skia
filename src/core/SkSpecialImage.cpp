@@ -20,9 +20,11 @@ public:
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
 
-    virtual bool onPeekPixels(SkPixmap*) const { return false; }
+    virtual bool testingOnlyOnPeekPixels(SkPixmap*) const { return false; }
 
     virtual GrTexture* onPeekTexture() const { return nullptr; }
+
+    virtual bool testingOnlyOnGetROPixels(SkBitmap*) const = 0;
 
     // Delete this entry point ASAP (see skbug.com/4965)
     virtual bool getBitmap(SkBitmap* result) const = 0;
@@ -42,12 +44,16 @@ void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPain
     return as_SIB(this)->onDraw(canvas, x, y, paint);
 }
 
-bool SkSpecialImage::peekPixels(SkPixmap* pixmap) const {
-    return as_SIB(this)->onPeekPixels(pixmap);
+bool SkSpecialImage::testingOnlyPeekPixels(SkPixmap* pixmap) const {
+    return as_SIB(this)->testingOnlyOnPeekPixels(pixmap);
 }
 
 GrTexture* SkSpecialImage::peekTexture() const {
     return as_SIB(this)->onPeekTexture();
+}
+
+bool SkSpecialImage::testingOnlyGetROPixels(SkBitmap* result) const {
+    return as_SIB(this)->testingOnlyOnGetROPixels(result);
 }
 
 SkSpecialSurface* SkSpecialImage::newSurface(const SkImageInfo& info) const {
@@ -125,13 +131,17 @@ public:
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    bool onPeekPixels(SkPixmap* pixmap) const override {
+    bool testingOnlyOnPeekPixels(SkPixmap* pixmap) const override {
         return fImage->peekPixels(pixmap);
     }
 
     GrTexture* onPeekTexture() const override { return as_IB(fImage.get())->peekTexture(); }
 
     bool getBitmap(SkBitmap* result) const override {
+        return false;
+    }
+
+    bool testingOnlyOnGetROPixels(SkBitmap* result) const override {
         return false;
     }
 
@@ -156,6 +166,11 @@ private:
 
 #ifdef SK_DEBUG
 static bool rect_fits(const SkIRect& rect, int width, int height) {
+    if (0 == width && 0 == height) {
+        SkASSERT(0 == rect.fLeft && 0 == rect.fRight && 0 == rect.fTop && 0 == rect.fBottom);
+        return true;
+    }
+
     return rect.fLeft >= 0 && rect.fLeft < width && rect.fLeft < rect.fRight &&
            rect.fRight >= 0 && rect.fRight <= width &&
            rect.fTop >= 0 && rect.fTop < height && rect.fTop < rect.fBottom &&
@@ -178,7 +193,7 @@ public:
     SkSpecialImage_Raster(SkImageFilter::Proxy* proxy, const SkIRect& subset, const SkBitmap& bm)
         : INHERITED(proxy, subset, bm.getGenerationID())
         , fBitmap(bm) {
-        if (bm.pixelRef()->isPreLocked()) {
+        if (bm.pixelRef() && bm.pixelRef()->isPreLocked()) {
             // we only preemptively lock if there is no chance of triggering something expensive
             // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
             fBitmap.lockPixels();
@@ -199,7 +214,7 @@ public:
                                dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    bool onPeekPixels(SkPixmap* pixmap) const override {
+    bool testingOnlyOnPeekPixels(SkPixmap* pixmap) const override {
         const SkImageInfo info = fBitmap.info();
         if ((kUnknown_SkColorType == info.colorType()) || !fBitmap.getPixels()) {
             return false;
@@ -215,6 +230,11 @@ public:
     }
 
     bool getBitmap(SkBitmap* result) const override {
+        *result = fBitmap;
+        return true;
+    }
+
+    bool testingOnlyOnGetROPixels(SkBitmap* result) const override {
         *result = fBitmap;
         return true;
     }
@@ -282,6 +302,25 @@ public:
         }
 
         result->setPixelRef(new SkGrPixelRef(info, fTexture))->unref();
+        return true;
+    }
+
+    bool testingOnlyOnGetROPixels(SkBitmap* result) const override {
+
+        const SkImageInfo info = SkImageInfo::MakeN32(this->width(), 
+                                                      this->height(),
+                                                      this->isOpaque() ? kOpaque_SkAlphaType
+                                                                       : kPremul_SkAlphaType);
+        if (!result->tryAllocPixels(info)) {
+            return false;
+        }
+
+        if (!fTexture->readPixels(0, 0, result->width(), result->height(), kSkia8888_GrPixelConfig,
+                                  result->getPixels(), result->rowBytes())) {
+            return false;
+        }
+
+        result->pixelRef()->setImmutable();
         return true;
     }
 

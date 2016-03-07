@@ -72,6 +72,13 @@ public:
     static SkSpecialImage* internal_fromBM(SkImageFilter::Proxy*, const SkBitmap&);
     SkImageFilter::Proxy* internal_getProxy();
 
+    // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)
+    /**
+     *  If the SpecialImage is backed by a gpu texture, return that texture.
+     *  The active portion of the texture can be retrieved via 'subset'.
+     */
+    GrTexture* peekTexture() const;
+
 protected:
     SkSpecialImage(SkImageFilter::Proxy* proxy, const SkIRect& subset, uint32_t uniqueID)
         : fSubset(subset)
@@ -94,13 +101,11 @@ protected:
      *
      *  On failure, return false and ignore the pixmap parameter.
      */
-    bool peekPixels(SkPixmap*) const;
+    bool testingOnlyPeekPixels(SkPixmap*) const;
 
-    /**
-     *  If the SpecialImage is backed by a gpu texture, return that texture.
-     *  The active portion of the texture can be retrieved via 'subset'.
-     */
-    GrTexture* peekTexture() const;
+    // This entry point is for testing only. It does a readback from VRAM for
+    // GPU-backed special images.
+    bool testingOnlyGetROPixels(SkBitmap*) const;
 
     // TODO: remove this ASAP (see skbug.com/4965)
     SkImageFilter::Proxy* proxy() const { return fProxy; }

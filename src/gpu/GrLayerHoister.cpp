@@ -14,6 +14,7 @@
 #include "SkGpuDevice.h"
 #include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
+#include "SkSpecialImage.h"
 #include "SkSurface.h"
 #include "SkSurface_Gpu.h"
 
@@ -285,18 +286,14 @@ void GrLayerHoister::FilterLayer(GrContext* context,
 
     static const int kDefaultCacheSize = 32 * 1024 * 1024;
 
-    SkBitmap filteredBitmap;
-    SkIPoint offset = SkIPoint::Make(0, 0);
-
     const SkIPoint filterOffset = SkIPoint::Make(layer->srcIR().fLeft, layer->srcIR().fTop);
 
-    SkMatrix totMat = SkMatrix::I();
-    totMat.preConcat(info.fPreMat);
+    SkMatrix totMat(info.fPreMat);
     totMat.preConcat(info.fLocalMat);
     totMat.postTranslate(-SkIntToScalar(filterOffset.fX), -SkIntToScalar(filterOffset.fY));
 
     SkASSERT(0 == layer->rect().fLeft && 0 == layer->rect().fTop);
-    SkIRect clipBounds = layer->rect();
+    const SkIRect& clipBounds = layer->rect();
 
     // This cache is transient, and is freed (along with all its contained
     // textures) when it goes out of scope.
@@ -304,18 +301,24 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     SkImageFilter::Context filterContext(totMat, clipBounds, cache);
 
     SkImageFilter::DeviceProxy proxy(device);
-    SkBitmap src;
-    GrWrapTextureInBitmap(layer->texture(), layer->texture()->width(), layer->texture()->height(),
-                          false, &src);
 
-    if (!layer->filter()->filterImageDeprecated(&proxy, src, filterContext,
-                                                &filteredBitmap, &offset)) {
+    // TODO: should the layer hoister store stand alone layers as SkSpecialImages internally?
+    const SkIRect subset = SkIRect::MakeWH(layer->texture()->width(), layer->texture()->height());
+    SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromGpu(&proxy, subset,
+                                                                kNeedNewImageUniqueID_SpecialImage,
+                                                                layer->texture()));
+
+    SkIPoint offset = SkIPoint::Make(0, 0);
+    SkAutoTUnref<SkSpecialImage> result(layer->filter()->filterImage(img,
+                                                                     filterContext,
+                                                                     &offset));
+    if (!result) {
         // Filtering failed. Press on with the unfiltered version.
         return;
     }
 
-    SkIRect newRect = SkIRect::MakeWH(filteredBitmap.width(), filteredBitmap.height());
-    layer->setTexture(filteredBitmap.getTexture(), newRect, false);
+    SkASSERT(result->peekTexture());
+    layer->setTexture(result->peekTexture(), result->subset(), false);
     layer->setOffset(offset);
 }
 

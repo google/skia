@@ -11,25 +11,12 @@
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "Test.h"
+#include "TestingSpecialImageAccess.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #endif
 
-class TestingSpecialImageAccess {
-public:
-    static const SkIRect& Subset(const SkSpecialImage* img) {
-        return img->subset();
-    }
-
-    static bool PeekPixels(const SkSpecialImage* img, SkPixmap* pixmap) {
-        return img->peekPixels(pixmap);
-    }
-
-    static GrTexture* PeekTexture(const SkSpecialImage* img) {
-        return img->peekTexture();
-    }
-};
 
 // This test creates backing resources exactly sized to [kFullSize x kFullSize].
 // It then wraps them in an SkSpecialImage with only the center (red) region being active.

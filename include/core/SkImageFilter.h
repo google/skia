@@ -137,20 +137,19 @@ public:
 
     /**
      *  Request a new (result) image to be created from the src image.
-     *  If the src has no pixels (isNull()) then the request just wants to
-     *  receive the config and width/height of the result.
      *
-     *  The matrix is the current matrix on the canvas.
+     *  The context contains the environment in which the filter is occurring.
+     *  It includes the clip bounds, CTM and cache.
      *
      *  Offset is the amount to translate the resulting image relative to the
      *  src when it is drawn. This is an out-param.
      *
-     *  If the result image cannot be created, return false, in which case both
-     *  the result and offset parameters will be ignored by the caller.
+     *  If the result image cannot be created, return null, in which case
+     *  the offset parameters will be ignored by the caller.
+     *
+     *  TODO: Right now the imagefilters sometimes return empty result bitmaps/
+     *        specialimages. That doesn't seem quite right.
      */
-    bool filterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const;
-
     SkSpecialImage* filterImage(SkSpecialImage* src, const Context&, SkIPoint* offset) const;
 
     enum MapDirection {
@@ -459,6 +458,9 @@ protected:
 private:
     friend class SkGraphics;
     static void PurgeCache();
+
+    bool filterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
+                               SkBitmap* result, SkIPoint* offset) const;
 
     bool usesSrcInput() const { return fUsesSrcInput; }
 

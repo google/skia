@@ -28,6 +28,7 @@
 #include "SkReadPixelsRec.h"
 #include "SkRRect.h"
 #include "SkSmallAllocator.h"
+#include "SkSpecialImage.h"
 #include "SkSurface_Base.h"
 #include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
@@ -1392,19 +1393,29 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !dstDev->canHandleImageFilter(filter)) {
             SkImageFilter::DeviceProxy proxy(dstDev);
-            SkBitmap dst;
             SkIPoint offset = SkIPoint::Make(0, 0);
-            const SkBitmap& src = srcDev->accessBitmap(false);
+            const SkBitmap& srcBM = srcDev->accessBitmap(false);
             SkMatrix matrix = *iter.fMatrix;
             matrix.postTranslate(SkIntToScalar(-pos.x()), SkIntToScalar(-pos.y()));
-            SkIRect clipBounds = iter.fClip->getBounds().makeOffset(-pos.x(), -pos.y());
+            const SkIRect clipBounds = iter.fClip->getBounds().makeOffset(-pos.x(), -pos.y());
             SkAutoTUnref<SkImageFilter::Cache> cache(dstDev->getImageFilterCache());
             SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
-            if (filter->filterImageDeprecated(&proxy, src, ctx, &dst, &offset)) {
+
+            SkAutoTUnref<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, srcBM));
+            if (!srcImg) {
+                continue; // something disastrous happened
+            }
+
+            SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
+            if (resultImg) {
                 SkPaint tmpUnfiltered(*paint);
                 tmpUnfiltered.setImageFilter(nullptr);
-                dstDev->drawSprite(iter, dst, pos.x() + offset.x(), pos.y() + offset.y(),
-                                   tmpUnfiltered);
+                SkBitmap resultBM;
+                if (resultImg->internal_getBM(&resultBM)) {
+                    // TODO: add drawSprite(SkSpecialImage) to SkDevice? (see skbug.com/5073)
+                    dstDev->drawSprite(iter, resultBM, pos.x() + offset.x(), pos.y() + offset.y(),
+                                       tmpUnfiltered);
+                }
             }
         } else if (deviceIsBitmapDevice) {
             const SkBitmap& src = static_cast<SkBitmapDevice*>(srcDev)->fBitmap;
