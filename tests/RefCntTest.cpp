@@ -99,6 +99,7 @@ public:
     Effect() : fRefCnt(1) {
         gNewCounter += 1;
     }
+    virtual ~Effect() {}
 
     int fRefCnt;
 
@@ -135,6 +136,8 @@ public:
 };
 
 struct EffectImpl : public Effect {
+    ~EffectImpl() override {}
+
     static sk_sp<EffectImpl> Create() {
         return sk_sp<EffectImpl>(new EffectImpl);
     }
