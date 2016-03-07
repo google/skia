@@ -202,18 +202,30 @@ protected:
 private:
     struct RectWithData {
         SkRect rect;
-        SkData* data;
+        sk_sp<SkData> data;
         RectWithData(const SkRect& rect, SkData* data)
             : rect(rect), data(SkRef(data)) {}
-        ~RectWithData() { data->unref(); }
+        RectWithData(RectWithData&& other)
+            : rect(other.rect), data(std::move(other.data)) {}
+        RectWithData& operator=(RectWithData&& other) {
+            rect = other.rect;
+            data = std::move(other.data);
+            return *this;
+        }
     };
 
     struct NamedDestination {
-        SkData* nameData;
+        sk_sp<SkData> nameData;
         SkPoint point;
         NamedDestination(SkData* nameData, const SkPoint& point)
             : nameData(SkRef(nameData)), point(point) {}
-        ~NamedDestination() { nameData->unref(); }
+        NamedDestination(NamedDestination&& other)
+            : nameData(std::move(other.nameData)), point(other.point) {}
+        NamedDestination& operator=(NamedDestination&& other) {
+            nameData = std::move(other.nameData);
+            point = other.point;
+            return *this;
+        }
     };
 
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in

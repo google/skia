@@ -1416,15 +1416,15 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
     SkScalar scalarY = SkIntToScalar(y);
     for (const RectWithData& l : pdfDevice->fLinkToURLs) {
         SkRect r = l.rect.makeOffset(scalarX, scalarY);
-        fLinkToURLs.emplace_back(r, l.data);
+        fLinkToURLs.emplace_back(r, l.data.get());
     }
     for (const RectWithData& l : pdfDevice->fLinkToDestinations) {
         SkRect r = l.rect.makeOffset(scalarX, scalarY);
-        fLinkToDestinations.emplace_back(r, l.data);
+        fLinkToDestinations.emplace_back(r, l.data.get());
     }
     for (const NamedDestination& d : pdfDevice->fNamedDestinations) {
         SkPoint p = d.point + SkPoint::Make(scalarX, scalarY);
-        fNamedDestinations.emplace_back(d.nameData, p);
+        fNamedDestinations.emplace_back(d.nameData.get(), p);
     }
 
     if (pdfDevice->isContentEmpty()) {
@@ -1699,12 +1699,13 @@ void SkPDFDevice::appendAnnotations(SkPDFArray* array) const {
     for (const RectWithData& rectWithURL : fLinkToURLs) {
         SkRect r;
         fInitialTransform.mapRect(&r, rectWithURL.rect);
-        array->appendObject(create_link_to_url(rectWithURL.data, r));
+        array->appendObject(create_link_to_url(rectWithURL.data.get(), r));
     }
     for (const RectWithData& linkToDestination : fLinkToDestinations) {
         SkRect r;
         fInitialTransform.mapRect(&r, linkToDestination.rect);
-        array->appendObject(create_link_named_dest(linkToDestination.data, r));
+        array->appendObject(
+                create_link_named_dest(linkToDestination.data.get(), r));
     }
 }
 
