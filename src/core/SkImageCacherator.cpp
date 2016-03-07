@@ -213,12 +213,11 @@ public:
     Generator_GrYUVProvider(SkImageGenerator* gen) : fGen(gen) {}
 
     uint32_t onGetID() override { return fGen->uniqueID(); }
-    bool onGetYUVSizes(SkISize sizes[3]) override {
-        return fGen->getYUV8Planes(sizes, nullptr, nullptr, nullptr);
+    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
+        return fGen->queryYUV8(sizeInfo, colorSpace);
     }
-    bool onGetYUVPlanes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                        SkYUVColorSpace* space) override {
-        return fGen->getYUV8Planes(sizes, planes, rowBytes, space);
+    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
+        return fGen->getYUV8Planes(sizeInfo, planes);
     }
 };
 

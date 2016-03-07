@@ -40,21 +40,20 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
 
     if (fCachedData.get()) {
         planes[0] = (void*)fCachedData->data();
-        planes[1] = (uint8_t*)planes[0] + yuvInfo->fSizeInMemory[0];
-        planes[2] = (uint8_t*)planes[1] + yuvInfo->fSizeInMemory[1];
+        planes[1] = (uint8_t*)planes[0] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
+                                           yuvInfo->fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
+        planes[2] = (uint8_t*)planes[1] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
+                                           yuvInfo->fSizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight);
     } else {
-        // Fetch yuv plane sizes for memory allocation. Here, width and height can be
-        // rounded up to JPEG block size and be larger than the image's width and height.
-        if (!provider->onGetYUVSizes(yuvInfo->fSize)) {
+        // Fetch yuv plane sizes for memory allocation.
+        if (!provider->onQueryYUV8(&yuvInfo->fSizeInfo, &yuvInfo->fColorSpace)) {
             return false;
         }
 
         // Allocate the memory for YUV
         size_t totalSize(0);
-        for (int i = 0; i < GrYUVProvider::kPlaneCount; ++i) {
-            yuvInfo->fRowBytes[i] = yuvInfo->fSize[i].fWidth; // we assume snug fit: rb == width
-            yuvInfo->fSizeInMemory[i] = yuvInfo->fRowBytes[i] * yuvInfo->fSize[i].fHeight;
-            totalSize += yuvInfo->fSizeInMemory[i];
+        for (int i = 0; i < 3; i++) {
+            totalSize += yuvInfo->fSizeInfo.fWidthBytes[i] * yuvInfo->fSizeInfo.fSizes[i].fHeight;
         }
         if (useCache) {
             fCachedData.reset(SkResourceCache::NewCachedData(totalSize));
@@ -63,12 +62,13 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
             fStorage.reset(totalSize);
             planes[0] = fStorage.get();
         }
-        planes[1] = (uint8_t*)planes[0] + yuvInfo->fSizeInMemory[0];
-        planes[2] = (uint8_t*)planes[1] + yuvInfo->fSizeInMemory[1];
+        planes[1] = (uint8_t*)planes[0] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
+                                           yuvInfo->fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
+        planes[2] = (uint8_t*)planes[1] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
+                                           yuvInfo->fSizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight);
 
-        // Get the YUV planes and update plane sizes to actual image size
-        if (!provider->onGetYUVPlanes(yuvInfo->fSize, planes, yuvInfo->fRowBytes,
-                                      &yuvInfo->fColorSpace)) {
+        // Get the YUV planes.
+        if (!provider->onGetYUV8Planes(yuvInfo->fSizeInfo, planes)) {
             return false;
         }
 
@@ -91,20 +91,21 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
     GrSurfaceDesc yuvDesc;
     yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
     SkAutoTUnref<GrTexture> yuvTextures[3];
-    for (int i = 0; i < 3; ++i) {
-        yuvDesc.fWidth  = yuvInfo.fSize[i].fWidth;
-        yuvDesc.fHeight = yuvInfo.fSize[i].fHeight;
+    for (int i = 0; i < 3; i++) {
+        yuvDesc.fWidth  = yuvInfo.fSizeInfo.fSizes[i].fWidth;
+        yuvDesc.fHeight = yuvInfo.fSizeInfo.fSizes[i].fHeight;
         // TODO: why do we need this check?
-        bool needsExactTexture = (yuvDesc.fWidth  != yuvInfo.fSize[0].fWidth) ||
-                                 (yuvDesc.fHeight != yuvInfo.fSize[0].fHeight);
+        bool needsExactTexture =
+                (yuvDesc.fWidth  != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth) ||
+                (yuvDesc.fHeight != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
         if (needsExactTexture) {
             yuvTextures[i].reset(ctx->textureProvider()->createTexture(yuvDesc, SkBudgeted::kYes));
         } else {
             yuvTextures[i].reset(ctx->textureProvider()->createApproxTexture(yuvDesc));
         }
         if (!yuvTextures[i] ||
-            !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
-                                         yuvDesc.fConfig, planes[i], yuvInfo.fRowBytes[i])) {
+            !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight, yuvDesc.fConfig,
+                                         planes[i], yuvInfo.fSizeInfo.fWidthBytes[i])) {
                 return nullptr;
             }
     }
@@ -126,11 +127,12 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
                                         GrYUVEffect::CreateYUVToRGB(yuvTextures[0],
                                                                     yuvTextures[1],
                                                                     yuvTextures[2],
-                                                                    yuvInfo.fSize,
+                                                                    yuvInfo.fSizeInfo.fSizes,
                                                                     yuvInfo.fColorSpace));
     paint.addColorFragmentProcessor(yuvToRgbProcessor);
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
-    const SkRect r = SkRect::MakeIWH(yuvInfo.fSize[0].fWidth, yuvInfo.fSize[0].fHeight);
+    const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
+            yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
     SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext(renderTarget));
     if (!drawContext) {

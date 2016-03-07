@@ -18,6 +18,7 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
+#include "SkYUVSizeInfo.h"
 
 class SkColorTable;
 class SkData;
@@ -210,19 +211,28 @@ public:
     virtual GrTexture* getTexture() { return NULL; }
 
     /**
-     *  If any planes or rowBytes is NULL, this should output the sizes and return true
-     *  if it can efficiently return YUV planar data. If it cannot, it should return false.
+     *  If this can efficiently return YUV data, this should return true.
+     *  Otherwise this returns false and does not modify any of the parameters.
      *
-     *  If all planes and rowBytes are not NULL, then it should copy the associated Y,U,V data
-     *  into those planes of memory supplied by the caller. It should validate that the sizes
-     *  match what it expected. If the sizes do not match, it should return false.
-     *
-     *  If colorSpace is not NULL, the YUV color space of the data should be stored in the address
-     *  it points at.
+     *  @param sizeInfo   Output parameter indicating the sizes and required
+     *                    allocation widths of the Y, U, and V planes.
+     *  @param colorSpace Output parameter.
      */
-    bool getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                       SkYUVColorSpace* colorSpace) {
-        return this->onGetYUV8Planes(sizes, planes, rowBytes, colorSpace);
+    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+        return this->onQueryYUV8(sizeInfo, colorSpace);
+    }
+
+    /**
+     *  Returns true on success and false on failure.
+     *  Copies YUV data into the provided YUV planes.
+     *
+     *  @param sizeInfo   Needs to exactly match the values returned by the
+     *                    query, except the WidthBytes may be larger than the
+     *                    recommendation (but not smaller).
+     *  @param planes     Memory for each of the Y, U, and V planes.
+     */
+    bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+        return this->onGetYUV8Planes(sizeInfo, planes);
     }
 
     /** Populates dst with the pixels of this pixelRef, converting them to colorType. */
@@ -308,9 +318,12 @@ protected:
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
 
-    // default impl returns false.
-    virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                                 SkYUVColorSpace* colorSpace);
+    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
+        return false;
+    }
+    virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) {
+        return false;
+    }
 
     /**
      *  Returns the size (in bytes) of the internally allocated memory.

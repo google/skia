@@ -11,6 +11,7 @@
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkImageInfo.h"
+#include "SkYUVSizeInfo.h"
 
 class GrContext;
 class GrTexture;
@@ -129,18 +130,26 @@ public:
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
-     *  If planes or rowBytes is NULL or if any entry in planes is NULL or if any entry in rowBytes
-     *  is 0, this imagegenerator should output the sizes and return true if it can efficiently
-     *  return YUV planar data. If it cannot, it should return false. Note that either planes and
-     *  rowBytes are both fully defined and non NULL/non 0 or they are both NULL or have NULL or 0
-     *  entries only. Having only partial planes/rowBytes information is not supported.
+     *  If decoding to YUV is supported, this returns true.  Otherwise, this
+     *  returns false and does not modify any of the parameters.
      *
-     *  If all planes and rowBytes entries are non NULL or non 0, then it should copy the
-     *  associated YUV data into those planes of memory supplied by the caller. It should validate
-     *  that the sizes match what it expected. If the sizes do not match, it should return false.
+     *  @param sizeInfo   Output parameter indicating the sizes and required
+     *                    allocation widths of the Y, U, and V planes.
+     *  @param colorSpace Output parameter.
      */
-    bool getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                       SkYUVColorSpace* colorSpace);
+    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const;
+
+    /**
+     *  Returns true on success and false on failure.
+     *  This always attempts to perform a full decode.  If the client only
+     *  wants size, it should call queryYUV8().
+     *
+     *  @param sizeInfo   Needs to exactly match the values returned by the
+     *                    query, except the WidthBytes may be larger than the
+     *                    recommendation (but not smaller).
+     *  @param planes     Memory for each of the Y, U, and V planes.
+     */
+    bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]);
 
     /**
      *  If the generator can natively/efficiently return its pixels as a GPU image (backed by a
@@ -248,9 +257,13 @@ protected:
 
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                              SkPMColor ctable[], int* ctableCount);
-    virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]);
-    virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                                 SkYUVColorSpace* colorSpace);
+
+    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
+        return false;
+    }
+    virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) {
+        return false;
+    }
 
     virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect*) {
         return nullptr;
