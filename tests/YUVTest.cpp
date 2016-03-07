@@ -9,7 +9,6 @@
 #include "Resources.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "SkYUVSizeInfo.h"
 #include "Test.h"
 
 static SkStreamAsset* resource(const char path[]) {
@@ -32,7 +31,7 @@ static void codec_yuv(skiatest::Reporter* reporter,
     }
 
     // Test queryYUV8()
-    SkYUVSizeInfo info;
+    SkCodec::YUVSizeInfo info;
     bool success = codec->queryYUV8(nullptr, nullptr);
     REPORTER_ASSERT(reporter, !success);
     success = codec->queryYUV8(&info, nullptr);
@@ -42,36 +41,27 @@ static void codec_yuv(skiatest::Reporter* reporter,
     }
     REPORTER_ASSERT(reporter,
             0 == memcmp((const void*) &info, (const void*) expectedSizes, 3 * sizeof(SkISize)));
-    REPORTER_ASSERT(reporter, info.fWidthBytes[SkYUVSizeInfo::kY] ==
-            (uint32_t) SkAlign8(info.fSizes[SkYUVSizeInfo::kY].width()));
-    REPORTER_ASSERT(reporter, info.fWidthBytes[SkYUVSizeInfo::kU] ==
-            (uint32_t) SkAlign8(info.fSizes[SkYUVSizeInfo::kU].width()));
-    REPORTER_ASSERT(reporter, info.fWidthBytes[SkYUVSizeInfo::kV] ==
-            (uint32_t) SkAlign8(info.fSizes[SkYUVSizeInfo::kV].width()));
+    REPORTER_ASSERT(reporter, info.fYWidthBytes == (uint32_t) SkAlign8(info.fYSize.width()));
+    REPORTER_ASSERT(reporter, info.fUWidthBytes == (uint32_t) SkAlign8(info.fUSize.width()));
+    REPORTER_ASSERT(reporter, info.fVWidthBytes == (uint32_t) SkAlign8(info.fVSize.width()));
     SkYUVColorSpace colorSpace;
     success = codec->queryYUV8(&info, &colorSpace);
     REPORTER_ASSERT(reporter,
             0 == memcmp((const void*) &info, (const void*) expectedSizes, 3 * sizeof(SkISize)));
-    REPORTER_ASSERT(reporter, info.fWidthBytes[SkYUVSizeInfo::kY] ==
-            (uint32_t) SkAlign8(info.fSizes[SkYUVSizeInfo::kY].width()));
-    REPORTER_ASSERT(reporter, info.fWidthBytes[SkYUVSizeInfo::kU] ==
-            (uint32_t) SkAlign8(info.fSizes[SkYUVSizeInfo::kU].width()));
-    REPORTER_ASSERT(reporter, info.fWidthBytes[SkYUVSizeInfo::kV] ==
-            (uint32_t) SkAlign8(info.fSizes[SkYUVSizeInfo::kV].width()));
+    REPORTER_ASSERT(reporter, info.fYWidthBytes == (uint32_t) SkAlign8(info.fYSize.width()));
+    REPORTER_ASSERT(reporter, info.fUWidthBytes == (uint32_t) SkAlign8(info.fUSize.width()));
+    REPORTER_ASSERT(reporter, info.fVWidthBytes == (uint32_t) SkAlign8(info.fVSize.width()));
     REPORTER_ASSERT(reporter, kJPEG_SkYUVColorSpace == colorSpace);
 
     // Allocate the memory for the YUV decode
-    size_t totalBytes =
-            info.fWidthBytes[SkYUVSizeInfo::kY] * info.fSizes[SkYUVSizeInfo::kY].height() +
-            info.fWidthBytes[SkYUVSizeInfo::kU] * info.fSizes[SkYUVSizeInfo::kU].height() +
-            info.fWidthBytes[SkYUVSizeInfo::kV] * info.fSizes[SkYUVSizeInfo::kV].height();
+    size_t totalBytes = info.fYWidthBytes * info.fYSize.height() +
+            info.fUWidthBytes * info.fUSize.height() +
+            info.fVWidthBytes * info.fVSize.height();
     SkAutoMalloc storage(totalBytes);
     void* planes[3];
     planes[0] = storage.get();
-    planes[1] = SkTAddOffset<void>(planes[0],
-            info.fWidthBytes[SkYUVSizeInfo::kY] * info.fSizes[SkYUVSizeInfo::kY].height());
-    planes[2] = SkTAddOffset<void>(planes[1],
-            info.fWidthBytes[SkYUVSizeInfo::kU] * info.fSizes[SkYUVSizeInfo::kU].height());
+    planes[1] = SkTAddOffset<void>(planes[0], info.fYWidthBytes * info.fYSize.height());
+    planes[2] = SkTAddOffset<void>(planes[1], info.fUWidthBytes * info.fUSize.height());
 
     // Test getYUV8Planes()
     REPORTER_ASSERT(reporter, SkCodec::kInvalidInput ==

@@ -178,11 +178,12 @@ public:
     PixelRef_GrYUVProvider(SkPixelRef* pr) : fPR(pr) {}
 
     uint32_t onGetID() override { return fPR->getGenerationID(); }
-    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
-        return fPR->queryYUV8(sizeInfo, colorSpace);
+    bool onGetYUVSizes(SkISize sizes[3]) override {
+        return fPR->getYUV8Planes(sizes, nullptr, nullptr, nullptr);
     }
-    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
-        return fPR->getYUV8Planes(sizeInfo, planes);
+    bool onGetYUVPlanes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+                        SkYUVColorSpace* space) override {
+        return fPR->getYUV8Planes(sizes, planes, rowBytes, space);
     }
 };
 

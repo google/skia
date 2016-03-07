@@ -26,9 +26,8 @@ protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
             int* ctableCount) override;
 
-    bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const override;
-
-    bool onGetYUV8Planes(const SkYUVSizeInfo&, void* planes[3]) override;
+    bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+            SkYUVColorSpace* colorSpace) override;
 
 private:
     /*
@@ -39,6 +38,12 @@ private:
 
     SkAutoTDelete<SkCodec> fCodec;
     SkAutoTUnref<SkData> fData;
+
+    // FIXME: These fields are necessary only until we change the API of SkImageGenerator
+    //        to match SkCodec.  Once the API is changed, they should be removed.
+    int fYWidth;
+    int fUWidth;
+    int fVWidth;
 
     typedef SkImageGenerator INHERITED;
 };
