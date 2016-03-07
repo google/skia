@@ -98,6 +98,8 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "vec3";
         case kVec4f_GrSLType:
             return "vec4";
+        case kMat22f_GrSLType:
+            return "mat2";
         case kMat33f_GrSLType:
             return "mat3";
         case kMat44f_GrSLType:

@@ -33,8 +33,10 @@ public:
     void set4fv(UniformHandle, int arrayCount, const float v[]) const override;
     // matrices are column-major, the first two upload a single matrix, the latter two upload
     // arrayCount matrices into a uniform array.
+    void setMatrix2f(UniformHandle, const float matrix[]) const override;
     void setMatrix3f(UniformHandle, const float matrix[]) const override;
     void setMatrix4f(UniformHandle, const float matrix[]) const override;
+    void setMatrix2fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
@@ -57,6 +59,9 @@ private:
             uint32_t    fSetNumber;
         );
     };
+
+    template<int N> inline void setMatrices(UniformHandle, int arrayCount,
+                                            const float matrices[]) const;
 
     uint32_t fVertexUniformSize;
     uint32_t fFragmentUniformSize;

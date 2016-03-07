@@ -22,6 +22,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         0x7, // kVec2f_GrSLType
         0xF, // kVec3f_GrSLType
         0xF, // kVec4f_GrSLType
+        0x7, // kMat22f_GrSLType
         0xF, // kMat33f_GrSLType
         0xF, // kMat44f_GrSLType
         0x0, // Sampler2D_GrSLType, should never return this
@@ -32,10 +33,11 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     GR_STATIC_ASSERT(2 == kVec2f_GrSLType);
     GR_STATIC_ASSERT(3 == kVec3f_GrSLType);
     GR_STATIC_ASSERT(4 == kVec4f_GrSLType);
-    GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
-    GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
-    GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
-    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
+    GR_STATIC_ASSERT(5 == kMat22f_GrSLType);
+    GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
+    GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
+    GR_STATIC_ASSERT(8 == kSampler2D_GrSLType);
+    GR_STATIC_ASSERT(9 == kSamplerExternal_GrSLType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAlignments) == kGrSLTypeCount);
     return kAlignments[type];
 }
@@ -44,12 +46,14 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     For non floating point type returns 0 */
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     SkASSERT(GrSLTypeIsFloatType(type));
+    SkASSERT(kMat22f_GrSLType != type); // TODO: handle mat2 differences between std140 and std430.
     static const uint32_t kSizes[] = {
         0,                        // kVoid_GrSLType
         sizeof(float),            // kFloat_GrSLType
         2 * sizeof(float),        // kVec2f_GrSLType
         3 * sizeof(float),        // kVec3f_GrSLType
         4 * sizeof(float),        // kVec4f_GrSLType
+        8 * sizeof(float),        // kMat22f_GrSLType. TODO: this will be 4 * szof(float) on std430.
         12 * sizeof(float),       // kMat33f_GrSLType
         16 * sizeof(float),       // kMat44f_GrSLType
         0,                        // kSampler2D_GrSLType
@@ -66,15 +70,16 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     GR_STATIC_ASSERT(2 == kVec2f_GrSLType);
     GR_STATIC_ASSERT(3 == kVec3f_GrSLType);
     GR_STATIC_ASSERT(4 == kVec4f_GrSLType);
-    GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
-    GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
-    GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
-    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
-    GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
-    GR_STATIC_ASSERT(10 == kBool_GrSLType);
-    GR_STATIC_ASSERT(11 == kInt_GrSLType);
-    GR_STATIC_ASSERT(12 == kUint_GrSLType);
-    GR_STATIC_ASSERT(13 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(5 == kMat22f_GrSLType);
+    GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
+    GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
+    GR_STATIC_ASSERT(8 == kSampler2D_GrSLType);
+    GR_STATIC_ASSERT(9 == kSamplerExternal_GrSLType);
+    GR_STATIC_ASSERT(10 == kSampler2DRect_GrSLType);
+    GR_STATIC_ASSERT(11 == kBool_GrSLType);
+    GR_STATIC_ASSERT(12 == kInt_GrSLType);
+    GR_STATIC_ASSERT(13 == kUint_GrSLType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kSizes) == kGrSLTypeCount);
 }
 
 
@@ -87,6 +92,7 @@ void get_ubo_aligned_offset(uint32_t* uniformOffset,
                             int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
     // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
+    SkASSERT(type != kMat22f_GrSLType); // TODO: support mat2.
     if (arrayCount) {
         alignmentMask = 0xF;
     }

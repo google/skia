@@ -56,8 +56,10 @@ public:
     virtual void set4fv(UniformHandle, int arrayCount, const float v[]) const = 0;
     // matrices are column-major, the first three upload a single matrix, the latter three upload
     // arrayCount matrices into a uniform array.
+    virtual void setMatrix2f(UniformHandle, const float matrix[]) const = 0;
     virtual void setMatrix3f(UniformHandle, const float matrix[]) const = 0;
     virtual void setMatrix4f(UniformHandle, const float matrix[]) const = 0;
+    virtual void setMatrix2fv(UniformHandle, int arrayCount, const float matrices[]) const = 0;
     virtual void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const = 0;
     virtual void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const = 0;
 

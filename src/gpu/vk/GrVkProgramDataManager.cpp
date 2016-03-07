@@ -209,81 +209,37 @@ void GrVkProgramDataManager::set4fv(UniformHandle u,
     memcpy(buffer, v, arrayCount * 4 * sizeof(float));
 }
 
+void GrVkProgramDataManager::setMatrix2f(UniformHandle u, const float matrix[]) const {
+    this->setMatrices<2>(u, 1, matrix);
+}
+
+void GrVkProgramDataManager::setMatrix2fv(UniformHandle u, int arrayCount, const float m[]) const {
+    this->setMatrices<2>(u, arrayCount, m);
+}
+
 void GrVkProgramDataManager::setMatrix3f(UniformHandle u, const float matrix[]) const {
-    const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kMat33f_GrSLType);
-    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
-    SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-
-    SkASSERT(sizeof(float) == 4);
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
-    memcpy(buffer, &matrix[0], 3 * sizeof(float));
-    buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-    memcpy(buffer, &matrix[3], 3 * sizeof(float));
-    buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-    memcpy(buffer, &matrix[6], 3 * sizeof(float));
+    this->setMatrices<3>(u, 1, matrix);
 }
 
-void GrVkProgramDataManager::setMatrix3fv(UniformHandle u,
-                                          int arrayCount,
-                                          const float matrices[]) const {
-    const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kMat33f_GrSLType);
-    SkASSERT(arrayCount > 0);
-    SkASSERT(arrayCount <= uni.fArrayCount ||
-             (1 == arrayCount && GrGLSLShaderVar::kNonArray == uni.fArrayCount));
-    SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
-
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    SkASSERT(sizeof(float) == 4);
-    buffer = static_cast<char*>(buffer)+uni.fOffset;
-    for (int i = 0; i < arrayCount; ++i) {
-        const float* matrix = &matrices[9 * i];
-        memcpy(buffer, &matrix[0], 3 * sizeof(float));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-        memcpy(buffer, &matrix[3], 3 * sizeof(float));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-        memcpy(buffer, &matrix[6], 3 * sizeof(float));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-    }
+void GrVkProgramDataManager::setMatrix3fv(UniformHandle u, int arrayCount, const float m[]) const {
+    this->setMatrices<3>(u, arrayCount, m);
 }
-
 
 void GrVkProgramDataManager::setMatrix4f(UniformHandle u, const float matrix[]) const {
-    const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kMat44f_GrSLType);
-    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
-    SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
-    SkASSERT(sizeof(float) == 4);
-    memcpy(buffer, matrix, 16 * sizeof(float));
+    this->setMatrices<4>(u, 1, matrix);
 }
 
-void GrVkProgramDataManager::setMatrix4fv(UniformHandle u,
-                                          int arrayCount,
-                                          const float matrices[]) const {
+void GrVkProgramDataManager::setMatrix4fv(UniformHandle u, int arrayCount, const float m[]) const {
+    this->setMatrices<4>(u, arrayCount, m);
+}
+
+template<int N> struct set_uniform_matrix;
+
+template<int N> inline void GrVkProgramDataManager::setMatrices(UniformHandle u,
+                                                                   int arrayCount,
+                                                                   const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kMat44f_GrSLType);
+    SkASSERT(uni.fType == kMat22f_GrSLType + (N - 2));
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrGLSLShaderVar::kNonArray == uni.fArrayCount));
@@ -296,10 +252,33 @@ void GrVkProgramDataManager::setMatrix4fv(UniformHandle u,
         SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
         buffer = fFragmentUniformData.get();
     }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
-    SkASSERT(sizeof(float) == 4);
-    memcpy(buffer, matrices, arrayCount * 16 * sizeof(float));
+
+    set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
 }
+
+template<int N> struct set_uniform_matrix {
+    inline static void set(void* buffer, int uniformOffset, int count, const float matrices[]) {
+        GR_STATIC_ASSERT(sizeof(float) == 4);
+        buffer = static_cast<char*>(buffer) + uniformOffset;
+        for (int i = 0; i < count; ++i) {
+            const float* matrix = &matrices[N * N * i];
+            memcpy(buffer, &matrix[0], N * sizeof(float));
+            buffer = static_cast<char*>(buffer) + 4*sizeof(float);
+            memcpy(buffer, &matrix[3], N * sizeof(float));
+            buffer = static_cast<char*>(buffer) + 4*sizeof(float);
+            memcpy(buffer, &matrix[6], N * sizeof(float));
+            buffer = static_cast<char*>(buffer) + 4*sizeof(float);
+        }
+    }
+};
+
+template<> struct set_uniform_matrix<4> {
+    inline static void set(void* buffer, int uniformOffset, int count, const float matrices[]) {
+        GR_STATIC_ASSERT(sizeof(float) == 4);
+        buffer = static_cast<char*>(buffer) + uniformOffset;
+        memcpy(buffer, matrices, count * 16 * sizeof(float));
+    }
+};
 
 void GrVkProgramDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
                                                   GrVkUniformBuffer* vertexBuffer,
