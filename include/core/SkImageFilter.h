@@ -151,6 +151,8 @@ public:
     bool filterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const;
 
+    SkSpecialImage* filterImage(SkSpecialImage* src, const Context&, SkIPoint* offset) const;
+
     enum MapDirection {
         kForward_MapDirection,
         kReverse_MapDirection
@@ -263,6 +265,11 @@ public:
                                              SkFilterQuality,
                                              SkImageFilter* input = NULL);
 
+    SkSpecialImage* filterInput(int index,
+                                SkSpecialImage* src,
+                                const Context&, 
+                                SkIPoint* offset) const;
+
 #if SK_SUPPORT_GPU
     // Helper function which invokes GPU filter processing on the
     // input at the specified "index". If the input is null, it leaves
@@ -348,6 +355,9 @@ protected:
     virtual bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
                                          SkBitmap* result, SkIPoint* offset) const;
 
+    virtual SkSpecialImage* onFilterImage(SkSpecialImage* src, const Context&,
+                                          SkIPoint* offset) const;
+
     /**
      * This function recurses into its inputs with the given clip rect (first
      * argument), calls filterBounds() with the given map direction on each,
@@ -416,6 +426,9 @@ protected:
      */
     bool applyCropRectDeprecated(const Context&, Proxy* proxy, const SkBitmap& src,
                                  SkIPoint* srcOffset, SkIRect* bounds, SkBitmap* result) const;
+
+    SkSpecialImage* applyCropRect(const Context&, SkSpecialImage* src, SkIPoint* srcOffset,
+                                  SkIRect* bounds) const;
 
     /**
      *  Returns true if the filter can be expressed a single-pass

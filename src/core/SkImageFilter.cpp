@@ -18,6 +18,7 @@
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkTDynamicHash.h"
 #include "SkTInternalLList.h"
 #include "SkValidationUtils.h"
@@ -213,6 +214,28 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fCropRect.flags());
 }
 
+SkSpecialImage* SkImageFilter::filterImage(SkSpecialImage* src, const Context& context,
+                                           SkIPoint* offset) const {
+    SkASSERT(src && offset);
+
+    uint32_t srcGenID = fUsesSrcInput ? src->uniqueID() : 0;
+    const SkIRect srcSubset = fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);
+    Cache::Key key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID, srcSubset);
+    if (context.cache()) {
+        SkSpecialImage* result = context.cache()->get(key, offset);
+        if (result) {
+            return SkRef(result);
+        }
+    }
+
+    SkSpecialImage* result = this->onFilterImage(src, context, offset);
+    if (result && context.cache()) {
+        context.cache()->set(key, result, *offset);
+    }
+
+    return result;
+}
+
 bool SkImageFilter::filterImageDeprecated(Proxy* proxy, const SkBitmap& src,
                                           const Context& context,
                                           SkBitmap* result, SkIPoint* offset) const {
@@ -305,6 +328,21 @@ bool SkImageFilter::canComputeFastBounds() const {
 bool SkImageFilter::onFilterImageDeprecated(Proxy*, const SkBitmap&, const Context&,
                                             SkBitmap*, SkIPoint*) const {
     return false;
+}
+
+SkSpecialImage* SkImageFilter::onFilterImage(SkSpecialImage* src, const Context& ctx,
+                                             SkIPoint* offset) const {
+    SkBitmap srcBM, resultBM;
+
+    if (!src->internal_getBM(&srcBM)) {
+        return nullptr;
+    }
+
+    if (!this->filterImageDeprecated(src->internal_getProxy(), srcBM, ctx, &resultBM, offset)) {
+        return nullptr;
+    }
+
+    return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM);
 }
 
 bool SkImageFilter::canFilterImageGPU() const {
@@ -419,6 +457,53 @@ bool SkImageFilter::applyCropRectDeprecated(const Context& ctx, Proxy* proxy, co
     }
 }
 
+// Return a larger (newWidth x newHeight) copy of 'src' with black padding
+// around it.
+static SkSpecialImage* pad_image(SkSpecialImage* src,
+                                 int newWidth, int newHeight, int offX, int offY) {
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(newWidth, newHeight);
+    SkAutoTUnref<SkSpecialSurface> surf(src->newSurface(info));
+    if (!surf) {
+        return nullptr;
+    }
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    canvas->clear(0x0);
+
+    src->draw(canvas, offX, offY, nullptr);
+
+    return surf->newImageSnapshot();
+}
+
+SkSpecialImage* SkImageFilter::applyCropRect(const Context& ctx,
+                                             SkSpecialImage* src,
+                                             SkIPoint* srcOffset,
+                                             SkIRect* bounds) const {
+    SkIRect srcBounds;
+    srcBounds = SkIRect::MakeXYWH(srcOffset->fX, srcOffset->fY, src->width(), src->height());
+
+    SkIRect dstBounds;
+    this->onFilterNodeBounds(srcBounds, ctx.ctm(), &dstBounds, kForward_MapDirection);
+    fCropRect.applyTo(dstBounds, ctx.ctm(), bounds);
+    if (!bounds->intersect(ctx.clipBounds())) {
+        return nullptr;
+    }
+
+    if (srcBounds.contains(*bounds)) {
+        return SkRef(src);
+    } else {
+        SkSpecialImage* img = pad_image(src,
+                                        bounds->width(), bounds->height(),
+                                        srcOffset->x() - bounds->x(),
+                                        srcOffset->y() - bounds->y());
+        *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
+        return img;
+    }
+}
+
 bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                    SkIRect* dst, MapDirection direction) const {
     if (fInputCount < 1) {
@@ -475,6 +560,18 @@ SkImageFilter* SkImageFilter::newWithLocalMatrix(const SkMatrix& matrix) const {
     // is *always* treated as a const ptr. Hence the const-cast here.
     //
     return SkLocalMatrixImageFilter::Create(matrix, const_cast<SkImageFilter*>(this));
+}
+
+SkSpecialImage* SkImageFilter::filterInput(int index,
+                                           SkSpecialImage* src,
+                                           const Context& ctx,
+                                           SkIPoint* offset) const {
+    SkImageFilter* input = this->getInput(index);
+    if (!input) {
+        return SkRef(src);
+    }
+
+    return input->filterImage(src, this->mapContext(ctx), offset);
 }
 
 #if SK_SUPPORT_GPU
