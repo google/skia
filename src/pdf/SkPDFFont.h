@@ -194,14 +194,14 @@ protected:
     static bool Find(uint32_t fontID, uint16_t glyphID, int* index);
 
 private:
-    SkAutoTUnref<SkTypeface> fTypeface;
+    sk_sp<SkTypeface> fTypeface;
 
     // The glyph IDs accessible with this font.  For Type1 (non CID) fonts,
     // this will be a subset if the font has more than 255 glyphs.
     uint16_t fFirstGlyphID;
     uint16_t fLastGlyphID;
-    SkAutoTUnref<const SkAdvancedTypefaceMetrics> fFontInfo;
-    SkAutoTUnref<SkPDFDict> fDescriptor;
+    sk_sp<const SkAdvancedTypefaceMetrics> fFontInfo;
+    sk_sp<SkPDFDict> fDescriptor;
 
     SkAdvancedTypefaceMetrics::FontType fFontType;
 

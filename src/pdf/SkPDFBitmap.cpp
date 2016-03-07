@@ -391,7 +391,7 @@ public:
     }
 
 private:
-    SkAutoTUnref<const SkImage> fImage;
+    sk_sp<const SkImage> fImage;
 };
 
 }  // namespace
@@ -418,8 +418,8 @@ public:
         : fImage(SkRef(image)), fSMask(smask) {}
 
 private:
-    SkAutoTUnref<const SkImage> fImage;
-    const SkAutoTUnref<SkPDFObject> fSMask;
+    sk_sp<const SkImage> fImage;
+    const sk_sp<SkPDFObject> fSMask;
 };
 }  // namespace
 
@@ -434,7 +434,7 @@ namespace {
 class PDFJpegBitmap final : public SkPDFObject {
 public:
     SkISize fSize;
-    SkAutoTUnref<SkData> fData;
+    sk_sp<SkData> fData;
     bool fIsYUV;
     PDFJpegBitmap(SkISize size, SkData* data, bool isYUV)
         : fSize(size), fData(SkRef(data)), fIsYUV(isYUV) {}
@@ -470,7 +470,7 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 
 SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
                                      SkPixelSerializer* pixelSerializer) {
-    SkAutoTUnref<SkData> data(image->refEncoded());
+    sk_sp<SkData> data(image->refEncoded());
     SkJFIFInfo info;
     if (data && SkIsJFIF(data.get(), &info) &&
         (!pixelSerializer ||

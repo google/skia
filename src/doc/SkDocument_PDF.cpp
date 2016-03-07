@@ -62,7 +62,7 @@ static void perform_font_subsetting(
     SkPDFGlyphSetMap::F2BIter iterator(usage);
     const SkPDFGlyphSetMap::FontGlyphSetPair* entry = iterator.next();
     while (entry) {
-        SkAutoTUnref<SkPDFFont> subsetFont(
+        sk_sp<SkPDFFont> subsetFont(
                 entry->fFont->getFontSubset(entry->fGlyphSet));
         if (subsetFont) {
             substituteMap->setSubstitute(entry->fFont, subsetFont.get());
@@ -77,10 +77,10 @@ static SkPDFObject* create_pdf_page_content(const SkPDFDevice* pageDevice) {
 }
 
 static SkPDFDict* create_pdf_page(const SkPDFDevice* pageDevice) {
-    SkAutoTUnref<SkPDFDict> page(new SkPDFDict("Page"));
+    sk_sp<SkPDFDict> page(new SkPDFDict("Page"));
     page->insertObject("Resources", pageDevice->createResourceDict());
     page->insertObject("MediaBox", pageDevice->copyMediaBox());
-    SkAutoTUnref<SkPDFArray> annotations(new SkPDFArray);
+    sk_sp<SkPDFArray> annotations(new SkPDFArray);
     pageDevice->appendAnnotations(annotations.get());
     if (annotations->size() > 0) {
         page->insertObject("Annots", annotations.release());
@@ -121,8 +121,8 @@ static void generate_page_tree(const SkTDArray<SkPDFDict*>& pages,
                 break;
             }
 
-            SkAutoTUnref<SkPDFDict> newNode(new SkPDFDict("Pages"));
-            SkAutoTUnref<SkPDFArray> kids(new SkPDFArray);
+            sk_sp<SkPDFDict> newNode(new SkPDFDict("Pages"));
+            sk_sp<SkPDFArray> kids(new SkPDFArray);
             kids->reserve(kNodeSize);
 
             int count = 0;
@@ -174,23 +174,23 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
 
     SkTDArray<SkPDFDict*> pages;
-    SkAutoTUnref<SkPDFDict> dests(new SkPDFDict);
+    sk_sp<SkPDFDict> dests(new SkPDFDict);
 
     for (int i = 0; i < pageDevices.count(); i++) {
         SkASSERT(pageDevices[i]);
         SkASSERT(i == 0 ||
                  pageDevices[i - 1]->getCanon() == pageDevices[i]->getCanon());
-        SkAutoTUnref<SkPDFDict> page(create_pdf_page(pageDevices[i]));
+        sk_sp<SkPDFDict> page(create_pdf_page(pageDevices[i]));
         pageDevices[i]->appendDestinations(dests.get(), page.get());
         pages.push(page.release());
     }
 
-    SkAutoTUnref<SkPDFDict> docCatalog(new SkPDFDict("Catalog"));
+    sk_sp<SkPDFDict> docCatalog(new SkPDFDict("Catalog"));
 
-    SkAutoTUnref<SkPDFObject> infoDict(
+    sk_sp<SkPDFObject> infoDict(
             metadata.createDocumentInformationDict());
 
-    SkAutoTUnref<SkPDFObject> id, xmp;
+    sk_sp<SkPDFObject> id, xmp;
 #ifdef SK_PDF_GENERATE_PDFA
     SkPDFMetadata::UUID uuid = metadata.uuid();
     // We use the same UUID for Document ID and Instance ID since this
@@ -203,12 +203,12 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     docCatalog->insertObjRef("Metadata", xmp.release());
 
     // sRGB is specified by HTML, CSS, and SVG.
-    SkAutoTUnref<SkPDFDict> outputIntent(new SkPDFDict("OutputIntent"));
+    sk_sp<SkPDFDict> outputIntent(new SkPDFDict("OutputIntent"));
     outputIntent->insertName("S", "GTS_PDFA1");
     outputIntent->insertString("RegistryName", "http://www.color.org");
     outputIntent->insertString("OutputConditionIdentifier",
                                "sRGB IEC61966-2.1");
-    SkAutoTUnref<SkPDFArray> intentArray(new SkPDFArray);
+    sk_sp<SkPDFArray> intentArray(new SkPDFArray);
     intentArray->appendObject(outputIntent.release());
     // Don't specify OutputIntents if we are not in PDF/A mode since
     // no one has ever asked for this feature.
@@ -341,7 +341,7 @@ protected:
 
         SkISize pageSize = SkISize::Make(
                 SkScalarRoundToInt(width), SkScalarRoundToInt(height));
-        SkAutoTUnref<SkPDFDevice> device(
+        sk_sp<SkPDFDevice> device(
                 SkPDFDevice::Create(pageSize, fRasterDpi, &fCanon));
         fCanvas.reset(new SkCanvas(device.get()));
         fPageDevices.push(device.release());
@@ -382,7 +382,7 @@ protected:
 private:
     SkPDFCanon fCanon;
     SkTDArray<const SkPDFDevice*> fPageDevices;
-    SkAutoTUnref<SkCanvas> fCanvas;
+    sk_sp<SkCanvas> fCanvas;
     SkScalar fRasterDpi;
     SkPDFMetadata fMetadata;
 };

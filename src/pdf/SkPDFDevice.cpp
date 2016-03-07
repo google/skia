@@ -880,17 +880,17 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
 }
 
 static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
-    SkAutoTUnref<SkPDFDict> annotation(new SkPDFDict("Annot"));
+    sk_sp<SkPDFDict> annotation(new SkPDFDict("Annot"));
     annotation->insertName("Subtype", "Link");
 
-    SkAutoTUnref<SkPDFArray> border(new SkPDFArray);
+    sk_sp<SkPDFArray> border(new SkPDFArray);
     border->reserve(3);
     border->appendInt(0);  // Horizontal corner radius.
     border->appendInt(0);  // Vertical corner radius.
     border->appendInt(0);  // Width, 0 = no border.
     annotation->insertObject("Border", border.release());
 
-    SkAutoTUnref<SkPDFArray> rect(new SkPDFArray);
+    sk_sp<SkPDFArray> rect(new SkPDFArray);
     rect->reserve(4);
     rect->appendScalar(translatedRect.fLeft);
     rect->appendScalar(translatedRect.fTop);
@@ -902,11 +902,11 @@ static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
 }
 
 static SkPDFDict* create_link_to_url(const SkData* urlData, const SkRect& r) {
-    SkAutoTUnref<SkPDFDict> annotation(create_link_annotation(r));
+    sk_sp<SkPDFDict> annotation(create_link_annotation(r));
 
     SkString url(static_cast<const char *>(urlData->data()),
                  urlData->size() - 1);
-    SkAutoTUnref<SkPDFDict> action(new SkPDFDict("Action"));
+    sk_sp<SkPDFDict> action(new SkPDFDict("Action"));
     action->insertName("S", "URI");
     action->insertString("URI", url);
     annotation->insertObject("A", action.release());
@@ -915,7 +915,7 @@ static SkPDFDict* create_link_to_url(const SkData* urlData, const SkRect& r) {
 
 static SkPDFDict* create_link_named_dest(const SkData* nameData,
                                          const SkRect& r) {
-    SkAutoTUnref<SkPDFDict> annotation(create_link_annotation(r));
+    sk_sp<SkPDFDict> annotation(create_link_annotation(r));
     SkString name(static_cast<const char *>(nameData->data()),
                   nameData->size() - 1);
     annotation->insertName("Dest", name);
@@ -1146,7 +1146,7 @@ void SkPDFDevice::drawImageRect(const SkDraw& draw,
 
     // clip the tmpSrc to the bounds of the bitmap, and recompute dstRect if
     // needed (if the src was clipped). No check needed if src==null.
-    SkAutoTUnref<const SkImage> autoImageUnref;
+    sk_sp<const SkImage> autoImageUnref;
     if (src) {
         if (!imageBounds.contains(*src)) {
             if (!tmpSrc.intersect(imageBounds)) {
@@ -1448,7 +1448,7 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
         return;
     }
 
-    SkAutoTUnref<SkPDFFormXObject> xObject(new SkPDFFormXObject(pdfDevice));
+    sk_sp<SkPDFFormXObject> xObject(new SkPDFFormXObject(pdfDevice));
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(xObject.get()),
                                 &content.entry()->fContent);
 
@@ -1527,7 +1527,7 @@ const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
 SkPDFArray* SkPDFDevice::copyMediaBox() const {
     // should this be a singleton?
 
-    SkAutoTUnref<SkPDFArray> mediaBox(new SkPDFArray);
+    sk_sp<SkPDFArray> mediaBox(new SkPDFArray);
     mediaBox->reserve(4);
     mediaBox->appendInt(0);
     mediaBox->appendInt(0);
@@ -1711,7 +1711,7 @@ void SkPDFDevice::appendAnnotations(SkPDFArray* array) const {
 
 void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     for (const NamedDestination& dest : fNamedDestinations) {
-        SkAutoTUnref<SkPDFArray> pdfDest(new SkPDFArray);
+        sk_sp<SkPDFArray> pdfDest(new SkPDFArray);
         pdfDest->reserve(5);
         pdfDest->appendObjRef(SkRef(page));
         pdfDest->appendName("XYZ");
@@ -1744,7 +1744,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
         return;
     }
 
-    SkAutoTUnref<SkPDFObject> sMaskGS(SkPDFGraphicState::GetSMaskGraphicState(
+    sk_sp<SkPDFObject> sMaskGS(SkPDFGraphicState::GetSMaskGraphicState(
             mask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode));
 
     SkMatrix identity;
@@ -1908,7 +1908,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
     identity.reset();
     SkPaint stockPaint;
 
-    SkAutoTUnref<SkPDFFormXObject> srcFormXObject;
+    sk_sp<SkPDFFormXObject> srcFormXObject;
     if (isContentEmpty()) {
         // If nothing was drawn and there's no shape, then the draw was a
         // no-op, but dst needs to be restored for that to be true.
@@ -1942,7 +1942,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
                                 &fExistingClipStack, fExistingClipRegion,
                                 SkXfermode::kSrcOver_Mode, true);
     } else {
-        SkAutoTUnref<SkPDFFormXObject> dstMaskStorage;
+        sk_sp<SkPDFFormXObject> dstMaskStorage;
         SkPDFFormXObject* dstMask = srcFormXObject.get();
         if (shape != nullptr) {
             // Draw shape into a form-xobject.
@@ -2043,7 +2043,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     entry->fShaderIndex = -1;
 
     // PDF treats a shader as a color, so we only set one or the other.
-    SkAutoTUnref<SkPDFObject> pdfShader;
+    sk_sp<SkPDFObject> pdfShader;
     const SkShader* shader = paint.getShader();
     SkColor color = paint.getColor();
     if (shader) {
@@ -2094,7 +2094,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         }
     }
 
-    SkAutoTUnref<SkPDFGraphicState> newGraphicState;
+    sk_sp<SkPDFGraphicState> newGraphicState;
     if (color == paint.getColor()) {
         newGraphicState.reset(
                 SkPDFGraphicState::GetGraphicStateForPaint(fCanon, paint));
@@ -2158,7 +2158,7 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
 }
 
 int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
-    SkAutoTUnref<SkPDFFont> newFont(
+    sk_sp<SkPDFFont> newFont(
             SkPDFFont::GetFontResource(fCanon, typeface, glyphID));
     int resourceIndex = fFontResources.find(newFont.get());
     if (resourceIndex < 0) {
@@ -2175,7 +2175,7 @@ static SkSize rect_to_size(const SkRect& r) {
 
 static const SkImage* color_filter(const SkImage* image,
                                    SkColorFilter* colorFilter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(
+    sk_sp<SkSurface> surface(SkSurface::NewRaster(
             SkImageInfo::MakeN32Premul(image->dimensions())));
     if (!surface) {
         return image;
@@ -2203,7 +2203,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     SkMatrix matrix = origMatrix;
     SkRegion perspectiveBounds;
     const SkRegion* clipRegion = &origClipRegion;
-    SkAutoTUnref<const SkImage> autoImageUnref;
+    sk_sp<const SkImage> autoImageUnref;
 
     if (srcRect) {
         autoImageUnref.reset(image->newSubset(*srcRect));
@@ -2254,7 +2254,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
 
         SkISize wh = rect_to_size(physicalPerspectiveBounds).toCeil();
 
-        SkAutoTUnref<SkSurface> surface(
+        sk_sp<SkSurface> surface(
                 SkSurface::NewRaster(SkImageInfo::MakeN32Premul(wh)));
         if (!surface) {
             return;
@@ -2323,7 +2323,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         // TODO(halcanary): de-dupe this by caching filtered images.
         // (maybe in the resource cache?)
     }
-    SkAutoTUnref<SkPDFObject> pdfimage(SkSafeRef(fCanon->findPDFBitmap(image)));
+    sk_sp<SkPDFObject> pdfimage(SkSafeRef(fCanon->findPDFBitmap(image)));
     if (!pdfimage) {
         pdfimage.reset(SkPDFCreateBitmapObject(
                                image, fCanon->getPixelSerializer()));

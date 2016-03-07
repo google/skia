@@ -109,13 +109,13 @@ public:
     static SkPDFUnion String(const SkString&);
 
     /** This function DOES take ownership of the object. E.g.
-          SkAutoTUnref<SkPDFDict> dict(new SkPDFDict);
+          sk_sp<SkPDFDict> dict(new SkPDFDict);
           dict->insert(.....);
           SkPDFUnion u = SkPDFUnion::Object(dict.detach()) */
     static SkPDFUnion Object(SkPDFObject*);
 
     /** This function DOES take ownership of the object. E.g.
-          SkAutoTUnref<SkPDFBitmap> image(
+          sk_sp<SkPDFBitmap> image(
                  SkPDFBitmap::Create(fCanon, bitmap));
           SkPDFUnion u = SkPDFUnion::ObjRef(image.detach()) */
     static SkPDFUnion ObjRef(SkPDFObject*);
@@ -327,7 +327,7 @@ public:
 
 private:
     SkAutoTDelete<SkStreamAsset> fAsset;
-    SkAutoTUnref<SkPDFDict> fDict;
+    sk_sp<SkPDFDict> fDict;
     typedef SkPDFObject INHERITED;
 };
 

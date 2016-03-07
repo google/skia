@@ -19,12 +19,12 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // We don't want to keep around device because we'd have two copies
     // of content, so reference or copy everything we need (content and
     // resources).
-    SkAutoTUnref<SkPDFDict> resourceDict(device->createResourceDict());
+    sk_sp<SkPDFDict> resourceDict(device->createResourceDict());
 
     SkAutoTDelete<SkStreamAsset> content(device->content());
     this->setData(content.get());
 
-    SkAutoTUnref<SkPDFArray> bboxArray(device->copyMediaBox());
+    sk_sp<SkPDFArray> bboxArray(device->copyMediaBox());
     this->init(nullptr, resourceDict.get(), bboxArray.get());
 
     // We invert the initial transform and apply that to the xobject so that
@@ -48,7 +48,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkStream* content, SkRect bbox,
                                    SkPDFDict* resourceDict) {
     setData(content);
 
-    SkAutoTUnref<SkPDFArray> bboxArray(SkPDFUtils::RectToArray(bbox));
+    sk_sp<SkPDFArray> bboxArray(SkPDFUtils::RectToArray(bbox));
     this->init("DeviceRGB", resourceDict, bboxArray.get());
 }
 
@@ -65,7 +65,7 @@ void SkPDFFormXObject::init(const char* colorSpace,
 
     // Right now SkPDFFormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
-    SkAutoTUnref<SkPDFDict> group(new SkPDFDict("Group"));
+    sk_sp<SkPDFDict> group(new SkPDFDict("Group"));
     group->insertName("S", "Transparency");
 
     if (colorSpace != nullptr) {

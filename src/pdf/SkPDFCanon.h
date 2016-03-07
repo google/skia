@@ -118,6 +118,6 @@ private:
     SkTHashMap<SkBitmapKey, const SkImage*> fBitmapToImageMap;
     SkTHashMap<uint32_t /*ImageUniqueID*/, SkPDFObject*> fPDFBitmapMap;
 
-    SkAutoTUnref<SkPixelSerializer> fPixelSerializer;
+    sk_sp<SkPixelSerializer> fPixelSerializer;
 };
 #endif  // SkPDFCanon_DEFINED
