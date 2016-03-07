@@ -54,7 +54,6 @@ public:
 };
 
 namespace  {
-
 // PointProcessor uses a strategy to help complete the work of the different stages. The strategy
 // must implement the following methods:
 // * processPoints(xs, ys) - must mutate the xs and ys for the stage.

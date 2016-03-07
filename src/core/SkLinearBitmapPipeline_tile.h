@@ -100,6 +100,7 @@ public:
             }
         } else {
             Span rightClamped = span.breakAt(xMax, dx);
+
             if (!rightClamped.isEmpty()) {
                 rightClamped.clampToSinglePixel({xMax - 1, y});
                 next->pointSpan(rightClamped);
@@ -198,7 +199,7 @@ public:
 
         Span span({x, y}, length, count);
         if (dx > 0) {
-            while (!span.isEmpty() && span.endX() > xMax) {
+            while (!span.isEmpty() && span.endX() >= xMax) {
                 Span toDraw = span.breakAt(xMax, dx);
                 next->pointSpan(toDraw);
                 span.offset(-xMax);

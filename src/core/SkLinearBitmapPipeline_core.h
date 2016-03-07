@@ -8,6 +8,8 @@
 #ifndef SkLinearBitmapPipeline_core_DEFINED
 #define SkLinearBitmapPipeline_core_DEFINED
 
+#include <cmath>
+
 // Tweak ABI of functions that pass Sk4f by value to pass them via registers.
 #if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #define VECTORCALL __vectorcall
@@ -22,7 +24,7 @@ struct X {
     explicit X(SkScalar val) : fVal{val} { }
     explicit X(SkPoint pt)   : fVal{pt.fX} { }
     explicit X(SkSize s)     : fVal{s.fWidth} { }
-    explicit X(SkISize s)    : fVal(s.fWidth) { }
+    explicit X(SkISize s)    : fVal((SkScalar)s.fWidth) { }
     operator SkScalar () const {return fVal;}
 private:
     SkScalar fVal;
@@ -32,7 +34,7 @@ struct Y {
     explicit Y(SkScalar val) : fVal{val} { }
     explicit Y(SkPoint pt)   : fVal{pt.fY} { }
     explicit Y(SkSize s)     : fVal{s.fHeight} { }
-    explicit Y(SkISize s)    : fVal(s.fHeight) { }
+    explicit Y(SkISize s)    : fVal((SkScalar)s.fHeight) { }
     operator SkScalar () const {return fVal;}
 private:
     SkScalar fVal;
@@ -73,7 +75,7 @@ public:
     bool completelyWithin(SkScalar xMin, SkScalar xMax) const {
         SkScalar sMin, sMax;
         std::tie(sMin, sMax) = std::minmax(startX(), endX());
-        return xMin <= sMin && sMax <= xMax;
+        return xMin <= sMin && sMax < xMax;
     }
 
     void offset(SkScalar offsetX) {
@@ -90,19 +92,37 @@ public:
         }
 
         int dxSteps = SkScalarFloorToInt((breakX - this->startX()) / dx);
+
+        // Calculate the values for the span to cleave off.
+        SkScalar newLength = dxSteps * dx;
+
         if (dxSteps < 0) {
             // The span is wholly after breakX.
             return Span{{0.0, 0.0}, 0.0f, 0};
-        } else if (dxSteps > fCount) {
+        } else if (dxSteps >= fCount) {
             // The span is wholly before breakX.
             Span answer = *this;
             this->clear();
             return answer;
         }
 
-        // Calculate the values for the span to cleave off.
+        // If the last (or first if count = 1) sample lands directly on the boundary. Include it
+        // when dx < 0 and exclude it when dx > 0.
+        // Reasoning:
+        //  dx > 0: The sample point on the boundary is part of the next span because the entire
+        // pixel is after the boundary.
+        //  dx < 0: The sample point on the boundary is part of the current span because the
+        // entire pixel is before the boundary.
+        if (startX() + newLength == breakX && dx > 0) {
+            if (dxSteps != 0) {
+                dxSteps -= 1;
+                newLength -= dx;
+            } else {
+                return Span{{0.0, 0.0}, 0.0f, 0};
+            }
+        }
+
         SkPoint newStart = fStart;
-        SkScalar newLength = dxSteps * dx;
         int newCount = dxSteps + 1;
         SkASSERT(newCount > 0);
 
