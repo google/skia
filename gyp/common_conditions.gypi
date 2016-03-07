@@ -656,6 +656,15 @@
           [ 'skia_profile_enabled == 1', {
             'cflags': ['-g', '-fno-omit-frame-pointer', '-marm', '-mapcs'],
           }],
+          [ 'skia_clang_build', {
+            'cflags': [
+                '-Wno-unknown-warning-option', # Allows unknown warnings
+                # These flags that are on by default for only the android
+                # toolchain and no other platforms.
+                '-Wno-tautological-compare',
+                '-Wno-unused-command-line-argument',
+            ],
+          }],
         ],
       },
     ],

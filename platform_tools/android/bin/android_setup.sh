@@ -12,6 +12,7 @@
 set -e
 
 BUILDTYPE=${BUILDTYPE-Debug}
+USE_CLANG="false"
 
 while (( "$#" )); do
   if [[ "$1" == "-d" ]]; then
@@ -29,9 +30,10 @@ while (( "$#" )); do
     shift
   elif [[ "$1" == "--release" ]]; then
     BUILDTYPE=Release
+  elif [[ "$1" == "--gcc" ]]; then
+    USE_CLANG="false"
   elif [[ "$1" == "--clang" ]]; then
-    USE_CLANG="true"
-    export GYP_DEFINES="skia_clang_build=1 $GYP_DEFINES"
+    USE_CLANG="true" 
   elif [[ "$1" == "--logcat" ]]; then
     LOGCAT=1
   elif [[ "$1" == "--verbose" ]]; then
@@ -41,6 +43,10 @@ while (( "$#" )); do
   fi
   shift
 done
+
+if [ "$USE_CLANG" == "true" ]; then
+  export GYP_DEFINES="skia_clang_build=1 $GYP_DEFINES"
+fi
 
 function verbose {
   if [[ -n $VERBOSE ]]; then

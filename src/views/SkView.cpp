@@ -608,8 +608,6 @@ void SkView::localToGlobal(SkMatrix* matrix) const {
 }
 
 bool SkView::globalToLocal(SkScalar x, SkScalar y, SkPoint* local) const {
-    SkASSERT(this);
-
     if (local) {
         SkMatrix m;
         this->localToGlobal(&m);

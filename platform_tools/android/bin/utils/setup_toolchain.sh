@@ -99,7 +99,7 @@ CCACHE=${ANDROID_MAKE_CCACHE-$(which ccache || true)}
 # should be compiled on Linux for performance reasons.
 # TODO (msarett): Collect more information about this.
 if [ $(uname) == "Linux" ]; then
-  if [ -z $USE_CLANG ]; then
+  if [ "$USE_CLANG" != "true" ]; then
     exportVar CC_target "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
     exportVar CXX_target "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-g++"
     exportVar LINK_target "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
@@ -107,8 +107,6 @@ if [ $(uname) == "Linux" ]; then
     exportVar CXX_host "$CCACHE c++"
     exportVar LINK_host "$CCACHE cc"
   else
-    # temporarily disable ccache as it is generating errors
-    CCACHE=""
     exportVar CC_target "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-clang"
     exportVar CXX_target "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-clang++"
     exportVar LINK_target "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-clang"
@@ -126,13 +124,11 @@ if [ $(uname) == "Linux" ]; then
   exportVar OBJCOPY_host "objcopy"
   exportVar STRIP_host "strip"
 else
-  if [ -z $USE_CLANG ]; then
+  if [ "$USE_CLANG" != "true" ]; then
     exportVar CC "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
     exportVar CXX "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-g++"
     exportVar LINK "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
   else
-    # temporarily disable ccache as it is generating errors
-    CCACHE=""
     exportVar CC "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-clang"
     exportVar CXX "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-clang++"
     exportVar LINK "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-clang"
@@ -151,6 +147,14 @@ if [ $(uname) == "Darwin" ]; then
   ln -sf $ANDROID_TOOLCHAIN_PREFIX-nm $ANDROID_TOOLCHAIN/nm
   ln -sf $ANDROID_TOOLCHAIN_PREFIX-readelf $ANDROID_TOOLCHAIN/readelf
   ln -sf $ANDROID_TOOLCHAIN_PREFIX-as $ANDROID_TOOLCHAIN/as
+fi
+
+# fix bug in the toolchain in order to enable ccache to work with clang
+if [ $(head -c 2 $ANDROID_TOOLCHAIN_PREFIX-clang) != "#!" ]; then
+   echo -e "#!/bin/bash\n$(cat $ANDROID_TOOLCHAIN_PREFIX-clang)" > $ANDROID_TOOLCHAIN_PREFIX-clang
+fi
+if [ $(head -c 2 $ANDROID_TOOLCHAIN_PREFIX-clang++) != "#!" ]; then
+   echo -e "#!/bin/bash\n$(cat $ANDROID_TOOLCHAIN_PREFIX-clang++)" > $ANDROID_TOOLCHAIN_PREFIX-clang++
 fi
 
 exportVar PATH $ANDROID_TOOLCHAIN:$PATH

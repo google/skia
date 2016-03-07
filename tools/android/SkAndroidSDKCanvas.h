@@ -72,7 +72,7 @@ protected:
     void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
                          SrcRectConstraint) override;
-    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*);
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[],
                      const SkColor[], int count, SkXfermode::Mode,
                      const SkRect* cull, const SkPaint*) override;

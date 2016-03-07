@@ -102,6 +102,11 @@
             '-O2',
           ],
         }],
+        [ 'skia_clang_build == 1', {
+          'cflags':[
+            '-Wno-error',
+          ],
+        }],
       ],
     },
   ],

@@ -113,6 +113,9 @@
             'type': 'shared_library',
           }],
         ],
+        'cflags': [
+          '-Wno-unused-private-field',
+        ],
         'sources': [
           '../apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.cpp',
         ],

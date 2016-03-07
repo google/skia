@@ -24,7 +24,7 @@
       ],
       'cflags':[   
         # FIXME: This gets around a warning: "Argument might be clobbered by longjmp". 
-        '-Wno-clobbered -Wno-error',   
+        '-Wno-clobbered -Wno-error',
       ],
       'include_dirs': [
         '../include/codec',
