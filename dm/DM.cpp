@@ -987,6 +987,13 @@ struct Task {
             start(task.sink.tag.c_str(), task.src.tag.c_str(),
                   task.src.options.c_str(), name.c_str());
             Error err = task.sink->draw(*task.src, &bitmap, &stream, &log);
+            if (!log.isEmpty()) {
+                SkDebugf("%s %s %s %s:\n%s\n", task.sink.tag.c_str()
+                                             , task.src.tag.c_str()
+                                             , task.src.options.c_str()
+                                             , name.c_str()
+                                             , log.c_str());
+            }
             if (!err.isEmpty()) {
                 if (err.isFatal()) {
                     fail(SkStringPrintf("%s %s %s %s: %s",
