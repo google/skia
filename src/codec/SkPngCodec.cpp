@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
+#include "SkColorSpace.h"
 #include "SkColorTable.h"
-#include "SkBitmap.h"
 #include "SkMath.h"
 #include "SkOpts.h"
 #include "SkPngCodec.h"
@@ -176,7 +177,7 @@ static float png_fixed_point_to_float(png_fixed_point x) {
 // Returns a colorSpace object that represents any color space information in
 // the encoded data.  If the encoded data contains no color space, this will
 // return NULL.
-SkColorSpace* read_color_space(png_structp png_ptr, png_infop info_ptr) {
+sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
 
@@ -426,7 +427,7 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
 
 SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream, SkPngChunkReader* chunkReader,
                        png_structp png_ptr, png_infop info_ptr, int bitDepth, int numberPasses,
-                       SkColorSpace* colorSpace)
+                       sk_sp<SkColorSpace> colorSpace)
     : INHERITED(info, stream, colorSpace)
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
@@ -638,7 +639,7 @@ class SkPngScanlineDecoder : public SkPngCodec {
 public:
     SkPngScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
             SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr, int bitDepth,
-            SkColorSpace* colorSpace)
+            sk_sp<SkColorSpace> colorSpace)
         : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1, colorSpace)
         , fSrcRow(nullptr)
     {}
@@ -704,7 +705,7 @@ class SkPngInterlacedScanlineDecoder : public SkPngCodec {
 public:
     SkPngInterlacedScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
             SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses, SkColorSpace* colorSpace)
+            int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
         : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, numberPasses,
                     colorSpace)
         , fHeight(-1)
@@ -837,7 +838,7 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkRead
         return nullptr;
     }
 
-    SkAutoTUnref<SkColorSpace> colorSpace(read_color_space(png_ptr, info_ptr));
+    auto colorSpace = read_color_space(png_ptr, info_ptr);
 
     if (1 == numberPasses) {
         return new SkPngScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,

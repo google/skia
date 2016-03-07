@@ -102,7 +102,7 @@ SkColorSpace::SkColorSpace(const SkFloat3x3& toXYZD50, const SkFloat3& gamma, Na
     }
 }
 
-SkColorSpace* SkColorSpace::NewRGB(const SkFloat3x3& toXYZD50, const SkFloat3& gamma) {
+sk_sp<SkColorSpace> SkColorSpace::NewRGB(const SkFloat3x3& toXYZD50, const SkFloat3& gamma) {
     for (int i = 0; i < 3; ++i) {
         if (!SkFloatIsFinite(gamma.fVec[i]) || gamma.fVec[i] < 0) {
             return nullptr;
@@ -120,7 +120,7 @@ SkColorSpace* SkColorSpace::NewRGB(const SkFloat3x3& toXYZD50, const SkFloat3& g
         return nullptr;
     }
 
-    return new SkColorSpace(toXYZD50, gamma, kUnknown_Named);
+    return sk_sp<SkColorSpace>(new SkColorSpace(toXYZD50, gamma, kUnknown_Named));
 }
 
 void SkColorSpace::dump() const {
@@ -144,12 +144,13 @@ const SkFloat3x3 gSRGB_toXYZD50 {{
     0.1430f, 0.0606f, 0.7139f,    // * B
 }};
 
-SkColorSpace* SkColorSpace::NewNamed(Named named) {
+sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
     switch (named) {
         case kDevice_Named:
-            return new SkColorSpace(gDevice_toXYZD50, gDevice_gamma, kDevice_Named);
+            return sk_sp<SkColorSpace>(new SkColorSpace(gDevice_toXYZD50, gDevice_gamma,
+                                                        kDevice_Named));
         case kSRGB_Named:
-            return new SkColorSpace(gSRGB_toXYZD50, gSRGB_gamma, kSRGB_Named);
+            return sk_sp<SkColorSpace>(new SkColorSpace(gSRGB_toXYZD50, gSRGB_gamma, kSRGB_Named));
         default:
             break;
     }
@@ -377,7 +378,7 @@ static bool load_gamma(float* gamma, const uint8_t* src, size_t len) {
     }
 }
 
-SkColorSpace* SkColorSpace::NewICC(const void* base, size_t len) {
+sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
     const uint8_t* ptr = (const uint8_t*) base;
 
     if (len < kICCHeaderSize) {
@@ -528,13 +529,13 @@ void SkColorSpace::Test() {
     concat(inv, mat).dump();
     SkDebugf("\n");
 
-    SkAutoTUnref<SkColorSpace> cs0(SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
-    SkAutoTUnref<SkColorSpace> cs1(SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
+    sk_sp<SkColorSpace> cs0(SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
+    sk_sp<SkColorSpace> cs1(SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
 
     cs0->dump();
     cs1->dump();
     SkFloat3x3 xform;
-    (void)SkColorSpace::Concat(cs0, cs1, &xform);
+    (void)SkColorSpace::Concat(cs0.get(), cs1.get(), &xform);
     xform.dump();
     SkDebugf("\n");
 }

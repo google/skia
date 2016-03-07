@@ -10,13 +10,13 @@
 
 #include "../private/SkTemplates.h"
 #include "SkColor.h"
-#include "SkColorSpace.h"
 #include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
+class SkColorSpace;
 class SkData;
 class SkPngChunkReader;
 class SkSampler;
@@ -104,7 +104,7 @@ public:
      *  Does not affect ownership.
      *  Might be NULL.
      */
-    SkColorSpace* getColorSpace() const { return fColorSpace; }
+    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
 
     /**
      *  Return a size that approximately supports the desired scale factor.
@@ -514,7 +514,7 @@ protected:
      *  Takes ownership of SkStream*
      *  Does not affect ownership of SkColorSpace*
      */
-    SkCodec(const SkImageInfo&, SkStream*, SkColorSpace* = nullptr);
+    SkCodec(const SkImageInfo&, SkStream*, sk_sp<SkColorSpace> = nullptr);
 
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
@@ -645,7 +645,7 @@ private:
     const SkImageInfo           fSrcInfo;
     SkAutoTDelete<SkStream>     fStream;
     bool                        fNeedsRewind;
-    SkAutoTUnref<SkColorSpace>  fColorSpace;
+    sk_sp<SkColorSpace>         fColorSpace;
 
     // These fields are only meaningful during scanline decodes.
     SkImageInfo                 fDstInfo;

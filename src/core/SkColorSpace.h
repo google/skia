@@ -50,10 +50,10 @@ public:
      *  Return a colorspace instance, given a 3x3 transform from linear_RGB to D50_XYZ
      *  and the src-gamma, return a ColorSpace
      */
-    static SkColorSpace* NewRGB(const SkFloat3x3& toXYZD50, const SkFloat3& gamma);
+    static sk_sp<SkColorSpace> NewRGB(const SkFloat3x3& toXYZD50, const SkFloat3& gamma);
 
-    static SkColorSpace* NewNamed(Named);
-    static SkColorSpace* NewICC(const void*, size_t);
+    static sk_sp<SkColorSpace> NewNamed(Named);
+    static sk_sp<SkColorSpace> NewICC(const void*, size_t);
 
     SkFloat3 gamma() const { return fGamma; }
     SkFloat3x3 xyz() const { return fToXYZD50; }

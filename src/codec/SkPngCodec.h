@@ -42,7 +42,7 @@ protected:
     }
 
     SkPngCodec(const SkImageInfo&, SkStream*, SkPngChunkReader*, png_structp, png_infop, int, int,
-               SkColorSpace*);
+               sk_sp<SkColorSpace>);
 
     png_structp png_ptr() { return fPng_ptr; }
     SkSwizzler* swizzler() { return fSwizzler; }

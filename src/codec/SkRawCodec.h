@@ -9,6 +9,7 @@
 #define SkRawCodec_DEFINED
 
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
 

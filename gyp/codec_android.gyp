@@ -25,7 +25,6 @@
         '../include/private',
         '../src/android',
         '../src/codec',
-        '../src/core',
       ],
       'sources': [
         '../src/android/SkBitmapRegionCanvas.cpp',

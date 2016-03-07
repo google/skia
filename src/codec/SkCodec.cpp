@@ -8,6 +8,7 @@
 #include "SkBmpCodec.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
+#include "SkColorSpace.h"
 #include "SkData.h"
 #include "SkGifCodec.h"
 #include "SkIcoCodec.h"
@@ -113,11 +114,11 @@ SkCodec* SkCodec::NewFromData(SkData* data, SkPngChunkReader* reader) {
     return NewFromStream(new SkMemoryStream(data), reader);
 }
 
-SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream, SkColorSpace* colorSpace)
+SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream, sk_sp<SkColorSpace> colorSpace)
     : fSrcInfo(info)
     , fStream(stream)
     , fNeedsRewind(false)
-    , fColorSpace(colorSpace ? SkRef(colorSpace) : nullptr)
+    , fColorSpace(colorSpace)
     , fDstInfo()
     , fOptions()
     , fCurrScanline(-1)

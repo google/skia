@@ -9,6 +9,7 @@
 #define SkWebpCodec_DEFINED
 
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
