@@ -31,6 +31,11 @@ CONFIG_DEBUG = 'Debug'
 CONFIG_RELEASE = 'Release'
 VALID_CONFIGS = (CONFIG_COVERAGE, CONFIG_DEBUG, CONFIG_RELEASE)
 
+BUILD_PRODUCTS_WHITELIST = [
+  'dm', 'dm.exe',
+  'nanobench', 'nanobench.exe',
+]
+
 GM_ACTUAL_FILENAME = 'actual-results.json'
 GM_EXPECTATIONS_FILENAME = 'expected-results.json'
 GM_IGNORE_TESTS_FILENAME = 'ignored-tests.txt'
@@ -154,10 +159,7 @@ class BotInfo(object):
     self.build_dir = os.path.abspath(os.path.join(self.skia_dir, os.pardir))
     self.spec = self.get_bot_spec(bot_name)
     self.bot_cfg = self.spec['builder_cfg']
-    if self.bot_cfg['role'] == 'Build':
-      self.out_dir = os.path.join(swarm_out_dir, 'out')
-    else:
-      self.out_dir = os.path.join(os.pardir, 'out')
+    self.out_dir = os.path.join(os.pardir, 'out')
     self.configuration = self.spec['configuration']
     self.default_env = {
       'SKIA_OUT': self.out_dir,
@@ -242,6 +244,13 @@ class BotInfo(object):
   def compile_steps(self):
     for t in self.build_targets:
       self.flavor.compile(t)
+    dst = os.path.join(self.swarm_out_dir, 'out', self.configuration)
+    os.makedirs(dst)
+    for f in BUILD_PRODUCTS_WHITELIST:
+      path = os.path.join(self.out_dir, self.configuration, f)
+      if os.path.exists(path):
+        print 'Copying build product %s' % path
+        shutil.copy(path, dst)
 
   def _run_once(self, fn, *args, **kwargs):
     if not fn.__name__ in self._already_ran:
