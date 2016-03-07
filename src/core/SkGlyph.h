@@ -94,6 +94,11 @@ public:
         return rb;
     }
 
+    SK_ATTR_DEPRECATED("Temporary accessor for Android.")
+    SkFixed advanceXFixed() const { return fAdvanceX; }
+    SK_ATTR_DEPRECATED("Temporary accessor for Android.")
+    SkFixed advanceYFixed() const { return fAdvanceY; }
+
     unsigned rowBytes() const {
         return ComputeRowBytes(fWidth, (SkMask::Format)fMaskFormat);
     }
