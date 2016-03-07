@@ -9,6 +9,7 @@
 //#include "GrVkProcessor.h"
 #include "GrProcessor.h"
 #include "GrPipeline.h"
+#include "GrRenderTargetPriv.h"
 #include "GrVkGpu.h"
 #include "GrVkUtil.h"
 #include "SkChecksum.h"
@@ -134,15 +135,24 @@ bool GrVkProgramDescBuilder::Build(GrProgramDesc* desc,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    if (requiredFeatures & GrProcessor::kFragmentPosition_RequiredFeature) {
-        header->fFragPosKey =
-            GrGLSLFragmentShaderBuilder::KeyForFragmentPosition(pipeline.getRenderTarget());
+    GrRenderTarget* rt = pipeline.getRenderTarget();
+
+    if (requiredFeatures & (GrProcessor::kFragmentPosition_RequiredFeature |
+                            GrProcessor::kSampleLocations_RequiredFeature)) {
+        header->fSurfaceOriginKey = GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(rt->origin());
     } else {
-        header->fFragPosKey = 0;
+        header->fSurfaceOriginKey = 0;
     }
 
-    header->fOutputSwizzle =
-        glslCaps.configOutputSwizzle(pipeline.getRenderTarget()->config()).asKey();
+    if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
+        SkASSERT(pipeline.isHWAntialiasState());
+        header->fSamplePatternKey =
+            rt->renderTargetPriv().getMultisampleSpecs(pipeline.getStencil()).fUniqueID;
+    } else {
+        header->fSamplePatternKey = 0;
+    }
+
+    header->fOutputSwizzle = glslCaps.configOutputSwizzle(rt->config()).asKey();
 
     if (pipeline.ignoresCoverage()) {
         header->fIgnoresCoverage = 1;

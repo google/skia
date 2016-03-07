@@ -4141,6 +4141,39 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
     return true;
 }
 
+void GrGLGpu::onGetMultisampleSpecs(GrRenderTarget* rt,
+                                    const GrStencilSettings& stencil,
+                                    int* effectiveSampleCnt,
+                                    SkAutoTDeleteArray<SkPoint>* sampleLocations) {
+    SkASSERT(!rt->hasMixedSamples() || rt->renderTargetPriv().getStencilAttachment() ||
+             stencil.isDisabled());
+
+    this->flushStencil(stencil);
+    this->flushHWAAState(rt, true, !stencil.isDisabled());
+    this->flushRenderTarget(static_cast<GrGLRenderTarget*>(rt), &SkIRect::EmptyIRect());
+
+    if (0 != this->caps()->maxRasterSamples()) {
+        GR_GL_GetIntegerv(this->glInterface(), GR_GL_EFFECTIVE_RASTER_SAMPLES, effectiveSampleCnt);
+    } else {
+        GR_GL_GetIntegerv(this->glInterface(), GR_GL_SAMPLES, effectiveSampleCnt);
+    }
+
+    SkASSERT(*effectiveSampleCnt >= rt->desc().fSampleCnt);
+
+    if (this->caps()->sampleLocationsSupport()) {
+        sampleLocations->reset(new SkPoint[*effectiveSampleCnt]);
+        for (int i = 0; i < *effectiveSampleCnt; ++i) {
+            GrGLfloat pos[2];
+            GL_CALL(GetMultisamplefv(GR_GL_SAMPLE_POSITION, i, pos));
+            if (kTopLeft_GrSurfaceOrigin == rt->origin()) {
+                (*sampleLocations)[i].set(pos[0], pos[1]);
+            } else {
+                (*sampleLocations)[i].set(pos[0], 1 - pos[1]);
+            }
+        }
+    }
+}
+
 void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     SkASSERT(type);
     switch (type) {

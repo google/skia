@@ -18,7 +18,7 @@ const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(const DrawArgs& args)
     : fVS(this)
     , fGS(this)
-    , fFS(this, args.fDesc->header().fFragPosKey)
+    , fFS(this)
     , fStageIndex(-1)
     , fArgs(args)
     , fGeometryProcessor(nullptr)

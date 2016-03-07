@@ -76,6 +76,11 @@ public:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
+    void onGetMultisampleSpecs(GrRenderTarget* rt,
+                               const GrStencilSettings&,
+                               int* effectiveSampleCnt,
+                               SkAutoTDeleteArray<SkPoint>*);
+
     bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override {
         SkDebugf("initCopySurfaceDstDesc not yet implemented for Vulkan\n");
         return false;

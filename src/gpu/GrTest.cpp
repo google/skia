@@ -316,6 +316,13 @@ public:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override { return false; };
 
+    void onGetMultisampleSpecs(GrRenderTarget* rt,
+                               const GrStencilSettings&,
+                               int* effectiveSampleCnt,
+                               SkAutoTDeleteArray<SkPoint>*) override {
+        *effectiveSampleCnt = rt->desc().fSampleCnt;
+    }
+
     bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override {
         return false;
     }

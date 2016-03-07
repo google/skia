@@ -47,6 +47,7 @@ GrVertices& GrVertices::operator =(const GrVertices& di) {
 GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
+    , fMultisampleSpecsAllocator(1)
     , fContext(context) {
 }
 
@@ -442,6 +443,61 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();
     this->onResolveRenderTarget(target);
+}
+
+inline static uint8_t multisample_specs_id(uint8_t numSamples, GrSurfaceOrigin origin,
+                                           const GrCaps& caps) {
+    if (!caps.sampleLocationsSupport()) {
+        return numSamples;
+    }
+
+    SkASSERT(numSamples < 128);
+    SkASSERT(kTopLeft_GrSurfaceOrigin == origin || kBottomLeft_GrSurfaceOrigin == origin);
+    return (numSamples << 1) | (origin - 1);
+
+    GR_STATIC_ASSERT(1 == kTopLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(2 == kBottomLeft_GrSurfaceOrigin);
+}
+
+const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
+                                                          const GrStencilSettings& stencil) {
+    const GrSurfaceDesc& desc = rt->desc();
+    uint8_t surfDescKey = multisample_specs_id(desc.fSampleCnt, desc.fOrigin, *this->caps());
+    if (fMultisampleSpecsMap.count() > surfDescKey && fMultisampleSpecsMap[surfDescKey]) {
+#if !defined(SK_DEBUG)
+        // In debug mode we query the multisample info every time and verify the caching is correct.
+        return *fMultisampleSpecsMap[surfDescKey];
+#endif
+    }
+    int effectiveSampleCnt;
+    SkAutoTDeleteArray<SkPoint> locations(nullptr);
+    this->onGetMultisampleSpecs(rt, stencil, &effectiveSampleCnt, &locations);
+    SkASSERT(effectiveSampleCnt && effectiveSampleCnt >= desc.fSampleCnt);
+    uint8_t effectiveKey = multisample_specs_id(effectiveSampleCnt, desc.fOrigin, *this->caps());
+    if (fMultisampleSpecsMap.count() > effectiveKey && fMultisampleSpecsMap[effectiveKey]) {
+        const MultisampleSpecs& specs = *fMultisampleSpecsMap[effectiveKey];
+        SkASSERT(effectiveKey == specs.fUniqueID);
+        SkASSERT(effectiveSampleCnt == specs.fEffectiveSampleCnt);
+        SkASSERT(!this->caps()->sampleLocationsSupport() ||
+                 !memcmp(locations.get(), specs.fSampleLocations.get(),
+                         effectiveSampleCnt * sizeof(SkPoint)));
+        SkASSERT(surfDescKey <= effectiveKey);
+        SkASSERT(!fMultisampleSpecsMap[surfDescKey] || fMultisampleSpecsMap[surfDescKey] == &specs);
+        fMultisampleSpecsMap[surfDescKey] = &specs;
+        return specs;
+    }
+    const MultisampleSpecs& specs = *new (&fMultisampleSpecsAllocator)
+        MultisampleSpecs{effectiveKey, effectiveSampleCnt, locations.detach()};
+    if (fMultisampleSpecsMap.count() <= effectiveKey) {
+        int n = 1 + effectiveKey - fMultisampleSpecsMap.count();
+        fMultisampleSpecsMap.push_back_n(n, (const MultisampleSpecs*) nullptr);
+    }
+    fMultisampleSpecsMap[effectiveKey] = &specs;
+    if (effectiveSampleCnt != desc.fSampleCnt) {
+        SkASSERT(surfDescKey < effectiveKey);
+        fMultisampleSpecsMap[surfDescKey] = &specs;
+    }
+    return specs;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

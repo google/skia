@@ -84,7 +84,8 @@ public:
      */
     enum RequiredFeatures {
         kNone_RequiredFeatures             = 0,
-        kFragmentPosition_RequiredFeature  = 1
+        kFragmentPosition_RequiredFeature  = 1 << 0,
+        kSampleLocations_RequiredFeature   = 1 << 1
     };
 
     GR_DECL_BITFIELD_OPS_FRIENDS(RequiredFeatures);
@@ -122,11 +123,12 @@ protected:
     bool hasSameTextureAccesses(const GrProcessor&) const;
 
     /**
-     * If the prcoessor will generate a backend-specific processor that will read the fragment
-     * position in the FS then it must call this method from its constructor. Otherwise, the
-     * request to access the fragment position will be denied.
+     * If the prcoessor will generate code that uses platform specific built-in features, then it
+     * must call these methods from its constructor. Otherwise, requests to use these features will
+     * be denied.
      */
     void setWillReadFragmentPosition() { fRequiredFeatures |= kFragmentPosition_RequiredFeature; }
+    void setWillUseSampleLocations() { fRequiredFeatures |= kSampleLocations_RequiredFeature; }
 
     void combineRequiredFeatures(const GrProcessor& other) {
         fRequiredFeatures |= other.fRequiredFeatures;

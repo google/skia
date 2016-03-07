@@ -12,6 +12,7 @@
 #include "GrProgramDesc.h"
 #include "GrStencil.h"
 #include "GrSwizzle.h"
+#include "GrAllocator.h"
 #include "GrTextureParamsAdjuster.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
@@ -365,6 +366,22 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
+    struct MultisampleSpecs {
+        // Nonzero ID that uniquely identifies these multisample specs.
+        uint8_t                            fUniqueID;
+        // The actual number of samples the GPU will run. NOTE: this value can be greater than the
+        // the render target's sample count.
+        int                                fEffectiveSampleCnt;
+        // If sample locations are supported, contains the subpixel locations at which the GPU will
+        // sample. Pixel center is at (.5, .5) and (0, 0) indicates the top left corner.
+        SkAutoTDeleteArray<const SkPoint>  fSampleLocations;
+    };
+
+    // Finds a render target's multisample specs. The stencil settings are only needed to flush the
+    // draw state prior to querying multisample information; they should not have any effect on the
+    // multisample information itself.
+    const MultisampleSpecs& getMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&);
+
     struct DrawArgs {
         DrawArgs(const GrPrimitiveProcessor* primProc,
                  const GrPipeline* pipeline,
@@ -601,6 +618,12 @@ private:
                                const SkIRect& srcRect,
                                const SkIPoint& dstPoint) = 0;
 
+    // overridden by backend specific derived class to perform the multisample queries
+    virtual void onGetMultisampleSpecs(GrRenderTarget*,
+                                       const GrStencilSettings&,
+                                       int* effectiveSampleCnt,
+                                       SkAutoTDeleteArray<SkPoint>* sampleLocations) = 0;
+
     void resetContext() {
         this->onResetContext(fResetBits);
         fResetBits = 0;
@@ -609,6 +632,8 @@ private:
 
     ResetTimestamp                                                      fResetTimestamp;
     uint32_t                                                            fResetBits;
+    SkTArray<const MultisampleSpecs*, true>                             fMultisampleSpecsMap;
+    GrTAllocator<MultisampleSpecs>                                      fMultisampleSpecsAllocator;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext*                                                          fContext;
 

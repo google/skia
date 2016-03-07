@@ -194,7 +194,7 @@ public:
         SkASSERT(n >= 0);
         T* newTs = reinterpret_cast<T*>(this->push_back_raw(n));
         for (int i = 0; i < n; ++i) {
-            new (newTs[i]) T(t);
+            new (newTs + i) T(t);
         }
         return newTs;
     }
