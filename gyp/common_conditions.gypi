@@ -239,6 +239,7 @@
           '-fno-threadsafe-statics',
           '-Wnon-virtual-dtor',
         ],
+        'ldflags': [ '-rdynamic' ],
         'conditions': [
           [ 'skia_fast', { 'cflags': [ '<@(skia_fast_flags)' ] }],
           [ 'skia_os != "chromeos"', {
