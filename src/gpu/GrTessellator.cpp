@@ -94,7 +94,7 @@ struct Edge;
 struct Poly;
 
 template <class T, T* T::*Prev, T* T::*Next>
-void insert(T* t, T* prev, T* next, T** head, T** tail) {
+void list_insert(T* t, T* prev, T* next, T** head, T** tail) {
     t->*Prev = prev;
     t->*Next = next;
     if (prev) {
@@ -110,7 +110,7 @@ void insert(T* t, T* prev, T* next, T** head, T** tail) {
 }
 
 template <class T, T* T::*Prev, T* T::*Next>
-void remove(T* t, T** head, T** tail) {
+void list_remove(T* t, T** head, T** tail) {
     if (t->*Prev) {
         t->*Prev->*Next = t->*Next;
     } else if (head) {
@@ -208,6 +208,21 @@ struct EdgeList {
     EdgeList() : fHead(nullptr), fTail(nullptr) {}
     Edge* fHead;
     Edge* fTail;
+};
+
+struct VertexList {
+    VertexList() : fHead(nullptr), fTail(nullptr) {}
+    Vertex* fHead;
+    Vertex* fTail;
+    void insert(Vertex* v, Vertex* prev, Vertex* next) {
+        list_insert<Vertex, &Vertex::fPrev, &Vertex::fNext>(v, prev, next, &fHead, &fTail);
+    }
+    void append(Vertex* v) {
+        insert(v, fTail, nullptr);
+    }
+    void prepend(Vertex* v) {
+        insert(v, nullptr, fHead);
+    }
 };
 
 /**
@@ -326,13 +341,10 @@ struct Poly {
     struct MonotonePoly {
         MonotonePoly()
             : fSide(kNeither_Side)
-            , fHead(nullptr)
-            , fTail(nullptr)
             , fPrev(nullptr)
             , fNext(nullptr) {}
         Side          fSide;
-        Vertex*       fHead;
-        Vertex*       fTail;
+        VertexList    fVertices;
         MonotonePoly* fPrev;
         MonotonePoly* fNext;
         bool addVertex(Vertex* v, Side side, SkChunkAlloc& alloc) {
@@ -343,24 +355,18 @@ struct Poly {
             } else {
                 done = side != fSide;
             }
-            if (fHead == nullptr) {
-                fHead = fTail = newV;
-            } else if (fSide == kRight_Side) {
-                newV->fPrev = fTail;
-                fTail->fNext = newV;
-                fTail = newV;
+            if (fSide == kRight_Side) {
+                fVertices.append(newV);
             } else {
-                newV->fNext = fHead;
-                fHead->fPrev = newV;
-                fHead = newV;
+                fVertices.prepend(newV);
             }
             return done;
         }
 
         SkPoint* emit(SkPoint* data) {
-            Vertex* first = fHead;
+            Vertex* first = fVertices.fHead;
             Vertex* v = first->fNext;
-            while (v != fTail) {
+            while (v != fVertices.fTail) {
                 SkASSERT(v && v->fPrev && v->fNext);
                 Vertex* prev = v->fPrev;
                 Vertex* curr = v;
@@ -409,7 +415,7 @@ struct Poly {
                 poly = partner;
             } else {
                 Vertex* prev = fActive->fSide == Poly::kLeft_Side ?
-                               fActive->fHead->fNext : fActive->fTail->fPrev;
+                               fActive->fVertices.fHead->fNext : fActive->fVertices.fTail->fPrev;
                 fActive = ALLOC_NEW(MonotonePoly, , alloc);
                 fActive->addVertex(prev, Poly::kNeither_Side, alloc);
                 fActive->addVertex(v, side, alloc);
@@ -645,14 +651,14 @@ Edge* new_edge(Vertex* prev, Vertex* next, SkChunkAlloc& alloc, Comparator& c) {
 void remove_edge(Edge* edge, EdgeList* edges) {
     LOG("removing edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
     SkASSERT(edge->isActive(edges));
-    remove<Edge, &Edge::fLeft, &Edge::fRight>(edge, &edges->fHead, &edges->fTail);
+    list_remove<Edge, &Edge::fLeft, &Edge::fRight>(edge, &edges->fHead, &edges->fTail);
 }
 
 void insert_edge(Edge* edge, Edge* prev, EdgeList* edges) {
     LOG("inserting edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
     SkASSERT(!edge->isActive(edges));
     Edge* next = prev ? prev->fRight : edges->fHead;
-    insert<Edge, &Edge::fLeft, &Edge::fRight>(edge, prev, next, &edges->fHead, &edges->fTail);
+    list_insert<Edge, &Edge::fLeft, &Edge::fRight>(edge, prev, next, &edges->fHead, &edges->fTail);
 }
 
 void find_enclosing_edges(Vertex* v, EdgeList* edges, Edge** left, Edge** right) {
@@ -671,7 +677,6 @@ void find_enclosing_edges(Vertex* v, EdgeList* edges, Edge** left, Edge** right)
     }
     *left = prev;
     *right = next;
-    return;
 }
 
 void find_enclosing_edges(Edge* edge, EdgeList* edges, Comparator& c, Edge** left, Edge** right) {
@@ -690,7 +695,6 @@ void find_enclosing_edges(Edge* edge, EdgeList* edges, Comparator& c, Edge** lef
     }
     *left = prev;
     *right = next;
-    return;
 }
 
 void fix_active_state(Edge* edge, EdgeList* activeEdges, Comparator& c) {
@@ -720,7 +724,7 @@ void insert_edge_above(Edge* edge, Vertex* v, Comparator& c) {
         }
         prev = next;
     }
-    insert<Edge, &Edge::fPrevEdgeAbove, &Edge::fNextEdgeAbove>(
+    list_insert<Edge, &Edge::fPrevEdgeAbove, &Edge::fNextEdgeAbove>(
         edge, prev, next, &v->fFirstEdgeAbove, &v->fLastEdgeAbove);
 }
 
@@ -738,21 +742,21 @@ void insert_edge_below(Edge* edge, Vertex* v, Comparator& c) {
         }
         prev = next;
     }
-    insert<Edge, &Edge::fPrevEdgeBelow, &Edge::fNextEdgeBelow>(
+    list_insert<Edge, &Edge::fPrevEdgeBelow, &Edge::fNextEdgeBelow>(
         edge, prev, next, &v->fFirstEdgeBelow, &v->fLastEdgeBelow);
 }
 
 void remove_edge_above(Edge* edge) {
     LOG("removing edge (%g -> %g) above vertex %g\n", edge->fTop->fID, edge->fBottom->fID,
         edge->fBottom->fID);
-    remove<Edge, &Edge::fPrevEdgeAbove, &Edge::fNextEdgeAbove>(
+    list_remove<Edge, &Edge::fPrevEdgeAbove, &Edge::fNextEdgeAbove>(
         edge, &edge->fBottom->fFirstEdgeAbove, &edge->fBottom->fLastEdgeAbove);
 }
 
 void remove_edge_below(Edge* edge) {
     LOG("removing edge (%g -> %g) below vertex %g\n", edge->fTop->fID, edge->fBottom->fID,
         edge->fTop->fID);
-    remove<Edge, &Edge::fPrevEdgeBelow, &Edge::fNextEdgeBelow>(
+    list_remove<Edge, &Edge::fPrevEdgeBelow, &Edge::fNextEdgeBelow>(
         edge, &edge->fTop->fFirstEdgeBelow, &edge->fTop->fLastEdgeBelow);
 }
 
@@ -913,7 +917,7 @@ void merge_vertices(Vertex* src, Vertex* dst, Vertex** head, Comparator& c, SkCh
         set_top(edge, dst, nullptr, c);
         edge = next;
     }
-    remove<Vertex, &Vertex::fPrev, &Vertex::fNext>(src, head, nullptr);
+    list_remove<Vertex, &Vertex::fPrev, &Vertex::fNext>(src, head, nullptr);
 }
 
 Vertex* check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Comparator& c,
@@ -1084,36 +1088,27 @@ void merge_sort(Vertex** head, Comparator& c) {
     *head = sorted_merge(a, b, c);
 }
 
-inline void append_vertex(Vertex* v, Vertex** head, Vertex** tail) {
-    insert<Vertex, &Vertex::fPrev, &Vertex::fNext>(v, *tail, nullptr, head, tail);
-}
-
-inline void append_vertex_list(Vertex* v, Vertex** head, Vertex** tail) {
-    insert<Vertex, &Vertex::fPrev, &Vertex::fNext>(v, *tail, v->fNext, head, tail);
-}
-
 Vertex* sorted_merge(Vertex* a, Vertex* b, Comparator& c) {
-    Vertex* head = nullptr;
-    Vertex* tail = nullptr;
+    VertexList vertices;
 
     while (a && b) {
         if (c.sweep_lt(a->fPoint, b->fPoint)) {
             Vertex* next = a->fNext;
-            append_vertex(a, &head, &tail);
+            vertices.append(a);
             a = next;
         } else {
             Vertex* next = b->fNext;
-            append_vertex(b, &head, &tail);
+            vertices.append(b);
             b = next;
         }
     }
     if (a) {
-        append_vertex_list(a, &head, &tail);
+        vertices.insert(a, vertices.fTail, a->fNext);
     }
     if (b) {
-        append_vertex_list(b, &head, &tail);
+        vertices.insert(b, vertices.fTail, b->fNext);
     }
-    return head;
+    return vertices.fHead;
 }
 
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
