@@ -109,7 +109,7 @@ public:
     static SkPDFUnion String(const SkString&);
 
     /** This function DOES take ownership of the object. E.g.
-          sk_sp<SkPDFDict> dict(new SkPDFDict);
+          auto dict = sk_make_sp<SkPDFDict>();
           dict->insert(.....);
           SkPDFUnion u = SkPDFUnion::Object(dict.detach()) */
     static SkPDFUnion Object(SkPDFObject*);

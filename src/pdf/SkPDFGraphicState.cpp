@@ -129,7 +129,7 @@ SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
 static SkPDFObject* create_invert_function() {
     // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
     // a type 2 function, so we use a type 4 function.
-    sk_sp<SkPDFArray> domainAndRange(new SkPDFArray);
+    auto domainAndRange = sk_make_sp<SkPDFArray>();
     domainAndRange->reserve(2);
     domainAndRange->appendInt(0);
     domainAndRange->appendInt(1);
@@ -139,7 +139,7 @@ static SkPDFObject* create_invert_function() {
     sk_sp<SkData> psInvertStream(
             SkData::NewWithoutCopy(psInvert, strlen(psInvert)));
 
-    sk_sp<SkPDFStream> invertFunction(new SkPDFStream(psInvertStream.get()));
+    auto invertFunction = sk_make_sp<SkPDFStream>(psInvertStream.get());
     invertFunction->insertInt("FunctionType", 4);
     invertFunction->insertObject("Domain", SkRef(domainAndRange.get()));
     invertFunction->insertObject("Range", domainAndRange.release());
@@ -154,7 +154,7 @@ SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
                                                    SkPDFSMaskMode sMaskMode) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
-    sk_sp<SkPDFDict> sMaskDict(new SkPDFDict("Mask"));
+    auto sMaskDict = sk_make_sp<SkPDFDict>("Mask");
     if (sMaskMode == kAlpha_SMaskMode) {
         sMaskDict->insertName("S", "Alpha");
     } else if (sMaskMode == kLuminosity_SMaskMode) {
@@ -165,7 +165,7 @@ SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
         sMaskDict->insertObjRef("TR", SkRef(invertFunction.get(create_invert_function)));
     }
 
-    sk_sp<SkPDFDict> result(new SkPDFDict("ExtGState"));
+    auto result = sk_make_sp<SkPDFDict>("ExtGState");
     result->insertObject("SMask", sMaskDict.release());
     return result.release();
 }
@@ -186,7 +186,7 @@ void SkPDFGraphicState::emitObject(
         SkWStream* stream,
         const SkPDFObjNumMap& objNumMap,
         const SkPDFSubstituteMap& substitutes) const {
-    sk_sp<SkPDFDict> dict(new SkPDFDict("ExtGState"));
+    auto dict = sk_make_sp<SkPDFDict>("ExtGState");
     dict->insertName("Type", "ExtGState");
 
     SkScalar alpha = SkIntToScalar(fAlpha) / 0xFF;

@@ -65,7 +65,7 @@ void SkPDFFormXObject::init(const char* colorSpace,
 
     // Right now SkPDFFormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
-    sk_sp<SkPDFDict> group(new SkPDFDict("Group"));
+    auto group = sk_make_sp<SkPDFDict>("Group");
     group->insertName("S", "Transparency");
 
     if (colorSpace != nullptr) {

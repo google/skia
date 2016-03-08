@@ -77,10 +77,10 @@ static SkPDFObject* create_pdf_page_content(const SkPDFDevice* pageDevice) {
 }
 
 static SkPDFDict* create_pdf_page(const SkPDFDevice* pageDevice) {
-    sk_sp<SkPDFDict> page(new SkPDFDict("Page"));
+    auto page = sk_make_sp<SkPDFDict>("Page");
     page->insertObject("Resources", pageDevice->createResourceDict());
     page->insertObject("MediaBox", pageDevice->copyMediaBox());
-    sk_sp<SkPDFArray> annotations(new SkPDFArray);
+    auto annotations = sk_make_sp<SkPDFArray>();
     pageDevice->appendAnnotations(annotations.get());
     if (annotations->size() > 0) {
         page->insertObject("Annots", annotations.release());
@@ -121,8 +121,8 @@ static void generate_page_tree(const SkTDArray<SkPDFDict*>& pages,
                 break;
             }
 
-            sk_sp<SkPDFDict> newNode(new SkPDFDict("Pages"));
-            sk_sp<SkPDFArray> kids(new SkPDFArray);
+            auto newNode = sk_make_sp<SkPDFDict>("Pages");
+            auto kids = sk_make_sp<SkPDFArray>();
             kids->reserve(kNodeSize);
 
             int count = 0;
@@ -174,7 +174,7 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
 
     SkTDArray<SkPDFDict*> pages;
-    sk_sp<SkPDFDict> dests(new SkPDFDict);
+    auto dests = sk_make_sp<SkPDFDict>();
 
     for (int i = 0; i < pageDevices.count(); i++) {
         SkASSERT(pageDevices[i]);
@@ -185,7 +185,7 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
         pages.push(page.release());
     }
 
-    sk_sp<SkPDFDict> docCatalog(new SkPDFDict("Catalog"));
+    auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
 
     sk_sp<SkPDFObject> infoDict(
             metadata.createDocumentInformationDict());
@@ -203,12 +203,12 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     docCatalog->insertObjRef("Metadata", xmp.release());
 
     // sRGB is specified by HTML, CSS, and SVG.
-    sk_sp<SkPDFDict> outputIntent(new SkPDFDict("OutputIntent"));
+    auto outputIntent = sk_make_sp<SkPDFDict>("OutputIntent");
     outputIntent->insertName("S", "GTS_PDFA1");
     outputIntent->insertString("RegistryName", "http://www.color.org");
     outputIntent->insertString("OutputConditionIdentifier",
                                "sRGB IEC61966-2.1");
-    sk_sp<SkPDFArray> intentArray(new SkPDFArray);
+    auto intentArray = sk_make_sp<SkPDFArray>();
     intentArray->appendObject(outputIntent.release());
     // Don't specify OutputIntents if we are not in PDF/A mode since
     // no one has ever asked for this feature.

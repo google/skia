@@ -51,8 +51,6 @@ public:
 };
 
 class SkPDFFunctionShader final : public SkPDFDict {
-    
-
 public:
     static SkPDFFunctionShader* Create(SkPDFCanon*,
                                        SkAutoTDelete<SkPDFShader::State>*);

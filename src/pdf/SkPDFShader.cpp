@@ -771,7 +771,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
         return nullptr;
     }
 
-    sk_sp<SkPDFArray> domain(new SkPDFArray);
+    auto domain = sk_make_sp<SkPDFArray>();
     domain->reserve(4);
     domain->appendScalar(bbox.fLeft);
     domain->appendScalar(bbox.fRight);
@@ -799,7 +799,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
         functionCode = codeFunction(*info, perspectiveInverseOnly);
     }
 
-    sk_sp<SkPDFDict> pdfShader(new SkPDFDict);
+    auto pdfShader = sk_make_sp<SkPDFDict>();
     pdfShader->insertInt("ShadingType", 1);
     pdfShader->insertName("ColorSpace", "DeviceRGB");
     pdfShader->insertObject("Domain", SkRef(domain.get()));
@@ -808,8 +808,8 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
             make_ps_function(functionCode, domain.get()));
     pdfShader->insertObjRef("Function", function.release());
 
-    sk_sp<SkPDFFunctionShader> pdfFunctionShader(new SkPDFFunctionShader(autoState->detach()));
-
+    sk_sp<SkPDFFunctionShader> pdfFunctionShader(
+            new SkPDFFunctionShader(autoState->detach()));
     pdfFunctionShader->insertInt("PatternType", 2);
     pdfFunctionShader->insertObject("Matrix",
                                     SkPDFUtils::MatrixToArray(finalMatrix));

@@ -880,17 +880,17 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
 }
 
 static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
-    sk_sp<SkPDFDict> annotation(new SkPDFDict("Annot"));
+    auto annotation = sk_make_sp<SkPDFDict>("Annot");
     annotation->insertName("Subtype", "Link");
 
-    sk_sp<SkPDFArray> border(new SkPDFArray);
+    auto border = sk_make_sp<SkPDFArray>();
     border->reserve(3);
     border->appendInt(0);  // Horizontal corner radius.
     border->appendInt(0);  // Vertical corner radius.
     border->appendInt(0);  // Width, 0 = no border.
     annotation->insertObject("Border", border.release());
 
-    sk_sp<SkPDFArray> rect(new SkPDFArray);
+    auto rect = sk_make_sp<SkPDFArray>();
     rect->reserve(4);
     rect->appendScalar(translatedRect.fLeft);
     rect->appendScalar(translatedRect.fTop);
@@ -906,7 +906,7 @@ static SkPDFDict* create_link_to_url(const SkData* urlData, const SkRect& r) {
 
     SkString url(static_cast<const char *>(urlData->data()),
                  urlData->size() - 1);
-    sk_sp<SkPDFDict> action(new SkPDFDict("Action"));
+    auto action = sk_make_sp<SkPDFDict>("Action");
     action->insertName("S", "URI");
     action->insertString("URI", url);
     annotation->insertObject("A", action.release());
@@ -1448,7 +1448,7 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
         return;
     }
 
-    sk_sp<SkPDFFormXObject> xObject(new SkPDFFormXObject(pdfDevice));
+    auto xObject = sk_make_sp<SkPDFFormXObject>(pdfDevice);
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(xObject.get()),
                                 &content.entry()->fContent);
 
@@ -1527,7 +1527,7 @@ const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
 SkPDFArray* SkPDFDevice::copyMediaBox() const {
     // should this be a singleton?
 
-    sk_sp<SkPDFArray> mediaBox(new SkPDFArray);
+    auto mediaBox = sk_make_sp<SkPDFArray>();
     mediaBox->reserve(4);
     mediaBox->appendInt(0);
     mediaBox->appendInt(0);
@@ -1711,7 +1711,7 @@ void SkPDFDevice::appendAnnotations(SkPDFArray* array) const {
 
 void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     for (const NamedDestination& dest : fNamedDestinations) {
-        sk_sp<SkPDFArray> pdfDest(new SkPDFArray);
+        auto pdfDest = sk_make_sp<SkPDFArray>();
         pdfDest->reserve(5);
         pdfDest->appendObjRef(SkRef(page));
         pdfDest->appendName("XYZ");

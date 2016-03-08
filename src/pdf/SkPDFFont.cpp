@@ -338,7 +338,7 @@ SkPDFArray* composeAdvanceData(
                 break;
             }
             case SkAdvancedTypefaceMetrics::WidthRange::kRange: {
-                sk_sp<SkPDFArray> advanceArray(new SkPDFArray());
+                auto advanceArray = sk_make_sp<SkPDFArray>();
                 for (int j = 0; j < advanceInfo->fAdvance.count(); j++)
                     appendAdvance(advanceInfo->fAdvance[j], emSize,
                                   advanceArray.get());
@@ -1021,7 +1021,7 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
 
     sk_sp<SkPDFCIDFont> newCIDFont(
             new SkPDFCIDFont(fontInfo(), typeface(), subset));
-    sk_sp<SkPDFArray> descendantFonts(new SkPDFArray());
+    auto descendantFonts = sk_make_sp<SkPDFArray>();
     descendantFonts->appendObjRef(newCIDFont.release());
     this->insertObject("DescendantFonts", descendantFonts.release());
 
@@ -1046,7 +1046,7 @@ SkPDFCIDFont::~SkPDFCIDFont() {}
 
 bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
                                      const SkTDArray<uint32_t>* subset) {
-    sk_sp<SkPDFDict> descriptor(new SkPDFDict("FontDescriptor"));
+    auto descriptor = sk_make_sp<SkPDFDict>("FontDescriptor");
     setFontDescriptor(descriptor.get());
     if (!addCommonFontDescriptorEntries(defaultWidth)) {
         this->insertObjRef("FontDescriptor", descriptor.release());
@@ -1143,7 +1143,7 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
         SkASSERT(false);
     }
 
-    sk_sp<SkPDFDict> sysInfo(new SkPDFDict);
+    auto sysInfo = sk_make_sp<SkPDFDict>();
     sysInfo->insertString("Registry", "Adobe");
     sysInfo->insertString("Ordering", "Identity");
     sysInfo->insertInt("Supplement", 0);
@@ -1207,7 +1207,7 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
         return true;
     }
 
-    sk_sp<SkPDFDict> descriptor(new SkPDFDict("FontDescriptor"));
+    auto descriptor = sk_make_sp<SkPDFDict>("FontDescriptor");
     setFontDescriptor(descriptor.get());
 
     int ttcIndex;
@@ -1221,7 +1221,7 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
         return false;
     }
     SkASSERT(this->canEmbed());
-    sk_sp<SkPDFStream> fontStream(new SkPDFStream(fontData.get()));
+    auto fontStream = sk_make_sp<SkPDFStream>(fontData.get());
     fontStream->insertInt("Length1", header);
     fontStream->insertInt("Length2", data);
     fontStream->insertInt("Length3", trailer);
@@ -1268,14 +1268,14 @@ bool SkPDFType1Font::populate(int16_t glyphID) {
     addWidthInfoFromRange(defaultWidth, widthRangeEntry);
 
 
-    sk_sp<SkPDFArray> encDiffs(new SkPDFArray);
+    auto encDiffs = sk_make_sp<SkPDFArray>();
     encDiffs->reserve(lastGlyphID() - firstGlyphID() + 2);
     encDiffs->appendInt(1);
     for (int gID = firstGlyphID(); gID <= lastGlyphID(); gID++) {
         encDiffs->appendName(fontInfo()->fGlyphNames->get()[gID].c_str());
     }
 
-    sk_sp<SkPDFDict> encoding(new SkPDFDict("Encoding"));
+    auto encoding = sk_make_sp<SkPDFDict>("Encoding");
     encoding->insertObject("Differences", encDiffs.release());
     this->insertObject("Encoding", encoding.release());
     return true;
@@ -1284,7 +1284,7 @@ bool SkPDFType1Font::populate(int16_t glyphID) {
 void SkPDFType1Font::addWidthInfoFromRange(
         int16_t defaultWidth,
         const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry) {
-    sk_sp<SkPDFArray> widthArray(new SkPDFArray());
+    auto widthArray = sk_make_sp<SkPDFArray>();
     int firstChar = 0;
     if (widthRangeEntry) {
         const uint16_t emSize = fontInfo()->fEmSize;
@@ -1343,14 +1343,14 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
     fontMatrix.setScale(SkScalarInvert(1000), -SkScalarInvert(1000));
     this->insertObject("FontMatrix", SkPDFUtils::MatrixToArray(fontMatrix));
 
-    sk_sp<SkPDFDict> charProcs(new SkPDFDict);
-    sk_sp<SkPDFDict> encoding(new SkPDFDict("Encoding"));
+    auto charProcs = sk_make_sp<SkPDFDict>();
+    auto encoding = sk_make_sp<SkPDFDict>("Encoding");
 
-    sk_sp<SkPDFArray> encDiffs(new SkPDFArray);
+    auto encDiffs = sk_make_sp<SkPDFArray>();
     encDiffs->reserve(lastGlyphID() - firstGlyphID() + 2);
     encDiffs->appendInt(1);
 
-    sk_sp<SkPDFArray> widthArray(new SkPDFArray());
+    auto widthArray = sk_make_sp<SkPDFArray>();
 
     SkIRect bbox = SkIRect::MakeEmpty();
     for (int gID = firstGlyphID(); gID <= lastGlyphID(); gID++) {

@@ -28,7 +28,7 @@ static SkString pdf_date(const SkTime::DateTime& dt) {
 }
 
 SkPDFObject* SkPDFMetadata::createDocumentInformationDict() const {
-    sk_sp<SkPDFDict> dict(new SkPDFDict);
+    auto dict = sk_make_sp<SkPDFDict>();
     static const char* keys[] = {
             "Title", "Author", "Subject", "Keywords", "Creator"};
     for (const char* key : keys) {
@@ -86,7 +86,7 @@ SkPDFMetadata::UUID SkPDFMetadata::uuid() const {
 SkPDFObject* SkPDFMetadata::CreatePdfId(const UUID& doc, const UUID& instance) {
     // /ID [ <81b14aafa313db63dbd6f981e49f94f4>
     //       <81b14aafa313db63dbd6f981e49f94f4> ]
-    sk_sp<SkPDFArray> array(new SkPDFArray);
+    auto array = sk_make_sp<SkPDFArray>();
     static_assert(sizeof(UUID) == 16, "uuid_size");
     array->appendString(
             SkString(reinterpret_cast<const char*>(&doc), sizeof(UUID)));

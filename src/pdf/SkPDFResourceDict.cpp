@@ -61,7 +61,7 @@ static void add_subdict(
     if (0 == resourceList.count()) {
         return;
     }
-    sk_sp<SkPDFDict> resources(new SkPDFDict);
+    auto resources = sk_make_sp<SkPDFDict>();
     for (int i = 0; i < resourceList.count(); i++) {
         resources->insertObjRef(SkPDFResourceDict::getResourceName(type, i),
                                 SkRef(resourceList[i]));
@@ -74,10 +74,10 @@ SkPDFDict* SkPDFResourceDict::Create(
         const SkTDArray<SkPDFObject*>* patternResources,
         const SkTDArray<SkPDFObject*>* xObjectResources,
         const SkTDArray<SkPDFObject*>* fontResources) {
-    sk_sp<SkPDFDict> dict(new SkPDFDict);
+    auto dict = sk_make_sp<SkPDFDict>();
     static const char kProcs[][7] = {
         "PDF", "Text", "ImageB", "ImageC", "ImageI"};
-    sk_sp<SkPDFArray> procSets(new SkPDFArray);
+    auto procSets = sk_make_sp<SkPDFArray>();
 
     procSets->reserve(SK_ARRAY_COUNT(kProcs));
     for (size_t i = 0; i < SK_ARRAY_COUNT(kProcs); i++) {
