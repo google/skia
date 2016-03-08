@@ -84,7 +84,7 @@ GR_STATIC_ASSERT(16 == kHSLColor_GrBlendEquation);
 GR_STATIC_ASSERT(17 == kHSLLuminosity_GrBlendEquation);
 GR_STATIC_ASSERT(SK_ARRAY_COUNT(gXfermodeEquation2Blend) == kGrBlendEquationCnt);
 
-static const GrGLenum gXfermodeCoeff2Blend[] = {
+/*static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ZERO,
     GR_GL_ONE,
     GR_GL_SRC_COLOR,
@@ -105,7 +105,7 @@ static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ONE_MINUS_SRC1_COLOR,
     GR_GL_SRC1_ALPHA,
     GR_GL_ONE_MINUS_SRC1_ALPHA,
-};
+}; */
 
 bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
     static const bool gCoeffReferencesBlendConst[] = {
@@ -154,7 +154,7 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
     GR_STATIC_ASSERT(17 == kIS2A_GrBlendCoeff);
 
     // assertion for gXfermodeCoeff2Blend have to be in GrGpu scope
-    GR_STATIC_ASSERT(kGrBlendCoeffCnt == SK_ARRAY_COUNT(gXfermodeCoeff2Blend));
+  //  GR_STATIC_ASSERT(kGrBlendCoeffCnt == SK_ARRAY_COUNT(gXfermodeCoeff2Blend));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2238,8 +2238,10 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
 
     if (fHWBlendState.fSrcCoeff != srcCoeff ||
         fHWBlendState.fDstCoeff != dstCoeff) {
-        GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
-                          gXfermodeCoeff2Blend[dstCoeff]));
+        
+
+      /*  GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
+                          gXfermodeCoeff2Blend[dstCoeff])); */
         fHWBlendState.fSrcCoeff = srcCoeff;
         fHWBlendState.fDstCoeff = dstCoeff;
     }
