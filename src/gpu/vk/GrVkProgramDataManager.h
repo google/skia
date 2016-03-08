@@ -63,6 +63,8 @@ private:
     template<int N> inline void setMatrices(UniformHandle, int arrayCount,
                                             const float matrices[]) const;
 
+    void* getBufferPtrAndMarkDirty(const Uniform& uni) const;
+
     uint32_t fVertexUniformSize;
     uint32_t fFragmentUniformSize;
 
@@ -70,6 +72,8 @@ private:
 
     mutable SkAutoMalloc fVertexUniformData;
     mutable SkAutoMalloc fFragmentUniformData;
+    mutable bool         fVertexUniformsDirty;
+    mutable bool         fFragmentUniformsDirty;
 };
 
 #endif

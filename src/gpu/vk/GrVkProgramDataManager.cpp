@@ -14,7 +14,9 @@ GrVkProgramDataManager::GrVkProgramDataManager(const UniformInfoArray& uniforms,
                                                uint32_t vertexUniformSize,
                                                uint32_t fragmentUniformSize)
     : fVertexUniformSize(vertexUniformSize)
-    , fFragmentUniformSize(fragmentUniformSize) {
+    , fFragmentUniformSize(fragmentUniformSize)
+    , fVertexUniformsDirty(false) 
+    , fFragmentUniformsDirty(false) {
     fVertexUniformData.reset(vertexUniformSize);
     fFragmentUniformData.reset(fragmentUniformSize);
     int count = uniforms.count();
@@ -38,19 +40,27 @@ GrVkProgramDataManager::GrVkProgramDataManager(const UniformInfoArray& uniforms,
     }
 }
 
+void* GrVkProgramDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
+    void* buffer;
+    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
+        buffer = fVertexUniformData.get();
+        fVertexUniformsDirty = true;
+    }
+    else {
+        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
+        buffer = fFragmentUniformData.get();
+        fFragmentUniformsDirty = true;
+    }
+    buffer = static_cast<char*>(buffer)+uni.fOffset;
+    return buffer;
+}
+
 void GrVkProgramDataManager::set1f(UniformHandle u, float v0) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
     SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
     memcpy(buffer, &v0, sizeof(float));
 }
@@ -65,14 +75,7 @@ void GrVkProgramDataManager::set1fv(UniformHandle u,
              (1 == arrayCount && GrGLSLShaderVar::kNonArray == uni.fArrayCount));
     SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
 
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
     for (int i = 0; i < arrayCount; ++i) {
         const float* curVec = &v[i];
@@ -86,14 +89,7 @@ void GrVkProgramDataManager::set2f(UniformHandle u, float v0, float v1) const {
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
     float v[2] = { v0, v1 };
     memcpy(buffer, v, 2 * sizeof(float));
@@ -109,14 +105,7 @@ void GrVkProgramDataManager::set2fv(UniformHandle u,
              (1 == arrayCount && GrGLSLShaderVar::kNonArray == uni.fArrayCount));
     SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
 
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
     for (int i = 0; i < arrayCount; ++i) {
         const float* curVec = &v[2 * i];
@@ -130,14 +119,7 @@ void GrVkProgramDataManager::set3f(UniformHandle u, float v0, float v1, float v2
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
     float v[3] = { v0, v1, v2 };
     memcpy(buffer, v, 3 * sizeof(float));
@@ -153,14 +135,7 @@ void GrVkProgramDataManager::set3fv(UniformHandle u,
              (1 == arrayCount && GrGLSLShaderVar::kNonArray == uni.fArrayCount));
     SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
 
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
     for (int i = 0; i < arrayCount; ++i) {
         const float* curVec = &v[3 * i];
@@ -174,14 +149,7 @@ void GrVkProgramDataManager::set4f(UniformHandle u, float v0, float v1, float v2
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
     float v[4] = { v0, v1, v2, v3 };
     memcpy(buffer, v, 4 * sizeof(float));
@@ -197,14 +165,7 @@ void GrVkProgramDataManager::set4fv(UniformHandle u,
              (1 == arrayCount && GrGLSLShaderVar::kNonArray == uni.fArrayCount));
     SkASSERT(GrVkUniformHandler::kUniformBufferDescSet == uni.fSetNumber);
 
-    void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-    }
-    buffer = static_cast<char*>(buffer) + uni.fOffset;
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
     memcpy(buffer, v, arrayCount * 4 * sizeof(float));
 }
@@ -236,8 +197,8 @@ void GrVkProgramDataManager::setMatrix4fv(UniformHandle u, int arrayCount, const
 template<int N> struct set_uniform_matrix;
 
 template<int N> inline void GrVkProgramDataManager::setMatrices(UniformHandle u,
-                                                                   int arrayCount,
-                                                                   const float matrices[]) const {
+                                                                int arrayCount,
+                                                                const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kMat22f_GrSLType + (N - 2));
     SkASSERT(arrayCount > 0);
@@ -248,9 +209,11 @@ template<int N> inline void GrVkProgramDataManager::setMatrices(UniformHandle u,
     void* buffer;
     if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
         buffer = fVertexUniformData.get();
+        fVertexUniformsDirty = true;
     } else {
         SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
         buffer = fFragmentUniformData.get();
+        fFragmentUniformsDirty = true;
     }
 
     set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
@@ -283,7 +246,7 @@ template<> struct set_uniform_matrix<4> {
 void GrVkProgramDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
                                                   GrVkUniformBuffer* vertexBuffer,
                                                   GrVkUniformBuffer* fragmentBuffer) const {
-    if (vertexBuffer) {
+    if (vertexBuffer && fVertexUniformsDirty) {
         vertexBuffer->addMemoryBarrier(gpu,
                                        VK_ACCESS_UNIFORM_READ_BIT,
                                        VK_ACCESS_HOST_WRITE_BIT,
@@ -291,9 +254,10 @@ void GrVkProgramDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
                                        VK_PIPELINE_STAGE_HOST_BIT,
                                        false);
         SkAssertResult(vertexBuffer->updateData(gpu, fVertexUniformData.get(), fVertexUniformSize));
+        fVertexUniformsDirty = false;
     }
 
-    if (fragmentBuffer) {
+    if (fragmentBuffer && fFragmentUniformsDirty) {
         fragmentBuffer->addMemoryBarrier(gpu,
                                          VK_ACCESS_UNIFORM_READ_BIT,
                                          VK_ACCESS_HOST_WRITE_BIT,
@@ -302,6 +266,7 @@ void GrVkProgramDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
                                          false);
         SkAssertResult(fragmentBuffer->updateData(gpu, fFragmentUniformData.get(),
                                                   fFragmentUniformSize));
+        fFragmentUniformsDirty = false;
     }
 }
 

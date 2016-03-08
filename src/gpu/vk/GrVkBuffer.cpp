@@ -125,6 +125,9 @@ void* GrVkBuffer::vkMap(const GrVkGpu* gpu) {
     VALIDATE();
     SkASSERT(!this->vkIsMapped());
 
+    // we should be the only owner
+    SkASSERT(fResource->unique());
+
     VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc(), 0, VK_WHOLE_SIZE, 0, &fMapPtr));
     if (err) {
         fMapPtr = nullptr;
@@ -153,6 +156,12 @@ bool GrVkBuffer::vkUpdateData(const GrVkGpu* gpu, const void* src, size_t srcSiz
     VALIDATE();
     if (srcSizeInBytes > fDesc.fSizeInBytes) {
         return false;
+    }
+
+    if (!fResource->unique()) {
+        // in use by the command buffer, so we need to create a new one
+        fResource->unref(gpu);
+        fResource = Create(gpu, fDesc);
     }
 
     void* mapPtr;
