@@ -297,8 +297,8 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
     }
 }
 
-static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
-    SkPDFArray* result = new SkPDFArray;
+static sk_sp<SkPDFArray> make_indexed_color_space(const SkColorTable* table) {
+    auto result = sk_make_sp<SkPDFArray>();
     result->reserve(4);
     result->appendName("Indexed");
     result->appendName("DeviceRGB");
@@ -330,7 +330,7 @@ static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
 static void emit_image_xobject(SkWStream* stream,
                                const SkImage* image,
                                bool alpha,
-                               SkPDFObject* smask,
+                               const sk_sp<SkPDFObject>& smask,
                                const SkPDFObjNumMap& objNumMap,
                                const SkPDFSubstituteMap& substitutes) {
     SkBitmap bitmap;
@@ -364,7 +364,7 @@ static void emit_image_xobject(SkWStream* stream,
         pdfDict.insertName("ColorSpace", "DeviceRGB");
     }
     if (smask) {
-        pdfDict.insertObjRef("SMask", SkRef(smask));
+        pdfDict.insertObjRef("SMask", smask);
     }
     pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "FlateDecode");
@@ -404,7 +404,7 @@ public:
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& subs) const override {
-        emit_image_xobject(stream, fImage.get(), false, fSMask.get(), objNumMap, subs);
+        emit_image_xobject(stream, fImage.get(), false, fSMask, objNumMap, subs);
     }
     void addResources(SkPDFObjNumMap* catalog,
                       const SkPDFSubstituteMap& subs) const override {

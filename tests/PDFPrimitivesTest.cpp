@@ -83,7 +83,7 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
     char streamBytes[] = "Test\nFoo\tBar";
     SkAutoTDelete<SkMemoryStream> streamData(new SkMemoryStream(
         streamBytes, strlen(streamBytes), true));
-    SkAutoTUnref<SkPDFStream> stream(new SkPDFStream(streamData.get()));
+    sk_sp<SkPDFStream> stream(new SkPDFStream(streamData.get()));
     ASSERT_EMIT_EQ(reporter,
                    *stream,
                    "<</Length 12>> stream\nTest\nFoo\tBar\nendstream");
@@ -100,7 +100,7 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
                               "with an uncompressed string.";
         SkAutoDataUnref streamData2(SkData::NewWithCopy(streamBytes2,
                                                         strlen(streamBytes2)));
-        SkAutoTUnref<SkPDFStream> stream(new SkPDFStream(streamData2.get()));
+        sk_sp<SkPDFStream> stream(new SkPDFStream(streamData2.get()));
 
         SkDynamicMemoryWStream compressedByteStream;
         SkDeflateWStream deflateWStream(&compressedByteStream);
@@ -123,9 +123,9 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
 
 static void TestObjectNumberMap(skiatest::Reporter* reporter) {
     SkPDFObjNumMap objNumMap;
-    SkAutoTUnref<SkPDFArray> a1(new SkPDFArray);
-    SkAutoTUnref<SkPDFArray> a2(new SkPDFArray);
-    SkAutoTUnref<SkPDFArray> a3(new SkPDFArray);
+    sk_sp<SkPDFArray> a1(new SkPDFArray);
+    sk_sp<SkPDFArray> a2(new SkPDFArray);
+    sk_sp<SkPDFArray> a3(new SkPDFArray);
 
     objNumMap.addObject(a1.get());
     objNumMap.addObject(a2.get());
@@ -142,9 +142,9 @@ static void TestObjectNumberMap(skiatest::Reporter* reporter) {
 }
 
 static void TestObjectRef(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkPDFArray> a1(new SkPDFArray);
-    SkAutoTUnref<SkPDFArray> a2(new SkPDFArray);
-    a2->appendObjRef(SkRef(a1.get()));
+    sk_sp<SkPDFArray> a1(new SkPDFArray);
+    sk_sp<SkPDFArray> a2(new SkPDFArray);
+    a2->appendObjRef(a1);
 
     Catalog catalog;
     catalog.numbers.addObject(a1.get());
@@ -157,8 +157,8 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
 }
 
 static void TestSubstitute(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkPDFDict> proxy(new SkPDFDict());
-    SkAutoTUnref<SkPDFDict> stub(new SkPDFDict());
+    sk_sp<SkPDFDict> proxy(new SkPDFDict());
+    sk_sp<SkPDFDict> stub(new SkPDFDict());
 
     proxy->insertInt("Value", 33);
     stub->insertInt("Value", 44);
@@ -168,8 +168,8 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
     SkPDFObjNumMap catalog;
     catalog.addObject(proxy.get());
 
-    REPORTER_ASSERT(reporter, stub.get() == substituteMap.getSubstitute(proxy));
-    REPORTER_ASSERT(reporter, proxy.get() != substituteMap.getSubstitute(stub));
+    REPORTER_ASSERT(reporter, stub.get() == substituteMap.getSubstitute(proxy.get()));
+    REPORTER_ASSERT(reporter, proxy.get() != substituteMap.getSubstitute(stub.get()));
 }
 
 // This test used to assert without the fix submitted for
@@ -178,7 +178,7 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 // and there is no assert on input data in Debug mode.
 static void test_issue1083() {
     SkDynamicMemoryWStream outStream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    sk_sp<SkDocument> doc(SkDocument::CreatePDF(&outStream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
     SkPaint paint;
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
@@ -238,7 +238,7 @@ static void TestPDFUnion(skiatest::Reporter* reporter) {
 }
 
 static void TestPDFArray(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkPDFArray> array(new SkPDFArray);
+    sk_sp<SkPDFArray> array(new SkPDFArray);
     ASSERT_EMIT_EQ(reporter, *array, "[]");
 
     array->appendInt(42);
@@ -268,19 +268,19 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
                    "[42 .5 0 true /ThisName /AnotherName (This String) "
                    "(Another String)]");
 
-    SkAutoTUnref<SkPDFArray> innerArray(new SkPDFArray);
+    sk_sp<SkPDFArray> innerArray(new SkPDFArray);
     innerArray->appendInt(-1);
-    array->appendObject(innerArray.detach());
+    array->appendObject(std::move(innerArray));
     ASSERT_EMIT_EQ(reporter, *array,
                    "[42 .5 0 true /ThisName /AnotherName (This String) "
                    "(Another String) [-1]]");
 
-    SkAutoTUnref<SkPDFArray> referencedArray(new SkPDFArray);
+    sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
     Catalog catalog;
     catalog.numbers.addObject(referencedArray.get());
     REPORTER_ASSERT(reporter, catalog.numbers.getObjectNumber(
                             referencedArray.get()) == 1);
-    array->appendObjRef(referencedArray.detach());
+    array->appendObjRef(std::move(referencedArray));
 
     SkString result = emit_to_string(*array, &catalog);
     ASSERT_EQ(reporter, result,
@@ -289,7 +289,7 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
 }
 
 static void TestPDFDict(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkPDFDict> dict(new SkPDFDict);
+    sk_sp<SkPDFDict> dict(new SkPDFDict);
     ASSERT_EMIT_EQ(reporter, *dict, "<<>>");
 
     dict->insertInt("n1", SkToSizeT(42));
@@ -304,9 +304,9 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     dict->insertScalar("n2", SK_ScalarHalf);
 
     SkString n3("n3");
-    SkAutoTUnref<SkPDFArray> innerArray(new SkPDFArray);
+    sk_sp<SkPDFArray> innerArray(new SkPDFArray);
     innerArray->appendInt(-100);
-    dict->insertObject(n3, innerArray.detach());
+    dict->insertObject(n3, std::move(innerArray));
     ASSERT_EMIT_EQ(reporter, *dict, "<</n1 42\n/n2 .5\n/n3 [-100]>>");
 
     dict.reset(new SkPDFDict);
@@ -339,12 +339,12 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     dict.reset(new SkPDFDict("DType"));
     ASSERT_EMIT_EQ(reporter, *dict, "<</Type /DType>>");
 
-    SkAutoTUnref<SkPDFArray> referencedArray(new SkPDFArray);
+    sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
     Catalog catalog;
     catalog.numbers.addObject(referencedArray.get());
     REPORTER_ASSERT(reporter, catalog.numbers.getObjectNumber(
                             referencedArray.get()) == 1);
-    dict->insertObjRef("n1", referencedArray.detach());
+    dict->insertObjRef("n1", std::move(referencedArray));
     SkString result = emit_to_string(*dict, &catalog);
     ASSERT_EQ(reporter, result, "<</Type /DType\n/n1 1 0 R>>");
 }
@@ -400,10 +400,10 @@ void DummyImageFilter::toString(SkString* str) const {
 // CPU rasterization.
 DEF_TEST(PDFImageFilter, reporter) {
     SkDynamicMemoryWStream stream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&stream));
+    sk_sp<SkDocument> doc(SkDocument::CreatePDF(&stream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
-    SkAutoTUnref<DummyImageFilter> filter(new DummyImageFilter());
+    sk_sp<DummyImageFilter> filter(new DummyImageFilter());
 
     // Filter just created; should be unvisited.
     REPORTER_ASSERT(reporter, !filter->visited());
@@ -422,15 +422,15 @@ DEF_TEST(PDFFontCanEmbedTypeface, reporter) {
     SkPDFCanon canon;
 
     const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
-    SkAutoTUnref<SkTypeface> noEmbedTypeface(GetResourceAsTypeface(resource));
+    sk_sp<SkTypeface> noEmbedTypeface(GetResourceAsTypeface(resource));
     if (noEmbedTypeface) {
         REPORTER_ASSERT(reporter,
-                        !SkPDFFont::CanEmbedTypeface(noEmbedTypeface, &canon));
+                        !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &canon));
     }
-    SkAutoTUnref<SkTypeface> portableTypeface(
+    sk_sp<SkTypeface> portableTypeface(
             sk_tool_utils::create_portable_typeface(NULL, SkTypeface::kNormal));
     REPORTER_ASSERT(reporter,
-                    SkPDFFont::CanEmbedTypeface(portableTypeface, &canon));
+                    SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &canon));
 }
 
 

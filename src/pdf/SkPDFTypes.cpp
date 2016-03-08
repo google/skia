@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -28,7 +27,8 @@ SkPDFUnion::~SkPDFUnion() {
             return;
         case Type::kObjRef:
         case Type::kObject:
-            SkSafeUnref(fObject);
+            SkASSERT(fObject);
+            fObject->unref();
             return;
         default:
             return;
@@ -38,7 +38,7 @@ SkPDFUnion::~SkPDFUnion() {
 SkPDFUnion& SkPDFUnion::operator=(SkPDFUnion&& other) {
     if (this != &other) {
         this->~SkPDFUnion();
-        new (this) SkPDFUnion(other.move());
+        new (this) SkPDFUnion(std::move(other));
     }
     return *this;
 }
@@ -56,14 +56,14 @@ SkPDFUnion SkPDFUnion::copy() const {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            new (pun(u.fSkString))  SkString                                   (*pun(fSkString));
-            return u.move();
+            new (pun(u.fSkString)) SkString(*pun(fSkString));
+            return u;
         case Type::kObjRef:
         case Type::kObject:
             SkRef(u.fObject);
-            return u.move();
+            return u;
         default:
-            return u.move();
+            return u;
     }
 }
 SkPDFUnion& SkPDFUnion::operator=(const SkPDFUnion& other) {
@@ -191,19 +191,19 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap,
 SkPDFUnion SkPDFUnion::Int(int32_t value) {
     SkPDFUnion u(Type::kInt);
     u.fIntValue = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::Bool(bool value) {
     SkPDFUnion u(Type::kBool);
     u.fBoolValue = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::Scalar(SkScalar value) {
     SkPDFUnion u(Type::kScalar);
     u.fScalarValue = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::Name(const char* value) {
@@ -211,40 +211,40 @@ SkPDFUnion SkPDFUnion::Name(const char* value) {
     SkASSERT(value);
     SkASSERT(is_valid_name(value));
     u.fStaticString = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::String(const char* value) {
     SkPDFUnion u(Type::kString);
     SkASSERT(value);
     u.fStaticString = value;
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::Name(const SkString& s) {
     SkPDFUnion u(Type::kNameSkS);
     new (pun(u.fSkString)) SkString(s);
-    return u.move();
+    return u;
 }
 
 SkPDFUnion SkPDFUnion::String(const SkString& s) {
     SkPDFUnion u(Type::kStringSkS);
     new (pun(u.fSkString)) SkString(s);
-    return u.move();
+    return u;
 }
 
-SkPDFUnion SkPDFUnion::ObjRef(SkPDFObject* ptr) {
+SkPDFUnion SkPDFUnion::ObjRef(sk_sp<SkPDFObject> objSp) {
     SkPDFUnion u(Type::kObjRef);
-    SkASSERT(ptr);
-    u.fObject = ptr;
-    return u.move();
+    SkASSERT(objSp.get());
+    u.fObject = objSp.release();  // take ownership into union{}
+    return u;
 }
 
-SkPDFUnion SkPDFUnion::Object(SkPDFObject* ptr) {
+SkPDFUnion SkPDFUnion::Object(sk_sp<SkPDFObject> objSp) {
     SkPDFUnion u(Type::kObject);
-    SkASSERT(ptr);
-    u.fObject = ptr;
-    return u.move();
+    SkASSERT(objSp.get());
+    u.fObject = objSp.release();  // take ownership into union{}
+    return u;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,7 +295,9 @@ void SkPDFArray::addResources(SkPDFObjNumMap* catalog,
     }
 }
 
-void SkPDFArray::append(SkPDFUnion&& value) { new (fValues.append()) SkPDFUnion(value.move()); }
+void SkPDFArray::append(SkPDFUnion&& value) {
+    new (fValues.append()) SkPDFUnion(std::move(value));
+}
 
 void SkPDFArray::appendInt(int32_t value) {
     this->append(SkPDFUnion::Int(value));
@@ -325,12 +327,12 @@ void SkPDFArray::appendString(const char value[]) {
     this->append(SkPDFUnion::String(value));
 }
 
-void SkPDFArray::appendObject(SkPDFObject* value) {
-    this->append(SkPDFUnion::Object(value));
+void SkPDFArray::appendObject(sk_sp<SkPDFObject> objSp) {
+    this->append(SkPDFUnion::Object(std::move(objSp)));
 }
 
-void SkPDFArray::appendObjRef(SkPDFObject* value) {
-    this->append(SkPDFUnion::ObjRef(value));
+void SkPDFArray::appendObjRef(sk_sp<SkPDFObject> objSp) {
+    this->append(SkPDFUnion::ObjRef(std::move(objSp)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -373,24 +375,24 @@ void SkPDFDict::addResources(SkPDFObjNumMap* catalog,
 void SkPDFDict::set(SkPDFUnion&& name, SkPDFUnion&& value) {
     Record* rec = fRecords.append();
     SkASSERT(name.isName());
-    new (&rec->fKey) SkPDFUnion(name.move());
-    new (&rec->fValue) SkPDFUnion(value.move());
+    new (&rec->fKey) SkPDFUnion(std::move(name));
+    new (&rec->fValue) SkPDFUnion(std::move(value));
 }
 
 int SkPDFDict::size() const { return fRecords.count(); }
 
-void SkPDFDict::insertObjRef(const char key[], SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(value));
+void SkPDFDict::insertObjRef(const char key[], sk_sp<SkPDFObject> objSp) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp)));
 }
-void SkPDFDict::insertObjRef(const SkString& key, SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(value));
+void SkPDFDict::insertObjRef(const SkString& key, sk_sp<SkPDFObject> objSp) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp)));
 }
 
-void SkPDFDict::insertObject(const char key[], SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(value));
+void SkPDFDict::insertObject(const char key[], sk_sp<SkPDFObject> objSp) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp)));
 }
-void SkPDFDict::insertObject(const SkString& key, SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(value));
+void SkPDFDict::insertObject(const SkString& key, sk_sp<SkPDFObject> objSp) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp)));
 }
 
 void SkPDFDict::insertBool(const char key[], bool value) {
