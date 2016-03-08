@@ -44,6 +44,7 @@ def get_args(bot):
 
   if 'Appurify' not in bot:
     config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui']
+    config.extend(['srgb', 'f16'])
     # The S4 crashes and the NP produces a long error stream when we run with
     # MSAA.
     if ('GalaxyS4'    not in bot and
