@@ -27,7 +27,7 @@ public:
     virtual bool testingOnlyOnGetROPixels(SkBitmap*) const = 0;
 
     // Delete this entry point ASAP (see skbug.com/4965)
-    virtual bool getBitmap(SkBitmap* result) const = 0;
+    virtual bool getBitmapDeprecated(SkBitmap* result) const = 0;
 
     virtual SkSpecialSurface* onNewSurface(const SkImageInfo& info) const { return nullptr; }
 
@@ -82,7 +82,7 @@ bool SkSpecialImage::internal_getBM(SkBitmap* result) {
     const SkSpecialImage_Base* ib = as_SIB(this);
 
     // TODO: need to test offset case! (see skbug.com/4967)
-    return ib->getBitmap(result);
+    return ib->getBitmapDeprecated(result);
 }
 
 SkImageFilter::Proxy* SkSpecialImage::internal_getProxy() {
@@ -137,7 +137,7 @@ public:
 
     GrTexture* onPeekTexture() const override { return as_IB(fImage.get())->peekTexture(); }
 
-    bool getBitmap(SkBitmap* result) const override {
+    bool getBitmapDeprecated(SkBitmap* result) const override {
         return false;
     }
 
@@ -229,7 +229,7 @@ public:
         return false;
     }
 
-    bool getBitmap(SkBitmap* result) const override {
+    bool getBitmapDeprecated(SkBitmap* result) const override {
         *result = fBitmap;
         return true;
     }
@@ -293,7 +293,7 @@ public:
 
     GrTexture* onPeekTexture() const override { return fTexture; }
 
-    bool getBitmap(SkBitmap* result) const override {
+    bool getBitmapDeprecated(SkBitmap* result) const override {
         const SkImageInfo info = GrMakeInfoFromTexture(fTexture, 
                                                        this->width(), this->height(),
                                                        this->isOpaque());
