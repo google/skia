@@ -62,6 +62,8 @@ template <typename T> using add_cv_t = typename std::add_cv<T>::type;
 template <typename T> using add_pointer_t = typename std::add_pointer<T>::type;
 template <typename T> using add_lvalue_reference_t = typename std::add_lvalue_reference<T>::type;
 
+template <typename... T> using common_type_t = typename std::common_type<T...>::type;
+
 template <typename S, typename D,
           bool=std::is_void<S>::value || is_function<D>::value || std::is_array<D>::value>
 struct is_convertible_detector {

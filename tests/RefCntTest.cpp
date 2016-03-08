@@ -275,6 +275,80 @@ DEF_TEST(sk_sp, reporter) {
     check(reporter, 1, 1, 1, 0);
     paint.set(nullptr);
     check(reporter, 1, 2, 1, 1);
+
+    {
+        sk_sp<SkRefCnt> empty;
+        sk_sp<SkRefCnt> notEmpty = sk_make_sp<SkRefCnt>();
+        REPORTER_ASSERT(reporter, empty == sk_sp<SkRefCnt>());
+
+        REPORTER_ASSERT(reporter, notEmpty != empty);
+        REPORTER_ASSERT(reporter, empty != notEmpty);
+
+        REPORTER_ASSERT(reporter, nullptr == empty);
+        REPORTER_ASSERT(reporter, empty == nullptr);
+        REPORTER_ASSERT(reporter, empty == empty);
+
+        REPORTER_ASSERT(reporter, nullptr <= empty);
+        REPORTER_ASSERT(reporter, empty <= nullptr);
+        REPORTER_ASSERT(reporter, empty <= empty);
+
+        REPORTER_ASSERT(reporter, nullptr >= empty);
+        REPORTER_ASSERT(reporter, empty >= nullptr);
+        REPORTER_ASSERT(reporter, empty >= empty);
+    }
+
+    {
+        sk_sp<SkRefCnt> a = sk_make_sp<SkRefCnt>();
+        sk_sp<SkRefCnt> b = sk_make_sp<SkRefCnt>();
+        REPORTER_ASSERT(reporter, a != b);
+        REPORTER_ASSERT(reporter, (a < b) != (b < a));
+        REPORTER_ASSERT(reporter, (b > a) != (a > b));
+        REPORTER_ASSERT(reporter, (a <= b) != (b <= a));
+        REPORTER_ASSERT(reporter, (b >= a) != (a >= b));
+
+        REPORTER_ASSERT(reporter, a == a);
+        REPORTER_ASSERT(reporter, a <= a);
+        REPORTER_ASSERT(reporter, a >= a);
+    }
+
+    // http://wg21.cmeerw.net/lwg/issue998
+    {
+        class foo : public SkRefCnt {
+        public:
+            foo() : bar(this) {}
+            void reset() { bar.reset(); }
+        private:
+            sk_sp<foo> bar;
+        };
+        // The following should properly delete the object and not cause undefined behavior.
+        // This is an ugly example, but the same issue can arise in more subtle ways.
+        (new foo)->reset();
+    }
+
+    // https://crrev.com/0d4ef2583a6f19c3e61be04d36eb1a60b133832c
+    {
+        struct StructB;
+        struct StructA : public SkRefCnt {
+            sk_sp<StructB> b;
+        };
+
+        struct StructB : public SkRefCnt {
+            sk_sp<StructA> a;
+            ~StructB() override {}; // Some clang versions don't emit this implicitly.
+        };
+
+        // Create a reference cycle.
+        StructA* a = new StructA;
+        a->b.reset(new StructB);
+        a->b->a.reset(a);
+
+        // Break the cycle by calling reset(). This will cause |a| (and hence, |a.b|)
+        // to be deleted before the call to reset() returns. This tests that the
+        // implementation of sk_sp::reset() doesn't access |this| after it
+        // deletes the underlying pointer. This behaviour is consistent with the
+        // definition of unique_ptr::reset in C++11.
+        a->b.reset();
+    }
 }
 
 namespace {
