@@ -102,12 +102,11 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkPM4f.h"
-#include "SkNx.h"
+#include "SkPM4fPriv.h"
 #include "SkHalf.h"
 
 SkPM4f SkPM4f::FromPMColor(SkPMColor c) {
-    Sk4f value = SkNx_cast<float>(Sk4b::Load(&c));
+    Sk4f value = to_4f_rgba(c);
     SkPM4f c4;
     (value * Sk4f(1.0f / 255)).store(&c4);
     return c4;
@@ -171,15 +170,8 @@ SkPM4f SkColor4f::premul() const {
     float srcAlpha = src[0];  // need the pinned version of our alpha
     src = src * Sk4f(1, srcAlpha, srcAlpha, srcAlpha);
 
-#ifdef SK_PMCOLOR_IS_BGRA
-    // ARGB -> BGRA
-    Sk4f dst = SkNx_shuffle<3,2,1,0>(src);
-#else
     // ARGB -> RGBA
     Sk4f dst = SkNx_shuffle<1,2,3,0>(src);
-#endif
 
-    SkPM4f pm4;
-    dst.store(&pm4);
-    return pm4;
+    return SkPM4f::From4f(dst);
 }

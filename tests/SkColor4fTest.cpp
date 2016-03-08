@@ -60,19 +60,19 @@ DEF_TEST(Color4f_premul, reporter) {
             1, rand.nextUScalar1(), rand.nextUScalar1(), rand.nextUScalar1()
         };
         SkPM4f pm4 = c4.premul();
-        REPORTER_ASSERT(reporter, pm4.fVec[SK_A_INDEX] == c4.fA);
-        REPORTER_ASSERT(reporter, pm4.fVec[SK_R_INDEX] == c4.fA * c4.fR);
-        REPORTER_ASSERT(reporter, pm4.fVec[SK_G_INDEX] == c4.fA * c4.fG);
-        REPORTER_ASSERT(reporter, pm4.fVec[SK_B_INDEX] == c4.fA * c4.fB);
+        REPORTER_ASSERT(reporter, pm4.a() == c4.fA);
+        REPORTER_ASSERT(reporter, pm4.r() == c4.fA * c4.fR);
+        REPORTER_ASSERT(reporter, pm4.g() == c4.fA * c4.fG);
+        REPORTER_ASSERT(reporter, pm4.b() == c4.fA * c4.fB);
 
         // We compare with a tolerance, in case our premul multiply is implemented at slightly
         // different precision than the test code.
         c4.fA = rand.nextUScalar1();
         pm4 = c4.premul();
         REPORTER_ASSERT(reporter, pm4.fVec[SK_A_INDEX] == c4.fA);
-        REPORTER_ASSERT(reporter, nearly_equal(pm4.fVec[SK_R_INDEX], c4.fA * c4.fR));
-        REPORTER_ASSERT(reporter, nearly_equal(pm4.fVec[SK_G_INDEX], c4.fA * c4.fG));
-        REPORTER_ASSERT(reporter, nearly_equal(pm4.fVec[SK_B_INDEX], c4.fA * c4.fB));
+        REPORTER_ASSERT(reporter, nearly_equal(pm4.r(), c4.fA * c4.fR));
+        REPORTER_ASSERT(reporter, nearly_equal(pm4.g(), c4.fA * c4.fG));
+        REPORTER_ASSERT(reporter, nearly_equal(pm4.b(), c4.fA * c4.fB));
     }
 }
 
@@ -113,9 +113,14 @@ static SkShader* make_image_sh() {
 }
 
 static SkShader* make_grad_sh() {
+#if 0
     const SkPoint pts[] {{ 0, 0 }, { 100, 100 }};
     const SkColor colors[] { SK_ColorRED, SK_ColorBLUE };
     return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+#else
+    // TODO: need to convert new gradient code to enforce PM4f --> RGBA order
+    return make_color_sh();
+#endif
 }
 
 static SkShader* make_cf_sh() {
@@ -124,13 +129,16 @@ static SkShader* make_cf_sh() {
     return shader->newWithColorFilter(filter);
 }
 
-static void compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int count,
-                          skiatest::Reporter* reporter, float tolerance = 1.0f/255) {
+static bool compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int count,
+                          float tolerance = 1.0f/255) {
     for (int i = 0; i < count; ++i) {
         SkPM4f c0 = SkPM4f::FromPMColor(span4b[i]);
         SkPM4f c1 = span4f[i];
-        REPORTER_ASSERT(reporter, nearly_equal(c0, c1, tolerance));
+        if (!nearly_equal(c0, c1, tolerance)) {
+            return false;
+        }
     }
+    return true;
 }
 
 DEF_TEST(Color4f_shader, reporter) {
@@ -163,7 +171,7 @@ DEF_TEST(Color4f_shader, reporter) {
             ctx->shadeSpan4f(0, 0, buffer4f, N);
             SkPMColor buffer4b[N];
             ctx->shadeSpan(0, 0, buffer4b, N);
-            compare_spans(buffer4f, buffer4b, N, reporter, rec.fTolerance);
+            REPORTER_ASSERT(reporter, compare_spans(buffer4f, buffer4b, N, rec.fTolerance));
         }
         ctx->~Context();
     }
@@ -173,10 +181,11 @@ DEF_TEST(Color4f_colorfilter, reporter) {
     struct {
         SkColorFilter* (*fFact)();
         bool           fSupports4f;
+        const char*    fName;
     } recs[] = {
-        { make_mode_cf,     true },
-        { make_mx_cf,       true },
-        { make_compose_cf,  true },
+        { make_mode_cf,     true, "mode" },
+        { make_mx_cf,       true, "matrix" },
+        { make_compose_cf,  true, "compose" },
     };
 
     // prepare the src
@@ -189,7 +198,7 @@ DEF_TEST(Color4f_colorfilter, reporter) {
         src4f[i] = SkPM4f::FromPMColor(src4b[i]);
     }
     // confirm that our srcs are (nearly) equal
-    compare_spans(src4f, src4b, N, reporter);
+    REPORTER_ASSERT(reporter, compare_spans(src4f, src4b, N));
 
     for (const auto& rec : recs) {
         SkAutoTUnref<SkColorFilter> filter(rec.fFact());
@@ -197,7 +206,7 @@ DEF_TEST(Color4f_colorfilter, reporter) {
         filter->filterSpan(src4b, N, dst4b);
         SkPM4f dst4f[N];
         filter->filterSpan4f(src4f, N, dst4f);
-        compare_spans(dst4f, dst4b, N, reporter);
+        REPORTER_ASSERT(reporter, compare_spans(dst4f, dst4b, N));
     }
 }
 

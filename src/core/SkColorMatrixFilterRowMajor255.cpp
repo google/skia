@@ -12,29 +12,24 @@
 #include "SkWriteBuffer.h"
 #include "SkUnPreMultiply.h"
 #include "SkString.h"
-#include "SkPM4f.h"
+#include "SkPM4fPriv.h"
 
-#define SK_PMORDER_INDEX_A  (SK_A32_SHIFT / 8)
-#define SK_PMORDER_INDEX_R  (SK_R32_SHIFT / 8)
-#define SK_PMORDER_INDEX_G  (SK_G32_SHIFT / 8)
-#define SK_PMORDER_INDEX_B  (SK_B32_SHIFT / 8)
-
-static void transpose_to_pmorder(float dst[20], const float src[20]) {
+static void transpose(float dst[20], const float src[20]) {
     const float* srcR = src + 0;
     const float* srcG = src + 5;
     const float* srcB = src + 10;
     const float* srcA = src + 15;
 
     for (int i = 0; i < 20; i += 4) {
-        dst[i + SK_PMORDER_INDEX_A] = *srcA++;
-        dst[i + SK_PMORDER_INDEX_R] = *srcR++;
-        dst[i + SK_PMORDER_INDEX_G] = *srcG++;
-        dst[i + SK_PMORDER_INDEX_B] = *srcB++;
+        dst[i + 0] = *srcR++;
+        dst[i + 1] = *srcG++;
+        dst[i + 2] = *srcB++;
+        dst[i + 3] = *srcA++;
     }
 }
 
 void SkColorMatrixFilterRowMajor255::initState() {
-    transpose_to_pmorder(fTranspose, fMatrix);
+    transpose(fTranspose, fMatrix);
 
     const float* array = fMatrix;
 
@@ -108,11 +103,10 @@ void filter_span(const float array[], const T src[], int count, T dst[]) {
             srcf = unpremul(srcf);
         }
 
-        Sk4f r4 = srcf[SK_R32_SHIFT/8];
-        Sk4f g4 = srcf[SK_G32_SHIFT/8];
-        Sk4f b4 = srcf[SK_B32_SHIFT/8];
-        Sk4f a4 = srcf[SK_A32_SHIFT/8];
-
+        Sk4f r4 = srcf[Adaptor::R];
+        Sk4f g4 = srcf[Adaptor::G];
+        Sk4f b4 = srcf[Adaptor::B];
+        Sk4f a4 = srcf[Adaptor::A];
         // apply matrix
         Sk4f dst4 = c0 * r4 + c1 * g4 + c2 * b4 + c3 * a4 + c4;
 
@@ -121,11 +115,17 @@ void filter_span(const float array[], const T src[], int count, T dst[]) {
 }
 
 struct SkPMColorAdaptor {
+    enum {
+        R = SK_R_INDEX,
+        G = SK_G_INDEX,
+        B = SK_B_INDEX,
+        A = SK_A_INDEX,
+    };
     static SkPMColor From4f(const Sk4f& c4) {
-        return round(c4);
+        return round(swizzle_rb_if_bgra(c4));
     }
     static Sk4f To4f(SkPMColor c) {
-        return SkNx_cast<float>(Sk4b::Load(&c)) * Sk4f(1.0f/255);
+        return to_4f(c) * Sk4f(1.0f/255);
     }
 };
 void SkColorMatrixFilterRowMajor255::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
@@ -133,13 +133,17 @@ void SkColorMatrixFilterRowMajor255::filterSpan(const SkPMColor src[], int count
 }
 
 struct SkPM4fAdaptor {
+    enum {
+        R = SkPM4f::R,
+        G = SkPM4f::G,
+        B = SkPM4f::B,
+        A = SkPM4f::A,
+    };
     static SkPM4f From4f(const Sk4f& c4) {
-        SkPM4f c;
-        c4.store(&c);
-        return c;
+        return SkPM4f::From4f(c4);
     }
     static Sk4f To4f(const SkPM4f& c) {
-        return Sk4f::Load(&c);
+        return c.to4f();
     }
 };
 void SkColorMatrixFilterRowMajor255::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {

@@ -9,6 +9,14 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
+static SkPM4f rgba_to_pmcolor_order(const SkPM4f& x) {
+#ifdef SK_PMCOLOR_IS_BGRA
+    return {{ x.fVec[2], x.fVec[1], x.fVec[0], x.fVec[3] }};
+#else
+    return x;
+#endif
+}
+
 enum DstType {
     kLinear_Dst,
     kSRGB_Dst,
@@ -42,19 +50,20 @@ static Sk4f linear_unit_to_srgb_255f(const Sk4f& l4) {
 
 template <DstType D> void general_1(const SkXfermode* xfer, uint32_t dst[],
                                     const SkPM4f* src, int count, const SkAlpha aa[]) {
+    const SkPM4f s = rgba_to_pmcolor_order(*src);
     SkXfermodeProc4f proc = xfer->getProc4f();
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
             Sk4f d4 = load_dst<D>(dst[i]);
             d4.store(d.fVec);
-            Sk4f r4 = Sk4f::Load(proc(*src, d).fVec);
+            Sk4f r4 = Sk4f::Load(proc(s, d).fVec);
             dst[i] = store_dst<D>(lerp(r4, d4, aa[i]));
         }
     } else {
         for (int i = 0; i < count; ++i) {
             load_dst<D>(dst[i]).store(d.fVec);
-            Sk4f r4 = Sk4f::Load(proc(*src, d).fVec);
+            Sk4f r4 = Sk4f::Load(proc(s, d).fVec);
             dst[i] = store_dst<D>(r4);
         }
     }
@@ -68,13 +77,13 @@ template <DstType D> void general_n(const SkXfermode* xfer, uint32_t dst[],
         for (int i = 0; i < count; ++i) {
             Sk4f d4 = load_dst<D>(dst[i]);
             d4.store(d.fVec);
-            Sk4f r4 = Sk4f::Load(proc(src[i], d).fVec);
+            Sk4f r4 = Sk4f::Load(proc(rgba_to_pmcolor_order(src[i]), d).fVec);
             dst[i] = store_dst<D>(lerp(r4, d4, aa[i]));
         }
     } else {
         for (int i = 0; i < count; ++i) {
             load_dst<D>(dst[i]).store(d.fVec);
-            Sk4f r4 = Sk4f::Load(proc(src[i], d).fVec);
+            Sk4f r4 = Sk4f::Load(proc(rgba_to_pmcolor_order(src[i]), d).fVec);
             dst[i] = store_dst<D>(r4);
         }
     }
@@ -141,7 +150,7 @@ template <DstType D> void src_n(const SkXfermode*, uint32_t dst[],
                 continue;
             }
         }
-        Sk4f r4 = Sk4f::Load(src[i].fVec);   // src always overrides dst
+        Sk4f r4 = src[i].to4f_pmorder();
         if (a != 0xFF) {
             Sk4f d4 = load_dst<D>(dst[i]);
             r4 = lerp(r4, d4, a);
@@ -156,7 +165,7 @@ static Sk4f lerp(const Sk4f& src, const Sk4f& dst, const Sk4f& src_scale) {
 
 template <DstType D> void src_1(const SkXfermode*, uint32_t dst[],
                                 const SkPM4f* src, int count, const SkAlpha aa[]) {
-    const Sk4f s4 = Sk4f::Load(src->fVec);
+    const Sk4f s4 = src->to4f_pmorder();
 
     if (aa) {
         if (D == kLinear_Dst) {
@@ -232,7 +241,7 @@ template <DstType D> void srcover_n(const SkXfermode*, uint32_t dst[],
             if (0 == a) {
                 continue;
             }
-            Sk4f s4 = Sk4f::Load(src[i].fVec);
+            Sk4f s4 = src[i].to4f_pmorder();
             Sk4f d4 = load_dst<D>(dst[i]);
             if (a != 0xFF) {
                 s4 = scale_by_coverage(s4, a);
@@ -242,7 +251,7 @@ template <DstType D> void srcover_n(const SkXfermode*, uint32_t dst[],
         }
     } else {
         for (int i = 0; i < count; ++i) {
-            Sk4f s4 = Sk4f::Load(src[i].fVec);
+            Sk4f s4 = src[i].to4f_pmorder();
             Sk4f d4 = load_dst<D>(dst[i]);
             Sk4f r4 = s4 + d4 * Sk4f(1 - get_alpha(s4));
             dst[i] = store_dst<D>(r4);
@@ -252,7 +261,7 @@ template <DstType D> void srcover_n(const SkXfermode*, uint32_t dst[],
 
 static void srcover_linear_dst_1(const SkXfermode*, uint32_t dst[],
                                  const SkPM4f* src, int count, const SkAlpha aa[]) {
-    const Sk4f s4 = Sk4f::Load(src->fVec);
+    const Sk4f s4 = src->to4f_pmorder();
     const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
     
     if (aa) {
@@ -295,7 +304,7 @@ static void srcover_linear_dst_1(const SkXfermode*, uint32_t dst[],
 
 static void srcover_srgb_dst_1(const SkXfermode*, uint32_t dst[],
                                const SkPM4f* src, int count, const SkAlpha aa[]) {
-    Sk4f s4 = Sk4f::Load(src->fVec);
+    Sk4f s4 = src->to4f_pmorder();
     Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
 
     if (aa) {

@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkPM4f.h"
 #include "SkColorPriv.h"
-#include "SkNx.h"
+#include "SkPM4f.h"
 
 static inline float get_alpha(const Sk4f& f4) {
     return f4[SkPM4f::A];
@@ -26,6 +25,10 @@ static inline uint32_t to_4b(const Sk4f& f4) {
 
 static inline Sk4f to_4f(uint32_t b4) {
     return SkNx_cast<float>(Sk4b::Load((const uint8_t*)&b4));
+}
+
+static inline Sk4f to_4f_rgba(uint32_t b4) {
+    return swizzle_rb_if_bgra(to_4f(b4));
 }
 
 static inline Sk4f srgb_to_linear(const Sk4f& s4) {
