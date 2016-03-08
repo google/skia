@@ -231,6 +231,8 @@ SkSpecialImage* SkImageFilter::filterImage(SkSpecialImage* src, const Context& c
     SkSpecialImage* result = this->onFilterImage(src, context, offset);
     if (result && context.cache()) {
         context.cache()->set(key, result, *offset);
+        SkAutoMutexAcquire mutex(fMutex);
+        fCacheKeys.push_back(key);
     }
 
     return result;
