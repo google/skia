@@ -1696,28 +1696,44 @@ static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
 
 class SkTriColorShader : public SkShader {
 public:
-    SkTriColorShader() {}
+    SkTriColorShader();
 
     class TriColorShaderContext : public SkShader::Context {
     public:
         TriColorShaderContext(const SkTriColorShader& shader, const ContextRec&);
         virtual ~TriColorShaderContext();
-
-        bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
-
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
     private:
+        bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
+
         SkMatrix    fDstToUnit;
         SkPMColor   fColors[3];
+        bool fSetup;
 
         typedef SkShader::Context INHERITED;
+    };
+
+    struct TriColorShaderData {
+        const SkPoint* pts;
+        const SkColor* colors;
+        const VertState *state;
     };
 
     SK_TO_STRING_OVERRIDE()
 
     // For serialization.  This will never be called.
     Factory getFactory() const override { sk_throw(); return nullptr; }
+
+    // Supply setup data to context from drawing setup
+    void bindSetupData(TriColorShaderData* setupData) { fSetupData = setupData; }
+
+    // Take the setup data from context when needed.
+    TriColorShaderData* takeSetupData() {
+        TriColorShaderData *data = fSetupData;
+        fSetupData = NULL;
+        return data;
+    }
 
 protected:
     size_t onContextSize(const ContextRec&) const override;
@@ -1726,6 +1742,8 @@ protected:
     }
 
 private:
+    TriColorShaderData *fSetupData;
+
     typedef SkShader INHERITED;
 };
 
@@ -1753,6 +1771,7 @@ bool SkTriColorShader::TriColorShaderContext::setup(const SkPoint pts[], const S
     if (!this->getCTM().invert(&ctmInv)) {
         return false;
     }
+    // TODO replace INV(m) * INV(ctm) with INV(ctm * m)
     fDstToUnit.setConcat(im, ctmInv);
     return true;
 }
@@ -1764,10 +1783,14 @@ static int ScalarTo256(SkScalar v) {
     return static_cast<int>(SkScalarPin(v, 0, 1) * 256 + 0.5);
 }
 
+SkTriColorShader::SkTriColorShader()
+    : INHERITED(NULL)
+    , fSetupData(NULL) {}
 
 SkTriColorShader::TriColorShaderContext::TriColorShaderContext(const SkTriColorShader& shader,
                                                                const ContextRec& rec)
-    : INHERITED(shader, rec) {}
+    : INHERITED(shader, rec)
+    , fSetup(false) {}
 
 SkTriColorShader::TriColorShaderContext::~TriColorShaderContext() {}
 
@@ -1776,6 +1799,17 @@ size_t SkTriColorShader::onContextSize(const ContextRec&) const {
 }
 
 void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
+    SkTriColorShader* parent = static_cast<SkTriColorShader*>(const_cast<SkShader*>(&fShader));
+    TriColorShaderData* set = parent->takeSetupData();
+    if (set) {
+        fSetup = setup(set->pts, set->colors, set->state->f0, set->state->f1, set->state->f2);
+    }
+
+    if (!fSetup) {
+        // Invalid matrices. Not checked before so no need to assert.
+        return;
+    }
+
     const int alphaScale = Sk255To256(this->getPaintAlpha());
 
     SkPoint src;
@@ -1892,6 +1926,8 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     VertState::Proc vertProc = state.chooseProc(vmode);
 
     if (textures || colors) {
+        SkTriColorShader::TriColorShaderData verticesSetup = { vertices, colors, &state };
+
         while (vertProc(&state)) {
             if (textures) {
                 SkMatrix tempM;
@@ -1904,35 +1940,14 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                 }
             }
             if (colors) {
-                // Find the context for triShader.
-                SkTriColorShader::TriColorShaderContext* triColorShaderContext;
-
-                SkShader::Context* shaderContext = blitter->getShaderContext();
-                SkASSERT(shaderContext);
-                if (p.getShader() == &triShader) {
-                    triColorShaderContext =
-                            static_cast<SkTriColorShader::TriColorShaderContext*>(shaderContext);
-                } else {
-                    // The shader is a compose shader and triShader is its first shader.
-                    SkASSERT(p.getShader() == composeShader);
-                    SkASSERT(composeShader->getShaderA() == &triShader);
-                    SkComposeShader::ComposeShaderContext* composeShaderContext =
-                            static_cast<SkComposeShader::ComposeShaderContext*>(shaderContext);
-                    SkShader::Context* shaderContextA = composeShaderContext->getShaderContextA();
-                    triColorShaderContext =
-                            static_cast<SkTriColorShader::TriColorShaderContext*>(shaderContextA);
-                }
-
-                if (!triColorShaderContext->setup(vertices, colors,
-                                                  state.f0, state.f1, state.f2)) {
-                    continue;
-                }
+                triShader.bindSetupData(&verticesSetup);
             }
 
             SkPoint tmp[] = {
                 devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
             };
             SkScan::FillTriangle(tmp, *fRC, blitter.get());
+            triShader.bindSetupData(NULL);
         }
     } else {
         // no colors[] and no texture, stroke hairlines with paint's color.
