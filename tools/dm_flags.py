@@ -34,7 +34,6 @@ def get_args(bot):
   if '-GCE-' in bot:
     configs.extend(['f16', 'srgb'])              # Gamma-correct formats.
     configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
-    configs.extend(['remote-8888', 'remote_cache-8888'])  # Hacking, WIP.
 
   if '-TSAN' not in bot:
     if ('TegraK1'  in bot or

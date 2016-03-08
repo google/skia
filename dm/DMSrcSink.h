@@ -310,14 +310,6 @@ private:
     const SkMatrix fMatrix;
 };
 
-class ViaRemote : public Via {
-public:
-    ViaRemote(bool cache, Sink* sink) : Via(sink), fCache(cache) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-private:
-    bool fCache;
-};
-
 class ViaSerialization : public Via {
 public:
     explicit ViaSerialization(Sink* sink) : Via(sink) {}

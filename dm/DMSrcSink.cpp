@@ -24,7 +24,6 @@
 #include "SkRandom.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
-#include "SkRemote.h"
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
 #include "SkTLogic.h"
@@ -1160,18 +1159,6 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
     *bitmap = uprighted;
     bitmap->lockPixels();
     return "";
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-Error ViaRemote::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* target) {
-        SkAutoTDelete<SkRemote::Encoder> decoder(SkRemote::NewDecoder(target));
-        SkAutoTDelete<SkRemote::Encoder>   cache(fCache ? SkRemote::NewCachingEncoder(decoder)
-                                                        : nullptr);
-        SkAutoTDelete<SkCanvas> canvas(SkRemote::NewCanvas(cache ? cache : decoder));
-        return src.draw(canvas);
-    });
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
