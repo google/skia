@@ -28,22 +28,12 @@ Interval::Interval(SkPMColor c0, SkScalar p0,
     , fZeroRamp(c0 == c1) {
     SkASSERT(p0 != p1);
 
-    const Sk4f c4f0 = SkNx_cast<float>(Sk4b::Load(&c0)) * componentScale;
-    const Sk4f c4f1 = SkNx_cast<float>(Sk4b::Load(&c1)) * componentScale;
+    const Sk4f c4f0 = SkPM4f::FromPMColor(c0).to4f() * componentScale;
+    const Sk4f c4f1 = SkPM4f::FromPMColor(c1).to4f() * componentScale;
     const Sk4f dc4f = (c4f1 - c4f0) / (p1 - p0);
 
     c4f0.store(&fC0.fVec);
     dc4f.store(&fDc.fVec);
-}
-
-SkGradientShaderBase::GradientShaderBase4fContext::
-Interval::Interval(const Sk4f& c0, const Sk4f& dc,
-                   SkScalar p0, SkScalar p1)
-    : fP0(p0)
-    , fP1(p1)
-    , fZeroRamp((dc == 0).allTrue()) {
-    c0.store(fC0.fVec);
-    dc.store(fDc.fVec);
 }
 
 bool SkGradientShaderBase::GradientShaderBase4fContext::

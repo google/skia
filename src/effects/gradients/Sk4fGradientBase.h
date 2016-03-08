@@ -29,8 +29,6 @@ protected:
         Interval(SkPMColor c0, SkScalar p0,
                  SkPMColor c1, SkScalar p1,
                  const Sk4f& componentScale);
-        Interval(const Sk4f& c0, const Sk4f& dc,
-                 SkScalar p0, SkScalar p1);
 
         bool isZeroRamp() const { return fZeroRamp; }
 

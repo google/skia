@@ -161,6 +161,19 @@ float dst_component_scale<SkPMColor>() {
     return 255;
 }
 
+template<typename DstType>
+Sk4f dst_swizzle(const SkPM4f&);
+
+template<>
+Sk4f dst_swizzle<SkPM4f>(const SkPM4f& c) {
+    return c.to4f();
+}
+
+template<>
+Sk4f dst_swizzle<SkPMColor>(const SkPM4f& c) {
+    return c.to4f_pmorder();
+}
+
 SkPMColor pack_color(SkColor c, bool premul) {
     return premul
         ? SkPreMultiplyColor(c)
@@ -304,11 +317,10 @@ LinearGradient4fContext::LinearGradient4fContext(const SkLinearGradient& shader,
     SkASSERT(shader.fColorCount > 1);
     SkASSERT(shader.fOrigColors);
 
-    const float kInv255Float = 1.0f / 255;
-    const float paintAlpha = rec.fPaint->getAlpha() * kInv255Float;
+    const float paintAlpha = rec.fPaint->getAlpha() * (1.0f / 255);
     const Sk4f componentScale = fColorsArePremul
-        ? Sk4f(paintAlpha * kInv255Float)
-        : Sk4f(kInv255Float, kInv255Float, kInv255Float, paintAlpha * kInv255Float);
+        ? Sk4f(paintAlpha)
+        : Sk4f(1.0f, 1.0f, 1.0f, paintAlpha);
     const bool dx_is_pos = fDstToPos.getScaleX() >= 0;
     const int first_index = dx_is_pos ? 0 : shader.fColorCount - 1;
     const int last_index = shader.fColorCount - 1 - first_index;
@@ -562,8 +574,8 @@ public:
 
 private:
     void compute_interval_props(SkScalar t) {
-        fDc   = Sk4f::Load(fInterval->fDc.fVec);
-        fCc   = Sk4f::Load(fInterval->fC0.fVec);
+        fDc   = dst_swizzle<DstType>(fInterval->fDc);
+        fCc   = dst_swizzle<DstType>(fInterval->fC0);
         fCc   = fCc + fDc * Sk4f(t);
         fCc   = fCc * fDstComponentScale;
         fDcDx = fDc * fDstComponentScale * Sk4f(fDx);
