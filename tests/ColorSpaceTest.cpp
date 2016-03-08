@@ -10,14 +10,18 @@
 #include "SkColorSpace.h"
 #include "Test.h"
 
+#include "png.h"
+
 static SkStreamAsset* resource(const char path[]) {
     SkString fullPath = GetResourcePath(path);
     return SkStream::NewFromFile(fullPath.c_str());
 }
 
+#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
 static bool almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.0001f;
 }
+#endif
 
 DEF_TEST(ColorSpaceParseICCProfile, r) {
     SkAutoTDelete<SkStream> stream(resource("color_wheel_with_profile.png"));
@@ -26,6 +30,7 @@ DEF_TEST(ColorSpaceParseICCProfile, r) {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
     REPORTER_ASSERT(r, nullptr != codec);
 
+#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
     SkColorSpace* colorSpace = codec->getColorSpace();
     REPORTER_ASSERT(r, nullptr != colorSpace);
 
@@ -48,4 +53,5 @@ DEF_TEST(ColorSpaceParseICCProfile, r) {
     REPORTER_ASSERT(r, almost_equal(0.143066f, xyz.fMat[6]));
     REPORTER_ASSERT(r, almost_equal(0.0606079f, xyz.fMat[7]));
     REPORTER_ASSERT(r, almost_equal(0.714096f, xyz.fMat[8]));
+#endif
 }
