@@ -6,60 +6,63 @@
  */
 
 #include "SkOffsetImageFilter.h"
-#include "SkBitmap.h"
+
 #include "SkCanvas.h"
-#include "SkDevice.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
+#include "SkWriteBuffer.h"
 
-bool SkOffsetImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& source,
-                                                  const Context& ctx,
-                                                  SkBitmap* result,
-                                                  SkIPoint* offset) const {
-    SkBitmap src = source;
+SkSpecialImage* SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
+                                                   const Context& ctx,
+                                                   SkIPoint* offset) const {
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!cropRectIsSet()) {
-        if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
-            return false;
-        }
+    SkAutoTUnref<SkSpecialImage> input(this->filterInput(0, source, ctx, &srcOffset));
+    if (!input) {
+        return nullptr;
+    }
 
-        SkVector vec;
-        ctx.ctm().mapVectors(&vec, &fOffset, 1);
+    SkVector vec;
+    ctx.ctm().mapVectors(&vec, &fOffset, 1);
 
+    if (!this->cropRectIsSet()) {
         offset->fX = srcOffset.fX + SkScalarRoundToInt(vec.fX);
         offset->fY = srcOffset.fY + SkScalarRoundToInt(vec.fY);
-        *result = src;
+        return input.release();
     } else {
-        if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
-            return false;
-        }
-
         SkIRect bounds;
-        SkIRect srcBounds = src.bounds();
+        SkIRect srcBounds = SkIRect::MakeWH(input->width(), input->height());
         srcBounds.offset(srcOffset);
         if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
-            return false;
+            return nullptr;
         }
 
-        SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-        if (nullptr == device.get()) {
-            return false;
+        SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
+                                                kPremul_SkAlphaType);
+        SkAutoTUnref<SkSpecialSurface> surf(source->newSurface(info));
+        if (!surf) {
+            return nullptr;
         }
-        SkCanvas canvas(device);
+
+        SkCanvas* canvas = surf->getCanvas();
+        SkASSERT(canvas);
+
+        // TODO: it seems like this clear shouldn't be necessary (see skbug.com/5075)
+        canvas->clear(0x0);
+
         SkPaint paint;
         paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-        canvas.translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
-                         SkIntToScalar(srcOffset.fY - bounds.fTop));
-        SkVector vec;
-        ctx.ctm().mapVectors(&vec, &fOffset, 1);
-        canvas.drawBitmap(src, vec.x(), vec.y(), &paint);
-        *result = device->accessBitmap(false);
+        canvas->translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
+                          SkIntToScalar(srcOffset.fY - bounds.fTop));
+
+        input->draw(canvas, vec.x(), vec.y(), &paint);
+
         offset->fX = bounds.fLeft;
         offset->fY = bounds.fTop;
+        return surf->newImageSnapshot();
     }
-    return true;
 }
 
 void SkOffsetImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
