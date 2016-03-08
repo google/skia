@@ -13,13 +13,15 @@
 #include "microhttpd.h"
 
 #include "urlhandlers/UrlHandler.h"
+
+#include <errno.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
 using namespace Response;
 
 DEFINE_int32(port, 8888, "The port to listen on.");
-DEFINE_string(address, "localhost", "The address to bind to.");
+DEFINE_string(address, "127.0.0.1", "The address to bind to.");
 
 class UrlManager {
 public:
@@ -82,7 +84,12 @@ int skiaserve_main() {
     struct sockaddr_in address;
     address.sin_family = AF_INET;
     address.sin_port = htons(FLAGS_port);
-    inet_pton(AF_INET, FLAGS_address[0], &address.sin_addr);
+    int result = inet_pton(AF_INET, FLAGS_address[0], &address.sin_addr);
+    if (result != 1) {
+        printf("inet_pton for %s:%d failed with return %d %s\n", 
+                FLAGS_address[0], FLAGS_port, result, strerror(errno));
+        return 1;
+    }
 
     printf("Visit http://%s:%d in your browser.\n", FLAGS_address[0], FLAGS_port);
 
