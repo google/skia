@@ -144,8 +144,9 @@ public:
 
     // PDF specific methods.
 
-    /** Create the resource dictionary for this device. */
-    sk_sp<SkPDFDict> makeResourceDict() const;
+    /** Create the resource dictionary for this device.
+     */
+    SkPDFDict* createResourceDict() const;
 
     /** Get the fonts used on this device.
      */
@@ -163,12 +164,15 @@ public:
      */
     void appendDestinations(SkPDFDict* dict, SkPDFObject* page) const;
 
-    /** Returns a copy of the media box for this device. */
-    sk_sp<SkPDFArray> copyMediaBox() const;
-
-    /** Returns a SkStream with the page contents.
+    /** Returns a copy of the media box for this device. The caller is required
+     *  to unref() this when it is finished.
      */
-    skstd::unique_ptr<SkStreamAsset> content() const;
+    SkPDFArray* copyMediaBox() const;
+
+    /** Returns a SkStream with the page contents.  The caller is responsible
+     *  for a deleting the returned value.
+     */
+    SkStreamAsset* content() const;
 
     /** Writes the page contents to the stream. */
     void writeContent(SkWStream*) const;

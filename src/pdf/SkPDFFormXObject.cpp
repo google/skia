@@ -19,9 +19,9 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // We don't want to keep around device because we'd have two copies
     // of content, so reference or copy everything we need (content and
     // resources).
-    auto resourceDict = device->makeResourceDict();
+    sk_sp<SkPDFDict> resourceDict(device->createResourceDict());
 
-    auto content = device->content();
+    SkAutoTDelete<SkStreamAsset> content(device->content());
     this->setData(content.get());
 
     sk_sp<SkPDFArray> bboxArray(device->copyMediaBox());
@@ -60,8 +60,8 @@ void SkPDFFormXObject::init(const char* colorSpace,
                             SkPDFDict* resourceDict, SkPDFArray* bbox) {
     this->insertName("Type", "XObject");
     this->insertName("Subtype", "Form");
-    this->insertObject("Resources", sk_sp<SkPDFDict>(SkRef(resourceDict)));
-    this->insertObject("BBox", sk_sp<SkPDFArray>(SkRef(bbox)));
+    this->insertObject("Resources", SkRef(resourceDict));
+    this->insertObject("BBox", SkRef(bbox));
 
     // Right now SkPDFFormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
@@ -72,7 +72,7 @@ void SkPDFFormXObject::init(const char* colorSpace,
         group->insertName("CS", colorSpace);
     }
     group->insertBool("I", true);  // Isolated.
-    this->insertObject("Group", std::move(group));
+    this->insertObject("Group", group.release());
 }
 
 SkPDFFormXObject::~SkPDFFormXObject() {}

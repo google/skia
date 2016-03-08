@@ -18,8 +18,9 @@
 
 #include <cmath>
 
-sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& rect) {
-    auto result = sk_make_sp<SkPDFArray>();
+//static
+SkPDFArray* SkPDFUtils::RectToArray(const SkRect& rect) {
+    SkPDFArray* result = new SkPDFArray();
     result->reserve(4);
     result->appendScalar(rect.fLeft);
     result->appendScalar(rect.fTop);
@@ -28,13 +29,14 @@ sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& rect) {
     return result;
 }
 
-sk_sp<SkPDFArray> SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
+// static
+SkPDFArray* SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
     SkScalar values[6];
     if (!matrix.asAffine(values)) {
         SkMatrix::SetAffineIdentity(values);
     }
 
-    auto result = sk_make_sp<SkPDFArray>();
+    SkPDFArray* result = new SkPDFArray;
     result->reserve(6);
     for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
         result->appendScalar(values[i]);

@@ -126,7 +126,7 @@ SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
     return pdfGraphicState;
 }
 
-static SkPDFStream* create_invert_function() {
+static SkPDFObject* create_invert_function() {
     // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
     // a type 2 function, so we use a type 4 function.
     auto domainAndRange = sk_make_sp<SkPDFArray>();
@@ -141,17 +141,12 @@ static SkPDFStream* create_invert_function() {
 
     auto invertFunction = sk_make_sp<SkPDFStream>(psInvertStream.get());
     invertFunction->insertInt("FunctionType", 4);
-    invertFunction->insertObject("Domain", domainAndRange);
-    invertFunction->insertObject("Range", std::move(domainAndRange));
+    invertFunction->insertObject("Domain", SkRef(domainAndRange.get()));
+    invertFunction->insertObject("Range", domainAndRange.release());
     return invertFunction.release();
 }
 
-SK_DECLARE_STATIC_ONCE_PTR(SkPDFStream, invertFunction);
-
-static sk_sp<SkPDFStream> make_invert_function() {
-    return sk_sp<SkPDFStream>(
-            SkRef(invertFunction.get(create_invert_function)));
-}
+SK_DECLARE_STATIC_ONCE_PTR(SkPDFObject, invertFunction);
 
 // static
 SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
@@ -165,13 +160,13 @@ SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
     } else if (sMaskMode == kLuminosity_SMaskMode) {
         sMaskDict->insertName("S", "Luminosity");
     }
-    sMaskDict->insertObjRef("G", sk_sp<SkPDFFormXObject>(SkRef(sMask)));
+    sMaskDict->insertObjRef("G", SkRef(sMask));
     if (invert) {
-        sMaskDict->insertObjRef("TR", make_invert_function());
+        sMaskDict->insertObjRef("TR", SkRef(invertFunction.get(create_invert_function)));
     }
 
     auto result = sk_make_sp<SkPDFDict>("ExtGState");
-    result->insertObject("SMask", std::move(sMaskDict));
+    result->insertObject("SMask", sMaskDict.release());
     return result.release();
 }
 

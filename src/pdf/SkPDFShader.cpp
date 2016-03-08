@@ -523,7 +523,7 @@ SkPDFObject* SkPDFShader::GetPDFShader(SkPDFCanon* canon,
     return get_pdf_shader_by_state(canon, dpi, &state);
 }
 
-static sk_sp<SkPDFDict> get_gradient_resource_dict(
+static SkPDFDict* get_gradient_resource_dict(
         SkPDFObject* functionShader,
         SkPDFObject* gState) {
     SkTDArray<SkPDFObject*> patterns;
@@ -534,7 +534,7 @@ static sk_sp<SkPDFDict> get_gradient_resource_dict(
     if (gState) {
         graphicStates.push(gState);
     }
-    return SkPDFResourceDict::Make(&graphicStates, &patterns, nullptr, nullptr);
+    return SkPDFResourceDict::Create(&graphicStates, &patterns, nullptr, nullptr);
 }
 
 static void populate_tiling_pattern_dict(SkPDFDict* pattern,
@@ -552,7 +552,7 @@ static void populate_tiling_pattern_dict(SkPDFDict* pattern,
     pattern->insertObject("BBox", SkPDFUtils::RectToArray(bbox));
     pattern->insertScalar("XStep", bbox.width());
     pattern->insertScalar("YStep", bbox.height());
-    pattern->insertObject("Resources", sk_sp<SkPDFDict>(SkRef(resources)));
+    pattern->insertObject("Resources", SkRef(resources));
     if (!matrix.isIdentity()) {
         pattern->insertObject("Matrix", SkPDFUtils::MatrixToArray(matrix));
     }
@@ -592,8 +592,8 @@ static SkPDFObject* create_smask_graphic_state(
 
     SkAutoTDelete<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
 
-    auto resources =
-        get_gradient_resource_dict(luminosityShader.get(), nullptr);
+    sk_sp<SkPDFDict>
+        resources(get_gradient_resource_dict(luminosityShader.get(), nullptr));
 
     sk_sp<SkPDFFormXObject> alphaMask(
             new SkPDFFormXObject(alphaStream.get(), bbox, resources.get()));
@@ -627,8 +627,8 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
     SkPDFAlphaFunctionShader* alphaFunctionShader =
             new SkPDFAlphaFunctionShader(autoState->detach());
 
-    auto resourceDict =
-            get_gradient_resource_dict(colorShader.get(), alphaGs.get());
+    sk_sp<SkPDFDict> resourceDict(
+            get_gradient_resource_dict(colorShader.get(), alphaGs.get()));
 
     SkAutoTDelete<SkStream> colorStream(
             create_pattern_fill_content(0, bbox));
@@ -697,8 +697,8 @@ static SkPDFStream* make_ps_function(const SkString& psCode,
             SkData::NewWithCopy(psCode.c_str(), psCode.size()));
     SkPDFStream* result = new SkPDFStream(funcData.get());
     result->insertInt("FunctionType", 4);
-    result->insertObject("Domain", sk_sp<SkPDFObject>(SkRef(domain)));
-    result->insertObject("Range", sk_sp<SkPDFObject>(SkRef(rangeObject.get(create_range_object))));
+    result->insertObject("Domain", SkRef(domain));
+    result->insertObject("Range", SkRef(rangeObject.get(create_range_object)));
     return result;
 }
 
@@ -802,18 +802,18 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     auto pdfShader = sk_make_sp<SkPDFDict>();
     pdfShader->insertInt("ShadingType", 1);
     pdfShader->insertName("ColorSpace", "DeviceRGB");
-    pdfShader->insertObject("Domain", sk_sp<SkPDFObject>(SkRef(domain.get())));
+    pdfShader->insertObject("Domain", SkRef(domain.get()));
 
     sk_sp<SkPDFStream> function(
             make_ps_function(functionCode, domain.get()));
-    pdfShader->insertObjRef("Function", std::move(function));
+    pdfShader->insertObjRef("Function", function.release());
 
     sk_sp<SkPDFFunctionShader> pdfFunctionShader(
             new SkPDFFunctionShader(autoState->detach()));
     pdfFunctionShader->insertInt("PatternType", 2);
     pdfFunctionShader->insertObject("Matrix",
                                     SkPDFUtils::MatrixToArray(finalMatrix));
-    pdfFunctionShader->insertObject("Shading", std::move(pdfShader));
+    pdfFunctionShader->insertObject("Shading", pdfShader.release());
 
     canon->addFunctionShader(pdfFunctionShader.get());
     return pdfFunctionShader.release();
@@ -1019,12 +1019,13 @@ SkPDFImageShader* SkPDFImageShader::Create(
     }
 
     // Put the canvas into the pattern stream (fContent).
-    auto content = patternDevice->content();
+    SkAutoTDelete<SkStreamAsset> content(patternDevice->content());
 
     SkPDFImageShader* imageShader = new SkPDFImageShader(autoState->detach());
     imageShader->setData(content.get());
 
-    auto resourceDict = patternDevice->makeResourceDict();
+    sk_sp<SkPDFDict> resourceDict(
+            patternDevice->createResourceDict());
     populate_tiling_pattern_dict(imageShader, patternBBox,
                                  resourceDict.get(), finalMatrix);
 

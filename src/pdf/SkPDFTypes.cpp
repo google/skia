@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2011 Google Inc.
  *
@@ -27,8 +28,7 @@ SkPDFUnion::~SkPDFUnion() {
             return;
         case Type::kObjRef:
         case Type::kObject:
-            SkASSERT(fObject);
-            fObject->unref();
+            SkSafeUnref(fObject);
             return;
         default:
             return;
@@ -38,7 +38,7 @@ SkPDFUnion::~SkPDFUnion() {
 SkPDFUnion& SkPDFUnion::operator=(SkPDFUnion&& other) {
     if (this != &other) {
         this->~SkPDFUnion();
-        new (this) SkPDFUnion(std::move(other));
+        new (this) SkPDFUnion(other.move());
     }
     return *this;
 }
@@ -56,14 +56,14 @@ SkPDFUnion SkPDFUnion::copy() const {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            new (pun(u.fSkString)) SkString(*pun(fSkString));
-            return std::move(u);
+            new (pun(u.fSkString))  SkString                                   (*pun(fSkString));
+            return u.move();
         case Type::kObjRef:
         case Type::kObject:
             SkRef(u.fObject);
-            return std::move(u);
+            return u.move();
         default:
-            return std::move(u);
+            return u.move();
     }
 }
 SkPDFUnion& SkPDFUnion::operator=(const SkPDFUnion& other) {
@@ -191,19 +191,19 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap,
 SkPDFUnion SkPDFUnion::Int(int32_t value) {
     SkPDFUnion u(Type::kInt);
     u.fIntValue = value;
-    return std::move(u);
+    return u.move();
 }
 
 SkPDFUnion SkPDFUnion::Bool(bool value) {
     SkPDFUnion u(Type::kBool);
     u.fBoolValue = value;
-    return std::move(u);
+    return u.move();
 }
 
 SkPDFUnion SkPDFUnion::Scalar(SkScalar value) {
     SkPDFUnion u(Type::kScalar);
     u.fScalarValue = value;
-    return std::move(u);
+    return u.move();
 }
 
 SkPDFUnion SkPDFUnion::Name(const char* value) {
@@ -211,40 +211,40 @@ SkPDFUnion SkPDFUnion::Name(const char* value) {
     SkASSERT(value);
     SkASSERT(is_valid_name(value));
     u.fStaticString = value;
-    return std::move(u);
+    return u.move();
 }
 
 SkPDFUnion SkPDFUnion::String(const char* value) {
     SkPDFUnion u(Type::kString);
     SkASSERT(value);
     u.fStaticString = value;
-    return std::move(u);
+    return u.move();
 }
 
 SkPDFUnion SkPDFUnion::Name(const SkString& s) {
     SkPDFUnion u(Type::kNameSkS);
     new (pun(u.fSkString)) SkString(s);
-    return std::move(u);
+    return u.move();
 }
 
 SkPDFUnion SkPDFUnion::String(const SkString& s) {
     SkPDFUnion u(Type::kStringSkS);
     new (pun(u.fSkString)) SkString(s);
-    return std::move(u);
+    return u.move();
 }
 
-SkPDFUnion SkPDFUnion::ObjRef(sk_sp<SkPDFObject> objSp) {
+SkPDFUnion SkPDFUnion::ObjRef(SkPDFObject* ptr) {
     SkPDFUnion u(Type::kObjRef);
-    SkASSERT(objSp.get());
-    u.fObject = objSp.release();  // take ownership into union{}
-    return std::move(u);
+    SkASSERT(ptr);
+    u.fObject = ptr;
+    return u.move();
 }
 
-SkPDFUnion SkPDFUnion::Object(sk_sp<SkPDFObject> objSp) {
+SkPDFUnion SkPDFUnion::Object(SkPDFObject* ptr) {
     SkPDFUnion u(Type::kObject);
-    SkASSERT(objSp.get());
-    u.fObject = objSp.release();  // take ownership into union{}
-    return std::move(u);
+    SkASSERT(ptr);
+    u.fObject = ptr;
+    return u.move();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,9 +295,7 @@ void SkPDFArray::addResources(SkPDFObjNumMap* catalog,
     }
 }
 
-void SkPDFArray::append(SkPDFUnion&& value) {
-    new (fValues.append()) SkPDFUnion(std::move(value));
-}
+void SkPDFArray::append(SkPDFUnion&& value) { new (fValues.append()) SkPDFUnion(value.move()); }
 
 void SkPDFArray::appendInt(int32_t value) {
     this->append(SkPDFUnion::Int(value));
@@ -327,12 +325,12 @@ void SkPDFArray::appendString(const char value[]) {
     this->append(SkPDFUnion::String(value));
 }
 
-void SkPDFArray::appendObject(sk_sp<SkPDFObject> objSp) {
-    this->append(SkPDFUnion::Object(std::move(objSp)));
+void SkPDFArray::appendObject(SkPDFObject* value) {
+    this->append(SkPDFUnion::Object(value));
 }
 
-void SkPDFArray::appendObjRef(sk_sp<SkPDFObject> objSp) {
-    this->append(SkPDFUnion::ObjRef(std::move(objSp)));
+void SkPDFArray::appendObjRef(SkPDFObject* value) {
+    this->append(SkPDFUnion::ObjRef(value));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -375,24 +373,24 @@ void SkPDFDict::addResources(SkPDFObjNumMap* catalog,
 void SkPDFDict::set(SkPDFUnion&& name, SkPDFUnion&& value) {
     Record* rec = fRecords.append();
     SkASSERT(name.isName());
-    new (&rec->fKey) SkPDFUnion(std::move(name));
-    new (&rec->fValue) SkPDFUnion(std::move(value));
+    new (&rec->fKey) SkPDFUnion(name.move());
+    new (&rec->fValue) SkPDFUnion(value.move());
 }
 
 int SkPDFDict::size() const { return fRecords.count(); }
 
-void SkPDFDict::insertObjRef(const char key[], sk_sp<SkPDFObject> objSp) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp)));
+void SkPDFDict::insertObjRef(const char key[], SkPDFObject* value) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(value));
 }
-void SkPDFDict::insertObjRef(const SkString& key, sk_sp<SkPDFObject> objSp) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp)));
+void SkPDFDict::insertObjRef(const SkString& key, SkPDFObject* value) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::ObjRef(value));
 }
 
-void SkPDFDict::insertObject(const char key[], sk_sp<SkPDFObject> objSp) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp)));
+void SkPDFDict::insertObject(const char key[], SkPDFObject* value) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(value));
 }
-void SkPDFDict::insertObject(const SkString& key, sk_sp<SkPDFObject> objSp) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp)));
+void SkPDFDict::insertObject(const SkString& key, SkPDFObject* value) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(value));
 }
 
 void SkPDFDict::insertBool(const char key[], bool value) {
