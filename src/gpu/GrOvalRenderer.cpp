@@ -62,74 +62,73 @@ inline bool circle_stays_circle(const SkMatrix& m) {
 /**
  * The output of this effect is a modulation of the input color and coverage for a circle. It
  * operates in a space normalized by the circle radius (outer radius in the case of a stroke)
- * with origin at the circle center. Two   vertex attributes are used:
+ * with origin at the circle center. Three vertex attributes are used:
  *    vec2f : position in device space of the bounding geometry vertices
+ *    vec4ub: color
  *    vec4f : (p.xy, outerRad, innerRad)
  *             p is the position in the normalized space.
  *             outerRad is the outerRadius in device space.
  *             innerRad is the innerRadius in normalized space (ignored if not stroking).
  */
 
-class CircleEdgeEffect : public GrGeometryProcessor {
+class CircleGeometryProcessor : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrColor color, bool stroke, const SkMatrix& localMatrix,
-                                       bool usesLocalCoords) {
-        return new CircleEdgeEffect(color, stroke, localMatrix, usesLocalCoords);
+    CircleGeometryProcessor(bool stroke, const SkMatrix& localMatrix) : fLocalMatrix(localMatrix){
+        this->initClassID<CircleGeometryProcessor>();
+        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
+                                                       kHigh_GrSLPrecision));
+        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+        fInCircleEdge = &this->addVertexAttrib(Attribute("inCircleEdge",
+                                                         kVec4f_GrVertexAttribType));
+        fStroke = stroke;
     }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inCircleEdge() const { return fInCircleEdge; }
-    GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
-    virtual ~CircleEdgeEffect() {}
+    virtual ~CircleGeometryProcessor() {}
 
     const char* name() const override { return "CircleEdge"; }
-
-    inline bool isStroked() const { return fStroke; }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor() {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
-            const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
+            const CircleGeometryProcessor& cgp = args.fGP.cast<CircleGeometryProcessor>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
-            varyingHandler->emitAttributes(ce);
+            varyingHandler->emitAttributes(cgp);
 
             GrGLSLVertToFrag v(kVec4f_GrSLType);
             varyingHandler->addVarying("CircleEdge", &v);
-            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), ce.inCircleEdge()->fName);
+            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), cgp.inCircleEdge()->fName);
 
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
-            if (!ce.colorIgnored()) {
-                varyingHandler->addPassThroughAttribute(ce.inColor(), args.fOutputColor);
-            }
+            varyingHandler->addPassThroughAttribute(cgp.inColor(), args.fOutputColor);
 
             // Setup position
-            this->setupPosition(vertBuilder, gpArgs, ce.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, cgp.inPosition()->fName);
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  gpArgs->fPositionVar,
-                                 ce.inPosition()->fName,
-                                 ce.localMatrix(),
+                                 cgp.inPosition()->fName,
+                                 cgp.localMatrix(),
                                  args.fTransformsIn,
                                  args.fTransformsOut);
 
             fragBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("float edgeAlpha = clamp(%s.z * (1.0 - d), 0.0, 1.0);",
                                      v.fsIn());
-            if (ce.isStroked()) {
+            if (cgp.fStroke) {
                 fragBuilder->codeAppendf("float innerAlpha = clamp(%s.z * (d - %s.w), 0.0, 1.0);",
                                          v.fsIn(), v.fsIn());
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
@@ -141,10 +140,9 @@ public:
         static void GenKey(const GrGeometryProcessor& gp,
                            const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
-            const CircleEdgeEffect& ce = gp.cast<CircleEdgeEffect>();
-            uint16_t key = ce.isStroked() ? 0x1 : 0x0;
-            key |= ce.usesLocalCoords() && ce.localMatrix().hasPerspective() ? 0x2 : 0x0;
-            key |= ce.colorIgnored() ? 0x4 : 0x0;
+            const CircleGeometryProcessor& cgp = gp.cast<CircleGeometryProcessor>();
+            uint16_t key = cgp.fStroke ? 0x1 : 0x0;
+            key |= cgp.localMatrix().hasPerspective() ? 0x2 : 0x0;
             b->add32(key);
         }
 
@@ -156,7 +154,8 @@ public:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<CircleEdgeEffect>(primProc, pdman, index, transforms);
+            this->setTransformDataHelper<CircleGeometryProcessor>(primProc, pdman, index,
+                                                                  transforms);
         }
 
     private:
@@ -172,39 +171,21 @@ public:
     }
 
 private:
-    CircleEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix, bool usesLocalCoords)
-        : fColor(color)
-        , fLocalMatrix(localMatrix)
-        , fUsesLocalCoords(usesLocalCoords) {
-        this->initClassID<CircleEdgeEffect>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-        fInCircleEdge = &this->addVertexAttrib(Attribute("inCircleEdge",
-                                                           kVec4f_GrVertexAttribType));
-        fStroke = stroke;
-    }
-
-    GrColor fColor;
-    SkMatrix fLocalMatrix;
+    SkMatrix         fLocalMatrix;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInCircleEdge;
-    bool fStroke;
-    bool fUsesLocalCoords;
+    bool             fStroke;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
     typedef GrGeometryProcessor INHERITED;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleEdgeEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
 
-const GrGeometryProcessor* CircleEdgeEffect::TestCreate(GrProcessorTestData* d) {
-    return CircleEdgeEffect::Create(GrRandomColor(d->fRandom),
-                                    d->fRandom->nextBool(),
-                                    GrTest::TestMatrix(d->fRandom),
-                                    d->fRandom->nextBool());
+const GrGeometryProcessor* CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    return new CircleGeometryProcessor(d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -217,14 +198,21 @@ const GrGeometryProcessor* CircleEdgeEffect::TestCreate(GrProcessorTestData* d) 
  * We are using an implicit function of x^2/a^2 + y^2/b^2 - 1 = 0.
  */
 
-class EllipseEdgeEffect : public GrGeometryProcessor {
+class EllipseGeometryProcessor : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrColor color, bool stroke, const SkMatrix& localMatrix,
-                                       bool usesLocalCoords) {
-        return new EllipseEdgeEffect(color, stroke, localMatrix, usesLocalCoords);
+    EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix)
+        : fLocalMatrix(localMatrix) {
+        this->initClassID<EllipseGeometryProcessor>();
+        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
+        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+        fInEllipseOffset = &this->addVertexAttrib(Attribute("inEllipseOffset",
+                                                            kVec2f_GrVertexAttribType));
+        fInEllipseRadii = &this->addVertexAttrib(Attribute("inEllipseRadii",
+                                                           kVec4f_GrVertexAttribType));
+        fStroke = stroke;
     }
 
-    virtual ~EllipseEdgeEffect() {}
+    virtual ~EllipseGeometryProcessor() {}
 
     const char* name() const override { return "EllipseEdge"; }
 
@@ -232,52 +220,45 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inEllipseOffset() const { return fInEllipseOffset; }
     const Attribute* inEllipseRadii() const { return fInEllipseRadii; }
-    GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
-
-    inline bool isStroked() const { return fStroke; }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor() {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
-            const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
+            const EllipseGeometryProcessor& egp = args.fGP.cast<EllipseGeometryProcessor>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
-            varyingHandler->emitAttributes(ee);
+            varyingHandler->emitAttributes(egp);
 
             GrGLSLVertToFrag ellipseOffsets(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
-                                   ee.inEllipseOffset()->fName);
+                                     egp.inEllipseOffset()->fName);
 
             GrGLSLVertToFrag ellipseRadii(kVec4f_GrSLType);
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
-                                   ee.inEllipseRadii()->fName);
+                                     egp.inEllipseRadii()->fName);
 
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
-            if (!ee.colorIgnored()) {
-                varyingHandler->addPassThroughAttribute(ee.inColor(), args.fOutputColor);
-            }
+            varyingHandler->addPassThroughAttribute(egp.inColor(), args.fOutputColor);
 
             // Setup position
-            this->setupPosition(vertBuilder, gpArgs, ee.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, egp.inPosition()->fName);
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
                                  gpArgs->fPositionVar,
-                                 ee.inPosition()->fName,
-                                 ee.localMatrix(),
+                                 egp.inPosition()->fName,
+                                 egp.localMatrix(),
                                  args.fTransformsIn,
                                  args.fTransformsOut);
 
@@ -294,7 +275,7 @@ public:
             fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
 
             // for inner curve
-            if (ee.isStroked()) {
+            if (egp.fStroke) {
                 fragBuilder->codeAppendf("scaledOffset = %s*%s.zw;",
                                          ellipseOffsets.fsIn(), ellipseRadii.fsIn());
                 fragBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
@@ -310,10 +291,9 @@ public:
         static void GenKey(const GrGeometryProcessor& gp,
                            const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
-            const EllipseEdgeEffect& ee = gp.cast<EllipseEdgeEffect>();
-            uint16_t key = ee.isStroked() ? 0x1 : 0x0;
-            key |= ee.usesLocalCoords() && ee.localMatrix().hasPerspective() ? 0x2 : 0x0;
-            key |= ee.colorIgnored() ? 0x4 : 0x0;
+            const EllipseGeometryProcessor& egp = gp.cast<EllipseGeometryProcessor>();
+            uint16_t key = egp.fStroke ? 0x1 : 0x0;
+            key |= egp.localMatrix().hasPerspective() ? 0x2 : 0x0;
             b->add32(key);
         }
 
@@ -324,7 +304,8 @@ public:
                               const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper<EllipseEdgeEffect>(primProc, pdman, index, transforms);
+            this->setTransformDataHelper<EllipseGeometryProcessor>(primProc, pdman, index,
+                                                                   transforms);
         }
 
     private:
@@ -340,42 +321,22 @@ public:
     }
 
 private:
-    EllipseEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix,
-                      bool usesLocalCoords)
-        : fColor(color)
-        , fLocalMatrix(localMatrix)
-        , fUsesLocalCoords(usesLocalCoords) {
-        this->initClassID<EllipseEdgeEffect>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-        fInEllipseOffset = &this->addVertexAttrib(Attribute("inEllipseOffset",
-                                                            kVec2f_GrVertexAttribType));
-        fInEllipseRadii = &this->addVertexAttrib(Attribute("inEllipseRadii",
-                                                           kVec4f_GrVertexAttribType));
-        fStroke = stroke;
-    }
-
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInEllipseOffset;
     const Attribute* fInEllipseRadii;
-    GrColor fColor;
     SkMatrix fLocalMatrix;
     bool fStroke;
-    bool fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
     typedef GrGeometryProcessor INHERITED;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseEdgeEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
 
-const GrGeometryProcessor* EllipseEdgeEffect::TestCreate(GrProcessorTestData* d) {
-    return EllipseEdgeEffect::Create(GrRandomColor(d->fRandom),
-                                     d->fRandom->nextBool(),
-                                     GrTest::TestMatrix(d->fRandom),
-                                     d->fRandom->nextBool());
+const GrGeometryProcessor* EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    return new EllipseGeometryProcessor(d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -389,16 +350,25 @@ const GrGeometryProcessor* EllipseEdgeEffect::TestCreate(GrProcessorTestData* d)
  * The result is device-independent and can be used with any affine matrix.
  */
 
-class DIEllipseEdgeEffect : public GrGeometryProcessor {
-public:
-    enum Mode { kStroke = 0, kHairline, kFill };
+enum class DIEllipseStyle { kStroke = 0, kHairline, kFill };
 
-    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, Mode mode,
-                                       bool usesLocalCoords) {
-        return new DIEllipseEdgeEffect(color, viewMatrix, mode, usesLocalCoords);
+class DIEllipseGeometryProcessor : public GrGeometryProcessor {
+public:
+    DIEllipseGeometryProcessor(const SkMatrix& viewMatrix, DIEllipseStyle style)
+        : fViewMatrix(viewMatrix) {
+        this->initClassID<DIEllipseGeometryProcessor>();
+        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
+                                                       kHigh_GrSLPrecision));
+        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+        fInEllipseOffsets0 = &this->addVertexAttrib(Attribute("inEllipseOffsets0",
+                                                              kVec2f_GrVertexAttribType));
+        fInEllipseOffsets1 = &this->addVertexAttrib(Attribute("inEllipseOffsets1",
+                                                              kVec2f_GrVertexAttribType));
+        fStyle = style;
     }
 
-    virtual ~DIEllipseEdgeEffect() {}
+
+    virtual ~DIEllipseGeometryProcessor() {}
 
     const char* name() const override { return "DIEllipseEdge"; }
 
@@ -406,49 +376,41 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
     const Attribute* inEllipseOffsets1() const { return fInEllipseOffsets1; }
-    GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
-
-    inline Mode getMode() const { return fMode; }
-
+    
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor()
             : fViewMatrix(SkMatrix::InvalidMatrix()) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-            const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
+            const DIEllipseGeometryProcessor& diegp = args.fGP.cast<DIEllipseGeometryProcessor>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
-            varyingHandler->emitAttributes(ee);
+            varyingHandler->emitAttributes(diegp);
 
             GrGLSLVertToFrag offsets0(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets0", &offsets0);
             vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(),
-                                   ee.inEllipseOffsets0()->fName);
+                                     diegp.inEllipseOffsets0()->fName);
 
             GrGLSLVertToFrag offsets1(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
-                                   ee.inEllipseOffsets1()->fName);
+                                     diegp.inEllipseOffsets1()->fName);
 
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            // setup pass through color
-            if (!ee.colorIgnored()) {
-                varyingHandler->addPassThroughAttribute(ee.inColor(), args.fOutputColor);
-            }
+            varyingHandler->addPassThroughAttribute(diegp.inColor(), args.fOutputColor);
 
             // Setup position
             this->setupPosition(vertBuilder,
                                 uniformHandler,
                                 gpArgs,
-                                ee.inPosition()->fName,
-                                ee.viewMatrix(),
+                                diegp.inPosition()->fName,
+                                diegp.viewMatrix(),
                                 &fViewMatrixUniform);
 
             // emit transforms
@@ -456,7 +418,7 @@ public:
                                  varyingHandler,
                                  uniformHandler,
                                  gpArgs->fPositionVar,
-                                 ee.inPosition()->fName,
+                                 diegp.inPosition()->fName,
                                  args.fTransformsIn,
                                  args.fTransformsOut);
 
@@ -469,13 +431,14 @@ public:
             fragBuilder->codeAppendf("vec2 duvdy = dFdy(%s);", offsets0.fsIn());
             fragBuilder->codeAppendf("vec2 grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
                                      "                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
-                                     offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn());
+                                     offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn(),
+                                     offsets0.fsIn());
 
             fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
             fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
-            if (kHairline == ee.getMode()) {
+            if (DIEllipseStyle::kHairline == diegp.fStyle) {
                 // can probably do this with one step
                 fragBuilder->codeAppend("float edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
                 fragBuilder->codeAppend("edgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);");
@@ -484,7 +447,7 @@ public:
             }
 
             // for inner curve
-            if (kStroke == ee.getMode()) {
+            if (DIEllipseStyle::kStroke == diegp.fStyle) {
                 fragBuilder->codeAppendf("scaledOffset = %s.xy;", offsets1.fsIn());
                 fragBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
                 fragBuilder->codeAppendf("duvdx = dFdx(%s);", offsets1.fsIn());
@@ -503,19 +466,18 @@ public:
         static void GenKey(const GrGeometryProcessor& gp,
                            const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
-            const DIEllipseEdgeEffect& ellipseEffect = gp.cast<DIEllipseEdgeEffect>();
-            uint16_t key = ellipseEffect.getMode();
-            key |= ellipseEffect.colorIgnored() << 9;
-            key |= ComputePosKey(ellipseEffect.viewMatrix()) << 10;
+            const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
+            uint16_t key = static_cast<uint16_t>(diegp.fStyle);
+            key |= ComputePosKey(diegp.viewMatrix()) << 10;
             b->add32(key);
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrPrimitiveProcessor& gp) override {
-            const DIEllipseEdgeEffect& dee = gp.cast<DIEllipseEdgeEffect>();
+            const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
 
-            if (!dee.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dee.viewMatrix())) {
-                fViewMatrix = dee.viewMatrix();
+            if (!diegp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(diegp.viewMatrix())) {
+                fViewMatrix = diegp.viewMatrix();
                 float viewMatrix[3 * 3];
                 GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
@@ -538,43 +500,23 @@ public:
     }
 
 private:
-    DIEllipseEdgeEffect(GrColor color, const SkMatrix& viewMatrix, Mode mode,
-                        bool usesLocalCoords)
-        : fColor(color)
-        , fViewMatrix(viewMatrix)
-        , fUsesLocalCoords(usesLocalCoords) {
-        this->initClassID<DIEllipseEdgeEffect>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
-                                                       kHigh_GrSLPrecision));
-        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
-        fInEllipseOffsets0 = &this->addVertexAttrib(Attribute("inEllipseOffsets0",
-                                                              kVec2f_GrVertexAttribType));
-        fInEllipseOffsets1 = &this->addVertexAttrib(Attribute("inEllipseOffsets1",
-                                                              kVec2f_GrVertexAttribType));
-        fMode = mode;
-    }
-
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInEllipseOffsets0;
     const Attribute* fInEllipseOffsets1;
-    GrColor fColor;
-    SkMatrix fViewMatrix;
-    Mode fMode;
-    bool fUsesLocalCoords;
+    SkMatrix         fViewMatrix;
+    DIEllipseStyle   fStyle;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
     typedef GrGeometryProcessor INHERITED;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseEdgeEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
 
-const GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(GrProcessorTestData* d) {
-    return DIEllipseEdgeEffect::Create(GrRandomColor(d->fRandom),
-                                       GrTest::TestMatrix(d->fRandom),
-                                       (Mode)(d->fRandom->nextRangeU(0,2)),
-                                       d->fRandom->nextBool());
+const GrGeometryProcessor* DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    return new DIEllipseGeometryProcessor(GrTest::TestMatrix(d->fRandom),
+                                          (DIEllipseStyle)(d->fRandom->nextRangeU(0,2)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -609,16 +551,19 @@ public:
     DEFINE_BATCH_CLASS_ID
 
     struct Geometry {
-        SkMatrix fViewMatrix;
         SkRect fDevBounds;
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
         GrColor fColor;
-        bool fStroke;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry) { return new CircleBatch(geometry); }
-
+    CircleBatch(const Geometry& geometry, const SkMatrix& viewMatrix, bool stroked)
+        : INHERITED(ClassID())
+        , fStroked(stroked)
+        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        fGeoData.push_back(geometry);
+        this->setBounds(geometry.fDevBounds);
+    }
     const char* name() const override { return "CircleBatch"; }
 
     SkString dumpInfo() const override {
@@ -646,31 +591,21 @@ public:
 
 private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
-        }
+        // Handle any overrides that affect our GP.
         overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fStroke = fGeoData[0].fStroke;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        if (!overrides.readsLocalCoords()) {
+            fViewMatrixIfUsingLocalCoords.reset();
+        }
     }
 
     void onPrepareDraws(Target* target) const override {
-        SkMatrix invert;
-        if (!this->viewMatrix().invert(&invert)) {
+        SkMatrix localMatrix;
+        if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(CircleEdgeEffect::Create(this->color(),
-                                                                      this->stroke(),
-                                                                      invert,
-                                                                      this->usesLocalCoords()));
+        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fStroked, localMatrix));
 
         target->initDraw(gp, this->pipeline());
 
@@ -724,14 +659,6 @@ private:
         helper.recordDraw(target);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    CircleBatch(const Geometry& geometry) : INHERITED(ClassID()) {
-        fGeoData.push_back(geometry);
-
-        this->setBounds(geometry.fDevBounds);
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         CircleBatch* that = t->cast<CircleBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -739,34 +666,21 @@ private:
             return false;
         }
 
-        if (this->stroke() != that->stroke()) {
+        if (this->fStroked != that->fStroked) {
             return false;
         }
 
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (!fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool stroke() const { return fBatch.fStroke; }
-
-    struct BatchTracker {
-        GrColor fColor;
-        bool fStroke;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-    };
-
-    BatchTracker fBatch;
+    bool                         fStroked;
+    SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
@@ -810,15 +724,13 @@ static GrDrawBatch* create_circle_batch(GrColor color,
     innerRadius -= SK_ScalarHalf;
 
     CircleBatch::Geometry geometry;
-    geometry.fViewMatrix = viewMatrix;
     geometry.fColor = color;
     geometry.fInnerRadius = innerRadius;
     geometry.fOuterRadius = outerRadius;
-    geometry.fStroke = isStrokeOnly && innerRadius > 0;
     geometry.fDevBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
                                            center.fX + outerRadius, center.fY + outerRadius);
 
-    return CircleBatch::Create(geometry);
+    return new CircleBatch(geometry, viewMatrix, isStrokeOnly && innerRadius > 0);
 }
 
 GrDrawBatch* GrOvalRenderer::CreateCircleBatch(GrColor color,
@@ -835,17 +747,21 @@ public:
     DEFINE_BATCH_CLASS_ID
 
     struct Geometry {
-        SkMatrix fViewMatrix;
         SkRect fDevBounds;
         SkScalar fXRadius;
         SkScalar fYRadius;
         SkScalar fInnerXRadius;
         SkScalar fInnerYRadius;
         GrColor fColor;
-        bool fStroke;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry) { return new EllipseBatch(geometry); }
+    EllipseBatch(const Geometry& geometry, const SkMatrix& viewMatrix, bool stroked)
+        : INHERITED(ClassID())
+        , fStroked(stroked)
+        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        fGeoData.push_back(geometry);
+        this->setBounds(geometry.fDevBounds);
+    }
 
     const char* name() const override { return "EllipseBatch"; }
 
@@ -859,31 +775,23 @@ public:
 
 private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
+        // Handle any overrides that affect our GP.
         if (!overrides.readsCoverage()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fStroke = fGeoData[0].fStroke;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        if (!overrides.readsLocalCoords()) {
+            fViewMatrixIfUsingLocalCoords.reset();
+        }
     }
 
     void onPrepareDraws(Target* target) const override {
-        SkMatrix invert;
-        if (!this->viewMatrix().invert(&invert)) {
+        SkMatrix localMatrix;
+        if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(EllipseEdgeEffect::Create(this->color(),
-                                                                       this->stroke(),
-                                                                       invert,
-                                                                       this->usesLocalCoords()));
+        SkAutoTUnref<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
         target->initDraw(gp, this->pipeline());
 
@@ -942,14 +850,6 @@ private:
         helper.recordDraw(target);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    EllipseBatch(const Geometry& geometry) : INHERITED(ClassID()) {
-        fGeoData.push_back(geometry);
-
-        this->setBounds(geometry.fDevBounds);
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         EllipseBatch* that = t->cast<EllipseBatch>();
 
@@ -958,34 +858,22 @@ private:
             return false;
         }
 
-        if (this->stroke() != that->stroke()) {
+        if (fStroked != that->fStroked) {
             return false;
         }
 
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (!fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool stroke() const { return fBatch.fStroke; }
 
-    struct BatchTracker {
-        GrColor fColor;
-        bool fStroke;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-    };
-
-    BatchTracker fBatch;
+    bool                         fStroked;
+    SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
@@ -1058,17 +946,16 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
     yRadius += SK_ScalarHalf;
 
     EllipseBatch::Geometry geometry;
-    geometry.fViewMatrix = viewMatrix;
     geometry.fColor = color;
     geometry.fXRadius = xRadius;
     geometry.fYRadius = yRadius;
     geometry.fInnerXRadius = innerXRadius;
     geometry.fInnerYRadius = innerYRadius;
-    geometry.fStroke = isStrokeOnly && innerXRadius > 0 && innerYRadius > 0;
     geometry.fDevBounds = SkRect::MakeLTRB(center.fX - xRadius, center.fY - yRadius,
                                            center.fX + xRadius, center.fY + yRadius);
 
-    return EllipseBatch::Create(geometry);
+    return new EllipseBatch(geometry, viewMatrix,
+                            isStrokeOnly && innerXRadius > 0 && innerYRadius > 0);
 }
 
 GrDrawBatch* GrOvalRenderer::CreateEllipseBatch(GrColor color,
@@ -1094,7 +981,7 @@ public:
         SkScalar fGeoDx;
         SkScalar fGeoDy;
         GrColor fColor;
-        DIEllipseEdgeEffect::Mode fMode;
+        DIEllipseStyle fStyle;
     };
 
     static GrDrawBatch* Create(const Geometry& geometry, const SkRect& bounds) {
@@ -1114,26 +1001,15 @@ public:
 private:
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
-        }
+        // Handle any overrides that affect our GP.
         overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fMode = fGeoData[0].fMode;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        fUsesLocalCoords = overrides.readsLocalCoords();
     }
 
     void onPrepareDraws(Target* target) const override {
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(this->color(),
-                                                                         this->viewMatrix(),
-                                                                         this->mode(),
-                                                                         this->usesLocalCoords()));
+        SkAutoTUnref<GrGeometryProcessor> gp(new DIEllipseGeometryProcessor(this->viewMatrix(),
+                                                                            this->style()));
 
         target->initDraw(gp, this->pipeline());
 
@@ -1187,9 +1063,7 @@ private:
         }
         helper.recordDraw(target);
     }
-
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
+    
     DIEllipseBatch(const Geometry& geometry, const SkRect& bounds) : INHERITED(ClassID()) {
         fGeoData.push_back(geometry);
 
@@ -1203,7 +1077,7 @@ private:
             return false;
         }
 
-        if (this->mode() != that->mode()) {
+        if (this->style() != that->style()) {
             return false;
         }
 
@@ -1212,25 +1086,15 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    DIEllipseEdgeEffect::Mode mode() const { return fBatch.fMode; }
+    DIEllipseStyle style() const { return fGeoData[0].fStyle; }
 
-    struct BatchTracker {
-        GrColor fColor;
-        DIEllipseEdgeEffect::Mode fMode;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-    };
-
-    BatchTracker fBatch;
+    bool                         fUsesLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
@@ -1245,10 +1109,10 @@ static GrDrawBatch* create_diellipse_batch(GrColor color,
     SkScalar yRadius = SkScalarHalf(ellipse.height());
 
     SkStrokeRec::Style style = stroke.getStyle();
-    DIEllipseEdgeEffect::Mode mode = (SkStrokeRec::kStroke_Style == style) ?
-                                    DIEllipseEdgeEffect::kStroke :
-                                    (SkStrokeRec::kHairline_Style == style) ?
-                                    DIEllipseEdgeEffect::kHairline : DIEllipseEdgeEffect::kFill;
+    DIEllipseStyle dieStyle = (SkStrokeRec::kStroke_Style == style) ?
+                                DIEllipseStyle::kStroke :
+                                (SkStrokeRec::kHairline_Style == style) ?
+                                        DIEllipseStyle::kHairline : DIEllipseStyle::kFill;
 
     SkScalar innerXRadius = 0;
     SkScalar innerYRadius = 0;
@@ -1282,9 +1146,9 @@ static GrDrawBatch* create_diellipse_batch(GrColor color,
         xRadius += strokeWidth;
         yRadius += strokeWidth;
     }
-    if (DIEllipseEdgeEffect::kStroke == mode) {
-        mode = (innerXRadius > 0 && innerYRadius > 0) ? DIEllipseEdgeEffect::kStroke :
-                                                        DIEllipseEdgeEffect::kFill;
+    if (DIEllipseStyle::kStroke == dieStyle) {
+        dieStyle = (innerXRadius > 0 && innerYRadius > 0) ? DIEllipseStyle ::kStroke :
+                                                            DIEllipseStyle ::kFill;
     }
 
     // This expands the outer rect so that after CTM we end up with a half-pixel border
@@ -1304,7 +1168,7 @@ static GrDrawBatch* create_diellipse_batch(GrColor color,
     geometry.fInnerYRadius = innerYRadius;
     geometry.fGeoDx = geoDx;
     geometry.fGeoDy = geoDy;
-    geometry.fMode = mode;
+    geometry.fStyle = dieStyle;
     geometry.fBounds = SkRect::MakeLTRB(center.fX - xRadius - geoDx, center.fY - yRadius - geoDy,
                                         center.fX + xRadius + geoDx, center.fY + yRadius + geoDy);
 
@@ -1370,16 +1234,19 @@ public:
     DEFINE_BATCH_CLASS_ID
 
     struct Geometry {
-        SkMatrix fViewMatrix;
         SkRect fDevBounds;
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
-        GrColor fColor;
-        bool fStroke;
+        GrColor  fColor;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry) {
-        return new RRectCircleRendererBatch(geometry);
+    RRectCircleRendererBatch(const Geometry& geometry, const SkMatrix& viewMatrix, bool stroked)
+        : INHERITED(ClassID())
+        , fStroked(stroked)
+        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        fGeoData.push_back(geometry);
+
+        this->setBounds(geometry.fDevBounds);
     }
 
     const char* name() const override { return "RRectCircleBatch"; }
@@ -1394,33 +1261,22 @@ public:
 
 private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
-        }
+        // Handle any overrides that affect our GP.
         overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fStroke = fGeoData[0].fStroke;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        if (!overrides.readsLocalCoords()) {
+            fViewMatrixIfUsingLocalCoords.reset();
+        }
     }
 
     void onPrepareDraws(Target* target) const override {
-        // reset to device coordinates
-        SkMatrix invert;
-        if (!this->viewMatrix().invert(&invert)) {
-            SkDebugf("Failed to invert\n");
+        // Invert the view matrix as a local matrix (if any other processors require coords).
+        SkMatrix localMatrix;
+        if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(CircleEdgeEffect::Create(this->color(),
-                                                                      this->stroke(),
-                                                                      invert,
-                                                                      this->usesLocalCoords()));
+        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fStroked, localMatrix));
 
         target->initDraw(gp, this->pipeline());
 
@@ -1429,9 +1285,9 @@ private:
         SkASSERT(vertexStride == sizeof(CircleVertex));
 
         // drop out the middle quad if we're stroked
-        int indicesPerInstance = this->stroke() ? kIndicesPerStrokeRRect : kIndicesPerRRect;
+        int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerRRect;
         SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            ref_rrect_index_buffer(this->stroke(), target->resourceProvider()));
+            ref_rrect_index_buffer(fStroked, target->resourceProvider()));
 
         InstancedHelper helper;
         CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(target,
@@ -1494,14 +1350,6 @@ private:
         helper.recordDraw(target);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    RRectCircleRendererBatch(const Geometry& geometry) : INHERITED(ClassID()) {
-        fGeoData.push_back(geometry);
-
-        this->setBounds(geometry.fDevBounds);
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         RRectCircleRendererBatch* that = t->cast<RRectCircleRendererBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -1509,34 +1357,21 @@ private:
             return false;
         }
 
-        if (this->stroke() != that->stroke()) {
+        if (fStroked != that->fStroked) {
             return false;
         }
 
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (!fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool stroke() const { return fBatch.fStroke; }
-
-    struct BatchTracker {
-        GrColor fColor;
-        bool fStroke;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-    };
-
-    BatchTracker fBatch;
+    bool                         fStroked;
+    SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
@@ -1547,18 +1382,20 @@ public:
     DEFINE_BATCH_CLASS_ID
 
     struct Geometry {
-        SkMatrix fViewMatrix;
         SkRect fDevBounds;
         SkScalar fXRadius;
         SkScalar fYRadius;
         SkScalar fInnerXRadius;
         SkScalar fInnerYRadius;
         GrColor fColor;
-        bool fStroke;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry) {
-        return new RRectEllipseRendererBatch(geometry);
+    RRectEllipseRendererBatch(const Geometry& geometry, const SkMatrix& viewMatrix, bool stroked)
+        : INHERITED(ClassID())
+        , fStroked(stroked)
+        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        fGeoData.push_back(geometry);
+        this->setBounds(geometry.fDevBounds);
     }
 
     const char* name() const override { return "RRectEllipseRendererBatch"; }
@@ -1573,33 +1410,21 @@ public:
 
 private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
-        }
+        // Handle overrides that affect our GP.
         overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fStroke = fGeoData[0].fStroke;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        if (!overrides.readsLocalCoords()) {
+            fViewMatrixIfUsingLocalCoords.reset();
+        }
     }
 
     void onPrepareDraws(Target* target) const override {
-        // reset to device coordinates
-        SkMatrix invert;
-        if (!this->viewMatrix().invert(&invert)) {
-            SkDebugf("Failed to invert\n");
+        SkMatrix localMatrix;
+        if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(EllipseEdgeEffect::Create(this->color(),
-                                                                       this->stroke(),
-                                                                       invert,
-                                                                       this->usesLocalCoords()));
+        SkAutoTUnref<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
         target->initDraw(gp, this->pipeline());
 
@@ -1608,9 +1433,9 @@ private:
         SkASSERT(vertexStride == sizeof(EllipseVertex));
 
         // drop out the middle quad if we're stroked
-        int indicesPerInstance = this->stroke() ? kIndicesPerStrokeRRect : kIndicesPerRRect;
+        int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerRRect;
         SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            ref_rrect_index_buffer(this->stroke(), target->resourceProvider()));
+            ref_rrect_index_buffer(fStroked, target->resourceProvider()));
 
         InstancedHelper helper;
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
@@ -1684,14 +1509,6 @@ private:
         helper.recordDraw(target);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    RRectEllipseRendererBatch(const Geometry& geometry) : INHERITED(ClassID()) {
-        fGeoData.push_back(geometry);
-
-        this->setBounds(geometry.fDevBounds);
-    }
-
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         RRectEllipseRendererBatch* that = t->cast<RRectEllipseRendererBatch>();
 
@@ -1700,35 +1517,22 @@ private:
             return false;
         }
 
-        if (this->stroke() != that->stroke()) {
+        if (fStroked != that->fStroked) {
             return false;
         }
 
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (!fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
             return false;
         }
 
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(that->bounds());
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool stroke() const { return fBatch.fStroke; }
-
-    struct BatchTracker {
-        GrColor fColor;
-        bool fStroke;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-    };
-
-    BatchTracker fBatch;
-    SkSTArray<1, Geometry, true> fGeoData;
+    bool                            fStroked;
+    SkMatrix                        fViewMatrixIfUsingLocalCoords;
+    SkSTArray<1, Geometry, true>    fGeoData;
 
     typedef GrVertexBatch INHERITED;
 };
@@ -1821,14 +1625,12 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
 
         RRectCircleRendererBatch::Geometry geometry;
-        geometry.fViewMatrix = viewMatrix;
         geometry.fColor = color;
         geometry.fInnerRadius = innerRadius;
         geometry.fOuterRadius = outerRadius;
-        geometry.fStroke = isStrokeOnly;
         geometry.fDevBounds = bounds;
 
-        return RRectCircleRendererBatch::Create(geometry);
+        return new RRectCircleRendererBatch(geometry, viewMatrix, isStrokeOnly);
     // otherwise we use the ellipse renderer
     } else {
         SkScalar innerXRadius = 0.0f;
@@ -1869,16 +1671,14 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
 
         RRectEllipseRendererBatch::Geometry geometry;
-        geometry.fViewMatrix = viewMatrix;
         geometry.fColor = color;
         geometry.fXRadius = xRadius;
         geometry.fYRadius = yRadius;
         geometry.fInnerXRadius = innerXRadius;
         geometry.fInnerYRadius = innerYRadius;
-        geometry.fStroke = isStrokeOnly;
         geometry.fDevBounds = bounds;
 
-        return RRectEllipseRendererBatch::Create(geometry);
+        return new RRectEllipseRendererBatch(geometry, viewMatrix, isStrokeOnly);
     }
 }
 
