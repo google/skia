@@ -10,23 +10,22 @@
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 
-void GrAuditTrail::addBatch(const char* name, const SkRect& bounds) {
+void GrAuditTrail::addBatch(const GrBatch* batch) {
     SkASSERT(fEnabled);
-    Batch* batch = new Batch;
-    fBatchPool.emplace_back(batch);
-    batch->fName = name;
-    batch->fBounds = bounds;
-    batch->fClientID = kGrAuditTrailInvalidID;
-    batch->fBatchListID = kGrAuditTrailInvalidID;
-    batch->fChildID = kGrAuditTrailInvalidID;
+    Batch* auditBatch = new Batch;
+    fBatchPool.emplace_back(auditBatch);
+    auditBatch->fName = batch->name();
+    auditBatch->fBounds = batch->bounds();
+    auditBatch->fClientID = kGrAuditTrailInvalidID;
+    auditBatch->fBatchListID = kGrAuditTrailInvalidID;
+    auditBatch->fChildID = kGrAuditTrailInvalidID;
     
     // consume the current stack trace if any
-    batch->fStackTrace = fCurrentStackTrace;
+    auditBatch->fStackTrace = fCurrentStackTrace;
     fCurrentStackTrace.reset();
-    fCurrentBatch = batch;
     
     if (fClientID != kGrAuditTrailInvalidID) {
-        batch->fClientID = fClientID;
+        auditBatch->fClientID = fClientID;
         Batches** batchesLookup = fClientIDLookup.find(fClientID);
         Batches* batches = nullptr;
         if (!batchesLookup) {
@@ -36,44 +35,61 @@ void GrAuditTrail::addBatch(const char* name, const SkRect& bounds) {
             batches = *batchesLookup;
         }
 
-        batches->push_back(fCurrentBatch);
+        batches->push_back(auditBatch);
     }
-}
 
-void GrAuditTrail::batchingResultCombined(GrBatch* combiner) {
-    int* indexPtr = fIDLookup.find(combiner);
-    SkASSERT(indexPtr);
-    int index = *indexPtr;
-    SkASSERT(index < fBatchList.count());
-    BatchNode& batch = *fBatchList[index];
-
-    // set the ids for the child batch
-    fCurrentBatch->fBatchListID = index;
-    fCurrentBatch->fChildID = batch.fChildren.count();
-
-    // Update the bounds and store a pointer to the new batch
-    batch.fChildren.push_back(fCurrentBatch);
-    batch.fBounds = combiner->bounds();
-}
-
-void GrAuditTrail::batchingResultNew(GrBatch* batch) {
     // Our algorithm doesn't bother to reorder inside of a BatchNode
     // so the ChildID will start at 0
-    fCurrentBatch->fBatchListID = fBatchList.count();
-    fCurrentBatch->fChildID = 0;
+    auditBatch->fBatchListID = fBatchList.count();
+    auditBatch->fChildID = 0;
 
     // We use the batch pointer as a key to find the batchnode we are 'glomming' batches onto
-    fIDLookup.set(batch, fCurrentBatch->fBatchListID);
+    fIDLookup.set(batch->uniqueID(), auditBatch->fBatchListID);
     BatchNode* batchNode = new BatchNode;
-    batchNode->fBounds = fCurrentBatch->fBounds;
+    batchNode->fBounds = batch->bounds();
     batchNode->fRenderTargetUniqueID = batch->renderTargetUniqueID();
-    batchNode->fChildren.push_back(fCurrentBatch);
+    batchNode->fChildren.push_back(auditBatch);
     fBatchList.emplace_back(batchNode);
+}
+
+void GrAuditTrail::batchingResultCombined(const GrBatch* consumer, const GrBatch* consumed) {
+    // Look up the batch we are going to glom onto
+    int* indexPtr = fIDLookup.find(consumer->uniqueID());
+    SkASSERT(indexPtr);
+    int index = *indexPtr;
+    SkASSERT(index < fBatchList.count() && fBatchList[index]);
+    BatchNode& consumerBatch = *fBatchList[index];
+
+    // Look up the batch which will be glommed
+    int* consumedPtr = fIDLookup.find(consumed->uniqueID());
+    SkASSERT(consumedPtr);
+    int consumedIndex = *consumedPtr;
+    SkASSERT(consumedIndex < fBatchList.count() && fBatchList[consumedIndex]);
+    BatchNode& consumedBatch = *fBatchList[consumedIndex];
+
+    // steal all of consumed's batches
+    for (int i = 0; i < consumedBatch.fChildren.count(); i++) {
+        Batch* childBatch = consumedBatch.fChildren[i];
+        
+        // set the ids for the child batch
+        childBatch->fBatchListID = index;
+        childBatch->fChildID = consumerBatch.fChildren.count();
+        consumerBatch.fChildren.push_back(childBatch);
+    }
+    
+    // Update the bounds for the combineWith node
+    consumerBatch.fBounds = consumer->bounds();
+
+    // remove the old node from our batchlist and clear the combinee's lookup
+    // NOTE: because we can't change the shape of the batchlist, we use a sentinel
+    fBatchList[consumedIndex].reset(nullptr);
+    fIDLookup.remove(consumed->uniqueID());
 }
 
 void GrAuditTrail::copyOutFromBatchList(BatchInfo* outBatchInfo, int batchListID) {
     SkASSERT(batchListID < fBatchList.count());
     const BatchNode* bn = fBatchList[batchListID];
+    SkASSERT(bn);
     outBatchInfo->fBounds = bn->fBounds;
     outBatchInfo->fRenderTargetUniqueID = bn->fRenderTargetUniqueID;
     for (int j = 0; j < bn->fChildren.count(); j++) {
@@ -132,6 +148,10 @@ void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const T& arra
         }
         json->appendf("\"%s\": [", name);
         for (int i = 0; i < array.count(); i++) {
+            // Handle sentinel nullptrs
+            if (!array[i]) {
+                continue;
+            }
             json->append(array[i]->toJson());
             if (i < array.count() - 1) {
                 json->append(",");

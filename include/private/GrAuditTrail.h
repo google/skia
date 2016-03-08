@@ -84,11 +84,9 @@ public:
         fCurrentStackTrace.push_back(SkString(framename));
     }
 
-    void addBatch(const char* name, const SkRect& bounds);
+    void addBatch(const GrBatch* batch);
 
-    void batchingResultCombined(GrBatch* combiner);
-
-    void batchingResultNew(GrBatch* batch);
+    void batchingResultCombined(const GrBatch* consumer, const GrBatch* consumed);
 
     // Because batching is heavily dependent on sequence of draw calls, these calls will only
     // produce valid information for the given draw sequence which preceeded them.
@@ -153,10 +151,9 @@ private:
     template <typename T>
     static void JsonifyTArray(SkString* json, const char* name, const T& array,
                               bool addComma);
-
-    Batch* fCurrentBatch;
+    
     BatchPool fBatchPool;
-    SkTHashMap<GrBatch*, int> fIDLookup;
+    SkTHashMap<uint32_t, int> fIDLookup;
     SkTHashMap<int, Batches*> fClientIDLookup;
     BatchList fBatchList;
     SkTArray<SkString> fCurrentStackTrace;
@@ -177,13 +174,13 @@ private:
 #define GR_AUDIT_TRAIL_RESET(audit_trail) \
     //GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, fullReset);
 
-#define GR_AUDIT_TRAIL_ADDBATCH(audit_trail, batchname, bounds) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addBatch, batchname, bounds);
+#define GR_AUDIT_TRAIL_ADDBATCH(audit_trail, batch) \
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addBatch, batch);
 
-#define GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(audit_trail, combiner) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, batchingResultCombined, combiner);
+#define GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(audit_trail, combineWith, batch) \
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, batchingResultCombined, combineWith, batch);
 
 #define GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(audit_trail, batch) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, batchingResultNew, batch);
+    // Doesn't do anything now, one day... 
 
 #endif

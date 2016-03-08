@@ -334,6 +334,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
     if (at) {
         // just in case there is global reordering, we flush the canvas before querying
         // GrAuditTrail
+        GrAuditTrail::AutoEnable ae(at);
         canvas->flush();
 
         // we pick three colorblind-safe colors, 75% alpha
@@ -347,7 +348,6 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         uint32_t rtID = gbd->accessRenderTarget()->getUniqueID();
 
         // get the bounding boxes to draw
-        GrAuditTrail::AutoEnable ae(at);
         SkTArray<GrAuditTrail::BatchInfo> childrenBounds;
         if (m == -1) {
             at->getBoundsByClientID(&childrenBounds, index);
@@ -434,7 +434,10 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanva
             }
 
             // in case there is some kind of global reordering
-            canvas->flush();
+            {
+                GrAuditTrail::AutoEnable ae(at);
+                canvas->flush();
+            }
         }
     }
 #endif
@@ -459,6 +462,7 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanva
     }
 #if SK_SUPPORT_GPU
     if (at) {
+        GrAuditTrail::AutoEnable ae(at);
         at->fullReset();
     }
 #endif

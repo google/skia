@@ -461,7 +461,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
     // 1) check every draw
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, batch->name(), batch->bounds());
+    GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, batch);
     GrBATCH_INFO("Re-Recording (%s, B%u)\n"
         "\tBounds LRTB (%f, %f, %f, %f)\n",
         batch->name(),
@@ -484,7 +484,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
             if (candidate->combineIfPossible(batch, *this->caps())) {
                 GrBATCH_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
                     candidate->uniqueID());
-                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate);
+                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate, batch);
                 return;
             }
             // Stop going backwards if we would cause a painter's order violation.
@@ -528,7 +528,7 @@ void GrDrawTarget::forwardCombine() {
             } else if (batch->combineIfPossible(candidate, *this->caps())) {
                 GrBATCH_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
                              candidate->uniqueID());
-                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate);
+                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, batch, candidate);
                 fBatches[j].reset(SkRef(batch));
                 fBatches[i].reset(nullptr);
                 break;
