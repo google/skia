@@ -64,12 +64,12 @@ static void add_subdict(
     auto resources = sk_make_sp<SkPDFDict>();
     for (int i = 0; i < resourceList.count(); i++) {
         resources->insertObjRef(SkPDFResourceDict::getResourceName(type, i),
-                                SkRef(resourceList[i]));
+                                sk_sp<SkPDFObject>(SkRef(resourceList[i])));
     }
-    dst->insertObject(get_resource_type_name(type), resources.release());
+    dst->insertObject(get_resource_type_name(type), std::move(resources));
 }
 
-SkPDFDict* SkPDFResourceDict::Create(
+sk_sp<SkPDFDict> SkPDFResourceDict::Make(
         const SkTDArray<SkPDFObject*>* gStateResources,
         const SkTDArray<SkPDFObject*>* patternResources,
         const SkTDArray<SkPDFObject*>* xObjectResources,
@@ -83,7 +83,7 @@ SkPDFDict* SkPDFResourceDict::Create(
     for (size_t i = 0; i < SK_ARRAY_COUNT(kProcs); i++) {
         procSets->appendName(kProcs[i]);
     }
-    dict->insertObject("ProcSets", procSets.release());
+    dict->insertObject("ProcSets", std::move(procSets));
 
     if (gStateResources) {
         add_subdict(*gStateResources, kExtGState_ResourceType, dict.get());
@@ -97,5 +97,5 @@ SkPDFDict* SkPDFResourceDict::Create(
     if (fontResources) {
         add_subdict(*fontResources, kFont_ResourceType, dict.get());
     }
-    return dict.release();
+    return std::move(dict);
 }

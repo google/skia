@@ -39,7 +39,6 @@ public:
      *  @param catalog  The object catalog to use.
      *  @param stream   The writable output stream to send the output to.
      */
-    // TODO(halcanary): make this method const
     virtual void emitObject(SkWStream* stream,
                             const SkPDFObjNumMap& objNumMap,
                             const SkPDFSubstituteMap& substitutes) const = 0;
@@ -65,8 +64,6 @@ private:
  */
 class SkPDFUnion {
 public:
-    // u.move() is analogous to std::move(u). It returns an rvalue.
-    SkPDFUnion move() { return static_cast<SkPDFUnion&&>(*this); }
     // Move contstructor and assignemnt operator destroy the argument
     // and steal their references (if needed).
     SkPDFUnion(SkPDFUnion&& other);
@@ -85,7 +82,7 @@ public:
 
     static SkPDFUnion Scalar(SkScalar);
 
-    /** These two functions do NOT take ownership of ptr, and do NOT
+    /** These two functions do NOT take ownership of char*, and do NOT
         copy the string.  Suitable for passing in static const
         strings. For example:
           SkPDFUnion n = SkPDFUnion::Name("Length");
@@ -108,17 +105,8 @@ public:
     /** SkPDFUnion::String will encode the passed string. */
     static SkPDFUnion String(const SkString&);
 
-    /** This function DOES take ownership of the object. E.g.
-          auto dict = sk_make_sp<SkPDFDict>();
-          dict->insert(.....);
-          SkPDFUnion u = SkPDFUnion::Object(dict.detach()) */
-    static SkPDFUnion Object(SkPDFObject*);
-
-    /** This function DOES take ownership of the object. E.g.
-          sk_sp<SkPDFBitmap> image(
-                 SkPDFBitmap::Create(fCanon, bitmap));
-          SkPDFUnion u = SkPDFUnion::ObjRef(image.detach()) */
-    static SkPDFUnion ObjRef(SkPDFObject*);
+    static SkPDFUnion Object(sk_sp<SkPDFObject>);
+    static SkPDFUnion ObjRef(sk_sp<SkPDFObject>);
 
     /** These two non-virtual methods mirror SkPDFObject's
         corresponding virtuals. */
@@ -174,7 +162,7 @@ public:
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& substitutes) final;
     void addResources(SkPDFObjNumMap*, const SkPDFSubstituteMap&) const final;
-    SkPDFAtom(SkPDFUnion&& v) : fValue(v.move()) {}
+    SkPDFAtom(SkPDFUnion&& v) : fValue(std::move(v) {}
 
 private:
     const SkPDFUnion fValue;
@@ -223,9 +211,8 @@ public:
     void appendName(const SkString&);
     void appendString(const char[]);
     void appendString(const SkString&);
-    /** appendObject and appendObjRef take ownership of the passed object */
-    void appendObject(SkPDFObject*);
-    void appendObjRef(SkPDFObject*);
+    void appendObject(sk_sp<SkPDFObject>);
+    void appendObjRef(sk_sp<SkPDFObject>);
 
 private:
     SkTDArray<SkPDFUnion> fValues;
@@ -261,15 +248,14 @@ public:
      */
     int size() const;
 
-    /** Add the value to the dictionary with the given key.  Takes
-     *  ownership of the object.
+    /** Add the value to the dictionary with the given key.
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The value for this dictionary entry.
      */
-    void insertObject(const char key[], SkPDFObject* value);
-    void insertObject(const SkString& key, SkPDFObject* value);
-    void insertObjRef(const char key[], SkPDFObject* value);
-    void insertObjRef(const SkString& key, SkPDFObject* value);
+    void insertObject(const char key[], sk_sp<SkPDFObject>);
+    void insertObject(const SkString& key, sk_sp<SkPDFObject>);
+    void insertObjRef(const char key[], sk_sp<SkPDFObject>);
+    void insertObjRef(const SkString& key, sk_sp<SkPDFObject>);
 
     /** Add the value to the dictionary with the given key.
      *  @param key   The text of the key for this dictionary entry.
@@ -317,7 +303,8 @@ private:
 class SkPDFSharedStream final : public SkPDFObject {
 public:
     // Takes ownership of asset.
-    SkPDFSharedStream(SkStreamAsset* data) : fAsset(data), fDict(new SkPDFDict) { SkASSERT(data); }
+    SkPDFSharedStream(SkStreamAsset* data)
+        : fAsset(data), fDict(new SkPDFDict) { SkASSERT(data); }
     SkPDFDict* dict() { return fDict.get(); }
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,

@@ -879,7 +879,7 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
     }
 }
 
-static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
+static sk_sp<SkPDFDict> create_link_annotation(const SkRect& translatedRect) {
     auto annotation = sk_make_sp<SkPDFDict>("Annot");
     annotation->insertName("Subtype", "Link");
 
@@ -888,7 +888,7 @@ static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
     border->appendInt(0);  // Horizontal corner radius.
     border->appendInt(0);  // Vertical corner radius.
     border->appendInt(0);  // Width, 0 = no border.
-    annotation->insertObject("Border", border.release());
+    annotation->insertObject("Border", std::move(border));
 
     auto rect = sk_make_sp<SkPDFArray>();
     rect->reserve(4);
@@ -896,30 +896,29 @@ static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
     rect->appendScalar(translatedRect.fTop);
     rect->appendScalar(translatedRect.fRight);
     rect->appendScalar(translatedRect.fBottom);
-    annotation->insertObject("Rect", rect.release());
+    annotation->insertObject("Rect", std::move(rect));
 
-    return annotation.release();
+    return std::move(annotation);
 }
 
-static SkPDFDict* create_link_to_url(const SkData* urlData, const SkRect& r) {
-    sk_sp<SkPDFDict> annotation(create_link_annotation(r));
-
+static sk_sp<SkPDFDict> create_link_to_url(const SkData* urlData, const SkRect& r) {
+    auto annotation = create_link_annotation(r);
     SkString url(static_cast<const char *>(urlData->data()),
                  urlData->size() - 1);
     auto action = sk_make_sp<SkPDFDict>("Action");
     action->insertName("S", "URI");
     action->insertString("URI", url);
-    annotation->insertObject("A", action.release());
-    return annotation.release();
+    annotation->insertObject("A", std::move(action));
+    return std::move(annotation);
 }
 
-static SkPDFDict* create_link_named_dest(const SkData* nameData,
-                                         const SkRect& r) {
-    sk_sp<SkPDFDict> annotation(create_link_annotation(r));
+static sk_sp<SkPDFDict> create_link_named_dest(const SkData* nameData,
+                                               const SkRect& r) {
+    auto  annotation = create_link_annotation(r);
     SkString name(static_cast<const char *>(nameData->data()),
                   nameData->size() - 1);
     annotation->insertName("Dest", name);
-    return annotation.release();
+    return std::move(annotation);
 }
 
 void SkPDFDevice::drawRect(const SkDraw& d,
@@ -1507,13 +1506,13 @@ void SkPDFDevice::setDrawingArea(DrawingArea drawingArea) {
     fDrawingArea = drawingArea;
 }
 
-SkPDFDict* SkPDFDevice::createResourceDict() const {
+sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() const {
     SkTDArray<SkPDFObject*> fonts;
     fonts.setReserve(fFontResources.count());
     for (SkPDFFont* font : fFontResources) {
         fonts.push(font);
     }
-    return SkPDFResourceDict::Create(
+    return SkPDFResourceDict::Make(
             &fGraphicStateResources,
             &fShaderResources,
             &fXObjectResources,
@@ -1524,24 +1523,23 @@ const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
     return fFontResources;
 }
 
-SkPDFArray* SkPDFDevice::copyMediaBox() const {
-    // should this be a singleton?
-
+sk_sp<SkPDFArray> SkPDFDevice::copyMediaBox() const {
     auto mediaBox = sk_make_sp<SkPDFArray>();
     mediaBox->reserve(4);
     mediaBox->appendInt(0);
     mediaBox->appendInt(0);
-    mediaBox->appendInt(fPageSize.fWidth);
-    mediaBox->appendInt(fPageSize.fHeight);
-    return mediaBox.release();
+    mediaBox->appendInt(fPageSize.width());
+    mediaBox->appendInt(fPageSize.height());
+    return std::move(mediaBox);
 }
 
-SkStreamAsset* SkPDFDevice::content() const {
+skstd::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
     SkDynamicMemoryWStream buffer;
     this->writeContent(&buffer);
-    return buffer.bytesWritten() > 0
-        ? buffer.detachAsStream()
-        : new SkMemoryStream;
+    return skstd::unique_ptr<SkStreamAsset>(
+            buffer.bytesWritten() > 0
+            ? buffer.detachAsStream()
+            : new SkMemoryStream);
 }
 
 void SkPDFDevice::copyContentEntriesToData(ContentEntry* entry,
@@ -1713,14 +1711,14 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     for (const NamedDestination& dest : fNamedDestinations) {
         auto pdfDest = sk_make_sp<SkPDFArray>();
         pdfDest->reserve(5);
-        pdfDest->appendObjRef(SkRef(page));
+        pdfDest->appendObjRef(sk_sp<SkPDFObject>(SkRef(page)));
         pdfDest->appendName("XYZ");
         SkPoint p = fInitialTransform.mapXY(dest.point.x(), dest.point.y());
         pdfDest->appendScalar(p.x());
         pdfDest->appendScalar(p.y());
         pdfDest->appendInt(0);  // Leave zoom unchanged
         SkString name(static_cast<const char*>(dest.nameData->data()));
-        dict->insertObject(name, pdfDest.release());
+        dict->insertObject(name, std::move(pdfDest));
     }
 }
 

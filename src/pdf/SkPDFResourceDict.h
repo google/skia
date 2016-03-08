@@ -36,7 +36,7 @@ public:
      *
      *  Any arguments can be nullptr.
      */
-    static SkPDFDict* Create(
+    static sk_sp<SkPDFDict> Make(
         const SkTDArray<SkPDFObject*>* gStateResources,
         const SkTDArray<SkPDFObject*>* patternResources,
         const SkTDArray<SkPDFObject*>* xObjectResources,
