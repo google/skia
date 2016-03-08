@@ -12,13 +12,11 @@
 
 class SK_API SkComposeImageFilter : public SkImageFilter {
 public:
-    virtual ~SkComposeImageFilter();
-
     static SkImageFilter* Create(SkImageFilter* outer, SkImageFilter* inner) {
-        if (NULL == outer) {
+        if (!outer) {
             return SkSafeRef(inner);
         }
-        if (NULL == inner) {
+        if (!inner) {
             return SkRef(outer);
         }
         SkImageFilter* inputs[2] = { outer, inner };
@@ -34,8 +32,8 @@ protected:
         SkASSERT(inputs[0]);
         SkASSERT(inputs[1]);
     }
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* loc) const override;
+    SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
+                                  SkIPoint* offset) const override;
     bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
 
 private:

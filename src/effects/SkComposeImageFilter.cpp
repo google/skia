@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
 #include "SkComposeImageFilter.h"
+
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
 
-SkComposeImageFilter::~SkComposeImageFilter() {
-}
 
 void SkComposeImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
     SkImageFilter* outer = getInput(0);
@@ -22,36 +21,36 @@ void SkComposeImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) con
     outer->computeFastBounds(tmp, dst);
 }
 
-bool SkComposeImageFilter::onFilterImageDeprecated(Proxy* proxy,
-                                                   const SkBitmap& src,
-                                                   const Context& ctx,
-                                                   SkBitmap* result,
-                                                   SkIPoint* offset) const {
-    SkBitmap tmp;
+SkSpecialImage* SkComposeImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                                    SkIPoint* offset) const {
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
-    SkIPoint outerOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputDeprecated(1, proxy, src, ctx, &tmp, &innerOffset))
-        return false;
+    SkAutoTUnref<SkSpecialImage> inner(this->filterInput(1, source, ctx, &innerOffset));
+    if (!inner) {
+        return nullptr;
+    }
 
     SkMatrix outerMatrix(ctx.ctm());
     outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
     SkIRect clipBounds = ctx.clipBounds();
     clipBounds.offset(-innerOffset.x(), -innerOffset.y());
     Context outerContext(outerMatrix, clipBounds, ctx.cache());
-    if (!this->filterInputDeprecated(0, proxy, tmp, outerContext, result, &outerOffset)) {
-        return false;
+
+    SkIPoint outerOffset = SkIPoint::Make(0, 0);
+    SkAutoTUnref<SkSpecialImage> outer(this->filterInput(0, inner, outerContext, &outerOffset));
+    if (!outer) {
+        return nullptr;
     }
 
     *offset = innerOffset + outerOffset;
-    return true;
+    return outer.release();
 }
 
 bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
                                           const SkMatrix& ctm,
                                           SkIRect* dst,
                                           MapDirection direction) const {
-    SkImageFilter* outer = getInput(0);
-    SkImageFilter* inner = getInput(1);
+    SkImageFilter* outer = this->getInput(0);
+    SkImageFilter* inner = this->getInput(1);
 
     SkIRect tmp;
     return inner->filterBounds(src, ctm, &tmp, direction) &&
