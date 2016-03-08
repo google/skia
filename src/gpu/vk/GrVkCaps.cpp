@@ -50,23 +50,22 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                     VkPhysicalDevice physDev) {
 
-    this->initGLSLCaps(vkInterface, physDev);
+    VkPhysicalDeviceProperties properties;
+    GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
+
+    VkPhysicalDeviceFeatures features;
+    GR_VK_CALL(vkInterface, GetPhysicalDeviceFeatures(physDev, &features));
+
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
+
+    this->initGrCaps(properties, features, memoryProperties);
+    this->initGLSLCaps(features);
     this->initConfigTexturableTable(vkInterface, physDev);
     this->initConfigRenderableTable(vkInterface, physDev);
     this->initStencilFormats(vkInterface, physDev);
 
-    VkPhysicalDeviceProperties properties;
-    GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
 
-    // We could actually querey and get a max size for each config, however maxImageDimension2D will
-    // give the minimum max size across all configs. So for simplicity we will use that for now.
-    fMaxRenderTargetSize = properties.limits.maxImageDimension2D;
-    fMaxTextureSize = properties.limits.maxImageDimension2D;
-
-    this->initSampleCount(properties);
-
-    fMaxSampledTextures = SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
-                                 properties.limits.maxPerStageDescriptorSamplers);
 
     this->applyOptionsOverrides(contextOptions);
     // need to friend GrVkCaps in GrGLSLCaps.h
@@ -105,10 +104,32 @@ void GrVkCaps::initSampleCount(const VkPhysicalDeviceProperties& properties) {
     fMaxStencilSampleCount = get_max_sample_count(stencilSamples);
 }
 
-void GrVkCaps::initGLSLCaps(const GrVkInterface* interface, VkPhysicalDevice physDev) {
+void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
+                          const VkPhysicalDeviceFeatures& features,
+                          const VkPhysicalDeviceMemoryProperties& memoryProperites) {
+    // We could actually query and get a max size for each config, however maxImageDimension2D will
+    // give the minimum max size across all configs. So for simplicity we will use that for now.
+    fMaxRenderTargetSize = properties.limits.maxImageDimension2D;
+    fMaxTextureSize = properties.limits.maxImageDimension2D;
+
+    this->initSampleCount(properties);
+
+    fMaxSampledTextures = SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
+                                 properties.limits.maxPerStageDescriptorSamplers);
+
+    // Assuming since we will always map in the end to upload the data we might as well just map
+    // from the get go. There is no hard data to suggest this is faster or slower.
+    fGeometryBufferMapThreshold = 0;
+
+    fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
+
+    fStencilWrapOpsSupport = true;
+    fOversizedStencilSupport = true;
+}
+
+void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceFeatures& features) {
     GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
-    // TODO: actually figure out a correct version here
-    glslCaps->fVersionDeclString = "#version 140\n";
+    glslCaps->fVersionDeclString = "#version 310 es\n";
 
     // fConfigOutputSwizzle will default to RGBA so we only need to set it for alpha only config.
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
@@ -121,7 +142,19 @@ void GrVkCaps::initGLSLCaps(const GrVkInterface* interface, VkPhysicalDevice phy
         }
     }
 
+    // Vulkan is based off ES 3.0 so the following should all be supported
+    glslCaps->fUsesPrecisionModifiers = true;
+    glslCaps->fFlatInterpolationSupport = true;
+
+    // GrShaderCaps
+
     glslCaps->fShaderDerivativeSupport = true;
+    glslCaps->fGeometryShaderSupport = features.geometryShader == VK_TRUE;
+#if 0
+    // For now disabling dual source blending till we get it hooked up in the rest of system
+    glslCaps->fDualSourceBlendingSupport = features.dualSrcBlend;
+#endif
+    glslCaps->fIntegerSupport = true;
 }
 
 static void format_supported_for_feature(const GrVkInterface* interface,

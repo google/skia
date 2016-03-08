@@ -81,8 +81,11 @@ public:
 private:
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
               VkPhysicalDevice device);
+    void initGrCaps(const VkPhysicalDeviceProperties&,
+                    const VkPhysicalDeviceFeatures&,
+                    const VkPhysicalDeviceMemoryProperties&);
+    void initGLSLCaps(const VkPhysicalDeviceFeatures& features);
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
-    void initGLSLCaps(const GrVkInterface* interface, VkPhysicalDevice physDev);
     void initConfigRenderableTable(const GrVkInterface* interface, VkPhysicalDevice physDev);
     void initConfigTexturableTable(const GrVkInterface* interface, VkPhysicalDevice physDev);
     void initStencilFormats(const GrVkInterface* interface, VkPhysicalDevice physDev);
