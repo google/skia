@@ -73,6 +73,32 @@ using namespace DM;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static const SkMSec kStartMs = SkTime::GetMSecs();
+
+static FILE* gVLog;
+
+template <typename... Args>
+static void vlog(const char* fmt, Args&&... args) {
+    if (gVLog) {
+        fprintf(gVLog, "%s\t", HumanizeMs(SkTime::GetMSecs() - kStartMs).c_str());
+        fprintf(gVLog, fmt, args...);
+        fflush(gVLog);
+    }
+}
+
+template <typename... Args>
+static void info(const char* fmt, Args&&... args) {
+    vlog(fmt, args...);
+    if (!FLAGS_quiet) {
+        printf(fmt, args...);
+    }
+}
+static void info(const char* fmt) {
+    if (!FLAGS_quiet) {
+        printf("%s", fmt);  // Clang warns printf(fmt) is insecure.
+    }
+}
+
 SK_DECLARE_STATIC_MUTEX(gFailuresMutex);
 static SkTArray<SkString> gFailures;
 
@@ -90,6 +116,7 @@ static SkTArray<SkString> gRunning;
 
 static void done(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
+    vlog("done  %s\n", id.c_str());
     int pending;
     {
         SkAutoTAcquire<SkSpinlock> lock(gMutex);
@@ -110,22 +137,21 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 
 static void start(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
+    vlog("start %s\n", id.c_str());
     SkAutoTAcquire<SkSpinlock> lock(gMutex);
     gRunning.push_back(id);
 }
 
 static void print_status() {
-    static SkMSec start_ms = SkTime::GetMSecs();
-
     int curr = sk_tools::getCurrResidentSetSizeMB(),
         peak = sk_tools::getMaxResidentSetSizeMB();
-    SkString elapsed = HumanizeMs(SkTime::GetMSecs() - start_ms);
+    SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
 
     SkAutoTAcquire<SkSpinlock> lock(gMutex);
-    SkDebugf("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
-             elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
+    info("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
+         elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
     for (auto& task : gRunning) {
-        SkDebugf("\t%s\n", task.c_str());
+        info("\t%s\n", task.c_str());
     }
 }
 
@@ -151,13 +177,13 @@ static std::atomic<bool> in_signal_handler{false};
 
         if (!in_signal_handler.exchange(true)) {
             const DWORD code = e->ExceptionRecord->ExceptionCode;
-            SkDebugf("\nCaught exception %u", code);
+            info("\nCaught exception %u", code);
             for (const auto& exception : kExceptions) {
                 if (exception.code == code) {
-                    SkDebugf(" %s", exception.name);
+                    info(" %s", exception.name);
                 }
             }
-            SkDebugf("\n");
+            info("\n");
             print_status();
         }
         // Execute default exception handler... hopefully, exit.
@@ -176,17 +202,17 @@ static std::atomic<bool> in_signal_handler{false};
             signal(sig, [](int sig) {
                 if (!in_signal_handler.exchange(true)) {
                     SkAutoTAcquire<SkSpinlock> lock(gMutex);
-                    SkDebugf("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
+                    info("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
                     for (auto& task : gRunning) {
-                        SkDebugf("\t%s\n", task.c_str());
+                        info("\t%s\n", task.c_str());
                     }
 
                     void* stack[64];
                     int count = backtrace(stack, SK_ARRAY_COUNT(stack));
                     char** symbols = backtrace_symbols(stack, count);
-                    SkDebugf("\nStack trace:\n");
+                    info("\nStack trace:\n");
                     for (int i = 0; i < count; i++) {
-                        SkDebugf("    %s\n", symbols[i]);
+                        info("    %s\n", symbols[i]);
                     }
                 }
                 _Exit(sig);
@@ -242,8 +268,8 @@ static void gather_uninteresting_hashes() {
     if (!FLAGS_uninterestingHashesFile.isEmpty()) {
         SkAutoTUnref<SkData> data(SkData::NewFromFileName(FLAGS_uninterestingHashesFile[0]));
         if (!data) {
-            SkDebugf("WARNING: unable to read uninteresting hashes from %s\n",
-                     FLAGS_uninterestingHashesFile[0]);
+            info("WARNING: unable to read uninteresting hashes from %s\n",
+                 FLAGS_uninterestingHashesFile[0]);
             return;
         }
         SkTArray<SkString> hashes;
@@ -251,8 +277,8 @@ static void gather_uninteresting_hashes() {
         for (const SkString& hash : hashes) {
             gUninterestingHashes.add(hash);
         }
-        SkDebugf("FYI: loaded %d distinct uninteresting hashes from %d lines\n",
-                 gUninterestingHashes.count(), hashes.count());
+        info("FYI: loaded %d distinct uninteresting hashes from %d lines\n",
+             gUninterestingHashes.count(), hashes.count());
     }
 }
 
@@ -403,12 +429,12 @@ static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
 static void push_codec_srcs(Path path) {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
     if (!encoded) {
-        SkDebugf("Couldn't read %s.", path.c_str());
+        info("Couldn't read %s.", path.c_str());
         return;
     }
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
-        SkDebugf("Couldn't create codec for %s.", path.c_str());
+        info("Couldn't create codec for %s.", path.c_str());
         return;
     }
 
@@ -704,7 +730,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     SkString log;
     Error err = sink->draw(justOneRect, &bitmap, &stream, &log);
     if (err.isFatal()) {
-        SkDebugf("Could not run %s: %s\n", config.getTag().c_str(), err.c_str());
+        info("Could not run %s: %s\n", config.getTag().c_str(), err.c_str());
         exit(1);
     }
 
@@ -734,8 +760,8 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
             }
             GrContextFactory testFactory;
             if (!testFactory.get(contextType, contextOptions)) {
-                SkDebugf("WARNING: can not create GPU context for config '%s'. "
-                         "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
+                info("WARNING: can not create GPU context for config '%s'. "
+                     "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
             return new GPUSink(contextType, contextOptions, gpuConfig->getSamples(),
@@ -803,8 +829,8 @@ static void gather_sinks() {
         const SkCommandLineConfig& config = *configs[i];
         Sink* sink = create_sink(&config);
         if (sink == nullptr) {
-            SkDebugf("Skipping config %s: Don't understand '%s'.\n", config.getTag().c_str(),
-                     config.getTag().c_str());
+            info("Skipping config %s: Don't understand '%s'.\n", config.getTag().c_str(),
+                 config.getTag().c_str());
             continue;
         }
 
@@ -813,8 +839,8 @@ static void gather_sinks() {
             const SkString& part = parts[j];
             Sink* next = create_via(part, sink);
             if (next == nullptr) {
-                SkDebugf("Skipping config %s: Don't understand '%s'.\n", config.getTag().c_str(),
-                         part.c_str());
+                info("Skipping config %s: Don't understand '%s'.\n", config.getTag().c_str(),
+                     part.c_str());
                 delete sink;
                 sink = nullptr;
                 break;
@@ -986,11 +1012,11 @@ struct Task {
                   task.src.options.c_str(), name.c_str());
             Error err = task.sink->draw(*task.src, &bitmap, &stream, &log);
             if (!log.isEmpty()) {
-                SkDebugf("%s %s %s %s:\n%s\n", task.sink.tag.c_str()
-                                             , task.src.tag.c_str()
-                                             , task.src.options.c_str()
-                                             , name.c_str()
-                                             , log.c_str());
+                info("%s %s %s %s:\n%s\n", task.sink.tag.c_str()
+                                         , task.src.tag.c_str()
+                                         , task.src.options.c_str()
+                                         , name.c_str()
+                                         , log.c_str());
             }
             if (!err.isEmpty()) {
                 if (err.isFatal()) {
@@ -1226,6 +1252,11 @@ int dm_main();
 int dm_main() {
     setup_crash_handler();
 
+    if (FLAGS_verbose && !FLAGS_writePath.isEmpty()) {
+        sk_mkdir(FLAGS_writePath[0]);
+        gVLog = freopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w", stderr);
+    }
+
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
@@ -1235,7 +1266,7 @@ int dm_main() {
         SkString testResourcePath = GetResourcePath("color_wheel.png");
         SkFILEStream testResource(testResourcePath.c_str());
         if (!testResource.isValid()) {
-            SkDebugf("Some resources are missing.  Do you need to set --resourcePath?\n");
+            info("Some resources are missing.  Do you need to set --resourcePath?\n");
         }
     }
     gather_gold();
@@ -1248,8 +1279,8 @@ int dm_main() {
     gather_tests();
 
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
-    SkDebugf("%d srcs * %d sinks + %d tests == %d tasks",
-             gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
+    info("%d srcs * %d sinks + %d tests == %d tasks",
+         gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
     SkAutoTDelete<SkThread> statusThread(start_status_thread());
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
@@ -1294,11 +1325,11 @@ int dm_main() {
     sk_tool_utils::release_portable_typefaces();
 
     if (gFailures.count() > 0) {
-        SkDebugf("Failures:\n");
+        info("Failures:\n");
         for (int i = 0; i < gFailures.count(); i++) {
-            SkDebugf("\t%s\n", gFailures[i].c_str());
+            info("\t%s\n", gFailures[i].c_str());
         }
-        SkDebugf("%d failures\n", gFailures.count());
+        info("%d failures\n", gFailures.count());
         return 1;
     }
 
@@ -1307,7 +1338,7 @@ int dm_main() {
 #endif  // SK_PDF_IMAGE_STATS
 
     print_status();
-    SkDebugf("Finished!\n");
+    info("Finished!\n");
     return 0;
 }
 
