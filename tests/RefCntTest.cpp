@@ -385,3 +385,16 @@ DEF_TEST(sk_sp_reset, r) {
     sp.reset(rc);   // this should transfer our ownership over to sp
     REPORTER_ASSERT(r, rc->unique());
 }
+
+DEF_TEST(sk_sp_ref, r) {
+    SkRefCnt* rc = new SkRefCnt;
+    REPORTER_ASSERT(r, rc->unique());
+
+    {
+        sk_sp<SkRefCnt> sp = sk_ref_sp(rc);
+        REPORTER_ASSERT(r, !rc->unique());
+    }
+
+    REPORTER_ASSERT(r, rc->unique());
+    rc->unref();
+}
