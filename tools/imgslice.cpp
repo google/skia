@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
-#include "SkImageDecoder.h"
+#include "SkData.h"
+#include "SkImage.h"
 #include "SkStream.h"
 
 DEFINE_bool(header, false, "Print an extra row of the min-max values");
@@ -57,26 +59,29 @@ int tool_main(int argc, char** argv) {
         return kError;       
     }
 
-    SkFILEStream inputStream(FLAGS_image[0]);
-    if (!inputStream.isValid()) {
+    SkAutoTUnref<SkData> data(SkData::NewFromFileName(FLAGS_image[0]));
+    if (nullptr == data) {
         if (!FLAGS_quiet) {
             SkDebugf("Couldn't open file: %s\n", FLAGS_image[0]);
         }
         return kError;
     }
 
-    SkAutoTDelete<SkImageDecoder> codec(SkImageDecoder::Factory(&inputStream));
-    if (!codec) {
+    SkAutoTDelete<SkImage> image(SkImage::NewFromEncoded(data));
+    if (!image) {
         if (!FLAGS_quiet) {
-            SkDebugf("Couldn't create codec for: %s.\n", FLAGS_image[0]);
+            SkDebugf("Couldn't create image for: %s.\n", FLAGS_image[0]);
         }
         return kError;
     }
 
     SkBitmap bitmap;
-
-    inputStream.rewind();
-    codec->decode(&inputStream, &bitmap, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
+    if (!image->asLegacyBitmap(&bitmap, SkImage::kRW_LegacyBitmapMode)) {
+        if (!FLAGS_quiet) {
+            SkDebugf("Couldn't create bitmap for: %s.\n", FLAGS_image[0]);
+        }
+        return kError;
+    }
 
     int top, bottom, left, right;
 
