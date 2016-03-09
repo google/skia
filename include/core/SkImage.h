@@ -168,6 +168,16 @@ public:
                                 const SkMatrix* localMatrix = NULL) const;
 
     /**
+     *  If the image has direct access to its pixels (i.e. they are in local RAM)
+     *  return true, and if not null, return in the pixmap parameter the info about the
+     *  images pixels.
+     *
+     *  On failure, return false and ignore the pixmap parameter.
+     */
+    bool peekPixels(SkPixmap* pixmap) const;
+
+#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
+    /**
      *  If the image has direct access to its pixels (i.e. they are in local
      *  RAM) return the (const) address of those pixels, and if not null, return
      *  the ImageInfo and rowBytes. The returned address is only valid while
@@ -175,17 +185,11 @@ public:
      *
      *  On failure, returns NULL and the info and rowBytes parameters are
      *  ignored.
+     *
+     *  DEPRECATED -- use the SkPixmap variant instead
      */
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes) const;
-
-    /**
-     *  If the image has direct access to its pixels (i.e. they are in local
-     *  RAM) return the (const) address of those pixels, and if not null, return
-     *  true, and if pixmap is not NULL, set it to point into the image.
-     *
-     *  On failure, return false and ignore the pixmap parameter.
-     */
-    bool peekPixels(SkPixmap* pixmap) const;
+#endif
 
     /**
      *  Some images have to perform preliminary work in preparation for drawing. This can be

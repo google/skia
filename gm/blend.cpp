@@ -36,7 +36,8 @@ DEF_SIMPLE_GM(blend, canvas, 300, 100) {
 
     // Print out the colors in each block (if we're looking at 8888 raster).
     if (canvas->imageInfo().colorType() == kN32_SkColorType) {
-        if (const SkPMColor* px = (const SkPMColor*)canvas->peekPixels(nullptr, nullptr)) {
+        SkPixmap pmap;
+        if (const SkPMColor* px = canvas->peekPixels(&pmap) ? pmap.addr32() : nullptr) {
             p.setColor(SK_ColorWHITE);
             for (int i = 0; i < 3; i++) {
                 SkPMColor c = px[i * 100];

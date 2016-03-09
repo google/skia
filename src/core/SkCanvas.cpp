@@ -1335,18 +1335,24 @@ SkImageInfo SkCanvas::imageInfo() const {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
 const void* SkCanvas::peekPixels(SkImageInfo* info, size_t* rowBytes) {
     SkPixmap pmap;
-    if (!this->onPeekPixels(&pmap)) {
-        return nullptr;
+    if (this->peekPixels(&pmap)) {
+        if (info) {
+            *info = pmap.info();
+        }
+        if (rowBytes) {
+            *rowBytes = pmap.rowBytes();
+        }
+        return pmap.addr();
     }
-    if (info) {
-        *info = pmap.info();
-    }
-    if (rowBytes) {
-        *rowBytes = pmap.rowBytes();
-    }
-    return pmap.addr();
+    return nullptr;
+}
+#endif
+
+bool SkCanvas::peekPixels(SkPixmap* pmap) {
+    return this->onPeekPixels(pmap);
 }
 
 bool SkCanvas::onPeekPixels(SkPixmap* pmap) {

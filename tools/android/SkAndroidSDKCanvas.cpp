@@ -292,15 +292,7 @@ SkSurface* SkAndroidSDKCanvas::onNewSurface(const SkImageInfo& info,
 }
 
 bool SkAndroidSDKCanvas::onPeekPixels(SkPixmap* pmap) {
-    SkASSERT(pmap);
-    SkImageInfo info;
-    size_t rowBytes;
-    const void* addr = fProxyTarget->peekPixels(&info, &rowBytes);
-    if (addr) {
-        pmap->reset(info, addr, rowBytes);
-        return true;
-    }
-    return false;
+    return fProxyTarget->peekPixels(pmap);
 }
 
 bool SkAndroidSDKCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {

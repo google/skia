@@ -182,9 +182,25 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
     return asSB(this)->onDraw(canvas, x, y, paint);
 }
 
-const void* SkSurface::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    return this->getCanvas()->peekPixels(info, rowBytes);
+bool SkSurface::peekPixels(SkPixmap* pmap) {
+    return this->getCanvas()->peekPixels(pmap);
 }
+
+#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
+const void* SkSurface::peekPixels(SkImageInfo* info, size_t* rowBytes) {
+    SkPixmap pm;
+    if (this->peekPixels(&pm)) {
+        if (info) {
+            *info = pm.info();
+        }
+        if (rowBytes) {
+            *rowBytes = pm.rowBytes();
+        }
+        return pm.addr();
+    }
+    return nullptr;
+}
+#endif
 
 bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            int srcX, int srcY) {

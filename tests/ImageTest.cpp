@@ -32,12 +32,7 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
 
     REPORTER_ASSERT(reporter, widthA == b->width());
     REPORTER_ASSERT(reporter, heightA == b->height());
-#if 0
-    // see https://bug.skia.org/3965
-    bool AO = a->isOpaque();
-    bool BO = b->isOpaque();
-    REPORTER_ASSERT(reporter, AO == BO);
-#endif
+    REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
 
     SkImageInfo info = SkImageInfo::MakeN32(widthA, heightA,
                                         a->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
@@ -76,7 +71,6 @@ static SkImage* create_image_565() {
     return surface->newImageSnapshot();
 }
 #endif
-#if 0
 static SkImage* create_image_ct() {
     SkPMColor colors[] = {
         SkPreMultiplyARGB(0xFF, 0xFF, 0xFF, 0x00),
@@ -94,7 +88,6 @@ static SkImage* create_image_ct() {
     SkImageInfo info = SkImageInfo::Make(5, 5, kIndex_8_SkColorType, kPremul_SkAlphaType);
     return SkImage::NewRasterCopy(info, data, 5, colorTable);
 }
-#endif
 static SkData* create_image_data(SkImageInfo* info) {
     *info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     const size_t rowBytes = info->minRowBytes();
@@ -658,19 +651,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, context) {
 #endif
 
 static void test_peek(skiatest::Reporter* reporter, SkImage* image, bool expectPeekSuccess) {
-    SkImageInfo info;
-    size_t rowBytes;
-    const void* addr = image->peekPixels(&info, &rowBytes);
-    bool success = SkToBool(addr);
+    SkPixmap pm;
+    bool success = image->peekPixels(&pm);
     REPORTER_ASSERT(reporter, expectPeekSuccess == success);
     if (success) {
+        const SkImageInfo& info = pm.info();
         REPORTER_ASSERT(reporter, 20 == info.width());
         REPORTER_ASSERT(reporter, 20 == info.height());
         REPORTER_ASSERT(reporter, kN32_SkColorType == info.colorType());
         REPORTER_ASSERT(reporter, kPremul_SkAlphaType == info.alphaType() ||
                         kOpaque_SkAlphaType == info.alphaType());
-        REPORTER_ASSERT(reporter, info.minRowBytes() <= rowBytes);
-        REPORTER_ASSERT(reporter, SkPreMultiplyColor(SK_ColorWHITE) == *(const SkPMColor*)addr);
+        REPORTER_ASSERT(reporter, info.minRowBytes() <= pm.rowBytes());
+        REPORTER_ASSERT(reporter, SkPreMultiplyColor(SK_ColorWHITE) == *pm.addr32(0, 0));
     }
 }
 DEF_TEST(ImagePeek, reporter) {
@@ -806,13 +798,11 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, context) {
-    for (auto create : {&create_image,
+    for (auto create : {&create_image
 #if 0 // read pixels failing for non RT formats (565 not a RT on some desktop GLs).
-                        &create_image_565
-#if 0 // peekPixels on color table images is currently broken.
+                        , &create_image_565
+#endif
                         , &create_image_ct
-#endif
-#endif
                         }) {
         SkAutoTUnref<SkImage> image((*create)());
         if (!image) {

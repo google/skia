@@ -157,26 +157,23 @@ static void test_canvas_peek(skiatest::Reporter* reporter,
                              bool expectPeekSuccess) {
     const SkColor color = SK_ColorRED;
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
-    SkImageInfo info;
-    size_t rowBytes;
     surface->getCanvas()->clear(color);
 
-    const void* addr = surface->getCanvas()->peekPixels(&info, &rowBytes);
-    bool success = SkToBool(addr);
+    SkPixmap pmap;
+    bool success = surface->getCanvas()->peekPixels(&pmap);
     REPORTER_ASSERT(reporter, expectPeekSuccess == success);
 
-    SkImageInfo info2;
-    size_t rb2;
-    const void* addr2 = surface->peekPixels(&info2, &rb2);
+    SkPixmap pmap2;
+    const void* addr2 = surface->peekPixels(&pmap2) ? pmap2.addr() : nullptr;
 
     if (success) {
-        REPORTER_ASSERT(reporter, requestInfo == info);
-        REPORTER_ASSERT(reporter, requestInfo.minRowBytes() <= rowBytes);
-        REPORTER_ASSERT(reporter, pmcolor == *(const SkPMColor*)addr);
+        REPORTER_ASSERT(reporter, requestInfo == pmap.info());
+        REPORTER_ASSERT(reporter, requestInfo.minRowBytes() <= pmap.rowBytes());
+        REPORTER_ASSERT(reporter, pmcolor == *pmap.addr32());
 
-        REPORTER_ASSERT(reporter, addr2 == addr);
-        REPORTER_ASSERT(reporter, info2 == info);
-        REPORTER_ASSERT(reporter, rb2 == rowBytes);
+        REPORTER_ASSERT(reporter, pmap.addr() == pmap2.addr());
+        REPORTER_ASSERT(reporter, pmap.info() == pmap2.info());
+        REPORTER_ASSERT(reporter, pmap.rowBytes() == pmap2.rowBytes());
     } else {
         REPORTER_ASSERT(reporter, nullptr == addr2);
     }
@@ -387,9 +384,8 @@ DEF_TEST(UniqueImageSnapshot, reporter) {
         return reinterpret_cast<intptr_t>(pm.addr());
     };
     auto getSufaceBackingStore = [reporter](SkSurface* surface) {
-        SkImageInfo info;
-        size_t rowBytes;
-        const void* pixels = surface->getCanvas()->peekPixels(&info, &rowBytes);
+        SkPixmap pmap;
+        const void* pixels = surface->getCanvas()->peekPixels(&pmap) ? pmap.addr() : nullptr;
         REPORTER_ASSERT(reporter, pixels);
         return reinterpret_cast<intptr_t>(pixels);
     };
@@ -785,27 +781,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu, reporter, context) {
 #endif
 
 static void check_rowbytes_remain_consistent(SkSurface* surface, skiatest::Reporter* reporter) {
-    SkImageInfo info;
-    size_t rowBytes;
-    REPORTER_ASSERT(reporter, surface->peekPixels(&info, &rowBytes));
+    SkPixmap surfacePM;
+    REPORTER_ASSERT(reporter, surface->peekPixels(&surfacePM));
 
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-    SkImageInfo im_info;
-    size_t im_rowbytes;
-    REPORTER_ASSERT(reporter, image->peekPixels(&im_info, &im_rowbytes));
+    SkPixmap pm;
+    REPORTER_ASSERT(reporter, image->peekPixels(&pm));
 
-    REPORTER_ASSERT(reporter, rowBytes == im_rowbytes);
+    REPORTER_ASSERT(reporter, surfacePM.rowBytes() == pm.rowBytes());
 
     // trigger a copy-on-write
     surface->getCanvas()->drawPaint(SkPaint());
     SkAutoTUnref<SkImage> image2(surface->newImageSnapshot());
     REPORTER_ASSERT(reporter, image->uniqueID() != image2->uniqueID());
 
-    SkImageInfo im_info2;
-    size_t im_rowbytes2;
-    REPORTER_ASSERT(reporter, image2->peekPixels(&im_info2, &im_rowbytes2));
-
-    REPORTER_ASSERT(reporter, im_rowbytes2 == im_rowbytes);
+    SkPixmap pm2;
+    REPORTER_ASSERT(reporter, image2->peekPixels(&pm2));
+    REPORTER_ASSERT(reporter, pm2.rowBytes() == pm.rowBytes());
 }
 
 DEF_TEST(surface_rowbytes, reporter) {

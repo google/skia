@@ -26,7 +26,7 @@ public:
     SkImage_Base(int width, int height, uint32_t uniqueID);
     virtual ~SkImage_Base();
 
-    virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const { return nullptr; }
+    virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
     // Default impl calls onDraw
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
@@ -74,7 +74,7 @@ private:
     typedef SkImage INHERITED;
 };
 
-static inline SkImage_Base*     as_IB(SkImage* image) {
+static inline SkImage_Base* as_IB(SkImage* image) {
     return static_cast<SkImage_Base*>(image);
 }
 

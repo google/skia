@@ -36,17 +36,29 @@ SkImage::SkImage(int width, int height, uint32_t uniqueID)
     SkASSERT(height > 0);
 }
 
-const void* SkImage::peekPixels(SkImageInfo* info, size_t* rowBytes) const {
-    SkImageInfo infoStorage;
-    size_t rowBytesStorage;
-    if (nullptr == info) {
-        info = &infoStorage;
+bool SkImage::peekPixels(SkPixmap* pm) const {
+    SkPixmap tmp;
+    if (!pm) {
+        pm = &tmp;
     }
-    if (nullptr == rowBytes) {
-        rowBytes = &rowBytesStorage;
-    }
-    return as_IB(this)->onPeekPixels(info, rowBytes);
+    return as_IB(this)->onPeekPixels(pm);
 }
+
+#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
+const void* SkImage::peekPixels(SkImageInfo* info, size_t* rowBytes) const {
+    SkPixmap pm;
+    if (this->peekPixels(&pm)) {
+        if (info) {
+            *info = pm.info();
+        }
+        if (rowBytes) {
+            *rowBytes = pm.rowBytes();
+        }
+        return pm.addr();
+    }
+    return nullptr;
+}
+#endif
 
 bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            int srcX, int srcY, CachingHint chint) const {
@@ -240,19 +252,6 @@ bool SkImage_Base::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool SkImage::peekPixels(SkPixmap* pmap) const {
-    SkImageInfo info;
-    size_t rowBytes;
-    const void* pixels = this->peekPixels(&info, &rowBytes);
-    if (pixels) {
-        if (pmap) {
-            pmap->reset(info, pixels, rowBytes);
-        }
-        return true;
-    }
-    return false;
-}
 
 bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint chint) const {
     return this->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), srcX, srcY, chint);

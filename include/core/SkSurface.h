@@ -257,15 +257,18 @@ public:
 
     /**
      *  If the surface has direct access to its pixels (i.e. they are in local
-     *  RAM) return the const-address of those pixels, and if not null, return
-     *  the ImageInfo and rowBytes. The returned address is only valid while
+     *  RAM) return true, and if not null, set the pixmap parameter to point to the information
+     *  about the surface's pixels. The pixel address in the pixmap is only valid while
      *  the surface object is in scope, and no API call is made on the surface
      *  or its canvas.
      *
-     *  On failure, returns NULL and the info and rowBytes parameters are
-     *  ignored.
+     *  On failure, returns false and the pixmap parameter is ignored.
      */
+    bool peekPixels(SkPixmap*);
+
+#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
+#endif
 
     /**
      *  Copy the pixels from the surface into the specified buffer (pixels + rowBytes),

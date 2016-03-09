@@ -67,7 +67,7 @@ public:
     virtual ~SkImage_Raster();
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
-    const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
+    bool onPeekPixels(SkPixmap*) const override;
     SkData* onRefEncoded(GrContext*) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
@@ -140,14 +140,8 @@ bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
     return shallowCopy.readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
 }
 
-const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesPtr) const {
-    const SkImageInfo info = fBitmap.info();
-    if ((kUnknown_SkColorType == info.colorType()) || !fBitmap.getPixels()) {
-        return nullptr;
-    }
-    *infoPtr = info;
-    *rowBytesPtr = fBitmap.rowBytes();
-    return fBitmap.getPixels();
+bool SkImage_Raster::onPeekPixels(SkPixmap* pm) const {
+    return fBitmap.peekPixels(pm);
 }
 
 SkData* SkImage_Raster::onRefEncoded(GrContext*) const {

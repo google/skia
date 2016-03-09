@@ -156,18 +156,18 @@ void HelloWorldWindow::draw(SkCanvas* canvas) {
 
     if (kRaster_DeviceType == fType) {
         // need to send the raster bits to the (gpu) window
-        SkImage* snap = fSurface->newImageSnapshot();
-        size_t rowBytes = 0;
-        SkImageInfo info;
-        const void* pixels = snap->peekPixels(&info, &rowBytes);
-        fRenderTarget->writePixels(0, 0, snap->width(), snap->height(),
-                                        SkImageInfo2GrPixelConfig(info.colorType(),
-                                                                info.alphaType(),
-                                                                info.profileType()),
-                                        pixels,
-                                        rowBytes,
-                                        GrContext::kFlushWrites_PixelOp);
-        SkSafeUnref(snap);
+        sk_sp<SkImage> snap = sk_sp<SkImage>(fSurface->newImageSnapshot());
+        SkPixmap pmap;
+        if (snap->peekPixels(&pmap)) {
+            const SkImageInfo& info = pmap.info();
+            fRenderTarget->writePixels(0, 0, snap->width(), snap->height(),
+                                            SkImageInfo2GrPixelConfig(info.colorType(),
+                                                                    info.alphaType(),
+                                                                    info.profileType()),
+                                            pmap.addr(),
+                                            pmap.rowBytes(),
+                                            GrContext::kFlushWrites_PixelOp);
+        }
     }
     INHERITED::present();
 }

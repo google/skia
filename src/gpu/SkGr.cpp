@@ -263,6 +263,8 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap) {
                 return nullptr;
             }
             pmap = &tmpPixmap;
+            // must rebuild desc, since we've forced the info to be N32
+            desc = GrImageInfoToSurfaceDesc(pmap->info());
         }
     }
 

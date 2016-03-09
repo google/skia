@@ -114,11 +114,9 @@ public:
         } else
 #endif
         {
-            SkImageInfo info;
-            size_t rowBytes;
-
-            if (fImage->peekPixels(&info, &rowBytes)) {
-                return info.height() * rowBytes;
+            SkPixmap pm;
+            if (fImage->peekPixels(&pm)) {
+                return pm.height() * pm.rowBytes();
             }
         }
         return 0;

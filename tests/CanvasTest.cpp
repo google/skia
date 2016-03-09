@@ -646,17 +646,16 @@ static void test_newraster(skiatest::Reporter* reporter) {
     SkCanvas* canvas = SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes);
     REPORTER_ASSERT(reporter, canvas);
 
-    SkImageInfo info2;
-    size_t rowBytes;
-    const SkPMColor* addr = (const SkPMColor*)canvas->peekPixels(&info2, &rowBytes);
+    SkPixmap pmap;
+    const SkPMColor* addr = canvas->peekPixels(&pmap) ? pmap.addr32() : nullptr;
     REPORTER_ASSERT(reporter, addr);
-    REPORTER_ASSERT(reporter, info == info2);
-    REPORTER_ASSERT(reporter, minRowBytes == rowBytes);
+    REPORTER_ASSERT(reporter, info == pmap.info());
+    REPORTER_ASSERT(reporter, minRowBytes == pmap.rowBytes());
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             REPORTER_ASSERT(reporter, 0 == addr[x]);
         }
-        addr = (const SkPMColor*)((const char*)addr + rowBytes);
+        addr = (const SkPMColor*)((const char*)addr + pmap.rowBytes());
     }
     delete canvas;
 

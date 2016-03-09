@@ -22,7 +22,6 @@ public:
     {}
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
-    const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkImageCacherator* peekCacherator() const override { return fCache; }
     SkData* onRefEncoded(GrContext*) const override;
     bool isOpaque() const override { return fCache->info().isOpaque(); }
@@ -60,10 +59,6 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
-}
-
-const void* SkImage_Generator::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesPtr) const {
-    return NULL;
 }
 
 SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
