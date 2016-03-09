@@ -6,7 +6,6 @@
  */
 
 #include "SkImageGeneratorCG.h"
-#include "SkUnpremultiply.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>
