@@ -82,6 +82,12 @@ template <typename T> T* push_ref(lua_State* L, T* ref) {
     return ref;
 }
 
+template <typename T> void push_ref(lua_State* L, sk_sp<T> sp) {
+    *(T**)lua_newuserdata(L, sizeof(T*)) = sp.release();
+    luaL_getmetatable(L, get_mtname<T>());
+    lua_setmetatable(L, -2);
+}
+
 template <typename T> T* get_ref(lua_State* L, int index) {
     return *(T**)luaL_checkudata(L, index, get_mtname<T>());
 }
@@ -1977,11 +1983,11 @@ static int lsk_newLinearGradient(lua_State* L) {
 
     SkPoint pts[] = { { x0, y0 }, { x1, y1 } };
     SkColor colors[] = { c0, c1 };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
-    if (nullptr == s) {
+    auto s = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    if (!s) {
         lua_pushnil(L);
     } else {
-        push_ref(L, s)->unref();
+        push_ref(L, std::move(s));
     }
     return 1;
 }

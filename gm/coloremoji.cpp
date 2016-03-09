@@ -19,12 +19,12 @@
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
-static SkShader* MakeLinear() {
+static sk_sp<SkShader> MakeLinear() {
     static const SkPoint     kPts[] = { { 0, 0 }, { 32, 32 } };
     static const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     static const SkColor kColors[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
-    return SkGradientShader::CreateLinear(kPts, kColors, kPos,
-                                          SK_ARRAY_COUNT(kColors), SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(kPts, kColors, kPos, SK_ARRAY_COUNT(kColors),
+                                        SkShader::kClamp_TileMode);
 }
 
 static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
@@ -94,7 +94,7 @@ protected:
                     SkPaint shaderPaint;
                     shaderPaint.setTypeface(paint.getTypeface());
                     if (SkToBool(makeLinear)) {
-                        shaderPaint.setShader(MakeLinear())->unref();
+                        shaderPaint.setShader(MakeLinear());
                     }
 
                     if (SkToBool(makeBlur) && SkToBool(makeGray)) {

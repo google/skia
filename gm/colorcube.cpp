@@ -13,14 +13,14 @@
 
 namespace skiagm {
 
-static SkShader* MakeLinear() {
+static sk_sp<SkShader> MakeLinear() {
     static const SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(80), SkIntToScalar(80) }
         };
     static const SkColor colors[] = { SK_ColorYELLOW, SK_ColorBLUE };
-    return SkGradientShader::CreateLinear(
-        pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0, &SkMatrix::I());
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0,
+                                        &SkMatrix::I());
 }
 
 class ColorCubeGM : public GM {
@@ -63,11 +63,8 @@ protected:
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkShader* shader = MakeLinear();
-        paint.setShader(shader);
-        SkRect r = { 0, 0, SkIntToScalar(80), SkIntToScalar(80) };
-        canvas.drawRect(r, paint);
-        shader->unref();
+        paint.setShader(MakeLinear());
+        canvas.drawRect(SkRect::MakeWH(80, 80), paint);
     }
 
     void make_3Dlut(SkData** data, int size, bool invR, bool invG, bool invB) {

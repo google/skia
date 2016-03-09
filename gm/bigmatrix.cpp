@@ -55,12 +55,8 @@ DEF_SIMPLE_GM_BG(bigmatrix, canvas, 50, 50,
         SkMatrix s;
         s.reset();
         s.setScale(SK_Scalar1 / 1000, SK_Scalar1 / 1000);
-        SkShader* shader = SkShader::CreateBitmapShader(
-                                            bmp,
-                                            SkShader::kRepeat_TileMode,
-                                            SkShader::kRepeat_TileMode,
-                                            &s);
-        paint.setShader(shader)->unref();
+        paint.setShader(SkShader::MakeBitmapShader(bmp, SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode, &s));
         paint.setAntiAlias(false);
         paint.setFilterQuality(kLow_SkFilterQuality);
         rect.setLTRB(pt.fX - small, pt.fY - small,

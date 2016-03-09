@@ -35,15 +35,12 @@ protected:
         };
         SkMatrix local;
         local.setRotate(180);
-        SkShader* s = SkGradientShader::CreateSweep(0,0, colors, nullptr,
-                                                    SK_ARRAY_COUNT(colors), 0, &local);
-
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setShader(s)->unref();
+        paint.setShader(SkGradientShader::MakeSweep(0, 0, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                                    0, &local));
 
-        SkTypeface* orig = sk_tool_utils::create_portable_typeface("serif",
-                                                            SkTypeface::kBold);
+        SkTypeface* orig = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kBold);
         if (nullptr == orig) {
             orig = SkTypeface::RefDefault();
         }
@@ -105,10 +102,8 @@ protected:
         const SkScalar h = SkIntToScalar(H);
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-        SkShader* s = SkShader::CreateBitmapShader(fBG,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode,
-                                                   &m);
+        auto s = SkShader::MakeBitmapShader(fBG, SkShader::kRepeat_TileMode,
+                                            SkShader::kRepeat_TileMode, &m);
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
@@ -153,7 +148,6 @@ protected:
                 y += h + SkIntToScalar(30);
             }
         }
-        s->unref();
     }
 
 private:

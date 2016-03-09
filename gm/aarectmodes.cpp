@@ -107,7 +107,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
     return H;
 }
 
-static SkShader* make_bg_shader() {
+static sk_sp<SkShader> make_bg_shader() {
     SkBitmap bm;
     bm.allocN32Pixels(2, 2);
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = 0xFFFFFFFF;
@@ -115,12 +115,8 @@ static SkShader* make_bg_shader() {
                                                              0xCF, 0xCE);
 
     const SkMatrix m = SkMatrix::MakeScale(SkIntToScalar(6), SkIntToScalar(6));
-    SkShader* s = SkShader::CreateBitmapShader(bm,
-                                               SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode,
-                                               &m);
-
-    return s;
+    return SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
+                                      &m);
 }
 
 namespace skiagm {
@@ -129,7 +125,7 @@ namespace skiagm {
         SkPaint fBGPaint;
     public:
         AARectModesGM () {
-            fBGPaint.setShader(make_bg_shader())->unref();
+            fBGPaint.setShader(make_bg_shader());
         }
 
     protected:

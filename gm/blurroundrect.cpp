@@ -92,7 +92,7 @@ private:
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
-static SkShader* MakeRadial() {
+static sk_sp<SkShader> MakeRadial() {
     SkPoint pts[2] = {
         { 0, 0 },
         { SkIntToScalar(100), SkIntToScalar(100) }
@@ -108,10 +108,10 @@ static SkShader* MakeRadial() {
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::CreateTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
-                                                   center0, (pts[1].fX - pts[0].fX) / 2,
-                                                   colors, pos, SK_ARRAY_COUNT(colors), tm,
-                                                   0, &scale);
+    return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
+                                                 center0, (pts[1].fX - pts[0].fX) / 2,
+                                                 colors, pos, SK_ARRAY_COUNT(colors), tm,
+                                                 0, &scale);
 }
 
 // Simpler blurred RR test cases where all the radii are the same.
@@ -153,7 +153,7 @@ protected:
 
                     bool useRadial = SkToBool(k);
                     if (useRadial) {
-                        paint.setShader(MakeRadial())->unref();
+                        paint.setShader(MakeRadial());
                     }
 
                     SkRRect rrect;

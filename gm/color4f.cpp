@@ -14,12 +14,12 @@
 #include "SkColorMatrixFilter.h"
 #include "SkGradientShader.h"
 
-static SkShader* make_opaque_color() {
-    return SkShader::CreateColorShader(0xFFFF0000);
+static sk_sp<SkShader> make_opaque_color() {
+    return SkShader::MakeColorShader(0xFFFF0000);
 }
 
-static SkShader* make_alpha_color() {
-    return SkShader::CreateColorShader(0x80FF0000);
+static sk_sp<SkShader> make_alpha_color() {
+    return SkShader::MakeColorShader(0x80FF0000);
 }
 
 static SkColorFilter* make_cf_null() {
@@ -51,12 +51,12 @@ static SkColorFilter* make_cf2() {
 
 static void draw_into_canvas(SkCanvas* canvas) {
     const SkRect r = SkRect::MakeWH(50, 100);
-    SkShader* (*shaders[])() { make_opaque_color, make_alpha_color };
+    sk_sp<SkShader> (*shaders[])() { make_opaque_color, make_alpha_color };
     SkColorFilter* (*filters[])() { make_cf_null, make_cf0, make_cf1, make_cf2 };
     
     SkPaint paint;
     for (auto shProc : shaders) {
-        paint.setShader(shProc())->unref();
+        paint.setShader(shProc());
         for (auto cfProc : filters) {
             SkSafeUnref(paint.setColorFilter(cfProc()));
             canvas->drawRect(r, paint);

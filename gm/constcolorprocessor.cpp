@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -43,8 +42,8 @@ protected:
     void onOnceBeforeDraw() override {
         SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};
         SkPoint pts[] = { SkPoint::Make(0, 0), SkPoint::Make(kRectSize, kRectSize) };
-        fShader.reset(SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                       SkShader::kClamp_TileMode));
+        fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                               SkShader::kClamp_TileMode);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -179,7 +178,7 @@ protected:
 
 private:
     // Use this as a way of generating and input FP
-    SkAutoTUnref<SkShader>      fShader;
+    sk_sp<SkShader> fShader;
 
     static const SkScalar       kPad;
     static const SkScalar       kRectSize;

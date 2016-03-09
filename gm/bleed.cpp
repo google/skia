@@ -277,13 +277,13 @@ static bool make_ringed_oversized_alpha_texture_bitmap(GrContext* ctx, TestPixel
         ctx, result, width, height, kAlpha_8_GrPixelConfig, kZero, kOne, k3Q, kHalf, k1Q);
 }
 
-static SkShader* make_shader() {
+static sk_sp<SkShader> make_shader() {
     static const SkPoint pts[] = { {0, 0}, {20, 20} };
     static const SkColor colors[] = { SK_ColorGREEN, SK_ColorYELLOW };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
 }
 
-static SkShader* make_null_shader() { return nullptr; }
+static sk_sp<SkShader> make_null_shader() { return nullptr; }
 
 enum BleedTest {
     kUseBitmap_BleedTest,
@@ -300,7 +300,7 @@ enum BleedTest {
 const struct {
     const char* fName;
     bool (*fPixelMaker)(GrContext*, TestPixels* result, int width, int height);
-    SkShader* (*fShaderMaker)();
+    sk_sp<SkShader> (*fShaderMaker)();
 } gBleedRec[] = {
     { "bleed",                          make_ringed_color_bitmap,                   make_null_shader },
     { "bleed_texture_bmp",              make_ringed_oversized_color_texture_bitmap, make_null_shader },
@@ -468,7 +468,7 @@ protected:
             return;
         }
 
-        fShader.reset(gBleedRec[fBT].fShaderMaker());
+        fShader = gBleedRec[fBT].fShaderMaker();
 
         canvas->clear(SK_ColorGRAY);
         SkTDArray<SkMatrix> matrices;
@@ -582,13 +582,13 @@ private:
     static const int kSmallTextureSize = 6;
     static const int kMaxTileSize = 32;
 
-    bool                    fCreatedPixels;
-    TestPixels              fBigTestPixels;
-    TestPixels              fSmallTestPixels;
+    bool            fCreatedPixels;
+    TestPixels      fBigTestPixels;
+    TestPixels      fSmallTestPixels;
 
-    SkAutoTUnref<SkShader>  fShader;
+    sk_sp<SkShader> fShader;
 
-    const BleedTest         fBT;
+    const BleedTest fBT;
 
     typedef GM INHERITED;
 };

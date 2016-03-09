@@ -53,35 +53,36 @@ static void sk_gm_get_colorfilters(SkTDArray<SkColorFilter*>* array) {
 #include "SkImage.h"
 #include "Resources.h"
 
-static SkShader* sh_make_lineargradient0() {
+static sk_sp<SkShader> sh_make_lineargradient0() {
     const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
     const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 3, SkShader::kRepeat_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 3, SkShader::kRepeat_TileMode);
 }
 
-static SkShader* sh_make_lineargradient1() {
+static sk_sp<SkShader> sh_make_lineargradient1() {
     const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
     const SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 3, SkShader::kRepeat_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 3, SkShader::kRepeat_TileMode);
 }
 
-static SkShader* sh_make_image() {
+static sk_sp<SkShader> sh_make_image() {
     SkAutoTUnref<SkImage> image(GetResourceAsImage("mandrill_128.png"));
     if (!image) {
         return nullptr;
     }
-    return image->newShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return sk_sp<SkShader>(image->newShader(SkShader::kRepeat_TileMode,
+                                            SkShader::kRepeat_TileMode));
 }
 
 static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
-    if (SkShader* shader = sh_make_lineargradient0()) {
-        *array->append() = shader;
+    if (auto shader = sh_make_lineargradient0()) {
+        *array->append() = shader.release();
     }
-    if (SkShader* shader = sh_make_lineargradient1()) {
-        *array->append() = shader;
+    if (auto shader = sh_make_lineargradient1()) {
+        *array->append() = shader.release();
     }
-    if (SkShader* shader = sh_make_image()) {
-        *array->append() = shader;
+    if (auto shader = sh_make_image()) {
+        *array->append() = shader.release();
     }
 }
 

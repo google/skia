@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -23,8 +23,8 @@ static void make_bitmap(SkBitmap* bitmap) {
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { 64, 64 } };
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
-    paint.setShader(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
-                                                   SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
     canvas.drawCircle(32, 32, 32, paint);
 }
 
