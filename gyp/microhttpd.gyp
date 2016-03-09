@@ -20,7 +20,7 @@
         ],
         # Link the built library to dependents.
         'libraries': [
-          'libmicrohttpd.a',
+          '<(PRODUCT_DIR)/libmicrohttpd.a',
         ],
       },
       'actions': [
