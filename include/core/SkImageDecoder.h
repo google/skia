@@ -21,6 +21,8 @@ class SkStreamRewindable;
 
 /** \class SkImageDecoder
 
+    DEPRECATED Please use SkImage::NewFromEncoded() or SkImageGenerator::NewFromEncoded().
+
     Base class for decoding compressed images into a SkBitmap
 */
 class SkImageDecoder : SkNoncopyable {
@@ -225,6 +227,8 @@ public:
 
     /** Given a stream, this will try to find an appropriate decoder object.
         If none is found, the method returns NULL.
+
+        DEPRECATED Please use SkImage::NewFromEncoded() or SkImageGenerator::NewFromEncoded().
     */
     static SkImageDecoder* Factory(SkStreamRewindable*);
 
@@ -235,6 +239,8 @@ public:
 
         @param format On success, if format is non-null, it is set to the format
                       of the decoded file. On failure it is ignored.
+
+        DEPRECATED Do not use.
     */
     static bool DecodeFile(const char file[], SkBitmap* bitmap, SkColorType pref, Mode,
                            Format* format = NULL);
@@ -249,6 +255,8 @@ public:
 
         @param format On success, if format is non-null, it is set to the format
                        of the decoded buffer. On failure it is ignored.
+
+        DEPRECATED Please use SkImage::NewFromEncoded() or SkImageGenerator::NewFromEncoded().
      */
     static bool DecodeMemory(const void* buffer, size_t size, SkBitmap* bitmap, SkColorType pref,
                              Mode, Format* format = NULL);
@@ -263,6 +271,8 @@ public:
 
         @param format On success, if format is non-null, it is set to the format
                       of the decoded stream. On failure it is ignored.
+
+        DEPRECATED Please use SkImage::NewFromEncoded() or SkImageGenerator::NewFromEncoded().
      */
     static bool DecodeStream(SkStreamRewindable* stream, SkBitmap* bitmap, SkColorType pref, Mode,
                              Format* format = NULL);
