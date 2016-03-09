@@ -268,11 +268,11 @@ public:
     SkFontMgr_DirectWrite(IDWriteFactory* factory, IDWriteFontCollection* fontCollection,
                           WCHAR* localeName, int localeNameLength, IDWriteFontFallback* fallback)
         : fFactory(SkRefComPtr(factory))
-        , fFontCollection(SkRefComPtr(fontCollection))
-        , fLocaleName(localeNameLength)
 #if SK_HAS_DWRITE_2_H
         , fFontFallback(SkSafeRefComPtr(fallback))
 #endif
+        , fFontCollection(SkRefComPtr(fontCollection))
+        , fLocaleName(localeNameLength)
     {
 #if SK_HAS_DWRITE_2_H
         if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
