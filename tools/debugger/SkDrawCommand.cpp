@@ -754,21 +754,24 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
     }
     const void* data;
     int size = decode_data(jsonBitmap[SKDEBUGCANVAS_ATTRIBUTE_DATA], urlDataManager, &data);
-    SkMemoryStream stream(data, size);
-    SkImageDecoder* decoder = SkImageDecoder::Factory(&stream);
-    SkBitmap* bitmap = new SkBitmap();
-    SkImageDecoder::Result result = decoder->decode(&stream, bitmap, 
-                                                    SkImageDecoder::kDecodePixels_Mode);
-    sk_free(decoder);
-    if (result != SkImageDecoder::kFailure) {
+    SkAutoTUnref<SkData> encoded(SkData::NewWithoutCopy(data, size));
+    SkAutoTDelete<SkImage> image(SkImage::NewFromEncoded(encoded, nullptr));
+
+    SkAutoTDelete<SkBitmap> bitmap(new SkBitmap());
+    if (nullptr != image) {
+        if (!image->asLegacyBitmap(bitmap, SkImage::kRW_LegacyBitmapMode)) {
+            SkDebugf("image decode failed\n");
+            return nullptr;
+        }
+
         if (jsonBitmap.isMember(SKDEBUGCANVAS_ATTRIBUTE_COLOR)) {
             const char* ctName = jsonBitmap[SKDEBUGCANVAS_ATTRIBUTE_COLOR].asCString();
             SkColorType ct = colortype_from_name(ctName);
             if (ct != kIndex_8_SkColorType) {
-                bitmap = convert_colortype(bitmap, ct);
+                bitmap.reset(convert_colortype(bitmap.detach(), ct));
             }
         }
-        return bitmap;
+        return bitmap.detach();
     }
     SkDebugf("image decode failed\n");
     return nullptr;
