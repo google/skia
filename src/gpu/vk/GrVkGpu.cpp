@@ -584,15 +584,9 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     // TODO: determine what format Chrome will actually send us and turn it into a Resource
     GrVkImage::Resource* imageRsrc = reinterpret_cast<GrVkImage::Resource*>(desc.fTextureHandle);
 
-    GrGpuResource::LifeCycle lifeCycle;
-    switch (ownership) {
-        case kAdopt_GrWrapOwnership:
-            lifeCycle = GrGpuResource::kAdopted_LifeCycle;
-            break;
-        case kBorrow_GrWrapOwnership:
-            lifeCycle = GrGpuResource::kBorrowed_LifeCycle;
-            break;
-    }
+    GrGpuResource::LifeCycle lifeCycle = (kAdopt_GrWrapOwnership == ownership)
+                                         ? GrGpuResource::kAdopted_LifeCycle
+                                         : GrGpuResource::kBorrowed_LifeCycle;
 
     GrSurfaceDesc surfDesc;
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
@@ -628,15 +622,9 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     GrVkImage::Resource* imageRsrc =
         reinterpret_cast<GrVkImage::Resource*>(wrapDesc.fRenderTargetHandle);
 
-    GrGpuResource::LifeCycle lifeCycle;
-    switch (ownership) {
-        case kAdopt_GrWrapOwnership:
-            lifeCycle = GrGpuResource::kAdopted_LifeCycle;
-            break;
-        case kBorrow_GrWrapOwnership:
-            lifeCycle = GrGpuResource::kBorrowed_LifeCycle;
-            break;
-    }
+    GrGpuResource::LifeCycle lifeCycle = (kAdopt_GrWrapOwnership == ownership)
+                                         ? GrGpuResource::kAdopted_LifeCycle
+                                         : GrGpuResource::kBorrowed_LifeCycle;
 
     GrSurfaceDesc desc;
     desc.fConfig = wrapDesc.fConfig;

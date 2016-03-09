@@ -49,8 +49,6 @@ const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
     VkImage image = 0;
     VkDeviceMemory alloc;
 
-    VkResult err;
-
     VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling)
         ? VK_IMAGE_LAYOUT_PREINITIALIZED
         : VK_IMAGE_LAYOUT_UNDEFINED;
@@ -78,8 +76,7 @@ const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
         initialLayout                                // initialLayout
     };
 
-    err = VK_CALL(gpu, CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
-    SkASSERT(!err);
+    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
 
     if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, imageDesc.fMemProps, &alloc)) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
