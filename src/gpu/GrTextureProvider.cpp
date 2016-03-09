@@ -53,12 +53,12 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
     if (!GrPixelConfigIsCompressed(desc.fConfig) &&
         !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
         if (mipLevelCount < 2) {
-            const GrMipLevel& baseMipLevel = texels[0];
             static const uint32_t kFlags = kExact_ScratchTextureFlag |
                                            kNoCreate_ScratchTextureFlag;
             if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
-                if (!texels || texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                                    baseMipLevel.fPixels, baseMipLevel.fRowBytes)) {
+                if (!mipLevelCount ||
+                    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                         texels[0].fPixels, texels[0].fRowBytes)) {
                     if (SkBudgeted::kNo == budgeted) {
                         texture->resourcePriv().makeUnbudgeted();
                     }
