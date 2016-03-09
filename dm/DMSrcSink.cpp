@@ -14,6 +14,7 @@
 #include "SkDocument.h"
 #include "SkError.h"
 #include "SkImageGenerator.h"
+#include "SkImageGeneratorCG.h"
 #include "SkMallocPixelRef.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
@@ -263,15 +264,7 @@ CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, SkAlphaType 
 {}
 
 bool CodecSrc::veto(SinkFlags flags) const {
-    // Test CodecImageGenerator on 8888, 565, and gpu
-    if (kGen_Mode == fMode) {
-        // For image generator, we want to test kDirect approaches for kRaster and kGPU,
-        // while skipping everything else.
-        return (flags.type != SinkFlags::kRaster && flags.type != SinkFlags::kGPU) ||
-                flags.approach != SinkFlags::kDirect;
-    }
-
-    // Test all other modes to direct raster backends (8888 and 565).
+    // Test to direct raster backends (8888 and 565).
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
@@ -333,40 +326,10 @@ bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
     return true;
 }
 
-Error test_gen(SkCanvas* canvas, SkData* data) {
-    SkAutoTDelete<SkImageGenerator> gen = SkCodecImageGenerator::NewFromEncodedCodec(data);
-    if (!gen) {
-        return "Could not create image generator.";
-    }
-
-    // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
-    // Currently, we will avoid creating a CodecSrc for this case (see DM.cpp).
-    SkASSERT(kGray_8_SkColorType != gen->getInfo().colorType());
-
-    if (kOpaque_SkAlphaType != gen->getInfo().alphaType() &&
-            kRGB_565_SkColorType == canvas->imageInfo().colorType()) {
-        return Error::Nonfatal("Skip testing non-opaque images to 565.");
-    }
-
-    SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen.detach(), nullptr));
-    if (!image) {
-        return "Could not create image from codec image generator.";
-    }
-
-    canvas->drawImage(image, 0, 0);
-    return "";
-}
-
 Error CodecSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
-    }
-
-    // The CodecImageGenerator test does not share much code with the other tests,
-    // so we will handle it in its own function.
-    if (kGen_Mode == fMode) {
-        return test_gen(canvas, encoded);
     }
 
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
@@ -798,6 +761,118 @@ Name AndroidCodecSrc::name() const {
         return SkOSPath::Basename(fPath.c_str());
     }
     return get_scaled_name(fPath, 1.0f / (float) fSampleSize);
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+ImageGenSrc::ImageGenSrc(Path path, Mode mode, SkAlphaType alphaType, bool isGpu)
+    : fPath(path)
+    , fMode(mode)
+    , fDstAlphaType(alphaType)
+    , fIsGpu(isGpu)
+    , fRunSerially(serial_from_path_name(path))
+{}
+
+bool ImageGenSrc::veto(SinkFlags flags) const {
+    if (fIsGpu) {
+        return flags.type != SinkFlags::kGPU || flags.approach != SinkFlags::kDirect;
+    }
+
+    return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
+}
+
+Error ImageGenSrc::draw(SkCanvas* canvas) const {
+    if (kRGB_565_SkColorType == canvas->imageInfo().colorType()) {
+        return Error::Nonfatal("Uninteresting to test image generator to 565.");
+    }
+
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    if (!encoded) {
+        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+    }
+
+    SkAutoTDelete<SkImageGenerator> gen(nullptr);
+    switch (fMode) {
+        case kCodec_Mode:
+            gen.reset(SkCodecImageGenerator::NewFromEncodedCodec(encoded));
+            if (!gen) {
+                return "Could not create codec image generator.";
+            }
+            break;
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+        case kPlatform_Mode:
+            gen.reset(SkImageGeneratorCG::NewFromEncodedCG(encoded));
+            if (!gen) {
+                return "Could not create CG image generator.";
+            }
+            break;
+#endif
+        default:
+            SkASSERT(false);
+            return "Invalid image generator mode";
+    }
+
+    // Test deferred decoding path on GPU
+    if (fIsGpu) {
+        // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
+        //        We have disabled these tests in DM.cpp.
+        SkASSERT(kGray_8_SkColorType != gen->getInfo().colorType());
+
+        SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen.detach(), nullptr));
+        if (!image) {
+            return "Could not create image from codec image generator.";
+        }
+        canvas->drawImage(image, 0, 0);
+        return "";
+    }
+    
+    // Test various color and alpha types on CPU
+    SkImageInfo decodeInfo = gen->getInfo().makeAlphaType(fDstAlphaType);
+    
+    if (kGray_8_SkColorType == decodeInfo.colorType() &&
+            kOpaque_SkAlphaType != decodeInfo.alphaType()) {
+        return Error::Nonfatal("Avoid requesting non-opaque kGray8 decodes.");
+    }
+    
+    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    SkPMColor* colorPtr = nullptr;
+    int* colorCountPtr = nullptr;
+    int maxColors = 256;
+    if (kIndex_8_SkColorType == decodeInfo.colorType()) {
+        SkPMColor colors[256];
+        colorTable.reset(new SkColorTable(colors, maxColors));
+        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
+        colorCountPtr = &maxColors;
+    }
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
+        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
+                              decodeInfo.width(), decodeInfo.height());
+    }
+    
+    if (!gen->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), colorPtr,
+                        colorCountPtr))
+    {
+        return SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
+    }
+
+    premultiply_if_necessary(bitmap);
+    canvas->drawBitmap(bitmap, 0, 0);
+    return "";
+}
+
+SkISize ImageGenSrc::size() const {
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    if (nullptr == codec) {
+        return SkISize::Make(0, 0);
+    }
+    return codec->getInfo().dimensions();
+}
+
+Name ImageGenSrc::name() const {
+    return SkOSPath::Basename(fPath.c_str());
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

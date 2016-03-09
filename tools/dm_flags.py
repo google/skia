@@ -113,6 +113,16 @@ def get_args(bot):
     blacklist.extend('_ image _ interlaced2.png'.split(' '))
     blacklist.extend('_ image _ interlaced3.png'.split(' '))
 
+  # CG fails on questionable bmps
+  if 'Mac' in bot or 'iOS' in bot:
+    blacklist.extend('_ image gen_platf rgba32abf.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf rgb24prof.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf rgb24lprof.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf 8bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
+
   # skia:4095
   for test in ['not_native32_bitmap_config',
                'bleed_image',

@@ -343,9 +343,6 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kSubset_Mode:
             folder.append("codec_subset");
             break;
-        case CodecSrc::kGen_Mode:
-            folder.append("gen");
-            break;
     }
 
     switch (dstColorType) {
@@ -426,6 +423,40 @@ static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
     push_src("image", folder, src);
 }
 
+static void push_image_gen_src(Path path, ImageGenSrc::Mode mode, SkAlphaType alphaType, bool isGpu)
+{
+    SkString folder;
+    switch (mode) {
+        case ImageGenSrc::kCodec_Mode:
+            folder.append("gen_codec");
+            break;
+        case ImageGenSrc::kPlatform_Mode:
+            folder.append("gen_platform");
+            break;
+    }
+
+    if (isGpu) {
+        folder.append("_gpu");
+    } else {
+        switch (alphaType) {
+            case kOpaque_SkAlphaType:
+                folder.append("_opaque");
+                break;
+            case kPremul_SkAlphaType:
+                folder.append("_premul");
+                break;
+            case kUnpremul_SkAlphaType:
+                folder.append("_unpremul");
+                break;
+            default:
+                break;
+        }
+    }
+
+    ImageGenSrc* src = new ImageGenSrc(path, mode, alphaType, isGpu);
+    push_src("image", folder, src);
+}
+
 static void push_codec_srcs(Path path) {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
     if (!encoded) {
@@ -445,7 +476,6 @@ static void push_codec_srcs(Path path) {
     SkTArray<CodecSrc::Mode> nativeModes;
     nativeModes.push_back(CodecSrc::kCodec_Mode);
     nativeModes.push_back(CodecSrc::kCodecZeroInit_Mode);
-    nativeModes.push_back(CodecSrc::kGen_Mode);
     switch (codec->getEncodedFormat()) {
         case SkEncodedFormat::kJPEG_SkEncodedFormat:
             nativeModes.push_back(CodecSrc::kScanline_Mode);
@@ -487,19 +517,6 @@ static void push_codec_srcs(Path path) {
     }
 
     for (CodecSrc::Mode mode : nativeModes) {
-        // SkCodecImageGenerator only runs for the default colorType
-        // recommended by SkCodec.  There is no need to generate multiple
-        // tests for different colorTypes.
-        // TODO (msarett): Add scaling support to SkCodecImageGenerator.
-        if (CodecSrc::kGen_Mode == mode) {
-            // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
-            if (kGray_8_SkColorType != codec->getInfo().colorType()) {
-                push_codec_src(path, mode, CodecSrc::kGetFromCanvas_DstColorType,
-                               codec->getInfo().alphaType(), 1.0f);
-            }
-            continue;
-        }
-
         for (float scale : nativeScales) {
             for (CodecSrc::DstColorType colorType : colorTypes) {
                 for (SkAlphaType alphaType : alphaModes) {
@@ -548,6 +565,39 @@ static void push_codec_srcs(Path path) {
                 }
             }
         }
+    }
+
+    static const char* const rawExts[] = {
+        "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
+        "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
+    };
+
+    // There is not currently a reason to test RAW images on image generator.
+    // If we want to enable these tests, we will need to fix skbug.com/5079.
+    for (const char* ext : rawExts) {
+        if (path.endsWith(ext)) {
+            return;
+        }
+    }
+
+    // Push image generator GPU test.
+    // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
+    if (kGray_8_SkColorType != codec->getInfo().colorType()) {
+        push_image_gen_src(path, ImageGenSrc::kCodec_Mode, codec->getInfo().alphaType(), true);
+    }
+
+    // Push image generator CPU tests.
+    for (SkAlphaType alphaType : alphaModes) {
+        push_image_gen_src(path, ImageGenSrc::kCodec_Mode, alphaType, false);
+
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+        if (kWEBP_SkEncodedFormat != codec->getEncodedFormat() &&
+            kWBMP_SkEncodedFormat != codec->getEncodedFormat() &&
+            kUnpremul_SkAlphaType != alphaType)
+        {
+            push_image_gen_src(path, ImageGenSrc::kPlatform_Mode, alphaType, false);
+        }
+#endif
     }
 }
 

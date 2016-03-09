@@ -112,7 +112,6 @@ public:
         kStripe_Mode, // Tests the skipping of scanlines
         kCroppedScanline_Mode, // Tests (jpeg) cropped scanline optimization
         kSubset_Mode, // For codecs that support subsets directly.
-        kGen_Mode,    // Test SkCodecImageGenerator (includes YUV)
     };
     enum DstColorType {
         kGetFromCanvas_DstColorType,
@@ -185,6 +184,27 @@ private:
     Mode                                     fMode;
     CodecSrc::DstColorType                   fDstColorType;
     uint32_t                                 fSampleSize;
+};
+
+class ImageGenSrc : public Src {
+public:
+    enum Mode {
+        kCodec_Mode,    // Use CodecImageGenerator
+        kPlatform_Mode, // Uses CG or WIC
+    };
+    ImageGenSrc(Path, Mode, SkAlphaType, bool);
+
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
+    bool veto(SinkFlags) const override;
+    bool serial() const override { return fRunSerially; }
+private:
+    Path        fPath;
+    Mode        fMode;
+    SkAlphaType fDstAlphaType;
+    bool        fIsGpu;
+    bool        fRunSerially;
 };
 
 class SKPSrc : public Src {

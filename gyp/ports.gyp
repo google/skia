@@ -150,6 +150,8 @@
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
+
+            '../src/ports/SkImageGeneratorCG.cpp',
           ],
         }],
         [ 'skia_os == "ios"', {
@@ -160,6 +162,8 @@
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
+
+            '../src/ports/SkImageGeneratorCG.cpp',
           ],
         }],
         [ 'skia_os == "win"', {
