@@ -250,7 +250,6 @@
     'skia_use_sdl%': 0,
     'skia_fast%': 0,
     'skia_dump_stats%': 0,
-    'skia_build_server%': 0,
     'vulkan_merged_into_skia%': '<(vulkan_merged_into_skia)',
     'skia_fast_flags': [
         '-O3',                   # Even for Debug builds.
