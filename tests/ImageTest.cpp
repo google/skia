@@ -31,7 +31,9 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
 
     REPORTER_ASSERT(reporter, widthA == b->width());
     REPORTER_ASSERT(reporter, heightA == b->height());
-    REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
+
+    // see https://bug.skia.org/3965
+    //REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
 
     SkImageInfo info = SkImageInfo::MakeN32(widthA, heightA,
                                         a->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
