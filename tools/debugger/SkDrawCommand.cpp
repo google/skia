@@ -245,6 +245,7 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
         INSTALL_FACTORY(DrawPoints);
         INSTALL_FACTORY(DrawText);
         INSTALL_FACTORY(DrawPosText);
+        INSTALL_FACTORY(DrawPosTextH);
         INSTALL_FACTORY(DrawTextOnPath);
         INSTALL_FACTORY(DrawTextBlob);
 
@@ -2371,7 +2372,8 @@ Json::Value SkDrawPosTextCommand::toJSON(UrlDataManager& urlDataManager) const {
     result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = Json::Value((const char*) fText, 
                                                        ((const char*) fText) + fByteLength);
     Json::Value coords(Json::arrayValue);
-    for (size_t i = 0; i < fByteLength; i++) {
+    size_t numCoords = fPaint.textToGlyphs(fText, fByteLength, nullptr);
+    for (size_t i = 0; i < numCoords; i++) {
         coords.append(make_json_point(fPos[i]));
     }
     result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = coords;
@@ -2417,6 +2419,36 @@ SkDrawPosTextHCommand::SkDrawPosTextHCommand(const void* text, size_t byteLength
 
 void SkDrawPosTextHCommand::execute(SkCanvas* canvas) const {
     canvas->drawPosTextH(fText, fByteLength, fXpos, fConstY, fPaint);
+}
+
+Json::Value SkDrawPosTextHCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+    result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = Json::Value((const char*) fText,
+                                                       ((const char*) fText) + fByteLength);
+    result[SKDEBUGCANVAS_ATTRIBUTE_Y] = Json::Value(fConstY);
+    Json::Value xpos(Json::arrayValue);
+    size_t numXpos = fPaint.textToGlyphs(fText, fByteLength, nullptr);
+    for (size_t i = 0; i < numXpos; i++) {
+        xpos.append(Json::Value(fXpos[i]));
+    }
+    result[SKDEBUGCANVAS_ATTRIBUTE_POSITIONS] = xpos;
+    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = make_json_paint(fPaint, urlDataManager);
+    return result;
+}
+
+SkDrawPosTextHCommand* SkDrawPosTextHCommand::fromJSON(Json::Value& command,
+                                                       UrlDataManager& urlDataManager) {
+    const char* text = command[SKDEBUGCANVAS_ATTRIBUTE_TEXT].asCString();
+    SkPaint paint;
+    extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
+    Json::Value jsonXpos = command[SKDEBUGCANVAS_ATTRIBUTE_POSITIONS];
+    int count = (int) jsonXpos.size();
+    SkScalar* xpos = (SkScalar*) sk_malloc_throw(count * sizeof(SkScalar));
+    for (int i = 0; i < count; i++) {
+        xpos[i] = jsonXpos[i].asFloat();
+    }
+    SkScalar y = command[SKDEBUGCANVAS_ATTRIBUTE_Y].asFloat();
+    return new SkDrawPosTextHCommand(text, strlen(text), xpos, y, paint);
 }
 
 static const char* gPositioningLabels[] = {

@@ -18,6 +18,7 @@
       'type': 'none',
       'dependencies': [
         'most.gyp:most',
+        'skiaserve.gyp:skiaserve',
       ],
       'conditions': [
         ['skia_os in ("ios", "android", "chromeos")', {

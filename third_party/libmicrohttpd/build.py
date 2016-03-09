@@ -13,13 +13,19 @@ import tempfile
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--src", help="microhttpd src directory")
-parser.add_argument("--dst", help="output for build files")
+parser.add_argument("--out", help="build directory")
+parser.add_argument("--dst", help="output for final build products")
 args = parser.parse_args()
 
-temp_dir = tempfile.mkdtemp()
+out_dir = args.out
 cwd = os.getcwd()
-os.chdir(temp_dir)
-call([cwd + "/" + args.src + "/configure",
+try:
+  os.makedirs(out_dir)
+except OSError as e:
+  pass
+
+os.chdir(out_dir)
+call([os.path.join(cwd, args.src, "configure"),
       "--disable-doc",
       "--disable-examples",
       "--enable-https=no",
@@ -28,7 +34,5 @@ call([cwd + "/" + args.src + "/configure",
       "--enable-shared=no"])
 call(["make", "--silent"])
 call(["cp",
-      temp_dir + "/src/microhttpd/.libs/libmicrohttpd.a",
-      cwd + "/" + args.dst])
-shutil.rmtree(temp_dir)
-
+      "src/microhttpd/.libs/libmicrohttpd.a",
+      os.path.join(cwd, args.dst)])
