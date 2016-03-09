@@ -28,7 +28,7 @@ SkFlattenable* SkImageShader::CreateProc(SkReadBuffer& buffer) {
     if (!img) {
         return nullptr;
     }
-    return new SkImageShader(img, tx, ty, &matrix);
+    return SkImageShader::Make(img, tx, ty, &matrix).release();
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
@@ -51,12 +51,12 @@ SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* s
                                            SkBitmapProvider(fImage), rec, storage);
 }
 
-SkShader* SkImageShader::Create(const SkImage* image, TileMode tx, TileMode ty,
-                                const SkMatrix* localMatrix) {
+sk_sp<SkShader> SkImageShader::Make(const SkImage* image, TileMode tx, TileMode ty,
+                                    const SkMatrix* localMatrix) {
     if (!image) {
         return nullptr;
     }
-    return new SkImageShader(image, tx, ty, localMatrix);
+    return sk_sp<SkShader>(new SkImageShader(image, tx, ty, localMatrix));
 }
 
 #ifndef SK_IGNORE_TO_STRING

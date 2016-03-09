@@ -13,7 +13,8 @@
 
 class SkImageShader : public SkShader {
 public:
-    static SkShader* Create(const SkImage*, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
+    static sk_sp<SkShader> Make(const SkImage*, TileMode tx, TileMode ty,
+                                const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
 

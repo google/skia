@@ -231,7 +231,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
 
         SkMatrix shaderMatrix = this->getLocalMatrix();
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
-        tileShader.reset(tileImage->newShader(fTmx, fTmy, &shaderMatrix));
+        tileShader = tileImage->makeShader(fTmx, fTmy, &shaderMatrix);
 
         const SkImageInfo tileInfo = SkImageInfo::MakeN32Premul(tileSize);
         SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get(),

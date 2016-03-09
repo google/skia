@@ -103,11 +103,17 @@ void SkImage::preroll(GrContext* ctx) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkShader* SkImage::newShader(SkShader::TileMode tileX,
-                             SkShader::TileMode tileY,
-                             const SkMatrix* localMatrix) const {
-    return SkImageShader::Create(this, tileX, tileY, localMatrix);
+sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
+                                    const SkMatrix* localMatrix) const {
+    return SkImageShader::Make(this, tileX, tileY, localMatrix);
 }
+
+#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
+SkShader* SkImage::newShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
+                             const SkMatrix* localMatrix) const {
+    return this->makeShader(tileX, tileY, localMatrix).release();
+}
+#endif
 
 SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     SkBitmap bm;

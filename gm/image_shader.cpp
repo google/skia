@@ -101,10 +101,9 @@ protected:
 
         const SkShader::TileMode tile = SkShader::kRepeat_TileMode;
         const SkMatrix localM = SkMatrix::MakeTrans(-50, -50);
-        SkAutoTUnref<SkShader> shader(image->newShader(tile, tile, &localM));
         SkPaint paint;
+        paint.setShader(image->makeShader(tile, tile, &localM));
         paint.setAntiAlias(true);
-        paint.setShader(shader);
         canvas->drawCircle(50, 50, 50, paint);
     }
 

@@ -1711,8 +1711,7 @@ static int limage_height(lua_State* L) {
 static int limage_newShader(lua_State* L) {
     SkShader::TileMode tmode = SkShader::kClamp_TileMode;
     const SkMatrix* localM = nullptr;
-    SkAutoTUnref<SkShader> shader(get_ref<SkImage>(L, 1)->newShader(tmode, tmode, localM));
-    push_ref(L, shader.get());
+    push_ref(L, get_ref<SkImage>(L, 1)->makeShader(tmode, tmode, localM));
     return 1;
 }
 

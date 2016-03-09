@@ -27,7 +27,7 @@ static SkSurface* make_surface(SkCanvas* canvas, const SkImageInfo& info) {
     return surface;
 }
 
-static SkShader* make_shader(const SkRect& bounds) {
+static sk_sp<SkShader> make_shader(const SkRect& bounds) {
 #if 0
     const SkPoint pts[] = {
         { bounds.left(), bounds.top() },
@@ -45,7 +45,7 @@ static SkShader* make_shader(const SkRect& bounds) {
     if (nullptr == image) {
         return nullptr;
     }
-    return image->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+    return image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
 #endif
 }
 
@@ -67,7 +67,7 @@ static SkImage* make_image() {
     path.moveTo(0, 0); path.lineTo(N, 0); path.lineTo(0, N); path.close();
 
     SkPaint paint;
-    SkSafeUnref(paint.setShader(make_shader(SkRect::MakeWH(N, N))));
+    paint.setShader(make_shader(SkRect::MakeWH(N, N)));
     
     canvas->drawPath(path, paint);
     return surface->newImageSnapshot();

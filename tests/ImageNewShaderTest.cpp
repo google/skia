@@ -45,9 +45,9 @@ void runShaderTest(skiatest::Reporter* reporter, SkSurface* sourceSurface, SkSur
     paintSource(sourceSurface);
 
     SkAutoTUnref<SkImage> sourceImage(sourceSurface->newImageSnapshot());
-    SkAutoTUnref<SkShader> sourceShader(sourceImage->newShader(
+    sk_sp<SkShader> sourceShader = sourceImage->makeShader(
             SkShader::kRepeat_TileMode,
-            SkShader::kRepeat_TileMode));
+            SkShader::kRepeat_TileMode);
 
     SkPaint paint;
     paint.setShader(sourceShader);
@@ -73,10 +73,10 @@ void runShaderTest(skiatest::Reporter* reporter, SkSurface* sourceSurface, SkSur
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-1), SkIntToScalar(0));
 
-    SkAutoTUnref<SkShader> sourceShaderTranslated(sourceImage->newShader(
+    sk_sp<SkShader> sourceShaderTranslated = sourceImage->makeShader(
             SkShader::kRepeat_TileMode,
             SkShader::kRepeat_TileMode,
-            &matrix));
+            &matrix);
 
     destinationCanvas->clear(SK_ColorTRANSPARENT);
 

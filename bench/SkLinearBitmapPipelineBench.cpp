@@ -176,13 +176,12 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
         SkImage* image = SkImage::NewRasterCopy(
             fInfo, fBitmap.get(), sizeof(SkPMColor) * fSrcSize.fWidth);
         fImage.reset(image);
-        SkShader* shader = fImage->newShader(fXTile, fYTile);
+        fPaint.setShader(fImage->makeShader(fXTile, fYTile));
         if (fUseBilerp) {
             fPaint.setFilterQuality(SkFilterQuality::kLow_SkFilterQuality);
         } else {
             fPaint.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
         }
-        fPaint.setShader(shader)->unref();
     }
 
     void onPostDraw(SkCanvas*) override {

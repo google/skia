@@ -70,8 +70,7 @@ static sk_sp<SkShader> sh_make_image() {
     if (!image) {
         return nullptr;
     }
-    return sk_sp<SkShader>(image->newShader(SkShader::kRepeat_TileMode,
-                                            SkShader::kRepeat_TileMode));
+    return image->makeShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
 }
 
 static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {

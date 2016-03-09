@@ -164,15 +164,15 @@ protected:
 
                     SkPaint clampPaint;
                     clampPaint.setFilterQuality(q);
-                    clampPaint.setShader(rectImg->newShader(SkShader::kClamp_TileMode,
-                                                            SkShader::kClamp_TileMode))->unref();
+                    clampPaint.setShader(rectImg->makeShader(SkShader::kClamp_TileMode,
+                                                             SkShader::kClamp_TileMode));
                     canvas->drawRect(SkRect::MakeWH(1.5f * kWidth, 1.5f * kHeight), clampPaint);
                     canvas->translate(kWidth * 1.5f + kPad, 0);
 
                     SkPaint repeatPaint;
                     repeatPaint.setFilterQuality(q);
-                    repeatPaint.setShader(rectImg->newShader(SkShader::kRepeat_TileMode,
-                                                             SkShader::kMirror_TileMode))->unref();
+                    repeatPaint.setShader(rectImg->makeShader(SkShader::kRepeat_TileMode,
+                                                              SkShader::kMirror_TileMode));
                     canvas->drawRect(SkRect::MakeWH(1.5f * kWidth, 1.5f * kHeight), repeatPaint);
                     canvas->translate(1.5f * kWidth + kPad, 0);
             }

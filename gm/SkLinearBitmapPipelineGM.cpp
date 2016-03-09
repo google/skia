@@ -61,13 +61,12 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
         info, pmsrc.addr32(), pmsrc.rowBytes())};
     SkPaint paint;
     int32_t storage[300];
-    SkShader* shader = image->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+    paint.setShader(image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode));
     if (useBilerp) {
         paint.setFilterQuality(SkFilterQuality::kLow_SkFilterQuality);
     } else {
         paint.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
     }
-    paint.setShader(shader)->unref();
     const SkShader::ContextRec rec(paint, *mat, nullptr,
                                    SkBlitter::PreferredShaderDest(pmsrc.info()));
     SkASSERT(paint.getShader()->contextSize(rec) <= sizeof(storage));

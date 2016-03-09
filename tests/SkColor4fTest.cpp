@@ -98,9 +98,9 @@ static SkColorFilter* make_compose_cf() {
     return SkColorFilter::CreateComposeFilter(cf0, cf1);
 }
 
-static SkShader* make_color_sh() { return SkShader::CreateColorShader(0xFFBB8855); }
+static sk_sp<SkShader> make_color_sh() { return SkShader::MakeColorShader(0xFFBB8855); }
 
-static SkShader* make_image_sh() {
+static sk_sp<SkShader> make_image_sh() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
     const SkPMColor pixels[] {
         SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
@@ -109,10 +109,10 @@ static SkShader* make_image_sh() {
         SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
     };
     SkAutoTUnref<SkImage> image(SkImage::NewRasterCopy(info, pixels, sizeof(SkPMColor) * 2));
-    return image->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+    return image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
 }
 
-static SkShader* make_grad_sh() {
+static sk_sp<SkShader> make_grad_sh() {
 #if 0
     const SkPoint pts[] {{ 0, 0 }, { 100, 100 }};
     const SkColor colors[] { SK_ColorRED, SK_ColorBLUE };
@@ -123,10 +123,10 @@ static SkShader* make_grad_sh() {
 #endif
 }
 
-static SkShader* make_cf_sh() {
+static sk_sp<SkShader> make_cf_sh() {
     SkAutoTUnref<SkColorFilter> filter(make_mx_cf());
-    SkAutoTUnref<SkShader> shader(make_color_sh());
-    return shader->newWithColorFilter(filter);
+    sk_sp<SkShader> shader(make_color_sh());
+    return sk_sp<SkShader>(shader->newWithColorFilter(filter));
 }
 
 static bool compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int count,
@@ -143,9 +143,9 @@ static bool compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int c
 
 DEF_TEST(Color4f_shader, reporter) {
     struct {
-        SkShader* (*fFact)();
-        bool      fSupports4f;
-        float     fTolerance;
+        sk_sp<SkShader> (*fFact)();
+        bool            fSupports4f;
+        float           fTolerance;
     } recs[] = {
         { make_color_sh, true,  1.0f/255   },
         // PMColor 4f gradients are interpolated in 255-multiplied values, so we need a
@@ -158,7 +158,7 @@ DEF_TEST(Color4f_shader, reporter) {
     SkPaint paint;
     for (const auto& rec : recs) {
         uint32_t storage[300];
-        paint.setShader(rec.fFact())->unref();
+        paint.setShader(rec.fFact());
         // Encourage 4f context selection. At some point we may need
         // to instantiate two separate contexts for optimal 4b/4f selection.
         const SkShader::ContextRec contextRec(paint, SkMatrix::I(), nullptr,
