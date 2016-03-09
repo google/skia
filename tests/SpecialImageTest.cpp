@@ -108,7 +108,7 @@ DEF_TEST(SpecialImage_Image, reporter) {
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromImage(subset, fullImage));
+    SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromImage(nullptr, subset, fullImage));
     test_image(img, reporter, true, false);
 }
 

@@ -152,11 +152,13 @@ DEF_TEST(ImageFilterCache_RasterBacked, reporter) {
 static void test_image_backed(skiatest::Reporter* reporter, SkImage* srcImage) {
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
-    SkAutoTUnref<SkSpecialImage> fullImg(SkSpecialImage::NewFromImage(full, srcImage));
+    SkAutoTUnref<SkSpecialImage> fullImg(SkSpecialImage::NewFromImage(nullptr, full, srcImage));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    SkAutoTUnref<SkSpecialImage> subsetImg(SkSpecialImage::NewFromImage(subset, srcImage));
+    SkAutoTUnref<SkSpecialImage> subsetImg(SkSpecialImage::NewFromImage(nullptr,
+                                                                        subset,
+                                                                        srcImage));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);

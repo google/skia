@@ -52,7 +52,9 @@ public:
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
-    static SkSpecialImage* NewFromImage(const SkIRect& subset, const SkImage*);
+    static SkSpecialImage* NewFromImage(SkImageFilter::Proxy*,
+                                        const SkIRect& subset,
+                                        const SkImage*);
     static SkSpecialImage* NewFromRaster(SkImageFilter::Proxy*,
                                          const SkIRect& subset,
                                          const SkBitmap&);

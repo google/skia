@@ -138,11 +138,25 @@ public:
     GrTexture* onPeekTexture() const override { return as_IB(fImage.get())->peekTexture(); }
 
     bool getBitmapDeprecated(SkBitmap* result) const override {
-        return false;
+#if SK_SUPPORT_GPU
+        if (GrTexture* texture = as_IB(fImage.get())->peekTexture()) {
+            const SkImageInfo info = GrMakeInfoFromTexture(texture, 
+                                                           fImage->width(), fImage->height(),
+                                                           fImage->isOpaque());
+            if (!result->setInfo(info)) {
+                return false;
+            }
+
+            result->setPixelRef(new SkGrPixelRef(info, texture))->unref();
+            return true;
+        }
+#endif
+
+        return as_IB(fImage.get())->asBitmapForImageFilters(result);
     }
 
     bool testingOnlyOnGetROPixels(SkBitmap* result) const override {
-        return false;
+        return fImage->asLegacyBitmap(result, SkImage::kRO_LegacyBitmapMode);
     }
 
     SkSpecialSurface* onNewSurface(const SkImageInfo& info) const override {
@@ -178,9 +192,11 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 }
 #endif
 
-SkSpecialImage* SkSpecialImage::NewFromImage(const SkIRect& subset, const SkImage* image) {
+SkSpecialImage* SkSpecialImage::NewFromImage(SkImageFilter::Proxy* proxy,
+                                             const SkIRect& subset,
+                                             const SkImage* image) {
     SkASSERT(rect_fits(subset, image->width(), image->height()));
-    return new SkSpecialImage_Image(nullptr, subset, image);
+    return new SkSpecialImage_Image(proxy, subset, image);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

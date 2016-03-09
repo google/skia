@@ -8,9 +8,10 @@
 #include "SkImageSource.h"
 
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkImage.h"
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
@@ -64,27 +65,39 @@ void SkImageSource::flatten(SkWriteBuffer& buffer) const {
     buffer.writeImage(fImage);
 }
 
-bool SkImageSource::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                            SkBitmap* result, SkIPoint* offset) const {
+SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                             SkIPoint* offset) const {
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
+
     SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
     if (fSrcRect == bounds && dstRect == bounds) {
         // No regions cropped out or resized; return entire image.
         offset->fX = offset->fY = 0;
-        return fImage->asLegacyBitmap(result, SkImage::kRO_LegacyBitmapMode);
+        return SkSpecialImage::NewFromImage(source->internal_getProxy(),
+                                            SkIRect::MakeWH(fImage->width(), fImage->height()),
+                                            fImage);
     }
 
     const SkIRect dstIRect = dstRect.roundOut();
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstIRect.width(), dstIRect.height()));
-    if (nullptr == device.get()) {
-        return false;
+
+    const SkImageInfo info = SkImageInfo::MakeN32(dstIRect.width(), dstIRect.height(),
+                                                  kPremul_SkAlphaType);
+
+    SkAutoTUnref<SkSpecialSurface> surf(source->newSurface(info));
+    if (!surf) {
+        return nullptr;
     }
 
-    SkCanvas canvas(device.get());
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    // TODO: it seems like this clear shouldn't be necessary (see skbug.com/5075)
+    canvas->clear(0x0);
+
     SkPaint paint;
 
-    // Subtract off the integer component of the translation (will be applied in loc, below).
+    // Subtract off the integer component of the translation (will be applied in offset, below).
     dstRect.offset(-SkIntToScalar(dstIRect.fLeft), -SkIntToScalar(dstIRect.fTop));
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     // FIXME: this probably shouldn't be necessary, but drawImageRect asserts
@@ -92,13 +105,11 @@ bool SkImageSource::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, c
     paint.setFilterQuality(
         fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height() ?
                kNone_SkFilterQuality : fFilterQuality);
-    canvas.drawImageRect(fImage, fSrcRect, dstRect, &paint, SkCanvas::kStrict_SrcRectConstraint);
+    canvas->drawImageRect(fImage, fSrcRect, dstRect, &paint, SkCanvas::kStrict_SrcRectConstraint);
 
-    *result = device.get()->accessBitmap(false);
     offset->fX = dstIRect.fLeft;
     offset->fY = dstIRect.fTop;
-
-    return true;
+    return surf->newImageSnapshot();
 }
 
 void SkImageSource::computeFastBounds(const SkRect& src, SkRect* dst) const {
