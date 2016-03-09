@@ -6,10 +6,10 @@
  */
 
 #include "SkPaintImageFilter.h"
-#include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
 SkImageFilter* SkPaintImageFilter::Create(const SkPaint& paint, const CropRect* cropRect) {
@@ -33,37 +33,41 @@ void SkPaintImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writePaint(fPaint);
 }
 
-bool SkPaintImageFilter::onFilterImageDeprecated(Proxy* proxy,
-                                                 const SkBitmap& source,
-                                                 const Context& ctx,
-                                                 SkBitmap* result,
-                                                 SkIPoint* offset) const {
+SkSpecialImage* SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
+                                                  const Context& ctx,
+                                                  SkIPoint* offset) const {
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, source.bounds(), &bounds)) {
-        return false;
+    const SkIRect srcBounds = SkIRect::MakeWH(source->width(), source->height());
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
+        return nullptr;
     }
 
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(),
-                                                          bounds.height()));
-    if (nullptr == device.get()) {
-        return false;
+    SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
+                                            kPremul_SkAlphaType);
+
+    SkAutoTUnref<SkSpecialSurface> surf(source->newSurface(info));
+    if (!surf) {
+        return nullptr;
     }
-    SkCanvas canvas(device.get());
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    canvas->clear(0x0);
 
     SkMatrix matrix(ctx.ctm());
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    SkRect rect = SkRect::MakeWH(SkIntToScalar(bounds.width()), SkIntToScalar(bounds.height()));
+    SkRect rect = SkRect::MakeIWH(bounds.width(), bounds.height());
     SkMatrix inverse;
     if (matrix.invert(&inverse)) {
         inverse.mapRect(&rect);
     }
-    canvas.setMatrix(matrix);
-    canvas.drawRect(rect, fPaint);
+    canvas->setMatrix(matrix);
+    canvas->drawRect(rect, fPaint);
 
-    *result = device.get()->accessBitmap(false);
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
-    return true;
+    return surf->newImageSnapshot();
 }
 
 bool SkPaintImageFilter::canComputeFastBounds() const {
