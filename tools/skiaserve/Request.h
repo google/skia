@@ -31,6 +31,7 @@ struct Request {
 
     // draws to skia draw op N, highlighting the Mth batch(-1 means no highlight)
     SkData* drawToPng(int n, int m = -1);
+    SkData* writeOutSkp();
     SkCanvas* getCanvas();
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
     bool enableGPU(bool enable);
@@ -48,9 +49,8 @@ struct Request {
     // Returns json with the viewMatrix and clipRect
     SkData* getJsonInfo(int n);
 
-    // TODO probably want to make this configurable
-    static const int kImageWidth;
-    static const int kImageHeight;
+    // returns the color of the pixel at (x,y) in the canvas
+    SkColor getPixel(int x, int y);
 
     UploadContext* fUploadContext;
     SkAutoTUnref<SkDebugCanvas> fDebugCanvas;

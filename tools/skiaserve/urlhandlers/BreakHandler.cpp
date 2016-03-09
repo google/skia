@@ -19,19 +19,6 @@ bool BreakHandler::canHandle(const char* method, const char* url) {
            0 == strncmp(url, kBasePath, strlen(kBasePath));
 }
 
-SkColor BreakHandler::GetPixel(Request* request, int x, int y) {
-    SkCanvas* canvas = request->getCanvas();
-    canvas->flush();
-    SkAutoTDelete<SkBitmap> bitmap(request->getBitmapFromCanvas(canvas));
-    SkASSERT(bitmap);
-    bitmap->lockPixels();
-    uint8_t* start = ((uint8_t*) bitmap->getPixels()) + (y * Request::kImageWidth + x) * 4;
-    SkColor result = SkColorSetARGB(start[3], start[0], start[1], start[2]);
-    bitmap->unlockPixels();
-    return result;
-}
-
-
 int BreakHandler::handle(Request* request, MHD_Connection* connection,
                          const char* url, const char* method,
                          const char* upload_data, size_t* upload_data_size) {
@@ -59,7 +46,7 @@ int BreakHandler::handle(Request* request, MHD_Connection* connection,
     for (int i = 0; i <= n; ++i) {
         request->fDebugCanvas->getDrawCommandAt(i)->execute(canvas);
     }
-    SkColor target = GetPixel(request, x, y);
+    SkColor target = request->getPixel(x, y);
     Json::Value response(Json::objectValue);
     Json::Value startColor(Json::arrayValue);
     startColor.append(Json::Value(SkColorGetR(target)));
@@ -78,7 +65,7 @@ int BreakHandler::handle(Request* request, MHD_Connection* connection,
             saveCount = canvas->save();
         }
         request->fDebugCanvas->getDrawCommandAt(index)->execute(canvas);
-        SkColor current = GetPixel(request, x, y);
+        SkColor current = request->getPixel(x, y);
         if (current != target) {
             Json::Value endColor(Json::arrayValue);
             endColor.append(Json::Value(SkColorGetR(current)));

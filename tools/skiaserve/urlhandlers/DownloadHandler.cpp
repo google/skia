@@ -8,8 +8,6 @@
 #include "UrlHandler.h"
 
 #include "microhttpd.h"
-#include "SkPictureRecorder.h"
-#include "SkPixelSerializer.h"
 #include "../Request.h"
 #include "../Response.h"
 
@@ -27,22 +25,7 @@ int DownloadHandler::handle(Request* request, MHD_Connection* connection,
         return MHD_NO;
     }
 
-    // TODO move to a function
-    // Playback into picture recorder
-    SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(Request::kImageWidth,
-                                               Request::kImageHeight);
-
-    request->fDebugCanvas->draw(canvas);
-
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-
-    SkDynamicMemoryWStream outStream;
-
-    SkAutoTUnref<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
-    picture->serialize(&outStream, serializer);
-
-    SkAutoTUnref<SkData> data(outStream.copyToData());
+    SkAutoTUnref<SkData> data(request->writeOutSkp());
 
     // TODO fancier name handling
     return SendData(connection, data, "application/octet-stream", true,

@@ -41,8 +41,6 @@ public:
     int handle(Request* request, MHD_Connection* connection,
                const char* url, const char* method,
                const char* upload_data, size_t* upload_data_size) override;
-private:
-    static SkColor GetPixel(Request* request, int x, int y);
 };
 
 /**

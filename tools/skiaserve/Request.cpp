@@ -9,8 +9,8 @@
 
 #include "png.h"
 
-const int Request::kImageWidth = 1920;
-const int Request::kImageHeight = 1080;
+#include "SkPictureRecorder.h"
+#include "SkPixelSerializer.h"
 
 static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
     SkWStream* out = (SkWStream*) png_get_io_ptr(png_ptr);
@@ -55,13 +55,13 @@ Request::Request(SkString rootUrl)
     // create surface
     GrContextOptions grContextOpts;
     fContextFactory.reset(new GrContextFactory(grContextOpts));
-    fSurface.reset(this->createCPUSurface());
 }
 
 SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
     SkBitmap* bmp = new SkBitmap();
-    SkImageInfo info = SkImageInfo::Make(kImageWidth, kImageHeight, kRGBA_8888_SkColorType,
-                kOpaque_SkAlphaType);
+    SkIRect bounds = fPicture->cullRect().roundOut();
+    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(),
+                                         kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
     bmp->setInfo(info);
     if (!canvas->readPixels(bmp, 0, 0)) {
         fprintf(stderr, "Can't read pixels\n");
@@ -72,7 +72,7 @@ SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
 
 SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
     // capture pixels
-    SkAutoTDelete<SkBitmap> bmp(getBitmapFromCanvas(canvas));
+    SkAutoTDelete<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
     SkASSERT(bmp);
 
     // write to png
@@ -87,6 +87,11 @@ SkCanvas* Request::getCanvas() {
                                               GrContextFactory::kNone_GLContextOptions).fGLContext;
     gl->makeCurrent();
     SkASSERT(fDebugCanvas);
+
+    // create the appropriate surface if necessary
+    if (!fSurface) {
+        this->enableGPU(fGPUEnabled);
+    }
     SkCanvas* target = fSurface->getCanvas();
     return target;
 }
@@ -101,8 +106,27 @@ SkData* Request::drawToPng(int n, int m) {
     return writeCanvasToPng(this->getCanvas());
 }
 
+SkData* Request::writeOutSkp() {
+    // Playback into picture recorder
+    SkIRect bounds = fPicture->cullRect().roundOut();
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(bounds.width(), bounds.height());
+
+    fDebugCanvas->draw(canvas);
+
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
+    SkDynamicMemoryWStream outStream;
+
+    SkAutoTUnref<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
+    picture->serialize(&outStream, serializer);
+
+    return outStream.copyToData();
+}
+
 SkSurface* Request::createCPUSurface() {
-    SkImageInfo info = SkImageInfo::Make(kImageWidth, kImageHeight, kN32_SkColorType,
+    SkIRect bounds = fPicture->cullRect().roundOut();
+    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), kN32_SkColorType,
                                          kPremul_SkAlphaType);
     return SkSurface::NewRaster(info);
 }
@@ -110,9 +134,8 @@ SkSurface* Request::createCPUSurface() {
 SkSurface* Request::createGPUSurface() {
     GrContext* context = fContextFactory->get(GrContextFactory::kNative_GLContextType,
                                               GrContextFactory::kNone_GLContextOptions);
-    int maxRTSize = context->caps()->maxRenderTargetSize();
-    SkImageInfo info = SkImageInfo::Make(SkTMin(kImageWidth, maxRTSize),
-                                         SkTMin(kImageHeight, maxRTSize),
+    SkIRect bounds = fPicture->cullRect().roundOut();
+    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(),
                                          kN32_SkColorType, kPremul_SkAlphaType);
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
@@ -145,7 +168,8 @@ bool Request::initPictureFromStream(SkStream* stream) {
     }
 
     // pour picture into debug canvas
-    fDebugCanvas.reset(new SkDebugCanvas(kImageWidth, Request::kImageHeight));
+    SkIRect bounds = fPicture->cullRect().roundOut();
+    fDebugCanvas.reset(new SkDebugCanvas(bounds.width(), bounds.height()));
     fDebugCanvas->drawPicture(fPicture);
 
     // for some reason we need to 'flush' the debug canvas by drawing all of the ops
@@ -235,3 +259,16 @@ SkData* Request::getJsonInfo(int n) {
     // We don't want the null terminator so strlen is correct
     return SkData::NewWithCopy(json.c_str(), strlen(json.c_str()));
 }
+
+SkColor Request::getPixel(int x, int y) {
+    SkCanvas* canvas = this->getCanvas();
+    canvas->flush();
+    SkAutoTDelete<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
+    SkASSERT(bitmap);
+    bitmap->lockPixels();
+    uint8_t* start = ((uint8_t*) bitmap->getPixels()) + (y * bitmap->width() + x) * 4;
+    SkColor result = SkColorSetARGB(start[3], start[0], start[1], start[2]);
+    bitmap->unlockPixels();
+    return result;
+}
+
