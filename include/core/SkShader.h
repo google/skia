@@ -23,6 +23,8 @@ class SkXfermode;
 class GrContext;
 class GrFragmentProcessor;
 
+#define SK_SUPPORT_LEGACY_CREATESHADER_PTR
+
 /** \class SkShader
  *
  *  Shaders specify the source color(s) for what is being drawn. If a paint
@@ -335,25 +337,39 @@ public:
     /**
      *  Call this to create a new "empty" shader, that will not draw anything.
      */
-    static SkShader* CreateEmptyShader();
+    static sk_sp<SkShader> MakeEmptyShader();
 
     /**
      *  Call this to create a new shader that just draws the specified color. This should always
      *  draw the same as a paint with this color (and no shader).
      */
-    static SkShader* CreateColorShader(SkColor);
+    static sk_sp<SkShader> MakeColorShader(SkColor);
 
-    static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode::Mode);
+    static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                             SkXfermode::Mode);
+
+#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
+    static SkShader* CreateEmptyShader() { return MakeEmptyShader().release(); }
+    static SkShader* CreateColorShader(SkColor c) { return MakeColorShader(c).release(); }
+    static SkShader* CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
+                                        const SkMatrix* localMatrix = nullptr) {
+        return MakeBitmapShader(src, tmx, tmy, localMatrix).release();
+    }
+    static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode::Mode mode);
+    static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer);
+    static SkShader* CreatePictureShader(const SkPicture* src, TileMode tmx, TileMode tmy,
+                                         const SkMatrix* localMatrix, const SkRect* tile);
+#endif
 
     /**
      *  Create a new compose shader, given shaders dst, src, and a combining xfermode mode.
      *  The xfermode is called with the output of the two shaders, and its output is returned.
      *  If xfer is null, SkXfermode::kSrcOver_Mode is assumed.
      *
-     *  Ownership of the shaders, and the xfermode if not null, is not transfered, so the caller
-     *  is still responsible for managing its reference-count for those objects.
+     *  The caller is responsible for managing its reference-count for the xfer (if not null).
      */
-    static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer);
+    static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                             SkXfermode* xfer);
 
     /** Call this to create a new shader that will draw with the specified bitmap.
      *
@@ -369,9 +385,8 @@ public:
      *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
      *  @return     Returns a new shader object. Note: this function never returns null.
     */
-    static SkShader* CreateBitmapShader(const SkBitmap& src,
-                                        TileMode tmx, TileMode tmy,
-                                        const SkMatrix* localMatrix = NULL);
+    static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
+                                            const SkMatrix* localMatrix = nullptr);
 
     // NOTE: You can create an SkImage Shader with SkImage::newShader().
 
@@ -389,10 +404,8 @@ public:
      *              bounds.
      *  @return     Returns a new shader object. Note: this function never returns null.
     */
-    static SkShader* CreatePictureShader(const SkPicture* src,
-                                         TileMode tmx, TileMode tmy,
-                                         const SkMatrix* localMatrix,
-                                         const SkRect* tile);
+    static sk_sp<SkShader> MakePictureShader(sk_sp<const SkPicture> src, TileMode tmx, TileMode tmy,
+                                             const SkMatrix* localMatrix, const SkRect* tile);
 
     /**
      *  If this shader can be represented by another shader + a localMatrix, return that shader

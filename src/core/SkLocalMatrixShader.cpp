@@ -10,7 +10,7 @@
 SkFlattenable* SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
-    SkAutoTUnref<SkShader> baseShader(buffer.readShader());
+    auto baseShader(buffer.readShader());
     if (!baseShader) {
         return nullptr;
     }

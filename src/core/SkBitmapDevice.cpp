@@ -314,17 +314,15 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     }
 
     // construct a shader, so we can call drawRect with the dst
-    SkShader* s = SkShader::CreateBitmapShader(*bitmapPtr,
-                                               SkShader::kClamp_TileMode,
-                                               SkShader::kClamp_TileMode,
-                                               &matrix);
-    if (nullptr == s) {
+    auto s = SkShader::MakeBitmapShader(*bitmapPtr, SkShader::kClamp_TileMode,
+                                        SkShader::kClamp_TileMode, &matrix);
+    if (!s) {
         return;
     }
 
     SkPaint paintWithShader(paint);
     paintWithShader.setStyle(SkPaint::kFill_Style);
-    paintWithShader.setShader(s)->unref();
+    paintWithShader.setShader(std::move(s));
 
     // Call ourself, in case the subclass wanted to share this setup code
     // but handle the drawRect code themselves.

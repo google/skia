@@ -81,10 +81,10 @@ public:
     SkAutoBitmapShaderInstall(const SkBitmap& src, const SkPaint& paint,
                               const SkMatrix* localMatrix = nullptr)
             : fPaint(paint) /* makes a copy of the paint */ {
-        fPaint.setShader(SkCreateBitmapShader(src, SkShader::kClamp_TileMode,
-                                              SkShader::kClamp_TileMode,
-                                              localMatrix, &fAllocator));
+        fPaint.setShader(SkMakeBitmapShader(src, SkShader::kClamp_TileMode,
+                                            SkShader::kClamp_TileMode, localMatrix, &fAllocator));
         // we deliberately left the shader with an owner-count of 2
+        fPaint.getShader()->ref();
         SkASSERT(2 == fPaint.getShader()->getRefCnt());
     }
 
@@ -1880,7 +1880,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         Thus for texture drawing, we need both texture[] and a shader.
     */
 
-    SkTriColorShader triShader; // must be above declaration of p
+    auto triShader = sk_make_sp<SkTriColorShader>();
     SkPaint p(paint);
 
     SkShader* shader = p.getShader();
@@ -1894,11 +1894,12 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     }
 
     // setup the custom shader (if needed)
-    SkAutoTUnref<SkComposeShader> composeShader;
+    sk_sp<SkShader> composeShader;
     if (colors) {
         if (nullptr == textures) {
             // just colors (no texture)
-            shader = p.setShader(&triShader);
+            p.setShader(triShader);
+            shader = p.getShader();
         } else {
             // colors * texture
             SkASSERT(shader);
@@ -1907,7 +1908,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                 xmode = SkXfermode::Create(SkXfermode::kModulate_Mode);
                 releaseMode = true;
             }
-            composeShader.reset(new SkComposeShader(&triShader, shader, xmode));
+            composeShader = sk_make_sp<SkComposeShader>(triShader, sk_ref_sp(shader), xmode);
             p.setShader(composeShader);
             if (releaseMode) {
                 xmode->unref();
@@ -1940,14 +1941,14 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                 }
             }
             if (colors) {
-                triShader.bindSetupData(&verticesSetup);
+                triShader->bindSetupData(&verticesSetup);
             }
 
             SkPoint tmp[] = {
                 devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
             };
             SkScan::FillTriangle(tmp, *fRC, blitter.get());
-            triShader.bindSetupData(NULL);
+            triShader->bindSetupData(NULL);
         }
     } else {
         // no colors[] and no texture, stroke hairlines with paint's color.

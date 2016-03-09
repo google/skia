@@ -24,12 +24,12 @@ SkColorFilterShader::SkColorFilterShader(SkShader* shader, SkColorFilter* filter
 }
 
 SkFlattenable* SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
-    SkAutoTUnref<SkShader> shader(buffer.readShader());
+    auto shader = buffer.readShader();
     SkAutoTUnref<SkColorFilter> filter(buffer.readColorFilter());
-    if (!shader.get() || !filter.get()) {
+    if (!shader || !filter.get()) {
         return nullptr;
     }
-    return new SkColorFilterShader(shader, filter);
+    return new SkColorFilterShader(shader.get(), filter);
 }
 
 void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {

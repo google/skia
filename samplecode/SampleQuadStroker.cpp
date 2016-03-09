@@ -109,7 +109,7 @@ class QuadStrokerView : public SampleView {
     SkRect fWidthControl;
     SkRect fBounds;
     SkMatrix fMatrix, fInverse;
-    SkAutoTUnref<SkShader> fShader;
+    sk_sp<SkShader> fShader;
     SkAutoTUnref<SkSurface> fMinSurface;
     SkAutoTUnref<SkSurface> fMaxSurface;
     StrokeTypeButton fCubicButton;
@@ -264,8 +264,7 @@ protected:
         fBounds.set(0, 0, SkIntToScalar(width * zoom), SkIntToScalar(height * zoom));
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
-        fShader.reset(sk_tool_utils::create_checkerboard_shader(
-                              0xFFCCCCCC, 0xFFFFFFFF, zoom));
+        fShader = sk_tool_utils::create_checkerboard_shader(0xFFCCCCCC, 0xFFFFFFFF, zoom);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
         fMinSurface.reset(SkSurface::NewRaster(info));

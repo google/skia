@@ -31,9 +31,8 @@ static SkBitmap make_src() {
         SK_ColorTRANSPARENT, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
     };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode);
-    paint.setShader(s)->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
     return bm;
 }
@@ -47,9 +46,8 @@ static SkBitmap make_dst() {
         SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN,
         sk_tool_utils::color_to_565(SK_ColorGRAY)
     };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode);
-    paint.setShader(s)->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
     return bm;
 }

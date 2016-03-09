@@ -229,18 +229,18 @@ SkShader* SkShader::refAsALocalMatrixShader(SkMatrix*) const {
     return nullptr;
 }
 
-SkShader* SkShader::CreateEmptyShader() { return new SkEmptyShader; }
+sk_sp<SkShader> SkShader::MakeEmptyShader() { return sk_make_sp<SkEmptyShader>(); }
 
-SkShader* SkShader::CreateColorShader(SkColor color) { return new SkColorShader(color); }
+sk_sp<SkShader> SkShader::MakeColorShader(SkColor color) { return sk_make_sp<SkColorShader>(color); }
 
-SkShader* SkShader::CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
-                                       const SkMatrix* localMatrix) {
-    return SkCreateBitmapShader(src, tmx, tmy, localMatrix, nullptr);
+sk_sp<SkShader> SkShader::MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
+                                           const SkMatrix* localMatrix) {
+    return SkMakeBitmapShader(src, tmx, tmy, localMatrix, nullptr);
 }
 
-SkShader* SkShader::CreatePictureShader(const SkPicture* src, TileMode tmx, TileMode tmy,
-                                        const SkMatrix* localMatrix, const SkRect* tile) {
-    return SkPictureShader::Create(src, tmx, tmy, localMatrix, tile);
+sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<const SkPicture> src, TileMode tmx, TileMode tmy,
+                                            const SkMatrix* localMatrix, const SkRect* tile) {
+    return SkPictureShader::Make(std::move(src), tmx, tmy, localMatrix, tile);
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -362,7 +362,7 @@ void SkColorShader::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlattenable* SkEmptyShader::CreateProc(SkReadBuffer&) {
-    return SkShader::CreateEmptyShader();
+    return SkShader::MakeEmptyShader().release();
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -374,5 +374,20 @@ void SkEmptyShader::toString(SkString* str) const {
     this->INHERITED::toString(str);
 
     str->append(")");
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
+SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode::Mode mode) {
+    return MakeComposeShader(sk_ref_sp(dst), sk_ref_sp(src), mode).release();
+}
+SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer) {
+    return MakeComposeShader(sk_ref_sp(dst), sk_ref_sp(src), xfer).release();
+}
+SkShader* SkShader::CreatePictureShader(const SkPicture* src, TileMode tmx, TileMode tmy,
+                                     const SkMatrix* localMatrix, const SkRect* tile) {
+    return MakePictureShader(sk_ref_sp(src), tmx, tmy, localMatrix, tile).release();
 }
 #endif

@@ -551,10 +551,10 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
     } else {
         matrix.setIdentity();
     }
-    SkShader* s = SkGradientShader::CreateLinear(reinterpret_cast<const SkPoint*>(pts),
-                                                 reinterpret_cast<const SkColor*>(colors),
-                                                 colorPos, colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
+    return (sk_shader_t*)SkGradientShader::MakeLinear(reinterpret_cast<const SkPoint*>(pts),
+                                                      reinterpret_cast<const SkColor*>(colors),
+                                                      colorPos, colorCount,
+                                                      mode, 0, &matrix).release();
 }
 
 static const SkPoint& to_skpoint(const sk_point_t& p) {
@@ -579,12 +579,10 @@ sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
         matrix.setIdentity();
     }
     SkPoint center = to_skpoint(*ccenter);
-    SkShader* s = SkGradientShader::CreateRadial(
-            center, (SkScalar)radius,
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
+    return (sk_shader_t*)SkGradientShader::MakeRadial(center, (SkScalar)radius,
+                                                      reinterpret_cast<const SkColor*>(colors),
+                                                      reinterpret_cast<const SkScalar*>(colorPos),
+                                                      colorCount, mode, 0, &matrix).release();
 }
 
 sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
@@ -598,13 +596,11 @@ sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
     } else {
         matrix.setIdentity();
     }
-    SkShader* s = SkGradientShader::CreateSweep(
-            (SkScalar)(ccenter->x),
-            (SkScalar)(ccenter->y),
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, 0, &matrix);
-    return (sk_shader_t*)s;
+    return (sk_shader_t*)SkGradientShader::MakeSweep((SkScalar)(ccenter->x),
+                                                     (SkScalar)(ccenter->y),
+                                                     reinterpret_cast<const SkColor*>(colors),
+                                                     reinterpret_cast<const SkScalar*>(colorPos),
+                                                     colorCount, 0, &matrix).release();
 }
 
 sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
@@ -628,13 +624,11 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
     }
     SkPoint skstart = to_skpoint(*start);
     SkPoint skend = to_skpoint(*end);
-    SkShader* s = SkGradientShader::CreateTwoPointConical(
-            skstart, (SkScalar)startRadius,
-            skend, (SkScalar)endRadius,
-            reinterpret_cast<const SkColor*>(colors),
-            reinterpret_cast<const SkScalar*>(colorPos),
-            colorCount, mode, 0, &matrix);
-    return (sk_shader_t*)s;
+    return (sk_shader_t*)SkGradientShader::MakeTwoPointConical(skstart, (SkScalar)startRadius,
+                                                        skend, (SkScalar)endRadius,
+                                                        reinterpret_cast<const SkColor*>(colors),
+                                                        reinterpret_cast<const SkScalar*>(colorPos),
+                                                        colorCount, mode, 0, &matrix).release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

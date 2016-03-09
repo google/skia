@@ -28,21 +28,21 @@
 
 #include "SkGeometry.h" // private include :(
 
-static SkShader* make_shader0(SkIPoint* size) {
+static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkBitmap    bm;
 
 //    SkImageDecoder::DecodeFile("/skimages/progressivejpg.jpg", &bm);
     SkImageDecoder::DecodeFile("/skimages/logo.png", &bm);
     size->set(bm.width(), bm.height());
-    return SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
-                                        SkShader::kClamp_TileMode);
+    return SkShader::MakeBitmapShader(bm, SkShader::kClamp_TileMode,
+                                       SkShader::kClamp_TileMode);
 }
 
-static SkShader* make_shader1(const SkIPoint& size) {
+static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
     SkPoint pts[] = { { 0, 0, },
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr,
+    return SkGradientShader::MakeLinear(pts, colors, nullptr,
                     SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode);
 }
 
@@ -211,8 +211,8 @@ const SkScalar DY = 0;
 
 class PatchView : public SampleView {
     SkScalar    fAngle;
-    SkShader*   fShader0;
-    SkShader*   fShader1;
+    sk_sp<SkShader> fShader0;
+    sk_sp<SkShader> fShader1;
     SkIPoint    fSize0, fSize1;
     SkPoint     fPts[12];
 
@@ -241,11 +241,6 @@ public:
         fPts[11].set(S*0, T*2);
 
         this->setBGColor(SK_ColorGRAY);
-    }
-
-    virtual ~PatchView() {
-        SkSafeUnref(fShader0);
-        SkSafeUnref(fShader1);
     }
 
 protected:

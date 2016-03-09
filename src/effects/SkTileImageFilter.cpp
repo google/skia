@@ -96,10 +96,8 @@ bool SkTileImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& sr
     SkCanvas canvas(device);
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-
-    SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(subset,
-                                  SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode));
-    paint.setShader(shader);
+    paint.setShader(SkShader::MakeBitmapShader(subset, SkShader::kRepeat_TileMode,
+                                               SkShader::kRepeat_TileMode));
     canvas.translate(-dstRect.fLeft, -dstRect.fTop);
     canvas.drawRect(dstRect, paint);
     *dst = device->accessBitmap(false);

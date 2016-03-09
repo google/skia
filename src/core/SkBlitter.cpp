@@ -584,13 +584,7 @@ SkBlitter* SkBlitterClipper::apply(SkBlitter* blitter, const SkRegion* clip,
 
 class Sk3DShader : public SkShader {
 public:
-    Sk3DShader(SkShader* proxy) : fProxy(proxy) {
-        SkSafeRef(proxy);
-    }
-
-    virtual ~Sk3DShader() {
-        SkSafeUnref(fProxy);
-    }
+    Sk3DShader(sk_sp<SkShader> proxy) : fProxy(std::move(proxy)) {}
 
     size_t onContextSize(const ContextRec& rec) const override {
         size_t size = sizeof(Sk3DShaderContext);
@@ -727,18 +721,17 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
-        buffer.writeFlattenable(fProxy);
+        buffer.writeFlattenable(fProxy.get());
     }
 
 private:
-    SkShader*       fProxy;
+    sk_sp<SkShader> fProxy;
 
     typedef SkShader INHERITED;
 };
 
 SkFlattenable* Sk3DShader::CreateProc(SkReadBuffer& buffer) {
-    SkAutoTUnref<SkShader> shader(buffer.readShader());
-    return new Sk3DShader(shader);
+    return new Sk3DShader(buffer.readShader());
 }
 
 class Sk3DBlitter : public SkBlitter {
@@ -822,7 +815,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (origPaint.getMaskFilter() != nullptr &&
             origPaint.getMaskFilter()->getFormat() == SkMask::k3D_Format) {
-        shader3D = new Sk3DShader(shader);
+        shader3D = new Sk3DShader(sk_sp<SkShader>(SkSafeRef(shader)));
         // we know we haven't initialized lazyPaint yet, so just do it
         paint.writable()->setShader(shader3D)->unref();
         shader = shader3D;

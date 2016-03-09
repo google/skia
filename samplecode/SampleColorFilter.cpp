@@ -111,7 +111,7 @@ static SkBitmap createBitmap(int n) {
 
 class ColorFilterView : public SampleView {
     SkBitmap fBitmap;
-    SkShader* fShader;
+    sk_sp<SkShader> fShader;
     enum {
         N = 64
     };
@@ -124,10 +124,6 @@ public:
         if (false) { // avoid bit rot, suppress warning
             test_5bits();
         }
-    }
-
-    virtual ~ColorFilterView() {
-        fShader->unref();
     }
 
 protected:

@@ -68,8 +68,9 @@ SkFlattenable* SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
     }
     const SkPoint center = buffer.readPoint();
     const SkScalar radius = buffer.readScalar();
-    return SkGradientShader::CreateRadial(center, radius, desc.fColors, desc.fPos, desc.fCount,
-                                          desc.fTileMode, desc.fGradFlags, desc.fLocalMatrix);
+    return SkGradientShader::MakeRadial(center, radius, desc.fColors, desc.fPos, desc.fCount,
+                                        desc.fTileMode, desc.fGradFlags,
+                                        desc.fLocalMatrix).release();
 }
 
 void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
@@ -313,9 +314,7 @@ const GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) 
     SkScalar* stops = stopsArray;
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateRadial(center, radius,
-                                                                 colors, stops, colorCount,
-                                                                 tm));
+    auto shader = SkGradientShader::MakeRadial(center, radius, colors, stops, colorCount, tm);
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
         GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
     GrAlwaysAssert(fp);

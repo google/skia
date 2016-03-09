@@ -1929,7 +1929,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
 
     if (flatFlags & kHasEffects_FlatFlag) {
         SkSafeUnref(this->setPathEffect(buffer.readPathEffect()));
-        SkSafeUnref(this->setShader(buffer.readShader()));
+        this->setShader(buffer.readShader());
         SkSafeUnref(this->setXfermode(buffer.readXfermode()));
         SkSafeUnref(this->setMaskFilter(buffer.readMaskFilter()));
         SkSafeUnref(this->setColorFilter(buffer.readColorFilter()));

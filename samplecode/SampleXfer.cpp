@@ -127,10 +127,9 @@ class CircDrawable : public ModeDrawable {
 public:
     CircDrawable(SkScalar size, SkColor c) {
         const SkColor colors[] = { 0, c };
-        SkAutoTUnref<SkShader> shader(SkGradientShader::CreateRadial(SkPoint::Make(size/2, size/2), size/2,
+        fPaint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(size/2, size/2), size/2,
                                                                      colors, nullptr, 2,
                                                                      SkShader::kClamp_TileMode));
-        fPaint.setShader(shader);
         fBounds = SkRect::MakeWH(size, size);
     }
 

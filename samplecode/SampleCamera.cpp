@@ -39,10 +39,10 @@ public:
                 SkMatrix matrix;
                 matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
 
-                SkShader* s = SkShader::CreateBitmapShader(bm,
+                SkShader* s = SkShader::MakeBitmapShader(bm,
                                                            SkShader::kClamp_TileMode,
                                                            SkShader::kClamp_TileMode,
-                                                           &matrix);
+                                                           &matrix).release();
                 *fShaders.append() = s;
             } else {
                 break;

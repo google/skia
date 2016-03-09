@@ -92,7 +92,7 @@ namespace sk_tool_utils {
     SkTypeface* create_font(const char* name, SkTypeface::Style);
 
     /** Returns a newly created CheckerboardShader. */
-    SkShader* create_checkerboard_shader(SkColor c1, SkColor c2, int size);
+    sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);
 
     /** Draw a checkerboard pattern in the current canvas, restricted to
         the current clip, using SkXfermode::kSrc_Mode. */

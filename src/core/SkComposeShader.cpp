@@ -16,9 +16,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkComposeShader::SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode) {
-    fShaderA = sA;  sA->ref();
-    fShaderB = sB;  sB->ref();
+SkComposeShader::SkComposeShader(sk_sp<SkShader> sA, sk_sp<SkShader> sB, SkXfermode* mode)
+    : fShaderA(std::move(sA))
+    , fShaderB(std::move(sB))
+{
     // mode may be null
     fMode = mode;
     SkSafeRef(mode);
@@ -26,8 +27,6 @@ SkComposeShader::SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode) {
 
 SkComposeShader::~SkComposeShader() {
     SkSafeUnref(fMode);
-    fShaderB->unref();
-    fShaderA->unref();
 }
 
 size_t SkComposeShader::onContextSize(const ContextRec& rec) const {
@@ -54,18 +53,18 @@ private:
 #define SkAutoAlphaRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoAlphaRestore)
 
 SkFlattenable* SkComposeShader::CreateProc(SkReadBuffer& buffer) {
-    SkAutoTUnref<SkShader> shaderA(buffer.readShader());
-    SkAutoTUnref<SkShader> shaderB(buffer.readShader());
+    sk_sp<SkShader> shaderA(buffer.readShader());
+    sk_sp<SkShader> shaderB(buffer.readShader());
     SkAutoTUnref<SkXfermode> mode(buffer.readXfermode());
-    if (!shaderA.get() || !shaderB.get()) {
+    if (!shaderA || !shaderB) {
         return nullptr;
     }
-    return new SkComposeShader(shaderA, shaderB, mode);
+    return new SkComposeShader(std::move(shaderA), std::move(shaderB), mode);
 }
 
 void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeFlattenable(fShaderA);
-    buffer.writeFlattenable(fShaderB);
+    buffer.writeFlattenable(fShaderA.get());
+    buffer.writeFlattenable(fShaderB.get());
     buffer.writeFlattenable(fMode);
 }
 
@@ -119,8 +118,8 @@ SkComposeShader::ComposeShaderContext::~ComposeShaderContext() {
 
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (rec) {
-        rec->fShaderA = fShaderA;
-        rec->fShaderB = fShaderB;
+        rec->fShaderA = fShaderA.get();
+        rec->fShaderB = fShaderB.get();
         rec->fMode = fMode;
     }
     return true;
@@ -255,14 +254,16 @@ void SkComposeShader::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer) {
+sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                            SkXfermode* xfer) {
     if (!dst || !src) {
         return nullptr;
     }
-    return new SkComposeShader(dst, src, xfer);
+    return sk_make_sp<SkComposeShader>(std::move(dst), std::move(src), xfer);
 }
 
-SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode::Mode mode) {
+sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                            SkXfermode::Mode mode) {
     SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
-    return CreateComposeShader(dst, src, xfer);
+    return MakeComposeShader(std::move(dst), std::move(src), xfer);
 }

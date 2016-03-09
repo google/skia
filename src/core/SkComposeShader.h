@@ -31,7 +31,7 @@ public:
         @param mode     The xfermode that combines the colors from the two shaders. If mode
                         is null, then SRC_OVER is assumed.
     */
-    SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode = NULL);
+    SkComposeShader(sk_sp<SkShader> sA, sk_sp<SkShader> sB, SkXfermode* mode = NULL);
     virtual ~SkComposeShader();
 
 #if SK_SUPPORT_GPU
@@ -63,8 +63,8 @@ public:
     };
 
 #ifdef SK_DEBUG
-    SkShader* getShaderA() { return fShaderA; }
-    SkShader* getShaderB() { return fShaderB; }
+    SkShader* getShaderA() { return fShaderA.get(); }
+    SkShader* getShaderB() { return fShaderB.get(); }
 #endif
 
     bool asACompose(ComposeRec* rec) const override;
@@ -79,9 +79,9 @@ protected:
     Context* onCreateContext(const ContextRec&, void*) const override;
 
 private:
-    SkShader*   fShaderA;
-    SkShader*   fShaderB;
-    SkXfermode* fMode;
+    sk_sp<SkShader> fShaderA;
+    sk_sp<SkShader> fShaderB;
+    SkXfermode*     fMode;
 
     typedef SkShader INHERITED;
 };

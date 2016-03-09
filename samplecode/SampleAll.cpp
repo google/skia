@@ -361,7 +361,7 @@ protected:
         SkScalar* linearPos = nullptr;
         int linearCount = 2;
         SkShader::TileMode linearMode = SkShader::kMirror_TileMode;
-        SkShader* linear = SkGradientShader::CreateLinear(linearPoints,
+        auto linear = SkGradientShader::MakeLinear(linearPoints,
             linearColors, linearPos, linearCount, linearMode);
 
         SkPoint radialCenter = { SkIntToScalar(25), SkIntToScalar(25) };
@@ -370,7 +370,7 @@ protected:
         SkScalar radialPos[] = { 0, SkIntToScalar(3) / 5, SkIntToScalar(1)};
         int radialCount = 3;
         SkShader::TileMode radialMode = SkShader::kRepeat_TileMode;
-        SkShader* radial = SkGradientShader::CreateRadial(radialCenter,
+        auto radial = SkGradientShader::MakeRadial(radialCenter,
             radialRadius, radialColors, radialPos, radialCount,
             radialMode);
 
@@ -396,8 +396,8 @@ protected:
         paint.setStyle(SkPaint::kFill_Style);
         SkRect clip = {0, 0, SkIntToScalar(320), SkIntToScalar(120)};
         canvas->clipRect(clip);
-        paint.setShader(SkShader::CreateBitmapShader(fTx,
-            SkShader::kMirror_TileMode, SkShader::kRepeat_TileMode))->unref();
+        paint.setShader(SkShader::MakeBitmapShader(fTx,
+            SkShader::kMirror_TileMode, SkShader::kRepeat_TileMode));
         canvas->drawPaint(paint);
         canvas->save();
 
@@ -415,7 +415,7 @@ protected:
         paint.setStyle(SkPaint::kFill_Style);
         canvas->translate(SkIntToScalar(50), 0);
         paint.setColor(SK_ColorYELLOW);
-        paint.setShader(linear)->unref();
+        paint.setShader(linear);
         paint.setPathEffect(pathEffectTest())->unref();
         canvas->drawRect(rect, paint);
         paint.setPathEffect(nullptr);
@@ -434,7 +434,7 @@ protected:
         paint.setColor(SK_ColorRED);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(5));
-        paint.setShader(radial)->unref();
+        paint.setShader(radial);
         paint.setMaskFilter(nullptr);
         canvas->drawPath(path, paint);
 
@@ -445,7 +445,7 @@ protected:
         canvas->drawBitmap(fBug, left, top, &paint);
 
         canvas->translate(-SkIntToScalar(30), SkIntToScalar(30));
-        paint.setShader(shaderTest())->unref(); // test compose shader
+        paint.setShader(shaderTest()); // test compose shader
         canvas->drawRect(rect2, paint);
         paint.setShader(nullptr);
 
@@ -500,21 +500,17 @@ protected:
         return result;
     }
 
-    SkShader* shaderTest() {
+    sk_sp<SkShader> shaderTest() {
         SkPoint pts[] = { { 0, 0, }, { SkIntToScalar(100), 0 } };
         SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
-        SkShader* shaderA = SkGradientShader::CreateLinear(pts, colors, nullptr,
+        auto shaderA = SkGradientShader::MakeLinear(pts, colors, nullptr,
             2, SkShader::kClamp_TileMode);
         pts[1].set(0, SkIntToScalar(100));
         SkColor colors2[] = {SK_ColorBLACK,  SkColorSetARGB(0x80, 0, 0, 0)};
-        SkShader* shaderB = SkGradientShader::CreateLinear(pts, colors2, nullptr,
+        auto shaderB = SkGradientShader::MakeLinear(pts, colors2, nullptr,
             2, SkShader::kClamp_TileMode);
-        SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
-        SkShader* result = SkShader::CreateComposeShader(shaderA, shaderB, mode);
-        shaderA->unref();
-        shaderB->unref();
-        mode->unref();
-        return result;
+        SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kDstIn_Mode));
+        return SkShader::MakeComposeShader(shaderA, shaderB, mode);
     }
 
     virtual void startTest() {

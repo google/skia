@@ -36,8 +36,8 @@ SkFlattenable* SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
     const SkPoint center = buffer.readPoint();
-    return SkGradientShader::CreateSweep(center.x(), center.y(), desc.fColors, desc.fPos,
-                                         desc.fCount, desc.fGradFlags, desc.fLocalMatrix);
+    return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors, desc.fPos,
+                                       desc.fCount, desc.fGradFlags, desc.fLocalMatrix).release();
 }
 
 void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
@@ -190,8 +190,8 @@ const GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     SkScalar* stops = stopsArray;
     SkShader::TileMode tmIgnored;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tmIgnored);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateSweep(center.fX, center.fY,
-                                                                colors, stops, colorCount));
+    sk_sp<SkShader> shader(SkGradientShader::MakeSweep(center.fX, center.fY,  colors, stops,
+                                                       colorCount));
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
                                                                 GrTest::TestMatrix(d->fRandom),
                                                                 NULL, kNone_SkFilterQuality);

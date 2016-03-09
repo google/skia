@@ -48,9 +48,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard.reset(sk_tool_utils::create_checkerboard_shader(SK_ColorBLACK,
-                                                                      SK_ColorWHITE,
-                                                                      4));
+        fCheckerboard = sk_tool_utils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);
     }
     
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
@@ -148,7 +146,7 @@ protected:
     
 private:
     SkScalar fTextHeight;
-    SkAutoTUnref<SkShader> fCheckerboard;
+    sk_sp<SkShader> fCheckerboard;
     typedef skiagm::GM INHERITED;
 };
 

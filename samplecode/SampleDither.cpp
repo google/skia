@@ -34,9 +34,8 @@ static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
 
     //    SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN, SK_ColorCYAN };
     SkColor colors[] = { 0x4c737373, 0x4c737373, 0xffffd300 };
-    SkShader* s = SkGradientShader::CreateSweep(r.centerX(), r.centerY(),
-                                                colors, nullptr, SK_ARRAY_COUNT(colors));
-    p.setShader(s)->unref();
+    p.setShader(SkGradientShader::MakeSweep(r.centerX(), r.centerY(),
+                                            colors, nullptr, SK_ARRAY_COUNT(colors)));
 
     SkAutoCanvasRestore acr(c, true);
 

@@ -59,7 +59,7 @@ typedef SkSmallAllocator<3, 2100> SkTBlitterAllocator;
 
 // If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.
-SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode, SkShader::TileMode,
-                               const SkMatrix* localMatrix, SkTBlitterAllocator* alloc);
+sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkShader::TileMode,
+                                   const SkMatrix* localMatrix, SkTBlitterAllocator* alloc);
 
 #endif

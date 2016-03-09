@@ -289,7 +289,7 @@ SkFlattenable* SkBitmapProcShader::CreateProc(SkReadBuffer& buffer) {
     bm.setImmutable();
     TileMode mx = (TileMode)buffer.readUInt();
     TileMode my = (TileMode)buffer.readUInt();
-    return SkShader::CreateBitmapShader(bm, mx, my, &lm);
+    return SkShader::MakeBitmapShader(bm, mx, my, &lm).release();
 }
 
 void SkBitmapProcShader::flatten(SkWriteBuffer& buffer) const {
@@ -352,9 +352,9 @@ static bool bitmap_is_too_big(const SkBitmap& bm) {
     return bm.width() > kMaxSize || bm.height() > kMaxSize;
 }
 
-SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
-                               SkShader::TileMode tmy, const SkMatrix* localMatrix,
-                               SkTBlitterAllocator* allocator) {
+sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
+                                   SkShader::TileMode tmy, const SkMatrix* localMatrix,
+                                   SkTBlitterAllocator* allocator) {
     SkShader* shader;
     SkColor color;
     if (src.isNull() || bitmap_is_too_big(src)) {
@@ -376,7 +376,7 @@ SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
             shader = allocator->createT<SkBitmapProcShader>(src, tmx, tmy, localMatrix);
         }
     }
-    return shader;
+    return sk_sp<SkShader>(shader);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

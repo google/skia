@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -30,10 +30,8 @@
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkColor colors[] = { 0, SK_ColorWHITE };
     SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode,
-                                                 0, &localMatrix);
-
-    paint->setShader(s)->unref();
+    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                  SkShader::kClamp_TileMode, 0, &localMatrix));
     paint->setXfermodeMode(SkXfermode::kDstIn_Mode);
 }
 

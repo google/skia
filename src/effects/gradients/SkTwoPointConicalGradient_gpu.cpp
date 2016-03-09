@@ -207,10 +207,8 @@ const GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(GrProcessorTestData*
     SkScalar* stops = stopsArray;
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateTwoPointConical(center1, radius1,
-                                                                          center2, radius2,
-                                                                          colors, stops, colorCount,
-                                                                          tm));
+    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                                        colors, stops, colorCount, tm);
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
         GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
     GrAlwaysAssert(fp);
@@ -484,10 +482,8 @@ const GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(GrProcessorT
     SkScalar* stops = stopsArray;
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateTwoPointConical(center1, radius1,
-                                                                          center2, radius2,
-                                                                          colors, stops, colorCount,
-                                                                          tm));
+    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                                        colors, stops, colorCount, tm);
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
         GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
     GrAlwaysAssert(fp);
@@ -692,10 +688,8 @@ const GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(GrProcessorTe
     SkScalar* stops = stopsArray;
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateTwoPointConical(center1, radius1,
-                                                                          center2, radius2,
-                                                                          colors, stops, colorCount,
-                                                                          tm));
+    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                                        colors, stops, colorCount, tm);
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
         GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
     GrAlwaysAssert(fp);
@@ -940,10 +934,8 @@ const GrFragmentProcessor* CircleInside2PtConicalEffect::TestCreate(GrProcessorT
     SkScalar* stops = stopsArray;
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateTwoPointConical(center1, radius1,
-                                                                          center2, radius2,
-                                                                          colors, stops, colorCount,
-                                                                          tm));
+    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                                        colors, stops, colorCount, tm);
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
         GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
     GrAlwaysAssert(fp);
@@ -1173,10 +1165,8 @@ const GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(GrProcessor
     SkScalar* stops = stopsArray;
     SkShader::TileMode tm;
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateTwoPointConical(center1, radius1,
-                                                                          center2, radius2,
-                                                                          colors, stops, colorCount,
-                                                                          tm));
+    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                                        colors, stops, colorCount, tm);
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(
         d->fContext,GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
     GrAlwaysAssert(fp);

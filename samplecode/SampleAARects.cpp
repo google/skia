@@ -62,10 +62,8 @@ protected:
         SkPaint bluePaint;
         bluePaint.setARGB(0xff, 0x0, 0x0, 0xff);
         SkPaint bmpPaint;
-        SkShader* bmpShader = SkShader::CreateBitmapShader(fBitmap, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
-        bmpPaint.setShader(bmpShader);
-        bmpShader->unref();
-
+        bmpPaint.setShader(SkShader::MakeBitmapShader(fBitmap, SkShader::kRepeat_TileMode,
+                                                      SkShader::kRepeat_TileMode));
         bluePaint.setStrokeWidth(3);
         bmpPaint.setStrokeWidth(3);
 
