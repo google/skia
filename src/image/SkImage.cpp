@@ -348,10 +348,6 @@ bool SkImage::isLazyGenerated() const {
 
 #if !SK_SUPPORT_GPU
 
-SkImage* SkImage::NewTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted) {
-    return nullptr;
-}
-
 SkImage* SkImage::NewFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
                                  TextureReleaseProc, ReleaseContext) {
     return nullptr;

@@ -121,11 +121,6 @@ GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
 GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&);
 
-/**
- * Creates a new texture for the pixmap.
- */
-GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&);
-
 //////////////////////////////////////////////////////////////////////////////
 
 GR_STATIC_ASSERT((int)kZero_GrBlendCoeff == (int)SkXfermode::kZero_Coeff);
