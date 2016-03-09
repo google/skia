@@ -12,12 +12,13 @@ import requests
 from os import listdir
 from os.path import isfile, join
 
-ops = [
+default_ops = [
     "enable_gpu",
     "post",
     "info",
     "cmd",
-    "img"
+    "img",
+    "batchList"
 ]
 
 def Check(request):
@@ -80,17 +81,23 @@ class SkiaServeTester:
         r = self.cmd()
         return len(r.json()['commands']) - 1 # why the minus 1 here?
 
+    def batchList(self):
+        path = self.output_dir + '/' + self.skp_name + '.batches.json'
+        return WriteJson(Check(requests.get(self.url + '/batches')), path)
+
 def main():
     parser = argparse.ArgumentParser(description='Tester for SkiaServe')
     parser.add_argument('--skp_dir', default='skps', type=str)
     parser.add_argument('--url', default='http://localhost:8888', type=str)
     parser.add_argument('--output_dir', default='results', type=str)
     parser.add_argument('--match', default='.*', type=str)
+    parser.add_argument('--ops', nargs='+', default=default_ops)
 
     args = parser.parse_args()
     skp_dir = args.skp_dir
     url = args.url
     output_dir = args.output_dir
+    ops = args.ops
 
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
