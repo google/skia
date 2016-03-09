@@ -46,16 +46,3 @@ DEF_SIMPLE_GM(bug530095, canvas, 900, 1200) {
     canvas->translate(4, 4);
     canvas->drawPath(path2, paint);
 }
-
-DEF_SIMPLE_GM(bug591993, canvas, 40, 140) {
-    SkPaint p;
-    p.setColor(SK_ColorRED);
-    p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
-    p.setStrokeCap(SkPaint::kRound_Cap);
-    p.setStrokeWidth(10);
-    SkScalar intervals[] = { 100, 100 };
-    SkPathEffect* dash = SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 100);
-    p.setPathEffect(dash)->unref();
-    canvas->drawLine(20, 20, 120, 20, p);
-}

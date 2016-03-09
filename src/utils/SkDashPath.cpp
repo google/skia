@@ -16,12 +16,11 @@ static inline int is_even(int x) {
 static SkScalar find_first_interval(const SkScalar intervals[], SkScalar phase,
                                     int32_t* index, int count) {
     for (int i = 0; i < count; ++i) {
-        SkScalar gap = intervals[i];
-        if (phase > gap || (phase == gap && gap)) {
-            phase -= gap;
+        if (phase > intervals[i]) {
+            phase -= intervals[i];
         } else {
             *index = i;
-            return gap - phase;
+            return intervals[i] - phase;
         }
     }
     // If we get here, phase "appears" to be larger than our length. This
