@@ -37,7 +37,7 @@ static void emit_pdf_footer(SkWStream* stream,
     // TODO(http://crbug.com/80908): Linearized format will take a
     //                               Prev entry too.
     trailerDict.insertInt("Size", int(objCount));
-    trailerDict.insertObjRef("Root", sk_sp<SkPDFObject>(SkRef(docCatalog)));
+    trailerDict.insertObjRef("Root", sk_ref_sp(docCatalog));
     SkASSERT(info);
     trailerDict.insertObjRef("Info", std::move(info));
     if (id) {
@@ -125,7 +125,7 @@ static sk_sp<SkPDFDict> generate_page_tree(
             int count = 0;
             for (; i < curNodes.count() && count < kNodeSize; i++, count++) {
                 curNodes[i]->insertObjRef("Parent", newNode);
-                kids->appendObjRef(sk_sp<SkPDFDict>(SkRef(curNodes[i])));
+                kids->appendObjRef(sk_ref_sp(curNodes[i]));
 
                 // TODO(vandebo): put the objects in strict access order.
                 // Probably doesn't matter because they are so small.
@@ -158,7 +158,7 @@ static sk_sp<SkPDFDict> generate_page_tree(
     } while (curNodes.count() > 1);
 
     pageTree->push(curNodes[0]);  // Transfer reference.
-    return sk_sp<SkPDFDict>(SkRef(curNodes[0]));
+    return sk_ref_sp(curNodes[0]);
 }
 
 static bool emit_pdf_document(const SkTArray<sk_sp<const SkPDFDevice>>& pageDevices,

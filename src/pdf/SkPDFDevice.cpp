@@ -1711,7 +1711,7 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     for (const NamedDestination& dest : fNamedDestinations) {
         auto pdfDest = sk_make_sp<SkPDFArray>();
         pdfDest->reserve(5);
-        pdfDest->appendObjRef(sk_sp<SkPDFObject>(SkRef(page)));
+        pdfDest->appendObjRef(sk_ref_sp(page));
         pdfDest->appendName("XYZ");
         SkPoint p = fInitialTransform.mapXY(dest.point.x(), dest.point.y());
         pdfDest->appendScalar(p.x());

@@ -165,7 +165,7 @@ SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
     } else if (sMaskMode == kLuminosity_SMaskMode) {
         sMaskDict->insertName("S", "Luminosity");
     }
-    sMaskDict->insertObjRef("G", sk_sp<SkPDFFormXObject>(SkRef(sMask)));
+    sMaskDict->insertObjRef("G", sk_ref_sp(sMask));
     if (invert) {
         sMaskDict->insertObjRef("TR", make_invert_function());
     }

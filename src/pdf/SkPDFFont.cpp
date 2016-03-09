@@ -1203,7 +1203,7 @@ SkPDFType1Font::~SkPDFType1Font() {}
 bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     if (SkPDFDict* descriptor = getFontDescriptor()) {
         this->insertObjRef("FontDescriptor",
-                           sk_sp<SkPDFDict>(SkRef(descriptor)));
+                           sk_ref_sp(descriptor));
         return true;
     }
 

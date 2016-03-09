@@ -60,8 +60,8 @@ void SkPDFFormXObject::init(const char* colorSpace,
                             SkPDFDict* resourceDict, SkPDFArray* bbox) {
     this->insertName("Type", "XObject");
     this->insertName("Subtype", "Form");
-    this->insertObject("Resources", sk_sp<SkPDFDict>(SkRef(resourceDict)));
-    this->insertObject("BBox", sk_sp<SkPDFArray>(SkRef(bbox)));
+    this->insertObject("Resources", sk_ref_sp(resourceDict));
+    this->insertObject("BBox", sk_ref_sp(bbox));
 
     // Right now SkPDFFormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.

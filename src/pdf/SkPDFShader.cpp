@@ -552,7 +552,7 @@ static void populate_tiling_pattern_dict(SkPDFDict* pattern,
     pattern->insertObject("BBox", SkPDFUtils::RectToArray(bbox));
     pattern->insertScalar("XStep", bbox.width());
     pattern->insertScalar("YStep", bbox.height());
-    pattern->insertObject("Resources", sk_sp<SkPDFDict>(SkRef(resources)));
+    pattern->insertObject("Resources", sk_ref_sp(resources));
     if (!matrix.isIdentity()) {
         pattern->insertObject("Matrix", SkPDFUtils::MatrixToArray(matrix));
     }
@@ -697,8 +697,8 @@ static SkPDFStream* make_ps_function(const SkString& psCode,
             SkData::NewWithCopy(psCode.c_str(), psCode.size()));
     SkPDFStream* result = new SkPDFStream(funcData.get());
     result->insertInt("FunctionType", 4);
-    result->insertObject("Domain", sk_sp<SkPDFObject>(SkRef(domain)));
-    result->insertObject("Range", sk_sp<SkPDFObject>(SkRef(rangeObject.get(create_range_object))));
+    result->insertObject("Domain", sk_ref_sp(domain));
+    result->insertObject("Range", sk_ref_sp(rangeObject.get(create_range_object)));
     return result;
 }
 
@@ -802,7 +802,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     auto pdfShader = sk_make_sp<SkPDFDict>();
     pdfShader->insertInt("ShadingType", 1);
     pdfShader->insertName("ColorSpace", "DeviceRGB");
-    pdfShader->insertObject("Domain", sk_sp<SkPDFObject>(SkRef(domain.get())));
+    pdfShader->insertObject("Domain", sk_ref_sp(domain.get()));
 
     sk_sp<SkPDFStream> function(
             make_ps_function(functionCode, domain.get()));

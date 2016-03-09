@@ -64,7 +64,7 @@ static void add_subdict(
     auto resources = sk_make_sp<SkPDFDict>();
     for (int i = 0; i < resourceList.count(); i++) {
         resources->insertObjRef(SkPDFResourceDict::getResourceName(type, i),
-                                sk_sp<SkPDFObject>(SkRef(resourceList[i])));
+                                sk_ref_sp(resourceList[i]));
     }
     dst->insertObject(get_resource_type_name(type), std::move(resources));
 }
