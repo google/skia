@@ -542,7 +542,8 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::Li
     }
 
     // TODO: We're ignoring MIP levels here.
-    if (!texels.empty() && texels.begin()->fPixels) {
+    if (!texels.empty()) {
+        SkASSERT(texels.begin()->fPixels);
         if (!this->uploadTexData(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                  texels.begin()->fPixels, texels.begin()->fRowBytes)) {
             tex->unref();

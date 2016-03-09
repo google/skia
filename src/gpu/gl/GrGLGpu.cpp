@@ -926,7 +926,7 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
  * @param succeeded      Set to true if allocating and populating the texture completed
  *                       without error.
  */
-static void allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc,
+static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc,
                                                        const GrGLInterface& interface,
                                                        const GrGLCaps& caps,
                                                        GrGLenum target,
@@ -934,8 +934,7 @@ static void allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
                                                        GrGLenum externalFormat,
                                                        GrGLenum externalType,
                                                        const SkTArray<GrMipLevel>& texels,
-                                                       int baseWidth, int baseHeight,
-                                                       bool* succeeded) {
+                                                       int baseWidth, int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
     bool useTexStorage = caps.isConfigTexSupportEnabled(desc.fConfig);
@@ -955,7 +954,7 @@ static void allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
                                    desc.fWidth, desc.fHeight));
         GrGLenum error = check_alloc_error(desc, &interface);
         if (error != GR_GL_NO_ERROR) {
-            *succeeded = false;
+            return  false;
         } else {
             for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
                 const void* currentMipData = texels[currentMipLevel].fPixels;
@@ -976,33 +975,48 @@ static void allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
                                          externalFormat, externalType,
                                          currentMipData));
             }
-            *succeeded = true;
+            return true;
         }
     } else {
-        *succeeded = true;
-        for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
-            int twoToTheMipLevel = 1 << currentMipLevel;
-            int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
-            int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
-            const void* currentMipData = texels[currentMipLevel].fPixels;
-            // Even if curremtMipData is nullptr, continue to call TexImage2D.
-            // This will allocate texture memory which we can later populate.
+        if (texels.empty()) {
             GL_ALLOC_CALL(&interface,
                           TexImage2D(target,
-                                     currentMipLevel,
+                                     0,
                                      internalFormat,
-                                     currentWidth,
-                                     currentHeight,
+                                     baseWidth,
+                                     baseHeight,
                                      0, // border
                                      externalFormat, externalType,
-                                     currentMipData));
+                                     nullptr));
             GrGLenum error = check_alloc_error(desc, &interface);
             if (error != GR_GL_NO_ERROR) {
-                *succeeded = false;
-                break;
+                return false;
+            }
+        } else {
+            for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
+                int twoToTheMipLevel = 1 << currentMipLevel;
+                int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
+                int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
+                const void* currentMipData = texels[currentMipLevel].fPixels;
+                // Even if curremtMipData is nullptr, continue to call TexImage2D.
+                // This will allocate texture memory which we can later populate.
+                GL_ALLOC_CALL(&interface,
+                              TexImage2D(target,
+                                         currentMipLevel,
+                                         internalFormat,
+                                         currentWidth,
+                                         currentHeight,
+                                         0, // border
+                                         externalFormat, externalType,
+                                         currentMipData));
+                GrGLenum error = check_alloc_error(desc, &interface);
+                if (error != GR_GL_NO_ERROR) {
+                    return false;
+                }
             }
         }
     }
+    return true;
 }
 
 /**
@@ -1136,8 +1150,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
 
     for (int currentMipLevel = texelsShallowCopy.count() - 1; currentMipLevel >= 0;
          currentMipLevel--) {
-        SkASSERT(texelsShallowCopy[currentMipLevel].fPixels ||
-                 kNewTexture_UploadType == uploadType || kTransfer_UploadType == uploadType);
+        SkASSERT(texelsShallowCopy[currentMipLevel].fPixels || kTransfer_UploadType == uploadType);
     }
 
     const GrGLInterface* interface = this->glInterface();
@@ -1153,10 +1166,6 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         int twoToTheMipLevel = 1 << currentMipLevel;
         int currentWidth = SkTMax(1, width / twoToTheMipLevel);
         int currentHeight = SkTMax(1, height / twoToTheMipLevel);
-
-        if (texelsShallowCopy[currentMipLevel].fPixels == nullptr) {
-            continue;
-        }
 
         if (currentHeight > SK_MaxS32 ||
             currentWidth > SK_MaxS32) {
@@ -1193,7 +1202,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     bool swFlipY = false;
     bool glFlipY = false;
 
-    if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
+    if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin && !texelsShallowCopy.empty()) {
         if (caps.unpackFlipYSupport()) {
             glFlipY = true;
         } else {
@@ -1219,10 +1228,6 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     char* buffer = (char*)tempStorage.reset(combined_buffer_size);
 
     for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
-        if (texelsShallowCopy[currentMipLevel].fPixels == nullptr) {
-            continue;
-        }
-
         int twoToTheMipLevel = 1 << currentMipLevel;
         int currentWidth = SkTMax(1, width / twoToTheMipLevel);
         int currentHeight = SkTMax(1, height / twoToTheMipLevel);
@@ -1269,6 +1274,9 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         } else {
             return false;
         }
+    }
+
+    if (!texelsShallowCopy.empty()) {
         if (glFlipY) {
             GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
         }
@@ -1281,10 +1289,10 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height &&
         !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
-        allocate_and_populate_uncompressed_texture(desc, *interface, caps, target,
-                                                   internalFormat, externalFormat,
-                                                   externalType, texelsShallowCopy,
-                                                   width, height, &succeeded);
+        succeeded = allocate_and_populate_uncompressed_texture(desc, *interface, caps, target,
+                                                               internalFormat, externalFormat,
+                                                               externalType, texelsShallowCopy,
+                                                               width, height);
     } else {
         if (swFlipY || glFlipY) {
             top = desc.fHeight - (top + height);
@@ -1294,9 +1302,6 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
             int twoToTheMipLevel = 1 << currentMipLevel;
             int currentWidth = SkTMax(1, width / twoToTheMipLevel);
             int currentHeight = SkTMax(1, height / twoToTheMipLevel);
-            if (texelsShallowCopy[currentMipLevel].fPixels == nullptr) {
-                continue;
-            }
 
             GL_CALL(TexSubImage2D(target,
                                   currentMipLevel,
@@ -1324,8 +1329,6 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
                                       UploadType uploadType,
                                       int left, int top, int width, int height) {
     SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
-    SkASSERT(kTransfer_UploadType != uploadType &&
-             (texels[0].fPixels || kNewTexture_UploadType != uploadType));
 
     // No support for software flip y, yet...
     SkASSERT(kBottomLeft_GrSurfaceOrigin != desc.fOrigin);
@@ -1366,9 +1369,7 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
             return false;
         }
         for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
-            if (texels[currentMipLevel].fPixels == nullptr) {
-                continue;
-            }
+            SkASSERT(texels[currentMipLevel].fPixels || kTransfer_UploadType == uploadType);
 
             int twoToTheMipLevel = 1 << currentMipLevel;
             int currentWidth = SkTMax(1, width / twoToTheMipLevel);
@@ -1847,14 +1848,15 @@ bool GrGLGpu::createTextureExternalAllocatorImpl(const GrSurfaceDesc& desc,
     // We do not make SkTArray available outside of Skia,
     // and so we do not want to allow mipmaps to external
     // allocators just yet.
-    SkASSERT(texels.count() == 1);
-    SkSTArray<1, GrMipLevel> texelsShallowCopy(1);
-    texelsShallowCopy.push_back(texels[0]);
+    SkASSERT(texels.count() < 2);
 
+    const void* pixels = nullptr;
+    if (!texels.empty()) {
+        pixels = texels.begin()->fPixels;
+    }
     switch (desc.fTextureStorageAllocator.fAllocateTextureStorage(
                     desc.fTextureStorageAllocator.fCtx, reinterpret_cast<GrBackendObject>(info),
-                    desc.fWidth, desc.fHeight, desc.fConfig, texelsShallowCopy[0].fPixels,
-                    desc.fOrigin)) {
+                    desc.fWidth, desc.fHeight, desc.fConfig, pixels, desc.fOrigin)) {
         case GrTextureStorageAllocator::Result::kSucceededAndUploaded:
             return true;
         case GrTextureStorageAllocator::Result::kFailed:
@@ -1865,7 +1867,7 @@ bool GrGLGpu::createTextureExternalAllocatorImpl(const GrSurfaceDesc& desc,
 
     if (!this->uploadTexData(desc, info->fTarget, kNewTexture_UploadType, 0, 0,
                              desc.fWidth, desc.fHeight,
-                             desc.fConfig, texelsShallowCopy)) {
+                             desc.fConfig, texels)) {
         desc.fTextureStorageAllocator.fDeallocateTextureStorage(
                 desc.fTextureStorageAllocator.fCtx, reinterpret_cast<GrBackendObject>(info));
         return false;
@@ -2479,7 +2481,8 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
         desc.fConfig = rtConfig;
         desc.fWidth = desc.fHeight = 16;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        SkAutoTUnref<GrTexture> temp(this->createTexture(desc, SkBudgeted::kNo, nullptr, 0));
+        SkAutoTUnref<GrTexture> temp(this->createTexture(desc,
+                                     SkBudgeted::kNo));
         if (!temp) {
             return false;
         }
