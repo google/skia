@@ -6,6 +6,7 @@
  */
 
 #include <functional>
+#include <initializer_list>
 #include "DMGpuSupport.h"
 
 #include "SkBitmap.h"
@@ -67,6 +68,31 @@ static SkImage* create_image() {
     draw_image_test_pattern(surface->getCanvas());
     return surface->newImageSnapshot();
 }
+static SkImage* create_image_565() {
+    const SkImageInfo info = SkImageInfo::Make(20, 20, kRGB_565_SkColorType, kOpaque_SkAlphaType);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    draw_image_test_pattern(surface->getCanvas());
+    return surface->newImageSnapshot();
+}
+#if 0
+static SkImage* create_image_ct() {
+    SkPMColor colors[] = {
+        SkPreMultiplyARGB(0xFF, 0xFF, 0xFF, 0x00),
+        SkPreMultiplyARGB(0x80, 0x00, 0xA0, 0xFF),
+        SkPreMultiplyARGB(0xFF, 0xBB, 0x00, 0xBB)
+    };
+    SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
+    uint8_t data[] = {
+        0, 0, 0, 0, 0,
+        0, 1, 1, 1, 0,
+        0, 1, 2, 1, 0,
+        0, 1, 1, 1, 0,
+        0, 0, 0, 0, 0
+    };
+    SkImageInfo info = SkImageInfo::Make(5, 5, kIndex_8_SkColorType, kPremul_SkAlphaType);
+    return SkImage::NewRasterCopy(info, data, 5, colorTable);
+}
+#endif
 static SkData* create_image_data(SkImageInfo* info) {
     *info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     const size_t rowBytes = info->minRowBytes();
@@ -737,4 +763,72 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_NewFromTexture, reporter, context) {
     refImg.reset(nullptr); // force a release of the image
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 }
+
+static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, const SkImage* b) {
+    if (a->width() != b->width() || a->height() != b->height()) {
+        ERRORF(reporter, "Images must have the same size");
+        return;
+    }
+    if (a->isOpaque() != b->isOpaque()) {
+        ERRORF(reporter, "Images must have the same opaquness");
+        return;
+    }
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(a->width(), a->height());
+    SkAutoPixmapStorage apm;
+    SkAutoPixmapStorage bpm;
+
+    apm.alloc(info);
+    bpm.alloc(info);
+
+    if (!a->readPixels(apm, 0, 0)) {
+        ERRORF(reporter, "Could not read image a's pixels");
+        return;
+    }
+    if (!b->readPixels(bpm, 0, 0)) {
+        ERRORF(reporter, "Could not read image b's pixels");
+        return;
+    }
+
+    for (auto y = 0; y < info.height(); ++y) {
+        for (auto x = 0; x < info.width(); ++x) {
+            uint32_t pixelA = *apm.addr32(x, y);
+            uint32_t pixelB = *bpm.addr32(x, y);
+            if (pixelA != pixelB) {
+                ERRORF(reporter, "Expected image pixels to be the same. At %d,%d 0x%08x != 0x%08x",
+                       x, y, pixelA, pixelB);
+                return;
+            }
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, context) {
+    for (auto create : {&create_image,
+                        &create_image_565
+#if 0 // peekPixels on color table images is currently broken.
+                        , &create_image_ct
+#endif
+                        }) {
+        SkAutoTUnref<SkImage> image((*create)());
+        if (!image) {
+            ERRORF(reporter, "Could not create image");
+            return;
+        }
+
+        SkPixmap pixmap;
+        if (!image->peekPixels(&pixmap)) {
+            ERRORF(reporter, "peek failed");
+        } else {
+            SkAutoTUnref<SkImage> texImage(SkImage::NewTextureFromPixmap(context, pixmap,
+                                                                         SkBudgeted::kNo));
+            if (!texImage) {
+                ERRORF(reporter, "NewTextureFromPixmap failed.");
+            } else {
+                check_images_same(reporter, image, texImage);
+            }
+        }
+    }
+}
+
 #endif

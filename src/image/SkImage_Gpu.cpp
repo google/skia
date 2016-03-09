@@ -310,6 +310,19 @@ SkImage* SkImage::newTextureImage(GrContext *context) const {
     return create_image_from_maker(&maker, at, this->uniqueID());
 }
 
+SkImage* SkImage::NewTextureFromPixmap(GrContext* ctx, const SkPixmap& pixmap,
+                                       SkBudgeted budgeted) {
+    if (!ctx) {
+        return nullptr;
+    }
+    SkAutoTUnref<GrTexture> texture(GrUploadPixmapToTexture(ctx, pixmap));
+    if (!texture) {
+        return nullptr;
+    }
+    return new SkImage_Gpu(texture->width(), texture->height(), kNeedNewImageUniqueID,
+                           pixmap.alphaType(), texture, budgeted);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted budgeted) {
