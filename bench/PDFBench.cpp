@@ -10,7 +10,9 @@
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkPDFBitmap.h"
+#include "SkPDFUtils.h"
 #include "SkPixmap.h"
+#include "SkRandom.h"
 
 namespace {
 struct NullWStream : public SkWStream {
@@ -145,7 +147,25 @@ private:
     SkAutoTDelete<SkStreamAsset> fAsset;
 };
 
+// Test speed of SkPDFUtils::FloatToDecimal for typical floats that
+// might be found in a PDF document.
+struct PDFScalarBench : public Benchmark {
+    bool isSuitableFor(Backend b) override {
+        return b == kNonRendering_Backend;
+    }
+    const char* onGetName() override { return "PDFScalar"; }
+    void onDraw(int loops, SkCanvas*) override {
+        SkRandom random;
+        char dst[SkPDFUtils::kMaximumFloatDecimalLength];
+        while (loops-- > 0) {
+            auto f = random.nextRangeF(-500.0f, 1500.0f);
+            (void)SkPDFUtils::FloatToDecimal(f, dst);
+        }
+    }
+};
+
 }  // namespace
 DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
 DEF_BENCH(return new PDFCompressionBench;)
+DEF_BENCH(return new PDFScalarBench;)
