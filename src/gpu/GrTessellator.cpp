@@ -7,17 +7,11 @@
 
 #include "GrTessellator.h"
 
-#include "GrBatchFlushState.h"
-#include "GrBatchTest.h"
-#include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
-#include "GrVertices.h"
-#include "GrResourceCache.h"
-#include "GrResourceProvider.h"
-#include "SkGeometry.h"
-#include "SkChunkAlloc.h"
 
-#include "batches/GrVertexBatch.h"
+#include "SkChunkAlloc.h"
+#include "SkGeometry.h"
+#include "SkPath.h"
 
 #include <stdio.h>
 
@@ -1370,8 +1364,7 @@ namespace GrTessellator {
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
-                    GrResourceProvider* resourceProvider, 
-                    SkAutoTUnref<GrVertexBuffer>& vertexBuffer, bool canMapVB, bool* isLinear) {
+                    VertexAllocator* vertexAllocator, bool* isLinear) {
     int contourCnt;
     int sizeEstimate;
     get_contour_count_and_size_estimate(path, tolerance, &contourCnt, &sizeEstimate);
@@ -1387,20 +1380,10 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
         return 0;
     }
 
-    size_t size = count * sizeof(SkPoint);
-    if (!vertexBuffer.get() || vertexBuffer->gpuMemorySize() < size) {
-        vertexBuffer.reset(resourceProvider->createVertexBuffer(
-            size, GrResourceProvider::kStatic_BufferUsage, 0));
-    }
-    if (!vertexBuffer.get()) {
+    SkPoint* verts = vertexAllocator->lock(count);
+    if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return 0;
-    }
-    SkPoint* verts;
-    if (canMapVB) {
-        verts = static_cast<SkPoint*>(vertexBuffer->map());
-    } else {
-        verts = new SkPoint[count];
     }
     SkPoint* end = verts;
     for (Poly* poly = polys; poly; poly = poly->fNext) {
@@ -1411,13 +1394,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     int actualCount = static_cast<int>(end - verts);
     LOG("actual count: %d\n", actualCount);
     SkASSERT(actualCount <= count);
-    if (canMapVB) {
-        vertexBuffer->unmap();
-    } else {
-        vertexBuffer->updateData(verts, actualCount * sizeof(SkPoint));
-        delete[] verts;
-    }
-
+    vertexAllocator->unlock(actualCount);
     return actualCount;
 }
 

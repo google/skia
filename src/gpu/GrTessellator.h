@@ -8,8 +8,10 @@
 #ifndef GrTessellator_DEFINED
 #define GrTessellator_DEFINED
 
-#include "SkPath.h"
-#include "GrResourceProvider.h"
+#include "SkPoint.h"
+
+class SkPath;
+struct SkRect;
 
 /**
  * Provides utility functions for converting paths to a collection of triangles.
@@ -18,6 +20,13 @@
 #define TESSELLATOR_WIREFRAME 0
 
 namespace GrTessellator {
+
+class VertexAllocator {
+public:
+    virtual ~VertexAllocator() {}
+    virtual SkPoint* lock(int vertexCount) = 0;
+    virtual void unlock(int actualCount) = 0;
+};
 
 struct WindingVertex {
     SkPoint fPos;
@@ -32,9 +41,7 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
                    WindingVertex** verts);
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
-                    GrResourceProvider* resourceProvider, 
-                    SkAutoTUnref<GrVertexBuffer>& vertexBuffer, bool canMapVB, bool* isLinear);
-
+                    VertexAllocator*, bool *isLinear);
 }
 
 #endif

@@ -59,6 +59,48 @@ bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
     return false;
 }
 
+class StaticVertexAllocator : public GrTessellator::VertexAllocator {
+public:
+    StaticVertexAllocator(SkAutoTUnref<GrVertexBuffer>& vertexBuffer,
+                          GrResourceProvider* resourceProvider,
+                          bool canMapVB)
+      : fVertexBuffer(vertexBuffer)
+      , fResourceProvider(resourceProvider)
+      , fCanMapVB(canMapVB)
+      , fVertices(nullptr) {
+    }
+    SkPoint* lock(int vertexCount) override {
+        size_t size = vertexCount * sizeof(SkPoint);
+        if (!fVertexBuffer.get() || fVertexBuffer->gpuMemorySize() < size) {
+            fVertexBuffer.reset(fResourceProvider->createVertexBuffer(
+                size, GrResourceProvider::kStatic_BufferUsage, 0));
+        }
+        if (!fVertexBuffer.get()) {
+            return nullptr;
+        }
+        if (fCanMapVB) {
+            fVertices = static_cast<SkPoint*>(fVertexBuffer->map());
+        } else {
+            fVertices = new SkPoint[vertexCount];
+        }
+        return fVertices;
+    }
+    void unlock(int actualCount) override {
+        if (fCanMapVB) {
+            fVertexBuffer->unmap();
+        } else {
+            fVertexBuffer->updateData(fVertices, actualCount * sizeof(SkPoint));
+            delete[] fVertices;
+        }
+        fVertices = nullptr;
+    }
+private:
+    SkAutoTUnref<GrVertexBuffer>& fVertexBuffer;
+    GrResourceProvider* fResourceProvider;
+    bool fCanMapVB;
+    SkPoint* fVertices;
+};
+
 }  // namespace
 
 GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
@@ -103,46 +145,7 @@ private:
         fPipelineInfo = overrides;
     }
 
-    int tessellate(GrUniqueKey* key,
-                   GrResourceProvider* resourceProvider,
-                   SkAutoTUnref<GrVertexBuffer>& vertexBuffer,
-                   bool canMapVB) const {
-        SkPath path;
-        GrStrokeInfo stroke(fStroke);
-        if (stroke.isDashed()) {
-            if (!stroke.applyDashToPath(&path, &stroke, fPath)) {
-                return 0;
-            }
-        } else {
-            path = fPath;
-        }
-        if (!stroke.isFillStyle()) {
-            stroke.setResScale(SkScalarAbs(fViewMatrix.getMaxScale()));
-            if (!stroke.applyToPath(&path, path)) {
-                return 0;
-            }
-            stroke.setFillStyle();
-        }
-        SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
-        SkRect pathBounds = path.getBounds();
-        SkScalar tol = GrPathUtils::scaleToleranceToSrc(screenSpaceTol, fViewMatrix, pathBounds);
-
-        bool isLinear;
-        int count = GrTessellator::PathToTriangles(path, tol, fClipBounds, resourceProvider, 
-                                                   vertexBuffer, canMapVB, &isLinear);
-        if (!fPath.isVolatile()) {
-            TessInfo info;
-            info.fTolerance = isLinear ? 0 : tol;
-            info.fCount = count;
-            SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
-            key->setCustomData(data.get());
-            resourceProvider->assignUniqueKeyToResource(*key, vertexBuffer.get());
-            SkPathPriv::AddGenIDChangeListener(fPath, new PathInvalidator(*key));
-        }
-        return count;
-    }
-
-    void onPrepareDraws(Target* target) const override {
+    void draw(Target* target, const GrGeometryProcessor* gp) const {
         // construct a cache key from the path's genID and the view matrix
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
@@ -164,15 +167,47 @@ private:
         SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(
             screenSpaceTol, fViewMatrix, fPath.getBounds());
-        if (!cache_match(vertexBuffer.get(), tol, &actualCount)) {
-            bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
-            actualCount = this->tessellate(&key, rp, vertexBuffer, canMapVB);
-        }
-
-        if (actualCount == 0) {
+        if (cache_match(vertexBuffer.get(), tol, &actualCount)) {
+            this->drawVertices(target, gp, vertexBuffer.get(), 0, actualCount);
             return;
         }
 
+        SkPath path;
+        GrStrokeInfo stroke(fStroke);
+        if (stroke.isDashed()) {
+            if (!stroke.applyDashToPath(&path, &stroke, fPath)) {
+                return;
+            }
+        } else {
+            path = fPath;
+        }
+        if (!stroke.isFillStyle()) {
+            stroke.setResScale(SkScalarAbs(fViewMatrix.getMaxScale()));
+            if (!stroke.applyToPath(&path, path)) {
+                return;
+            }
+            stroke.setFillStyle();
+        }
+        bool isLinear;
+        bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
+        StaticVertexAllocator allocator(vertexBuffer, target->resourceProvider(), canMapVB);
+        int count = GrTessellator::PathToTriangles(path, tol, fClipBounds, &allocator, &isLinear);
+        if (count == 0) {
+            return;
+        }
+        this->drawVertices(target, gp, vertexBuffer.get(), 0, count);
+        if (!fPath.isVolatile()) {
+            TessInfo info;
+            info.fTolerance = isLinear ? 0 : tol;
+            info.fCount = count;
+            SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
+            key.setCustomData(data.get());
+            target->resourceProvider()->assignUniqueKeyToResource(key, vertexBuffer.get());
+            SkPathPriv::AddGenIDChangeListener(fPath, new PathInvalidator(key));
+        }
+    }
+
+    void onPrepareDraws(Target* target) const override {
         SkAutoTUnref<const GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -191,14 +226,18 @@ private:
             gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
                                                      fViewMatrix));
         }
+        this->draw(target, gp.get());
+    }
 
+    void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrVertexBuffer* vb,
+                      int firstVertex, int count) const {
         target->initDraw(gp, this->pipeline());
         SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType
                                                               : kTriangles_GrPrimitiveType;
         GrVertices vertices;
-        vertices.init(primitiveType, vertexBuffer.get(), 0, actualCount);
+        vertices.init(primitiveType, vb, firstVertex, count);
         target->draw(vertices);
     }
 
