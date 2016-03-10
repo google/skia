@@ -57,9 +57,14 @@ Three Gyp generators are used on Windows:
 
 *   `msvs-ninja` - Develop from a fully-integrated Visual Studio.
     Gyp generates Visual-Studio-compatible project files that still
-    ultimately build using ninja
+    ultimately build using ninja. This is the preferred and better maintained
+    way of using Visual Studio.
 
-*   `msvs` - Use Visual Studio's own (slower) build system
+*   `msvs` - Use Visual Studio's own (slower) build system. This is not as well
+     maintained as msvs-ninja. The msvs and ninja output can clobber each other
+     so building from both the command line and Visual Studio can produce bad
+     states that can be fixed by deleting the out directory and rerunning
+     gyp_skia.
 
 To choose which ones to use, set the `GYP_GENERATORS` environment
 variable to a comma-delimited list of generators before running
