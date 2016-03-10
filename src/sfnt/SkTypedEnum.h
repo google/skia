@@ -19,7 +19,7 @@
 #endif
 
 //Detect if typed enums are supported.
-#if defined(_MSC_VER) && _MSC_VER >= 1400
+#if defined(_MSC_VER)
     #define SK_TYPED_ENUMS
 
 #elif defined(__clang__) && __has_extension(cxx_strong_enums)

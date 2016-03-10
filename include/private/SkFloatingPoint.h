@@ -29,33 +29,6 @@ static inline float sk_float_pow(float base, float exp) {
     return powf(base, exp);
 }
 
-static inline float sk_float_copysign(float x, float y) {
-// c++11 contains a 'float copysign(float, float)' function in <cmath>.
-// clang-cl reports __cplusplus for clang, not the __cplusplus vc++ version _MSC_VER would report.
-#if (defined(_MSC_VER) && defined(__clang__))
-#    define SK_BUILD_WITH_CLANG_CL 1
-#else
-#    define SK_BUILD_WITH_CLANG_CL 0
-#endif
-#if (!SK_BUILD_WITH_CLANG_CL && __cplusplus >= 201103L) || (_MSC_VER >= 1800)
-    return copysignf(x, y);
-
-// Posix has demanded 'float copysignf(float, float)' (from C99) since Issue 6.
-#elif defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
-    return copysignf(x, y);
-
-// Visual studio prior to 13 only has 'double _copysign(double, double)'.
-#elif defined(_MSC_VER)
-    return (float)_copysign(x, y);
-
-// Otherwise convert to bits and extract sign.
-#else
-    int32_t xbits = SkFloat2Bits(x);
-    int32_t ybits = SkFloat2Bits(y);
-    return SkBits2Float((xbits & 0x7FFFFFFF) | (ybits & 0x80000000));
-#endif
-}
-
 #define sk_float_sqrt(x)        sqrtf(x)
 #define sk_float_sin(x)         sinf(x)
 #define sk_float_cos(x)         cosf(x)
@@ -71,6 +44,7 @@ static inline float sk_float_copysign(float x, float y) {
 #endif
 #define sk_float_atan2(y,x)     atan2f(y,x)
 #define sk_float_abs(x)         fabsf(x)
+#define sk_float_copysign(x, y) copysignf(x, y)
 #define sk_float_mod(x,y)       fmodf(x,y)
 #define sk_float_exp(x)         expf(x)
 #define sk_float_log(x)         logf(x)

@@ -51,20 +51,10 @@ static inline SkFixed repeat_tileproc(SkFixed x) {
 
 // Mirror
 
-// Visual Studio 2010 (MSC_VER=1600) optimizes bit-shift code incorrectly.
-// See http://code.google.com/p/skia/issues/detail?id=472
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
-#pragma optimize("", off)
-#endif
-
 static inline SkFixed mirror_tileproc(SkFixed x) {
     int s = SkLeftShift(x, 15) >> 31;
     return (x ^ s) & 0xFFFF;
 }
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
-#pragma optimize("", on)
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

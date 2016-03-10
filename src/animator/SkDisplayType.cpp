@@ -730,7 +730,7 @@ void SkDisplayType::UnitTest() {
         SkDisplayable* test = CreateInstance(maker, gTypeNames[index].fType);
         if (test == nullptr)
             continue;
-#if defined _WIN32 && _MSC_VER >= 1300  && defined _INC_CRTDBG // only on windows, only if using "crtdbg.h"
+#if defined _WIN32 && defined _INC_CRTDBG // only on windows, only if using "crtdbg.h"
     // we know that crtdbg puts 0xfdfdfdfd at the end of the block
     // look for unitialized memory, signature 0xcdcdcdcd prior to that
         int* start = (int*) test;

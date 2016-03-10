@@ -72,7 +72,7 @@ int32_t SkSqrtBits(int32_t value, int bitBias);
 int SkCLZ_portable(uint32_t);
 
 #ifndef SkCLZ
-    #if defined(_MSC_VER) && _MSC_VER >= 1400
+    #if defined(_MSC_VER)
         #include <intrin.h>
 
         static inline int SkCLZ(uint32_t mask) {
