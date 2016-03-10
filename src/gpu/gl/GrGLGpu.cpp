@@ -2603,6 +2603,12 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
                 SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == srcConfig);
                 SkASSERT(tempDrawInfo->fReadConfig == kAlpha_8_GrPixelConfig);
             }
+        } else if (this->caps()->isConfigRenderable(readConfig, false) &&
+                   this->readPixelsSupported(readConfig, readConfig)) {
+            // Do a draw to convert from the src config to the read config.
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+            tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
+            tempDrawInfo->fReadConfig = readConfig;
         } else {
             return false;
         }

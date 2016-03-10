@@ -65,14 +65,12 @@ static SkImage* create_image() {
     draw_image_test_pattern(surface->getCanvas());
     return surface->newImageSnapshot();
 }
-#if 0
 static SkImage* create_image_565() {
     const SkImageInfo info = SkImageInfo::Make(20, 20, kRGB_565_SkColorType, kOpaque_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
     draw_image_test_pattern(surface->getCanvas());
     return surface->newImageSnapshot();
 }
-#endif
 static SkImage* create_image_ct() {
     SkPMColor colors[] = {
         SkPreMultiplyARGB(0xFF, 0xFF, 0xFF, 0x00),
@@ -800,12 +798,9 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, context) {
-    for (auto create : {&create_image
-#if 0 // read pixels failing for non RT formats (565 not a RT on some desktop GLs).
-                        , &create_image_565
-#endif
-                        , &create_image_ct
-                        }) {
+    for (auto create : {&create_image,
+                        &create_image_565,
+                        &create_image_ct}) {
         SkAutoTUnref<SkImage> image((*create)());
         if (!image) {
             ERRORF(reporter, "Could not create image");
