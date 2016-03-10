@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'files': [
+      '<(WIN_TOOLCHAIN_DIR)/',
+    ],
+  },
+}
