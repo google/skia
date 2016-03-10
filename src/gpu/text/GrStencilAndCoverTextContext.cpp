@@ -329,7 +329,7 @@ class GrStencilAndCoverTextContext::FallbackBlobBuilder {
 public:
     FallbackBlobBuilder() : fBuffIdx(0), fCount(0) {}
 
-    bool isInitialized() const { return SkToBool(fBuilder); }
+    bool isInitialized() const { return fBuilder != nullptr; }
 
     void init(const SkPaint& font, SkScalar textRatio);
 
