@@ -190,8 +190,10 @@ private:
             return;
         }
 
+        const SkMatrix& ctm = this->viewMatrix();
         uint32_t flags = 0;
-        flags |= this->viewMatrix().isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+        flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+        flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
 
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
 

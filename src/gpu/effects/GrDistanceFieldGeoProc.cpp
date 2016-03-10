@@ -79,11 +79,13 @@ public:
         // add varyings
         GrGLSLVertToFrag recipScale(kFloat_GrSLType);
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
+        bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
+                              kUniformScale_DistanceFieldEffectMask;
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
         varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s;", uv.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
-        // compute numbers to be hardcoded to convert texture coordinates from int to float
+        // compute numbers to be hardcoded to convert texture coordinates from float to int
         SkASSERT(dfTexEffect.numTextures() == 1);
         GrTexture* atlas = dfTexEffect.textureAccess(0).getTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
@@ -112,15 +114,24 @@ public:
 #endif
 
         fragBuilder->codeAppend("float afwidth;");
-        if (isSimilarity) {
+        if (isUniformScale) {
             // For uniform scale, we adjust for the effect of the transformation on the distance
-            // by using the length of the gradient of the texture coordinates. We use st coordinates
-            // to ensure we're mapping 1:1 from texel space to pixel space.
+            // by using the length of the gradient of the t coordinate in the y direction. 
+            // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
             // this gives us a smooth step across approximately one fragment
-            // we use y to work around a Mali400 bug in the x direction
             fragBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdy(%s.y));",
                                      st.fsIn());
+        } else if (isSimilarity) {
+            // For similarity transform, we adjust the effect of the transformation on the distance
+            // by using the length of the gradient of the texture coordinates. We use st coordinates
+            // to ensure we're mapping 1:1 from texel space to pixel space.
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
+
+            // this gives us a smooth step across approximately one fragment
+            fragBuilder->codeAppendf("float st_grad_len = length(dFdy(%s));", st.fsIn());
+            fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
@@ -254,15 +265,20 @@ const GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
     GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
+    uint32_t flags = 0;
+    flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    if (flags & kSimilarity_DistanceFieldEffectFlag) {
+        flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+    }
+
     return GrDistanceFieldA8TextGeoProc::Create(GrRandomColor(d->fRandom),
                                                 GrTest::TestMatrix(d->fRandom),
                                                 d->fTextures[texIdx], params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                 d->fRandom->nextF(),
 #endif
-                                                d->fRandom->nextBool() ?
-                                                    kSimilarity_DistanceFieldEffectFlag : 0,
-                                                    d->fRandom->nextBool());
+                                                flags,
+                                                d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -335,13 +351,27 @@ public:
                                                                  kHigh_GrSLPrecision));
         fragBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
         fragBuilder->codeAppend("float afwidth;");
-        if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
+        bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
+                               kUniformScale_DistanceFieldEffectMask;
+        bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
+        if (isUniformScale) {
             // For uniform scale, we adjust for the effect of the transformation on the distance
-            // by using the length of the gradient of the texture coordinates. We use st coordinates
-            // to ensure we're mapping 1:1 from texel space to pixel space.
+            // by using the length of the gradient of the t coordinate in the y direction. 
+            // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdy(st.y));");
+
+        } else if (isSimilarity) {
+            // For similarity transform, we adjust the effect of the transformation on the distance
+            // by using the length of the gradient of the texture coordinates. We use st coordinates
+            // to ensure we're mapping 1:1 from texel space to pixel space.
+            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
+
+            // this gives us a smooth step across approximately one fragment
+            fragBuilder->codeAppend("float st_grad_len = length(dFdy(st));");
+            fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
@@ -464,13 +494,18 @@ const GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
     GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode
                                                              : GrTextureParams::kNone_FilterMode);
 
+    uint32_t flags = 0;
+    flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    if (flags & kSimilarity_DistanceFieldEffectFlag) {
+        flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+    }
+
     return GrDistanceFieldPathGeoProc::Create(GrRandomColor(d->fRandom),
                                               GrTest::TestMatrix(d->fRandom),
                                               d->fTextures[texIdx],
                                               params,
-                                              d->fRandom->nextBool() ?
-                                                      kSimilarity_DistanceFieldEffectFlag : 0,
-                                                      d->fRandom->nextBool());
+                                              flags,
+                                              d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -518,13 +553,15 @@ public:
                              args.fTransformsOut);
 
         // set up varyings
-        bool isUniformScale = SkToBool(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
+        bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
+                              kUniformScale_DistanceFieldEffectMask;
+        bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
         GrGLSLVertToFrag recipScale(kFloat_GrSLType);
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s;", uv.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
-        // compute numbers to be hardcoded to convert texture coordinates from int to float
+        // compute numbers to be hardcoded to convert texture coordinates from float to int
         SkASSERT(dfTexEffect.numTextures() == 1);
         GrTexture* atlas = dfTexEffect.textureAccess(0).getTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
@@ -555,8 +592,16 @@ public:
             fragBuilder->codeAppendf("float delta = %.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
         }
         if (isUniformScale) {
-            fragBuilder->codeAppendf("float dy = abs(dFdy(%s.y));", st.fsIn());
-            fragBuilder->codeAppend("vec2 offset = vec2(dy*delta, 0.0);");
+            fragBuilder->codeAppendf("float st_grad_len = abs(dFdy(%s.y));", st.fsIn());
+            fragBuilder->codeAppend("vec2 offset = vec2(st_grad_len*delta, 0.0);");
+        } else if (isSimilarity) {
+            // For a similarity matrix with rotation, the gradient will not be aligned
+            // with the texel coordinate axes, so we need to calculate it.
+            // We use dFdy because of a Mali 400 bug, and rotate -90 degrees to
+            // get the gradient in the x direction.
+            fragBuilder->codeAppendf("vec2 st_grad = dFdy(%s);", st.fsIn());
+            fragBuilder->codeAppend("float st_grad_len = length(st_grad);");
+            fragBuilder->codeAppend("vec2 offset = delta*vec2(st_grad.y, -st_grad.x);");
         } else {
             fragBuilder->codeAppendf("vec2 st = %s;\n", st.fsIn());
 
@@ -599,13 +644,14 @@ public:
         // transformations, and even then using a single factor seems like a reasonable
         // trade-off between quality and speed.
         fragBuilder->codeAppend("float afwidth;");
-        if (isUniformScale) {
-            // For uniform scale, we adjust for the effect of the transformation on the distance
-            // by using the length of the gradient of the texture coordinates. We use st coordinates
-            // to ensure we're mapping 1:1 from texel space to pixel space.
+        if (isSimilarity) {
+            // For similarity transform (uniform scale-only is a subset of this), we adjust for the 
+            // effect of the transformation on the distance by using the length of the gradient of 
+            // the texture coordinates. We use st coordinates to ensure we're mapping 1:1 from texel
+            // space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*dy;");
+            fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*st_grad_len;");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
@@ -737,7 +783,10 @@ const GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
                            GrTextureParams::kNone_FilterMode);
     DistanceAdjust wa = { 0.0f, 0.1f, -0.1f };
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
-    flags |= d->fRandom->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
+    flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    if (flags & kSimilarity_DistanceFieldEffectFlag) {
+        flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+    }
     flags |= d->fRandom->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
     return GrDistanceFieldLCDTextGeoProc::Create(GrRandomColor(d->fRandom),
                                                  GrTest::TestMatrix(d->fRandom),

@@ -261,11 +261,11 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
     bool isLCD = this->isLCD();
     // set up any flags
     uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    flags |= viewMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
 
     // see if we need to create a new effect
     if (isLCD) {
         flags |= kUseLCD_DistanceFieldEffectFlag;
-        flags |= viewMatrix.rectStaysRect() ? kRectToRect_DistanceFieldEffectFlag : 0;
         flags |= fUseBGR ? kBGR_DistanceFieldEffectFlag : 0;
 
         GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
