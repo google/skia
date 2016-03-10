@@ -250,7 +250,13 @@
                 ],
               },
               'link_settings': {
-                'library_dirs': [ '<(vulkan_sdk_path)/Bin', ],
+                'conditions': [
+                  [ 'skia_arch_type == "x86"', {
+                    'library_dirs': [ '<(vulkan_sdk_path)/Bin32', ],
+                  }, {
+                    'library_dirs': [ '<(vulkan_sdk_path)/Bin', ],
+                  }],
+                ]
               },
             }, {
               'variables': {

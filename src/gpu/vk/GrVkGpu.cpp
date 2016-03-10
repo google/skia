@@ -382,7 +382,8 @@ bool GrVkGpu::uploadTexData(GrVkTexture* tex,
             if (trimRowBytes == rowBytes && trimRowBytes == layout.rowPitch) {
                 memcpy(mapPtr, data, trimRowBytes * height);
             } else {
-                SkRectMemcpy(mapPtr, layout.rowPitch, data, rowBytes, trimRowBytes, height);
+                SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes,
+                             trimRowBytes, height);
             }
         }
 
@@ -798,7 +799,8 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
             if (rowCopyBytes == layout.rowPitch) {
                 memcpy(mapPtr, srcData, rowCopyBytes * h);
             } else {
-                SkRectMemcpy(mapPtr, layout.rowPitch, srcData, w, rowCopyBytes, h);
+                SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), srcData, w, rowCopyBytes,
+                             h);
             }
             GR_VK_CALL(interface, UnmapMemory(fDevice, imageRsrc->fAlloc));
         } else {
