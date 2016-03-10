@@ -19,6 +19,7 @@
 #include "SkTArray.h"
 #include "UrlDataManager.h"
 
+class GrAuditTrail;
 class SkNWayCanvas;
 
 class SK_API SkDebugCanvas : public SkCanvas {
@@ -160,6 +161,8 @@ public:
      */
     Json::Value toJSON(UrlDataManager& urlDataManager, int n, SkCanvas*);
 
+    Json::Value toJSONBatchList(int n, SkCanvas*);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Inherited from SkCanvas
 ////////////////////////////////////////////////////////////////////////////////
@@ -284,7 +287,11 @@ private:
     void outputPointsCommon(const SkPoint* pts, int count);
     void outputScalar(SkScalar num);
 
+    GrAuditTrail* getAuditTrail(SkCanvas*);
+
     void updatePaintFilterCanvas();
+    void drawAndCollectBatches(int n, SkCanvas*);
+    void cleanupAuditTrail(SkCanvas*);
 
     typedef SkCanvas INHERITED;
 };

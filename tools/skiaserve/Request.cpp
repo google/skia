@@ -12,6 +12,9 @@
 #include "SkPictureRecorder.h"
 #include "SkPixelSerializer.h"
 
+static int kDefaultWidth = 1920;
+static int kDefaultHeight = 1080;
+
 static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
     SkWStream* out = (SkWStream*) png_get_io_ptr(png_ptr);
     out->write(data, length);
@@ -59,7 +62,7 @@ Request::Request(SkString rootUrl)
 
 SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
     SkBitmap* bmp = new SkBitmap();
-    SkIRect bounds = fPicture->cullRect().roundOut();
+    SkIRect bounds = this->getBounds();
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(),
                                          kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
     bmp->setInfo(info);
@@ -108,7 +111,7 @@ SkData* Request::drawToPng(int n, int m) {
 
 SkData* Request::writeOutSkp() {
     // Playback into picture recorder
-    SkIRect bounds = fPicture->cullRect().roundOut();
+    SkIRect bounds = this->getBounds();
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(bounds.width(), bounds.height());
 
@@ -124,17 +127,41 @@ SkData* Request::writeOutSkp() {
     return outStream.copyToData();
 }
 
+GrContext* Request::getContext() {
+  return fContextFactory->get(GrContextFactory::kNative_GLContextType,
+                              GrContextFactory::kNone_GLContextOptions);
+}
+
+SkIRect Request::getBounds() {
+    SkIRect bounds;
+    if (fPicture) {
+        bounds = fPicture->cullRect().roundOut();
+        if (fGPUEnabled) {
+            int maxRTSize = this->getContext()->caps()->maxRenderTargetSize();
+            bounds = SkIRect::MakeWH(SkTMin(bounds.width(), maxRTSize),
+                                     SkTMin(bounds.height(), maxRTSize));
+        }
+    } else {
+        bounds = SkIRect::MakeWH(kDefaultWidth, kDefaultHeight);
+    }
+
+    // We clip to kDefaultWidth / kDefaultHeight for performance reasons
+    // TODO make this configurable
+    bounds = SkIRect::MakeWH(SkTMin(bounds.width(), kDefaultWidth),
+                             SkTMin(bounds.height(), kDefaultHeight));
+    return bounds;
+}
+
 SkSurface* Request::createCPUSurface() {
-    SkIRect bounds = fPicture->cullRect().roundOut();
+    SkIRect bounds = this->getBounds();
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), kN32_SkColorType,
                                          kPremul_SkAlphaType);
     return SkSurface::NewRaster(info);
 }
 
 SkSurface* Request::createGPUSurface() {
-    GrContext* context = fContextFactory->get(GrContextFactory::kNative_GLContextType,
-                                              GrContextFactory::kNone_GLContextOptions);
-    SkIRect bounds = fPicture->cullRect().roundOut();
+    GrContext* context = this->getContext();
+    SkIRect bounds = this->getBounds();
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(),
                                          kN32_SkColorType, kPremul_SkAlphaType);
     uint32_t flags = 0;
@@ -167,8 +194,11 @@ bool Request::initPictureFromStream(SkStream* stream) {
         return false;
     }
 
+    // reinitialize canvas with the new picture dimensions
+    this->enableGPU(fGPUEnabled);
+
     // pour picture into debug canvas
-    SkIRect bounds = fPicture->cullRect().roundOut();
+    SkIRect bounds = this->getBounds();
     fDebugCanvas.reset(new SkDebugCanvas(bounds.width(), bounds.height()));
     fDebugCanvas->drawPicture(fPicture);
 
@@ -176,28 +206,6 @@ bool Request::initPictureFromStream(SkStream* stream) {
     fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
     this->getCanvas()->flush();
     return true;
-}
-
-GrAuditTrail* Request::getAuditTrail(SkCanvas* canvas) {
-    GrAuditTrail* at = nullptr;
-#if SK_SUPPORT_GPU
-    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-    if (rt) {
-        GrContext* ctx = rt->getContext();
-        if (ctx) {
-            at = ctx->getAuditTrail();
-        }
-    }
-#endif
-    return at;
-}
-
-void Request::cleanupAuditTrail(SkCanvas* canvas) {
-    GrAuditTrail* at = this->getAuditTrail(canvas);
-    if (at) {
-        GrAuditTrail::AutoEnable ae(at);
-        at->fullReset();
-    }
 }
 
 SkData* Request::getJsonOps(int n) {
@@ -208,8 +216,6 @@ SkData* Request::getJsonOps(int n) {
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
 
-    this->cleanupAuditTrail(canvas);
-
     return stream.copyToData();
 }
 
@@ -217,24 +223,10 @@ SkData* Request::getJsonBatchList(int n) {
     SkCanvas* canvas = this->getCanvas();
     SkASSERT(fGPUEnabled);
 
-    // TODO if this is inefficient we could add a method to GrAuditTrail which takes
-    // a Json::Value and is only compiled in this file
-    Json::Value parsedFromString;
-#if SK_SUPPORT_GPU
-    // we use the toJSON method on debug canvas, but then just ignore the results and pull
-    // the information we care about from the audit trail
-    fDebugCanvas->toJSON(fUrlDataManager, n, canvas); 
-
-    GrAuditTrail* at = this->getAuditTrail(canvas);
-    GrAuditTrail::AutoManageBatchList enable(at);
-    Json::Reader reader;
-    SkDEBUGCODE(bool parsingSuccessful = )reader.parse(at->toJson().c_str(),
-                                                       parsedFromString);
-    SkASSERT(parsingSuccessful);
-#endif
+    Json::Value result = fDebugCanvas->toJSONBatchList(n, canvas);
 
     SkDynamicMemoryWStream stream;
-    stream.writeText(Json::FastWriter().write(parsedFromString).c_str());
+    stream.writeText(Json::FastWriter().write(result).c_str());
 
     return stream.copyToData();
 }

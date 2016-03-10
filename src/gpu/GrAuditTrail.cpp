@@ -147,14 +147,13 @@ void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const T& arra
             json->appendf(",");
         }
         json->appendf("\"%s\": [", name);
+        const char* separator = "";
         for (int i = 0; i < array.count(); i++) {
             // Handle sentinel nullptrs
-            if (!array[i]) {
-                continue;
-            }
-            json->append(array[i]->toJson());
-            if (i < array.count() - 1) {
-                json->append(",");
+            if (array[i]) {
+                json->appendf("%s", separator);
+                json->append(array[i]->toJson());
+                separator = ",";
             }
         }
         json->append("]");

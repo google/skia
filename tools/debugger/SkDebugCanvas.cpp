@@ -226,16 +226,10 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
     }
    
     // If we have a GPU backend we can also visualize the batching information
-#if SK_SUPPORT_GPU
     GrAuditTrail* at = nullptr;
-    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-    if (rt && (fDrawGpuBatchBounds || m != -1)) {
-        GrContext* ctx = rt->getContext();
-        if (ctx) {
-            at = ctx->getAuditTrail();
-        }
+    if (fDrawGpuBatchBounds || m != -1) {
+        at = this->getAuditTrail(canvas);
     }
-#endif
 
     for (int i = 0; i <= index; i++) {
         if (i == index && fFilter) {
@@ -375,11 +369,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
                 canvas->drawRect(batch.fBounds, paint);
             }
         }
-
-        at->fullReset();
     }
-    
 #endif
+    this->cleanupAuditTrail(canvas);
 }
 
 void SkDebugCanvas::deleteDrawCommandAt(int index) {
@@ -417,32 +409,55 @@ SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
     return fCommandVector;
 }
 
-Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanvas* canvas) {
+GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
+    GrAuditTrail* at = nullptr;
 #if SK_SUPPORT_GPU
     GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-    GrAuditTrail* at = nullptr;
     if (rt) {
         GrContext* ctx = rt->getContext();
-        if(ctx) {
+        if (ctx) {
             at = ctx->getAuditTrail();
-
-            // loop over all of the commands and draw them, this is to collect reordering
-            // information
-            for (int i = 0; i < this->getSize() && i <= n; i++) {
-                GrAuditTrail::AutoCollectBatches enable(at, i);
-                fCommandVector[i]->execute(canvas);
-            }
-
-            // in case there is some kind of global reordering
-            {
-                GrAuditTrail::AutoEnable ae(at);
-                canvas->flush();
-            }
         }
     }
 #endif
+    return at;
+}
+
+void SkDebugCanvas::drawAndCollectBatches(int n, SkCanvas* canvas) {
+    GrAuditTrail* at = this->getAuditTrail(canvas);
+    if (at) {
+#if SK_SUPPORT_GPU
+        // loop over all of the commands and draw them, this is to collect reordering
+        // information
+        for (int i = 0; i < this->getSize() && i <= n; i++) {
+            GrAuditTrail::AutoCollectBatches enable(at, i);
+            fCommandVector[i]->execute(canvas);
+        }
+
+        // in case there is some kind of global reordering
+        {
+            GrAuditTrail::AutoEnable ae(at);
+            canvas->flush();
+        }
+#endif
+    }
+}
+
+void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
+    GrAuditTrail* at = this->getAuditTrail(canvas);
+    if (at) {
+#if SK_SUPPORT_GPU
+        GrAuditTrail::AutoEnable ae(at);
+        at->fullReset();
+#endif
+    }
+}
+
+Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanvas* canvas) {
+    this->drawAndCollectBatches(n, canvas);
     
     // now collect json
+    GrAuditTrail* at = this->getAuditTrail(canvas);
     Json::Value result = Json::Value(Json::objectValue);
     result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
     Json::Value commands = Json::Value(Json::arrayValue);
@@ -460,14 +475,25 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanva
         }
 #endif
     }
-#if SK_SUPPORT_GPU
-    if (at) {
-        GrAuditTrail::AutoEnable ae(at);
-        at->fullReset();
-    }
-#endif
+    this->cleanupAuditTrail(canvas);
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;
     return result;
+}
+
+Json::Value SkDebugCanvas::toJSONBatchList(int n, SkCanvas* canvas) {
+    this->drawAndCollectBatches(n, canvas);
+
+    Json::Value parsedFromString;
+    GrAuditTrail* at = this->getAuditTrail(canvas);
+#if SK_SUPPORT_GPU
+    if (at) {
+        GrAuditTrail::AutoManageBatchList enable(at);
+        Json::Reader reader;
+        SkAssertResult(reader.parse(at->toJson().c_str(), parsedFromString));
+    }
+#endif
+    this->cleanupAuditTrail(canvas);
+    return parsedFromString;
 }
 
 void SkDebugCanvas::updatePaintFilterCanvas() {
