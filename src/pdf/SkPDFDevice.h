@@ -168,7 +168,7 @@ public:
 
     /** Returns a SkStream with the page contents.
      */
-    std::unique_ptr<SkStreamAsset> content() const;
+    skstd::unique_ptr<SkStreamAsset> content() const;
 
     /** Writes the page contents to the stream. */
     void writeContent(SkWStream*) const;

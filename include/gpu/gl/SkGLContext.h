@@ -25,7 +25,7 @@ public:
 
     const GrGLInterface* gl() const { return fGL.get(); }
 
-    bool fenceSyncSupport() const { return fFenceSync != nullptr; }
+    bool fenceSyncSupport() const { return SkToBool(fFenceSync); }
 
     bool getMaxGpuFrameLag(int* maxFrameLag) const {
         if (!fFenceSync) {
