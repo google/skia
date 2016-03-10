@@ -35,6 +35,7 @@ static inline float sk_float_pow(float base, float exp) {
 #define sk_float_tan(x)         tanf(x)
 #define sk_float_floor(x)       floorf(x)
 #define sk_float_ceil(x)        ceilf(x)
+#define sk_float_trunc(x)       truncf(x)
 #ifdef SK_BUILD_FOR_MAC
 #    define sk_float_acos(x)    static_cast<float>(acos(x))
 #    define sk_float_asin(x)    static_cast<float>(asin(x))

@@ -38,6 +38,7 @@ typedef float SkScalar;
 #define SkScalarFloorToScalar(x)    sk_float_floor(x)
 #define SkScalarCeilToScalar(x)     sk_float_ceil(x)
 #define SkScalarRoundToScalar(x)    sk_float_floor((x) + 0.5f)
+#define SkScalarTruncToScalar(x)    sk_float_trunc(x)
 
 #define SkScalarFloorToInt(x)       sk_float_floor2int(x)
 #define SkScalarCeilToInt(x)        sk_float_ceil2int(x)
@@ -46,7 +47,6 @@ typedef float SkScalar;
 #define SkScalarAbs(x)              sk_float_abs(x)
 #define SkScalarCopySign(x, y)      sk_float_copysign(x, y)
 #define SkScalarMod(x, y)           sk_float_mod(x,y)
-#define SkScalarFraction(x)         sk_float_mod(x, 1.0f)
 #define SkScalarSqrt(x)             sk_float_sqrt(x)
 #define SkScalarPow(b, e)           sk_float_pow(b, e)
 
@@ -81,6 +81,7 @@ typedef double SkScalar;
 #define SkScalarFloorToScalar(x)    floor(x)
 #define SkScalarCeilToScalar(x)     ceil(x)
 #define SkScalarRoundToScalar(x)    floor((x) + 0.5)
+#define SkScalarTruncToScalar(x)    trunc(x)
 
 #define SkScalarFloorToInt(x)       (int)floor(x)
 #define SkScalarCeilToInt(x)        (int)ceil(x)
@@ -89,7 +90,6 @@ typedef double SkScalar;
 #define SkScalarAbs(x)              abs(x)
 #define SkScalarCopySign(x, y)      copysign(x, y)
 #define SkScalarMod(x, y)           fmod(x,y)
-#define SkScalarFraction(x)         fmod(x, 1.0)
 #define SkScalarSqrt(x)             sqrt(x)
 #define SkScalarPow(b, e)           pow(b, e)
 
@@ -166,6 +166,11 @@ static inline int SkDScalarRoundToInt(SkScalar x) {
     double xx = x;
     xx += 0.5;
     return (int)floor(xx);
+}
+
+/** Returns the fractional part of the scalar. */
+static inline SkScalar SkScalarFraction(SkScalar x) {
+    return x - SkScalarTruncToScalar(x);
 }
 
 static inline SkScalar SkScalarClampMax(SkScalar x, SkScalar max) {
