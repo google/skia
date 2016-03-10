@@ -215,6 +215,8 @@ public:
     }
 
 private:
+    // Most of valid RAW images will not be larger than 100MB. This limit is helpful to avoid
+    // streaming too large data chunk. We can always adjust the limit here if we need.
     const size_t kMaxStreamSize = 100 * 1024 * 1024;  // 100MB
 
     typedef SkDynamicMemoryWStream INHERITED;
@@ -445,6 +447,10 @@ public:
      */
     static SkDngImage* NewFromStream(SkRawStream* stream) {
         SkAutoTDelete<SkDngImage> dngImage(new SkDngImage(stream));
+        if (!dngImage->isTiffHeaderValid()) {
+            return nullptr;
+        }
+
         if (!dngImage->initFromPiex()) {
             if (!dngImage->readDng()) {
                 return nullptr;
@@ -522,6 +528,20 @@ public:
     }
 
 private:
+    // Quick check if the image contains a valid TIFF header as requested by DNG format.
+    bool isTiffHeaderValid() const {
+        const size_t kHeaderSize = 4;
+        SkAutoSTMalloc<kHeaderSize, unsigned char> header(kHeaderSize);
+        if (!fStream->read(header.get(), 0 /* offset */, kHeaderSize)) {
+            return false;
+        }
+
+        // Check if the header is valid (endian info and magic number "42").
+        return
+            (header[0] == 0x49 && header[1] == 0x49 && header[2] == 0x2A && header[3] == 0x00) ||
+            (header[0] == 0x4D && header[1] == 0x4D && header[2] == 0x00 && header[3] == 0x2A);
+    }
+
     void init(const int width, const int height, const dng_point& cfaPatternSize) {
         fImageInfo = SkImageInfo::Make(width, height, kN32_SkColorType, kOpaque_SkAlphaType);
 
