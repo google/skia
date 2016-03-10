@@ -199,6 +199,28 @@ public:
    virtual SkMemoryStream* transferBuffer(size_t offset, size_t size) = 0;
 };
 
+class SkRawLimitedDynamicMemoryWStream : public SkDynamicMemoryWStream {
+public:
+    virtual ~SkRawLimitedDynamicMemoryWStream() {}
+
+    bool write(const void* buffer, size_t size) override {
+        size_t newSize;
+        if (!safe_add_to_size_t(this->bytesWritten(), size, &newSize) ||
+            newSize > kMaxStreamSize)
+        {
+            SkCodecPrintf("Error: Stream size exceeds the limit.\n");
+            return false;
+        }
+        return this->INHERITED::write(buffer, size);
+    }
+
+private:
+    const size_t kMaxStreamSize = 100 * 1024 * 1024;  // 100MB
+
+    typedef SkDynamicMemoryWStream INHERITED;
+};
+
+// Note: the maximum buffer size is 100MB (limited by SkRawLimitedDynamicMemoryWStream).
 class SkRawBufferedStream : public SkRawStream {
 public:
     // Will take the ownership of the stream.
@@ -301,7 +323,8 @@ private:
     SkAutoTDelete<SkStream> fStream;
     bool fWholeStreamRead;
 
-    SkDynamicMemoryWStream fStreamBuffer;
+    // Use a size-limited stream to avoid holding too huge buffer.
+    SkRawLimitedDynamicMemoryWStream fStreamBuffer;
 
     const size_t kReadToEnd = 0;
 };
