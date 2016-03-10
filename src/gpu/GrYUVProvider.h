@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "SkImageInfo.h"
+#include "SkYUVSizeInfo.h"
 
 class GrContext;
 class GrTexture;
@@ -38,32 +39,29 @@ public:
 
     virtual uint32_t onGetID() = 0;
 
-    enum {
-        kY_Index = 0,
-        kU_Index = 1,
-        kV_Index = 2,
-
-        kPlaneCount = 3
-    };
-
     // These are not meant to be called by a client, only by the implementation
 
     /**
-     *  Return the 3 dimensions for each plane and return true. On failure, return false and
-     *  ignore the sizes parameter. Typical failure is that the provider does not contain YUV
-     *  data, and may just be an RGB src.
+     *  If decoding to YUV is supported, this returns true.  Otherwise, this
+     *  returns false and does not modify any of the parameters.
+     *
+     *  @param sizeInfo   Output parameter indicating the sizes and required
+     *                    allocation widths of the Y, U, and V planes.
+     *  @param colorSpace Output parameter.
      */
-    virtual bool onGetYUVSizes(SkISize sizes[kPlaneCount]) = 0;
+    virtual bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const = 0;
 
     /**
-     *  On success, return true, and set sizes, rowbytes and colorspace to the appropriate values.
-     *  planes[] will have already been allocated by the client (based on the worst-case sizes
-     *  returned by onGetYUVSizes(). This method copies its planar data into those buffers.
+     *  Returns true on success and false on failure.
+     *  This always attempts to perform a full decode.  If the client only
+     *  wants size, it should call onQueryYUV8().
      *
-     *  On failure, return false and ignore other parameters.
+     *  @param sizeInfo   Needs to exactly match the values returned by the
+     *                    query, except the WidthBytes may be larger than the
+     *                    recommendation (but not smaller).
+     *  @param planes     Memory for each of the Y, U, and V planes.
      */
-    virtual bool onGetYUVPlanes(SkISize sizes[kPlaneCount], void* planes[kPlaneCount],
-                                size_t rowBytes[kPlaneCount], SkYUVColorSpace*) = 0;
+    virtual bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) = 0;
 };
 
 #endif

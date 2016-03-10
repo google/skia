@@ -54,16 +54,22 @@ private:
                           size_t rowBytes,
                           SkDiscardableMemory::Factory* factory);
 
-    bool onGetYUV8Planes(SkISize sizes[3],
-                         void* planes[3],
-                         size_t rowBytes[3],
-                         SkYUVColorSpace* colorSpace) override {
+    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
         // If the image was already decoded with lockPixels(), favor not
         // re-decoding to YUV8 planes.
         if (fDiscardableMemory) {
             return false;
         }
-        return fGenerator->getYUV8Planes(sizes, planes, rowBytes, colorSpace);
+        return fGenerator->queryYUV8(sizeInfo, colorSpace);
+    }
+
+    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
+        // If the image was already decoded with lockPixels(), favor not
+        // re-decoding to YUV8 planes.
+        if (fDiscardableMemory) {
+            return false;
+        }
+        return fGenerator->getYUV8Planes(sizeInfo, planes);
     }
 
     friend bool SkDEPRECATED_InstallDiscardablePixelRef(SkImageGenerator*, const SkIRect*, SkBitmap*,

@@ -323,11 +323,6 @@ SkData* SkPixelRef::onRefEncodedData() {
     return nullptr;
 }
 
-bool SkPixelRef::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                                 SkYUVColorSpace* colorSpace) {
-    return false;
-}
-
 size_t SkPixelRef::getAllocatedSizeInBytes() const {
     return 0;
 }

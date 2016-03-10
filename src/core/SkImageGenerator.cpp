@@ -52,56 +52,28 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return this->getPixels(info, pixels, rowBytes, nullptr, nullptr);
 }
 
-bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                                     SkYUVColorSpace* colorSpace) {
-#ifdef SK_DEBUG
-    // In all cases, we need the sizes array
-    SkASSERT(sizes);
+bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+    SkASSERT(sizeInfo);
 
-    bool isValidWithPlanes = (planes) && (rowBytes) &&
-        ((planes[0]) && (planes[1]) && (planes[2]) &&
-         (0  != rowBytes[0]) && (0  != rowBytes[1]) && (0  != rowBytes[2]));
-    bool isValidWithoutPlanes =
-        ((nullptr == planes) ||
-         ((nullptr == planes[0]) && (nullptr == planes[1]) && (nullptr == planes[2]))) &&
-        ((nullptr == rowBytes) ||
-         ((0 == rowBytes[0]) && (0 == rowBytes[1]) && (0 == rowBytes[2])));
-
-    // Either we have all planes and rowBytes information or we have none of it
-    // Having only partial information is not supported
-    SkASSERT(isValidWithPlanes || isValidWithoutPlanes);
-
-    // If we do have planes information, make sure all sizes are non 0
-    // and all rowBytes are valid
-    SkASSERT(!isValidWithPlanes ||
-             ((sizes[0].fWidth  >= 0) &&
-              (sizes[0].fHeight >= 0) &&
-              (sizes[1].fWidth  >= 0) &&
-              (sizes[1].fHeight >= 0) &&
-              (sizes[2].fWidth  >= 0) &&
-              (sizes[2].fHeight >= 0) &&
-              (rowBytes[0] >= (size_t)sizes[0].fWidth) &&
-              (rowBytes[1] >= (size_t)sizes[1].fWidth) &&
-              (rowBytes[2] >= (size_t)sizes[2].fWidth)));
-#endif
-
-    return this->onGetYUV8Planes(sizes, planes, rowBytes, colorSpace);
+    return this->onQueryYUV8(sizeInfo, colorSpace);
 }
 
-bool SkImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]) {
-    return false;
-}
+bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kU].fWidth >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kV].fWidth >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kV].fHeight >= 0);
+    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kY] >=
+            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth);
+    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kU] >=
+            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kU].fWidth);
+    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kV] >=
+            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kV].fWidth);
+    SkASSERT(planes && planes[0] && planes[1] && planes[2]);
 
-bool SkImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                                       SkYUVColorSpace* colorSpace) {
-    // In order to maintain compatibility with clients that implemented the original
-    // onGetYUV8Planes interface, we assume that the color space is JPEG.
-    // TODO(rileya): remove this and the old onGetYUV8Planes once clients switch over to
-    // the new interface.
-    if (colorSpace) {
-        *colorSpace = kJPEG_SkYUVColorSpace;
-    }
-    return this->onGetYUV8Planes(sizes, planes, rowBytes);
+    return this->onGetYUV8Planes(sizeInfo, planes);
 }
 
 GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkIRect* subset) {

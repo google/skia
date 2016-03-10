@@ -594,21 +594,21 @@ static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
            (4 == hSampY && 2 == vSampY);
 }
 
-bool SkJpegCodec::onQueryYUV8(YUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+bool SkJpegCodec::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
     if (!is_yuv_supported(dinfo)) {
         return false;
     }
 
-    sizeInfo->fYSize.set(dinfo->comp_info[0].downsampled_width,
-                         dinfo->comp_info[0].downsampled_height);
-    sizeInfo->fUSize.set(dinfo->comp_info[1].downsampled_width,
-                         dinfo->comp_info[1].downsampled_height);
-    sizeInfo->fVSize.set(dinfo->comp_info[2].downsampled_width,
-                         dinfo->comp_info[2].downsampled_height);
-    sizeInfo->fYWidthBytes = dinfo->comp_info[0].width_in_blocks * DCTSIZE;
-    sizeInfo->fUWidthBytes = dinfo->comp_info[1].width_in_blocks * DCTSIZE;
-    sizeInfo->fVWidthBytes = dinfo->comp_info[2].width_in_blocks * DCTSIZE;
+    sizeInfo->fSizes[SkYUVSizeInfo::kY].set(dinfo->comp_info[0].downsampled_width,
+                                           dinfo->comp_info[0].downsampled_height);
+    sizeInfo->fSizes[SkYUVSizeInfo::kU].set(dinfo->comp_info[1].downsampled_width,
+                                           dinfo->comp_info[1].downsampled_height);
+    sizeInfo->fSizes[SkYUVSizeInfo::kV].set(dinfo->comp_info[2].downsampled_width,
+                                           dinfo->comp_info[2].downsampled_height);
+    sizeInfo->fWidthBytes[SkYUVSizeInfo::kY] = dinfo->comp_info[0].width_in_blocks * DCTSIZE;
+    sizeInfo->fWidthBytes[SkYUVSizeInfo::kU] = dinfo->comp_info[1].width_in_blocks * DCTSIZE;
+    sizeInfo->fWidthBytes[SkYUVSizeInfo::kV] = dinfo->comp_info[2].width_in_blocks * DCTSIZE;
 
     if (colorSpace) {
         *colorSpace = kJPEG_SkYUVColorSpace;
@@ -617,17 +617,18 @@ bool SkJpegCodec::onQueryYUV8(YUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace
     return true;
 }
 
-SkCodec::Result SkJpegCodec::onGetYUV8Planes(const YUVSizeInfo& sizeInfo, void* pixels[3]) {
-    YUVSizeInfo defaultInfo;
+SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+    SkYUVSizeInfo defaultInfo;
 
     // This will check is_yuv_supported(), so we don't need to here.
     bool supportsYUV = this->onQueryYUV8(&defaultInfo, nullptr);
-    if (!supportsYUV || sizeInfo.fYSize != defaultInfo.fYSize ||
-            sizeInfo.fUSize != defaultInfo.fUSize ||
-            sizeInfo.fVSize != defaultInfo.fVSize ||
-            sizeInfo.fYWidthBytes < defaultInfo.fYWidthBytes ||
-            sizeInfo.fUWidthBytes < defaultInfo.fUWidthBytes ||
-            sizeInfo.fVWidthBytes < defaultInfo.fVWidthBytes) {
+    if (!supportsYUV ||
+            sizeInfo.fSizes[SkYUVSizeInfo::kY] != defaultInfo.fSizes[SkYUVSizeInfo::kY] ||
+            sizeInfo.fSizes[SkYUVSizeInfo::kU] != defaultInfo.fSizes[SkYUVSizeInfo::kU] ||
+            sizeInfo.fSizes[SkYUVSizeInfo::kV] != defaultInfo.fSizes[SkYUVSizeInfo::kV] ||
+            sizeInfo.fWidthBytes[SkYUVSizeInfo::kY] < defaultInfo.fWidthBytes[SkYUVSizeInfo::kY] ||
+            sizeInfo.fWidthBytes[SkYUVSizeInfo::kU] < defaultInfo.fWidthBytes[SkYUVSizeInfo::kU] ||
+            sizeInfo.fWidthBytes[SkYUVSizeInfo::kV] < defaultInfo.fWidthBytes[SkYUVSizeInfo::kV]) {
         return fDecoderMgr->returnFailure("onGetYUV8Planes", kInvalidInput);
     }
 
@@ -651,9 +652,9 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const YUVSizeInfo& sizeInfo, void* 
 
     // Currently, we require that the Y plane dimensions match the image dimensions
     // and that the U and V planes are the same dimensions.
-    SkASSERT(sizeInfo.fUSize == sizeInfo.fVSize);
-    SkASSERT((uint32_t) sizeInfo.fYSize.width() == dinfo->output_width &&
-            (uint32_t) sizeInfo.fYSize.height() == dinfo->output_height);
+    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kU] == sizeInfo.fSizes[SkYUVSizeInfo::kV]);
+    SkASSERT((uint32_t) sizeInfo.fSizes[SkYUVSizeInfo::kY].width() == dinfo->output_width &&
+            (uint32_t) sizeInfo.fSizes[SkYUVSizeInfo::kY].height() == dinfo->output_height);
 
     // Build a JSAMPIMAGE to handle output from libjpeg-turbo.  A JSAMPIMAGE has
     // a 2-D array of pixels for each of the components (Y, U, V) in the image.
@@ -670,17 +671,20 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const YUVSizeInfo& sizeInfo, void* 
     // Initialize rowptrs.
     int numYRowsPerBlock = DCTSIZE * dinfo->comp_info[0].v_samp_factor;
     for (int i = 0; i < numYRowsPerBlock; i++) {
-        rowptrs[i] = SkTAddOffset<JSAMPLE>(pixels[0], i * sizeInfo.fYWidthBytes);
+        rowptrs[i] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kY],
+                i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kY]);
     }
     for (int i = 0; i < DCTSIZE; i++) {
-        rowptrs[i + 2 * DCTSIZE] = SkTAddOffset<JSAMPLE>(pixels[1], i * sizeInfo.fUWidthBytes);
-        rowptrs[i + 3 * DCTSIZE] = SkTAddOffset<JSAMPLE>(pixels[2], i * sizeInfo.fVWidthBytes);
+        rowptrs[i + 2 * DCTSIZE] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kU],
+                i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kU]);
+        rowptrs[i + 3 * DCTSIZE] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kV],
+                i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kV]);
     }
 
     // After each loop iteration, we will increment pointers to Y, U, and V.
-    size_t blockIncrementY = numYRowsPerBlock * sizeInfo.fYWidthBytes;
-    size_t blockIncrementU = DCTSIZE * sizeInfo.fUWidthBytes;
-    size_t blockIncrementV = DCTSIZE * sizeInfo.fVWidthBytes;
+    size_t blockIncrementY = numYRowsPerBlock * sizeInfo.fWidthBytes[SkYUVSizeInfo::kY];
+    size_t blockIncrementU = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kU];
+    size_t blockIncrementV = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kV];
 
     uint32_t numRowsPerBlock = numYRowsPerBlock;
 
@@ -713,7 +717,7 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const YUVSizeInfo& sizeInfo, void* 
         // this requirement using a dummy row buffer.
         // FIXME: Should SkCodec have an extra memory buffer that can be shared among
         //        all of the implementations that use temporary/garbage memory?
-        SkAutoTMalloc<JSAMPLE> dummyRow(sizeInfo.fYWidthBytes);
+        SkAutoTMalloc<JSAMPLE> dummyRow(sizeInfo.fWidthBytes[SkYUVSizeInfo::kY]);
         for (int i = remainingRows; i < numYRowsPerBlock; i++) {
             rowptrs[i] = dummyRow.get();
         }
