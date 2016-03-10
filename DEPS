@@ -56,13 +56,17 @@ deps = {
   "third_party/externals/shaderc2/third_party/googletest" : "https://github.com/google/googletest.git@ff07a5de0e81580547f1685e101194ed1a4fcd56",
   "third_party/externals/shaderc2/third_party/glslang" : "https://github.com/bsalomon/glslang.git@5dc8a76265ee31733b5a765e034ad7f5097a3cbe",
   "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@c31a31942b3697f2f71148555e5ffa298a572dbd",
+}
 
-  # xSAN bots build Clang from scratch.
-  "third_party/externals/llvm": "https://llvm.googlesource.com/llvm@release_38",
-  "third_party/externals/llvm/tools/clang": "https://llvm.googlesource.com/clang@release_38",
-  "third_party/externals/llvm/projects/compiler-rt": "https://llvm.googlesource.com/compiler-rt@release_38",
-  "third_party/externals/llvm/projects/libcxx": "https://llvm.googlesource.com/libcxx@release_38",
-  "third_party/externals/llvm/projects/libcxxabi": "https://llvm.googlesource.com/libcxxabi@release_38",
+deps_os = {
+  'llvm': {
+    # xSAN bots build Clang from scratch.
+    "third_party/externals/llvm": "https://llvm.googlesource.com/llvm@release_38",
+    "third_party/externals/llvm/tools/clang": "https://llvm.googlesource.com/clang@release_38",
+    "third_party/externals/llvm/projects/compiler-rt": "https://llvm.googlesource.com/compiler-rt@release_38",
+    "third_party/externals/llvm/projects/libcxx": "https://llvm.googlesource.com/libcxx@release_38",
+    "third_party/externals/llvm/projects/libcxxabi": "https://llvm.googlesource.com/libcxxabi@release_38",
+  }
 }
 
 recursedeps = [ "common" ]
