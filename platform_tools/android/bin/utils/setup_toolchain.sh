@@ -35,8 +35,7 @@ function default_toolchain() {
   TOOLCHAINS=${SCRIPT_DIR}/../toolchains
 
   ANDROID_ARCH=${ANDROID_ARCH-arm}
-  LLVM=3.6
-  NDK=r10e
+  NDK=r11
 
   if [[ $ANDROID_ARCH == *64* ]]; then
       API=21  # Android 5.0
@@ -52,17 +51,17 @@ function default_toolchain() {
   if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
     mkdir -p $TOOLCHAINS
     pushd $TOOLCHAINS
-    curl -o $NDK.bin https://dl.google.com/android/ndk/android-ndk-$NDK-$HOST-x86_64.bin
-    chmod +x $NDK.bin
-    ./$NDK.bin -y
-    ./android-ndk-$NDK/build/tools/make-standalone-toolchain.sh \
+    curl -o $NDK.zip https://dl.google.com/android/repository/android-ndk-$NDK-$HOST-x86_64.zip
+    unzip $NDK.zip
+    UNZIPPED=android-ndk-$NDK-$HOST-x86_64.tar.bz2
+    ./$UNZIPPED/build/tools/make-standalone-toolchain.sh \
+        --use-llvm              \
         --arch=$ANDROID_ARCH    \
-        --llvm-version=$LLVM    \
         --platform=android-$API \
         --install_dir=$TOOLCHAIN
-    cp android-ndk-$NDK/prebuilt/android-$ANDROID_ARCH/gdbserver/gdbserver $TOOLCHAIN
-    rm $NDK.bin
-    rm -rf android-ndk-$NDK
+    cp $UNZIPPED/prebuilt/android-$ANDROID_ARCH/gdbserver/gdbserver $TOOLCHAIN
+    rm $NDK.zip
+    rm -rf $UNZIPPED
     popd
   fi
 
@@ -147,14 +146,6 @@ if [ $(uname) == "Darwin" ]; then
   ln -sf $ANDROID_TOOLCHAIN_PREFIX-nm $ANDROID_TOOLCHAIN/nm
   ln -sf $ANDROID_TOOLCHAIN_PREFIX-readelf $ANDROID_TOOLCHAIN/readelf
   ln -sf $ANDROID_TOOLCHAIN_PREFIX-as $ANDROID_TOOLCHAIN/as
-fi
-
-# fix bug in the toolchain in order to enable ccache to work with clang
-if [ $(head -c 2 $ANDROID_TOOLCHAIN_PREFIX-clang) != "#!" ]; then
-   echo -e "#!/bin/bash\n$(cat $ANDROID_TOOLCHAIN_PREFIX-clang)" > $ANDROID_TOOLCHAIN_PREFIX-clang
-fi
-if [ $(head -c 2 $ANDROID_TOOLCHAIN_PREFIX-clang++) != "#!" ]; then
-   echo -e "#!/bin/bash\n$(cat $ANDROID_TOOLCHAIN_PREFIX-clang++)" > $ANDROID_TOOLCHAIN_PREFIX-clang++
 fi
 
 exportVar PATH $ANDROID_TOOLCHAIN:$PATH
