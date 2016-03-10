@@ -194,7 +194,6 @@ protected:
             }
             x0 += SkIntToScalar(400);
         }
-        s->unref();
     }
 
 private:
