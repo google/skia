@@ -238,7 +238,7 @@ sk_sp<SkShader> SkShader::MakeBitmapShader(const SkBitmap& src, TileMode tmx, Ti
     return SkMakeBitmapShader(src, tmx, tmy, localMatrix, nullptr);
 }
 
-sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<const SkPicture> src, TileMode tmx, TileMode tmy,
+sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,
                                             const SkMatrix* localMatrix, const SkRect* tile) {
     return SkPictureShader::Make(std::move(src), tmx, tmy, localMatrix, tile);
 }
@@ -388,6 +388,7 @@ SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode
 }
 SkShader* SkShader::CreatePictureShader(const SkPicture* src, TileMode tmx, TileMode tmy,
                                      const SkMatrix* localMatrix, const SkRect* tile) {
-    return MakePictureShader(sk_ref_sp(src), tmx, tmy, localMatrix, tile).release();
+    return MakePictureShader(sk_ref_sp(const_cast<SkPicture*>(src)), tmx, tmy,
+                             localMatrix, tile).release();
 }
 #endif

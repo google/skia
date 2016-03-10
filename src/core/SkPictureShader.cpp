@@ -93,7 +93,7 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 
 } // namespace
 
-SkPictureShader::SkPictureShader(sk_sp<const SkPicture> picture, TileMode tmx, TileMode tmy,
+SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
                                  const SkMatrix* localMatrix, const SkRect* tile)
     : INHERITED(localMatrix)
     , fPicture(std::move(picture))
@@ -102,7 +102,7 @@ SkPictureShader::SkPictureShader(sk_sp<const SkPicture> picture, TileMode tmx, T
     , fTmy(tmy) {
 }
 
-sk_sp<SkShader> SkPictureShader::Make(sk_sp<const SkPicture> picture, TileMode tmx, TileMode tmy,
+sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
                                       const SkMatrix* localMatrix, const SkRect* tile) {
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
         return SkShader::MakeEmptyShader();
@@ -223,8 +223,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
         tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
                                  SkMatrix::kFill_ScaleToFit);
 
-        SkAutoTUnref<SkImage> tileImage(
-            SkImage::NewFromPicture(fPicture.get(), tileSize, &tileMatrix, nullptr));
+        sk_sp<SkImage> tileImage(
+            SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix, nullptr));
         if (!tileImage) {
             return nullptr;
         }

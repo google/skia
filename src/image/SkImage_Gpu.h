@@ -35,7 +35,7 @@ public:
 
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext* ctx, const GrTextureParams& params) const override;
-    SkImage* onNewSubset(const SkIRect&) const override;
+    sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture; }
     bool isOpaque() const override;

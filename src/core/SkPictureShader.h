@@ -22,7 +22,7 @@ class SkPicture;
  */
 class SkPictureShader : public SkShader {
 public:
-    static sk_sp<SkShader> Make(sk_sp<const SkPicture>, TileMode, TileMode, const SkMatrix*,
+    static sk_sp<SkShader> Make(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*,
                                 const SkRect*);
 
     SK_TO_STRING_OVERRIDE()
@@ -42,14 +42,14 @@ protected:
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:
-    SkPictureShader(sk_sp<const SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
+    SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
 
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix,
                                     const int maxTextureSize = 0) const;
 
-    sk_sp<const SkPicture>  fPicture;
-    SkRect                  fTile;
-    TileMode                fTmx, fTmy;
+    sk_sp<SkPicture>    fPicture;
+    SkRect              fTile;
+    TileMode            fTmx, fTmy;
 
     class PictureShaderContext : public SkShader::Context {
     public:
