@@ -69,7 +69,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
         "nonrendering", "null", "nullgpu", "nvprmsaa16", "nvprmsaa4", "pdf", "pdf_poppler",
         "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
-        "gpuf16", "gpusrgb", "anglesrgb"
+        "gpuf16", "gpusrgb"
     });
 
     SkCommandLineConfigArray configs;
@@ -116,11 +116,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     REPORTER_ASSERT(reporter, configs[19]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getProfileType()
-                    == kSRGB_SkColorProfileType);
 #else
     REPORTER_ASSERT(reporter, !configs[19]->asConfigGpu());
-    REPORTER_ASSERT(reporter, !configs[26]->asConfigGpu());
 #endif
     REPORTER_ASSERT(reporter, configs[20]->asConfigGpu());
 #else
