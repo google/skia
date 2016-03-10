@@ -24,6 +24,9 @@ public:
 
     uint32_t getFlags() const override { return fFlags; }
 
+    void shadeSpan(int x, int y, SkPMColor dst[], int count) override;
+    void shadeSpan4f(int x, int y, SkPM4f dst[], int count) override;
+
 protected:
     struct Interval {
         Interval(SkPMColor c0, SkScalar p0,
@@ -32,13 +35,14 @@ protected:
 
         bool isZeroRamp() const { return fZeroRamp; }
 
-        // true when fx is in [p0,p1)
-        bool contains(SkScalar fx) const;
-
         SkPM4f   fC0, fDc;
         SkScalar fP0, fP1;
         bool     fZeroRamp;
     };
+
+    virtual void mapTs(int x, int y, SkScalar ts[], int count) const = 0;
+
+    void buildIntervals(const SkGradientShaderBase&, const ContextRec&, bool reverse);
 
     SkSTArray<8, Interval, true> fIntervals;
     SkMatrix                     fDstToPos;
@@ -50,6 +54,18 @@ protected:
 
 private:
     using INHERITED = SkShader::Context;
+
+    void addMirrorIntervals(const SkGradientShaderBase&,
+                            const Sk4f& componentScale, bool reverse);
+
+    template<typename DstType, SkShader::TileMode tileMode>
+    class TSampler;
+
+    template <typename DstType, bool do_premul>
+    void shadePremulSpan(int x, int y, DstType[], int count) const;
+
+    template <typename DstType, bool do_premul, SkShader::TileMode tileMode>
+    void shadeSpanInternal(int x, int y, DstType[], int count) const;
 };
 
 #endif // Sk4fGradientBase_DEFINED

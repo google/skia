@@ -12,18 +12,18 @@
 #include "SkLinearGradient.h"
 
 class SkLinearGradient::
-LinearGradient4fContext : public GradientShaderBase4fContext {
+LinearGradient4fContext final : public GradientShaderBase4fContext {
 public:
     LinearGradient4fContext(const SkLinearGradient&, const ContextRec&);
 
     void shadeSpan(int x, int y, SkPMColor dst[], int count) override;
     void shadeSpan4f(int x, int y, SkPM4f dst[], int count) override;
 
+protected:
+    void mapTs(int x, int y, SkScalar ts[], int count) const override;
+
 private:
     using INHERITED = GradientShaderBase4fContext;
-
-    void addMirrorIntervals(const SkLinearGradient&, const Sk4f& componentScale,
-                            bool dx_is_pos);
 
     template<typename DstType, TileMode>
     class LinearIntervalProcessor;
@@ -32,12 +32,11 @@ private:
     void shadePremulSpan(int x, int y, DstType[], int count) const;
 
     template <typename DstType, bool premul, SkShader::TileMode tileMode>
-    void shadePremulTileSpan(int x, int y, DstType[], int count) const;
-
-    template <typename DstType, bool premul, SkShader::TileMode tileMode>
     void shadeSpanInternal(int x, int y, DstType[], int count) const;
 
     const Interval* findInterval(SkScalar fx) const;
+
+    bool isFast() const { return fDstToPosClass == kLinear_MatrixClass; }
 
     mutable const Interval*      fCachedInterval;
 };

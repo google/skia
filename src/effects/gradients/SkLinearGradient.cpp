@@ -41,12 +41,6 @@ static bool use_4f_context(const SkShader::ContextRec& rec, uint32_t flags) {
 #ifdef FORCE_4F_CONTEXT
     return true;
 #else
-    // Perspective not supported in 4f yet.
-    if (rec.fMatrix->hasPerspective()
-        || (rec.fLocalMatrix && rec.fLocalMatrix->hasPerspective())) {
-        return false;
-    }
-
     return rec.fPreferredDstType == SkShader::ContextRec::kPM4f_DstType
         || SkToBool(flags & SkLinearGradient::kForce4fContext_PrivateFlag);
 #endif

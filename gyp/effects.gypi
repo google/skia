@@ -68,6 +68,7 @@
 
     '<(skia_src_path)/effects/gradients/Sk4fGradientBase.cpp',
     '<(skia_src_path)/effects/gradients/Sk4fGradientBase.h',
+    '<(skia_src_path)/effects/gradients/Sk4fGradientPriv.h',
     '<(skia_src_path)/effects/gradients/Sk4fLinearGradient.cpp',
     '<(skia_src_path)/effects/gradients/Sk4fLinearGradient.h',
     '<(skia_src_path)/effects/gradients/SkClampRange.cpp',
