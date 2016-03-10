@@ -867,8 +867,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (cf) {
         SkASSERT(shader);
-        shader = shader->newWithColorFilter(cf);
-        paint.writable()->setShader(shader)->unref();
+        paint.writable()->setShader(shader->makeWithColorFilter(cf));
+        shader = paint->getShader();
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.
     }

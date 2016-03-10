@@ -14,7 +14,7 @@ SkFlattenable* SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     if (!baseShader) {
         return nullptr;
     }
-    return baseShader->newWithLocalMatrix(lm);
+    return baseShader->makeWithLocalMatrix(lm).release();
 }
 
 void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
@@ -47,9 +47,9 @@ void SkLocalMatrixShader::toString(SkString* str) const {
 }
 #endif
 
-SkShader* SkShader::newWithLocalMatrix(const SkMatrix& localMatrix) const {
+sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
     if (localMatrix.isIdentity()) {
-        return SkRef(const_cast<SkShader*>(this));
+        return sk_ref_sp(const_cast<SkShader*>(this));
     }
 
     const SkMatrix* lm = &localMatrix;
@@ -63,5 +63,5 @@ SkShader* SkShader::newWithLocalMatrix(const SkMatrix& localMatrix) const {
         baseShader = proxy.get();
     }
 
-    return new SkLocalMatrixShader(baseShader, *lm);
+    return sk_make_sp<SkLocalMatrixShader>(baseShader, *lm);
 }

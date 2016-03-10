@@ -289,14 +289,12 @@ protected:
         if (true) {
             SkMatrix m;
             m.setSkew(1, 0);
-            SkShader* s = paint.getShader()->newWithLocalMatrix(m);
-            paint.setShader(s)->unref();
+            paint.setShader(paint.getShader()->makeWithLocalMatrix(m));
         }
         if (true) {
             SkMatrix m;
             m.setRotate(fAngle);
-            SkShader* s = paint.getShader()->newWithLocalMatrix(m);
-            paint.setShader(s)->unref();
+            paint.setShader(paint.getShader()->makeWithLocalMatrix(m));
         }
         patch.setBounds(fSize1.fX, fSize1.fY);
         drawpatches(canvas, paint, nu, nv, &patch);

@@ -323,13 +323,13 @@ public:
      *  Return a shader that will apply the specified localMatrix to this shader.
      *  The specified matrix will be applied before any matrix associated with this shader.
      */
-    SkShader* newWithLocalMatrix(const SkMatrix&) const;
+    sk_sp<SkShader> makeWithLocalMatrix(const SkMatrix&) const;
 
     /**
      *  Create a new shader that produces the same colors as invoking this shader and then applying
      *  the colorfilter.
      */
-    SkShader* newWithColorFilter(SkColorFilter*) const;
+    sk_sp<SkShader> makeWithColorFilter(SkColorFilter*) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders
@@ -359,6 +359,13 @@ public:
     static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer);
     static SkShader* CreatePictureShader(const SkPicture* src, TileMode tmx, TileMode tmy,
                                          const SkMatrix* localMatrix, const SkRect* tile);
+
+    SkShader* newWithLocalMatrix(const SkMatrix& matrix) const {
+        return this->makeWithLocalMatrix(matrix).release();
+    }
+    SkShader* newWithColorFilter(SkColorFilter* filter) const {
+        return this->makeWithColorFilter(filter).release();
+    }
 #endif
 
     /**

@@ -125,8 +125,7 @@ static sk_sp<SkShader> make_grad_sh() {
 
 static sk_sp<SkShader> make_cf_sh() {
     SkAutoTUnref<SkColorFilter> filter(make_mx_cf());
-    sk_sp<SkShader> shader(make_color_sh());
-    return sk_sp<SkShader>(shader->newWithColorFilter(filter));
+    return make_color_sh()->makeWithColorFilter(filter);
 }
 
 static bool compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int count,

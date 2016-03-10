@@ -212,7 +212,7 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 800, 800) {
         for (int x = -1; x < filters.count(); ++x) {
             SkColorFilter* filter = x >= 0 ? filters[x] : nullptr;
 
-            paint.setShader(shader->newWithColorFilter(filter))->unref();
+            paint.setShader(shader->makeWithColorFilter(filter));
             canvas->drawRect(r, paint);
             canvas->translate(150, 0);
         }

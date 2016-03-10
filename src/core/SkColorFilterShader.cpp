@@ -137,10 +137,10 @@ void SkColorFilterShader::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkShader* SkShader::newWithColorFilter(SkColorFilter* filter) const {
+sk_sp<SkShader> SkShader::makeWithColorFilter(SkColorFilter* filter) const {
     SkShader* base = const_cast<SkShader*>(this);
     if (!filter) {
-        return SkRef(base);
+        return sk_ref_sp(base);
     }
-    return new SkColorFilterShader(base, filter);
+    return sk_make_sp<SkColorFilterShader>(base, filter);
 }
