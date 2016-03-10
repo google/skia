@@ -48,13 +48,13 @@ void SkRasterWidget::paintEvent(QPaintEvent* event) {
         Q_EMIT drawComplete();
     }
 
-    SkImageInfo info;
-    size_t rowBytes;
-    if (const void* pixels = fSurface->peekPixels(&info, &rowBytes)) {
-        QImage image(reinterpret_cast<const uchar*>(pixels),
-                     info.width(),
-                     info.height(),
-                     rowBytes,
+    SkPixmap pixmap;
+
+    if (fSurface->peekPixels(&pixmap)) {
+        QImage image(reinterpret_cast<const uchar*>(pixmap.addr()),
+                     pixmap.width(),
+                     pixmap.height(),
+                     pixmap.rowBytes(),
                      QImage::Format_ARGB32_Premultiplied);
 #if SK_R32_SHIFT == 0
         painter.drawImage(this->contentsRect(), image.rgbSwapped());
