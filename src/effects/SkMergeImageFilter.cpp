@@ -6,9 +6,11 @@
  */
 
 #include "SkMergeImageFilter.h"
+
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
@@ -55,72 +57,76 @@ SkMergeImageFilter::~SkMergeImageFilter() {
     }
 }
 
-bool SkMergeImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
-                                                 const Context& ctx,
-                                                 SkBitmap* result, SkIPoint* offset) const {
+SkSpecialImage* SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                                  SkIPoint* offset) const {
     int inputCount = this->countInputs();
     if (inputCount < 1) {
-        return false;
+        return nullptr;
     }
 
     SkIRect bounds;
+    bounds.setEmpty();
 
-    SkAutoTDeleteArray<SkBitmap> inputs(new SkBitmap[inputCount]);
+    SkAutoTDeleteArray<SkAutoTUnref<SkSpecialImage>> inputs(
+                                                    new SkAutoTUnref<SkSpecialImage>[inputCount]);
     SkAutoTDeleteArray<SkIPoint> offsets(new SkIPoint[inputCount]);
-    bool didProduceResult = false;
 
     // Filter all of the inputs.
     for (int i = 0; i < inputCount; ++i) {
-        inputs[i] = src;
         offsets[i].setZero();
-        if (!this->filterInputDeprecated(i, proxy, src, ctx, &inputs[i], &offsets[i])) {
-            inputs[i].reset();
+        inputs[i].reset(this->filterInput(i, source, ctx, &offsets[i]));
+        if (!inputs[i]) {
             continue;
         }
-        SkIRect srcBounds;
-        inputs[i].getBounds(&srcBounds);
-        srcBounds.offset(offsets[i]);
-        if (!didProduceResult) {
-            bounds = srcBounds;
-            didProduceResult = true;
-        } else {
-            bounds.join(srcBounds);
-        }
+        const SkIRect inputBounds = SkIRect::MakeXYWH(offsets[i].fX, offsets[i].fY, 
+                                                      inputs[i]->width(), inputs[i]->height());
+        bounds.join(inputBounds);
     }
-    if (!didProduceResult) {
-        return false;
+    if (bounds.isEmpty()) {
+        return nullptr;
     }
 
     // Apply the crop rect to the union of the inputs' bounds.
     this->getCropRect().applyTo(bounds, ctx.ctm(), &bounds);
     if (!bounds.intersect(ctx.clipBounds())) {
-        return false;
+        return nullptr;
     }
 
     const int x0 = bounds.left();
     const int y0 = bounds.top();
 
-    // Allocate the destination buffer.
-    SkAutoTUnref<SkBaseDevice> dst(proxy->createDevice(bounds.width(), bounds.height()));
-    if (nullptr == dst) {
-        return false;
+    SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
+                                            kPremul_SkAlphaType);
+
+    SkAutoTUnref<SkSpecialSurface> surf(source->newSurface(info));
+    if (!surf) {
+        return nullptr;
     }
-    SkCanvas canvas(dst);
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    canvas->clear(0x0);
 
     // Composite all of the filter inputs.
     for (int i = 0; i < inputCount; ++i) {
+        if (!inputs[i]) {
+            continue;
+        }
+
         SkPaint paint;
         if (fModes) {
             paint.setXfermodeMode((SkXfermode::Mode)fModes[i]);
         }
-        canvas.drawBitmap(inputs[i], SkIntToScalar(offsets[i].x() - x0),
-                                     SkIntToScalar(offsets[i].y() - y0), &paint);
+
+        inputs[i]->draw(canvas,
+                        SkIntToScalar(offsets[i].x() - x0), SkIntToScalar(offsets[i].y() - y0),
+                        &paint);
     }
 
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    *result = dst->accessBitmap(false);
-    return true;
+    return surf->newImageSnapshot();
 }
 
 SkFlattenable* SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {

@@ -14,7 +14,7 @@
 
 class SK_API SkMergeImageFilter : public SkImageFilter {
 public:
-    virtual ~SkMergeImageFilter();
+    ~SkMergeImageFilter() override;
 
     static SkImageFilter* Create(SkImageFilter* first, SkImageFilter* second,
                                  SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode,
@@ -35,8 +35,8 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
-                                 SkIPoint* loc) const override;
+    SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
+                                  SkIPoint* offset) const override;
 
 private:
     SkMergeImageFilter(SkImageFilter* filters[], int count, const SkXfermode::Mode modes[],
