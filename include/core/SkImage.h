@@ -145,6 +145,8 @@ public:
     static SkImage* NewFromPicture(const SkPicture*, const SkISize& dimensions,
                                    const SkMatrix*, const SkPaint*);
 
+    static SkImage* NewTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted);
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     int width() const { return fWidth; }

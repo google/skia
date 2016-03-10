@@ -7,6 +7,7 @@
 
 
 #include "SkGr.h"
+#include "SkGrPriv.h"
 
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -121,16 +122,10 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
  * Ganesh wants a full 256 palette entry, even though Skia's ctable is only as big
  * as the colortable.count says it is.
  */
-static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
-    SkASSERT(kIndex_8_SkColorType == bitmap.colorType());
+static void build_index8_data(void* buffer, const SkPixmap& pixmap) {
+    SkASSERT(kIndex_8_SkColorType == pixmap.colorType());
 
-    SkAutoLockPixels alp(bitmap);
-    if (!bitmap.readyToDraw()) {
-        SkDEBUGFAIL("bitmap not ready to draw!");
-        return;
-    }
-
-    SkColorTable* ctable = bitmap.getColorTable();
+    const SkColorTable* ctable = pixmap.ctable();
     char* dst = (char*)buffer;
 
     const int count = ctable->count();
@@ -152,14 +147,14 @@ static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
     // always skip a full 256 number of entries, even if we memcpy'd fewer
     dst += 256 * sizeof(GrColor);
 
-    if ((unsigned)bitmap.width() == bitmap.rowBytes()) {
-        memcpy(dst, bitmap.getPixels(), bitmap.getSize());
+    if ((unsigned)pixmap.width() == pixmap.rowBytes()) {
+        memcpy(dst, pixmap.addr(), pixmap.getSafeSize());
     } else {
         // need to trim off the extra bytes per row
-        size_t width = bitmap.width();
-        size_t rowBytes = bitmap.rowBytes();
-        const char* src = (const char*)bitmap.getPixels();
-        for (int y = 0; y < bitmap.height(); y++) {
+        size_t width = pixmap.width();
+        size_t rowBytes = pixmap.rowBytes();
+        const uint8_t* src = pixmap.addr8();
+        for (int y = 0; y < pixmap.height(); y++) {
             memcpy(dst, src, width);
             src += rowBytes;
             dst += width;
@@ -218,58 +213,63 @@ static GrTexture* load_etc1_texture(GrContext* ctx, const SkBitmap &bm, GrSurfac
     return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, startOfTexData, 0);
 }
 
-GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bmp) {
-    SkASSERT(!bmp.getTexture());
+GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
+    if (GrTexture *texture = load_etc1_texture(ctx, bitmap, desc)) {
+        return texture;
+    }
 
+    if (GrTexture* texture = create_texture_from_yuv(ctx, bitmap, desc)) {
+        return texture;
+    }
+
+    SkAutoLockPixels alp(bitmap);
+    if (!bitmap.readyToDraw()) {
+        return nullptr;
+    }
+    SkPixmap pixmap;
+    if (!bitmap.peekPixels(&pixmap)) {
+        return nullptr;
+    }
+    return GrUploadPixmapToTexture(ctx, pixmap);
+}
+
+GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap) {
+    const SkPixmap* pmap = &pixmap;
+    SkPixmap tmpPixmap;
     SkBitmap tmpBitmap;
-    const SkBitmap* bitmap = &bmp;
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap->info());
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info());
     const GrCaps* caps = ctx->caps();
 
-    if (kIndex_8_SkColorType == bitmap->colorType()) {
+    if (kIndex_8_SkColorType == pixmap.colorType()) {
         if (caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
             size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
-                                                          bitmap->width(), bitmap->height());
+                                                          pixmap.width(), pixmap.height());
             SkAutoMalloc storage(imageSize);
-            build_index8_data(storage.get(), bmp);
+            build_index8_data(storage.get(), pixmap);
 
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
             return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, storage.get(),
-                                                         bitmap->width());
+                                                         pixmap.width());
         } else {
-            bmp.copyTo(&tmpBitmap, kN32_SkColorType);
-            // now bitmap points to our temp, which has been promoted to 32bits
-            bitmap = &tmpBitmap;
-            desc.fConfig = SkImageInfo2GrPixelConfig(bitmap->info());
-        }
-    } else if (!bitmap->readyToDraw()) {
-        // If the bitmap had compressed data and was then uncompressed, it'll still return
-        // compressed data on 'refEncodedData' and upload it. Probably not good, since if
-        // the bitmap has available pixels, then they might not be what the decompressed
-        // data is.
-
-        // Really?? We aren't doing this with YUV.
-
-        GrTexture *texture = load_etc1_texture(ctx, *bitmap, desc);
-        if (texture) {
-            return texture;
+            SkImageInfo info = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
+            tmpBitmap.allocPixels(info);
+            if (!pixmap.readPixels(info, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+                return nullptr;
+            }
+            if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+                return nullptr;
+            }
+            pmap = &tmpPixmap;
+            // must rebuild desc, since we've forced the info to be N32
+            desc = GrImageInfoToSurfaceDesc(pmap->info());
         }
     }
 
-    GrTexture *texture = create_texture_from_yuv(ctx, *bitmap, desc);
-    if (texture) {
-        return texture;
-    }
-
-    SkAutoLockPixels alp(*bitmap);
-    if (!bitmap->readyToDraw()) {
-        return nullptr;
-    }
-
-    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, bitmap->getPixels(),
-                                                 bitmap->rowBytes());
+    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, pmap->addr(),
+                                                 pmap->rowBytes());
 }
 
 
