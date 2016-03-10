@@ -1003,12 +1003,15 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
-    // Print the given DM:Src to a document, breaking on 8.5x11 pages.
+    if (src.size().isEmpty()) {
+        return "Source has empty dimensions";
+    }
     SkASSERT(doc);
     int width  = src.size().width(),
         height = src.size().height();
 
     if (FLAGS_multiPage) {
+        // Print the given DM:Src to a document, breaking on 8.5x11 pages.
         const int kLetterWidth = 612,  // 8.5 * 72
                 kLetterHeight = 792;   // 11 * 72
         const SkRect letter = SkRect::MakeWH(SkIntToScalar(kLetterWidth),
