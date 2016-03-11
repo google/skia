@@ -205,6 +205,9 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(StencilMaskSeparate);
     GET_PROC(StencilOp);
     GET_PROC(StencilOpSeparate);
+    if (glVer >= GR_GL_VER(3,1)) {
+        GET_PROC(TexBuffer);
+    }
     GET_PROC(TexImage2D);
     GET_PROC(TexParameteri);
     GET_PROC(TexParameteriv);
@@ -491,6 +494,9 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
             GET_PROC_SUFFIX(MapNamedBufferRange, EXT);
             GET_PROC_SUFFIX(FlushMappedNamedBufferRange, EXT);
         }
+        if (glVer >= GR_GL_VER(3,1)) {
+            GET_PROC_SUFFIX(TextureBuffer, EXT);
+        }
     }
 
     if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_KHR_debug")) {
@@ -643,6 +649,15 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(StencilMaskSeparate);
     GET_PROC(StencilOp);
     GET_PROC(StencilOpSeparate);
+
+    if (version >= GR_GL_VER(3,2)) {
+        GET_PROC(TexBuffer);
+    } else if (extensions.has("GL_OES_texture_buffer")) {
+        GET_PROC_SUFFIX(TexBuffer, OES);
+    } else if (extensions.has("GL_EXT_texture_buffer")) {
+        GET_PROC_SUFFIX(TexBuffer, EXT);
+    }
+
     GET_PROC(TexImage2D);
     GET_PROC(TexParameteri);
     GET_PROC(TexParameteriv);

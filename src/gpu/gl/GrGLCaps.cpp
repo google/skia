@@ -717,6 +717,22 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
         }
     }
 
+    if (kGL_GrGLStandard == standard) {
+        glslCaps->fBufferTextureSupport = ctxInfo.version() > GR_GL_VER(3, 1) &&
+                                          ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
+    } else {
+        if (ctxInfo.version() > GR_GL_VER(3, 2) &&
+            ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
+            glslCaps->fBufferTextureSupport = true;
+        } else if (ctxInfo.hasExtension("GL_OES_texture_buffer")) {
+            glslCaps->fBufferTextureSupport = true;
+            glslCaps->fBufferTextureExtensionString = "GL_OES_texture_buffer";
+        } else if (ctxInfo.hasExtension("GL_EXT_texture_buffer")) {
+            glslCaps->fBufferTextureSupport = true;
+            glslCaps->fBufferTextureExtensionString = "GL_EXT_texture_buffer";
+        }
+    }
+
     // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0), so we must do
     // the abs first in a separate expression.
     if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {

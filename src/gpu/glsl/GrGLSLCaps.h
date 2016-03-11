@@ -66,6 +66,8 @@ public:
 
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
+    bool bufferTextureSupport() const { return fBufferTextureSupport; }
+
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -116,6 +118,11 @@ public:
     const char* externalTextureExtensionString() const {
         SkASSERT(this->externalTextureSupport());
         return fExternalTextureExtensionString;
+    }
+
+    const char* bufferTextureExtensionString() const {
+        SkASSERT(this->bufferTextureSupport());
+        return fBufferTextureExtensionString;
     }
 
     const char* noperspectiveInterpolationExtensionString() const {
@@ -179,6 +186,7 @@ private:
     bool fSampleVariablesSupport : 1;
     bool fSampleMaskOverrideCoverageSupport : 1;
     bool fExternalTextureSupport : 1;
+    bool fBufferTextureSupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
@@ -190,6 +198,7 @@ private:
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;
+    const char* fBufferTextureExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
     const char* fMultisampleInterpolationExtensionString;
     const char* fSampleVariablesExtensionString;

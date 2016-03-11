@@ -276,6 +276,7 @@ public:
         GrGLFunction<GrGLStencilMaskSeparateProc> fStencilMaskSeparate;
         GrGLFunction<GrGLStencilOpProc> fStencilOp;
         GrGLFunction<GrGLStencilOpSeparateProc> fStencilOpSeparate;
+        GrGLFunction<GrGLTexBufferProc> fTexBuffer;
         GrGLFunction<GrGLTexImage2DProc> fTexImage2D;
         GrGLFunction<GrGLTexParameteriProc> fTexParameteri;
         GrGLFunction<GrGLTexParameterivProc> fTexParameteriv;
@@ -471,6 +472,8 @@ public:
         GrGLFunction<GrGLGetVertexArrayPointeri_vProc> fGetVertexArrayPointeri_v;
         GrGLFunction<GrGLMapNamedBufferRangeProc> fMapNamedBufferRange;
         GrGLFunction<GrGLFlushMappedNamedBufferRangeProc> fFlushMappedNamedBufferRange;
+        // OpenGL 3.1
+        GrGLFunction<GrGLTextureBufferProc> fTextureBuffer;
 
         /* KHR_debug */
         GrGLFunction<GrGLDebugMessageControlProc> fDebugMessageControl;

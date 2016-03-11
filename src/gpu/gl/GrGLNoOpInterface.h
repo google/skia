@@ -164,6 +164,10 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLStencilOpSeparate(GrGLenum face,
                                                      GrGLenum zfail,
                                                      GrGLenum zpass);
 
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLTexBuffer(GrGLenum target,
+                                             GrGLint internalformat,
+                                             GrGLuint buffer);
+
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLTexImage2D(GrGLenum target,
                                               GrGLint level,
                                               GrGLint internalformat,

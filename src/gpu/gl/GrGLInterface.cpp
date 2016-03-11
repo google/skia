@@ -424,6 +424,21 @@ bool GrGLInterface::validate() const {
     }
 
     if (kGL_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(3,1)) {
+            if (nullptr == fFunctions.fTexBuffer) {
+                RETURN_FALSE_INTERFACE;
+            }
+        }
+    } else {
+        if (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_OES_texture_buffer") ||
+            fExtensions.has("GL_EXT_texture_buffer")) {
+            if (nullptr == fFunctions.fTexBuffer) {
+                RETURN_FALSE_INTERFACE;
+            }
+        }
+    }
+
+    if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_ARB_vertex_array_object")) {
             if (nullptr == fFunctions.fBindVertexArray ||
                 nullptr == fFunctions.fDeleteVertexArrays ||
@@ -744,6 +759,11 @@ bool GrGLInterface::validate() const {
                 nullptr == fFunctions.fMapNamedBufferRange ||
                 nullptr == fFunctions.fFlushMappedNamedBufferRange) {
                 RETURN_FALSE_INTERFACE
+            }
+        }
+        if (glVer >= GR_GL_VER(3,1)) {
+            if (nullptr == fFunctions.fTextureBuffer) {
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
