@@ -197,6 +197,13 @@ bool Request::enableGPU(bool enable) {
         if (surface) {
             fSurface.reset(surface);
             fGPUEnabled = true;
+
+            // When we switch to GPU, there seems to be some mystery draws in the canvas.  So we
+            // draw once to flush the pipe
+            // TODO understand what is actually happening here
+            fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
+            this->getCanvas()->flush();
+
             return true;
         }
         return false;
