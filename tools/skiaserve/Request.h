@@ -8,7 +8,9 @@
 #ifndef Request_DEFINED
 #define Request_DEFINED
 
+#if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
+#endif
 
 #include "SkDebugCanvas.h"
 #include "SkPicture.h"
@@ -17,6 +19,7 @@
 
 #include "UrlDataManager.h"
 
+class GrContextFactory;
 struct MHD_Connection;
 struct MHD_PostProcessor;
 
@@ -27,7 +30,8 @@ struct UploadContext {
 };
 
 struct Request {
-    Request(SkString rootUrl); 
+    Request(SkString rootUrl);
+    ~Request();
 
     // draws to skia draw op N, highlighting the Mth batch(-1 means no highlight)
     SkData* drawToPng(int n, int m = -1);
@@ -65,7 +69,7 @@ private:
     GrContext* getContext();
     
     SkAutoTUnref<SkPicture> fPicture;
-    SkAutoTDelete<GrContextFactory> fContextFactory;
+    GrContextFactory* fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;
     bool fGPUEnabled;
 };

@@ -225,11 +225,13 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         this->markActiveCommands(index);
     }
    
+#if SK_SUPPORT_GPU
     // If we have a GPU backend we can also visualize the batching information
     GrAuditTrail* at = nullptr;
     if (fDrawGpuBatchBounds || m != -1) {
         at = this->getAuditTrail(canvas);
     }
+#endif
 
     for (int i = 0; i <= index; i++) {
         if (i == index && fFilter) {
@@ -424,9 +426,9 @@ GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
 }
 
 void SkDebugCanvas::drawAndCollectBatches(int n, SkCanvas* canvas) {
+#if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
-#if SK_SUPPORT_GPU
         // loop over all of the commands and draw them, this is to collect reordering
         // information
         for (int i = 0; i < this->getSize() && i <= n; i++) {
@@ -439,8 +441,8 @@ void SkDebugCanvas::drawAndCollectBatches(int n, SkCanvas* canvas) {
             GrAuditTrail::AutoEnable ae(at);
             canvas->flush();
         }
-#endif
     }
+#endif
 }
 
 void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
@@ -457,7 +459,9 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanva
     this->drawAndCollectBatches(n, canvas);
     
     // now collect json
+#if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);
+#endif
     Json::Value result = Json::Value(Json::objectValue);
     result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
     Json::Value commands = Json::Value(Json::arrayValue);
@@ -484,8 +488,8 @@ Json::Value SkDebugCanvas::toJSONBatchList(int n, SkCanvas* canvas) {
     this->drawAndCollectBatches(n, canvas);
 
     Json::Value parsedFromString;
-    GrAuditTrail* at = this->getAuditTrail(canvas);
 #if SK_SUPPORT_GPU
+    GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         GrAuditTrail::AutoManageBatchList enable(at);
         Json::Reader reader;

@@ -56,8 +56,20 @@ Request::Request(SkString rootUrl)
     , fUrlDataManager(rootUrl)
     , fGPUEnabled(false) {
     // create surface
+#if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
-    fContextFactory.reset(new GrContextFactory(grContextOpts));
+    fContextFactory = new GrContextFactory(grContextOpts);
+#else
+    fContextFactory = nullptr;
+#endif
+}
+
+Request::~Request() {
+#if SK_SUPPORT_GPU
+    if (fContextFactory) {
+        delete fContextFactory;
+    }
+#endif
 }
 
 SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
@@ -85,10 +97,12 @@ SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
 }
 
 SkCanvas* Request::getCanvas() {
+#if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
     SkGLContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
                                               GrContextFactory::kNone_GLContextOptions).fGLContext;
     gl->makeCurrent();
+#endif
     SkASSERT(fDebugCanvas);
 
     // create the appropriate surface if necessary
@@ -128,8 +142,12 @@ SkData* Request::writeOutSkp() {
 }
 
 GrContext* Request::getContext() {
+#if SK_SUPPORT_GPU
   return fContextFactory->get(GrContextFactory::kNative_GLContextType,
                               GrContextFactory::kNone_GLContextOptions);
+#else
+  return nullptr;
+#endif
 }
 
 SkIRect Request::getBounds() {
@@ -137,9 +155,11 @@ SkIRect Request::getBounds() {
     if (fPicture) {
         bounds = fPicture->cullRect().roundOut();
         if (fGPUEnabled) {
+#if SK_SUPPORT_GPU
             int maxRTSize = this->getContext()->caps()->maxRenderTargetSize();
             bounds = SkIRect::MakeWH(SkTMin(bounds.width(), maxRTSize),
                                      SkTMin(bounds.height(), maxRTSize));
+#endif
         }
     } else {
         bounds = SkIRect::MakeWH(kDefaultWidth, kDefaultHeight);
