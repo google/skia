@@ -20,6 +20,7 @@ class GrTexture : virtual public GrSurface {
 public:
     GrTexture* asTexture() override { return this; }
     const GrTexture* asTexture() const override { return this; }
+    GrSLType samplerType() const { return fSamplerType; }
 
     /**
      *  Return the native ID or handle to the texture, depending on the
@@ -45,7 +46,7 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    GrTexture(GrGpu*, LifeCycle, const GrSurfaceDesc&, bool wasMipMapDataProvided);
+    GrTexture(GrGpu*, LifeCycle, const GrSurfaceDesc&, GrSLType, bool wasMipMapDataProvided);
 
     void validateDesc() const;
 
@@ -59,8 +60,9 @@ private:
         kValid_MipMapsStatus
     };
 
+    GrSLType        fSamplerType;
     MipMapsStatus   fMipMapsStatus;
-    int fMaxMipMapLevel;
+    int             fMaxMipMapLevel;
 
     friend class GrTexturePriv;
 

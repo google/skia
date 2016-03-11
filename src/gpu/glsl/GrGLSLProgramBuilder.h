@@ -93,11 +93,15 @@ public:
 protected:
     explicit GrGLSLProgramBuilder(const DrawArgs& args);
 
-    bool emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage, int maxTextures);
+    void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
+
+    bool emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage);
 
     void cleanupFragmentProcessors();
 
     void finalizeShaders();
+
+    SkTArray<UniformHandle> fSamplerUniforms;
 
 private:
     // reset is called by program creator between each processor's emit code.  It increments the
@@ -139,7 +143,10 @@ private:
                                 const GrGLSLExpr4& coverageIn,
                                 bool ignoresCoverage,
                                 GrPixelLocalStorageState plsState);
+    void emitSamplers(const GrProcessor& processor,
+                      GrGLSLTextureSampler::TextureSamplerArray* outSamplers);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
+    bool checkSamplerCounts();
 
 #ifdef SK_DEBUG
     void verify(const GrPrimitiveProcessor&);
@@ -147,11 +154,11 @@ private:
     void verify(const GrFragmentProcessor&);
 #endif
 
-    virtual void emitSamplers(const GrProcessor& processor,
-                              GrGLSLTextureSampler::TextureSamplerArray* outSamplers) = 0;
-
-    GrGLSLPrimitiveProcessor::TransformsIn  fCoordTransforms;
-    GrGLSLPrimitiveProcessor::TransformsOut fOutCoords;
+    GrGLSLPrimitiveProcessor::TransformsIn     fCoordTransforms;
+    GrGLSLPrimitiveProcessor::TransformsOut    fOutCoords;
+    int                                        fNumVertexSamplers;
+    int                                        fNumGeometrySamplers;
+    int                                        fNumFragmentSamplers;
 };
 
 #endif

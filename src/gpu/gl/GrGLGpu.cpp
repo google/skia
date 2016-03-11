@@ -191,7 +191,7 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     SkASSERT(ctx);
     fCaps.reset(SkRef(ctx->caps()));
 
-    fHWBoundTextureUniqueIDs.reset(this->glCaps().maxFragmentTextureUnits());
+    fHWBoundTextureUniqueIDs.reset(this->glCaps().glslCaps()->maxCombinedSamplers());
 
     GrGLClearErr(this->glInterface());
     if (gPrintStartupSpew) {
@@ -572,7 +572,7 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
             // This combination is not supported.
             return nullptr;
         }
-        if (!this->glCaps().externalTextureSupport()) {
+        if (!this->glCaps().glslCaps()->externalTextureSupport()) {
             return nullptr;
         }
     } else  if (GR_GL_TEXTURE_RECTANGLE == idDesc.fInfo.fTarget) {
@@ -3684,7 +3684,7 @@ void GrGLGpu::createCopyPrograms() {
     SkASSERT(3 == SK_ARRAY_COUNT(fCopyPrograms));
     for (int i = 0; i < 3; ++i) {
         if (kSamplerExternal_GrSLType == kSamplerTypes[i] &&
-            !this->glCaps().externalTextureSupport()) {
+            !this->glCaps().glslCaps()->externalTextureSupport()) {
             continue;
         }
         if (kSampler2DRect_GrSLType == kSamplerTypes[i] &&

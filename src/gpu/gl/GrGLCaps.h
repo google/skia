@@ -254,9 +254,6 @@ public:
     /// maximum number of attribute values per vertex
     int maxVertexAttributes() const { return fMaxVertexAttributes; }
 
-    /// maximum number of texture units accessible in the fragment shader.
-    int maxFragmentTextureUnits() const { return fMaxFragmentTextureUnits; }
-
     /**
      * Depending on the ES extensions present the BGRA external format may
      * correspond to either a BGRA or RGBA internalFormat. On desktop GL it is
@@ -326,9 +323,6 @@ public:
 
     bool bindUniformLocationSupport() const { return fBindUniformLocationSupport; }
 
-    /// Are textures with GL_TEXTURE_EXTERNAL_OES type supported.
-    bool externalTextureSupport() const { return fExternalTextureSupport; }
-
     /// Are textures with GL_TEXTURE_RECTANGLE type supported.
     bool rectangleTextureSupport() const { return fRectangleTextureSupport; }
 
@@ -388,7 +382,6 @@ private:
 
     int fMaxFragmentUniformVectors;
     int fMaxVertexAttributes;
-    int fMaxFragmentTextureUnits;
 
     MSFBOType           fMSFBOType;
     InvalidateFBType    fInvalidateFBType;
@@ -417,7 +410,6 @@ private:
     bool fRGBA8888PixelsOpsAreSlow : 1;
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
-    bool fExternalTextureSupport : 1;
     bool fRectangleTextureSupport : 1;
     bool fTextureSwizzleSupport : 1;
     bool fMipMapLevelAndLodControlSupport : 1;

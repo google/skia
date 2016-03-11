@@ -39,11 +39,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fShaderCaps.reset(new GrGLSLCaps(contextOptions));
 
-    /**************************************************************************
-    * GrVkCaps fields
-    **************************************************************************/
-    fMaxSampledTextures = 16; // Spec requires a minimum of 16 sampled textures per stage
-
     this->init(contextOptions, vkInterface, physDev);
 }
 
@@ -60,7 +55,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
 
     this->initGrCaps(properties, features, memoryProperties);
-    this->initGLSLCaps(features);
+    this->initGLSLCaps(features, properties);
     this->initConfigTexturableTable(vkInterface, physDev);
     this->initConfigRenderableTable(vkInterface, physDev);
     this->initStencilFormats(vkInterface, physDev);
@@ -114,9 +109,6 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
 
     this->initSampleCount(properties);
 
-    fMaxSampledTextures = SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
-                                 properties.limits.maxPerStageDescriptorSamplers);
-
     // Assuming since we will always map in the end to upload the data we might as well just map
     // from the get go. There is no hard data to suggest this is faster or slower.
     fGeometryBufferMapThreshold = 0;
@@ -127,7 +119,8 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fOversizedStencilSupport = true;
 }
 
-void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceFeatures& features) {
+void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceFeatures& features,
+                            const VkPhysicalDeviceProperties& properties) {
     GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
     glslCaps->fVersionDeclString = "#version 310 es\n";
 
@@ -155,6 +148,13 @@ void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceFeatures& features) {
     glslCaps->fDualSourceBlendingSupport = features.dualSrcBlend;
 #endif
     glslCaps->fIntegerSupport = true;
+
+    glslCaps->fMaxVertexSamplers =
+    glslCaps->fMaxGeometrySamplers =
+    glslCaps->fMaxFragmentSamplers = SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
+                                            properties.limits.maxPerStageDescriptorSamplers);
+    glslCaps->fMaxCombinedSamplers = SkTMin(properties.limits.maxDescriptorSetSampledImages,
+                                            properties.limits.maxDescriptorSetSamplers);
 }
 
 static void format_supported_for_feature(const GrVkInterface* interface,

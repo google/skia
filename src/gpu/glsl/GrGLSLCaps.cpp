@@ -28,6 +28,7 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fMultisampleInterpolationSupport = false;
     fSampleVariablesSupport = false;
     fSampleMaskOverrideCoverageSupport = false;
+    fExternalTextureSupport = false;
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
     fFragCoordConventionsExtensionString = nullptr;
@@ -38,6 +39,10 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fSampleVariablesExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
+    fMaxVertexSamplers = 0;
+    fMaxGeometrySamplers = 0;
+    fMaxFragmentSamplers = 0;
+    fMaxCombinedSamplers = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
@@ -74,6 +79,11 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Sample variables support: %s\n", (fSampleVariablesSupport ? "YES" : "NO"));
     r.appendf("Sample mask override coverage support: %s\n", (fSampleMaskOverrideCoverageSupport ?
                                                               "YES" : "NO"));
+    r.appendf("External texture support: %s\n", (fExternalTextureSupport ? "YES" : "NO"));
+    r.appendf("Max VS Samplers: %d\n", fMaxVertexSamplers);
+    r.appendf("Max GS Samplers: %d\n", fMaxGeometrySamplers);
+    r.appendf("Max FS Samplers: %d\n", fMaxFragmentSamplers);
+    r.appendf("Max Combined Samplers: %d\n", fMaxFragmentSamplers);
     r.appendf("Advanced blend equation interaction: %s\n",
               kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     return r;

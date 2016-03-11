@@ -88,8 +88,9 @@ GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
 
 //////////////////////////////////////////////////////////////////////////////
 GrTexture::GrTexture(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc,
-                     bool wasMipMapDataProvided)
-    : INHERITED(gpu, lifeCycle, desc) {
+                     GrSLType samplerType, bool wasMipMapDataProvided)
+    : INHERITED(gpu, lifeCycle, desc)
+    , fSamplerType(samplerType) {
     if (!this->isExternal() && !GrPixelConfigIsCompressed(desc.fConfig) &&
         !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
         GrScratchKey key;

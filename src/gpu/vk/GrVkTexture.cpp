@@ -20,7 +20,8 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view)
     : GrSurface(gpu, lifeCycle, desc)
     , GrVkImage(imageResource)
-    , INHERITED(gpu, lifeCycle, desc, false) // false because we don't upload MIP data in Vk yet
+    , INHERITED(gpu, lifeCycle, desc, kSampler2D_GrSLType,
+                false) // false because we don't upload MIP data in Vk yet
     , fTextureView(view) {
     this->registerWithCache();
 }
@@ -34,7 +35,8 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          Derived)
     : GrSurface(gpu, lifeCycle, desc)
     , GrVkImage(imageResource)
-    , INHERITED(gpu, lifeCycle, desc, false) // false because we don't upload MIP data in Vk yet
+    , INHERITED(gpu, lifeCycle, desc, kSampler2D_GrSLType,
+                false) // false because we don't upload MIP data in Vk yet
     , fTextureView(view) {}
 
 

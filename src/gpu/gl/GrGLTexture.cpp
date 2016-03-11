@@ -12,10 +12,23 @@
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
+inline static GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, const GrGLGpu* gpu) {
+    if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
+        SkASSERT(gpu->glCaps().glslCaps()->externalTextureSupport());
+        return kSamplerExternal_GrSLType;
+    } else if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE) {
+        SkASSERT(gpu->glCaps().rectangleTextureSupport());
+        return kSampler2DRect_GrSLType;
+    } else {
+        SkASSERT(idDesc.fInfo.fTarget == GR_GL_TEXTURE_2D);
+        return kSampler2D_GrSLType;
+    }
+}
+
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, idDesc.fLifeCycle, desc)
-    , INHERITED(gpu, idDesc.fLifeCycle, desc, false) {
+    , INHERITED(gpu, idDesc.fLifeCycle, desc, sampler_type(idDesc, gpu), false) {
     this->init(desc, idDesc);
     this->registerWithCache();
 }
@@ -23,14 +36,14 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                          bool wasMipMapDataProvided)
     : GrSurface(gpu, idDesc.fLifeCycle, desc)
-    , INHERITED(gpu, idDesc.fLifeCycle, desc, wasMipMapDataProvided) {
+    , INHERITED(gpu, idDesc.fLifeCycle, desc, sampler_type(idDesc, gpu), wasMipMapDataProvided) {
     this->init(desc, idDesc);
     this->registerWithCache();
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc, Derived)
     : GrSurface(gpu, idDesc.fLifeCycle, desc)
-    , INHERITED(gpu, idDesc.fLifeCycle, desc, false) {
+    , INHERITED(gpu, idDesc.fLifeCycle, desc, sampler_type(idDesc, gpu), false) {
     this->init(desc, idDesc);
 }
 

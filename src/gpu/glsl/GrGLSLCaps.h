@@ -64,6 +64,8 @@ public:
 
     bool sampleMaskOverrideCoverageSupport() const { return fSampleMaskOverrideCoverageSupport; }
 
+    bool externalTextureSupport() const { return fExternalTextureSupport; }
+
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -112,6 +114,7 @@ public:
     }
 
     const char* externalTextureExtensionString() const {
+        SkASSERT(this->externalTextureSupport());
         return fExternalTextureExtensionString;
     }
 
@@ -129,6 +132,14 @@ public:
         SkASSERT(this->sampleVariablesSupport());
         return fSampleVariablesExtensionString;
     }
+
+    int maxVertexSamplers() const { return fMaxVertexSamplers; }
+
+    int maxGeometrySamplers() const { return fMaxGeometrySamplers; }
+
+    int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
+
+    int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
@@ -167,6 +178,7 @@ private:
     bool fMultisampleInterpolationSupport : 1;
     bool fSampleVariablesSupport : 1;
     bool fSampleMaskOverrideCoverageSupport : 1;
+    bool fExternalTextureSupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
@@ -184,6 +196,11 @@ private:
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
+
+    uint8_t fMaxVertexSamplers;
+    uint8_t fMaxGeometrySamplers;
+    uint8_t fMaxFragmentSamplers;
+    uint8_t fMaxCombinedSamplers;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 

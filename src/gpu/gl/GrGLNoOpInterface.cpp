@@ -506,7 +506,10 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetIntegerv(GrGLenum pname, GrGLint* params) 
             params[2] = 800;
             params[3] = 600;
             break;
+        case GR_GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS:
+        case GR_GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS:
         case GR_GL_MAX_TEXTURE_IMAGE_UNITS:
+        case GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS:
             *params = 8;
             break;
         case GR_GL_MAX_TEXTURE_COORDS:

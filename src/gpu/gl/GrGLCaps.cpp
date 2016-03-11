@@ -27,7 +27,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fTransferBufferType = kNone_TransferBufferType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
-    fMaxFragmentTextureUnits = 0;
     fUnpackRowLengthSupport = false;
     fUnpackFlipYSupport = false;
     fPackRowLengthSupport = false;
@@ -46,7 +45,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
-    fExternalTextureSupport = false;
     fRectangleTextureSupport = false;
     fTextureSwizzleSupport = false;
     fSRGBWriteControl = false;
@@ -86,7 +84,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
-    GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &fMaxFragmentTextureUnits);
 
     if (kGL_GrGLStandard == standard) {
         fUnpackRowLengthSupport = true;
@@ -213,16 +210,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fBindUniformLocationSupport = false;
 #endif
 
-    if (ctxInfo.hasExtension("GL_OES_EGL_image_external")) {
-        if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
-            fExternalTextureSupport = true;
-        } else if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
-                   ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
-            // At least one driver has been found that has this extension without the "GL_" prefix.
-            fExternalTextureSupport = true;
-        }
-    }
-
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3, 1) || ctxInfo.hasExtension("GL_ARB_texture_rectangle")) {
             // We also require textureSize() support for rectangle 2D samplers which was added in
@@ -312,6 +299,20 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         glslCaps->fPixelLocalStorageSize = 0;
         glslCaps->fPLSPathRenderingSupport = false;
     }
+
+    // Protect ourselves against tracking huge amounts of texture state.
+    static const uint8_t kMaxSaneSamplers = 32;
+    GrGLint maxSamplers;
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &maxSamplers);
+    glslCaps->fMaxVertexSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
+    if (glslCaps->fGeometryShaderSupport) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS, &maxSamplers);
+        glslCaps->fMaxGeometrySamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
+    }
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxSamplers);
+    glslCaps->fMaxFragmentSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxSamplers);
+    glslCaps->fMaxCombinedSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
 
     /**************************************************************************
      * GrCaps fields
@@ -698,7 +699,17 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
         glslCaps->fSecondaryOutputExtensionString = "GL_EXT_blend_func_extended";
     }
 
-    if (fExternalTextureSupport) {
+    if (ctxInfo.hasExtension("GL_OES_EGL_image_external")) {
+        if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
+            glslCaps->fExternalTextureSupport = true;
+        } else if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
+                   ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
+            // At least one driver has been found that has this extension without the "GL_" prefix.
+            glslCaps->fExternalTextureSupport = true;
+        }
+    }
+
+    if (glslCaps->fExternalTextureSupport) {
         if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
             glslCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
         } else {
@@ -1026,7 +1037,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Invalidate FB Type: %s\n", kInvalidateFBTypeStr[fInvalidateFBType]);
     r.appendf("Map Buffer Type: %s\n", kMapBufferTypeStr[fMapBufferType]);
     r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
-    r.appendf("Max FS Texture Units: %d\n", fMaxFragmentTextureUnits);
     r.appendf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
     r.appendf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));
     r.appendf("Unpack Flip Y support: %s\n", (fUnpackFlipYSupport ? "YES": "NO"));
@@ -1049,7 +1059,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
     r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
     r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
-    r.appendf("External texture support: %s\n", (fExternalTextureSupport ? "YES" : "NO"));
     r.appendf("Rectangle texture support: %s\n", (fRectangleTextureSupport? "YES" : "NO"));
     r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
 

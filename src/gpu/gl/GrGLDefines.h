@@ -437,6 +437,7 @@
 #define GR_GL_MAX_VARYING_VECTORS                      0x8DFC
 #define GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS         0x8B4D
 #define GR_GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS           0x8B4C
+#define GR_GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS         0x8C29
 #define GR_GL_MAX_TEXTURE_IMAGE_UNITS                  0x8872
 #define GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS             0x8DFD
 #define GR_GL_SHADER_TYPE                              0x8B4F

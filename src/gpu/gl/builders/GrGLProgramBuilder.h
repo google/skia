@@ -39,9 +39,6 @@ public:
 private:
     GrGLProgramBuilder(GrGLGpu*, const DrawArgs&);
 
-    void emitSamplers(const GrProcessor&,
-                      GrGLSLTextureSampler::TextureSamplerArray* outSamplers) override;
-
     bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,
                                  GrGLenum type,
@@ -61,12 +58,9 @@ private:
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
 
-    GrGLGpu* fGpu;
-    typedef GrGLSLUniformHandler::UniformHandle UniformHandle;
-    SkTArray<UniformHandle> fSamplerUniforms;
-
-    GrGLVaryingHandler        fVaryingHandler;
-    GrGLUniformHandler        fUniformHandler;
+    GrGLGpu*              fGpu;
+    GrGLVaryingHandler    fVaryingHandler;
+    GrGLUniformHandler    fUniformHandler;
 
     typedef GrGLSLProgramBuilder INHERITED; 
 };

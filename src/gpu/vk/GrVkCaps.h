@@ -65,17 +65,6 @@ public:
         return fLinearStencilFormats;
     }
 
-    /**
-     * Returns the max number of sampled textures we can use in a program. This number is the max of
-     * max samplers and max sampled images. This number is technically the max sampled textures we
-     * can have per stage, but we'll use it for the whole program since for now we only do texture
-     * lookups in the fragment shader.
-     */
-    int maxSampledTextures() const {
-        return fMaxSampledTextures;
-    }
-
-
     GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
 private:
@@ -84,7 +73,7 @@ private:
     void initGrCaps(const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceFeatures&,
                     const VkPhysicalDeviceMemoryProperties&);
-    void initGLSLCaps(const VkPhysicalDeviceFeatures& features);
+    void initGLSLCaps(const VkPhysicalDeviceFeatures&, const VkPhysicalDeviceProperties&);
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
     void initConfigRenderableTable(const GrVkInterface* interface, VkPhysicalDevice physDev);
     void initConfigTexturableTable(const GrVkInterface* interface, VkPhysicalDevice physDev);
@@ -102,8 +91,6 @@ private:
 
     SkTArray<StencilFormat, true> fLinearStencilFormats;
     SkTArray<StencilFormat, true> fStencilFormats;
-
-    int fMaxSampledTextures;
 
     typedef GrCaps INHERITED;
 };

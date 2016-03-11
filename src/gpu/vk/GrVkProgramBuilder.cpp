@@ -22,9 +22,7 @@ GrVkProgram* GrVkProgramBuilder::CreateProgram(GrVkGpu* gpu,
     GrGLSLExpr4 inputColor;
     GrGLSLExpr4 inputCoverage;
 
-    if (!builder.emitAndInstallProcs(&inputColor,
-                                     &inputCoverage,
-                                     gpu->vkCaps().maxSampledTextures())) {
+    if (!builder.emitAndInstallProcs(&inputColor, &inputCoverage)) {
         builder.cleanupFragmentProcessors();
         return nullptr;
     }
@@ -48,21 +46,6 @@ const GrGLSLCaps* GrVkProgramBuilder::glslCaps() const {
 
 void GrVkProgramBuilder::finalizeFragmentOutputColor(GrGLSLShaderVar& outputColor) {
     outputColor.setLayoutQualifier("location = 0");
-}
-
-void GrVkProgramBuilder::emitSamplers(const GrProcessor& processor,
-                                      GrGLSLTextureSampler::TextureSamplerArray* outSamplers) {
-    int numTextures = processor.numTextures();
-    UniformHandle* localSamplerUniforms = fSamplerUniforms.push_back_n(numTextures);
-    SkString name;
-    for (int t = 0; t < numTextures; ++t) {
-        name.printf("%d", t);
-        localSamplerUniforms[t]  =
-            fUniformHandler.addUniform(kFragment_GrShaderFlag,
-                                       kSampler2D_GrSLType, kDefault_GrSLPrecision,
-                                       name.c_str());
-        outSamplers->emplace_back(localSamplerUniforms[t], processor.textureAccess(t));
-    }
 }
 
 VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {

@@ -87,7 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EGLImageTest, reporter, context0, glCtx0) {
         return;
     }
     GrGLGpu* gpu0 = static_cast<GrGLGpu*>(context0->getGpu());
-    if (!gpu0->glCaps().externalTextureSupport()) {
+    if (!gpu0->glCaps().glslCaps()->externalTextureSupport()) {
         return;
     }
 

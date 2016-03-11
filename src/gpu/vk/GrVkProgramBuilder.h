@@ -45,9 +45,6 @@ public:
 private:
     GrVkProgramBuilder(GrVkGpu*, const DrawArgs&);
 
-    void emitSamplers(const GrProcessor&,
-                      GrGLSLTextureSampler::TextureSamplerArray* outSamplers) override;
-
     GrVkProgram* finalize(const DrawArgs& args,
                           GrPrimitiveType primitiveType,
                           const GrVkRenderPass& renderPass);

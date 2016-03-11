@@ -25,16 +25,6 @@ public:
     GrGLSLShaderBuilder(GrGLSLProgramBuilder* program);
     virtual ~GrGLSLShaderBuilder() {}
 
-    /*
-     * We put texture lookups in the base class because it is TECHNICALLY possible to do texture
-     * lookups in any kind of shader.  However, for the time being using these calls on non-fragment
-     * shaders will result in a shader compilation error as texture sampler uniforms are only
-     * visible to the fragment shader.  It would not be hard to change this behavior, if someone
-     * actually wants to do texture lookups in a non-fragment shader
-     *
-     * TODO if append texture lookup is used on a non-fragment shader, sampler uniforms should be
-     * made visible to that shaders
-     */
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
         order of the result depends on the GrTextureAccess associated with the GrGLSLTextureSampler.
