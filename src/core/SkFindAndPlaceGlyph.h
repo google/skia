@@ -381,14 +381,16 @@ private:
     // produce the correct sub-pixel alignment. If a position is aligned with an axis a shortcut
     // of 0 is used for the sub-pixel position.
     static SkIPoint SubpixelAlignment(SkAxisAlignment axisAlignment, SkPoint position) {
+        // Only the fractional part of position.fX and position.fY matter, because the result of
+        // this function will just be passed to FixedToSub.
         switch (axisAlignment) {
             case kX_SkAxisAlignment:
-                return {SkScalarToFixed(position.fX + kSubpixelRounding), 0};
+                return {SkScalarToFixed(SkScalarFraction(position.fX) + kSubpixelRounding), 0};
             case kY_SkAxisAlignment:
-                return {0, SkScalarToFixed(position.fY + kSubpixelRounding)};
+                return {0, SkScalarToFixed(SkScalarFraction(position.fY) + kSubpixelRounding)};
             case kNone_SkAxisAlignment:
-                return {SkScalarToFixed(position.fX + kSubpixelRounding),
-                        SkScalarToFixed(position.fY + kSubpixelRounding)};
+                return {SkScalarToFixed(SkScalarFraction(position.fX) + kSubpixelRounding),
+                        SkScalarToFixed(SkScalarFraction(position.fY) + kSubpixelRounding)};
         }
         SkFAIL("Should not get here.");
         return {0, 0};
