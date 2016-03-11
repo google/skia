@@ -18,25 +18,30 @@ GrTextureAccess::GrTextureAccess(GrTexture* texture, const GrTextureParams& para
 GrTextureAccess::GrTextureAccess(GrTexture* texture,
                                  GrTextureParams::FilterMode filterMode,
                                  SkShader::TileMode tileXAndY,
-                                 GrShaderFlags visibility) {
-    this->reset(texture, filterMode, tileXAndY, visibility);
+                                 GrShaderFlags visibility,
+                                 GrSLPrecision precision) {
+    this->reset(texture, filterMode, tileXAndY, visibility, precision);
 }
 
 void GrTextureAccess::reset(GrTexture* texture,
                             const GrTextureParams& params,
-                            GrShaderFlags visibility) {
+                            GrShaderFlags visibility,
+                            GrSLPrecision precision) {
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
     fParams = params;
     fVisibility = visibility;
+    fPrecision = precision;
 }
 
 void GrTextureAccess::reset(GrTexture* texture,
                             GrTextureParams::FilterMode filterMode,
                             SkShader::TileMode tileXAndY,
-                            GrShaderFlags visibility) {
+                            GrShaderFlags visibility,
+                            GrSLPrecision precision) {
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
     fParams.reset(tileXAndY, filterMode);
     fVisibility = visibility;
+    fPrecision = precision;
 }

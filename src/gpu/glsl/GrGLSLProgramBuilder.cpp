@@ -240,7 +240,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
         name.printf("Sampler%d", t);
         localSamplerUniforms[t] = this->uniformHandler()->addUniform(access.getVisibility(),
                                                                      samplerType,
-                                                                     kDefault_GrSLPrecision,
+                                                                     access.getPrecision(),
                                                                      name.c_str());
         outSamplers->emplace_back(localSamplerUniforms[t], access);
     }

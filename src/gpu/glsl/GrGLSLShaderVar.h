@@ -76,7 +76,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         INHERITED::set(type, name, typeModifier, precision);
         fLayoutQualifier = layoutQualifier;
         if (extraModifiers) {
@@ -96,7 +96,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         INHERITED::set(type, name, typeModifier, precision);
         fLayoutQualifier = layoutQualifier;
         if (extraModifiers) {
@@ -117,7 +117,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         INHERITED::set(type, name, typeModifier, precision, count);
         fLayoutQualifier = layoutQualifier;
         if (extraModifiers) {
@@ -138,7 +138,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         INHERITED::set(type, name, typeModifier, precision, count);
         fLayoutQualifier = layoutQualifier;
         if (extraModifiers) {
@@ -164,7 +164,7 @@ public:
      * Write a declaration of this variable to out.
      */
     void appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const {
-        SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeIsNumeric(fType));
+        SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeAcceptsPrecision(fType));
         if (!fLayoutQualifier.isEmpty()) {
             out->appendf("layout(%s) ", fLayoutQualifier.c_str());
         }
@@ -174,7 +174,7 @@ public:
             out->append(" ");
         }
         GrSLType effectiveType = this->getType();
-        if (effectiveType != kBool_GrSLType) {
+        if (GrSLTypeAcceptsPrecision(effectiveType)) {
             out->append(PrecisionString(glslCaps, fPrecision));
         }
         if (this->isArray()) {

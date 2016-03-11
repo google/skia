@@ -30,25 +30,30 @@ public:
     explicit GrTextureAccess(GrTexture*,
                              GrTextureParams::FilterMode = GrTextureParams::kNone_FilterMode,
                              SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
-                             GrShaderFlags visibility = kFragment_GrShaderFlag);
+                             GrShaderFlags visibility = kFragment_GrShaderFlag,
+                             GrSLPrecision = kDefault_GrSLPrecision);
 
     void reset(GrTexture*, const GrTextureParams&,
-               GrShaderFlags visibility = kFragment_GrShaderFlag);
+               GrShaderFlags visibility = kFragment_GrShaderFlag,
+               GrSLPrecision = kDefault_GrSLPrecision);
     void reset(GrTexture*,
                GrTextureParams::FilterMode = GrTextureParams::kNone_FilterMode,
                SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
-               GrShaderFlags visibility = kFragment_GrShaderFlag);
+               GrShaderFlags visibility = kFragment_GrShaderFlag,
+               GrSLPrecision = kDefault_GrSLPrecision);
 
     bool operator==(const GrTextureAccess& that) const {
         return this->getTexture() == that.getTexture() &&
                fParams == that.fParams &&
-               fVisibility == that.fVisibility;
+               fVisibility == that.fVisibility &&
+               fPrecision == that.fPrecision;
     }
 
     bool operator!=(const GrTextureAccess& other) const { return !(*this == other); }
 
     GrTexture* getTexture() const { return fTexture.get(); }
     GrShaderFlags getVisibility() const { return fVisibility; }
+    GrSLPrecision getPrecision() const { return fPrecision; }
 
     /**
      * For internal use by GrProcessor.
@@ -64,6 +69,7 @@ private:
     ProgramTexture                  fTexture;
     GrTextureParams                 fParams;
     GrShaderFlags                   fVisibility;
+    GrSLPrecision                   fPrecision;
 
     typedef SkNoncopyable INHERITED;
 };

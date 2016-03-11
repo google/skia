@@ -204,6 +204,10 @@ static inline bool GrSLTypeIsSamplerType(GrSLType type) {
     GR_STATIC_ASSERT(10 == kSampler2DRect_GrSLType);
 }
 
+static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
+    return GrSLTypeIsNumeric(type) || GrSLTypeIsSamplerType(type);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 /**
