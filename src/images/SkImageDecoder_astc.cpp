@@ -44,7 +44,7 @@ static inline int read_24bit(const uint8_t* buf) {
 }
 
 SkImageDecoder::Result SkASTCImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
-    SkAutoTUnref<SkData> data(SkCopyStreamToData(stream));
+    auto data = SkCopyStreamToData(stream);
     if (!data || !data->size()) {
         return kFailure;
     }

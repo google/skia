@@ -77,7 +77,7 @@ public:
 
     int opCount() const { return fContentInfo.numOperations(); }
 
-    const SkData* opData() const { return fOpData; }
+    const sk_sp<SkData>& opData() const { return fOpData; }
 
 protected:
     explicit SkPictureData(const SkPictInfo& info);
@@ -158,7 +158,7 @@ private:
     SkTArray<SkPaint>  fPaints;
     SkTArray<SkPath>   fPaths;
 
-    SkData* fOpData;    // opcodes and parameters
+    sk_sp<SkData>   fOpData;    // opcodes and parameters
 
     const SkPicture** fPictureRefs;
     int fPictureCount;

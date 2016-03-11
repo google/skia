@@ -246,7 +246,7 @@ public:
     /**
      *  Captures a snapshot of the data as it is right now, and return it.
      */
-    SkData* snapshotAsData() const;
+    sk_sp<SkData> snapshotAsData() const;
 private:
     void growToAtLeast(size_t size);
 

@@ -8,10 +8,9 @@
 #ifndef SkStream_DEFINED
 #define SkStream_DEFINED
 
+#include "SkData.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
-
-class SkData;
 
 class SkStream;
 class SkStreamRewindable;
@@ -270,11 +269,11 @@ public:
     const void* getMemoryBase() override;
 
 private:
-    FILE*     fFILE;
+    FILE*       fFILE;
     SkString    fName;
     Ownership   fOwnership;
     // fData is lazilly initialized when needed.
-    mutable SkAutoTUnref<SkData> fData;
+    mutable sk_sp<SkData> fData;
 
     typedef SkStreamAsset INHERITED;
 };
@@ -291,10 +290,12 @@ public:
 
     /** Use the specified data as the memory for this stream.
      *  The stream will call ref() on the data (assuming it is not NULL).
+     *  DEPRECATED
      */
     SkMemoryStream(SkData*);
 
-    virtual ~SkMemoryStream();
+    /** Creates the stream to read from the specified data */
+    SkMemoryStream(sk_sp<SkData>);
 
     /** Resets the stream to the specified data and length,
         just like the constructor.
@@ -341,8 +342,8 @@ public:
     const void* getMemoryBase() override;
 
 private:
-    SkData* fData;
-    size_t  fOffset;
+    sk_sp<SkData>   fData;
+    size_t          fOffset;
 
     typedef SkStreamMemory INHERITED;
 };
@@ -417,7 +418,7 @@ private:
     Block*  fHead;
     Block*  fTail;
     size_t  fBytesWritten;
-    mutable SkData* fCopy;  // is invalidated if we write after it is created
+    mutable sk_sp<SkData> fCopy;  // is invalidated if we write after it is created
 
     void invalidateCopy();
 

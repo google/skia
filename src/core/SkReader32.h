@@ -135,12 +135,12 @@ public:
      */
     size_t readIntoString(SkString* copy);
 
-    SkData* readData() {
+    sk_sp<SkData> readData() {
         uint32_t byteLength = this->readU32();
         if (0 == byteLength) {
-            return SkData::NewEmpty();
+            return SkData::MakeEmpty();
         }
-        return SkData::NewWithCopy(this->skip(byteLength), byteLength);
+        return SkData::MakeWithCopy(this->skip(byteLength), byteLength);
     }
 
 private:

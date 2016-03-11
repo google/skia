@@ -73,9 +73,8 @@ static int calculateRowBytesFor8888(int w, int bitCount)
     return 0;
 }
 
-SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
-{
-    SkAutoTUnref<SkData> data(SkCopyStreamToData(stream));
+SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
+    auto data = SkCopyStreamToData(stream);
     if (!data) {
         return kFailure;
     }

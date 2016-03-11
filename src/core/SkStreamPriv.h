@@ -8,6 +8,8 @@
 #ifndef SkStreamPriv_DEFINED
 #define SkStreamPriv_DEFINED
 
+#include "SkRefCnt.h"
+
 class SkData;
 class SkStream;
 class SkWStream;
@@ -23,7 +25,7 @@ class SkWStream;
  *      will have a ref count of one upon return and belongs to the
  *      caller. Returns nullptr on failure.
  */
-SkData* SkCopyStreamToData(SkStream* stream);
+sk_sp<SkData> SkCopyStreamToData(SkStream* stream);
 
 /**
  *  Copies the input stream from the current position to the end.

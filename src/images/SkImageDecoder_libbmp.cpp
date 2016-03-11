@@ -97,7 +97,7 @@ SkImageDecoder::Result SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     // First read the entire stream, so that all of the data can be passed to
     // the BmpDecoderHelper.
 
-    SkAutoTUnref<SkData> data(SkCopyStreamToData(stream));
+    auto data = SkCopyStreamToData(stream);
     if (!data) {
         return kFailure;
     }

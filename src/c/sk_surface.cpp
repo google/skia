@@ -677,15 +677,15 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 sk_data_t* sk_data_new_with_copy(const void* src, size_t length) {
-    return ToData(SkData::NewWithCopy(src, length));
+    return ToData(SkData::MakeWithCopy(src, length).release());
 }
 
 sk_data_t* sk_data_new_from_malloc(const void* memory, size_t length) {
-    return ToData(SkData::NewFromMalloc(memory, length));
+    return ToData(SkData::MakeFromMalloc(memory, length).release());
 }
 
 sk_data_t* sk_data_new_subset(const sk_data_t* csrc, size_t offset, size_t length) {
-    return ToData(SkData::NewSubset(AsData(csrc), offset, length));
+    return ToData(SkData::MakeSubset(AsData(csrc), offset, length).release());
 }
 
 void sk_data_ref(const sk_data_t* cdata) {

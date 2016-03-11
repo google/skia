@@ -304,12 +304,12 @@ DEF_TEST(Writer32_data, reporter) {
     sizeWritten += sizes[2];
     REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
 
-    SkAutoTUnref<SkData> result(writer.snapshotAsData());
+    auto result(writer.snapshotAsData());
 
     SkReader32 reader(result->data(), result->size());
-    SkAutoTUnref<SkData> d0(reader.readData()),
-                         d1(reader.readData()),
-                         d2(reader.readData());
+    auto d0(reader.readData()),
+         d1(reader.readData()),
+         d2(reader.readData());
 
     REPORTER_ASSERT(reporter, 0 == d0->size());
     REPORTER_ASSERT(reporter, strlen(str)+1 == d1->size());

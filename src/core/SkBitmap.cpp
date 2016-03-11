@@ -1163,7 +1163,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         return false;
     }
 
-    SkAutoDataUnref data(SkData::NewUninitialized(SkToSizeT(ramSize)));
+    sk_sp<SkData> data(SkData::MakeUninitialized(SkToSizeT(ramSize)));
     unsigned char* dst = (unsigned char*)data->writable_data();
     buffer->readByteArray(dst, SkToSizeT(snugSize));
 

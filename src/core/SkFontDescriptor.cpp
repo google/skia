@@ -96,7 +96,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
 
     size_t length = stream->readPackedUInt();
     if (length > 0) {
-        SkAutoTUnref<SkData> data(SkData::NewUninitialized(length));
+        sk_sp<SkData> data(SkData::MakeUninitialized(length));
         if (stream->read(data->writable_data(), length) == length) {
             result->fFontData.reset(new SkFontData(new SkMemoryStream(data),
                                                    index, axis, axisCount));

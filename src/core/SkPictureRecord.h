@@ -43,15 +43,15 @@ public:
         return fImageRefs;
     }
 
-    SkData* opData(bool deepCopy) const {
+    sk_sp<SkData> opData(bool deepCopy) const {
         this->validate(fWriter.bytesWritten(), 0);
 
         if (fWriter.bytesWritten() == 0) {
-            return SkData::NewEmpty();
+            return SkData::MakeEmpty();
         }
 
         if (deepCopy) {
-            return SkData::NewWithCopy(fWriter.contiguousArray(), fWriter.bytesWritten());
+            return SkData::MakeWithCopy(fWriter.contiguousArray(), fWriter.bytesWritten());
         }
 
         return fWriter.snapshotAsData();

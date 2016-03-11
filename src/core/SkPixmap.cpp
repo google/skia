@@ -323,9 +323,9 @@ const SkData* SkAutoPixmapStorage::detachPixelsAsData() {
         return nullptr;
     }
 
-    const SkData* data = SkData::NewFromMalloc(fStorage, this->getSafeSize());
+    auto data = SkData::MakeFromMalloc(fStorage, this->getSafeSize());
     fStorage = nullptr;
     this->INHERITED::reset();
 
-    return data;
+    return data.release();
 }

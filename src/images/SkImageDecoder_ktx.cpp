@@ -50,12 +50,12 @@ private:
 
 SkImageDecoder::Result SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     // TODO: Implement SkStream::copyToData() that's cheap for memory and file streams
-    SkAutoDataUnref data(SkCopyStreamToData(stream));
+    auto data = SkCopyStreamToData(stream);
     if (nullptr == data) {
         return kFailure;
     }
 
-    SkKTXFile ktxFile(data);
+    SkKTXFile ktxFile(data.get());
     if (!ktxFile.valid()) {
         return kFailure;
     }

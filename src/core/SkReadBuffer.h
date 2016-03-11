@@ -152,14 +152,14 @@ public:
     virtual bool readPointArray(SkPoint* points, size_t size);
     virtual bool readScalarArray(SkScalar* values, size_t size);
 
-    SkData* readByteArrayAsData() {
+    sk_sp<SkData> readByteArrayAsData() {
         size_t len = this->getArrayCount();
         if (!this->validateAvailable(len)) {
-            return SkData::NewEmpty();
+            return SkData::MakeEmpty();
         }
         void* buffer = sk_malloc_throw(len);
         this->readByteArray(buffer, len);
-        return SkData::NewFromMalloc(buffer, len);
+        return SkData::MakeFromMalloc(buffer, len);
     }
 
     // helpers to get info about arrays and binary data

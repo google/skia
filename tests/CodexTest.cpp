@@ -898,20 +898,21 @@ DEF_TEST(Codec_raw_notseekable, r) {
 DEF_TEST(Codec_webp_peek, r) {
     const char* path = "baby_tux.webp";
     SkString fullPath(GetResourcePath(path));
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(fullPath.c_str()));
+    auto data = SkData::MakeFromFileName(fullPath.c_str());
     if (!data) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
 
     // The limit is less than webp needs to peek or read.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 25)));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(
+                                 new LimitedPeekingMemStream(data.get(), 25)));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
 
     // Similarly, a stream which does not peek should still succeed.
-    codec.reset(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 0)));
+    codec.reset(SkCodec::NewFromStream(new LimitedPeekingMemStream(data.get(), 0)));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
@@ -930,12 +931,12 @@ DEF_TEST(Codec_wbmp, r) {
     }
 
     // Modify the stream to contain a second byte with some bits set.
-    SkAutoTUnref<SkData> data(SkCopyStreamToData(stream));
+    auto data = SkCopyStreamToData(stream);
     uint8_t* writeableData = static_cast<uint8_t*>(data->writable_data());
     writeableData[1] = static_cast<uint8_t>(~0x9F);
 
     // SkCodec should support this.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;

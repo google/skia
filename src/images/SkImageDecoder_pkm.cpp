@@ -34,7 +34,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////
 
 SkImageDecoder::Result SkPKMImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
-    SkAutoTUnref<SkData> data(SkCopyStreamToData(stream));
+    sk_sp<SkData> data(SkCopyStreamToData(stream));
     if (!data || !data->size()) {
         return kFailure;
     }

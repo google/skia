@@ -140,9 +140,9 @@ SkPicture* SkPicture::Forwardport(const SkPictInfo& info, const SkPictureData* d
 }
 
 static bool default_install(const void* src, size_t length, SkBitmap* dst) {
-    SkAutoTUnref<SkData> encoded(SkData::NewWithCopy(src, length));
+    sk_sp<SkData> encoded(SkData::MakeWithCopy(src, length));
     return encoded && SkDEPRECATED_InstallDiscardablePixelRef(
-            SkImageGenerator::NewFromEncoded(encoded), dst);
+            SkImageGenerator::NewFromEncoded(encoded.get()), dst);
 }
 
 SkPicture* SkPicture::CreateFromStream(SkStream* stream) {

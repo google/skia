@@ -36,7 +36,7 @@ static void data_unref_proc(void* skdata, const void*, size_t) {
 
 static CGDataProviderRef SkStreamToDataProvider(SkStream* stream) {
     // TODO: use callbacks, so we don't have to load all the data into RAM
-    SkData* skdata = SkCopyStreamToData(stream);
+    SkData* skdata = SkCopyStreamToData(stream).release();
     if (!skdata) {
         return nullptr;
     }

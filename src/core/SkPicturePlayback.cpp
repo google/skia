@@ -178,8 +178,7 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
         case DRAW_ANNOTATION: {
             const SkRect& rect = reader->skipT<SkRect>();
             const char* key = reader->readString();
-            SkAutoTUnref<SkData> value(reader->readData());
-            canvas->drawAnnotation(rect, key, value);
+            canvas->drawAnnotation(rect, key, reader->readData().get());
         } break;
         case DRAW_ATLAS: {
             const SkPaint* paint = fPictureData->getPaint(reader);

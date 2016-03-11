@@ -93,13 +93,10 @@ void SkPictureData::init() {
     fTextBlobCount = 0;
     fImageRefs = nullptr;
     fImageCount = 0;
-    fOpData = nullptr;
     fFactoryPlayback = nullptr;
 }
 
 SkPictureData::~SkPictureData() {
-    SkSafeUnref(fOpData);
-
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
     }
@@ -358,7 +355,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
     switch (tag) {
         case SK_PICT_READER_TAG:
             SkASSERT(nullptr == fOpData);
-            fOpData = SkData::NewFromStream(stream, size);
+            fOpData = SkData::MakeFromStream(stream, size);
             if (!fOpData) {
                 return false;
             }
@@ -529,13 +526,13 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             }
             break;
         case SK_PICT_READER_TAG: {
-            SkAutoDataUnref data(SkData::NewUninitialized(size));
+            auto data(SkData::MakeUninitialized(size));
             if (!buffer.readByteArray(data->writable_data(), size) ||
                 !buffer.validate(nullptr == fOpData)) {
                 return false;
             }
             SkASSERT(nullptr == fOpData);
-            fOpData = data.detach();
+            fOpData = std::move(data);
         } break;
         case SK_PICT_PICTURE_TAG:
             if (!new_array_from_buffer(buffer, size, &fPictureRefs, &fPictureCount,

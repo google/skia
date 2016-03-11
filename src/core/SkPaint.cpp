@@ -1943,7 +1943,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
                 // Annotations have moved to drawAnnotation, so we just drop this one on the floor.
                 SkString key;
                 buffer.readString(&key);
-                SkSafeUnref(buffer.readByteArrayAsData());
+                (void)buffer.readByteArrayAsData();
             }
         }
     } else {

@@ -67,7 +67,7 @@ private:
         static void initProcessingLuts(ColorCubeProcesingCache* cache);
     };
 
-    SkAutoDataUnref fCubeData;
+    sk_sp<SkData> fCubeData;
     int32_t fUniqueID;
 
     mutable ColorCubeProcesingCache fCache;
