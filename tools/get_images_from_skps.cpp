@@ -50,7 +50,7 @@ struct Sniffer : public SkPixelSerializer {
             case SkEncodedFormat::kICO_SkEncodedFormat:  ext =  "ico"; break;
             case SkEncodedFormat::kJPEG_SkEncodedFormat: ext =  "jpg"; break;
             case SkEncodedFormat::kPNG_SkEncodedFormat:  ext =  "png"; break;
-            case SkEncodedFormat::kRAW_SkEncodedFormat:  ext =  "dng"; break;
+            case SkEncodedFormat::kDNG_SkEncodedFormat:  ext =  "dng"; break;
             case SkEncodedFormat::kWBMP_SkEncodedFormat: ext = "wbmp"; break;
             case SkEncodedFormat::kWEBP_SkEncodedFormat: ext = "webp"; break;
             default: gUnknown++; return;

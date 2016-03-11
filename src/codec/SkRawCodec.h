@@ -38,7 +38,7 @@ protected:
             SkPMColor*, int*, int*) override;
 
     SkEncodedFormat onGetEncodedFormat() const override {
-        return kRAW_SkEncodedFormat;
+        return kDNG_SkEncodedFormat;
     }
 
     SkISize onGetScaledDimensions(float desiredScale) const override;

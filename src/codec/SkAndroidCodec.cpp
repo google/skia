@@ -47,7 +47,7 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
             return new SkWebpAdapterCodec((SkWebpCodec*) codec.detach());
 #endif
 #ifdef SK_CODEC_DECODES_RAW
-        case kRAW_SkEncodedFormat:
+        case kDNG_SkEncodedFormat:
             return new SkRawAdapterCodec((SkRawCodec*)codec.detach());
 #endif
         default:
