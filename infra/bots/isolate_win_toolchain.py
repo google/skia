@@ -6,6 +6,9 @@
 # found in the LICENSE file.
 
 
+"""Download an updated VS toolchain, isolate it, upload a CL to update Skia."""
+
+
 import argparse
 import json
 import os
@@ -14,6 +17,8 @@ import shutil
 import subprocess
 import sys
 import utils
+
+import win_toolchain_utils
 
 
 REPO_CHROME = 'https://chromium.googlesource.com/chromium/src.git'
@@ -34,6 +39,8 @@ def gen_toolchain(chrome_path, msvs_version, isolate_file):
   """Update the VS toolchain, isolate it, and return the isolated hash."""
   with utils.chdir(chrome_path):
     subprocess.check_call([utils.GCLIENT, 'sync'])
+    depot_tools = subprocess.check_output([
+        'python', os.path.join('build', 'find_depot_tools.py')]).rstrip()
     with utils.git_branch():
       vs_toolchain_py = os.path.join('build', 'vs_toolchain.py')
       env = os.environ.copy()
@@ -42,17 +49,25 @@ def gen_toolchain(chrome_path, msvs_version, isolate_file):
       output = subprocess.check_output(['python', vs_toolchain_py,
                                         'get_toolchain_dir'], env=env).rstrip()
       src_dir = get_toolchain_dir(output)
+      # Mock out absolute paths in win_toolchain.json.
+      win_toolchain_utils.abstract(os.path.join('build', 'win_toolchain.json'),
+                                   os.path.dirname(depot_tools))
 
     # Isolate the toolchain. Assumes we're running on Windows, since the above
     # would fail otherwise.
-    rel_path = os.path.relpath(src_dir, os.path.dirname(isolate_file))
+    isolate_file_dirname = os.path.dirname(isolate_file)
+    toolchain_relpath = os.path.relpath(src_dir, isolate_file_dirname)
+    chrome_relpath = os.path.relpath(os.getcwd(), isolate_file_dirname)
+    depot_tools_relpath = os.path.relpath(depot_tools, isolate_file_dirname)
     isolate = os.path.join(
         os.curdir, 'tools', 'luci-go', 'win64', 'isolate.exe')
     isolate_cmd = [isolate, 'archive', '--quiet',
         '--isolate-server', 'https://isolateserver.appspot.com',
         '-i', isolate_file,
         '-s', 'win_toolchain_%s.isolated' % msvs_version,
-        '--extra-variable', 'WIN_TOOLCHAIN_DIR=%s' % rel_path]
+        '--extra-variable', 'WIN_TOOLCHAIN_DIR=%s' % toolchain_relpath,
+        '--extra-variable', 'DEPOT_TOOLS_DIR=%s' % depot_tools_relpath,
+        '--extra-variable', 'CHROME_DIR=%s' % chrome_relpath]
     isolate_out = subprocess.check_output(isolate_cmd).rstrip()
     return shlex.split(isolate_out)[0]
 
