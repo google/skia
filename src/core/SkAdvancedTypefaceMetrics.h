@@ -16,6 +16,35 @@
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 
+// Whatever std::unique_ptr Clank's using doesn't seem to work with AdvanceMetric's
+// style of forward-declaration.  Probably just a bug in an old libc++ / libstdc++.
+// For now, hack around it with our own smart pointer.  It'd be nice to clean up.
+template <typename T>
+class SkHackyAutoTDelete : SkNoncopyable {
+public:
+    explicit SkHackyAutoTDelete(T* ptr = nullptr) : fPtr(ptr) {}
+    ~SkHackyAutoTDelete() { delete fPtr; }
+
+    T*        get() const { return fPtr; }
+    T* operator->() const { return fPtr; }
+
+    void reset(T* ptr) {
+        if (ptr != fPtr) {
+            delete fPtr;
+            fPtr = ptr;
+        }
+    }
+    void free() { this->reset(nullptr); }
+    T* detach() {
+        T* ptr = fPtr;
+        fPtr = nullptr;
+        return ptr;
+    }
+
+private:
+    T* fPtr;
+};
+
 /** \class SkAdvancedTypefaceMetrics
 
     The SkAdvancedTypefaceMetrics class is used by the PDF backend to correctly
@@ -97,7 +126,7 @@ public:
         uint16_t fStartId;
         uint16_t fEndId;
         SkTDArray<Data> fAdvance;
-        SkAutoTDelete<AdvanceMetric<Data> > fNext;
+        SkHackyAutoTDelete<AdvanceMetric<Data> > fNext;
     };
 
     struct VerticalMetric {
@@ -130,9 +159,9 @@ template <typename Data>
 void resetRange(SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
                        int startId);
 
-template <typename Data>
+template <typename Data, template<typename> class AutoTDelete>
 SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* appendRange(
-        SkAutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
+        AutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
         int startId);
 
 template <typename Data>
