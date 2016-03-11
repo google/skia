@@ -224,12 +224,12 @@ sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pi
     if (!from_c_info(*cinfo, &info)) {
         return NULL;
     }
-    return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes)).release();
+    return (sk_image_t*)SkImage::NewRasterCopy(info, pixels, rowBytes);
 }
 
 sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {
-    return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata)),
-                                           reinterpret_cast<const SkIRect*>(subset)).release());
+    return ToImage(SkImage::NewFromEncoded(AsData(cdata),
+                                           reinterpret_cast<const SkIRect*>(subset)));
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {

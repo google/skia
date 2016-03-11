@@ -131,7 +131,7 @@ SkImage* SkSurface_Raster::onNewImageSnapshot(SkBudgeted, ForceCopyMode forceCop
 
     // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
     // Lock the shared pixel ref to ensure peekPixels() is usable.
-    return SkMakeImageFromRasterBitmap(fBitmap, forceCopyMode).release();
+    return SkNewImageFromRasterBitmap(fBitmap, forceCopyMode);
 }
 
 void SkSurface_Raster::onRestoreBackingMutability() {

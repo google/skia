@@ -63,7 +63,7 @@ public:
         return true;
     }
 
-    SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*);
+    SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, SkColorTable*);
     virtual ~SkImage_Raster();
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
@@ -71,7 +71,7 @@ public:
     SkData* onRefEncoded(GrContext*) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
-    sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
+    SkImage* onNewSubset(const SkIRect&) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
     SkImage_Raster(const SkImageInfo&, SkPixelRef*, const SkIPoint& origin, size_t rowBytes);
@@ -110,13 +110,14 @@ static void release_data(void* addr, void* context) {
     data->unref();
 }
 
-SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowBytes,
+SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes,
                                SkColorTable* ctable)
     : INHERITED(info.width(), info.height(), kNeedNewImageUniqueID)
 {
+    data->ref();
     void* addr = const_cast<void*>(data->data());
 
-    fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data.release());
+    fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data);
     fBitmap.setImmutable();
     fBitmap.lockPixels();
 }
@@ -172,7 +173,7 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& p
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
+SkImage* SkImage_Raster::onNewSubset(const SkIRect& subset) const {
     // TODO : could consider heurist of sharing pixels, if subset is pretty close to complete
 
     SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(), fBitmap.alphaType());
@@ -183,26 +184,25 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawImage(this, SkIntToScalar(-subset.x()), SkIntToScalar(-subset.y()),
                                     nullptr);
-    return sk_sp<SkImage>(surface->newImageSnapshot());
+    return surface->newImageSnapshot();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap) {
+SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                                SkColorTable* ctable) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(),
-                                   pmap.ctable() != nullptr, &size) || !pmap.addr()) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, ctable != nullptr, &size) || !pixels) {
         return nullptr;
     }
 
     // Here we actually make a copy of the caller's pixel data
-    sk_sp<SkData> data(SkData::NewWithCopy(pmap.addr(), size));
-    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
+    SkAutoDataUnref data(SkData::NewWithCopy(pixels, size));
+    return new SkImage_Raster(info, data, rowBytes, ctable);
 }
 
 
-sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> data,
-                                       size_t rowBytes) {
+SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t rowBytes) {
     size_t size;
     if (!SkImage_Raster::ValidArgs(info, rowBytes, false, &size) || !data) {
         return nullptr;
@@ -214,29 +214,30 @@ sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> da
     }
 
     SkColorTable* ctable = nullptr;
-    return sk_make_sp<SkImage_Raster>(info, std::move(data), rowBytes, ctable);
+    return new SkImage_Raster(info, data, rowBytes, ctable);
 }
 
-sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc proc,
-                                       ReleaseContext ctx) {
+SkImage* SkImage::NewFromRaster(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                                RasterReleaseProc proc, ReleaseContext ctx) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(), false, &size) || !pmap.addr()) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, false, &size) || !pixels) {
         return nullptr;
     }
 
-    sk_sp<SkData> data(SkData::NewWithProc(pmap.addr(), size, proc, ctx));
-    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
+    SkColorTable* ctable = nullptr;
+    SkAutoDataUnref data(SkData::NewWithProc(pixels, size, proc, ctx));
+    return new SkImage_Raster(info, data, rowBytes, ctable);
 }
 
-sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
-                                       const SkIPoint& pixelRefOrigin, size_t rowBytes) {
+SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
+                                const SkIPoint& pixelRefOrigin, size_t rowBytes) {
     if (!SkImage_Raster::ValidArgs(info, rowBytes, false, nullptr)) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Raster>(info, pr, pixelRefOrigin, rowBytes);
+    return new SkImage_Raster(info, pr, pixelRefOrigin, rowBytes);
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode forceCopy) {
+SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode forceCopy) {
     SkASSERT(nullptr == bm.getTexture());
 
     bool hasColorTable = false;
@@ -249,16 +250,16 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, ForceCopyMode for
         return nullptr;
     }
 
-    sk_sp<SkImage> image;
+    SkImage* image = nullptr;
     if (kYes_ForceCopyMode == forceCopy || !bm.isImmutable()) {
         SkBitmap tmp(bm);
         tmp.lockPixels();
-        SkPixmap pmap;
-        if (tmp.getPixels() && tmp.peekPixels(&pmap)) {
-            image = SkImage::MakeRasterCopy(pmap);
+        if (tmp.getPixels()) {
+            image = SkImage::NewRasterCopy(tmp.info(), tmp.getPixels(), tmp.rowBytes(),
+                                           tmp.getColorTable());
         }
     } else {
-        image = sk_make_sp<SkImage_Raster>(bm);
+        image = new SkImage_Raster(bm);
     }
     return image;
 }

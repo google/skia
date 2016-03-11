@@ -46,7 +46,7 @@ public:
     // Caller must call unref when they are done.
     virtual GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const = 0;
 
-    virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
+    virtual SkImage* onNewSubset(const SkIRect&) const = 0;
 
     // If a ctx is specified, then only gpu-specific formats are requested.
     virtual SkData* onRefEncoded(GrContext*) const { return nullptr; }

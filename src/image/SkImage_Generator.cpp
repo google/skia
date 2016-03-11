@@ -25,7 +25,7 @@ public:
     SkImageCacherator* peekCacherator() const override { return fCache; }
     SkData* onRefEncoded(GrContext*) const override;
     bool isOpaque() const override { return fCache->info().isOpaque(); }
-    sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
+    SkImage* onNewSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
     bool onIsLazyGenerated() const override { return true; }
@@ -73,7 +73,7 @@ GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrTextureParams
     return fCache->lockAsTexture(ctx, params, this);
 }
 
-sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
+SkImage* SkImage_Generator::onNewSubset(const SkIRect& subset) const {
     // TODO: make this lazy, by wrapping the subset inside a new generator or something
     // For now, we do effectively what we did before, make it a raster
 
@@ -86,16 +86,13 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawImage(this, SkIntToScalar(-subset.x()), SkIntToScalar(-subset.y()),
                                     nullptr);
-    return sk_sp<SkImage>(surface->newImageSnapshot());
+    return surface->newImageSnapshot();
 }
 
-sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
-    if (!generator) {
-        return nullptr;
-    }
+SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
     SkImageCacherator* cache = SkImageCacherator::NewFromGenerator(generator, subset);
     if (!cache) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Generator>(cache);
+    return new SkImage_Generator(cache);
 }

@@ -29,5 +29,6 @@ SkFlattenable* SkBitmapSourceDeserializer::CreateProc(SkReadBuffer& buffer) {
     }
     bitmap.setImmutable();
 
-    return SkImageSource::Create(SkImage::MakeFromBitmap(bitmap).get(), src, dst, filterQuality);
+    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    return SkImageSource::Create(image, src, dst, filterQuality);
 }

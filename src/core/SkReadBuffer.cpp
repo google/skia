@@ -298,11 +298,11 @@ SkImage* SkReadBuffer::readImage() {
         return nullptr;
     }
 
-    sk_sp<SkData> encoded(this->readByteArrayAsData());
+    SkAutoTUnref<SkData> encoded(this->readByteArrayAsData());
     if (encoded->size() == 0) {
         // The image could not be encoded at serialization time - return an empty placeholder.
-        return SkImage::MakeFromGenerator(
-            new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height))).release();
+        return SkImage::NewFromGenerator(
+            new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height)));
     }
 
     int originX = this->read32();
@@ -313,13 +313,13 @@ SkImage* SkReadBuffer::readImage() {
     }
 
     const SkIRect subset = SkIRect::MakeXYWH(originX, originY, width, height);
-    SkImage* image = SkImage::MakeFromEncoded(std::move(encoded), &subset).release();
+    SkImage* image = SkImage::NewFromEncoded(encoded, &subset);
     if (image) {
         return image;
     }
 
-    return SkImage::MakeFromGenerator(
-            new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height))).release();
+    return SkImage::NewFromGenerator(
+            new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height)));
 }
 
 SkTypeface* SkReadBuffer::readTypeface() {
