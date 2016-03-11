@@ -68,9 +68,9 @@ void resetRange(SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
     range->fAdvance.setCount(0);
 }
 
-template <typename Data, template<typename> class AutoTDelete>
+template <typename Data>
 SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* appendRange(
-        AutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
+        SkAutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
         int startId) {
     nextSlot->reset(new SkAdvancedTypefaceMetrics::AdvanceMetric<Data>);
     resetRange(nextSlot->get(), startId);
