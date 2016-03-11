@@ -411,7 +411,7 @@ public:
      *              bounds.
      *  @return     Returns a new shader object. Note: this function never returns null.
     */
-    static sk_sp<SkShader> MakePictureShader(sk_sp<const SkPicture> src, TileMode tmx, TileMode tmy,
+    static sk_sp<SkShader> MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,
                                              const SkMatrix* localMatrix, const SkRect* tile);
 
     /**
