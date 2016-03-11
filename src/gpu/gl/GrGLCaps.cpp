@@ -51,6 +51,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRGBA8888PixelsOpsAreSlow = false;
     fPartialFBOReadIsSlow = false;
     fMipMapLevelAndLodControlSupport = false;
+    fRGBAToBGRAReadbackConversionsAreSlow = false;
 
     fBlitFramebufferSupport = kNone_BlitFramebufferSupport;
 
@@ -252,6 +253,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // check DX11 ANGLE.
     fPartialFBOReadIsSlow = isANGLE;
 #endif
+
+    bool isMESA = kMesa_GrGLDriver == ctxInfo.driver();
+    bool isMAC = false;
+#ifdef SK_BUILD_FOR_MAC
+    isMAC = true;
+#endif
+
+    // Both mesa and mac have reduced performance if reading back an RGBA framebuffer as BGRA or
+    // vis-versa.
+    fRGBAToBGRAReadbackConversionsAreSlow = isMESA || isMAC;
 
     /**************************************************************************
     * GrShaderCaps fields
@@ -1077,6 +1088,8 @@ SkString GrGLCaps::dump() const {
     r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
     r.appendf("Rectangle texture support: %s\n", (fRectangleTextureSupport? "YES" : "NO"));
     r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
+    r.appendf("BGRA to RGBA readback conversions are slow: %s\n", 
+              (fRGBAToBGRAReadbackConversionsAreSlow ? "YES" : "NO"));
 
     r.append("Configs\n-------\n");
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {

@@ -2560,7 +2560,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
         tempDrawInfo->fReadConfig = kBGRA_8888_GrPixelConfig;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
-    } else if (kMesa_GrGLDriver == this->glContext().driver() &&
+    } else if (this->glCaps().rgbaToBgraReadbackConversionsAreSlow() &&
                GrBytesPerPixel(readConfig) == 4 &&
                GrPixelConfigSwapRAndB(readConfig) == srcConfig &&
                this->readPixelsSupported(srcSurface, srcConfig)) {

@@ -345,6 +345,9 @@ public:
 
     bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
     bool partialFBOReadIsSlow() const { return fPartialFBOReadIsSlow; }
+    bool rgbaToBgraReadbackConversionsAreSlow() const {
+        return fRGBAToBGRAReadbackConversionsAreSlow;
+    }
 
     const GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
@@ -413,6 +416,7 @@ private:
     bool fRectangleTextureSupport : 1;
     bool fTextureSwizzleSupport : 1;
     bool fMipMapLevelAndLodControlSupport : 1;
+    bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
 
     BlitFramebufferSupport fBlitFramebufferSupport;
 
