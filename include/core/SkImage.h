@@ -25,6 +25,7 @@ class SkPixelSerializer;
 class SkString;
 class SkSurface;
 class GrContext;
+class GrContextThreadSafeProxy;
 class GrTexture;
 
 #define SK_SUPPORT_LEGACY_IMAGEFACTORY
@@ -321,6 +322,44 @@ public:
      */
     sk_sp<SkImage> makeTextureImage(GrContext*) const;
 
+    /** Drawing params for which a deferred texture image data should be optimized. */
+    struct DeferredTextureImageUsageParams {
+        SkMatrix        fMatrix;
+        SkFilterQuality fQuality;
+    };
+
+    /**
+     * This method allows clients to capture the data necessary to turn a SkImage into a texture-
+     * backed image. If the original image is codec-backed this will decode into a format optimized
+     * for the context represented by the proxy. This method is thread safe with respect to the
+     * GrContext whence the proxy came. Clients allocate and manage the storage of the deferred
+     * texture data and control its lifetime. No cleanup is required, thus it is safe to simply free
+     * the memory out from under the data.
+     *
+     * The same method is used both for getting the size necessary for pre-uploaded texture data
+     * and for retrieving the data. The params array represents the set of draws over which to
+     * optimize the pre-upload data.
+     *
+     * When called with a null buffer this returns the size that the client must allocate in order
+     * to create deferred texture data for this image (or zero if this is an inappropriate
+     * candidate). The buffer allocated by the client should be 8 byte aligned.
+     *
+     * When buffer is not null this fills in the deferred texture data for this image in the
+     * provided buffer (assuming this is an appropriate candidate image and the buffer is
+     * appropriately aligned). Upon success the size written is returned, otherwise 0.
+     */
+    size_t getDeferredTextureImageData(const GrContextThreadSafeProxy&,
+                                       const DeferredTextureImageUsageParams[],
+                                       int paramCnt,
+                                       void* buffer) const;
+
+    /**
+     * Returns a texture-backed image from data produced in SkImage::getDeferredTextureImageData.
+     * The context must be the context that provided the proxy passed to
+     * getDeferredTextureImageData.
+     */
+    static sk_sp<SkImage> MakeFromDeferredTextureImageData(GrContext*, const void*, SkBudgeted);
+
     // Helper functions to convert to SkBitmap
 
     enum LegacyBitmapMode {
@@ -375,6 +414,7 @@ public:
     static SkImage* NewFromPicture(const SkPicture*, const SkISize& dimensions,
                                    const SkMatrix*, const SkPaint*);
     static SkImage* NewTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted);
+    static SkImage* NewFromDeferredTextureImageData(GrContext*, const void*, SkBudgeted);
 
     SkImage* newSubset(const SkIRect& subset) const { return this->makeSubset(subset).release(); }
     SkImage* newTextureImage(GrContext* ctx) const { return this->makeTextureImage(ctx).release(); }

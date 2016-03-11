@@ -211,6 +211,12 @@ public:
     void alloc(const SkImageInfo&);
 
     /**
+     * Gets the size and optionally the rowBytes that would be allocated by SkAutoPixmapStorage if
+     * alloc/tryAlloc was called.
+     */
+    static size_t AllocSize(const SkImageInfo& info, size_t* rowBytes);
+
+    /**
      *  Returns an SkData object wrapping the allocated pixels memory, and resets the pixmap.
      *  If the storage hasn't been allocated, the result is NULL.
      */

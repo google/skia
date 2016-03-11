@@ -359,6 +359,17 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext*, const GrBackendTextureDesc&,
     return nullptr;
 }
 
+size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy&,
+                                            const DeferredTextureImageUsageParams[],
+                                            int paramCnt, void* buffer) const {
+    return 0;
+}
+
+sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, const void*,
+                                                         SkBudgeted) {
+    return nullptr;
+}
+
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&,
                                                SkAlphaType) {
     return nullptr;
@@ -440,5 +451,10 @@ SkImage* SkImage::NewFromPicture(const SkPicture* picture, const SkISize& dimens
 
 SkImage* SkImage::NewTextureFromPixmap(GrContext* ctx, const SkPixmap& pmap, SkBudgeted budgeted) {
     return MakeTextureFromPixmap(ctx, pmap, budgeted).release();
+}
+
+SkImage* SkImage::NewFromDeferredTextureImageData(GrContext* ctx, const void* data,
+                                                  SkBudgeted budgeted) {
+    return MakeFromDeferredTextureImageData(ctx, data, budgeted).release();
 }
 #endif

@@ -128,6 +128,13 @@ GrContext::~GrContext() {
     fCaps->unref();
 }
 
+GrContextThreadSafeProxy* GrContext::threadSafeProxy() {
+    if (!fThreadSafeProxy) {
+        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID()));
+    }
+    return SkRef(fThreadSafeProxy.get());
+}
+
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 

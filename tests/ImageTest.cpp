@@ -822,4 +822,75 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, context) {
     }
 }
 
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(DeferredTextureImage, reporter, context, glContext) {
+    SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
+
+    GrContextFactory otherFactory;
+    GrContextFactory::ContextInfo otherContextInfo =
+        otherFactory.getContextInfo(GrContextFactory::kNative_GLContextType);
+
+    glContext->makeCurrent();
+    REPORTER_ASSERT(reporter, proxy);
+    struct {
+        std::function<SkImage *()> fImageFactory;
+        bool                       fExpectation;
+    } testCases[] = {
+        { create_image,          true },
+        { create_codec_image,    true },
+        { create_data_image,     true },
+        { create_picture_image,  false },
+        { [context] { return create_gpu_image(context); }, false },
+        // Create a texture image in a another GrContext.
+        { [glContext, otherContextInfo] {
+            otherContextInfo.fGLContext->makeCurrent();
+            SkImage *otherContextImage = create_gpu_image(otherContextInfo.fGrContext);
+            glContext->makeCurrent();
+            return otherContextImage;
+          }, false },
+    };
+
+
+    for (auto testCase : testCases) {
+        SkAutoTUnref<SkImage> image(testCase.fImageFactory());
+
+        // This isn't currently used in the implementation, just set any old values.
+        SkImage::DeferredTextureImageUsageParams params;
+        params.fQuality = kLow_SkFilterQuality;
+        params.fMatrix = SkMatrix::I();
+
+        size_t size = image->getDeferredTextureImageData(*proxy, &params, 1, nullptr);
+
+        static const char *const kFS[] = { "fail", "succeed" };
+        if (SkToBool(size) != testCase.fExpectation) {
+            ERRORF(reporter,  "This image was expected to %s but did not.",
+                   kFS[testCase.fExpectation]);
+        }
+        if (size) {
+            void* buffer = sk_malloc_throw(size);
+            void* misaligned = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(buffer) + 3);
+            if (image->getDeferredTextureImageData(*proxy, &params, 1, misaligned)) {
+                ERRORF(reporter, "Should fail when buffer is misaligned.");
+            }
+            if (!image->getDeferredTextureImageData(*proxy, &params, 1, buffer)) {
+                ERRORF(reporter, "deferred image size succeeded but creation failed.");
+            } else {
+                for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
+                    SkAutoTUnref<SkImage> newImage(
+                        SkImage::NewFromDeferredTextureImageData(context, buffer, budgeted));
+                    REPORTER_ASSERT(reporter, SkToBool(newImage));
+                    if (newImage) {
+                        check_images_same(reporter, image, newImage);
+                    }
+                    // The other context should not be able to create images from texture data
+                    // created by the original context.
+                    SkAutoTUnref<SkImage> newImage2(SkImage::NewFromDeferredTextureImageData(
+                        otherContextInfo.fGrContext, buffer, budgeted));
+                    REPORTER_ASSERT(reporter, !newImage2);
+                    glContext->makeCurrent();
+                }
+            }
+            sk_free(buffer);
+        }
+    }
+}
 #endif

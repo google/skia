@@ -24,6 +24,7 @@
 struct GrBatchAtlasConfig;
 class GrBatchFontCache;
 struct GrContextOptions;
+class GrContextThreadSafeProxy;
 class GrDrawingManager;
 class GrDrawContext;
 class GrDrawTarget;
@@ -60,6 +61,8 @@ public:
     static GrContext* CreateMockContext();
 
     virtual ~GrContext();
+
+    GrContextThreadSafeProxy* threadSafeProxy();
 
     /**
      * The GrContext normally assumes that no outsider is setting state
@@ -359,25 +362,27 @@ public:
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fSingleOwner; } )
 
 private:
-    GrGpu*                          fGpu;
-    const GrCaps*                   fCaps;
-    GrResourceCache*                fResourceCache;
+    GrGpu*                                  fGpu;
+    const GrCaps*                           fCaps;
+    GrResourceCache*                        fResourceCache;
     // this union exists because the inheritance of GrTextureProvider->GrResourceProvider
     // is in a private header.
     union {
-        GrResourceProvider*         fResourceProvider;
-        GrTextureProvider*          fTextureProvider;
+        GrResourceProvider*                 fResourceProvider;
+        GrTextureProvider*                  fTextureProvider;
     };
 
-    GrBatchFontCache*               fBatchFontCache;
-    SkAutoTDelete<GrLayerCache>     fLayerCache;
-    SkAutoTDelete<GrTextBlobCache>  fTextBlobCache;
+    SkAutoTUnref<GrContextThreadSafeProxy>  fThreadSafeProxy;
+
+    GrBatchFontCache*                       fBatchFontCache;
+    SkAutoTDelete<GrLayerCache>             fLayerCache;
+    SkAutoTDelete<GrTextBlobCache>          fTextBlobCache;
 
     // Set by OverbudgetCB() to request that GrContext flush before exiting a draw.
-    bool                            fFlushToReduceCacheSize;
-    bool                            fDidTestPMConversions;
-    int                             fPMToUPMConversion;
-    int                             fUPMToPMConversion;
+    bool                                    fFlushToReduceCacheSize;
+    bool                                    fDidTestPMConversions;
+    int                                     fPMToUPMConversion;
+    int                                     fUPMToPMConversion;
     // The sw backend may call GrContext::readSurfacePixels on multiple threads
     // We may transfer the responsibilty for using a mutex to the sw backend
     // when there are fewer code paths that lead to a readSurfacePixels call
@@ -388,26 +393,26 @@ private:
     // readSurfacePixels proceeds to grab it.
     // TODO: Stop pretending to make GrContext thread-safe for sw rasterization and provide
     // a mechanism to make a SkPicture safe for multithreaded sw rasterization.
-    SkMutex                         fReadPixelsMutex;
-    SkMutex                         fTestPMConversionsMutex;
+    SkMutex                                 fReadPixelsMutex;
+    SkMutex                                 fTestPMConversionsMutex;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
     // GrDrawContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
-    mutable GrSingleOwner fSingleOwner;
+    mutable GrSingleOwner                   fSingleOwner;
 
     struct CleanUpData {
         PFCleanUpFunc fFunc;
         void*         fInfo;
     };
 
-    SkTDArray<CleanUpData>          fCleanUpData;
+    SkTDArray<CleanUpData>                  fCleanUpData;
 
-    const uint32_t                  fUniqueID;
+    const uint32_t                          fUniqueID;
 
-    SkAutoTDelete<GrDrawingManager> fDrawingManager;
+    SkAutoTDelete<GrDrawingManager>         fDrawingManager;
 
-    GrAuditTrail                    fAuditTrail;
+    GrAuditTrail                            fAuditTrail;
 
     // TODO: have the CMM use drawContexts and rm this friending
     friend class GrClipMaskManager; // the CMM is friended just so it can call 'drawingManager'
@@ -448,6 +453,25 @@ private:
      * TODO move textblob draw calls below context so we can use the call above.
      */
     static void TextBlobCacheOverBudgetCB(void* data);
+
+    typedef SkRefCnt INHERITED;
+};
+
+/**
+ * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
+ * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
+ */
+class GrContextThreadSafeProxy : public SkRefCnt {
+private:
+    GrContextThreadSafeProxy(const GrCaps* caps, uint32_t uniqueID)
+        : fCaps(SkRef(caps))
+        , fContextUniqueID(uniqueID) {}
+
+    SkAutoTUnref<const GrCaps>  fCaps;
+    uint32_t                    fContextUniqueID;
+
+    friend class GrContext;
+    friend class SkImage;
 
     typedef SkRefCnt INHERITED;
 };

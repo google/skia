@@ -327,6 +327,119 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pi
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+class DeferredTextureImage {
+public:
+    SkImage* newImage(GrContext* context, SkBudgeted) const;
+
+private:
+    uint32_t fContextUniqueID;
+    struct Data {
+        SkImageInfo fInfo;
+        void*       fPixelData;
+        size_t      fRowBytes;
+        int         fColorTableCnt;
+        uint32_t*   fColorTableData;
+    };
+    Data fData;
+
+    friend class SkImage;
+};
+
+size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
+                                            const DeferredTextureImageUsageParams[],
+                                            int paramCnt, void* buffer) const {
+    const bool fillMode = SkToBool(buffer);
+    if (fillMode && !SkIsAlign8(reinterpret_cast<intptr_t>(buffer))) {
+        return 0;
+    }
+
+    SkAutoPixmapStorage pixmap;
+    SkImageInfo info;
+    size_t pixelSize = 0;
+    size_t ctSize = 0;
+    int ctCount = 0;
+    if (this->peekPixels(&pixmap)) {
+        info = pixmap.info();
+        pixelSize = SkAlign8(pixmap.getSafeSize());
+        if (pixmap.ctable()) {
+            ctCount = pixmap.ctable()->count();
+            ctSize = SkAlign8(pixmap.ctable()->count() * 4);
+        }
+    } else {
+        // Here we're just using presence of data to know whether there is a codec behind the image.
+        // In the future we will access the cacherator and get the exact data that we want to (e.g.
+        // yuv planes) upload.
+        SkAutoTUnref<SkData> data(this->refEncoded());
+        if (!data) {
+            return 0;
+        }
+        SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+        info = SkImageInfo::MakeN32(this->width(), this->height(), at);
+        pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
+        if (fillMode) {
+            pixmap.alloc(info);
+            if (!this->readPixels(pixmap, 0, 0, SkImage::kDisallow_CachingHint)) {
+                return 0;
+            }
+            SkASSERT(!pixmap.ctable());
+        }
+    }
+    size_t size = 0;
+    size_t dtiSize = SkAlign8(sizeof(DeferredTextureImage));
+    size += dtiSize;
+    size_t pixelOffset = size;
+    size += pixelSize;
+    size_t ctOffset = size;
+    size += ctSize;
+    if (!fillMode) {
+        return size;
+    }
+    intptr_t bufferAsInt = reinterpret_cast<intptr_t>(buffer);
+    void* pixels = reinterpret_cast<void*>(bufferAsInt + pixelOffset);
+    SkPMColor* ct = nullptr;
+    if (ctSize) {
+        ct = reinterpret_cast<SkPMColor*>(bufferAsInt + ctOffset);
+    }
+
+    memcpy(pixels, pixmap.addr(), pixmap.getSafeSize());
+    if (ctSize) {
+        memcpy(ct, pixmap.ctable()->readColors(), ctSize);
+    }
+
+    SkASSERT(info == pixmap.info());
+    size_t rowBytes = pixmap.rowBytes();
+    DeferredTextureImage* dti = new (buffer) DeferredTextureImage();
+    dti->fContextUniqueID = proxy.fContextUniqueID;
+    dti->fData.fInfo = info;
+    dti->fData.fPixelData = pixels;
+    dti->fData.fRowBytes = rowBytes;
+    dti->fData.fColorTableCnt = ctCount;
+    dti->fData.fColorTableData = ct;
+    return size;
+}
+
+sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, const void* data,
+                                                         SkBudgeted budgeted) {
+    if (!data) {
+        return nullptr;
+    }
+    const DeferredTextureImage* dti = reinterpret_cast<const DeferredTextureImage*>(data);
+
+    if (!context || context->uniqueID() != dti->fContextUniqueID) {
+        return nullptr;
+    }
+    SkAutoTUnref<SkColorTable> colorTable;
+    if (dti->fData.fColorTableCnt) {
+        SkASSERT(dti->fData.fColorTableData);
+        colorTable.reset(new SkColorTable(dti->fData.fColorTableData, dti->fData.fColorTableCnt));
+    }
+    SkPixmap pixmap;
+    pixmap.reset(dti->fData.fInfo, dti->fData.fPixelData, dti->fData.fRowBytes, colorTable.get());
+    return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted budgeted) {
     GrContext* ctx = src->getContext();
 
