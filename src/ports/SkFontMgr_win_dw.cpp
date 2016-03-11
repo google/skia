@@ -25,8 +25,6 @@
 
 #if SK_HAS_DWRITE_2_H
 #include <dwrite_2.h>
-#else
-struct IDWriteFontFallback;
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,11 +264,8 @@ class SkFontMgr_DirectWrite : public SkFontMgr {
 public:
     /** localeNameLength must include the null terminator. */
     SkFontMgr_DirectWrite(IDWriteFactory* factory, IDWriteFontCollection* fontCollection,
-                          WCHAR* localeName, int localeNameLength, IDWriteFontFallback* fallback)
+                          WCHAR* localeName, int localeNameLength)
         : fFactory(SkRefComPtr(factory))
-#if SK_HAS_DWRITE_2_H
-        , fFontFallback(SkSafeRefComPtr(fallback))
-#endif
         , fFontCollection(SkRefComPtr(fontCollection))
         , fLocaleName(localeNameLength)
     {
@@ -314,7 +309,6 @@ private:
     SkTScopedComPtr<IDWriteFactory> fFactory;
 #if SK_HAS_DWRITE_2_H
     SkTScopedComPtr<IDWriteFactory2> fFactory2;
-    SkTScopedComPtr<IDWriteFontFallback> fFontFallback;
 #endif
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
@@ -768,7 +762,10 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
     }
 
 #if SK_HAS_DWRITE_2_H
-    if (fFactory2.get() && fFontFallback.get()) {
+    if (fFactory2.get()) {
+        SkTScopedComPtr<IDWriteFontFallback> fontFallback;
+        HRNM(fFactory2->GetSystemFontFallback(&fontFallback), "Could not get system fallback.");
+
         SkTScopedComPtr<IDWriteNumberSubstitution> numberSubstitution;
         HRNM(fFactory2->CreateNumberSubstitution(DWRITE_NUMBER_SUBSTITUTION_METHOD_NONE, nullptr, TRUE,
                                                  &numberSubstitution),
@@ -779,17 +776,17 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
         UINT32 mappedLength;
         SkTScopedComPtr<IDWriteFont> font;
         FLOAT scale;
-        HRNM(fFontFallback->MapCharacters(fontFallbackSource.get(),
-                                          0, // textPosition,
-                                          strLen,
-                                          fFontCollection.get(),
-                                          dwFamilyName,
-                                          dwStyle.fWeight,
-                                          dwStyle.fSlant,
-                                          dwStyle.fWidth,
-                                          &mappedLength,
-                                          &font,
-                                          &scale),
+        HRNM(fontFallback->MapCharacters(fontFallbackSource.get(),
+                                         0, // textPosition,
+                                         strLen,
+                                         fFontCollection.get(),
+                                         dwFamilyName,
+                                         dwStyle.fWeight,
+                                         dwStyle.fSlant,
+                                         dwStyle.fWidth,
+                                         &mappedLength,
+                                         &font,
+                                         &scale),
              "Could not map characters");
         if (!font.get()) {
             return nullptr;
@@ -1086,18 +1083,6 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         collection = systemFontCollection.get();
     }
 
-    IDWriteFontFallback *fontFallback = nullptr;
-#if SK_HAS_DWRITE_2_H
-    SkTScopedComPtr<IDWriteFontFallback> systemFontFallback;
-    SkTScopedComPtr<IDWriteFactory2> fFactory2;
-    factory->QueryInterface(&fFactory2);
-    if (fFactory2.get()) {
-        HRNM(fFactory2->GetSystemFontFallback(&systemFontFallback),
-             "Could not get system fallback.");
-        fontFallback = systemFontFallback.get();
-    }
-#endif
-
     WCHAR localeNameStorage[LOCALE_NAME_MAX_LENGTH];
     WCHAR* localeName = nullptr;
     int localeNameLen = 0;
@@ -1114,8 +1099,7 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         };
     }
 
-    return new SkFontMgr_DirectWrite(
-        factory, collection, localeName, localeNameLen, fontFallback);
+    return new SkFontMgr_DirectWrite(factory, collection, localeName, localeNameLen);
 }
 
 #include "SkFontMgr_indirect.h"
