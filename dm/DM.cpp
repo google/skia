@@ -1303,9 +1303,13 @@ int dm_main();
 int dm_main() {
     setup_crash_handler();
 
-    if (FLAGS_verbose && !FLAGS_writePath.isEmpty()) {
-        sk_mkdir(FLAGS_writePath[0]);
-        gVLog = freopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w", stderr);
+    if (FLAGS_verbose) {
+        if(!FLAGS_writePath.isEmpty()) {
+            sk_mkdir(FLAGS_writePath[0]);
+            gVLog = freopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w", stderr);
+        } else {
+            gVLog = stderr;
+        }
     }
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
