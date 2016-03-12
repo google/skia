@@ -5,17 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkDocument.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
+#include "SkPDFDocument.h"
 #include "SkPDFFont.h"
+#include "SkPDFMetadata.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
-#include "SkPDFMetadata.h"
-
-class SkPDFDict;
 
 static void emit_pdf_header(SkWStream* stream) {
     stream->writeText("%PDF-1.4\n%");
@@ -309,9 +307,9 @@ template <typename T> static T* clone(const T* o) { return o ? new T(*o) : nullp
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
-class SkDocument_PDF : public SkDocument {
+class SkPDFDocument : public SkDocument {
 public:
-    SkDocument_PDF(SkWStream* stream,
+    SkPDFDocument(SkWStream* stream,
                    void (*doneProc)(SkWStream*, bool),
                    SkScalar rasterDpi,
                    SkPixelSerializer* jpegEncoder)
@@ -320,7 +318,7 @@ public:
         fCanon.setPixelSerializer(SkSafeRef(jpegEncoder));
     }
 
-    virtual ~SkDocument_PDF() {
+    virtual ~SkPDFDocument() {
         // subclasses must call close() in their destructors
         this->close();
     }
@@ -380,24 +378,27 @@ private:
 }  // namespace
 ///////////////////////////////////////////////////////////////////////////////
 
+sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
+                                    void (*proc)(SkWStream*, bool),
+                                    SkScalar dpi,
+                                    SkPixelSerializer* jpeg) {
+    return stream ? sk_make_sp<SkPDFDocument>(stream, proc, dpi, jpeg) : nullptr;
+}
+
 SkDocument* SkDocument::CreatePDF(SkWStream* stream, SkScalar dpi) {
-    return stream ? new SkDocument_PDF(stream, nullptr, dpi, nullptr) : nullptr;
+    return SkPDFMakeDocument(stream, nullptr, dpi, nullptr).release();
 }
 
 SkDocument* SkDocument::CreatePDF(SkWStream* stream,
                                   SkScalar dpi,
                                   SkPixelSerializer* jpegEncoder) {
-    return stream
-        ? new SkDocument_PDF(stream, nullptr, dpi, jpegEncoder)
-        : nullptr;
+    return SkPDFMakeDocument(stream, nullptr, dpi, jpegEncoder).release();
 }
 
 SkDocument* SkDocument::CreatePDF(const char path[], SkScalar dpi) {
-    SkFILEWStream* stream = new SkFILEWStream(path);
-    if (!stream->isValid()) {
-        delete stream;
-        return nullptr;
-    }
     auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    return new SkDocument_PDF(stream, delete_wstream, dpi, nullptr);
+    SkAutoTDelete<SkFILEWStream> stream(new SkFILEWStream(path));
+    return stream->isValid()
+        ? SkPDFMakeDocument(stream.detach(), delete_wstream, dpi, nullptr).release()
+        : nullptr;
 }

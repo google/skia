@@ -9,7 +9,7 @@
       'target_name': 'nopdf',
       'type': 'static_library',
       'dependencies': [ 'skia_lib.gyp:skia_lib', ],
-      'sources': [ '<(skia_src_path)/doc/SkDocument_PDF_None.cpp', ],
+      'sources': [ '<(skia_src_path)/pdf/SkDocument_PDF_None.cpp', ],
       'defines': [ 'SK_SUPPORT_PDF=0', ],
     },
     {
@@ -28,7 +28,6 @@
       'include_dirs': [
         '../include/private',
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
-        '../src/pdf',
         '../src/image',
         '../src/utils', # needed to get SkBitSet.h
       ],

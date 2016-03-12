@@ -100,6 +100,7 @@
         '<(skia_src_path)/core/SkDistanceFieldGen.h',
         '<(skia_src_path)/core/SkDither.cpp',
         '<(skia_src_path)/core/SkDither.h',
+        '<(skia_src_path)/core/SkDocument.cpp',
         '<(skia_src_path)/core/SkDraw.cpp',
         '<(skia_src_path)/core/SkDrawable.cpp',
         '<(skia_src_path)/core/SkDrawLooper.cpp',
@@ -315,8 +316,6 @@
         '<(skia_src_path)/core/SkXfermodeInterpretation.h',
         '<(skia_src_path)/core/SkYUVPlanesCache.cpp',
         '<(skia_src_path)/core/SkYUVPlanesCache.h',
-
-        '<(skia_src_path)/doc/SkDocument.cpp',
 
         '<(skia_src_path)/image/SkImage.cpp',
         '<(skia_src_path)/image/SkImage_Generator.cpp',
