@@ -58,7 +58,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode, SkAlpha a0, SkAlpha
     return H;
 }
 
-static sk_sp<SkShader> make_bg_shader() {
+static SkShader* make_bg_shader() {
     SkBitmap bm;
     bm.allocN32Pixels(2, 2);
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = 0xFFFFFFFF;
@@ -66,8 +66,10 @@ static sk_sp<SkShader> make_bg_shader() {
 
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-    return SkShader::MakeBitmapShader(bm,
-                                      SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, &m);
+    return SkShader::CreateBitmapShader(bm,
+                                        SkShader::kRepeat_TileMode,
+                                        SkShader::kRepeat_TileMode,
+                                        &m);
 }
 
 namespace skiagm {
@@ -83,7 +85,7 @@ namespace skiagm {
         virtual SkISize onISize() override { return SkISize::Make(640, 480); }
 
         void onOnceBeforeDraw() override {
-            fBGPaint.setShader(make_bg_shader());
+            fBGPaint.setShader(make_bg_shader())->unref();
         }
 
         void onDraw(SkCanvas* canvas) override {

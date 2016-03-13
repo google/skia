@@ -150,17 +150,20 @@ private:
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
         canvas->drawRect(SkRect::MakeXYWH(fSceneSize * 1.1f, 0, fSceneSize, fSceneSize), paint);
 
-        paint.setShader(SkShader::MakePictureShader(fPicture, kTileConfigs[tileMode].tmx,
-                                                    kTileConfigs[tileMode].tmy, &localMatrix,
-                                                    nullptr));
+        SkAutoTUnref<SkShader> pictureShader(
+                SkShader::CreatePictureShader(fPicture, kTileConfigs[tileMode].tmx,
+                                              kTileConfigs[tileMode].tmy, &localMatrix, nullptr));
+        paint.setShader(pictureShader.get());
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
 
         canvas->translate(fSceneSize * 1.1f, 0);
 
-        paint.setShader(SkShader::MakeBitmapShader(fBitmap,
-                                                   kTileConfigs[tileMode].tmx,
-                                                   kTileConfigs[tileMode].tmy,
-                                                   &localMatrix));
+        SkAutoTUnref<SkShader> bitmapShader(SkShader::CreateBitmapShader(
+                    fBitmap,
+                    kTileConfigs[tileMode].tmx,
+                    kTileConfigs[tileMode].tmy,
+                    &localMatrix));
+        paint.setShader(bitmapShader.get());
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
 
         canvas->restore();
@@ -169,7 +172,7 @@ private:
     SkScalar    fTileSize;
     SkScalar    fSceneSize;
 
-    sk_sp<SkPicture> fPicture;
+    SkAutoTUnref<SkPicture> fPicture;
     SkBitmap fBitmap;
 
     typedef GM INHERITED;
@@ -193,10 +196,10 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     p.setStrokeWidth(10);
     c->drawLine(20, 20, 80, 80, p);
 
-    sk_sp<SkPicture> picture(recorder.endRecording());
-    sk_sp<SkShader> shader(SkShader::MakePictureShader(picture, SkShader::kRepeat_TileMode,
-                                                       SkShader::kRepeat_TileMode,
-                                                       nullptr, nullptr));
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    SkAutoTUnref<SkShader> shader(
+            SkShader::CreatePictureShader(picture.get(), SkShader::kRepeat_TileMode,
+                                          SkShader::kRepeat_TileMode, nullptr, nullptr));
 
     p.setColor(sk_tool_utils::color_to_565(0xFF8BC34A));  // green
     canvas->drawPaint(p);

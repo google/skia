@@ -185,17 +185,21 @@ private:
 
         SkMatrix lm;
         lm.setScale(SkIntToScalar(kCheckSize), SkIntToScalar(kCheckSize));
-        fBGShader = SkShader::MakeBitmapShader(bg, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode, &lm);
+        fBGShader.reset(SkShader::CreateBitmapShader(bg,
+                                                     SkShader::kRepeat_TileMode,
+                                                     SkShader::kRepeat_TileMode,
+                                                     &lm));
 
         SkPaint bmpPaint;
-        const SkPoint kCenter = { SkIntToScalar(kSize) / 2, SkIntToScalar(kSize) / 2 };
-        const SkColor kColors[] = {
-            SK_ColorTRANSPARENT, 0x80800000, 0xF020F060, SK_ColorWHITE
-        };
-        bmpPaint.setShader(SkGradientShader::MakeRadial(kCenter, 3 * SkIntToScalar(kSize) / 4,
-                                                        kColors, nullptr, SK_ARRAY_COUNT(kColors),
-                                                        SkShader::kRepeat_TileMode));
+        static const SkPoint kCenter = { SkIntToScalar(kSize) / 2, SkIntToScalar(kSize) / 2 };
+        static const SkColor kColors[] = { SK_ColorTRANSPARENT, 0x80800000,
+                                          0xF020F060, SK_ColorWHITE };
+        bmpPaint.setShader(SkGradientShader::CreateRadial(kCenter,
+                                                          3 * SkIntToScalar(kSize) / 4,
+                                                          kColors,
+                                                          nullptr,
+                                                          SK_ARRAY_COUNT(kColors),
+                                                          SkShader::kRepeat_TileMode))->unref();
 
         SkBitmap bmp;
         bmp.allocN32Pixels(kSize, kSize);
@@ -206,8 +210,9 @@ private:
                         7 * SkIntToScalar(kSize) / 8, 7 * SkIntToScalar(kSize) / 8};
         bmpCanvas.drawRect(rect, bmpPaint);
 
-        fBmpShader = SkShader::MakeBitmapShader(bmp, SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode);
+        fBmpShader.reset(SkShader::CreateBitmapShader(bmp,
+                                                      SkShader::kClamp_TileMode,
+                                                      SkShader::kClamp_TileMode));
     }
 
     enum {
@@ -216,8 +221,8 @@ private:
         kTestsPerRow = 15,
     };
 
-    sk_sp<SkShader> fBGShader;
-    sk_sp<SkShader> fBmpShader;
+    SkAutoTUnref<SkShader> fBGShader;
+    SkAutoTUnref<SkShader> fBmpShader;
 
     typedef GM INHERITED;
 };

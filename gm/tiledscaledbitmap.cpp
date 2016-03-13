@@ -1,10 +1,10 @@
+
 /*
  * Copyright 2014 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "gm.h"
 
 #include "Resources.h"
@@ -13,6 +13,7 @@
 #include "SkPaint.h"
 #include "SkShader.h"
 #include "SkStream.h"
+
 
  /***
   *
@@ -63,8 +64,10 @@ protected:
         mat.setScale(121.f/360.f, 93.f/288.f);
         mat.postTranslate(-72, -72);
 
-        paint.setShader(SkShader::MakeBitmapShader(fBitmap, SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode, &mat));
+        SkShader *shader = SkShader::CreateBitmapShader(fBitmap, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, &mat);
+        paint.setShader(shader);
+
+        SkSafeUnref(shader);
         canvas->drawRectCoords(8,8,1008, 608, paint);
     }
 

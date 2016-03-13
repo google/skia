@@ -166,8 +166,10 @@ struct Mesh {
         fPts[1].set(w, 0);
         fPts[2].set(w, h);
         fPts[3].set(0, h);
-        paint->setShader(SkShader::MakeBitmapShader(bm, SkShader::kClamp_TileMode,
-                                                    SkShader::kClamp_TileMode));
+        SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode);
+        paint->setShader(s)->unref();
+
     }
 
     void draw(SkCanvas* canvas, SkPaint* paint) {

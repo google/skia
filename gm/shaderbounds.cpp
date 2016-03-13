@@ -4,31 +4,30 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "gm.h"
 #include "SkGradientShader.h"
 
 namespace skiagm {
 
-static sk_sp<SkShader> MakeLinear(SkScalar width, SkScalar height, bool alternate,
+static SkShader* MakeLinear(SkScalar width, SkScalar height, bool alternate,
                             const SkMatrix& localMatrix) {
-    SkPoint pts[2] = { {0, 0}, {width, height}};
-    SkColor colors[2] = {SK_ColorRED, SK_ColorGREEN};
-    if (alternate) {
-        pts[1].fY = 0;
-        colors[0] = SK_ColorBLUE;
-        colors[1] = SK_ColorYELLOW;
-    }
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode,
-                                        0, &localMatrix);
+  SkPoint pts[2] = { {0, 0}, {width, height}};
+  SkColor colors[2] = {SK_ColorRED, SK_ColorGREEN};
+  if (alternate) {
+    pts[1].fY = 0;
+    colors[0] = SK_ColorBLUE;
+    colors[1] = SK_ColorYELLOW;
+  }
+  return SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
+                                        SkShader::kClamp_TileMode, 0, &localMatrix);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class ShaderBoundsGM : public GM {
 public:
-    typedef sk_sp<SkShader> (*ShaderGenFunc)(SkScalar width, SkScalar height,
-                                             bool alternate, const SkMatrix& localMatrix);
+    typedef SkShader* (*ShaderGenFunc)(SkScalar width, SkScalar height,
+                                       bool alternate, const SkMatrix& localMatrix);
     ShaderBoundsGM(ShaderGenFunc maker, const SkString& name)
         : fShaderMaker(maker),
           fName(name) {
@@ -63,20 +62,20 @@ protected:
 
         // Background shader.
         SkPaint paint;
-        paint.setShader(MakeShader(559, 387, false));
+        paint.setShader(MakeShader(559, 387, false))->unref();
         SkRect r = SkRect::MakeXYWH(SkIntToScalar(-12), SkIntToScalar(-41),
                                     SkIntToScalar(571), SkIntToScalar(428));
         canvas->drawRect(r, paint);
 
         // Constrained shader.
-        paint.setShader(MakeShader(101, 151, true));
+        paint.setShader(MakeShader(101, 151, true))->unref();
         r = SkRect::MakeXYWH(SkIntToScalar(43), SkIntToScalar(71),
                              SkIntToScalar(101), SkIntToScalar(151));
         canvas->clipRect(r);
         canvas->drawRect(r, paint);
     }
 
-    sk_sp<SkShader> MakeShader(int width, int height, bool background) {
+    SkShader* MakeShader(int width, int height, bool background) {
         SkScalar scale = 0.5f;
         if (background) {
             scale = 0.6f;
@@ -84,7 +83,8 @@ protected:
         SkScalar shaderWidth = width / scale;
         SkScalar shaderHeight = height / scale;
         SkMatrix shaderScale = SkMatrix::MakeScale(scale);
-        return fShaderMaker(shaderWidth, shaderHeight, background, shaderScale);
+        SkShader* shader = fShaderMaker(shaderWidth, shaderHeight, background, shaderScale);
+        return shader;
     }
 
 private:
@@ -93,7 +93,7 @@ private:
     ShaderGenFunc fShaderMaker;
     SkString fName;
 
-    sk_sp<SkShader> MakeShader(bool background);
+    SkShader* MakeShader(bool background);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -10,15 +10,15 @@
 #include "SkGradientShader.h"
 #include "SkPatchUtils.h"
 
-static sk_sp<SkShader> make_shader() {
+static SkShader* make_shader() {
     const SkColor colors[] = {
         SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE, SK_ColorMAGENTA, SK_ColorBLUE,
         SK_ColorYELLOW,
     };
     const SkPoint pts[] = { { 100.f / 4.f, 0.f }, { 3.f * 100.f / 4.f, 100.f } };
     
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kMirror_TileMode);
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                          SkShader::kMirror_TileMode);
 }
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
@@ -92,7 +92,7 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 800, 800) {
             SkXfermode::kModulate_Mode,
         };
         
-        sk_sp<SkShader> shader(make_shader());
+        SkAutoTUnref<SkShader> shader(make_shader());
         
         canvas->save();
         for (int y = 0; y < 3; y++) {

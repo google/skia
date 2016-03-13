@@ -15,9 +15,10 @@
 static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
     const SkPoint center = { SkIntToScalar(width)/2, SkIntToScalar(height)/2 };
     const SkScalar radius = 40;
+    SkShader* shader = SkGradientShader::CreateRadial(center, radius, colors, nullptr, 2,
+                                                      SkShader::kMirror_TileMode);
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeRadial(center, radius, colors, nullptr, 2,
-                                                 SkShader::kMirror_TileMode));
+    paint.setShader(shader)->unref();
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     canvas->drawPaint(paint);
 }

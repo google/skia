@@ -27,8 +27,10 @@ static void identity_paintproc(SkPaint* paint) {
 static void gradient_paintproc(SkPaint* paint) {
     const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
     const SkPoint pts[] = { { 0, 0 }, { W, H } };
-    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                  SkShader::kClamp_TileMode));
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr,
+                                                 SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode);
+    paint->setShader(s)->unref();
 }
 
 typedef void (*Proc)(SkCanvas*, const SkPaint&);

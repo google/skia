@@ -50,8 +50,9 @@ DEF_TEST(BitmapHeap, reporter) {
     uint32_t* pixel = bm.getAddr32(1,0);
     *pixel = SK_ColorBLUE;
 
-    auto bitmapShader = SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode);
+    SkShader* bitmapShader = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                                          SkShader::kRepeat_TileMode);
+    SkAutoTUnref<SkShader> aur(bitmapShader);
 
     // Flatten, storing it in the bitmap heap.
     SkBitmapHeap heap(1, 1);

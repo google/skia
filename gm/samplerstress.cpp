@@ -21,7 +21,11 @@ class SamplerStressGM : public GM {
 public:
     SamplerStressGM()
     : fTextureCreated(false)
+    , fShader(nullptr)
     , fMaskFilter(nullptr) {
+    }
+
+    virtual ~SamplerStressGM() {
     }
 
 protected:
@@ -65,14 +69,15 @@ protected:
     }
 
     void createShader() {
-        if (fShader) {
+        if (fShader.get()) {
             return;
         }
 
         createTexture();
 
-        fShader = SkShader::MakeBitmapShader(fTexture, SkShader::kRepeat_TileMode,
-                                             SkShader::kRepeat_TileMode);
+        fShader.reset(SkShader::CreateBitmapShader(fTexture,
+                                                   SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode));
     }
 
     void createMaskFilter() {
@@ -135,9 +140,9 @@ protected:
     }
 
 private:
-    SkBitmap        fTexture;
-    bool            fTextureCreated;
-    sk_sp<SkShader> fShader;
+    SkBitmap      fTexture;
+    bool          fTextureCreated;
+    SkAutoTUnref<SkShader>     fShader;
     SkAutoTUnref<SkMaskFilter> fMaskFilter;
 
     typedef GM INHERITED;

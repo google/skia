@@ -80,7 +80,7 @@ static void path_effect(SkPaint* paint) {
     paint->setPathEffect(make_tile_effect())->unref();
 }
 
-static sk_sp<SkShader> make_shader(const SkRect& bounds) {
+static SkShader* make_shader(const SkRect& bounds) {
     const SkPoint pts[] = {
         { bounds.left(), bounds.top() },
         { bounds.right(), bounds.bottom() },
@@ -89,14 +89,15 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK,
         SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW,
     };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kClamp_TileMode);
+    return SkGradientShader::CreateLinear(pts,
+                                          colors, nullptr, SK_ARRAY_COUNT(colors),
+                                          SkShader::kClamp_TileMode);
 }
 
 static void color_filter(SkPaint* paint) {
     SkRect r;
     r.setWH(SkIntToScalar(kWidth), 50);
-    paint->setShader(make_shader(r));
+    paint->setShader(make_shader(r))->unref();
     paint->setColorFilter(SkColorMatrixFilter::CreateLightingFilter(0xF0F0F0, 0))->unref();
 }
 

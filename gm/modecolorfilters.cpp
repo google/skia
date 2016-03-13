@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkBitmapProcShader.h"
 #include "SkColorFilter.h"
 #include "SkGradientShader.h"
 
@@ -15,27 +16,27 @@
 namespace skiagm {
 
 // Using gradients because GPU doesn't currently have an implementation of SkColorShader (duh!)
-static sk_sp<SkShader> make_color_shader(SkColor color) {
+static SkShader* make_color_shader(SkColor color) {
     static const SkPoint kPts[] = {{0, 0}, {1, 1}};
     SkColor colors[] = {color, color};
 
-    return SkGradientShader::MakeLinear(kPts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::CreateLinear(kPts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
-static sk_sp<SkShader> make_solid_shader() {
+static SkShader* make_solid_shader() {
     return make_color_shader(SkColorSetARGB(0xFF, 0x42, 0x82, 0x21));
 }
 
-static sk_sp<SkShader> make_transparent_shader() {
+static SkShader* make_transparent_shader() {
     return make_color_shader(SkColorSetARGB(0x80, 0x10, 0x70, 0x20));
 }
 
-static sk_sp<SkShader> make_trans_black_shader() {
+static SkShader* make_trans_black_shader() {
     return make_color_shader(0x0);
 }
 
 // draws a background behind each test rect to see transparency
-static sk_sp<SkShader> make_bg_shader(int checkSize) {
+static SkShader* make_bg_shader(int checkSize) {
     SkBitmap bmp;
     bmp.allocN32Pixels(2 * checkSize, 2 * checkSize);
     SkCanvas canvas(bmp);
@@ -48,7 +49,7 @@ static sk_sp<SkShader> make_bg_shader(int checkSize) {
                                     SkIntToScalar(checkSize), SkIntToScalar(checkSize));
     canvas.drawRect(rect1, paint);
     canvas.drawRect(rect0, paint);
-    return SkShader::MakeBitmapShader(bmp, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return new SkBitmapProcShader(bmp, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
 }
 
 class ModeColorFilterGM : public GM {
@@ -58,15 +59,15 @@ public:
     }
 
 protected:
-    SkString onShortName() override  {
+    virtual SkString onShortName() {
         return SkString("modecolorfilters");
     }
 
-    SkISize onISize() override  {
+    virtual SkISize onISize() {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    virtual void onDraw(SkCanvas* canvas) {
         // size of rect for each test case
         static const int kRectWidth  = 20;
         static const int kRectHeight = 20;
@@ -74,13 +75,13 @@ protected:
         static const int kCheckSize  = 10;
 
         if (!fBmpShader) {
-            fBmpShader = make_bg_shader(kCheckSize);
+            fBmpShader.reset(make_bg_shader(kCheckSize));
         }
         SkPaint bgPaint;
         bgPaint.setShader(fBmpShader);
         bgPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
 
-        sk_sp<SkShader> shaders[] = {
+        SkShader* shaders[] = {
             nullptr,                                   // use a paint color instead of a shader
             make_solid_shader(),
             make_transparent_shader(),
@@ -145,10 +146,14 @@ protected:
                 }
             }
         }
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(shaders); ++i) {
+            SkSafeUnref(shaders[i]);
+        }
     }
 
 private:
-    sk_sp<SkShader> fBmpShader;
+    SkAutoTUnref<SkShader> fBmpShader;
     typedef GM INHERITED;
 };
 

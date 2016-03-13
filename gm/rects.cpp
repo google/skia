@@ -80,9 +80,13 @@ protected:
             SkPoint center = SkPoint::Make(SkIntToScalar(-5), SkIntToScalar(30));
             SkColor colors[] = { SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN };
             SkScalar pos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
-            p.setShader(SkGradientShader::MakeRadial(center, 20, colors, pos,
-                                                     SK_ARRAY_COUNT(colors),
-                                                     SkShader::kClamp_TileMode));
+            SkShader* s = SkGradientShader::CreateRadial(center,
+                                                         SkIntToScalar(20),
+                                                         colors,
+                                                         pos,
+                                                         SK_ARRAY_COUNT(colors),
+                                                         SkShader::kClamp_TileMode);
+            p.setShader(s)->unref();
             fPaints.push_back(p);
         }
 

@@ -26,8 +26,9 @@ static void draw_label(SkCanvas* canvas, const char* label,
                      paint);
 }
 
-static void draw_scene(SkCanvas* canvas, SkColorFilter* filter, SkXfermode::Mode mode,
-                       const sk_sp<SkShader>& s1, const sk_sp<SkShader>& s2) {
+static void draw_scene(SkCanvas* canvas, SkColorFilter* filter,
+                       SkXfermode::Mode mode, SkShader* s1,
+                       SkShader* s2) {
     SkPaint paint;
     paint.setAntiAlias(true);
     SkRect r, c, bounds = SkRect::MakeWH(kSize, kSize);
@@ -84,10 +85,16 @@ public:
         SkScalar pos[] = { 0.2f, 1.0f };
 
         fFilter.reset(SkLumaColorFilter::Create());
-        fGr1 = SkGradientShader::MakeLinear(g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
-                                            SkShader::kClamp_TileMode);
-        fGr2 = SkGradientShader::MakeLinear(g2Points, g2Colors, pos, SK_ARRAY_COUNT(g2Colors),
-                                            SkShader::kClamp_TileMode);
+        fGr1.reset(SkGradientShader::CreateLinear(g1Points,
+                                                  g1Colors,
+                                                  pos,
+                                                  SK_ARRAY_COUNT(g1Colors),
+                                                  SkShader::kClamp_TileMode));
+        fGr2.reset(SkGradientShader::CreateLinear(g2Points,
+                                                  g2Colors,
+                                                  pos,
+                                                  SK_ARRAY_COUNT(g2Colors),
+                                                  SkShader::kClamp_TileMode));
     }
 
 protected:
@@ -109,8 +116,8 @@ protected:
                                      SkXfermode::kDstIn_Mode,
                                    };
         struct {
-            const sk_sp<SkShader>& fShader1;
-            const sk_sp<SkShader>& fShader2;
+            SkShader*   fShader1;
+            SkShader*   fShader2;
         } shaders[] = {
             { nullptr, nullptr },
             { nullptr, fGr2 },
@@ -138,7 +145,7 @@ protected:
 
 private:
     SkAutoTUnref<SkColorFilter> fFilter;
-    sk_sp<SkShader>             fGr1, fGr2;
+    SkAutoTUnref<SkShader>      fGr1, fGr2;
 
     typedef skiagm::GM INHERITED;
 };

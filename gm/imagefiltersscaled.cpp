@@ -145,9 +145,12 @@ private:
         SkColor colors[2];
         colors[0] = SK_ColorWHITE;
         colors[1] = SK_ColorBLACK;
+        SkAutoTUnref<SkShader> shader(
+            SkGradientShader::CreateRadial(SkPoint::Make(x, y), radius, colors, nullptr, 2,
+                                           SkShader::kClamp_TileMode)
+        );
         SkPaint paint;
-        paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y), radius, colors, nullptr,
-                                                     2, SkShader::kClamp_TileMode));
+        paint.setShader(shader);
         canvas->drawCircle(x, y, radius, paint);
 
         return surface->newImageSnapshot();

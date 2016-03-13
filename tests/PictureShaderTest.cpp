@@ -22,8 +22,9 @@ DEF_TEST(PictureShader_empty, reporter) {
     SkCanvas canvas(bitmap);
     canvas.clear(SK_ColorGREEN);
 
-    paint.setShader(SkShader::MakePictureShader(
-            nullptr, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr, nullptr));
+    SkShader* shader = SkShader::CreatePictureShader(
+            nullptr, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr, nullptr);
+    paint.setShader(shader)->unref();
 
     canvas.drawRect(SkRect::MakeWH(1,1), paint);
     REPORTER_ASSERT(reporter, *bitmap.getAddr32(0,0) == SK_ColorGREEN);
@@ -31,9 +32,10 @@ DEF_TEST(PictureShader_empty, reporter) {
 
     SkPictureRecorder factory;
     factory.beginRecording(0, 0, nullptr, 0);
-    sk_sp<SkPicture> picture(factory.endRecording());
-    paint.setShader(SkShader::MakePictureShader(std::move(picture), SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode, nullptr, nullptr));
+    SkAutoTUnref<SkPicture> picture(factory.endRecording());
+    shader = SkShader::CreatePictureShader(
+            picture.get(), SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr, nullptr);
+    paint.setShader(shader)->unref();
 
     canvas.drawRect(SkRect::MakeWH(1,1), paint);
     REPORTER_ASSERT(reporter, *bitmap.getAddr32(0,0) == SK_ColorGREEN);

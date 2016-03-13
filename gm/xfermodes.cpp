@@ -261,8 +261,10 @@ protected:
         const SkScalar h = SkIntToScalar(H);
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-        auto s = SkShader::MakeBitmapShader(fBG, SkShader::kRepeat_TileMode,
-                                            SkShader::kRepeat_TileMode, &m);
+        SkShader* s = SkShader::CreateBitmapShader(fBG,
+                                                   SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode,
+                                                   &m);
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
@@ -323,6 +325,7 @@ protected:
                 y0 = 0;
             }
         }
+        s->unref();
     }
 
 private:

@@ -13,12 +13,12 @@
 #define W 200
 #define H 100
 
-static sk_sp<SkShader> make_shader() {
+static SkShader* make_shader() {
     int a = 0x99;
     int b = 0xBB;
     SkPoint pts[] = { { 0, 0 }, { W, H } };
     SkColor colors[] = { SkColorSetRGB(a, a, a), SkColorSetRGB(b, b, b) };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 static SkSurface* make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo,
@@ -46,7 +46,7 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
     paint.setLCDRenderText(true);
     paint.setDither(true);
 
-    paint.setShader(make_shader());
+    paint.setShader(make_shader())->unref();
     canvas->drawRect(SkRect::MakeWH(W, H), paint);
     paint.setShader(nullptr);
 

@@ -22,7 +22,7 @@ static const int kNumCols = 4;
 static const int kWidth = kColWidth * kNumCols;
 static const int kHeight = 750;
 
-static sk_sp<SkShader> make_shader(const SkRect& bounds) {
+static SkShader* make_shader(const SkRect& bounds) {
     const SkPoint pts[] = {
         { bounds.left(), bounds.top() },
         { bounds.right(), bounds.bottom() },
@@ -30,8 +30,9 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     const SkColor colors[] = {
         SK_ColorRED, SK_ColorGREEN,
     };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kRepeat_TileMode);
+    return SkGradientShader::CreateLinear(pts,
+                                          colors, nullptr, SK_ARRAY_COUNT(colors),
+                                          SkShader::kRepeat_TileMode);
 }
 
 class LcdBlendGM : public skiagm::GM {
@@ -135,7 +136,7 @@ protected:
             if (useGrad) {
                 SkRect r;
                 r.setXYWH(0, y - fTextHeight, SkIntToScalar(kColWidth), fTextHeight);
-                paint.setShader(make_shader(r));
+                paint.setShader(make_shader(r))->unref();
             }
             SkString string(gModes[m].fLabel);
             canvas->drawText(gModes[m].fLabel, string.size(), 0, y, paint);

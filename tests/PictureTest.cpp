@@ -79,9 +79,10 @@ static void test_analysis(skiatest::Reporter* reporter) {
         bitmap.allocPixels(SkImageInfo::MakeN32Premul(2, 2));
         bitmap.eraseColor(SK_ColorBLUE);
         *(bitmap.getAddr32(0, 0)) = SK_ColorGREEN;
-        paint.setShader(SkShader::MakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode));
-        REPORTER_ASSERT(reporter, paint.getShader()->isABitmap());
+        SkShader* shader = SkShader::CreateBitmapShader(bitmap, SkShader::kClamp_TileMode,
+                                                        SkShader::kClamp_TileMode);
+        paint.setShader(shader)->unref();
+        REPORTER_ASSERT(reporter, shader->isABitmap());
 
         canvas->drawRect(SkRect::MakeWH(10, 10), paint);
     }
@@ -1388,7 +1389,7 @@ DEF_TEST(Picture_getRecordingCanvas, r) {
 DEF_TEST(MiniRecorderLeftHanging, r) {
     // Any shader or other ref-counted effect will do just fine here.
     SkPaint paint;
-    paint.setShader(SkShader::MakeColorShader(SK_ColorRED));
+    paint.setShader(SkShader::CreateColorShader(SK_ColorRED))->unref();
 
     SkMiniRecorder rec;
     REPORTER_ASSERT(r, rec.drawRect(SkRect::MakeWH(20,30), paint));

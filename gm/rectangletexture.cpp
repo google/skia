@@ -42,14 +42,14 @@ protected:
         SkCanvas canvas(bmp);
         SkPoint pts[] = { {0, 0}, {0, SkIntToScalar(height)} };
         SkColor colors0[] = { 0xFF1060B0 , 0xFF102030 };
-        paint.setShader(SkGradientShader::MakeLinear(pts, colors0, nullptr, 2,
-                                                     SkShader::kClamp_TileMode));
+        paint.setShader(SkGradientShader::CreateLinear(pts, colors0, nullptr, 2,
+                                                       SkShader::kClamp_TileMode))->unref();
         canvas.drawPaint(paint);
 
         SkColor colors1[] = { 0xFFA07010 , 0xFFA02080 };
         paint.setAntiAlias(true);
-        paint.setShader(SkGradientShader::MakeLinear(pts, colors1, nullptr, 2,
-                                                     SkShader::kClamp_TileMode));
+        paint.setShader(SkGradientShader::CreateLinear(pts, colors1, nullptr, 2,
+                                                       SkShader::kClamp_TileMode))->unref();
         canvas.drawCircle(SkIntToScalar(width) / 2, SkIntToScalar(height) / 2,
                           SkIntToScalar(width + height) / 5, paint);
     }

@@ -99,8 +99,10 @@ private:
 
         SkMatrix lm;
         lm.setScale(SkIntToScalar(16), SkIntToScalar(16));
-        fBG = SkShader::MakeBitmapShader(bg, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
-                                         &lm);
+        fBG.reset(SkShader::CreateBitmapShader(bg,
+                                               SkShader::kRepeat_TileMode,
+                                               SkShader::kRepeat_TileMode,
+                                               &lm));
 
         SkBitmap srcBmp;
         srcBmp.allocN32Pixels(kSize, kSize);
@@ -113,8 +115,9 @@ private:
                 pixels[kSize * y + x] = rowColor;
             }
         }
-        fSrc = SkShader::MakeBitmapShader(srcBmp, SkShader::kClamp_TileMode,
-                                          SkShader::kClamp_TileMode);
+        fSrc.reset(SkShader::CreateBitmapShader(srcBmp,
+                                                SkShader::kClamp_TileMode,
+                                                SkShader::kClamp_TileMode));
         SkBitmap dstBmp;
         dstBmp.allocN32Pixels(kSize, kSize);
         pixels = reinterpret_cast<SkPMColor*>(dstBmp.getPixels());
@@ -126,8 +129,9 @@ private:
                 pixels[kSize * y + x] = colColor;
             }
         }
-        fDst = SkShader::MakeBitmapShader(dstBmp, SkShader::kClamp_TileMode,
-                                          SkShader::kClamp_TileMode);
+        fDst.reset(SkShader::CreateBitmapShader(dstBmp,
+                                                SkShader::kClamp_TileMode,
+                                                SkShader::kClamp_TileMode));
     }
 
     enum {
@@ -135,9 +139,9 @@ private:
         kSize = 256 >> kShift,
     };
 
-    sk_sp<SkShader> fBG;
-    sk_sp<SkShader> fSrc;
-    sk_sp<SkShader> fDst;
+    SkAutoTUnref<SkShader> fBG;
+    SkAutoTUnref<SkShader> fSrc;
+    SkAutoTUnref<SkShader> fDst;
 
     typedef GM INHERITED;
 };
