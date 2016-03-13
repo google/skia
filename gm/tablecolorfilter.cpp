@@ -11,14 +11,14 @@
 #include "SkGradientShader.h"
 #include "SkTableColorFilter.h"
 
-static SkShader* make_shader0(int w, int h) {
+static sk_sp<SkShader> make_shader0(int w, int h) {
     SkPoint pts[] = { {0, 0}, {SkIntToScalar(w), SkIntToScalar(h)} };
     SkColor colors[] = {
         SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
     };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                          SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                        SkShader::kClamp_TileMode);
 }
 static void make_bm0(SkBitmap* bm) {
     int W = 120;
@@ -28,17 +28,17 @@ static void make_bm0(SkBitmap* bm) {
 
     SkCanvas canvas(*bm);
     SkPaint paint;
-    paint.setShader(make_shader0(W, H))->unref();
+    paint.setShader(make_shader0(W, H));
     canvas.drawPaint(paint);
 }
-static SkShader* make_shader1(int w, int h) {
+static sk_sp<SkShader> make_shader1(int w, int h) {
     SkScalar cx = SkIntToScalar(w)/2;
     SkScalar cy = SkIntToScalar(h)/2;
     SkColor colors[] = {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
     };
-    return SkGradientShader::CreateRadial(SkPoint::Make(cx, cy), cx, colors, nullptr,
-                                          SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeRadial(SkPoint::Make(cx, cy), cx, colors, nullptr,
+                                        SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
 }
 static void make_bm1(SkBitmap* bm) {
     int W = 120;
@@ -50,7 +50,7 @@ static void make_bm1(SkBitmap* bm) {
 
     SkCanvas canvas(*bm);
     SkPaint paint;
-    paint.setShader(make_shader1(W, H))->unref();
+    paint.setShader(make_shader1(W, H));
     paint.setAntiAlias(true);
     canvas.drawCircle(cx, cy, cx, paint);
 }
@@ -234,7 +234,7 @@ protected:
         }
 
         SkPaint paint;
-        paint.setShader(make_shader1(50, 50))->unref();
+        paint.setShader(make_shader1(50, 50));
         SkRect r = SkRect::MakeWH(50, 50);
         const SkScalar spacer = 10;
 

@@ -20,9 +20,9 @@
 static void test_big_grad(skiatest::Reporter* reporter) {
     const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     const SkPoint pts[] = {{ 15, 14.7112684f }, { 0.709064007f, 12.6108112f }};
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
     SkPaint paint;
-    paint.setShader(s)->unref();
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
 
     SkBitmap bm;
     bm.allocN32Pixels(2000, 1);
@@ -46,7 +46,7 @@ struct GradRec {
     const SkScalar* fRadius; // 2
     SkShader::TileMode fTileMode;
 
-    void gradCheck(skiatest::Reporter* reporter, SkShader* shader,
+    void gradCheck(skiatest::Reporter* reporter, const sk_sp<SkShader>& shader,
                    SkShader::GradientInfo* info,
                    SkShader::GradientType gt) const {
         SkAutoTMalloc<SkColor> colorStorage(fColorCount);
@@ -68,7 +68,7 @@ struct GradRec {
 
 
 static void none_gradproc(skiatest::Reporter* reporter, const GradRec&) {
-    SkAutoTUnref<SkShader> s(SkShader::CreateEmptyShader());
+    sk_sp<SkShader> s(SkShader::MakeEmptyShader());
     REPORTER_ASSERT(reporter, SkShader::kNone_GradientType == s->asAGradient(nullptr));
 }
 
@@ -84,11 +84,8 @@ static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
 }
 
 static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
-    SkAutoTUnref<SkShader> s(SkGradientShader::CreateLinear(rec.fPoint,
-                                                            rec.fColors,
-                                                            rec.fPos,
-                                                            rec.fColorCount,
-                                                            rec.fTileMode));
+    sk_sp<SkShader> s(SkGradientShader::MakeLinear(rec.fPoint, rec.fColors, rec.fPos,
+                                                   rec.fColorCount, rec.fTileMode));
 
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kLinear_GradientType);
@@ -96,12 +93,8 @@ static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
 }
 
 static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
-    SkAutoTUnref<SkShader> s(SkGradientShader::CreateRadial(rec.fPoint[0],
-                                                            rec.fRadius[0],
-                                                            rec.fColors,
-                                                            rec.fPos,
-                                                            rec.fColorCount,
-                                                            rec.fTileMode));
+    sk_sp<SkShader> s(SkGradientShader::MakeRadial(rec.fPoint[0], rec.fRadius[0], rec.fColors,
+                                                   rec.fPos, rec.fColorCount, rec.fTileMode));
 
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kRadial_GradientType);
@@ -110,11 +103,8 @@ static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
 }
 
 static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
-    SkAutoTUnref<SkShader> s(SkGradientShader::CreateSweep(rec.fPoint[0].fX,
-                                                           rec.fPoint[0].fY,
-                                                           rec.fColors,
-                                                           rec.fPos,
-                                                           rec.fColorCount));
+    sk_sp<SkShader> s(SkGradientShader::MakeSweep(rec.fPoint[0].fX, rec.fPoint[0].fY, rec.fColors,
+                                                  rec.fPos, rec.fColorCount));
 
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kSweep_GradientType);
@@ -122,14 +112,14 @@ static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
 }
 
 static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
-    SkAutoTUnref<SkShader> s(SkGradientShader::CreateTwoPointConical(rec.fPoint[0],
-                                                             rec.fRadius[0],
-                                                             rec.fPoint[1],
-                                                             rec.fRadius[1],
-                                                             rec.fColors,
-                                                             rec.fPos,
-                                                             rec.fColorCount,
-                                                             rec.fTileMode));
+    sk_sp<SkShader> s(SkGradientShader::MakeTwoPointConical(rec.fPoint[0],
+                                                            rec.fRadius[0],
+                                                            rec.fPoint[1],
+                                                            rec.fRadius[1],
+                                                            rec.fColors,
+                                                            rec.fPos,
+                                                            rec.fColorCount,
+                                                            rec.fTileMode));
 
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kConical_GradientType);
@@ -145,15 +135,10 @@ static void TestConstantGradient(skiatest::Reporter*) {
     };
     SkColor colors[] = { SK_ColorBLUE, SK_ColorBLUE };
     const SkScalar pos[] = { 0, SK_Scalar1 };
-    SkAutoTUnref<SkShader> s(SkGradientShader::CreateLinear(pts,
-                                                            colors,
-                                                            pos,
-                                                            2,
-                                                            SkShader::kClamp_TileMode));
+    SkPaint paint;
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 2, SkShader::kClamp_TileMode));
     SkBitmap outBitmap;
     outBitmap.allocN32Pixels(10, 1);
-    SkPaint paint;
-    paint.setShader(s.get());
     SkCanvas canvas(outBitmap);
     canvas.drawPaint(paint);
     SkAutoLockPixels alp(outBitmap);
@@ -204,11 +189,8 @@ static void test_nearly_vertical(skiatest::Reporter* reporter) {
     const SkPoint pts[] = {{ 100, 50 }, { 100.0001f, 50000 }};
     const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
     const SkScalar pos[] = { 0, 1 };
-    SkAutoTUnref<SkShader> gradient(
-        SkGradientShader::CreateLinear(pts, colors, pos, 2, SkShader::kClamp_TileMode));
-
     SkPaint paint;
-    paint.setShader(gradient);
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 2, SkShader::kClamp_TileMode));
 
     surface->getCanvas()->drawPaint(paint);
 }
@@ -224,12 +206,9 @@ static void test_linear_fuzz(skiatest::Reporter* reporter) {
     const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE };
     const SkScalar pos[] = {0, 0.200000003f, 0.800000012f, 1 };
 
-
-    SkAutoTUnref<SkShader> gradient(
-                   SkGradientShader::CreateLinear(pts, colors, pos, 4, SkShader::kClamp_TileMode));
-
     SkPaint paint;
-    paint.setShader(gradient);
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 4, SkShader::kClamp_TileMode));
+
     SkRect r = {0, 83, 1254, 620};
     surface->getCanvas()->drawRect(r, paint);
 }
@@ -241,12 +220,11 @@ static void test_two_point_conical_zero_radius(skiatest::Reporter* reporter) {
     surface->getCanvas()->clear(SK_ColorRED);
 
     const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
-    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateTwoPointConical(
+    SkPaint p;
+    p.setShader(SkGradientShader::MakeTwoPointConical(
         SkPoint::Make(2.5f, 2.5f), 0,
         SkPoint::Make(3.0f, 3.0f), 10,
         colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
-    SkPaint p;
-    p.setShader(shader);
     surface->getCanvas()->drawPaint(p);
 
     // r == 0 for the center pixel.

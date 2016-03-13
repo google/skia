@@ -195,11 +195,9 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
                   0.0078740157f,
                   SkIntToScalar(239),
                   0, 0, SK_Scalar1);
-    SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode, &matrix);
-
     SkPaint paint;
-    paint.setShader(s)->unref();
+    paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                               SkShader::kRepeat_TileMode, &matrix));
 
     SkRect r = SkRect::MakeXYWH(681, 239, 695, 253);
     c.drawRect(r, paint);

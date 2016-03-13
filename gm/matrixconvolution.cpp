@@ -37,8 +37,8 @@ protected:
                            SkPoint::Make(0, SkIntToScalar(80)) };
         SkColor colors[2] = { 0xFFFFFFFF, 0x40404040 };
         SkScalar pos[2] = { 0, SkIntToScalar(80) };
-        paint.setShader(SkGradientShader::CreateLinear(
-            pts, colors, pos, 2, SkShader::kClamp_TileMode))->unref();
+        paint.setShader(SkGradientShader::MakeLinear(
+            pts, colors, pos, 2, SkShader::kClamp_TileMode));
         const char* str = "e";
         canvas.drawText(str, strlen(str), SkIntToScalar(-10), SkIntToScalar(80), paint);
     }

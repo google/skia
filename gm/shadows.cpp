@@ -128,12 +128,11 @@ protected:
             canvas->drawBitmap(fBitmap, 10, 10, &paint);
 
             canvas->translate(0, 40);
-            SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(
+            paint.setShader(SkShader::MakeBitmapShader(
                                           fBitmap, SkShader::kRepeat_TileMode,
                                           SkShader::kRepeat_TileMode));
 
             // see bug.skia.org/562 (shows bug as reported)
-            paint.setShader(shader);
             paint.setStyle(SkPaint::kFill_Style);
             canvas->drawRect(SkRect::MakeXYWH(10, 10, 20, 20), paint);
             paint.setShader(nullptr);
