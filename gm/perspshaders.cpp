@@ -46,9 +46,8 @@ protected:
                                                             SK_ColorBLUE, SK_ColorYELLOW,
                                                             kCellSize/10);
 
-        fBitmapShader.reset(SkShader::CreateBitmapShader(fBitmap,
-                                                         SkShader::kClamp_TileMode,
-                                                         SkShader::kClamp_TileMode));
+        fBitmapShader = SkShader::MakeBitmapShader(fBitmap, SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode);
         SkPoint pts1[] = {
             { 0, 0 },
             { SkIntToScalar(kCellSize), SkIntToScalar(kCellSize) }
@@ -62,12 +61,10 @@ protected:
         };
         static const SkScalar pos[] = { 0, 0.25f, 0.5f, 0.75f, SK_Scalar1 };
 
-        fLinearGrad1.reset(SkGradientShader::CreateLinear(pts1, colors, pos,
-                                                          SK_ARRAY_COUNT(colors),
-                                                          SkShader::kClamp_TileMode));
-        fLinearGrad2.reset(SkGradientShader::CreateLinear(pts2, colors, pos,
-                                                          SK_ARRAY_COUNT(colors),
-                                                          SkShader::kClamp_TileMode));
+        fLinearGrad1 = SkGradientShader::MakeLinear(pts1, colors, pos, SK_ARRAY_COUNT(colors),
+                                                    SkShader::kClamp_TileMode);
+        fLinearGrad2 = SkGradientShader::MakeLinear(pts2, colors, pos, SK_ARRAY_COUNT(colors),
+                                                    SkShader::kClamp_TileMode);
 
         fPerspMatrix.reset();
         fPerspMatrix.setPerspY(SK_Scalar1 / 50);
@@ -160,9 +157,9 @@ private:
 
     bool                    fDoAA;
     SkPath                  fPath;
-    SkAutoTUnref<SkShader>  fBitmapShader;
-    SkAutoTUnref<SkShader>  fLinearGrad1;
-    SkAutoTUnref<SkShader>  fLinearGrad2;
+    sk_sp<SkShader>         fBitmapShader;
+    sk_sp<SkShader>         fLinearGrad1;
+    sk_sp<SkShader>         fLinearGrad2;
     SkMatrix                fPerspMatrix;
     SkAutoTUnref<SkImage>   fImage;
     SkBitmap                fBitmap;

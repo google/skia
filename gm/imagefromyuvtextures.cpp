@@ -40,9 +40,9 @@ protected:
         SkPaint paint;
         static const SkColor kColors[] =
             { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorWHITE };
-        paint.setShader(SkGradientShader::CreateRadial(SkPoint::Make(0,0), kBmpSize / 2.f, kColors,
-                                                       nullptr, SK_ARRAY_COUNT(kColors),
-                                                       SkShader::kMirror_TileMode))->unref();
+        paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(0,0), kBmpSize / 2.f, kColors,
+                                                     nullptr, SK_ARRAY_COUNT(kColors),
+                                                     SkShader::kMirror_TileMode));
         SkBitmap rgbBmp;
         rgbBmp.allocN32Pixels(kBmpSize, kBmpSize, true);
         SkCanvas canvas(rgbBmp);

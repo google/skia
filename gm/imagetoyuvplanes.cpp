@@ -28,9 +28,9 @@ static SkImage* create_image(GrContext* context, int width, int height) {
     static const SkColor kColors[] =
             { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorWHITE };
     SkScalar r = (width + height) / 4.f;
-    paint.setShader(SkGradientShader::CreateRadial(SkPoint::Make(0,0), r, kColors,
-                                                   nullptr, SK_ARRAY_COUNT(kColors),
-                                                   SkShader::kMirror_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(0,0), r, kColors,
+                                                 nullptr, SK_ARRAY_COUNT(kColors),
+                                                 SkShader::kMirror_TileMode));
 
     surface->getCanvas()->drawPaint(paint);
     return surface->newImageSnapshot();

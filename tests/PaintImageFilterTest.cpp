@@ -30,10 +30,9 @@ static void test_unscaled(skiatest::Reporter* reporter) {
     SkScalar pos[] = {0, SK_ScalarHalf, SK_Scalar1};
     SkScalar radius = SkIntToScalar(5);
 
-    SkAutoTUnref<SkShader> s(SkGradientShader::CreateRadial(
-        center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
     SkPaint gradientPaint;
-    gradientPaint.setShader(s);
+    gradientPaint.setShader(SkGradientShader::MakeRadial(
+        center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
 
     // Test using the image filter
     {
@@ -77,10 +76,9 @@ static void test_scaled(skiatest::Reporter* reporter) {
     SkScalar pos[] = {0, SK_ScalarHalf, SK_Scalar1};
     SkScalar radius = SkIntToScalar(5);
 
-    SkAutoTUnref<SkShader> s(SkGradientShader::CreateRadial(
-        center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
     SkPaint gradientPaint;
-    gradientPaint.setShader(s);
+    gradientPaint.setShader(SkGradientShader::MakeRadial(
+        center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
 
     // Test using the image filter
     {

@@ -11,20 +11,19 @@
 #include "SkGradientShader.h"
 #include "SkRandom.h"
 
-static SkShader* make_shader1(SkScalar w, SkScalar h) {
+static sk_sp<SkShader> make_shader1(SkScalar w, SkScalar h) {
     const SkColor colors[] = {
         SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
         SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
     };
     const SkPoint pts[] = { { w/4, 0 }, { 3*w/4, h } };
 
-    return SkGradientShader::CreateLinear(pts, colors, nullptr,
-                                          SK_ARRAY_COUNT(colors),
-                                          SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                        SkShader::kMirror_TileMode);
 }
 
-static SkShader* make_shader2() {
-    return SkShader::CreateColorShader(SK_ColorBLUE);
+static sk_sp<SkShader> make_shader2() {
+    return SkShader::MakeColorShader(SK_ColorBLUE);
 }
 
 static SkColorFilter* make_color_filter() {
@@ -35,8 +34,8 @@ class VerticesGM : public skiagm::GM {
     SkPoint                     fPts[9];
     SkPoint                     fTexs[9];
     SkColor                     fColors[9];
-    SkAutoTUnref<SkShader>      fShader1;
-    SkAutoTUnref<SkShader>      fShader2;
+    sk_sp<SkShader>             fShader1;
+    sk_sp<SkShader>             fShader2;
     SkAutoTUnref<SkColorFilter> fColorFilter;
 
 public:
@@ -59,8 +58,8 @@ protected:
         fTexs[3].set(0, h/2);   fTexs[4].set(w/2, h/2); fTexs[5].set(w, h/2);
         fTexs[6].set(0, h);     fTexs[7].set(w/2, h);   fTexs[8].set(w, h);
 
-        fShader1.reset(make_shader1(w, h));
-        fShader2.reset(make_shader2());
+        fShader1 = make_shader1(w, h);
+        fShader2 = make_shader2();
         fColorFilter.reset(make_color_filter());
 
         SkRandom rand;
@@ -86,11 +85,11 @@ protected:
         };
 
         const struct {
-            const SkColor*  fColors;
-            const SkPoint*  fTexs;
-            SkShader*       fShader;
-            SkColorFilter*  fColorFilter;
-            uint8_t         fAlpha;
+            const SkColor*          fColors;
+            const SkPoint*          fTexs;
+            const sk_sp<SkShader>&  fShader;
+            SkColorFilter*          fColorFilter;
+            uint8_t                 fAlpha;
         } rec[] = {
             { fColors,  nullptr, fShader1, nullptr     , 0xFF },
             { nullptr,  fTexs  , fShader1, nullptr     , 0xFF },

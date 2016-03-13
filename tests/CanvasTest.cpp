@@ -415,9 +415,8 @@ static void DrawVerticesShaderTestStep(SkCanvas* canvas, const TestData& d,
     pts[2].set(SkIntToScalar(d.fWidth), SkIntToScalar(d.fHeight));
     pts[3].set(0, SkIntToScalar(d.fHeight));
     SkPaint paint;
-    SkShader* shader = SkShader::CreateBitmapShader(d.fBitmap,
-        SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
-    paint.setShader(shader)->unref();
+    paint.setShader(SkShader::MakeBitmapShader(d.fBitmap, SkShader::kClamp_TileMode,
+                                               SkShader::kClamp_TileMode));
     canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, pts, pts,
                          nullptr, nullptr, nullptr, 0, paint);
 }
