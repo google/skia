@@ -238,10 +238,8 @@ protected:
             srcBM.allocN32Pixels(10, 1);
             srcBM.eraseColor(0xFF00FF00);
 
-            SkShader* s;
-            s  = SkShader::CreateBitmapShader(srcBM, SkShader::kClamp_TileMode,
-                                              SkShader::kClamp_TileMode);
-            paint.setShader(s)->unref();
+            paint.setShader(SkShader::MakeBitmapShader(srcBM, SkShader::kClamp_TileMode,
+                                                       SkShader::kClamp_TileMode));
         }
         for (int loop = 0; loop < loops; loop++) {
             for (size_t i = 0; i < sizes; i++) {

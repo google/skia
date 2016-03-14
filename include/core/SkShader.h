@@ -23,8 +23,6 @@ class SkXfermode;
 class GrContext;
 class GrFragmentProcessor;
 
-#define SK_SUPPORT_LEGACY_CREATESHADER_PTR
-
 /** \class SkShader
  *
  *  Shaders specify the source color(s) for what is being drawn. If a paint
