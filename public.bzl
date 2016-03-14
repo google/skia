@@ -94,7 +94,7 @@ BASE_SRCS_ALL = struct(
 
         # Exclude multiple definitions.
         # TODO(mtklein): Move to opts?
-        "src/doc/SkDocument_PDF_None.cpp",  # We use SkDocument_PDF.cpp.
+        "src/pdf/SkDocument_PDF_None.cpp",  # We use src/pdf/SkPDFDocument.cpp.
         "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
         "src/gpu/gl/GrGLDefaultInterface_native.cpp",
         "src/gpu/gl/GrGLDefaultInterface_none.cpp",
