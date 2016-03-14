@@ -128,6 +128,22 @@ void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_directio
     as_path(cpath)->addOval(AsRect(*crect), dir);
 }
 
+void sk_path_set_filltype(sk_path_t* cpath, sk_path_filltype_t cfilltype) {
+    SkPath::FillType filltype;
+    if (!find_sk(cfilltype, &filltype)) {
+        return;
+    }
+    as_path(cpath)->setFillType(filltype);
+}
+
+sk_path_filltype_t sk_path_get_filltype(sk_path_t *cpath) {
+    sk_path_filltype_t cfilltype; 
+    if (!find_c(as_path(cpath)->getFillType(), &cfilltype)) {
+        cfilltype = WINDING_SK_PATH_FILLTYPE;
+    }
+    return cfilltype;
+}
+
 bool sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
     const SkPath& path = AsPath(*cpath);
 
