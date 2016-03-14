@@ -11,7 +11,7 @@
 #define SkPDFGraphicState_DEFINED
 
 #include "SkPaint.h"
-#include "SkPDFTypes.h"
+#include "SkPDFStream.h"
 #include "SkChecksum.h"
 
 class SkPDFCanon;
@@ -46,28 +46,21 @@ public:
     static SkPDFGraphicState* GetGraphicStateForPaint(SkPDFCanon* canon,
                                                       const SkPaint& paint);
 
-    /** Make a graphic state that only sets the passed soft mask. The
-     *  reference count of the object is incremented and it is the caller's
-     *  responsibility to unreference it when done.
+    /** Make a graphic state that only sets the passed soft mask.
      *  @param sMask     The form xobject to use as a soft mask.
      *  @param invert    Indicates if the alpha of the sMask should be inverted.
      *  @param sMaskMode Whether to use alpha or luminosity for the sMask.
      *
      *  These are not de-duped.
      */
-    static SkPDFDict* GetSMaskGraphicState(SkPDFFormXObject* sMask,
-                                           bool invert,
-                                           SkPDFSMaskMode sMaskMode);
+    static sk_sp<SkPDFDict> GetSMaskGraphicState(SkPDFFormXObject* sMask,
+                                                 bool invert,
+                                                 SkPDFSMaskMode sMaskMode,
+                                                 SkPDFCanon* canon);
 
-    /** Get a graphic state that only unsets the soft mask. The reference
-     *  count of the object is incremented and it is the caller's responsibility
-     *  to unreference it when done. This is needed to accommodate the weak
-     *  reference pattern used when the returned object is new and has no
-     *  other references.
-     *
-     *  The returned object is a singleton.
-     */
-    static SkPDFDict* GetNoSMaskGraphicState();
+    /** Make a graphic state that only unsets the soft mask. */
+    static sk_sp<SkPDFDict> MakeNoSmaskGraphicState();
+    static sk_sp<SkPDFStream> MakeInvertFunction();
 
     bool operator==(const SkPDFGraphicState& rhs) const {
         return 0 == memcmp(&fStrokeWidth, &rhs.fStrokeWidth, 12);

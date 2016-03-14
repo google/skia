@@ -10,7 +10,6 @@
 #include "SkPDFShader.h"
 
 #include "SkData.h"
-#include "SkOncePtr.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFormXObject.h"
@@ -20,7 +19,6 @@
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "SkTypes.h"
 
 static bool inverse_transform_bbox(const SkMatrix& matrix, SkRect* bbox) {
     SkMatrix inverse;
@@ -580,7 +578,7 @@ static SkStream* create_pattern_fill_content(int gsIndex, SkRect& bounds) {
  * Creates a ExtGState with the SMask set to the luminosityShader in
  * luminosity mode. The shader pattern extends to the bbox.
  */
-static SkPDFObject* create_smask_graphic_state(
+static sk_sp<SkPDFObject> create_smask_graphic_state(
         SkPDFCanon* canon, SkScalar dpi, const SkPDFShader::State& state) {
     SkRect bbox;
     bbox.set(state.fBBox);
@@ -600,7 +598,7 @@ static SkPDFObject* create_smask_graphic_state(
 
     return SkPDFGraphicState::GetSMaskGraphicState(
             alphaMask.get(), false,
-            SkPDFGraphicState::kLuminosity_SMaskMode);
+            SkPDFGraphicState::kLuminosity_SMaskMode, canon);
 }
 
 SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
@@ -621,8 +619,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
 
     // Create resource dict with alpha graphics state as G0 and
     // pattern shader as P0, then write content stream.
-    sk_sp<SkPDFObject> alphaGs(
-            create_smask_graphic_state(canon, dpi, state));
+    auto alphaGs = create_smask_graphic_state(canon, dpi, state);
 
     SkPDFAlphaFunctionShader* alphaFunctionShader =
             new SkPDFAlphaFunctionShader(autoState->detach());
@@ -678,8 +675,8 @@ static bool split_perspective(const SkMatrix in, SkMatrix* affine,
     return true;
 }
 
-static SkPDFObject* create_range_object() {
-    SkPDFArray* range = new SkPDFArray;
+sk_sp<SkPDFArray> SkPDFShader::MakeRangeObject() {
+    auto range = sk_make_sp<SkPDFArray>();
     range->reserve(6);
     range->appendInt(0);
     range->appendInt(1);
@@ -689,16 +686,16 @@ static SkPDFObject* create_range_object() {
     range->appendInt(1);
     return range;
 }
-SK_DECLARE_STATIC_ONCE_PTR(SkPDFObject, rangeObject);
 
-static SkPDFStream* make_ps_function(const SkString& psCode,
-                                     SkPDFArray* domain) {
+static sk_sp<SkPDFStream> make_ps_function(const SkString& psCode,
+                                           SkPDFArray* domain,
+                                           sk_sp<SkPDFObject> range) {
     SkAutoDataUnref funcData(
             SkData::NewWithCopy(psCode.c_str(), psCode.size()));
-    SkPDFStream* result = new SkPDFStream(funcData.get());
+    auto result = sk_make_sp<SkPDFStream>(funcData.get());
     result->insertInt("FunctionType", 4);
     result->insertObject("Domain", sk_ref_sp(domain));
-    result->insertObject("Range", sk_ref_sp(rangeObject.get(create_range_object)));
+    result->insertObject("Range", std::move(range));
     return result;
 }
 
@@ -804,8 +801,11 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     pdfShader->insertName("ColorSpace", "DeviceRGB");
     pdfShader->insertObject("Domain", sk_ref_sp(domain.get()));
 
-    sk_sp<SkPDFStream> function(
-            make_ps_function(functionCode, domain.get()));
+    // Call canon->makeRangeObject() instead of
+    // SkPDFShader::MakeRangeObject() so that the canon can
+    // deduplicate.
+    auto function = make_ps_function(functionCode, domain.get(),
+        canon->makeRangeObject());
     pdfShader->insertObjRef("Function", std::move(function));
 
     sk_sp<SkPDFFunctionShader> pdfFunctionShader(

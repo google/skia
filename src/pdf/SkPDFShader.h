@@ -48,6 +48,8 @@ public:
                                      const SkMatrix& matrix,
                                      const SkIRect& surfaceBBox,
                                      SkScalar rasterScale);
+
+    static sk_sp<SkPDFArray> MakeRangeObject();
 };
 
 class SkPDFFunctionShader final : public SkPDFDict {

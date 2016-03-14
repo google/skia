@@ -149,3 +149,25 @@ const SkImage* SkPDFCanon::bitmapToImage(const SkBitmap& bm) {
     bm.copyTo(&n32bitmap, kN32_SkColorType);
     return *fBitmapToImageMap.set(key, SkImage::NewFromBitmap(n32bitmap));
 }
+
+sk_sp<SkPDFStream> SkPDFCanon::makeInvertFunction() {
+    if (fInvertFunction) {
+        return fInvertFunction;
+    }
+    fInvertFunction = SkPDFGraphicState::MakeInvertFunction();
+    return fInvertFunction;
+}
+sk_sp<SkPDFDict> SkPDFCanon::makeNoSmaskGraphicState() {
+    if (fNoSmaskGraphicState) {
+        return fNoSmaskGraphicState;
+    }
+    fNoSmaskGraphicState = SkPDFGraphicState::MakeNoSmaskGraphicState();
+    return fNoSmaskGraphicState;
+}
+sk_sp<SkPDFArray> SkPDFCanon::makeRangeObject() {
+    if (fRangeObject) {
+        return fRangeObject;
+    }
+    fRangeObject = SkPDFShader::MakeRangeObject();
+    return fRangeObject;
+}

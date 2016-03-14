@@ -84,6 +84,10 @@ public:
     SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer.get(); }
     void setPixelSerializer(SkPixelSerializer* ps)  { fPixelSerializer.reset(ps); }
 
+    sk_sp<SkPDFStream> makeInvertFunction();
+    sk_sp<SkPDFDict> makeNoSmaskGraphicState();
+    sk_sp<SkPDFArray> makeRangeObject();
+
 private:
     struct FontRec {
         SkPDFFont* fFont;
@@ -119,5 +123,8 @@ private:
     SkTHashMap<uint32_t /*ImageUniqueID*/, SkPDFObject*> fPDFBitmapMap;
 
     sk_sp<SkPixelSerializer> fPixelSerializer;
+    sk_sp<SkPDFStream> fInvertFunction;
+    sk_sp<SkPDFDict> fNoSmaskGraphicState;
+    sk_sp<SkPDFArray> fRangeObject;
 };
 #endif  // SkPDFCanon_DEFINED

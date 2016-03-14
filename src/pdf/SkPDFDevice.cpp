@@ -1742,8 +1742,8 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
         return;
     }
 
-    sk_sp<SkPDFObject> sMaskGS(SkPDFGraphicState::GetSMaskGraphicState(
-            mask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode));
+    auto sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
+            mask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode, fCanon);
 
     SkMatrix identity;
     identity.reset();
@@ -1757,7 +1757,10 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
                                   &content.entry()->fContent);
     SkPDFUtils::DrawFormXObject(xObjectIndex, &content.entry()->fContent);
 
-    sMaskGS.reset(SkPDFGraphicState::GetNoSMaskGraphicState());
+    // Call makeNoSmaskGraphicState() instead of
+    // SkPDFGraphicState::MakeNoSmaskGraphicState so that the canon
+    // can deduplicate.
+    sMaskGS = fCanon->makeNoSmaskGraphicState();
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &content.entry()->fContent);
 }
