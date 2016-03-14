@@ -51,11 +51,11 @@ static void makebm(SkBitmap* bm, int w, int h) {
 
     SkPaint     paint;
 
-    paint.setShader(SkGradientShader::CreateLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos, SK_ARRAY_COUNT(kColors0),
+                                                 SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
-    paint.setShader(SkGradientShader::CreateLinear(kPts1, kColors1, kPos,
-                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode))->unref();
+    paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos, SK_ARRAY_COUNT(kColors1),
+                                                 SkShader::kClamp_TileMode));
     canvas.drawPaint(paint);
 }
 
@@ -80,12 +80,12 @@ public:
         NY = 5,
         NUM_DRAWS = NX * NY,
     };
-    SkShader* fBmShader;
+    sk_sp<SkShader> fBmShader;
 
     SkPath  fPaths[NUM_DRAWS];
     SkRect  fRects[NUM_DRAWS];
     SkColor fColors[NUM_DRAWS];
-    SkShader* fShaders[NUM_DRAWS];
+    sk_sp<SkShader> fShaders[NUM_DRAWS];
 
     SkString        fName;
     ColorPatternData    fPattern1;
@@ -94,18 +94,13 @@ public:
     SkBitmap fBmp;
 
 
-    AlternatingColorPatternBench(ColorPattern pattern1, ColorPattern pattern2, DrawType drawType)
-        : fBmShader(nullptr) {
+    AlternatingColorPatternBench(ColorPattern pattern1, ColorPattern pattern2, DrawType drawType) {
         fPattern1 = gColorPatterns[pattern1];
         fPattern2 = gColorPatterns[pattern2];
         fName.printf("colorPattern_%s_%s_%s",
                      fPattern1.fName, fPattern2.fName,
                      kRect_DrawType == drawType ? "rect" : "path");
         fDrawType = drawType;
-    }
-
-    virtual ~AlternatingColorPatternBench() {
-        SkSafeUnref(fBmShader);
     }
 
 protected:
@@ -117,7 +112,7 @@ protected:
         int w = 40;
         int h = 40;
         makebm(&fBmp, w, h);
-        fBmShader = SkShader::CreateBitmapShader(fBmp,
+        fBmShader = SkShader::MakeBitmapShader(fBmp,
                                                  SkShader::kRepeat_TileMode,
                                                  SkShader::kRepeat_TileMode);
         int offset = 2;

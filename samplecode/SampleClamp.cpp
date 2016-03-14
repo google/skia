@@ -13,23 +13,18 @@
 #include "SkGradientShader.h"
 #include "SkPicture.h"
 
-static SkShader* make_linear() {
+static sk_sp<SkShader> make_linear() {
     SkPoint pts[] = { 0, 0, SK_Scalar1/500, SK_Scalar1/500 };
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
-    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
-                                          SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 class ClampView : public SampleView {
-    SkShader*   fGrad;
+    sk_sp<SkShader> fGrad;
 
 public:
     ClampView() {
         fGrad = make_linear();
-    }
-
-    virtual ~ClampView() {
-        fGrad->unref();
     }
 
 protected:

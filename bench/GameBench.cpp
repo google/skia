@@ -139,9 +139,9 @@ protected:
         SkPaint p2;         // for drawVertices path
         p2.setColor(0xFF000000);
         p2.setFilterQuality(kLow_SkFilterQuality);
-        p2.setShader(SkShader::CreateBitmapShader(fAtlas,
-                                                  SkShader::kClamp_TileMode,
-                                                  SkShader::kClamp_TileMode))->unref();
+        p2.setShader(SkShader::MakeBitmapShader(fAtlas,
+                                                SkShader::kClamp_TileMode,
+                                                SkShader::kClamp_TileMode));
 
         for (int i = 0; i < loops; ++i, ++fNumSaved) {
             if (0 == i % kNumBeforeClear) {

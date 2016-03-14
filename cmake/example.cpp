@@ -67,14 +67,11 @@ int main(int, char**) {
     // Create a left-to-right green-to-purple gradient shader.
     SkPoint pts[] = { {0,0}, {320,240} };
     SkColor colors[] = { 0xFF00FF00, 0xFFFF00FF };
-    std::shared_ptr<SkShader> shader = adopt(
-            SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode));
-
     // Our text will draw with this paint: size 24, antialiased, with the shader.
     SkPaint paint;
     paint.setTextSize(24);
     paint.setAntiAlias(true);
-    paint.setShader(shader.get());
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode));
 
     // Draw to the surface via its SkCanvas.
     SkCanvas* canvas = surface->getCanvas();   // We don't manage this pointer's lifetime.
