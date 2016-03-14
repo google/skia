@@ -93,7 +93,10 @@ void HelloWorldWindow::drawContents(SkCanvas* canvas) {
     paint.setColor(SK_ColorRED);
 
     // Draw a rectangle with red paint
-    SkRect rect = SkRect::MakeXYWH(10, 10, 128, 128);
+    SkRect rect = {
+            10, 10,
+            128, 128
+    };
     canvas->drawRect(rect, paint);
 
     // Set up a linear gradient and draw a circle
@@ -104,15 +107,18 @@ void HelloWorldWindow::drawContents(SkCanvas* canvas) {
         };
         SkColor linearColors[] = {SK_ColorGREEN, SK_ColorBLACK};
 
-        paint.setShader(SkGradientShader::MakeLinear(
-                linearPoints, linearColors, nullptr, 2,
-                SkShader::kMirror_TileMode));
+        SkShader* shader = SkGradientShader::CreateLinear(
+                linearPoints, linearColors, NULL, 2,
+                SkShader::kMirror_TileMode);
+        SkAutoUnref shader_deleter(shader);
+
+        paint.setShader(shader);
         paint.setFlags(SkPaint::kAntiAlias_Flag);
 
         canvas->drawCircle(200, 200, 64, paint);
 
         // Detach shader
-        paint.setShader(nullptr);
+        paint.setShader(NULL);
     }
 
     // Draw a message with a nice black paint.

@@ -48,13 +48,13 @@ protected:
     }
 
 private:
-    static sk_sp<SkShader> MakeLinear(const SkISize& size) {
+    static SkShader* MakeLinear(const SkISize& size) {
         const SkPoint pts[2] = {
                 { 0, 0 },
                 { SkIntToScalar(size.width()), SkIntToScalar(size.height()) }
             };
         static const SkColor colors[] = { SK_ColorYELLOW, SK_ColorBLUE };
-        return SkGradientShader::MakeLinear(
+        return SkGradientShader::CreateLinear(
             pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0, &SkMatrix::I());
     }
 
@@ -64,9 +64,11 @@ private:
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setShader(MakeLinear(fSize));
+        SkShader* shader = MakeLinear(fSize);
+        paint.setShader(shader);
         SkRect r = { 0, 0, SkIntToScalar(fSize.width()), SkIntToScalar(fSize.height()) };
         canvas.drawRect(r, paint);
+        shader->unref();
     }
 
     void makeCubeData() {

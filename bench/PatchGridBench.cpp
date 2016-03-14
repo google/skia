@@ -150,15 +150,16 @@ public:
     }
     
     // override this method to change the shader
-    sk_sp<SkShader> createShader() {
+    SkShader* createShader() {
         const SkColor colors[] = {
             SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
             SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
         };
         const SkPoint pts[] = { { 200.f / 4.f, 0.f }, { 3.f * 200.f / 4, 200.f } };
         
-        return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                            SkShader::kMirror_TileMode);
+        return SkGradientShader::CreateLinear(pts, colors, nullptr,
+                                              SK_ARRAY_COUNT(colors),
+                                              SkShader::kMirror_TileMode);
     }
 
 protected:
@@ -204,7 +205,7 @@ protected:
         switch (fVertexMode) {
             case kTexCoords_VertexMode:
             case kBoth_VertexMode:
-                fPaint.setShader(createShader());
+                fPaint.setShader(createShader())->unref();
                 break;
             default:
                 fPaint.setShader(nullptr);

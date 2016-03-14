@@ -66,8 +66,10 @@ private:
             SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
             SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
         };
-        paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                     SkShader::kClamp_TileMode));
+        SkAutoTUnref<SkShader> shader(SkGradientShader::CreateLinear(
+                    pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode
+        ));
+        paint.setShader(shader);
         canvas.drawPaint(paint);
     }
 };

@@ -120,9 +120,10 @@ protected:
             fBitmap = tmp;
         }
 
-        fPaint.setShader(SkShader::MakeBitmapShader(fBitmap,
-                                                    SkShader::kRepeat_TileMode,
-                                                    SkShader::kRepeat_TileMode));
+        SkShader* s = SkShader::CreateBitmapShader(fBitmap,
+                                                   SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode);
+        fPaint.setShader(s)->unref();
     }
 
 
