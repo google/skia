@@ -128,6 +128,27 @@ typedef struct {
     float   mat[9];
 } sk_matrix_t;
 
+typedef struct {
+    uint32_t fFlags;            // Bit field to identify which values are unknown
+    float    fTop;              // The greatest distance above the baseline for any glyph (will be <= 0)
+    float    fAscent;           // The recommended distance above the baseline (will be <= 0)
+    float    fDescent;          // The recommended distance below the baseline (will be >= 0)
+    float    fBottom;           // The greatest distance below the baseline for any glyph (will be >= 0)
+    float    fLeading;          // The recommended distance to add between lines of text (will be >= 0)
+    float    fAvgCharWidth;     // the average character width (>= 0)
+    float    fMaxCharWidth;     // the max character width (>= 0)
+    float    fXMin;             // The minimum bounding box x value for all glyphs
+    float    fXMax;             // The maximum bounding box x value for all glyphs
+    float    fXHeight;          // The height of an 'x' in px, or 0 if no 'x' in face
+    float    fCapHeight;        // The cap height (> 0), or 0 if cannot be determined.
+    float    fUnderlineThickness; // underline thickness, or 0 if cannot be determined
+    float    fUnderlinePosition; // underline position, or 0 if cannot be determined
+} sk_fontmetrics_t;
+
+// Flags for fFlags member of sk_fontmetrics_t
+#define FONTMETRICS_FLAGS_UNDERLINE_THICKNESS_IS_VALID (1U << 0)
+#define FONTMETRICS_FLAGS_UNDERLINE_POSITION_IS_VALID (1U << 1)
+
 /**
     A sk_canvas_t encapsulates all of the state about drawing into a
     destination This includes a reference to the destination itself,
