@@ -86,7 +86,9 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     // TODO: Support inverse fill
     if (!args.fShaderCaps->shaderDerivativeSupport() || !args.fAntiAlias ||
         SkStrokeRec::kHairline_Style == args.fStroke->getStyle() ||
-        args.fPath->isInverseFillType() || args.fPath->isVolatile()) {
+        args.fPath->isInverseFillType() || args.fPath->isVolatile() ||
+        // We don't currently apply the dash or factor it into the DF key. (skbug.com/5082)
+        args.fStroke->isDashed()) {
         return false;
     }
 
@@ -109,7 +111,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
         }
         maxDim += extraWidth;
     }
-    
+
     return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
 }
 
