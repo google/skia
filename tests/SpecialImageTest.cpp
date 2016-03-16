@@ -5,9 +5,11 @@
  * found in the LICENSE file
  */
 
+#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkPixmap.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "Test.h"
@@ -48,10 +50,11 @@ static SkBitmap create_bm() {
 
 // Basic test of the SkSpecialImage public API (e.g., peekTexture, peekPixels & draw)
 static void test_image(SkSpecialImage* img, skiatest::Reporter* reporter,
-                       bool peekPixelsSucceeds, bool peekTextureSucceeds) {
+                       bool peekPixelsSucceeds, bool peekTextureSucceeds,
+                       int offset, int size) {
     const SkIRect subset = TestingSpecialImageAccess::Subset(img);
-    REPORTER_ASSERT(reporter, kPad == subset.left());
-    REPORTER_ASSERT(reporter, kPad == subset.top());
+    REPORTER_ASSERT(reporter, offset == subset.left());
+    REPORTER_ASSERT(reporter, offset == subset.top());
     REPORTER_ASSERT(reporter, kSmallerSize == subset.width());
     REPORTER_ASSERT(reporter, kSmallerSize == subset.height());
 
@@ -63,8 +66,8 @@ static void test_image(SkSpecialImage* img, skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, peekPixelsSucceeds ==
                               !!TestingSpecialImageAccess::PeekPixels(img, &pixmap));
     if (peekPixelsSucceeds) {
-        REPORTER_ASSERT(reporter, kFullSize == pixmap.width());
-        REPORTER_ASSERT(reporter, kFullSize == pixmap.height());
+        REPORTER_ASSERT(reporter, size == pixmap.width());
+        REPORTER_ASSERT(reporter, size == pixmap.height());
     }
 
     //--------------
@@ -95,10 +98,22 @@ static void test_image(SkSpecialImage* img, skiatest::Reporter* reporter,
 DEF_TEST(SpecialImage_Raster, reporter) {
     SkBitmap bm = create_bm();
 
+    SkAutoTUnref<SkSpecialImage> fullSImage(SkSpecialImage::NewFromRaster(
+                                                            nullptr,
+                                                            SkIRect::MakeWH(kFullSize, kFullSize),
+                                                            bm));
+
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromRaster(nullptr, subset, bm));
-    test_image(img, reporter, true, false);
+    {
+        SkAutoTUnref<SkSpecialImage> subSImg1(SkSpecialImage::NewFromRaster(nullptr, subset, bm));
+        test_image(subSImg1, reporter, true, false, kPad, kFullSize);
+    }
+
+    {
+        SkAutoTUnref<SkSpecialImage> subSImg2(fullSImage->extractSubset(subset));
+        test_image(subSImg2, reporter, true, false, 0, kSmallerSize);
+    }
 }
 
 DEF_TEST(SpecialImage_Image, reporter) {
@@ -106,11 +121,55 @@ DEF_TEST(SpecialImage_Image, reporter) {
 
     SkAutoTUnref<SkImage> fullImage(SkImage::NewFromBitmap(bm));
 
+    SkAutoTUnref<SkSpecialImage> fullSImage(SkSpecialImage::NewFromImage(
+                                                            nullptr,
+                                                            SkIRect::MakeWH(kFullSize, kFullSize),
+                                                            fullImage));
+
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromImage(nullptr, subset, fullImage));
-    test_image(img, reporter, true, false);
+    {
+        SkAutoTUnref<SkSpecialImage> subSImg1(SkSpecialImage::NewFromImage(nullptr,
+                                                                           subset,
+                                                                           fullImage));
+        test_image(subSImg1, reporter, true, false, kPad, kFullSize);
+    }
+
+    {
+        SkAutoTUnref<SkSpecialImage> subSImg2(fullSImage->extractSubset(subset));
+        test_image(subSImg2, reporter, true, false, 0, kSmallerSize);
+    }
 }
+
+DEF_TEST(SpecialImage_Pixmap, reporter) {
+    SkAutoPixmapStorage pixmap;
+
+    const SkImageInfo info = SkImageInfo::MakeN32(kFullSize, kFullSize, kOpaque_SkAlphaType);
+    pixmap.alloc(info);
+    pixmap.erase(SK_ColorGREEN);
+
+    const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
+
+    pixmap.erase(SK_ColorRED, subset);
+
+    {
+        // The SkAutoPixmapStorage keeps hold of the memory
+        SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromPixmap(nullptr, subset, pixmap,
+                                                                       nullptr, nullptr));
+        test_image(img, reporter, true, false, kPad, kFullSize);
+    }
+
+    {
+        // The image takes ownership of the memory
+        SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromPixmap(
+                                               nullptr, subset, pixmap,
+                                               [] (void* addr, void*) -> void { sk_free(addr); },
+                                               nullptr));
+        pixmap.release();
+        test_image(img, reporter, true, false, kPad, kFullSize);
+    }
+}
+
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, context) {
@@ -128,12 +187,26 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, context) {
         return;
     }
 
+    SkAutoTUnref<SkSpecialImage> fullSImg(SkSpecialImage::NewFromGpu(
+                                                            nullptr,
+                                                            SkIRect::MakeWH(kFullSize, kFullSize),
+                                                            kNeedNewImageUniqueID_SpecialImage,
+                                                            texture));
+
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromGpu(nullptr, subset, 
-                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                                texture));
-    test_image(img, reporter, false, true);
+    {
+        SkAutoTUnref<SkSpecialImage> subSImg1(SkSpecialImage::NewFromGpu(
+                                                               nullptr, subset, 
+                                                               kNeedNewImageUniqueID_SpecialImage,
+                                                               texture));
+        test_image(subSImg1, reporter, false, true, kPad, kFullSize);
+    }
+
+    {
+        SkAutoTUnref<SkSpecialImage> subSImg2(fullSImg->extractSubset(subset));
+        test_image(subSImg2, reporter, false, true, kPad, kFullSize);
+    }
 }
 
 #endif

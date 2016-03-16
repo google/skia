@@ -15,7 +15,7 @@ public:
     }
 
     static bool PeekPixels(const SkSpecialImage* img, SkPixmap* pixmap) {
-        return img->testingOnlyPeekPixels(pixmap);
+        return img->peekPixels(pixmap);
     }
 
     static GrTexture* PeekTexture(const SkSpecialImage* img) {
