@@ -142,6 +142,18 @@ public:
 
         virtual void shadeSpan4f(int x, int y, SkPM4f[], int count);
 
+        struct BlitState {
+            Context*    fCtx;
+            SkXfermode* fXfer;
+            enum { N = 2 };
+            void*       fStorage[N];
+        };
+        typedef void (*BlitProc)(BlitState*,
+                                 int x, int y, const SkPixmap&, int count, const SkAlpha[]);
+        BlitProc chooseBlitProc(const SkImageInfo& info, BlitState* state) {
+            return this->onChooseBlitProc(info, state);
+        }
+        
         /**
          * The const void* ctx is only const because all the implementations are const.
          * This can be changed to non-const if a new shade proc needs to change the ctx.
@@ -175,6 +187,11 @@ public:
         const SkMatrix& getTotalInverse() const { return fTotalInverse; }
         MatrixClass     getInverseClass() const { return (MatrixClass)fTotalInverseClass; }
         const SkMatrix& getCTM() const { return fCTM; }
+
+        virtual BlitProc onChooseBlitProc(const SkImageInfo&, BlitState*) {
+            return nullptr;
+        }
+
     private:
         SkMatrix    fCTM;
         SkMatrix    fTotalInverse;

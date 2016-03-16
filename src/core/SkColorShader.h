@@ -35,6 +35,9 @@ public:
         void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) override;
         void shadeSpan4f(int x, int y, SkPM4f[], int count) override;
 
+    protected:
+        BlitProc onChooseBlitProc(const SkImageInfo&, BlitState*) override;
+    
     private:
         SkPM4f      fPM4f;
         SkPMColor   fPMColor;

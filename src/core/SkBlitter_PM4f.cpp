@@ -134,17 +134,25 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename State> class SkState_Shader_Blitter : public SkShaderBlitter {
+template <typename State, bool UseBProc> class SkState_Shader_Blitter : public SkShaderBlitter {
 public:
     SkState_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
-                           SkShader::Context* shaderContext)
-        : INHERITED(device, paint, shaderContext)
-        , fState(device.info(), paint, shaderContext)
+                           const SkShader::Context::BlitState& bstate,
+                           SkShader::Context::BlitProc bproc)
+        : INHERITED(device, paint, bstate.fCtx)
+        , fState(device.info(), paint, bstate.fCtx)
+        , fBState(bstate)
+        , fBProc(bproc)
     {}
     
     void blitH(int x, int y, int width) override {
         SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
         
+        if (UseBProc) {
+            fBProc(&fBState, x, y, fDevice, width, nullptr);
+            return;
+        }
+
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
         fState.fProcN(fState.fXfer, device, fState.fBuffer, width, nullptr);
@@ -152,15 +160,21 @@ public:
 
     void blitV(int x, int y, int height, SkAlpha alpha) override {
         SkASSERT(x >= 0 && y >= 0 && y + height <= fDevice.height());
-        
+
+        if (UseBProc) {
+            for (const int bottom = y + height; y < bottom; ++y) {
+                fBProc(&fBState, x, y, fDevice, 1, &alpha);
+            }
+            return;
+        }
+
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
-        size_t      deviceRB = fDevice.rowBytes();
-        const int   bottom = y + height;
+        size_t                   deviceRB = fDevice.rowBytes();
         
         if (fConstInY) {
             fShaderContext->shadeSpan4f(x, y, fState.fBuffer, 1);
         }
-        for (; y < bottom; ++y) {
+        for (const int bottom = y + height; y < bottom; ++y) {
             if (!fConstInY) {
                 fShaderContext->shadeSpan4f(x, y, fState.fBuffer, 1);
             }
@@ -173,14 +187,20 @@ public:
         SkASSERT(x >= 0 && y >= 0 &&
                  x + width <= fDevice.width() && y + height <= fDevice.height());
         
+        if (UseBProc) {
+            for (const int bottom = y + height; y < bottom; ++y) {
+                fBProc(&fBState, x, y, fDevice, width, nullptr);
+            }
+            return;
+        }
+        
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
-        size_t        deviceRB = fDevice.rowBytes();
-        const int       bottom = y + height;
+        size_t                   deviceRB = fDevice.rowBytes();
         
         if (fConstInY) {
             fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
         }
-        for (; y < bottom; ++y) {
+        for (const int bottom = y + height; y < bottom; ++y) {
             if (!fConstInY) {
                 fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
             }
@@ -199,12 +219,16 @@ public:
             }
             int aa = *antialias;
             if (aa) {
-                fShaderContext->shadeSpan4f(x, y, fState.fBuffer, count);
-                if (aa == 255) {
-                    fState.fProcN(fState.fXfer, device, fState.fBuffer, count, nullptr);
+                if (UseBProc && (aa == 255)) {
+                    fBProc(&fBState, x, y, fDevice, count, nullptr);
                 } else {
-                    for (int i = 0; i < count; ++i) {
-                        fState.fProcN(fState.fXfer, &device[i], &fState.fBuffer[i], 1, antialias);
+                    fShaderContext->shadeSpan4f(x, y, fState.fBuffer, count);
+                    if (aa == 255) {
+                        fState.fProcN(fState.fXfer, device, fState.fBuffer, count, nullptr);
+                    } else {
+                        for (int i = 0; i < count; ++i) {
+                            fState.fProcN(fState.fXfer, &device[i], &fState.fBuffer[i], 1, antialias);
+                        }
                     }
                 }
             }
@@ -249,17 +273,25 @@ public:
             this->INHERITED::blitMask(mask, clip);
             return;
         }
-        
+
         SkASSERT(mask.fBounds.contains(clip));
-        
+
         const int x = clip.fLeft;
         const int width = clip.width();
         int y = clip.fTop;
-        
-        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
-        const size_t deviceRB = fDevice.rowBytes();
         const uint8_t* maskRow = (const uint8_t*)mask.getAddr(x, y);
         const size_t maskRB = mask.fRowBytes;
+
+        if (UseBProc) {
+            for (; y < clip.fBottom; ++y) {
+                fBProc(&fBState, x, y, fDevice, width, maskRow);
+                maskRow += maskRB;
+            }
+            return;
+        }
+
+        typename State::DstType* device = State::WritableAddr(fDevice, x, y);
+        const size_t deviceRB = fDevice.rowBytes();
         
         if (fConstInY) {
             fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
@@ -274,13 +306,16 @@ public:
         }
     }
     
-private:
-    State   fState;
+protected:
+    State                        fState;
+    SkShader::Context::BlitState fBState;
+    SkShader::Context::BlitProc  fBProc;
 
     typedef SkShaderBlitter INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool is_opaque(const SkPaint& paint, const SkShader::Context* shaderContext) {
     return shaderContext ? SkToBool(shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag)
@@ -302,6 +337,9 @@ struct State4f {
     SkPM4f                  fPM4f;
     SkAutoTMalloc<SkPM4f>   fBuffer;
     uint32_t                fFlags;
+
+    SkShader::Context::BlitState    fBState;
+    SkShader::Context::BlitProc     fBProc;
 };
 
 struct State32 : State4f {
@@ -372,9 +410,20 @@ template <typename State> SkBlitter* create(const SkPixmap& device, const SkPain
                                             SkShader::Context* shaderContext,
                                             SkTBlitterAllocator* allocator) {
     SkASSERT(allocator != nullptr);
-    
+
     if (shaderContext) {
-        return allocator->createT<SkState_Shader_Blitter<State>>(device, paint, shaderContext);
+        SkShader::Context::BlitState bstate;
+        bstate.fCtx = shaderContext;
+        bstate.fXfer = paint.getXfermode();
+
+        auto bproc = shaderContext->chooseBlitProc(device.info(), &bstate);
+        if (bproc) {
+            return allocator->createT<SkState_Shader_Blitter<State, true>>(device, paint, bstate,
+                                                                           bproc);
+        } else {
+            return allocator->createT<SkState_Shader_Blitter<State, false>>(device, paint, bstate,
+                                                                            bproc);
+        }
     } else {
         SkColor color = paint.getColor();
         if (0 == SkColorGetA(color)) {
