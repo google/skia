@@ -53,13 +53,14 @@ function default_toolchain() {
     pushd $TOOLCHAINS
     curl -o $NDK.zip https://dl.google.com/android/repository/android-ndk-$NDK-$HOST-x86_64.zip
     unzip $NDK.zip
-    UNZIPPED=android-ndk-$NDK-$HOST-x86_64.tar.bz2
+    UNZIPPED=android-ndk-$NDK
     ./$UNZIPPED/build/tools/make-standalone-toolchain.sh \
         --use-llvm              \
         --arch=$ANDROID_ARCH    \
         --platform=android-$API \
         --install_dir=$TOOLCHAIN
     cp $UNZIPPED/prebuilt/android-$ANDROID_ARCH/gdbserver/gdbserver $TOOLCHAIN
+    cp $UNZIPPED/prebuilt/${HOST}-x86_64/bin/gdb $TOOLCHAIN
     rm $NDK.zip
     rm -rf $UNZIPPED
     popd
