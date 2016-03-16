@@ -25,7 +25,7 @@
 #include "SkString.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
-#include "SkUniquePtr.h"
+#include <memory>
 
 #if defined(SK_CAN_USE_DLOPEN)
 #include <dlfcn.h>
@@ -802,7 +802,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface, const S
 
     // load the font file
     using UnrefFTFace = SkFunctionWrapper<void, skstd::remove_pointer_t<FT_Face>, unref_ft_face>;
-    skstd::unique_ptr<skstd::remove_pointer_t<FT_Face>, UnrefFTFace> ftFace(ref_ft_face(typeface));
+    std::unique_ptr<skstd::remove_pointer_t<FT_Face>, UnrefFTFace> ftFace(ref_ft_face(typeface));
     if (nullptr == ftFace) {
         SkDEBUGF(("Could not create FT_Face.\n"));
         return;
@@ -891,7 +891,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface, const S
     }
 
     using DoneFTSize = SkFunctionWrapper<FT_Error, skstd::remove_pointer_t<FT_Size>, FT_Done_Size>;
-    skstd::unique_ptr<skstd::remove_pointer_t<FT_Size>, DoneFTSize> ftSize([&ftFace]() -> FT_Size {
+    std::unique_ptr<skstd::remove_pointer_t<FT_Size>, DoneFTSize> ftSize([&ftFace]() -> FT_Size {
         FT_Size size;
         FT_Error err = FT_New_Size(ftFace.get(), &size);
         if (err != 0) {

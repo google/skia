@@ -1408,7 +1408,7 @@ DEF_TEST(Picture_preserveCullRect, r) {
     SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
     SkAutoTUnref<SkPicture> deserializedPicture(SkPicture::CreateFromStream(rstream));
 
-    REPORTER_ASSERT(r, SkToBool(deserializedPicture));
+    REPORTER_ASSERT(r, deserializedPicture != nullptr);
     REPORTER_ASSERT(r, deserializedPicture->cullRect().left() == 1);
     REPORTER_ASSERT(r, deserializedPicture->cullRect().top() == 2);
     REPORTER_ASSERT(r, deserializedPicture->cullRect().right() == 3);

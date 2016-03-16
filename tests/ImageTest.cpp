@@ -163,7 +163,7 @@ static void test_encode(skiatest::Reporter* reporter, SkImage* image) {
     assert_equal(reporter, image, nullptr, decoded);
 
     // Now see if we can instantiate an image from a subset of the surface/origEncoded
-    
+
     decoded.reset(SkImage::NewFromEncoded(origEncoded, &ir));
     REPORTER_ASSERT(reporter, decoded);
     assert_equal(reporter, image, &ir, decoded);
@@ -877,7 +877,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(DeferredTextureImage, reporter, context, glContex
                 for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
                     SkAutoTUnref<SkImage> newImage(
                         SkImage::NewFromDeferredTextureImageData(context, buffer, budgeted));
-                    REPORTER_ASSERT(reporter, SkToBool(newImage));
+                    REPORTER_ASSERT(reporter, newImage != nullptr);
                     if (newImage) {
                         check_images_same(reporter, image, newImage);
                     }

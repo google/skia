@@ -1533,10 +1533,10 @@ sk_sp<SkPDFArray> SkPDFDevice::copyMediaBox() const {
     return mediaBox;
 }
 
-skstd::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
+std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
     SkDynamicMemoryWStream buffer;
     this->writeContent(&buffer);
-    return skstd::unique_ptr<SkStreamAsset>(
+    return std::unique_ptr<SkStreamAsset>(
             buffer.bytesWritten() > 0
             ? buffer.detachAsStream()
             : new SkMemoryStream);
