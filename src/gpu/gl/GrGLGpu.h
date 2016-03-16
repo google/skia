@@ -99,7 +99,7 @@ public:
                           const GrPrimitiveProcessor&,
                           const GrPipeline&) const override;
 
-    // id and type (GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER) of buffer to bind
+    // id and type (GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.) of buffer to bind
     void bindBuffer(GrGLuint id, GrGLenum type);
 
     void releaseBuffer(GrGLuint id, GrGLenum type);
@@ -541,6 +541,11 @@ private:
         // This is used when we're using a core profile and the vertices are in a VBO.
         GrGLVertexArray*        fVBOVertexArray;
     } fHWGeometryState;
+
+    GrGLuint    fHWBoundTextureBufferID;
+    GrGLuint    fHWBoundDrawIndirectBufferID;
+    bool        fHWBoundTextureBufferIDIsValid;
+    bool        fHWBoundDrawIndirectBufferIDIsValid;
 
     struct {
         GrBlendEquation fEquation;

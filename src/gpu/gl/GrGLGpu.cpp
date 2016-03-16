@@ -412,6 +412,9 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         GL_CALL(Disable(GR_GL_DEPTH_TEST));
         GL_CALL(DepthMask(GR_GL_FALSE));
 
+        fHWBoundTextureBufferIDIsValid = false;
+        fHWBoundDrawIndirectBufferIDIsValid = false;
+
         fHWDrawFace = GrPipelineBuilder::kInvalid_DrawFace;
 
         if (kGL_GrGLStandard == this->glStandard()) {
@@ -2177,22 +2180,54 @@ void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
 
 void GrGLGpu::bindBuffer(GrGLuint id, GrGLenum type) {
     this->handleDirtyContext();
-    if (GR_GL_ARRAY_BUFFER == type) {
-        this->bindVertexBuffer(id);
-    } else if (GR_GL_ELEMENT_ARRAY_BUFFER == type) {
-        this->bindIndexBufferAndDefaultVertexArray(id);
-    } else {
-        GR_GL_CALL(this->glInterface(), BindBuffer(type, id));
+    switch (type) {
+        case GR_GL_ARRAY_BUFFER:
+            this->bindVertexBuffer(id);
+            break;
+        case GR_GL_ELEMENT_ARRAY_BUFFER:
+            this->bindIndexBufferAndDefaultVertexArray(id);
+            break;
+        case GR_GL_TEXTURE_BUFFER:
+            if (!fHWBoundTextureBufferIDIsValid || id != fHWBoundTextureBufferID) {
+                GR_GL_CALL(this->glInterface(), BindBuffer(type, id));
+                fHWBoundTextureBufferID = id;
+                fHWBoundTextureBufferIDIsValid = true;
+            }
+            break;
+        case GR_GL_DRAW_INDIRECT_BUFFER:
+            if (!fHWBoundDrawIndirectBufferIDIsValid || id != fHWBoundDrawIndirectBufferID) {
+                GR_GL_CALL(this->glInterface(), BindBuffer(type, id));
+                fHWBoundDrawIndirectBufferID = id;
+                fHWBoundDrawIndirectBufferIDIsValid = true;
+            }
+            break;
+        default:
+            SkDebugf("WARNING: buffer target 0x%x is not tracked by GrGLGpu.\n", type);
+            GR_GL_CALL(this->glInterface(), BindBuffer(type, id));
+            break;
     }
 }
 
 void GrGLGpu::releaseBuffer(GrGLuint id, GrGLenum type) {
     this->handleDirtyContext();
     GL_CALL(DeleteBuffers(1, &id));
-    if (GR_GL_ARRAY_BUFFER == type) {
-        this->notifyVertexBufferDelete(id);
-    } else if (GR_GL_ELEMENT_ARRAY_BUFFER == type) {
-        this->notifyIndexBufferDelete(id);
+    switch (type) {
+        case GR_GL_ARRAY_BUFFER:
+            this->notifyVertexBufferDelete(id);
+            break;
+        case GR_GL_ELEMENT_ARRAY_BUFFER:
+            this->notifyIndexBufferDelete(id);
+            break;
+        case GR_GL_TEXTURE_BUFFER:
+            if (fHWBoundTextureBufferIDIsValid && id == fHWBoundTextureBufferID) {
+                fHWBoundTextureBufferID = 0;
+            }
+            break;
+        case GR_GL_DRAW_INDIRECT_BUFFER:
+            if (fHWBoundDrawIndirectBufferIDIsValid && id == fHWBoundDrawIndirectBufferID) {
+                fHWBoundDrawIndirectBufferID = 0;
+            }
+            break;
     }
 }
 
