@@ -79,7 +79,8 @@ struct SkScalerContextRec {
     }
 
     uint8_t     fMaskFormat;
-    uint8_t     fStrokeJoin;
+    uint8_t     fStrokeJoin : 4;
+    uint8_t     fStrokeCap : 4;
     uint16_t    fFlags;
     // Warning: when adding members note that the size of this structure
     // must be a multiple of 4. SkDescriptor requires that its arguments be

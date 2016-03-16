@@ -1356,6 +1356,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->fFrameWidth = strokeWidth;
         rec->fMiterLimit = paint.getStrokeMiter();
         rec->fStrokeJoin = SkToU8(paint.getStrokeJoin());
+        rec->fStrokeCap = SkToU8(paint.getStrokeCap());
 
         if (style == SkPaint::kStrokeAndFill_Style) {
             flags |= SkScalerContext::kFrameAndFill_Flag;
@@ -1364,6 +1365,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->fFrameWidth = 0;
         rec->fMiterLimit = 0;
         rec->fStrokeJoin = 0;
+        rec->fStrokeCap = 0;
     }
 
     rec->fMaskFormat = SkToU8(compute_mask_format(paint));

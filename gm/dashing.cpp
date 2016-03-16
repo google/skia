@@ -528,6 +528,20 @@ DEF_SIMPLE_GM(longwavyline, canvas, 512, 512) {
     canvas->drawPath(wavy, p);
 }
 
+DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    p.setStrokeCap(SkPaint::kRound_Cap);
+    p.setTextSize(100);
+    p.setARGB(0xff, 0xbb, 0x00, 0x00);
+    const SkScalar intervals[] = { 12, 12 };
+    p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 0))->unref();
+    canvas->drawText("Sausages", 8, 10, 90, p);
+    canvas->drawLine(8, 120, 456, 120, p);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new DashingGM;)
