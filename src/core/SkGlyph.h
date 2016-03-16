@@ -95,9 +95,9 @@ public:
     }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    SK_ATTR_DEPRECATED("Temporary accessor for Android.")
+    // Temporary accessor for Android.
     SkFixed advanceXFixed() const { return fAdvanceX; }
-    SK_ATTR_DEPRECATED("Temporary accessor for Android.")
+    // Temporary accessor for Android.
     SkFixed advanceYFixed() const { return fAdvanceY; }
 #endif
 
