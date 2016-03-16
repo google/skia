@@ -104,7 +104,7 @@ bool SkBlurImageFilter::onFilterImageDeprecated(Proxy* proxy,
     }
 
     if (kernelSizeX == 0 && kernelSizeY == 0) {
-        src.extractSubset(dst, srcBounds);
+        src.extractSubset(dst, srcBounds.makeOffset(-srcOffset.x(), -srcOffset.y()));
         offset->fX = srcBounds.x();
         offset->fY = srcBounds.y();
         return true;
@@ -218,7 +218,7 @@ bool SkBlurImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& s
     }
     SkVector sigma = map_sigma(fSigma, ctx.ctm());
     if (sigma.x() == 0 && sigma.y() == 0) {
-        input.extractSubset(result, srcBounds);
+        input.extractSubset(result, srcBounds.makeOffset(-srcOffset.x(), -srcOffset.y()));
         offset->fX = srcBounds.x();
         offset->fY = srcBounds.y();
         return true;

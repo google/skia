@@ -158,23 +158,27 @@ static SkImageFilter* make_blue(SkImageFilter* input, const SkImageFilter::CropR
     return SkColorFilterImageFilter::Create(filter, input, cropRect);
 }
 
-static SkSpecialImage* create_empty_special_image(GrContext* context,
-                                                  SkImageFilter::Proxy* proxy,
-                                                  int widthHeight) {
-    SkAutoTUnref<SkSpecialSurface> surf;
-
+static SkSpecialSurface* create_empty_special_surface(GrContext* context,
+                                                      SkImageFilter::Proxy* proxy,
+                                                      int widthHeight) {
     if (context) {
         GrSurfaceDesc desc;
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fFlags  = kRenderTarget_GrSurfaceFlag;
         desc.fWidth  = widthHeight;
         desc.fHeight = widthHeight;
-        surf.reset(SkSpecialSurface::NewRenderTarget(proxy, context, desc));
+        return SkSpecialSurface::NewRenderTarget(proxy, context, desc);
     } else {
         const SkImageInfo info = SkImageInfo::MakeN32(widthHeight, widthHeight,
                                                       kOpaque_SkAlphaType);
-        surf.reset(SkSpecialSurface::NewRaster(proxy, info));
+        return SkSpecialSurface::NewRaster(proxy, info);
     }
+}
+
+static SkSpecialImage* create_empty_special_image(GrContext* context,
+                                                  SkImageFilter::Proxy* proxy,
+                                                  int widthHeight) {
+    SkAutoTUnref<SkSpecialSurface> surf(create_empty_special_surface(context, proxy, widthHeight));
 
     SkASSERT(surf);
 
@@ -505,6 +509,52 @@ DEF_TEST(TestNegativeBlurSigma, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestNegativeBlurSigma_Gpu, reporter, context) {
     run_gpu_test(reporter, context, 100, test_negative_blur_sigma);
+}
+#endif
+
+static void test_zero_blur_sigma(SkImageFilter::Proxy* proxy,
+                                 skiatest::Reporter* reporter,
+                                 GrContext* context) {
+    // Check that SkBlurImageFilter with a zero sigma and a non-zero srcOffset works correctly.
+    SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(5, 0, 5, 10)));
+    SkAutoTUnref<SkImageFilter> input(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
+    SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(0, 0, input, &cropRect));
+
+    SkAutoTUnref<SkSpecialSurface> surf(create_empty_special_surface(context, proxy, 10));
+    surf->getCanvas()->clear(SK_ColorGREEN);
+    SkAutoTUnref<SkSpecialImage> image(surf->newImageSnapshot());
+
+    SkIPoint offset;
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr);
+
+    SkAutoTUnref<SkSpecialImage> result(filter->filterImage(image, ctx, &offset));
+    REPORTER_ASSERT(reporter, offset.fX == 5 && offset.fY == 0);
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, result->width() == 5 && result->height() == 10);
+
+    SkBitmap resultBM;
+
+    TestingSpecialImageAccess::GetROPixels(result, &resultBM);
+
+    SkAutoLockPixels lock(resultBM);
+    for (int y = 0; y < resultBM.height(); y++) {
+        for (int x = 0; x < resultBM.width(); x++) {
+            bool diff = *resultBM.getAddr32(x, y) != SK_ColorGREEN;
+            REPORTER_ASSERT(reporter, !diff);
+            if (diff) {
+                break;
+            }
+        }
+    }
+}
+
+DEF_TEST(TestZeroBlurSigma, reporter) {
+    run_raster_test(reporter, 100, test_zero_blur_sigma);
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestZeroBlurSigma_Gpu, reporter, context) {
+    run_gpu_test(reporter, context, 100, test_zero_blur_sigma);
 }
 #endif
 
