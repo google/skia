@@ -370,7 +370,7 @@ private:
     typedef SkWStream INHERITED;
 };
 
-class SkMemoryWStream : public SkWStream {
+class SK_API SkMemoryWStream : public SkWStream {
 public:
     SkMemoryWStream(void* buffer, size_t size);
     bool write(const void* buffer, size_t size) override;
