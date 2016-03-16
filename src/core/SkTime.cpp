@@ -28,7 +28,7 @@ void SkTime::DateTime::toISO8601(SkString* dst) const {
 
 #ifdef SK_BUILD_FOR_WIN32
 
-#include "Windows.h"
+#include "windows.h"
 void SkTime::GetDateTime(DateTime* dt) {
     if (dt) {
         SYSTEMTIME st;
