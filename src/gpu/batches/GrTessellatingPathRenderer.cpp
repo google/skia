@@ -61,20 +61,15 @@ bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
 
 class StaticVertexAllocator : public GrTessellator::VertexAllocator {
 public:
-    StaticVertexAllocator(SkAutoTUnref<GrVertexBuffer>& vertexBuffer,
-                          GrResourceProvider* resourceProvider,
-                          bool canMapVB)
-      : fVertexBuffer(vertexBuffer)
-      , fResourceProvider(resourceProvider)
+    StaticVertexAllocator(GrResourceProvider* resourceProvider, bool canMapVB)
+      : fResourceProvider(resourceProvider)
       , fCanMapVB(canMapVB)
       , fVertices(nullptr) {
     }
     SkPoint* lock(int vertexCount) override {
         size_t size = vertexCount * sizeof(SkPoint);
-        if (!fVertexBuffer.get() || fVertexBuffer->gpuMemorySize() < size) {
-            fVertexBuffer.reset(fResourceProvider->createVertexBuffer(
-                size, GrResourceProvider::kStatic_BufferUsage, 0));
-        }
+        fVertexBuffer.reset(fResourceProvider->createVertexBuffer(
+            size, GrResourceProvider::kStatic_BufferUsage, 0));
         if (!fVertexBuffer.get()) {
             return nullptr;
         }
@@ -94,8 +89,9 @@ public:
         }
         fVertices = nullptr;
     }
+    GrVertexBuffer* vertexBuffer() { return fVertexBuffer.get(); }
 private:
-    SkAutoTUnref<GrVertexBuffer>& fVertexBuffer;
+    SkAutoTUnref<GrVertexBuffer> fVertexBuffer;
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
     SkPoint* fVertices;
@@ -162,13 +158,14 @@ private:
         fStroke.asUniqueKeyFragment(&builder[2 + clipBoundsSize32]);
         builder.finish();
         GrResourceProvider* rp = target->resourceProvider();
-        SkAutoTUnref<GrVertexBuffer> vertexBuffer(rp->findAndRefTByUniqueKey<GrVertexBuffer>(key));
+        SkAutoTUnref<GrVertexBuffer> cachedVertexBuffer(
+            rp->findAndRefTByUniqueKey<GrVertexBuffer>(key));
         int actualCount;
         SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(
             screenSpaceTol, fViewMatrix, fPath.getBounds());
-        if (cache_match(vertexBuffer.get(), tol, &actualCount)) {
-            this->drawVertices(target, gp, vertexBuffer.get(), 0, actualCount);
+        if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
+            this->drawVertices(target, gp, cachedVertexBuffer.get(), 0, actualCount);
             return;
         }
 
@@ -190,19 +187,19 @@ private:
         }
         bool isLinear;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
-        StaticVertexAllocator allocator(vertexBuffer, target->resourceProvider(), canMapVB);
+        StaticVertexAllocator allocator(rp, canMapVB);
         int count = GrTessellator::PathToTriangles(path, tol, fClipBounds, &allocator, &isLinear);
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, gp, vertexBuffer.get(), 0, count);
+        this->drawVertices(target, gp, allocator.vertexBuffer(), 0, count);
         if (!fPath.isVolatile()) {
             TessInfo info;
             info.fTolerance = isLinear ? 0 : tol;
             info.fCount = count;
             SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
             key.setCustomData(data.get());
-            target->resourceProvider()->assignUniqueKeyToResource(key, vertexBuffer.get());
+            rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
             SkPathPriv::AddGenIDChangeListener(fPath, new PathInvalidator(key));
         }
     }
