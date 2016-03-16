@@ -221,12 +221,12 @@ size_t sk_paint_break_utf16_text(sk_paint_t* cpaint, const void* text, size_t le
     auto encoding = paint->getTextEncoding ();
     int changed = 0;
     if (encoding != SkPaint::kUTF16_TextEncoding){
-       changed = 1;
+        changed = 1;
         paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
     }
-    auto ret = paint->breakText(text, length, maxWidth, measuredWidth);
+    auto ret = paint->breakText(text, length * sizeof(uint16_t), maxWidth, measuredWidth);
     if (changed != 0){
-       paint->setTextEncoding(encoding);
+        paint->setTextEncoding(encoding);
     }
     return ret;
 }
@@ -240,12 +240,12 @@ float sk_paint_measure_utf16_text(sk_paint_t* cpaint, const void* text, size_t l
     auto encoding = paint->getTextEncoding ();
     int changed = 0;
     if (encoding != SkPaint::kUTF16_TextEncoding){
-       changed = 1;
+        changed = 1;
         paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
     }
-    auto ret = paint->measureText(text, length, AsRect(bounds));
+    auto ret = paint->measureText(text, length * sizeof(uint16_t), AsRect(bounds));
     if (changed != 0){
-       paint->setTextEncoding(encoding);
+        paint->setTextEncoding(encoding);
     }
     return ret;
 }
