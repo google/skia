@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoPixmapStorage.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"

@@ -20,7 +20,7 @@ public:
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
 
-    virtual bool onPeekPixels(SkPixmap*) const { return false; }
+    virtual bool testingOnlyOnPeekPixels(SkPixmap*) const { return false; }
 
     virtual GrTexture* onPeekTexture() const { return nullptr; }
 
@@ -29,9 +29,7 @@ public:
     // Delete this entry point ASAP (see skbug.com/4965)
     virtual bool getBitmapDeprecated(SkBitmap* result) const = 0;
 
-    virtual SkSpecialSurface* onNewSurface(const SkImageInfo& info) const = 0;
-
-    virtual SkSpecialImage* onExtractSubset(const SkIRect& subset) const = 0;
+    virtual SkSpecialSurface* onNewSurface(const SkImageInfo& info) const { return nullptr; }
 
 private:
     typedef SkSpecialImage INHERITED;
@@ -46,8 +44,8 @@ void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPain
     return as_SIB(this)->onDraw(canvas, x, y, paint);
 }
 
-bool SkSpecialImage::peekPixels(SkPixmap* pixmap) const {
-    return as_SIB(this)->onPeekPixels(pixmap);
+bool SkSpecialImage::testingOnlyPeekPixels(SkPixmap* pixmap) const {
+    return as_SIB(this)->testingOnlyOnPeekPixels(pixmap);
 }
 
 GrTexture* SkSpecialImage::peekTexture() const {
@@ -60,10 +58,6 @@ bool SkSpecialImage::testingOnlyGetROPixels(SkBitmap* result) const {
 
 SkSpecialSurface* SkSpecialImage::newSurface(const SkImageInfo& info) const {
     return as_SIB(this)->onNewSurface(info);
-}
-
-SkSpecialImage* SkSpecialImage::extractSubset(const SkIRect& subset) const {
-    return as_SIB(this)->onExtractSubset(subset);
 }
 
 #if SK_SUPPORT_GPU
@@ -91,7 +85,8 @@ bool SkSpecialImage::internal_getBM(SkBitmap* result) {
     return ib->getBitmapDeprecated(result);
 }
 
-SkImageFilter::Proxy* SkSpecialImage::internal_getProxy() const {
+SkImageFilter::Proxy* SkSpecialImage::internal_getProxy() {
+    SkASSERT(fProxy);
     return fProxy;
 }
 
@@ -134,7 +129,7 @@ public:
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    bool onPeekPixels(SkPixmap* pixmap) const override {
+    bool testingOnlyOnPeekPixels(SkPixmap* pixmap) const override {
         return fImage->peekPixels(pixmap);
     }
 
@@ -173,17 +168,6 @@ public:
         }
 #endif
         return SkSpecialSurface::NewRaster(this->proxy(), info, nullptr);
-    }
-
-    SkSpecialImage* onExtractSubset(const SkIRect& subset) const override {
-        SkAutoTUnref<SkImage> subsetImg(fImage->newSubset(subset));
-        if (!subsetImg) {
-            return nullptr;
-        }
-
-        return SkSpecialImage::NewFromImage(this->internal_getProxy(),
-                                            SkIRect::MakeWH(subset.width(), subset.height()),
-                                            subsetImg);
     }
 
 private:
@@ -230,17 +214,6 @@ public:
         }
     }
 
-    SkSpecialImage_Raster(SkImageFilter::Proxy* proxy,
-                          const SkIRect& subset,
-                          const SkPixmap& pixmap,
-                          void (*releaseProc)(void* addr, void* context),
-                          void* context)
-        : INHERITED(proxy, subset, kNeedNewImageUniqueID_SpecialImage) {
-        fBitmap.installPixels(pixmap.info(), pixmap.writable_addr(),
-                              pixmap.rowBytes(), pixmap.ctable(),
-                              releaseProc, context);
-    }
-
     ~SkSpecialImage_Raster() override { }
 
     bool isOpaque() const override { return fBitmap.isOpaque(); }
@@ -255,13 +228,19 @@ public:
                                dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    bool onPeekPixels(SkPixmap* pixmap) const override {
+    bool testingOnlyOnPeekPixels(SkPixmap* pixmap) const override {
         const SkImageInfo info = fBitmap.info();
         if ((kUnknown_SkColorType == info.colorType()) || !fBitmap.getPixels()) {
             return false;
         }
-
-        return fBitmap.peekPixels(pixmap);
+        const void* pixels = fBitmap.getPixels();
+        if (pixels) {
+            if (pixmap) {
+                pixmap->reset(info, pixels, fBitmap.rowBytes());
+            }
+            return true;
+        }
+        return false;
     }
 
     bool getBitmapDeprecated(SkBitmap* result) const override {
@@ -278,18 +257,6 @@ public:
         return SkSpecialSurface::NewRaster(this->proxy(), info, nullptr);
     }
 
-    SkSpecialImage* onExtractSubset(const SkIRect& subset) const override {
-        SkBitmap subsetBM;
-        
-        if (!fBitmap.extractSubset(&subsetBM, subset)) {
-            return nullptr;
-        }
-
-        return SkSpecialImage::NewFromRaster(this->internal_getProxy(),
-                                             SkIRect::MakeWH(subset.width(), subset.height()),
-                                             subsetBM);
-    }
-
 private:
     SkBitmap fBitmap;
 
@@ -303,15 +270,6 @@ SkSpecialImage* SkSpecialImage::NewFromRaster(SkImageFilter::Proxy* proxy,
     SkASSERT(rect_fits(subset, bm.width(), bm.height()));
     return new SkSpecialImage_Raster(proxy, subset, bm);
 }
-
-SkSpecialImage* SkSpecialImage::NewFromPixmap(SkImageFilter::Proxy* proxy,
-                                              const SkIRect& subset,
-                                              const SkPixmap& src,
-                                              void (*releaseProc)(void* addr, void* context),
-                                              void* context) {
-    return new SkSpecialImage_Raster(proxy, subset, src, releaseProc, context);
-}
-
 
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
@@ -357,10 +315,7 @@ public:
             return false;
         }
 
-        const SkImageInfo prInfo = info.makeWH(fTexture->width(), fTexture->height());
-
-        SkAutoTUnref<SkGrPixelRef> pixelRef(new SkGrPixelRef(prInfo, fTexture));
-        result->setPixelRef(pixelRef, this->subset().fLeft, this->subset().fTop);
+        result->setPixelRef(new SkGrPixelRef(info, fTexture))->unref();
         return true;
     }
 
@@ -388,14 +343,6 @@ public:
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
         return SkSpecialSurface::NewRenderTarget(this->proxy(), fTexture->getContext(), desc);
-    }
-
-    SkSpecialImage* onExtractSubset(const SkIRect& subset) const override {
-        return SkSpecialImage::NewFromGpu(this->internal_getProxy(),
-                                          subset,
-                                          this->uniqueID(),
-                                          fTexture, 
-                                          fAlphaType);
     }
 
 private:

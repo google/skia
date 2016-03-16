@@ -7,7 +7,6 @@
 
 #include <functional>
 #include "gm.h"
-#include "SkAutoPixmapStorage.h"
 #include "SkData.h"
 #include "SkCanvas.h"
 #include "SkRandom.h"

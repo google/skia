@@ -8,7 +8,6 @@
 
 
 #include "SkScalerContext.h"
-#include "SkAutoPixmapStorage.h"
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"

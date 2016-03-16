@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "SkAutoPixmapStorage.h"
 #include "SkColor.h"
 #include "SkHalf.h"
 #include "SkOpts.h"

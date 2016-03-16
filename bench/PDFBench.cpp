@@ -7,7 +7,6 @@
 
 #include "Benchmark.h"
 #include "Resources.h"
-#include "SkAutoPixmapStorage.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkPDFBitmap.h"

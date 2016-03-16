@@ -9,7 +9,6 @@
 #include <initializer_list>
 #include "DMGpuSupport.h"
 
-#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"

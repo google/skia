@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkEndian.h"

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoPixmapStorage.h"
 #include "SkDeviceLooper.h"
 #include "SkRasterClip.h"
 #include "Test.h"
