@@ -69,7 +69,7 @@ class DefaultFlavorUtils(object):
   """
   def __init__(self, bot_info, *args, **kwargs):
     self._bot_info = bot_info
-    self.chrome_path = os.path.join(os.path.expanduser('~'), 'src')
+    self.chrome_path = os.path.join(self._bot_info.build_dir, 'src')
 
   def run(self, cmd, **kwargs):
     """Runs a step as appropriate for this flavor."""
@@ -84,14 +84,26 @@ class DefaultFlavorUtils(object):
     new_cmd.extend(cmd[1:])
     return self._bot_info.run(new_cmd, **kwargs)
 
+  def bootstrap_win_toolchain(self):
+    """Run bootstrapping script for the Windows toolchain."""
+    bootstrap_script = os.path.join(self._bot_info.infrabots_dir,
+                                    'bootstrap_win_toolchain_json.py')
+    win_toolchain_json = os.path.join(
+        self._bot_info.build_dir, 'src', 'build', 'win_toolchain.json')
+    self._bot_info.run([
+        'python', bootstrap_script,
+        '--win_toolchain_json', win_toolchain_json,
+        '--depot_tools_parent_dir', self._bot_info.build_dir])
 
   def compile(self, target):
     """Build the given target."""
     # The CHROME_PATH environment variable is needed for bots that use
     # toolchains downloaded by Chrome.
-    env = {'CHROME_PATH': self.chrome_path}
+    env = {}
     if sys.platform == 'win32':
       make_cmd = ['python', 'make.py']
+      env['CHROME_PATH'] = self.chrome_path
+      self._bot_info._run_once(self.bootstrap_win_toolchain)
     else:
       make_cmd = ['make']
     cmd = make_cmd + [target]

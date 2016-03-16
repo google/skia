@@ -9,6 +9,7 @@
 import contextlib
 import math
 import os
+import psutil
 import shutil
 import socket
 import subprocess
@@ -157,15 +158,24 @@ class BotInfo(object):
     self.swarm_out_dir = swarm_out_dir
     os.chdir(self.skia_dir)
     self.build_dir = os.path.abspath(os.path.join(self.skia_dir, os.pardir))
+    self.infrabots_dir = os.path.join(self.skia_dir, 'infra', 'bots')
+    self.home_dir = os.path.expanduser('~')
+
     self.spec = self.get_bot_spec(bot_name)
     self.bot_cfg = self.spec['builder_cfg']
     self.out_dir = os.path.join(os.pardir, 'out')
     self.configuration = self.spec['configuration']
     self.default_env = {
+      'CHROME_HEADLESS': '1',
       'SKIA_OUT': self.out_dir,
       'BUILDTYPE': self.configuration,
       'PATH': os.environ['PATH'],
     }
+    if 'Win' in self.bot_cfg['os']:
+      self.default_env['SystemRoot'] = 'C:\\Windows'
+      self.default_env['TEMP'] = os.path.join(
+          self.home_dir, 'AppData', 'Local', 'Temp')
+      self.default_env['TMP'] = self.default_env['TEMP']
     self.default_env.update(self.spec['env'])
     self.build_targets = [str(t) for t in self.spec['build_targets']]
     self.is_trybot = self.bot_cfg['is_trybot']
@@ -251,6 +261,7 @@ class BotInfo(object):
       if os.path.exists(path):
         print 'Copying build product %s' % path
         shutil.copy(path, dst)
+    self.cleanup()
 
   def _run_once(self, fn, *args, **kwargs):
     if not fn.__name__ in self._already_ran:
@@ -383,7 +394,7 @@ class BotInfo(object):
       preAbandonGpuContext.append('--preAbandonGpuContext')
       self.flavor.run(preAbandonGpuContext)
 
-    self.flavor.cleanup_steps()
+    self.cleanup()
 
   def perf_steps(self, got_revision, master_name, slave_name, build_number,
                  issue=None, patchset=None):
@@ -462,4 +473,15 @@ class BotInfo(object):
       self.flavor.copy_directory_contents_to_host(
           self.device_dirs.perf_data_dir, self.perf_data_dir)
 
+    self.cleanup()
+
+  def cleanup(self):
+    if sys.platform == 'win32':
+      # Kill mspdbsrv.exe, which tends to hang around after the build finishes.
+      for p in psutil.process_iter():
+        try:
+          if p.name == 'mspdbsrv.exe':
+            p.kill()
+        except psutil._error.AccessDenied:
+          pass
     self.flavor.cleanup_steps()
