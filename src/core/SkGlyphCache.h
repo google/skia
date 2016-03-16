@@ -272,7 +272,7 @@ private:
     AuxProcRec*            fAuxProcList;
 };
 
-class SkAutoGlyphCache : public std::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor> {
+class SkAutoGlyphCache : public skstd::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor> {
 public:
     /** deprecated: use get() */
     SkGlyphCache* getCache() const { return this->get(); }
@@ -294,7 +294,7 @@ public:
         : INHERITED(paint.detachCache(surfaceProps, fakeGamma, matrix))
     {}
 private:
-    using INHERITED = std::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor>;
+    using INHERITED = skstd::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor>;
 };
 
 class SkAutoGlyphCacheNoGamma : public SkAutoGlyphCache {
