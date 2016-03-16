@@ -241,7 +241,7 @@ SkStreamAsset* SkFILEStream::duplicate() const {
     if (!fName.isEmpty()) {
         SkAutoTDelete<SkFILEStream> that(new SkFILEStream(fName.c_str()));
         if (sk_fidentical(that->fFILE, this->fFILE)) {
-            return that.detach();
+            return that.release();
         }
     }
 
@@ -267,7 +267,7 @@ bool SkFILEStream::move(long offset) {
 SkStreamAsset* SkFILEStream::fork() const {
     SkAutoTDelete<SkStreamAsset> that(this->duplicate());
     that->seek(this->getPosition());
-    return that.detach();
+    return that.release();
 }
 
 size_t SkFILEStream::getLength() const {
@@ -403,7 +403,7 @@ bool SkMemoryStream::move(long offset) {
 SkMemoryStream* SkMemoryStream::fork() const {
     SkAutoTDelete<SkMemoryStream> that(this->duplicate());
     that->seek(fOffset);
-    return that.detach();
+    return that.release();
 }
 
 size_t SkMemoryStream::getLength() const {
@@ -785,7 +785,7 @@ public:
         that->fCurrent = this->fCurrent;
         that->fOffset = this->fOffset;
         that->fCurrentOffset = this->fCurrentOffset;
-        return that.detach();
+        return that.release();
     }
 
     size_t getLength() const override {

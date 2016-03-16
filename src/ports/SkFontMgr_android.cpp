@@ -388,7 +388,7 @@ protected:
             uint16_t glyphID;
             paint.textToGlyphs(&character, sizeof(character), &glyphID);
             if (glyphID != 0) {
-                return face.detach();
+                return face.release();
             }
         }
         return nullptr;
@@ -438,7 +438,7 @@ protected:
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
-        return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : nullptr;
+        return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
@@ -449,7 +449,7 @@ protected:
         if (!fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch, nullptr)) {
             return nullptr;
         }
-        SkFontData* data(new SkFontData(stream.detach(), ttcIndex, nullptr, 0));
+        SkFontData* data(new SkFontData(stream.release(), ttcIndex, nullptr, 0));
         return new SkTypeface_AndroidStream(data, style, isFixedPitch, name);
     }
 
@@ -471,7 +471,7 @@ protected:
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
 
-        SkFontData* data(new SkFontData(stream.detach(), params.getCollectionIndex(),
+        SkFontData* data(new SkFontData(stream.release(), params.getCollectionIndex(),
                                         axisValues.get(), axisDefinitions.count()));
         return new SkTypeface_AndroidStream(data, style, isFixedPitch, name);
     }

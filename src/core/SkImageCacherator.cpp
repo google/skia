@@ -55,7 +55,7 @@ SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
 
     // Now that we know we can hand-off the generator (to be owned by the cacherator) we can
     // release our holder. (we DONT want to delete it here anymore)
-    genHolder.detach();
+    genHolder.release();
 
     return new SkImageCacherator(gen, gen->getInfo().makeWH(subset->width(), subset->height()),
                                  SkIPoint::Make(subset->x(), subset->y()), uniqueID);

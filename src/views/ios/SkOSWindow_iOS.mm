@@ -1,3 +1,10 @@
+/*
+ * Copyright 2016 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #import <UIKit/UIKit.h>
 #include "SkCanvas.h"
 #include "SkGraphics.h"
@@ -58,7 +65,7 @@ bool SkOSWindow::attach(SkBackEndTypes /* attachType */,
     return success;
 }
 
-void SkOSWindow::detach() {}
+void SkOSWindow::release() {}
 
 void SkOSWindow::present() {
 }

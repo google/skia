@@ -140,7 +140,7 @@ SkGLContext::GLFenceSync* SkGLContext::GLFenceSync::CreateIfSupported(const SkGL
         return nullptr;
     }
 
-    return ret.detach();
+    return ret.release();
 }
 
 SkPlatformGpuFence SkGLContext::GLFenceSync::insertFence() const {

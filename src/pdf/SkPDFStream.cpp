@@ -45,7 +45,7 @@ void SkPDFStream::setData(SkStream* stream) {
         if (dup && dup->hasLength() &&
             dup->getLength() <= length + strlen("/Filter_/FlateDecode_")) {
             this->insertInt("Length", dup->getLength());
-            fCompressedData.reset(dup.detach());
+            fCompressedData.reset(dup.release());
             return;
         }
     }

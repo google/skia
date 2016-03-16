@@ -514,10 +514,10 @@ public:
         internal reference to null. Note the caller is reponsible for calling
         sk_free on the returned address.
     */
-    void* detach() { return this->set(NULL); }
+    void* release() { return this->set(NULL); }
 
     /** Free the current buffer, and set the internal reference to NULL. Same
-        as calling sk_free(detach())
+        as calling sk_free(release())
     */
     void free() {
         sk_free(fPtr);
@@ -535,7 +535,7 @@ private:
 /**
  *  Manage an allocated block of heap memory. This object is the sole manager of
  *  the lifetime of the block, so the caller must not call sk_free() or delete
- *  on the block, unless detach() was called.
+ *  on the block, unless release() was called.
  */
 class SkAutoMalloc : SkNoncopyable {
 public:
@@ -606,7 +606,7 @@ public:
        internal reference to null. Note the caller is reponsible for calling
        sk_free on the returned address.
     */
-    void* detach() {
+    void* release() {
         void* ptr = fPtr;
         fPtr = NULL;
         fSize = 0;

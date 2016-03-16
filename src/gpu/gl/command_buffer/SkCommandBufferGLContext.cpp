@@ -259,7 +259,7 @@ void SkCommandBufferGLContext::initializeGLContext(void* nativeWindow, const int
         return;
     }
 
-    this->init(gl.detach());
+    this->init(gl.release());
 }
 
 SkCommandBufferGLContext::~SkCommandBufferGLContext() {

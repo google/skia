@@ -168,7 +168,7 @@ Benchmark* VisualBenchmarkStream::innerNext() {
         if (gm->runAsBench()) {
             fSourceType = "gm";
             fBenchType  = "micro";
-            return new GMBench(gm.detach());
+            return new GMBench(gm.release());
         }
     }
 

@@ -25,7 +25,7 @@ static void codec_yuv(skiatest::Reporter* reporter,
         INFOF(reporter, "Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(reporter, codec);
     if (!codec) {
         return;

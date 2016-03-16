@@ -315,7 +315,7 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
         FLAGS_src.contains(tag) &&
         !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
-        s.reset(src.detach());
+        s.reset(src.release());
         s.tag = tag;
         s.options = options;
     }
@@ -791,7 +791,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     }
 
     TaggedSink& ts = gSinks.push_back();
-    ts.reset(sink.detach());
+    ts.reset(sink.release());
     ts.tag = config.getTag();
 }
 

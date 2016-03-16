@@ -399,6 +399,6 @@ SkDocument* SkDocument::CreatePDF(const char path[], SkScalar dpi) {
     auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
     SkAutoTDelete<SkFILEWStream> stream(new SkFILEWStream(path));
     return stream->isValid()
-        ? SkPDFMakeDocument(stream.detach(), delete_wstream, dpi, nullptr).release()
+        ? SkPDFMakeDocument(stream.release(), delete_wstream, dpi, nullptr).release()
         : nullptr;
 }

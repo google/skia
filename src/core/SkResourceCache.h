@@ -276,7 +276,7 @@ private:
     // linklist management
     void moveToHead(Rec*);
     void addToHead(Rec*);
-    void detach(Rec*);
+    void release(Rec*);
     void remove(Rec*);
 
     void init();    // called by constructors

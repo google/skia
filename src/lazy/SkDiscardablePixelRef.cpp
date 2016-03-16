@@ -137,7 +137,7 @@ bool SkDEPRECATED_InstallDiscardablePixelRef(SkImageGenerator* generator, const 
         return dst->tryAllocPixels();
     }
     SkAutoTUnref<SkDiscardablePixelRef> ref(
-            new SkDiscardablePixelRef(prInfo, autoGenerator.detach(), dst->rowBytes(), factory));
+            new SkDiscardablePixelRef(prInfo, autoGenerator.release(), dst->rowBytes(), factory));
     dst->setPixelRef(ref, origin.x(), origin.y());
     return true;
 }

@@ -713,7 +713,7 @@ GrTexture* GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
         }
     }
 
-    return texture.detach();
+    return texture.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

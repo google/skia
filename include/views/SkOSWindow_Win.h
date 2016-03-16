@@ -48,7 +48,7 @@ public:
     };
 
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
-    void detach();
+    void release();
     void present();
 
     bool wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

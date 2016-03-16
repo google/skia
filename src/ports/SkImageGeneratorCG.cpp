@@ -66,7 +66,7 @@ SkImageGenerator* SkImageGeneratorCG::NewFromEncodedCG(SkData* data) {
     //        though I think it makes sense to wait until we understand how
     //        we want to communicate it to the generator.
 
-    return new SkImageGeneratorCG(info, autoImageSrc.detach(), data);
+    return new SkImageGeneratorCG(info, autoImageSrc.release(), data);
 }
 
 SkImageGeneratorCG::SkImageGeneratorCG(const SkImageInfo& info, const void* imageSrc, SkData* data)

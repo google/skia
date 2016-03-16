@@ -769,10 +769,10 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
             const char* ctName = jsonBitmap[SKDEBUGCANVAS_ATTRIBUTE_COLOR].asCString();
             SkColorType ct = colortype_from_name(ctName);
             if (ct != kIndex_8_SkColorType) {
-                bitmap.reset(convert_colortype(bitmap.detach(), ct));
+                bitmap.reset(convert_colortype(bitmap.release(), ct));
             }
         }
-        return bitmap.detach();
+        return bitmap.release();
     }
     SkDebugf("image decode failed\n");
     return nullptr;

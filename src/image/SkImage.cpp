@@ -134,7 +134,7 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
     }
     SkAutoTUnref<SkData> encoded(this->refEncoded());
     if (encoded && effectiveSerializer->useEncodedData(encoded->data(), encoded->size())) {
-        return encoded.detach();
+        return encoded.release();
     }
 
     SkBitmap bm;

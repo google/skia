@@ -595,9 +595,9 @@ struct ContentEntry {
     // If the stack is too deep we could get Stack Overflow.
     // So we manually destruct the object.
     ~ContentEntry() {
-        ContentEntry* val = fNext.detach();
+        ContentEntry* val = fNext.release();
         while (val != nullptr) {
-            ContentEntry* valNext = val->fNext.detach();
+            ContentEntry* valNext = val->fNext.release();
             // When the destructor is called, fNext is nullptr and exits.
             delete val;
             val = valNext;
@@ -1851,7 +1851,7 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
         contentEntries->reset(entry);
         setLastContentEntry(entry);
     } else if (xfermode == SkXfermode::kDstOver_Mode) {
-        entry->fNext.reset(contentEntries->detach());
+        entry->fNext.reset(contentEntries->release());
         contentEntries->reset(entry);
     } else {
         lastContentEntry->fNext.reset(entry);
@@ -1885,7 +1885,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
             // of the content entries. If nothing was drawn, it needs to be
             // removed.
             SkAutoTDelete<ContentEntry>* contentEntries = getContentEntries();
-            contentEntries->reset(firstContentEntry->fNext.detach());
+            contentEntries->reset(firstContentEntry->fNext.release());
         }
         return;
     }

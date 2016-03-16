@@ -191,7 +191,7 @@ private:
         switch (bbox) {
         case kNo_BBoxType:
             // no bbox playback necessary
-            return pic.detach();
+            return pic.release();
         case kRTree_BBoxType:
             factory.reset(new SkRTreeFactory);
             break;

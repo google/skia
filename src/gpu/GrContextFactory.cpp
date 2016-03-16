@@ -143,7 +143,7 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
     }
 
     Context& context = fContexts.push_back();
-    context.fGLContext = glCtx.detach();
+    context.fGLContext = glCtx.release();
     context.fGrContext = SkRef(grCtx.get());
     context.fType = type;
     context.fOptions = options;

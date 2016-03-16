@@ -125,7 +125,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
     if (dataTypeface.get() != nullptr) {
         SkAutoTDelete<SkStreamAsset> stream(dataTypeface->openStream(nullptr));
         if (stream.get() != nullptr) {
-            return fImpl->createFromStream(stream.detach(), dataTypefaceIndex);
+            return fImpl->createFromStream(stream.release(), dataTypefaceIndex);
         }
     }
 
@@ -135,7 +135,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
         return nullptr;
     }
 
-    SkAutoTUnref<SkTypeface> typeface(fImpl->createFromStream(stream.detach(), id.fTtcIndex));
+    SkAutoTUnref<SkTypeface> typeface(fImpl->createFromStream(stream.release(), id.fTtcIndex));
     if (typeface.get() == nullptr) {
         return nullptr;
     }
@@ -146,7 +146,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
     newEntry.fTtcIndex = id.fTtcIndex;
     newEntry.fTypeface = typeface.get();  // weak reference passed to new entry.
 
-    return typeface.detach();
+    return typeface.release();
 }
 
 SkTypeface* SkFontMgr_Indirect::onMatchFamilyStyle(const char familyName[],
@@ -205,5 +205,5 @@ SkTypeface* SkFontMgr_Indirect::onLegacyCreateTypeface(const char familyName[],
         face.reset(this->createTypefaceFromFontId(fontId));
     }
 
-    return face.detach();
+    return face.release();
 }

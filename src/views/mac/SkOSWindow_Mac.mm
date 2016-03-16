@@ -69,7 +69,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int sampleCount, AttachmentIn
     return [(SkNSView*)fHWND attach:attachType withMSAASampleCount:sampleCount andGetInfo:info];
 }
 
-void SkOSWindow::detach() {
+void SkOSWindow::release() {
     [(SkNSView*)fHWND detach];
 }
 

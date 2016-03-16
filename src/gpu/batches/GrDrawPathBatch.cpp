@@ -99,7 +99,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     fTotalPathCount += that->fTotalPathCount;
     while (Draw* head = that->fDraws.head()) {
         Draw* draw = fDraws.addToTail();
-        draw->fInstanceData.reset(head->fInstanceData.detach());
+        draw->fInstanceData.reset(head->fInstanceData.release());
         draw->fX = head->fX;
         draw->fY = head->fY;
         that->fDraws.popHead();

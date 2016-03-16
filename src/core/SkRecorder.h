@@ -48,7 +48,7 @@ public:
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
 
     SkDrawableList* getDrawableList() const { return fDrawableList.get(); }
-    SkDrawableList* detachDrawableList() { return fDrawableList.detach(); }
+    SkDrawableList* detachDrawableList() { return fDrawableList.release(); }
 
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();

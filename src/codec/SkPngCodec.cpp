@@ -75,7 +75,7 @@ public:
         fInfo_ptr = info_ptr;
     }
 
-    void detach() {
+    void release() {
         fPng_ptr = nullptr;
         fInfo_ptr = nullptr;
     }
@@ -414,7 +414,7 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
     if (imageInfo) {
         *imageInfo = SkImageInfo::Make(origWidth, origHeight, colorType, alphaType, profileType);
     }
-    autoClean.detach();
+    autoClean.release();
     if (png_ptrp) {
         *png_ptrp = png_ptr;
     }
@@ -841,11 +841,11 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkRead
     auto colorSpace = read_color_space(png_ptr, info_ptr);
 
     if (1 == numberPasses) {
-        return new SkPngScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,
+        return new SkPngScanlineDecoder(imageInfo, streamDeleter.release(), chunkReader,
                                         png_ptr, info_ptr, bitDepth, colorSpace);
     }
 
-    return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,
+    return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.release(), chunkReader,
                                               png_ptr, info_ptr, bitDepth, numberPasses,
                                               colorSpace);
 }

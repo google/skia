@@ -63,7 +63,7 @@ SkMesaGLContext::SkMesaGLContext()
         return;
     }
 
-    this->init(gl.detach());
+    this->init(gl.release());
 }
 
 SkMesaGLContext::~SkMesaGLContext() {

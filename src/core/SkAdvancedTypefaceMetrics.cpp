@@ -250,7 +250,7 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
         finishRange(curRange, lastIndex - 1,
                     SkAdvancedTypefaceMetrics::WidthRange::kRange);
     }
-    return result.detach();
+    return result.release();
 }
 
 // Make AdvanceMetric template functions available for linking with typename

@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     SkBitmap bm;
     SkAutoTDelete<SkStream> in(open_for_reading(argc > 1 ? argv[1] : NULL));
     SkAutoTDelete<SkWStream> out(open_for_writing(argc > 2 ? argv[2] : NULL));
-    if (SkPDFDocumentToBitmap(in.detach(), &bm) && to_png(out, bm)) {
+    if (SkPDFDocumentToBitmap(in.release(), &bm) && to_png(out, bm)) {
         return 0;
     } else {
         return 1;

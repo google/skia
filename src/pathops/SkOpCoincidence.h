@@ -79,7 +79,7 @@ public:
         return SkDEBUGRELEASE(fDebugState->debugSpan(id), nullptr);
     }
 
-    void detach(SkCoincidentSpans* );
+    void release(SkCoincidentSpans* );
     void dump() const;
     bool expand();
     bool extend(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,

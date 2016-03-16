@@ -29,7 +29,7 @@ public:
     };
 
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info);
-    void detach();
+    void release();
     void present();
     bool makeFullscreen() { return true; }
     void closeWindow();

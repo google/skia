@@ -260,7 +260,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     canvasState->layers = (SkCanvasLayerState*) sk_malloc_throw(layerWriter.bytesWritten());
     layerWriter.flatten(canvasState->layers);
 
-    return canvasState.detach();
+    return canvasState.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +311,7 @@ static SkCanvas* create_canvas_from_canvas_layer(const SkCanvasLayerState& layer
     // setup the matrix and clip
     setup_canvas_from_MC_state(layerState.mcState, canvas.get());
 
-    return canvas.detach();
+    return canvas.release();
 }
 
 SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) {
@@ -340,7 +340,7 @@ SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) 
                                                              state_v1->layers[i].y));
     }
 
-    return canvas.detach();
+    return canvas.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -509,7 +509,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     return false;
                 }
 
-                *codecOut = new SkBmpMaskCodec(imageInfo, stream, bitsPerPixel, masks.detach(),
+                *codecOut = new SkBmpMaskCodec(imageInfo, stream, bitsPerPixel, masks.release(),
                         rowOrder);
                 return true;
             case kRLE_BmpInputFormat:
@@ -541,7 +541,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
         // codec has taken ownership of stream, so we do not need to
         // delete it.
         SkASSERT(codec);
-        streamDeleter.detach();
+        streamDeleter.release();
         return codec;
     }
     return nullptr;

@@ -18,7 +18,7 @@ SkOSWindow::SkOSWindow(void* hwnd) {
 }
 
 SkOSWindow::~SkOSWindow() {
-    this->detach();
+    this->release();
 }
 
 bool SkOSWindow::attach(SkBackEndTypes attachType,
@@ -149,7 +149,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType,
     }
 }
 
-void SkOSWindow::detach() {
+void SkOSWindow::release() {
     if (fWindow.fDisplay != EGL_NO_DISPLAY) {
         eglMakeCurrent(fWindow.fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         if (fWindow.fContext != EGL_NO_CONTEXT) {

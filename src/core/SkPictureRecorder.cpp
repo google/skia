@@ -92,8 +92,8 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
     for (int i = 0; pictList && i < pictList->count(); i++) {
         subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
     }
-    return new SkBigPicture(fCullRect, fRecord.detach(), pictList, fBBH.detach(),
-                            saveLayerData.detach(), subPictureBytes);
+    return new SkBigPicture(fCullRect, fRecord.release(), pictList, fBBH.release(),
+                            saveLayerData.release(), subPictureBytes);
 }
 
 SkPicture* SkPictureRecorder::endRecordingAsPicture(const SkRect& cullRect) {
@@ -173,7 +173,7 @@ protected:
         // SkBigPicture will take ownership of a ref on both fRecord and fBBH.
         // We're not willing to give up our ownership, so we must ref them for SkPicture.
         return new SkBigPicture(fBounds, SkRef(fRecord.get()), pictList, SkSafeRef(fBBH.get()),
-                                saveLayerData.detach(), subPictureBytes);
+                                saveLayerData.release(), subPictureBytes);
     }
 };
 

@@ -123,7 +123,7 @@ SkANGLEGLContext::SkANGLEGLContext(bool useGLBackend)
         return;
     }
 
-    this->init(gl.detach());
+    this->init(gl.release());
 }
 
 SkANGLEGLContext::~SkANGLEGLContext() {

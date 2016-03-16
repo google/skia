@@ -28,7 +28,7 @@ private:
     mutable Entry*  fHead;
     mutable Entry*  fTail;
 
-    inline Entry* detach(Entry*) const;
+    inline Entry* release(Entry*) const;
     inline void attachToHead(Entry*) const;
 
 #ifdef SK_DEBUG

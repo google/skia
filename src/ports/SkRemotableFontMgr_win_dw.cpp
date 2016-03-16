@@ -172,7 +172,7 @@ public:
 
             HRN(FontToIdentity(font.get(), &fontIds[fontIndex]));
         }
-        return fontIdSet.detach();
+        return fontIdSet.release();
     }
 
     virtual SkFontIdentity matchIndexStyle(int familyIndex,

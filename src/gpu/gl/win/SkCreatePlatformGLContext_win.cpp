@@ -127,7 +127,7 @@ WinGLContext::WinGLContext(GrGLStandard forcedGpuAPI)
         return;
     }
 
-    this->init(gl.detach());
+    this->init(gl.release());
 }
 
 WinGLContext::~WinGLContext() {

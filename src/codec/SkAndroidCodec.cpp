@@ -41,14 +41,14 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
 #endif
         case kBMP_SkEncodedFormat:
         case kWBMP_SkEncodedFormat:
-            return new SkSampledCodec(codec.detach());
+            return new SkSampledCodec(codec.release());
 #ifdef SK_CODEC_DECODES_WEBP
         case kWEBP_SkEncodedFormat:
-            return new SkWebpAdapterCodec((SkWebpCodec*) codec.detach());
+            return new SkWebpAdapterCodec((SkWebpCodec*) codec.release());
 #endif
 #ifdef SK_CODEC_DECODES_RAW
         case kDNG_SkEncodedFormat:
-            return new SkRawAdapterCodec((SkRawCodec*)codec.detach());
+            return new SkRawAdapterCodec((SkRawCodec*)codec.release());
 #endif
         default:
             return nullptr;

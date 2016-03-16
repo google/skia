@@ -38,7 +38,7 @@ public:
             }
 
             const Lights* finish() {
-                return fLights.detach();
+                return fLights.release();
             }
 
         private:

@@ -198,7 +198,7 @@ DEF_TEST(Gif_Sampled, r) {
         return;
     }
 
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;

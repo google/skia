@@ -53,7 +53,7 @@ template <typename R, typename T, R (*P)(T*)> struct SkFunctionWrapper {
 
     Call a function when this goes out of scope. The template uses two
     parameters, the object, and a function that is to be called in the destructor.
-    If detach() is called, the object reference is set to null. If the object
+    If release() is called, the object reference is set to null. If the object
     reference is null when the destructor is called, we do not call the
     function.
 */
@@ -63,14 +63,13 @@ public:
     SkAutoTCallVProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<void, T, P>>(obj) {}
 
     operator T*() const { return this->get(); }
-    T* detach() { return this->release(); }
 };
 
 /** \class SkAutoTCallIProc
 
 Call a function when this goes out of scope. The template uses two
 parameters, the object, and a function that is to be called in the destructor.
-If detach() is called, the object reference is set to null. If the object
+If release() is called, the object reference is set to null. If the object
 reference is null when the destructor is called, we do not call the
 function.
 */
@@ -80,7 +79,6 @@ public:
     SkAutoTCallIProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<int, T, P>>(obj) {}
 
     operator T*() const { return this->get(); }
-    T* detach() { return this->release(); }
 };
 
 /** \class SkAutoTDelete
@@ -99,7 +97,6 @@ public:
 
     operator T*() const { return this->get(); }
     void free() { this->reset(nullptr); }
-    T* detach() { return this->release(); }
 
     // See SkAutoTUnref for why we do this.
     explicit operator bool() const { return this->get() != nullptr; }
@@ -110,7 +107,6 @@ public:
     SkAutoTDeleteArray(T array[]) : std::unique_ptr<T[]>(array) {}
 
     void free() { this->reset(nullptr); }
-    T* detach() { return this->release(); }
 };
 
 /** Allocate an array of T elements, and free the array in the destructor
@@ -321,7 +317,7 @@ public:
      *  pointer to NULL. Note that this differs from get(), which also returns
      *  the pointer, but it does not transfer ownership.
      */
-    T* detach() {
+    T* release() {
         T* ptr = fPtr;
         fPtr = NULL;
         return ptr;

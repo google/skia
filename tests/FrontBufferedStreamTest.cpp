@@ -285,5 +285,5 @@ DEF_TEST(ShortFrontBufferedStream, reporter) {
 
     // This will fail to create a codec.  However, what we really want to test is that we
     // won't read past the end of the stream.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 }

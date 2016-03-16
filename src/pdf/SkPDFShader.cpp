@@ -622,7 +622,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
     auto alphaGs = create_smask_graphic_state(canon, dpi, state);
 
     SkPDFAlphaFunctionShader* alphaFunctionShader =
-            new SkPDFAlphaFunctionShader(autoState->detach());
+            new SkPDFAlphaFunctionShader(autoState->release());
 
     auto resourceDict =
             get_gradient_resource_dict(colorShader.get(), alphaGs.get());
@@ -809,7 +809,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     pdfShader->insertObjRef("Function", std::move(function));
 
     sk_sp<SkPDFFunctionShader> pdfFunctionShader(
-            new SkPDFFunctionShader(autoState->detach()));
+            new SkPDFFunctionShader(autoState->release()));
     pdfFunctionShader->insertInt("PatternType", 2);
     pdfFunctionShader->insertObject("Matrix",
                                     SkPDFUtils::MatrixToArray(finalMatrix));
@@ -1021,7 +1021,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
     // Put the canvas into the pattern stream (fContent).
     auto content = patternDevice->content();
 
-    SkPDFImageShader* imageShader = new SkPDFImageShader(autoState->detach());
+    SkPDFImageShader* imageShader = new SkPDFImageShader(autoState->release());
     imageShader->setData(content.get());
 
     auto resourceDict = patternDevice->makeResourceDict();

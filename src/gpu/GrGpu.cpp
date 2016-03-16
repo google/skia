@@ -477,7 +477,7 @@ const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
         return specs;
     }
     const MultisampleSpecs& specs = *new (&fMultisampleSpecsAllocator)
-        MultisampleSpecs{effectiveKey, effectiveSampleCnt, locations.detach()};
+        MultisampleSpecs{effectiveKey, effectiveSampleCnt, locations.release()};
     if (fMultisampleSpecsMap.count() <= effectiveKey) {
         int n = 1 + effectiveKey - fMultisampleSpecsMap.count();
         fMultisampleSpecsMap.push_back_n(n, (const MultisampleSpecs*) nullptr);

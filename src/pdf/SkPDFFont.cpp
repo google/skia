@@ -267,7 +267,7 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
         uint8_t* const resultTrailer = &(buffer[SkToInt(*headerLen + outputOffset)]);
         memcpy(resultTrailer, src + *headerLen + hexDataLen, *trailerLen);
 
-        return SkData::NewFromMalloc(buffer.detach(), length);
+        return SkData::NewFromMalloc(buffer.release(), length);
     }
     return nullptr;
 }
@@ -1077,7 +1077,7 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
             SkASSERT(fontData);
             fontSize = fontData->getLength();
             SkASSERT(fontSize > 0);
-            fontStream.reset(new SkPDFSharedStream(fontData.detach()));
+            fontStream.reset(new SkPDFSharedStream(fontData.release()));
             fontStream->dict()->insertInt("Length1", fontSize);
             descriptor->insertObjRef("FontFile2", std::move(fontStream));
             break;

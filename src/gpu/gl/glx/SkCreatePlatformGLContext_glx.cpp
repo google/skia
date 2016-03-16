@@ -284,7 +284,7 @@ GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI, GLXGLContext* shareContext
         return;
     }
 
-    this->init(gl.detach());
+    this->init(gl.release());
 }
 
 

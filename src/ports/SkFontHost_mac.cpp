@@ -105,7 +105,7 @@ public:
         }
     }
 
-    CFRef detach() {
+    CFRef release() {
         CFRef self = fCFRef;
         fCFRef = nullptr;
         return self;
@@ -550,7 +550,7 @@ static SkTypeface* NewFromName(const char familyName[], const SkFontStyle& theSt
 
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef, (void*)ctFont.get());
     if (!face) {
-        face = NewFromFontRef(ctFont.detach(), nullptr, nullptr, false);
+        face = NewFromFontRef(ctFont.release(), nullptr, nullptr, false);
         SkTypefaceCache::Add(face, face->fontStyle());
     }
     return face;
@@ -1867,9 +1867,9 @@ SkFontData* SkTypeface_Mac::onCreateFontData() const {
     CFIndex cgAxisCount;
     SkAutoSTMalloc<4, SkFixed> axisValues;
     if (get_variations(fFontRef, &cgAxisCount, &axisValues)) {
-        return new SkFontData(stream.detach(), index, axisValues.get(), cgAxisCount);
+        return new SkFontData(stream.release(), index, axisValues.get(), cgAxisCount);
     }
-    return new SkFontData(stream.detach(), index, nullptr, 0);
+    return new SkFontData(stream.release(), index, nullptr, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2199,7 +2199,7 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName, CTFontDescriptorRef 
     bool isFixedPitch;
     (void)computeStyleBits(ctFont, &isFixedPitch);
 
-    face = new SkTypeface_Mac(ctFont.detach(), nullptr, cacheRequest.fStyle, isFixedPitch,
+    face = new SkTypeface_Mac(ctFont.release(), nullptr, cacheRequest.fStyle, isFixedPitch,
                               skFamilyName.c_str(), false);
     SkTypefaceCache::Add(face, face->fontStyle());
     return face;
@@ -2497,14 +2497,14 @@ protected:
         if (cgVariations) {
             cgVariant.reset(CGFontCreateCopyWithVariations(cg, cgVariations));
         } else {
-            cgVariant.reset(cg.detach());
+            cgVariant.reset(cg.release());
         }
 
         CTFontRef ct = CTFontCreateWithGraphicsFont(cgVariant, 0, nullptr, nullptr);
         if (!ct) {
             return nullptr;
         }
-        return NewFromFontRef(ct, cg.detach(), nullptr, true);
+        return NewFromFontRef(ct, cg.release(), nullptr, true);
     }
 
     static CFDictionaryRef get_axes(CGFontRef cg, SkFontData* fontData) {
@@ -2580,14 +2580,14 @@ protected:
         if (cgVariations) {
             cgVariant.reset(CGFontCreateCopyWithVariations(cg, cgVariations));
         } else {
-            cgVariant.reset(cg.detach());
+            cgVariant.reset(cg.release());
         }
 
         CTFontRef ct = CTFontCreateWithGraphicsFont(cgVariant, 0, nullptr, nullptr);
         if (!ct) {
             return nullptr;
         }
-        return NewFromFontRef(ct, cg.detach(), nullptr, true);
+        return NewFromFontRef(ct, cg.release(), nullptr, true);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {

@@ -420,10 +420,10 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
     }
 
     SkAutoTDelete<SkMemoryStream> newStream(new SkMemoryStream());
-    newStream->setMemoryOwned(fontPackageBuffer.detach(), bytesWritten + extra);
+    newStream->setMemoryOwned(fontPackageBuffer.release(), bytesWritten + extra);
 
     SkTScopedComPtr<IStream> newIStream;
-    SkIStream::CreateFromSkStream(newStream.detach(), true, &newIStream);
+    SkIStream::CreateFromSkStream(newStream.release(), true, &newIStream);
 
     XPS_FONT_EMBEDDING embedding;
     HRM(current->xpsFont->GetEmbeddingOption(&embedding),

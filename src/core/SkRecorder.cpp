@@ -27,7 +27,7 @@ SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
     for (int i = 0; i < count; ++i) {
         pics[i] = fArray[i]->newPictureSnapshot();
     }
-    return new SkBigPicture::SnapshotArray(pics.detach(), count);
+    return new SkBigPicture::SnapshotArray(pics.release(), count);
 }
 
 void SkDrawableList::append(SkDrawable* drawable) {

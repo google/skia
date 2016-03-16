@@ -571,7 +571,7 @@ int SkOpSegment::computeSum(SkOpSpanBase* start, SkOpSpanBase* end,
     return start->starter(end)->windSum();
 }
 
-void SkOpSegment::detach(const SkOpSpan* span) {
+void SkOpSegment::release(const SkOpSpan* span) {
     if (span->done()) {
         --fDoneCount;
     }
@@ -1407,10 +1407,10 @@ void SkOpSegment::moveNearby() {
         SkOpSpanBase* next;
         if (spanS->contains(test)) {
             if (!test->final()) {
-                test->upCast()->detach(spanS->ptT());
+                test->upCast()->release(spanS->ptT());
                 continue;
             } else if (spanS != &fHead) {
-                spanS->upCast()->detach(test->ptT());
+                spanS->upCast()->release(test->ptT());
                 spanS = test;
                 continue;
             }

@@ -55,10 +55,10 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         // Create image info object and the codec
         const SkImageInfo& imageInfo = SkImageInfo::Make(decoderMgr->dinfo()->image_width,
                 decoderMgr->dinfo()->image_height, colorType, kOpaque_SkAlphaType);
-        *codecOut = new SkJpegCodec(imageInfo, stream, decoderMgr.detach());
+        *codecOut = new SkJpegCodec(imageInfo, stream, decoderMgr.release());
     } else {
         SkASSERT(nullptr != decoderMgrOut);
-        *decoderMgrOut = decoderMgr.detach();
+        *decoderMgrOut = decoderMgr.release();
     }
     return true;
 }
@@ -69,7 +69,7 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
     if (ReadHeader(stream,  &codec, nullptr)) {
         // Codec has taken ownership of the stream, we do not need to delete it
         SkASSERT(codec);
-        streamDeleter.detach();
+        streamDeleter.release();
         return codec;
     }
     return nullptr;

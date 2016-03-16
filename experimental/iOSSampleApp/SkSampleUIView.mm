@@ -97,7 +97,7 @@ public:
             SkSafeUnref(fCurContext);
             SkSafeUnref(fCurIntf);
             SkDebugf("Failed to setup 3D");
-            win->detach();
+            win->release();
         }
 #endif // SK_SUPPORT_GPU
         // call windowSizeChanged to create the render target
@@ -115,7 +115,7 @@ public:
         SkSafeUnref(fCurRenderTarget);
         fCurRenderTarget = NULL;
 #endif
-        win->detach();
+        win->release();
         fBackend = SampleWindow::kNone_BackEndType;
     }
 

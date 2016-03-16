@@ -255,7 +255,7 @@ static void check_pixelref(TestImageGenerator::TestType type,
     SkAutoTDelete<SkImageGenerator> gen(new TestImageGenerator(type, reporter, colorType));
     REPORTER_ASSERT(reporter, gen.get() != nullptr);
     SkBitmap lazy;
-    bool success = SkDEPRECATED_InstallDiscardablePixelRef(gen.detach(), nullptr, &lazy, factory);
+    bool success = SkDEPRECATED_InstallDiscardablePixelRef(gen.release(), nullptr, &lazy, factory);
 
     REPORTER_ASSERT(reporter, success);
     if (TestImageGenerator::kSucceedGetPixels_TestType == type) {

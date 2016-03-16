@@ -647,7 +647,7 @@ public:
             }
         } while(SkCommandLineFlags::ShouldSkip(FLAGS_sourceType, fSourceType) ||
                 SkCommandLineFlags::ShouldSkip(FLAGS_benchType,  fBenchType));
-        return bench.detach();
+        return bench.release();
     }
 
     Benchmark* rawNext() {
@@ -665,7 +665,7 @@ public:
             if (gm->runAsBench()) {
                 fSourceType = "gm";
                 fBenchType  = "micro";
-                return new GMBench(gm.detach());
+                return new GMBench(gm.release());
             }
         }
 

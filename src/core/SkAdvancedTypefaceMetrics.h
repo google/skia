@@ -35,7 +35,7 @@ public:
         }
     }
     void free() { this->reset(nullptr); }
-    T* detach() {
+    T* release() {
         T* ptr = fPtr;
         fPtr = nullptr;
         return ptr;

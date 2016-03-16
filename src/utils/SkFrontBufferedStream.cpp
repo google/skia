@@ -147,7 +147,7 @@ size_t FrontBufferedStream::readDirectlyFromStream(char* dst, size_t size) {
     // If we have read past the end of the buffer, rewinding is no longer
     // supported, so we can go ahead and free the memory.
     if (bytesReadDirectly > 0) {
-        sk_free(fBuffer.detach());
+        sk_free(fBuffer.release());
     }
 
     return bytesReadDirectly;

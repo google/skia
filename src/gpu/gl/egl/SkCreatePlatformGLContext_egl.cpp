@@ -179,7 +179,7 @@ EGLGLContext::EGLGLContext(GrGLStandard forcedGpuAPI)
             continue;
         }
 
-        this->init(gl.detach(), SkEGLFenceSync::CreateIfSupported(fDisplay));
+        this->init(gl.release(), SkEGLFenceSync::CreateIfSupported(fDisplay));
         break;
     }
 }

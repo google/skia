@@ -168,7 +168,7 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     }
     SkImageInfo info = SkImageInfo::Make(size.width(), size.height(),
             kGray_8_SkColorType, kOpaque_SkAlphaType);
-    return new SkWbmpCodec(info, streamDeleter.detach());
+    return new SkWbmpCodec(info, streamDeleter.release());
 }
 
 int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {

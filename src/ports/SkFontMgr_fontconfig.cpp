@@ -196,8 +196,8 @@ static SkWeakReturn is_weak(FcPattern* pattern, const char object[], int id) {
     FcPatternAddString(weak, object, (const FcChar8*)"nomatchstring");
     FcPatternAddLangSet(weak, FC_LANG, weakLangSet);
 
-    FcFontSetAdd(fontSet, strong.detach());
-    FcFontSetAdd(fontSet, weak.detach());
+    FcFontSetAdd(fontSet, strong.release());
+    FcFontSetAdd(fontSet, weak.release());
 
     // Add 'matchlang' to the copy of the pattern.
     FcPatternAddLangSet(minimal, FC_LANG, weakLangSet);
@@ -725,7 +725,7 @@ protected:
             }
         }
 
-        return new StyleSet(this, matches.detach());
+        return new StyleSet(this, matches.release());
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
@@ -830,7 +830,7 @@ protected:
             return nullptr;
         }
 
-        return new SkTypeface_stream(new SkFontData(stream.detach(), ttcIndex, nullptr, 0), style,
+        return new SkTypeface_stream(new SkFontData(stream.release(), ttcIndex, nullptr, 0), style,
                                      isFixedWidth);
     }
 
@@ -852,7 +852,7 @@ protected:
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
 
-        SkFontData* data(new SkFontData(stream.detach(), params.getCollectionIndex(),
+        SkFontData* data(new SkFontData(stream.release(), params.getCollectionIndex(),
                                         axisValues.get(), axisDefinitions.count()));
         return new SkTypeface_stream(data, style, isFixedPitch);
     }
@@ -893,7 +893,7 @@ protected:
                                                : SkFontStyle::kUpright_Slant);
         SkAutoTUnref<SkTypeface> typeface(this->matchFamilyStyle(familyName, style));
         if (typeface.get()) {
-            return typeface.detach();
+            return typeface.release();
         }
 
         return this->matchFamilyStyle(nullptr, style);

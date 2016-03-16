@@ -51,7 +51,7 @@ SkGradientBitmapCache::~SkGradientBitmapCache() {
     }
 }
 
-SkGradientBitmapCache::Entry* SkGradientBitmapCache::detach(Entry* entry) const {
+SkGradientBitmapCache::Entry* SkGradientBitmapCache::release(Entry* entry) const {
     if (entry->fPrev) {
         SkASSERT(fHead != entry);
         entry->fPrev->fNext = entry->fNext;
@@ -90,7 +90,7 @@ bool SkGradientBitmapCache::find(const void* buffer, size_t size, SkBitmap* bm) 
                 *bm = entry->fBitmap;
             }
             // move to the head of our list, so we purge it last
-            this->detach(entry);
+            this->release(entry);
             this->attachToHead(entry);
             return true;
         }
@@ -104,7 +104,7 @@ void SkGradientBitmapCache::add(const void* buffer, size_t len, const SkBitmap& 
 
     if (fEntryCount == fMaxEntries) {
         SkASSERT(fTail);
-        delete this->detach(fTail);
+        delete this->release(fTail);
         fEntryCount -= 1;
     }
 

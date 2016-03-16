@@ -624,7 +624,7 @@ const SkTextBlob* SkTextBlobBuilder::build() {
         fStorage.realloc(fStorageUsed);
     }
 
-    const SkTextBlob* blob = new (fStorage.detach()) SkTextBlob(fRunCount, fBounds);
+    const SkTextBlob* blob = new (fStorage.release()) SkTextBlob(fRunCount, fBounds);
     SkDEBUGCODE(const_cast<SkTextBlob*>(blob)->fStorageSize = fStorageSize;)
 
     SkDEBUGCODE(

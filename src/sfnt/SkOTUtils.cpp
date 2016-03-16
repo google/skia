@@ -174,7 +174,7 @@ SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(const SkTypeface& ty
         return nullptr;
     }
 
-    return new SkOTUtils::LocalizedStrings_NameTable((SkOTTableName*)nameTableData.detach(),
+    return new SkOTUtils::LocalizedStrings_NameTable((SkOTTableName*)nameTableData.release(),
         SkOTUtils::LocalizedStrings_NameTable::familyNameTypes,
         SK_ARRAY_COUNT(SkOTUtils::LocalizedStrings_NameTable::familyNameTypes));
 }

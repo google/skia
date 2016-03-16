@@ -171,7 +171,7 @@ static void check(skiatest::Reporter* r,
         SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
         codec.reset(SkCodec::NewFromData(data));
     } else {
-        codec.reset(SkCodec::NewFromStream(stream.detach()));
+        codec.reset(SkCodec::NewFromStream(stream.release()));
     }
     if (!codec) {
         ERRORF(r, "Unable to decode '%s'", path);
@@ -300,7 +300,7 @@ static void check(skiatest::Reporter* r,
             SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
             androidCodec.reset(SkAndroidCodec::NewFromData(data));
         } else {
-            androidCodec.reset(SkAndroidCodec::NewFromStream(stream.detach()));
+            androidCodec.reset(SkAndroidCodec::NewFromStream(stream.release()));
         }
         if (!androidCodec) {
             ERRORF(r, "Unable to decode '%s'", path);
@@ -412,7 +412,7 @@ DEF_TEST(Codec_stripes, r) {
         SkDebugf("Missing resource '%s'\n", path);
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, codec);
 
     if (!codec) {
@@ -545,7 +545,7 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
     if (!codec) {
         ERRORF(r, "Unable to create codec '%s'", path);
         return;
@@ -610,7 +610,7 @@ static void test_invalid(skiatest::Reporter* r, const char path[]) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, nullptr == codec);
 }
 
@@ -636,7 +636,7 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkCodec> decoder(SkCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkCodec> decoder(SkCodec::NewFromStream(stream.release()));
     
     // This should return kSuccess because kIndex8 is supported.
     SkPMColor colorStorage[256];
@@ -954,7 +954,7 @@ DEF_TEST(Codec_wbmp_max_size, r) {
                                           0x83, 0xFF, 0x7F,     // W: 65535
                                           0x83, 0xFF, 0x7F };   // H: 65535
     SkAutoTDelete<SkStream> stream(new SkMemoryStream(maxSizeWbmp, sizeof(maxSizeWbmp), false));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
     REPORTER_ASSERT(r, codec);
     if (!codec) return;
@@ -968,7 +968,7 @@ DEF_TEST(Codec_wbmp_max_size, r) {
                                          0x84, 0x80, 0x00,     // W: 65536
                                          0x84, 0x80, 0x00 };   // H: 65536
     stream.reset(new SkMemoryStream(tooBigWbmp, sizeof(tooBigWbmp), false));
-    codec.reset(SkCodec::NewFromStream(stream.detach()));
+    codec.reset(SkCodec::NewFromStream(stream.release()));
 
     REPORTER_ASSERT(r, !codec);
 }

@@ -636,7 +636,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, Attachme
     return result;
 }
 
-void SkOSWindow::detach() {
+void SkOSWindow::release() {
     switch (fAttached) {
     case kNone_BackEndType:
         // nothing to do

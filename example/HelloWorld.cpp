@@ -49,7 +49,7 @@ void HelloWorldWindow::tearDownBackend() {
     SkSafeUnref(fRenderTarget);
     fRenderTarget = NULL;
 
-    INHERITED::detach();
+    INHERITED::release();
 }
 
 void HelloWorldWindow::setTitle() {
@@ -65,7 +65,7 @@ bool HelloWorldWindow::setUpBackend() {
     bool result = attach(kNativeGL_BackEndType, 0 /*msaa*/, &fAttachmentInfo);
     if (false == result) {
         SkDebugf("Not possible to create backend.\n");
-        detach();
+        release();
         return false;
     }
 

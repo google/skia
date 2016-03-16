@@ -559,7 +559,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
     if (!data->parseStream(stream, proc, topLevelTFPlayback)) {
         return nullptr;
     }
-    return data.detach();
+    return data.release();
 }
 
 SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
@@ -570,7 +570,7 @@ SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
     if (!data->parseBuffer(buffer)) {
         return nullptr;
     }
-    return data.detach();
+    return data.release();
 }
 
 bool SkPictureData::parseStream(SkStream* stream,

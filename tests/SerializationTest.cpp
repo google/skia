@@ -372,7 +372,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
         } else {
             SkFixed axis = SK_FixedSqrt2;
             SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFontData(
-                new SkFontData(distortable.detach(), 0, &axis, 1)));
+                new SkFontData(distortable.release(), 0, &axis, 1)));
             if (!typeface) {
                 INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {

@@ -45,7 +45,7 @@ public:
     };
 
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
-    void detach();
+    void release();
     void present();
 
     int getMSAASampleCount() const { return fMSAASampleCount; }

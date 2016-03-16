@@ -232,7 +232,7 @@ SkFontData* SkTypeface::createFontData() const {
 SkFontData* SkTypeface::onCreateFontData() const {
     int index;
     SkAutoTDelete<SkStreamAsset> stream(this->onOpenStream(&index));
-    return new SkFontData(stream.detach(), index, nullptr, 0);
+    return new SkFontData(stream.release(), index, nullptr, 0);
 };
 
 int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,

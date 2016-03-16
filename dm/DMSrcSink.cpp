@@ -818,7 +818,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         //        We have disabled these tests in DM.cpp.
         SkASSERT(kGray_8_SkColorType != gen->getInfo().colorType());
 
-        SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen.detach(), nullptr));
+        SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen.release(), nullptr));
         if (!image) {
             return "Could not create image from codec image generator.";
         }

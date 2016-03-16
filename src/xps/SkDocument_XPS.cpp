@@ -76,7 +76,7 @@ SkDocument* SkDocument::CreateXPS(const char path[], SkScalar dpi) {
     if (!stream->isValid()) {
         return nullptr;
     }
-    return new SkDocument_XPS(stream.detach(), delete_wstream, dpi);
+    return new SkDocument_XPS(stream.release(), delete_wstream, dpi);
 }
 
 #endif//defined(SK_BUILD_FOR_WIN32)

@@ -279,7 +279,7 @@ void SkResourceCache::remove(Rec* rec) {
     size_t used = rec->bytesUsed();
     SkASSERT(used <= fTotalBytesUsed);
 
-    this->detach(rec);
+    this->release(rec);
     fHash->remove(rec->getKey());
 
     fTotalBytesUsed -= used;
@@ -395,7 +395,7 @@ SkCachedData* SkResourceCache::newCachedData(size_t bytes) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkResourceCache::detach(Rec* rec) {
+void SkResourceCache::release(Rec* rec) {
     Rec* prev = rec->fPrev;
     Rec* next = rec->fNext;
 
@@ -425,7 +425,7 @@ void SkResourceCache::moveToHead(Rec* rec) {
 
     this->validate();
 
-    this->detach(rec);
+    this->release(rec);
 
     fHead->fPrev = rec;
     rec->fNext = fHead;

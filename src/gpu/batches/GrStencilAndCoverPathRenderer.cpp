@@ -60,7 +60,7 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const SkPath& s
     } else {
         SkASSERT(path->isEqualTo(skPath, stroke));
     }
-    return path.detach();
+    return path.release();
 }
 
 void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {

@@ -273,7 +273,7 @@ static const TagHandler familyHandler = {
         }
     },
     /*end*/[](FamilyData* self, const char* tag) {
-        *self->fFamilies.append() = self->fCurrentFamily.detach();
+        *self->fFamilies.append() = self->fCurrentFamily.release();
     },
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
@@ -473,7 +473,7 @@ static const TagHandler familyHandler = {
         }
     },
     /*end*/[](FamilyData* self, const char* tag) {
-        *self->fFamilies.append() = self->fCurrentFamily.detach();
+        *self->fFamilies.append() = self->fCurrentFamily.release();
     },
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);

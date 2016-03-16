@@ -141,6 +141,6 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
 
     drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), r);
 
-    return result.detach();
+    return result.release();
 }
 

@@ -77,7 +77,7 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     SkAutoTDelete<SkStream> streamDeleter(stream);
     SkImageInfo info;
     if (webp_parse_header(stream, &info)) {
-        return new SkWebpCodec(info, streamDeleter.detach());
+        return new SkWebpCodec(info, streamDeleter.release());
     }
     return nullptr;
 }

@@ -194,7 +194,6 @@ template <typename T> class SkAutoTUnref : public std::unique_ptr<T, SkTUnref<T>
 public:
     explicit SkAutoTUnref(T* obj = nullptr) : std::unique_ptr<T, SkTUnref<T>>(obj) {}
 
-    T* detach() { return this->release(); }
     operator T*() const { return this->get(); }
 
     // Android's std::unique_ptr's operator bool() is sometimes not explicit...

@@ -216,12 +216,12 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
         // the default.
         SkImageInfo imageInfo = SkImageInfo::Make(size.width(), size.height(), kIndex_8_SkColorType,
                 alphaType);
-        *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach(), transIndex,
+        *codecOut = new SkGifCodec(imageInfo, streamDeleter.release(), gif.release(), transIndex,
                 frameRect, frameIsSubset);
     } else {
         SkASSERT(nullptr != gifOut);
-        streamDeleter.detach();
-        *gifOut = gif.detach();
+        streamDeleter.release();
+        *gifOut = gif.release();
     }
     return true;
 }

@@ -50,7 +50,7 @@ SkOSWindow* SkOSWindow::GetInstanceForWindowID(Uint32 windowID) {
     return nullptr;
 }
 
-void SkOSWindow::detach() {
+void SkOSWindow::release() {
     if (fGLContext) {
         SDL_GL_DeleteContext(fGLContext);
         fGLContext = nullptr;
@@ -76,7 +76,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, Attachme
 
     if (SDL_GL_MakeCurrent(fWindow, fGLContext) != 0) {
         report_sdl_error("Failed to make SDL GL context current.");
-        this->detach();
+        this->release();
         return false;
     }
 
@@ -219,7 +219,7 @@ void SkOSWindow::createWindow(int msaaSampleCount) {
 }
 
 void SkOSWindow::destroyWindow() {
-    this->detach();
+    this->release();
     if (fWindow) {
         SDL_DestroyWindow(fWindow);
         fWindow = nullptr;

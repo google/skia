@@ -31,7 +31,7 @@ DEF_TEST(BadImage, reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(badImages); ++i) {
         SkString fullPath = SkOSPath::Join(resourcePath.c_str(), badImages[i]);
         SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fullPath.c_str()));
-        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
         // These images are corrupt.  It's not important whether we succeed/fail in codec
         // creation or decoding.  We just want to make sure that we don't crash.

@@ -53,7 +53,7 @@ IOSGLContext::IOSGLContext()
         "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
         RTLD_LAZY);
 
-    this->init(gl.detach());
+    this->init(gl.release());
 }
 
 IOSGLContext::~IOSGLContext() {

@@ -70,7 +70,7 @@ public:
     /** Return a ptr to the array of data, to be freed with sk_free. This also
         resets the SkTDArray to be empty.
      */
-    T* detach() {
+    T* release() {
         T* array = fArray;
         fArray = NULL;
         fReserve = fCount = 0;

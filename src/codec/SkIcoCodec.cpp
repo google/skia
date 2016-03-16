@@ -140,9 +140,9 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         // Check if the embedded codec is bmp or png and create the codec
         SkCodec* codec = nullptr;
         if (SkPngCodec::IsPng((const char*) data->bytes(), data->size())) {
-            codec = SkPngCodec::NewFromStream(embeddedStream.detach());
+            codec = SkPngCodec::NewFromStream(embeddedStream.release());
         } else {
-            codec = SkBmpCodec::NewFromIco(embeddedStream.detach());
+            codec = SkBmpCodec::NewFromIco(embeddedStream.release());
         }
 
         // Save a valid codec
@@ -172,7 +172,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 
     // Note that stream is owned by the embedded codec, the ico does not need
     // direct access to the stream.
-    return new SkIcoCodec(info, codecs.detach());
+    return new SkIcoCodec(info, codecs.release());
 }
 
 /*

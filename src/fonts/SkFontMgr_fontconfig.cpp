@@ -309,13 +309,13 @@ protected:
             return nullptr;
         }
 
-        SkTypeface* face = FontConfigTypeface::Create(style, isFixedWidth, stream.detach());
+        SkTypeface* face = FontConfigTypeface::Create(style, isFixedWidth, stream.release());
         return face;
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
-        return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : nullptr;
+        return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
     }
 
     SkTypeface* onLegacyCreateTypeface(const char familyName[],

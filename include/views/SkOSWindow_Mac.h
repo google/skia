@@ -32,7 +32,7 @@ public:
 #endif // SK_COMMAND_BUFFER
     };
 
-    void    detach();
+    void    release();
     bool    attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
     void    present();
 
