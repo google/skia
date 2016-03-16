@@ -136,7 +136,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, contex
                     resourceProvider->attachStencilAttachment(bigRT->asRenderTarget()));
 
     if (context->caps()->maxSampleCount() >= 4) {
-        // An RT with a different sample count should not share. 
+        // An RT with a different sample count should not share.
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = 4;
         SkAutoTUnref<GrTexture> smallMSAART0(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
@@ -216,8 +216,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, cont
     SkAutoTUnref<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
                                     desc, kAdopt_GrWrapOwnership));
 
-    REPORTER_ASSERT(reporter, SkToBool(borrowed) && SkToBool(adopted));
-    if (!SkToBool(borrowed) || !SkToBool(adopted)) {
+    REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
+    if (!borrowed || !adopted) {
         return;
     }
 
@@ -242,7 +242,7 @@ class TestResource : public GrGpuResource {
     enum ScratchConstructor { kScratchConstructor };
 public:
     static const size_t kDefaultSize = 100;
-    
+
     /** Property that distinctly categorizes the resource.
      * For example, textures have width, height, ... */
     enum SimulatedProperty { kA_SimulatedProperty, kB_SimulatedProperty };
@@ -590,7 +590,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         REPORTER_ASSERT(reporter, SkBudgeted::kYes == resource->resourcePriv().isBudgeted());
 
         if (0 == i) {
-            // If made unbudgeted, it should return to original state: ref'ed and unbudgeted. Try 
+            // If made unbudgeted, it should return to original state: ref'ed and unbudgeted. Try
             // the above tests again.
             resource->resourcePriv().makeUnbudgeted();
         } else {
@@ -784,11 +784,11 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
 
     GrUniqueKey key;
     make_unique_key<0>(&key, 0);
-    
+
     // Create two resources that we will attempt to register with the same unique key.
     TestResource* a = new TestResource(context->getGpu());
     a->setSize(11);
-    
+
     // Set key on resource a.
     a->resourcePriv().setUniqueKey(key);
     REPORTER_ASSERT(reporter, a == cache->findAndRefUniqueResource(key));
@@ -882,7 +882,7 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     make_unique_key<0>(&key1, 1);
     make_unique_key<0>(&key2, 2);
     make_unique_key<0>(&key3, 3);
-    
+
     // Add three resources to the cache. Only c is usable as scratch.
     TestResource* a = new TestResource(context->getGpu());
     TestResource* b = new TestResource(context->getGpu());

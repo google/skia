@@ -9,9 +9,10 @@
 #define SkRefCnt_DEFINED
 
 #include "../private/SkAtomics.h"
-#include "../private/SkUniquePtr.h"
+#include "../private/SkTLogic.h"
 #include "SkTypes.h"
 #include <functional>
+#include <memory>
 #include <utility>
 
 #define SK_SUPPORT_TRANSITION_TO_SP_INTERFACES
@@ -189,12 +190,16 @@ template <typename T> struct SkTUnref {
 /**
  *  Utility class that simply unref's its argument in the destructor.
  */
-template <typename T> class SkAutoTUnref : public skstd::unique_ptr<T, SkTUnref<T>> {
+template <typename T> class SkAutoTUnref : public std::unique_ptr<T, SkTUnref<T>> {
 public:
-    explicit SkAutoTUnref(T* obj = nullptr) : skstd::unique_ptr<T, SkTUnref<T>>(obj) {}
+    explicit SkAutoTUnref(T* obj = nullptr) : std::unique_ptr<T, SkTUnref<T>>(obj) {}
 
     T* detach() { return this->release(); }
     operator T*() const { return this->get(); }
+
+    // Android's std::unique_ptr's operator bool() is sometimes not explicit...
+    // so override it with our own explcitly explicit version.
+    explicit operator bool() const { return this->get() != nullptr; }
 };
 // Can't use the #define trick below to guard a bare SkAutoTUnref(...) because it's templated. :(
 
