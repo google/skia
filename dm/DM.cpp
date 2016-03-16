@@ -262,6 +262,12 @@ static void gather_gold() {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+#if defined(SK_BUILD_FOR_WIN32)
+    static const char* kNewline = "\r\n";
+#else
+    static const char* kNewline = "\n";
+#endif
+
 static SkTHashSet<SkString> gUninterestingHashes;
 
 static void gather_uninteresting_hashes() {
@@ -273,7 +279,7 @@ static void gather_uninteresting_hashes() {
             return;
         }
         SkTArray<SkString> hashes;
-        SkStrSplit((const char*)data->data(), "\n", &hashes);
+        SkStrSplit((const char*)data->data(), kNewline, &hashes);
         for (const SkString& hash : hashes) {
             gUninterestingHashes.add(hash);
         }
