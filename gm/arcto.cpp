@@ -187,3 +187,21 @@ DEF_SIMPLE_GM(parsedpaths, canvas, kParsePathTestDimension, kParsePathTestDimens
     sk_fclose(file);
 #endif
 }
+
+DEF_SIMPLE_GM(bug593049, canvas, 300, 300) {
+    canvas->translate(111, 0);
+
+    SkPath p;
+    p.moveTo(-43.44464063610148f, 79.43535936389853f);
+    const SkScalar yOffset = 122.88f;
+    const SkScalar radius = 61.44f;
+    SkRect oval = SkRect::MakeXYWH(-radius, yOffset - radius, 2 * radius, 2 * radius);
+    p.arcTo(oval, 1.25f * 180, .5f * 180, false);
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+    paint.setStrokeWidth(15.36f);
+
+    canvas->drawPath(p, paint);
+}

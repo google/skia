@@ -406,11 +406,11 @@ static bool has_valid_tangent(const SkPath::Iter* iter) {
 }
 
 void SkPathStroker::lineTo(const SkPoint& currPt, const SkPath::Iter* iter) {
-    if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper
-            && fPrevPt.equalsWithinTolerance(currPt, SK_ScalarNearlyZero * fInvResScale)) {
+    bool teenyLine = fPrevPt.equalsWithinTolerance(currPt, SK_ScalarNearlyZero * fInvResScale);
+    if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper && teenyLine) {
         return;
     }
-    if (fPrevPt == currPt && (fJoinCompleted || (iter && has_valid_tangent(iter)))) {
+    if (teenyLine && (fJoinCompleted || (iter && has_valid_tangent(iter)))) {
         return;
     }
     SkVector    normal, unitNormal;
