@@ -7,7 +7,6 @@
 
 #include "SkTableColorFilter.h"
 
-#include "GrContext.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkReadBuffer.h"
@@ -467,7 +466,7 @@ const GrFragmentProcessor* ColorTableEffect::Create(GrContext* context, SkBitmap
     desc.fHeight = 128;
     desc.fRowHeight = bitmap.height();
     desc.fContext = context;
-    desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *context->caps());
+    desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info());
     GrTextureStripAtlas* atlas = GrTextureStripAtlas::GetAtlas(desc);
     int row = atlas->lockRow(bitmap);
     SkAutoTUnref<GrTexture> texture;

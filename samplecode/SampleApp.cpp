@@ -310,8 +310,7 @@ public:
                 fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
                                              SkImageInfo2GrPixelConfig(bm.colorType(),
                                                                        bm.alphaType(),
-                                                                       bm.profileType(),
-                                                                       *fCurContext->caps()),
+                                                                       bm.profileType()),
                                              bm.getPixels(),
                                              bm.rowBytes(),
                                              GrContext::kFlushWrites_PixelOp);

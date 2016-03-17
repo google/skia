@@ -12,8 +12,6 @@
 #include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
 
-#include "GrContext.h"
-
 void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColorArray(fColors, fCount);
     if (fPos) {
@@ -1119,7 +1117,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height();
         desc.fContext = ctx;
-        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *ctx->caps());
+        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info());
         fAtlas = GrTextureStripAtlas::GetAtlas(desc);
         SkASSERT(fAtlas);
 

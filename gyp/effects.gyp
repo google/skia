@@ -21,7 +21,6 @@
       'include_dirs': [
         '../include/effects',
         '../include/client/android',
-        '../include/gpu',
         '../include/private',
         '../src/effects',
         '../src/opts',

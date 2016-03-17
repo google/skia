@@ -95,7 +95,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
 
 bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
 

@@ -43,12 +43,12 @@
 #  include "etc1.h"
 #endif
 
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(info, caps);
+    desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = 0;
     return desc;
 }
@@ -213,7 +213,7 @@ static GrTexture* load_etc1_texture(GrContext* ctx, const SkBitmap &bm, GrSurfac
 }
 
 GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
     if (GrTexture *texture = load_etc1_texture(ctx, bitmap, desc)) {
         return texture;
     }
@@ -238,8 +238,8 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap) {
     SkPixmap tmpPixmap;
     SkBitmap tmpBitmap;
 
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info());
     const GrCaps* caps = ctx->caps();
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *caps);
 
     if (kIndex_8_SkColorType == pixmap.colorType()) {
         if (caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
@@ -263,7 +263,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap) {
             }
             pmap = &tmpPixmap;
             // must rebuild desc, since we've forced the info to be N32
-            desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+            desc = GrImageInfoToSurfaceDesc(pmap->info());
         }
     }
 
@@ -289,7 +289,7 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 
 GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap)
 {
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
     if (kIndex_8_SkColorType != bitmap.colorType() && !bitmap.readyToDraw()) {
         GrTexture* texture = load_etc1_texture(ctx, bitmap, desc);
         if (texture) {
@@ -358,38 +358,29 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
 
 // alphatype is ignore for now, but if GrPixelConfig is expanded to encompass
 // alpha info, that will be considered.
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProfileType pt,
-                                        const GrCaps& caps) {
-    if (kSRGB_SkColorProfileType == pt && caps.srgbSupport()) {
-        switch (ct) {
-            case kRGBA_8888_SkColorType:
-                return kSRGBA_8888_GrPixelConfig;
-            case kBGRA_8888_SkColorType:
-                return kSBGRA_8888_GrPixelConfig;
-            default:
-                break;
-        }
-    } else {
-        switch (ct) {
-            case kUnknown_SkColorType:
-                return kUnknown_GrPixelConfig;
-            case kAlpha_8_SkColorType:
-                return kAlpha_8_GrPixelConfig;
-            case kRGB_565_SkColorType:
-                return kRGB_565_GrPixelConfig;
-            case kARGB_4444_SkColorType:
-                return kRGBA_4444_GrPixelConfig;
-            case kRGBA_8888_SkColorType:
-                return kRGBA_8888_GrPixelConfig;
-            case kBGRA_8888_SkColorType:
-                return kBGRA_8888_GrPixelConfig;
-            case kIndex_8_SkColorType:
-                return kIndex_8_GrPixelConfig;
-            case kGray_8_SkColorType:
-                return kAlpha_8_GrPixelConfig; // TODO: gray8 support on gpu
-            case kRGBA_F16_SkColorType:
-                return kRGBA_half_GrPixelConfig;
-        }
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProfileType pt) {
+    switch (ct) {
+        case kUnknown_SkColorType:
+            return kUnknown_GrPixelConfig;
+        case kAlpha_8_SkColorType:
+            return kAlpha_8_GrPixelConfig;
+        case kRGB_565_SkColorType:
+            return kRGB_565_GrPixelConfig;
+        case kARGB_4444_SkColorType:
+            return kRGBA_4444_GrPixelConfig;
+        case kRGBA_8888_SkColorType:
+            //if (kSRGB_SkColorProfileType == pt) {
+            //    return kSRGBA_8888_GrPixelConfig;
+            //}
+            return kRGBA_8888_GrPixelConfig;
+        case kBGRA_8888_SkColorType:
+            return kBGRA_8888_GrPixelConfig;
+        case kIndex_8_SkColorType:
+            return kIndex_8_GrPixelConfig;
+        case kGray_8_SkColorType:
+            return kAlpha_8_GrPixelConfig; // TODO: gray8 support on gpu
+        case kRGBA_F16_SkColorType:
+            return kRGBA_half_GrPixelConfig;
     }
     SkASSERT(0);    // shouldn't get here
     return kUnknown_GrPixelConfig;
@@ -420,10 +411,6 @@ bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
             break;
         case kSRGBA_8888_GrPixelConfig:
             ct = kRGBA_8888_SkColorType;
-            pt = kSRGB_SkColorProfileType;
-            break;
-        case kSBGRA_8888_GrPixelConfig:
-            ct = kBGRA_8888_SkColorType;
             pt = kSRGB_SkColorProfileType;
             break;
         default:

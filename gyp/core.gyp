@@ -20,7 +20,6 @@
         '../include/c',
         '../include/config',
         '../include/core',
-        '../include/gpu',
         '../include/pathops',
         '../include/ports',
         '../include/private',

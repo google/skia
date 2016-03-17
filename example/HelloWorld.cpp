@@ -157,8 +157,7 @@ void HelloWorldWindow::draw(SkCanvas* canvas) {
             fRenderTarget->writePixels(0, 0, snap->width(), snap->height(),
                                             SkImageInfo2GrPixelConfig(info.colorType(),
                                                                     info.alphaType(),
-                                                                    info.profileType(),
-                                                                    *fContext->caps()),
+                                                                    info.profileType()),
                                             pmap.addr(),
                                             pmap.rowBytes(),
                                             GrContext::kFlushWrites_PixelOp);

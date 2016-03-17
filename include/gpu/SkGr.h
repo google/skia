@@ -15,7 +15,6 @@
 #include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 
-class GrCaps;
 class GrContext;
 class GrTexture;
 class GrTextureParams;
@@ -71,10 +70,10 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
 GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&);
 
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, SkColorProfileType, const GrCaps&);
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, SkColorProfileType);
 
-static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps) {
-    return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(), info.profileType(), caps);
+static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info) {
+    return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(), info.profileType());
 }
 
 GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,

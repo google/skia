@@ -10,8 +10,6 @@
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 
-#include "GrContext.h"
-
 ///////////////////////////////////////////////////////////////////////////////
 class SkSpecialImage_Base : public SkSpecialImage {
 public:
@@ -168,7 +166,7 @@ public:
 #if SK_SUPPORT_GPU
         GrTexture* texture = as_IB(fImage.get())->peekTexture();
         if (texture) {
-            GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *texture->getContext()->caps());
+            GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info);
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
             return SkSpecialSurface::NewRenderTarget(this->proxy(), texture->getContext(), desc);
@@ -386,7 +384,7 @@ public:
     }
 
     SkSpecialSurface* onNewSurface(const SkImageInfo& info) const override {
-        GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *fTexture->getContext()->caps());
+        GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info);
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
         return SkSpecialSurface::NewRenderTarget(this->proxy(), fTexture->getContext(), desc);

@@ -898,7 +898,6 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
-        case kSBGRA_8888_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
             return 4;
         default:
@@ -2101,15 +2100,13 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     SkSTArray<8, const GrTextureAccess*> textureAccesses;
     program->setData(primProc, pipeline, &textureAccesses);
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
-    bool allowSRGB = GrAllowSRGBForDestinationPixelConfig(glRT->config());
-
     int numTextureAccesses = textureAccesses.count();
     for (int i = 0; i < numTextureAccesses; i++) {
-        this->bindTexture(i, textureAccesses[i]->getParams(), allowSRGB,
+        this->bindTexture(i, textureAccesses[i]->getParams(),
                           static_cast<GrGLTexture*>(textureAccesses[i]->getTexture()));
     }
 
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !pipeline.getStencil().isDisabled());
@@ -2609,16 +2606,6 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
             tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
             tempDrawInfo->fReadConfig = kRGBA_8888_GrPixelConfig;
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        } else if (readConfig == kSBGRA_8888_GrPixelConfig &&
-            this->glCaps().isConfigRenderable(kSRGBA_8888_GrPixelConfig, false) &&
-            this->readPixelsSupported(kSRGBA_8888_GrPixelConfig, kSRGBA_8888_GrPixelConfig)) {
-            // We're trying to read sBGRA but it's not supported. If sRGBA is renderable and
-            // we can read it back, then do a swizzling draw to a sRGBA and read it back (which
-            // will effectively be sBGRA).
-            tempDrawInfo->fTempSurfaceDesc.fConfig = kSRGBA_8888_GrPixelConfig;
-            tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-            tempDrawInfo->fReadConfig = kSRGBA_8888_GrPixelConfig;
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
         } else if (readConfig == kAlpha_8_GrPixelConfig) {
             // onReadPixels implements a fallback for cases where we are want to read kAlpha_8,
@@ -3324,8 +3311,7 @@ static void get_tex_param_swizzle(GrPixelConfig config,
     }
 }
 
-void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool dstConfigAllowsSRGB,
-                          GrGLTexture* texture) {
+void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture) {
     SkASSERT(texture);
 
 #ifdef SK_DEBUG
@@ -3360,19 +3346,6 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool dstCo
     const GrGLTexture::TexParams& oldTexParams = texture->getCachedTexParams(&timestamp);
     bool setAll = timestamp < this->getResetTimestamp();
     GrGLTexture::TexParams newTexParams;
-
-    if (this->caps()->srgbSupport()) {
-        // By default, the decision to allow SRGB decode is based on the destination config.
-        // A texture can override that by specifying a value in GrTextureParams.
-        newTexParams.fSRGBDecode =
-            (dstConfigAllowsSRGB || GrTextureParams::kForceAllowSRGB_SRGBMode == params.srgbMode())
-            ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
-
-        if (setAll || newTexParams.fSRGBDecode != oldTexParams.fSRGBDecode) {
-            this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SRGB_DECODE_EXT, newTexParams.fSRGBDecode));
-        }
-    }
 
     static GrGLenum glMinFilterModes[] = {
         GR_GL_NEAREST,
@@ -4041,7 +4014,7 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
 
     GrGLTexture* srcTex = static_cast<GrGLTexture*>(src->asTexture());
     GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
-    this->bindTexture(0, params, true, srcTex);
+    this->bindTexture(0, params, srcTex);
 
     GrGLIRect dstVP;
     this->bindSurfaceFBOForCopy(dst, GR_GL_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);

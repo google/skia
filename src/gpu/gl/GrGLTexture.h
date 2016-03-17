@@ -25,7 +25,6 @@ public:
         GrGLenum fWrapT;
         GrGLenum fMaxMipMapLevel;
         GrGLenum fSwizzleRGBA[4];
-        GrGLenum fSRGBDecode;
         void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
     };
 
