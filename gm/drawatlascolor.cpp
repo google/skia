@@ -15,7 +15,7 @@
 //  ------------------------------------
 //   opaque green  |  transparent black
 //
-static SkImage* make_atlas(SkCanvas* caller, int atlasSize) {
+static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
     const int kBlockSize = atlasSize/2;
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
@@ -48,7 +48,7 @@ static SkImage* make_atlas(SkCanvas* caller, int atlasSize) {
                          SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
     canvas->drawRect(r, paint);
 
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 // This GM tests the drawAtlas API with colors, different xfer modes
@@ -73,7 +73,7 @@ protected:
         const SkRect target = SkRect::MakeWH(SkIntToScalar(kAtlasSize), SkIntToScalar(kAtlasSize));
 
         if (nullptr == fAtlas) {
-            fAtlas.reset(make_atlas(canvas, kAtlasSize));
+            fAtlas = make_atlas(canvas, kAtlasSize);
         }
 
         const struct {
@@ -151,11 +151,11 @@ protected:
             canvas->translate(SkIntToScalar(i*(target.height()+kPad)),
                               SkIntToScalar(kTextPad+kPad));
             // w/o a paint
-            canvas->drawAtlas(fAtlas, xforms, rects, quadColors, numColors, 
+            canvas->drawAtlas(fAtlas.get(), xforms, rects, quadColors, numColors,
                               gModes[i].fMode, nullptr, nullptr);
             canvas->translate(0.0f, numColors*(target.height()+kPad));
             // w a paint
-            canvas->drawAtlas(fAtlas, xforms, rects, quadColors, numColors, 
+            canvas->drawAtlas(fAtlas.get(), xforms, rects, quadColors, numColors,
                               gModes[i].fMode, nullptr, &paint);
             canvas->restore();        
         }
@@ -169,7 +169,7 @@ private:
     static const int kTextPad = 8;
 
 
-    SkAutoTUnref<SkImage> fAtlas;
+    sk_sp<SkImage> fAtlas;
 
     typedef GM INHERITED;
 };

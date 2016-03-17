@@ -57,7 +57,7 @@ protected:
         paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y), radius, colors, nullptr,
                                                      2, SkShader::kClamp_TileMode));
         canvas->drawCircle(x, y, radius, paint);
-        fGradientCircle.reset(surface->newImageSnapshot());
+        fGradientCircle = surface->makeImageSnapshot();
     }
 
     static void draw_clipped_filter(SkCanvas* canvas, SkImageFilter* filter, size_t i,
@@ -80,16 +80,16 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard.reset(SkImage::NewFromBitmap
-            (sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8)));
+        fCheckerboard = SkImage::MakeFromBitmap
+            (sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8));
         this->makeGradientCircle(64, 64);
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
-        SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle));
-        SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle.get()));
+        SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard.get()));
         SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
         SkMatrix resizeMatrix;
@@ -148,7 +148,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkImage> fCheckerboard, fGradientCircle;
+    sk_sp<SkImage> fCheckerboard, fGradientCircle;
 
     typedef GM INHERITED;
 };

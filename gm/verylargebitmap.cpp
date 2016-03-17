@@ -22,25 +22,25 @@ static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
     canvas->drawPaint(paint);
 }
 
-static SkImage* make_raster_image(int width, int height, SkColor colors[2]) {
+static sk_sp<SkImage> make_raster_image(int width, int height, SkColor colors[2]) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(width, height));
     draw(surface->getCanvas(), width, height, colors);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-static SkImage* make_picture_image(int width, int height, SkColor colors[2]) {
+static sk_sp<SkImage> make_picture_image(int width, int height, SkColor colors[2]) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(width, height)), width, height, colors);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-    return SkImage::NewFromPicture(picture, SkISize::Make(width, height),
-                                   nullptr, nullptr);
+    return SkImage::MakeFromPicture(sk_ref_sp(picture.get()), SkISize::Make(width, height),
+                                    nullptr, nullptr);
 }
 
-typedef SkImage* (*ImageMakerProc)(int width, int height, SkColor colors[2]);
+typedef sk_sp<SkImage> (*ImageMakerProc)(int width, int height, SkColor colors[2]);
 
 static void show_image(SkCanvas* canvas, int width, int height, SkColor colors[2],
                        ImageMakerProc proc) {
-    SkAutoTUnref<SkImage> image(proc(width, height, colors));
+    sk_sp<SkImage> image(proc(width, height, colors));
 
     SkPaint paint;
     SkRect r;

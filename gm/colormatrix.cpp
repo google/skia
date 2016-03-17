@@ -37,11 +37,11 @@ protected:
     }
     
     void onOnceBeforeDraw() override {
-        fSolidImg.reset(CreateSolidBitmap(64, 64));
-        fTransparentImg.reset(CreateTransparentBitmap(64, 64));
+        fSolidImg = CreateSolidBitmap(64, 64);
+        fTransparentImg = CreateTransparentBitmap(64, 64);
     }
 
-    static SkImage* CreateSolidBitmap(int width, int height) {
+    static sk_sp<SkImage> CreateSolidBitmap(int width, int height) {
         SkBitmap bm;
         bm.allocN32Pixels(width, height);
         SkCanvas canvas(bm);
@@ -54,11 +54,11 @@ protected:
                     SkIntToScalar(y), SK_Scalar1, SK_Scalar1), paint);
             }
         }
-        return SkImage::NewFromBitmap(bm);
+        return SkImage::MakeFromBitmap(bm);
     }
 
     // creates a bitmap with shades of transparent gray.
-    static SkImage* CreateTransparentBitmap(int width, int height) {
+    static sk_sp<SkImage> CreateTransparentBitmap(int width, int height) {
         SkBitmap bm;
         bm.allocN32Pixels(width, height);
         SkCanvas canvas(bm);
@@ -70,7 +70,7 @@ protected:
         paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
                                                      SkShader::kClamp_TileMode));
         canvas.drawRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), paint);
-        return SkImage::NewFromBitmap(bm);
+        return SkImage::MakeFromBitmap(bm);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -78,7 +78,7 @@ protected:
         SkColorMatrix matrix;
 
         paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-        const SkImage* bmps[] = { fSolidImg, fTransparentImg };
+        const SkImage* bmps[] = { fSolidImg.get(), fTransparentImg.get() };
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(bmps); ++i) {
             matrix.setIdentity();
@@ -139,8 +139,8 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkImage>   fSolidImg;
-    SkAutoTUnref<SkImage>   fTransparentImg;
+    sk_sp<SkImage>   fSolidImg;
+    sk_sp<SkImage>   fTransparentImg;
 
     typedef skiagm::GM INHERITED;
 };

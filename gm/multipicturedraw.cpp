@@ -511,9 +511,8 @@ namespace skiagm {
             for (int i = 0; i < composeSteps.count(); ++i) {
                 const ComposeStep& step = composeSteps[i];
 
-                SkAutoTUnref<SkImage> image(step.fSurf->newImageSnapshot());
-
-                canvas->drawImage(image, step.fX, step.fY, step.fPaint);
+                canvas->drawImage(step.fSurf->makeImageSnapshot().get(),
+                                  step.fX, step.fY, step.fPaint);
             }
         }
 

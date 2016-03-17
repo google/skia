@@ -12,7 +12,7 @@
 #include "sk_tool_utils.h"
 
 static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
-    SkAutoTUnref<SkImage> image(GetResourceAsImage(resource));
+    sk_sp<SkImage> image(GetResourceAsImage(resource));
     if (image) {
         canvas->drawImage(image, SkIntToScalar(x), SkIntToScalar(y));
     } else {

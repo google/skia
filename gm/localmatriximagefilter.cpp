@@ -14,7 +14,7 @@
 #include "SkOffsetImageFilter.h"
 #include "SkSurface.h"
 
-static SkImage* make_image(SkCanvas* rootCanvas) {
+static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
     SkAutoTUnref<SkSurface> surface(rootCanvas->newSurface(info));
     if (!surface) {
@@ -25,7 +25,7 @@ static SkImage* make_image(SkCanvas* rootCanvas) {
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
     surface->getCanvas()->drawCircle(50, 50, 50, paint);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 typedef SkImageFilter* (*ImageFilterFactory)();
@@ -62,7 +62,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkImage> image0(make_image(canvas));
+        sk_sp<SkImage> image0(make_image(canvas));
 
         const ImageFilterFactory factories[] = {
             IFCCast([]{ return SkBlurImageFilter::Create(8, 8); }),
@@ -84,11 +84,11 @@ protected:
             SkAutoTUnref<SkImageFilter> filter(factory());
 
             canvas->save();
-            show_image(canvas, image0, filter);
+            show_image(canvas, image0.get(), filter);
             for (const auto& matrix : matrices) {
                 SkAutoTUnref<SkImageFilter> localFilter(filter->newWithLocalMatrix(matrix));
                 canvas->translate(spacer, 0);
-                show_image(canvas, image0, localFilter);
+                show_image(canvas, image0.get(), localFilter);
             }
             canvas->restore();
             canvas->translate(0, spacer);

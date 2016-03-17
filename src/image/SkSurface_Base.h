@@ -81,7 +81,7 @@ public:
     virtual void onPrepareForExternalIO() {}
 
     inline SkCanvas* getCachedCanvas();
-    inline SkImage* refCachedImage(SkBudgeted, ForceUnique);
+    inline sk_sp<SkImage> refCachedImage(SkBudgeted, ForceUnique);
 
     bool hasCachedImage() const { return fCachedImage != nullptr; }
 
@@ -114,13 +114,13 @@ SkCanvas* SkSurface_Base::getCachedCanvas() {
     return fCachedCanvas;
 }
 
-SkImage* SkSurface_Base::refCachedImage(SkBudgeted budgeted, ForceUnique unique) {
+sk_sp<SkImage> SkSurface_Base::refCachedImage(SkBudgeted budgeted, ForceUnique unique) {
     SkImage* snap = fCachedImage;
     if (kYes_ForceUnique == unique && snap && !snap->unique()) {
         snap = nullptr;
     }
     if (snap) {
-        return SkRef(snap);
+        return sk_ref_sp(snap);
     }
     ForceCopyMode fcm = (kYes_ForceUnique == unique) ? kYes_ForceCopyMode :
                                                        kNo_ForceCopyMode;
@@ -130,7 +130,7 @@ SkImage* SkSurface_Base::refCachedImage(SkBudgeted budgeted, ForceUnique unique)
         fCachedImage = SkSafeRef(snap);
     }
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
-    return snap;
+    return sk_sp<SkImage>(snap);
 }
 
 #endif

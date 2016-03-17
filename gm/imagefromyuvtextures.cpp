@@ -90,7 +90,7 @@ protected:
                     ((112 * rgb[0] -  94 * rgb[1] -  18 * rgb[2] + 128) >> 8) + 128);
             }
         }
-        fRGBImage.reset(SkImage::NewRasterCopy(rgbBmp.info(), rgbColors, rgbBmp.rowBytes()));
+        fRGBImage = SkImage::MakeRasterCopy(SkPixmap(rgbBmp.info(), rgbColors, rgbBmp.rowBytes()));
     }
 
     void createYUVTextures(GrContext* context, GrBackendObject yuvHandles[3]) {
@@ -141,28 +141,26 @@ protected:
             { fYUVBmps[1].width(), fYUVBmps[1].height()},
             { fYUVBmps[2].width(), fYUVBmps[2].height()},
         };
-        SkTArray<SkImage*> images;
-        images.push_back(SkRef(fRGBImage.get()));
+        SkTArray<sk_sp<SkImage>> images;
+        images.push_back(fRGBImage);
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
-            images.push_back(SkImage::NewFromYUVTexturesCopy(context,
-                                                             static_cast<SkYUVColorSpace>(space),
-                                                             yuvHandles, sizes,
-                                                             kTopLeft_GrSurfaceOrigin));
+            images.push_back(SkImage::MakeFromYUVTexturesCopy(context,
+                                                              static_cast<SkYUVColorSpace>(space),
+                                                              yuvHandles, sizes,
+                                                              kTopLeft_GrSurfaceOrigin));
         }
         this->deleteYUVTextures(context, yuvHandles);
         for (int i = 0; i < images.count(); ++ i) {
             SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
             SkScalar x = kPad;
 
-            canvas->drawImage(images[i], x, y);
-            images[i]->unref();
-            images[i] = nullptr;
+            canvas->drawImage(images[i].get(), x, y);
         }
      }
 
 private:
-    SkAutoTUnref<SkImage>  fRGBImage;
-    SkBitmap               fYUVBmps[3];
+    sk_sp<SkImage>  fRGBImage;
+    SkBitmap        fYUVBmps[3];
 
     static const int kBmpSize = 32;
 

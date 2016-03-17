@@ -169,9 +169,9 @@ static void test_image_backed(skiatest::Reporter* reporter, SkImage* srcImage) {
 DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
     SkBitmap srcBM = create_bm();
 
-    SkAutoTUnref<SkImage> srcImage(SkImage::NewFromBitmap(srcBM));
+    sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
 
-    test_image_backed(reporter, srcImage);
+    test_image_backed(reporter, srcImage.get());
 }
 
 #if SK_SUPPORT_GPU
@@ -202,13 +202,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, co
     backendDesc.fHeight = kFullSize;
     backendDesc.fSampleCnt = 0;
     backendDesc.fTextureHandle = srcTexture->getTextureHandle();
-    SkAutoTUnref<SkImage> srcImage(SkImage::NewFromTexture(context, backendDesc,
-                                                           kPremul_SkAlphaType));
+    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context, backendDesc, kPremul_SkAlphaType));
     if (!srcImage) {
         return;
     }
 
-    test_image_backed(reporter, srcImage);
+    test_image_backed(reporter, srcImage.get());
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, context) {

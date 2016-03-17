@@ -67,7 +67,7 @@ protected:
         surface->getCanvas()->drawBitmapRect(fBM, srcRect, dstRect, &paint,
                                              SkCanvas::kStrict_SrcRectConstraint);
 
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
 
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(405, 5, 305, 305);

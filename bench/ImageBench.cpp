@@ -33,7 +33,7 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
         SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
         canvas->drawColor(SK_ColorRED);
-        fImage.reset(surface->newImageSnapshot());
+        fImage = surface->makeImageSnapshot();
 
         // create a cpu-backed Surface
         fRasterSurface.reset(SkSurface::NewRaster(info));
@@ -49,14 +49,14 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             for (int inner = 0; inner < 10; ++inner) {
-                fRasterSurface->getCanvas()->drawImage(fImage, 0, 0);
+                fRasterSurface->getCanvas()->drawImage(fImage.get(), 0, 0);
             }
         }
     }
 
 private:
     SkString                fName;
-    SkAutoTUnref<SkImage>   fImage;
+    sk_sp<SkImage>   fImage;
     SkAutoTUnref<SkSurface> fRasterSurface;
 
     typedef Benchmark INHERITED;

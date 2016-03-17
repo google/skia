@@ -232,7 +232,7 @@ public:
      *  parameter controls whether it counts against the resource budget
      *  (currently for the gpu backend only).
      */
-    SkImage* newImageSnapshot(SkBudgeted = SkBudgeted::kYes);
+    sk_sp<SkImage> makeImageSnapshot(SkBudgeted = SkBudgeted::kYes);
 
     /**
      * In rare instances a client may want a unique copy of the SkSurface's contents in an image
@@ -244,7 +244,16 @@ public:
         kNo_ForceUnique,
         kYes_ForceUnique
     };
-    SkImage* newImageSnapshot(SkBudgeted, ForceUnique);
+    sk_sp<SkImage> makeImageSnapshot(SkBudgeted, ForceUnique);
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFACTORY
+    SkImage* newImageSnapshot(SkBudgeted budgeted = SkBudgeted::kYes) {
+        return this->makeImageSnapshot(budgeted).release();
+    }
+    SkImage* newImageSnapshot(SkBudgeted budgeted, ForceUnique force) {
+        return this->makeImageSnapshot(budgeted, force).release();
+    }
+#endif
 
     /**
      *  Though the caller could get a snapshot image explicitly, and draw that,

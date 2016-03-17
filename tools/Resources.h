@@ -8,6 +8,7 @@
 #ifndef Resources_DEFINED
 #define Resources_DEFINED
 
+#include "SkRefCnt.h"
 #include "SkString.h"
 
 class SkBitmap;
@@ -19,7 +20,7 @@ SkString GetResourcePath(const char* resource = "");
 void SetResourcePath(const char* );
 
 bool GetResourceAsBitmap(const char* resource, SkBitmap* dst);
-SkImage* GetResourceAsImage(const char* resource);
+sk_sp<SkImage> GetResourceAsImage(const char* resource);
 SkStreamAsset* GetResourceAsStream(const char* resource);
 SkTypeface* GetResourceAsTypeface(const char* resource);
 

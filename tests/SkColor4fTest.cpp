@@ -108,7 +108,7 @@ static sk_sp<SkShader> make_image_sh() {
         SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
         SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
     };
-    SkAutoTUnref<SkImage> image(SkImage::NewRasterCopy(info, pixels, sizeof(SkPMColor) * 2));
+    sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, pixels, sizeof(SkPMColor) * 2)));
     return image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
 }
 

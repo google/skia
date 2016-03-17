@@ -49,15 +49,13 @@ protected:
         return backend == kNonRendering_Backend;
     }
     void onDelayedSetup() override {
-        SkAutoTUnref<SkImage> img(GetResourceAsImage("color_wheel.png"));
+        sk_sp<SkImage> img(GetResourceAsImage("color_wheel.png"));
         if (img) {
             // force decoding, throw away reference to encoded data.
             SkAutoPixmapStorage pixmap;
             pixmap.alloc(SkImageInfo::MakeN32Premul(img->dimensions()));
             if (img->readPixels(pixmap, 0, 0)) {
-                fImage.reset(SkImage::NewRasterCopy(
-                                     pixmap.info(), pixmap.addr(),
-                                     pixmap.rowBytes(), pixmap.ctable()));
+                fImage = SkImage::MakeRasterCopy(pixmap);
             }
         }
     }
@@ -67,7 +65,7 @@ protected:
         }
         while (loops-- > 0) {
             SkAutoTUnref<SkPDFObject> object(
-                    SkPDFCreateBitmapObject(fImage, nullptr));
+                    SkPDFCreateBitmapObject(fImage.get(), nullptr));
             SkASSERT(object);
             if (!object) {
                 return;
@@ -77,7 +75,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkImage> fImage;
+    sk_sp<SkImage> fImage;
 };
 
 class PDFJpegImageBench : public Benchmark {
@@ -91,13 +89,12 @@ protected:
         return backend == kNonRendering_Backend;
     }
     void onDelayedSetup() override {
-        SkAutoTUnref<SkImage> img(
-                GetResourceAsImage("mandrill_512_q075.jpg"));
+        sk_sp<SkImage> img(GetResourceAsImage("mandrill_512_q075.jpg"));
         if (!img) { return; }
         SkAutoTUnref<SkData> encoded(img->refEncoded());
         SkASSERT(encoded);
         if (!encoded) { return; }
-        fImage.reset(img.release());
+        fImage = img;
     }
     void onDraw(int loops, SkCanvas*) override {
         if (!fImage) {
@@ -106,7 +103,7 @@ protected:
         }
         while (loops-- > 0) {
             SkAutoTUnref<SkPDFObject> object(
-                    SkPDFCreateBitmapObject(fImage, nullptr));
+                    SkPDFCreateBitmapObject(fImage.get(), nullptr));
             SkASSERT(object);
             if (!object) {
                 return;
@@ -116,7 +113,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkImage> fImage;
+    sk_sp<SkImage> fImage;
 };
 
 /** Test calling DEFLATE on a 78k PDF command stream. Used for measuring

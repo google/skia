@@ -78,6 +78,10 @@ static inline SkImage_Base* as_IB(SkImage* image) {
     return static_cast<SkImage_Base*>(image);
 }
 
+static inline SkImage_Base* as_IB(const sk_sp<SkImage>& image) {
+    return static_cast<SkImage_Base*>(image.get());
+}
+
 static inline const SkImage_Base* as_IB(const SkImage* image) {
     return static_cast<const SkImage_Base*>(image);
 }

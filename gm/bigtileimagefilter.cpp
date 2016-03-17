@@ -10,7 +10,7 @@
 #include "SkTileImageFilter.h"
 #include "gm.h"
 
-static SkImage* create_circle_texture(int size, SkColor color) {
+static sk_sp<SkImage> create_circle_texture(int size, SkColor color) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(size, size));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0xFF000000);
@@ -22,7 +22,7 @@ static SkImage* create_circle_texture(int size, SkColor color) {
 
     canvas->drawCircle(SkScalarHalf(size), SkScalarHalf(size), SkScalarHalf(size), paint);
 
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 namespace skiagm {
@@ -44,8 +44,8 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fRedImage.reset(create_circle_texture(kBitmapSize, SK_ColorRED));
-        fGreenImage.reset(create_circle_texture(kBitmapSize, SK_ColorGREEN));
+        fRedImage = create_circle_texture(kBitmapSize, SK_ColorRED);
+        fGreenImage = create_circle_texture(kBitmapSize, SK_ColorGREEN);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -55,11 +55,11 @@ protected:
             SkPaint p;
 
             SkRect bound = SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
-            SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(fRedImage));
+            sk_sp<SkImageFilter> imageSource(SkImageSource::Create(fRedImage.get()));
             SkAutoTUnref<SkImageFilter> tif(SkTileImageFilter::Create(
                             SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
                             SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)),
-                            imageSource));
+                            imageSource.get()));
             p.setImageFilter(tif);
 
             canvas->saveLayer(&bound, &p);
@@ -84,7 +84,7 @@ protected:
             SkRect bound3 = SkRect::MakeXYWH(320, 320,
                                              SkIntToScalar(kBitmapSize),
                                              SkIntToScalar(kBitmapSize));
-            canvas->drawImageRect(fGreenImage, bound2, bound3, nullptr,
+            canvas->drawImageRect(fGreenImage.get(), bound2, bound3, nullptr,
                                   SkCanvas::kStrict_SrcRectConstraint);
             canvas->restore();
         }
@@ -95,8 +95,8 @@ private:
     static const int kHeight = 512;
     static const int kBitmapSize = 64;
 
-    SkAutoTUnref<SkImage> fRedImage;
-    SkAutoTUnref<SkImage> fGreenImage;
+    sk_sp<SkImage> fRedImage;
+    sk_sp<SkImage> fGreenImage;
 
     typedef GM INHERITED;
 };

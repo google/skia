@@ -688,11 +688,11 @@ static SkImageFilter* make_image_filter(bool canBeNull) {
         break;
     case BITMAP:
     {
-        SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(make_bitmap()));
+        sk_sp<SkImage> image(SkImage::MakeFromBitmap(make_bitmap()));
         if (R(2) == 1) {
-            filter = SkImageSource::Create(image, make_rect(), make_rect(), kHigh_SkFilterQuality);
+            filter = SkImageSource::Create(image.get(), make_rect(), make_rect(), kHigh_SkFilterQuality);
         } else {
-            filter = SkImageSource::Create(image);
+            filter = SkImageSource::Create(image.get());
         }
     }
         break;

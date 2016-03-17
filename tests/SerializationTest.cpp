@@ -242,10 +242,10 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
                                     const SkBitmap& invalidBitmap,
                                     bool shouldSucceed,
                                     skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkImage> validImage(SkImage::NewFromBitmap(validBitmap));
-    SkAutoTUnref<SkImageFilter> validBitmapSource(SkImageSource::Create(validImage));
-    SkAutoTUnref<SkImage> invalidImage(SkImage::NewFromBitmap(invalidBitmap));
-    SkAutoTUnref<SkImageFilter> invalidBitmapSource(SkImageSource::Create(invalidImage));
+    sk_sp<SkImage> validImage(SkImage::MakeFromBitmap(validBitmap));
+    SkAutoTUnref<SkImageFilter> validBitmapSource(SkImageSource::Create(validImage.get()));
+    sk_sp<SkImage> invalidImage(SkImage::MakeFromBitmap(invalidBitmap));
+    SkAutoTUnref<SkImageFilter> invalidBitmapSource(SkImageSource::Create(invalidImage.get()));
     SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
     SkAutoTUnref<SkImageFilter> xfermodeImageFilter(
         SkXfermodeImageFilter::Create(mode, invalidBitmapSource, validBitmapSource));

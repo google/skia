@@ -97,11 +97,11 @@ protected:
             ovalRect.inset(SkIntToScalar(2)/3, SkIntToScalar(2)/3);
             surfaceCanvas->drawOval(ovalRect, paint);
         }
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
         SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);
         SkRect outRect = SkRect::MakeXYWH(-24, -24, 120, 120);
         SkAutoTUnref<SkImageFilter> source(
-            SkImageSource::Create(image, inRect, outRect, kHigh_SkFilterQuality));
+            SkImageSource::Create(image.get(), inRect, outRect, kHigh_SkFilterQuality));
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
         draw(canvas,
              srcRect,

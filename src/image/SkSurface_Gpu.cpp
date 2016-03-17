@@ -114,11 +114,11 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
-    SkAutoTUnref<SkImage> image(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
+    sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
     SkASSERT(image);
     if (rt->asTexture() == as_IB(image)->peekTexture()) {
         this->fDevice->replaceRenderTarget(SkSurface::kRetain_ContentChangeMode == mode);
-        SkTextureImageApplyBudgetedDecision(image);
+        SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
     }

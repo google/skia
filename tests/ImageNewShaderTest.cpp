@@ -44,7 +44,7 @@ void paintSource(SkSurface* sourceSurface) {
 void runShaderTest(skiatest::Reporter* reporter, SkSurface* sourceSurface, SkSurface* destinationSurface, SkImageInfo& info) {
     paintSource(sourceSurface);
 
-    SkAutoTUnref<SkImage> sourceImage(sourceSurface->newImageSnapshot());
+    sk_sp<SkImage> sourceImage(sourceSurface->makeImageSnapshot());
     sk_sp<SkShader> sourceShader = sourceImage->makeShader(
             SkShader::kRepeat_TileMode,
             SkShader::kRepeat_TileMode);

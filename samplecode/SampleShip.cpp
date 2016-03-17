@@ -48,10 +48,10 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
 class DrawShipView : public SampleView {
 public:
     DrawShipView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) {
-        fAtlas.reset(GetResourceAsImage("ship.png"));
+        fAtlas = GetResourceAsImage("ship.png");
         if (!fAtlas) {
             SkDebugf("\nCould not decode file ship.png. Falling back to penguin mode.\n");
-            fAtlas.reset(GetResourceAsImage("baby_tux.png"));
+            fAtlas = GetResourceAsImage("baby_tux.png");
             if (!fAtlas) {
                 SkDebugf("\nCould not decode file baby_tux.png. Did you forget"
                          " to set the resourcePath?\n");
@@ -146,7 +146,7 @@ protected:
             fXform[i].fTy += dy;
         }
         
-        fProc(canvas, fAtlas, fXform, fTex, nullptr, kGrid*kGrid+1, nullptr, &paint);
+        fProc(canvas, fAtlas.get(), fXform, fTex, nullptr, kGrid*kGrid+1, nullptr, &paint);
         paint.setColor(SK_ColorBLACK);
         canvas->drawRect(SkRect::MakeXYWH(0, 0, 200, 24), paint);
         paint.setColor(SK_ColorWHITE);
@@ -168,7 +168,7 @@ private:
     const char*         fName;
     DrawAtlasProc       fProc;
     
-    SkAutoTUnref<SkImage> fAtlas;
+    sk_sp<SkImage> fAtlas;
     SkRSXform   fXform[kGrid*kGrid+1];
     SkRect      fTex[kGrid*kGrid+1];
     WallTimer   fTimer;

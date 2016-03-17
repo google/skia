@@ -1160,7 +1160,7 @@ void SkPDFDevice::drawImageRect(const SkDraw& draw,
         SkIRect srcIR;
         tmpSrc.roundOut(&srcIR);
 
-        autoImageUnref.reset(image->newSubset(srcIR));
+        autoImageUnref = image->makeSubset(srcIR);
         if (!autoImageUnref) {
             return;
         }
@@ -2187,7 +2187,7 @@ static const SkImage* color_filter(const SkImage* image,
     paint.setColorFilter(colorFilter);
     canvas->drawImage(image, 0, 0, &paint);
     canvas->flush();
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot().release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2207,7 +2207,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     sk_sp<const SkImage> autoImageUnref;
 
     if (srcRect) {
-        autoImageUnref.reset(image->newSubset(*srcRect));
+        autoImageUnref = image->makeSubset(*srcRect);
         if (!autoImageUnref) {
             return;
         }
@@ -2286,7 +2286,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         clipRegion = &perspectiveBounds;
         srcRect = nullptr;
 
-        autoImageUnref.reset(surface->newImageSnapshot());
+        autoImageUnref.reset(surface->makeImageSnapshot().release());
         image = autoImageUnref.get();
     }
 

@@ -111,14 +111,14 @@ protected:
     SkISize onISize() override { return SkISize::Make(600, 150); }
 
     void onOnceBeforeDraw() override {
-        fImage.reset(SkImage::NewFromBitmap(
-            sk_tool_utils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e")));
+        fImage = SkImage::MakeFromBitmap(
+            sk_tool_utils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e"));
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         {
-            SkAutoTUnref<SkImageFilter> bitmapSource(SkImageSource::Create(fImage));
+            SkAutoTUnref<SkImageFilter> bitmapSource(SkImageSource::Create(fImage.get()));
             SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED,
                                                          SkXfermode::kSrcIn_Mode));
             SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f, bitmapSource));
@@ -146,7 +146,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(blendColor);
-            DrawClippedImage(canvas, fImage, paint);
+            DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
@@ -165,7 +165,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(arithFilter);
-            DrawClippedImage(canvas, fImage, paint);
+            DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
@@ -179,7 +179,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(blend);
-            DrawClippedImage(canvas, fImage, paint);
+            DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
@@ -213,7 +213,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(convolve);
-            DrawClippedImage(canvas, fImage, paint);
+            DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
@@ -245,7 +245,7 @@ private:
         canvas->restore();
     }
 
-    SkAutoTUnref<SkImage> fImage;
+    sk_sp<SkImage> fImage;
 
     typedef GM INHERITED;
 };

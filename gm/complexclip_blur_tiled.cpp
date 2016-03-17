@@ -58,8 +58,7 @@ protected:
                 tileCanvas->drawRect(rect, paint);
                 tileCanvas->restore();
                 tileCanvas->restore();
-                SkAutoTUnref<SkImage> tileImage(tileSurface->newImageSnapshot());
-                canvas->drawImage(tileImage, x, y);
+                canvas->drawImage(tileSurface->makeImageSnapshot().get(), x, y);
             }
         }
     }

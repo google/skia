@@ -57,8 +57,7 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(ir.width(), ir.height(), kLinear_SkColorProfileType);
 
-    SkAutoTUnref<SkImage> image{SkImage::NewRasterCopy(
-        info, pmsrc.addr32(), pmsrc.rowBytes())};
+    sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, pmsrc.addr32(), pmsrc.rowBytes())));
     SkPaint paint;
     int32_t storage[300];
     paint.setShader(image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode));

@@ -36,8 +36,8 @@ static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
  */
 class ImagePictGM : public skiagm::GM {
     SkAutoTUnref<SkPicture> fPicture;
-    SkAutoTUnref<SkImage>   fImage0;
-    SkAutoTUnref<SkImage>   fImage1;
+    sk_sp<SkImage>   fImage0;
+    sk_sp<SkImage>   fImage1;
 public:
     ImagePictGM() {}
 
@@ -61,18 +61,18 @@ protected:
 
         SkMatrix matrix;
         matrix.setTranslate(-100, -100);
-        fImage0.reset(SkImage::NewFromPicture(fPicture, size, &matrix, nullptr));
+        fImage0 = SkImage::MakeFromPicture(sk_ref_sp(fPicture.get()), size, &matrix, nullptr);
         matrix.postTranslate(-50, -50);
         matrix.postRotate(45);
         matrix.postTranslate(50, 50);
-        fImage1.reset(SkImage::NewFromPicture(fPicture, size, &matrix, nullptr));
+        fImage1 = SkImage::MakeFromPicture(sk_ref_sp(fPicture.get()), size, &matrix, nullptr);
     }
 
     void drawSet(SkCanvas* canvas) const {
         SkMatrix matrix = SkMatrix::MakeTrans(-100, -100);
         canvas->drawPicture(fPicture, &matrix, nullptr);
-        canvas->drawImage(fImage0, 150, 0);
-        canvas->drawImage(fImage1, 300, 0);
+        canvas->drawImage(fImage0.get(), 150, 0);
+        canvas->drawImage(fImage1.get(), 300, 0);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -216,7 +216,7 @@ public:
         surface->getCanvas()->clear(0);
         surface->getCanvas()->translate(-100, -100);
         surface->getCanvas()->drawPicture(pic);
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
         fTexture.reset(SkRef(as_IB(image)->peekTexture()));
     }
 protected:

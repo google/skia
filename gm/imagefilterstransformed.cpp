@@ -24,7 +24,7 @@ namespace skiagm {
 // It checks that the scale portion of the CTM is correctly extracted
 // and applied to the image inputs separately from the non-scale portion.
 
-static SkImage* make_gradient_circle(int width, int height) {
+static sk_sp<SkImage> make_gradient_circle(int width, int height) {
     SkScalar x = SkIntToScalar(width / 2);
     SkScalar y = SkIntToScalar(height / 2);
     SkScalar radius = SkMinScalar(x, y) * 0.8f;
@@ -41,7 +41,7 @@ static SkImage* make_gradient_circle(int width, int height) {
                                                  SkShader::kClamp_TileMode));
     canvas->drawCircle(x, y, radius, paint);
 
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 class ImageFiltersTransformedGM : public GM {
@@ -57,14 +57,14 @@ protected:
     SkISize onISize() override { return SkISize::Make(420, 240); }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard.reset(SkImage::NewFromBitmap(
-            sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8)));
-        fGradientCircle.reset(make_gradient_circle(64, 64));
+        fCheckerboard = SkImage::MakeFromBitmap(
+            sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8));
+        fGradientCircle = make_gradient_circle(64, 64);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle));
-        SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle.get()));
+        SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard.get()));
         SkImageFilter* filters[] = {
             SkBlurImageFilter::Create(12, 0),
             SkDropShadowImageFilter::Create(0, 15, 8, 0, SK_ColorGREEN,
@@ -113,8 +113,8 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkImage> fCheckerboard;
-    SkAutoTUnref<SkImage> fGradientCircle;
+    sk_sp<SkImage> fCheckerboard;
+    sk_sp<SkImage> fGradientCircle;
     typedef GM INHERITED;
 };
 

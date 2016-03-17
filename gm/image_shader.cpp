@@ -24,16 +24,16 @@ static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
     canvas->drawOval(bounds, paint);
 }
 
-typedef SkImage* (*ImageMakerProc)(GrContext*, const SkPicture*, const SkImageInfo&);
+typedef sk_sp<SkImage> (*ImageMakerProc)(GrContext*, SkPicture*, const SkImageInfo&);
 
-static SkImage* make_raster(GrContext*, const SkPicture* pic, const SkImageInfo& info) {
+static sk_sp<SkImage> make_raster(GrContext*, SkPicture* pic, const SkImageInfo& info) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-static SkImage* make_texture(GrContext* ctx, const SkPicture* pic, const SkImageInfo& info) {
+static sk_sp<SkImage> make_texture(GrContext* ctx, SkPicture* pic, const SkImageInfo& info) {
     if (!ctx) {
         return nullptr;
     }
@@ -41,23 +41,23 @@ static SkImage* make_texture(GrContext* ctx, const SkPicture* pic, const SkImage
                                                                info, 0));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-static SkImage* make_pict_gen(GrContext*, const SkPicture* pic, const SkImageInfo& info) {
-    return SkImage::NewFromPicture(pic, info.dimensions(), nullptr, nullptr);
+static sk_sp<SkImage> make_pict_gen(GrContext*, SkPicture* pic, const SkImageInfo& info) {
+    return SkImage::MakeFromPicture(sk_ref_sp(pic), info.dimensions(), nullptr, nullptr);
 }
 
-static SkImage* make_encode_gen(GrContext* ctx, const SkPicture* pic, const SkImageInfo& info) {
-    SkAutoTUnref<SkImage> src(make_raster(ctx, pic, info));
+static sk_sp<SkImage> make_encode_gen(GrContext* ctx, SkPicture* pic, const SkImageInfo& info) {
+    sk_sp<SkImage> src(make_raster(ctx, pic, info));
     if (!src) {
         return nullptr;
     }
-    SkAutoTUnref<SkData> encoded(src->encode(SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> encoded(src->encode(SkImageEncoder::kPNG_Type, 100));
     if (!encoded) {
         return nullptr;
     }
-    return SkImage::NewFromEncoded(encoded);
+    return SkImage::MakeFromEncoded(std::move(encoded));
 }
 
 const ImageMakerProc gProcs[] = {
@@ -113,9 +113,9 @@ protected:
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gProcs); ++i) {
-            SkAutoTUnref<SkImage> image(gProcs[i](canvas->getGrContext(), fPicture, info));
+            sk_sp<SkImage> image(gProcs[i](canvas->getGrContext(), fPicture, info));
             if (image) {
-                this->testImage(canvas, image);
+                this->testImage(canvas, image.get());
             }
             canvas->translate(120, 0);
         }

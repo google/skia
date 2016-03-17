@@ -244,13 +244,13 @@ DEF_SAMPLE( return new LayersView; )
 class BackdropView : public SampleView {
     SkPoint fCenter;
     SkScalar fAngle;
-    SkAutoTUnref<SkImage> fImage;
+    sk_sp<SkImage> fImage;
     SkAutoTUnref<SkImageFilter> fFilter;
 public:
     BackdropView() {
         fCenter.set(200, 150);
         fAngle = 0;
-        fImage.reset(GetResourceAsImage("mandrill_512.png"));
+        fImage = GetResourceAsImage("mandrill_512.png");
         fFilter.reset(SkDilateImageFilter::Create(8, 8));
     }
 
@@ -265,7 +265,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawImage(fImage, 0, 0, nullptr);
+        canvas->drawImage(fImage.get(), 0, 0, nullptr);
 
         const SkScalar w = 250;
         const SkScalar h = 150;

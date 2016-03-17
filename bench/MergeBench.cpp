@@ -45,8 +45,8 @@ protected:
 
 private:
     SkImageFilter* mergeBitmaps() {
-        SkAutoTUnref<SkImageFilter> first(SkImageSource::Create(fCheckerboard));
-        SkAutoTUnref<SkImageFilter> second(SkImageSource::Create(fImage));
+        SkAutoTUnref<SkImageFilter> first(SkImageSource::Create(fCheckerboard.get()));
+        SkAutoTUnref<SkImageFilter> second(SkImageSource::Create(fImage.get()));
         return SkMergeImageFilter::Create(first, second);
     }
 
@@ -59,7 +59,7 @@ private:
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "g";
         surface->getCanvas()->drawText(str, strlen(str), 15, 55, paint);
-        fImage.reset(surface->newImageSnapshot());
+        fImage = surface->makeImageSnapshot();
     }
 
     void make_checkerboard() {
@@ -82,12 +82,12 @@ private:
             }
         }
 
-        fCheckerboard.reset(surface->newImageSnapshot());
+        fCheckerboard = surface->makeImageSnapshot();
     }
 
     bool fIsSmall;
     bool fInitialized;
-    SkAutoTUnref<SkImage> fImage, fCheckerboard;
+    sk_sp<SkImage> fImage, fCheckerboard;
 
     typedef Benchmark INHERITED;
 };

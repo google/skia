@@ -12,7 +12,7 @@
 #include "SkGradientShader.h"
 #include "SkImage.h"
 
-static SkImage* create_image(GrContext* context, int width, int height) {
+static sk_sp<SkImage> create_image(GrContext* context, int width, int height) {
     SkAutoTUnref<SkSurface> surface;
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
     if (context) {
@@ -33,7 +33,7 @@ static SkImage* create_image(GrContext* context, int width, int height) {
                                                  SkShader::kMirror_TileMode));
 
     surface->getCanvas()->drawPaint(paint);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 DEF_SIMPLE_GM(image_to_yuv_planes, canvas, 120, 525) {
@@ -41,12 +41,12 @@ DEF_SIMPLE_GM(image_to_yuv_planes, canvas, 120, 525) {
     static const int kImageSize = 32;
 
     GrContext *context = canvas->getGrContext();
-    SkAutoTUnref<SkImage> rgbImage(create_image(context, kImageSize, kImageSize));
+    sk_sp<SkImage> rgbImage(create_image(context, kImageSize, kImageSize));
     if (!rgbImage) {
         return;
     }
 
-    canvas->drawImage(rgbImage, kPad, kPad);
+    canvas->drawImage(rgbImage.get(), kPad, kPad);
     // Test cases where all three planes are the same size, where just u and v are the same size,
     // and where all differ.
     static const SkISize kSizes[][3] = {

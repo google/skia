@@ -37,7 +37,7 @@ static bool do_surface(int w, int h, const char path[], const char text[],
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(w, h, &props));
     doDraw(surface->getCanvas(), paint, text);
 
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
     SkAutoDataUnref data(image->encode());
     if (nullptr == data.get()) {
         return false;

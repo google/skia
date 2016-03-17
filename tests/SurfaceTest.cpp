@@ -231,7 +231,7 @@ static void test_snapshot_alphatype(skiatest::Reporter* reporter, SkSurface* sur
                                     bool expectOpaque) {
     REPORTER_ASSERT(reporter, surface);
     if (surface) {
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
         REPORTER_ASSERT(reporter, image);
         if (image) {
             REPORTER_ASSERT(reporter, image->isOpaque() == SkToBool(expectOpaque));
@@ -276,10 +276,10 @@ static void test_backend_handle_access_copy_on_write(
     skiatest::Reporter* reporter, SkSurface* surface, SkSurface::BackendHandleAccess mode,
     GrBackendObject (*func)(SkSurface*, SkSurface::BackendHandleAccess)) {
     GrBackendObject obj1 = func(surface, mode);
-    SkAutoTUnref<SkImage> snap1(surface->newImageSnapshot());
+    sk_sp<SkImage> snap1(surface->makeImageSnapshot());
 
     GrBackendObject obj2 = func(surface, mode);
-    SkAutoTUnref<SkImage> snap2(surface->newImageSnapshot());
+    sk_sp<SkImage> snap2(surface->makeImageSnapshot());
 
     // If the access mode triggers CoW, then the backend objects should reflect it.
     REPORTER_ASSERT(reporter, (obj1 == obj2) == (snap1 == snap2));
@@ -339,39 +339,39 @@ static void test_unique_image_snap(skiatest::Reporter* reporter, SkSurface* surf
     std::function<intptr_t(SkSurface*)> sbs = surfaceBackingStore;
     static const SkBudgeted kB = SkBudgeted::kNo;
     {
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
-        REPORTER_ASSERT(reporter, !same_image_surf(image, surface, ibs, sbs));
+        sk_sp<SkImage> image(surface->makeImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        REPORTER_ASSERT(reporter, !same_image_surf(image.get(), surface, ibs, sbs));
         REPORTER_ASSERT(reporter, image->unique());
     }
     {
-        SkAutoTUnref<SkImage> image1(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
-        REPORTER_ASSERT(reporter, !same_image_surf(image1, surface, ibs, sbs));
+        sk_sp<SkImage> image1(surface->makeImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        REPORTER_ASSERT(reporter, !same_image_surf(image1.get(), surface, ibs, sbs));
         REPORTER_ASSERT(reporter, image1->unique());
-        SkAutoTUnref<SkImage> image2(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
-        REPORTER_ASSERT(reporter, !same_image_surf(image2, surface, ibs, sbs));
-        REPORTER_ASSERT(reporter, !same_image(image1, image2, ibs));
+        sk_sp<SkImage> image2(surface->makeImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        REPORTER_ASSERT(reporter, !same_image_surf(image2.get(), surface, ibs, sbs));
+        REPORTER_ASSERT(reporter, !same_image(image1.get(), image2.get(), ibs));
         REPORTER_ASSERT(reporter, image2->unique());
     }
     {
-        SkAutoTUnref<SkImage> image1(surface->newImageSnapshot(kB, SkSurface::kNo_ForceUnique));
-        SkAutoTUnref<SkImage> image2(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
-        SkAutoTUnref<SkImage> image3(surface->newImageSnapshot(kB, SkSurface::kNo_ForceUnique));
-        SkAutoTUnref<SkImage> image4(surface->newImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        sk_sp<SkImage> image1(surface->makeImageSnapshot(kB, SkSurface::kNo_ForceUnique));
+        sk_sp<SkImage> image2(surface->makeImageSnapshot(kB, SkSurface::kYes_ForceUnique));
+        sk_sp<SkImage> image3(surface->makeImageSnapshot(kB, SkSurface::kNo_ForceUnique));
+        sk_sp<SkImage> image4(surface->makeImageSnapshot(kB, SkSurface::kYes_ForceUnique));
         // Image 1 and 3 ought to be the same (or we're missing an optimization).
-        REPORTER_ASSERT(reporter, same_image(image1, image3, ibs));
+        REPORTER_ASSERT(reporter, same_image(image1.get(), image3.get(), ibs));
         // If the surface is not direct then images 1 and 3 should alias the surface's
         // store.
-        REPORTER_ASSERT(reporter, !surfaceIsDirect == same_image_surf(image1, surface, ibs, sbs));
+        REPORTER_ASSERT(reporter, !surfaceIsDirect == same_image_surf(image1.get(), surface, ibs, sbs));
         // Image 2 should not be shared with any other image.
-        REPORTER_ASSERT(reporter, !same_image(image1, image2, ibs) &&
-                                  !same_image(image3, image2, ibs) &&
-                                  !same_image(image4, image2, ibs));
+        REPORTER_ASSERT(reporter, !same_image(image1.get(), image2.get(), ibs) &&
+                                  !same_image(image3.get(), image2.get(), ibs) &&
+                                  !same_image(image4.get(), image2.get(), ibs));
         REPORTER_ASSERT(reporter, image2->unique());
-        REPORTER_ASSERT(reporter, !same_image_surf(image2, surface, ibs, sbs));
+        REPORTER_ASSERT(reporter, !same_image_surf(image2.get(), surface, ibs, sbs));
         // Image 4 should not be shared with any other image.
-        REPORTER_ASSERT(reporter, !same_image(image1, image4, ibs) &&
-                                  !same_image(image3, image4, ibs));
-        REPORTER_ASSERT(reporter, !same_image_surf(image4, surface, ibs, sbs));
+        REPORTER_ASSERT(reporter, !same_image(image1.get(), image4.get(), ibs) &&
+                                  !same_image(image3.get(), image4.get(), ibs));
+        REPORTER_ASSERT(reporter, !same_image_surf(image4.get(), surface, ibs, sbs));
         REPORTER_ASSERT(reporter, image4->unique());
     }
 }
@@ -455,7 +455,7 @@ static uint32_t get_legacy_gen_id(SkSurface* surface) {
  *  Test legacy behavor of bumping the surface's device's bitmap's genID when we access its
  *  texture handle for writing.
  *
- *  Note: this needs to be tested separately from checking newImageSnapshot, as calling that
+ *  Note: this needs to be tested separately from checking makeImageSnapshot, as calling that
  *  can also incidentally bump the genID (when a new backing surface is created).
  */
 static void test_backend_handle_gen_id(
@@ -478,22 +478,22 @@ static void test_backend_handle_gen_id(
 static void test_backend_handle_unique_id(
     skiatest::Reporter* reporter, SkSurface* surface,
     GrBackendObject (*func)(SkSurface*, SkSurface::BackendHandleAccess)) {
-    SkAutoTUnref<SkImage> image0(surface->newImageSnapshot());
+    sk_sp<SkImage> image0(surface->makeImageSnapshot());
     GrBackendObject obj = func(surface, SkSurface::kFlushRead_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
-    SkAutoTUnref<SkImage> image1(surface->newImageSnapshot());
+    sk_sp<SkImage> image1(surface->makeImageSnapshot());
     // just read access should not affect the snapshot
     REPORTER_ASSERT(reporter, image0->uniqueID() == image1->uniqueID());
 
     obj = func(surface, SkSurface::kFlushWrite_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
-    SkAutoTUnref<SkImage> image2(surface->newImageSnapshot());
+    sk_sp<SkImage> image2(surface->makeImageSnapshot());
     // expect a new image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image2->uniqueID());
 
     obj = func(surface, SkSurface::kDiscardWrite_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
-    SkAutoTUnref<SkImage> image3(surface->newImageSnapshot());
+    sk_sp<SkImage> image3(surface->makeImageSnapshot());
     // expect a new(er) image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image3->uniqueID());
     REPORTER_ASSERT(reporter, image2->uniqueID() != image3->uniqueID());
@@ -563,11 +563,11 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
 
 #define EXPECT_COPY_ON_WRITE(command)                               \
     {                                                               \
-        SkImage* imageBefore = surface->newImageSnapshot();         \
-        SkAutoTUnref<SkImage> aur_before(imageBefore);              \
+        sk_sp<SkImage> imageBefore = surface->makeImageSnapshot();  \
+        sk_sp<SkImage> aur_before(imageBefore);                     \
         canvas-> command ;                                          \
-        SkImage* imageAfter = surface->newImageSnapshot();          \
-        SkAutoTUnref<SkImage> aur_after(imageAfter);                \
+        sk_sp<SkImage> imageAfter = surface->makeImageSnapshot();   \
+        sk_sp<SkImage> aur_after(imageAfter);                       \
         REPORTER_ASSERT(reporter, imageBefore != imageAfter);       \
     }
 
@@ -608,7 +608,7 @@ static void test_writable_after_snapshot_release(skiatest::Reporter* reporter,
     // acquiring and releasing a snapshot without triggering a copy on write.
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(1);
-    surface->newImageSnapshot()->unref();  // Create and destroy SkImage
+    surface->makeImageSnapshot();  // Create and destroy SkImage
     canvas->clear(2);  // Must not assert internally
 }
 DEF_TEST(SurfaceWriteableAfterSnapshotRelease, reporter) {
@@ -635,20 +635,20 @@ static void test_crbug263329(skiatest::Reporter* reporter,
     SkCanvas* canvas1 = surface1->getCanvas();
     SkCanvas* canvas2 = surface2->getCanvas();
     canvas1->clear(1);
-    SkAutoTUnref<SkImage> image1(surface1->newImageSnapshot());
+    sk_sp<SkImage> image1(surface1->makeImageSnapshot());
     // Trigger copy on write, new backing is a scratch texture
     canvas1->clear(2);
-    SkAutoTUnref<SkImage> image2(surface1->newImageSnapshot());
+    sk_sp<SkImage> image2(surface1->makeImageSnapshot());
     // Trigger copy on write, old backing should not be returned to scratch
     // pool because it is held by image2
     canvas1->clear(3);
 
     canvas2->clear(4);
-    SkAutoTUnref<SkImage> image3(surface2->newImageSnapshot());
+    sk_sp<SkImage> image3(surface2->makeImageSnapshot());
     // Trigger copy on write on surface2. The new backing store should not
     // be recycling a texture that is held by an existing image.
     canvas2->clear(5);
-    SkAutoTUnref<SkImage> image4(surface2->newImageSnapshot());
+    sk_sp<SkImage> image4(surface2->makeImageSnapshot());
     REPORTER_ASSERT(reporter, as_IB(image4)->peekTexture() != as_IB(image3)->peekTexture());
     // The following assertion checks crbug.com/263329
     REPORTER_ASSERT(reporter, as_IB(image4)->peekTexture() != as_IB(image2)->peekTexture());
@@ -668,7 +668,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, context) {
 
 DEF_TEST(SurfaceGetTexture, reporter) {
     SkAutoTUnref<SkSurface> surface(create_surface());
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == nullptr);
     surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
     REPORTER_ASSERT(reporter, as_IB(image)->peekTexture() == nullptr);
@@ -677,7 +677,7 @@ DEF_TEST(SurfaceGetTexture, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, context) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         SkAutoTUnref<SkSurface> surface(surface_func(context, kPremul_SkAlphaType, nullptr));
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
         GrTexture* texture = as_IB(image)->peekTexture();
         REPORTER_ASSERT(reporter, texture);
         REPORTER_ASSERT(reporter, 0 != texture->getTextureHandle());
@@ -701,6 +701,10 @@ static SkBudgeted is_budgeted(SkImage* image) {
     return ((SkImage_Gpu*)image)->peekTexture()->resourcePriv().isBudgeted();
 }
 
+static SkBudgeted is_budgeted(const sk_sp<SkImage> image) {
+    return is_budgeted(image.get());
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBudget, reporter, context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8,8);
     for (auto sbudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
@@ -710,7 +714,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBudget, reporter, context) {
             SkASSERT(surface);
             REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
 
-            SkAutoTUnref<SkImage> image(surface->newImageSnapshot(ibudgeted));
+            sk_sp<SkImage> image(surface->makeImageSnapshot(ibudgeted));
 
             // Initially the image shares a texture with the surface, and the surface decides
             // whether it is budgeted or not.
@@ -741,15 +745,15 @@ static void test_no_canvas2(skiatest::Reporter* reporter,
                             SkSurface::ContentChangeMode mode) {
     // Verifies the robustness of SkSurface for handling use cases where calls
     // are made before a canvas is created.
-    SkImage* image1 = surface->newImageSnapshot();
-    SkAutoTUnref<SkImage> aur_image1(image1);
+    sk_sp<SkImage> image1 = surface->makeImageSnapshot();
+    sk_sp<SkImage> aur_image1(image1);
     SkDEBUGCODE(image1->validate();)
     SkDEBUGCODE(surface->validate();)
     surface->notifyContentWillChange(mode);
     SkDEBUGCODE(image1->validate();)
     SkDEBUGCODE(surface->validate();)
-    SkImage* image2 = surface->newImageSnapshot();
-    SkAutoTUnref<SkImage> aur_image2(image2);
+    sk_sp<SkImage> image2 = surface->makeImageSnapshot();
+    sk_sp<SkImage> aur_image2(image2);
     SkDEBUGCODE(image2->validate();)
     SkDEBUGCODE(surface->validate();)
     REPORTER_ASSERT(reporter, image1 != image2);
@@ -784,7 +788,7 @@ static void check_rowbytes_remain_consistent(SkSurface* surface, skiatest::Repor
     SkPixmap surfacePM;
     REPORTER_ASSERT(reporter, surface->peekPixels(&surfacePM));
 
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
     SkPixmap pm;
     REPORTER_ASSERT(reporter, image->peekPixels(&pm));
 
@@ -792,7 +796,7 @@ static void check_rowbytes_remain_consistent(SkSurface* surface, skiatest::Repor
 
     // trigger a copy-on-write
     surface->getCanvas()->drawPaint(SkPaint());
-    SkAutoTUnref<SkImage> image2(surface->newImageSnapshot());
+    sk_sp<SkImage> image2(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image->uniqueID() != image2->uniqueID());
 
     SkPixmap pm2;
@@ -866,7 +870,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, context) {
             SkBaseDevice* d =
                 s->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
             return d->accessRenderTarget(); },
-        [] (SkSurface* s){ SkAutoTUnref<SkImage> i(s->newImageSnapshot());
+        [] (SkSurface* s){ sk_sp<SkImage> i(s->makeImageSnapshot());
                            return as_IB(i)->peekTexture(); },
     };
     for (auto grSurfaceGetter : grSurfaceGetters) {

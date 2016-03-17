@@ -56,7 +56,7 @@ protected:
             curColor = (curColor+1) % SK_ARRAY_COUNT(gColors);
         }
 
-        fImage.reset(surface->newImageSnapshot());
+        fImage = surface->makeImageSnapshot();
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -65,7 +65,7 @@ protected:
         SkRect dstRect = SkRect::MakeLTRB(0.75f, 0.75f, 225.75f, 225.75f);
 
         SkAutoTUnref<SkImageFilter> filter(
-            SkImageSource::Create(fImage, srcRect, dstRect, fFilter));
+            SkImageSource::Create(fImage.get(), srcRect, dstRect, fFilter));
 
         SkPaint p;
         p.setImageFilter(filter);
@@ -79,7 +79,7 @@ private:
 
     SkString fSuffix;
     SkFilterQuality fFilter;
-    SkAutoTUnref<SkImage> fImage;
+    sk_sp<SkImage>  fImage;
 
     typedef GM INHERITED;
 };

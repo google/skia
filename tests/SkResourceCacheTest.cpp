@@ -263,7 +263,7 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
 }
 
 static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& transform,
-                                 SkImage* (*buildImage)()) {
+                                 sk_sp<SkImage> (*buildImage)()) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
     SkCanvas* canvas = surface->getCanvas();
 
@@ -273,7 +273,7 @@ static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& t
     for (unsigned i = 0; i < kRepeatCount; ++i) {
         SkAutoCanvasRestore acr(canvas, true);
 
-        SkAutoTUnref<SkImage> image(buildImage());
+        sk_sp<SkImage> image(buildImage());
 
         // always use high quality to ensure caching when scaled
         SkPaint paint;
@@ -315,15 +315,15 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
         test_discarded_image(reporter, xforms[i], []() {
             SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
             surface->getCanvas()->clear(SK_ColorCYAN);
-            return surface->newImageSnapshot();
+            return surface->makeImageSnapshot();
         });
 
         test_discarded_image(reporter, xforms[i], []() {
             SkPictureRecorder recorder;
             SkCanvas* canvas = recorder.beginRecording(10, 10);
             canvas->clear(SK_ColorCYAN);
-            SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-            return SkImage::NewFromPicture(picture, SkISize::Make(10, 10), nullptr, nullptr);
+            sk_sp<SkPicture> picture(recorder.endRecording());
+            return SkImage::MakeFromPicture(picture, SkISize::Make(10, 10), nullptr, nullptr);
         });
     }
 }

@@ -49,7 +49,7 @@ DEF_TEST(ImageInfo_flattening, reporter) {
 }
 
 static void check_isopaque(skiatest::Reporter* reporter, SkSurface* surface, bool expectedOpaque) {
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image->isOpaque() == expectedOpaque);
 }
 

@@ -1756,11 +1756,11 @@ static int lsurface_getCanvas(lua_State* L) {
 }
 
 static int lsurface_newImageSnapshot(lua_State* L) {
-    SkImage* image = get_ref<SkSurface>(L, 1)->newImageSnapshot();
-    if (nullptr == image) {
+    sk_sp<SkImage> image = get_ref<SkSurface>(L, 1)->makeImageSnapshot();
+    if (!image) {
         lua_pushnil(L);
     } else {
-        push_ref(L, image)->unref();
+        push_ref(L, image);
     }
     return 1;
 }
@@ -2075,11 +2075,11 @@ static int lsk_newRasterSurface(lua_State* L) {
 static int lsk_loadImage(lua_State* L) {
     if (lua_gettop(L) > 0 && lua_isstring(L, 1)) {
         const char* name = lua_tolstring(L, 1, nullptr);
-        SkAutoDataUnref data(SkData::NewFromFileName(name));
-        if (data.get()) {
-            SkImage* image = SkImage::NewFromEncoded(data);
+        sk_sp<SkData> data(SkData::MakeFromFileName(name));
+        if (data) {
+            auto image = SkImage::MakeFromEncoded(std::move(data));
             if (image) {
-                push_ref(L, image)->unref();
+                push_ref(L, std::move(image));
                 return 1;
             }
         }

@@ -84,10 +84,10 @@ private:
     }
 
     void onBlitToScreen(SkCanvas* canvas, int w, int h) override {
-        SkAutoTUnref<SkImage> image(fOffScreen->newImageSnapshot());
+        sk_sp<SkImage> image(fOffScreen->makeImageSnapshot());
         SkPaint blitPaint;
         blitPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
-        canvas->drawImageRect(image, SkIRect::MakeWH(w, h),
+        canvas->drawImageRect(image.get(), SkIRect::MakeWH(w, h),
                               SkRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h)), &blitPaint);
     }
 

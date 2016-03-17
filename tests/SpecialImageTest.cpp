@@ -119,19 +119,19 @@ DEF_TEST(SpecialImage_Raster, reporter) {
 DEF_TEST(SpecialImage_Image, reporter) {
     SkBitmap bm = create_bm();
 
-    SkAutoTUnref<SkImage> fullImage(SkImage::NewFromBitmap(bm));
+    sk_sp<SkImage> fullImage(SkImage::MakeFromBitmap(bm));
 
     SkAutoTUnref<SkSpecialImage> fullSImage(SkSpecialImage::NewFromImage(
                                                             nullptr,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            fullImage));
+                                                            fullImage.get()));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
         SkAutoTUnref<SkSpecialImage> subSImg1(SkSpecialImage::NewFromImage(nullptr,
                                                                            subset,
-                                                                           fullImage));
+                                                                           fullImage.get()));
         test_image(subSImg1, reporter, true, false, kPad, kFullSize);
     }
 

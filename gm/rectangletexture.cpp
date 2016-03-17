@@ -54,7 +54,8 @@ protected:
                           SkIntToScalar(width + height) / 5, paint);
     }
 
-    SkImage* createRectangleTextureImg(GrContext* context, int width, int height, void* pixels) {
+    sk_sp<SkImage> createRectangleTextureImg(GrContext* context, int width, int height,
+                                             void* pixels) {
         if (!context) {
             return nullptr;
         }
@@ -111,7 +112,7 @@ protected:
         desc.fHeight = height;
         desc.fOrigin = kTopLeft_GrSurfaceOrigin;
         desc.fTextureHandle = reinterpret_cast<GrBackendObject>(&info);
-        if (SkImage* image = SkImage::NewFromAdoptedTexture(context, desc)) {
+        if (sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(context, desc)) {
             return image;
         }
         GR_GL_CALL(gl, DeleteTextures(1, &id));
@@ -132,8 +133,7 @@ protected:
 
         SkPMColor pixels[kWidth * kHeight];
         this->fillPixels(kWidth, kHeight, pixels);
-        SkAutoTUnref<SkImage> rectImg(this->createRectangleTextureImg(context, kWidth, kHeight,
-                                                                      pixels));
+        sk_sp<SkImage> rectImg(this->createRectangleTextureImg(context, kWidth, kHeight, pixels));
 
         if (!rectImg) {
             SkPaint paint;
@@ -157,24 +157,24 @@ protected:
             canvas->save();
             canvas->scale(s, s);
             for (auto q : kQualities) {
-                    SkPaint plainPaint;
-                    plainPaint.setFilterQuality(q);
-                    canvas->drawImage(rectImg, 0, 0, &plainPaint);
-                    canvas->translate(kWidth + kPad, 0);
+                SkPaint plainPaint;
+                plainPaint.setFilterQuality(q);
+                canvas->drawImage(rectImg.get(), 0, 0, &plainPaint);
+                canvas->translate(kWidth + kPad, 0);
 
-                    SkPaint clampPaint;
-                    clampPaint.setFilterQuality(q);
-                    clampPaint.setShader(rectImg->makeShader(SkShader::kClamp_TileMode,
-                                                             SkShader::kClamp_TileMode));
-                    canvas->drawRect(SkRect::MakeWH(1.5f * kWidth, 1.5f * kHeight), clampPaint);
-                    canvas->translate(kWidth * 1.5f + kPad, 0);
+                SkPaint clampPaint;
+                clampPaint.setFilterQuality(q);
+                clampPaint.setShader(rectImg->makeShader(SkShader::kClamp_TileMode,
+                                                         SkShader::kClamp_TileMode));
+                canvas->drawRect(SkRect::MakeWH(1.5f * kWidth, 1.5f * kHeight), clampPaint);
+                canvas->translate(kWidth * 1.5f + kPad, 0);
 
-                    SkPaint repeatPaint;
-                    repeatPaint.setFilterQuality(q);
-                    repeatPaint.setShader(rectImg->makeShader(SkShader::kRepeat_TileMode,
-                                                              SkShader::kMirror_TileMode));
-                    canvas->drawRect(SkRect::MakeWH(1.5f * kWidth, 1.5f * kHeight), repeatPaint);
-                    canvas->translate(1.5f * kWidth + kPad, 0);
+                SkPaint repeatPaint;
+                repeatPaint.setFilterQuality(q);
+                repeatPaint.setShader(rectImg->makeShader(SkShader::kRepeat_TileMode,
+                                                          SkShader::kMirror_TileMode));
+                canvas->drawRect(SkRect::MakeWH(1.5f * kWidth, 1.5f * kHeight), repeatPaint);
+                canvas->translate(1.5f * kWidth + kPad, 0);
             }
             canvas->restore();
             canvas->translate(0, kPad + 1.5f * kHeight * s);

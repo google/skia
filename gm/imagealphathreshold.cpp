@@ -102,10 +102,9 @@ protected:
         surface->getCanvas()->clear(SK_ColorWHITE);
         draw_rects(surface->getCanvas());
 
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
         SkPaint paint = create_filter_paint();
         canvas->clipRect(SkRect::MakeLTRB(100, 100, WIDTH - 100, HEIGHT - 100));
-        canvas->drawImage(image, 0, 0, &paint);
+        canvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, &paint);
     }
 
 private:

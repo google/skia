@@ -66,7 +66,7 @@ static sk_sp<SkShader> sh_make_lineargradient1() {
 }
 
 static sk_sp<SkShader> sh_make_image() {
-    SkAutoTUnref<SkImage> image(GetResourceAsImage("mandrill_128.png"));
+    sk_sp<SkImage> image(GetResourceAsImage("mandrill_128.png"));
     if (!image) {
         return nullptr;
     }

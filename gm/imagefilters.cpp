@@ -66,14 +66,14 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
         }
 }
 
-static SkImage* make_image(SkCanvas* canvas) {
+static sk_sp<SkImage> make_image(SkCanvas* canvas) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
     SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
     if (!surface) {
         surface.reset(SkSurface::NewRaster(info));
     }
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), SkPaint());
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 // Compare blurs when we're tightly clipped (fast) and not as tightly (slower)
@@ -81,7 +81,7 @@ static SkImage* make_image(SkCanvas* canvas) {
 // Expect the two to draw the same (modulo the extra border of pixels when the clip is larger)
 //
 DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
-    SkAutoTUnref<SkImage> image(make_image(canvas));
+    sk_sp<SkImage> image(make_image(canvas));
     const SkRect r = SkRect::MakeIWH(image->width(), image->height());
 
     canvas->translate(10, 10);
@@ -162,7 +162,7 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
 
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
-    SkAutoTUnref<SkImage> image(GetResourceAsImage("mandrill_512.png"));
+    sk_sp<SkImage> image(GetResourceAsImage("mandrill_512.png"));
 
     canvas->translate(20, 20);
     for (const auto& xform : xforms) {

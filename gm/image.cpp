@@ -22,17 +22,16 @@ static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
     // TODO: Make this draw a file that is checked in, so it can
     // be exercised on machines other than mike's. Will require a
     // rebaseline.
-    SkAutoDataUnref data(SkData::NewFromFileName("/Users/mike/Downloads/skia.google.jpeg"));
-    if (nullptr == data.get()) {
+    sk_sp<SkData> data(SkData::MakeFromFileName("/Users/mike/Downloads/skia.google.jpeg"));
+    if (nullptr == data) {
         return;
     }
-    SkImage* image = SkImage::NewFromEncoded(data);
+    sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(data));
     if (image) {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->scale(size.width() * 1.0f / image->width(),
                       size.height() * 1.0f / image->height());
         canvas->drawImage(image, 0, 0, nullptr);
-        image->unref();
     }
 }
 
@@ -58,16 +57,15 @@ static void drawContents(SkSurface* surface, SkColor fillC) {
 
 static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
     drawContents(surf, SK_ColorRED);
-    SkImage* imgR = surf->newImageSnapshot();
+    sk_sp<SkImage> imgR = surf->makeImageSnapshot();
 
     if (true) {
-        SkImage* imgR2 = surf->newImageSnapshot();
+        sk_sp<SkImage> imgR2 = surf->makeImageSnapshot();
         SkASSERT(imgR == imgR2);
-        imgR2->unref();
     }
 
     drawContents(surf, SK_ColorGREEN);
-    SkImage* imgG = surf->newImageSnapshot();
+    sk_sp<SkImage> imgG = surf->makeImageSnapshot();
 
     // since we've drawn after we snapped imgR, imgG will be a different obj
     SkASSERT(imgR != imgG);
@@ -78,8 +76,8 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
 //    paint.setFilterBitmap(true);
 //    paint.setAlpha(0x80);
 
-    canvas->drawImage(imgR, 0, 0, usePaint ? &paint : nullptr);
-    canvas->drawImage(imgG, 0, 80, usePaint ? &paint : nullptr);
+    canvas->drawImage(imgR.get(), 0, 0, usePaint ? &paint : nullptr);
+    canvas->drawImage(imgG.get(), 0, 80, usePaint ? &paint : nullptr);
     surf->draw(canvas, 0, 160, usePaint ? &paint : nullptr);
 
     SkRect src1, src2, src3;
@@ -94,13 +92,10 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
     dst3.set(0, 400, 65, 465);
     dst4.set(0, 480, 65, 545);
 
-    canvas->drawImageRect(imgR, src1, dst1, usePaint ? &paint : nullptr);
-    canvas->drawImageRect(imgG, src2, dst2, usePaint ? &paint : nullptr);
-    canvas->drawImageRect(imgR, src3, dst3, usePaint ? &paint : nullptr);
-    canvas->drawImageRect(imgG, dst4, usePaint ? &paint : nullptr);
-
-    imgG->unref();
-    imgR->unref();
+    canvas->drawImageRect(imgR.get(), src1, dst1, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgG.get(), src2, dst2, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgR.get(), src3, dst3, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgG.get(), dst4, usePaint ? &paint : nullptr);
 }
 
 class ImageGM : public skiagm::GM {
@@ -242,33 +237,33 @@ static void draw_contents(SkCanvas* canvas) {
     canvas->drawCircle(50, 50, 35, paint);
 }
 
-static SkImage* make_raster(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
+static sk_sp<SkImage> make_raster(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
     draw(surface->getCanvas());
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-static SkImage* make_picture(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
+static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     SkAutoTUnref<SkPicture> pict(recorder.endRecording());
-    return SkImage::NewFromPicture(pict, info.dimensions(), nullptr, nullptr);
+    return SkImage::MakeFromPicture(sk_ref_sp(pict.get()), info.dimensions(), nullptr, nullptr);
 }
 
-static SkImage* make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
-    SkAutoTUnref<SkImage> image(make_raster(info, nullptr, draw));
-    SkAutoTUnref<SkData> data(image->encode());
-    return SkImage::NewFromEncoded(data);
+static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
+    sk_sp<SkImage> image(make_raster(info, nullptr, draw));
+    sk_sp<SkData> data(image->encode());
+    return SkImage::MakeFromEncoded(data);
 }
 
-static SkImage* make_gpu(const SkImageInfo& info, GrContext* ctx, void (*draw)(SkCanvas*)) {
+static sk_sp<SkImage> make_gpu(const SkImageInfo& info, GrContext* ctx, void (*draw)(SkCanvas*)) {
     if (!ctx) { return nullptr; }
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo, info));
     draw(surface->getCanvas());
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
-typedef SkImage* (*ImageMakerProc)(const SkImageInfo&, GrContext*, void (*)(SkCanvas*));
+typedef sk_sp<SkImage> (*ImageMakerProc)(const SkImageInfo&, GrContext*, void (*)(SkCanvas*));
 
 class ScalePixelsGM : public skiagm::GM {
 public:
@@ -290,9 +285,9 @@ protected:
             make_codec, make_raster, make_picture, make_codec, make_gpu,
         };
         for (auto& proc : procs) {
-            SkAutoTUnref<SkImage> image(proc(info, canvas->getGrContext(), draw_contents));
+            sk_sp<SkImage> image(proc(info, canvas->getGrContext(), draw_contents));
             if (image) {
-                show_scaled_pixels(canvas, image);
+                show_scaled_pixels(canvas, image.get());
             }
             canvas->translate(0, 120);
         }
@@ -342,8 +337,7 @@ static void draw_opaque_contents(SkCanvas* canvas) {
 static SkImageGenerator* gen_raster(const SkImageInfo& info) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
     draw_opaque_contents(surface->getCanvas());
-    SkAutoTUnref<SkImage> img(surface->newImageSnapshot());
-    return new ImageGeneratorFromImage(img);
+    return new ImageGeneratorFromImage(surface->makeImageSnapshot().get());
 }
 
 static SkImageGenerator* gen_picture(const SkImageInfo& info) {
@@ -354,13 +348,13 @@ static SkImageGenerator* gen_picture(const SkImageInfo& info) {
 }
 
 static SkImageGenerator* gen_png(const SkImageInfo& info) {
-    SkAutoTUnref<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
+    sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
     SkAutoTUnref<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
     return SkImageGenerator::NewFromEncoded(data);
 }
 
 static SkImageGenerator* gen_jpg(const SkImageInfo& info) {
-    SkAutoTUnref<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
+    sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
     SkAutoTUnref<SkData> data(image->encode(SkImageEncoder::kJPEG_Type, 100));
     return SkImageGenerator::NewFromEncoded(data);
 }
@@ -466,16 +460,16 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
     SkCanvas bmpCanvas(bmp);
     render_image(&bmpCanvas);
 
-    std::function<SkImage*()> imageFactories[] = {
+    std::function<sk_sp<SkImage>()> imageFactories[] = {
         // Create sw raster image.
         [bmp] {
-            return SkImage::NewFromBitmap(bmp);
+            return SkImage::MakeFromBitmap(bmp);
         },
         // Create encoded image.
         [bmp] {
-            SkAutoTUnref<SkData> src(
+            sk_sp<SkData> src(
                 SkImageEncoder::EncodeData(bmp, SkImageEncoder::kPNG_Type, 100));
-            return SkImage::NewFromEncoded(src);
+            return SkImage::MakeFromEncoded(std::move(src));
         },
         // Create a picture image.
         [render_image] {
@@ -483,10 +477,11 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
             SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kSize), SkIntToScalar(kSize));
             render_image(canvas);
             SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-            return SkImage::NewFromPicture(picture, SkISize::Make(kSize, kSize), nullptr, nullptr);
+            return SkImage::MakeFromPicture(sk_ref_sp(picture.get()), SkISize::Make(kSize, kSize),
+                                            nullptr, nullptr);
         },
         // Create a texture image
-        [context, render_image]() -> SkImage* {
+        [context, render_image]() -> sk_sp<SkImage> {
             SkAutoTUnref<SkSurface> surface(
                 SkSurface::NewRenderTarget(context, SkBudgeted::kYes,
                                            SkImageInfo::MakeN32Premul(kSize, kSize)));
@@ -494,19 +489,19 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
                 return nullptr;
             }
             render_image(surface->getCanvas());
-            return surface->newImageSnapshot();
+            return surface->makeImageSnapshot();
         }
     };
 
     static const SkScalar kPad = 5.f;
     canvas->translate(kPad, kPad);
     for (auto factory : imageFactories) {
-        SkAutoTUnref<SkImage> image(factory());
+        auto image(factory());
         if (!image) {
             continue;
         }
         if (context) {
-            SkAutoTUnref<SkImage> texImage(image->newTextureImage(context));
+            sk_sp<SkImage> texImage(image->makeTextureImage(context));
             if (texImage) {
                 canvas->drawImage(texImage, 0, 0);
             }

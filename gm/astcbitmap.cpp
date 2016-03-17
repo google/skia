@@ -62,7 +62,7 @@ DEF_SIMPLE_GM(astcbitmap, canvas, kGMDimension, kGMDimension) {
 DEF_SIMPLE_GM(astc_image, canvas, kGMDimension, kGMDimension) {
     for (int j = 0; j < 4; ++j) {
         for (int i = 0; i < 4; ++i) {
-            SkAutoTUnref<SkImage> image(GetResourceAsImage(get_astc_filename(j*4+i)));
+            sk_sp<SkImage> image(GetResourceAsImage(get_astc_filename(j*4+i)));
             if (image) {
                 const SkScalar bmX = static_cast<SkScalar>(i*kBitmapDimension);
                 const SkScalar bmY = static_cast<SkScalar>(j*kBitmapDimension);

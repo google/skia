@@ -620,13 +620,12 @@ static bool SK_WARN_UNUSED_RESULT flatten(const SkImage& image, Json::Value* tar
             SkDebugf("readPixels failed\n");
             return false;
         }
-        SkImage* converted = SkImage::NewRasterCopy(dstInfo, buffer, rowBytes);
+        sk_sp<SkImage> converted = SkImage::MakeRasterCopy(SkPixmap(dstInfo, buffer, rowBytes));
         encoded = converted->encode(SkImageEncoder::kPNG_Type, 100);
         if (encoded == nullptr) {
             SkDebugf("image encode failed\n");
             return false;
         }
-        sk_free(converted);
         sk_free(buffer);
     }
     Json::Value jsonData;
@@ -755,8 +754,8 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
     }
     const void* data;
     int size = decode_data(jsonBitmap[SKDEBUGCANVAS_ATTRIBUTE_DATA], urlDataManager, &data);
-    SkAutoTUnref<SkData> encoded(SkData::NewWithoutCopy(data, size));
-    SkAutoTDelete<SkImage> image(SkImage::NewFromEncoded(encoded, nullptr));
+    sk_sp<SkData> encoded(SkData::NewWithoutCopy(data, size));
+    sk_sp<SkImage> image(SkImage::MakeFromEncoded(std::move(encoded), nullptr));
 
     SkAutoTDelete<SkBitmap> bitmap(new SkBitmap());
     if (nullptr != image) {
@@ -778,12 +777,12 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
     return nullptr;
 }
 
-static SkImage* load_image(const Json::Value& jsonImage, UrlDataManager& urlDataManager) {
+static sk_sp<SkImage> load_image(const Json::Value& jsonImage, UrlDataManager& urlDataManager) {
     SkBitmap* bitmap = load_bitmap(jsonImage, urlDataManager);
     if (bitmap == nullptr) {
         return nullptr;
     }
-    SkImage* result = SkImage::NewFromBitmap(*bitmap);
+    auto result = SkImage::MakeFromBitmap(*bitmap);
     delete bitmap;
     return result;
 }
@@ -791,7 +790,7 @@ static SkImage* load_image(const Json::Value& jsonImage, UrlDataManager& urlData
 static bool SK_WARN_UNUSED_RESULT flatten(const SkBitmap& bitmap, Json::Value* target, 
                                           UrlDataManager& urlDataManager) {
     bitmap.lockPixels();
-    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    sk_sp<SkImage> image(SkImage::MakeFromBitmap(bitmap));
     bitmap.unlockPixels();
     (*target)[SKDEBUGCANVAS_ATTRIBUTE_COLOR] = Json::Value(color_type_name(bitmap.colorType()));
     (*target)[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = Json::Value(alpha_type_name(bitmap.alphaType()));
@@ -1965,7 +1964,7 @@ Json::Value SkDrawImageCommand::toJSON(UrlDataManager& urlDataManager) const {
 
 SkDrawImageCommand* SkDrawImageCommand::fromJSON(Json::Value& command, 
                                                  UrlDataManager& urlDataManager) {
-    SkImage* image = load_image(command[SKDEBUGCANVAS_ATTRIBUTE_IMAGE], urlDataManager);
+    sk_sp<SkImage> image = load_image(command[SKDEBUGCANVAS_ATTRIBUTE_IMAGE], urlDataManager);
     if (image == nullptr) {
         return nullptr;
     }
@@ -1979,9 +1978,8 @@ SkDrawImageCommand* SkDrawImageCommand::fromJSON(Json::Value& command,
     else {
         paintPtr = nullptr;
     }
-    SkDrawImageCommand* result = new SkDrawImageCommand(image, point[0].asFloat(), 
+    SkDrawImageCommand* result = new SkDrawImageCommand(image.get(), point[0].asFloat(),
                                                         point[1].asFloat(), paintPtr);
-    image->unref();
     return result;
 }
 
@@ -2048,7 +2046,7 @@ Json::Value SkDrawImageRectCommand::toJSON(UrlDataManager& urlDataManager) const
 
 SkDrawImageRectCommand* SkDrawImageRectCommand::fromJSON(Json::Value& command, 
                                                          UrlDataManager& urlDataManager) {
-    SkImage* image = load_image(command[SKDEBUGCANVAS_ATTRIBUTE_IMAGE], urlDataManager);
+    sk_sp<SkImage> image = load_image(command[SKDEBUGCANVAS_ATTRIBUTE_IMAGE], urlDataManager);
     if (image == nullptr) {
         return nullptr;
     }
@@ -2080,9 +2078,8 @@ SkDrawImageRectCommand* SkDrawImageRectCommand::fromJSON(Json::Value& command,
     else {
         srcPtr = nullptr;
     }
-    SkDrawImageRectCommand* result = new SkDrawImageRectCommand(image, srcPtr, dst, paintPtr, 
+    SkDrawImageRectCommand* result = new SkDrawImageRectCommand(image.get(), srcPtr, dst, paintPtr,
                                                                 constraint);
-    image->unref();
     return result;
 }
 

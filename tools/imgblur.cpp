@@ -40,7 +40,7 @@ int tool_main(int argc, char** argv) {
         return kError;       
     }
 
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(FLAGS_in[0]));
+    sk_sp<SkData> data(SkData::MakeFromFileName(FLAGS_in[0]));
     if (nullptr == data) {
         if (!FLAGS_quiet) {
             SkDebugf("Couldn't open file: %s\n", FLAGS_in[0]);
@@ -48,7 +48,7 @@ int tool_main(int argc, char** argv) {
         return kError;
     }
 
-    SkAutoTDelete<SkImage> image(SkImage::NewFromEncoded(data));
+    sk_sp<SkImage> image(SkImage::MakeFromEncoded(data));
     if (!image) {
         if (!FLAGS_quiet) {
             SkDebugf("Couldn't create image for: %s.\n", FLAGS_in[0]);

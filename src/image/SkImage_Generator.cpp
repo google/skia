@@ -86,7 +86,7 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawImage(this, SkIntToScalar(-subset.x()), SkIntToScalar(-subset.y()),
                                     nullptr);
-    return sk_sp<SkImage>(surface->newImageSnapshot());
+    return surface->makeImageSnapshot();
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {

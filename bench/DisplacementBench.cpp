@@ -67,7 +67,7 @@ protected:
             }
         }
 
-        fCheckerboard.reset(surface->newImageSnapshot());
+        fCheckerboard = surface->makeImageSnapshot();
     }
 
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
@@ -82,7 +82,7 @@ protected:
     inline bool isSmall() const { return fIsSmall; }
 
     SkBitmap fBitmap;
-    SkAutoTUnref<SkImage> fCheckerboard;
+    sk_sp<SkImage> fCheckerboard;
 
 private:
     bool fInitialized;
@@ -102,7 +102,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard.get()));
         // No displacement effect
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
@@ -129,7 +129,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard.get()));
         // Displacement, with 1 alpha component (which isn't pre-multiplied)
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
@@ -155,7 +155,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard.get()));
         // Displacement, with 2 non-alpha components
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,

@@ -17,7 +17,7 @@ static SkSurface* make_surface(SkCanvas* root, int N) {
     return surface;
 }
 
-static SkImage* make_image(SkCanvas* root, SkIRect* center) {
+static sk_sp<SkImage> make_image(SkCanvas* root, SkIRect* center) {
     const int kFixed = 28;
     const int kStretchy = 8;
     const int kSize = 2*kFixed + kStretchy;
@@ -43,7 +43,7 @@ static SkImage* make_image(SkCanvas* root, SkIRect* center) {
     paint.setColor(0x880000FF);
     canvas->drawRect(r, paint);
 
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 static void image_to_bitmap(const SkImage* image, SkBitmap* bm) {
@@ -54,9 +54,9 @@ static void image_to_bitmap(const SkImage* image, SkBitmap* bm) {
 
 class NinePatchStretchGM : public skiagm::GM {
 public:
-    SkAutoTUnref<SkImage> fImage;
-    SkBitmap    fBitmap;
-    SkIRect     fCenter;
+    sk_sp<SkImage>  fImage;
+    SkBitmap        fBitmap;
+    SkIRect         fCenter;
 
     NinePatchStretchGM() {}
 
@@ -71,8 +71,8 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (nullptr == fBitmap.pixelRef()) {
-            fImage.reset(make_image(canvas, &fCenter));
-            image_to_bitmap(fImage, &fBitmap);
+            fImage = make_image(canvas, &fCenter);
+            image_to_bitmap(fImage.get(), &fBitmap);
         }
 
         // amount of bm that should not be stretched (unless we have to)
@@ -100,7 +100,7 @@ protected:
                     SkRect r = SkRect::MakeXYWH(x + ix * fixed, y + iy * fixed,
                                                 size[i].width(), size[i].height());
                     canvas->drawBitmapNine(fBitmap, fCenter, r, &paint);
-                    canvas->drawImageNine(fImage, fCenter, r.makeOffset(360, 0), &paint);
+                    canvas->drawImageNine(fImage.get(), fCenter, r.makeOffset(360, 0), &paint);
                 }
             }
         }

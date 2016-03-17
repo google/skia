@@ -72,7 +72,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CustomTexture, reporter, context, glContext) 
     REPORTER_ASSERT(reporter, surface);
     GrGLuint id = allocator.m_mostRecentlyAllocatedStorage;
 
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image->isTextureBacked());
     SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(1,1);
     GrColor dest = 0x11223344;
@@ -80,7 +80,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CustomTexture, reporter, context, glContext) 
     REPORTER_ASSERT(reporter, GrColorUnpackG(dest) == 0);
 
     surface->getCanvas()->clear(SK_ColorGREEN);
-    SkAutoTUnref<SkImage> image2(surface->newImageSnapshot());
+    sk_sp<SkImage> image2(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image2->isTextureBacked());
     REPORTER_ASSERT(reporter, allocator.m_mostRecentlyAllocatedStorage != id);
 

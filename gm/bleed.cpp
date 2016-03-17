@@ -27,10 +27,10 @@ struct TestPixels {
         kBitmap,
         kImage
     };
-    Type                  fType;
-    SkBitmap              fBitmap;
-    SkAutoTUnref<SkImage> fImage;
-    SkIRect               fRect;  // The region of the bitmap/image that should be rendered.
+    Type            fType;
+    SkBitmap        fBitmap;
+    sk_sp<SkImage>  fImage;
+    SkIRect         fRect;  // The region of the bitmap/image that should be rendered.
 };
 
 /** Creates a bitmap with two one-pixel rings around a checkerboard. The checkerboard is 2x2
@@ -130,7 +130,7 @@ static bool make_ringed_alpha_bitmap(GrContext* ctx, TestPixels* result, int wid
 /** Helper to reuse above functions to produce images rather than bmps */
 static void bmp_to_image(TestPixels* result) {
     SkASSERT(TestPixels::kBitmap == result->fType);
-    result->fImage.reset(SkImage::NewFromBitmap(result->fBitmap));
+    result->fImage = SkImage::MakeFromBitmap(result->fBitmap);
     SkASSERT(result->fImage);
     result->fType = TestPixels::kImage;
     result->fBitmap.reset();
@@ -345,7 +345,7 @@ protected:
         if (TestPixels::kBitmap == pixels.fType) {
             canvas->drawBitmapRect(pixels.fBitmap, src, dst, paint, constraint);
         } else {
-            canvas->drawImageRect(pixels.fImage, src, dst, paint, constraint);
+            canvas->drawImageRect(pixels.fImage.get(), src, dst, paint, constraint);
         }
     }
 

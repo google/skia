@@ -98,13 +98,13 @@ protected:
         SkBitmap bm;
         SkString filename = GetResourcePath("mandrill_128.");
         filename.append(this->fileExtension());
-        SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(filename.c_str()));
+        sk_sp<SkData> fileData(SkData::MakeFromFileName(filename.c_str()));
         if (nullptr == fileData) {
             SkDebugf("Could not open the file. Did you forget to set the resourcePath?\n");
             return;
         }
 
-        SkAutoTUnref<SkImage> image(SkImage::NewFromEncoded(fileData));
+        sk_sp<SkImage> image(SkImage::MakeFromEncoded(std::move(fileData)));
         if (nullptr == image) {
             SkDebugf("Could not decode the ETC file. ETC may not be included in this platform.\n");
             return;
@@ -201,10 +201,8 @@ protected:
         SkASSERT(124 == height);
 
         size_t dataSz = etc1_get_encoded_data_size(width, height) + ETC_PKM_HEADER_SIZE;
-        SkAutoDataUnref nonPOTData(SkData::NewWithCopy(am.get(), dataSz));
-
-        SkAutoTUnref<SkImage> image(SkImage::NewFromEncoded(nonPOTData));
-        canvas->drawImage(image, 0, 0);
+        sk_sp<SkData> nonPOTData(SkData::MakeWithCopy(am.get(), dataSz));
+        canvas->drawImage(SkImage::MakeFromEncoded(std::move(nonPOTData)).get(), 0, 0);
     }
 
 private:

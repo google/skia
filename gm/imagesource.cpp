@@ -25,7 +25,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         SkBitmap bm = sk_tool_utils::create_string_bitmap(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");
-        fImage.reset(SkImage::NewFromBitmap(bm));
+        fImage = SkImage::MakeFromBitmap(bm);
     }
 
     static void FillRectFiltered(SkCanvas* canvas, const SkRect& clipRect, SkImageFilter* filter) {
@@ -44,13 +44,13 @@ protected:
             SkRect dstRect = SkRect::MakeXYWH(0, 10, 60, 60);
             SkRect clipRect = SkRect::MakeXYWH(0, 0, 100, 100);
             SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
-            SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(fImage));
+            SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(fImage.get()));
             SkAutoTUnref<SkImageFilter> imageSourceSrcRect(
-                SkImageSource::Create(fImage, srcRect, srcRect, kHigh_SkFilterQuality));
+                SkImageSource::Create(fImage.get(), srcRect, srcRect, kHigh_SkFilterQuality));
             SkAutoTUnref<SkImageFilter> imageSourceSrcRectDstRect(
-                SkImageSource::Create(fImage, srcRect, dstRect, kHigh_SkFilterQuality));
+                SkImageSource::Create(fImage.get(), srcRect, dstRect, kHigh_SkFilterQuality));
             SkAutoTUnref<SkImageFilter> imageSourceDstRectOnly(
-                SkImageSource::Create(fImage, bounds, dstRect, kHigh_SkFilterQuality));
+                SkImageSource::Create(fImage.get(), bounds, dstRect, kHigh_SkFilterQuality));
 
             // Draw an unscaled bitmap.
             FillRectFiltered(canvas, clipRect, imageSource);
@@ -71,7 +71,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkImage> fImage;
+    sk_sp<SkImage> fImage;
     typedef GM INHERITED;
 };
 

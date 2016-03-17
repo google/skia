@@ -463,7 +463,7 @@ sk_canvas_t* sk_surface_get_canvas(sk_surface_t* csurf) {
 
 sk_image_t* sk_surface_new_image_snapshot(sk_surface_t* csurf) {
     SkSurface* surf = (SkSurface*)csurf;
-    return (sk_image_t*)surf->newImageSnapshot();
+    return (sk_image_t*)surf->makeImageSnapshot().release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

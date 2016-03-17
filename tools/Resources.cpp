@@ -32,10 +32,10 @@ bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     return gen && gen->tryGenerateBitmap(dst);
 }
 
-SkImage* GetResourceAsImage(const char* resource) {
+sk_sp<SkImage> GetResourceAsImage(const char* resource) {
     SkString path = GetResourcePath(resource);
-    SkAutoTUnref<SkData> resourceData(SkData::NewFromFileName(path.c_str()));
-    return SkImage::NewFromEncoded(resourceData);
+    sk_sp<SkData> resourceData(SkData::NewFromFileName(path.c_str()));
+    return SkImage::MakeFromEncoded(resourceData);
 }
 
 SkStreamAsset* GetResourceAsStream(const char* resource) {

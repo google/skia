@@ -140,7 +140,7 @@ protected:
         }
         drawInto(surf->getCanvas());
 
-        SkAutoTUnref<SkImage> image(surf->newImageSnapshot());
+        sk_sp<SkImage> image(surf->makeImageSnapshot());
         canvas->drawImage(image, 10, 10, nullptr);
 
         SkAutoTUnref<SkSurface> surf2(surf->newSurface(info));
@@ -149,8 +149,8 @@ protected:
         // Assert that the props were communicated transitively through the first image
         SkASSERT(equal(surf->props(), surf2->props()));
 
-        SkAutoTUnref<SkImage> image2(surf2->newImageSnapshot());
-        canvas->drawImage(image2, 10 + SkIntToScalar(image->width()) + 10, 10, nullptr);
+        sk_sp<SkImage> image2(surf2->makeImageSnapshot());
+        canvas->drawImage(image2.get(), 10 + SkIntToScalar(image->width()) + 10, 10, nullptr);
     }
 
 private:

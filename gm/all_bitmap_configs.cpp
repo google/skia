@@ -192,7 +192,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
 }
 
 // Works on Ganesh, fails on Raster.
-SkImage* make_not_native32_color_wheel() {
+sk_sp<SkImage> make_not_native32_color_wheel() {
     SkBitmap n32bitmap, notN32bitmap;
     n32bitmap.allocN32Pixels(SCALE, SCALE);
     n32bitmap.eraseColor(SK_ColorTRANSPARENT);
@@ -207,12 +207,12 @@ SkImage* make_not_native32_color_wheel() {
     static_assert(ct != kN32_SkColorType, "BRGA!=RGBA");
     SkAssertResult(n32bitmap.copyTo(&notN32bitmap, ct));
     SkASSERT(notN32bitmap.colorType() == ct);
-    return SkImage::NewFromBitmap(notN32bitmap);
+    return SkImage::MakeFromBitmap(notN32bitmap);
 }
 
 DEF_SIMPLE_GM(not_native32_bitmap_config, canvas, SCALE, SCALE) {
-    SkAutoTUnref<SkImage> notN32image(make_not_native32_color_wheel());
+    sk_sp<SkImage> notN32image(make_not_native32_color_wheel());
     SkASSERT(notN32image);
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
-    canvas->drawImage(notN32image, 0.0f, 0.0f);
+    canvas->drawImage(notN32image.get(), 0.0f, 0.0f);
 }

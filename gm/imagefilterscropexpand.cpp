@@ -46,12 +46,12 @@ protected:
             SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
             SkImageFilter::CropRect::kHasAll_CropEdge);
 
-        SkAutoTUnref<SkImage> gradientCircle(MakeGradientCircle(64, 64));
+        sk_sp<SkImage> gradientCircle(MakeGradientCircle(64, 64));
         SkBitmap checkerboard;
         MakeCheckerboard(&checkerboard);
 
         SkAutoTUnref<SkImageFilter> gradientCircleSource(
-            SkImageSource::Create(gradientCircle));
+            SkImageSource::Create(gradientCircle.get()));
         SkAutoTUnref<SkImageFilter> noopCropped(
             SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
         SkScalar sk255 = SkIntToScalar(255);
@@ -141,7 +141,7 @@ private:
         }
     }
 
-    static SkImage* MakeGradientCircle(int width, int height) {
+    static sk_sp<SkImage> MakeGradientCircle(int width, int height) {
         SkScalar x = SkIntToScalar(width / 2);
         SkScalar y = SkIntToScalar(height / 2);
         SkScalar radius = SkMinScalar(x, y) * 0.8f;
@@ -156,7 +156,7 @@ private:
                                                      2, SkShader::kClamp_TileMode));
         canvas->drawCircle(x, y, radius, paint);
 
-        return surface->newImageSnapshot();
+        return surface->makeImageSnapshot();
     }
 
     static void Draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkRect& rect, SkImageFilter* filter) {

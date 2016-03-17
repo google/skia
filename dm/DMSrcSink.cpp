@@ -818,7 +818,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         //        We have disabled these tests in DM.cpp.
         SkASSERT(kGray_8_SkColorType != gen->getInfo().colorType());
 
-        SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen.release(), nullptr));
+        sk_sp<SkImage> image(SkImage::MakeFromGenerator(gen.release(), nullptr));
         if (!image) {
             return "Could not create image from codec image generator.";
         }
@@ -1315,7 +1315,7 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         mpd.draw();
         for (int j = 0; j < yTiles; j++) {
             for (int i = 0; i < xTiles; i++) {
-                SkAutoTUnref<SkImage> image(surfaces[i+xTiles*j]->newImageSnapshot());
+                sk_sp<SkImage> image(surfaces[i+xTiles*j]->makeImageSnapshot());
                 canvas->drawImage(image, SkIntToScalar(i*fW), SkIntToScalar(j*fH));
             }
         }

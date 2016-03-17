@@ -39,7 +39,7 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
     }
 }
 
-static SkImage* make_atlas(int atlasSize, int cellSize) {
+static sk_sp<SkImage> make_atlas(int atlasSize, int cellSize) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
     SkCanvas* canvas = surface->getCanvas();
@@ -62,7 +62,7 @@ static SkImage* make_atlas(int atlasSize, int cellSize) {
             i += 1;
         }
     }
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 class DrawAtlasDrawable : public SkDrawable {
@@ -131,7 +131,7 @@ class DrawAtlasDrawable : public SkDrawable {
         N = 256,
     };
 
-    SkAutoTUnref<SkImage> fAtlas;
+    sk_sp<SkImage> fAtlas;
     Rec         fRec[N];
     SkRect      fTex[N];
     SkRect      fBounds;
@@ -142,7 +142,7 @@ public:
         : fProc(proc), fBounds(r), fUseColors(false)
     {
         SkRandom rand;
-        fAtlas.reset(make_atlas(kAtlasSize, kCellSize));
+        fAtlas = make_atlas(kAtlasSize, kCellSize);
         const SkScalar kMaxSpeed = 5;
         const SkScalar cell = SkIntToScalar(kCellSize);
         int i = 0;
@@ -187,7 +187,7 @@ protected:
 
         const SkRect cull = this->getBounds();
         const SkColor* colorsPtr = fUseColors ? colors : nullptr;
-        fProc(canvas, fAtlas, xform, fTex, colorsPtr, N, &cull, &paint);
+        fProc(canvas, fAtlas.get(), xform, fTex, colorsPtr, N, &cull, &paint);
     }
     
     SkRect onGetBounds() override {

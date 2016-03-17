@@ -11,7 +11,7 @@
 #include "SkSurface.h"
 
 class DrawAtlasGM : public skiagm::GM {
-    static SkImage* MakeAtlas(SkCanvas* caller, const SkRect& target) {
+    static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
         SkAutoTUnref<SkSurface> surface(caller->newSurface(info));
         if (nullptr == surface) {
@@ -32,10 +32,10 @@ class DrawAtlasGM : public skiagm::GM {
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(true);
         canvas->drawOval(target, paint);
-        return surface->newImageSnapshot();
+        return surface->makeImageSnapshot();
     }
 
-    SkAutoTUnref<SkImage> fAtlas;
+    sk_sp<SkImage> fAtlas;
 
 public:
     DrawAtlasGM() {}
@@ -53,7 +53,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = { 50, 50, 80, 90 };
         if (nullptr == fAtlas) {
-            fAtlas.reset(MakeAtlas(canvas, target));
+            fAtlas = MakeAtlas(canvas, target);
         }
 
         const struct {
@@ -91,9 +91,9 @@ protected:
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setAntiAlias(true);
 
-        canvas->drawAtlas(fAtlas, xform, tex, N, nullptr, &paint);
+        canvas->drawAtlas(fAtlas.get(), xform, tex, N, nullptr, &paint);
         canvas->translate(0, 100);
-        canvas->drawAtlas(fAtlas, xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
+        canvas->drawAtlas(fAtlas.get(), xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
     }
     
 private:

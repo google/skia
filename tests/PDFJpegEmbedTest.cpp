@@ -56,9 +56,8 @@ static SkData* load_resource(
  */
 DEF_TEST(PDFJpegEmbedTest, r) {
     const char test[] = "PDFJpegEmbedTest";
-    SkAutoTUnref<SkData> mandrillData(
-            load_resource(r, test, "mandrill_512_q075.jpg"));
-    SkAutoTUnref<SkData> cmykData(load_resource(r, test, "CMYK.jpg"));
+    sk_sp<SkData> mandrillData(load_resource(r, test, "mandrill_512_q075.jpg"));
+    sk_sp<SkData> cmykData(load_resource(r, test, "CMYK.jpg"));
     if (!mandrillData || !cmykData) {
         return;
     }
@@ -69,9 +68,9 @@ DEF_TEST(PDFJpegEmbedTest, r) {
 
     canvas->clear(SK_ColorLTGRAY);
 
-    SkBitmap bm1(bitmap_from_data(mandrillData));
+    SkBitmap bm1(bitmap_from_data(mandrillData.get()));
     canvas->drawBitmap(bm1, 65.0, 0.0, nullptr);
-    SkBitmap bm2(bitmap_from_data(cmykData));
+    SkBitmap bm2(bitmap_from_data(cmykData.get()));
     canvas->drawBitmap(bm2, 0.0, 512.0, nullptr);
 
     canvas->flush();
@@ -81,11 +80,11 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     SkASSERT(pdfData);
     pdf.reset();
 
-    REPORTER_ASSERT(r, is_subset_of(mandrillData, pdfData));
+    REPORTER_ASSERT(r, is_subset_of(mandrillData.get(), pdfData.get()));
 
     // This JPEG uses a nonstandard colorspace - it can not be
     // embedded into the PDF directly.
-    REPORTER_ASSERT(r, !is_subset_of(cmykData, pdfData));
+    REPORTER_ASSERT(r, !is_subset_of(cmykData.get(), pdfData.get()));
     ////////////////////////////////////////////////////////////////////////////
     pdf.reset();
     document.reset(SkDocument::CreatePDF(&pdf));
@@ -93,10 +92,10 @@ DEF_TEST(PDFJpegEmbedTest, r) {
 
     canvas->clear(SK_ColorLTGRAY);
 
-    SkAutoTUnref<SkImage> im1(SkImage::NewFromEncoded(mandrillData));
-    canvas->drawImage(im1, 65.0, 0.0, nullptr);
-    SkAutoTUnref<SkImage> im2(SkImage::NewFromEncoded(cmykData));
-    canvas->drawImage(im2, 0.0, 512.0, nullptr);
+    sk_sp<SkImage> im1(SkImage::MakeFromEncoded(mandrillData));
+    canvas->drawImage(im1.get(), 65.0, 0.0, nullptr);
+    sk_sp<SkImage> im2(SkImage::MakeFromEncoded(cmykData));
+    canvas->drawImage(im2.get(), 0.0, 512.0, nullptr);
 
     canvas->flush();
     document->endPage();
@@ -105,11 +104,11 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     SkASSERT(pdfData);
     pdf.reset();
 
-    REPORTER_ASSERT(r, is_subset_of(mandrillData, pdfData));
+    REPORTER_ASSERT(r, is_subset_of(mandrillData.get(), pdfData.get()));
 
     // This JPEG uses a nonstandard colorspace - it can not be
     // embedded into the PDF directly.
-    REPORTER_ASSERT(r, !is_subset_of(cmykData, pdfData));
+    REPORTER_ASSERT(r, !is_subset_of(cmykData.get(), pdfData.get()));
 }
 
 #include "SkJpegInfo.h"

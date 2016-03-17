@@ -142,12 +142,12 @@ const SkImage* SkPDFCanon::bitmapToImage(const SkBitmap& bm) {
     if (const SkImage** img = fBitmapToImageMap.find(key)) {
         return *img;
     }
-    if (SkImage* image = SkImage::NewFromBitmap(bm)) {
+    if (SkImage* image = SkImage::MakeFromBitmap(bm).release()) {
         return *fBitmapToImageMap.set(key, image);
     }
     SkBitmap n32bitmap;  // SkImage::NewFromBitmap can be finicky.
     bm.copyTo(&n32bitmap, kN32_SkColorType);
-    return *fBitmapToImageMap.set(key, SkImage::NewFromBitmap(n32bitmap));
+    return *fBitmapToImageMap.set(key, SkImage::MakeFromBitmap(n32bitmap).release());
 }
 
 sk_sp<SkPDFStream> SkPDFCanon::makeInvertFunction() {

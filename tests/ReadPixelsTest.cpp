@@ -556,8 +556,7 @@ static SkData* draw_into_surface(SkSurface* surf, const SkBitmap& bm, SkFilterQu
     canvas->translate(-SkScalarHalf(bm.width()), -SkScalarHalf(bm.height()));
     canvas->drawBitmap(bm, 0, 0, &paint);
 
-    SkAutoTUnref<SkImage> image(surf->newImageSnapshot());
-    return image->encode();
+    return surf->makeImageSnapshot()->encode();
 }
 
 #include "SkStream.h"

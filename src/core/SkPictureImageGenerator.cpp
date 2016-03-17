@@ -151,8 +151,8 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIR
     }
     surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
     surface->getCanvas()->drawPicture(fPicture, &matrix, fPaint.getMaybeNull());
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-    if (!image.get()) {
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
+    if (!image) {
         return nullptr;
     }
     return SkSafeRef(as_IB(image)->peekTexture());

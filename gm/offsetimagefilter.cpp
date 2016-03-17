@@ -32,14 +32,14 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBitmap.reset(SkImage::NewFromBitmap(
-            sk_tool_utils::create_string_bitmap(80, 80, 0xD000D000, 15, 65, 96, "e")));
+        fBitmap = SkImage::MakeFromBitmap(
+            sk_tool_utils::create_string_bitmap(80, 80, 0xD000D000, 15, 65, 96, "e"));
         
-        fCheckerboard.reset(SkImage::NewFromBitmap(
+        fCheckerboard = SkImage::MakeFromBitmap(
             sk_tool_utils::create_checkerboard_bitmap(80, 80,
                                                       sk_tool_utils::color_to_565(0xFFA0A0A0),
                                                       sk_tool_utils::color_to_565(0xFF404040),
-                                                      8)));
+                                                      8));
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -47,7 +47,7 @@ protected:
         SkPaint paint;
 
         for (int i = 0; i < 4; i++) {
-            const SkImage* image = (i & 0x01) ? fCheckerboard : fBitmap;
+            const SkImage* image = (i & 0x01) ? fCheckerboard.get() : fBitmap.get();
             SkIRect cropRect = SkIRect::MakeXYWH(i * 12,
                                                  i * 8,
                                                  image->width() - i * 8,
@@ -67,7 +67,7 @@ protected:
         SkImageFilter::CropRect rect(SkRect::Make(cropRect));
         SkAutoTUnref<SkImageFilter> filter(SkOffsetImageFilter::Create(-5, -10, nullptr, &rect));
         paint.setImageFilter(filter);
-        DrawClippedImage(canvas, fBitmap, paint, 2, cropRect);
+        DrawClippedImage(canvas, fBitmap.get(), paint, 2, cropRect);
     }
 private:
     static void DrawClippedImage(SkCanvas* canvas, const SkImage* image, const SkPaint& paint,
@@ -92,7 +92,7 @@ private:
         }
     }
 
-    SkAutoTUnref<SkImage> fBitmap, fCheckerboard;
+    sk_sp<SkImage> fBitmap, fCheckerboard;
 
     typedef skiagm::GM INHERITED;
 };

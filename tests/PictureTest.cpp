@@ -50,7 +50,7 @@ static void test_images_are_found_by_willPlayBackBitmaps(skiatest::Reporter* rep
     // We just need _some_ SkImage
     const SkPMColor pixel = 0;
     const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
-    SkAutoTUnref<SkImage> image(SkImage::NewRasterCopy(info, &pixel, sizeof(pixel)));
+    sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, &pixel, sizeof(pixel))));
 
     SkPictureRecorder recorder;
     recorder.beginRecording(100,100)->drawImage(image, 0,0);

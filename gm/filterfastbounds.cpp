@@ -275,8 +275,8 @@ protected:
             temp->drawRect(SkRect::MakeLTRB(5, 0, 10, 5), p);
         }
 
-        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-        SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(image));
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
+        SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(image.get()));
 
         SkTArray<SkPaint> bmsPaints;
         create_paints(imageSource, &bmsPaints);

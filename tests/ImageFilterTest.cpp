@@ -96,7 +96,7 @@ void MatrixTestImageFilter::toString(SkString* str) const {
 }
 #endif
 
-static SkImage* make_small_image() {
+static sk_sp<SkImage> make_small_image() {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(kBitmapSize, kBitmapSize));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0x00000000);
@@ -128,7 +128,7 @@ static SkImage* make_small_image() {
         }
     }
 
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 static SkImageFilter* make_scale(float amount, SkImageFilter* input = nullptr) {
@@ -280,7 +280,7 @@ DEF_TEST(ImageFilter, reporter) {
 
     {
         // Tests pass by not asserting
-        SkAutoTUnref<SkImage> image(make_small_image());
+        sk_sp<SkImage> image(make_small_image());
         SkBitmap result;
         result.allocN32Pixels(kBitmapSize, kBitmapSize);
 
@@ -293,7 +293,7 @@ DEF_TEST(ImageFilter, reporter) {
             // 3 ) large negative specular exponent value
             SkScalar specularExponent = -1000;
 
-            SkAutoTUnref<SkImageFilter> bmSrc(SkImageSource::Create(image));
+            SkAutoTUnref<SkImageFilter> bmSrc(SkImageSource::Create(image.get()));
             SkPaint paint;
             paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(
                     location, target, specularExponent, 180,
@@ -574,8 +574,8 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     const SkScalar gain = SK_Scalar1, bias = 0;
     const SkScalar five = SkIntToScalar(5);
 
-    SkAutoTUnref<SkImage> gradientImage(SkImage::NewFromBitmap(make_gradient_circle(64, 64)));
-    SkAutoTUnref<SkImageFilter> gradientSource(SkImageSource::Create(gradientImage));
+    sk_sp<SkImage> gradientImage(SkImage::MakeFromBitmap(make_gradient_circle(64, 64)));
+    SkAutoTUnref<SkImageFilter> gradientSource(SkImageSource::Create(gradientImage.get()));
     SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(five, five));
     SkMatrix matrix;
 
@@ -802,7 +802,7 @@ static void test_imagefilter_merge_result_size(SkImageFilter::Proxy* proxy,
     SkBitmap greenBM;
     greenBM.allocN32Pixels(20, 20);
     greenBM.eraseColor(SK_ColorGREEN);
-    SkAutoTUnref<SkImage> greenImage(SkImage::NewFromBitmap(greenBM));
+    sk_sp<SkImage> greenImage(SkImage::MakeFromBitmap(greenBM));
     SkAutoTUnref<SkImageFilter> source(SkImageSource::Create(greenImage.get()));
     SkAutoTUnref<SkImageFilter> merge(SkMergeImageFilter::Create(source.get(), source.get()));
 
@@ -1433,8 +1433,8 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
 DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
     surface->getCanvas()->clear(SK_ColorGREEN);
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-    SkAutoTUnref<SkImageFilter> filter(SkImageSource::Create(image));
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
+    SkAutoTUnref<SkImageFilter> filter(SkImageSource::Create(image.get()));
 
     SkAutoTUnref<SkData> data(SkValidatingSerializeFlattenable(filter));
     SkAutoTUnref<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
@@ -1472,13 +1472,13 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
         return;
     }
 
-    SkAutoTUnref<SkImage> largeImage(SkImage::NewFromBitmap(largeBmp));
+    sk_sp<SkImage> largeImage(SkImage::MakeFromBitmap(largeBmp));
     if (!largeImage) {
         ERRORF(reporter, "Failed to create large image.");
         return;
     }
 
-    SkAutoTUnref<SkImageFilter> largeSource(SkImageSource::Create(largeImage));
+    SkAutoTUnref<SkImageFilter> largeSource(SkImageSource::Create(largeImage.get()));
     if (!largeSource) {
         ERRORF(reporter, "Failed to create large SkImageSource.");
         return;

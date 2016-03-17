@@ -33,7 +33,7 @@ static SkBitmap make_chessbm(int w, int h) {
     return bm;
 }
 
-static SkImage* makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
+static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     
     SkAutoTUnref<SkSurface> surface(origCanvas->newSurface(info));
@@ -81,7 +81,7 @@ static SkImage* makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
         mat.postScale(SK_Scalar1 / 4, SK_Scalar1 / 4);
     }
 
-    SkImage* image = surface->newImageSnapshot();
+    auto image = surface->makeImageSnapshot();
 
     SkBitmap tempBM;
 
@@ -125,10 +125,10 @@ public:
         }
     }
 
-    DrawRectRectProc*     fProc;
-    SkBitmap              fLargeBitmap;
-    SkAutoTUnref<SkImage> fImage;
-    SkString              fName;
+    DrawRectRectProc*   fProc;
+    SkBitmap            fLargeBitmap;
+    sk_sp<SkImage>      fImage;
+    SkString            fName;
 
 protected:
     SkString onShortName() override { return fName; }
@@ -136,7 +136,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(gSize, gSize); }
 
     void setupImage(SkCanvas* canvas) {
-        fImage.reset(makebm(canvas, &fLargeBitmap, gBmpSize, gBmpSize));
+        fImage = makebm(canvas, &fLargeBitmap, gBmpSize, gBmpSize);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -172,7 +172,7 @@ protected:
             for (int h = 1; h <= kMaxSrcRectSize; h *= 4) {
 
                 SkIRect srcRect = SkIRect::MakeXYWH((gBmpSize - w) / 2, (gBmpSize - h) / 2, w, h);
-                fProc(canvas, fImage, fLargeBitmap, srcRect, dstRect);
+                fProc(canvas, fImage.get(), fLargeBitmap, srcRect, dstRect);
 
                 SkString label;
                 label.appendf("%d x %d", w, h);

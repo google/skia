@@ -11,7 +11,7 @@
 #include "SkPath.h"
 #include "SkSurface.h"
 
-static SkImage* make_image(SkCanvas* origCanvas, int w, int h) {
+static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     SkAutoTUnref<SkSurface> surface(origCanvas->newSurface(info));
     if (nullptr == surface) {
@@ -20,7 +20,7 @@ static SkImage* make_image(SkCanvas* origCanvas, int w, int h) {
     SkCanvas* canvas = surface->getCanvas();
 
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorRED, SK_ColorGREEN, w/10);
-    return surface->newImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 namespace skiagm {
@@ -106,7 +106,7 @@ protected:
         canvas->translate(SkIntToScalar(kCellSize), 0);
         canvas->save();
         canvas->concat(fPerspMatrix);
-        canvas->drawImage(fImage, 0, 0, &filterPaint);
+        canvas->drawImage(fImage.get(), 0, 0, &filterPaint);
         canvas->restore();
 
         canvas->translate(SkIntToScalar(kCellSize), 0);
@@ -138,7 +138,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (!fImage) {
-            fImage.reset(make_image(canvas, kCellSize, kCellSize));
+            fImage = make_image(canvas, kCellSize, kCellSize);
         }
 
         this->drawRow(canvas, kNone_SkFilterQuality);
@@ -155,14 +155,14 @@ private:
     static const int kNumRows = 4;
     static const int kNumCols = 6;
 
-    bool                    fDoAA;
-    SkPath                  fPath;
-    sk_sp<SkShader>         fBitmapShader;
-    sk_sp<SkShader>         fLinearGrad1;
-    sk_sp<SkShader>         fLinearGrad2;
-    SkMatrix                fPerspMatrix;
-    SkAutoTUnref<SkImage>   fImage;
-    SkBitmap                fBitmap;
+    bool            fDoAA;
+    SkPath          fPath;
+    sk_sp<SkShader> fBitmapShader;
+    sk_sp<SkShader> fLinearGrad1;
+    sk_sp<SkShader> fLinearGrad2;
+    SkMatrix        fPerspMatrix;
+    sk_sp<SkImage>  fImage;
+    SkBitmap        fBitmap;
 
     typedef GM INHERITED;
 };

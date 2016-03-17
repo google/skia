@@ -37,11 +37,11 @@ protected:
     void onOnceBeforeDraw() override {
         fBitmap = sk_tool_utils::create_string_bitmap(80, 80, 0xD000D000, 15, 65, 96, "e");
 
-        fCheckerboard.reset(SkImage::NewFromBitmap(
+        fCheckerboard = SkImage::MakeFromBitmap(
             sk_tool_utils::create_checkerboard_bitmap(80, 80,
                                                       sk_tool_utils::color_to_565(0xFFA0A0A0),
                                                       sk_tool_utils::color_to_565(0xFF404040),
-                                                      8)));
+                                                      8));
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -85,7 +85,7 @@ protected:
         };
 
         int x = 0, y = 0;
-        SkAutoTUnref<SkImageFilter> background(SkImageSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> background(SkImageSource::Create(fCheckerboard.get()));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
             SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(gModes[i].fMode));
             SkAutoTUnref<SkImageFilter> filter(SkXfermodeImageFilter::Create(mode, background));
@@ -119,8 +119,8 @@ protected:
         SkRect clipRect = SkRect::MakeWH(SkIntToScalar(fBitmap.width() + 4),
                                          SkIntToScalar(fBitmap.height() + 4));
         // Test offsets on SrcMode (uses fixed-function blend)
-        SkAutoTUnref<SkImage> bitmapImage(SkImage::NewFromBitmap(fBitmap));
-        SkAutoTUnref<SkImageFilter> foreground(SkImageSource::Create(bitmapImage));
+        sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(fBitmap));
+        SkAutoTUnref<SkImageFilter> foreground(SkImageSource::Create(bitmapImage.get()));
         SkAutoTUnref<SkImageFilter> offsetForeground(SkOffsetImageFilter::Create(
             SkIntToScalar(4), SkIntToScalar(-4), foreground));
         SkAutoTUnref<SkImageFilter> offsetBackground(SkOffsetImageFilter::Create(
@@ -213,8 +213,8 @@ private:
         canvas->restore();
     }
 
-    SkBitmap              fBitmap;
-    SkAutoTUnref<SkImage> fCheckerboard;
+    SkBitmap        fBitmap;
+    sk_sp<SkImage>  fCheckerboard;
 
     typedef GM INHERITED;
 };
