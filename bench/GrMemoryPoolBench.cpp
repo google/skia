@@ -117,7 +117,7 @@ protected:
             if (nullptr == objects[idx].get()) {
                 objects[idx].reset(new B);
             } else {
-                objects[idx].free();
+                objects[idx].reset();
             }
         }
     }

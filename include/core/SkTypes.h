@@ -519,7 +519,7 @@ public:
     /** Free the current buffer, and set the internal reference to NULL. Same
         as calling sk_free(release())
     */
-    void free() {
+    void reset() {
         sk_free(fPtr);
         fPtr = NULL;
     }
@@ -571,7 +571,7 @@ public:
     /**
      *  Reallocates the block to a new size. The ptr may or may not change.
      */
-    void* reset(size_t size, OnShrink shrink = kAlloc_OnShrink,  bool* didChangeAlloc = NULL) {
+    void* reset(size_t size = 0, OnShrink shrink = kAlloc_OnShrink,  bool* didChangeAlloc = NULL) {
         if (size == fSize || (kReuse_OnShrink == shrink && size < fSize)) {
             if (didChangeAlloc) {
                 *didChangeAlloc = false;
@@ -587,13 +587,6 @@ public:
         }
 
         return fPtr;
-    }
-
-    /**
-     *  Releases the block back to the heap
-     */
-    void free() {
-        this->reset(0);
     }
 
     /**

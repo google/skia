@@ -28,13 +28,12 @@ public:
     T*        get() const { return fPtr; }
     T* operator->() const { return fPtr; }
 
-    void reset(T* ptr) {
+    void reset(T* ptr = nullptr) {
         if (ptr != fPtr) {
             delete fPtr;
             fPtr = ptr;
         }
     }
-    void free() { this->reset(nullptr); }
     T* release() {
         T* ptr = fPtr;
         fPtr = nullptr;

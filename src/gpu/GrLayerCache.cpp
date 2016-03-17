@@ -98,7 +98,7 @@ GrLayerCache::~GrLayerCache() {
     SkASSERT(0 == fPictureHash.count());
 
     // The atlas only lets go of its texture when the atlas is deleted.
-    fAtlas.free();
+    fAtlas.reset();
 }
 
 void GrLayerCache::initAtlas() {

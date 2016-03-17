@@ -245,7 +245,7 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
     if (curRange->fStartId == lastIndex) {
         SkASSERT(prevRange);
         SkASSERT(prevRange->fNext->fStartId == lastIndex);
-        prevRange->fNext.free();
+        prevRange->fNext.reset();
     } else {
         finishRange(curRange, lastIndex - 1,
                     SkAdvancedTypefaceMetrics::WidthRange::kRange);

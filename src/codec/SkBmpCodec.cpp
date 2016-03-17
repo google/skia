@@ -392,7 +392,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
             alphaType = kUnpremul_SkAlphaType;
         }
     }
-    iBuffer.free();
+    iBuffer.reset();
 
     // Additionally, 32 bit bmp-in-icos use the alpha channel.
     // FIXME (msarett): Don't all bmp-in-icos use the alpha channel?
