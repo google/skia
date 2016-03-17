@@ -796,6 +796,28 @@ DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
     REPORTER_ASSERT(reporter, boundsDst == expectedBounds);
 }
 
+DEF_TEST(ImageFilterUnionBounds, reporter) {
+    SkAutoTUnref<SkImageFilter> offset(SkOffsetImageFilter::Create(50, 0));
+    // Regardless of which order they appear in, the image filter bounds should
+    // be combined correctly.
+    {
+        SkAutoTUnref<SkImageFilter> composite(SkXfermodeImageFilter::Create(
+            nullptr, offset.get(), nullptr));
+        SkRect bounds = SkRect::MakeWH(100, 100);
+        // Intentionally aliasing here, as that's what the real callers do.
+        composite->computeFastBounds(bounds, &bounds);
+        REPORTER_ASSERT(reporter, bounds == SkRect::MakeWH(150, 100));
+    }
+    {
+        SkAutoTUnref<SkImageFilter> composite(SkXfermodeImageFilter::Create(
+            nullptr, nullptr, offset.get()));
+        SkRect bounds = SkRect::MakeWH(100, 100);
+        // Intentionally aliasing here, as that's what the real callers do.
+        composite->computeFastBounds(bounds, &bounds);
+        REPORTER_ASSERT(reporter, bounds == SkRect::MakeWH(150, 100));
+    }
+}
+
 static void test_imagefilter_merge_result_size(SkImageFilter::Proxy* proxy,
                                                skiatest::Reporter* reporter,
                                                GrContext* context) {

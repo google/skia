@@ -313,21 +313,24 @@ void SkImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
         *dst = src;
         return;
     }
+    // We can't work directly on dst, since src and dst may alias.
+    SkRect combinedBounds;
     if (this->getInput(0)) {
-        this->getInput(0)->computeFastBounds(src, dst);
+        this->getInput(0)->computeFastBounds(src, &combinedBounds);
     } else {
-        *dst = src;
+        combinedBounds = src;
     }
     for (int i = 1; i < fInputCount; i++) {
         SkImageFilter* input = this->getInput(i);
         if (input) {
             SkRect bounds;
             input->computeFastBounds(src, &bounds);
-            dst->join(bounds);
+            combinedBounds.join(bounds);
         } else {
-            dst->join(src);
+            combinedBounds.join(src);
         }
     }
+    *dst = combinedBounds;
 }
 
 bool SkImageFilter::canComputeFastBounds() const {
