@@ -21,6 +21,7 @@ int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
 SkClipStack::Element::Element(const Element& that) {
     switch (that.getType()) {
         case kEmpty_Type:
+            fRRect.setEmpty();
             fPath.reset();
             break;
         case kRect_Type: // Rect uses rrect
@@ -171,6 +172,7 @@ void SkClipStack::Element::checkEmpty() const {
     SkASSERT(kNormal_BoundsType == fFiniteBoundType);
     SkASSERT(!fIsIntersectionOfRects);
     SkASSERT(kEmptyGenID == fGenID);
+    SkASSERT(fRRect.isEmpty());
     SkASSERT(!fPath.isValid());
 }
 

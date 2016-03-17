@@ -98,6 +98,9 @@ public:
         //!< Call to get the element as a path, regardless of its type.
         void asPath(SkPath* path) const;
 
+        //!< Call if getType() is not kPath to get the element as a round rect.
+        const SkRRect& asRRect() const { SkASSERT(kPath_Type != fType); return fRRect; }
+
         /** If getType() is not kEmpty this indicates whether the clip shape should be anti-aliased
             when it is rasterized. */
         bool isAA() const { return fDoAA; }
