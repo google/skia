@@ -1311,7 +1311,9 @@ int dm_main();
 int dm_main() {
     setup_crash_handler();
 
-    if (!FLAGS_writePath.isEmpty()) {
+    if (FLAGS_verbose) {
+        gVLog = stderr;
+    } else if (!FLAGS_writePath.isEmpty()) {
         sk_mkdir(FLAGS_writePath[0]);
         gVLog = freopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w", stderr);
     }
