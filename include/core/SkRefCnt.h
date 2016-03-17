@@ -196,6 +196,11 @@ public:
 
     operator T*() const { return this->get(); }
 
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    // Need to update graphics/Shader.cpp.
+    T* detach() { return this->release(); }
+#endif
+
     // Android's std::unique_ptr's operator bool() is sometimes not explicit...
     // so override it with our own explcitly explicit version.
     explicit operator bool() const { return this->get() != nullptr; }
