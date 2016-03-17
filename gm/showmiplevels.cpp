@@ -11,7 +11,6 @@
 #include "SkBitmapScaler.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
-#include "SkImageDecoder.h"
 #include "SkStream.h"
 #include "SkPaint.h"
 #include "SkMipMap.h"

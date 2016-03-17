@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "Resources.h"
 
-#include "SkImageDecoder.h"
 #include "SkPixelXorXfermode.h"
 #include "SkStream.h"
 
@@ -24,17 +23,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(512, 512); }
 
     void onOnceBeforeDraw() override {
-        SkImageDecoder* codec = nullptr;
-        SkString resourcePath = GetResourcePath("mandrill_512.png");
-        SkFILEStream stream(resourcePath.c_str());
-        if (stream.isValid()) {
-            codec = SkImageDecoder::Factory(&stream);
-        }
-        if (codec) {
-            stream.rewind();
-            codec->decode(&stream, &fBM, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
-            delete codec;
-        } else {
+        if (!GetResourceAsBitmap("mandrill_512.png", &fBM)) {
             fBM.allocN32Pixels(1, 1);
             fBM.eraseARGB(255, 255, 0 , 0); // red == bad
         }
