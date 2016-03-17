@@ -10,7 +10,6 @@
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
@@ -349,7 +348,7 @@ static void get_bounds(DiffResource& resource, const char* name) {
             SkDebugf("WARNING: couldn't read %s file <%s>\n", name, resource.fFullPath.c_str());
             resource.fStatus = DiffResource::kCouldNotRead_Status;
         } else {
-            get_bitmap(fileBits, resource, SkImageDecoder::kDecodeBounds_Mode);
+            get_bitmap(fileBits, resource, true);
         }
     }
 }
@@ -493,9 +492,8 @@ static void create_diff_images (DiffMetricProc dmp,
                 VERBOSE_STATUS("MATCH", ANSI_COLOR_GREEN, baseFiles[i]);
             } else {
                 AutoReleasePixels arp(drp);
-                get_bitmap(baseFileBits, drp->fBase, SkImageDecoder::kDecodePixels_Mode);
-                get_bitmap(comparisonFileBits, drp->fComparison,
-                           SkImageDecoder::kDecodePixels_Mode);
+                get_bitmap(baseFileBits, drp->fBase, false);
+                get_bitmap(comparisonFileBits, drp->fComparison, false);
                 VERBOSE_STATUS("DIFFERENT", ANSI_COLOR_RED, baseFiles[i]);
                 if (DiffResource::kDecoded_Status == drp->fBase.fStatus &&
                     DiffResource::kDecoded_Status == drp->fComparison.fStatus) {
