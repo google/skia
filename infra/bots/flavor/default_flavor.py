@@ -76,8 +76,8 @@ class DefaultFlavorUtils(object):
     path_to_app = os.path.join(self._bot_info.out_dir,
                                self._bot_info.configuration, cmd[0])
     if ('linux' in sys.platform and
-        'x86_64' in self._bot_info.bot_name and
-        not 'TSAN' in self._bot_info.bot_name):
+        'x86_64' in self._bot_info.name and
+        not 'TSAN' in self._bot_info.name):
       new_cmd = ['catchsegv', path_to_app]
     else:
       if sys.platform == 'win32':
