@@ -772,6 +772,10 @@ public:
         @param paint    The paint used to draw the image, or NULL
      */
     void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = NULL);
+    void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top,
+                   const SkPaint* paint = NULL) {
+        this->drawImage(image.get(), left, top, paint);
+    }
 
     /**
      *  Controls the behavior at the edge of the src-rect, when specified in drawImageRect,
@@ -823,6 +827,20 @@ public:
     void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
                        SrcRectConstraint = kStrict_SrcRectConstraint);
 
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint) {
+        this->drawImageRect(image.get(), src, dst, paint, constraint);
+    }
+    void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint cons = kStrict_SrcRectConstraint) {
+        this->drawImageRect(image.get(), isrc, dst, paint, cons);
+    }
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint,
+                       SrcRectConstraint cons = kStrict_SrcRectConstraint) {
+        this->drawImageRect(image.get(), dst, paint, cons);
+    }
+
     /**
      *  Draw the image stretched differentially to fit into dst.
      *  center is a rect within the image, and logically divides the image
@@ -838,7 +856,11 @@ public:
      *  - The sides (along the shrink axis) and center are not drawn
      */
     void drawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
-                        const SkPaint* paint = NULL);
+                       const SkPaint* paint = nullptr);
+    void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
+                       const SkPaint* paint = nullptr) {
+        this->drawImageNine(image.get(), center, dst, paint);
+    }
 
     /** Draw the specified bitmap, with its top/left corner at (x,y), using the
         specified paint, transformed by the current matrix. Note: if the paint
@@ -973,6 +995,9 @@ public:
     void drawPicture(const SkPicture* picture) {
         this->drawPicture(picture, NULL, NULL);
     }
+    void drawPicture(sk_sp<SkPicture>& picture) {
+        this->drawPicture(picture.get());
+    }
 
     /**
      *  Draw the picture into this canvas.
@@ -987,6 +1012,9 @@ public:
      *      saveLayer(paint)/drawPicture/restore
      */
     void drawPicture(const SkPicture*, const SkMatrix* matrix, const SkPaint* paint);
+    void drawPicture(sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint) {
+        this->drawPicture(picture.get(), matrix, paint);
+    }
 
     enum VertexMode {
         kTriangles_VertexMode,
@@ -1063,6 +1091,17 @@ public:
     void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count,
                    const SkRect* cullRect, const SkPaint* paint) {
         this->drawAtlas(atlas, xform, tex, NULL, count, SkXfermode::kDst_Mode, cullRect, paint);
+    }
+
+    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkXfermode::Mode mode, const SkRect* cull,
+                   const SkPaint* paint) {
+        this->drawAtlas(atlas.get(), xform, tex, colors, count, mode, cull, paint);
+    }
+    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   int count, const SkRect* cullRect, const SkPaint* paint) {
+        this->drawAtlas(atlas.get(), xform, tex, nullptr, count, SkXfermode::kDst_Mode,
+                        cullRect, paint);
     }
 
     /**
