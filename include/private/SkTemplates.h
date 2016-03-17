@@ -98,6 +98,11 @@ public:
     operator T*() const { return this->get(); }
     void free() { this->reset(nullptr); }
 
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    // Need to update graphics/BitmapRegionDecoder.cpp.
+    T* detach() { return this->release(); }
+#endif
+
     // See SkAutoTUnref for why we do this.
     explicit operator bool() const { return this->get() != nullptr; }
 };
