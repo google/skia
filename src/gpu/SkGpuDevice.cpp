@@ -1142,6 +1142,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
+    int offX = bitmap.pixelRefOrigin().fX;
+    int offY = bitmap.pixelRefOrigin().fY;
     int w = bitmap.width();
     int h = bitmap.height();
 
@@ -1170,6 +1172,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         if (this->filterTexture(fContext, texture, w, h, filter, ctx, &filteredBitmap,
                                 &offset)) {
             texture = (GrTexture*) filteredBitmap.getTexture();
+            offX = filteredBitmap.pixelRefOrigin().fX;
+            offY = filteredBitmap.pixelRefOrigin().fY;
             w = filteredBitmap.width();
             h = filteredBitmap.height();
             left += offset.x();
@@ -1200,10 +1204,10 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                                                   SkIntToScalar(top),
                                                   SkIntToScalar(w),
                                                   SkIntToScalar(h)),
-                                 SkRect::MakeXYWH(0,
-                                                  0,
-                                                  SK_Scalar1 * w / texture->width(),
-                                                  SK_Scalar1 * h / texture->height()));
+                                 SkRect::MakeXYWH(SkIntToScalar(offX) / texture->width(),
+                                                  SkIntToScalar(offY) / texture->height(),
+                                                  SkIntToScalar(w) / texture->width(),
+                                                  SkIntToScalar(h) / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
