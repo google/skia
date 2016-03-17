@@ -8,6 +8,7 @@
 #ifndef GrSWMaskHelper_DEFINED
 #define GrSWMaskHelper_DEFINED
 
+#include "SkAutoPixmapStorage.h"
 #include "GrColor.h"
 #include "GrPipelineBuilder.h"
 #include "SkBitmap.h"

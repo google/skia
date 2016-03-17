@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"

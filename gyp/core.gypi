@@ -23,6 +23,8 @@
         '<(skia_src_path)/core/SkAlphaRuns.cpp',
         '<(skia_src_path)/core/SkAntiRun.h',
         '<(skia_src_path)/core/SkAutoKern.h',
+        '<(skia_src_path)/core/SkAutoPixmapStorage.h',
+        '<(skia_src_path)/core/SkAutoPixmapStorage.cpp',
         '<(skia_src_path)/core/SkBBHFactory.cpp',
         '<(skia_src_path)/core/SkBBoxHierarchy.h',
         '<(skia_src_path)/core/SkBigPicture.cpp',

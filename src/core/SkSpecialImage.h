@@ -63,16 +63,27 @@ public:
                                       uint32_t uniqueID,
                                       GrTexture*, 
                                       SkAlphaType at = kPremul_SkAlphaType);
+    static SkSpecialImage* NewFromPixmap(SkImageFilter::Proxy*,
+                                         const SkIRect& subset,
+                                         const SkPixmap&,
+                                         void (*releaseProc)(void* addr, void* context),
+                                         void* context);
 
     /**
      *  Create a new surface with a backend that is compatible with this image.
      */
     SkSpecialSurface* newSurface(const SkImageInfo&) const;
 
+    /**
+     * Extract a subset of this special image and return it as a special image.
+     * It may or may not point to the same backing memory.
+     */
+    SkSpecialImage* extractSubset(const SkIRect& subset) const;
+
     // These three internal methods will go away (see skbug.com/4965)
     bool internal_getBM(SkBitmap* result);
     static SkSpecialImage* internal_fromBM(SkImageFilter::Proxy*, const SkBitmap&);
-    SkImageFilter::Proxy* internal_getProxy();
+    SkImageFilter::Proxy* internal_getProxy() const;
 
     // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)
     /**
@@ -80,6 +91,20 @@ public:
      *  The active portion of the texture can be retrieved via 'subset'.
      */
     GrTexture* peekTexture() const;
+
+    // TODO: hide this whe the imagefilter all have a consistent draw path (see skbug.com/5063)
+    /**
+     *  If the SpecialImage is backed by cpu pixels, return the const address
+     *  of those pixels and, if not null, the ImageInfo, rowBytes, and, if present,
+     *  the color table. The returned address(es) is/are only valid while the image object
+     *  is in scope.
+     *
+     *  The returned ImageInfo represents the backing memory. Use 'subset'
+     *  to get the active portion's dimensions.
+     *
+     *  On failure, return false and ignore the pixmap parameter.
+     */
+    bool peekPixels(SkPixmap*) const;
 
 protected:
     SkSpecialImage(SkImageFilter::Proxy* proxy, const SkIRect& subset, uint32_t uniqueID)
@@ -92,18 +117,6 @@ protected:
     // The following 2 are for testing and shouldn't be used.
     friend class TestingSpecialImageAccess;
     friend class TestingSpecialSurfaceAccess;
-
-    /**
-     *  If the SpecialImage is backed by cpu pixels, return the const address
-     *  of those pixels and, if not null, return the ImageInfo and rowBytes.
-     *  The returned address is only valid while the image object is in scope.
-     *
-     *  The returned ImageInfo represents the backing memory. Use 'subset'
-     *  to get the active portion's dimensions.
-     *
-     *  On failure, return false and ignore the pixmap parameter.
-     */
-    bool testingOnlyPeekPixels(SkPixmap*) const;
 
     // This entry point is for testing only. It does a readback from VRAM for
     // GPU-backed special images.
