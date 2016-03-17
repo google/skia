@@ -413,7 +413,7 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     // Remove objects used for sampling.
     fSwizzler.reset(nullptr);
     fSrcRow = nullptr;
-    fStorage.reset();
+    fStorage.free();
 
     // Now, given valid output dimensions, we can start the decompress
     if (!jpeg_start_decompress(fDecoderMgr->dinfo())) {

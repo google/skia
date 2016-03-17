@@ -381,7 +381,7 @@ public:
         if (fStream->getMemoryBase()) {  // directly copy if getMemoryBase() is available.
             SkAutoTUnref<SkData> data(SkData::NewWithCopy(
                 static_cast<const uint8_t*>(fStream->getMemoryBase()) + offset, bytesToRead));
-            fStream.reset();
+            fStream.free();
             return new SkMemoryStream(data);
         } else {
             SkAutoTUnref<SkData> data(SkData::NewUninitialized(bytesToRead));

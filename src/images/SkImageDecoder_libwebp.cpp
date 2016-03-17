@@ -224,7 +224,7 @@ static bool webp_idecode(SkStream* stream, WebPDecoderConfig* config) {
             break;
         }
     } while (VP8_STATUS_OK != status);
-    srcStorage.reset();
+    srcStorage.free();
     WebPIDelete(idec);
     WebPFreeDecBuffer(&config->output);
 
