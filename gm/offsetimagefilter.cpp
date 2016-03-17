@@ -47,7 +47,7 @@ protected:
         SkPaint paint;
 
         for (int i = 0; i < 4; i++) {
-            const SkImage* image = (i & 0x01) ? fCheckerboard.get() : fBitmap.get();
+            SkImage* image = (i & 0x01) ? fCheckerboard.get() : fBitmap.get();
             SkIRect cropRect = SkIRect::MakeXYWH(i * 12,
                                                  i * 8,
                                                  image->width() - i * 8,

@@ -416,12 +416,12 @@ void SkBaseDevice::drawBitmapAsSprite(const SkDraw& draw, const SkBitmap& bitmap
         SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
-        SkAutoTUnref<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, bitmap));
+        sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, bitmap));
         if (!srcImg) {
             return; // something disastrous happened
         }
 
-        SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
+        SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
         if (resultImg) {
             SkPaint tmpUnfiltered(paint);
             tmpUnfiltered.setImageFilter(nullptr);

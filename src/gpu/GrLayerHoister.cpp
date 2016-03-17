@@ -304,12 +304,12 @@ void GrLayerHoister::FilterLayer(GrContext* context,
 
     // TODO: should the layer hoister store stand alone layers as SkSpecialImages internally?
     const SkIRect subset = SkIRect::MakeWH(layer->texture()->width(), layer->texture()->height());
-    SkAutoTUnref<SkSpecialImage> img(SkSpecialImage::NewFromGpu(&proxy, subset,
-                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                                layer->texture()));
+    sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromGpu(&proxy, subset,
+                                                          kNeedNewImageUniqueID_SpecialImage,
+                                                          layer->texture()));
 
     SkIPoint offset = SkIPoint::Make(0, 0);
-    SkAutoTUnref<SkSpecialImage> result(layer->filter()->filterImage(img,
+    SkAutoTUnref<SkSpecialImage> result(layer->filter()->filterImage(img.get(),
                                                                      filterContext,
                                                                      &offset));
     if (!result) {

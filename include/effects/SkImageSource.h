@@ -14,8 +14,8 @@ class SkImage;
 
 class SK_API SkImageSource : public SkImageFilter {
 public:
-    static SkImageFilter* Create(const SkImage*);
-    static SkImageFilter* Create(const SkImage*,
+    static SkImageFilter* Create(SkImage*);
+    static SkImageFilter* Create(SkImage*,
                                  const SkRect& srcRect,
                                  const SkRect& dstRect,
                                  SkFilterQuality);
@@ -32,15 +32,15 @@ protected:
                                   SkIPoint* offset) const override;
 
 private:
-    explicit SkImageSource(const SkImage*);
-    SkImageSource(const SkImage*,
+    explicit SkImageSource(SkImage*);
+    SkImageSource(SkImage*,
                   const SkRect& srcRect,
                   const SkRect& dstRect,
                   SkFilterQuality);
 
-    SkAutoTUnref<const SkImage> fImage;
-    SkRect                      fSrcRect, fDstRect;
-    SkFilterQuality             fFilterQuality;
+    sk_sp<SkImage>   fImage;
+    SkRect           fSrcRect, fDstRect;
+    SkFilterQuality  fFilterQuality;
 
     typedef SkImageFilter INHERITED;
 };

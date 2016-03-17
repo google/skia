@@ -1407,12 +1407,13 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
             SkAutoTUnref<SkImageFilter::Cache> cache(dstDev->getImageFilterCache());
             SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
-            SkAutoTUnref<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, srcBM));
+            sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, srcBM));
             if (!srcImg) {
                 continue; // something disastrous happened
             }
 
-            SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
+            SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx,
+                                                                       &offset));
             if (resultImg) {
                 SkPaint tmpUnfiltered(*paint);
                 tmpUnfiltered.setImageFilter(nullptr);

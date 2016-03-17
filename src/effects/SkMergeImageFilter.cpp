@@ -98,7 +98,7 @@ SkSpecialImage* SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const 
     SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
                                             kPremul_SkAlphaType);
 
-    SkAutoTUnref<SkSpecialSurface> surf(source->newSurface(info));
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
     if (!surf) {
         return nullptr;
     }
@@ -126,7 +126,7 @@ SkSpecialImage* SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const 
 
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    return surf->newImageSnapshot();
+    return surf->makeImageSnapshot().release();
 }
 
 SkFlattenable* SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {

@@ -15,25 +15,25 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
-SkImageFilter* SkImageSource::Create(const SkImage* image) {
+SkImageFilter* SkImageSource::Create(SkImage* image) {
     return image ? new SkImageSource(image) : nullptr;
 }
 
-SkImageFilter* SkImageSource::Create(const SkImage* image,
+SkImageFilter* SkImageSource::Create(SkImage* image,
                                      const SkRect& srcRect,
                                      const SkRect& dstRect,
                                      SkFilterQuality filterQuality) {
     return image ? new SkImageSource(image, srcRect, dstRect, filterQuality) : nullptr;
 }
 
-SkImageSource::SkImageSource(const SkImage* image)
+SkImageSource::SkImageSource(SkImage* image)
     : INHERITED(0, nullptr)
     , fImage(SkRef(image))
     , fSrcRect(SkRect::MakeIWH(image->width(), image->height()))
     , fDstRect(fSrcRect)
     , fFilterQuality(kHigh_SkFilterQuality) { }
 
-SkImageSource::SkImageSource(const SkImage* image,
+SkImageSource::SkImageSource(SkImage* image,
                              const SkRect& srcRect,
                              const SkRect& dstRect,
                              SkFilterQuality filterQuality)
@@ -62,7 +62,7 @@ void SkImageSource::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fFilterQuality);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
-    buffer.writeImage(fImage);
+    buffer.writeImage(fImage.get());
 }
 
 SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Context& ctx,
@@ -74,9 +74,9 @@ SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Conte
     if (fSrcRect == bounds && dstRect == bounds) {
         // No regions cropped out or resized; return entire image.
         offset->fX = offset->fY = 0;
-        return SkSpecialImage::NewFromImage(source->internal_getProxy(),
-                                            SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                            fImage);
+        return SkSpecialImage::MakeFromImage(source->internal_getProxy(),
+                                             SkIRect::MakeWH(fImage->width(), fImage->height()),
+                                             fImage).release();
     }
 
     const SkIRect dstIRect = dstRect.roundOut();
@@ -84,7 +84,7 @@ SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Conte
     const SkImageInfo info = SkImageInfo::MakeN32(dstIRect.width(), dstIRect.height(),
                                                   kPremul_SkAlphaType);
 
-    SkAutoTUnref<SkSpecialSurface> surf(source->newSurface(info));
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
     if (!surf) {
         return nullptr;
     }
@@ -105,11 +105,12 @@ SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Conte
     paint.setFilterQuality(
         fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height() ?
                kNone_SkFilterQuality : fFilterQuality);
-    canvas->drawImageRect(fImage, fSrcRect, dstRect, &paint, SkCanvas::kStrict_SrcRectConstraint);
+    canvas->drawImageRect(fImage.get(), fSrcRect, dstRect, &paint,
+                          SkCanvas::kStrict_SrcRectConstraint);
 
     offset->fX = dstIRect.fLeft;
     offset->fY = dstIRect.fTop;
-    return surf->newImageSnapshot();
+    return surf->makeImageSnapshot().release();
 }
 
 void SkImageSource::computeFastBounds(const SkRect& src, SkRect* dst) const {

@@ -56,7 +56,7 @@ protected:
 
         int x = 0, y = 0;
         for (size_t i = 0; i < 4; i++) {
-            const SkImage* image = (i & 0x01) ? fCheckerboard.get() : fBitmap.get();
+            SkImage* image = (i & 0x01) ? fCheckerboard.get() : fBitmap.get();
             SkRect srcRect = SkRect::MakeXYWH(SkIntToScalar(image->width()/4),
                                               SkIntToScalar(image->height()/4),
                                               SkIntToScalar(image->width()/(i+1)),

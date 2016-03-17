@@ -39,6 +39,9 @@ enum {
  */
 class SkSpecialImage : public SkRefCnt {
 public:
+    typedef void* ReleaseContext;
+    typedef void(*RasterReleaseProc)(void* pixels, ReleaseContext);
+
     int width() const { return fSubset.width(); }
     int height() const { return fSubset.height(); }
     const SkIRect& subset() const { return fSubset; }
@@ -52,37 +55,37 @@ public:
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
-    static SkSpecialImage* NewFromImage(SkImageFilter::Proxy*,
-                                        const SkIRect& subset,
-                                        const SkImage*);
-    static SkSpecialImage* NewFromRaster(SkImageFilter::Proxy*,
-                                         const SkIRect& subset,
-                                         const SkBitmap&);
-    static SkSpecialImage* NewFromGpu(SkImageFilter::Proxy*,
-                                      const SkIRect& subset,
-                                      uint32_t uniqueID,
-                                      GrTexture*, 
-                                      SkAlphaType at = kPremul_SkAlphaType);
-    static SkSpecialImage* NewFromPixmap(SkImageFilter::Proxy*,
-                                         const SkIRect& subset,
-                                         const SkPixmap&,
-                                         void (*releaseProc)(void* addr, void* context),
-                                         void* context);
+    static sk_sp<SkSpecialImage> MakeFromImage(SkImageFilter::Proxy*,
+                                               const SkIRect& subset,
+                                               sk_sp<SkImage>);
+    static sk_sp<SkSpecialImage> MakeFromRaster(SkImageFilter::Proxy*,
+                                                const SkIRect& subset,
+                                                const SkBitmap&);
+    static sk_sp<SkSpecialImage> MakeFromGpu(SkImageFilter::Proxy*,
+                                             const SkIRect& subset,
+                                             uint32_t uniqueID,
+                                             GrTexture*, 
+                                             SkAlphaType at = kPremul_SkAlphaType);
+    static sk_sp<SkSpecialImage> MakeFromPixmap(SkImageFilter::Proxy*,
+                                                const SkIRect& subset,
+                                                const SkPixmap&,
+                                                RasterReleaseProc,
+                                                ReleaseContext);
 
     /**
      *  Create a new surface with a backend that is compatible with this image.
      */
-    SkSpecialSurface* newSurface(const SkImageInfo&) const;
+    sk_sp<SkSpecialSurface> makeSurface(const SkImageInfo&) const;
 
     /**
      * Extract a subset of this special image and return it as a special image.
      * It may or may not point to the same backing memory.
      */
-    SkSpecialImage* extractSubset(const SkIRect& subset) const;
+    sk_sp<SkSpecialImage> makeSubset(const SkIRect& subset) const;
 
     // These three internal methods will go away (see skbug.com/4965)
     bool internal_getBM(SkBitmap* result);
-    static SkSpecialImage* internal_fromBM(SkImageFilter::Proxy*, const SkBitmap&);
+    static sk_sp<SkSpecialImage> internal_fromBM(SkImageFilter::Proxy*, const SkBitmap&);
     SkImageFilter::Proxy* internal_getProxy() const;
 
     // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)

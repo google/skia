@@ -275,12 +275,12 @@ bool SkImageFilter::filterInputDeprecated(int index, Proxy* proxy, const SkBitma
         return true;
     }
 
-    SkAutoTUnref<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src));
+    sk_sp<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src));
     if (!specialSrc) {
         return false;
     }
 
-    SkAutoTUnref<SkSpecialImage> tmp(input->onFilterImage(specialSrc,
+    SkAutoTUnref<SkSpecialImage> tmp(input->onFilterImage(specialSrc.get(),
                                                           this->mapContext(ctx),
                                                           offset));
     if (!tmp) {
@@ -367,7 +367,7 @@ SkSpecialImage* SkImageFilter::onFilterImage(SkSpecialImage* src, const Context&
         return nullptr;
     }
 
-    return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM);
+    return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM).release();
 }
 
 bool SkImageFilter::canFilterImageGPU() const {
@@ -484,11 +484,11 @@ bool SkImageFilter::applyCropRectDeprecated(const Context& ctx, Proxy* proxy, co
 
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.
-static SkSpecialImage* pad_image(SkSpecialImage* src,
-                                 int newWidth, int newHeight, int offX, int offY) {
+static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
+                                       int newWidth, int newHeight, int offX, int offY) {
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(newWidth, newHeight);
-    SkAutoTUnref<SkSpecialSurface> surf(src->newSurface(info));
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(info));
     if (!surf) {
         return nullptr;
     }
@@ -500,7 +500,7 @@ static SkSpecialImage* pad_image(SkSpecialImage* src,
 
     src->draw(canvas, offX, offY, nullptr);
 
-    return surf->newImageSnapshot();
+    return surf->makeImageSnapshot();
 }
 
 SkSpecialImage* SkImageFilter::applyCropRect(const Context& ctx,
@@ -520,12 +520,12 @@ SkSpecialImage* SkImageFilter::applyCropRect(const Context& ctx,
     if (srcBounds.contains(*bounds)) {
         return SkRef(src);
     } else {
-        SkSpecialImage* img = pad_image(src,
-                                        bounds->width(), bounds->height(),
-                                        srcOffset->x() - bounds->x(),
-                                        srcOffset->y() - bounds->y());
+        sk_sp<SkSpecialImage> img(pad_image(src,
+                                            bounds->width(), bounds->height(),
+                                            srcOffset->x() - bounds->x(),
+                                            srcOffset->y() - bounds->y()));
         *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
-        return img;
+        return img.release();
     }
 }
 
@@ -609,12 +609,12 @@ bool SkImageFilter::filterInputGPUDeprecated(int index, SkImageFilter::Proxy* pr
         return true;
     }
 
-    SkAutoTUnref<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src));
+    sk_sp<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src));
     if (!specialSrc) {
         return false;
     }
 
-    SkAutoTUnref<SkSpecialImage> tmp(input->onFilterImage(specialSrc,
+    SkAutoTUnref<SkSpecialImage> tmp(input->onFilterImage(specialSrc.get(),
                                                           this->mapContext(ctx),
                                                           offset));
     if (!tmp) {

@@ -158,27 +158,27 @@ static SkImageFilter* make_blue(SkImageFilter* input, const SkImageFilter::CropR
     return SkColorFilterImageFilter::Create(filter, input, cropRect);
 }
 
-static SkSpecialSurface* create_empty_special_surface(GrContext* context,
-                                                      SkImageFilter::Proxy* proxy,
-                                                      int widthHeight) {
+static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context,
+                                                            SkImageFilter::Proxy* proxy,
+                                                            int widthHeight) {
     if (context) {
         GrSurfaceDesc desc;
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fFlags  = kRenderTarget_GrSurfaceFlag;
         desc.fWidth  = widthHeight;
         desc.fHeight = widthHeight;
-        return SkSpecialSurface::NewRenderTarget(proxy, context, desc);
+        return SkSpecialSurface::MakeRenderTarget(proxy, context, desc);
     } else {
         const SkImageInfo info = SkImageInfo::MakeN32(widthHeight, widthHeight,
                                                       kOpaque_SkAlphaType);
-        return SkSpecialSurface::NewRaster(proxy, info);
+        return SkSpecialSurface::MakeRaster(proxy, info);
     }
 }
 
-static SkSpecialImage* create_empty_special_image(GrContext* context,
-                                                  SkImageFilter::Proxy* proxy,
-                                                  int widthHeight) {
-    SkAutoTUnref<SkSpecialSurface> surf(create_empty_special_surface(context, proxy, widthHeight));
+static sk_sp<SkSpecialImage> create_empty_special_image(GrContext* context,
+                                                        SkImageFilter::Proxy* proxy,
+                                                        int widthHeight) {
+    sk_sp<SkSpecialSurface> surf(create_empty_special_surface(context, proxy, widthHeight));
 
     SkASSERT(surf);
 
@@ -187,7 +187,7 @@ static SkSpecialImage* create_empty_special_image(GrContext* context,
 
     canvas->clear(0x0);
 
-    return surf->newImageSnapshot();
+    return surf->makeImageSnapshot();
 }
 
 
@@ -313,7 +313,7 @@ static void test_crop_rects(SkImageFilter::Proxy* proxy,
     // Check that all filters offset to their absolute crop rect,
     // unaffected by the input crop rect.
     // Tests pass by not asserting.
-    SkAutoTUnref<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
+    sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
     SkASSERT(srcImg);
 
     SkImageFilter::CropRect inputCropRect(SkRect::MakeXYWH(8, 13, 80, 80));
@@ -357,7 +357,7 @@ static void test_crop_rects(SkImageFilter::Proxy* proxy,
         SkString str;
         str.printf("filter %d", static_cast<int>(i));
         SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
-        SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
+        SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
         REPORTER_ASSERT_MESSAGE(reporter, resultImg, str.c_str());
         REPORTER_ASSERT_MESSAGE(reporter, offset.fX == 20 && offset.fY == 30, str.c_str());
     }
@@ -399,30 +399,31 @@ static void test_negative_blur_sigma(SkImageFilter::Proxy* proxy,
     SkAutoTUnref<SkImageFilter> negativeFilter(SkBlurImageFilter::Create(-five, five));
 
     SkBitmap gradient = make_gradient_circle(width, height);
-    SkAutoTUnref<SkSpecialImage> imgSrc(SkSpecialImage::NewFromRaster(proxy,
-                                                                      SkIRect::MakeWH(width,
-                                                                                      height),
-                                                                      gradient));
+    sk_sp<SkSpecialImage> imgSrc(SkSpecialImage::MakeFromRaster(proxy,
+                                                                SkIRect::MakeWH(width, height),
+                                                                gradient));
 
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> positiveResult1(positiveFilter->filterImage(imgSrc, ctx, &offset));
+    SkAutoTUnref<SkSpecialImage> positiveResult1(positiveFilter->filterImage(imgSrc.get(),
+                                                                             ctx, &offset));
     REPORTER_ASSERT(reporter, positiveResult1);
 
-    SkAutoTUnref<SkSpecialImage> negativeResult1(negativeFilter->filterImage(imgSrc, ctx, &offset));
+    SkAutoTUnref<SkSpecialImage> negativeResult1(negativeFilter->filterImage(imgSrc.get(),
+                                                                             ctx, &offset));
     REPORTER_ASSERT(reporter, negativeResult1);
 
     SkMatrix negativeScale;
     negativeScale.setScale(-SK_Scalar1, SK_Scalar1);
     SkImageFilter::Context negativeCTX(negativeScale, SkIRect::MakeWH(32, 32), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> negativeResult2(positiveFilter->filterImage(imgSrc,
+    SkAutoTUnref<SkSpecialImage> negativeResult2(positiveFilter->filterImage(imgSrc.get(),
                                                                              negativeCTX,
                                                                              &offset));
     REPORTER_ASSERT(reporter, negativeResult2);
 
-    SkAutoTUnref<SkSpecialImage> positiveResult2(negativeFilter->filterImage(imgSrc,
+    SkAutoTUnref<SkSpecialImage> positiveResult2(negativeFilter->filterImage(imgSrc.get(),
                                                                              negativeCTX,
                                                                              &offset));
     REPORTER_ASSERT(reporter, positiveResult2);
@@ -520,14 +521,14 @@ static void test_zero_blur_sigma(SkImageFilter::Proxy* proxy,
     SkAutoTUnref<SkImageFilter> input(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
     SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(0, 0, input, &cropRect));
 
-    SkAutoTUnref<SkSpecialSurface> surf(create_empty_special_surface(context, proxy, 10));
+    sk_sp<SkSpecialSurface> surf(create_empty_special_surface(context, proxy, 10));
     surf->getCanvas()->clear(SK_ColorGREEN);
-    SkAutoTUnref<SkSpecialImage> image(surf->newImageSnapshot());
+    sk_sp<SkSpecialImage> image(surf->makeImageSnapshot());
 
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> result(filter->filterImage(image, ctx, &offset));
+    SkAutoTUnref<SkSpecialImage> result(filter->filterImage(image.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, offset.fX == 5 && offset.fY == 0);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, result->width() == 5 && result->height() == 10);
@@ -828,12 +829,12 @@ static void test_imagefilter_merge_result_size(SkImageFilter::Proxy* proxy,
     SkAutoTUnref<SkImageFilter> source(SkImageSource::Create(greenImage.get()));
     SkAutoTUnref<SkImageFilter> merge(SkMergeImageFilter::Create(source.get(), source.get()));
 
-    SkAutoTUnref<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 1));
+    sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 1));
 
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(0, 0, 100, 100), nullptr);
     SkIPoint offset;
 
-    SkAutoTUnref<SkSpecialImage> resultImg(merge->filterImage(srcImg, ctx, &offset));
+    SkAutoTUnref<SkSpecialImage> resultImg(merge->filterImage(srcImg.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
 
     REPORTER_ASSERT(reporter, resultImg->width() == 20 && resultImg->height() == 20);
@@ -1091,14 +1092,14 @@ static void test_clipped_picture_imagefilter(SkImageFilter::Proxy* proxy,
         picture.reset(recorder.endRecording());
     }
 
-    SkAutoTUnref<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 2));
+    sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 2));
 
     SkAutoTUnref<SkImageFilter> imageFilter(SkPictureImageFilter::Create(picture.get()));
 
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(1, 1, 1, 1), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> resultImage(imageFilter->filterImage(srcImg, ctx, &offset));
+    SkAutoTUnref<SkSpecialImage> resultImage(imageFilter->filterImage(srcImg.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, !resultImage);
 }
 
@@ -1343,7 +1344,7 @@ DEF_TEST(XfermodeImageFilterCroppedInput, reporter) {
 static void test_composed_imagefilter_offset(SkImageFilter::Proxy* proxy,
                                              skiatest::Reporter* reporter,
                                              GrContext* context) {
-    SkAutoTUnref<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
+    sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(1, 0, 20, 20));
     SkAutoTUnref<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
@@ -1354,7 +1355,7 @@ static void test_composed_imagefilter_offset(SkImageFilter::Proxy* proxy,
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> resultImg(composedFilter->filterImage(srcImg, ctx, &offset));
+    SkAutoTUnref<SkSpecialImage> resultImg(composedFilter->filterImage(srcImg.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
     REPORTER_ASSERT(reporter, offset.fX == 1 && offset.fY == 0);
 }
@@ -1372,7 +1373,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(ComposedImageFilterOffset_Gpu, reporter, context)
 static void test_partial_crop_rect(SkImageFilter::Proxy* proxy,
                                    skiatest::Reporter* reporter,
                                    GrContext* context) {
-    SkAutoTUnref<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
+    sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(100, 0, 20, 30),
         SkImageFilter::CropRect::kHasWidth_CropEdge | SkImageFilter::CropRect::kHasHeight_CropEdge);
@@ -1380,7 +1381,7 @@ static void test_partial_crop_rect(SkImageFilter::Proxy* proxy,
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
+    SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
 
     REPORTER_ASSERT(reporter, offset.fX == 0);
