@@ -329,9 +329,13 @@ GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
     // TODO: Query the actual framebuffer for sRGB capable. However, to
     // preserve old (fake-linear) behavior, we don't do this. Instead, rely
     // on the flag (currently driven via 'C' mode in SampleApp).
-    desc.fConfig = (info().profileType() == kSRGB_SkColorProfileType ||
+    //
+    // Also, we may not have real sRGB support (ANGLE, in particular), so check for
+    // that, and fall back to L32:
+    desc.fConfig = grContext->caps()->srgbSupport() &&
+                   (info().profileType() == kSRGB_SkColorProfileType ||
                     info().colorType() == kRGBA_F16_SkColorType)
-        ? kSRGBA_8888_GrPixelConfig // This may not be the right byte-order
+        ? kSkiaGamma8888_GrPixelConfig
         : kSkia8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fSampleCnt = attachmentInfo.fSampleCount;

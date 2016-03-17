@@ -83,6 +83,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
+    fSRGBSupport = false;
     fTwoSidedStencilSupport = false;
     fStencilWrapOpsSupport = false;
     fDiscardRenderTargetSupport = false;
@@ -157,6 +158,7 @@ SkString GrCaps::dump() const {
     static const char* gNY[] = {"NO", "YES"};
     r.appendf("MIP Map Support                    : %s\n", gNY[fMipMapSupport]);
     r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
+    r.appendf("sRGB Support                       : %s\n", gNY[fSRGBSupport]);
     r.appendf("Two Sided Stencil Support          : %s\n", gNY[fTwoSidedStencilSupport]);
     r.appendf("Stencil Wrap Ops  Support          : %s\n", gNY[fStencilWrapOpsSupport]);
     r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);
@@ -210,6 +212,7 @@ SkString GrCaps::dump() const {
         "RGBA8888", // kRGBA_8888_GrPixelConfig,
         "BGRA8888", // kBGRA_8888_GrPixelConfig,
         "SRGBA8888",// kSRGBA_8888_GrPixelConfig,
+        "SBGRA8888",// kSBGRA_8888_GrPixelConfig,
         "ETC1",     // kETC1_GrPixelConfig,
         "LATC",     // kLATC_GrPixelConfig,
         "R11EAC",   // kR11_EAC_GrPixelConfig,
@@ -226,13 +229,14 @@ SkString GrCaps::dump() const {
     GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(10  == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kRGBA_half_GrPixelConfig);
+    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(10  == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(11  == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(14 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(15 == kRGBA_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
 
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));

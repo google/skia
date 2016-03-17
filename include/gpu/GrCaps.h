@@ -137,6 +137,7 @@ public:
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
         only for POT textures) */
     bool mipMapSupport() const { return fMipMapSupport; }
+    bool srgbSupport() const { return fSRGBSupport; }
     bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
     bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
@@ -268,6 +269,7 @@ protected:
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipMapSupport                              : 1;
+    bool fSRGBSupport                                : 1;
     bool fTwoSidedStencilSupport                     : 1;
     bool fStencilWrapOpsSupport                      : 1;
     bool fDiscardRenderTargetSupport                 : 1;
