@@ -793,7 +793,7 @@ private:
             return;
         }
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -835,12 +835,12 @@ private:
 
             extract_verts(tess, verts, vertexStride, args.fColor, idxs, canTweakAlphaForCoverage);
 
-            GrVertices info;
-            info.initIndexed(kTriangles_GrPrimitiveType,
+            GrMesh mesh;
+            mesh.initIndexed(kTriangles_GrPrimitiveType,
                              vertexBuffer, indexBuffer,
                              firstVertex, firstIndex,
                              tess.numPts(), tess.numIndices());
-            target->draw(info);
+            target->draw(mesh);
         }
     }
 
@@ -864,7 +864,7 @@ private:
         SkAutoTUnref<GrGeometryProcessor> quadProcessor(
                 QuadEdgeEffect::Create(this->color(), invert, this->usesLocalCoords()));
 
-        target->initDraw(quadProcessor, this->pipeline());
+        target->initDraw(quadProcessor);
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
@@ -924,13 +924,13 @@ private:
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, &draws, verts, idxs);
 
-            GrVertices vertices;
+            GrMesh mesh;
 
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
-                vertices.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
-                                     firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
-                target->draw(vertices);
+                mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
+                                 firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
+                target->draw(mesh);
                 firstVertex += draw.fVertexCnt;
                 firstIndex += draw.fIndexCnt;
             }

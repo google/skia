@@ -36,15 +36,15 @@ void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primT
     size_t ibSize = indexBuffer->gpuMemorySize();
     int maxInstancesPerDraw = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerInstance));
 
-    fVertices.initInstanced(primType, vertexBuffer, indexBuffer,
+    fMesh.initInstanced(primType, vertexBuffer, indexBuffer,
         firstVertex, verticesPerInstance, indicesPerInstance, instancesToDraw,
         maxInstancesPerDraw);
     return vertices;
 }
 
 void GrVertexBatch::InstancedHelper::recordDraw(Target* target) {
-    SkASSERT(fVertices.instanceCount());
-    target->draw(fVertices);
+    SkASSERT(fMesh.instanceCount());
+    target->draw(fMesh);
 }
 
 void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
@@ -72,15 +72,10 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state) {
             fInlineUploads[currUpload++]->upload(state->uploader());
         }
         const GrVertexBatch::DrawArray& drawArray = *da.get();
-        GrProgramDesc desc;
-        const GrPipeline* pipeline = this->pipeline();
-        const GrPrimitiveProcessor* primProc = drawArray.fPrimitiveProcessor.get();
-        state->gpu()->buildProgramDesc(&desc, *primProc, *pipeline);
-        GrGpu::DrawArgs args(primProc, pipeline, &desc);
 
-        int drawCount = drawArray.fDraws.count();
-        for (int i = 0; i < drawCount; i++) {
-            state->gpu()->draw(args,  drawArray.fDraws[i]);
-        }
+        state->gpu()->draw(*this->pipeline(),
+                           *drawArray.fPrimitiveProcessor.get(),
+                           drawArray.fDraws.begin(),
+                           drawArray.fDraws.count());
     }
 }

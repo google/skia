@@ -142,13 +142,16 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     }
 }
 
-void GrGLPathRendering::onDrawPath(const DrawPathArgs& args, const GrPath* path) {
-    if (!this->gpu()->flushGLState(args)) {
+void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
+                                   const GrPrimitiveProcessor& primProc,
+                                   const GrStencilSettings& stencil,
+                                   const GrPath* path) {
+    if (!this->gpu()->flushGLState(pipeline, primProc)) {
         return;
     }
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
-    this->flushPathStencilSettings(*args.fStencil);
+    this->flushPathStencilSettings(stencil);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode = gr_stencil_op_to_gl_path_rendering_fill_mode(
@@ -167,16 +170,18 @@ void GrGLPathRendering::onDrawPath(const DrawPathArgs& args, const GrPath* path)
     }
 }
 
-void GrGLPathRendering::onDrawPaths(const DrawPathArgs& args, const GrPathRange* pathRange,
+void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
+                                    const GrPrimitiveProcessor& primProc,
+                                    const GrStencilSettings& stencil, const GrPathRange* pathRange,
                                     const void* indices, PathIndexType indexType,
                                     const float transformValues[], PathTransformType transformType,
                                     int count) {
     SkDEBUGCODE(verify_floats(transformValues, gXformType2ComponentCount[transformType] * count));
 
-    if (!this->gpu()->flushGLState(args)) {
+    if (!this->gpu()->flushGLState(pipeline, primProc)) {
         return;
     }
-    this->flushPathStencilSettings(*args.fStencil);
+    this->flushPathStencilSettings(stencil);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
 

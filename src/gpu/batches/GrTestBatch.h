@@ -60,7 +60,7 @@ protected:
 
 private:
     void onPrepareDraws(Target* target) const override {
-        target->initDraw(fGeometryProcessor, this->pipeline());
+        target->initDraw(fGeometryProcessor);
         this->generateGeometry(target);
     }
 

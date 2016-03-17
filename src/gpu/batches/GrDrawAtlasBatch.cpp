@@ -58,7 +58,7 @@ void GrDrawAtlasBatch::onPrepareDraws(Target* target) const {
                                                                      this->viewMatrix(),
                                                                      this->coverageIgnored()));
     
-    target->initDraw(gp, this->pipeline());
+    target->initDraw(gp);
     
     int instanceCount = fGeoData.count();
     size_t vertexStride = gp->getVertexStride();

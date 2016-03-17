@@ -860,7 +860,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
     if (lineCount) {
         SkAutoTUnref<const GrIndexBuffer> linesIndexBuffer(
             ref_lines_index_buffer(target->resourceProvider()));
-        target->initDraw(lineGP, this->pipeline());
+        target->initDraw(lineGP);
 
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
@@ -882,11 +882,11 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
         }
 
         {
-            GrVertices vertices;
-            vertices.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer,
-                                   firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, lineCount,
-                                   kLineSegsNumInIdxBuffer);
-            target->draw(vertices);
+            GrMesh mesh;
+            mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer,
+                               firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, lineCount,
+                               kLineSegsNumInIdxBuffer);
+            target->draw(mesh);
         }
     }
 
@@ -922,27 +922,27 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
         }
 
         if (quadCount > 0) {
-            target->initDraw(quadGP, this->pipeline());
+            target->initDraw(quadGP);
 
             {
-                GrVertices tempVerts;
-                tempVerts.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
-                                        firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
-                                        kQuadsNumInIdxBuffer);
-                target->draw(tempVerts);
+                GrMesh mesh;
+                mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
+                                   firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
+                                   kQuadsNumInIdxBuffer);
+                target->draw(mesh);
                 firstVertex += quadCount * kQuadNumVertices;
            }
         }
 
         if (conicCount > 0) {
-            target->initDraw(conicGP, this->pipeline());
+            target->initDraw(conicGP);
 
             {
-                GrVertices tempVerts;
-                tempVerts.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
-                                        firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
-                                        kQuadsNumInIdxBuffer);
-                target->draw(tempVerts);
+                GrMesh mesh;
+                mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
+                                   firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
+                                   kQuadsNumInIdxBuffer);
+                target->draw(mesh);
             }
         }
     }

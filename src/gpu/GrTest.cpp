@@ -306,9 +306,6 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override { return false; }
 
-    void buildProgramDesc(GrProgramDesc*, const GrPrimitiveProcessor&,
-                          const GrPipeline&) const override {}
-
     void discard(GrRenderTarget*) override {}
 
     bool onCopySurface(GrSurface* dst,
@@ -367,7 +364,10 @@ private:
 
     void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override {}
 
-    void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override {}
+    void onDraw(const GrPipeline&,
+                const GrPrimitiveProcessor&,
+                const GrMesh*,
+                int meshCount) override {}
 
     bool onReadPixels(GrSurface* surface,
                       int left, int top, int width, int height,

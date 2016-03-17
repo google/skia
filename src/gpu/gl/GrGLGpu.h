@@ -27,7 +27,7 @@
 #include "SkTypes.h"
 
 class GrPipeline;
-class GrNonInstancedVertices;
+class GrNonInstancedMesh;
 class GrSwizzle;
 
 #ifdef SK_DEVELOPER
@@ -94,10 +94,6 @@ public:
     void notifyIndexBufferDelete(GrGLuint id) {
         fHWGeometryState.notifyIndexBufferDelete(id);
     }
-
-    void buildProgramDesc(GrProgramDesc*,
-                          const GrPrimitiveProcessor&,
-                          const GrPipeline&) const override;
 
     // id and type (GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.) of buffer to bind
     void bindBuffer(GrGLuint id, GrGLenum type);
@@ -216,7 +212,10 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override;
 
-    void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override;
+    void onDraw(const GrPipeline&,
+                const GrPrimitiveProcessor&,
+                const GrMesh*,
+                int meshCount) override;
 
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
@@ -232,13 +231,13 @@ private:
     void setTextureUnit(int unitIdx);
 
     // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
-    bool flushGLState(const DrawArgs&);
+    bool flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc);
 
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for vertices.startIndex() but rather the start
     // index is relative to the returned offset.
     void setupGeometry(const GrPrimitiveProcessor&,
-                       const GrNonInstancedVertices& vertices,
+                       const GrNonInstancedMesh& mesh,
                        size_t* indexOffsetInBytes);
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
@@ -261,7 +260,7 @@ private:
     void stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform, 
                                GrGLuint arrayBuffer);
 
-    void setupPixelLocalStorage(const DrawArgs& args);
+    void setupPixelLocalStorage(const GrPipeline&, const GrPrimitiveProcessor&);
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
@@ -272,7 +271,7 @@ private:
 
         void reset();
         void abandon();
-        GrGLProgram* refProgram(const DrawArgs&);
+        GrGLProgram* refProgram(const GrGLGpu* gpu, const GrPipeline&, const GrPrimitiveProcessor&);
 
     private:
         enum {

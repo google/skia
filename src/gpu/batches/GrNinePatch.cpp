@@ -91,7 +91,7 @@ private:
             return;
         }
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();

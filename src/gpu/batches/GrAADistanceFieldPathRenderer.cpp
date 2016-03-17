@@ -209,7 +209,7 @@ private:
                                                    flags,
                                                    this->usesLocalCoords()));
 
-        target->initDraw(dfProcessor, this->pipeline());
+        target->initDraw(dfProcessor);
 
         FlushInfo flushInfo;
 
@@ -407,7 +407,7 @@ private:
                                          &atlasLocation);
         if (!success) {
             this->flush(target, flushInfo);
-            target->initDraw(dfProcessor, pipeline);
+            target->initDraw(dfProcessor);
 
             SkDEBUGCODE(success =) atlas->addToAtlas(&id, target, width, height,
                                                      dfStorage.get(), &atlasLocation);
@@ -491,12 +491,12 @@ private:
     }
 
     void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
-        GrVertices vertices;
+        GrMesh mesh;
         int maxInstancesPerDraw = flushInfo->fIndexBuffer->maxQuads();
-        vertices.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
+        mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
             flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
             kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
-        target->draw(vertices);
+        target->draw(mesh);
         flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
         flushInfo->fInstancesToFlush = 0;
     }

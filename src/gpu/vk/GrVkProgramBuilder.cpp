@@ -12,12 +12,14 @@
 #include "vk/GrVkProgram.h"
 
 GrVkProgram* GrVkProgramBuilder::CreateProgram(GrVkGpu* gpu,
-                                               const DrawArgs& args,
+                                               const GrPipeline& pipeline,
+                                               const GrPrimitiveProcessor& primProc,
                                                GrPrimitiveType primitiveType,
+                                               const GrVkProgramDesc& desc,
                                                const GrVkRenderPass& renderPass) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkProgramBuilder builder(gpu, args);
+    GrVkProgramBuilder builder(gpu, pipeline, primProc, desc);
 
     GrGLSLExpr4 inputColor;
     GrGLSLExpr4 inputCoverage;
@@ -27,11 +29,14 @@ GrVkProgram* GrVkProgramBuilder::CreateProgram(GrVkGpu* gpu,
         return nullptr;
     }
 
-    return builder.finalize(args, primitiveType, renderPass);
+    return builder.finalize(primitiveType, renderPass);
 }
 
-GrVkProgramBuilder::GrVkProgramBuilder(GrVkGpu* gpu, const DrawArgs& args)
-    : INHERITED(args) 
+GrVkProgramBuilder::GrVkProgramBuilder(GrVkGpu* gpu,
+                                       const GrPipeline& pipeline,
+                                       const GrPrimitiveProcessor& primProc,
+                                       const GrVkProgramDesc& desc)
+    : INHERITED(pipeline, primProc, desc) 
     , fGpu(gpu)
     , fVaryingHandler(this) 
     , fUniformHandler(this) {
@@ -135,8 +140,7 @@ bool GrVkProgramBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
     return true;
 }
 
-GrVkProgram* GrVkProgramBuilder::finalize(const DrawArgs& args,
-                                          GrPrimitiveType primitiveType,
+GrVkProgram* GrVkProgramBuilder::finalize(GrPrimitiveType primitiveType,
                                           const GrVkRenderPass& renderPass) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
@@ -246,8 +250,8 @@ GrVkProgram* GrVkProgramBuilder::finalize(const DrawArgs& args,
                                         &shaderStageInfo[1]));
 
     GrVkResourceProvider& resourceProvider = fGpu->resourceProvider();
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(*args.fPipeline,
-                                                             *args.fPrimitiveProcessor,
+    GrVkPipeline* pipeline = resourceProvider.createPipeline(fPipeline,
+                                                             fPrimProc,
                                                              shaderStageInfo,
                                                              2,
                                                              primitiveType,

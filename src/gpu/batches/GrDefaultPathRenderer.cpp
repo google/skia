@@ -11,9 +11,9 @@
 #include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrMesh.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
-#include "GrVertices.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
@@ -269,7 +269,7 @@ private:
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         int instanceCount = fGeoData.count();
 
@@ -362,14 +362,14 @@ private:
             SkASSERT(vertexOffset <= maxVertices && indexOffset <= maxIndices);
         }
 
-        GrVertices vertices;
+        GrMesh mesh;
         if (isIndexed) {
-            vertices.initIndexed(primitiveType, vertexBuffer, indexBuffer, firstVertex, firstIndex,
-                                 vertexOffset, indexOffset);
+            mesh.initIndexed(primitiveType, vertexBuffer, indexBuffer, firstVertex, firstIndex,
+                             vertexOffset, indexOffset);
         } else {
-            vertices.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
+            mesh.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
-        target->draw(vertices);
+        target->draw(mesh);
 
         // put back reserves
         target->putBackIndices((size_t)(maxIndices - indexOffset));

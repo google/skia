@@ -23,6 +23,7 @@ class GrBatchTracker;
 class GrContext;
 class GrGLContext;
 class GrIndexBuffer;
+class GrMesh;
 class GrNonInstancedVertices;
 class GrPath;
 class GrPathRange;
@@ -37,7 +38,6 @@ class GrSurface;
 class GrTexture;
 class GrTransferBuffer;
 class GrVertexBuffer;
-class GrVertices;
 
 class GrGpu : public SkRefCnt {
 public:
@@ -353,10 +353,6 @@ public:
     // is dirty.
     ResetTimestamp getResetTimestamp() const { return fResetTimestamp; }
 
-    virtual void buildProgramDesc(GrProgramDesc*,
-                                  const GrPrimitiveProcessor&,
-                                  const GrPipeline&) const = 0;
-
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
     // take place at the GrDrawTarget level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
@@ -382,21 +378,13 @@ public:
     // multisample information itself.
     const MultisampleSpecs& getMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&);
 
-    struct DrawArgs {
-        DrawArgs(const GrPrimitiveProcessor* primProc,
-                 const GrPipeline* pipeline,
-                 const GrProgramDesc* desc)
-            : fPrimitiveProcessor(primProc)
-            , fPipeline(pipeline)
-            , fDesc(desc) {
-            SkASSERT(primProc && pipeline && desc);
-        }
-        const GrPrimitiveProcessor* fPrimitiveProcessor;
-        const GrPipeline* fPipeline;
-        const GrProgramDesc* fDesc;
-    };
-
-    void draw(const DrawArgs&, const GrVertices&);
+    // We pass in an array of meshCount GrMesh to the draw. The backend should loop over each
+    // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
+    // GrPrimitiveProcessor.
+    void draw(const GrPipeline&,
+              const GrPrimitiveProcessor&,
+              const GrMesh*,
+              int meshCount);
 
     // Called by drawtarget when flushing. 
     // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
@@ -571,13 +559,15 @@ private:
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) = 0;
 
-
     // Overridden by backend specific classes to perform a clear of the stencil clip bits.  This is
     // ONLY used by the the clip target
     virtual void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const DrawArgs&, const GrNonInstancedVertices&) = 0;
+    virtual void onDraw(const GrPipeline&,
+                        const GrPrimitiveProcessor&,
+                        const GrMesh*,
+                        int meshCount) = 0;
 
     virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrTextureParams&,
                                             GrTextureProducer::CopyParams*) const { return false; }

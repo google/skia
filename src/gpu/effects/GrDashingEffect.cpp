@@ -359,7 +359,7 @@ private:
             return;
         }
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         // useAA here means Edge AA or MSAA
         bool useAA = this->aaMode() != kBW_DashAAMode;

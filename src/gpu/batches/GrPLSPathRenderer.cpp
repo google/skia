@@ -864,7 +864,7 @@ public:
                 pathPtr = tmpPathPtr;
             }
 
-            GrVertices grVertices;
+            GrMesh mesh;
 
             PLSVertices triVertices;
             PLSVertices quadVertices;
@@ -885,10 +885,10 @@ public:
                 for (int i = 0; i < triVertices.count(); ++i) {
                     triVerts[i] = triVertices[i];
                 }
-                grVertices.init(kTriangles_GrPrimitiveType, triVertexBuffer, firstTriVertex, 
-                                triVertices.count());
-                target->initDraw(triangleProcessor, this->pipeline());
-                target->draw(grVertices);
+                mesh.init(kTriangles_GrPrimitiveType, triVertexBuffer, firstTriVertex,
+                          triVertices.count());
+                target->initDraw(triangleProcessor);
+                target->draw(mesh);
             }
 
             if (quadVertices.count()) {
@@ -904,10 +904,10 @@ public:
                 for (int i = 0; i < quadVertices.count(); ++i) {
                     quadVerts[i] = quadVertices[i];
                 }
-                grVertices.init(kTriangles_GrPrimitiveType, quadVertexBuffer, firstQuadVertex, 
-                                quadVertices.count());
-                target->initDraw(quadProcessor, this->pipeline());
-                target->draw(grVertices);
+                mesh.init(kTriangles_GrPrimitiveType, quadVertexBuffer, firstQuadVertex,
+                          quadVertices.count());
+                target->initDraw(quadProcessor);
+                target->draw(mesh);
             }
 
             SkAutoTUnref<GrGeometryProcessor> finishProcessor(
@@ -933,10 +933,10 @@ public:
             rectVerts[4] = { bounds.fRight, bounds.fTop };
             rectVerts[5] = { bounds.fRight, bounds.fBottom };
 
-            grVertices.init(kTriangles_GrPrimitiveType, rectVertexBuffer, firstRectVertex, 
-                            kRectVertexCount);
-            target->initDraw(finishProcessor, this->pipeline());
-            target->draw(grVertices);
+            mesh.init(kTriangles_GrPrimitiveType, rectVertexBuffer, firstRectVertex,
+                      kRectVertexCount);
+            target->initDraw(finishProcessor);
+            target->draw(mesh);
         }
     }
 

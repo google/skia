@@ -165,7 +165,7 @@ private:
             return;
         }
         const GrVertexBuffer* vertexBuffer;
-        GrVertices info;
+        GrMesh mesh;
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);
@@ -183,9 +183,9 @@ private:
             return;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        info.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                firstIndex, vertexCount, indexCount);
-        target->draw(info);
+        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
+                         firstIndex, vertexCount, indexCount);
+        target->draw(mesh);
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -201,7 +201,7 @@ private:
             return;
         }
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         size_t vertexStride = gp->getVertexStride();
 

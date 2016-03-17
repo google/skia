@@ -16,6 +16,7 @@
 #include "SkTraceEvent.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
+#include "gl/GrGLProgramDesc.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSLCaps.h"
@@ -28,12 +29,15 @@
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
-GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gpu) {
+GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
+                                               const GrPrimitiveProcessor& primProc,
+                                               const GrGLProgramDesc& desc,
+                                               GrGLGpu* gpu) {
     GrAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(gpu, args);
+    GrGLProgramBuilder builder(gpu, pipeline, primProc, desc);
 
     // TODO: Once all stages can handle taking a float or vec4 and correctly handling them we can
     // seed correctly here
@@ -50,8 +54,11 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
 
 /////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
-    : INHERITED(args)
+GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
+                                       const GrPipeline& pipeline,
+                                       const GrPrimitiveProcessor& primProc,
+                                       const GrGLProgramDesc& desc)
+    : INHERITED(pipeline, primProc, desc)
     , fGpu(gpu)
     , fVaryingHandler(this)
     , fUniformHandler(this) {

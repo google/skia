@@ -15,12 +15,16 @@
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
-GrGLSLProgramBuilder::GrGLSLProgramBuilder(const DrawArgs& args)
+GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPipeline& pipeline,
+                                           const GrPrimitiveProcessor& primProc,
+                                           const GrProgramDesc& desc)
     : fVS(this)
     , fGS(this)
     , fFS(this)
     , fStageIndex(-1)
-    , fArgs(args)
+    , fPipeline(pipeline)
+    , fPrimProc(primProc)
+    , fDesc(desc)
     , fGeometryProcessor(nullptr)
     , fXferProcessor(nullptr)
     , fSamplerUniforms(4)

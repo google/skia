@@ -116,7 +116,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
     size_t vertexStride = gp->getVertexStride();
     SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat));
 
-    target->initDraw(gp, this->pipeline());
+    target->initDraw(gp);
 
     int glyphCount = this->numGlyphs();
     const GrVertexBuffer* vertexBuffer;
@@ -180,13 +180,13 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
 }
 
 void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
-    GrVertices vertices;
+    GrMesh mesh;
     int maxGlyphsPerDraw = flushInfo->fIndexBuffer->maxQuads();
-    vertices.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
-                           flushInfo->fIndexBuffer, flushInfo->fVertexOffset,
-                           kVerticesPerGlyph, kIndicesPerGlyph, flushInfo->fGlyphsToFlush,
-                           maxGlyphsPerDraw);
-    target->draw(vertices);
+    mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
+                       flushInfo->fIndexBuffer, flushInfo->fVertexOffset,
+                       kVerticesPerGlyph, kIndicesPerGlyph, flushInfo->fGlyphsToFlush,
+                       maxGlyphsPerDraw);
+    target->draw(mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }
@@ -313,5 +313,5 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
 
 void GrBlobRegenHelper::flush() {
     fBatch->flush(fTarget, fFlushInfo);
-    fTarget->initDraw(fGP, fBatch->pipeline());
+    fTarget->initDraw(fGP);
 }

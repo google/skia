@@ -607,7 +607,7 @@ private:
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fStroked, localMatrix));
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -793,7 +793,7 @@ private:
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         int instanceCount = fGeoData.count();
         QuadHelper helper;
@@ -1011,7 +1011,7 @@ private:
         SkAutoTUnref<GrGeometryProcessor> gp(new DIEllipseGeometryProcessor(this->viewMatrix(),
                                                                             this->style()));
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -1278,7 +1278,7 @@ private:
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fStroked, localMatrix));
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -1426,7 +1426,7 @@ private:
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();

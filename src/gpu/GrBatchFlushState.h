@@ -161,14 +161,14 @@ class GrVertexBatch::Target : public GrDrawBatch::Target {
 public:
     Target(GrBatchFlushState* state, GrVertexBatch* batch) : INHERITED(state, batch) {}
 
-    void initDraw(const GrPrimitiveProcessor* primProc, const GrPipeline* pipeline) {
+    void initDraw(const GrPrimitiveProcessor* primProc) {
         GrVertexBatch::DrawArray* draws = this->vertexBatch()->fDrawArrays.addToTail();
         draws->fPrimitiveProcessor.reset(primProc);
         this->state()->advanceToken();
     }
 
-    void draw(const GrVertices& vertices) {
-        this->vertexBatch()->fDrawArrays.tail()->fDraws.push_back(vertices);
+    void draw(const GrMesh& mesh) {
+        this->vertexBatch()->fDrawArrays.tail()->fDraws.push_back(mesh);
     }
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount,

@@ -10,13 +10,13 @@
 #include "GrGLStencilAttachment.h"
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourcePriv.h"
+#include "GrMesh.h"
 #include "GrPipeline.h"
 #include "GrPLSGeometryProcessor.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
-#include "GrVertices.h"
 #include "builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
@@ -2071,15 +2071,14 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
     this->disableScissor();
 }
 
-bool GrGLGpu::flushGLState(const DrawArgs& args) {
+bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc) {
     GrXferProcessor::BlendInfo blendInfo;
-    const GrPipeline& pipeline = *args.fPipeline;
-    args.fPipeline->getXferProcessor().getBlendInfo(&blendInfo);
+    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
 
     this->flushColorWrite(blendInfo.fWriteColor);
     this->flushDrawFace(pipeline.getDrawFace());
 
-    SkAutoTUnref<GrGLProgram> program(fProgramCache->refProgram(args));
+    SkAutoTUnref<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, primProc));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2094,12 +2093,12 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     if (blendInfo.fWriteColor) {
         // Swizzle the blend to match what the shader will output.
         const GrSwizzle& swizzle = this->glCaps().glslCaps()->configOutputSwizzle(
-            args.fPipeline->getRenderTarget()->config());
+            pipeline.getRenderTarget()->config());
         this->flushBlend(blendInfo, swizzle);
     }
 
     SkSTArray<8, const GrTextureAccess*> textureAccesses;
-    program->setData(*args.fPrimitiveProcessor, pipeline, &textureAccesses);
+    program->setData(primProc, pipeline, &textureAccesses);
 
     int numTextureAccesses = textureAccesses.count();
     for (int i = 0; i < numTextureAccesses; i++) {
@@ -2120,20 +2119,20 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
 }
 
 void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
-                            const GrNonInstancedVertices& vertices,
+                            const GrNonInstancedMesh& mesh,
                             size_t* indexOffsetInBytes) {
     GrGLVertexBuffer* vbuf;
-    vbuf = (GrGLVertexBuffer*) vertices.vertexBuffer();
+    vbuf = (GrGLVertexBuffer*) mesh.vertexBuffer();
 
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
 
     GrGLIndexBuffer* ibuf = nullptr;
-    if (vertices.isIndexed()) {
+    if (mesh.isIndexed()) {
         SkASSERT(indexOffsetInBytes);
 
         *indexOffsetInBytes = 0;
-        ibuf = (GrGLIndexBuffer*)vertices.indexBuffer();
+        ibuf = (GrGLIndexBuffer*)mesh.indexBuffer();
 
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
@@ -2147,7 +2146,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
 
         GrGLsizei stride = static_cast<GrGLsizei>(primProc.getVertexStride());
 
-        size_t vertexOffsetInBytes = stride * vertices.startVertex();
+        size_t vertexOffsetInBytes = stride * mesh.startVertex();
 
         vertexOffsetInBytes += vbuf->baseOffset();
 
@@ -2167,14 +2166,6 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
             offset += attrib.fOffset;
         }
         attribState->disableUnusedArrays(this, usedAttribArraysMask);
-    }
-}
-
-void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
-                               const GrPrimitiveProcessor& primProc,
-                               const GrPipeline& pipeline) const {
-    if (!GrGLProgramDescBuilder::Build(desc, primProc, pipeline, *this->glCaps().glslCaps())) {
-        SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
 }
 
@@ -2918,16 +2909,18 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGLGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertices) {
-    if (!this->flushGLState(args)) {
+void GrGLGpu::onDraw(const GrPipeline& pipeline,
+                     const GrPrimitiveProcessor& primProc,
+                     const GrMesh* meshes,
+                     int meshCount) {
+    if (!this->flushGLState(pipeline, primProc)) {
         return;
     }
-
-    GrPixelLocalStorageState plsState = args.fPrimitiveProcessor->getPixelLocalStorageState();
-    if (!fHWPLSEnabled && plsState != 
+    GrPixelLocalStorageState plsState = primProc.getPixelLocalStorageState();
+    if (!fHWPLSEnabled && plsState !=
         GrPixelLocalStorageState::kDisabled_GrPixelLocalStorageState) {
         GL_CALL(Enable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
-        this->setupPixelLocalStorage(args);
+        this->setupPixelLocalStorage(pipeline, primProc);
         fHWPLSEnabled = true;
     }
     if (plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState) {
@@ -2936,26 +2929,35 @@ void GrGLGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
         this->flushStencil(stencil);
     }
 
-    size_t indexOffsetInBytes = 0;
-    this->setupGeometry(*args.fPrimitiveProcessor, vertices, &indexOffsetInBytes);
+    for (int i = 0; i < meshCount; ++i) {
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
+            this->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        }
 
-    SkASSERT((size_t)vertices.primitiveType() < SK_ARRAY_COUNT(gPrimitiveType2GLMode));
-
-    if (vertices.isIndexed()) {
-        GrGLvoid* indices =
-            reinterpret_cast<GrGLvoid*>(indexOffsetInBytes + sizeof(uint16_t) *
-                                        vertices.startIndex());
-        // info.startVertex() was accounted for by setupGeometry.
-        GL_CALL(DrawElements(gPrimitiveType2GLMode[vertices.primitiveType()],
-                             vertices.indexCount(),
-                             GR_GL_UNSIGNED_SHORT,
-                             indices));
-    } else {
-        // Pass 0 for parameter first. We have to adjust glVertexAttribPointer() to account for
-        // startVertex in the DrawElements case. So we always rely on setupGeometry to have
-        // accounted for startVertex.
-        GL_CALL(DrawArrays(gPrimitiveType2GLMode[vertices.primitiveType()], 0,
-                           vertices.vertexCount()));
+        const GrMesh& mesh = meshes[i];
+        GrMesh::Iterator iter;
+        const GrNonInstancedMesh* nonIdxMesh = iter.init(mesh);
+        do {
+            size_t indexOffsetInBytes = 0;
+            this->setupGeometry(primProc, *nonIdxMesh, &indexOffsetInBytes);
+            if (nonIdxMesh->isIndexed()) {
+                GrGLvoid* indices =
+                    reinterpret_cast<GrGLvoid*>(indexOffsetInBytes + sizeof(uint16_t) *
+                    nonIdxMesh->startIndex());
+                // info.startVertex() was accounted for by setupGeometry.
+                GL_CALL(DrawElements(gPrimitiveType2GLMode[nonIdxMesh->primitiveType()],
+                                     nonIdxMesh->indexCount(),
+                                     GR_GL_UNSIGNED_SHORT,
+                                     indices));
+            } else {
+                // Pass 0 for parameter first. We have to adjust glVertexAttribPointer() to account
+                // for startVertex in the DrawElements case. So we always rely on setupGeometry to
+                // have accounted for startVertex.
+                GL_CALL(DrawArrays(gPrimitiveType2GLMode[nonIdxMesh->primitiveType()], 0,
+                                   nonIdxMesh->vertexCount()));
+            }
+            fStats.incNumDraws();
+        } while ((nonIdxMesh = iter.next()));
     }
 
     if (fHWPLSEnabled && plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState) {
@@ -3009,13 +3011,14 @@ void GrGLGpu::stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGL
     }
 }
 
-void GrGLGpu::setupPixelLocalStorage(const DrawArgs& args) {
+void GrGLGpu::setupPixelLocalStorage(const GrPipeline& pipeline,
+                                     const GrPrimitiveProcessor& primProc) {
     fPLSHasBeenUsed = true;
     const SkRect& bounds = 
-            static_cast<const GrPLSGeometryProcessor*>(args.fPrimitiveProcessor)->getBounds();
+            static_cast<const GrPLSGeometryProcessor&>(primProc).getBounds();
     // setup pixel local storage -- this means capturing and storing the current framebuffer color
     // and initializing the winding counts to zero
-    GrRenderTarget* rt = args.fPipeline->getRenderTarget();
+    GrRenderTarget* rt = pipeline.getRenderTarget();
     SkScalar width = SkIntToScalar(rt->width());
     SkScalar height = SkIntToScalar(rt->height());
     // dst rect edges in NDC (-1 to 1)

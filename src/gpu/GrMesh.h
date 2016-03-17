@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrVertices_DEFINED
-#define GrVertices_DEFINED
+#ifndef GrMesh_DEFINED
+#define GrMesh_DEFINED
 
 #include "GrIndexBuffer.h"
 #include "GrVertexBuffer.h"
 
-class GrNonInstancedVertices {
+class GrNonInstancedMesh {
 public:
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     int startVertex() const { return fStartVertex; }
@@ -31,7 +31,7 @@ protected:
     int                     fIndexCount;
     GrPendingIOResource<const GrVertexBuffer, kRead_GrIOType> fVertexBuffer;
     GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>  fIndexBuffer;
-    friend class GrVertices;
+    friend class GrMesh;
 };
 
 /**
@@ -40,11 +40,11 @@ protected:
  * and draw-issuing responsibility to GrPrimitiveProcessor. The rest of the vertex info lives there
  * already (stride, attribute mappings).
  */
-class GrVertices : public GrNonInstancedVertices {
+class GrMesh : public GrNonInstancedMesh {
 public:
-    GrVertices() {}
-    GrVertices(const GrVertices& di) { (*this) = di; }
-    GrVertices& operator =(const GrVertices& di);
+    GrMesh() {}
+    GrMesh(const GrMesh& di) { (*this) = di; }
+    GrMesh& operator =(const GrMesh& di);
 
     void init(GrPrimitiveType primType, const GrVertexBuffer* vertexBuffer, int startVertex,
                 int vertexCount) {
@@ -131,41 +131,41 @@ public:
 
     class Iterator {
     public:
-        const GrNonInstancedVertices* init(const GrVertices& vertices) {
-            fVertices = &vertices;
-            if (vertices.fInstanceCount <= vertices.fMaxInstancesPerDraw) {
+        const GrNonInstancedMesh* init(const GrMesh& mesh) {
+            fMesh = &mesh;
+            if (mesh.fInstanceCount <= mesh.fMaxInstancesPerDraw) {
                 fInstancesRemaining = 0;
                 // Note, this also covers the non-instanced case!
-                return &vertices;
+                return &mesh;
             }
-            SkASSERT(vertices.isInstanced());
-            fInstanceBatch.fIndexBuffer.reset(vertices.fIndexBuffer.get());
-            fInstanceBatch.fVertexBuffer.reset(vertices.fVertexBuffer.get());
-            fInstanceBatch.fIndexCount = vertices.fMaxInstancesPerDraw *
-                                         vertices.fIndicesPerInstance;
-            fInstanceBatch.fVertexCount = vertices.fMaxInstancesPerDraw *
-                                          vertices.fVerticesPerInstance;
-            fInstanceBatch.fPrimitiveType = vertices.fPrimitiveType;
-            fInstanceBatch.fStartIndex = vertices.fStartIndex;
-            fInstanceBatch.fStartVertex = vertices.fStartVertex;
-            fInstancesRemaining = vertices.fInstanceCount - vertices.fMaxInstancesPerDraw;
+            SkASSERT(mesh.isInstanced());
+            fInstanceBatch.fIndexBuffer.reset(mesh.fIndexBuffer.get());
+            fInstanceBatch.fVertexBuffer.reset(mesh.fVertexBuffer.get());
+            fInstanceBatch.fIndexCount = mesh.fMaxInstancesPerDraw *
+                                         mesh.fIndicesPerInstance;
+            fInstanceBatch.fVertexCount = mesh.fMaxInstancesPerDraw *
+                                          mesh.fVerticesPerInstance;
+            fInstanceBatch.fPrimitiveType = mesh.fPrimitiveType;
+            fInstanceBatch.fStartIndex = mesh.fStartIndex;
+            fInstanceBatch.fStartVertex = mesh.fStartVertex;
+            fInstancesRemaining = mesh.fInstanceCount - mesh.fMaxInstancesPerDraw;
             return &fInstanceBatch;
         }
 
-        const GrNonInstancedVertices* next() {
+        const GrNonInstancedMesh* next() {
             if (!fInstancesRemaining) {
                 return nullptr;
             }
             fInstanceBatch.fStartVertex += fInstanceBatch.fVertexCount;
-            int instances = SkTMin(fInstancesRemaining, fVertices->fMaxInstancesPerDraw);
-            fInstanceBatch.fIndexCount = instances * fVertices->fIndicesPerInstance;
-            fInstanceBatch.fVertexCount = instances * fVertices->fVerticesPerInstance;
+            int instances = SkTMin(fInstancesRemaining, fMesh->fMaxInstancesPerDraw);
+            fInstanceBatch.fIndexCount = instances * fMesh->fIndicesPerInstance;
+            fInstanceBatch.fVertexCount = instances * fMesh->fVerticesPerInstance;
             fInstancesRemaining -= instances;
             return &fInstanceBatch;
         }
     private:
-        GrNonInstancedVertices fInstanceBatch;
-        const GrVertices* fVertices;
+        GrNonInstancedMesh fInstanceBatch;
+        const GrMesh* fMesh;
         int fInstancesRemaining;
     };
 

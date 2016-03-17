@@ -193,7 +193,7 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
         return;
     }
 
-    target->initDraw(gp, this->pipeline());
+    target->initDraw(gp);
 
     size_t vertexStride = gp->getVertexStride();
 
@@ -210,7 +210,7 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
         GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
     InstancedHelper helper;
     void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                 indexBuffer, verticesPerInstance,  indicesPerInstance,
+                                 indexBuffer, verticesPerInstance, indicesPerInstance,
                                  instanceCount);
     if (!vertices || !indexBuffer) {
          SkDebugf("Could not allocate vertices\n");

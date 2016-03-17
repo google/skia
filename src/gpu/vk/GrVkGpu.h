@@ -21,7 +21,7 @@
 #include "vulkan/vulkan.h"
 
 class GrPipeline;
-class GrNonInstancedVertices;
+class GrNonInstancedMesh;
 
 class GrVkBufferImpl;
 class GrVkCommandBuffer;
@@ -63,9 +63,6 @@ public:
     bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
-
-    void buildProgramDesc(GrProgramDesc*, const GrPrimitiveProcessor&,
-                          const GrPipeline&) const override;
 
     void discard(GrRenderTarget*) override {
         SkDebugf("discard not yet implemented for Vulkan\n");
@@ -154,7 +151,10 @@ private:
 
     void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
 
-    void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override;
+    void onDraw(const GrPipeline&,
+                const GrPrimitiveProcessor&,
+                const GrMesh*,
+                int meshCount) override;
 
     bool onReadPixels(GrSurface* surface,
                       int left, int top, int width, int height,
@@ -178,8 +178,14 @@ private:
         SkDebugf("onResolveRenderTarget not yet implemented for Vulkan\n");
     }
 
+    bool prepareDrawState(const GrPipeline&,
+                          const GrPrimitiveProcessor&,
+                          GrPrimitiveType,
+                          const GrVkRenderPass&,
+                          GrVkProgram** program);
+
     // Bind vertex and index buffers
-    void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedVertices&);
+    void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all 

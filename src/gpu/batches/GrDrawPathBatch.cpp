@@ -23,10 +23,8 @@ void GrDrawPathBatch::onDraw(GrBatchFlushState* state) {
     SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                                    this->overrides(),
                                                                    this->viewMatrix()));
-    state->gpu()->buildProgramDesc(&desc, *pathProc, *this->pipeline());
-    GrPathRendering::DrawPathArgs args(pathProc, this->pipeline(),
-                                        &desc, &this->stencilSettings());
-    state->gpu()->pathRendering()->drawPath(args, fPath.get());
+    state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc, this->stencilSettings(),
+                                            fPath.get());
 }
 
 SkString GrDrawPathRangeBatch::dumpInfo() const {
@@ -123,14 +121,13 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
                                                                    drawMatrix,
                                                                    localMatrix));
 
-    GrProgramDesc  desc;
-    state->gpu()->buildProgramDesc(&desc, *pathProc, *this->pipeline());
-    GrPathRendering::DrawPathArgs args(pathProc, this->pipeline(),
-                                       &desc, &this->stencilSettings());
-
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;
-        state->gpu()->pathRendering()->drawPaths(args, fPathRange.get(), instances.indices(),
+        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
+                                                 *pathProc,
+                                                 this->stencilSettings(),
+                                                 fPathRange.get(),
+                                                 instances.indices(),
                                                  GrPathRange::kU16_PathIndexType,
                                                  instances.transformValues(),
                                                  instances.transformType(),
@@ -155,9 +152,15 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
         }
         SkASSERT(idx == fTotalPathCount);
 
-        state->gpu()->pathRendering()->drawPaths(args, fPathRange.get(), indexStorage,
-                                                 GrPathRange::kU16_PathIndexType, transformStorage,
-                                                 this->transformType(), fTotalPathCount);
+        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
+                                                 *pathProc,
+                                                 this->stencilSettings(),
+                                                 fPathRange.get(),
+                                                 indexStorage,
+                                                 GrPathRange::kU16_PathIndexType,
+                                                 transformStorage,
+                                                 this->transformType(),
+                                                 fTotalPathCount);
     }
 }
 

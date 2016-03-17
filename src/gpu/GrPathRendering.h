@@ -152,38 +152,35 @@ public:
         this->onStencilPath(args, path);
     }
 
-    struct DrawPathArgs : public GrGpu::DrawArgs {
-        DrawPathArgs(const GrPrimitiveProcessor* primProc,
-                     const GrPipeline* pipeline,
-                     const GrProgramDesc* desc,
-                     const GrStencilSettings* stencil)
-            : DrawArgs(primProc, pipeline, desc)
-            , fStencil(stencil) {
-        }
-
-        const GrStencilSettings* fStencil;
-    };
-
-    void drawPath(const DrawPathArgs& args, const GrPath* path) {
+    void drawPath(const GrPipeline& pipeline,
+                  const GrPrimitiveProcessor& primProc,
+                  const GrStencilSettings& stencil,
+                  const GrPath* path) {
         fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = args.fPipeline->xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(args.fPipeline->getRenderTarget(), barrierType);
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
+            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
         }
-        this->onDrawPath(args, path);
+        this->onDrawPath(pipeline, primProc, stencil, path);
     }
 
-    void drawPaths(const DrawPathArgs& args, const GrPathRange* pathRange, const void* indices,
-                   PathIndexType indexType, const float transformValues[],
-                   PathTransformType transformType, int count) {
+    void drawPaths(const GrPipeline& pipeline,
+                   const GrPrimitiveProcessor& primProc,
+                   const GrStencilSettings& stencil,
+                   const GrPathRange* pathRange,
+                   const void* indices,
+                   PathIndexType indexType,
+                   const float transformValues[],
+                   PathTransformType transformType,
+                   int count) {
         fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = args.fPipeline->xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(args.fPipeline->getRenderTarget(), barrierType);
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
+            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
         }
 #ifdef SK_DEBUG
         pathRange->assertPathsLoaded(indices, indexType, count);
 #endif
-        this->onDrawPaths(args, pathRange, indices, indexType, transformValues, transformType,
-                          count);
+        this->onDrawPaths(pipeline, primProc, stencil, pathRange, indices, indexType,
+                          transformValues, transformType, count);
     }
 
 protected:
@@ -191,9 +188,19 @@ protected:
         : fGpu(gpu) {
     }
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPath(const DrawPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPaths(const DrawPathArgs&, const GrPathRange*, const void*, PathIndexType,
-                             const float[], PathTransformType, int) = 0;
+    virtual void onDrawPath(const GrPipeline&,
+                            const GrPrimitiveProcessor&,
+                            const GrStencilSettings&,
+                            const GrPath*) = 0;
+    virtual void onDrawPaths(const GrPipeline&,
+                             const GrPrimitiveProcessor&,
+                             const GrStencilSettings&,
+                             const GrPathRange*,
+                             const void* indices,
+                             PathIndexType,
+                             const float transformValues[],
+                             PathTransformType,
+                             int count) = 0;
 
     GrGpu* fGpu;
 private:

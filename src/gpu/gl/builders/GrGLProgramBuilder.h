@@ -17,6 +17,7 @@
 
 class GrFragmentProcessor;
 class GrGLContextInfo;
+class GrGLProgramDesc;
 class GrGLSLShaderBuilder;
 class GrGLSLCaps;
 
@@ -29,7 +30,10 @@ public:
      * to be used.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const DrawArgs&, GrGLGpu*);
+    static GrGLProgram* CreateProgram(const GrPipeline&,
+                                      const GrPrimitiveProcessor&,
+                                      const GrGLProgramDesc&,
+                                      GrGLGpu*);
 
     const GrCaps* caps() const override;
     const GrGLSLCaps* glslCaps() const override;
@@ -37,7 +41,8 @@ public:
     GrGLGpu* gpu() const { return fGpu; }
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, const DrawArgs&);
+    GrGLProgramBuilder(GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
+                       const GrGLProgramDesc&);
 
     bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,

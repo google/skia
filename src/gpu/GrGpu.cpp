@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrIndexBuffer.h"
+#include "GrMesh.h"
 #include "GrPathRendering.h"
 #include "GrPipeline.h"
 #include "GrResourceCache.h"
@@ -21,10 +22,9 @@
 #include "GrSurfacePriv.h"
 #include "GrTransferBuffer.h"
 #include "GrVertexBuffer.h"
-#include "GrVertices.h"
 #include "SkTypes.h"
 
-GrVertices& GrVertices::operator =(const GrVertices& di) {
+GrMesh& GrMesh::operator =(const GrMesh& di) {
     fPrimitiveType  = di.fPrimitiveType;
     fStartVertex    = di.fStartVertex;
     fStartIndex     = di.fStartIndex;
@@ -492,17 +492,12 @@ const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
+void GrGpu::draw(const GrPipeline& pipeline,
+                 const GrPrimitiveProcessor& primProc,
+                 const GrMesh* meshes,
+                 int meshCount) {
     this->handleDirtyContext();
-    if (GrXferBarrierType barrierType = args.fPipeline->xferBarrierType(*this->caps())) {
-        this->xferBarrier(args.fPipeline->getRenderTarget(), barrierType);
-    }
 
-    GrVertices::Iterator iter;
-    const GrNonInstancedVertices* verts = iter.init(vertices);
-    do {
-        this->onDraw(args, *verts);
-        fStats.incNumDraws();
-    } while ((verts = iter.next()));
+    this->onDraw(pipeline, primProc, meshes, meshCount);
 }
 

@@ -9,9 +9,9 @@
 #define GrVertexBatch_DEFINED
 
 #include "GrDrawBatch.h"
+#include "GrMesh.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrPendingProgramElement.h"
-#include "GrVertices.h"
 
 #include "SkTLList.h"
 
@@ -41,7 +41,7 @@ protected:
         /** Call after init() to issue draws to the batch target.*/
         void recordDraw(Target* target);
     private:
-        GrVertices  fVertices;
+        GrMesh  fMesh;
     };
 
     static const int kVerticesPerQuad = 4;
@@ -71,7 +71,7 @@ private:
     // primitive processor. All the draws in a DrawArray share a primitive processor and use the
     // the batch's GrPipeline.
     struct DrawArray {
-        SkSTArray<1, GrVertices, true>                      fDraws;
+        SkSTArray<1, GrMesh, true>                          fDraws;
         GrPendingProgramElement<const GrPrimitiveProcessor> fPrimitiveProcessor;
     };
 

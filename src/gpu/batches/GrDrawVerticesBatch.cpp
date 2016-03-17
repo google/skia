@@ -97,7 +97,7 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
     SkAutoTUnref<const GrGeometryProcessor> gp(
         set_vertex_attributes(hasLocalCoords, &colorOffset, &texOffset, fViewMatrix,
                               fCoverageIgnored));
-    target->initDraw(gp, this->pipeline());
+    target->initDraw(gp);
 
     size_t vertexStride = gp->getVertexStride();
 
@@ -156,15 +156,15 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
         }
     }
 
-    GrVertices vertices;
+    GrMesh mesh;
     if (indices) {
-        vertices.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
-                             firstIndex, fVertexCount, fIndexCount);
+        mesh.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
+                         firstIndex, fVertexCount, fIndexCount);
 
     } else {
-        vertices.init(this->primitiveType(), vertexBuffer, firstVertex, fVertexCount);
+        mesh.init(this->primitiveType(), vertexBuffer, firstVertex, fVertexCount);
     }
-    target->draw(vertices);
+    target->draw(mesh);
 }
 
 bool GrDrawVerticesBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {

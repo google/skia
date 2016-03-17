@@ -20,6 +20,7 @@
 class GrVkGpu;
 class GrVkRenderPass;
 class GrVkProgram;
+class GrVkProgramDesc;
 
 class GrVkProgramBuilder : public GrGLSLProgramBuilder {
 public:
@@ -31,8 +32,10 @@ public:
     * @return true if generation was successful.
     */
     static GrVkProgram* CreateProgram(GrVkGpu*,
-                                      const DrawArgs&,
+                                      const GrPipeline&,
+                                      const GrPrimitiveProcessor&,
                                       GrPrimitiveType,
+                                      const GrVkProgramDesc&,
                                       const GrVkRenderPass& renderPass);
 
     const GrCaps* caps() const override;
@@ -43,11 +46,12 @@ public:
     void finalizeFragmentOutputColor(GrGLSLShaderVar& outputColor) override;
 
 private:
-    GrVkProgramBuilder(GrVkGpu*, const DrawArgs&);
+    GrVkProgramBuilder(GrVkGpu*,
+                       const GrPipeline&,
+                       const GrPrimitiveProcessor&,
+                       const GrVkProgramDesc&);
 
-    GrVkProgram* finalize(const DrawArgs& args,
-                          GrPrimitiveType primitiveType,
-                          const GrVkRenderPass& renderPass);
+    GrVkProgram* finalize(GrPrimitiveType primitiveType, const GrVkRenderPass& renderPass);
 
     static bool CreateVkShaderModule(const GrVkGpu* gpu,
                                      VkShaderStageFlagBits stage,
@@ -62,8 +66,6 @@ private:
     GrVkGpu* fGpu;
     GrVkVaryingHandler        fVaryingHandler;
     GrVkUniformHandler        fUniformHandler;
-
-    SkTArray<UniformHandle>   fSamplerUniforms;
 
     typedef GrGLSLProgramBuilder INHERITED;
 };

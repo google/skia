@@ -10,11 +10,11 @@
 #include "GrContextOptions.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuResourceCacheAccess.h"
+#include "GrMesh.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
-#include "GrVertices.h"
 
 #include "GrVkCommandBuffer.h"
 #include "GrVkImage.h"
@@ -650,9 +650,9 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpu::bindGeometry(const GrPrimitiveProcessor& primProc,
-                           const GrNonInstancedVertices& vertices) {
+                           const GrNonInstancedMesh& mesh) {
     GrVkVertexBuffer* vbuf;
-    vbuf = (GrVkVertexBuffer*)vertices.vertexBuffer();
+    vbuf = (GrVkVertexBuffer*)mesh.vertexBuffer();
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
 
@@ -665,8 +665,8 @@ void GrVkGpu::bindGeometry(const GrPrimitiveProcessor& primProc,
 
     fCurrentCmdBuffer->bindVertexBuffer(this, vbuf);
 
-    if (vertices.isIndexed()) {
-        GrVkIndexBuffer* ibuf = (GrVkIndexBuffer*)vertices.indexBuffer();
+    if (mesh.isIndexed()) {
+        GrVkIndexBuffer* ibuf = (GrVkIndexBuffer*)mesh.indexBuffer();
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
 
@@ -678,14 +678,6 @@ void GrVkGpu::bindGeometry(const GrPrimitiveProcessor& primProc,
                                false);
 
         fCurrentCmdBuffer->bindIndexBuffer(this, ibuf);
-    }
-}
-
-void GrVkGpu::buildProgramDesc(GrProgramDesc* desc,
-                               const GrPrimitiveProcessor& primProc,
-                               const GrPipeline& pipeline) const {
-    if (!GrVkProgramDescBuilder::Build(desc, primProc, pipeline, *this->vkCaps().glslCaps())) {
-        SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
 }
 
@@ -1323,27 +1315,51 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
-void GrVkGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertices) {
-    GrRenderTarget* rt = args.fPipeline->getRenderTarget();
+bool GrVkGpu::prepareDrawState(const GrPipeline& pipeline,
+                               const GrPrimitiveProcessor& primProc,
+                               GrPrimitiveType primitiveType,
+                               const GrVkRenderPass& renderPass,
+                               GrVkProgram** program) {
+    // Get GrVkProgramDesc
+    GrVkProgramDesc desc;
+    if (!GrVkProgramDescBuilder::Build(&desc, primProc, pipeline, *this->vkCaps().glslCaps())) {
+        GrCapsDebugf(this->caps(), "Failed to vk program descriptor!\n");
+        return false;
+    }
+
+    *program = GrVkProgramBuilder::CreateProgram(this,
+                                                 pipeline,
+                                                 primProc,
+                                                 primitiveType,
+                                                 desc,
+                                                 renderPass);
+    if (!program) {
+        return false;
+    }
+
+    (*program)->setData(this, primProc, pipeline);
+
+    (*program)->bind(this, fCurrentCmdBuffer);
+    return true;
+}
+
+void GrVkGpu::onDraw(const GrPipeline& pipeline,
+                     const GrPrimitiveProcessor& primProc,
+                     const GrMesh* meshes,
+                     int meshCount) {
+    if (!meshCount) {
+        return;
+    }
+    GrRenderTarget* rt = pipeline.getRenderTarget();
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
     const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
     SkASSERT(renderPass);
 
-    GrVkProgram* program = GrVkProgramBuilder::CreateProgram(this, args,
-                                                             vertices.primitiveType(),
-                                                             *renderPass);
-
-    if (!program) {
+    GrVkProgram* program = nullptr;
+    GrPrimitiveType primitiveType = meshes[0].primitiveType();
+    if (!this->prepareDrawState(pipeline, primProc, primitiveType, *renderPass, &program)) {
         return;
     }
-
-    program->setData(this, *args.fPrimitiveProcessor, *args.fPipeline);
-
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
-
-    program->bind(this, fCurrentCmdBuffer);
-
-    this->bindGeometry(*args.fPrimitiveProcessor, vertices);
 
     // Change layout of our render target so it can be used as the color attachment
     VkImageLayout layout = vkRT->currentLayout();
@@ -1362,13 +1378,13 @@ void GrVkGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
                          false);
 
     // If we are using a stencil attachment we also need to update its layout
-    if (!args.fPipeline->getStencil().isDisabled()) {
+    if (!pipeline.getStencil().isDisabled()) {
         GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment();
         GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
         VkImageLayout origDstLayout = vkStencil->currentLayout();
         VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
         VkAccessFlags dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
         VkPipelineStageFlags srcStageMask =
             GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
         VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
@@ -1381,15 +1397,53 @@ void GrVkGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
                                   false);
     }
 
-    if (vertices.isIndexed()) {
-        fCurrentCmdBuffer->drawIndexed(this,
-                                       vertices.indexCount(),
-                                       1,
-                                       vertices.startIndex(),
-                                       vertices.startVertex(),
-                                       0);
-    } else {
-        fCurrentCmdBuffer->draw(this, vertices.vertexCount(), 1, vertices.startVertex(),  0);
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
+
+    for (int i = 0; i < meshCount; ++i) {
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
+            this->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        }
+
+        const GrMesh& mesh = meshes[i];
+        GrMesh::Iterator iter;
+        const GrNonInstancedMesh* nonIdxMesh = iter.init(mesh);
+        do {
+            if (nonIdxMesh->primitiveType() != primitiveType) {
+                // Technically we don't have to call this here (since there is a safety check in
+                // program:setData but this will allow for quicker freeing of resources if the
+                // program sits in a cache for a while.
+                program->freeTempResources(this);
+                // This free will go away once we setup a program cache, and then the cache will be
+                // responsible for call freeGpuResources.
+                program->freeGPUResources(this);
+                program->unref();
+                SkDEBUGCODE(program = nullptr);
+                primitiveType = nonIdxMesh->primitiveType();
+                if (!this->prepareDrawState(pipeline, primProc, primitiveType, *renderPass,
+                                            &program)) {
+                    return;
+                }
+            }
+            SkASSERT(program);
+            this->bindGeometry(primProc, *nonIdxMesh);
+
+            if (nonIdxMesh->isIndexed()) {
+                fCurrentCmdBuffer->drawIndexed(this,
+                                               nonIdxMesh->indexCount(),
+                                               1,
+                                               nonIdxMesh->startIndex(),
+                                               nonIdxMesh->startVertex(),
+                                               0);
+            } else {
+                fCurrentCmdBuffer->draw(this,
+                                        nonIdxMesh->vertexCount(),
+                                        1,
+                                        nonIdxMesh->startVertex(),
+                                        0);
+            }
+
+            fStats.incNumDraws();
+        } while ((nonIdxMesh = iter.next()));
     }
 
     fCurrentCmdBuffer->endRenderPass(this);

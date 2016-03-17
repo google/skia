@@ -10,8 +10,8 @@
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrMesh.h"
 #include "GrPathUtils.h"
-#include "GrVertices.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTessellator.h"
@@ -228,14 +228,15 @@ private:
 
     void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrVertexBuffer* vb,
                       int firstVertex, int count) const {
-        target->initDraw(gp, this->pipeline());
         SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType
                                                               : kTriangles_GrPrimitiveType;
-        GrVertices vertices;
-        vertices.init(primitiveType, vb, firstVertex, count);
-        target->draw(vertices);
+        target->initDraw(gp);
+
+        GrMesh mesh;
+        mesh.init(primitiveType, vb, firstVertex, count);
+        target->draw(mesh);
     }
 
     bool onCombineIfPossible(GrBatch*, const GrCaps&) override { return false; }

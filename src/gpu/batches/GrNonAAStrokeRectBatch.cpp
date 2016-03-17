@@ -117,7 +117,7 @@ private:
                                                      this->viewMatrix()));
         }
 
-        target->initDraw(gp, this->pipeline());
+        target->initDraw(gp);
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -144,7 +144,7 @@ private:
         SkPoint* vertex = reinterpret_cast<SkPoint*>(verts);
 
         GrPrimitiveType primType;
-        if (args.fStrokeWidth > 0) {;
+        if (args.fStrokeWidth > 0) {
             primType = kTriangleStrip_GrPrimitiveType;
             init_stroke_rect_strip(vertex, args.fRect, args.fStrokeWidth);
         } else {
@@ -157,9 +157,9 @@ private:
             vertex[4].set(args.fRect.fLeft, args.fRect.fTop);
         }
 
-        GrVertices vertices;
-        vertices.init(primType, vertexBuffer, firstVertex, vertexCount);
-        target->draw(vertices);
+        GrMesh mesh;
+        mesh.init(primType, vertexBuffer, firstVertex, vertexCount);
+        target->draw(mesh);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
