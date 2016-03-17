@@ -75,11 +75,13 @@ class DefaultFlavorUtils(object):
     """Runs a step as appropriate for this flavor."""
     path_to_app = os.path.join(self._bot_info.out_dir,
                                self._bot_info.configuration, cmd[0])
-    if (sys.platform == 'linux' and
+    if ('linux' in sys.platform and
         'x86_64' in self._bot_info.bot_name and
         not 'TSAN' in self._bot_info.bot_name):
       new_cmd = ['catchsegv', path_to_app]
     else:
+      if sys.platform == 'win32':
+        path_to_app += '.exe'
       new_cmd = [path_to_app]
     new_cmd.extend(cmd[1:])
     return self._bot_info.run(new_cmd, **kwargs)

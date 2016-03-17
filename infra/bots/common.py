@@ -7,6 +7,7 @@
 
 
 import contextlib
+import glob
 import math
 import os
 import psutil
@@ -33,8 +34,12 @@ CONFIG_RELEASE = 'Release'
 VALID_CONFIGS = (CONFIG_COVERAGE, CONFIG_DEBUG, CONFIG_RELEASE)
 
 BUILD_PRODUCTS_WHITELIST = [
-  'dm', 'dm.exe',
-  'nanobench', 'nanobench.exe',
+  'dm',
+  'dm.exe',
+  'nanobench',
+  'nanobench.exe',
+  '*.so',
+  '*.dll',
 ]
 
 GM_ACTUAL_FILENAME = 'actual-results.json'
@@ -256,11 +261,11 @@ class BotInfo(object):
       self.flavor.compile(t)
     dst = os.path.join(self.swarm_out_dir, 'out', self.configuration)
     os.makedirs(dst)
-    for f in BUILD_PRODUCTS_WHITELIST:
-      path = os.path.join(self.out_dir, self.configuration, f)
-      if os.path.exists(path):
-        print 'Copying build product %s' % path
-        shutil.copy(path, dst)
+    for pattern in BUILD_PRODUCTS_WHITELIST:
+      path = os.path.join(self.out_dir, self.configuration, pattern)
+      for f in glob.glob(path):
+          print 'Copying build product %s' % f
+          shutil.copy(f, dst)
     self.cleanup()
 
   def _run_once(self, fn, *args, **kwargs):

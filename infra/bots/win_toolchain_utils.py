@@ -10,6 +10,8 @@
 
 
 import json
+import os
+import stat
 
 
 PLACEHOLDER = '<(TOOLCHAIN_BASE_DIR)'
@@ -36,6 +38,9 @@ def _replace(val, before, after):
 
 def _replace_in_file(filename, before, after):
   """Replace occurrences of one string with another within the file."""
+  # Make the file writeable, or the below won't work.
+  os.chmod(filename, stat.S_IWRITE)
+
   with open(filename) as f:
     contents = json.load(f)
   new_contents = _replace(contents, before, after)
