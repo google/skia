@@ -60,7 +60,7 @@ function default_toolchain() {
         --platform=android-$API \
         --install_dir=$TOOLCHAIN
     cp $UNZIPPED/prebuilt/android-$ANDROID_ARCH/gdbserver/gdbserver $TOOLCHAIN
-    cp $UNZIPPED/prebuilt/${HOST}-x86_64/bin/gdb $TOOLCHAIN
+    cp -r $UNZIPPED/prebuilt/${HOST}-x86_64 $TOOLCHAIN/host_prebuilt
     rm $NDK.zip
     rm -rf $UNZIPPED
     popd

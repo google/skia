@@ -219,6 +219,11 @@ adb_push_if_needed() {
   local HOST_SRC="$1"
   local ANDROID_DST="$2"
 
+  # disable crashing on failed commands since newer (N+) versions of Android
+  # return an error when attempting to run ls on a directory or file that does
+  # not exist.
+  set +e
+
   ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST`
   HOST_LS=`ls -ld $HOST_SRC`
   if [ "${ANDROID_LS:0:1}" == "d" -a "${HOST_LS:0:1}" == "-" ];
@@ -226,12 +231,11 @@ adb_push_if_needed() {
     ANDROID_DST="${ANDROID_DST}/$(basename ${HOST_SRC})"
   fi
 
-
-  ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST`
+  ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST 2> /dev/null`
   if [ "${ANDROID_LS:0:1}" == "-" ]; then
     #get the MD5 for dst and src depending on OS and/or OS revision
-    ANDROID_MD5_SUPPORT=`$ADB $DEVICE_SERIAL shell ls -ld /system/bin/md5`
-    if [ "${ANDROID_MD5_SUPPORT:0:15}" != "/system/bin/md5" ]; then
+    ANDROID_MD5_SUPPORT=`$ADB $DEVICE_SERIAL shell ls -ld /system/bin/md5 2> /dev/null`
+    if [ "${ANDROID_MD5_SUPPORT:0:1}" == "-" ]; then
       ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_DST`
     else
       ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5sum $ANDROID_DST`
@@ -262,6 +266,9 @@ adb_push_if_needed() {
       $ADB $DEVICE_SERIAL push $HOST_SRC $ANDROID_DST
     fi
   fi
+
+  # turn error checking back on
+  set -e
 }
 
 setup_device "${DEVICE_ID}"

@@ -34,15 +34,11 @@ for library_file in \
     libm.so \
     liblog.so \
     libz.so \
-    libgccdemangle.so \
     libsigchain.so \
     libcutils.so \
     libunwind.so \
-    libunwind-ptrace.so \
     libbacktrace.so \
     libutils.so \
-    libstlport.so \
-    libGLES_trace.so \
     libEGL.so \
     libGLESv2.so \
     ; do
@@ -76,8 +72,10 @@ $ADB forward "tcp:5039" "tcp:5039"
 
 # Kill all previous instances of gdbserver and the app to rid all port overriding errors.
 echo "Killing any running Skia processes."
-$ADB shell ps | grep gdbserver | awk '{print $2}' | xargs $ADB shell kill
-$ADB shell ps | grep ${APP_NAME} | awk '{print $2}' | xargs $ADB shell kill
+set +e
+$ADB shell ps | grep gdbserver | awk '{print $2}' | xargs $ADB shell kill 2> /dev/null
+$ADB shell ps | grep ${APP_NAME} | awk '{print $2}' | xargs $ADB shell kill 2> /dev/null
+set -e
 
 # Starting up gdbserver in android shell
 echo "Starting gdbserver with command: ${APP_ARGS[@]}"
