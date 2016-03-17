@@ -28,7 +28,7 @@ struct GrGlyph {
         kCoverage_MaskStyle,
         kDistance_MaskStyle
     };
-    
+
     typedef uint32_t PackedID;
 
     GrBatchAtlas::AtlasID fID;
@@ -49,7 +49,7 @@ struct GrGlyph {
         fTooLargeForAtlas = GrBatchAtlas::GlyphTooLargeForAtlas(bounds.width(), bounds.height());
     }
 
-    void free() {
+    void reset() {
         if (fPath) {
             delete fPath;
             fPath = nullptr;
@@ -86,7 +86,7 @@ struct GrGlyph {
     static inline MaskStyle UnpackMaskStyle(PackedID packed) {
         return ((packed >> 20) & 1) ? kDistance_MaskStyle : kCoverage_MaskStyle;
     }
-    
+
     static inline uint16_t UnpackID(PackedID packed) {
         return (uint16_t)packed;
     }

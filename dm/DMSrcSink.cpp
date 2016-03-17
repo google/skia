@@ -1411,7 +1411,7 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         }
         mojoPicture = SkMojo::FlattenedPicture::New();
         mojoPicture->Deserialize(storage.get());
-        storage.free();
+        storage.reset();
         if (!mojoPicture) {
             return "SkMojo::FlattenedPicture::Deserialize failed";
         }

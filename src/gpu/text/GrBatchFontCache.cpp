@@ -165,7 +165,7 @@ GrBatchTextStrike::GrBatchTextStrike(GrBatchFontCache* cache, const GrFontDescKe
 GrBatchTextStrike::~GrBatchTextStrike() {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
     while (!iter.done()) {
-        (*iter).free();
+        (*iter).reset();
         ++iter;
     }
 }

@@ -732,9 +732,9 @@ SkPDFDevice::~SkPDFDevice() {
 }
 
 void SkPDFDevice::init() {
-    fContentEntries.free();
+    fContentEntries.reset();
     fLastContentEntry = nullptr;
-    fMarginContentEntries.free();
+    fMarginContentEntries.reset();
     fLastMarginContentEntry = nullptr;
     fDrawingArea = kContent_DrawingArea;
     if (fFontGlyphUsage.get() == nullptr) {

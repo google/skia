@@ -96,7 +96,6 @@ public:
     SkAutoTDelete(T* obj = NULL) : std::unique_ptr<T>(obj) {}
 
     operator T*() const { return this->get(); }
-    void free() { this->reset(nullptr); }
 
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     // Need to update graphics/BitmapRegionDecoder.cpp.
@@ -110,8 +109,6 @@ public:
 template <typename T> class SkAutoTDeleteArray : public std::unique_ptr<T[]> {
 public:
     SkAutoTDeleteArray(T array[]) : std::unique_ptr<T[]>(array) {}
-
-    void free() { this->reset(nullptr); }
 };
 
 /** Allocate an array of T elements, and free the array in the destructor
@@ -286,9 +283,9 @@ public:
     }
 
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
-    T* reset(size_t count) {
+    T* reset(size_t count = 0) {
         sk_free(fPtr);
-        fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW);
+        fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
         return fPtr;
     }
 
@@ -308,13 +305,6 @@ public:
 
     const T& operator[](int index) const {
         return fPtr[index];
-    }
-
-    /**
-     *  Releases the block back to the heap
-     */
-    void free() {
-        this->reset(0);
     }
 
     /**

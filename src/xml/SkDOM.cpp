@@ -374,7 +374,7 @@ SkXMLParser* SkDOM::beginParsing() {
 const SkDOM::Node* SkDOM::finishParsing() {
     SkASSERT(fParser);
     fRoot = fParser->getRoot();
-    fParser.free();
+    fParser.reset();
 
     return fRoot;
 }
