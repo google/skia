@@ -605,6 +605,12 @@ static void push_codec_srcs(Path path) {
         {
             push_image_gen_src(path, ImageGenSrc::kPlatform_Mode, alphaType, false);
         }
+#elif defined(SK_BUILD_FOR_WIN)
+        if (kWEBP_SkEncodedFormat != codec->getEncodedFormat() &&
+            kWBMP_SkEncodedFormat != codec->getEncodedFormat())
+        {
+            push_image_gen_src(path, ImageGenSrc::kPlatform_Mode, alphaType, false);
+        }
 #endif
     }
 }

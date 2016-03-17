@@ -178,6 +178,9 @@
             '../src/ports/SkTime_Unix.cpp',
             '../src/ports/SkTLS_pthread.cpp',
           ],
+          'sources': [
+            '../src/ports/SkImageGeneratorWIC.cpp',
+          ],
           'conditions': [
             #    when we build for win, we only want one of these default files
             [ 'skia_gdi', {
@@ -186,6 +189,11 @@
               'sources/': [['include', '../src/ports/SkFontMgr_win_dw_factory.cpp']],
             }],
           ],
+          'link_settings': {
+            'libraries': [
+              '-lwindowscodecs.lib',
+            ],
+          },
         }, { # else !win
           'sources!': [
             '../src/ports/SkDebug_win.cpp',

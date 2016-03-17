@@ -127,6 +127,20 @@ def get_args(bot):
     # It's probably using uninitialized memory
     blacklist.extend('_ image gen_platf frame_larger_than_image.gif'.split(' '))
 
+  # WIC fails on questionable bmps
+  if 'Win' in bot:
+    blacklist.extend('_ image gen_platf rle8-height-negative.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf rle4-height-negative.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf pal8os2v2.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf pal8os2v2-16.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf rgba32abf.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf rgb24prof.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf rgb24lprof.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf 8bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
+
   # skia:4095
   for test in ['not_native32_bitmap_config',
                'bleed_image',

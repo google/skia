@@ -15,6 +15,7 @@
 #include "SkError.h"
 #include "SkImageGenerator.h"
 #include "SkImageGeneratorCG.h"
+#include "SkImageGeneratorWIC.h"
 #include "SkMallocPixelRef.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
@@ -31,6 +32,10 @@
 #include "SkXMLWriter.h"
 #include "SkSwizzler.h"
 #include <functional>
+
+#if defined(SK_BUILD_FOR_WIN)
+    #include "SkAutoCoInitialize.h"
+#endif
 
 #ifdef SK_MOJO
     #include "SkMojo.mojom.h"
@@ -791,6 +796,14 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
+#if defined(SK_BUILD_FOR_WIN)
+    // Initialize COM in order to test with WIC.
+    SkAutoCoInitialize com;
+    if (!com.succeeded()) {
+        return "Could not initialize COM.";
+    }
+#endif
+
     SkAutoTDelete<SkImageGenerator> gen(nullptr);
     switch (fMode) {
         case kCodec_Mode:
@@ -799,14 +812,18 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
                 return "Could not create codec image generator.";
             }
             break;
+        case kPlatform_Mode: {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-        case kPlatform_Mode:
             gen.reset(SkImageGeneratorCG::NewFromEncodedCG(encoded));
+#elif defined(SK_BUILD_FOR_WIN)
+            gen.reset(SkImageGeneratorWIC::NewFromEncodedWIC(encoded));
+#endif
+
             if (!gen) {
-                return "Could not create CG image generator.";
+                return "Could not create platform image generator.";
             }
             break;
-#endif
+        }
         default:
             SkASSERT(false);
             return "Invalid image generator mode";

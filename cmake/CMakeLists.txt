@@ -109,6 +109,10 @@ if (NOT APPLE)
     remove_srcs(../src/ports/SkImageGeneratorCG.cpp)
 endif()
 
+if (NOT WIN32)
+    remove_srcs(../src/ports/SkImageGeneratorWIC.cpp)
+endif()
+
 if (WIN32)
     if(SKIA_GDI)
         remove_srcs(../src/ports/SkFontMgr_win_dw_factory.cpp)
