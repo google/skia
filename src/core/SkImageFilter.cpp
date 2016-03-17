@@ -596,7 +596,18 @@ SkSpecialImage* SkImageFilter::filterInput(int index,
         return SkRef(src);
     }
 
-    return input->filterImage(src, this->mapContext(ctx), offset);
+    SkAutoTUnref<SkSpecialImage> result(input->filterImage(src, this->mapContext(ctx), offset));
+
+#if SK_SUPPORT_GPU
+    if (src->peekTexture() && !result->peekTexture()) {
+        // Keep the result on the GPU - this is still required for some
+        // image filters that don't support GPU in all cases
+        GrContext* context = src->peekTexture()->getContext();
+        return result->makeTextureImage(src->internal_getProxy(), context).release();
+    }
+#endif
+
+    return result.release();
 }
 
 #if SK_SUPPORT_GPU
