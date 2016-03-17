@@ -534,8 +534,10 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(10);
     p.setStrokeCap(SkPaint::kRound_Cap);
+    p.setStrokeJoin(SkPaint::kRound_Join);
     p.setTextSize(100);
     p.setARGB(0xff, 0xbb, 0x00, 0x00);
+    sk_tool_utils::set_portable_typeface(&p);
     const SkScalar intervals[] = { 12, 12 };
     p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 0))->unref();
     canvas->drawText("Sausages", 8, 10, 90, p);
