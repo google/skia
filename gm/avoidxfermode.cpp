@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "Resources.h"
 
+#include "SkImageDecoder.h"
 #include "SkAvoidXfermode.h"
 #include "SkStream.h"
 
@@ -23,7 +24,17 @@ protected:
     SkISize onISize() override { return SkISize::Make(128, 128); }
 
     void onOnceBeforeDraw() override {
-        if (!GetResourceAsBitmap("color_wheel.png", &fBM)) {
+        SkImageDecoder* codec = nullptr;
+        SkString resourcePath = GetResourcePath("color_wheel.png");
+        SkFILEStream stream(resourcePath.c_str());
+        if (stream.isValid()) {
+            codec = SkImageDecoder::Factory(&stream);
+        }
+        if (codec) {
+            stream.rewind();
+            codec->decode(&stream, &fBM, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
+            delete codec;
+        } else {
             fBM.allocN32Pixels(1, 1);
             fBM.eraseARGB(255, 255, 0 , 0); // red == bad
         }

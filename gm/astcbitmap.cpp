@@ -10,8 +10,8 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkImage.h"
 #include "SkImageGenerator.h"
+#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkTextureCompressor.h"
 

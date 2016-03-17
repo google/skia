@@ -9,6 +9,7 @@
 
 #include "Resources.h"
 #include "SkBitmap.h"
+#include "SkImageDecoder.h"
 #include "SkPaint.h"
 #include "SkShader.h"
 #include "SkStream.h"
