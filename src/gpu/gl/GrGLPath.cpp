@@ -184,8 +184,9 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
     SkASSERT(verbCnt == pathCommands.count());
     SkASSERT(numCoords == pathCoords.count());
 
-    GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, pathCommands.count(), &pathCommands[0],
-                                                pathCoords.count(), GR_GL_FLOAT, &pathCoords[0]));
+    GR_GL_CALL(gpu->glInterface(),
+               PathCommands(pathID, pathCommands.count(), pathCommands.begin(),
+                            pathCoords.count(), GR_GL_FLOAT, pathCoords.begin()));
     return true;
 }
 
