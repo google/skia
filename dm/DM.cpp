@@ -185,6 +185,7 @@ static std::atomic<bool> in_signal_handler{false};
             }
             info("\n");
             print_status();
+            fflush(stdout);
         }
         // Execute default exception handler... hopefully, exit.
         return EXCEPTION_EXECUTE_HANDLER;
@@ -214,6 +215,7 @@ static std::atomic<bool> in_signal_handler{false};
                     for (int i = 0; i < count; i++) {
                         info("    %s\n", symbols[i]);
                     }
+                    fflush(stdout);
                 }
                 _Exit(sig);
             });
