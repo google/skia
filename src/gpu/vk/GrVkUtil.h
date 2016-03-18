@@ -14,6 +14,9 @@
 
 #include "vulkan/vulkan.h"
 
+// the minimum version of Vulkan supported
+const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 3);
+
 // makes a Vk call on the interface
 #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X;
 // same as GR_VK_CALL but checks for success

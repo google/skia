@@ -10,6 +10,8 @@
 
 #include "SkRefCnt.h"
 
+#include "GrVkExtensions.h"
+
 #include "vulkan/vulkan.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +55,21 @@ public:
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
     bool validate() const;
+
+    GrVkExtensions fExtensions;
+
+    bool hasInstanceExtension(const char ext[]) const {
+        return fExtensions.hasInstanceExtension(ext);
+    }
+    bool hasDeviceExtension(const char ext[]) const {
+        return fExtensions.hasDeviceExtension(ext);
+    }
+    bool hasInstanceLayer(const char ext[]) const {
+        return fExtensions.hasInstanceLayer(ext);
+    }
+    bool hasDeviceLayer(const char ext[]) const {
+        return fExtensions.hasDeviceLayer(ext);
+    }
 
     /**
      * The function pointers are in a struct so that we can have a compiler generated assignment
@@ -212,7 +229,11 @@ public:
         VkPtr<PFN_vkGetDisplayPlaneCapabilitiesKHR> fGetDisplayPlaneCapabilitiesKHR;
         VkPtr<PFN_vkCreateDisplayPlaneSurfaceKHR> fCreateDisplayPlaneSurfaceKHR;
         VkPtr<PFN_vkCreateSharedSwapchainsKHR> fCreateSharedSwapchainsKHR;
+        VkPtr<PFN_vkCreateDebugReportCallbackEXT> fCreateDebugReportCallbackEXT;
+        VkPtr<PFN_vkDebugReportMessageEXT> fDebugReportMessageEXT;
+        VkPtr<PFN_vkDestroyDebugReportCallbackEXT> fDestroyDebugReportCallbackEXT;
     } fFunctions;
+
 };
 
 #endif

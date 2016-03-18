@@ -447,6 +447,8 @@
       '<(skia_src_path)/gpu/vk/GrVkCommandBuffer.h',
       '<(skia_src_path)/gpu/vk/GrVkDescriptorPool.cpp',
       '<(skia_src_path)/gpu/vk/GrVkDescriptorPool.h',
+      '<(skia_src_path)/gpu/vk/GrVkExtensions.cpp',
+      '<(skia_src_path)/gpu/vk/GrVkExtensions.h',
       '<(skia_src_path)/gpu/vk/GrVkFramebuffer.cpp',
       '<(skia_src_path)/gpu/vk/GrVkFramebuffer.h',
       '<(skia_src_path)/gpu/vk/GrVkGpu.cpp',

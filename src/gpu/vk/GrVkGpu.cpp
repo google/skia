@@ -43,6 +43,124 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Stuff used to set up a GrVkGpu secrectly for now.
 
+
+#ifdef ENABLE_VK_LAYERS
+VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
+    VkDebugReportFlagsEXT       flags,
+    VkDebugReportObjectTypeEXT  objectType,
+    uint64_t                    object,
+    size_t                      location,
+    int32_t                     messageCode,
+    const char*                 pLayerPrefix,
+    const char*                 pMessage,
+    void*                       pUserData) {
+    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
+        SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
+        SkDebugf("Vulkan perf warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    } else {
+        SkDebugf("Vulkan info/debug [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    }
+    return VK_FALSE;
+}
+
+const char* kEnabledLayerNames[] = {
+    // elements of VK_LAYER_LUNARG_standard_validation
+    "VK_LAYER_LUNARG_threading",
+    "VK_LAYER_LUNARG_param_checker",
+    "VK_LAYER_LUNARG_device_limits",
+    "VK_LAYER_LUNARG_object_tracker",
+    "VK_LAYER_LUNARG_image",
+    "VK_LAYER_LUNARG_mem_tracker",
+    "VK_LAYER_LUNARG_draw_state",
+    "VK_LAYER_LUNARG_swapchain",
+    "VK_LAYER_GOOGLE_unique_objects",
+    // not included in standard_validation
+    //"VK_LAYER_LUNARG_api_dump",
+};
+const char* kEnabledInstanceExtensionNames[] = {
+    VK_EXT_DEBUG_REPORT_EXTENSION_NAME
+};
+
+bool verify_instance_layers() {
+    // make sure we can actually use the extensions and layers above
+    uint32_t extensionCount;
+    VkResult res = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+    res = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    int instanceExtensionsFound = 0;
+    for (uint32_t j = 0; j < ARRAYSIZE(kEnabledInstanceExtensionNames); ++j) {
+        for (uint32_t i = 0; i < extensionCount; ++i) {
+            if (!strncmp(extensions[i].extensionName, kEnabledInstanceExtensionNames[j],
+                         strlen(kEnabledInstanceExtensionNames[j]))) {
+                ++instanceExtensionsFound;
+                break;
+            }
+        }
+    }
+    delete[] extensions;
+
+    uint32_t layerCount;
+    res = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkLayerProperties* layers = new VkLayerProperties[layerCount];
+    res = vkEnumerateInstanceLayerProperties(&layerCount, layers);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    int instanceLayersFound = 0;
+    for (uint32_t j = 0; j < ARRAYSIZE(kEnabledLayerNames); ++j) {
+        for (uint32_t i = 0; i < layerCount; ++i) {
+            if (!strncmp(layers[i].layerName, kEnabledLayerNames[j],
+                         strlen(kEnabledLayerNames[j]))) {
+                ++instanceLayersFound;
+                break;
+            }
+        }
+    }
+    delete[] layers;
+
+    return instanceExtensionsFound == ARRAYSIZE(kEnabledInstanceExtensionNames) &&
+           instanceLayersFound == ARRAYSIZE(kEnabledLayerNames);
+}
+
+bool verify_device_layers(VkPhysicalDevice physDev) {
+    uint32_t layerCount;
+    VkResult res = vkEnumerateDeviceLayerProperties(physDev, &layerCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkLayerProperties* layers = new VkLayerProperties[layerCount];
+    res = vkEnumerateDeviceLayerProperties(physDev, &layerCount, layers);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    int deviceLayersFound = 0;
+    for (uint32_t j = 0; j < ARRAYSIZE(kEnabledLayerNames); ++j) {
+        for (uint32_t i = 0; i < layerCount; ++i) {
+            if (!strncmp(layers[i].layerName, kEnabledLayerNames[j],
+                         strlen(kEnabledLayerNames[j]))) {
+                ++deviceLayersFound;
+                break;
+            }
+        }
+    }
+    delete[] layers;
+
+    return deviceLayersFound == ARRAYSIZE(kEnabledLayerNames);
+}
+#endif
+
 // For now the VkGpuCreate is using the same signature as GL. This is mostly for ease of
 // hiding this code from offical skia. In the end the VkGpuCreate will not take a GrBackendContext
 // and mostly likely would take an optional device and queues to use.
@@ -62,18 +180,33 @@ GrGpu* vk_gpu_create(GrBackendContext backendContext, const GrContextOptions& op
         0,                                  // applicationVersion
         "vktest",                           // pEngineName
         0,                                  // engineVerison
-        VK_API_VERSION,                     // apiVersion
+        kGrVkMinimumVersion,                // apiVersion
     };
+
+    const char** enabledLayerNames = nullptr;
+    int enabledLayerCount = 0;
+    const char** enabledInstanceExtensionNames = nullptr;
+    int enabledInstanceExtensionCount = 0;
+#ifdef ENABLE_VK_LAYERS
+    if (verify_instance_layers()) {
+        enabledLayerNames = kEnabledLayerNames;
+        enabledLayerCount = ARRAYSIZE(kEnabledLayerNames);
+        enabledInstanceExtensionNames = kEnabledInstanceExtensionNames;
+        enabledInstanceExtensionCount = ARRAYSIZE(kEnabledInstanceExtensionNames);
+    }
+#endif
+
     const VkInstanceCreateInfo instance_create = {
         VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, // sType
         nullptr,                                // pNext
         0,                                      // flags
         &app_info,                              // pApplicationInfo
-        0,                                      // enabledLayerNameCount
-        nullptr,                                // ppEnabledLayerNames
-        0,                                      // enabledExtensionNameCount
-        nullptr,                                // ppEnabledExtensionNames
+        enabledLayerCount,                      // enabledLayerNameCount
+        enabledLayerNames,                      // ppEnabledLayerNames
+        enabledInstanceExtensionCount,          // enabledExtensionNameCount
+        enabledInstanceExtensionNames,          // ppEnabledExtensionNames
     };
+
     err = vkCreateInstance(&instance_create, nullptr, &inst);
     if (err < 0) {
         SkDebugf("vkCreateInstanced failed: %d\n", err);
@@ -116,6 +249,14 @@ GrGpu* vk_gpu_create(GrBackendContext backendContext, const GrContextOptions& op
     }
     SkASSERT(graphicsQueueIndex < queueCount);
 
+#ifdef ENABLE_VK_LAYERS
+    // unlikely that the device will have different layers than the instance, but good to check
+    if (!verify_device_layers(physDev)) {
+        enabledLayerNames = nullptr;
+        enabledLayerCount = 0;
+    }
+#endif
+
     float queuePriorities[1] = { 0.0 };
     const VkDeviceQueueCreateInfo queueInfo = {
         VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
@@ -131,8 +272,8 @@ GrGpu* vk_gpu_create(GrBackendContext backendContext, const GrContextOptions& op
         0,                                     // VkDeviceCreateFlags
         1,                                     // queueCreateInfoCount
         &queueInfo,                            // pQueueCreateInfos
-        0,                                     // layerCount
-        nullptr,                               // ppEnabledLayerNames
+        enabledLayerCount,                     // layerCount
+        enabledLayerNames,                     // ppEnabledLayerNames
         0,                                     // extensionCount
         nullptr,                               // ppEnabledExtensionNames
         nullptr                                // ppEnabledFeatures
@@ -188,6 +329,25 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fCurrentCmdBuffer->begin(this);
     VK_CALL(GetPhysicalDeviceMemoryProperties(physDev, &fPhysDevMemProps));
 
+#ifdef ENABLE_VK_LAYERS
+    if (fInterface->hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
+        /* Setup callback creation information */
+        VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
+        callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+        callbackCreateInfo.pNext = nullptr;
+        callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT |
+                                   VK_DEBUG_REPORT_WARNING_BIT_EXT |
+                                   //VK_DEBUG_REPORT_INFORMATION_BIT_EXT |
+                                   //VK_DEBUG_REPORT_DEBUG_BIT_EXT |
+                                   VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+        callbackCreateInfo.pfnCallback = &DebugReportCallback;
+        callbackCreateInfo.pUserData = nullptr;
+
+        /* Register the callback */
+        GR_VK_CALL_ERRCHECK(fInterface, CreateDebugReportCallbackEXT(inst, &callbackCreateInfo,
+                                                                     nullptr, &fCallback));
+    }
+#endif
 }
 
 GrVkGpu::~GrVkGpu() {
@@ -201,6 +361,10 @@ GrVkGpu::~GrVkGpu() {
 
     // must call this just before we destroy the VkDevice
     fResourceProvider.destroyResources();
+
+#ifdef SK_DEBUG
+    VK_CALL(DestroyDebugReportCallbackEXT(fVkInstance, fCallback, nullptr));
+#endif
 
     VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
     VK_CALL(DestroyDevice(fDevice, nullptr));

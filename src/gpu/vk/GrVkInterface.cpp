@@ -6,13 +6,29 @@
  */
 
 #include "vk/GrVkInterface.h"
+#include "vk/GrVkUtil.h"
 
 GrVkInterface::GrVkInterface() {
 }
 
 #define GET_PROC(F) functions->f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(instance, "vk" #F)
+#define GET_PROC_LOCAL(inst, F) PFN_vk ## F F = (PFN_vk ## F) vkGetInstanceProcAddr(inst, "vk" #F)
 
 const GrVkInterface* GrVkCreateInterface(VkInstance instance) {
+
+    GET_PROC_LOCAL(nullptr, EnumerateInstanceExtensionProperties);
+    GET_PROC_LOCAL(instance, EnumerateDeviceExtensionProperties);
+    GET_PROC_LOCAL(nullptr, EnumerateInstanceLayerProperties);
+    GET_PROC_LOCAL(instance, EnumerateDeviceLayerProperties);
+
+    GrVkExtensions extensions;
+    if (!extensions.init(kGrVkMinimumVersion,
+                         EnumerateInstanceExtensionProperties,
+                         EnumerateDeviceExtensionProperties,
+                         EnumerateInstanceLayerProperties,
+                         EnumerateDeviceLayerProperties)) {
+        return nullptr;
+    }
 
     GrVkInterface* interface = new GrVkInterface();
     GrVkInterface::Functions* functions = &interface->fFunctions;
@@ -152,6 +168,7 @@ const GrVkInterface* GrVkCreateInterface(VkInstance instance) {
     GET_PROC(CmdNextSubpass);
     GET_PROC(CmdEndRenderPass);
     GET_PROC(CmdExecuteCommands);
+    // TODO: break these out with extension checks
     GET_PROC(DestroySurfaceKHR);
     GET_PROC(GetPhysicalDeviceSurfaceSupportKHR);
     GET_PROC(GetPhysicalDeviceSurfaceCapabilitiesKHR);
@@ -170,6 +187,14 @@ const GrVkInterface* GrVkCreateInterface(VkInstance instance) {
     GET_PROC(GetDisplayPlaneCapabilitiesKHR);
     GET_PROC(CreateDisplayPlaneSurfaceKHR);
     GET_PROC(CreateSharedSwapchainsKHR);
+
+    if (extensions.hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
+        GET_PROC(CreateDebugReportCallbackEXT);
+        GET_PROC(DebugReportMessageEXT);
+        GET_PROC(DestroyDebugReportCallbackEXT);
+    }
+
+    interface->fExtensions.swap(&extensions);
 
     return interface;
 }
@@ -332,7 +357,10 @@ bool GrVkInterface::validate() const {
         NULL == fFunctions.fCreateDisplayModeKHR ||
         NULL == fFunctions.fGetDisplayPlaneCapabilitiesKHR ||
         NULL == fFunctions.fCreateDisplayPlaneSurfaceKHR ||
-        NULL == fFunctions.fCreateSharedSwapchainsKHR) {
+        NULL == fFunctions.fCreateSharedSwapchainsKHR ||
+        NULL == fFunctions.fCreateDebugReportCallbackEXT ||
+        NULL == fFunctions.fDebugReportMessageEXT ||
+        NULL == fFunctions.fDestroyDebugReportCallbackEXT) {
         return false;
     }
     return true;

@@ -30,6 +30,10 @@ class GrVkRenderPass;
 class GrVkTexture;
 struct GrVkInterface;
 
+#ifdef SK_DEBUG
+#define ENABLE_VK_LAYERS
+#endif
+
 class GrVkGpu : public GrGpu {
 public:
     // Currently passing in the inst so that we can properly delete it when we are done.
@@ -217,6 +221,11 @@ private:
     VkCommandPool                     fCmdPool;
     GrVkCommandBuffer*                fCurrentCmdBuffer;
     GrVkResourceProvider              fResourceProvider;
+
+#ifdef ENABLE_VK_LAYERS
+    // For reporting validation layer errors
+    VkDebugReportCallbackEXT          fCallback;
+#endif
 
     // Shaderc compiler used for compiling glsl in spirv. We only want to create the compiler once
     // since there is significant overhead to the first compile of any compiler.
