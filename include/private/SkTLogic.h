@@ -14,6 +14,8 @@
 #ifndef SkTLogic_DEFINED
 #define SkTLogic_DEFINED
 
+#include "SkTypes.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <type_traits>
@@ -40,7 +42,7 @@ template <typename T> using remove_extent_t = typename std::remove_extent<T>::ty
 // On all platforms, variadic functions only exist in the c calling convention.
 // mcvc 2013 introduced __vectorcall, but it wan't until 2015 that it was added to is_function.
 template <typename> struct is_function : std::false_type {};
-#if !defined(WIN32)
+#if !defined(SK_BUILD_FOR_WIN)
 template <typename R, typename... Args> struct is_function<R(Args...)> : std::true_type {};
 #else
 template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> : std::true_type {};
@@ -48,7 +50,7 @@ template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> 
 template <typename R, typename... Args> struct is_function<R __stdcall (Args...)> : std::true_type {};
 template <typename R, typename... Args> struct is_function<R __fastcall (Args...)> : std::true_type {};
 #endif
-#if defined(_MSC_VER) && (_M_IX86_FP >= 2 || defined(_M_AMD64) || defined(_M_X64))
+#if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 template <typename R, typename... Args> struct is_function<R __vectorcall (Args...)> : std::true_type {};
 #endif
 #endif
@@ -61,7 +63,6 @@ template <typename T> using add_pointer_t = typename std::add_pointer<T>::type;
 template <typename T> using add_lvalue_reference_t = typename std::add_lvalue_reference<T>::type;
 
 template <typename... T> using common_type_t = typename std::common_type<T...>::type;
-template <typename T> using underlying_type_t = typename std::underlying_type<T>::type;
 
 template <typename S, typename D,
           bool=std::is_void<S>::value || is_function<D>::value || std::is_array<D>::value>
