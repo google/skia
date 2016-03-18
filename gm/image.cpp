@@ -246,8 +246,8 @@ static sk_sp<SkImage> make_raster(const SkImageInfo& info, GrContext*, void (*dr
 static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
-    SkAutoTUnref<SkPicture> pict(recorder.endRecording());
-    return SkImage::MakeFromPicture(sk_ref_sp(pict.get()), info.dimensions(), nullptr, nullptr);
+    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                    info.dimensions(), nullptr, nullptr);
 }
 
 static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
@@ -343,8 +343,8 @@ static SkImageGenerator* gen_raster(const SkImageInfo& info) {
 static SkImageGenerator* gen_picture(const SkImageInfo& info) {
     SkPictureRecorder recorder;
     draw_opaque_contents(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
-    SkAutoTUnref<SkPicture> pict(recorder.endRecording());
-    return SkImageGenerator::NewFromPicture(info.dimensions(), pict, nullptr, nullptr);
+    sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
+    return SkImageGenerator::NewFromPicture(info.dimensions(), pict.get(), nullptr, nullptr);
 }
 
 static SkImageGenerator* gen_png(const SkImageInfo& info) {
@@ -476,9 +476,8 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
             SkPictureRecorder recorder;
             SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kSize), SkIntToScalar(kSize));
             render_image(canvas);
-            SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-            return SkImage::MakeFromPicture(sk_ref_sp(picture.get()), SkISize::Make(kSize, kSize),
-                                            nullptr, nullptr);
+            return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                           SkISize::Make(kSize, kSize), nullptr, nullptr);
         },
         // Create a texture image
         [context, render_image]() -> sk_sp<SkImage> {

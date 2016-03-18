@@ -9,7 +9,7 @@
 #include "SkPaint.h"
 #include "SkPictureRecorder.h"
 
-static SkPicture* make_picture() {
+static sk_sp<SkPicture> make_picture() {
     SkPictureRecorder rec;
     SkCanvas* canvas = rec.beginRecording(100, 100);
 
@@ -32,7 +32,7 @@ static SkPicture* make_picture() {
     paint.setXfermodeMode(SkXfermode::kPlus_Mode);
     canvas->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), paint);
 
-    return rec.endRecording();
+    return rec.finishRecordingAsPicture();
 }
 
 // Exercise the optional arguments to drawPicture
@@ -45,7 +45,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-         fPicture.reset(make_picture());
+         fPicture = make_picture();
     }
 
     SkString onShortName() override {
@@ -76,7 +76,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
 
     typedef skiagm::GM INHERITED;
 };

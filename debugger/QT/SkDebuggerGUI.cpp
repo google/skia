@@ -674,7 +674,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fLoading = true;
     SkAutoTDelete<SkStream> stream(new SkFILEStream(fileName.c_str()));
 
-    SkPicture* picture = SkPicture::CreateFromStream(stream);
+    auto picture = SkPicture::MakeFromStream(stream);
 
     if (nullptr == picture) {
         QMessageBox::critical(this, "Error loading file", "Couldn't read file, sorry.");
@@ -682,14 +682,14 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     }
 
     fCanvasWidget.resetWidgetTransform();
-    fDebugger.loadPicture(picture);
+    fDebugger.loadPicture(picture.get());
 
     fSkipCommands.setCount(fDebugger.getSize());
     for (int i = 0; i < fSkipCommands.count(); ++i) {
         fSkipCommands[i] = false;
     }
 
-    SkSafeUnref(picture);
+    picture.reset();
 
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
      * of the visibility filter.

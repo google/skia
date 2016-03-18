@@ -133,7 +133,7 @@ SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
         // Old code always serialized the picture.  New code writes a 'true' first if it did.
         if (buffer.isVersionLT(SkReadBuffer::kPictureShaderHasPictureBool_Version) ||
             buffer.readBool()) {
-            picture.reset(SkPicture::CreateFromBuffer(buffer));
+            picture = SkPicture::MakeFromBuffer(buffer);
         }
     }
     return SkPictureShader::Make(picture, mx, my, &lm, &tile).release();

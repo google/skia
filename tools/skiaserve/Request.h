@@ -68,7 +68,7 @@ private:
     SkIRect getBounds();
     GrContext* getContext();
     
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
     GrContextFactory* fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;
     bool fGPUEnabled;

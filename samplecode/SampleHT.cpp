@@ -127,7 +127,7 @@ public:
         HTDrawable* fDrawable;
     };
     Rec fArray[N];
-    SkAutoTUnref<SkDrawable> fRoot;
+    sk_sp<SkDrawable> fRoot;
     SkMSec fTime;
     
     HTView() {
@@ -140,7 +140,7 @@ public:
             canvas->drawDrawable(fArray[i].fDrawable);
             fArray[i].fDrawable->unref();
         }
-        fRoot.reset(recorder.endRecordingAsDrawable());
+        fRoot = recorder.finishRecordingAsDrawable();
     }
 
 protected:
@@ -153,7 +153,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawDrawable(fRoot);
+        canvas->drawDrawable(fRoot.get());
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

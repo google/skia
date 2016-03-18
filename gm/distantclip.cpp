@@ -43,13 +43,13 @@ protected:
         rec->clipPath(p, SkRegion::kIntersect_Op, true);
         rec->drawColor(SK_ColorGREEN);
         rec->restore();
-        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
+        sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
         // Next we play that picture into another picture of the same size.
         pict->playback(recorder.beginRecording(pict->cullRect().width(), 
                                                pict->cullRect().height(), 
                                                nullptr, 0));
-        SkAutoTUnref<SkPicture> pict2(recorder.endRecording());
+        sk_sp<SkPicture> pict2(recorder.finishRecordingAsPicture());
 
         // Finally we play the part of that second picture that should be green into the canvas.
         canvas->save();

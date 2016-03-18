@@ -95,14 +95,14 @@ protected:
         SkPictureRecorder recorder;
         SkCanvas* pictureCanvas = recorder.beginRecording(kPictureSize, kPictureSize);
         draw_scene(pictureCanvas, kPictureSize);
-        sk_sp<SkPicture> picture(recorder.endRecording());
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
         SkPoint offset = SkPoint::Make(100, 100);
         pictureCanvas = recorder.beginRecording(SkRect::MakeXYWH(offset.x(), offset.y(),
                                                                  kPictureSize, kPictureSize));
         pictureCanvas->translate(offset.x(), offset.y());
         draw_scene(pictureCanvas, kPictureSize);
-        sk_sp<SkPicture> offsetPicture(recorder.endRecording());
+        sk_sp<SkPicture> offsetPicture(recorder.finishRecordingAsPicture());
 
         for (unsigned i = 0; i < SK_ARRAY_COUNT(tiles); ++i) {
             SkRect tile = SkRect::MakeXYWH(tiles[i].x * kPictureSize,

@@ -35,7 +35,7 @@ public:
         SkPictureRecorder recorder;
         SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize, nullptr, 0);
         this->drawTile(pictureCanvas);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
 
         // Build a reference bitmap.
         fBitmap.allocN32Pixels(SkScalarCeilToInt(fTileSize), SkScalarCeilToInt(fTileSize));
@@ -193,7 +193,7 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     p.setStrokeWidth(10);
     c->drawLine(20, 20, 80, 80, p);
 
-    sk_sp<SkPicture> picture(recorder.endRecording());
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     sk_sp<SkShader> shader(SkShader::MakePictureShader(picture, SkShader::kRepeat_TileMode,
                                                        SkShader::kRepeat_TileMode,
                                                        nullptr, nullptr));

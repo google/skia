@@ -81,8 +81,8 @@ class ArcsView : public SampleView {
 
 public:
     SkRect fRect;
-    MyDrawable* fAnimatingDrawable;
-    SkDrawable* fRootDrawable;
+    sk_sp<MyDrawable> fAnimatingDrawable;
+    sk_sp<SkDrawable> fRootDrawable;
 
     ArcsView() {
         testparse();
@@ -91,16 +91,11 @@ public:
 
         fRect.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
         fRect.offset(SkIntToScalar(20), SkIntToScalar(20));
-        fAnimatingDrawable = new MyDrawable(fRect);
+        fAnimatingDrawable = sk_make_sp<MyDrawable>(fRect);
 
         SkPictureRecorder recorder;
         this->drawRoot(recorder.beginRecording(SkRect::MakeWH(800, 500)));
-        fRootDrawable = recorder.endRecordingAsDrawable();
-    }
-
-    ~ArcsView() override {
-        fAnimatingDrawable->unref();
-        fRootDrawable->unref();
+        fRootDrawable = recorder.finishRecordingAsDrawable();
     }
 
 protected:
@@ -186,13 +181,13 @@ protected:
 
         DrawRectWithLines(canvas, fRect, paint);
 
-        canvas->drawDrawable(fAnimatingDrawable);
+        canvas->drawDrawable(fAnimatingDrawable.get());
 
         DrawArcs(canvas);
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawDrawable(fRootDrawable);
+        canvas->drawDrawable(fRootDrawable.get());
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

@@ -33,7 +33,7 @@ protected:
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "e";
         canvas->drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
     }
 
     SkISize onISize() override { return SkISize::Make(600, 300); }
@@ -58,16 +58,16 @@ protected:
             SkRect emptyRect = SkRect::MakeXYWH(20, 20, 0, 0);
             SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
             SkAutoTUnref<SkImageFilter> pictureSource(
-                SkPictureImageFilter::Create(fPicture));
+                SkPictureImageFilter::Create(fPicture.get()));
             SkAutoTUnref<SkImageFilter> pictureSourceSrcRect(
-                SkPictureImageFilter::Create(fPicture, srcRect));
+                SkPictureImageFilter::Create(fPicture.get(), srcRect));
             SkAutoTUnref<SkImageFilter> pictureSourceEmptyRect(
-                SkPictureImageFilter::Create(fPicture, emptyRect));
+                SkPictureImageFilter::Create(fPicture.get(), emptyRect));
             SkAutoTUnref<SkImageFilter> pictureSourceResampled(
-                SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect(),
+                SkPictureImageFilter::CreateForLocalSpace(fPicture.get(), fPicture->cullRect(),
                     kLow_SkFilterQuality));
             SkAutoTUnref<SkImageFilter> pictureSourcePixelated(
-                SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect(),
+                SkPictureImageFilter::CreateForLocalSpace(fPicture.get(), fPicture->cullRect(),
                     kNone_SkFilterQuality));
 
             canvas->save();
@@ -102,7 +102,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
     typedef GM INHERITED;
 };
 

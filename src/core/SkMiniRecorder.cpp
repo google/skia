@@ -62,7 +62,7 @@ SkMiniRecorder::~SkMiniRecorder() {
     if (fState != State::kEmpty) {
         // We have internal state pending.
         // Detaching then deleting a picture is an easy way to clean up.
-        delete this->detachAsPicture(SkRect::MakeEmpty());
+        (void)this->detachAsPicture(SkRect::MakeEmpty());
     }
     SkASSERT(fState == State::kEmpty);
 }
@@ -101,14 +101,14 @@ bool SkMiniRecorder::drawTextBlob(const SkTextBlob* b, SkScalar x, SkScalar y, c
 #undef TRY_TO_STORE
 
 
-SkPicture* SkMiniRecorder::detachAsPicture(const SkRect& cull) {
+sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect& cull) {
 #define CASE(Type)              \
     case State::k##Type:        \
         fState = State::kEmpty; \
-        return new SkMiniPicture<Type>(cull, reinterpret_cast<Type*>(fBuffer.get()))
+        return sk_make_sp<SkMiniPicture<Type>>(cull, reinterpret_cast<Type*>(fBuffer.get()))
 
     switch (fState) {
-        case State::kEmpty: return SkRef(gEmptyPicture.get([]{ return new SkEmptyPicture; }));
+        case State::kEmpty: return sk_ref_sp(gEmptyPicture.get([]{ return new SkEmptyPicture; }));
         CASE(DrawBitmapRectFixedSize);
         CASE(DrawPath);
         CASE(DrawRect);

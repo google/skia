@@ -108,7 +108,7 @@ protected:
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(rect);
         draw_vector_logo(canvas, rect);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -171,7 +171,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
 
     const SkScalar kPictureWidth = 200;
     const SkScalar kPictureHeight = 100;

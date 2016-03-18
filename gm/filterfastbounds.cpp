@@ -246,17 +246,17 @@ protected:
 
         //-----------
         // Paints with a PictureImageFilter as a source
-        SkAutoTUnref<SkPicture> pic;
+        sk_sp<SkPicture> pic;
 
         {
             SkPictureRecorder rec;
 
             SkCanvas* c = rec.beginRecording(10, 10);
             c->drawRect(SkRect::MakeWH(10, 10), blackFill);
-            pic.reset(rec.endRecording());
+            pic = rec.finishRecordingAsPicture();
         }
 
-        SkAutoTUnref<SkImageFilter> pif(SkPictureImageFilter::Create(pic));
+        SkAutoTUnref<SkImageFilter> pif(SkPictureImageFilter::Create(pic.get()));
 
         SkTArray<SkPaint> pifPaints;
         create_paints(pif, &pifPaints);

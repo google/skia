@@ -129,14 +129,14 @@ bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo
     return false;
 }
 
-SkPicture* SkPicture::Forwardport(const SkPictInfo& info, const SkPictureData* data) {
+sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info, const SkPictureData* data) {
     if (!data) {
         return nullptr;
     }
     SkPicturePlayback playback(data);
     SkPictureRecorder r;
     playback.draw(r.beginRecording(info.fCullRect), nullptr/*no callback*/);
-    return r.endRecording();
+    return r.finishRecordingAsPicture();
 }
 
 static bool default_install(const void* src, size_t length, SkBitmap* dst) {
@@ -145,17 +145,16 @@ static bool default_install(const void* src, size_t length, SkBitmap* dst) {
             SkImageGenerator::NewFromEncoded(encoded.get()), dst);
 }
 
-SkPicture* SkPicture::CreateFromStream(SkStream* stream) {
-    return CreateFromStream(stream, &default_install, nullptr);
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
+    return MakeFromStream(stream, &default_install, nullptr);
 }
 
-SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc proc) {
-    return CreateFromStream(stream, proc, nullptr);
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, InstallPixelRefProc proc) {
+    return MakeFromStream(stream, proc, nullptr);
 }
 
-SkPicture* SkPicture::CreateFromStream(SkStream* stream,
-                                       InstallPixelRefProc proc,
-                                       SkTypefacePlayback* typefaces) {
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, InstallPixelRefProc proc,
+                                           SkTypefacePlayback* typefaces) {
     SkPictInfo info;
     if (!InternalOnly_StreamIsSKP(stream, &info) || !stream->readBool()) {
         return nullptr;
@@ -165,7 +164,7 @@ SkPicture* SkPicture::CreateFromStream(SkStream* stream,
     return Forwardport(info, data);
 }
 
-SkPicture* SkPicture::CreateFromBuffer(SkReadBuffer& buffer) {
+sk_sp<SkPicture> SkPicture::MakeFromBuffer(SkReadBuffer& buffer) {
     SkPictInfo info;
     if (!InternalOnly_BufferIsSKP(&buffer, &info) || !buffer.readBool()) {
         return nullptr;

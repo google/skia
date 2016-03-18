@@ -437,7 +437,7 @@ static void writePict(const SkBitmap& bitmap, const char* outDir, const char* pn
 }
 
 void TestResult::testOne() {
-    SkPicture* pic = nullptr;
+    sk_sp<SkPicture> pic;
     {
     #if DEBUG_SHOW_TEST_NAME
         if (fTestStep == kCompareBits) {
@@ -465,12 +465,12 @@ void TestResult::testOne() {
         SkFILEStream stream(path.c_str());
         if (!stream.isValid()) {
             SkDebugf("invalid stream %s\n", path.c_str());
-            goto finish;
+            return;
         }
-        pic = SkPicture::CreateFromStream(&stream);
+        pic = SkPicture::MakeFromStream(&stream);
         if (!pic) {
             SkDebugf("unable to decode %s\n", fFilename);
-            goto finish;
+            return;
         }
         SkScalar width = pic->cullRect().width();
         SkScalar height = pic->cullRect().height();
@@ -490,7 +490,7 @@ void TestResult::testOne() {
         if (fScale >= 256) {
             SkDebugf("unable to allocate bitmap for %s (w=%f h=%f)\n", fFilename,
                     width, height);
-            goto finish;
+            return;
         }
         oldBitmap.eraseColor(SK_ColorWHITE);
         SkCanvas oldCanvas(oldBitmap);
@@ -498,12 +498,12 @@ void TestResult::testOne() {
         opBitmap.eraseColor(SK_ColorWHITE);
         SkCanvas opCanvas(opBitmap);
         opCanvas.setAllowSimplifyClip(true);
-        drawPict(pic, &oldCanvas, fScale);
-        drawPict(pic, &opCanvas, fScale);
+        drawPict(pic.get(), &oldCanvas, fScale);
+        drawPict(pic.get(), &opCanvas, fScale);
         if (fTestStep == kCompareBits) {
             fPixelError = similarBits(oldBitmap, opBitmap);
-            int oldTime = timePict(pic, &oldCanvas);
-            int opTime = timePict(pic, &opCanvas);
+            int oldTime = timePict(pic.get(), &oldCanvas);
+            int opTime = timePict(pic.get(), &opCanvas);
             fTime = SkTMax(0, oldTime - opTime);
         } else if (fTestStep == kEncodeFiles) {
             SkString pngStr = make_png_name(fFilename);
@@ -511,10 +511,6 @@ void TestResult::testOne() {
             writePict(oldBitmap, outOldDir, pngName);
             writePict(opBitmap, outOpDir, pngName);
         }
-    }
-finish:
-    if (pic) {
-        pic->unref();
     }
 }
 

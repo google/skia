@@ -617,25 +617,20 @@ public:
         fColorTypes.reset(colorTypes, SK_ARRAY_COUNT(colorTypes));
     }
 
-    static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic) {
+    static sk_sp<SkPicture> ReadPicture(const char* path) {
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
-            return false;
+            return nullptr;
         }
 
         SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
         if (stream.get() == nullptr) {
             SkDebugf("Could not read %s.\n", path);
-            return false;
+            return nullptr;
         }
 
-        pic->reset(SkPicture::CreateFromStream(stream.get()));
-        if (pic->get() == nullptr) {
-            SkDebugf("Could not read %s as an SkPicture.\n", path);
-            return false;
-        }
-        return true;
+        return SkPicture::MakeFromStream(stream.get());
     }
 
     Benchmark* next() {
@@ -672,14 +667,14 @@ public:
         // First add all .skps as RecordingBenches.
         while (fCurrentRecording < fSKPs.count()) {
             const SkString& path = fSKPs[fCurrentRecording++];
-            SkAutoTUnref<SkPicture> pic;
-            if (!ReadPicture(path.c_str(), &pic)) {
+            sk_sp<SkPicture> pic = ReadPicture(path.c_str());
+            if (!pic) {
                 continue;
             }
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "recording";
-            fSKPBytes = static_cast<double>(SkPictureUtils::ApproximateBytesUsed(pic));
+            fSKPBytes = static_cast<double>(SkPictureUtils::ApproximateBytesUsed(pic.get()));
             fSKPOps   = pic->approximateOpCount();
             return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh);
         }
@@ -688,8 +683,8 @@ public:
         while (fCurrentScale < fScales.count()) {
             while (fCurrentSKP < fSKPs.count()) {
                 const SkString& path = fSKPs[fCurrentSKP];
-                SkAutoTUnref<SkPicture> pic;
-                if (!ReadPicture(path.c_str(), &pic)) {
+                sk_sp<SkPicture> pic = ReadPicture(path.c_str());
+                if (!pic) {
                     fCurrentSKP++;
                     continue;
                 }
@@ -704,7 +699,7 @@ public:
                                                               pic->cullRect().height(),
                                                               &factory,
                                                               fUseMPDs[fCurrentUseMPD] ? kFlags : 0));
-                        pic.reset(recorder.endRecording());
+                        pic = recorder.finishRecordingAsPicture();
                     }
                     SkString name = SkOSPath::Basename(path.c_str());
                     fSourceType = "skp";
@@ -723,8 +718,8 @@ public:
         if (fZoomMax != 1.0f && fZoomPeriodMs > 0) {
             while (fCurrentAnimSKP < fSKPs.count()) {
                 const SkString& path = fSKPs[fCurrentAnimSKP];
-                SkAutoTUnref<SkPicture> pic;
-                if (!ReadPicture(path.c_str(), &pic)) {
+                sk_sp<SkPicture> pic = ReadPicture(path.c_str());
+                if (!pic) {
                     fCurrentAnimSKP++;
                     continue;
                 }

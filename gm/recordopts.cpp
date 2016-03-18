@@ -100,7 +100,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
                                                        InstallDetectorFunc installDetector) {
 
     SkRect targetRect(SkRect::MakeWH(SkIntToScalar(kTestRectSize), SkIntToScalar(kTestRectSize)));
-    SkAutoTUnref<SkPicture> shape;
+    sk_sp<SkPicture> shape;
     {
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kTestRectSize + 2),
@@ -108,7 +108,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
         SkPaint shapePaint;
         shapePaint.setColor(shapeColor);
         canvas->drawRect(targetRect, shapePaint);
-        shape.reset(recorder.endRecordingAsPicture());
+        shape = recorder.finishRecordingAsPicture();
     }
 
     SkPaint layerPaint;
@@ -117,7 +117,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
         canvas->save();
             canvas->clipRect(targetRect);
             SkPaint drawPaint;
-            drawPaint.setImageFilter(SkPictureImageFilter::Create(shape))->unref();
+            drawPaint.setImageFilter(SkPictureImageFilter::Create(shape.get()))->unref();
             installDetector(&drawPaint);
             canvas->saveLayer(&targetRect, &drawPaint);
             canvas->restore();
@@ -161,8 +161,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
             drawTestSequence(recorder.beginRecording(SkIntToScalar(kTestRectSize),
                                                      SkIntToScalar(kTestRectSize)),
                              shapeColor, no_detector_install);
-            SkAutoTUnref<SkPicture> optimizedPicture(recorder.endRecordingAsPicture());
-            optimizedPicture->playback(canvas);
+            recorder.finishRecordingAsPicture()->playback(canvas);
             canvas->flush();
         }
         canvas->restore();
@@ -203,8 +202,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
                     drawTestSequence(recorder.beginRecording(SkIntToScalar(kTestRectSize),
                                                              SkIntToScalar(kTestRectSize)),
                                      shapeColor, detectorInstallFunc);
-                    SkAutoTUnref<SkPicture> optimizedPicture(recorder.endRecordingAsPicture());
-                    optimizedPicture->playback(canvas);
+                    recorder.finishRecordingAsPicture()->playback(canvas);
                     canvas->flush();
                 }
 

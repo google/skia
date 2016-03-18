@@ -31,8 +31,8 @@ DEF_TEST(PictureShader_empty, reporter) {
 
     SkPictureRecorder factory;
     factory.beginRecording(0, 0, nullptr, 0);
-    sk_sp<SkPicture> picture(factory.endRecording());
-    paint.setShader(SkShader::MakePictureShader(std::move(picture), SkShader::kClamp_TileMode,
+    paint.setShader(SkShader::MakePictureShader(factory.finishRecordingAsPicture(),
+                                                SkShader::kClamp_TileMode,
                                                 SkShader::kClamp_TileMode, nullptr, nullptr));
 
     canvas.drawRect(SkRect::MakeWH(1,1), paint);

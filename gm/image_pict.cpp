@@ -35,7 +35,7 @@ static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
  *  (correctly) when it is inside an image.
  */
 class ImagePictGM : public skiagm::GM {
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
     sk_sp<SkImage>   fImage0;
     sk_sp<SkImage>   fImage1;
 public:
@@ -54,18 +54,18 @@ protected:
         const SkRect bounds = SkRect::MakeXYWH(100, 100, 100, 100);
         SkPictureRecorder recorder;
         draw_something(recorder.beginRecording(bounds), bounds);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
 
         // extract enough just for the oval.
         const SkISize size = SkISize::Make(100, 100);
 
         SkMatrix matrix;
         matrix.setTranslate(-100, -100);
-        fImage0 = SkImage::MakeFromPicture(sk_ref_sp(fPicture.get()), size, &matrix, nullptr);
+        fImage0 = SkImage::MakeFromPicture(fPicture, size, &matrix, nullptr);
         matrix.postTranslate(-50, -50);
         matrix.postRotate(45);
         matrix.postTranslate(50, 50);
-        fImage1 = SkImage::MakeFromPicture(sk_ref_sp(fPicture.get()), size, &matrix, nullptr);
+        fImage1 = SkImage::MakeFromPicture(fPicture, size, &matrix, nullptr);
     }
 
     void drawSet(SkCanvas* canvas) const {
@@ -254,7 +254,7 @@ static SkImageGenerator* make_tex_generator(GrContext* ctx, SkPicture* pic) {
 class ImageCacheratorGM : public skiagm::GM {
     SkString                         fName;
     SkImageGenerator*                (*fFactory)(GrContext*, SkPicture*);
-    SkAutoTUnref<SkPicture>          fPicture;
+    sk_sp<SkPicture>                 fPicture;
     SkAutoTDelete<SkImageCacherator> fCache;
     SkAutoTDelete<SkImageCacherator> fCacheSubset;
 
@@ -278,17 +278,17 @@ protected:
         const SkRect bounds = SkRect::MakeXYWH(100, 100, 100, 100);
         SkPictureRecorder recorder;
         draw_something(recorder.beginRecording(bounds), bounds);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
     }
 
     void makeCaches(GrContext* ctx) {
-        auto gen = fFactory(ctx, fPicture);
+        auto gen = fFactory(ctx, fPicture.get());
         SkDEBUGCODE(const uint32_t genID = gen->uniqueID();)
         fCache.reset(SkImageCacherator::NewFromGenerator(gen));
 
         const SkIRect subset = SkIRect::MakeLTRB(50, 50, 100, 100);
 
-        gen = fFactory(ctx, fPicture);
+        gen = fFactory(ctx, fPicture.get());
         SkDEBUGCODE(const uint32_t genSubsetID = gen->uniqueID();)
         fCacheSubset.reset(SkImageCacherator::NewFromGenerator(gen, &subset));
 

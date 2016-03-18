@@ -712,7 +712,7 @@ static SkImageFilter* make_image_filter(bool canBeNull) {
                                                             SkIntToScalar(kBitmapSize), 
                                                             &factory, 0);
         drawSomething(recordingCanvas);
-        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
+        sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
         filter = SkPictureImageFilter::Create(pict.get(), make_rect());
     }
         break;

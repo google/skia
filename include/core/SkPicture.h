@@ -24,6 +24,8 @@ class SkTypefacePlayback;
 class SkWStream;
 struct SkPictInfo;
 
+#define SK_SUPPORT_LEGACY_PICTURE_PTR
+
 /** \class SkPicture
 
     An SkPicture records drawing commands made to a canvas to be played back at a later time.
@@ -54,7 +56,7 @@ public:
      *  @return A new SkPicture representing the serialized data, or NULL if the stream is
      *          invalid.
      */
-    static SkPicture* CreateFromStream(SkStream*, InstallPixelRefProc proc);
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, InstallPixelRefProc proc);
 
     /**
      *  Recreate a picture that was serialized into a stream.
@@ -66,7 +68,7 @@ public:
      *  @return A new SkPicture representing the serialized data, or NULL if the stream is
      *          invalid.
      */
-    static SkPicture* CreateFromStream(SkStream*);
+    static sk_sp<SkPicture> MakeFromStream(SkStream*);
 
     /**
      *  Recreate a picture that was serialized into a buffer. If the creation requires bitmap
@@ -76,7 +78,7 @@ public:
      *  @return A new SkPicture representing the serialized data, or NULL if the buffer is
      *          invalid.
      */
-    static SkPicture* CreateFromBuffer(SkReadBuffer&);
+    static sk_sp<SkPicture> MakeFromBuffer(SkReadBuffer&);
 
     /**
     *  Subclasses of this can be passed to playback(). During the playback
@@ -167,6 +169,18 @@ public:
     static void SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set);
     static bool PictureIOSecurityPrecautionsEnabled();
 
+#ifdef SK_SUPPORT_LEGACY_PICTURE_PTR
+    static SkPicture* CreateFromStream(SkStream* stream, InstallPixelRefProc proc) {
+        return MakeFromStream(stream, proc).release();
+    }
+    static SkPicture* CreateFromStream(SkStream* stream) {
+        return MakeFromStream(stream).release();
+    }
+    static SkPicture* CreateFromBuffer(SkReadBuffer& rbuf) {
+        return MakeFromBuffer(rbuf).release();
+    }
+#endif
+
 private:
     // Subclass whitelist.
     SkPicture();
@@ -175,9 +189,7 @@ private:
     template <typename> friend class SkMiniPicture;
 
     void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet* typefaces) const;
-    static SkPicture* CreateFromStream(SkStream*,
-                                       InstallPixelRefProc proc,
-                                       SkTypefacePlayback*);
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, InstallPixelRefProc, SkTypefacePlayback*);
     friend class SkPictureData;
 
     virtual int numSlowPaths() const = 0;
@@ -208,7 +220,7 @@ private:
                   "Remove SkBitmapSourceDeserializer.");
     
     static bool IsValidPictInfo(const SkPictInfo& info);
-    static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
+    static sk_sp<SkPicture> Forwardport(const SkPictInfo&, const SkPictureData*);
 
     SkPictInfo createHeader() const;
     SkPictureData* backport() const;

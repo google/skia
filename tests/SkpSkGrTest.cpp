@@ -378,7 +378,7 @@ static void writePict(const SkBitmap& bitmap, const char* outDir, const char* pn
 }
 
 void TestResult::testOne() {
-    SkPicture* pic = nullptr;
+    sk_sp<SkPicture> pic;
     {
         SkString d;
         d.printf("    {%d, \"%s\"},", fDirNo, fFilename);
@@ -399,7 +399,7 @@ void TestResult::testOne() {
             wStream.write(&bytes[0], length);
             wStream.flush();
         }
-        pic = SkPicture::CreateFromStream(&stream);
+        pic = SkPicture::MakeFromStream(&stream);
         if (!pic) {
             SkDebugf("unable to decode %s\n", fFilename);
             goto finish;
@@ -436,7 +436,7 @@ void TestResult::testOne() {
         if (scale >= 256) {
             SkDebugf("unable to allocate bitmap for %s (w=%d h=%d) (sw=%d sh=%d)\n",
                     fFilename, pWidth, pHeight, dim.fX, dim.fY);
-            goto finish;
+            return;
         }
         SkCanvas skCanvas(bitmap);
         drawPict(pic, &skCanvas, fScaleOversized ? scale : 1);
@@ -450,11 +450,11 @@ void TestResult::testOne() {
         if (!texture) {
             SkDebugf("unable to allocate texture for %s (w=%d h=%d)\n", fFilename,
                 dim.fX, dim.fY);
-            goto finish;
+            return;
         }
         SkGpuDevice grDevice(context, texture.get());
         SkCanvas grCanvas(&grDevice);
-        drawPict(pic, &grCanvas, fScaleOversized ? scale : 1);
+        drawPict(pic.get(), &grCanvas, fScaleOversized ? scale : 1);
 
         SkBitmap grBitmap;
         grBitmap.allocPixels(grCanvas.imageInfo());
@@ -472,8 +472,6 @@ void TestResult::testOne() {
             writePict(bitmap, outSkDir, pngName);
         }
     }
-finish:
-    delete pic;
 }
 
 static SkString makeStatusString(int dirNo) {

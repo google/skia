@@ -31,9 +31,8 @@ static sk_sp<SkImage> make_raster_image(int width, int height, SkColor colors[2]
 static sk_sp<SkImage> make_picture_image(int width, int height, SkColor colors[2]) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(width, height)), width, height, colors);
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-    return SkImage::MakeFromPicture(sk_ref_sp(picture.get()), SkISize::Make(width, height),
-                                    nullptr, nullptr);
+    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                    SkISize::Make(width, height), nullptr, nullptr);
 }
 
 typedef sk_sp<SkImage> (*ImageMakerProc)(int width, int height, SkColor colors[2]);

@@ -482,7 +482,7 @@ sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t* crec,
 }
 
 sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t* crec) {
-    return ToPicture(AsPictureRecorder(crec)->endRecording());
+    return ToPicture(AsPictureRecorder(crec)->finishRecordingAsPicture().release());
 }
 
 void sk_picture_ref(sk_picture_t* cpic) {

@@ -903,7 +903,7 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
     if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream));
+    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream));
     if (!pic) {
         return SkStringPrintf("Couldn't decode %s as a picture.", fPath.c_str());
     }
@@ -1116,8 +1116,7 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     if (!err.isEmpty()) {
         return err;
     }
-    SkAutoTUnref<SkPicture> pic(recorder.endRecording());
-    pic->serialize(dst);
+    recorder.finishRecordingAsPicture()->serialize(dst);
     return "";
 }
 
@@ -1273,13 +1272,13 @@ Error ViaSerialization::draw(
     if (!err.isEmpty()) {
         return err;
     }
-    SkAutoTUnref<SkPicture> pic(recorder.endRecording());
+    sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
 
     // Serialize it and then deserialize it.
     SkDynamicMemoryWStream wStream;
     pic->serialize(&wStream);
     SkAutoTDelete<SkStream> rStream(wStream.detachAsStream());
-    SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rStream));
+    sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rStream));
 
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);
@@ -1304,7 +1303,7 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
     if (!err.isEmpty()) {
         return err;
     }
-    SkAutoTUnref<SkPicture> pic(recorder.endRecordingAsPicture());
+    sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
 
     return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
         const int xTiles = (size.width()  + fW - 1) / fW,
@@ -1326,7 +1325,7 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
                 SkCanvas* c = s->getCanvas();
                 c->translate(SkIntToScalar(-i * fW),
                              SkIntToScalar(-j * fH));  // Line up the canvas with this tile.
-                mpd.add(c, pic);
+                mpd.add(c, pic.get());
             }
         }
         mpd.draw();
@@ -1347,13 +1346,13 @@ Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
     auto size = src.size();
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         SkPictureRecorder recorder;
-        SkAutoTUnref<SkPicture> pic;
+        sk_sp<SkPicture> pic;
         Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
                                                      SkIntToScalar(size.height())));
         if (!err.isEmpty()) {
             return err;
         }
-        pic.reset(recorder.endRecordingAsPicture());
+        pic = recorder.finishRecordingAsPicture();
         canvas->drawPicture(pic);
         return check_against_reference(bitmap, src, fSink);
     });
@@ -1368,14 +1367,14 @@ Error ViaSecondPicture::draw(
     auto size = src.size();
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         SkPictureRecorder recorder;
-        SkAutoTUnref<SkPicture> pic;
+        sk_sp<SkPicture> pic;
         for (int i = 0; i < 2; i++) {
             Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
                                                          SkIntToScalar(size.height())));
             if (!err.isEmpty()) {
                 return err;
             }
-            pic.reset(recorder.endRecordingAsPicture());
+            pic = recorder.finishRecordingAsPicture();
         }
         canvas->drawPicture(pic);
         return check_against_reference(bitmap, src, fSink);
@@ -1409,7 +1408,7 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         if (!err.isEmpty()) {
             return err;
         }
-        SkAutoTUnref<SkPicture> skPicture(recorder.endRecording());
+        sk_sp<SkPicture> skPicture(recorder.finishRecordingAsPicture());
 
         SkASSERT(skPicture);
         SkDynamicMemoryWStream buffer;
@@ -1434,7 +1433,7 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         }
         SkMemoryStream tmpStream(mojoPicture->data.data(),
                                  mojoPicture->data.size());
-        skPicture.reset(SkPicture::CreateFromStream(&tmpStream));
+        skPicture = SkPicture::MakeFromStream(&tmpStream);
         mojoPicture.reset();
         auto fn = [&](SkCanvas* canvas) -> Error {
             canvas->drawPicture(skPicture.get());
@@ -1471,7 +1470,7 @@ struct DrawsAsSingletonPictures {
     SK_WHEN(T::kTags & SkRecords::kDraw_Tag, void) operator()(const T& op) {
         SkPictureRecorder rec;
         this->draw(op, rec.beginRecording(SkRect::MakeLargest()));
-        SkAutoTUnref<SkPicture> pic(rec.endRecordingAsPicture());
+        sk_sp<SkPicture> pic(rec.finishRecordingAsPicture());
         fCanvas->drawPicture(pic);
     }
 
@@ -1511,7 +1510,7 @@ Error ViaSingletonPictures::draw(
         for (int i = 0; i < skr.count(); i++) {
             skr.visit<void>(i, drawsAsSingletonPictures);
         }
-        SkAutoTUnref<SkPicture> macroPic(macroRec.endRecordingAsPicture());
+        sk_sp<SkPicture> macroPic(macroRec.finishRecordingAsPicture());
 
         canvas->drawPicture(macroPic);
         return check_against_reference(bitmap, src, fSink);

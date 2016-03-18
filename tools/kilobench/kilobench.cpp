@@ -104,33 +104,28 @@ public:
     }
 
 private:
-    static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic) {
+    static sk_sp<SkPicture> ReadPicture(const char path[]) {
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path)) {
-            return false;
+            return nullptr;
         }
 
         SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
         if (stream.get() == nullptr) {
             SkDebugf("Could not read %s.\n", path);
-            return false;
+            return nullptr;
         }
 
-        pic->reset(SkPicture::CreateFromStream(stream.get()));
-        if (pic->get() == nullptr) {
-            SkDebugf("Could not read %s as an SkPicture.\n", path);
-            return false;
-        }
-        return true;
+        return SkPicture::MakeFromStream(stream.get());
     }
 
     Benchmark* innerNext() {
         // Render skps
         while (fCurrentSKP < fSKPs.count()) {
             const SkString& path = fSKPs[fCurrentSKP++];
-            SkAutoTUnref<SkPicture> pic;
-            if (!ReadPicture(path.c_str(), &pic)) {
+            auto pic = ReadPicture(path.c_str());
+            if (!pic) {
                 continue;
             }
 

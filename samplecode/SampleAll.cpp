@@ -305,7 +305,7 @@ protected:
                 SkCanvas* record = recorder.beginRecording(320, 480, nullptr, 0);
                 this->drawPicture(record, 120);
             }
-            SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+            sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
             canvas->translate(0, SkIntToScalar(120));
 

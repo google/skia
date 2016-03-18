@@ -20,7 +20,7 @@ class VisualBenchmarkStream {
 public:
     VisualBenchmarkStream(const SkSurfaceProps&, bool justSKP = false);
 
-    static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic);
+    static sk_sp<SkPicture> ReadPicture(const char* path);
 
     Benchmark* next();
     Benchmark* current() { return fBenchmark.get(); }

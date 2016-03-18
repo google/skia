@@ -431,9 +431,8 @@ static void DrawPictureTestStep(SkCanvas* canvas, const TestData& d,
     testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
     testCanvas->clipRect(d.fRect);
     testCanvas->drawRect(d.fRect, d.fPaint);
-    SkAutoTUnref<SkPicture> testPicture(recorder.endRecording());
 
-    canvas->drawPicture(testPicture);
+    canvas->drawPicture(recorder.finishRecordingAsPicture());
 }
 TEST_STEP(DrawPicture, DrawPictureTestStep);
 

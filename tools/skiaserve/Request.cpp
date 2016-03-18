@@ -131,7 +131,7 @@ SkData* Request::writeOutSkp() {
 
     fDebugCanvas->draw(canvas);
 
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
     SkDynamicMemoryWStream outStream;
 
@@ -215,8 +215,8 @@ bool Request::enableGPU(bool enable) {
 
 bool Request::initPictureFromStream(SkStream* stream) {
     // parse picture from stream
-    fPicture.reset(SkPicture::CreateFromStream(stream));
-    if (!fPicture.get()) {
+    fPicture = SkPicture::MakeFromStream(stream);
+    if (!fPicture) {
         fprintf(stderr, "Could not create picture from stream.\n");
         return false;
     }

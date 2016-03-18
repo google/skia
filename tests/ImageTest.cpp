@@ -111,8 +111,8 @@ static sk_sp<SkImage> create_picture_image() {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(10, 10);
     canvas->clear(SK_ColorCYAN);
-    sk_sp<SkPicture> picture(recorder.endRecording());
-    return SkImage::MakeFromPicture(picture, SkISize::Make(10, 10), nullptr, nullptr);
+    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(), SkISize::Make(10, 10),
+                                    nullptr, nullptr);
 };
 #endif
 // Want to ensure that our Release is called when the owning image is destroyed
@@ -232,7 +232,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(100, 100);
     canvas->drawImage(image, 0, 0);
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     REPORTER_ASSERT(reporter, picture);
     REPORTER_ASSERT(reporter, picture->approximateOpCount() > 0);
 
@@ -247,7 +247,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
         REPORTER_ASSERT(reporter, serializers[i]->didEncode());
 
         SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
-        SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rstream));
+        sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rstream));
         REPORTER_ASSERT(reporter, deserialized);
         REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
     }

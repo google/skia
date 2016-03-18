@@ -72,7 +72,7 @@ const ImageMakerProc gProcs[] = {
  *  (correctly) when it is inside an image.
  */
 class ImageShaderGM : public skiagm::GM {
-    SkAutoTUnref<SkPicture> fPicture;
+    sk_sp<SkPicture> fPicture;
 
 public:
     ImageShaderGM() {}
@@ -90,7 +90,7 @@ protected:
         const SkRect bounds = SkRect::MakeWH(100, 100);
         SkPictureRecorder recorder;
         draw_something(recorder.beginRecording(bounds), bounds);
-        fPicture.reset(recorder.endRecording());
+        fPicture = recorder.finishRecordingAsPicture();
     }
 
     void testImage(SkCanvas* canvas, SkImage* image) {
@@ -113,7 +113,7 @@ protected:
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gProcs); ++i) {
-            sk_sp<SkImage> image(gProcs[i](canvas->getGrContext(), fPicture, info));
+            sk_sp<SkImage> image(gProcs[i](canvas->getGrContext(), fPicture.get(), info));
             if (image) {
                 this->testImage(canvas, image.get());
             }

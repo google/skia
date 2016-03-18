@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     for (SkString file; iter.next(&file); ) {
         SkAutoTDelete<SkStream> stream =
                 SkStream::NewFromFile(SkOSPath::Join(inputs, file.c_str()).c_str());
-        SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(stream));
+        sk_sp<SkPicture> picture(SkPicture::MakeFromStream(stream));
 
         SkDynamicMemoryWStream scratch;
         Sniffer sniff;

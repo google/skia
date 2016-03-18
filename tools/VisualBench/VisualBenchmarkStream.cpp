@@ -104,25 +104,24 @@ VisualBenchmarkStream::VisualBenchmarkStream(const SkSurfaceProps& surfaceProps,
     this->next();
 }
 
-bool VisualBenchmarkStream::ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic) {
+sk_sp<SkPicture> VisualBenchmarkStream::ReadPicture(const char path[]) {
     // Not strictly necessary, as it will be checked again later,
     // but helps to avoid a lot of pointless work if we're going to skip it.
     if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path)) {
-        return false;
+        return nullptr;
     }
 
     SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
     if (stream.get() == nullptr) {
         SkDebugf("Could not read %s.\n", path);
-        return false;
+        return nullptr;
     }
 
-    pic->reset(SkPicture::CreateFromStream(stream.get()));
-    if (pic->get() == nullptr) {
+    auto pic = SkPicture::MakeFromStream(stream.get());
+    if (!pic) {
         SkDebugf("Could not read %s as an SkPicture.\n", path);
-        return false;
     }
-    return true;
+    return pic;
 }
 
 Benchmark* VisualBenchmarkStream::next() {
@@ -175,8 +174,8 @@ Benchmark* VisualBenchmarkStream::innerNext() {
     // Render skps
     while (fCurrentSKP < fSKPs.count()) {
         const SkString& path = fSKPs[fCurrentSKP++];
-        SkAutoTUnref<SkPicture> pic;
-        if (!ReadPicture(path.c_str(), &pic)) {
+        sk_sp<SkPicture> pic = ReadPicture(path.c_str());
+        if (!pic) {
             continue;
         }
 

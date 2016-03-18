@@ -36,14 +36,14 @@ SkPictureImageFilter::~SkPictureImageFilter() {
 }
 
 SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SkAutoTUnref<SkPicture> picture;
+    sk_sp<SkPicture> picture;
     SkRect cropRect;
 
     if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
         buffer.validate(!buffer.readBool());
     } else {
         if (buffer.readBool()) {
-            picture.reset(SkPicture::CreateFromBuffer(buffer));
+            picture = SkPicture::MakeFromBuffer(buffer);
         }
     }
     buffer.readRect(&cropRect);
@@ -62,9 +62,9 @@ SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
         } else {
             filterQuality = (SkFilterQuality)buffer.readInt();
         }
-        return CreateForLocalSpace(picture, cropRect, filterQuality);
+        return CreateForLocalSpace(picture.get(), cropRect, filterQuality);
     }
-    return Create(picture, cropRect);
+    return Create(picture.get(), cropRect);
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {

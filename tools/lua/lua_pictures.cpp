@@ -38,13 +38,12 @@ DEFINE_string2(headCode, s, "", "Optional lua code to call at beginning");
 DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
 DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
 
-static SkPicture* load_picture(const char path[]) {
+static sk_sp<SkPicture> load_picture(const char path[]) {
     SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
-    SkPicture* pic = nullptr;
     if (stream.get()) {
-        pic = SkPicture::CreateFromStream(stream.get());
+        return SkPicture::MakeFromStream(stream.get());
     }
-    return pic;
+    return nullptr;
 }
 
 static void call_canvas(lua_State* L, SkLuaCanvas* canvas,
@@ -143,7 +142,7 @@ int tool_main(int argc, char** argv) {
                 SkDebugf("scraping %s %s\n", path, moduloStr.c_str());
             }
 
-            SkAutoTUnref<SkPicture> pic(load_picture(path));
+            auto pic(load_picture(path));
             if (pic.get()) {
                 SkAutoTUnref<SkLuaCanvas> canvas(
                                     new SkLuaCanvas(SkScalarCeilToInt(pic->cullRect().width()), 

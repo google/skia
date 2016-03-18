@@ -26,7 +26,7 @@ struct PictureOverheadBench : public Benchmark {
             if (kDraw) {
                 rec.getRecordingCanvas()->drawRect(SkRect::MakeXYWH(10, 10, 1000, 1000), SkPaint());
             }
-            SkAutoTUnref<SkPicture> pic(rec.endRecordingAsPicture());
+            (void)rec.finishRecordingAsPicture();
         }
     }
 };

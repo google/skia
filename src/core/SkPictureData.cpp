@@ -392,7 +392,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             fPictureCount = 0;
             fPictureRefs = new const SkPicture* [size];
             for (uint32_t i = 0; i < size; i++) {
-                fPictureRefs[i] = SkPicture::CreateFromStream(stream, proc, topLevelTFPlayback);
+                fPictureRefs[i] = SkPicture::MakeFromStream(stream, proc, topLevelTFPlayback).release();
                 if (!fPictureRefs[i]) {
                     return false;
                 }
@@ -447,7 +447,7 @@ static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
 // Need a shallow wrapper to return const SkPicture* to match the other factories,
 // as SkPicture::CreateFromBuffer() returns SkPicture*
 static const SkPicture* create_picture_from_buffer(SkReadBuffer& buffer) {
-    return SkPicture::CreateFromBuffer(buffer);
+    return SkPicture::MakeFromBuffer(buffer).release();
 }
 
 template <typename T>

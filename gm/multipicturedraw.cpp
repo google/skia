@@ -41,7 +41,7 @@ static SkPath make_hex_path(SkScalar originX, SkScalar originY) {
 // Make a picture that is a tiling of the plane with stroked hexagons where
 // each hexagon is in its own layer. The layers are to exercise Ganesh's
 // layer hoisting.
-static const SkPicture* make_hex_plane_picture(SkColor fillColor) {
+static sk_sp<SkPicture> make_hex_plane_picture(SkColor fillColor) {
 
     // Create a hexagon with its center at the origin
     SkPath hex = make_hex_path(0, 0);
@@ -80,14 +80,14 @@ static const SkPicture* make_hex_plane_picture(SkColor fillColor) {
         yPos += 2 * kHexSide * kRoot3Over2;
     }
 
-    return recorder.endRecording();
+    return recorder.finishRecordingAsPicture();
 }
 
 // Create a picture that consists of a single large layer that is tiled
 // with hexagons.
 // This is intended to exercise the layer hoisting code's clip handling (in
 // tile mode).
-static const SkPicture* make_single_layer_hex_plane_picture() {
+static sk_sp<SkPicture> make_single_layer_hex_plane_picture() {
 
     // Create a hexagon with its center at the origin
     SkPath hex = make_hex_path(0, 0);
@@ -136,7 +136,7 @@ static const SkPicture* make_single_layer_hex_plane_picture() {
 
     canvas->restore();
 
-    return recorder.endRecording();
+    return recorder.finishRecordingAsPicture();
 }
 
 // Make an equilateral triangle path with its top corner at (originX, originY)
@@ -149,7 +149,7 @@ static SkPath make_tri_path(SkScalar originX, SkScalar originY) {
     return tri;
 }
 
-static const SkPicture* make_tri_picture() {
+static sk_sp<SkPicture> make_tri_picture() {
     SkPath tri = make_tri_path(SkScalarHalf(kTriSide), 0);
 
     SkPaint fill;
@@ -176,10 +176,10 @@ static const SkPicture* make_tri_picture() {
         canvas->drawPath(tri, stroke);
     canvas->restore();
 
-    return recorder.endRecording();
+    return recorder.finishRecordingAsPicture();
 }
 
-static const SkPicture* make_sub_picture(const SkPicture* tri) {
+static sk_sp<SkPicture> make_sub_picture(const SkPicture* tri) {
     SkPictureRecorder recorder;
     SkRTreeFactory bbhFactory;
 
@@ -205,15 +205,15 @@ static const SkPicture* make_sub_picture(const SkPicture* tri) {
     canvas->drawPicture(tri);
     canvas->restore();
 
-    return recorder.endRecording();
+    return recorder.finishRecordingAsPicture();
 }
 
 // Create a Sierpinkski-like picture that starts with a top row with a picture
 // that just contains a triangle. Subsequent rows take the prior row's picture,
 // shrinks it and replicates it 3 times then draws and appropriate number of
 // copies of it.
-static const SkPicture* make_sierpinski_picture() {
-    SkAutoTUnref<const SkPicture> pic(make_tri_picture());
+static sk_sp<SkPicture> make_sierpinski_picture() {
+    sk_sp<SkPicture> pic(make_tri_picture());
 
     SkPictureRecorder recorder;
     SkRTreeFactory bbhFactory;
@@ -233,12 +233,12 @@ static const SkPicture* make_sierpinski_picture() {
             }
         canvas->restore();
 
-        pic.reset(make_sub_picture(pic));
+        pic = make_sub_picture(pic.get());
 
         canvas->translate(0, 1.5f * kTriSide / kRoot3);
     }
 
-    return recorder.endRecording();
+    return recorder.finishRecordingAsPicture();
 }
 
 static SkSurface* create_compat_surface(SkCanvas* canvas, int width, int height) {
@@ -356,7 +356,7 @@ static const PFContentMtd gContentMthds[] = {
 static void create_content(SkMultiPictureDraw* mpd, PFContentMtd pfGen,
                            const SkPicture* pictures[kNumPictures],
                            SkCanvas* dest, const SkMatrix& xform) {
-    SkAutoTUnref<SkPicture> composite;
+    sk_sp<SkPicture> composite;
 
     {
         SkPictureRecorder recorder;
@@ -369,10 +369,10 @@ static void create_content(SkMultiPictureDraw* mpd, PFContentMtd pfGen,
 
         (*pfGen)(pictureCanvas, pictures);
 
-        composite.reset(recorder.endRecording());
+        composite = recorder.finishRecordingAsPicture();
     }
 
-    mpd->add(dest, composite, &xform);
+    mpd->add(dest, composite.get(), &xform);
 }
 
 typedef void(*PFLayoutMtd)(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
@@ -490,10 +490,10 @@ namespace skiagm {
         const SkPicture* fPictures[kNumPictures];
 
         void onOnceBeforeDraw() override {
-            fPictures[0] = make_hex_plane_picture(SK_ColorWHITE);
-            fPictures[1] = make_hex_plane_picture(sk_tool_utils::color_to_565(SK_ColorGRAY));
-            fPictures[2] = make_sierpinski_picture();
-            fPictures[3] = make_single_layer_hex_plane_picture();
+            fPictures[0] = make_hex_plane_picture(SK_ColorWHITE).release();
+            fPictures[1] = make_hex_plane_picture(sk_tool_utils::color_to_565(SK_ColorGRAY)).release();
+            fPictures[2] = make_sierpinski_picture().release();
+            fPictures[3] = make_single_layer_hex_plane_picture().release();
         }
 
         void onDraw(SkCanvas* canvas) override {

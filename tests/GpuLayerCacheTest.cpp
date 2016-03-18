@@ -115,7 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GpuLayerCache, reporter, context) {
     GrResourceCache::Stats stats;
 #endif
 
-    SkAutoTUnref<const SkPicture> picture;
+    sk_sp<SkPicture> picture;
 
     {
         SkPictureRecorder recorder;
@@ -123,7 +123,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GpuLayerCache, reporter, context) {
         // Draw something, anything, to prevent an empty-picture optimization,
         // which is a singleton and never purged.
         c->drawRect(SkRect::MakeWH(1,1), SkPaint());
-        picture.reset(recorder.endRecording());
+        picture = recorder.finishRecordingAsPicture();
     }
 
     GrResourceCache* resourceCache = context->getResourceCache();

@@ -1389,7 +1389,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     if (fSaveToSKP) {
-        SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
+        sk_sp<SkPicture> picture(fRecorder.finishRecordingAsPicture());
         SkFILEWStream stream("sample_app.skp");
         picture->serialize(&stream);
         fSaveToSKP = false;
@@ -1398,7 +1398,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     if (fUsePicture) {
-        SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
+        sk_sp<SkPicture> picture(fRecorder.finishRecordingAsPicture());
 
         // serialize/deserialize?
         if (false) {
@@ -1406,9 +1406,9 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             picture->serialize(&wstream);
 
             SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
-            picture.reset(SkPicture::CreateFromStream(rstream));
+            picture = SkPicture::MakeFromStream(rstream);
         }
-        orig->drawPicture(picture);
+        orig->drawPicture(picture.get());
     }
 
     // Do this after presentGL and other finishing, rather than in afterChild

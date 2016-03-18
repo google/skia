@@ -33,7 +33,7 @@ private:
 
 // Make sure the abort callback works
 DEF_TEST(RecordReplaceDraw_Abort, r) {
-    SkAutoTUnref<const SkPicture> pic;
+    sk_sp<SkPicture> pic;
 
     {
         // Record two commands.
@@ -43,14 +43,14 @@ DEF_TEST(RecordReplaceDraw_Abort, r) {
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)), SkPaint());
         canvas->clipRect(SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)));
 
-        pic.reset(recorder.endRecording());
+        pic = recorder.finishRecordingAsPicture();
     }
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
 
     JustOneDraw callback;
-    GrRecordReplaceDraw(pic, &canvas, nullptr, SkMatrix::I(), &callback);
+    GrRecordReplaceDraw(pic.get(), &canvas, nullptr, SkMatrix::I(), &callback);
 
     switch (rerecord.count()) {
         case 3:
@@ -68,7 +68,7 @@ DEF_TEST(RecordReplaceDraw_Abort, r) {
 
 // Make sure GrRecordReplaceDraw balances unbalanced saves
 DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
-    SkAutoTUnref<const SkPicture> pic;
+    sk_sp<SkPicture> pic;
 
     {
         SkPictureRecorder recorder;
@@ -77,13 +77,13 @@ DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
         // We won't balance this, but GrRecordReplaceDraw will for us.
         canvas->save();
         canvas->scale(2, 2);
-        pic.reset(recorder.endRecording());
+        pic = recorder.finishRecordingAsPicture();
     }
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
 
-    GrRecordReplaceDraw(pic, &canvas, nullptr, SkMatrix::I(), nullptr/*callback*/);
+    GrRecordReplaceDraw(pic.get(), &canvas, nullptr, SkMatrix::I(), nullptr/*callback*/);
 
     // ensure rerecord is balanced (in this case by checking that the count is odd)
     REPORTER_ASSERT(r, (rerecord.count() & 1) == 1);
@@ -91,7 +91,7 @@ DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
 
 // Test out the layer replacement functionality with and w/o a BBH
 void test_replacements(skiatest::Reporter* r, GrContext* context, bool doReplace) {
-    SkAutoTUnref<const SkPicture> pic;
+    sk_sp<SkPicture> pic;
 
     {
         SkPictureRecorder recorder;
@@ -102,7 +102,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool doReplace
         canvas->restore();
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(kWidth / 2), SkIntToScalar(kHeight / 2)),
                          SkPaint());
-        pic.reset(recorder.endRecording());
+        pic = recorder.finishRecordingAsPicture();
     }
 
     SkAutoTUnref<GrTexture> texture;
@@ -131,7 +131,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool doReplace
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
-    GrRecordReplaceDraw(pic, &canvas, layerCache, SkMatrix::I(), nullptr/*callback*/);
+    GrRecordReplaceDraw(pic.get(), &canvas, layerCache, SkMatrix::I(), nullptr/*callback*/);
 
     int numLayers = count_instances_of_type<SkRecords::SaveLayer>(rerecord);
     if (doReplace) {

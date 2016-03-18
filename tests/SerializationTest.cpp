@@ -338,13 +338,13 @@ static void serialize_and_compare_typeface(SkTypeface* typeface, const char* tex
                                                nullptr, 0);
     canvas->drawColor(SK_ColorWHITE);
     canvas->drawText(text, 2, 24, 32, paint);
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
     // Serlialize picture and create its clone from stream.
     SkDynamicMemoryWStream stream;
     picture->serialize(&stream);
     SkAutoTDelete<SkStream> inputStream(stream.detachAsStream());
-    SkAutoTUnref<SkPicture> loadedPicture(SkPicture::CreateFromStream(inputStream.get()));
+    sk_sp<SkPicture> loadedPicture(SkPicture::MakeFromStream(inputStream.get()));
 
     // Draw both original and clone picture and compare bitmaps -- they should be identical.
     SkBitmap origBitmap = draw_picture(*picture);
@@ -529,7 +529,7 @@ DEF_TEST(Serialization, reporter) {
         draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize),
                                                SkIntToScalar(kBitmapSize),
                                                nullptr, 0));
-        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
+        sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
         // Serialize picture
         SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
@@ -540,8 +540,7 @@ DEF_TEST(Serialization, reporter) {
 
         // Deserialize picture
         SkValidatingReadBuffer reader(static_cast<void*>(data.get()), size);
-        SkAutoTUnref<SkPicture> readPict(
-            SkPicture::CreateFromBuffer(reader));
+        sk_sp<SkPicture> readPict(SkPicture::MakeFromBuffer(reader));
         REPORTER_ASSERT(reporter, readPict.get());
     }
 
@@ -551,11 +550,11 @@ DEF_TEST(Serialization, reporter) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SkAnnotation.h"
 
-static SkPicture* copy_picture_via_serialization(SkPicture* src) {
+static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
     SkDynamicMemoryWStream wstream;
     src->serialize(&wstream);
     SkAutoTDelete<SkStreamAsset> rstream(wstream.detachAsStream());
-    return SkPicture::CreateFromStream(rstream);
+    return SkPicture::MakeFromStream(rstream);
 }
 
 struct AnnotationRec {
@@ -622,8 +621,8 @@ DEF_TEST(Annotations, reporter) {
         { r2, SkAnnotationKeys::Link_Named_Dest_Key(),      d2 },
     };
 
-    SkAutoTUnref<SkPicture> pict0(recorder.endRecording());
-    SkAutoTUnref<SkPicture> pict1(copy_picture_via_serialization(pict0));
+    sk_sp<SkPicture> pict0(recorder.finishRecordingAsPicture());
+    sk_sp<SkPicture> pict1(copy_picture_via_serialization(pict0.get()));
 
     TestAnnotationCanvas canvas(reporter, recs, SK_ARRAY_COUNT(recs));
     canvas.drawPicture(pict1);

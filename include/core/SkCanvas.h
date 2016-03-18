@@ -995,7 +995,7 @@ public:
     void drawPicture(const SkPicture* picture) {
         this->drawPicture(picture, NULL, NULL);
     }
-    void drawPicture(sk_sp<SkPicture>& picture) {
+    void drawPicture(const sk_sp<SkPicture>& picture) {
         this->drawPicture(picture.get());
     }
 
@@ -1012,7 +1012,7 @@ public:
      *      saveLayer(paint)/drawPicture/restore
      */
     void drawPicture(const SkPicture*, const SkMatrix* matrix, const SkPaint* paint);
-    void drawPicture(sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint) {
+    void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint) {
         this->drawPicture(picture.get(), matrix, paint);
     }
 

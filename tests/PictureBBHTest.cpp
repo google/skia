@@ -45,7 +45,7 @@ private:
                                                          SkIntToScalar(fPictureHeight),
                                                          factory);
         this->doTest(playbackCanvas, *recordCanvas);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
         playbackCanvas.drawPicture(picture);
         REPORTER_ASSERT(reporter, SK_ColorGREEN == fResultBitmap.getColor(0, 0));
     }

@@ -590,7 +590,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     SkPaint greenPaint;
     greenPaint.setColor(SK_ColorGREEN);
     recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 30, 20)), greenPaint);
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     SkAutoTUnref<SkImageFilter> pictureFilter(SkPictureImageFilter::Create(picture.get()));
     SkAutoTUnref<SkShader> shader(SkPerlinNoiseShader::CreateTurbulence(SK_Scalar1, SK_Scalar1, 1, 0));
     SkPaint noisePaint;
@@ -707,7 +707,7 @@ static void draw_saveLayer_picture(int width, int height, int tileSize,
     recordingCanvas->translate(-55, 0);
     recordingCanvas->saveLayer(&bounds, &paint);
     recordingCanvas->restore();
-    SkAutoTUnref<SkPicture> picture1(recorder.endRecording());
+    sk_sp<SkPicture> picture1(recorder.finishRecordingAsPicture());
 
     result->allocN32Pixels(width, height);
     SkCanvas canvas(*result);
@@ -900,13 +900,13 @@ DEF_TEST(ImageFilterDrawTiledBlurRTree, reporter) {
                                                           &factory, 0);
     draw_blurred_rect(recordingCanvas1);
     draw_blurred_rect(recordingCanvas2);
-    SkAutoTUnref<SkPicture> picture1(recorder1.endRecording());
-    SkAutoTUnref<SkPicture> picture2(recorder2.endRecording());
+    sk_sp<SkPicture> picture1(recorder1.finishRecordingAsPicture());
+    sk_sp<SkPicture> picture2(recorder2.finishRecordingAsPicture());
     for (int y = 0; y < height; y += tileSize) {
         for (int x = 0; x < width; x += tileSize) {
             SkRect tileRect = SkRect::Make(SkIRect::MakeXYWH(x, y, tileSize, tileSize));
-            draw_picture_clipped(&canvas1, tileRect, picture1);
-            draw_picture_clipped(&canvas2, tileRect, picture2);
+            draw_picture_clipped(&canvas1, tileRect, picture1.get());
+            draw_picture_clipped(&canvas2, tileRect, picture2.get());
         }
     }
     for (int y = 0; y < height; y++) {
@@ -1010,9 +1010,8 @@ DEF_TEST(ImageFilterMatrix, reporter) {
     recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(100, 100)), solidPaint);
     recordingCanvas->restore(); // scale
     recordingCanvas->restore(); // saveLayer
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
-    canvas.drawPicture(picture);
+    canvas.drawPicture(recorder.finishRecordingAsPicture());
 }
 
 DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
@@ -1024,7 +1023,7 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
     SkPaint greenPaint;
     greenPaint.setColor(SK_ColorGREEN);
     recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(1, 1)), greenPaint);
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
     // Wrap that SkPicture in an SkPictureImageFilter.
     SkAutoTUnref<SkImageFilter> imageFilter(
@@ -1040,7 +1039,7 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
     redPaintWithFilter.setColor(SK_ColorRED);
     redPaintWithFilter.setImageFilter(imageFilter.get());
     outerCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(1, 1)), redPaintWithFilter);
-    SkAutoTUnref<SkPicture> outerPicture(outerRecorder.endRecording());
+    sk_sp<SkPicture> outerPicture(outerRecorder.finishRecordingAsPicture());
 
     SkBitmap bitmap;
     bitmap.allocN32Pixels(1, 1);
@@ -1064,7 +1063,7 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
     SkPictureRecorder crossProcessRecorder;
     SkCanvas* crossProcessCanvas = crossProcessRecorder.beginRecording(1, 1, &factory, 0);
     crossProcessCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(1, 1)), redPaintWithFilter);
-    SkAutoTUnref<SkPicture> crossProcessPicture(crossProcessRecorder.endRecording());
+    sk_sp<SkPicture> crossProcessPicture(crossProcessRecorder.finishRecordingAsPicture());
 
     canvas.clear(0x0);
     canvas.drawPicture(crossProcessPicture);
@@ -1078,7 +1077,7 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
 static void test_clipped_picture_imagefilter(SkImageFilter::Proxy* proxy,
                                              skiatest::Reporter* reporter,
                                              GrContext* context) {
-    SkAutoTUnref<SkPicture> picture;
+    sk_sp<SkPicture> picture;
 
     {
         SkRTreeFactory factory;
@@ -1089,7 +1088,7 @@ static void test_clipped_picture_imagefilter(SkImageFilter::Proxy* proxy,
         SkPaint greenPaint;
         greenPaint.setColor(SK_ColorGREEN);
         recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(1, 1)), greenPaint);
-        picture.reset(recorder.endRecording());
+        picture = recorder.finishRecordingAsPicture();
     }
 
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 2));
@@ -1138,7 +1137,7 @@ DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     SkCanvas* recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
     recordingCanvas->saveLayer(&bounds, &imageFilterPaint);
     recordingCanvas->restore();
-    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
     canvas.clear(0);
     canvas.drawPicture(picture);
@@ -1148,7 +1147,7 @@ DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
     recordingCanvas->saveLayer(nullptr, &imageFilterPaint);
     recordingCanvas->restore();
-    SkAutoTUnref<SkPicture> picture2(recorder.endRecording());
+    sk_sp<SkPicture> picture2(recorder.finishRecordingAsPicture());
 
     canvas.clear(0);
     canvas.drawPicture(picture2);
@@ -1158,7 +1157,7 @@ DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
     recordingCanvas->saveLayer(&bounds, &colorFilterPaint);
     recordingCanvas->restore();
-    SkAutoTUnref<SkPicture> picture3(recorder.endRecording());
+    sk_sp<SkPicture> picture3(recorder.finishRecordingAsPicture());
 
     canvas.clear(0);
     canvas.drawPicture(picture3);

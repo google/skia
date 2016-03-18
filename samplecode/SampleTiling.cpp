@@ -54,7 +54,7 @@ static const int gWidth = 32;
 static const int gHeight = 32;
 
 class TilingView : public SampleView {
-    SkAutoTUnref<SkPicture>     fTextPicture;
+    sk_sp<SkPicture>     fTextPicture;
     SkAutoTUnref<SkDrawLooper>  fLooper;
 public:
     TilingView()
@@ -153,11 +153,11 @@ protected:
 
         if (textCanvas) {
             SkASSERT(nullptr == fTextPicture);
-            fTextPicture.reset(recorder.endRecording());
+            fTextPicture = recorder.finishRecordingAsPicture();
         }
 
         SkASSERT(fTextPicture);
-        canvas->drawPicture(fTextPicture);
+        canvas->drawPicture(fTextPicture.get());
     }
 
 private:

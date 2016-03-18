@@ -14,7 +14,7 @@
 #include "SkString.h"
 #include "SkDumpCanvas.h"
 
-static SkPicture* inspect(const char path[]) {
+static sk_sp<SkPicture> inspect(const char path[]) {
     SkFILEStream stream(path);
     if (!stream.isValid()) {
         printf("-- Can't open '%s'\n", path);
@@ -33,7 +33,7 @@ static SkPicture* inspect(const char path[]) {
     }
 
     stream.rewind();
-    SkPicture* pic = SkPicture::CreateFromStream(&stream);
+    auto pic = SkPicture::MakeFromStream(&stream);
     if (nullptr == pic) {
         SkDebugf("Could not create SkPicture: %s\n", path);
         return nullptr;
@@ -71,9 +71,9 @@ int tool_main(int argc, char** argv) {
     }
 
     for (; index < argc; ++index) {
-        SkAutoTUnref<SkPicture> pic(inspect(argv[index]));
+        auto pic(inspect(argv[index]));
         if (doDumpOps) {
-            dumpOps(pic);
+            dumpOps(pic.get());
         }
         if (index < argc - 1) {
             printf("\n");

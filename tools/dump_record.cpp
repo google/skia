@@ -49,7 +49,7 @@ int tool_main(int argc, char** argv) {
             SkDebugf("Could not read %s.\n", FLAGS_skps[i]);
             return 1;
         }
-        SkAutoTUnref<SkPicture> src(SkPicture::CreateFromStream(stream));
+        sk_sp<SkPicture> src(SkPicture::MakeFromStream(stream));
         if (!src) {
             SkDebugf("Could not read %s as an SkPicture.\n", FLAGS_skps[i]);
             return 1;
@@ -79,7 +79,7 @@ int tool_main(int argc, char** argv) {
                          0,
                          nullptr,
                          nullptr);
-            SkAutoTUnref<SkPicture> dst(r.endRecording());
+            sk_sp<SkPicture> dst(r.finishRecordingAsPicture());
             SkFILEWStream ostream(FLAGS_write[0]);
             dst->serialize(&ostream);
         }

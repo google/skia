@@ -322,8 +322,8 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
             SkPictureRecorder recorder;
             SkCanvas* canvas = recorder.beginRecording(10, 10);
             canvas->clear(SK_ColorCYAN);
-            sk_sp<SkPicture> picture(recorder.endRecording());
-            return SkImage::MakeFromPicture(picture, SkISize::Make(10, 10), nullptr, nullptr);
+            return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                            SkISize::Make(10, 10), nullptr, nullptr);
         });
     }
 }

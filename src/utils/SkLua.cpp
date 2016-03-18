@@ -1824,12 +1824,12 @@ static int lpicturerecorder_getCanvas(lua_State* L) {
 }
 
 static int lpicturerecorder_endRecording(lua_State* L) {
-    SkPicture* pic = get_obj<SkPictureRecorder>(L, 1)->endRecording();
-    if (nullptr == pic) {
+    sk_sp<SkPicture> pic = get_obj<SkPictureRecorder>(L, 1)->finishRecordingAsPicture();
+    if (!pic) {
         lua_pushnil(L);
         return 1;
     }
-    push_ref(L, pic)->unref();
+    push_ref(L, std::move(pic));
     return 1;
 }
 

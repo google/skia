@@ -50,7 +50,7 @@ SkCanvas* SkPictureRecorder::getRecordingCanvas() {
     return fActivelyRecording ? fRecorder.get() : nullptr;
 }
 
-SkPicture* SkPictureRecorder::endRecordingAsPicture() {
+sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture() {
     fActivelyRecording = false;
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
 
@@ -92,13 +92,13 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
     for (int i = 0; pictList && i < pictList->count(); i++) {
         subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
     }
-    return new SkBigPicture(fCullRect, fRecord.release(), pictList, fBBH.release(),
+    return sk_make_sp<SkBigPicture>(fCullRect, fRecord.release(), pictList, fBBH.release(),
                             saveLayerData.release(), subPictureBytes);
 }
 
-SkPicture* SkPictureRecorder::endRecordingAsPicture(const SkRect& cullRect) {
+sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPictureWithCull(const SkRect& cullRect) {
     fCullRect = cullRect;
-    return this->endRecordingAsPicture();
+    return this->finishRecordingAsPicture();
 }
 
 
@@ -177,7 +177,7 @@ protected:
     }
 };
 
-SkDrawable* SkPictureRecorder::endRecordingAsDrawable() {
+sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable() {
     fActivelyRecording = false;
     fRecorder->flushMiniRecorder();
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
@@ -191,8 +191,8 @@ SkDrawable* SkPictureRecorder::endRecordingAsDrawable() {
         fBBH->insert(bounds, fRecord->count());
     }
 
-    SkDrawable* drawable =
-            new SkRecordedDrawable(fRecord, fBBH, fRecorder->detachDrawableList(), fCullRect,
+    sk_sp<SkDrawable> drawable =
+           sk_make_sp<SkRecordedDrawable>(fRecord, fBBH, fRecorder->detachDrawableList(), fCullRect,
                                    SkToBool(fFlags & kComputeSaveLayerInfo_RecordFlag));
 
     // release our refs now, so only the drawable will be the owner.
