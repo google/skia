@@ -4,10 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file
  */
+#include "SkSpecialImage.h"
+
+#if SK_SUPPORT_GPU
+#include "GrTexture.h"
+#include "GrTextureParams.h"
+#include "SkGr.h"
+#endif
 
 #include "SkCanvas.h"
 #include "SkImage_Base.h"
-#include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,6 +46,38 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 static inline const SkSpecialImage_Base* as_SIB(const SkSpecialImage* image) {
     return static_cast<const SkSpecialImage_Base*>(image);
+}
+
+sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(SkImageFilter::Proxy* proxy,
+                                                       GrContext* context) {
+#if SK_SUPPORT_GPU
+    if (!context) {
+        return nullptr;
+    }
+    if (GrTexture* peek = as_SIB(this)->peekTexture()) {
+        return peek->getContext() == context ? sk_sp<SkSpecialImage>(SkRef(this)) : nullptr;
+    }
+
+    SkBitmap bmp;
+    if (!this->internal_getBM(&bmp)) {
+        return nullptr;
+    }
+
+    SkAutoTUnref<GrTexture> resultTex(
+        GrRefCachedBitmapTexture(context, bmp, GrTextureParams::ClampNoFilter()));
+    if (!resultTex) {
+        return nullptr;
+    }
+
+    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+
+    return SkSpecialImage::MakeFromGpu(proxy,
+                                       SkIRect::MakeWH(resultTex->width(), resultTex->height()),
+                                       this->uniqueID(),
+                                       resultTex, at);
+#else
+    return nullptr;
+#endif
 }
 
 void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
