@@ -21,8 +21,7 @@ static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
         SkIntToScalar(off),
     };
 
-    SkAutoTUnref<SkPathEffect> effect(SkDashPathEffect::Create(intervals, 2, phase));
-    p.setPathEffect(effect);
+    p.setPathEffect(SkDashPathEffect::Make(intervals, 2, phase));
     canvas->drawLine(startX, startY, finalX, finalY, p);
 }
 
@@ -175,7 +174,7 @@ protected:
                 vals[i] = SkIntToScalar(*intervals++);
             }
             SkScalar phase = vals[0] / 2;
-            paint.setPathEffect(SkDashPathEffect::Create(vals, count, phase))->unref();
+            paint.setPathEffect(SkDashPathEffect::Make(vals, count, phase));
 
             for (size_t x = 0; x < SK_ARRAY_COUNT(gProc); ++x) {
                 SkPath path;
@@ -223,7 +222,7 @@ protected:
 
         SkScalar intervals[2] = { dashLength, dashLength };
 
-        p.setPathEffect(SkDashPathEffect::Create(intervals, 2, phase))->unref();
+        p.setPathEffect(SkDashPathEffect::Make(intervals, 2, phase));
 
         SkPoint pts[2];
 
@@ -499,7 +498,7 @@ DEF_SIMPLE_GM(longpathdash, canvas, 512, 512) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(1);
     const SkScalar intervals[] = { 1, 1 };
-    p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 0))->unref();
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
     canvas->drawPath(lines, p);
 }
 
@@ -510,7 +509,7 @@ DEF_SIMPLE_GM(longlinedash, canvas, 512, 512) {
     p.setStrokeWidth(80);
 
     const SkScalar intervals[] = { 2, 2 };
-    p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 0))->unref();
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
     canvas->drawRect(SkRect::MakeXYWH(-10000, 100, 20000, 20), p);
 }
 
@@ -540,7 +539,7 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     p.setARGB(0xff, 0xbb, 0x00, 0x00);
     sk_tool_utils::set_portable_typeface(&p);
     const SkScalar intervals[] = { 12, 12 };
-    p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 0))->unref();
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
     canvas->drawText("Sausages", 8, 10, 90, p);
     canvas->drawLine(8, 120, 456, 120, p);
 }

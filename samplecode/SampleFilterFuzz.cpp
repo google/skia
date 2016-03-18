@@ -422,22 +422,20 @@ static SkPath make_path() {
     return path;
 }
 
-static SkPathEffect* make_path_effect(bool canBeNull = true) {
-    SkPathEffect* pathEffect = nullptr;
+static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
+    sk_sp<SkPathEffect> pathEffect;
     if (canBeNull && (R(3) == 1)) { return pathEffect; }
 
     switch (R(9)) {
         case 0:
-            pathEffect = SkArcToPathEffect::Create(make_scalar(true));
+            pathEffect = SkArcToPathEffect::Make(make_scalar(true));
             break;
-        case 1: {
-            SkAutoTUnref<SkPathEffect> outer(make_path_effect(false));
-            SkAutoTUnref<SkPathEffect> inner(make_path_effect(false));
-            pathEffect = SkComposePathEffect::Create(outer, inner);
+        case 1:
+            pathEffect = SkComposePathEffect::Make(make_path_effect(false),
+                                                   make_path_effect(false));
             break;
-        }
         case 2:
-            pathEffect = SkCornerPathEffect::Create(make_scalar());
+            pathEffect = SkCornerPathEffect::Make(make_scalar());
             break;
         case 3: {
             int count = R(10);
@@ -445,28 +443,26 @@ static SkPathEffect* make_path_effect(bool canBeNull = true) {
             for (int i = 0; i < count; ++i) {
                 intervals[i] = make_scalar();
             }
-            pathEffect = SkDashPathEffect::Create(intervals, count, make_scalar());
+            pathEffect = SkDashPathEffect::Make(intervals, count, make_scalar());
             break;
         }
         case 4:
-            pathEffect = SkDiscretePathEffect::Create(make_scalar(), make_scalar());
+            pathEffect = SkDiscretePathEffect::Make(make_scalar(), make_scalar());
             break;
         case 5:
-            pathEffect = SkPath1DPathEffect::Create(make_path(),
-                                                    make_scalar(),
-                                                    make_scalar(),
-                                                    make_path_1d_path_effect_style());
+            pathEffect = SkPath1DPathEffect::Make(make_path(), make_scalar(), make_scalar(),
+                                                  make_path_1d_path_effect_style());
             break;
         case 6:
-            pathEffect = SkLine2DPathEffect::Create(make_scalar(), make_matrix());
+            pathEffect = SkLine2DPathEffect::Make(make_scalar(), make_matrix());
             break;
         case 7:
-            pathEffect = SkPath2DPathEffect::Create(make_matrix(), make_path());
+            pathEffect = SkPath2DPathEffect::Make(make_matrix(), make_path());
             break;
         case 8:
         default:
-            pathEffect = SkSumPathEffect::Create(make_path_effect(false),
-                                                 make_path_effect(false));
+            pathEffect = SkSumPathEffect::Make(make_path_effect(false),
+                                               make_path_effect(false));
             break;
     }
     return pathEffect;

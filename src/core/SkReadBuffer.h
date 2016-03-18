@@ -134,7 +134,9 @@ public:
     SkDrawLooper*  readDrawLooper()  { return this->readFlattenable<SkDrawLooper>(); }
     SkImageFilter* readImageFilter() { return this->readFlattenable<SkImageFilter>(); }
     SkMaskFilter*  readMaskFilter()  { return this->readFlattenable<SkMaskFilter>(); }
-    SkPathEffect*  readPathEffect()  { return this->readFlattenable<SkPathEffect>(); }
+    sk_sp<SkPathEffect> readPathEffect()  {
+        return sk_sp<SkPathEffect>(this->readFlattenable<SkPathEffect>());
+    }
     SkRasterizer*  readRasterizer()  { return this->readFlattenable<SkRasterizer>(); }
     sk_sp<SkShader> readShader()     { return sk_sp<SkShader>(this->readFlattenable<SkShader>()); }
     SkXfermode*    readXfermode()    { return this->readFlattenable<SkXfermode>(); }

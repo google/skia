@@ -20,7 +20,15 @@ public:
     /** radius must be > 0 to have an effect. It specifies the distance from each corner
         that should be "rounded".
     */
-    static SkPathEffect* Create(SkScalar radius) { return new SkCornerPathEffect(radius); }
+    static sk_sp<SkPathEffect> Make(SkScalar radius) {
+        return sk_sp<SkPathEffect>(new SkCornerPathEffect(radius));
+    }
+
+#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
+    static SkPathEffect* Create(SkScalar radius) {
+        return Make(radius).release();
+    }
+#endif
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const override;

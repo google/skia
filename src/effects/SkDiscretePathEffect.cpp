@@ -13,6 +13,11 @@
 #include "SkPathMeasure.h"
 #include "SkStrokeRec.h"
 
+sk_sp<SkPathEffect> SkDiscretePathEffect::Make(SkScalar segLength, SkScalar deviation,
+                                               uint32_t seedAssist) {
+    return sk_sp<SkPathEffect>(new SkDiscretePathEffect(segLength, deviation, seedAssist));
+}
+
 static void Perterb(SkPoint* p, const SkVector& tangent, SkScalar scale) {
     SkVector normal = tangent;
     normal.rotateCCW();
@@ -121,7 +126,7 @@ SkFlattenable* SkDiscretePathEffect::CreateProc(SkReadBuffer& buffer) {
     SkScalar segLength = buffer.readScalar();
     SkScalar perterb = buffer.readScalar();
     uint32_t seed = buffer.readUInt();
-    return Create(segLength, perterb, seed);
+    return Make(segLength, perterb, seed).release();
 }
 
 void SkDiscretePathEffect::flatten(SkWriteBuffer& buffer) const {

@@ -36,7 +36,13 @@ public:
 
         Note: only affects stroked paths.
     */
-    static SkPathEffect* Create(const SkScalar intervals[], int count, SkScalar phase);
+    static sk_sp<SkPathEffect> Make(const SkScalar intervals[], int count, SkScalar phase);
+
+#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
+    static SkPathEffect* Create(const SkScalar intervals[], int count, SkScalar phase) {
+        return Make(intervals, count, phase).release();
+    }
+#endif
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const override;

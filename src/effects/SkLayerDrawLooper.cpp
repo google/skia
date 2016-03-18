@@ -93,7 +93,7 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
     }
 
     if (bits & kPathEffect_Bit) {
-        dst->setPathEffect(src.getPathEffect());
+        dst->setPathEffect(sk_ref_sp(src.getPathEffect()));
     }
     if (bits & kMaskFilter_Bit) {
         dst->setMaskFilter(src.getMaskFilter());

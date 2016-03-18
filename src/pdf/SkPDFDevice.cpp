@@ -15,6 +15,7 @@
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPathEffect.h"
 #include "SkPathOps.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
