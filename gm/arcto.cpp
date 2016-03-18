@@ -223,6 +223,6 @@ DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   SkScalar length = meas.getLength();
   SkScalar intervals[] = {0, length };
   int intervalCount = (int) SK_ARRAY_COUNT(intervals);
-  p.setPathEffect(SkDashPathEffect::Create(intervals, intervalCount, 0))->unref();
+  p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
   canvas->drawPath(path, p);
 }

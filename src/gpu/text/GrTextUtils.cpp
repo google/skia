@@ -517,7 +517,7 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context,
 
     // Now restore the original settings, so we "draw" with whatever style/stroking.
     paint.setStyle(origPaint.getStyle());
-    paint.setPathEffect(origPaint.getPathEffect());
+    paint.setPathEffect(sk_ref_sp(origPaint.getPathEffect()));
 
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text);

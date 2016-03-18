@@ -68,7 +68,7 @@ DEF_SIMPLE_GM(dashcircle, canvas, 900, 1200) {
             for (int index = 0; index < dashExample.length; ++index) {
                 intervals[index] = dashExample.pattern[index] * dashLength;
             }
-            p.setPathEffect(SkDashPathEffect::Create(intervals, intervalCount, 0))->unref();
+            p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
             canvas->drawPath(circle, p);
             canvas->translate(0, radius * 2 + 50);
         }

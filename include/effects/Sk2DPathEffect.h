@@ -55,8 +55,8 @@ private:
 
 class SK_API SkLine2DPathEffect : public Sk2DPathEffect {
 public:
-    static SkPathEffect* Create(SkScalar width, const SkMatrix& matrix) {
-        return new SkLine2DPathEffect(width, matrix);
+    static sk_sp<SkPathEffect> Make(SkScalar width, const SkMatrix& matrix) {
+        return sk_sp<SkPathEffect>(new SkLine2DPathEffect(width, matrix));
     }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
@@ -84,8 +84,8 @@ public:
      *  Stamp the specified path to fill the shape, using the matrix to define
      *  the latice.
      */
-    static SkPathEffect* Create(const SkMatrix& matrix, const SkPath& path) {
-        return new SkPath2DPathEffect(matrix, path);
+    static sk_sp<SkPathEffect> Make(const SkMatrix& matrix, const SkPath& path) {
+        return sk_sp<SkPathEffect>(new SkPath2DPathEffect(matrix, path));
     }
 
     SK_TO_STRING_OVERRIDE()

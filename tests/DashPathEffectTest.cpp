@@ -18,7 +18,7 @@ DEF_TEST(DashPathEffectTest_crbug_348821, r) {
     SkScalar intervals[] = { 1.76934361e+36f, 2.80259693e-45f };  // Values from bug.
     const int count = 2;
     SkScalar phase = SK_ScalarInfinity;  // Used to force a nonsense effect.
-    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, count, phase));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, count, phase));
 
     REPORTER_ASSERT(r, dash == nullptr);
 }
@@ -28,7 +28,7 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
 
     const SkScalar intervals[] = { 1.0f, 1.0f };
     const int count = 2;
-    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, count, 0.0f));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, count, 0.0f));
 
     SkRect cull = SkRect::MakeWH(1.0f, 1.0f);
 
@@ -90,7 +90,7 @@ DEF_TEST(DashPath_bug4871, r) {
     path.close();
 
     SkScalar intervals[2] = { 1, 1 };
-    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);

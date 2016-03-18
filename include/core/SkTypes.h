@@ -15,6 +15,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifndef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
+    #define SK_SUPPORT_LEGACY_PATHEFFECT_PTR
+#endif
+
 #if defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2

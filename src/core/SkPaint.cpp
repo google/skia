@@ -375,7 +375,9 @@ SET_PTR(ImageFilter)
 SET_PTR(Shader)
 SET_PTR(ColorFilter)
 SET_PTR(Xfermode)
+#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
 SET_PTR(PathEffect)
+#endif
 SET_PTR(MaskFilter)
 #undef SET_PTR
 
@@ -1930,7 +1932,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     }
 
     if (flatFlags & kHasEffects_FlatFlag) {
-        SkSafeUnref(this->setPathEffect(buffer.readPathEffect()));
+        this->setPathEffect(buffer.readPathEffect());
         this->setShader(buffer.readShader());
         SkSafeUnref(this->setXfermode(buffer.readXfermode()));
         SkSafeUnref(this->setMaskFilter(buffer.readMaskFilter()));
@@ -2250,11 +2252,11 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     fCache = fPaint.detachCache(nullptr, SkPaint::FakeGamma::On, nullptr);
 
     SkPaint::Style  style = SkPaint::kFill_Style;
-    SkPathEffect*   pe = nullptr;
+    sk_sp<SkPathEffect> pe;
 
     if (!applyStrokeAndPathEffects) {
         style = paint.getStyle();   // restore
-        pe = paint.getPathEffect();     // restore
+        pe = sk_ref_sp(paint.getPathEffect());     // restore
     }
     fPaint.setStyle(style);
     fPaint.setPathEffect(pe);

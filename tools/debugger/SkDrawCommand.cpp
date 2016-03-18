@@ -1106,10 +1106,10 @@ static void extract_json_paint_patheffect(Json::Value& jsonPaint, UrlDataManager
                                           SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_PATHEFFECT)) {
         Json::Value jsonPathEffect = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_PATHEFFECT];
-        SkPathEffect* pathEffect = (SkPathEffect*) load_flattenable(jsonPathEffect, urlDataManager);
+        sk_sp<SkPathEffect> pathEffect((SkPathEffect*)load_flattenable(jsonPathEffect,
+                                                                       urlDataManager));
         if (pathEffect != nullptr) {
             target->setPathEffect(pathEffect);
-            pathEffect->unref();
         }
     }
 }
@@ -1329,7 +1329,7 @@ static void extract_json_paint_dashing(Json::Value& jsonPaint, SkPaint* target) 
             intervals[i] = jsonIntervals[i].asFloat();
         }
         SkScalar phase = dash[SKDEBUGCANVAS_ATTRIBUTE_PHASE].asFloat();
-        target->setPathEffect(SkDashPathEffect::Create(intervals, count, phase));
+        target->setPathEffect(SkDashPathEffect::Make(intervals, count, phase));
         sk_free(intervals);
     }
 }

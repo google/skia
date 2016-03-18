@@ -62,7 +62,7 @@ DONE:
 }
 
 SkFlattenable* SkArcToPathEffect::CreateProc(SkReadBuffer& buffer) {
-    return SkArcToPathEffect::Create(buffer.readScalar());
+    return SkArcToPathEffect::Make(buffer.readScalar()).release();
 }
 
 void SkArcToPathEffect::flatten(SkWriteBuffer& buffer) const {

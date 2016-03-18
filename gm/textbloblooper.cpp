@@ -66,18 +66,18 @@ static void mask_filter(SkPaint* paint) {
     paint->setMaskFilter(mf)->unref();
 }
 
-static SkPathEffect* make_tile_effect() {
+static sk_sp<SkPathEffect> make_tile_effect() {
     SkMatrix m;
     m.setScale(1.f, 1.f);
 
     SkPath path;
     path.addCircle(0, 0, SkIntToScalar(5));
 
-    return SkPath2DPathEffect::Create(m, path);
+    return SkPath2DPathEffect::Make(m, path);
 }
 
 static void path_effect(SkPaint* paint) {
-    paint->setPathEffect(make_tile_effect())->unref();
+    paint->setPathEffect(make_tile_effect());
 }
 
 static sk_sp<SkShader> make_shader(const SkRect& bounds) {

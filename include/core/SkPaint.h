@@ -561,8 +561,10 @@ public:
                         paint
         @return         effect
     */
-    SkPathEffect* setPathEffect(SkPathEffect* effect);
     void setPathEffect(sk_sp<SkPathEffect>);
+#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
+    SkPathEffect* setPathEffect(SkPathEffect* effect);
+#endif
 
     /** Get the paint's maskfilter object.
         <p />
