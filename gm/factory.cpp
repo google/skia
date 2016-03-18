@@ -12,7 +12,6 @@
 #include "SkData.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkDiscardablePixelRef.h"
-#include "SkImageDecoder.h"
 #include "SkImageGeneratorPriv.h"
 #include "SkOSFile.h"
 #include "SkStream.h"

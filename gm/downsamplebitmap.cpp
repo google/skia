@@ -10,7 +10,6 @@
 #include "Resources.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
-#include "SkImageDecoder.h"
 #include "SkStream.h"
 #include "SkPaint.h"
 
@@ -171,21 +170,11 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       int fSize;
 
       void make_bitmap() override {
-          SkImageDecoder* codec = nullptr;
-          SkString resourcePath = GetResourcePath(fFilename.c_str());
-          SkFILEStream stream(resourcePath.c_str());
-          if (stream.isValid()) {
-              codec = SkImageDecoder::Factory(&stream);
-          }
-          if (codec) {
-              stream.rewind();
-              codec->decode(&stream, &fBM, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
-              delete codec;
-          } else {
-              fBM.allocN32Pixels(1, 1);
-              *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
-          }
-          fSize = fBM.height();
+        if (!GetResourceAsBitmap(fFilename.c_str(), &fBM)) {
+            fBM.allocN32Pixels(1, 1);
+            fBM.eraseARGB(255, 255, 0 , 0); // red == bad
+        }
+        fSize = fBM.height();
       }
   private:
       typedef DownsampleBitmapGM INHERITED;

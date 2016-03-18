@@ -404,15 +404,12 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
         hr = piBitmapFrameEncode->SetSize(width, height);
     }
 
-    //Set the pixel format of the frame.
+    //Set the pixel format of the frame.  If native encoded format cannot match BGRA,
+    //it will choose the closest pixel format that it supports.
     const WICPixelFormatGUID formatDesired = GUID_WICPixelFormat32bppBGRA;
     WICPixelFormatGUID formatGUID = formatDesired;
     if (SUCCEEDED(hr)) {
         hr = piBitmapFrameEncode->SetPixelFormat(&formatGUID);
-    }
-    if (SUCCEEDED(hr)) {
-        //Be sure the image format is the one requested.
-        hr = IsEqualGUID(formatGUID, formatDesired) ? S_OK : E_FAIL;
     }
 
     //Write the pixels into the frame.
