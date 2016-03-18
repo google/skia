@@ -21,7 +21,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkGradientShader.h"
-#include "SkImageDecoder.h"
 #include "SkLayerRasterizer.h"
 #include "SkMath.h"
 #include "SkPath.h"
@@ -37,6 +36,7 @@
 #include "SkXfermode.h"
 
 #include <math.h>
+#include "DecodeFile.h"
 
 static inline SkPMColor rgb2gray(SkPMColor c) {
     unsigned r = SkGetPackedR32(c);
@@ -511,9 +511,9 @@ protected:
     }
 
     virtual void startTest() {
-        SkImageDecoder::DecodeFile("/Users/caryclark/Desktop/bugcirc.gif", &fBug);
-        SkImageDecoder::DecodeFile("/Users/caryclark/Desktop/tbcirc.gif", &fTb);
-        SkImageDecoder::DecodeFile("/Users/caryclark/Desktop/05psp04.gif", &fTx);
+        decode_file("/Users/caryclark/Desktop/bugcirc.gif", &fBug);
+        decode_file("/Users/caryclark/Desktop/tbcirc.gif", &fTb);
+        decode_file("/Users/caryclark/Desktop/05psp04.gif", &fTx);
     }
 
     void drawRaster(SkCanvas* canvas)  {

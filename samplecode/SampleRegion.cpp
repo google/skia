@@ -13,7 +13,6 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkImageDecoder.h"
 
 #include <math.h>
 

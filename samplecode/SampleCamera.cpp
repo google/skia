@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
 #include "SkView.h"
@@ -17,7 +18,6 @@
 #include "SkShader.h"
 #include "SkUtils.h"
 #include "SkRandom.h"
-#include "SkImageDecoder.h"
 
 class CameraView : public SampleView {
     SkTDArray<SkShader*> fShaders;
@@ -33,7 +33,7 @@ public:
             SkString str;
             str.printf("/skimages/elephant%d.jpeg", i);
             SkBitmap bm;
-            if (SkImageDecoder::DecodeFile(str.c_str(), &bm)) {
+            if (decode_file(str.c_str(), &bm)) {
                 SkRect src = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
                 SkRect dst = { -150, -150, 150, 150 };
                 SkMatrix matrix;

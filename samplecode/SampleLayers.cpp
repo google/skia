@@ -14,7 +14,7 @@
 #include "SkColorPriv.h"
 #include "SkDevice.h"
 #include "SkGradientShader.h"
-#include "SkImageDecoder.h"
+#include "SkImage.h"
 #include "SkInterpolator.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"

@@ -304,7 +304,7 @@ static void textonpath_slide(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkImageDecoder.h"
+#include "DecodeFile.h"
 #include "SkOSFile.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -312,7 +312,7 @@ static void textonpath_slide(SkCanvas* canvas) {
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkBitmap    bm;
 
-    SkImageDecoder::DecodeFile("/skimages/logo.gif", &bm);
+    decode_file("/skimages/logo.gif", &bm);
     size->set(bm.width(), bm.height());
     return SkShader::MakeBitmapShader(bm, SkShader::kClamp_TileMode,
                                         SkShader::kClamp_TileMode);

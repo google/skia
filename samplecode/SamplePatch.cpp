@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
@@ -31,8 +31,8 @@
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkBitmap    bm;
 
-//    SkImageDecoder::DecodeFile("/skimages/progressivejpg.jpg", &bm);
-    SkImageDecoder::DecodeFile("/skimages/logo.png", &bm);
+//    decode_file("/skimages/progressivejpg.jpg", &bm);
+    decode_file("/skimages/logo.png", &bm);
     size->set(bm.width(), bm.height());
     return SkShader::MakeBitmapShader(bm, SkShader::kClamp_TileMode,
                                        SkShader::kClamp_TileMode);

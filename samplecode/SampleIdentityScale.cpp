@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "gm.h"
 
 #include "Resources.h"
@@ -12,7 +13,6 @@
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -25,16 +25,7 @@ class IdentityScaleView : public SampleView {
 public:
     IdentityScaleView(const char imageFilename[]) {
       SkString resourcePath = GetResourcePath(imageFilename);
-      SkImageDecoder* codec = nullptr;
-      SkFILEStream stream(resourcePath.c_str());
-      if (stream.isValid()) {
-          codec = SkImageDecoder::Factory(&stream);
-      }
-      if (codec) {
-          stream.rewind();
-          codec->decode(&stream, &fBM, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
-          delete codec;
-      } else {
+      if (!decode_file(resourcePath.c_str(), &fBM)) {
           fBM.allocN32Pixels(1, 1);
           *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
       }

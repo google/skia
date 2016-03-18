@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkDumpCanvas.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -153,7 +153,7 @@ private:
         sk_sp<SkPicture> pic;
 
         SkBitmap bm;
-        if (SkImageDecoder::DecodeFile(path, &bm)) {
+        if (decode_file(path, &bm)) {
             bm.setImmutable();
             SkPictureRecorder recorder;
             SkCanvas* can = recorder.beginRecording(SkIntToScalar(bm.width()),

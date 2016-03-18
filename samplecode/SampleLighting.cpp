@@ -5,11 +5,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "Resources.h"
 
 #include "SkCanvas.h"
-#include "SkImageDecoder.h"
 #include "SkLightingShader.h"
 #include "SkPoint3.h"
 
@@ -39,9 +39,9 @@ public:
 
     LightingView() {
         SkString diffusePath = GetResourcePath("brickwork-texture.jpg");
-        SkImageDecoder::DecodeFile(diffusePath.c_str(), &fDiffuseBitmap);
+        decode_file(diffusePath.c_str(), &fDiffuseBitmap);
         SkString normalPath = GetResourcePath("brickwork_normal-map.jpg");
-        SkImageDecoder::DecodeFile(normalPath.c_str(), &fNormalBitmap);
+        decode_file(normalPath.c_str(), &fNormalBitmap);
 
         fLightAngle = 0.0f;
         fColorFactor = 0.0f;

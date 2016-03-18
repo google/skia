@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "DecodeFile.h"
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -45,7 +45,7 @@ public:
     SkBitmap        fBitmap;
 
     ShaderView() {
-        SkImageDecoder::DecodeFile("/skimages/logo.gif", &fBitmap);
+        decode_file("/skimages/logo.gif", &fBitmap);
 
         SkPoint pts[2];
         SkColor colors[2];

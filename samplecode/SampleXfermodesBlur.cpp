@@ -12,7 +12,6 @@
 #include "SkCornerPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
@@ -26,7 +25,6 @@
 
 #include "SkStream.h"
 #include "SkColorPriv.h"
-#include "SkImageDecoder.h"
 #include "SkBlurMaskFilter.h"
 
 static void setNamedTypeface(SkPaint* paint, const char name[]) {
