@@ -39,13 +39,12 @@ typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLCheckFramebufferStatusProc)(GrGLenum 
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClearProc)(GrGLbitfield mask);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClearColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClearStencilProc)(GrGLint s);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClientActiveTextureProc)(GrGLenum texture);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLColorMaskProc)(GrGLboolean red, GrGLboolean green, GrGLboolean blue, GrGLboolean alpha);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompileShaderProc)(GrGLuint shader);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTexImage2DProc)(GrGLenum target, GrGLint level, GrGLenum internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLsizei imageSize, const GrGLvoid* data);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLsizei imageSize, const GrGLvoid* data);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
-typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLCreateProgramProc)(void);
+typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLCreateProgramProc)();
 typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLCreateShaderProc)(GrGLenum type);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCullFaceProc)(GrGLenum mode);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteBuffersProc)(GrGLsizei n, const GrGLuint* buffers);
@@ -67,7 +66,6 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawBuffersProc)(GrGLsizei n, const G
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawElementsProc)(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawElementsInstancedProc)(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid *indices, GrGLsizei primcount);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawElementsIndirectProc)(GrGLenum mode, GrGLenum type, GrGLvoid* indirect);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEGLImageTargetTexture2DProc)(GrGLenum target, GrGLeglImage image);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableProc)(GrGLenum cap);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableVertexAttribArrayProc)(GrGLuint index);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEndQueryProc)(GrGLenum target);

@@ -7,12 +7,9 @@
 
 
 #include "gl/GrGLInterface.h"
-#include "GrGLDefines.h"
+#include "GrGLTestInterface.h"
+#include "SkMutex.h"
 #include "SkTDArray.h"
-#include "GrGLNoOpInterface.h"
-#include "SkTLS.h"
-
-// TODO: Delete this file after chrome starts using SkNullGLContext.
 
 // added to suppress 'no previous prototype' warning and because this code is duplicated in
 // SkNullGLContext.cpp
@@ -20,10 +17,7 @@ namespace {
 
 class BufferObj {
 public:
-    
-
-    BufferObj(GrGLuint id) : fID(id), fDataPtr(nullptr), fSize(0), fMapped(false) {
-    }
+    BufferObj(GrGLuint id) : fID(id), fDataPtr(nullptr), fSize(0), fMapped(false) {}
     ~BufferObj() { delete[] fDataPtr; }
 
     void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
@@ -53,8 +47,6 @@ private:
 // This class maintains a sparsely populated array of buffer pointers.
 class BufferManager {
 public:
-    
-
     BufferManager() : fFreeListHead(kFreeListEnd) {}
 
     ~BufferManager() {
@@ -114,383 +106,509 @@ private:
     SkTDArray<BufferObj*>   fBuffers;
 };
 
-/**
- * The global-to-thread state object for the null interface. All null interfaces on the
- * same thread currently share one of these. This means two null contexts on the same thread
- * can interfere with each other. It may make sense to more integrate this into SkNullGLContext
- * and use it's makeCurrent mechanism.
- */
-struct ThreadContext {
+/** Null interface implementation */
+class NullInterface : public GrGLTestInterface {
 public:
-    
+    NullInterface()
+        : fCurrArrayBuffer(0)
+        , fCurrElementArrayBuffer(0)
+        , fCurrPixelPackBuffer(0)
+        , fCurrPixelUnpackBuffer(0)
+        , fCurrShaderID(0)
+        , fCurrGenericID(0)
+        , fCurrUniformLocation(0) {
+        this->init(kGL_GrGLStandard);
+    }
 
+    GrGLenum checkFramebufferStatus(GrGLenum target) override {
+        return GR_GL_FRAMEBUFFER_COMPLETE;
+    }
+
+    GrGLvoid genBuffers(GrGLsizei n, GrGLuint* ids) override {
+        for (int i = 0; i < n; ++i) {
+            BufferObj* buffer = fBufferManager.create();
+            ids[i] = buffer->id();
+        }
+    }
+
+    GrGLvoid bufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data,
+                        GrGLenum usage) override {
+        GrGLuint id = 0;
+
+        switch (target) {
+            case GR_GL_ARRAY_BUFFER:
+                id = fCurrArrayBuffer;
+                break;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:
+                id = fCurrElementArrayBuffer;
+                break;
+            case GR_GL_PIXEL_PACK_BUFFER:
+                id = fCurrPixelPackBuffer;
+                break;
+            case GR_GL_PIXEL_UNPACK_BUFFER:
+                id = fCurrPixelUnpackBuffer;
+                break;
+            default:
+                SkFAIL("Unexpected target to nullGLBufferData");
+                break;
+        }
+
+        if (id > 0) {
+            BufferObj* buffer = fBufferManager.lookUp(id);
+            buffer->allocate(size, (const GrGLchar*) data);
+        }
+    }
+
+    GrGLuint createProgram() override {
+        return ++fCurrProgramID;
+    }
+
+    GrGLuint createShader(GrGLenum type) override {
+        return ++fCurrShaderID;
+    }
+
+    GrGLvoid bindBuffer(GrGLenum target, GrGLuint buffer) override {
+        switch (target) {
+            case GR_GL_ARRAY_BUFFER:
+                fCurrArrayBuffer = buffer;
+                break;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:
+                fCurrElementArrayBuffer = buffer;
+                break;
+            case GR_GL_PIXEL_PACK_BUFFER:
+                fCurrPixelPackBuffer = buffer;
+                break;
+            case GR_GL_PIXEL_UNPACK_BUFFER:
+                fCurrPixelUnpackBuffer = buffer;
+                break;
+        }
+    }
+
+   // deleting a bound buffer has the side effect of binding 0
+    GrGLvoid deleteBuffers(GrGLsizei n, const GrGLuint* ids) override {
+        for (int i = 0; i < n; ++i) {
+            if (ids[i] == fCurrArrayBuffer) {
+                fCurrArrayBuffer = 0;
+            }
+            if (ids[i] == fCurrElementArrayBuffer) {
+                fCurrElementArrayBuffer = 0;
+            }
+            if (ids[i] == fCurrPixelPackBuffer) {
+                fCurrPixelPackBuffer = 0;
+            }
+            if (ids[i] == fCurrPixelUnpackBuffer) {
+                fCurrPixelUnpackBuffer = 0;
+            }
+
+            BufferObj* buffer = fBufferManager.lookUp(ids[i]);
+            fBufferManager.free(buffer);
+        }
+    }
+
+    GrGLvoid genFramebuffers(GrGLsizei n, GrGLuint *framebuffers) override {
+        this->genGenericIds(n, framebuffers);
+    }
+
+    GrGLvoid genQueries(GrGLsizei n, GrGLuint *ids) override { this->genGenericIds(n, ids); }
+
+    GrGLvoid genRenderbuffers(GrGLsizei n, GrGLuint *renderbuffers) override {
+        this->genGenericIds(n, renderbuffers);
+    }
+
+    GrGLvoid genTextures(GrGLsizei n, GrGLuint *textures) override {
+        this->genGenericIds(n, textures);
+    }
+
+    GrGLvoid genVertexArrays(GrGLsizei n, GrGLuint *arrays) override {
+        this->genGenericIds(n, arrays);
+    }
+
+    GrGLenum getError() override { return GR_GL_NO_ERROR; }
+
+    GrGLvoid getIntegerv(GrGLenum pname, GrGLint* params) override {
+        // TODO: remove from Ganesh the #defines for gets we don't use.
+        // We would like to minimize gets overall due to performance issues
+        switch (pname) {
+            case GR_GL_CONTEXT_PROFILE_MASK:
+                *params = GR_GL_CONTEXT_COMPATIBILITY_PROFILE_BIT;
+                break;
+            case GR_GL_STENCIL_BITS:
+                *params = 8;
+                break;
+            case GR_GL_SAMPLES:
+                *params = 1;
+                break;
+            case GR_GL_FRAMEBUFFER_BINDING:
+                *params = 0;
+                break;
+            case GR_GL_VIEWPORT:
+                params[0] = 0;
+                params[1] = 0;
+                params[2] = 800;
+                params[3] = 600;
+                break;
+            case GR_GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS:
+            case GR_GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS:
+            case GR_GL_MAX_TEXTURE_IMAGE_UNITS:
+            case GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS:
+                *params = 8;
+                break;
+            case GR_GL_MAX_TEXTURE_COORDS:
+                *params = 8;
+                break;
+            case GR_GL_MAX_VERTEX_UNIFORM_VECTORS:
+                *params = kDefaultMaxVertexUniformVectors;
+                break;
+            case GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS:
+                *params = kDefaultMaxFragmentUniformVectors;
+                break;
+            case GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS:
+                *params = 16 * 4;
+                break;
+            case GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS:
+                *params = 0;
+                break;
+            case GR_GL_COMPRESSED_TEXTURE_FORMATS:
+                break;
+            case GR_GL_MAX_TEXTURE_SIZE:
+                *params = 8192;
+                break;
+            case GR_GL_MAX_RENDERBUFFER_SIZE:
+                *params = 8192;
+                break;
+            case GR_GL_MAX_SAMPLES:
+                *params = 32;
+                break;
+            case GR_GL_MAX_VERTEX_ATTRIBS:
+                *params = kDefaultMaxVertexAttribs;
+                break;
+            case GR_GL_MAX_VARYING_VECTORS:
+                *params = kDefaultMaxVaryingVectors;
+                break;
+            case GR_GL_NUM_EXTENSIONS: {
+                GrGLint i = 0;
+                while (kExtensions[i++]);
+                *params = i;
+                break;
+            }
+            default:
+                SkFAIL("Unexpected pname to GetIntegerv");
+        }
+    }
+
+    GrGLvoid getProgramiv(GrGLuint program, GrGLenum pname, GrGLint* params) override {
+        this->getShaderOrProgramiv(program, pname, params);
+    }
+
+    GrGLvoid getProgramInfoLog(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length,
+                               char* infolog) override {
+        this->getInfoLog(program, bufsize, length, infolog);
+    }
+
+    GrGLvoid getMultisamplefv(GrGLenum pname, GrGLuint index, GrGLfloat* val) override {
+        val[0] = val[1] = 0.5f;
+    }
+
+    GrGLvoid getQueryiv(GrGLenum GLtarget, GrGLenum pname, GrGLint *params) override {
+        switch (pname) {
+            case GR_GL_CURRENT_QUERY:
+                *params = 0;
+                break;
+            case GR_GL_QUERY_COUNTER_BITS:
+                *params = 32;
+                break;
+            default:
+                SkFAIL("Unexpected pname passed GetQueryiv.");
+        }
+    }
+
+    GrGLvoid getQueryObjecti64v(GrGLuint id, GrGLenum pname, GrGLint64 *params) override {
+        queryResult(id, pname, params);
+    }
+
+    GrGLvoid getQueryObjectiv(GrGLuint id, GrGLenum pname, GrGLint *params) override {
+        queryResult(id, pname, params);
+    }
+
+    GrGLvoid getQueryObjectui64v(GrGLuint id, GrGLenum pname, GrGLuint64 *params) override {
+        queryResult(id, pname, params);
+    }
+
+    GrGLvoid getQueryObjectuiv(GrGLuint id, GrGLenum pname, GrGLuint *params) override {
+        queryResult(id, pname, params);
+    }
+
+    GrGLvoid getShaderiv(GrGLuint shader, GrGLenum pname, GrGLint* params) override {
+        this->getShaderOrProgramiv(shader, pname, params);
+    }
+
+    GrGLvoid getShaderInfoLog(GrGLuint shader, GrGLsizei bufsize, GrGLsizei* length,
+                              char* infolog) override {
+        this->getInfoLog(shader, bufsize, length, infolog);
+    }
+
+    const GrGLubyte* getString(GrGLenum name) override {
+        switch (name) {
+            case GR_GL_EXTENSIONS:
+                return CombinedExtensionString();
+            case GR_GL_VERSION:
+                return (const GrGLubyte*)"4.0 Debug GL";
+            case GR_GL_SHADING_LANGUAGE_VERSION:
+                return (const GrGLubyte*)"4.20.8 Debug GLSL";
+            case GR_GL_VENDOR:
+                return (const GrGLubyte*)"Debug Vendor";
+            case GR_GL_RENDERER:
+                return (const GrGLubyte*)"The Debug (Non-)Renderer";
+            default:
+                SkFAIL("Unexpected name passed to GetString");
+                return nullptr;
+        }
+    }
+
+    const GrGLubyte* getStringi(GrGLenum name, GrGLuint i) override {
+        switch (name) {
+            case GR_GL_EXTENSIONS: {
+                GrGLint count;
+                this->getIntegerv(GR_GL_NUM_EXTENSIONS, &count);
+                if ((GrGLint)i <= count) {
+                    return (const GrGLubyte*) kExtensions[i];
+                } else {
+                    return nullptr;
+                }
+            }
+            default:
+                SkFAIL("Unexpected name passed to GetStringi");
+                return nullptr;
+        }
+    }
+
+    GrGLvoid getTexLevelParameteriv(GrGLenum target, GrGLint level, GrGLenum pname,
+                                    GrGLint* params) override {
+        // we used to use this to query stuff about externally created textures,
+        // now we just require clients to tell us everything about the texture.
+        SkFAIL("Should never query texture parameters.");
+    }
+
+    GrGLint getUniformLocation(GrGLuint program, const char* name) override {
+        return ++fCurrUniformLocation;
+    }
+
+    GrGLvoid* mapBufferRange(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length,
+                             GrGLbitfield access) override {
+        GrGLuint id = 0;
+        switch (target) {
+            case GR_GL_ARRAY_BUFFER:
+                id = fCurrArrayBuffer;
+                break;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:
+                id = fCurrElementArrayBuffer;
+                break;
+            case GR_GL_PIXEL_PACK_BUFFER:
+                id = fCurrPixelPackBuffer;
+                break;
+            case GR_GL_PIXEL_UNPACK_BUFFER:
+                id = fCurrPixelUnpackBuffer;
+                break;
+        }
+
+        if (id > 0) {
+            // We just ignore the offset and length here.
+            BufferObj* buffer = fBufferManager.lookUp(id);
+            SkASSERT(!buffer->mapped());
+            buffer->setMapped(true);
+            return buffer->dataPtr();
+        }
+        return nullptr;
+    }
+
+    GrGLvoid* mapBuffer(GrGLenum target, GrGLenum access) override {
+        GrGLuint id = 0;
+        switch (target) {
+            case GR_GL_ARRAY_BUFFER:
+                id = fCurrArrayBuffer;
+                break;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:
+                id = fCurrElementArrayBuffer;
+                break;
+            case GR_GL_PIXEL_PACK_BUFFER:
+                id = fCurrPixelPackBuffer;
+                break;
+            case GR_GL_PIXEL_UNPACK_BUFFER:
+                id = fCurrPixelUnpackBuffer;
+                break;
+        }
+
+        if (id > 0) {
+            BufferObj* buffer = fBufferManager.lookUp(id);
+            SkASSERT(!buffer->mapped());
+            buffer->setMapped(true);
+            return buffer->dataPtr();
+        }
+
+        SkASSERT(false);
+        return nullptr;            // no buffer bound to target
+    }
+
+    GrGLboolean unmapBuffer(GrGLenum target) override {
+        GrGLuint id = 0;
+        switch (target) {
+            case GR_GL_ARRAY_BUFFER:
+                id = fCurrArrayBuffer;
+                break;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:
+                id = fCurrElementArrayBuffer;
+                break;
+            case GR_GL_PIXEL_PACK_BUFFER:
+                id = fCurrPixelPackBuffer;
+                break;
+            case GR_GL_PIXEL_UNPACK_BUFFER:
+                id = fCurrPixelUnpackBuffer;
+                break;
+        }
+        if (id > 0) {
+            BufferObj* buffer = fBufferManager.lookUp(id);
+            SkASSERT(buffer->mapped());
+            buffer->setMapped(false);
+            return GR_GL_TRUE;
+        }
+
+        GrAlwaysAssert(false);
+        return GR_GL_FALSE; // GR_GL_INVALID_OPERATION;
+    }
+
+    GrGLvoid getBufferParameteriv(GrGLenum target, GrGLenum pname, GrGLint* params) override {
+        switch (pname) {
+            case GR_GL_BUFFER_MAPPED: {
+                *params = GR_GL_FALSE;
+                GrGLuint id = 0;
+                switch (target) {
+                    case GR_GL_ARRAY_BUFFER:
+                        id = fCurrArrayBuffer;
+                        break;
+                    case GR_GL_ELEMENT_ARRAY_BUFFER:
+                        id = fCurrElementArrayBuffer;
+                        break;
+                    case GR_GL_PIXEL_PACK_BUFFER:
+                        id = fCurrPixelPackBuffer;
+                        break;
+                    case GR_GL_PIXEL_UNPACK_BUFFER:
+                        id = fCurrPixelUnpackBuffer;
+                        break;
+                }
+                if (id > 0) {
+                    BufferObj* buffer = fBufferManager.lookUp(id);
+                    if (buffer->mapped()) {
+                        *params = GR_GL_TRUE;
+                    }
+                }
+                break; }
+            default:
+                SkFAIL("Unexpected pname to GetBufferParamateriv");
+                break;
+        }
+    };
+
+private:
     BufferManager   fBufferManager;
     GrGLuint        fCurrArrayBuffer;
     GrGLuint        fCurrElementArrayBuffer;
+    GrGLuint        fCurrPixelPackBuffer;
+    GrGLuint        fCurrPixelUnpackBuffer;
     GrGLuint        fCurrProgramID;
     GrGLuint        fCurrShaderID;
+    GrGLuint        fCurrGenericID;
+    GrGLuint        fCurrUniformLocation;
 
-    static ThreadContext* Get() {
-        return reinterpret_cast<ThreadContext*>(SkTLS::Get(Create, Delete));
-    }
+    // the OpenGLES 2.0 spec says this must be >= 128
+    static const GrGLint kDefaultMaxVertexUniformVectors = 128;
 
-    ThreadContext()
-        : fCurrArrayBuffer(0)
-        , fCurrElementArrayBuffer(0)
-        , fCurrProgramID(0)
-        , fCurrShaderID(0) {}
+    // the OpenGLES 2.0 spec says this must be >=16
+    static const GrGLint kDefaultMaxFragmentUniformVectors = 16;
 
-private:
-    static void* Create() { return new ThreadContext; }
-    static void Delete(void* context) { delete reinterpret_cast<ThreadContext*>(context); }
-};
+    // the OpenGLES 2.0 spec says this must be >= 8
+    static const GrGLint kDefaultMaxVertexAttribs = 8;
 
-// Functions not declared in GrGLBogusInterface.h (not common with the Debug GL interface).
+    // the OpenGLES 2.0 spec says this must be >= 8
+    static const GrGLint kDefaultMaxVaryingVectors = 8;
 
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLAttachShader(GrGLuint program, GrGLuint shader) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBeginQuery(GrGLenum target, GrGLuint id) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindAttribLocation(GrGLuint program, GrGLuint index, const char* name) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindTexture(GrGLenum target, GrGLuint texture) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindVertexArray(GrGLuint id) {}
+    static const char* kExtensions[];
 
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
-    ThreadContext* ctx = ThreadContext::Get();
-    for (int i = 0; i < n; ++i) {
-        BufferObj* buffer = ctx->fBufferManager.create();
-        ids[i] = buffer->id();
-    }
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenerateMipmap(GrGLenum target) {}
-
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target,
-                                              GrGLsizeiptr size,
-                                              const GrGLvoid* data,
-                                              GrGLenum usage) {
-    ThreadContext* ctx = ThreadContext::Get();
-    GrGLuint id = 0;
-
-    switch (target) {
-    case GR_GL_ARRAY_BUFFER:
-        id = ctx->fCurrArrayBuffer;
-        break;
-    case GR_GL_ELEMENT_ARRAY_BUFFER:
-        id = ctx->fCurrElementArrayBuffer;
-        break;
-    default:
-        SkFAIL("Unexpected target to nullGLBufferData");
-        break;
-    }
-
-    if (id > 0) {
-        BufferObj* buffer = ctx->fBufferManager.lookUp(id);
-        buffer->allocate(size, (const GrGLchar*) data);
-    }
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLPixelStorei(GrGLenum pname, GrGLint param) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLReadPixels(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLUseProgram(GrGLuint program) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLViewport(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindFramebuffer(GrGLenum target, GrGLuint framebuffer) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindRenderbuffer(GrGLenum target, GrGLuint renderbuffer) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteFramebuffers(GrGLsizei n, const GrGLuint *framebuffers) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteRenderbuffers(GrGLsizei n, const GrGLuint *renderbuffers) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLFramebufferRenderbuffer(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLFramebufferTexture2D(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level) {}
-
-GrGLuint GR_GL_FUNCTION_TYPE nullGLCreateProgram() {
-    return ++ThreadContext::Get()->fCurrProgramID;
-}
-
-GrGLuint GR_GL_FUNCTION_TYPE nullGLCreateShader(GrGLenum type) {
-    return ++ThreadContext::Get()->fCurrShaderID;
-}
-
-// same delete used for shaders and programs
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLDelete(GrGLuint program) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindBuffer(GrGLenum target, GrGLuint buffer) {
-    ThreadContext* ctx = ThreadContext::Get();
-    switch (target) {
-    case GR_GL_ARRAY_BUFFER:
-        ctx->fCurrArrayBuffer = buffer;
-        break;
-    case GR_GL_ELEMENT_ARRAY_BUFFER:
-        ctx->fCurrElementArrayBuffer = buffer;
-        break;
-    }
-}
-
-// deleting a bound buffer has the side effect of binding 0
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteBuffers(GrGLsizei n, const GrGLuint* ids) {
-    ThreadContext* ctx = ThreadContext::Get();
-    for (int i = 0; i < n; ++i) {
-        if (ids[i] == ctx->fCurrArrayBuffer) {
-            ctx->fCurrArrayBuffer = 0;
-        }
-        if (ids[i] == ctx->fCurrElementArrayBuffer) {
-            ctx->fCurrElementArrayBuffer = 0;
-        }
-
-        BufferObj* buffer = ctx->fBufferManager.lookUp(ids[i]);
-        ctx->fBufferManager.free(buffer);
-    }
-}
-
-GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBufferRange(GrGLenum target, GrGLintptr offset,
-                                                   GrGLsizeiptr length, GrGLbitfield access) {
-    ThreadContext* ctx = ThreadContext::Get();
-    GrGLuint id = 0;
-    switch (target) {
-        case GR_GL_ARRAY_BUFFER:
-            id = ctx->fCurrArrayBuffer;
-            break;
-        case GR_GL_ELEMENT_ARRAY_BUFFER:
-            id = ctx->fCurrElementArrayBuffer;
-            break;
-    }
-
-    if (id > 0) {
-        // We just ignore the offset and length here.
-        BufferObj* buffer = ctx->fBufferManager.lookUp(id);
-        SkASSERT(!buffer->mapped());
-        buffer->setMapped(true);
-        return buffer->dataPtr();
-    }
-    return nullptr;
-}
-
-GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) {
-    ThreadContext* ctx = ThreadContext::Get();
-    GrGLuint id = 0;
-    switch (target) {
-        case GR_GL_ARRAY_BUFFER:
-            id = ctx->fCurrArrayBuffer;
-            break;
-        case GR_GL_ELEMENT_ARRAY_BUFFER:
-            id = ctx->fCurrElementArrayBuffer;
-            break;
-    }
-
-    if (id > 0) {
-        BufferObj* buffer = ctx->fBufferManager.lookUp(id);
-        SkASSERT(!buffer->mapped());
-        buffer->setMapped(true);
-        return buffer->dataPtr();
-    }
-
-    SkASSERT(false);
-    return nullptr;            // no buffer bound to target
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLFlushMappedBufferRange(GrGLenum target,
-                                                          GrGLintptr offset,
-                                                          GrGLsizeiptr length) {}
-
-
-GrGLboolean GR_GL_FUNCTION_TYPE nullGLUnmapBuffer(GrGLenum target) {
-    ThreadContext* ctx = ThreadContext::Get();
-    GrGLuint id = 0;
-    switch (target) {
-    case GR_GL_ARRAY_BUFFER:
-        id = ctx->fCurrArrayBuffer;
-        break;
-    case GR_GL_ELEMENT_ARRAY_BUFFER:
-        id = ctx->fCurrElementArrayBuffer;
-        break;
-    }
-    if (id > 0) {
-        BufferObj* buffer = ctx->fBufferManager.lookUp(id);
-        SkASSERT(buffer->mapped());
-        buffer->setMapped(false);
-        return GR_GL_TRUE;
-    }
-
-    GrAlwaysAssert(false);
-    return GR_GL_FALSE; // GR_GL_INVALID_OPERATION;
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetBufferParameteriv(GrGLenum target, GrGLenum pname, GrGLint* params) {
-    ThreadContext* ctx = ThreadContext::Get();
-    switch (pname) {
-        case GR_GL_BUFFER_MAPPED: {
-            *params = GR_GL_FALSE;
-            GrGLuint id = 0;
-            switch (target) {
-                case GR_GL_ARRAY_BUFFER:
-                    id = ctx->fCurrArrayBuffer;
-                    break;
-                case GR_GL_ELEMENT_ARRAY_BUFFER:
-                    id = ctx->fCurrElementArrayBuffer;
-                    break;
-            }
-            if (id > 0) {
-                BufferObj* buffer = ctx->fBufferManager.lookUp(id);
-                if (buffer->mapped()) {
-                    *params = GR_GL_TRUE;
+    static const GrGLubyte* CombinedExtensionString() {
+        static SkString gExtString;
+        static SkMutex gMutex;
+        gMutex.acquire();
+        if (0 == gExtString.size()) {
+            int i = 0;
+            while (kExtensions[i]) {
+                if (i > 0) {
+                    gExtString.append(" ");
                 }
+                gExtString.append(kExtensions[i]);
+                ++i;
             }
-            break; }
-        default:
-            SkFAIL("Unexpected pname to GetBufferParamateriv");
-            break;
+        }
+        gMutex.release();
+        return (const GrGLubyte*) gExtString.c_str();
+    }
+
+    GrGLvoid genGenericIds(GrGLsizei n, GrGLuint* ids) {
+        for (int i = 0; i < n; ++i) {
+            ids[i] = ++fCurrGenericID;
+        }
+    }
+
+    GrGLvoid getInfoLog(GrGLuint object, GrGLsizei bufsize, GrGLsizei* length,
+                        char* infolog) {
+        if (length) {
+            *length = 0;
+        }
+        if (bufsize > 0) {
+            *infolog = 0;
+        }
+    }
+
+    GrGLvoid getShaderOrProgramiv(GrGLuint object,  GrGLenum pname, GrGLint* params) {
+        switch (pname) {
+            case GR_GL_LINK_STATUS:  // fallthru
+            case GR_GL_COMPILE_STATUS:
+                *params = GR_GL_TRUE;
+                break;
+            case GR_GL_INFO_LOG_LENGTH:
+                *params = 0;
+                break;
+                // we don't expect any other pnames
+            default:
+                SkFAIL("Unexpected pname to GetProgramiv");
+                break;
+        }
+    }
+
+    template <typename T>
+    void queryResult(GrGLenum GLtarget, GrGLenum pname, T *params) {
+        switch (pname) {
+            case GR_GL_QUERY_RESULT_AVAILABLE:
+                *params = GR_GL_TRUE;
+                break;
+            case GR_GL_QUERY_RESULT:
+                *params = 0;
+                break;
+            default:
+                SkFAIL("Unexpected pname passed to GetQueryObject.");
+                break;
+        }
     }
 };
 
-} // end anonymous namespace
+const char* NullInterface::kExtensions[] = {
+    "GL_ARB_framebuffer_object",
+    "GL_ARB_blend_func_extended",
+    "GL_ARB_timer_query",
+    "GL_ARB_draw_buffers",
+    "GL_ARB_occlusion_query",
+    "GL_EXT_stencil_wrap",
+    nullptr, // signifies the end of the array.
+};
 
-const GrGLInterface* GrGLCreateNullInterface() {
-    GrGLInterface* interface = new GrGLInterface;
+}  // anonymous namespace
 
-    interface->fStandard = kGL_GrGLStandard;
-
-    GrGLInterface::Functions* functions = &interface->fFunctions;
-    functions->fActiveTexture = nullGLActiveTexture;
-    functions->fAttachShader = nullGLAttachShader;
-    functions->fBeginQuery = nullGLBeginQuery;
-    functions->fBindAttribLocation = nullGLBindAttribLocation;
-    functions->fBindBuffer = nullGLBindBuffer;
-    functions->fBindFragDataLocation = noOpGLBindFragDataLocation;
-    functions->fBindTexture = nullGLBindTexture;
-    functions->fBindVertexArray = nullGLBindVertexArray;
-    functions->fBlendColor = noOpGLBlendColor;
-    functions->fBlendEquation = noOpGLBlendEquation;
-    functions->fBlendFunc = noOpGLBlendFunc;
-    functions->fBufferData = nullGLBufferData;
-    functions->fBufferSubData = noOpGLBufferSubData;
-    functions->fClear = noOpGLClear;
-    functions->fClearColor = noOpGLClearColor;
-    functions->fClearStencil = noOpGLClearStencil;
-    functions->fColorMask = noOpGLColorMask;
-    functions->fCompileShader = noOpGLCompileShader;
-    functions->fCompressedTexImage2D = noOpGLCompressedTexImage2D;
-    functions->fCompressedTexSubImage2D = noOpGLCompressedTexSubImage2D;
-    functions->fCopyTexSubImage2D = noOpGLCopyTexSubImage2D;
-    functions->fCreateProgram = nullGLCreateProgram;
-    functions->fCreateShader = nullGLCreateShader;
-    functions->fCullFace = noOpGLCullFace;
-    functions->fDeleteBuffers = nullGLDeleteBuffers;
-    functions->fDeleteProgram = nullGLDelete;
-    functions->fDeleteQueries = noOpGLDeleteIds;
-    functions->fDeleteShader = nullGLDelete;
-    functions->fDeleteTextures = noOpGLDeleteIds;
-    functions->fDeleteVertexArrays = noOpGLDeleteIds;
-    functions->fDepthMask = noOpGLDepthMask;
-    functions->fDisable = noOpGLDisable;
-    functions->fDisableVertexAttribArray = noOpGLDisableVertexAttribArray;
-    functions->fDrawArrays = noOpGLDrawArrays;
-    functions->fDrawArraysInstanced = noOpGLDrawArraysInstanced;
-    functions->fDrawBuffer = noOpGLDrawBuffer;
-    functions->fDrawBuffers = noOpGLDrawBuffers;
-    functions->fDrawElements = noOpGLDrawElements;
-    functions->fDrawElementsInstanced = noOpGLDrawElementsInstanced;
-    functions->fEnable = noOpGLEnable;
-    functions->fEnableVertexAttribArray = noOpGLEnableVertexAttribArray;
-    functions->fEndQuery = noOpGLEndQuery;
-    functions->fFinish = noOpGLFinish;
-    functions->fFlush = noOpGLFlush;
-    functions->fFlushMappedBufferRange = nullGLFlushMappedBufferRange;
-    functions->fFrontFace = noOpGLFrontFace;
-    functions->fGenBuffers = nullGLGenBuffers;
-    functions->fGenerateMipmap = nullGLGenerateMipmap;
-    functions->fGenQueries = noOpGLGenIds;
-    functions->fGenTextures = noOpGLGenIds;
-    functions->fGenVertexArrays = noOpGLGenIds;
-    functions->fGetBufferParameteriv = nullGLGetBufferParameteriv;
-    functions->fGetError = noOpGLGetError;
-    functions->fGetIntegerv = noOpGLGetIntegerv;
-    functions->fGetMultisamplefv = noOpGLGetMultisamplefv;
-    functions->fGetQueryObjecti64v = noOpGLGetQueryObjecti64v;
-    functions->fGetQueryObjectiv = noOpGLGetQueryObjectiv;
-    functions->fGetQueryObjectui64v = noOpGLGetQueryObjectui64v;
-    functions->fGetQueryObjectuiv = noOpGLGetQueryObjectuiv;
-    functions->fGetQueryiv = noOpGLGetQueryiv;
-    functions->fGetProgramInfoLog = noOpGLGetInfoLog;
-    functions->fGetProgramiv = noOpGLGetShaderOrProgramiv;
-    functions->fGetShaderInfoLog = noOpGLGetInfoLog;
-    functions->fGetShaderiv = noOpGLGetShaderOrProgramiv;
-    functions->fGetString = noOpGLGetString;
-    functions->fGetStringi = noOpGLGetStringi;
-    functions->fGetTexLevelParameteriv = noOpGLGetTexLevelParameteriv;
-    functions->fGetUniformLocation = noOpGLGetUniformLocation;
-    functions->fInsertEventMarker = noOpGLInsertEventMarker;
-    functions->fLineWidth = noOpGLLineWidth;
-    functions->fLinkProgram = noOpGLLinkProgram;
-    functions->fMapBuffer = nullGLMapBuffer;
-    functions->fMapBufferRange = nullGLMapBufferRange;
-    functions->fPixelStorei = nullGLPixelStorei;
-    functions->fPopGroupMarker = noOpGLPopGroupMarker;
-    functions->fPushGroupMarker = noOpGLPushGroupMarker;
-    functions->fQueryCounter = noOpGLQueryCounter;
-    functions->fReadBuffer = noOpGLReadBuffer;
-    functions->fReadPixels = nullGLReadPixels;
-    functions->fScissor = noOpGLScissor;
-    functions->fShaderSource = noOpGLShaderSource;
-    functions->fStencilFunc = noOpGLStencilFunc;
-    functions->fStencilFuncSeparate = noOpGLStencilFuncSeparate;
-    functions->fStencilMask = noOpGLStencilMask;
-    functions->fStencilMaskSeparate = noOpGLStencilMaskSeparate;
-    functions->fStencilOp = noOpGLStencilOp;
-    functions->fStencilOpSeparate = noOpGLStencilOpSeparate;
-    functions->fTexBuffer = noOpGLTexBuffer;
-    functions->fTexImage2D = noOpGLTexImage2D;
-    functions->fTexParameteri = noOpGLTexParameteri;
-    functions->fTexParameteriv = noOpGLTexParameteriv;
-    functions->fTexSubImage2D = noOpGLTexSubImage2D;
-    functions->fTexStorage2D = noOpGLTexStorage2D;
-    functions->fDiscardFramebuffer = noOpGLDiscardFramebuffer;
-    functions->fUniform1f = noOpGLUniform1f;
-    functions->fUniform1i = noOpGLUniform1i;
-    functions->fUniform1fv = noOpGLUniform1fv;
-    functions->fUniform1iv = noOpGLUniform1iv;
-    functions->fUniform2f = noOpGLUniform2f;
-    functions->fUniform2i = noOpGLUniform2i;
-    functions->fUniform2fv = noOpGLUniform2fv;
-    functions->fUniform2iv = noOpGLUniform2iv;
-    functions->fUniform3f = noOpGLUniform3f;
-    functions->fUniform3i = noOpGLUniform3i;
-    functions->fUniform3fv = noOpGLUniform3fv;
-    functions->fUniform3iv = noOpGLUniform3iv;
-    functions->fUniform4f = noOpGLUniform4f;
-    functions->fUniform4i = noOpGLUniform4i;
-    functions->fUniform4fv = noOpGLUniform4fv;
-    functions->fUniform4iv = noOpGLUniform4iv;
-    functions->fUniformMatrix2fv = noOpGLUniformMatrix2fv;
-    functions->fUniformMatrix3fv = noOpGLUniformMatrix3fv;
-    functions->fUniformMatrix4fv = noOpGLUniformMatrix4fv;
-    functions->fUnmapBuffer = nullGLUnmapBuffer;
-    functions->fUseProgram = nullGLUseProgram;
-    functions->fVertexAttrib1f = noOpGLVertexAttrib1f;
-    functions->fVertexAttrib2fv = noOpGLVertexAttrib2fv;
-    functions->fVertexAttrib3fv = noOpGLVertexAttrib3fv;
-    functions->fVertexAttrib4fv = noOpGLVertexAttrib4fv;
-    functions->fVertexAttribDivisor = noOpGLVertexAttribDivisor;
-    functions->fVertexAttribIPointer = noOpGLVertexAttribIPointer;
-    functions->fVertexAttribPointer = noOpGLVertexAttribPointer;
-    functions->fViewport = nullGLViewport;
-    functions->fBindFramebuffer = nullGLBindFramebuffer;
-    functions->fBindRenderbuffer = nullGLBindRenderbuffer;
-    functions->fCheckFramebufferStatus = noOpGLCheckFramebufferStatus;
-    functions->fDeleteFramebuffers = nullGLDeleteFramebuffers;
-    functions->fDeleteRenderbuffers = nullGLDeleteRenderbuffers;
-    functions->fFramebufferRenderbuffer = nullGLFramebufferRenderbuffer;
-    functions->fFramebufferTexture2D = nullGLFramebufferTexture2D;
-    functions->fGenFramebuffers = noOpGLGenIds;
-    functions->fGenRenderbuffers = noOpGLGenIds;
-    functions->fGetFramebufferAttachmentParameteriv = noOpGLGetFramebufferAttachmentParameteriv;
-    functions->fGetRenderbufferParameteriv = noOpGLGetRenderbufferParameteriv;
-    functions->fRenderbufferStorage = noOpGLRenderbufferStorage;
-    functions->fRenderbufferStorageMultisample = noOpGLRenderbufferStorageMultisample;
-    functions->fBlitFramebuffer = noOpGLBlitFramebuffer;
-    functions->fResolveMultisampleFramebuffer = noOpGLResolveMultisampleFramebuffer;
-    functions->fMatrixLoadf = noOpGLMatrixLoadf;
-    functions->fMatrixLoadIdentity = noOpGLMatrixLoadIdentity;
-    functions->fBindFragDataLocationIndexed = noOpGLBindFragDataLocationIndexed;
-
-    interface->fExtensions.init(kGL_GrGLStandard, functions->fGetString, functions->fGetStringi,
-                                functions->fGetIntegerv, nullptr, GR_EGL_NO_DISPLAY);
-    return interface;
-}
+const GrGLInterface* GrGLCreateNullInterface() { return new NullInterface; }

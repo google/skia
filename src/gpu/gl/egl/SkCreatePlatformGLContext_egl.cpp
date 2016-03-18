@@ -229,8 +229,10 @@ GrGLuint EGLGLContext::eglImageToExternalTexture(GrEGLImage image) const {
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
     }
-    GrGLEGLImageTargetTexture2DProc glEGLImageTargetTexture2D = 
-            (GrGLEGLImageTargetTexture2DProc) eglGetProcAddress("glEGLImageTargetTexture2DOES");
+    typedef GrGLvoid (*EGLImageTargetTexture2DProc)(GrGLenum, GrGLeglImage);
+
+    EGLImageTargetTexture2DProc glEGLImageTargetTexture2D =
+        (EGLImageTargetTexture2DProc) eglGetProcAddress("glEGLImageTargetTexture2DOES");
     if (!glEGLImageTargetTexture2D) {
         return 0;
     }
