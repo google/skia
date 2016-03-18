@@ -162,14 +162,14 @@ bool sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-void sk_canvas_save(sk_canvas_t* ccanvas) {
-    AsCanvas(ccanvas)->save();
+int sk_canvas_save(sk_canvas_t* ccanvas) {
+    return AsCanvas(ccanvas)->save();
 }
 void sk_canvas_discard(sk_canvas_t* ccanvas) {
     AsCanvas(ccanvas)->discard();
 }
-void sk_canvas_save_layer(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->saveLayer(AsRect(crect), AsPaint(cpaint));
+int sk_canvas_save_layer(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
+    return AsCanvas(ccanvas)->saveLayer(AsRect(crect), AsPaint(cpaint));
 }
 
 void sk_canvas_restore(sk_canvas_t* ccanvas) {
