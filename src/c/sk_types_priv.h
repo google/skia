@@ -413,6 +413,20 @@ const struct {
 #include "sk_c_from_to.h"
 
 const struct {
+    sk_path_filltype_t fC;
+    SkPath::FillType   fSK;
+} MAKE_FROM_TO_NAME(sk_path_filltype_t)[] = {
+    { WINDING_SK_PATH_FILLTYPE,  SkPath::kWinding_FillType },
+    { EVENODD_SK_PATH_FILLTYPE, SkPath::kEvenOdd_FillType },
+    { INVERSE_WINDING_SK_PATH_FILLTYPE,  SkPath::kInverseWinding_FillType },
+    { INVERSE_EVENODD_SK_PATH_FILLTYPE, SkPath::kInverseEvenOdd_FillType },
+};
+#define CType           sk_path_filltype_t
+#define SKType          SkPath::FillType
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_path_filltype_t)
+#include "sk_c_from_to.h"
+
+const struct {
     sk_blurstyle_t  fC;
     SkBlurStyle     fSK;
 } MAKE_FROM_TO_NAME(sk_blurstyle_t)[] = {

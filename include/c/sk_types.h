@@ -324,6 +324,13 @@ typedef enum {
 } sk_path_direction_t;
 
 typedef enum {
+    WINDING_SK_PATH_FILLTYPE,
+    EVENODD_SK_PATH_FILLTYPE,
+    INVERSE_WINDING_SK_PATH_FILLTYPE,
+    INVERSE_EVENODD_SK_PATH_FILLTYPE,
+} sk_path_filltype_t;
+
+typedef enum {
     CLAMP_SK_SHADER_TILEMODE,
     REPEAT_SK_SHADER_TILEMODE,
     MIRROR_SK_SHADER_TILEMODE,

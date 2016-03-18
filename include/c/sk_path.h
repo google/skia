@@ -68,6 +68,16 @@ SK_API void sk_path_add_rect(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
 SK_API void sk_path_add_oval(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
 
 /**
+    Get the fill type of the path.
+*/
+SK_API sk_path_filltype_t sk_path_get_filltype(sk_path_t*);
+
+/**
+    Set the fill type of the path.
+*/
+SK_API void sk_path_set_filltype(sk_path_t*, sk_path_filltype_t);
+
+/**
  *  If the path is empty, return false and set the rect parameter to [0, 0, 0, 0].
  *  else return true and set the rect parameter to the bounds of the control-points
  *  of the path.
