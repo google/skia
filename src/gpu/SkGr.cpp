@@ -230,10 +230,10 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
     if (!bitmap.peekPixels(&pixmap)) {
         return nullptr;
     }
-    return GrUploadPixmapToTexture(ctx, pixmap);
+    return GrUploadPixmapToTexture(ctx, pixmap, SkBudgeted::kYes);
 }
 
-GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap) {
+GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBudgeted budgeted) {
     const SkPixmap* pmap = &pixmap;
     SkPixmap tmpPixmap;
     SkBitmap tmpBitmap;
@@ -250,7 +250,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap) {
 
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
-            return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, storage.get(),
+            return ctx->textureProvider()->createTexture(desc, budgeted, storage.get(),
                                                          pixmap.width());
         } else {
             SkImageInfo info = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
@@ -267,7 +267,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap) {
         }
     }
 
-    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, pmap->addr(),
+    return ctx->textureProvider()->createTexture(desc, budgeted, pmap->addr(),
                                                  pmap->rowBytes());
 }
 

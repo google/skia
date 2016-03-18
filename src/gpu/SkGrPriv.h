@@ -124,7 +124,7 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&);
 /**
  * Creates a new texture for the pixmap.
  */
-GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&);
+GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
 
 //////////////////////////////////////////////////////////////////////////////
 
