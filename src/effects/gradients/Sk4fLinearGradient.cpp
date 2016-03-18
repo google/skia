@@ -442,32 +442,34 @@ LinearGradient4fContext::mapTs(int x, int y, SkScalar ts[], int count) const {
     }
 }
 
-SkShader::Context::BlitProc SkLinearGradient::
-LinearGradient4fContext::onChooseBlitProc(const SkImageInfo& info, BlitState* state) {
+bool SkLinearGradient::LinearGradient4fContext::onChooseBlitProcs(const SkImageInfo& info,
+                                                                  BlitState* state) {
     SkXfermode::Mode mode;
     if (!SkXfermode::AsMode(state->fXfer, &mode)) {
-        return nullptr;
+        return false;
     }
 
     const SkGradientShaderBase& shader = static_cast<const SkGradientShaderBase&>(fShader);
     if (mode != SkXfermode::kSrc_Mode &&
         !(mode == SkXfermode::kSrcOver_Mode && shader.colorsAreOpaque())) {
-        return nullptr;
+        return false;
     }
 
     switch (info.colorType()) {
         case kN32_SkColorType:
-            return D32_BlitProc;
+            state->fBlitBW = D32_BlitBW;
+            return true;
         case kRGBA_F16_SkColorType:
-            return D64_BlitProc;
+            state->fBlitBW = D64_BlitBW;
+            return true;
         default:
-            return nullptr;
+            return false;
     }
 }
 
 void SkLinearGradient::
-LinearGradient4fContext::D32_BlitProc(BlitState* state, int x, int y, const SkPixmap& dst,
-                                      int count, const SkAlpha aa[]) {
+LinearGradient4fContext::D32_BlitBW(BlitState* state, int x, int y, const SkPixmap& dst,
+                                    int count) {
     // FIXME: ignoring coverage for now
     const LinearGradient4fContext* ctx =
         static_cast<const LinearGradient4fContext*>(state->fCtx);
@@ -492,8 +494,8 @@ LinearGradient4fContext::D32_BlitProc(BlitState* state, int x, int y, const SkPi
 }
 
 void SkLinearGradient::
-LinearGradient4fContext::D64_BlitProc(BlitState* state, int x, int y, const SkPixmap& dst,
-                                      int count, const SkAlpha aa[]) {
+LinearGradient4fContext::D64_BlitBW(BlitState* state, int x, int y, const SkPixmap& dst,
+                                    int count) {
     // FIXME: ignoring coverage for now
     const LinearGradient4fContext* ctx =
         static_cast<const LinearGradient4fContext*>(state->fCtx);

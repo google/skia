@@ -22,7 +22,7 @@ public:
 protected:
     void mapTs(int x, int y, SkScalar ts[], int count) const override;
 
-    BlitProc onChooseBlitProc(const SkImageInfo&, BlitState*) override;
+    bool onChooseBlitProcs(const SkImageInfo&, BlitState*) override;
 
 private:
     using INHERITED = GradientShaderBase4fContext;
@@ -40,10 +40,8 @@ private:
 
     bool isFast() const { return fDstToPosClass == kLinear_MatrixClass; }
 
-    static void D32_BlitProc(BlitState* state, int x, int y, const SkPixmap& dst,
-                             int count, const SkAlpha aa[]);
-    static void D64_BlitProc(BlitState*, int x, int y, const SkPixmap& dst,
-                             int count, const SkAlpha aa[]);
+    static void D32_BlitBW(BlitState*, int x, int y, const SkPixmap& dst, int count);
+    static void D64_BlitBW(BlitState*, int x, int y, const SkPixmap& dst, int count);
 
     mutable const Interval*      fCachedInterval;
 };

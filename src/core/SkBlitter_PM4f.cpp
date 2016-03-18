@@ -134,22 +134,22 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename State, bool UseBProc> class SkState_Shader_Blitter : public SkShaderBlitter {
+template <typename State> class SkState_Shader_Blitter : public SkShaderBlitter {
 public:
     SkState_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
-                           const SkShader::Context::BlitState& bstate,
-                           SkShader::Context::BlitProc bproc)
+                           const SkShader::Context::BlitState& bstate)
         : INHERITED(device, paint, bstate.fCtx)
         , fState(device.info(), paint, bstate.fCtx)
         , fBState(bstate)
-        , fBProc(bproc)
+        , fBlitBW(bstate.fBlitBW)
+        , fBlitAA(bstate.fBlitAA)
     {}
     
     void blitH(int x, int y, int width) override {
         SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
         
-        if (UseBProc) {
-            fBProc(&fBState, x, y, fDevice, width, nullptr);
+        if (fBlitBW) {
+            fBlitBW(&fBState, x, y, fDevice, width);
             return;
         }
 
@@ -161,9 +161,9 @@ public:
     void blitV(int x, int y, int height, SkAlpha alpha) override {
         SkASSERT(x >= 0 && y >= 0 && y + height <= fDevice.height());
 
-        if (UseBProc) {
+        if (fBlitAA) {
             for (const int bottom = y + height; y < bottom; ++y) {
-                fBProc(&fBState, x, y, fDevice, 1, &alpha);
+                fBlitAA(&fBState, x, y, fDevice, 1, &alpha);
             }
             return;
         }
@@ -187,9 +187,9 @@ public:
         SkASSERT(x >= 0 && y >= 0 &&
                  x + width <= fDevice.width() && y + height <= fDevice.height());
         
-        if (UseBProc) {
+        if (fBlitBW) {
             for (const int bottom = y + height; y < bottom; ++y) {
-                fBProc(&fBState, x, y, fDevice, width, nullptr);
+                fBlitBW(&fBState, x, y, fDevice, width);
             }
             return;
         }
@@ -219,8 +219,8 @@ public:
             }
             int aa = *antialias;
             if (aa) {
-                if (UseBProc && (aa == 255)) {
-                    fBProc(&fBState, x, y, fDevice, count, nullptr);
+                if (fBlitBW && (aa == 255)) {
+                    fBlitBW(&fBState, x, y, fDevice, count);
                 } else {
                     fShaderContext->shadeSpan4f(x, y, fState.fBuffer, count);
                     if (aa == 255) {
@@ -282,9 +282,9 @@ public:
         const uint8_t* maskRow = (const uint8_t*)mask.getAddr(x, y);
         const size_t maskRB = mask.fRowBytes;
 
-        if (UseBProc) {
+        if (fBlitAA) {
             for (; y < clip.fBottom; ++y) {
-                fBProc(&fBState, x, y, fDevice, width, maskRow);
+                fBlitAA(&fBState, x, y, fDevice, width, maskRow);
                 maskRow += maskRB;
             }
             return;
@@ -309,7 +309,8 @@ public:
 protected:
     State                        fState;
     SkShader::Context::BlitState fBState;
-    SkShader::Context::BlitProc  fBProc;
+    SkShader::Context::BlitBW    fBlitBW;
+    SkShader::Context::BlitAA    fBlitAA;
 
     typedef SkShaderBlitter INHERITED;
 };
@@ -338,8 +339,7 @@ struct State4f {
     SkAutoTMalloc<SkPM4f>   fBuffer;
     uint32_t                fFlags;
 
-    SkShader::Context::BlitState    fBState;
-    SkShader::Context::BlitProc     fBProc;
+    SkShader::Context::BlitState fBState;
 };
 
 struct State32 : State4f {
@@ -413,17 +413,12 @@ template <typename State> SkBlitter* create(const SkPixmap& device, const SkPain
 
     if (shaderContext) {
         SkShader::Context::BlitState bstate;
+        sk_bzero(&bstate, sizeof(bstate));
         bstate.fCtx = shaderContext;
         bstate.fXfer = paint.getXfermode();
 
-        auto bproc = shaderContext->chooseBlitProc(device.info(), &bstate);
-        if (bproc) {
-            return allocator->createT<SkState_Shader_Blitter<State, true>>(device, paint, bstate,
-                                                                           bproc);
-        } else {
-            return allocator->createT<SkState_Shader_Blitter<State, false>>(device, paint, bstate,
-                                                                            bproc);
-        }
+        (void)shaderContext->chooseBlitProcs(device.info(), &bstate);
+        return allocator->createT<SkState_Shader_Blitter<State>>(device, paint, bstate);
     } else {
         SkColor color = paint.getColor();
         if (0 == SkColorGetA(color)) {

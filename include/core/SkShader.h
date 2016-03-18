@@ -142,18 +142,35 @@ public:
 
         virtual void shadeSpan4f(int x, int y, SkPM4f[], int count);
 
+        struct BlitState;
+        typedef void (*BlitBW)(BlitState*,
+                               int x, int y, const SkPixmap&, int count);
+        typedef void (*BlitAA)(BlitState*,
+                               int x, int y, const SkPixmap&, int count, const SkAlpha[]);
+
         struct BlitState {
+            // inputs
             Context*    fCtx;
             SkXfermode* fXfer;
+
+            // outputs
             enum { N = 2 };
             void*       fStorage[N];
+            BlitBW      fBlitBW;
+            BlitAA      fBlitAA;
         };
-        typedef void (*BlitProc)(BlitState*,
-                                 int x, int y, const SkPixmap&, int count, const SkAlpha[]);
-        BlitProc chooseBlitProc(const SkImageInfo& info, BlitState* state) {
-            return this->onChooseBlitProc(info, state);
+
+        // Returns true if one or more of the blitprocs are set in the BlitState
+        bool chooseBlitProcs(const SkImageInfo& info, BlitState* state) {
+            state->fBlitBW = nullptr;
+            state->fBlitAA = nullptr;
+            if (this->onChooseBlitProcs(info, state)) {
+                SkASSERT(state->fBlitBW || state->fBlitAA);
+                return true;
+            }
+            return false;
         }
-        
+
         /**
          * The const void* ctx is only const because all the implementations are const.
          * This can be changed to non-const if a new shade proc needs to change the ctx.
@@ -188,9 +205,7 @@ public:
         MatrixClass     getInverseClass() const { return (MatrixClass)fTotalInverseClass; }
         const SkMatrix& getCTM() const { return fCTM; }
 
-        virtual BlitProc onChooseBlitProc(const SkImageInfo&, BlitState*) {
-            return nullptr;
-        }
+        virtual bool onChooseBlitProcs(const SkImageInfo&, BlitState*) { return false; }
 
     private:
         SkMatrix    fCTM;
