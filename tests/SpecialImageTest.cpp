@@ -174,81 +174,6 @@ DEF_TEST(SpecialImage_Pixmap, reporter) {
 
 
 #if SK_SUPPORT_GPU
-
-static void test_texture_backed(skiatest::Reporter* reporter,
-                                const sk_sp<SkSpecialImage>& orig,
-                                const sk_sp<SkSpecialImage>& gpuBacked) {
-    REPORTER_ASSERT(reporter, gpuBacked);
-    REPORTER_ASSERT(reporter, gpuBacked->peekTexture());
-    REPORTER_ASSERT(reporter, gpuBacked->uniqueID() == orig->uniqueID());
-    REPORTER_ASSERT(reporter, gpuBacked->subset().width() == orig->subset().width() &&
-                              gpuBacked->subset().height() == orig->subset().height());
-}
-
-// Test out the SkSpecialImage::makeTextureImage entry point
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, context) {
-    SkBitmap bm = create_bm();
-
-    const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
-
-    {
-        // raster
-        sk_sp<SkSpecialImage> rasterImage(SkSpecialImage::MakeFromRaster(
-                                                                        nullptr,
-                                                                        SkIRect::MakeWH(kFullSize,
-                                                                                        kFullSize),
-                                                                        bm));
-
-        {
-            sk_sp<SkSpecialImage> fromRaster(rasterImage->makeTextureImage(nullptr, context));
-            test_texture_backed(reporter, rasterImage, fromRaster);
-        }
-
-        {
-            sk_sp<SkSpecialImage> subRasterImage(rasterImage->makeSubset(subset));
-
-            sk_sp<SkSpecialImage> fromSubRaster(subRasterImage->makeTextureImage(nullptr, context));
-            test_texture_backed(reporter, subRasterImage, fromSubRaster);
-        }
-    }
-
-    {
-        // gpu
-        GrSurfaceDesc desc;
-        desc.fConfig = kSkia8888_GrPixelConfig;
-        desc.fFlags = kNone_GrSurfaceFlags;
-        desc.fWidth = kFullSize;
-        desc.fHeight = kFullSize;
-
-        SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
-                                                                                  SkBudgeted::kNo,
-                                                                                  bm.getPixels(),
-                                                                                  0));
-        if (!texture) {
-            return;
-        }
-
-        sk_sp<SkSpecialImage> gpuImage(SkSpecialImage::MakeFromGpu(
-                                                                nullptr,
-                                                                SkIRect::MakeWH(kFullSize,
-                                                                                kFullSize),
-                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                                texture));
-
-        {
-            sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(nullptr, context));
-            test_texture_backed(reporter, gpuImage, fromGPU);
-        }
-
-        {
-            sk_sp<SkSpecialImage> subGPUImage(gpuImage->makeSubset(subset));
-
-            sk_sp<SkSpecialImage> fromSubGPU(subGPUImage->makeTextureImage(nullptr, context));
-            test_texture_backed(reporter, subGPUImage, fromSubGPU);
-        }
-    }
-}
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, context) {
     SkBitmap bm = create_bm();
 
@@ -258,8 +183,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, context) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
-                                                                              SkBudgeted::kNo,
+    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc, SkBudgeted::kNo,
                                                                               bm.getPixels(), 0));
     if (!texture) {
         return;

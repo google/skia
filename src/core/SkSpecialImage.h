@@ -14,16 +14,12 @@
 // remove this when internal_getProxy goes away (see skbug.com/4965)
 #include "SkImageFilter.h"
 
-#include "SkImageInfo.h" // for SkAlphaType
-
-class GrContext;
 class GrTexture;
 class SkBitmap;
 class SkCanvas;
 class SkImage;
 struct SkImageInfo;
 class SkPaint;
-class SkPixmap;
 class SkSpecialSurface;
 
 enum {
@@ -53,13 +49,6 @@ public:
     uint32_t uniqueID() const { return fUniqueID; }
     virtual bool isOpaque() const { return false; }
     virtual size_t getSize() const = 0;
-
-    /**
-     *  Ensures that a special image is backed by a texture (when GrContext is non-null). If no
-     *  transformation is required, the returned image may be the same as this special image.
-     *  If this special image is from a different GrContext, this will fail.
-     */
-    sk_sp<SkSpecialImage> makeTextureImage(SkImageFilter::Proxy*, GrContext*);
 
     /**
      *  Draw this SpecialImage into the canvas.
