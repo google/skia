@@ -10,7 +10,8 @@
 #include "SkDrawBitmap.h"
 #include "SkAnimateMaker.h"
 #include "SkCanvas.h"
-#include "SkImageDecoder.h"
+#include "SkData.h"
+#include "SkImage.h"
 #include "SkPaint.h"
 #include "SkStream.h"
 
@@ -181,7 +182,9 @@ void SkImageBaseBitmap::resolve() {
     fDirty = false;
     if (base64.fData) {
         fBitmap.reset();
-        SkImageDecoder::DecodeMemory(base64.fData, base64.fLength, &fBitmap);
+        sk_sp<SkData> data = SkData::MakeWithoutCopy(base64.fData, base64.fLength);
+        sk_sp<SkImage> image = SkImage::MakeFromEncoded(data);
+        image->asLegacyBitmap(&fBitmap, SkImage::kRO_LegacyBitmapMode);
     } else if (src.size()) {
         if (fLast.equals(src))
             return;
@@ -189,9 +192,10 @@ void SkImageBaseBitmap::resolve() {
         fBitmap.reset();
 
         //SkStream* stream = SkStream::GetURIStream(fUriBase, src.c_str());
-        SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(src.c_str()));
-        if (stream.get()) {
-            SkImageDecoder::DecodeStream(stream, &fBitmap);
+        sk_sp<SkData> data = SkData::MakeFromFileName(src.c_str());
+        if (data) {
+            sk_sp<SkImage> image = SkImage::MakeFromEncoded(data);
+            image->asLegacyBitmap(&fBitmap, SkImage::kRO_LegacyBitmapMode);
         }
     }
 }

@@ -13,7 +13,6 @@
 #include "SkBoundable.h"
 #include "SkBase64.h"
 #include "SkBitmap.h"
-// #include "SkImageDecoder.h"
 #include "SkMemberInfo.h"
 
 class SkBaseBitmap : public SkBoundable {
