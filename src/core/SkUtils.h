@@ -32,6 +32,16 @@ static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
     }
 }
 
+/** Similar to memset(), but it assigns a 64bit value into the buffer.
+    @param buffer   The memory to have value copied into it
+    @param value    The 64bit value to be copied into buffer
+    @param count    The number of times value should be copied into the buffer.
+*/
+static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
+    for (int i = 0; i < count; i++) {
+        buffer[i] = value;
+    }
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 #define kMaxBytesInUTF8Sequence     4

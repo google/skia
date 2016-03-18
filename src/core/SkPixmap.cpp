@@ -211,12 +211,6 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
 #include "SkNx.h"
 #include "SkHalf.h"
 
-static void sk_memset64(uint64_t dst[], uint64_t value, int count) {
-    for (int i = 0; i < count; ++i) {
-        dst[i] = value;
-    }
-}
-
 bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     SkPixmap pm;
     if (subset) {

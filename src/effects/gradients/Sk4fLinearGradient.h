@@ -22,21 +22,28 @@ public:
 protected:
     void mapTs(int x, int y, SkScalar ts[], int count) const override;
 
+    BlitProc onChooseBlitProc(const SkImageInfo&, BlitState*) override;
+
 private:
     using INHERITED = GradientShaderBase4fContext;
 
-    template<typename DstType, TileMode>
+    template<typename DstType, SkColorProfileType, TileMode>
     class LinearIntervalProcessor;
 
-    template <typename DstType, bool premul>
+    template <typename DstType, SkColorProfileType, ApplyPremul>
     void shadePremulSpan(int x, int y, DstType[], int count) const;
 
-    template <typename DstType, bool premul, SkShader::TileMode tileMode>
+    template <typename DstType, SkColorProfileType, ApplyPremul, SkShader::TileMode tileMode>
     void shadeSpanInternal(int x, int y, DstType[], int count) const;
 
     const Interval* findInterval(SkScalar fx) const;
 
     bool isFast() const { return fDstToPosClass == kLinear_MatrixClass; }
+
+    static void D32_BlitProc(BlitState* state, int x, int y, const SkPixmap& dst,
+                             int count, const SkAlpha aa[]);
+    static void D64_BlitProc(BlitState*, int x, int y, const SkPixmap& dst,
+                             int count, const SkAlpha aa[]);
 
     mutable const Interval*      fCachedInterval;
 };

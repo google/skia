@@ -6,7 +6,6 @@
  */
 
 #include "Sk4fGradientBase.h"
-#include "Sk4fGradientPriv.h"
 
 #include <functional>
 
@@ -277,22 +276,22 @@ GradientShaderBase4fContext::addMirrorIntervals(const SkGradientShaderBase& shad
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadeSpan(int x, int y, SkPMColor dst[], int count) {
     if (fColorsArePremul) {
-        this->shadePremulSpan<SkPMColor, false>(x, y, dst, count);
+        this->shadePremulSpan<SkPMColor, ApplyPremul::False>(x, y, dst, count);
     } else {
-        this->shadePremulSpan<SkPMColor, true>(x, y, dst, count);
+        this->shadePremulSpan<SkPMColor, ApplyPremul::True>(x, y, dst, count);
     }
 }
 
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
     if (fColorsArePremul) {
-        this->shadePremulSpan<SkPM4f, false>(x, y, dst, count);
+        this->shadePremulSpan<SkPM4f, ApplyPremul::False>(x, y, dst, count);
     } else {
-        this->shadePremulSpan<SkPM4f, true>(x, y, dst, count);
+        this->shadePremulSpan<SkPM4f, ApplyPremul::True>(x, y, dst, count);
     }
 }
 
-template<typename DstType, bool do_premul>
+template<typename DstType, ApplyPremul premul>
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadePremulSpan(int x, int y,
                                              DstType dst[],
@@ -303,23 +302,23 @@ GradientShaderBase4fContext::shadePremulSpan(int x, int y,
     switch (shader.fTileMode) {
     case kClamp_TileMode:
         this->shadeSpanInternal<DstType,
-                                do_premul,
+                                premul,
                                 kClamp_TileMode>(x, y, dst, count);
         break;
     case kRepeat_TileMode:
         this->shadeSpanInternal<DstType,
-                                do_premul,
+                                premul,
                                 kRepeat_TileMode>(x, y, dst, count);
         break;
     case kMirror_TileMode:
         this->shadeSpanInternal<DstType,
-                                do_premul,
+                                premul,
                                 kMirror_TileMode>(x, y, dst, count);
         break;
     }
 }
 
-template<typename DstType, bool do_premul, SkShader::TileMode tileMode>
+template<typename DstType, ApplyPremul premul, SkShader::TileMode tileMode>
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
                                                DstType dst[],
@@ -334,7 +333,7 @@ GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
         this->mapTs(x, y, ts, n);
         for (int i = 0; i < n; ++i) {
             const Sk4f c = sampler.sample(ts[i]);
-            store<DstType, do_premul>(c, dst++);
+            store<DstType, kLinear_SkColorProfileType, premul>(c, dst++);
         }
         x += n;
         count -= n;
@@ -424,8 +423,8 @@ private:
     }
 
     void loadIntervalData(const Interval* i) {
-        fCc = dst_swizzle<DstType>(i->fC0) * dst_component_scale<DstType>();
-        fDc = dst_swizzle<DstType>(i->fDc) * dst_component_scale<DstType>();
+        fCc = scale_for_dest<DstType, kLinear_SkColorProfileType>(dst_swizzle<DstType>(i->fC0));
+        fDc = scale_for_dest<DstType, kLinear_SkColorProfileType>(dst_swizzle<DstType>(i->fDc));
     }
 
     const Interval* fFirstInterval;

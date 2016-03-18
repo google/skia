@@ -8,6 +8,7 @@
 #ifndef Sk4fGradientBase_DEFINED
 #define Sk4fGradientBase_DEFINED
 
+#include "Sk4fGradientPriv.h"
 #include "SkColor.h"
 #include "SkGradientShaderPriv.h"
 #include "SkMatrix.h"
@@ -61,10 +62,10 @@ private:
     template<typename DstType, SkShader::TileMode tileMode>
     class TSampler;
 
-    template <typename DstType, bool do_premul>
+    template <typename DstType, ApplyPremul>
     void shadePremulSpan(int x, int y, DstType[], int count) const;
 
-    template <typename DstType, bool do_premul, SkShader::TileMode tileMode>
+    template <typename DstType, ApplyPremul, SkShader::TileMode tileMode>
     void shadeSpanInternal(int x, int y, DstType[], int count) const;
 };
 

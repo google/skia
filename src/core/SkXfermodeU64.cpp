@@ -10,12 +10,6 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
-static void sk_memset64(uint64_t dst[], uint64_t value, int count) {
-    for (int i = 0; i < count; ++i) {
-        dst[i] = value;
-    }
-}
-
 enum DstType {
     kU16_Dst,
     kF16_Dst,
