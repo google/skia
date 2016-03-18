@@ -153,7 +153,7 @@ SkFlattenable* SkPath1DPathEffect::CreateProc(SkReadBuffer& buffer) {
         buffer.readPath(&path);
         SkScalar phase = buffer.readScalar();
         Style style = (Style)buffer.readUInt();
-        return SkPath1DPathEffect::Make(path, advance, phase, style).release();
+        return SkPath1DPathEffect::Create(path, advance, phase, style);
     }
     return nullptr;
 }
@@ -204,10 +204,10 @@ void SkPath1DPathEffect::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkPathEffect> SkPath1DPathEffect::Make(const SkPath& path, SkScalar advance, SkScalar phase,
-                                             Style style) {
+SkPathEffect* SkPath1DPathEffect::Create(const SkPath& path, SkScalar advance, SkScalar phase,
+                                         Style style) {
     if (advance <= 0 || path.isEmpty()) {
         return nullptr;
     }
-    return sk_sp<SkPathEffect>(new SkPath1DPathEffect(path, advance, phase, style));
+    return new SkPath1DPathEffect(path, advance, phase, style);
 }

@@ -77,7 +77,7 @@ static void r4(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
 static void r5(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     rastBuilder->addLayer(p);
 
-    p.setPathEffect(SkDiscretePathEffect::Make(SK_Scalar1*4, SK_Scalar1*3));
+    p.setPathEffect(SkDiscretePathEffect::Create(SK_Scalar1*4, SK_Scalar1*3))->unref();
     p.setXfermodeMode(SkXfermode::kSrcOut_Mode);
     rastBuilder->addLayer(p);
 }
@@ -95,17 +95,17 @@ static void r6(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
 
 #include "Sk2DPathEffect.h"
 
-static sk_sp<SkPathEffect> MakeDotEffect(SkScalar radius, const SkMatrix& matrix) {
+static SkPathEffect* MakeDotEffect(SkScalar radius, const SkMatrix& matrix) {
     SkPath path;
     path.addCircle(0, 0, radius);
-    return SkPath2DPathEffect::Make(matrix, path);
+    return SkPath2DPathEffect::Create(matrix, path);
 }
 
 static void r7(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
-    p.setPathEffect(MakeDotEffect(SK_Scalar1*4, lattice));
+    p.setPathEffect(MakeDotEffect(SK_Scalar1*4, lattice))->unref();
     rastBuilder->addLayer(p);
 }
 
@@ -115,7 +115,7 @@ static void r8(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
-    p.setPathEffect(MakeDotEffect(SK_Scalar1*2, lattice));
+    p.setPathEffect(MakeDotEffect(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
@@ -132,7 +132,7 @@ static void r9(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
-    p.setPathEffect(SkLine2DPathEffect::Make(SK_Scalar1*2, lattice));
+    p.setPathEffect(SkLine2DPathEffect::Create(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 

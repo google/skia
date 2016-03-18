@@ -1615,7 +1615,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
 
     // Now restore the original settings, so we "draw" with whatever style/stroking.
     paint.setStyle(origPaint.getStyle());
-    paint.setPathEffect(sk_ref_sp(origPaint.getPathEffect()));
+    paint.setPathEffect(origPaint.getPathEffect());
 
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);

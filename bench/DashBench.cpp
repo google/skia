@@ -72,7 +72,9 @@ protected:
         SkPath path;
         this->makePath(&path);
 
-        paint.setPathEffect(SkDashPathEffect::Make(fIntervals.begin(), fIntervals.count(), 0));
+        SkAutoTUnref<SkPathEffect> effect(SkDashPathEffect::Create(fIntervals.begin(),
+                                          fIntervals.count(), 0));
+        paint.setPathEffect(effect);
 
         if (fDoClip) {
             SkRect r = path.getBounds();
@@ -177,7 +179,7 @@ static void make_cubic(SkPath* path) {
 class MakeDashBench : public Benchmark {
     SkString fName;
     SkPath   fPath;
-    sk_sp<SkPathEffect> fPE;
+    SkAutoTUnref<SkPathEffect> fPE;
 
 public:
     MakeDashBench(void (*proc)(SkPath*), const char name[])  {
@@ -185,7 +187,7 @@ public:
         proc(&fPath);
 
         SkScalar vals[] = { SkIntToScalar(4), SkIntToScalar(4) };
-        fPE = SkDashPathEffect::Make(vals, 2, 0);
+        fPE.reset(SkDashPathEffect::Create(vals, 2, 0));
     }
 
 protected:
@@ -214,7 +216,7 @@ class DashLineBench : public Benchmark {
     SkString fName;
     SkScalar fStrokeWidth;
     bool     fIsRound;
-    sk_sp<SkPathEffect> fPE;
+    SkAutoTUnref<SkPathEffect> fPE;
 
 public:
     DashLineBench(SkScalar width, bool isRound)  {
@@ -223,7 +225,7 @@ public:
         fIsRound = isRound;
 
         SkScalar vals[] = { SK_Scalar1, SK_Scalar1 };
-        fPE = SkDashPathEffect::Make(vals, 2, 0);
+        fPE.reset(SkDashPathEffect::Create(vals, 2, 0));
     }
 
 protected:
@@ -252,7 +254,7 @@ class DrawPointsDashingBench : public Benchmark {
     int      fStrokeWidth;
     bool     fDoAA;
 
-    sk_sp<SkPathEffect> fPathEffect;
+    SkAutoTUnref<SkPathEffect> fPathEffect;
 
 public:
     DrawPointsDashingBench(int dashLength, int strokeWidth, bool doAA)
@@ -262,7 +264,7 @@ public:
         fDoAA = doAA;
 
         SkScalar vals[] = { SkIntToScalar(dashLength), SkIntToScalar(dashLength) };
-        fPathEffect = SkDashPathEffect::Make(vals, 2, SK_Scalar1);
+        fPathEffect.reset(SkDashPathEffect::Create(vals, 2, SK_Scalar1));
     }
 
 protected:
@@ -299,7 +301,7 @@ class GiantDashBench : public Benchmark {
     SkString fName;
     SkScalar fStrokeWidth;
     SkPoint  fPts[2];
-    sk_sp<SkPathEffect> fPathEffect;
+    SkAutoTUnref<SkPathEffect> fPathEffect;
 
 public:
     enum LineType {
@@ -322,7 +324,8 @@ public:
         // deliberately pick intervals that won't be caught by asPoints(), so
         // we can test the filterPath code-path.
         const SkScalar intervals[] = { 20, 10, 10, 10 };
-        fPathEffect = SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0);
+        fPathEffect.reset(SkDashPathEffect::Create(intervals,
+                                                   SK_ARRAY_COUNT(intervals), 0));
 
         SkScalar cx = 640 / 2;  // center X
         SkScalar cy = 480 / 2;  // center Y
@@ -378,7 +381,7 @@ class DashGridBench : public Benchmark {
     int      fStrokeWidth;
     bool     fDoAA;
 
-    sk_sp<SkPathEffect> fPathEffect;
+    SkAutoTUnref<SkPathEffect> fPathEffect;
 
 public:
     DashGridBench(int dashLength, int strokeWidth, bool doAA) {
@@ -387,7 +390,7 @@ public:
         fDoAA = doAA;
 
         SkScalar vals[] = { SkIntToScalar(dashLength), SkIntToScalar(dashLength) };
-        fPathEffect = SkDashPathEffect::Make(vals, 2, SK_Scalar1);
+        fPathEffect.reset(SkDashPathEffect::Create(vals, 2, SK_Scalar1));
     }
 
 protected:

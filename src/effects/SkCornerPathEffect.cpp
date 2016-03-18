@@ -140,7 +140,7 @@ DONE:
 }
 
 SkFlattenable* SkCornerPathEffect::CreateProc(SkReadBuffer& buffer) {
-    return SkCornerPathEffect::Make(buffer.readScalar()).release();
+    return SkCornerPathEffect::Create(buffer.readScalar());
 }
 
 void SkCornerPathEffect::flatten(SkWriteBuffer& buffer) const {

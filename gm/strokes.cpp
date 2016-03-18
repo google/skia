@@ -128,7 +128,7 @@ protected:
             canvas->drawPath(fMoveZfPath, strokePaint);
             dashPaint = strokePaint;
             const SkScalar intervals[] = { 0, 10 };
-            dashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0));
+            dashPaint.setPathEffect(SkDashPathEffect::Create(intervals, 2, 0))->unref();
             SkPath fillPath;
             dashPaint.getFillPath(fDashedfPath, &fillPath);
             canvas->translate(0, 20);

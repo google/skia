@@ -32,7 +32,6 @@
 #include "SkIStream.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
-#include "SkPathEffect.h"
 #include "SkPathOps.h"
 #include "SkPoint.h"
 #include "SkRasterizer.h"

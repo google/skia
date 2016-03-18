@@ -141,7 +141,7 @@ static void r4(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
 static void r5(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     rastBuilder->addLayer(p);
 
-    p.setPathEffect(SkDiscretePathEffect::Make(SK_Scalar1*4, SK_Scalar1*3));
+    p.setPathEffect(SkDiscretePathEffect::Create(SK_Scalar1*4, SK_Scalar1*3))->unref();
     p.setXfermodeMode(SkXfermode::kSrcOut_Mode);
     rastBuilder->addLayer(p);
 }
@@ -184,7 +184,7 @@ static void r7(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
-    p.setPathEffect(sk_make_sp<Dot2DPathEffect>(SK_Scalar1*4, lattice));
+    p.setPathEffect(new Dot2DPathEffect(SK_Scalar1*4, lattice))->unref();
     rastBuilder->addLayer(p);
 }
 
@@ -194,7 +194,7 @@ static void r8(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
-    p.setPathEffect(sk_make_sp<Dot2DPathEffect>(SK_Scalar1*2, lattice));
+    p.setPathEffect(new Dot2DPathEffect(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
@@ -211,7 +211,7 @@ static void r9(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
-    p.setPathEffect(SkLine2DPathEffect::Make(SK_Scalar1*2, lattice));
+    p.setPathEffect(SkLine2DPathEffect::Create(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
@@ -416,7 +416,7 @@ protected:
         canvas->translate(SkIntToScalar(50), 0);
         paint.setColor(SK_ColorYELLOW);
         paint.setShader(linear);
-        paint.setPathEffect(pathEffectTest());
+        paint.setPathEffect(pathEffectTest())->unref();
         canvas->drawRect(rect, paint);
         paint.setPathEffect(nullptr);
 
@@ -481,7 +481,7 @@ protected:
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    sk_sp<SkPathEffect> pathEffectTest() {
+    SkPathEffect* pathEffectTest() {
         static const int gXY[] = { 1, 0, 0, -1, 2, -1, 3, 0, 2, 1, 0, 1 };
         SkScalar gPhase = 0;
         SkPath path;
@@ -490,11 +490,14 @@ protected:
             path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
         path.close();
         path.offset(SkIntToScalar(-6), 0);
-        auto outer = SkPath1DPathEffect::Make(path, SkIntToScalar(12),
+        SkPathEffect* outer = SkPath1DPathEffect::Create(path, SkIntToScalar(12),
             gPhase, SkPath1DPathEffect::kRotate_Style);
-        auto inner = SkDiscretePathEffect::Make(SkIntToScalar(2),
+        SkPathEffect* inner = SkDiscretePathEffect::Create(SkIntToScalar(2),
             SkIntToScalar(1)/10); // SkCornerPathEffect(SkIntToScalar(2));
-        return SkComposePathEffect::Make(outer, inner);
+        SkPathEffect* result = SkComposePathEffect::Create(outer, inner);
+        outer->unref();
+        inner->unref();
+        return result;
     }
 
     sk_sp<SkShader> shaderTest() {

@@ -144,7 +144,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
         path.lineTo(50, 50);
 
         SkScalar intervals[] = { 1.0f, 1.0f };
-        sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
+        SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
 
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
@@ -233,7 +233,8 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     {
         SkPaint paint;
         SkScalar intervals [] = { 10, 20 };
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 25));
+        SkPathEffect* pe = SkDashPathEffect::Create(intervals, 2, 25);
+        paint.setPathEffect(pe)->unref();
 
         SkPoint points [2] = { { 0, 0 }, { 100, 0 } };
 
@@ -249,7 +250,8 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     {
         SkPaint paint;
         SkScalar intervals [] = { 10, 20 };
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 25));
+        SkPathEffect* pe = SkDashPathEffect::Create(intervals, 2, 25);
+        paint.setPathEffect(pe)->unref();
 
         for (int i = 0; i < 50; ++i) {
             canvas->drawRect(SkRect::MakeWH(10, 10), paint);

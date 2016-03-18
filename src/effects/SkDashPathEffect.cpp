@@ -365,7 +365,7 @@ SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
     uint32_t count = buffer.getArrayCount();
     SkAutoSTArray<32, SkScalar> intervals(count);
     if (buffer.readScalarArray(intervals.get(), count)) {
-        return Make(intervals.get(), SkToInt(count), phase).release();
+        return Create(intervals.get(), SkToInt(count), phase);
     }
     return nullptr;
 }
@@ -386,9 +386,9 @@ void SkDashPathEffect::toString(SkString* str) const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkPathEffect> SkDashPathEffect::Make(const SkScalar intervals[], int count, SkScalar phase) {
+SkPathEffect* SkDashPathEffect::Create(const SkScalar intervals[], int count, SkScalar phase) {
     if (!SkDashPath::ValidDashPath(phase, intervals, count)) {
         return nullptr;
     }
-    return sk_sp<SkPathEffect>(new SkDashPathEffect(intervals, count, phase));
+    return new SkDashPathEffect(intervals, count, phase);
 }

@@ -254,13 +254,13 @@ public:
         fArcToPaint.setStyle(SkPaint::kStroke_Style);
         fArcToPaint.setStrokeWidth(9);
         fArcToPaint.setColor(0x800000FF);
-        fArcToPaint.setPathEffect(SkArcToPathEffect::Make(rad));
+        fArcToPaint.setPathEffect(SkArcToPathEffect::Create(rad))->unref();
 
         fCornerPaint.setAntiAlias(true);
         fCornerPaint.setStyle(SkPaint::kStroke_Style);
         fCornerPaint.setStrokeWidth(13);
         fCornerPaint.setColor(SK_ColorGREEN);
-        fCornerPaint.setPathEffect(SkCornerPathEffect::Make(rad*2));
+        fCornerPaint.setPathEffect(SkCornerPathEffect::Create(rad*2))->unref();
 
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);

@@ -26,10 +26,9 @@ static const int gXY[] = {
     4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
 };
 
-static sk_sp<SkPathEffect> make_pe(int flags, SkScalar phase) {
-    if (flags == 1) {
-        return SkCornerPathEffect::Make(SkIntToScalar(CORNER_RADIUS));
-    }
+static SkPathEffect* make_pe(int flags, SkScalar phase) {
+    if (flags == 1)
+        return SkCornerPathEffect::Create(SkIntToScalar(CORNER_RADIUS));
 
     SkPath  path;
     path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
@@ -38,30 +37,36 @@ static sk_sp<SkPathEffect> make_pe(int flags, SkScalar phase) {
     path.close();
     path.offset(SkIntToScalar(-6), 0);
 
-    auto outer = SkPath1DPathEffect::Make(path, 12, phase, SkPath1DPathEffect::kRotate_Style);
+    SkPathEffect* outer = SkPath1DPathEffect::Create(path, 12, phase,
+                                                     SkPath1DPathEffect::kRotate_Style);
 
     if (flags == 2)
         return outer;
 
-    auto inner = SkCornerPathEffect::Make(SkIntToScalar(CORNER_RADIUS));
+    SkPathEffect* inner = SkCornerPathEffect::Create(SkIntToScalar(CORNER_RADIUS));
 
-    return SkComposePathEffect::Make(outer, inner);
+    SkPathEffect* pe = SkComposePathEffect::Create(outer, inner);
+    outer->unref();
+    inner->unref();
+    return pe;
 }
 
-static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
+static SkPathEffect* make_warp_pe(SkScalar phase) {
     SkPath  path;
     path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
-    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2) {
+    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2)
         path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
-    }
     path.close();
     path.offset(SkIntToScalar(-6), 0);
 
-    auto outer = SkPath1DPathEffect::Make(
+    SkPathEffect* outer = SkPath1DPathEffect::Create(
         path, 12, phase, SkPath1DPathEffect::kMorph_Style);
-    auto inner = SkCornerPathEffect::Make(SkIntToScalar(CORNER_RADIUS));
+    SkPathEffect* inner = SkCornerPathEffect::Create(SkIntToScalar(CORNER_RADIUS));
 
-    return SkComposePathEffect::Make(outer, inner);
+    SkPathEffect* pe = SkComposePathEffect::Create(outer, inner);
+    outer->unref();
+    inner->unref();
+    return pe;
 }
 
 ///////////////////////////////////////////////////////////
@@ -138,19 +143,19 @@ protected:
         canvas->translate(0, 50);
 
         paint.setColor(SK_ColorBLUE);
-        paint.setPathEffect(make_pe(2, fPhase));
+        paint.setPathEffect(make_pe(2, fPhase))->unref();
         canvas->drawPath(fPath, paint);
 
         canvas->translate(0, 50);
 
         paint.setARGB(0xFF, 0, 0xBB, 0);
-        paint.setPathEffect(make_pe(3, fPhase));
+        paint.setPathEffect(make_pe(3, fPhase))->unref();
         canvas->drawPath(fPath, paint);
 
         canvas->translate(0, 50);
 
         paint.setARGB(0xFF, 0, 0, 0);
-        paint.setPathEffect(make_warp_pe(fPhase));
+        paint.setPathEffect(make_warp_pe(fPhase))->unref();
         TestRastBuilder testRastBuilder;
         paint.setRasterizer(testRastBuilder.detachRasterizer())->unref();
         canvas->drawPath(fPath, paint);

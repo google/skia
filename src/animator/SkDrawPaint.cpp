@@ -233,7 +233,7 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (pathEffect == nullptr)
         paint->setPathEffect(nullptr);
     else if (pathEffect != (SkDrawPathEffect*) -1)
-        paint->setPathEffect(sk_ref_sp(pathEffect->getPathEffect()));
+        SkSafeUnref(paint->setPathEffect(pathEffect->getPathEffect()));
     if (shader == nullptr)
         paint->setShader(nullptr);
     else if (shader != (SkDrawShader*) -1)

@@ -111,7 +111,7 @@ SkFlattenable* SkLine2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkScalar width = buffer.readScalar();
-    return SkLine2DPathEffect::Make(width, matrix).release();
+    return SkLine2DPathEffect::Create(width, matrix);
 }
 
 void SkLine2DPathEffect::flatten(SkWriteBuffer &buffer) const {
@@ -140,7 +140,7 @@ SkFlattenable* SkPath2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     buffer.readMatrix(&matrix);
     SkPath path;
     buffer.readPath(&path);
-    return SkPath2DPathEffect::Make(matrix, path).release();
+    return SkPath2DPathEffect::Create(matrix, path);
 }
 
 void SkPath2DPathEffect::flatten(SkWriteBuffer& buffer) const {

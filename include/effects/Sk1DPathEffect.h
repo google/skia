@@ -56,13 +56,7 @@ public:
         @param style how to transform path at each point (based on the current
                      position and tangent)
     */
-    static sk_sp<SkPathEffect> Make(const SkPath& path, SkScalar advance, SkScalar phase, Style);
-
-#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
-    static SkPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase, Style s) {
-        return Make(path, advance, phase, s).release();
-    }
-#endif
+    static SkPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
     virtual bool filterPath(SkPath*, const SkPath&,
                             SkStrokeRec*, const SkRect*) const override;

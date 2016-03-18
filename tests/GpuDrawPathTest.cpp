@@ -49,7 +49,7 @@ static void test_drawPathEmpty(skiatest::Reporter*, SkCanvas* canvas) {
 }
 
 static void fill_and_stroke(SkCanvas* canvas, const SkPath& p1, const SkPath& p2,
-                            sk_sp<SkPathEffect> effect) {
+                            SkPathEffect* effect) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setPathEffect(effect);
@@ -73,7 +73,8 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     fill_and_stroke(canvas, oval1, oval2, nullptr);
 
     const SkScalar intervals[] = { 1, 1 };
-    fill_and_stroke(canvas, oval1, oval2, SkDashPathEffect::Make(intervals, 2, 0));
+    SkAutoTUnref<SkPathEffect> dashEffect(SkDashPathEffect::Create(intervals, 2, 0));
+    fill_and_stroke(canvas, oval1, oval2, dashEffect);
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuDrawPath, reporter, context) {

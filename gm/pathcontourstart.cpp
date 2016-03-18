@@ -26,11 +26,14 @@ public:
             intervals.push_back(len);
         }
 
+        SkAutoTUnref<SkPathEffect> effect(
+            SkDashPathEffect::Create(intervals.begin(), intervals.count(), 0));
+
         fDashPaint.setAntiAlias(true);
         fDashPaint.setStyle(SkPaint::kStroke_Style);
         fDashPaint.setStrokeWidth(6);
         fDashPaint.setColor(0xff008000);
-        fDashPaint.setPathEffect(SkDashPathEffect::Make(intervals.begin(), intervals.count(), 0));
+        fDashPaint.setPathEffect(effect);
 
         fPointsPaint.setColor(0xff800000);
         fPointsPaint.setStrokeWidth(3);
