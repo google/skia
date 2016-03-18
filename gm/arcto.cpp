@@ -205,3 +205,24 @@ DEF_SIMPLE_GM(bug593049, canvas, 300, 300) {
 
     canvas->drawPath(p, paint);
 }
+
+#include "SkDashPathEffect.h"
+#include "SkPathMeasure.h"
+
+DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
+  const char* d="M60,60 A50,50 0 0 0 160,60 A50,50 0 0 0 60,60z";
+  SkPaint p;
+  p.setStyle(SkPaint::kStroke_Style);
+  p.setStrokeWidth(100);
+  p.setAntiAlias(true);
+  p.setColor(0xFF008200);
+  p.setStrokeCap(SkPaint::kSquare_Cap);
+  SkPath path;
+  SkParsePath::FromSVGString(d, &path);
+  SkPathMeasure meas(path, false);
+  SkScalar length = meas.getLength();
+  SkScalar intervals[] = {0, length };
+  int intervalCount = (int) SK_ARRAY_COUNT(intervals);
+  p.setPathEffect(SkDashPathEffect::Create(intervals, intervalCount, 0))->unref();
+  canvas->drawPath(path, p);
+}

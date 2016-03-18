@@ -72,8 +72,9 @@ protected:
         SkPath path;
         this->makePath(&path);
 
-        paint.setPathEffect(SkDashPathEffect::Create(fIntervals.begin(),
-                                                     fIntervals.count(), 0))->unref();
+        SkAutoTUnref<SkPathEffect> effect(SkDashPathEffect::Create(fIntervals.begin(),
+                                          fIntervals.count(), 0));
+        paint.setPathEffect(effect);
 
         if (fDoClip) {
             SkRect r = path.getBounds();
