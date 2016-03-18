@@ -6,17 +6,6 @@
  */
 
 #include "SkBlitRow_opts_SSE4.h"
-
-// Some compilers can't compile SSSE3 or SSE4 intrinsics.  We give them stub methods.
-// The stubs should never be called, so we make them crash just to confirm that.
-#if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE41
-void S32A_Opaque_BlitRow32_SSE4(SkPMColor* SK_RESTRICT, const SkPMColor* SK_RESTRICT, int, U8CPU) {
-    sk_throw();
-}
-
-#else
-
-#include <smmintrin.h>      // SSE4.1 intrinsics
 #include "SkColorPriv.h"
 #include "SkColor_opts_SSE2.h"
 #include "SkMSAN.h"
@@ -70,5 +59,3 @@ void S32A_Opaque_BlitRow32_SSE4(SkPMColor* SK_RESTRICT dst,
         }
     }
 }
-
-#endif
