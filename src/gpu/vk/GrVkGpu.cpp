@@ -1533,6 +1533,9 @@ bool GrVkGpu::prepareDrawState(const GrPipeline& pipeline,
     (*program)->setData(this, primProc, pipeline);
 
     (*program)->bind(this, fCurrentCmdBuffer);
+
+    GrVkPipeline::SetDynamicState(this, fCurrentCmdBuffer, pipeline);
+
     return true;
 }
 
@@ -1547,6 +1550,8 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
     const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
     SkASSERT(renderPass);
+
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
 
     GrVkProgram* program = nullptr;
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
@@ -1590,7 +1595,6 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
                                   false);
     }
 
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
 
     for (int i = 0; i < meshCount; ++i) {
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {

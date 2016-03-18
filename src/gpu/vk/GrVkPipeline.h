@@ -17,6 +17,7 @@
 class GrNonInstancedVertices;
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
 
@@ -33,6 +34,9 @@ public:
                                 VkPipelineCache cache);
 
     VkPipeline pipeline() const { return fPipeline; }
+
+    static void SetDynamicState(GrVkGpu*, GrVkCommandBuffer*, const GrPipeline&);
+
 
 private:
     GrVkPipeline(VkPipeline pipeline) : INHERITED(), fPipeline(pipeline) {}

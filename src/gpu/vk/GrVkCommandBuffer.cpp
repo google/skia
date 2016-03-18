@@ -9,6 +9,7 @@
 
 #include "GrVkFramebuffer.h"
 #include "GrVkImageView.h"
+#include "GrVkPipeline.h"
 #include "GrVkRenderPass.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkProgram.h"
@@ -40,10 +41,20 @@ GrVkCommandBuffer::~GrVkCommandBuffer() {
 }
 
 void GrVkCommandBuffer::invalidateState() {
-    fBoundVertexBuffer = 0;
+    fBoundVertexBuffer = VK_NULL_HANDLE;
     fBoundVertexBufferIsValid = false;
-    fBoundIndexBuffer = 0;
+    fBoundIndexBuffer = VK_NULL_HANDLE;
     fBoundIndexBufferIsValid = false;
+
+    memset(&fCachedViewport, 0, sizeof(VkViewport));
+    fCachedViewport.width = - 1.0f; // Viewport must have a width greater than 0
+
+    memset(&fCachedScissor, 0, sizeof(VkRect2D));
+    fCachedScissor.offset.x = -1; // Scissor offset must be greater that 0 to be valid
+
+    for (int i = 0; i < 4; ++i) {
+        fCachedBlendConstant[i] = -1.0;
+    }
 }
 
 void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
@@ -355,6 +366,15 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
     program->addUniformResources(*this);
 }
 
+void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline) {
+    SkASSERT(fIsActive);
+    SkASSERT(fActiveRenderPass);
+    GR_VK_CALL(gpu->vkInterface(), CmdBindPipeline(fCmdBuffer,
+                                                   VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                   pipeline->pipeline()));
+    addResource(pipeline);
+}
+
 void GrVkCommandBuffer::drawIndexed(const GrVkGpu* gpu,
                                     uint32_t indexCount,
                                     uint32_t instanceCount,
@@ -383,4 +403,43 @@ void GrVkCommandBuffer::draw(const GrVkGpu* gpu,
                                            instanceCount,
                                            firstVertex,
                                            firstInstance));
+}
+
+void GrVkCommandBuffer::setViewport(const GrVkGpu* gpu,
+                                    uint32_t firstViewport,
+                                    uint32_t viewportCount,
+                                    const VkViewport* viewports) {
+    SkASSERT(fIsActive);
+    SkASSERT(1 == viewportCount);
+    if (memcmp(viewports, &fCachedViewport, sizeof(VkViewport))) {
+        GR_VK_CALL(gpu->vkInterface(), CmdSetViewport(fCmdBuffer,
+                                                      firstViewport,
+                                                      viewportCount,
+                                                      viewports));
+        fCachedViewport = viewports[0];
+    }
+}
+
+void GrVkCommandBuffer::setScissor(const GrVkGpu* gpu,
+                                   uint32_t firstScissor,
+                                   uint32_t scissorCount,
+                                   const VkRect2D* scissors) {
+    SkASSERT(fIsActive);
+    SkASSERT(1 == scissorCount);
+    if (memcmp(scissors, &fCachedScissor, sizeof(VkRect2D))) {
+        GR_VK_CALL(gpu->vkInterface(), CmdSetScissor(fCmdBuffer,
+                                                     firstScissor,
+                                                     scissorCount,
+                                                     scissors));
+        fCachedScissor = scissors[0];
+    }
+}
+
+void GrVkCommandBuffer::setBlendConstants(const GrVkGpu* gpu,
+                                          const float blendConstants[4]) {
+    SkASSERT(fIsActive);
+    if (memcmp(blendConstants, fCachedBlendConstant, 4 * sizeof(float))) {
+        GR_VK_CALL(gpu->vkInterface(), CmdSetBlendConstants(fCmdBuffer, blendConstants));
+        memcpy(fCachedBlendConstant, blendConstants, 4 * sizeof(float));
+    }
 }
