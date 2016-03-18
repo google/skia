@@ -40,35 +40,42 @@ void SkDashPath::CalcDashParameters(SkScalar phase, const SkScalar intervals[], 
         len += intervals[i];
     }
     *intervalLength = len;
-    // Adjust phase to be between 0 and len, "flipping" phase if negative.
-    // e.g., if len is 100, then phase of -20 (or -120) is equivalent to 80
-    if (adjustedPhase) {
-        if (phase < 0) {
-            phase = -phase;
-            if (phase > len) {
+
+    // watch out for values that might make us go out of bounds
+    if ((len > 0) && SkScalarIsFinite(phase) && SkScalarIsFinite(len)) {
+
+        // Adjust phase to be between 0 and len, "flipping" phase if negative.
+        // e.g., if len is 100, then phase of -20 (or -120) is equivalent to 80
+        if (adjustedPhase) {
+            if (phase < 0) {
+                phase = -phase;
+                if (phase > len) {
+                    phase = SkScalarMod(phase, len);
+                }
+                phase = len - phase;
+
+                // Due to finite precision, it's possible that phase == len,
+                // even after the subtract (if len >>> phase), so fix that here.
+                // This fixes http://crbug.com/124652 .
+                SkASSERT(phase <= len);
+                if (phase == len) {
+                    phase = 0;
+                }
+            } else if (phase >= len) {
                 phase = SkScalarMod(phase, len);
             }
-            phase = len - phase;
-
-            // Due to finite precision, it's possible that phase == len,
-            // even after the subtract (if len >>> phase), so fix that here.
-            // This fixes http://crbug.com/124652 .
-            SkASSERT(phase <= len);
-            if (phase == len) {
-                phase = 0;
-            }
-        } else if (phase >= len) {
-            phase = SkScalarMod(phase, len);
+            *adjustedPhase = phase;
         }
-        *adjustedPhase = phase;
+        SkASSERT(phase >= 0 && phase < len);
+
+        *initialDashLength = find_first_interval(intervals, phase,
+                                                initialDashIndex, count);
+
+        SkASSERT(*initialDashLength >= 0);
+        SkASSERT(*initialDashIndex >= 0 && *initialDashIndex < count);
+    } else {
+        *initialDashLength = -1;    // signal bad dash intervals
     }
-    SkASSERT(phase >= 0 && phase < len);
-
-    *initialDashLength = find_first_interval(intervals, phase,
-                                            initialDashIndex, count);
-
-    SkASSERT(*initialDashLength >= 0);
-    SkASSERT(*initialDashIndex >= 0 && *initialDashIndex < count);
 }
 
 static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
@@ -213,13 +220,13 @@ private:
 };
 
 
-bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                 const SkRect* cullRect, const SkScalar aIntervals[],
                                 int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
                                 SkScalar intervalLength) {
 
-    // we do nothing if the src wants to be filled
-    if (rec->isFillStyle()) {
+    // we do nothing if the src wants to be filled, or if our dashlength is 0
+    if (rec->isFillStyle() || initialDashLength < 0) {
         return false;
     }
 
@@ -299,7 +306,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
 
         // extend if we ended on a segment and we need to join up with the (skipped) initial segment
         if (meas.isClosed() && is_even(initialDashIndex) &&
-            initialDashLength >= 0) {
+            initialDashLength > 0) {
             meas.getSegment(0, initialDashLength, dst, !addedSegment);
             ++segCount;
         }
@@ -314,29 +321,11 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
 
 bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                 const SkRect* cullRect, const SkPathEffect::DashInfo& info) {
-    if (!ValidDashPath(info.fPhase, info.fIntervals, info.fCount)) {
-        return false;
-    }
     SkScalar initialDashLength = 0;
     int32_t initialDashIndex = 0;
     SkScalar intervalLength = 0;
     CalcDashParameters(info.fPhase, info.fIntervals, info.fCount,
                        &initialDashLength, &initialDashIndex, &intervalLength);
-    return InternalFilter(dst, src, rec, cullRect, info.fIntervals, info.fCount, initialDashLength,
+    return FilterDashPath(dst, src, rec, cullRect, info.fIntervals, info.fCount, initialDashLength,
                           initialDashIndex, intervalLength);
-}
-
-bool SkDashPath::ValidDashPath(SkScalar phase, const SkScalar intervals[], int32_t count) {
-    if (count < 2 || !SkIsAlign2(count)) {
-        return false;
-    }
-    SkScalar length = 0;
-    for (int i = 0; i < count; i++) {
-        if (intervals[i] < 0) {
-            return false;
-        }
-        length += intervals[i];
-    }
-    // watch out for values that might make us go out of bounds
-    return length > 0 && SkScalarIsFinite(phase) && SkScalarIsFinite(length);
 }

@@ -21,8 +21,7 @@ static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
         SkIntToScalar(off),
     };
 
-    SkAutoTUnref<SkPathEffect> effect(SkDashPathEffect::Create(intervals, 2, phase));
-    p.setPathEffect(effect);
+    p.setPathEffect(SkDashPathEffect::Create(intervals, 2, phase))->unref();
     canvas->drawLine(startX, startY, finalX, finalY, p);
 }
 
