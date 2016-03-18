@@ -34,6 +34,7 @@
 #include "SkConfig8888.h"
 
 #include "vk/GrVkInterface.h"
+#include "vk/GrVkTypes.h"
 
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RET(this->vkInterface(), RET, X)
@@ -195,7 +196,8 @@ GrVkGpu::~GrVkGpu() {
     fCurrentCmdBuffer->unref(this);
 
     // wait for all commands to finish
-    VK_CALL(QueueWaitIdle(fQueue));
+    VkResult res = VK_CALL(QueueWaitIdle(fQueue));
+    SkASSERT(res == VK_SUCCESS);
 
     // must call this just before we destroy the VkDevice
     fResourceProvider.destroyResources();
@@ -582,8 +584,10 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         return nullptr;
     }
 
-    // TODO: determine what format Chrome will actually send us and turn it into a Resource
-    GrVkImage::Resource* imageRsrc = reinterpret_cast<GrVkImage::Resource*>(desc.fTextureHandle);
+    const GrVkTextureInfo* info = reinterpret_cast<const GrVkTextureInfo*>(desc.fTextureHandle);
+    if (VK_NULL_HANDLE == info->fImage || VK_NULL_HANDLE == info->fAlloc) {
+        return nullptr;
+    }
 
     GrGpuResource::LifeCycle lifeCycle = (kAdopt_GrWrapOwnership == ownership)
                                          ? GrGpuResource::kAdopted_LifeCycle
@@ -605,9 +609,10 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     if (renderTarget) {
         texture = GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(this, surfDesc, 
                                                                             lifeCycle, format,
-                                                                            imageRsrc);
+                                                                            info);
     } else {
-        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, lifeCycle, format, imageRsrc);
+        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, lifeCycle, format, 
+                                                    info);
     }
     if (!texture) {
         return nullptr;
@@ -619,9 +624,12 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
 GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
                                                    GrWrapOwnership ownership) {
     
-    // TODO: determine what format Chrome will actually send us and turn it into a Resource
-    GrVkImage::Resource* imageRsrc =
-        reinterpret_cast<GrVkImage::Resource*>(wrapDesc.fRenderTargetHandle);
+    const GrVkTextureInfo* info =
+        reinterpret_cast<const GrVkTextureInfo*>(wrapDesc.fRenderTargetHandle);
+    if (VK_NULL_HANDLE == info->fImage ||
+        (VK_NULL_HANDLE == info->fAlloc && kAdopt_GrWrapOwnership == ownership)) {
+        return nullptr;
+    }
 
     GrGpuResource::LifeCycle lifeCycle = (kAdopt_GrWrapOwnership == ownership)
                                          ? GrGpuResource::kAdopted_LifeCycle
@@ -637,7 +645,8 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin);
 
     GrVkRenderTarget* tgt = GrVkRenderTarget::CreateWrappedRenderTarget(this, desc,
-                                                                        lifeCycle, imageRsrc);
+                                                                        lifeCycle, 
+                                                                        info);
     if (tgt && wrapDesc.fStencilBits) {
         if (!createStencilAttachmentForRenderTarget(tgt, desc.fWidth, desc.fHeight)) {
             tgt->unref();
@@ -736,22 +745,42 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     VkFlags memProps = (srcData && linearTiling) ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT :
                                                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
-    // requested, this ImageDesc describes the resolved texutre. Therefore we always have samples set
-    // to 1.
-    GrVkImage::ImageDesc imageDesc;
-    imageDesc.fImageType = VK_IMAGE_TYPE_2D;
-    imageDesc.fFormat = pixelFormat;
-    imageDesc.fWidth = w;
-    imageDesc.fHeight = h;
-    imageDesc.fLevels = 1;
-    imageDesc.fSamples = 1;
-    imageDesc.fImageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
-    imageDesc.fUsageFlags = usageFlags;
-    imageDesc.fMemProps = memProps;
+    VkImage image = VK_NULL_HANDLE;
+    VkDeviceMemory alloc = VK_NULL_HANDLE;
 
-    const GrVkImage::Resource* imageRsrc = GrVkImage::CreateResource(this, imageDesc);
-    if (!imageRsrc) {
+    VkImageTiling imageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
+    VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageTiling)
+                                ? VK_IMAGE_LAYOUT_PREINITIALIZED
+                                : VK_IMAGE_LAYOUT_UNDEFINED;
+
+    // Create Image
+    VkSampleCountFlagBits vkSamples;
+    if (!GrSampleCountToVkSampleCount(1, &vkSamples)) {
+        return 0;
+    }
+
+    const VkImageCreateInfo imageCreateInfo = {
+        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,         // sType
+        NULL,                                        // pNext
+        0,                                           // VkImageCreateFlags
+        VK_IMAGE_TYPE_2D,                            // VkImageType
+        pixelFormat,                                 // VkFormat
+        { w, h, 1 },                                 // VkExtent3D
+        1,                                           // mipLevels
+        1,                                           // arrayLayers
+        vkSamples,                                   // samples
+        imageTiling,                                 // VkImageTiling
+        usageFlags,                                  // VkImageUsageFlags
+        VK_SHARING_MODE_EXCLUSIVE,                   // VkSharingMode
+        0,                                           // queueFamilyCount
+        0,                                           // pQueueFamilyIndices
+        initialLayout                                // initialLayout
+    };
+
+    GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateImage(this->device(), &imageCreateInfo, nullptr, &image));
+
+    if (!GrVkMemory::AllocAndBindImageMemory(this, image, memProps, &alloc)) {
+        VK_CALL(DestroyImage(this->device(), image, nullptr));
         return 0;
     }
 
@@ -765,22 +794,13 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
             VkSubresourceLayout layout;
             VkResult err;
 
-            const GrVkInterface* interface = this->vkInterface();
-
-            GR_VK_CALL(interface, GetImageSubresourceLayout(fDevice,
-                                                            imageRsrc->fImage,
-                                                            &subres,
-                                                            &layout));
+            VK_CALL(GetImageSubresourceLayout(fDevice, image, &subres, &layout));
 
             void* mapPtr;
-            err = GR_VK_CALL(interface, MapMemory(fDevice,
-                                                  imageRsrc->fAlloc,
-                                                  0,
-                                                  layout.rowPitch * h,
-                                                  0,
-                                                  &mapPtr));
+            err = VK_CALL(MapMemory(fDevice, alloc, 0, layout.rowPitch * h, 0, &mapPtr));
             if (err) {
-                imageRsrc->unref(this);
+                VK_CALL(FreeMemory(this->device(), alloc, nullptr));
+                VK_CALL(DestroyImage(this->device(), image, nullptr));
                 return 0;
             }
 
@@ -791,21 +811,27 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
             if (rowCopyBytes == layout.rowPitch) {
                 memcpy(mapPtr, srcData, rowCopyBytes * h);
             } else {
-                SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), srcData, w, rowCopyBytes,
-                             h);
+                SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), srcData, rowCopyBytes,
+                             rowCopyBytes, h);
             }
-            GR_VK_CALL(interface, UnmapMemory(fDevice, imageRsrc->fAlloc));
+            VK_CALL(UnmapMemory(fDevice, alloc));
         } else {
             // TODO: Add support for copying to optimal tiling
             SkASSERT(false);
         }
     }
 
-    return (GrBackendObject)imageRsrc;
+    GrVkTextureInfo* info = new GrVkTextureInfo;
+    info->fImage = image;
+    info->fAlloc = alloc;
+    info->fImageTiling = imageTiling;
+    info->fImageLayout = initialLayout;
+
+    return (GrBackendObject)info;
 }
 
 bool GrVkGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
-    GrVkImage::Resource* backend = reinterpret_cast<GrVkImage::Resource*>(id);
+    const GrVkTextureInfo* backend = reinterpret_cast<const GrVkTextureInfo*>(id);
 
     if (backend && backend->fImage && backend->fAlloc) {
         VkMemoryRequirements req;
@@ -822,14 +848,17 @@ bool GrVkGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
 }
 
 void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandon) {
-    GrVkImage::Resource* backend = reinterpret_cast<GrVkImage::Resource*>(id);
+    const GrVkTextureInfo* backend = reinterpret_cast<const GrVkTextureInfo*>(id);
 
     if (backend) {
         if (!abandon) {
-            backend->unref(this);
-        } else {
-            backend->unrefAndAbandon();
+            // something in the command buffer may still be using this, so force submit
+            this->submitCommandBuffer(kForce_SyncQueue);
+
+            VK_CALL(FreeMemory(this->device(), backend->fAlloc, nullptr));
+            VK_CALL(DestroyImage(this->device(), backend->fImage, nullptr));
         }
+        delete backend;
     }
 }
 

@@ -14,6 +14,7 @@
 
 class GrVkGpu;
 class GrVkImageView;
+struct GrVkTextureInfo;
 
 class GrVkTexture : public GrTexture, public virtual GrVkImage {
 public:
@@ -21,10 +22,9 @@ public:
                                          GrGpuResource::LifeCycle,
                                          const GrVkImage::ImageDesc&);
                                           
-
     static GrVkTexture* CreateWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
                                              GrGpuResource::LifeCycle,
-                                             VkFormat, const GrVkImage::Resource*);
+                                             VkFormat, const GrVkTextureInfo*);
 
     ~GrVkTexture() override;
 

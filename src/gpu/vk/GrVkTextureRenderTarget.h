@@ -20,6 +20,7 @@
 #endif
 
 class GrVkImageView;
+struct GrVkTextureInfo;
 
 class GrVkTextureRenderTarget: public GrVkTexture, public GrVkRenderTarget {
 public:
@@ -31,7 +32,7 @@ public:
                                                                      const GrSurfaceDesc&,
                                                                      GrGpuResource::LifeCycle,
                                                                      VkFormat,
-                                                                     GrVkImage::Resource*);
+                                                                     const GrVkTextureInfo*);
 
 protected:
     void onAbandon() override {

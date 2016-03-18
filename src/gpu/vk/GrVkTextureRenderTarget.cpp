@@ -12,6 +12,8 @@
 #include "GrVkImageView.h"
 #include "GrVkUtil.h"
 
+#include "vk/GrVkTypes.h"
+
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
 GrVkTextureRenderTarget*
@@ -140,11 +142,30 @@ GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(GrVkGpu* gpu,
                                                           const GrSurfaceDesc& desc,
                                                           GrGpuResource::LifeCycle lifeCycle,
                                                           VkFormat format, 
-                                                          GrVkImage::Resource* imageRsrc) {
-    SkASSERT(imageRsrc);
+                                                          const GrVkTextureInfo* info) {
+    SkASSERT(info);
+    // Wrapped textures require both image and allocation (because they can be mapped)
+    SkASSERT(VK_NULL_HANDLE != info->fImage && VK_NULL_HANDLE != info->fAlloc);
 
-    // Note: we assume the caller will unref the imageResource
-    // Create() will increment the refCount, and we'll unref when we're done with it
-    return GrVkTextureRenderTarget::Create(gpu, desc, lifeCycle, format, imageRsrc);
+    GrVkImage::Resource::Flags flags = (VK_IMAGE_TILING_LINEAR == info->fImageTiling)
+                                     ? Resource::kLinearTiling_Flag : Resource::kNo_Flags;
+
+    const GrVkImage::Resource* imageResource = new GrVkImage::Resource(info->fImage,
+                                                                       info->fAlloc,
+                                                                       flags);
+    if (!imageResource) {
+        return nullptr;
+    }
+
+    GrVkTextureRenderTarget* trt = GrVkTextureRenderTarget::Create(gpu, desc, lifeCycle,
+                                                                   format, imageResource);
+    if (trt) {
+        trt->fCurrentLayout = info->fImageLayout;
+    }
+    // Create() will increment the refCount of the image resource if it succeeds
+    imageResource->unref(gpu);
+
+    return trt;
+
 }
 
