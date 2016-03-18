@@ -272,33 +272,10 @@ GrVkProgram* GrVkProgramBuilder::finalize(GrPrimitiveType primitiveType,
         return nullptr;
     }
 
-
-    GrVkDescriptorPool::DescriptorTypeCounts typeCounts;
-    typeCounts.setTypeCount(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2);
-    SkASSERT(numSamplers < 256);
-    typeCounts.setTypeCount(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, (uint8_t)numSamplers);
-    GrVkDescriptorPool* descriptorPool =
-        fGpu->resourceProvider().findOrCreateCompatibleDescriptorPool(typeCounts);
-
-    VkDescriptorSetAllocateInfo dsAllocateInfo;
-    memset(&dsAllocateInfo, 0, sizeof(VkDescriptorSetAllocateInfo));
-    dsAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    dsAllocateInfo.pNext = nullptr;
-    dsAllocateInfo.descriptorPool = descriptorPool->descPool();
-    dsAllocateInfo.descriptorSetCount = 2;
-    dsAllocateInfo.pSetLayouts = dsLayout;
-
-    VkDescriptorSet descriptorSets[2];
-    GR_VK_CALL_ERRCHECK(fGpu->vkInterface(), AllocateDescriptorSets(fGpu->device(),
-                                                                    &dsAllocateInfo,
-                                                                    descriptorSets));
-
     return new GrVkProgram(fGpu,
                            pipeline,
                            pipelineLayout,
                            dsLayout,
-                           descriptorPool,
-                           descriptorSets,
                            fUniformHandles,
                            fUniformHandler.fUniforms,
                            fUniformHandler.fCurrentVertexUBOOffset,

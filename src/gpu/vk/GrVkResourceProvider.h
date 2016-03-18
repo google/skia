@@ -49,14 +49,13 @@ public:
     GrVkCommandBuffer* createCommandBuffer();
     void checkCommandBuffers();
 
-    // Finds or creates a compatible GrVkDescriptorPool for the requested DescriptorTypeCount.
+    // Finds or creates a compatible GrVkDescriptorPool for the requested type and count.
     // The refcount is incremented and a pointer returned.
     // TODO: Currently this will just create a descriptor pool without holding onto a ref itself
     //       so we currently do not reuse them. Rquires knowing if another draw is currently using
     //       the GrVkDescriptorPool, the ability to reset pools, and the ability to purge pools out
     //       of our cache of GrVkDescriptorPools.
-    GrVkDescriptorPool* findOrCreateCompatibleDescriptorPool(
-                                        const GrVkDescriptorPool::DescriptorTypeCounts& typeCounts);
+    GrVkDescriptorPool* findOrCreateCompatibleDescriptorPool(VkDescriptorType type, uint32_t count);
 
     // Finds or creates a compatible GrVkSampler based on the GrTextureParams.
     // The refcount is incremented and a pointer returned.

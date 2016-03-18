@@ -14,39 +14,28 @@
 
 class GrVkGpu;
 
+/**
+ * We require that all descriptor sets are of a single descriptor type. We also use a pool to only 
+ * make one type of descriptor set. Thus a single VkDescriptorPool will only allocated space for
+ * for one type of descriptor.
+ */
 class GrVkDescriptorPool : public GrVkResource {
 public:
-    class DescriptorTypeCounts {
-    public:
-        DescriptorTypeCounts() {
-            memset(fDescriptorTypeCount, 0, sizeof(fDescriptorTypeCount));
-        }
-
-        void setTypeCount(VkDescriptorType type, uint8_t count);
-        int numPoolSizes() const;
-
-        // Determines if for each i, that.fDescriptorTypeCount[i] <= fDescriptorTypeCount[i];
-        bool isSuperSet(const DescriptorTypeCounts& that) const;
-    private:
-        uint8_t fDescriptorTypeCount[VK_DESCRIPTOR_TYPE_RANGE_SIZE];
-
-        friend class GrVkDescriptorPool;
-    };
-
-    explicit GrVkDescriptorPool(const GrVkGpu* gpu, const DescriptorTypeCounts& typeCounts);
+    explicit GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type, uint32_t count);
 
     VkDescriptorPool descPool() const { return fDescPool; }
 
     void reset(const GrVkGpu* gpu);
 
     // Returns whether or not this descriptor pool could be used, assuming it gets fully reset and
-    // not in use by another draw, to support the requested typeCounts.
-    bool isCompatible(const DescriptorTypeCounts& typeCounts) const;
+    // not in use by another draw, to support the requested type and count.
+    bool isCompatible(VkDescriptorType type, uint32_t count) const;
 
 private:
     void freeGPUData(const GrVkGpu* gpu) const override;
 
-    DescriptorTypeCounts fTypeCounts;
+    VkDescriptorType     fType;
+    uint32_t             fCount;
     VkDescriptorPool     fDescPool;
 
     typedef GrVkResource INHERITED;

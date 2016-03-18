@@ -25,8 +25,6 @@ GrVkProgram::GrVkProgram(GrVkGpu* gpu,
                          GrVkPipeline* pipeline,
                          VkPipelineLayout layout,
                          VkDescriptorSetLayout dsLayout[2],
-                         GrVkDescriptorPool* descriptorPool,
-                         VkDescriptorSet descriptorSets[2],
                          const BuiltinUniformHandles& builtinUniformHandles,
                          const UniformInfoArray& uniforms,
                          uint32_t vertexUniformSize,
@@ -35,20 +33,31 @@ GrVkProgram::GrVkProgram(GrVkGpu* gpu,
                          GrGLSLPrimitiveProcessor* geometryProcessor,
                          GrGLSLXferProcessor* xferProcessor,
                          const GrGLSLFragProcs& fragmentProcessors)
-    : fDescriptorPool(descriptorPool)
-    , fPipeline(pipeline)
+    : fPipeline(pipeline)
     , fPipelineLayout(layout)
     , fBuiltinUniformHandles(builtinUniformHandles)
     , fGeometryProcessor(geometryProcessor)
     , fXferProcessor(xferProcessor)
     , fFragmentProcessors(fragmentProcessors)
-    , fProgramDataManager(uniforms, vertexUniformSize, fragmentUniformSize) {
+    , fProgramDataManager(uniforms, vertexUniformSize, fragmentUniformSize)
+    , fSamplerPoolManager(dsLayout[GrVkUniformHandler::kSamplerDescSet],
+                          VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, numSamplers, gpu)
+    , fUniformPoolManager(dsLayout[GrVkUniformHandler::kUniformBufferDescSet],
+                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2, gpu) {
     fSamplers.setReserve(numSamplers);
     fTextureViews.setReserve(numSamplers);
     fTextures.setReserve(numSamplers);
 
-    memcpy(fDSLayout, dsLayout, 2 * sizeof(VkDescriptorSetLayout));
-    memcpy(fDescriptorSets, descriptorSets, 2 * sizeof(VkDescriptorSetLayout));
+    fDescriptorSets[0] = VK_NULL_HANDLE;
+    fDescriptorSets[1] = VK_NULL_HANDLE;
+
+    // Currently we are always binding a descriptor set for uniform buffers.
+    fStartDS = GrVkUniformHandler::kUniformBufferDescSet;
+    fDSCount = 1;
+    if (numSamplers) {
+        fDSCount++;
+        fStartDS = SkTMin(fStartDS, (int)GrVkUniformHandler::kSamplerDescSet);
+    }
 
     fVertexUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, vertexUniformSize, true));
     fFragmentUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, fragmentUniformSize, true));
@@ -61,10 +70,7 @@ GrVkProgram::GrVkProgram(GrVkGpu* gpu,
 GrVkProgram::~GrVkProgram() {
     // Must of freed all GPU resources before this is destroyed
     SkASSERT(!fPipeline);
-    SkASSERT(!fDescriptorPool);
     SkASSERT(!fPipelineLayout);
-    SkASSERT(!fDSLayout[0]);
-    SkASSERT(!fDSLayout[1]);
     SkASSERT(!fSamplers.count());
     SkASSERT(!fTextureViews.count());
     SkASSERT(!fTextures.count());
@@ -92,26 +98,12 @@ void GrVkProgram::freeGPUResources(const GrVkGpu* gpu) {
         fPipeline->unref(gpu);
         fPipeline = nullptr;
     }
-    if (fDescriptorPool) {
-        fDescriptorPool->unref(gpu);
-        fDescriptorPool = nullptr;
-    }
+
     if (fPipelineLayout) {
         GR_VK_CALL(gpu->vkInterface(), DestroyPipelineLayout(gpu->device(),
                                                              fPipelineLayout,
                                                              nullptr));
         fPipelineLayout = VK_NULL_HANDLE;
-    }
-
-    if (fDSLayout[0]) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorSetLayout(gpu->device(), fDSLayout[0],
-                                                                  nullptr));
-        fDSLayout[0] = VK_NULL_HANDLE;
-    }
-    if (fDSLayout[1]) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorSetLayout(gpu->device(), fDSLayout[1],
-                                                                  nullptr));
-        fDSLayout[1] = VK_NULL_HANDLE;
     }
 
     if (fVertexUniformBuffer) {
@@ -121,17 +113,18 @@ void GrVkProgram::freeGPUResources(const GrVkGpu* gpu) {
     if (fFragmentUniformBuffer) {
         fFragmentUniformBuffer->release(gpu);
     }
+
+    fSamplerPoolManager.freeGPUResources(gpu);
+    fUniformPoolManager.freeGPUResources(gpu);
+
     this->freeTempResources(gpu);
 }
 
 void GrVkProgram::abandonGPUResources() {
     fPipeline->unrefAndAbandon();
     fPipeline = nullptr;
-    fDescriptorPool->unrefAndAbandon();
-    fDescriptorPool = nullptr;
+
     fPipelineLayout = VK_NULL_HANDLE;
-    fDSLayout[0] = VK_NULL_HANDLE;
-    fDSLayout[1] = VK_NULL_HANDLE;
 
     fVertexUniformBuffer->abandon();
     fFragmentUniformBuffer->abandon();
@@ -150,6 +143,9 @@ void GrVkProgram::abandonGPUResources() {
         fTextures[i]->unrefAndAbandon();
     }
     fTextures.rewind();
+
+    fSamplerPoolManager.abandonGPUResources();
+    fUniformPoolManager.abandonGPUResources();
 }
 
 static void append_texture_bindings(const GrProcessor& processor,
@@ -187,6 +183,14 @@ void GrVkProgram::setData(GrVkGpu* gpu,
 
     fXferProcessor->setData(fProgramDataManager, pipeline.getXferProcessor());
     append_texture_bindings(pipeline.getXferProcessor(), &textureBindings);
+
+    // Get new descriptor sets
+    if (fNumSamplers) {
+        fSamplerPoolManager.getNewDescriptorSet(gpu,
+                                             &fDescriptorSets[GrVkUniformHandler::kSamplerDescSet]);
+    }
+    fUniformPoolManager.getNewDescriptorSet(gpu,
+                                       &fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet]);
 
     this->writeUniformBuffers(gpu);
 
@@ -340,13 +344,21 @@ void GrVkProgram::setRenderTargetState(const GrPipeline& pipeline) {
 
 void GrVkProgram::bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer) {
     commandBuffer->bindPipeline(gpu, fPipeline);
-    commandBuffer->bindDescriptorSets(gpu, this, fPipelineLayout, 0, 2, fDescriptorSets, 0,
-                                      nullptr);
+
+    if (fDSCount) {
+        commandBuffer->bindDescriptorSets(gpu, this, fPipelineLayout, fStartDS, fDSCount,
+                                          &fDescriptorSets[fStartDS], 0, nullptr);
+    }
 }
 
 void GrVkProgram::addUniformResources(GrVkCommandBuffer& commandBuffer) {
-#if 1
-    commandBuffer.addResource(fDescriptorPool);
+    if (fSamplerPoolManager.fPool) {
+        commandBuffer.addResource(fSamplerPoolManager.fPool);
+    }
+    if (fUniformPoolManager.fPool) {
+        commandBuffer.addResource(fUniformPoolManager.fPool);
+    }
+
     if (fVertexUniformBuffer.get()) {
         commandBuffer.addResource(fVertexUniformBuffer->resource());
     }
@@ -364,5 +376,64 @@ void GrVkProgram::addUniformResources(GrVkCommandBuffer& commandBuffer) {
     for (int i = 0; i < fTextures.count(); ++i) {
         commandBuffer.addResource(fTextures[i]);
     }
-#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrVkProgram::DescriptorPoolManager::getNewPool(GrVkGpu* gpu) {
+    if (fPool) {
+        fPool->unref(gpu);
+        SkASSERT(fMaxDescriptorSets < (SK_MaxU32 >> 1));
+        fMaxDescriptorSets = fMaxDescriptorSets << 1;
+
+    }
+    if (fMaxDescriptorSets) {
+        fPool = gpu->resourceProvider().findOrCreateCompatibleDescriptorPool(fDescType,
+                                                                             fMaxDescriptorSets);
+    }
+    SkASSERT(fPool || !fMaxDescriptorSets);
+}
+
+void GrVkProgram::DescriptorPoolManager::getNewDescriptorSet(GrVkGpu* gpu, VkDescriptorSet* ds) {
+    if (!fMaxDescriptorSets) {
+        return;
+    }
+    if (fCurrentDescriptorSet == fMaxDescriptorSets) {
+        this->getNewPool(gpu);
+        fCurrentDescriptorSet = 0;
+    }
+    fCurrentDescriptorSet++;
+
+    VkDescriptorSetAllocateInfo dsAllocateInfo;
+    memset(&dsAllocateInfo, 0, sizeof(VkDescriptorSetAllocateInfo));
+    dsAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    dsAllocateInfo.pNext = nullptr;
+    dsAllocateInfo.descriptorPool = fPool->descPool();
+    dsAllocateInfo.descriptorSetCount = 1;
+    dsAllocateInfo.pSetLayouts = &fDescLayout;
+
+    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), AllocateDescriptorSets(gpu->device(),
+                                                                   &dsAllocateInfo,
+                                                                   ds));
+}
+
+void GrVkProgram::DescriptorPoolManager::freeGPUResources(const GrVkGpu* gpu) {
+    if (fDescLayout) {
+        GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorSetLayout(gpu->device(), fDescLayout,
+                                                                  nullptr));
+        fDescLayout = VK_NULL_HANDLE;
+    }
+
+    if (fPool) {
+        fPool->unref(gpu);
+        fPool = nullptr;
+    }
+}
+
+void GrVkProgram::DescriptorPoolManager::abandonGPUResources() {
+    fDescLayout = VK_NULL_HANDLE;
+    if (fPool) {
+        fPool->unrefAndAbandon();
+        fPool = nullptr;
+    }
 }

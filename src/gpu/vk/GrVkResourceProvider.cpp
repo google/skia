@@ -79,8 +79,8 @@ GrVkResourceProvider::findOrCreateCompatibleRenderPass(const GrVkRenderTarget& t
 }
 
 GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
-                                       const GrVkDescriptorPool::DescriptorTypeCounts& typeCounts) {
-    return new GrVkDescriptorPool(fGpu, typeCounts);
+                                                            VkDescriptorType type, uint32_t count) {
+    return new GrVkDescriptorPool(fGpu, type, count);
 }
 
 GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrTextureParams& params) {
