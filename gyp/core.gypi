@@ -415,6 +415,7 @@
         '<(skia_include_path)/private/SkTemplates.h',
         '<(skia_include_path)/private/SkTArray.h',
         '<(skia_include_path)/private/SkTDArray.h',
+        '<(skia_include_path)/private/SkTFitsIn.h',
         '<(skia_include_path)/private/SkTHash.h',
         '<(skia_include_path)/private/SkThreadID.h',
         '<(skia_include_path)/private/SkTDict.h',
