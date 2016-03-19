@@ -114,6 +114,7 @@ public:
         , fCurrElementArrayBuffer(0)
         , fCurrPixelPackBuffer(0)
         , fCurrPixelUnpackBuffer(0)
+        , fCurrProgramID(0)
         , fCurrShaderID(0)
         , fCurrGenericID(0)
         , fCurrUniformLocation(0) {
