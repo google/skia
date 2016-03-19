@@ -200,6 +200,21 @@ void ClampX_ClampY_nofilter_affine(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y);
 
 // Helper class for mapping the middle of pixel (x, y) into SkFractionalInt bitmap space.
+// Discussion:
+// Overall, this code takes a point in destination space, and uses the center of the pixel
+// at (x, y) to determine the sample point in source space. It then adjusts the pixel by different
+// amounts based in filtering and tiling.
+// This code can be broken into two main cases based on filtering:
+// * no filtering (nearest neighbor) - when using nearest neighbor filtering all tile modes reduce
+// the sampled by one ulp. If a simple point pt lies precisely on XXX.1/2 then it forced down
+// when positive making 1/2 + 1/2 = .999999 instead of 1.0.
+// * filtering - in the filtering case, the code calculates the -1/2 shift for starting the
+// bilerp kernel. There is a twist; there is a big difference between clamp and the other tile
+// modes. In tile and repeat the matrix has been reduced by an additional 1/width and 1/height
+// factor. This maps from destination space to [0, 1) (instead of source space) to allow easy
+// modulo arithmetic. This means that the -1/2 needed by bilerp is actually 1/2 * 1/width for x
+// and 1/2 * 1/height for y. This is what happens when the poorly named fFilterOne{X|Y} is
+// divided by two.
 class SkBitmapProcStateAutoMapper {
 public:
     SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y,
