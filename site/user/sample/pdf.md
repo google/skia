@@ -4,15 +4,24 @@ Using Skia's PDF Backend
 Here is an example of using Skia's PDF backend in the recommended way:
 via the SkDocument and SkCanvas APIs.
 
-<!--?prettify?-->
+<!--?prettify lang=cc?-->
 
     #include "SkDocument.h"
 
-    bool WritePDF() {
-        SkWStream* outputStream = ....;
-
-        SkAutoTUnref<SkDocument> pdfDocument(
-                SkDocument::CreatePDF(outputStream));
+    bool WritePDF(SkWStream* outputStream) {
+        sk_sp<SkDocument> pdfDocument(SkDocument::CreatePDF(outputStream));
+        typedef SkDocument::Attribute Attr;
+        Attr info[] = {
+            Attr(SkString("Title"),    SkString("....")),
+            Attr(SkString("Author"),   SkString("....")),
+            Attr(SkString("Subject"),  SkString("....")),
+            Attr(SkString("Keywords"), SkString("....")),
+            Attr(SkString("Creator"),  SkString("....")),
+        };
+        int infoCount = sizeof(info) / sizeof(info[0]);
+        SkTime::DateTime now;
+        SkTime::GetDateTime(&now);
+        pdfDocument->setMetadata(info, infoCount, &now, &now);
 
         int numberOfPages = ....;
         for (int page = 0; page < numberOfPages; ++page) {
@@ -25,16 +34,5 @@ via the SkDocument and SkCanvas APIs.
 
             pdfDocument->endPage();
         }
-
-        SkTArray<SkDocument::Attribute> info;
-        info.emplace_back(SkString("Title"), SkString("...."));
-        info.emplace_back(SkString("Author"), SkString("...."));
-        info.emplace_back(SkString("Subject"), SkString("...."));
-        info.emplace_back(SkString("Keywords"), SkString("...."));
-        info.emplace_back(SkString("Creator"), SkString("...."));
-        SkTime::DateTime now;
-        SkTime::GetDateTime(&now);
-        pdfDocument->setMetadata(info, &now, &now);
-
         return pdfDocument->close();
     }
