@@ -142,6 +142,29 @@ sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t* paint) {
     return SRCOVER_SK_XFERMODE_MODE;
 }
 
+void sk_paint_set_filter_quality(sk_paint_t* cpaint, sk_filter_quality_t filterQuality)
+{
+    SkASSERT(cpaint);
+    SkFilterQuality fq;
+    if (find_sk(filterQuality, &fq)) {
+        AsPaint(cpaint)->setFilterQuality(fq);
+    }
+}
+
+sk_filter_quality_t sk_paint_get_filter_quality(sk_paint_t* cpaint)
+{
+    SkASSERT(cpaint);
+    SkFilterQuality fq;
+    sk_filter_quality_t cfq;
+    fq = AsPaint(cpaint)->getFilterQuality();
+    if (find_c(fq, &cfq)) {
+        return cfq;
+    }
+    else {
+        return NONE_SK_FILTER_QUALITY;
+    }
+}
+
 sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint)
 {
     return (sk_typeface_t*) AsPaint(paint)->getTypeface();

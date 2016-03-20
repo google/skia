@@ -138,6 +138,12 @@ SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
 SK_API sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t*);
 
 /**
+ * Get or set the paint's filter quality.
+*/
+SK_API void sk_paint_set_filter_quality(sk_paint_t*, sk_filter_quality_t);
+SK_API sk_filter_quality_t sk_paint_get_filter_quality(sk_paint_t *);
+
+/**
  *  Get the paint's typeface
  */
 SK_API sk_typeface_t* sk_paint_get_typeface(sk_paint_t*);
