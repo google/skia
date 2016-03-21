@@ -356,9 +356,11 @@ GrVkGpu::~GrVkGpu() {
     fCurrentCmdBuffer->unref(this);
 
     // wait for all commands to finish
+    fResourceProvider.checkCommandBuffers();
     VkResult res = VK_CALL(QueueWaitIdle(fQueue));
-    SkASSERT(res == VK_SUCCESS);
-
+    // VK_ERROR_DEVICE_LOST is acceptable when tearing down (see 4.2.4 in spec)
+    SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
+ 
     // must call this just before we destroy the VkDevice
     fResourceProvider.destroyResources();
 

@@ -129,7 +129,11 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
     glCtx->makeCurrent();
     GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glInterface.get());
 #ifdef SK_VULKAN
-    grCtx.reset(GrContext::Create(kVulkan_GrBackend, p3dctx, fGlobalOptions));
+    if (kEnableNVPR_GLContextOptions & options) {
+        return ContextInfo();
+    } else {
+        grCtx.reset(GrContext::Create(kVulkan_GrBackend, p3dctx, fGlobalOptions));
+    }
 #else
     grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, fGlobalOptions));
 #endif
