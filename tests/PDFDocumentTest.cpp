@@ -33,7 +33,8 @@ static void test_abort(skiatest::Reporter* reporter) {
 
     doc->abort();
 
-    REPORTER_ASSERT(reporter, stream.bytesWritten() == 0);
+    // Test that only the header is written, not the full document.
+    REPORTER_ASSERT(reporter, stream.bytesWritten() < 256);
 }
 
 static void test_abortWithFile(skiatest::Reporter* reporter) {

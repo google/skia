@@ -8,11 +8,72 @@
 #define SkPDFDocument_DEFINED
 
 #include "SkDocument.h"
+#include "SkPDFMetadata.h"
+#include "SkPDFTypes.h"
 
 sk_sp<SkDocument> SkPDFMakeDocument(
         SkWStream* stream,
         void (*doneProc)(SkWStream*, bool),
         SkScalar rasterDpi,
         SkPixelSerializer* jpegEncoder);
+
+// Logically part of SkPDFDocument (like SkPDFCanon), but separate to
+// keep similar functionality together.
+struct SkPDFObjectSerializer : SkNoncopyable {
+    SkPDFObjNumMap fObjNumMap;
+    SkPDFSubstituteMap fSubstituteMap;
+    SkTDArray<int32_t> fOffsets;
+    sk_sp<SkPDFObject> fInfoDict;
+    size_t fBaseOffset;
+    int32_t fNextToBeSerialized;  // index in fObjNumMap
+
+    SkPDFObjectSerializer();
+    void addObjectRecursively(const sk_sp<SkPDFObject>&);
+    void serializeHeader(SkWStream*, const SkPDFMetadata&);
+    void serializeObjects(SkWStream*);
+    void serializeFooter(SkWStream*, const sk_sp<SkPDFObject>, sk_sp<SkPDFObject>);
+    int32_t offset(SkWStream*);
+};
+
+/** Concrete implementation of SkDocument that creates PDF files. This
+    class does not produced linearized or optimized PDFs; instead it
+    it attempts to use a minimum amount of RAM. */
+class SkPDFDocument : public SkDocument {
+public:
+    SkPDFDocument(SkWStream*,
+                  void (*)(SkWStream*, bool),
+                  SkScalar,
+                  SkPixelSerializer*);
+    virtual ~SkPDFDocument();
+    SkCanvas* onBeginPage(SkScalar, SkScalar, const SkRect&) override;
+    void onEndPage() override;
+    bool onClose(SkWStream*) override;
+    void onAbort() override;
+    void setMetadata(const SkDocument::Attribute[],
+                     int,
+                     const SkTime::DateTime*,
+                     const SkTime::DateTime*) override;
+    /**
+       Serialize the object, as well as any other objects it
+       indirectly refers to.  If any any other objects have been added
+       to the SkPDFObjNumMap without serializing them, they will be
+       serialized as well.
+
+       It might go without saying that objects should not be changed
+       after calling serialize, since those changes will be too late.
+       The same goes for changes to the SkPDFSubstituteMap that effect
+       the object or its dependencies.
+     */
+    void serialize(const sk_sp<SkPDFObject>&);
+    SkPDFCanon* canon() { return &fCanon; }
+
+private:
+    SkPDFObjectSerializer fObjectSerializer;
+    SkPDFCanon fCanon;
+    SkTArray<sk_sp<const SkPDFDevice>> fPageDevices;
+    sk_sp<SkCanvas> fCanvas;
+    SkScalar fRasterDpi;
+    SkPDFMetadata fMetadata;
+};
 
 #endif  // SkPDFDocument_DEFINED
