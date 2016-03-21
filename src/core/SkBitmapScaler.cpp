@@ -167,7 +167,10 @@ void SkResizeFilter::computeFilters(int srcSize,
     // is at (2.5, 2.5).
     float destFilterDist = (srcBegin + 0.5f - srcPixel) * clampedScale;
     int filterCount = SkScalarTruncToInt(srcEnd - srcBegin) + 1;
-    SkASSERT(filterCount > 0);
+    if (filterCount <= 0) {
+        // true when srcSize is equal to srcPixel - srcSupport; this may be a bug
+        return;
+    }
     filterValuesArray.reset(filterCount);
     float filterSum = fBitmapFilter->evaluate_n(destFilterDist, clampedScale, filterCount,
                                                 filterValuesArray.begin());
