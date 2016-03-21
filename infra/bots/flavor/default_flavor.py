@@ -107,6 +107,9 @@ class DefaultFlavorUtils(object):
       env['CHROME_PATH'] = self.chrome_path
       self._bot_info._run_once(self.bootstrap_win_toolchain)
     else:
+      # Ensure depot_tools is in PATH.
+      depot_tools = os.path.join('/b', 'depot_tools')
+      env['PATH'] = os.pathsep.join([depot_tools, os.environ['PATH']])
       make_cmd = ['make']
     cmd = make_cmd + [target]
     self._bot_info.run(cmd, env=env)
