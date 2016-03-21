@@ -29,6 +29,160 @@ bool SkJpegCodec::IsJpeg(const void* buffer, size_t bytesRead) {
     return bytesRead >= 3 && !memcmp(buffer, jpegSig, sizeof(jpegSig));
 }
 
+static uint32_t get_endian_int(const uint8_t* data, bool littleEndian) {
+    if (littleEndian) {
+        return (data[3] << 24) | (data[2] << 16) | (data[1] << 8) | (data[0]);
+    }
+
+    return (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | (data[3]);
+}
+
+const uint32_t kExifHeaderSize = 14;
+const uint32_t kICCHeaderSize = 14;
+const uint32_t kExifMarker = JPEG_APP0 + 1;
+const uint32_t kICCMarker = JPEG_APP0 + 2;
+
+static bool is_orientation_marker(jpeg_marker_struct* marker, SkCodec::Origin* orientation) {
+    if (kExifMarker != marker->marker || marker->data_length < kExifHeaderSize) {
+        return false;
+    }
+
+    const uint8_t* data = marker->data;
+    static const uint8_t kExifSig[] { 'E', 'x', 'i', 'f', '\0' };
+    if (memcmp(data, kExifSig, sizeof(kExifSig))) {
+        return false;
+    }
+
+    bool littleEndian;
+    if (!is_valid_endian_marker(data + 6, &littleEndian)) {
+        return false;
+    }
+
+    // Get the offset from the start of the marker.
+    // Account for 'E', 'x', 'i', 'f', '\0', '<fill byte>'.
+    uint32_t offset = get_endian_int(data + 10, littleEndian);
+    offset += sizeof(kExifSig) + 1;
+
+    // Require that the marker is at least large enough to contain the number of entries.
+    if (marker->data_length < offset + 2) {
+        return false;
+    }
+    uint32_t numEntries = get_endian_short(data + offset, littleEndian);
+
+    // Tag (2 bytes), Datatype (2 bytes), Number of elements (4 bytes), Data (4 bytes)
+    const uint32_t kEntrySize = 12;
+    numEntries = SkTMin(numEntries, (marker->data_length - offset - 2) / kEntrySize);
+
+    // Advance the data to the start of the entries.
+    data += offset + 2;
+
+    const uint16_t kOriginTag = 0x112;
+    const uint16_t kOriginType = 3;
+    for (uint32_t i = 0; i < numEntries; i++, data += kEntrySize) {
+        uint16_t tag = get_endian_short(data, littleEndian);
+        uint16_t type = get_endian_short(data + 2, littleEndian);
+        uint32_t count = get_endian_int(data + 4, littleEndian);
+        if (kOriginTag == tag && kOriginType == type && 1 == count) {
+            uint16_t val = get_endian_short(data + 8, littleEndian);
+            if (0 < val && val <= SkCodec::kLast_Origin) {
+                *orientation = (SkCodec::Origin) val;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+static SkCodec::Origin get_exif_orientation(jpeg_decompress_struct* dinfo) {
+    SkCodec::Origin orientation;
+    for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
+        if (is_orientation_marker(marker, &orientation)) {
+            return orientation;
+        }
+    }
+
+    return SkCodec::kDefault_Origin;
+}
+
+static bool is_icc_marker(jpeg_marker_struct* marker) {
+    if (kICCMarker != marker->marker || marker->data_length < kICCHeaderSize) {
+        return false;
+    }
+
+    static const uint8_t kICCSig[] { 'I', 'C', 'C', '_', 'P', 'R', 'O', 'F', 'I', 'L', 'E', '\0' };
+    return !memcmp(marker->data, kICCSig, sizeof(kICCSig));
+}
+
+/*
+ * ICC profiles may be stored using a sequence of multiple markers.  We obtain the ICC profile
+ * in two steps:
+ *     (1) Discover all ICC profile markers and verify that they are numbered properly.
+ *     (2) Copy the data from each marker into a contiguous ICC profile.
+ */
+static sk_sp<SkColorSpace> get_icc_profile(jpeg_decompress_struct* dinfo) {
+    // Note that 256 will be enough storage space since each markerIndex is stored in 8-bits.
+    jpeg_marker_struct* markerSequence[256];
+    memset(markerSequence, 0, sizeof(markerSequence));
+    uint8_t numMarkers = 0;
+    size_t totalBytes = 0;
+
+    // Discover any ICC markers and verify that they are numbered properly.
+    for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
+        if (is_icc_marker(marker)) {
+            // Verify that numMarkers is valid and consistent.
+            if (0 == numMarkers) {
+                numMarkers = marker->data[13];
+                if (0 == numMarkers) {
+                    SkCodecPrintf("ICC Profile Error: numMarkers must be greater than zero.\n");
+                    return nullptr;
+                }
+            } else if (numMarkers != marker->data[13]) {
+                SkCodecPrintf("ICC Profile Error: numMarkers must be consistent.\n");
+                return nullptr;
+            }
+
+            // Verify that the markerIndex is valid and unique.  Note that zero is not
+            // a valid index.
+            uint8_t markerIndex = marker->data[12];
+            if (markerIndex == 0 || markerIndex > numMarkers) {
+                SkCodecPrintf("ICC Profile Error: markerIndex is invalid.\n");
+                return nullptr;
+            }
+            if (markerSequence[markerIndex]) {
+                SkCodecPrintf("ICC Profile Error: Duplicate value of markerIndex.\n");
+                return nullptr;
+            }
+            markerSequence[markerIndex] = marker;
+            SkASSERT(marker->data_length >= kICCHeaderSize);
+            totalBytes += marker->data_length - kICCHeaderSize;
+        }
+    }
+
+    if (0 == totalBytes) {
+        // No non-empty ICC profile markers were found.
+        return nullptr;
+    }
+
+    // Combine the ICC marker data into a contiguous profile.
+    SkAutoMalloc iccData(totalBytes);
+    void* dst = iccData.get();
+    for (uint32_t i = 1; i <= numMarkers; i++) {
+        jpeg_marker_struct* marker = markerSequence[i];
+        if (!marker) {
+            SkCodecPrintf("ICC Profile Error: Missing marker %d of %d.\n", i, numMarkers);
+            return nullptr;
+        }
+
+        void* src = SkTAddOffset<void>(marker->data, kICCHeaderSize);
+        size_t bytes = marker->data_length - kICCHeaderSize;
+        memcpy(dst, src, bytes);
+        dst = SkTAddOffset<void>(dst, bytes);
+    }
+
+    return SkColorSpace::NewICC(iccData.get(), totalBytes);
+}
+
 bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         JpegDecoderMgr** decoderMgrOut) {
 
@@ -43,19 +197,32 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
     // Initialize the decompress info and the source manager
     decoderMgr->init();
 
+    // Instruct jpeg library to save the markers that we care about.  Since
+    // the orientation and color profile will not change, we can skip this
+    // step on rewinds.
+    if (codecOut) {
+        jpeg_save_markers(decoderMgr->dinfo(), kExifMarker, 0xFFFF);
+        jpeg_save_markers(decoderMgr->dinfo(), kICCMarker, 0xFFFF);
+    }
+
     // Read the jpeg header
     if (JPEG_HEADER_OK != jpeg_read_header(decoderMgr->dinfo(), true)) {
         return decoderMgr->returnFalse("read_header");
     }
 
-    if (nullptr != codecOut) {
+    if (codecOut) {
         // Recommend the color type to decode to
         const SkColorType colorType = decoderMgr->getColorType();
 
         // Create image info object and the codec
         const SkImageInfo& imageInfo = SkImageInfo::Make(decoderMgr->dinfo()->image_width,
                 decoderMgr->dinfo()->image_height, colorType, kOpaque_SkAlphaType);
-        *codecOut = new SkJpegCodec(imageInfo, stream, decoderMgr.release());
+
+        Origin orientation = get_exif_orientation(decoderMgr->dinfo());
+        sk_sp<SkColorSpace> colorSpace = get_icc_profile(decoderMgr->dinfo());
+
+        *codecOut = new SkJpegCodec(imageInfo, stream, decoderMgr.release(), colorSpace,
+                orientation);
     } else {
         SkASSERT(nullptr != decoderMgrOut);
         *decoderMgrOut = decoderMgr.release();
@@ -76,8 +243,8 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
 }
 
 SkJpegCodec::SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream,
-        JpegDecoderMgr* decoderMgr)
-    : INHERITED(srcInfo, stream)
+        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
+    : INHERITED(srcInfo, stream, colorSpace, origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzlerSubset(SkIRect::MakeEmpty())

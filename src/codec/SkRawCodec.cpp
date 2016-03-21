@@ -537,9 +537,12 @@ private:
         }
 
         // Check if the header is valid (endian info and magic number "42").
-        return
-            (header[0] == 0x49 && header[1] == 0x49 && header[2] == 0x2A && header[3] == 0x00) ||
-            (header[0] == 0x4D && header[1] == 0x4D && header[2] == 0x00 && header[3] == 0x2A);
+        bool littleEndian;
+        if (!is_valid_endian_marker(header, &littleEndian)) {
+            return false;
+        }
+
+        return 0x2A == get_endian_short(header + 2, littleEndian);
     }
 
     void init(const int width, const int height, const dng_point& cfaPatternSize) {

@@ -91,7 +91,8 @@ private:
      * @param decoderMgr holds decompress struct, src manager, and error manager
      *                   takes ownership
      */
-    SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr);
+    SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr,
+            sk_sp<SkColorSpace> colorSpace, Origin origin);
 
     /*
      * Checks if the conversion between the input image and the requested output

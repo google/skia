@@ -251,4 +251,28 @@ inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
 #endif
 }
 
+/*
+ * @param data           Buffer to read bytes from
+ * @param isLittleEndian Output parameter
+ *                       Indicates if the data is little endian
+ *                       Is unaffected on false returns
+ */
+inline bool is_valid_endian_marker(const uint8_t* data, bool* isLittleEndian) {
+    // II indicates Intel (little endian) and MM indicates motorola (big endian).
+    if (('I' != data[0] || 'I' != data[1]) && ('M' != data[0] || 'M' != data[1])) {
+        return false;
+    }
+
+    *isLittleEndian = ('I' == data[0]);
+    return true;
+}
+
+inline uint16_t get_endian_short(const uint8_t* data, bool littleEndian) {
+    if (littleEndian) {
+        return (data[1] << 8) | (data[0]);
+    }
+
+    return (data[0] << 8) | (data[1]);
+}
+
 #endif // SkCodecPriv_DEFINED
