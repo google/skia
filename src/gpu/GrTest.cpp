@@ -186,10 +186,7 @@ void GrGpu::Stats::dump(SkString* out) {
 void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
     keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
     keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
-    keys->push_back(SkString("textures_created")); values->push_back(fTextureCreates);
     keys->push_back(SkString("texture_uploads")); values->push_back(fTextureUploads);
-    keys->push_back(SkString("transfers_to_texture")); values->push_back(fTransfersToTexture);
-    keys->push_back(SkString("stencil_buffer_creates")); values->push_back(fStencilAttachmentCreates);
     keys->push_back(SkString("number_of_draws")); values->push_back(fNumDraws);
 }
 
@@ -239,14 +236,7 @@ void GrResourceCache::dumpStatsKeyValuePairs(SkTArray<SkString>* keys,
     Stats stats;
     this->getStats(&stats);
 
-    keys->push_back(SkString("gpu_cache_total_entries")); values->push_back(stats.fTotal);
-    keys->push_back(SkString("gpu_cache_external_entries")); values->push_back(stats.fExternal);
-    keys->push_back(SkString("gpu_cache_borrowed_entries")); values->push_back(stats.fBorrowed);
-    keys->push_back(SkString("gpu_cache_adopted_entries")); values->push_back(stats.fAdopted);
     keys->push_back(SkString("gpu_cache_purgable_entries")); values->push_back(stats.fNumPurgeable);
-    keys->push_back(SkString("gpu_cache_non_purgable_entries")); values->push_back(stats.fNumNonPurgeable);
-    keys->push_back(SkString("gpu_cache_scratch_entries")); values->push_back(stats.fScratch);
-    keys->push_back(SkString("gpu_cache_unbudgeted_size")); values->push_back((double)stats.fUnbudgetedSize);
 }
 
 #endif
