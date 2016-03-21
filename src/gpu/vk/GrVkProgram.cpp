@@ -62,9 +62,7 @@ GrVkProgram::GrVkProgram(GrVkGpu* gpu,
     fVertexUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, vertexUniformSize, true));
     fFragmentUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, fragmentUniformSize, true));
 
-#ifdef SK_DEBUG
     fNumSamplers = numSamplers;
-#endif
 }
 
 GrVkProgram::~GrVkProgram() {

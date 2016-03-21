@@ -357,7 +357,7 @@ GrVkGpu::~GrVkGpu() {
 
     // wait for all commands to finish
     fResourceProvider.checkCommandBuffers();
-    VkResult res = VK_CALL(QueueWaitIdle(fQueue));
+    SkDEBUGCODE(VkResult res =) VK_CALL(QueueWaitIdle(fQueue));
     // VK_ERROR_DEVICE_LOST is acceptable when tearing down (see 4.2.4 in spec)
     SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
  

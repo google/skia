@@ -182,9 +182,7 @@ private:
     DescriptorPoolManager  fSamplerPoolManager;
     DescriptorPoolManager  fUniformPoolManager;
 
-#ifdef SK_DEBUG
     int fNumSamplers;
-#endif
 
     friend class GrVkProgramBuilder;
 };
