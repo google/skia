@@ -411,6 +411,10 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     if (SUCCEEDED(hr)) {
         hr = piBitmapFrameEncode->SetPixelFormat(&formatGUID);
     }
+    if (SUCCEEDED(hr)) {
+        //Be sure the image format is the one requested.
+        hr = IsEqualGUID(formatGUID, formatDesired) ? S_OK : E_FAIL;
+    }
 
     //Write the pixels into the frame.
     if (SUCCEEDED(hr)) {
@@ -440,7 +444,6 @@ static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
     switch (t) {
         case SkImageEncoder::kBMP_Type:
         case SkImageEncoder::kICO_Type:
-        case SkImageEncoder::kJPEG_Type:
         case SkImageEncoder::kPNG_Type:
             break;
         default:
