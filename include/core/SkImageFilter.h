@@ -160,7 +160,7 @@ public:
      * Map a device-space rect recursively forward or backward through the
      * filter DAG. kForward_MapDirection is used to determine which pixels of
      * the destination canvas a source image rect would touch after filtering.
-     * kBackward_MapDirection is used to determine which rect of the source
+     * kReverse_MapDirection is used to determine which rect of the source
      * image would be required to fill the given rect (typically, clip bounds).
      * Used for clipping and temp-buffer allocations, so the result need not
      * be exact, but should never be smaller than the real answer. The default
