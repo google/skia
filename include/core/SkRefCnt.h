@@ -200,10 +200,6 @@ public:
     // Need to update graphics/Shader.cpp.
     T* detach() { return this->release(); }
 #endif
-
-    // Android's std::unique_ptr's operator bool() is sometimes not explicit...
-    // so override it with our own explcitly explicit version.
-    explicit operator bool() const { return this->get() != nullptr; }
 };
 // Can't use the #define trick below to guard a bare SkAutoTUnref(...) because it's templated. :(
 

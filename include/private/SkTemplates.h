@@ -101,9 +101,6 @@ public:
     // Need to update graphics/BitmapRegionDecoder.cpp.
     T* detach() { return this->release(); }
 #endif
-
-    // See SkAutoTUnref for why we do this.
-    explicit operator bool() const { return this->get() != nullptr; }
 };
 
 template <typename T> class SkAutoTDeleteArray : public std::unique_ptr<T[]> {
