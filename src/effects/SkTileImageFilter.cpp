@@ -106,22 +106,20 @@ bool SkTileImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& sr
     return true;
 }
 
-void SkTileImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                          SkIRect* dst, MapDirection direction) const {
+SkIRect SkTileImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                              MapDirection direction) const {
     SkRect rect = kReverse_MapDirection == direction ? fSrcRect : fDstRect;
     ctm.mapRect(&rect);
-    rect.roundOut(dst);
+    return rect.roundOut();
 }
 
-bool SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                       SkIRect* dst, MapDirection direction) const {
+SkIRect SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const {
     // Don't recurse into inputs.
-    *dst = src;
-    return true;
+    return src;
 }
 
-void SkTileImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    *dst = fDstRect;
+SkRect SkTileImageFilter::computeFastBounds(const SkRect& src) const {
+    return fDstRect;
 }
 
 SkFlattenable* SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {

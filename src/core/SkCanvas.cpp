@@ -1077,7 +1077,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     const SkMatrix& ctm = fMCRec->fMatrix;  // this->getTotalMatrix()
 
     if (imageFilter) {
-        imageFilter->filterBounds(clipBounds, ctm, &clipBounds);
+        clipBounds = imageFilter->filterBounds(clipBounds, ctm);
         if (bounds && !imageFilter->canComputeFastBounds()) {
             bounds = nullptr;
         }

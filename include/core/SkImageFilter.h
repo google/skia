@@ -164,11 +164,17 @@ public:
      * image would be required to fill the given rect (typically, clip bounds).
      * Used for clipping and temp-buffer allocations, so the result need not
      * be exact, but should never be smaller than the real answer. The default
-     * implementation recursively unions all input bounds, or returns false if
-     * no inputs.
+     * implementation recursively unions all input bounds, or returns the
+     * source rect if no inputs.
      */
+    SkIRect filterBounds(const SkIRect& src, const SkMatrix& ctm,
+                         MapDirection = kReverse_MapDirection) const;
+
+#ifdef SK_SUPPORT_LEGACY_FILTERBOUNDS_RETURN
+    /* DEPRECATED */
     bool filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst,
                       MapDirection = kReverse_MapDirection) const;
+#endif
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most
@@ -246,7 +252,7 @@ public:
     CropRect getCropRect() const { return fCropRect; }
 
     // Default impl returns union of all input bounds.
-    virtual void computeFastBounds(const SkRect&, SkRect*) const;
+    virtual SkRect computeFastBounds(const SkRect&) const;
 
     // Can this filter DAG compute the resulting bounds of an object-space rectangle?
     virtual bool canComputeFastBounds() const;
@@ -358,19 +364,17 @@ protected:
                                           SkIPoint* offset) const;
 
     /**
-     * This function recurses into its inputs with the given clip rect (first
+     * This function recurses into its inputs with the given rect (first
      * argument), calls filterBounds() with the given map direction on each,
-     * and unions the result (third argument). If the rect cannot be mapped,
-     * false is returned and the destination rect is left unchanged.
-     * If a derived class has special recursion requirements (e.g., it has an
-     * input which does not participate in bounds computation), it can be
-     * overridden here.
+     * and returns the union of those results. If a derived class has special
+     * recursion requirements (e.g., it has an input which does not participate
+     * in bounds computation), it can be overridden here.
      *
      * Note that this function is *not* responsible for mapping the rect for
      * this node's filter bounds requirements (i.e., calling
      * onFilterNodeBounds()); that is handled by filterBounds().
      */
-    virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const;
+    virtual SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const;
 
     /**
      * Performs a forwards or reverse mapping of the given rect to accommodate
@@ -385,7 +389,7 @@ protected:
      * in both forward and reverse directions. Unlike
      * onFilterBounds(), this function is non-recursive.
      */
-    virtual void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const;
+    virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const;
 
     // Helper function which invokes filter processing on the input at the
     // specified "index". If the input is null, it leaves "result" and

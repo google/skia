@@ -21,7 +21,7 @@ public:
         return new SkOffsetImageFilter(dx, dy, input, cropRect);
     }
 
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
+    SkRect computeFastBounds(const SkRect& src) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
@@ -30,7 +30,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
                                   SkIPoint* offset) const override;
-    void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
 
 private:
     SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input, const CropRect*);

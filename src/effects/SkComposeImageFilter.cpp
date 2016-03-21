@@ -12,13 +12,11 @@
 #include "SkWriteBuffer.h"
 
 
-void SkComposeImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+SkRect SkComposeImageFilter::computeFastBounds(const SkRect& src) const {
     SkImageFilter* outer = getInput(0);
     SkImageFilter* inner = getInput(1);
 
-    SkRect tmp;
-    inner->computeFastBounds(src, &tmp);
-    outer->computeFastBounds(tmp, dst);
+    return outer->computeFastBounds(inner->computeFastBounds(src));
 }
 
 SkSpecialImage* SkComposeImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
@@ -27,7 +25,7 @@ SkSpecialImage* SkComposeImageFilter::onFilterImage(SkSpecialImage* source, cons
     // filter, so that the inner filter produces the pixels that the outer
     // filter requires as input. This matters if the outer filter moves pixels.
     SkIRect innerClipBounds;
-    getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm(), &innerClipBounds);
+    innerClipBounds = getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm());
     Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache());
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
     SkAutoTUnref<SkSpecialImage> inner(this->filterInput(1, source, innerContext, &innerOffset));
@@ -51,16 +49,12 @@ SkSpecialImage* SkComposeImageFilter::onFilterImage(SkSpecialImage* source, cons
     return outer.release();
 }
 
-bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
-                                          const SkMatrix& ctm,
-                                          SkIRect* dst,
-                                          MapDirection direction) const {
+SkIRect SkComposeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                             MapDirection direction) const {
     SkImageFilter* outer = this->getInput(0);
     SkImageFilter* inner = this->getInput(1);
 
-    SkIRect tmp;
-    return inner->filterBounds(src, ctm, &tmp, direction) &&
-           outer->filterBounds(tmp, ctm, dst, direction);
+    return outer->filterBounds(inner->filterBounds(src, ctm, direction), ctm, direction);
 }
 
 SkFlattenable* SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {

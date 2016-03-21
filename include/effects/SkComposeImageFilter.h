@@ -22,7 +22,7 @@ public:
         SkImageFilter* inputs[2] = { outer, inner };
         return new SkComposeImageFilter(inputs);
     }
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
+    SkRect computeFastBounds(const SkRect& src) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
@@ -34,7 +34,7 @@ protected:
     }
     SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
                                   SkIPoint* offset) const override;
-    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
+    SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
 
 private:
     typedef SkImageFilter INHERITED;

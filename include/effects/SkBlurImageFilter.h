@@ -21,7 +21,7 @@ public:
         return new SkBlurImageFilter(sigmaX, sigmaY, input, cropRect);
     }
 
-    void computeFastBounds(const SkRect&, SkRect*) const override;
+    SkRect computeFastBounds(const SkRect&) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilter)
@@ -30,8 +30,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
                                  SkIPoint* offset) const override;
-    void onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
-                            SkIRect* dst, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
     bool canFilterImageGPU() const override { return true; }
     bool filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                   SkBitmap* result, SkIPoint* offset) const override;

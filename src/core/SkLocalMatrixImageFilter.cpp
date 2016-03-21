@@ -45,9 +45,9 @@ bool SkLocalMatrixImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBit
     return this->filterInputDeprecated(0, proxy, src, localCtx, result, offset);
 }
 
-bool SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& matrix,
-                                              SkIRect* dst, MapDirection direction) const {
-    return this->getInput(0)->filterBounds(src, SkMatrix::Concat(matrix, fLocalM), dst, direction);
+SkIRect SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& matrix,
+                                                 MapDirection direction) const {
+    return this->getInput(0)->filterBounds(src, SkMatrix::Concat(matrix, fLocalM), direction);
 }
 
 #ifndef SK_IGNORE_TO_STRING

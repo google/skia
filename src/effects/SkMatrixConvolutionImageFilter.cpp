@@ -323,17 +323,18 @@ bool SkMatrixConvolutionImageFilter::onFilterImageDeprecated(Proxy* proxy,
     return true;
 }
 
-void SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                    SkIRect* dst, MapDirection direction) const {
-    *dst = src;
+SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                           MapDirection direction) const {
+    SkIRect dst = src;
     int w = fKernelSize.width() - 1, h = fKernelSize.height() - 1;
-    dst->fRight += w;
-    dst->fBottom += h;
+    dst.fRight += w;
+    dst.fBottom += h;
     if (kReverse_MapDirection == direction) {
-        dst->offset(-fKernelOffset);
+        dst.offset(-fKernelOffset);
     } else {
-        dst->offset(fKernelOffset - SkIPoint::Make(w, h));
+        dst.offset(fKernelOffset - SkIPoint::Make(w, h));
     }
+    return dst;
 }
 
 bool SkMatrixConvolutionImageFilter::canComputeFastBounds() const {

@@ -20,7 +20,7 @@ public:
                                  const SkRect& dstRect,
                                  SkFilterQuality);
 
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
+    SkRect computeFastBounds(const SkRect& src) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageSource)

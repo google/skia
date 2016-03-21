@@ -91,36 +91,32 @@ bool SkMatrixImageFilter::onFilterImageDeprecated(Proxy* proxy,
     return true;
 }
 
-void SkMatrixImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    SkRect bounds = src;
-    if (getInput(0)) {
-        getInput(0)->computeFastBounds(src, &bounds);
-    }
-    fTransform.mapRect(dst, bounds);
+SkRect SkMatrixImageFilter::computeFastBounds(const SkRect& src) const {
+    SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
+    SkRect dst;
+    fTransform.mapRect(&dst, bounds);
+    return dst;
 }
 
-void SkMatrixImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                             SkIRect* dst, MapDirection direction) const {
+SkIRect SkMatrixImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                MapDirection direction) const {
     SkMatrix matrix;
     if (!ctm.invert(&matrix)) {
-        *dst = src;
-        return;
+        return src;
     }
     if (kForward_MapDirection == direction) {
         matrix.postConcat(fTransform);
     } else {
         SkMatrix transformInverse;
         if (!fTransform.invert(&transformInverse)) {
-            *dst = src;
-            return;
+            return src;
         }
         matrix.postConcat(transformInverse);
     }
     matrix.postConcat(ctm);
     SkRect floatBounds;
     matrix.mapRect(&floatBounds, SkRect::Make(src));
-    SkIRect bounds = floatBounds.roundOut();
-    *dst = bounds;
+    return floatBounds.roundOut();
 }
 
 #ifndef SK_IGNORE_TO_STRING

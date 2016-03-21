@@ -2044,7 +2044,7 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
     }
 
     if (this->getImageFilter()) {
-        this->getImageFilter()->computeFastBounds(*storage, storage);
+        *storage = this->getImageFilter()->computeFastBounds(*storage);
     }
 
     return *storage;

@@ -99,41 +99,37 @@ bool SkDropShadowImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitm
     return true;
 }
 
-void SkDropShadowImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    if (getInput(0)) {
-        getInput(0)->computeFastBounds(src, dst);
-    } else {
-        *dst = src;
-    }
-
-    SkRect shadowBounds = *dst;
+SkRect SkDropShadowImageFilter::computeFastBounds(const SkRect& src) const {
+    SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
+    SkRect shadowBounds = bounds;
     shadowBounds.offset(fDx, fDy);
     shadowBounds.outset(SkScalarMul(fSigmaX, SkIntToScalar(3)),
                         SkScalarMul(fSigmaY, SkIntToScalar(3)));
     if (fShadowMode == kDrawShadowAndForeground_ShadowMode) {
-        dst->join(shadowBounds);
+        bounds.join(shadowBounds);
     } else {
-        *dst = shadowBounds;
+        bounds = shadowBounds;
     }
+    return bounds;
 }
 
-void SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                 SkIRect* dst, MapDirection direction) const {
-    *dst = src;
+SkIRect SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                    MapDirection direction) const {
     SkVector offsetVec = SkVector::Make(fDx, fDy);
     if (kReverse_MapDirection == direction) {
         offsetVec.negate();
     }
     ctm.mapVectors(&offsetVec, 1);
-    dst->offset(SkScalarCeilToInt(offsetVec.x()),
-                SkScalarCeilToInt(offsetVec.y()));
+    SkIRect dst = src.makeOffset(SkScalarCeilToInt(offsetVec.x()),
+                                 SkScalarCeilToInt(offsetVec.y()));
     SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
     ctm.mapVectors(&sigma, 1);
-    dst->outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
+    dst.outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
                 SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
     if (fShadowMode == kDrawShadowAndForeground_ShadowMode) {
-        dst->join(src);
+        dst.join(src);
     }
+    return dst;
 }
 
 #ifndef SK_IGNORE_TO_STRING

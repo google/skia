@@ -290,47 +290,42 @@ bool SkImageFilter::filterInputDeprecated(int index, Proxy* proxy, const SkBitma
     return tmp->internal_getBM(result);
 }
 
+#ifdef SK_SUPPORT_LEGACY_FILTERBOUNDS_RETURN
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst,
                                  MapDirection direction) const {
-    SkASSERT(dst);
-    SkIRect bounds;
+    *dst = filterBounds(src, ctm, direction);
+    return true;
+}
+#endif
+
+SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                 MapDirection direction) const {
     if (kReverse_MapDirection == direction) {
-        this->onFilterNodeBounds(src, ctm, &bounds, direction);
-        return this->onFilterBounds(bounds, ctm, dst, direction);
+        SkIRect bounds = this->onFilterNodeBounds(src, ctm, direction);
+        return this->onFilterBounds(bounds, ctm, direction);
     } else {
-        SkIRect temp;
-        if (!this->onFilterBounds(src, ctm, &bounds, direction)) {
-            return false;
-        }
-        this->onFilterNodeBounds(bounds, ctm, &temp, direction);
-        this->getCropRect().applyTo(temp, ctm, dst);
-        return true;
+        SkIRect bounds = this->onFilterBounds(src, ctm, direction);
+        bounds = this->onFilterNodeBounds(bounds, ctm, direction);
+        SkIRect dst;
+        this->getCropRect().applyTo(bounds, ctm, &dst);
+        return dst;
     }
 }
 
-void SkImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+SkRect SkImageFilter::computeFastBounds(const SkRect& src) const {
     if (0 == fInputCount) {
-        *dst = src;
-        return;
+        return src;
     }
-    // We can't work directly on dst, since src and dst may alias.
-    SkRect combinedBounds;
-    if (this->getInput(0)) {
-        this->getInput(0)->computeFastBounds(src, &combinedBounds);
-    } else {
-        combinedBounds = src;
-    }
+    SkRect combinedBounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
     for (int i = 1; i < fInputCount; i++) {
         SkImageFilter* input = this->getInput(i);
         if (input) {
-            SkRect bounds;
-            input->computeFastBounds(src, &bounds);
-            combinedBounds.join(bounds);
+            combinedBounds.join(input->computeFastBounds(src));
         } else {
             combinedBounds.join(src);
         }
     }
-    *dst = combinedBounds;
+    return combinedBounds;
 }
 
 bool SkImageFilter::canComputeFastBounds() const {
@@ -442,8 +437,8 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
 
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
                                   SkIRect* dstBounds) const {
-    this->onFilterNodeBounds(srcBounds, ctx.ctm(), dstBounds, kForward_MapDirection);
-    fCropRect.applyTo(*dstBounds, ctx.ctm(), dstBounds);
+    SkIRect temp = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
+    fCropRect.applyTo(temp, ctx.ctm(), dstBounds);
     // Intersect against the clip bounds, in case the crop rect has
     // grown the bounds beyond the original clip. This can happen for
     // example in tiling, where the clip is much smaller than the filtered
@@ -458,8 +453,7 @@ bool SkImageFilter::applyCropRectDeprecated(const Context& ctx, Proxy* proxy, co
     SkIRect srcBounds;
     src.getBounds(&srcBounds);
     srcBounds.offset(*srcOffset);
-    SkIRect dstBounds;
-    this->onFilterNodeBounds(srcBounds, ctx.ctm(), &dstBounds, kForward_MapDirection);
+    SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
     fCropRect.applyTo(dstBounds, ctx.ctm(), bounds);
     if (!bounds->intersect(ctx.clipBounds())) {
         return false;
@@ -510,8 +504,7 @@ SkSpecialImage* SkImageFilter::applyCropRect(const Context& ctx,
     SkIRect srcBounds;
     srcBounds = SkIRect::MakeXYWH(srcOffset->fX, srcOffset->fY, src->width(), src->height());
 
-    SkIRect dstBounds;
-    this->onFilterNodeBounds(srcBounds, ctx.ctm(), &dstBounds, kForward_MapDirection);
+    SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
     fCropRect.applyTo(dstBounds, ctx.ctm(), bounds);
     if (!bounds->intersect(ctx.clipBounds())) {
         return nullptr;
@@ -529,20 +522,16 @@ SkSpecialImage* SkImageFilter::applyCropRect(const Context& ctx,
     }
 }
 
-bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                   SkIRect* dst, MapDirection direction) const {
+SkIRect SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                      MapDirection direction) const {
     if (fInputCount < 1) {
-        *dst = src;
-        return true;
+        return src;
     }
 
     SkIRect totalBounds;
     for (int i = 0; i < fInputCount; ++i) {
         SkImageFilter* filter = this->getInput(i);
-        SkIRect rect = src;
-        if (filter && !filter->filterBounds(src, ctm, &rect, direction)) {
-            return false;
-        }
+        SkIRect rect = filter ? filter->filterBounds(src, ctm, direction) : src;
         if (0 == i) {
             totalBounds = rect;
         } else {
@@ -550,22 +539,17 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
         }
     }
 
-    // don't modify dst until now, so we don't accidentally change it in the
-    // loop, but then return false on the next filter.
-    *dst = totalBounds;
-    return true;
+    return totalBounds;
 }
 
-void SkImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
-                                       SkIRect* dst, MapDirection) const {
-    *dst = src;
+SkIRect SkImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const {
+    return src;
 }
 
 
 SkImageFilter::Context SkImageFilter::mapContext(const Context& ctx) const {
-    SkIRect clipBounds;
-    this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(), &clipBounds,
-                             MapDirection::kReverse_MapDirection);
+    SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
+                                                  MapDirection::kReverse_MapDirection);
     return Context(ctx.ctm(), clipBounds, ctx.cache());
 }
 

@@ -113,8 +113,8 @@ SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Conte
     return surf->makeImageSnapshot().release();
 }
 
-void SkImageSource::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    *dst = fDstRect;
+SkRect SkImageSource::computeFastBounds(const SkRect& src) const {
+    return fDstRect;
 }
 
 #ifndef SK_IGNORE_TO_STRING

@@ -33,7 +33,7 @@ public:
                                        SkImageFilter* input = nullptr);
     virtual ~SkMatrixImageFilter();
 
-    void computeFastBounds(const SkRect&, SkRect*) const override;
+    SkRect computeFastBounds(const SkRect&) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixImageFilter)
@@ -46,8 +46,7 @@ protected:
 
     bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
                                  SkBitmap* result, SkIPoint* loc) const override;
-    void onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
-                            SkIRect* dst, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
 
 private:
     SkMatrix              fTransform;

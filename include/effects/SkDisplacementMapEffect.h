@@ -36,11 +36,11 @@ public:
                                  const Context& ctx,
                                  SkBitmap* dst,
                                  SkIPoint* offset) const override;
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
+    SkRect computeFastBounds(const SkRect& src) const override;
 
-    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
-                                SkIRect* dst, MapDirection) const override;
-    void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
+    virtual SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&,
+                                   MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
 
 #if SK_SUPPORT_GPU
     bool canFilterImageGPU() const override { return true; }

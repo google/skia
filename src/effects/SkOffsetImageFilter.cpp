@@ -65,25 +65,21 @@ SkSpecialImage* SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
     }
 }
 
-void SkOffsetImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    if (getInput(0)) {
-        getInput(0)->computeFastBounds(src, dst);
-    } else {
-        *dst = src;
-    }
-    dst->offset(fOffset.fX, fOffset.fY);
+SkRect SkOffsetImageFilter::computeFastBounds(const SkRect& src) const {
+    SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
+    bounds.offset(fOffset.fX, fOffset.fY);
+    return bounds;
 }
 
-void SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                             SkIRect* dst, MapDirection direction) const {
+SkIRect SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                MapDirection direction) const {
     SkVector vec;
     ctm.mapVectors(&vec, &fOffset, 1);
     if (kReverse_MapDirection == direction) {
         vec.negate();
     }
 
-    *dst = src;
-    dst->offset(SkScalarCeilToInt(vec.fX), SkScalarCeilToInt(vec.fY));
+    return src.makeOffset(SkScalarCeilToInt(vec.fX), SkScalarCeilToInt(vec.fY));
 }
 
 SkFlattenable* SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {

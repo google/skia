@@ -23,10 +23,9 @@ public:
 
     bool onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                  SkBitmap* dst, SkIPoint* offset) const override;
-    bool onFilterBounds(const SkIRect& src, const SkMatrix&,
-                        SkIRect* dst, MapDirection) const override;
-    void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
+    SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
+    SkRect computeFastBounds(const SkRect& src) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTileImageFilter)

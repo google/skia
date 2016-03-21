@@ -179,23 +179,18 @@ bool SkBlurImageFilter::onFilterImageDeprecated(Proxy* proxy,
 }
 
 
-void SkBlurImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    if (this->getInput(0)) {
-        this->getInput(0)->computeFastBounds(src, dst);
-    } else {
-        *dst = src;
-    }
-
-    dst->outset(SkScalarMul(fSigma.width(), SkIntToScalar(3)),
-                SkScalarMul(fSigma.height(), SkIntToScalar(3)));
+SkRect SkBlurImageFilter::computeFastBounds(const SkRect& src) const {
+    SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
+    bounds.outset(SkScalarMul(fSigma.width(), SkIntToScalar(3)),
+                  SkScalarMul(fSigma.height(), SkIntToScalar(3)));
+    return bounds;
 }
 
-void SkBlurImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                           SkIRect* dst, MapDirection) const {
-    *dst = src;
+SkIRect SkBlurImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                              MapDirection) const {
     SkVector sigma = map_sigma(fSigma, ctm);
-    dst->outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
-                SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
+    return src.makeOutset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
+                          SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
 }
 
 bool SkBlurImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src,

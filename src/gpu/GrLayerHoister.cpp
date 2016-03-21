@@ -93,7 +93,7 @@ static bool compute_source_rect(const SkLayerInfo::BlockInfo& info, const SkMatr
     totMat.preConcat(info.fLocalMat);
 
     if (info.fPaint && info.fPaint->getImageFilter()) {
-        info.fPaint->getImageFilter()->filterBounds(clipBounds, totMat, &clipBounds);
+        clipBounds = info.fPaint->getImageFilter()->filterBounds(clipBounds, totMat);
     }
 
     if (!info.fSrcBounds.isEmpty()) {

@@ -142,22 +142,18 @@ bool SkDilateImageFilter::onFilterImageDeprecated(Proxy* proxy,
                                     proxy, source, ctx, dst, offset);
 }
 
-void SkMorphologyImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    if (this->getInput(0)) {
-        this->getInput(0)->computeFastBounds(src, dst);
-    } else {
-        *dst = src;
-    }
-    dst->outset(SkIntToScalar(fRadius.width()), SkIntToScalar(fRadius.height()));
+SkRect SkMorphologyImageFilter::computeFastBounds(const SkRect& src) const {
+    SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
+    bounds.outset(SkIntToScalar(fRadius.width()), SkIntToScalar(fRadius.height()));
+    return bounds;
 }
 
-void SkMorphologyImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                 SkIRect* dst, MapDirection) const {
-    *dst = src;
+SkIRect SkMorphologyImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                    MapDirection) const {
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
                                      SkIntToScalar(this->radius().height()));
     ctm.mapVectors(&radius, 1);
-    dst->outset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
+    return src.makeOutset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
 }
 
 SkFlattenable* SkErodeImageFilter::CreateProc(SkReadBuffer& buffer) {
