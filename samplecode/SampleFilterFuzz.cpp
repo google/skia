@@ -536,8 +536,7 @@ static SkPaint make_paint() {
         paintForRasterizer = make_paint();
     }
     rasterizerBuilder.addLayer(paintForRasterizer);
-    SkAutoTUnref<SkRasterizer> rasterizer(rasterizerBuilder.detachRasterizer());
-    paint.setRasterizer(rasterizer);
+    paint.setRasterizer(rasterizerBuilder.detach());
     paint.setImageFilter(make_image_filter());
     SkAutoDataUnref data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
     paint.setTextAlign(make_paint_align());

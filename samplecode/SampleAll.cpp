@@ -152,7 +152,7 @@ static void r6(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     p.setAntiAlias(false);
     SkLayerRasterizer::Builder rastBuilder2;
     r5(&rastBuilder2, p);
-    p.setRasterizer(rastBuilder2.detachRasterizer())->unref();
+    p.setRasterizer(rastBuilder2.detach());
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 }
@@ -246,7 +246,7 @@ static void apply_shader(SkPaint* paint, int index) {
 
         p.setAntiAlias(true);
         proc(&rastBuilder, p);
-        paint->setRasterizer(rastBuilder.detachRasterizer())->unref();
+        paint->setRasterizer(rastBuilder.detach());
     }
 
 #if 1

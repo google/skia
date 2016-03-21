@@ -163,7 +163,7 @@ static void apply_shader(SkPaint* paint, float scale)
 
     p.setAntiAlias(true);
     r7(&rastBuilder, p, scale);
-    paint->setRasterizer(rastBuilder.detachRasterizer())->unref();
+    paint->setRasterizer(rastBuilder.detach());
 
     paint->setColor(SK_ColorBLUE);
 }

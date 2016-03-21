@@ -370,7 +370,9 @@ void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fLooper = std::move(looper
         return f;                                   \
     }
 SET_PTR(Typeface)
+#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
 SET_PTR(Rasterizer)
+#endif
 SET_PTR(ImageFilter)
 SET_PTR(Shader)
 SET_PTR(ColorFilter)
@@ -381,10 +383,12 @@ SET_PTR(PathEffect)
 SET_PTR(MaskFilter)
 #undef SET_PTR
 
+#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
 SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
     fLooper.reset(SkSafeRef(looper));
     return looper;
 }
+#endif
 
 SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     fXfermode.reset(SkXfermode::Create(mode));
@@ -1937,8 +1941,8 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         SkSafeUnref(this->setXfermode(buffer.readXfermode()));
         SkSafeUnref(this->setMaskFilter(buffer.readMaskFilter()));
         SkSafeUnref(this->setColorFilter(buffer.readColorFilter()));
-        SkSafeUnref(this->setRasterizer(buffer.readRasterizer()));
-        SkSafeUnref(this->setLooper(buffer.readDrawLooper()));
+        this->setRasterizer(buffer.readRasterizer());
+        this->setLooper(buffer.readDrawLooper());
         SkSafeUnref(this->setImageFilter(buffer.readImageFilter()));
 
         if (buffer.isVersionLT(SkReadBuffer::kAnnotationsMovedToCanvas_Version)) {

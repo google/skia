@@ -35,10 +35,16 @@ public:
         kAll_BlurFlag               = 0x07
     };
 
+    static sk_sp<SkDrawLooper> Make(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
+                                    uint32_t flags = kNone_BlurFlag) {
+        return sk_sp<SkDrawLooper>(new SkBlurDrawLooper(color, sigma, dx, dy, flags));
+    }
+#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
     static SkDrawLooper* Create(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
                                 uint32_t flags = kNone_BlurFlag) {
-        return new SkBlurDrawLooper(color, sigma, dx, dy, flags);
+        return Make(color, sigma, dx, dy, flags).release();
     }
+#endif
 
     virtual ~SkBlurDrawLooper();
 

@@ -1184,10 +1184,9 @@ static void extract_json_paint_looper(Json::Value& jsonPaint, UrlDataManager& ur
                                       SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_LOOPER)) {
         Json::Value jsonLooper = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_LOOPER];
-        SkDrawLooper* looper = (SkDrawLooper*) load_flattenable(jsonLooper, urlDataManager);
+        sk_sp<SkDrawLooper> looper((SkDrawLooper*) load_flattenable(jsonLooper, urlDataManager));
         if (looper != nullptr) {
-            target->setLooper(looper);
-            looper->unref();
+            target->setLooper(std::move(looper));
         }
     }
 }

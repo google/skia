@@ -131,7 +131,7 @@ private:
         for (int i = 0; i < 4; ++i) {
             SkPaint loopPaint;
 
-            loopPaint.setLooper(create1Looper(-kOffsetToOutsideClip, 0, gColors[i]))->unref();
+            loopPaint.setLooper(create1Looper(-kOffsetToOutsideClip, 0, gColors[i]));
             loopPaint.setAntiAlias(true);
 
             SkRect outerClip = {
@@ -161,7 +161,7 @@ private:
     }
 
     // Create a 1-tier drawlooper
-    SkLayerDrawLooper* create1Looper(SkScalar xOff, SkScalar yOff, SkColor color) {
+    sk_sp<SkDrawLooper> create1Looper(SkScalar xOff, SkScalar yOff, SkColor color) {
         SkLayerDrawLooper::Builder looperBuilder;
         SkLayerDrawLooper::LayerInfo info;
 
@@ -178,7 +178,7 @@ private:
         SkColorFilter* cf = SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcIn_Mode);
         paint->setColorFilter(cf)->unref();
 
-        return looperBuilder.detachLooper();
+        return looperBuilder.detach();
     }
 
     void draw1x4(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -193,7 +193,7 @@ private:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setLooper(create4Looper(-kOffsetToOutsideClip-kHalfSquareSize, 0))->unref();
+        paint.setLooper(create4Looper(-kOffsetToOutsideClip-kHalfSquareSize, 0));
 
         canvas->save();
             canvas->clipRect(outerClip, SkRegion::kIntersect_Op);
@@ -205,7 +205,7 @@ private:
     }
 
     // Create a 4-tier draw looper
-    SkLayerDrawLooper* create4Looper(SkScalar xOff, SkScalar yOff) {
+    sk_sp<SkDrawLooper> create4Looper(SkScalar xOff, SkScalar yOff) {
         SkLayerDrawLooper::Builder looperBuilder;
         SkLayerDrawLooper::LayerInfo info;
 
@@ -226,7 +226,7 @@ private:
             paint->setColorFilter(cf)->unref();
         }
 
-        return looperBuilder.detachLooper();
+        return looperBuilder.detach();
     }
 
     typedef GM INHERITED;

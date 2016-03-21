@@ -523,6 +523,7 @@ DEFINES_ALL = [
     # Chrome DEFINES.
     "SK_USE_FLOATBITS",
     "SK_USE_FREETYPE_EMBOLDEN",
+    "SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR",
     "SK_SUPPORT_LEGACY_PATHEFFECT_PTR",
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",

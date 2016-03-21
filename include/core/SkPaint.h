@@ -627,7 +627,9 @@ public:
                           the paint.
         @return           rasterizer
     */
+#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
     SkRasterizer* setRasterizer(SkRasterizer* rasterizer);
+#endif
     void setRasterizer(sk_sp<SkRasterizer>);
 
     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
@@ -651,7 +653,9 @@ public:
      *  @param looper May be NULL. The new looper to be installed in the paint.
      *  @return looper
      */
+#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
     SkDrawLooper* setLooper(SkDrawLooper* looper);
+#endif
     void setLooper(sk_sp<SkDrawLooper>);
 
     enum Align {

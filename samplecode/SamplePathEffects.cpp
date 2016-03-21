@@ -152,7 +152,7 @@ protected:
         paint.setARGB(0xFF, 0, 0, 0);
         paint.setPathEffect(make_warp_pe(fPhase));
         TestRastBuilder testRastBuilder;
-        paint.setRasterizer(testRastBuilder.detachRasterizer())->unref();
+        paint.setRasterizer(testRastBuilder.detach());
         canvas->drawPath(fPath, paint);
     }
 

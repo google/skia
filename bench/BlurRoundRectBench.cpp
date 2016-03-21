@@ -67,7 +67,7 @@ public:
         dullPaint.setAntiAlias(true);
 
         SkPaint loopedPaint;
-        loopedPaint.setLooper(looperBuilder.detachLooper())->unref();
+        loopedPaint.setLooper(looperBuilder.detach());
         loopedPaint.setAntiAlias(true);
         loopedPaint.setColor(SK_ColorCYAN);
 

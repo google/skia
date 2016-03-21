@@ -146,8 +146,7 @@ DEF_TEST(Paint_copy, reporter) {
     paint.setStrokeWidth(SkIntToScalar(2));
     // set a few pointers
     SkLayerDrawLooper::Builder looperBuilder;
-    SkLayerDrawLooper* looper = looperBuilder.detachLooper();
-    paint.setLooper(looper)->unref();
+    paint.setLooper(looperBuilder.detach());
     SkMaskFilter* mask = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                       SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)));
     paint.setMaskFilter(mask)->unref();

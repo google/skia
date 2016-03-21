@@ -88,7 +88,7 @@ static void r6(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     p.setAntiAlias(false);
     SkLayerRasterizer::Builder rastBuilder2;
     r5(&rastBuilder2, p);
-    p.setRasterizer(rastBuilder2.detachRasterizer())->unref();
+    p.setRasterizer(rastBuilder2.detach());
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 }
@@ -153,14 +153,13 @@ static const raster_proc gRastProcs[] = {
 
 static void apply_shader(SkPaint* paint, int index) {
     raster_proc proc = gRastProcs[index];
-    if (proc)
-    {
+    if (proc) {
         SkPaint p;
         SkLayerRasterizer::Builder rastBuilder;
 
         p.setAntiAlias(true);
         proc(&rastBuilder, p);
-        paint->setRasterizer(rastBuilder.detachRasterizer())->unref();
+        paint->setRasterizer(rastBuilder.detach());
     }
 
 #if 0

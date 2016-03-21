@@ -35,10 +35,8 @@ static void textStrokePath(SkCanvas* canvas) {
 
     canvas->drawPath(path, paint);
 
-    paint.setLooper(SkBlurDrawLooper::Create(SK_ColorBLACK,
-                                             SkBlurMask::ConvertRadiusToSigma(0.002f),
-                                             0.0f,
-                                             0.0f))->unref();
+    paint.setLooper(SkBlurDrawLooper::Make(SK_ColorBLACK, SkBlurMask::ConvertRadiusToSigma(0.002f),
+                                           0.0f, 0.0f));
 
     const char* text = "DRAWING STROKED TEXT WITH A BLUR ON A PATH";
     size_t      len = strlen(text);

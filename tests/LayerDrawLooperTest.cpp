@@ -58,7 +58,7 @@ static void test_frontToBack(skiatest::Reporter* reporter) {
     FakeDevice device;
     SkCanvas canvas(&device);
     SkPaint paint;
-    SkAutoTUnref<SkLayerDrawLooper> looper(looperBuilder.detachLooper());
+    auto looper(looperBuilder.detach());
     SkSmallAllocator<1, 32> allocator;
     void* buffer = allocator.reserveT<SkDrawLooper::Context>(looper->contextSize());
     SkDrawLooper::Context* context = looper->createContext(&canvas, buffer);
@@ -98,7 +98,7 @@ static void test_backToFront(skiatest::Reporter* reporter) {
     FakeDevice device;
     SkCanvas canvas(&device);
     SkPaint paint;
-    SkAutoTUnref<SkLayerDrawLooper> looper(looperBuilder.detachLooper());
+    auto looper(looperBuilder.detach());
     SkSmallAllocator<1, 32> allocator;
     void* buffer = allocator.reserveT<SkDrawLooper::Context>(looper->contextSize());
     SkDrawLooper::Context* context = looper->createContext(&canvas, buffer);
@@ -138,7 +138,7 @@ static void test_mixed(skiatest::Reporter* reporter) {
     FakeDevice device;
     SkCanvas canvas(&device);
     SkPaint paint;
-    SkAutoTUnref<SkLayerDrawLooper> looper(looperBuilder.detachLooper());
+    sk_sp<SkDrawLooper> looper(looperBuilder.detach());
     SkSmallAllocator<1, 32> allocator;
     void* buffer = allocator.reserveT<SkDrawLooper::Context>(looper->contextSize());
     SkDrawLooper::Context* context = looper->createContext(&canvas, buffer);

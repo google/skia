@@ -55,12 +55,12 @@ static const int gHeight = 32;
 
 class TilingView : public SampleView {
     sk_sp<SkPicture>     fTextPicture;
-    SkAutoTUnref<SkDrawLooper>  fLooper;
+    sk_sp<SkDrawLooper>  fLooper;
 public:
     TilingView()
-            : fLooper(SkBlurDrawLooper::Create(0x88000000,
-                                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
-                                               SkIntToScalar(2), SkIntToScalar(2))) {
+        : fLooper(SkBlurDrawLooper::Make(0x88000000,
+                                         SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
+                                         SkIntToScalar(2), SkIntToScalar(2))) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypes); i++) {
             makebm(&fTexture[i], gColorTypes[i], gWidth, gHeight);
         }

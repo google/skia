@@ -418,12 +418,12 @@ static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
     const SkBlurQuality quality = blurMaskFilterFlags_as_quality(blurMaskFilterFlags);
     uint32_t flags = blurMaskFilterFlags_to_blurDrawLooperFlags(blurMaskFilterFlags);
 
-    SkAutoTUnref<SkDrawLooper> lp(SkBlurDrawLooper::Create(color, sigma, dx, dy, flags));
+    sk_sp<SkDrawLooper> lp(SkBlurDrawLooper::Make(color, sigma, dx, dy, flags));
 
     const bool expectSuccess = sigma > 0 &&
                                0 == (flags & SkBlurDrawLooper::kIgnoreTransform_BlurFlag);
 
-    if (nullptr == lp.get()) {
+    if (nullptr == lp) {
         REPORTER_ASSERT(reporter, sigma <= 0);
     } else {
         SkDrawLooper::BlurShadowRec rec;
@@ -440,8 +440,8 @@ static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
     }
 }
 
-static void test_delete_looper(skiatest::Reporter* reporter, SkDrawLooper* lp, SkScalar sigma,
-                               SkBlurStyle style, SkBlurQuality quality, bool expectSuccess) {
+static void test_looper(skiatest::Reporter* reporter, sk_sp<SkDrawLooper> lp, SkScalar sigma,
+                        SkBlurStyle style, SkBlurQuality quality, bool expectSuccess) {
     SkDrawLooper::BlurShadowRec rec;
     bool success = lp->asABlurShadow(&rec);
     REPORTER_ASSERT(reporter, success == expectSuccess);
@@ -453,7 +453,6 @@ static void test_delete_looper(skiatest::Reporter* reporter, SkDrawLooper* lp, S
         REPORTER_ASSERT(reporter, rec.fStyle == style);
         REPORTER_ASSERT(reporter, rec.fQuality == quality);
     }
-    lp->unref();
 }
 
 static void make_noop_layer(SkLayerDrawLooper::Builder* builder) {
@@ -481,23 +480,23 @@ static void test_layerDrawLooper(skiatest::Reporter* reporter, SkMaskFilter* mf,
 
     // 1 layer is too few
     make_noop_layer(&builder);
-    test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, false);
+    test_looper(reporter, builder.detach(), sigma, style, quality, false);
 
     // 2 layers is good, but need blur
     make_noop_layer(&builder);
     make_noop_layer(&builder);
-    test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, false);
+    test_looper(reporter, builder.detach(), sigma, style, quality, false);
 
     // 2 layers is just right
     make_noop_layer(&builder);
     make_blur_layer(&builder, mf);
-    test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, expectSuccess);
+    test_looper(reporter, builder.detach(), sigma, style, quality, expectSuccess);
 
     // 3 layers is too many
     make_noop_layer(&builder);
     make_blur_layer(&builder, mf);
     make_noop_layer(&builder);
-    test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, false);
+    test_looper(reporter, builder.detach(), sigma, style, quality, false);
 }
 
 DEF_TEST(BlurAsABlur, reporter) {

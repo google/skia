@@ -230,7 +230,7 @@ SkFlattenable* SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         info.fPostTranslate = buffer.readBool();
         buffer.readPaint(builder.addLayerOnTop(info));
     }
-    return builder.detachLooper();
+    return builder.detach().release();
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -344,7 +344,7 @@ SkPaint* SkLayerDrawLooper::Builder::addLayerOnTop(const LayerInfo& info) {
     return &rec->fPaint;
 }
 
-SkLayerDrawLooper* SkLayerDrawLooper::Builder::detachLooper() {
+sk_sp<SkDrawLooper> SkLayerDrawLooper::Builder::detach() {
     SkLayerDrawLooper* looper = new SkLayerDrawLooper;
     looper->fCount = fCount;
     looper->fRecs = fRecs;
@@ -353,5 +353,5 @@ SkLayerDrawLooper* SkLayerDrawLooper::Builder::detachLooper() {
     fRecs = nullptr;
     fTopRec = nullptr;
 
-    return looper;
+    return sk_sp<SkDrawLooper>(looper);
 }

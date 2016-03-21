@@ -73,7 +73,7 @@ public:
         SkPaint paint;
         canvas->drawRect(fRRect.rect(), paint);
 
-        paint.setLooper(looperBuilder.detachLooper())->unref();
+        paint.setLooper(looperBuilder.detach());
         paint.setColor(SK_ColorCYAN);
         paint.setAntiAlias(true);
 

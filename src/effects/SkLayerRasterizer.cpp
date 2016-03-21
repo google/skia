@@ -196,7 +196,7 @@ void SkLayerRasterizer::Builder::addLayer(const SkPaint& paint, SkScalar dx,
     rec->fOffset.set(dx, dy);
 }
 
-SkLayerRasterizer* SkLayerRasterizer::Builder::detachRasterizer() {
+sk_sp<SkLayerRasterizer> SkLayerRasterizer::Builder::detach() {
     SkLayerRasterizer* rasterizer;
     if (0 == fLayers->count()) {
         rasterizer = nullptr;
@@ -205,10 +205,10 @@ SkLayerRasterizer* SkLayerRasterizer::Builder::detachRasterizer() {
         rasterizer = new SkLayerRasterizer(fLayers);
     }
     fLayers = nullptr;
-    return rasterizer;
+    return sk_sp<SkLayerRasterizer>(rasterizer);
 }
 
-SkLayerRasterizer* SkLayerRasterizer::Builder::snapshotRasterizer() const {
+sk_sp<SkLayerRasterizer> SkLayerRasterizer::Builder::snapshot() const {
     if (0 == fLayers->count()) {
         return nullptr;
     }
@@ -224,6 +224,5 @@ SkLayerRasterizer* SkLayerRasterizer::Builder::snapshotRasterizer() const {
     }
     SkASSERT(fLayers->count() == count);
     SkASSERT(layers->count() == count);
-    SkLayerRasterizer* rasterizer = new SkLayerRasterizer(layers);
-    return rasterizer;
+    return sk_sp<SkLayerRasterizer>(new SkLayerRasterizer(layers));
 }

@@ -8,6 +8,7 @@
 #include "SkAndroidSDKCanvas.h"
 
 #include "SkColorFilter.h"
+#include "SkDrawLooper.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkShader.h"
