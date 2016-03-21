@@ -50,8 +50,7 @@ static m64i next1(const uint32_t*& ptr) {
 
 // xyzw -> xxxx yyyy zzzz wwww
 static __m128i replicate_coverage(__m128i xyzw) {
-    const uint8_t mask[] = { 0,0,0,0, 1,1,1,1, 2,2,2,2, 3,3,3,3 };
-    return _mm_shuffle_epi8(xyzw, _mm_load_si128((const __m128i*)mask));
+    return _mm_shuffle_epi8(xyzw, _mm_setr_epi8(0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3));
 }
 
 static __m128i next4(const uint8_t*& ptr) {
