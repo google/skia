@@ -19,6 +19,7 @@
 #include "SkPathOps.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
+#include "SkPDFDocument.h"
 #include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
@@ -584,8 +585,10 @@ SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
         return nullptr;
     }
     SkISize size = SkISize::Make(cinfo.fInfo.width(), cinfo.fInfo.height());
-    return SkPDFDevice::Create(size, fRasterDpi, fCanon);
+    return SkPDFDevice::Create(size, fRasterDpi, fDocument);
 }
+
+SkPDFCanon* SkPDFDevice::getCanon() const { return fDocument->canon(); }
 
 
 struct ContentEntry {
@@ -700,7 +703,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFCanon* canon, bool flip)
+SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* doc, bool flip)
     : INHERITED(SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fPageSize(pageSize)
     , fContentSize(pageSize)
@@ -711,7 +714,7 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFCanon* canon
     , fClipStack(nullptr)
     , fFontGlyphUsage(new SkPDFGlyphSetMap)
     , fRasterDpi(rasterDpi)
-    , fCanon(canon) {
+    , fDocument(doc) {
     SkASSERT(pageSize.width() > 0);
     SkASSERT(pageSize.height() > 0);
     fLegacyBitmap.setInfo(
@@ -1057,7 +1060,7 @@ void SkPDFDevice::drawBitmap(const SkDraw& d,
 
     SkMatrix transform = matrix;
     transform.postConcat(*d.fMatrix);
-    const SkImage* image = fCanon->bitmapToImage(bitmap);
+    const SkImage* image = fDocument->canon()->bitmapToImage(bitmap);
     if (!image) {
         return;
     }
@@ -1081,7 +1084,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d,
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    const SkImage* image = fCanon->bitmapToImage(bitmap);
+    const SkImage* image = fDocument->canon()->bitmapToImage(bitmap);
     if (!image) {
         return;
     }
@@ -1196,7 +1199,7 @@ static void draw_transparent_text(SkPDFDevice* device,
 
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& srcPaint) {
-    if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {
+    if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fDocument->canon())) {
         // https://bug.skia.org/3866
         SkPath path;
         srcPaint.getTextPath(text, len, x, y, &path);
@@ -1257,7 +1260,7 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& srcPaint) {
-    if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {
+    if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fDocument->canon())) {
         const SkPoint* positions = reinterpret_cast<const SkPoint*>(pos);
         SkAutoTMalloc<SkPoint> positionsBuffer;
         if (2 != scalarsPerPos) {
@@ -1680,7 +1683,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
     }
 
     auto sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
-            mask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode, fCanon);
+            mask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode, fDocument->canon());
 
     SkMatrix identity;
     identity.reset();
@@ -1697,7 +1700,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
     // Call makeNoSmaskGraphicState() instead of
     // SkPDFGraphicState::MakeNoSmaskGraphicState so that the canon
     // can deduplicate.
-    sMaskGS = fCanon->makeNoSmaskGraphicState();
+    sMaskGS = fDocument->canon()->makeNoSmaskGraphicState();
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &content.entry()->fContent);
 }
@@ -2004,7 +2007,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         SkScalar rasterScale =
                 SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE;
         pdfShader.reset(SkPDFShader::GetPDFShader(
-                fCanon, fRasterDpi, *shader, transform, bounds, rasterScale));
+                fDocument, fRasterDpi, *shader, transform, bounds, rasterScale));
 
         if (pdfShader.get()) {
             // pdfShader has been canonicalized so we can directly compare
@@ -2035,12 +2038,12 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     sk_sp<SkPDFGraphicState> newGraphicState;
     if (color == paint.getColor()) {
         newGraphicState.reset(
-                SkPDFGraphicState::GetGraphicStateForPaint(fCanon, paint));
+                SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), paint));
     } else {
         SkPaint newPaint = paint;
         newPaint.setColor(color);
         newGraphicState.reset(
-                SkPDFGraphicState::GetGraphicStateForPaint(fCanon, newPaint));
+                SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), newPaint));
     }
     int resourceIndex = addGraphicStateResource(newGraphicState.get());
     entry->fGraphicStateIndex = resourceIndex;
@@ -2097,7 +2100,7 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
 
 int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
     sk_sp<SkPDFFont> newFont(
-            SkPDFFont::GetFontResource(fCanon, typeface, glyphID));
+            SkPDFFont::GetFontResource(fDocument->canon(), typeface, glyphID));
     int resourceIndex = fFontResources.find(newFont.get());
     if (resourceIndex < 0) {
         resourceIndex = fFontResources.count();
@@ -2261,14 +2264,20 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         // TODO(halcanary): de-dupe this by caching filtered images.
         // (maybe in the resource cache?)
     }
-    sk_sp<SkPDFObject> pdfimage(SkSafeRef(fCanon->findPDFBitmap(image)));
+    sk_sp<SkPDFObject> pdfimage(SkSafeRef(fDocument->canon()->findPDFBitmap(image)));
     if (!pdfimage) {
         pdfimage.reset(SkPDFCreateBitmapObject(
-                               image, fCanon->getPixelSerializer()));
+                               image, fDocument->canon()->getPixelSerializer()));
         if (!pdfimage) {
             return;
         }
-        fCanon->addPDFBitmap(image->uniqueID(), pdfimage.get());
+        #if SK_PDF_SERIALIZE_IMAGES_EARLY // TODO(halcanary): enable.
+        sk_sp<SkData> encodedImage(image->refEncodedData());
+        if (!encodedImage) {
+            fDocument->serialize(pdfimage);
+        }
+        #endif
+        fDocument->canon()->addPDFBitmap(image->uniqueID(), pdfimage.get());
     }
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(pdfimage.get()),
                                 &content.entry()->fContent);

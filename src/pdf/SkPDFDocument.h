@@ -11,6 +11,8 @@
 #include "SkPDFMetadata.h"
 #include "SkPDFTypes.h"
 
+class SkPDFDevice;
+
 sk_sp<SkDocument> SkPDFMakeDocument(
         SkWStream* stream,
         void (*doneProc)(SkWStream*, bool),

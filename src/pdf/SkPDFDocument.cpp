@@ -276,7 +276,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
     SkISize pageSize = SkISize::Make(
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
     sk_sp<SkPDFDevice> device(
-            SkPDFDevice::Create(pageSize, fRasterDpi, &fCanon));
+            SkPDFDevice::Create(pageSize, fRasterDpi, this));
     fCanvas = sk_make_sp<SkPDFCanvas>(device);
     fPageDevices.push_back(std::move(device));
     fCanvas->clipRect(trimBox);

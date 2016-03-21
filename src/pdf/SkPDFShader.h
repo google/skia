@@ -14,6 +14,7 @@
 #include "SkPDFTypes.h"
 
 class SkPDFCanon;
+class SkPDFDocument;
 class SkMatrix;
 class SkShader;
 struct SkIRect;
@@ -42,7 +43,7 @@ public:
      *  @param rasterScale Additional scale to be applied for early
      *                     rasterization.
      */
-    static SkPDFObject* GetPDFShader(SkPDFCanon* canon,
+    static SkPDFObject* GetPDFShader(SkPDFDocument* doc,
                                      SkScalar dpi,
                                      const SkShader& shader,
                                      const SkMatrix& matrix,
@@ -72,7 +73,7 @@ private:
  */
 class SkPDFAlphaFunctionShader final : public SkPDFStream {
 public:
-    static SkPDFAlphaFunctionShader* Create(SkPDFCanon*,
+    static SkPDFAlphaFunctionShader* Create(SkPDFDocument*,
                                             SkScalar dpi,
                                             SkAutoTDelete<SkPDFShader::State>*);
     virtual ~SkPDFAlphaFunctionShader();
@@ -86,7 +87,7 @@ private:
 
 class SkPDFImageShader final : public SkPDFStream {
 public:
-    static SkPDFImageShader* Create(SkPDFCanon*,
+    static SkPDFImageShader* Create(SkPDFDocument*,
                                     SkScalar dpi,
                                     SkAutoTDelete<SkPDFShader::State>*);
     virtual ~SkPDFImageShader();

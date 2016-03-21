@@ -12,6 +12,7 @@
 #include "SkData.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
+#include "SkPDFDocument.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFResourceDict.h"
@@ -485,10 +486,11 @@ SkPDFImageShader::~SkPDFImageShader() {}
 ////////////////////////////////////////////////////////////////////////////////
 
 static SkPDFObject* get_pdf_shader_by_state(
-        SkPDFCanon* canon,
+        SkPDFDocument* doc,
         SkScalar dpi,
         SkAutoTDelete<SkPDFShader::State>* autoState) {
     const SkPDFShader::State& state = **autoState;
+    SkPDFCanon* canon = doc->canon();
     if (state.fType == SkShader::kNone_GradientType && state.fImage.isNull()) {
         // TODO(vandebo) This drops SKComposeShader on the floor.  We could
         // handle compose shader by pulling things up to a layer, drawing with
@@ -498,11 +500,11 @@ static SkPDFObject* get_pdf_shader_by_state(
     } else if (state.fType == SkShader::kNone_GradientType) {
         SkPDFObject* shader = canon->findImageShader(state);
         return shader ? SkRef(shader)
-                      : SkPDFImageShader::Create(canon, dpi, autoState);
+                      : SkPDFImageShader::Create(doc, dpi, autoState);
     } else if (state.GradientHasAlpha()) {
         SkPDFObject* shader = canon->findAlphaShader(state);
         return shader ? SkRef(shader)
-                      : SkPDFAlphaFunctionShader::Create(canon, dpi, autoState);
+                      : SkPDFAlphaFunctionShader::Create(doc, dpi, autoState);
     } else {
         SkPDFObject* shader = canon->findFunctionShader(state);
         return shader ? SkRef(shader)
@@ -511,14 +513,14 @@ static SkPDFObject* get_pdf_shader_by_state(
 }
 
 // static
-SkPDFObject* SkPDFShader::GetPDFShader(SkPDFCanon* canon,
+SkPDFObject* SkPDFShader::GetPDFShader(SkPDFDocument* doc,
                                        SkScalar dpi,
                                        const SkShader& shader,
                                        const SkMatrix& matrix,
                                        const SkIRect& surfaceBBox,
                                        SkScalar rasterScale) {
     SkAutoTDelete<SkPDFShader::State> state(new State(shader, matrix, surfaceBBox, rasterScale));
-    return get_pdf_shader_by_state(canon, dpi, &state);
+    return get_pdf_shader_by_state(doc, dpi, &state);
 }
 
 static sk_sp<SkPDFDict> get_gradient_resource_dict(
@@ -579,14 +581,14 @@ static SkStream* create_pattern_fill_content(int gsIndex, SkRect& bounds) {
  * luminosity mode. The shader pattern extends to the bbox.
  */
 static sk_sp<SkPDFObject> create_smask_graphic_state(
-        SkPDFCanon* canon, SkScalar dpi, const SkPDFShader::State& state) {
+        SkPDFDocument* doc, SkScalar dpi, const SkPDFShader::State& state) {
     SkRect bbox;
     bbox.set(state.fBBox);
 
     SkAutoTDelete<SkPDFShader::State> alphaToLuminosityState(
             state.CreateAlphaToLuminosityState());
     sk_sp<SkPDFObject> luminosityShader(
-            get_pdf_shader_by_state(canon, dpi, &alphaToLuminosityState));
+            get_pdf_shader_by_state(doc, dpi, &alphaToLuminosityState));
 
     SkAutoTDelete<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
 
@@ -598,11 +600,11 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
 
     return SkPDFGraphicState::GetSMaskGraphicState(
             alphaMask.get(), false,
-            SkPDFGraphicState::kLuminosity_SMaskMode, canon);
+            SkPDFGraphicState::kLuminosity_SMaskMode, doc->canon());
 }
 
 SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
-        SkPDFCanon* canon,
+        SkPDFDocument* doc,
         SkScalar dpi,
         SkAutoTDelete<SkPDFShader::State>* autoState) {
     const SkPDFShader::State& state = **autoState;
@@ -612,14 +614,14 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
     SkAutoTDelete<SkPDFShader::State> opaqueState(state.CreateOpaqueState());
 
     sk_sp<SkPDFObject> colorShader(
-            get_pdf_shader_by_state(canon, dpi, &opaqueState));
+            get_pdf_shader_by_state(doc, dpi, &opaqueState));
     if (!colorShader) {
         return nullptr;
     }
 
     // Create resource dict with alpha graphics state as G0 and
     // pattern shader as P0, then write content stream.
-    auto alphaGs = create_smask_graphic_state(canon, dpi, state);
+    auto alphaGs = create_smask_graphic_state(doc, dpi, state);
 
     SkPDFAlphaFunctionShader* alphaFunctionShader =
             new SkPDFAlphaFunctionShader(autoState->release());
@@ -633,7 +635,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
 
     populate_tiling_pattern_dict(alphaFunctionShader, bbox, resourceDict.get(),
                                  SkMatrix::I());
-    canon->addAlphaShader(alphaFunctionShader);
+    doc->canon()->addAlphaShader(alphaFunctionShader);
     return alphaFunctionShader;
 }
 
@@ -820,7 +822,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
 }
 
 SkPDFImageShader* SkPDFImageShader::Create(
-        SkPDFCanon* canon,
+        SkPDFDocument* doc,
         SkScalar dpi,
         SkAutoTDelete<SkPDFShader::State>* autoState) {
     const SkPDFShader::State& state = **autoState;
@@ -860,7 +862,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
     SkISize size = SkISize::Make(SkScalarRoundToInt(deviceBounds.width()),
                                  SkScalarRoundToInt(deviceBounds.height()));
     sk_sp<SkPDFDevice> patternDevice(
-            SkPDFDevice::CreateUnflipped(size, dpi, canon));
+            SkPDFDevice::CreateUnflipped(size, dpi, doc));
     SkCanvas canvas(patternDevice.get());
 
     SkRect patternBBox;
@@ -1030,7 +1032,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
 
     imageShader->fShaderState->fImage.unlockPixels();
 
-    canon->addImageShader(imageShader);
+    doc->canon()->addImageShader(imageShader);
     return imageShader;
 }
 
