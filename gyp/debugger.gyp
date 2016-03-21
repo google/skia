@@ -137,6 +137,7 @@
         'debugger_qt_mocs',
         'skia_lib.gyp:skia_lib',
         'jsoncpp.gyp:jsoncpp',
+        'libpng.gyp:libpng',
         'tools.gyp:url_data_manager',
       ],
       'cflags': [

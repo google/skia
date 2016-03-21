@@ -7,49 +7,12 @@
 
 #include "Request.h"
 
-#include "png.h"
-
 #include "SkPictureRecorder.h"
 #include "SkPixelSerializer.h"
 
 static int kDefaultWidth = 1920;
 static int kDefaultHeight = 1080;
 
-static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
-    SkWStream* out = (SkWStream*) png_get_io_ptr(png_ptr);
-    out->write(data, length);
-}
-
-static void write_png(const png_bytep rgba, png_uint_32 width, png_uint_32 height, SkWStream& out) {
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    SkASSERT(png != nullptr);
-    png_infop info_ptr = png_create_info_struct(png);
-    SkASSERT(info_ptr != nullptr);
-    if (setjmp(png_jmpbuf(png))) {
-        SkFAIL("png encode error");
-    }
-    png_set_IHDR(png, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    png_set_compression_level(png, 1);
-    png_bytepp rows = (png_bytepp) sk_malloc_throw(height * sizeof(png_byte*));
-    png_bytep pixels = (png_bytep) sk_malloc_throw(width * height * 3);
-    for (png_size_t y = 0; y < height; ++y) {
-        const png_bytep src = rgba + y * width * 4;
-        rows[y] = pixels + y * width * 3;
-        // convert from RGBA to RGB
-        for (png_size_t x = 0; x < width; ++x) {
-            rows[y][x * 3] = src[x * 4];
-            rows[y][x * 3 + 1] = src[x * 4 + 1];
-            rows[y][x * 3 + 2] = src[x * 4 + 2];
-        }
-    }
-    png_set_filter(png, 0, PNG_NO_FILTERS);
-    png_set_rows(png, info_ptr, &rows[0]);
-    png_set_write_fn(png, &out, write_png_callback, NULL);
-    png_write_png(png, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-    png_destroy_write_struct(&png, NULL);
-    sk_free(rows);
-}
 
 Request::Request(SkString rootUrl)
     : fUploadContext(nullptr)
@@ -92,7 +55,8 @@ SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
 
     // write to png
     SkDynamicMemoryWStream buffer;
-    write_png((const png_bytep) bmp->getPixels(), bmp->width(), bmp->height(), buffer);
+    SkDrawCommand::WritePNG((const png_bytep) bmp->getPixels(), bmp->width(), bmp->height(), 
+                            buffer);
     return buffer.copyToData();
 }
 

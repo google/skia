@@ -8,6 +8,8 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
+#include "png.h"
+
 #include "SkCanvas.h"
 #include "SkTLazy.h"
 #include "SkPath.h"
@@ -56,6 +58,9 @@ public:
     };
 
     static const int kOpTypeCount = kLast_OpType + 1;
+
+    static void WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_32 height, 
+                         SkWStream& out);
 
     SkDrawCommand(OpType opType);
 

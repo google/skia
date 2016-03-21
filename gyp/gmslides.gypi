@@ -32,6 +32,9 @@
         '../tools/debugger/SkOverdrawMode.h',
         '../tools/debugger/SkOverdrawMode.cpp',
       ],
+      'dependencies': [
+        'libpng.gyp:libpng',
+      ]
     }],
   ],
 }

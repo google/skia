@@ -606,28 +606,57 @@ static void flatten(const SkFlattenable* flattenable, Json::Value* target,
     sk_free(data);
 }
 
+static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
+    SkWStream* out = (SkWStream*) png_get_io_ptr(png_ptr);
+    out->write(data, length);
+}
+
+void SkDrawCommand::WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_32 height, 
+                             SkWStream& out) {
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    SkASSERT(png != nullptr);
+    png_infop info_ptr = png_create_info_struct(png);
+    SkASSERT(info_ptr != nullptr);
+    if (setjmp(png_jmpbuf(png))) {
+        SkFAIL("png encode error");
+    }
+    png_set_IHDR(png, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    png_set_compression_level(png, 1);
+    png_bytepp rows = (png_bytepp) sk_malloc_throw(height * sizeof(png_byte*));
+    png_bytep pixels = (png_bytep) sk_malloc_throw(width * height * 3);
+    for (png_size_t y = 0; y < height; ++y) {
+        const png_bytep src = rgba + y * width * 4;
+        rows[y] = pixels + y * width * 3;
+        // convert from RGBA to RGB
+        for (png_size_t x = 0; x < width; ++x) {
+            rows[y][x * 3] = src[x * 4];
+            rows[y][x * 3 + 1] = src[x * 4 + 1];
+            rows[y][x * 3 + 2] = src[x * 4 + 2];
+        }
+    }
+    png_set_filter(png, 0, PNG_NO_FILTERS);
+    png_set_rows(png, info_ptr, &rows[0]);
+    png_set_write_fn(png, &out, write_png_callback, NULL);
+    png_write_png(png, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    png_destroy_write_struct(&png, NULL);
+    sk_free(rows);
+    sk_free(pixels);
+}
+
 static bool SK_WARN_UNUSED_RESULT flatten(const SkImage& image, Json::Value* target, 
                                           UrlDataManager& urlDataManager) {
-    SkData* encoded = image.encode(SkImageEncoder::kPNG_Type, 100);
-    if (encoded == nullptr) {
-        // PNG encode doesn't necessarily support all color formats, convert to a different
-        // format
-        size_t rowBytes = 4 * image.width();
-        void* buffer = sk_malloc_throw(rowBytes * image.height());
-        SkImageInfo dstInfo = SkImageInfo::Make(image.width(), image.height(), 
-                                                kN32_SkColorType, kPremul_SkAlphaType);
-        if (!image.readPixels(dstInfo, buffer, rowBytes, 0, 0)) {
-            SkDebugf("readPixels failed\n");
-            return false;
-        }
-        sk_sp<SkImage> converted = SkImage::MakeRasterCopy(SkPixmap(dstInfo, buffer, rowBytes));
-        encoded = converted->encode(SkImageEncoder::kPNG_Type, 100);
-        if (encoded == nullptr) {
-            SkDebugf("image encode failed\n");
-            return false;
-        }
-        sk_free(buffer);
+    size_t rowBytes = 4 * image.width();
+    SkAutoFree buffer(sk_malloc_throw(rowBytes * image.height()));
+    SkImageInfo dstInfo = SkImageInfo::Make(image.width(), image.height(), 
+                                            kN32_SkColorType, kPremul_SkAlphaType);
+    if (!image.readPixels(dstInfo, buffer.get(), rowBytes, 0, 0)) {
+        SkDebugf("readPixels failed\n");
+        return false;
     }
+    SkDynamicMemoryWStream out;
+    SkDrawCommand::WritePNG((png_bytep) buffer.get(), image.width(), image.height(), out);
+    SkData* encoded = out.copyToData();
     Json::Value jsonData;
     encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager, &jsonData);
     (*target)[SKDEBUGCANVAS_ATTRIBUTE_DATA] = jsonData;
