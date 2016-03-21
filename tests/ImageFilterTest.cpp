@@ -1369,6 +1369,51 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(ComposedImageFilterOffset_Gpu, reporter, context)
 }
 #endif
 
+static void test_composed_imagefilter_bounds(SkImageFilter::Proxy* proxy,
+                                             skiatest::Reporter* reporter,
+                                             GrContext* context) {
+    // The bounds passed to the inner filter must be filtered by the outer
+    // filter, so that the inner filter produces the pixels that the outer
+    // filter requires as input. This matters if the outer filter moves pixels.
+    // Here, accounting for the outer offset is necessary so that the green
+    // pixels of the picture are not clipped.
+
+    SkPictureRecorder recorder;
+    SkCanvas* recordingCanvas = recorder.beginRecording(SkRect::MakeWH(200, 100));
+    recordingCanvas->clipRect(SkRect::MakeXYWH(100, 0, 100, 100));
+    recordingCanvas->clear(SK_ColorGREEN);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    sk_sp<SkImageFilter> pictureFilter(
+        SkPictureImageFilter::Create(picture.get()));
+    SkImageFilter::CropRect cropRect(SkRect::MakeWH(100, 100));
+    sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(-100, 0, nullptr, &cropRect));
+    sk_sp<SkImageFilter> composedFilter(
+        SkComposeImageFilter::Create(offsetFilter.get(), pictureFilter.get()));
+
+    sk_sp<SkSpecialImage> sourceImage(create_empty_special_image(context, proxy, 100));
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
+    SkIPoint offset;
+    sk_sp<SkSpecialImage> result(composedFilter->filterImage(sourceImage.get(), ctx, &offset));
+    REPORTER_ASSERT(reporter, offset.isZero());
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, result->subset().size() == SkISize::Make(100, 100));
+
+    SkBitmap resultBM;
+    TestingSpecialImageAccess::GetROPixels(result.get(), &resultBM);
+    SkAutoLockPixels lock(resultBM);
+    REPORTER_ASSERT(reporter, resultBM.getColor(50, 50) == SK_ColorGREEN);
+}
+
+DEF_TEST(ComposedImageFilterBounds, reporter) {
+    run_raster_test(reporter, 100, test_composed_imagefilter_bounds);
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(ComposedImageFilterBounds_Gpu, reporter, context) {
+    run_gpu_test(reporter, context, 100, test_composed_imagefilter_bounds);
+}
+#endif
+
 static void test_partial_crop_rect(SkImageFilter::Proxy* proxy,
                                    skiatest::Reporter* reporter,
                                    GrContext* context) {
