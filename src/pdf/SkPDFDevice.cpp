@@ -1039,12 +1039,7 @@ void SkPDFDevice::drawBitmapRect(const SkDraw& draw,
                                  const SkRect& dst,
                                  const SkPaint& srcPaint,
                                  SkCanvas::SrcRectConstraint constraint) {
-    const SkImage* image = fCanon->bitmapToImage(bitmap);
-    if (!image) {
-        return;
-    }
-    // ownership of this image is retained by the canon.
-    this->drawImageRect(draw, image, src, dst, srcPaint, constraint);
+    SkASSERT(false);
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw& d,
@@ -1121,66 +1116,7 @@ void SkPDFDevice::drawImageRect(const SkDraw& draw,
                                 const SkRect& dst,
                                 const SkPaint& srcPaint,
                                 SkCanvas::SrcRectConstraint constraint) {
-    if (!image) {
-        return;
-    }
-    if (draw.fClip->isEmpty()) {
-        return;
-    }
-    SkPaint paint = srcPaint;
-    if (image->isOpaque()) {
-        replace_srcmode_on_opaque_paint(&paint);
-    }
-    // TODO: this code path must be updated to respect the flags parameter
-    SkMatrix matrix;
-    SkRect tmpSrc, tmpDst;
-    SkRect imageBounds = SkRect::Make(image->bounds());
-
-    // Compute matrix from the two rectangles
-    if (src) {
-        tmpSrc = *src;
-    } else {
-        tmpSrc = imageBounds;
-    }
-    matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
-
-    // clip the tmpSrc to the bounds of the bitmap, and recompute dstRect if
-    // needed (if the src was clipped). No check needed if src==null.
-    sk_sp<const SkImage> autoImageUnref;
-    if (src) {
-        if (!imageBounds.contains(*src)) {
-            if (!tmpSrc.intersect(imageBounds)) {
-                return; // nothing to draw
-            }
-            // recompute dst, based on the smaller tmpSrc
-            matrix.mapRect(&tmpDst, tmpSrc);
-        }
-
-        // since we may need to clamp to the borders of the src rect within
-        // the bitmap, we extract a subset.
-        SkIRect srcIR;
-        tmpSrc.roundOut(&srcIR);
-
-        autoImageUnref = image->makeSubset(srcIR);
-        if (!autoImageUnref) {
-            return;
-        }
-        image = autoImageUnref.get();
-        // Since we did an extract, we need to adjust the matrix accordingly
-        SkScalar dx = 0, dy = 0;
-        if (srcIR.fLeft > 0) {
-            dx = SkIntToScalar(srcIR.fLeft);
-        }
-        if (srcIR.fTop > 0) {
-            dy = SkIntToScalar(srcIR.fTop);
-        }
-        if (dx || dy) {
-            matrix.preTranslate(dx, dy);
-        }
-    }
-    matrix.postConcat(*draw.fMatrix);
-    this->internalDrawImage(matrix, draw.fClipStack, *draw.fClip, image,
-                            nullptr, paint);
+    SkASSERT(false);
 }
 
 //  Create a PDF string. Maximum length (in bytes) is 65,535.

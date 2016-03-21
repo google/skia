@@ -6,6 +6,7 @@
  */
 
 #include "SkPDFCanon.h"
+#include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
 #include "SkPDFFont.h"
@@ -333,7 +334,7 @@ protected:
                 SkScalarRoundToInt(width), SkScalarRoundToInt(height));
         sk_sp<SkPDFDevice> device(
                 SkPDFDevice::Create(pageSize, fRasterDpi, &fCanon));
-        fCanvas.reset(new SkCanvas(device.get()));
+        fCanvas = sk_make_sp<SkPDFCanvas>(device);
         fPageDevices.push_back(std::move(device));
         fCanvas->clipRect(trimBox);
         fCanvas->translate(trimBox.x(), trimBox.y());
