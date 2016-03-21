@@ -382,13 +382,14 @@ namespace {
 // This SkPDFObject only outputs the alpha layer of the given bitmap.
 class PDFAlphaBitmap final : public SkPDFObject {
 public:
-    PDFAlphaBitmap(const SkImage* image) : fImage(SkRef(image)) {}
-    ~PDFAlphaBitmap() {}
+    PDFAlphaBitmap(const SkImage* image) : fImage(SkRef(image)) { SkASSERT(image); }
     void emitObject(SkWStream*  stream,
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& subs) const override {
+        SkASSERT(fImage);
         emit_image_xobject(stream, fImage.get(), true, nullptr, objNumMap, subs);
     }
+    void drop() override { fImage = nullptr; }
 
 private:
     sk_sp<const SkImage> fImage;
@@ -404,22 +405,25 @@ public:
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& subs) const override {
+        SkASSERT(fImage);
         emit_image_xobject(stream, fImage.get(), false, fSMask, objNumMap, subs);
     }
     void addResources(SkPDFObjNumMap* catalog,
                       const SkPDFSubstituteMap& subs) const override {
+        SkASSERT(fImage);
         if (fSMask.get()) {
             SkPDFObject* obj = subs.getSubstitute(fSMask.get());
             SkASSERT(obj);
             catalog->addObjectRecursively(obj, subs);
         }
     }
+    void drop() override { fImage = nullptr; fSMask = nullptr; }
     PDFDefaultBitmap(const SkImage* image, SkPDFObject* smask)
-        : fImage(SkRef(image)), fSMask(smask) {}
+        : fImage(SkRef(image)), fSMask(smask) { SkASSERT(fImage); }
 
 private:
     sk_sp<const SkImage> fImage;
-    const sk_sp<SkPDFObject> fSMask;
+    sk_sp<SkPDFObject> fSMask;
 };
 }  // namespace
 
@@ -437,15 +441,17 @@ public:
     sk_sp<SkData> fData;
     bool fIsYUV;
     PDFJpegBitmap(SkISize size, SkData* data, bool isYUV)
-        : fSize(size), fData(SkRef(data)), fIsYUV(isYUV) {}
+        : fSize(size), fData(SkRef(data)), fIsYUV(isYUV) { SkASSERT(data); }
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
                     const SkPDFSubstituteMap&) const override;
+    void drop() override { fData = nullptr; }
 };
 
 void PDFJpegBitmap::emitObject(SkWStream* stream,
                                const SkPDFObjNumMap& objNumMap,
                                const SkPDFSubstituteMap& substituteMap) const {
+    SkASSERT(fData);
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
     pdfDict.insertInt("Width", fSize.width());

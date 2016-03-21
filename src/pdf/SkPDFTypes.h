@@ -51,6 +51,14 @@ public:
     virtual void addResources(SkPDFObjNumMap* catalog,
                               const SkPDFSubstituteMap& substitutes) const {}
 
+    /**
+     *  Release all resources associated with this SkPDFObject.  It is
+     *  an error to call emitObject() or addResources() after calling
+     *  drop().
+     */
+    virtual void drop() {}
+
+    virtual ~SkPDFObject() {}
 private:
     typedef SkRefCnt INHERITED;
 };
@@ -178,8 +186,6 @@ private:
 */
 class SkPDFArray final : public SkPDFObject {
 public:
-    static const int kMaxLen = 8191;
-
     /** Create a PDF array. Maximum length is 8191.
      */
     SkPDFArray();
@@ -191,6 +197,7 @@ public:
                     const SkPDFSubstituteMap& substitutes) const override;
     void addResources(SkPDFObjNumMap*,
                       const SkPDFSubstituteMap&) const override;
+    void drop() override;
 
     /** The size of the array.
      */
@@ -215,9 +222,9 @@ public:
     void appendObjRef(sk_sp<SkPDFObject>);
 
 private:
-    SkTDArray<SkPDFUnion> fValues;
+    SkTArray<SkPDFUnion> fValues;
     void append(SkPDFUnion&& value);
-    typedef SkPDFObject INHERITED;
+    SkDEBUGCODE(bool fDumped;)
 };
 
 /** \class SkPDFDict
@@ -226,14 +233,10 @@ private:
 */
 class SkPDFDict : public SkPDFObject {
 public:
-    /** Create a PDF dictionary. Maximum number of entries is 4095.
+    /** Create a PDF dictionary.
+     *  @param type   The value of the Type entry, nullptr for no type.
      */
-    SkPDFDict();
-
-    /** Create a PDF dictionary with a Type entry.
-     *  @param type   The value of the Type entry.
-     */
-    explicit SkPDFDict(const char type[]);
+    explicit SkPDFDict(const char type[] = nullptr);
 
     virtual ~SkPDFDict();
 
@@ -243,6 +246,7 @@ public:
                     const SkPDFSubstituteMap& substitutes) const override;
     void addResources(SkPDFObjNumMap*,
                       const SkPDFSubstituteMap&) const override;
+    void drop() override;
 
     /** The size of the dictionary.
      */
@@ -270,10 +274,6 @@ public:
     void insertString(const char key[], const char value[]);
     void insertString(const char key[], const SkString& value);
 
-    /** Remove all entries from the dictionary.
-     */
-    void clear();
-
     /** Emit the dictionary, without the "<<" and ">>".
      */
     void emitAll(SkWStream* stream,
@@ -284,13 +284,14 @@ private:
     struct Record {
         SkPDFUnion fKey;
         SkPDFUnion fValue;
+        Record(SkPDFUnion&&, SkPDFUnion&&);
+        Record(Record&&);
+        Record& operator=(Record&&);
+        Record(const Record&) = delete;
+        Record& operator=(const Record&) = delete;
     };
-    SkTDArray<Record> fRecords;
-    static const int kMaxLen = 4095;
-
-    void set(SkPDFUnion&& name, SkPDFUnion&& value);
-
-    typedef SkPDFObject INHERITED;
+    SkTArray<Record> fRecords;
+    SkDEBUGCODE(bool fDumped;)
 };
 
 /** \class SkPDFSharedStream
@@ -303,18 +304,20 @@ private:
 class SkPDFSharedStream final : public SkPDFObject {
 public:
     // Takes ownership of asset.
-    SkPDFSharedStream(SkStreamAsset* data)
-        : fAsset(data), fDict(new SkPDFDict) { SkASSERT(data); }
+    SkPDFSharedStream(SkStreamAsset* data);
+    ~SkPDFSharedStream();
     SkPDFDict* dict() { return fDict.get(); }
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
                     const SkPDFSubstituteMap&) const override;
     void addResources(SkPDFObjNumMap*,
                       const SkPDFSubstituteMap&) const override;
+    void drop() override;
 
 private:
     SkAutoTDelete<SkStreamAsset> fAsset;
     sk_sp<SkPDFDict> fDict;
+    SkDEBUGCODE(bool fDumped;)
     typedef SkPDFObject INHERITED;
 };
 
@@ -344,10 +347,10 @@ public:
      */
     int32_t getObjectNumber(SkPDFObject* obj) const;
 
-    const SkTDArray<SkPDFObject*>& objects() const { return fObjects; }
+    const SkTArray<sk_sp<SkPDFObject>>& objects() const { return fObjects; }
 
 private:
-    SkTDArray<SkPDFObject*> fObjects;
+    SkTArray<sk_sp<SkPDFObject>> fObjects;
     SkTHashMap<SkPDFObject*, int32_t> fObjectNumbers;
 };
 

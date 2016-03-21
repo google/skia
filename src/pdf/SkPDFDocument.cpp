@@ -224,7 +224,7 @@ static bool emit_pdf_document(const SkTArray<sk_sp<const SkPDFDevice>>& pageDevi
     emit_pdf_header(stream);
     SkTDArray<int32_t> offsets;
     for (int i = 0; i < objNumMap.objects().count(); ++i) {
-        SkPDFObject* object = objNumMap.objects()[i];
+        SkPDFObject* object = objNumMap.objects()[i].get();
         size_t offset = stream->bytesWritten();
         // This assert checks that size(pdf_header) > 0 and that
         // the output stream correctly reports bytesWritten().
@@ -236,6 +236,7 @@ static bool emit_pdf_document(const SkTArray<sk_sp<const SkPDFDevice>>& pageDevi
         stream->writeText(" 0 obj\n");  // Generation number is always 0.
         object->emitObject(stream, objNumMap, substitutes);
         stream->writeText("\nendobj\n");
+        object->drop();
     }
     int32_t xRefFileOffset = SkToS32(stream->bytesWritten() - baseOffset);
 
@@ -256,7 +257,7 @@ static bool emit_pdf_document(const SkTArray<sk_sp<const SkPDFDevice>>& pageDevi
     // The page tree has both child and parent pointers, so it creates a
     // reference cycle.  We must clear that cycle to properly reclaim memory.
     for (int i = 0; i < pageTree.count(); i++) {
-        pageTree[i]->clear();
+        pageTree[i]->drop();
     }
     pageTree.safeUnrefAll();
     pages.unrefAll();

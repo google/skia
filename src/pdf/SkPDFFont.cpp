@@ -1434,3 +1434,10 @@ bool SkPDFFont::CanEmbedTypeface(SkTypeface* typeface, SkPDFCanon* canon) {
     }
     return *canon->fCanEmbedTypeface.set(id, canEmbed);
 }
+
+void SkPDFFont::drop() {
+    fTypeface = nullptr;
+    fFontInfo = nullptr;
+    fDescriptor = nullptr;
+    this->SkPDFDict::drop();
+}

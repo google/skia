@@ -30,7 +30,7 @@ static void test_pdf_object_serialization(SkPDFObject* object) {
     SkPDFObjNumMap objNumMap;
     objNumMap.addObjectRecursively(object, substitutes);
     for (int i = 0; i < objNumMap.objects().count(); ++i) {
-        SkPDFObject* object = objNumMap.objects()[i];
+        SkPDFObject* object = objNumMap.objects()[i].get();
         wStream.writeDecAsText(i + 1);
         wStream.writeText(" 0 obj\n");
         object->emitObject(&wStream, objNumMap, substitutes);
