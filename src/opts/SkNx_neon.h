@@ -54,15 +54,10 @@ public:
 
     void store(void* ptr) const { vst1_f32((float*)ptr, fVec); }
 
-    SkNx approxInvert() const {
+    SkNx invert() const {
         float32x2_t est0 = vrecpe_f32(fVec),
                     est1 = vmul_f32(vrecps_f32(est0, fVec), est0);
         return est1;
-    }
-    SkNx invert() const {
-        float32x2_t est1 = this->approxInvert().fVec,
-                    est2 = vmul_f32(vrecps_f32(est1, fVec), est1);
-        return est2;
     }
 
     SkNx operator + (const SkNx& o) const { return vadd_f32(fVec, o.fVec); }
@@ -72,7 +67,10 @@ public:
     #if defined(SK_CPU_ARM64)
         return vdiv_f32(fVec, o.fVec);
     #else
-        return vmul_f32(fVec, o.invert().fVec);
+        float32x2_t est0 = vrecpe_f32(o.fVec),
+                    est1 = vmul_f32(vrecps_f32(est0, o.fVec), est0),
+                    est2 = vmul_f32(vrecps_f32(est1, o.fVec), est1);
+        return vmul_f32(fVec, est2);
     #endif
     }
 
@@ -88,21 +86,19 @@ public:
     static SkNx Min(const SkNx& l, const SkNx& r) { return vmin_f32(l.fVec, r.fVec); }
     static SkNx Max(const SkNx& l, const SkNx& r) { return vmax_f32(l.fVec, r.fVec); }
 
-    SkNx rsqrt0() const { return vrsqrte_f32(fVec); }
-    SkNx rsqrt1() const {
-        float32x2_t est0 = this->rsqrt0().fVec;
+    SkNx rsqrt() const {
+        float32x2_t est0 = vrsqrte_f32(fVec);
         return vmul_f32(vrsqrts_f32(fVec, vmul_f32(est0, est0)), est0);
-    }
-    SkNx rsqrt2() const {
-        float32x2_t est1 = this->rsqrt1().fVec;
-        return vmul_f32(vrsqrts_f32(fVec, vmul_f32(est1, est1)), est1);
     }
 
     SkNx sqrt() const {
     #if defined(SK_CPU_ARM64)
         return vsqrt_f32(fVec);
     #else
-        return *this * this->rsqrt2();
+        float32x2_t est0 = vrsqrte_f32(fVec),
+                    est1 = vmul_f32(vrsqrts_f32(fVec, vmul_f32(est0, est0)), est0),
+                    est2 = vmul_f32(vrsqrts_f32(fVec, vmul_f32(est1, est1)), est1);
+        return vmul_f32(fVec, est2);
     #endif
     }
 
@@ -135,15 +131,10 @@ public:
     SkNx(float a, float b, float c, float d) { fVec = (float32x4_t) { a, b, c, d }; }
 
     void store(void* ptr) const { vst1q_f32((float*)ptr, fVec); }
-    SkNx approxInvert() const {
+    SkNx invert() const {
         float32x4_t est0 = vrecpeq_f32(fVec),
                     est1 = vmulq_f32(vrecpsq_f32(est0, fVec), est0);
         return est1;
-    }
-    SkNx invert() const {
-        float32x4_t est1 = this->approxInvert().fVec,
-                    est2 = vmulq_f32(vrecpsq_f32(est1, fVec), est1);
-        return est2;
     }
 
     SkNx operator + (const SkNx& o) const { return vaddq_f32(fVec, o.fVec); }
@@ -153,7 +144,10 @@ public:
     #if defined(SK_CPU_ARM64)
         return vdivq_f32(fVec, o.fVec);
     #else
-        return vmulq_f32(fVec, o.invert().fVec);
+        float32x4_t est0 = vrecpeq_f32(o.fVec),
+                    est1 = vmulq_f32(vrecpsq_f32(est0, o.fVec), est0),
+                    est2 = vmulq_f32(vrecpsq_f32(est1, o.fVec), est1);
+        return vmulq_f32(fVec, est2);
     #endif
     }
 
@@ -179,21 +173,19 @@ public:
     }
 
 
-    SkNx rsqrt0() const { return vrsqrteq_f32(fVec); }
-    SkNx rsqrt1() const {
-        float32x4_t est0 = this->rsqrt0().fVec;
+    SkNx rsqrt() const {
+        float32x4_t est0 = vrsqrteq_f32(fVec);
         return vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est0, est0)), est0);
-    }
-    SkNx rsqrt2() const {
-        float32x4_t est1 = this->rsqrt1().fVec;
-        return vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est1, est1)), est1);
     }
 
     SkNx sqrt() const {
     #if defined(SK_CPU_ARM64)
         return vsqrtq_f32(fVec);
     #else
-        return *this * this->rsqrt2();
+        float32x4_t est0 = vrsqrteq_f32(fVec),
+                    est1 = vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est0, est0)), est0),
+                    est2 = vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est1, est1)), est1);
+        return vmulq_f32(fVec, est2);
     #endif
     }
 
@@ -364,9 +356,54 @@ public:
     uint8x16_t fVec;
 };
 
+template <>
+class SkNx<4, int> {
+public:
+    SkNx(const int32x4_t& vec) : fVec(vec) {}
+
+    SkNx() {}
+    SkNx(int v) {
+        fVec = vdupq_n_s32(v);
+    }
+    SkNx(int a, int b, int c, int d) {
+        fVec = (int32x4_t){a,b,c,d};
+    }
+    static SkNx Load(const void* ptr) {
+        return vld1q_s32((const int32_t*)ptr);
+    }
+    void store(void* ptr) const {
+        return vst1q_s32((int32_t*)ptr, fVec);
+    }
+    int operator[](int k) const {
+        SkASSERT(0 <= k && k < 4);
+        union { int32x4_t v; int is[4]; } pun = {fVec};
+        return pun.is[k&3];
+    }
+
+    SkNx operator + (const SkNx& o) const { return vaddq_s32(fVec, o.fVec); }
+    SkNx operator - (const SkNx& o) const { return vsubq_s32(fVec, o.fVec); }
+    SkNx operator * (const SkNx& o) const { return vmulq_s32(fVec, o.fVec); }
+
+    SkNx operator << (int bits) const { SHIFT32(vshlq_n_s32, fVec, bits); }
+    SkNx operator >> (int bits) const { SHIFT32(vshrq_n_s32, fVec, bits); }
+
+    static SkNx Min(const SkNx& a, const SkNx& b) { return vminq_s32(a.fVec, b.fVec); }
+    // TODO as needed
+
+    int32x4_t fVec;
+};
+
 #undef SHIFT32
 #undef SHIFT16
 #undef SHIFT8
+
+template<> inline Sk4i SkNx_cast<int, float>(const Sk4f& src) {
+    return vcvtq_s32_f32(src.fVec);
+
+}
+template<> inline Sk4f SkNx_cast<float, int>(const Sk4i& src) {
+    return vcvtq_f32_s32(src.fVec);
+}
 
 template<> inline Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
     return vqmovn_u32(vcvtq_u32_f32(src.fVec));
@@ -388,12 +425,17 @@ template<> inline Sk4f SkNx_cast<float, uint8_t>(const Sk4b& src) {
     return vcvtq_f32_u32(_32);
 }
 
-static inline void Sk4f_ToBytes(uint8_t bytes[16],
-                                const Sk4f& a, const Sk4f& b, const Sk4f& c, const Sk4f& d) {
-    vst1q_u8(bytes, vuzpq_u8(vuzpq_u8((uint8x16_t)vcvtq_u32_f32(a.fVec),
-                                      (uint8x16_t)vcvtq_u32_f32(b.fVec)).val[0],
-                             vuzpq_u8((uint8x16_t)vcvtq_u32_f32(c.fVec),
-                                      (uint8x16_t)vcvtq_u32_f32(d.fVec)).val[0]).val[0]);
+template<> inline Sk16b SkNx_cast<uint8_t, float>(const Sk16f& src) {
+    Sk8f ab, cd;
+    SkNx_split(src, &ab, &cd);
+
+    Sk4f a,b,c,d;
+    SkNx_split(ab, &a, &b);
+    SkNx_split(cd, &c, &d);
+    return vuzpq_u8(vuzpq_u8((uint8x16_t)vcvtq_u32_f32(a.fVec),
+                             (uint8x16_t)vcvtq_u32_f32(b.fVec)).val[0],
+                    vuzpq_u8((uint8x16_t)vcvtq_u32_f32(c.fVec),
+                             (uint8x16_t)vcvtq_u32_f32(d.fVec)).val[0]).val[0];
 }
 
 template<> inline Sk4h SkNx_cast<uint16_t, uint8_t>(const Sk4b& src) {

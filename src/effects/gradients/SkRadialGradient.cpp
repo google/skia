@@ -94,8 +94,7 @@ typedef void (* RadialShadeProc)(SkScalar sfx, SkScalar sdx,
         int count, int toggle);
 
 static inline Sk4f fast_sqrt(const Sk4f& R) {
-    // R * R.rsqrt0() is much faster, but it's non-monotonic, which isn't so pretty for gradients.
-    return R * R.rsqrt1();
+    return R * R.rsqrt();
 }
 
 static inline Sk4f sum_squares(const Sk4f& a, const Sk4f& b) {

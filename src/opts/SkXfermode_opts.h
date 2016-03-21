@@ -133,7 +133,7 @@ XFERMODE(ColorDodge) {
 
     auto srcover = s + d*isa,
          dstover = d + s*ida,
-         otherwise = sa * Sk4f::Min(da, (d*sa)*(sa-s).approxInvert()) + s*ida + d*isa;
+         otherwise = sa * Sk4f::Min(da, (d*sa)*(sa-s).invert()) + s*ida + d*isa;
 
     // Order matters here, preferring d==0 over s==sa.
     auto colors = (d == Sk4f(0)).thenElse(dstover,
@@ -149,7 +149,7 @@ XFERMODE(ColorBurn) {
 
     auto srcover = s + d*isa,
          dstover = d + s*ida,
-         otherwise = sa*(da-Sk4f::Min(da, (da-d)*sa*s.approxInvert())) + s*ida + d*isa;
+         otherwise = sa*(da-Sk4f::Min(da, (da-d)*sa*s.invert())) + s*ida + d*isa;
 
     // Order matters here, preferring d==da over s==0.
     auto colors = (d ==      da).thenElse(dstover,

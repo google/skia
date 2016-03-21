@@ -52,13 +52,9 @@ public:
     static SkNx Min(const SkNx& l, const SkNx& r) { return _mm_min_ps(l.fVec, r.fVec); }
     static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
-    SkNx  sqrt () const { return _mm_sqrt_ps (fVec);  }
-    SkNx rsqrt0() const { return _mm_rsqrt_ps(fVec); }
-    SkNx rsqrt1() const { return this->rsqrt0(); }
-    SkNx rsqrt2() const { return this->rsqrt1(); }
-
-    SkNx       invert() const { return SkNx(1) / *this; }
-    SkNx approxInvert() const { return _mm_rcp_ps(fVec); }
+    SkNx   sqrt() const { return _mm_sqrt_ps (fVec);  }
+    SkNx  rsqrt() const { return _mm_rsqrt_ps(fVec); }
+    SkNx invert() const { return _mm_rcp_ps(fVec); }
 
     float operator[](int k) const {
         SkASSERT(0 <= k && k < 2);
@@ -103,13 +99,9 @@ public:
     SkNx abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
     SkNx floor() const { return sse2_mm_floor_ps(fVec); }
 
-    SkNx  sqrt () const { return _mm_sqrt_ps (fVec);  }
-    SkNx rsqrt0() const { return _mm_rsqrt_ps(fVec); }
-    SkNx rsqrt1() const { return this->rsqrt0(); }
-    SkNx rsqrt2() const { return this->rsqrt1(); }
-
-    SkNx       invert() const { return SkNx(1) / *this; }
-    SkNx approxInvert() const { return _mm_rcp_ps(fVec); }
+    SkNx   sqrt() const { return _mm_sqrt_ps (fVec);  }
+    SkNx  rsqrt() const { return _mm_rsqrt_ps(fVec); }
+    SkNx invert() const { return _mm_rcp_ps(fVec); }
 
     float operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
@@ -346,13 +338,18 @@ template<> /*static*/ inline Sk4f SkNx_cast<float, uint16_t>(const Sk4h& src) {
     return _mm_cvtepi32_ps(_32);
 }
 
-static inline void Sk4f_ToBytes(uint8_t bytes[16],
-                                const Sk4f& a, const Sk4f& b, const Sk4f& c, const Sk4f& d) {
-    _mm_storeu_si128((__m128i*)bytes,
-                     _mm_packus_epi16(_mm_packus_epi16(_mm_cvttps_epi32(a.fVec),
-                                                       _mm_cvttps_epi32(b.fVec)),
-                                      _mm_packus_epi16(_mm_cvttps_epi32(c.fVec),
-                                                       _mm_cvttps_epi32(d.fVec))));
+template<> /*static*/ inline Sk16b SkNx_cast<uint8_t, float>(const Sk16f& src) {
+    Sk8f ab, cd;
+    SkNx_split(src, &ab, &cd);
+
+    Sk4f a,b,c,d;
+    SkNx_split(ab, &a, &b);
+    SkNx_split(cd, &c, &d);
+
+    return _mm_packus_epi16(_mm_packus_epi16(_mm_cvttps_epi32(a.fVec),
+                                             _mm_cvttps_epi32(b.fVec)),
+                            _mm_packus_epi16(_mm_cvttps_epi32(c.fVec),
+                                             _mm_cvttps_epi32(d.fVec)));
 }
 
 template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, uint8_t>(const Sk4b& src) {
