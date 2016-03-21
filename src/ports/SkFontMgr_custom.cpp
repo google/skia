@@ -506,3 +506,23 @@ private:
 SkFontMgr* SkFontMgr_New_Custom_Embedded(const SkEmbeddedResourceHeader* header) {
     return new SkFontMgr_Custom(EmbeddedSystemFontLoader(header));
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+class EmptyFontLoader : public SkFontMgr_Custom::SystemFontLoader {
+public:
+    EmptyFontLoader() { }
+
+    void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
+                         SkFontMgr_Custom::Families* families) const override
+    {
+        SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
+        families->push_back().reset(family);
+        family->appendTypeface(new SkTypeface_Empty);
+    }
+
+};
+
+SK_API SkFontMgr* SkFontMgr_New_Custom_Empty() {
+    return new SkFontMgr_Custom(EmptyFontLoader());
+}

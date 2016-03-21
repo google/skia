@@ -14,11 +14,9 @@
 #include <dwrite.h>
 #endif
 
-#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
 // forward declare structs needed for getAdvanceData() template for freetype
 struct FT_FaceRec_;
 typedef struct FT_FaceRec_* FT_Face;
-#endif
 
 #ifdef SK_BUILD_FOR_MAC
 #import <ApplicationServices/ApplicationServices.h>
@@ -255,6 +253,13 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
 
 // Make AdvanceMetric template functions available for linking with typename
 // WidthRange and VerticalAdvanceRange.
+template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
+        FT_Face face,
+        int num_glyphs,
+        const uint32_t* subsetGlyphIDs,
+        uint32_t subsetGlyphIDsLength,
+        bool (*getAdvance)(FT_Face face, int gId, int16_t* data));
+
 #if defined(SK_BUILD_FOR_WIN)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         HDC hdc,
@@ -268,13 +273,6 @@ template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         const uint32_t* subsetGlyphIDs,
         uint32_t subsetGlyphIDsLength,
         bool (*getAdvance)(IDWriteFontFace* fontFace, int gId, int16_t* data));
-#elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
-template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
-        FT_Face face,
-        int num_glyphs,
-        const uint32_t* subsetGlyphIDs,
-        uint32_t subsetGlyphIDsLength,
-        bool (*getAdvance)(FT_Face face, int gId, int16_t* data));
 #elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         CTFontRef ctFont,

@@ -361,7 +361,8 @@ static FT_Face ref_ft_face(const SkTypeface* typeface) {
 }
 
 // Caller must lock gFTMutex before calling this function.
-static void unref_ft_face(FT_Face face) {
+extern void unref_ft_face(FT_Face face);
+void unref_ft_face(FT_Face face) {
     gFTMutex.assertHeld();
 
     SkFaceRec*  rec = gFaceRecHead;
@@ -1284,7 +1285,6 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     SkAutoMutexAcquire ac(gFTMutex);
 
     if (this->setupSize()) {
-        ERROR:
         sk_bzero(metrics, sizeof(*metrics));
         return;
     }
@@ -1376,7 +1376,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
         metrics->fFlags &= ~SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
         metrics->fFlags &= ~SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
     } else {
-        goto ERROR;
+        sk_bzero(metrics, sizeof(*metrics));
+        return;
     }
 
     // synthesize elements that were not provided by the os/2 table or format-specific metrics
