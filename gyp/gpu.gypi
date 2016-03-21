@@ -333,8 +333,6 @@
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.h',
       '<(skia_src_path)/gpu/gl/GrGLInterface.cpp',
       '<(skia_src_path)/gpu/gl/GrGLIRect.h',
-      '<(skia_src_path)/gpu/gl/GrGLNoOpInterface.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLNoOpInterface.h',
       '<(skia_src_path)/gpu/gl/GrGLPath.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPath.h',
       '<(skia_src_path)/gpu/gl/GrGLPathRange.cpp',
@@ -552,8 +550,6 @@
       '<(skia_src_path)/gpu/gl/debug/GrShaderObj.cpp',
       '<(skia_src_path)/gpu/gl/debug/GrProgramObj.h',
       '<(skia_src_path)/gpu/gl/debug/GrProgramObj.cpp',
-      '<(skia_src_path)/gpu/gl/debug/GrDebugGL.h',
-      '<(skia_src_path)/gpu/gl/debug/GrDebugGL.cpp',
       '<(skia_src_path)/gpu/gl/debug/GrVertexArrayObj.h',
 
       # Sk files

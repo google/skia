@@ -87,7 +87,7 @@ protected:
 // Useful for debugging whether errors result from use of RECTANGLE
 // #define TARGET GR_GL_TEXTURE_2D
 #define TARGET GR_GL_TEXTURE_RECTANGLE
-        GrGLuint id;
+        GrGLuint id = 0;
         GR_GL_CALL(gl, GenTextures(1, &id));
         GR_GL_CALL(gl, BindTexture(TARGET, id));
         GR_GL_CALL(gl, TexParameteri(TARGET, GR_GL_TEXTURE_MAG_FILTER,

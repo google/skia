@@ -14,7 +14,7 @@ class GrTextureObj;
 ////////////////////////////////////////////////////////////////////////////////
 // Although texture unit objects are allocated & deallocated like the other
 // GL emulation objects they are derived from GrFakeRefObj to provide some
-// uniformity in how the GrDebugGL class manages resources
+// uniformity in how the debug interface class manages resources
 class GrTextureUnitObj : public GrFakeRefObj {
     GR_DEFINE_CREATOR(GrTextureUnitObj);
 

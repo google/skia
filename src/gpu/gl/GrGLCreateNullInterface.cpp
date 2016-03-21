@@ -324,19 +324,19 @@ public:
     }
 
     GrGLvoid getQueryObjecti64v(GrGLuint id, GrGLenum pname, GrGLint64 *params) override {
-        queryResult(id, pname, params);
+        this->queryResult(id, pname, params);
     }
 
     GrGLvoid getQueryObjectiv(GrGLuint id, GrGLenum pname, GrGLint *params) override {
-        queryResult(id, pname, params);
+        this->queryResult(id, pname, params);
     }
 
     GrGLvoid getQueryObjectui64v(GrGLuint id, GrGLenum pname, GrGLuint64 *params) override {
-        queryResult(id, pname, params);
+        this->queryResult(id, pname, params);
     }
 
     GrGLvoid getQueryObjectuiv(GrGLuint id, GrGLenum pname, GrGLuint *params) override {
-        queryResult(id, pname, params);
+        this->queryResult(id, pname, params);
     }
 
     GrGLvoid getShaderiv(GrGLuint shader, GrGLenum pname, GrGLint* params) override {
@@ -353,13 +353,13 @@ public:
             case GR_GL_EXTENSIONS:
                 return CombinedExtensionString();
             case GR_GL_VERSION:
-                return (const GrGLubyte*)"4.0 Debug GL";
+                return (const GrGLubyte*)"4.0 Null GL";
             case GR_GL_SHADING_LANGUAGE_VERSION:
-                return (const GrGLubyte*)"4.20.8 Debug GLSL";
+                return (const GrGLubyte*)"4.20.8 Null GLSL";
             case GR_GL_VENDOR:
-                return (const GrGLubyte*)"Debug Vendor";
+                return (const GrGLubyte*)"Null Vendor";
             case GR_GL_RENDERER:
-                return (const GrGLubyte*)"The Debug (Non-)Renderer";
+                return (const GrGLubyte*)"The Null (Non-)Renderer";
             default:
                 SkFAIL("Unexpected name passed to GetString");
                 return nullptr;
@@ -381,13 +381,6 @@ public:
                 SkFAIL("Unexpected name passed to GetStringi");
                 return nullptr;
         }
-    }
-
-    GrGLvoid getTexLevelParameteriv(GrGLenum target, GrGLint level, GrGLenum pname,
-                                    GrGLint* params) override {
-        // we used to use this to query stuff about externally created textures,
-        // now we just require clients to tell us everything about the texture.
-        SkFAIL("Should never query texture parameters.");
     }
 
     GrGLint getUniformLocation(GrGLuint program, const char* name) override {
@@ -598,6 +591,8 @@ private:
                 break;
         }
     }
+
+    typedef GrGLTestInterface INHERITED;
 };
 
 const char* NullInterface::kExtensions[] = {
