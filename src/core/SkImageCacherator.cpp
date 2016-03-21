@@ -171,7 +171,8 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
     }
 
     const uint32_t pixelOpsFlags = 0;
-    if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(), SkImageInfo2GrPixelConfig(fInfo),
+    if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(),
+                         SkImageInfo2GrPixelConfig(fInfo, *tex->getContext()->caps()),
                          bitmap->getPixels(), bitmap->rowBytes(), pixelOpsFlags)) {
         bitmap->reset();
         return false;
@@ -273,7 +274,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
         }
     }
 
-    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo);
+    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo, *ctx->caps());
 
     // 3. Ask the generator to return a compressed form that the GPU might support
     SkAutoTUnref<SkData> data(this->refEncoded(ctx));

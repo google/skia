@@ -905,6 +905,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 
 #include "effects/GrTextureStripAtlas.h"
+#include "GrContext.h"
 #include "GrInvariantOutput.h"
 #include "gl/GrGLContext.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -1117,7 +1118,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height();
         desc.fContext = ctx;
-        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info());
+        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *ctx->caps());
         fAtlas = GrTextureStripAtlas::GetAtlas(desc);
         SkASSERT(fAtlas);
 

@@ -1435,26 +1435,30 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     }
     fConfigTable[kBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
-    // We only enable srgb support if both textures and FBOs support srgb.
-    bool srgbSupport = false;
+    // We only enable srgb support if both textures and FBOs support srgb,
+    // *and* we can disable sRGB decode-on-read, to support "legacy" mode.
     if (kGL_GrGLStandard == standard) {
         if (ctxInfo.version() >= GR_GL_VER(3,0)) {
-            srgbSupport = true;
+            fSRGBSupport = true;
         } else if (ctxInfo.hasExtension("GL_EXT_texture_sRGB")) {
             if (ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
                 ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB")) {
-                srgbSupport = true;
+                fSRGBSupport = true;
             }
         }
         // All the above srgb extensions support toggling srgb writes
-        fSRGBWriteControl = srgbSupport;
+        fSRGBWriteControl = fSRGBSupport;
     } else {
         // See https://bug.skia.org/4148 for PowerVR issue.
-        srgbSupport = kPowerVRRogue_GrGLRenderer != ctxInfo.renderer() &&
+        fSRGBSupport = kPowerVRRogue_GrGLRenderer != ctxInfo.renderer() &&
             (ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB"));
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
         fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
+    }
+    if (!ctxInfo.hasExtension("GL_EXT_texture_sRGB_decode")) {
+        // To support "legacy" L32 mode, we require the ability to turn off sRGB decode:
+        fSRGBSupport = false;
     }
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_SRGB_ALPHA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
@@ -1464,7 +1468,7 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         GR_GL_RGBA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    if (srgbSupport) {
+    if (fSRGBSupport) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
                                                          allRenderFlags;
     }
@@ -1472,6 +1476,26 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kSRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
+
+    // sBGRA is not a "real" thing in OpenGL, but GPUs support it, and on platforms where
+    // kN32 == BGRA, we need some way to work with it. (The default framebuffer on Windows
+    // is in this format, for example).
+    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_SRGB_ALPHA;
+    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
+    // GL does not do srgb<->rgb conversions when transferring between cpu and gpu. Thus, the
+    // external format is GL_BGRA.
+    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
+        GR_GL_BGRA;
+    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+    if (fSRGBSupport) {
+        fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+            allRenderFlags;
+    }
+    if (texStorageSupported) {
+        fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+    fConfigTable[kSBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
     if (this->ES2CompatibilitySupport()) {
@@ -1792,6 +1816,11 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     if (ctxInfo.standard() == kGLES_GrGLStandard && ctxInfo.version() == GR_GL_VER(2,0)) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage] =
             GR_GL_SRGB_ALPHA;
+
+        // Additionally, because we had to "invent" sBGRA, there is no way to make it work
+        // in ES 2.0, because there is no <internalFormat> we can use. So just make that format
+        // unsupported. (If we have no sRGB support at all, this will get overwritten below).
+        fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = 0;
     }
 
     // If BGRA is supported as an internal format it must always be specified to glTex[Sub]Image

@@ -59,7 +59,8 @@ public:
     void discard(GrRenderTarget*) override;
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
+    void bindTexture(int unitIdx, const GrTextureParams& params, bool dstConfigAllowsSRGB,
+                     GrGLTexture* texture);
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
                              GrPixelConfig readConfig, DrawPreference*,

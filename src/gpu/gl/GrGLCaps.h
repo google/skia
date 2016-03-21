@@ -120,12 +120,10 @@ public:
              const GrGLInterface* glInterface);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
-        SkASSERT(kGrPixelConfigCnt > config);
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
     }
 
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
-        SkASSERT(kGrPixelConfigCnt > config);
         if (withMSAA) {
             return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderableWithMSAA_Flag);
         } else {
@@ -134,7 +132,6 @@ public:
     }
 
     bool isConfigTexSupportEnabled(GrPixelConfig config) const {
-        SkASSERT(kGrPixelConfigCnt > config);
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
     }
 

@@ -193,6 +193,7 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(
 
     SkColorType ct = origInfo.colorType();
     SkAlphaType at = origInfo.alphaType();
+    SkColorProfileType pt = origInfo.profileType();
     if (kRGB_565_SkColorType == ct) {
         at = kOpaque_SkAlphaType;  // force this setting
     } else if (ct != kBGRA_8888_SkColorType && ct != kRGBA_8888_SkColorType) {
@@ -202,13 +203,13 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(
     if (kOpaque_SkAlphaType != at) {
         at = kPremul_SkAlphaType;  // force this setting
     }
-    const SkImageInfo info = SkImageInfo::Make(origInfo.width(), origInfo.height(), ct, at);
+    const SkImageInfo info = SkImageInfo::Make(origInfo.width(), origInfo.height(), ct, at, pt);
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(info);
+    desc.fConfig = SkImageInfo2GrPixelConfig(info, *context->caps());
     desc.fSampleCnt = sampleCount;
     desc.fTextureStorageAllocator = textureStorageAllocator;
     desc.fIsMipMapped = false;
@@ -227,7 +228,7 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
     ASSERT_SINGLE_OWNER
 
     // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo);
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
     if (kUnknown_GrPixelConfig == config) {
         return false;
     }
@@ -244,7 +245,7 @@ bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, siz
                                 int x, int y) {
     ASSERT_SINGLE_OWNER
     // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(info);
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fContext->caps());
     if (kUnknown_GrPixelConfig == config) {
         return false;
     }

@@ -198,6 +198,8 @@ GrTexture* GaussianBlur(GrContext* context,
 
     SkASSERT(kBGRA_8888_GrPixelConfig == srcTexture->config() ||
              kRGBA_8888_GrPixelConfig == srcTexture->config() ||
+             kSRGBA_8888_GrPixelConfig == srcTexture->config() ||
+             kSBGRA_8888_GrPixelConfig == srcTexture->config() ||
              kAlpha_8_GrPixelConfig == srcTexture->config());
 
     GrSurfaceDesc desc;

@@ -136,6 +136,7 @@ SkImageFilter::Proxy* SkSpecialImage::internal_getProxy() const {
 ///////////////////////////////////////////////////////////////////////////////
 #include "SkImage.h"
 #if SK_SUPPORT_GPU
+#include "GrContext.h"
 #include "SkGrPriv.h"
 #endif
 
@@ -206,7 +207,7 @@ public:
 #if SK_SUPPORT_GPU
         GrTexture* texture = as_IB(fImage.get())->peekTexture();
         if (texture) {
-            GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info);
+            GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *texture->getContext()->caps());
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
             return SkSpecialSurface::MakeRenderTarget(this->proxy(), texture->getContext(), desc);
@@ -430,7 +431,7 @@ public:
     }
 
     sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
-        GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info);
+        GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *fTexture->getContext()->caps());
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
         return SkSpecialSurface::MakeRenderTarget(this->proxy(), fTexture->getContext(), desc);

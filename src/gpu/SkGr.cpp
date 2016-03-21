@@ -43,12 +43,12 @@
 #  include "etc1.h"
 #endif
 
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(info);
+    desc.fConfig = SkImageInfo2GrPixelConfig(info, caps);
     desc.fSampleCnt = 0;
     return desc;
 }
@@ -213,7 +213,7 @@ static GrTexture* load_etc1_texture(GrContext* ctx, const SkBitmap &bm, GrSurfac
 }
 
 GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
     if (GrTexture *texture = load_etc1_texture(ctx, bitmap, desc)) {
         return texture;
     }
@@ -238,10 +238,34 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
     SkPixmap tmpPixmap;
     SkBitmap tmpBitmap;
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info());
     const GrCaps* caps = ctx->caps();
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *caps);
 
-    if (kIndex_8_SkColorType == pixmap.colorType()) {
+    if (caps->srgbSupport() && !GrPixelConfigIsSRGB(desc.fConfig) &&
+        kSRGB_SkColorProfileType == pixmap.info().profileType()) {
+        // We we supplied sRGB as the profile type, but we don't have a suitable pixel config.
+        // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
+        // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
+        // destination (claim they're linear):
+        SkImageInfo linSrcInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
+                                                   pixmap.colorType(), pixmap.alphaType());
+        SkPixmap linSrcPixmap(linSrcInfo, pixmap.addr(), pixmap.rowBytes(), pixmap.ctable());
+
+        SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height(),
+                                                         kSRGB_SkColorProfileType);
+        tmpBitmap.allocPixels(dstInfo);
+
+        SkImageInfo linDstInfo = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
+        if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+            return nullptr;
+        }
+        if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+            return nullptr;
+        }
+        pmap = &tmpPixmap;
+        // must rebuild desc, since we've forced the info to be N32
+        desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+    } else if (kIndex_8_SkColorType == pixmap.colorType()) {
         if (caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
             size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
                                                           pixmap.width(), pixmap.height());
@@ -263,7 +287,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
             }
             pmap = &tmpPixmap;
             // must rebuild desc, since we've forced the info to be N32
-            desc = GrImageInfoToSurfaceDesc(pmap->info());
+            desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
         }
     }
 
@@ -289,7 +313,7 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 
 GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap)
 {
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
     if (kIndex_8_SkColorType != bitmap.colorType() && !bitmap.readyToDraw()) {
         GrTexture* texture = load_etc1_texture(ctx, bitmap, desc);
         if (texture) {
@@ -358,7 +382,10 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
 
 // alphatype is ignore for now, but if GrPixelConfig is expanded to encompass
 // alpha info, that will be considered.
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProfileType pt) {
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProfileType pt,
+                                        const GrCaps& caps) {
+    // We intentionally ignore profile type for non-8888 formats. Anything we can't support
+    // in hardware will be expanded to sRGB 8888 in GrUploadPixmapToTexture.
     switch (ct) {
         case kUnknown_SkColorType:
             return kUnknown_GrPixelConfig;
@@ -369,12 +396,11 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProf
         case kARGB_4444_SkColorType:
             return kRGBA_4444_GrPixelConfig;
         case kRGBA_8888_SkColorType:
-            //if (kSRGB_SkColorProfileType == pt) {
-            //    return kSRGBA_8888_GrPixelConfig;
-            //}
-            return kRGBA_8888_GrPixelConfig;
+            return (kSRGB_SkColorProfileType == pt && caps.srgbSupport())
+                   ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
         case kBGRA_8888_SkColorType:
-            return kBGRA_8888_GrPixelConfig;
+            return (kSRGB_SkColorProfileType == pt && caps.srgbSupport())
+                   ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
         case kIndex_8_SkColorType:
             return kIndex_8_GrPixelConfig;
         case kGray_8_SkColorType:
@@ -411,6 +437,10 @@ bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
             break;
         case kSRGBA_8888_GrPixelConfig:
             ct = kRGBA_8888_SkColorType;
+            pt = kSRGB_SkColorProfileType;
+            break;
+        case kSBGRA_8888_GrPixelConfig:
+            ct = kBGRA_8888_SkColorType;
             pt = kSRGB_SkColorProfileType;
             break;
         default:
