@@ -25,6 +25,7 @@ struct SkImageInfo;
 class SkPaint;
 class SkPixmap;
 class SkSpecialSurface;
+class SkSurface;
 
 enum {
     kNeedNewImageUniqueID_SpecialImage = 0
@@ -84,15 +85,28 @@ public:
                                                 ReleaseContext);
 
     /**
-     *  Create a new surface with a backend that is compatible with this image.
+     *  Create a new special surface with a backend that is compatible with this special image.
      */
     sk_sp<SkSpecialSurface> makeSurface(const SkImageInfo&) const;
+
+    /**
+     * Create a new surface with a backend that is compatible with this special image.
+     * TODO: switch this to makeSurface once we resolved the naming issue
+     */
+    sk_sp<SkSurface> makeTightSurface(const SkImageInfo&) const;
 
     /**
      * Extract a subset of this special image and return it as a special image.
      * It may or may not point to the same backing memory.
      */
     sk_sp<SkSpecialImage> makeSubset(const SkIRect& subset) const;
+
+    /**
+     * Extract a subset of this special image and return it as an SkImage.
+     * It may or may not point to the same backing memory.
+     * TODO: switch this to makeSurface once we resolved the naming issue
+     */
+    sk_sp<SkImage> makeTightSubset(const SkIRect& subset) const;
 
     // These three internal methods will go away (see skbug.com/4965)
     bool internal_getBM(SkBitmap* result);

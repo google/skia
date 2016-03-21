@@ -12,6 +12,7 @@
 #include "SkPixmap.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
+#include "SkSurface.h"
 #include "Test.h"
 #include "TestingSpecialImageAccess.h"
 
@@ -59,10 +60,12 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     REPORTER_ASSERT(reporter, kSmallerSize == subset.height());
 
     //--------------
+    // Test that peekTexture reports the correct backing type
     REPORTER_ASSERT(reporter, peekTextureSucceeds ==
                                         !!TestingSpecialImageAccess::PeekTexture(img.get()));
 
     //--------------
+    // Test that peekPixels reports the correct backing type
     SkPixmap pixmap;
     REPORTER_ASSERT(reporter, peekPixelsSucceeds ==
                               !!TestingSpecialImageAccess::PeekPixels(img.get(), &pixmap));
@@ -72,6 +75,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     }
 
     //--------------
+    // Test that draw restricts itself to the subset
     SkImageInfo info = SkImageInfo::MakeN32(kFullSize, kFullSize, kOpaque_SkAlphaType);
 
     sk_sp<SkSpecialSurface> surf(img->makeSurface(info));
@@ -94,6 +98,32 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
                                                           kSmallerSize+kPad-1));
     REPORTER_ASSERT(reporter, SK_ColorBLUE == bm.getColor(kSmallerSize+kPad,
                                                           kSmallerSize+kPad));
+
+    //--------------
+    // Test that makeTightSubset & makeTightSurface return appropriately sized objects
+    // of the correct backing type
+    SkIRect newSubset = SkIRect::MakeWH(subset.width(), subset.height());
+    {
+        sk_sp<SkImage> tightImg(img->makeTightSubset(newSubset));
+
+        REPORTER_ASSERT(reporter, tightImg->width() == subset.width());
+        REPORTER_ASSERT(reporter, tightImg->height() == subset.height());
+        REPORTER_ASSERT(reporter, peekTextureSucceeds == !!tightImg->getTexture());
+        SkPixmap tmpPixmap;
+        REPORTER_ASSERT(reporter, peekPixelsSucceeds == !!tightImg->peekPixels(&tmpPixmap));
+    }
+    {
+        SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(),
+                                                kPremul_SkAlphaType);
+        sk_sp<SkSurface> tightSurf(img->makeTightSurface(info));
+
+        REPORTER_ASSERT(reporter, tightSurf->width() == subset.width());
+        REPORTER_ASSERT(reporter, tightSurf->height() == subset.height());
+        REPORTER_ASSERT(reporter, peekTextureSucceeds ==
+                     !!tightSurf->getTextureHandle(SkSurface::kDiscardWrite_BackendHandleAccess));
+        SkPixmap tmpPixmap;
+        REPORTER_ASSERT(reporter, peekPixelsSucceeds == !!tightSurf->peekPixels(&tmpPixmap));
+    }
 }
 
 DEF_TEST(SpecialImage_Raster, reporter) {

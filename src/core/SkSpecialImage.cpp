@@ -35,9 +35,13 @@ public:
     // Delete this entry point ASAP (see skbug.com/4965)
     virtual bool getBitmapDeprecated(SkBitmap* result) const = 0;
 
+    virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
+
     virtual sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const = 0;
 
-    virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
+    virtual sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const = 0;
+
+    virtual SkSurface* onMakeTightSurface(const SkImageInfo& info) const = 0;
 
 private:
     typedef SkSpecialImage INHERITED;
@@ -100,8 +104,17 @@ sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(const SkImageInfo& info) con
     return as_SIB(this)->onMakeSurface(info);
 }
 
+sk_sp<SkSurface> SkSpecialImage::makeTightSurface(const SkImageInfo& info) const {
+    sk_sp<SkSurface> tmp(SkRef(as_SIB(this)->onMakeTightSurface(info)));
+    return tmp;
+}
+
 sk_sp<SkSpecialImage> SkSpecialImage::makeSubset(const SkIRect& subset) const {
     return as_SIB(this)->onMakeSubset(subset);
+}
+
+sk_sp<SkImage> SkSpecialImage::makeTightSubset(const SkIRect& subset) const {
+    return as_SIB(this)->onMakeTightSubset(subset);
 }
 
 #if SK_SUPPORT_GPU
@@ -227,6 +240,20 @@ public:
                                              subsetImg);
     }
 
+    sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
+        return fImage->makeSubset(subset);
+    }
+
+    SkSurface* onMakeTightSurface(const SkImageInfo& info) const override {
+#if SK_SUPPORT_GPU
+        GrTexture* texture = as_IB(fImage.get())->peekTexture();
+        if (texture) {
+            return SkSurface::NewRenderTarget(texture->getContext(), SkBudgeted::kYes, info, 0);
+        }
+#endif
+        return SkSurface::NewRaster(info, nullptr);
+    }
+
 private:
     sk_sp<SkImage> fImage;
 
@@ -332,6 +359,20 @@ public:
                                               subsetBM);
     }
 
+    sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
+        SkBitmap subsetBM;
+
+        if (!fBitmap.extractSubset(&subsetBM, subset)) {
+            return nullptr;
+        }
+
+        return SkImage::MakeFromBitmap(subsetBM);
+    }
+
+    SkSurface* onMakeTightSurface(const SkImageInfo& info) const override {
+        return SkSurface::NewRaster(info);
+    }
+
 private:
     SkBitmap fBitmap;
 
@@ -363,6 +404,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(SkImageFilter::Proxy* proxy
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
 #include "GrTexture.h"
+#include "SkImage_Gpu.h"
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:                                       
@@ -443,6 +485,34 @@ public:
                                            this->uniqueID(),
                                            fTexture, 
                                            fAlphaType);
+    }
+
+    sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
+        if (0 == subset.fLeft && 0 == subset.fTop &&
+            fTexture->width() == subset.width() &&
+            fTexture->height() == subset.height()) {
+            // The existing GrTexture is already tight so reuse it in the SkImage
+            return sk_make_sp<SkImage_Gpu>(fTexture->width(), fTexture->height(),
+                                           kNeedNewImageUniqueID,
+                                           fAlphaType, fTexture, SkBudgeted::kYes);
+        }
+
+        GrContext* ctx = fTexture->getContext();
+        GrSurfaceDesc desc = fTexture->desc();
+        desc.fWidth = subset.width();
+        desc.fHeight = subset.height();
+
+        GrTexture* subTx = ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes);
+        if (!subTx) {
+            return nullptr;
+        }
+        ctx->copySurface(subTx, fTexture, subset, SkIPoint::Make(0, 0));
+        return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
+                                       fAlphaType, subTx, SkBudgeted::kYes);
+    }
+
+    SkSurface* onMakeTightSurface(const SkImageInfo& info) const override {
+        return SkSurface::NewRenderTarget(fTexture->getContext(), SkBudgeted::kYes, info);
     }
 
 private:
