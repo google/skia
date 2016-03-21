@@ -6,68 +6,12 @@
  */
 
 #include "Sk4fLinearGradient.h"
-#include "SkUtils.h"
 #include "SkXfermode.h"
 
 namespace {
 
-template<typename DstType, SkColorProfileType, ApplyPremul>
-void fill(const Sk4f& c, DstType* dst, int n);
-
-template<>
-void fill<SkPM4f, kLinear_SkColorProfileType, ApplyPremul::False>
-         (const Sk4f& c, SkPM4f* dst, int n) {
-    while (n > 0) {
-        c.store(dst++);
-        n--;
-    }
-}
-
-template<>
-void fill<SkPM4f, kLinear_SkColorProfileType, ApplyPremul::True>
-         (const Sk4f& c, SkPM4f* dst, int n) {
-    fill<SkPM4f, kLinear_SkColorProfileType, ApplyPremul::False>(premul_4f(c), dst, n);
-}
-
-template<>
-void fill<SkPMColor, kLinear_SkColorProfileType, ApplyPremul::False>
-         (const Sk4f& c, SkPMColor* dst, int n) {
-    sk_memset32(dst, trunc_from_4f_255<ApplyPremul::False>(c), n);
-}
-
-template<>
-void fill<SkPMColor, kLinear_SkColorProfileType, ApplyPremul::True>
-         (const Sk4f& c, SkPMColor* dst, int n) {
-    sk_memset32(dst, trunc_from_4f_255<ApplyPremul::True>(c), n);
-}
-
-template<>
-void fill<SkPMColor, kSRGB_SkColorProfileType, ApplyPremul::False>
-         (const Sk4f& c, SkPMColor* dst, int n) {
-    // FIXME: this assumes opaque colors.  Handle unpremultiplication.
-    sk_memset32(dst, Sk4f_toS32(c), n);
-}
-
-template<>
-void fill<SkPMColor, kSRGB_SkColorProfileType, ApplyPremul::True>
-         (const Sk4f& c, SkPMColor* dst, int n) {
-    sk_memset32(dst, Sk4f_toS32(premul_4f(c)), n);
-}
-
-template<>
-void fill<uint64_t, kLinear_SkColorProfileType, ApplyPremul::False>
-         (const Sk4f& c, uint64_t* dst, int n) {
-    sk_memset64(dst, SkFloatToHalf_01(c), n);
-}
-
-template<>
-void fill<uint64_t, kLinear_SkColorProfileType, ApplyPremul::True>
-         (const Sk4f& c, uint64_t* dst, int n) {
-    sk_memset64(dst, SkFloatToHalf_01(premul_4f(c)), n);
-}
-
-template<typename DstType, SkColorProfileType profile, ApplyPremul premul>
-void ramp(const Sk4f& c, const Sk4f& dc, DstType* dst, int n) {
+template<DstType dstType, ApplyPremul premul>
+void ramp(const Sk4f& c, const Sk4f& dc, typename DstTraits<dstType, premul>::Type dst[], int n) {
     SkASSERT(n > 0);
 
     const Sk4f dc2 = dc + dc;
@@ -79,7 +23,7 @@ void ramp(const Sk4f& c, const Sk4f& dc, DstType* dst, int n) {
     Sk4f c3 = c1 + dc2;
 
     while (n >= 4) {
-        store4x<DstType, profile, premul>(c0, c1, c2, c3, dst);
+        DstTraits<dstType, premul>::store4x(c0, c1, c2, c3, dst);
         dst += 4;
 
         c0 = c0 + dc4;
@@ -89,12 +33,12 @@ void ramp(const Sk4f& c, const Sk4f& dc, DstType* dst, int n) {
         n -= 4;
     }
     if (n & 2) {
-        store<DstType, profile, premul>(c0, dst++);
-        store<DstType, profile, premul>(c1, dst++);
+        DstTraits<dstType, premul>::store(c0, dst++);
+        DstTraits<dstType, premul>::store(c1, dst++);
         c0 = c0 + dc2;
     }
     if (n & 1) {
-        store<DstType, profile, premul>(c0, dst);
+        DstTraits<dstType, premul>::store(c0, dst);
     }
 }
 
@@ -193,12 +137,10 @@ LinearGradient4fContext::shadeSpan(int x, int y, SkPMColor dst[], int count) {
     // TODO: plumb dithering
     SkASSERT(count > 0);
     if (fColorsArePremul) {
-        this->shadePremulSpan<SkPMColor,
-                              kLinear_SkColorProfileType,
+        this->shadePremulSpan<DstType::L32,
                               ApplyPremul::False>(x, y, dst, count);
     } else {
-        this->shadePremulSpan<SkPMColor,
-                              kLinear_SkColorProfileType,
+        this->shadePremulSpan<DstType::L32,
                               ApplyPremul::True>(x, y, dst, count);
     }
 }
@@ -213,50 +155,44 @@ LinearGradient4fContext::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
     // TONOTDO: plumb dithering
     SkASSERT(count > 0);
     if (fColorsArePremul) {
-        this->shadePremulSpan<SkPM4f,
-                              kLinear_SkColorProfileType,
+        this->shadePremulSpan<DstType::F32,
                               ApplyPremul::False>(x, y, dst, count);
     } else {
-        this->shadePremulSpan<SkPM4f,
-                              kLinear_SkColorProfileType,
+        this->shadePremulSpan<DstType::F32,
                               ApplyPremul::True>(x, y, dst, count);
     }
 }
 
-template<typename DstType, SkColorProfileType profile, ApplyPremul premul>
+template<DstType dstType, ApplyPremul premul>
 void SkLinearGradient::
 LinearGradient4fContext::shadePremulSpan(int x, int y,
-                                         DstType dst[],
+                                         typename DstTraits<dstType, premul>::Type dst[],
                                          int count) const {
     const SkLinearGradient& shader =
         static_cast<const SkLinearGradient&>(fShader);
     switch (shader.fTileMode) {
     case kClamp_TileMode:
-        this->shadeSpanInternal<DstType,
-                                profile,
+        this->shadeSpanInternal<dstType,
                                 premul,
                                 kClamp_TileMode>(x, y, dst, count);
         break;
     case kRepeat_TileMode:
-        this->shadeSpanInternal<DstType,
-                                profile,
+        this->shadeSpanInternal<dstType,
                                 premul,
                                 kRepeat_TileMode>(x, y, dst, count);
         break;
     case kMirror_TileMode:
-        this->shadeSpanInternal<DstType,
-                                profile,
+        this->shadeSpanInternal<dstType,
                                 premul,
                                 kMirror_TileMode>(x, y, dst, count);
         break;
     }
 }
 
-template<typename DstType, SkColorProfileType profile, ApplyPremul premul,
-         SkShader::TileMode tileMode>
+template<DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
 void SkLinearGradient::
 LinearGradient4fContext::shadeSpanInternal(int x, int y,
-                                           DstType dst[],
+                                           typename DstTraits<dstType, premul>::Type dst[],
                                            int count) const {
     SkPoint pt;
     fDstToPosProc(fDstToPos,
@@ -265,12 +201,12 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y,
                   &pt);
     const SkScalar fx = pinFx<tileMode>(pt.x());
     const SkScalar dx = fDstToPos.getScaleX();
-    LinearIntervalProcessor<DstType, profile, tileMode> proc(fIntervals.begin(),
-                                                             fIntervals.end() - 1,
-                                                             this->findInterval(fx),
-                                                             fx,
-                                                             dx,
-                                                             SkScalarNearlyZero(dx * count));
+    LinearIntervalProcessor<dstType, tileMode> proc(fIntervals.begin(),
+                                                    fIntervals.end() - 1,
+                                                    this->findInterval(fx),
+                                                    fx,
+                                                    dx,
+                                                    SkScalarNearlyZero(dx * count));
     while (count > 0) {
         // What we really want here is SkTPin(advance, 1, count)
         // but that's a significant perf hit for >> stops; investigate.
@@ -285,12 +221,12 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y,
             || (n == count && proc.currentRampIsZero()));
 
         if (proc.currentRampIsZero()) {
-            fill<DstType, profile, premul>(proc.currentColor(),
-                                           dst, n);
+            DstTraits<dstType, premul>::store(proc.currentColor(),
+                                              dst, n);
         } else {
-            ramp<DstType, profile, premul>(proc.currentColor(),
-                                           proc.currentColorGrad(),
-                                           dst, n);
+            ramp<dstType, premul>(proc.currentColor(),
+                                  proc.currentColorGrad(),
+                                  dst, n);
         }
 
         proc.advance(SkIntToScalar(n));
@@ -299,7 +235,7 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y,
     }
 }
 
-template<typename DstType, SkColorProfileType profile, SkShader::TileMode tileMode>
+template<DstType dstType, SkShader::TileMode tileMode>
 class SkLinearGradient::
 LinearGradient4fContext::LinearIntervalProcessor {
 public:
@@ -346,12 +282,11 @@ public:
 
 private:
     void compute_interval_props(SkScalar t) {
-        fDc   = dst_swizzle<DstType>(fInterval->fDc);
-        fCc   = dst_swizzle<DstType>(fInterval->fC0);
-        fCc   = fCc + fDc * Sk4f(t);
-        fCc   = scale_for_dest<DstType, profile>(fCc);
-        fDcDx = scale_for_dest<DstType, profile>(fDc * Sk4f(fDx));
-        fZeroRamp = fIsVertical || fInterval->isZeroRamp();
+        const Sk4f dC = DstTraits<dstType>::load(fInterval->fDc);
+        fCc           = DstTraits<dstType>::load(fInterval->fC0);
+        fCc           = fCc + dC * Sk4f(t);
+        fDcDx         = dC * fDx;
+        fZeroRamp     = fIsVertical || fInterval->isZeroRamp();
     }
 
     const Interval* next_interval(const Interval* i) const {
@@ -384,7 +319,6 @@ private:
     }
 
     // Current interval properties.
-    Sk4f            fDc;        // local color gradient (dc/dt)
     Sk4f            fDcDx;      // dst color gradient (dc/dx)
     Sk4f            fCc;        // current color, interpolated in dst
     SkScalar        fAdvX;      // remaining interval advance in dst
@@ -476,18 +410,18 @@ LinearGradient4fContext::D32_BlitBW(BlitState* state, int x, int y, const SkPixm
 
     if (dst.info().isLinear()) {
         if (ctx->fColorsArePremul) {
-            ctx->shadePremulSpan<SkPMColor, kLinear_SkColorProfileType, ApplyPremul::False>(
+            ctx->shadePremulSpan<DstType::L32, ApplyPremul::False>(
                 x, y, dst.writable_addr32(x, y), count);
         } else {
-            ctx->shadePremulSpan<SkPMColor, kLinear_SkColorProfileType, ApplyPremul::True>(
+            ctx->shadePremulSpan<DstType::L32, ApplyPremul::True>(
                 x, y, dst.writable_addr32(x, y), count);
         }
     } else {
         if (ctx->fColorsArePremul) {
-            ctx->shadePremulSpan<SkPMColor, kSRGB_SkColorProfileType, ApplyPremul::False>(
+            ctx->shadePremulSpan<DstType::S32, ApplyPremul::False>(
                 x, y, dst.writable_addr32(x, y), count);
         } else {
-            ctx->shadePremulSpan<SkPMColor, kSRGB_SkColorProfileType, ApplyPremul::True>(
+            ctx->shadePremulSpan<DstType::S32, ApplyPremul::True>(
                 x, y, dst.writable_addr32(x, y), count);
         }
     }
@@ -501,10 +435,10 @@ LinearGradient4fContext::D64_BlitBW(BlitState* state, int x, int y, const SkPixm
         static_cast<const LinearGradient4fContext*>(state->fCtx);
 
     if (ctx->fColorsArePremul) {
-        ctx->shadePremulSpan<uint64_t, kLinear_SkColorProfileType, ApplyPremul::False>(
+        ctx->shadePremulSpan<DstType::F16, ApplyPremul::False>(
             x, y, dst.writable_addr64(x, y), count);
     } else {
-        ctx->shadePremulSpan<uint64_t, kLinear_SkColorProfileType, ApplyPremul::True>(
+        ctx->shadePremulSpan<DstType::F16, ApplyPremul::True>(
             x, y, dst.writable_addr64(x, y), count);
     }
 }

@@ -276,56 +276,56 @@ GradientShaderBase4fContext::addMirrorIntervals(const SkGradientShaderBase& shad
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadeSpan(int x, int y, SkPMColor dst[], int count) {
     if (fColorsArePremul) {
-        this->shadePremulSpan<SkPMColor, ApplyPremul::False>(x, y, dst, count);
+        this->shadePremulSpan<DstType::L32, ApplyPremul::False>(x, y, dst, count);
     } else {
-        this->shadePremulSpan<SkPMColor, ApplyPremul::True>(x, y, dst, count);
+        this->shadePremulSpan<DstType::L32, ApplyPremul::True>(x, y, dst, count);
     }
 }
 
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
     if (fColorsArePremul) {
-        this->shadePremulSpan<SkPM4f, ApplyPremul::False>(x, y, dst, count);
+        this->shadePremulSpan<DstType::F32, ApplyPremul::False>(x, y, dst, count);
     } else {
-        this->shadePremulSpan<SkPM4f, ApplyPremul::True>(x, y, dst, count);
+        this->shadePremulSpan<DstType::F32, ApplyPremul::True>(x, y, dst, count);
     }
 }
 
-template<typename DstType, ApplyPremul premul>
+template<DstType dstType, ApplyPremul premul>
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadePremulSpan(int x, int y,
-                                             DstType dst[],
+                                             typename DstTraits<dstType, premul>::Type dst[],
                                              int count) const {
     const SkGradientShaderBase& shader =
         static_cast<const SkGradientShaderBase&>(fShader);
 
     switch (shader.fTileMode) {
     case kClamp_TileMode:
-        this->shadeSpanInternal<DstType,
+        this->shadeSpanInternal<dstType,
                                 premul,
                                 kClamp_TileMode>(x, y, dst, count);
         break;
     case kRepeat_TileMode:
-        this->shadeSpanInternal<DstType,
+        this->shadeSpanInternal<dstType,
                                 premul,
                                 kRepeat_TileMode>(x, y, dst, count);
         break;
     case kMirror_TileMode:
-        this->shadeSpanInternal<DstType,
+        this->shadeSpanInternal<dstType,
                                 premul,
                                 kMirror_TileMode>(x, y, dst, count);
         break;
     }
 }
 
-template<typename DstType, ApplyPremul premul, SkShader::TileMode tileMode>
+template<DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
-                                               DstType dst[],
+                                               typename DstTraits<dstType, premul>::Type dst[],
                                                int count) const {
     static const int kBufSize = 128;
     SkScalar ts[kBufSize];
-    TSampler<DstType, tileMode> sampler(*this);
+    TSampler<dstType, tileMode> sampler(*this);
 
     SkASSERT(count > 0);
     do {
@@ -333,14 +333,14 @@ GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
         this->mapTs(x, y, ts, n);
         for (int i = 0; i < n; ++i) {
             const Sk4f c = sampler.sample(ts[i]);
-            store<DstType, kLinear_SkColorProfileType, premul>(c, dst++);
+            DstTraits<dstType, premul>::store(c, dst++);
         }
         x += n;
         count -= n;
     } while (count > 0);
 }
 
-template<typename DstType, SkShader::TileMode tileMode>
+template<DstType dstType, SkShader::TileMode tileMode>
 class SkGradientShaderBase::GradientShaderBase4fContext::TSampler {
 public:
     TSampler(const GradientShaderBase4fContext& ctx)
@@ -423,8 +423,8 @@ private:
     }
 
     void loadIntervalData(const Interval* i) {
-        fCc = scale_for_dest<DstType, kLinear_SkColorProfileType>(dst_swizzle<DstType>(i->fC0));
-        fDc = scale_for_dest<DstType, kLinear_SkColorProfileType>(dst_swizzle<DstType>(i->fDc));
+        fCc = DstTraits<dstType>::load(i->fC0);
+        fDc = DstTraits<dstType>::load(i->fDc);
     }
 
     const Interval* fFirstInterval;

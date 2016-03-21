@@ -14,6 +14,7 @@
 #include "SkNx.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
+#include "SkUtils.h"
 
 // Templates shared by various 4f gradient flavors.
 
@@ -21,11 +22,12 @@ namespace {
 
 enum class ApplyPremul { True, False };
 
-inline Sk4f premul_4f(const Sk4f& c) {
-    const float alpha = c[SkPM4f::A];
-    // FIXME: portable swizzle?
-    return c * Sk4f(alpha, alpha, alpha, 1);
-}
+enum class DstType {
+    L32,  // Linear 32bit.  Used for both shader/blitter paths.
+    S32,  // SRGB 32bit.  Used for the blitter path only.
+    F16,  // Linear half-float.  Used for blitters only.
+    F32,  // Linear float.  Used for shaders only.
+};
 
 template <ApplyPremul premul>
 inline SkPMColor trunc_from_4f_255(const Sk4f& c) {
@@ -38,106 +40,156 @@ inline SkPMColor trunc_from_4f_255(const Sk4f& c) {
     return pmc;
 }
 
-template<typename DstType, SkColorProfileType, ApplyPremul premul>
-void store(const Sk4f& color, DstType* dst);
+template <ApplyPremul>
+struct PremulTraits;
 
-template<>
-inline void store<SkPM4f, kLinear_SkColorProfileType, ApplyPremul::False>
-                 (const Sk4f& c, SkPM4f* dst) {
-    c.store(dst);
-}
+template <>
+struct PremulTraits<ApplyPremul::False> {
+    static Sk4f apply(const Sk4f& c) { return c; }
+};
 
-template<>
-inline void store<SkPM4f, kLinear_SkColorProfileType, ApplyPremul::True>
-                 (const Sk4f& c, SkPM4f* dst) {
-    premul_4f(c).store(dst);
-}
+template <>
+struct PremulTraits<ApplyPremul::True> {
+    static Sk4f apply(const Sk4f& c) {
+        const float alpha = c[SkPM4f::A];
+        // FIXME: portable swizzle?
+        return c * Sk4f(alpha, alpha, alpha, 1);
+    }
+};
 
-template<>
-inline void store<SkPMColor, kLinear_SkColorProfileType, ApplyPremul::False>
-                 (const Sk4f& c, SkPMColor* dst) {
-    *dst = trunc_from_4f_255<ApplyPremul::False>(c);
-}
+// Struct encapsulating various dest-dependent ops:
+//
+//   - load()       Load a SkPM4f value into Sk4f.  Normally called once per interval
+//                  advance.  Also applies a scale and swizzle suitable for DstType.
+//
+//   - store()      Store one Sk4f to dest.  Optionally handles premul, color space
+//                  conversion, etc.
+//
+//   - store(count) Store the Sk4f value repeatedly to dest, count times.
+//
+//   - store4x()    Store 4 Sk4f values to dest (opportunistic optimization).
+//
+template <DstType, ApplyPremul premul = ApplyPremul::False>
+struct DstTraits;
 
-template<>
-inline void store<SkPMColor, kLinear_SkColorProfileType, ApplyPremul::True>
-                 (const Sk4f& c, SkPMColor* dst) {
-    *dst = trunc_from_4f_255<ApplyPremul::True>(c);
-}
+template <ApplyPremul premul>
+struct DstTraits<DstType::L32, premul> {
+    using Type = SkPMColor;
 
-template<>
-inline void store<SkPMColor, kSRGB_SkColorProfileType, ApplyPremul::False>
-                 (const Sk4f& c, SkPMColor* dst) {
-    // FIXME: this assumes opaque colors.  Handle unpremultiplication.
-    *dst = Sk4f_toS32(c);
-}
+    // For L32, we prescale the values by 255 to save a per-pixel multiplication.
+    static Sk4f load(const SkPM4f& c) {
+        return c.to4f_pmorder() * Sk4f(255);
+    }
 
-template<>
-inline void store<SkPMColor, kSRGB_SkColorProfileType, ApplyPremul::True>
-                 (const Sk4f& c, SkPMColor* dst) {
-    *dst = Sk4f_toS32(premul_4f(c));
-}
+    static void store(const Sk4f& c, Type* dst) {
+        *dst = trunc_from_4f_255<premul>(c);
+    }
 
-template<>
-inline void store<uint64_t, kLinear_SkColorProfileType, ApplyPremul::False>
-                 (const Sk4f& c, uint64_t* dst) {
-    *dst = SkFloatToHalf_01(c);
-}
+    static void store(const Sk4f& c, Type* dst, int n) {
+        sk_memset32(dst, trunc_from_4f_255<premul>(c), n);
+    }
 
-template<>
-inline void store<uint64_t, kLinear_SkColorProfileType, ApplyPremul::True>
-                 (const Sk4f& c, uint64_t* dst) {
-    *dst = SkFloatToHalf_01(premul_4f(c));
-}
+    static void store4x(const Sk4f& c0, const Sk4f& c1,
+                        const Sk4f& c2, const Sk4f& c3,
+                        Type* dst) {
+        if (premul == ApplyPremul::False) {
+            Sk4f_ToBytes((uint8_t*)dst, c0, c1, c2, c3);
+        } else {
+            store(c0, dst + 0);
+            store(c1, dst + 1);
+            store(c2, dst + 2);
+            store(c3, dst + 3);
+        }
+    }
+};
 
-template<typename DstType, SkColorProfileType profile, ApplyPremul premul>
-inline void store4x(const Sk4f& c0,
-                    const Sk4f& c1,
-                    const Sk4f& c2,
-                    const Sk4f& c3,
-                    DstType* dst) {
-    store<DstType, profile, premul>(c0, dst++);
-    store<DstType, profile, premul>(c1, dst++);
-    store<DstType, profile, premul>(c2, dst++);
-    store<DstType, profile, premul>(c3, dst++);
-}
+template <ApplyPremul premul>
+struct DstTraits<DstType::S32, premul> {
+    using PM   = PremulTraits<premul>;
+    using Type = SkPMColor;
 
-template<>
-inline void store4x<SkPMColor, kLinear_SkColorProfileType, ApplyPremul::False>
-                   (const Sk4f& c0, const Sk4f& c1,
-                    const Sk4f& c2, const Sk4f& c3,
-                    SkPMColor* dst) {
-    Sk4f_ToBytes((uint8_t*)dst, c0, c1, c2, c3);
-}
+    // TODO: prescale by something like (255^2, 255^2, 255^2, 255) and use
+    //       linear_to_srgb to save a mult in store?
+    static Sk4f load(const SkPM4f& c) {
+        return c.to4f_pmorder();
+    }
 
-template<typename DstType, SkColorProfileType>
-Sk4f scale_for_dest(const Sk4f& c)  {
-    return c;
-}
+    static void store(const Sk4f& c, Type* dst) {
+        // FIXME: this assumes opaque colors.  Handle unpremultiplication.
+        *dst = Sk4f_toS32(PM::apply(c));
+    }
 
-template<>
-inline Sk4f scale_for_dest<SkPMColor, kLinear_SkColorProfileType>(const Sk4f& c)  {
-    return c * 255;
-}
+    static void store(const Sk4f& c, Type* dst, int n) {
+        sk_memset32(dst, Sk4f_toS32(PM::apply(c)), n);
+    }
 
-template<typename DstType>
-Sk4f dst_swizzle(const SkPM4f&);
+    static void store4x(const Sk4f& c0, const Sk4f& c1,
+                        const Sk4f& c2, const Sk4f& c3,
+                        Type* dst) {
+        store(c0, dst + 0);
+        store(c1, dst + 1);
+        store(c2, dst + 2);
+        store(c3, dst + 3);
+    }
+};
 
-template<>
-inline Sk4f dst_swizzle<SkPM4f>(const SkPM4f& c) {
-    return c.to4f();
-}
+template <ApplyPremul premul>
+struct DstTraits<DstType::F16, premul> {
+    using PM   = PremulTraits<premul>;
+    using Type = uint64_t;
 
-template<>
-inline Sk4f dst_swizzle<SkPMColor>(const SkPM4f& c) {
-    return c.to4f_pmorder();
-}
+    static Sk4f load(const SkPM4f& c) {
+        return c.to4f();
+    }
 
-template<>
-inline Sk4f dst_swizzle<uint64_t>(const SkPM4f& c) {
-    return c.to4f();
-}
+    static void store(const Sk4f& c, Type* dst) {
+        *dst = SkFloatToHalf_01(PM::apply(c));
+    }
 
-}
+    static void store(const Sk4f& c, Type* dst, int n) {
+        sk_memset64(dst, SkFloatToHalf_01(PM::apply(c)), n);
+    }
+
+    static void store4x(const Sk4f& c0, const Sk4f& c1,
+                        const Sk4f& c2, const Sk4f& c3,
+                        Type* dst) {
+        store(c0, dst + 0);
+        store(c1, dst + 1);
+        store(c2, dst + 2);
+        store(c3, dst + 3);
+    }
+};
+
+template <ApplyPremul premul>
+struct DstTraits<DstType::F32, premul> {
+    using PM   = PremulTraits<premul>;
+    using Type = SkPM4f;
+
+    static Sk4f load(const SkPM4f& c) {
+        return c.to4f();
+    }
+
+    static void store(const Sk4f& c, Type* dst) {
+        PM::apply(c).store(dst->fVec);
+    }
+
+    static void store(const Sk4f& c, Type* dst, int n) {
+        const Sk4f pmc = PM::apply(c);
+        for (int i = 0; i < n; ++i) {
+            pmc.store(dst[i].fVec);
+        }
+    }
+
+    static void store4x(const Sk4f& c0, const Sk4f& c1,
+                        const Sk4f& c2, const Sk4f& c3,
+                        Type* dst) {
+        store(c0, dst + 0);
+        store(c1, dst + 1);
+        store(c2, dst + 2);
+        store(c3, dst + 3);
+    }
+};
+
+} // anonymous namespace
 
 #endif // Sk4fGradientPriv_DEFINED

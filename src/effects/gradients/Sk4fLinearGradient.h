@@ -27,14 +27,16 @@ protected:
 private:
     using INHERITED = GradientShaderBase4fContext;
 
-    template<typename DstType, SkColorProfileType, TileMode>
+    template<DstType, TileMode>
     class LinearIntervalProcessor;
 
-    template <typename DstType, SkColorProfileType, ApplyPremul>
-    void shadePremulSpan(int x, int y, DstType[], int count) const;
+    template <DstType dstType, ApplyPremul premul>
+    void shadePremulSpan(int x, int y, typename DstTraits<dstType, premul>::Type[],
+                         int count) const;
 
-    template <typename DstType, SkColorProfileType, ApplyPremul, SkShader::TileMode tileMode>
-    void shadeSpanInternal(int x, int y, DstType[], int count) const;
+    template <DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
+    void shadeSpanInternal(int x, int y, typename DstTraits<dstType, premul>::Type[],
+                           int count) const;
 
     const Interval* findInterval(SkScalar fx) const;
 
