@@ -124,9 +124,7 @@ public:
     void finishDrawTarget() override;
 
 private:
-    void onResetContext(uint32_t resetBits) override {
-        SkDebugf("onResetContext not yet implemented for Vulkan\n");
-    }
+    void onResetContext(uint32_t resetBits) override {}
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
                                const SkTArray<GrMipLevel>&) override;
