@@ -86,7 +86,7 @@ public:
      *
      *  e.g. result(color) == this_filter(inner(color))
      */
-    virtual SkColorFilter* newComposed(const SkColorFilter* /*inner*/) const { return NULL; }
+    virtual sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter>) const { return nullptr; }
 
     /**
      *  Apply this colorfilter to the specified SkColor. This routine handles
@@ -110,7 +110,7 @@ public:
         @return colorfilter object that applies the src color and mode,
                     or NULL if the mode will have no effect.
     */
-    static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode);
+    static sk_sp<SkColorFilter> MakeModeFilter(SkColor c, SkXfermode::Mode mode);
 
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  the outer filter to the result of the inner's.
@@ -119,12 +119,28 @@ public:
      *  Due to internal limits, it is possible that this will return NULL, so the caller must
      *  always check.
      */
-    static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner);
+    static sk_sp<SkColorFilter> MakeComposeFilter(sk_sp<SkColorFilter> outer,
+                                                  sk_sp<SkColorFilter> inner);
 
     /** Construct a color filter that transforms a color by a 4x5 matrix. The matrix is in row-
      *  major order and the translation column is specified in unnormalized, 0...255, space.
      */
-    static SkColorFilter* CreateMatrixFilterRowMajor255(const SkScalar array[20]);
+    static sk_sp<SkColorFilter> MakeMatrixFilterRowMajor255(const SkScalar array[20]);
+
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
+    static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode) {
+        return MakeModeFilter(c, mode).release();
+    }
+    static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner) {
+        return MakeComposeFilter(sk_ref_sp(outer), sk_ref_sp(inner)).release();
+    }
+    static SkColorFilter* CreateMatrixFilterRowMajor255(const SkScalar array[20]) {
+        return MakeMatrixFilterRowMajor255(array).release();
+    }
+    virtual SkColorFilter* newComposed(const SkColorFilter* inner) const {
+        return this->makeComposed(sk_ref_sp(const_cast<SkColorFilter*>(inner))).release();
+    }
+#endif
 
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns

@@ -80,7 +80,7 @@ void SkModeColorFilter::updateCache() {
 SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
     SkColor color = buffer.readColor();
     SkXfermode::Mode mode = (SkXfermode::Mode)buffer.readUInt();
-    return SkColorFilter::CreateModeFilter(color, mode);
+    return SkColorFilter::MakeModeFilter(color, mode).release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,7 +148,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkColorFilter* SkColorFilter::CreateModeFilter(SkColor color, SkXfermode::Mode mode) {
+sk_sp<SkColorFilter> SkColorFilter::MakeModeFilter(SkColor color, SkXfermode::Mode mode) {
     if (!SkIsValidMode(mode)) {
         return nullptr;
     }
@@ -183,10 +183,10 @@ SkColorFilter* SkColorFilter::CreateModeFilter(SkColor color, SkXfermode::Mode m
 
     switch (mode) {
         case SkXfermode::kSrc_Mode:
-            return new Src_SkModeColorFilter(color);
+            return sk_make_sp<Src_SkModeColorFilter>(color);
         case SkXfermode::kSrcOver_Mode:
-            return new SrcOver_SkModeColorFilter(color);
+            return sk_make_sp<SrcOver_SkModeColorFilter>(color);
         default:
-            return SkModeColorFilter::Create(color, mode);
+            return SkModeColorFilter::Make(color, mode);
     }
 }

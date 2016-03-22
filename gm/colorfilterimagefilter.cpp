@@ -18,34 +18,34 @@
 #define FILTER_HEIGHT   SkIntToScalar(30)
 #define MARGIN          SkIntToScalar(10)
 
-static SkColorFilter* cf_make_brightness(float brightness) {
+static sk_sp<SkColorFilter> cf_make_brightness(float brightness) {
     SkScalar amount255 = SkScalarMul(brightness, SkIntToScalar(255));
     SkScalar matrix[20] = {
         1, 0, 0, 0, amount255,
         0, 1, 0, 0, amount255,
         0, 0, 1, 0, amount255,
         0, 0, 0, 1, 0 };
-    return SkColorMatrixFilter::Create(matrix);
+    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix);
 }
 
-static SkColorFilter* cf_make_grayscale() {
+static sk_sp<SkColorFilter> cf_make_grayscale() {
     SkScalar matrix[20];
     memset(matrix, 0, 20 * sizeof(SkScalar));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    return SkColorMatrixFilter::Create(matrix);
+    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix);
 }
 
-static SkColorFilter* cf_make_colorize(SkColor color) {
-    return SkColorFilter::CreateModeFilter(color, SkXfermode::kSrc_Mode);
+static sk_sp<SkColorFilter> cf_make_colorize(SkColor color) {
+    return SkColorFilter::MakeModeFilter(color, SkXfermode::kSrc_Mode);
 }
 
-static void sk_gm_get_colorfilters(SkTDArray<SkColorFilter*>* array) {
-    *array->append() = cf_make_brightness(0.5f);
-    *array->append() = cf_make_grayscale();
-    *array->append() = cf_make_colorize(SK_ColorBLUE);
+static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
+    array->push_back(cf_make_brightness(0.5f));
+    array->push_back(cf_make_grayscale());
+    array->push_back(cf_make_colorize(SK_ColorBLUE));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,18 +92,15 @@ static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {
 }
 
 static SkImageFilter* make_brightness(float amount, SkImageFilter* input = nullptr) {
-    SkAutoTUnref<SkColorFilter> filter(cf_make_brightness(amount));
-    return SkColorFilterImageFilter::Create(filter, input);
+    return SkColorFilterImageFilter::Create(cf_make_brightness(amount).get(), input);
 }
 
 static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
-    SkAutoTUnref<SkColorFilter> filter(cf_make_grayscale());
-    return SkColorFilterImageFilter::Create(filter, input);
+    return SkColorFilterImageFilter::Create(cf_make_grayscale().get(), input);
 }
 
 static SkImageFilter* make_mode_blue(SkImageFilter* input = nullptr) {
-    SkAutoTUnref<SkColorFilter> filter(cf_make_colorize(SK_ColorBLUE));
-    return SkColorFilterImageFilter::Create(filter, input);
+    return SkColorFilterImageFilter::Create(cf_make_colorize(SK_ColorBLUE).get(), input);
 }
 
 static void drawClippedRect(SkCanvas* canvas,
@@ -179,8 +176,8 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
     SkColorMatrix cm;
     cm.setSaturation(0.0f);
-    SkAutoTUnref<SkColorFilter> cf(SkColorMatrixFilter::Create(cm));
-    SkAutoTUnref<SkImageFilter> imf(SkColorFilterImageFilter::Create(cf));
+    auto cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    SkAutoTUnref<SkImageFilter> imf(SkColorFilterImageFilter::Create(cf.get()));
     SkPaint p;
     p.setImageFilter(imf);
     canvas->saveLayer(NULL, &p);
@@ -195,7 +192,7 @@ public:
 };
 
 DEF_SIMPLE_GM(colorfiltershader, canvas, 800, 800) {
-    SkTRefArray<SkColorFilter*> filters;
+    SkTArray<sk_sp<SkColorFilter>> filters;
     sk_gm_get_colorfilters(&filters);
 
     SkTRefArray<SkShader*> shaders;
@@ -210,7 +207,7 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 800, 800) {
 
         canvas->save();
         for (int x = -1; x < filters.count(); ++x) {
-            SkColorFilter* filter = x >= 0 ? filters[x] : nullptr;
+            sk_sp<SkColorFilter> filter = x >= 0 ? filters[x] : nullptr;
 
             paint.setShader(shader->makeWithColorFilter(filter));
             canvas->drawRect(r, paint);

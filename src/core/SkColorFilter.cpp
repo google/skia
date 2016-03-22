@@ -114,14 +114,15 @@ public:
     
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
-        buffer.writeFlattenable(fOuter);
-        buffer.writeFlattenable(fInner);
+        buffer.writeFlattenable(fOuter.get());
+        buffer.writeFlattenable(fInner.get());
     }
     
 private:
-    SkComposeColorFilter(SkColorFilter* outer, SkColorFilter* inner, int composedFilterCount)
-        : fOuter(SkRef(outer))
-        , fInner(SkRef(inner))
+    SkComposeColorFilter(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner,
+                         int composedFilterCount)
+        : fOuter(std::move(outer))
+        , fInner(std::move(inner))
         , fComposedFilterCount(composedFilterCount)
     {
         SkASSERT(composedFilterCount >= 2);
@@ -132,9 +133,9 @@ private:
         return fComposedFilterCount;
     }
 
-    SkAutoTUnref<SkColorFilter> fOuter;
-    SkAutoTUnref<SkColorFilter> fInner;
-    const int                   fComposedFilterCount;
+    sk_sp<SkColorFilter> fOuter;
+    sk_sp<SkColorFilter> fInner;
+    const int            fComposedFilterCount;
 
     friend class SkColorFilter;
 
@@ -142,23 +143,24 @@ private:
 };
 
 SkFlattenable* SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
-    SkAutoTUnref<SkColorFilter> outer(buffer.readColorFilter());
-    SkAutoTUnref<SkColorFilter> inner(buffer.readColorFilter());
-    return CreateComposeFilter(outer, inner);
+    sk_sp<SkColorFilter> outer(buffer.readColorFilter());
+    sk_sp<SkColorFilter> inner(buffer.readColorFilter());
+    return MakeComposeFilter(std::move(outer), std::move(inner)).release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkColorFilter* SkColorFilter::CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner) {
+sk_sp<SkColorFilter> SkColorFilter::MakeComposeFilter(sk_sp<SkColorFilter> outer,
+                                                      sk_sp<SkColorFilter> inner) {
     if (!outer) {
-        return SkSafeRef(inner);
+        return inner;
     }
     if (!inner) {
-        return SkSafeRef(outer);
+        return outer;
     }
 
     // Give the subclass a shot at a more optimal composition...
-    SkColorFilter* composition = outer->newComposed(inner);
+    auto composition = outer->makeComposed(inner);
     if (composition) {
         return composition;
     }
@@ -167,7 +169,7 @@ SkColorFilter* SkColorFilter::CreateComposeFilter(SkColorFilter* outer, SkColorF
     if (count > SK_MAX_COMPOSE_COLORFILTER_COUNT) {
         return nullptr;
     }
-    return new SkComposeColorFilter(outer, inner, count);
+    return sk_sp<SkColorFilter>(new SkComposeColorFilter(std::move(outer), std::move(inner),count));
 }
 
 #include "SkModeColorFilter.h"

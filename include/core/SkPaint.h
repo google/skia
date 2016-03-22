@@ -515,7 +515,9 @@ public:
         @param filter   May be NULL. The filter to be installed in the paint
         @return         filter
     */
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
     SkColorFilter* setColorFilter(SkColorFilter* filter);
+#endif
     void setColorFilter(sk_sp<SkColorFilter>);
 
     /** Get the paint's xfermode object.

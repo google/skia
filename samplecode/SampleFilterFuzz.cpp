@@ -298,9 +298,9 @@ static const SkBitmap& make_bitmap() {
     return bitmap[R(2)];
 }
 
-static SkData* make_3Dlut(int* cubeDimension, bool invR, bool invG, bool invB) {
+static sk_sp<SkData> make_3Dlut(int* cubeDimension, bool invR, bool invG, bool invB) {
     int size = 4 << R(5);
-    SkData* data = SkData::NewUninitialized(sizeof(SkColor) * size * size * size);
+    auto data = SkData::MakeUninitialized(sizeof(SkColor) * size * size * size);
     SkColor* pixels = (SkColor*)(data->writable_data());
     SkAutoTMalloc<uint8_t> lutMemory(size);
     SkAutoTMalloc<uint8_t> invLutMemory(size);
@@ -350,20 +350,17 @@ static void rand_color_table(uint8_t* table) {
     }
 }
 
-static SkColorFilter* make_color_filter() {
-    SkColorFilter* colorFilter;
+static sk_sp<SkColorFilter> make_color_filter() {
     switch (R(6)) {
         case 0: {
             SkScalar array[20];
             for (int i = 0; i < 20; ++i) {
                 array[i] = make_scalar();
             }
-            colorFilter = SkColorMatrixFilter::Create(array);
-            break;
+            return SkColorFilter::MakeMatrixFilterRowMajor255(array);
         }
         case 1:
-            colorFilter = SkLumaColorFilter::Create();
-            break;
+            return SkLumaColorFilter::Make();
         case 2: {
             uint8_t tableA[256];
             uint8_t tableR[256];
@@ -373,21 +370,17 @@ static SkColorFilter* make_color_filter() {
             rand_color_table(tableR);
             rand_color_table(tableG);
             rand_color_table(tableB);
-            colorFilter = SkTableColorFilter::CreateARGB(tableA, tableR, tableG, tableB);
-            break;
+            return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
         }
         case 3:
-            colorFilter = SkColorFilter::CreateModeFilter(make_color(), make_xfermode());
-            break;
+            return SkColorFilter::MakeModeFilter(make_color(), make_xfermode());
         case 4:
-            colorFilter = SkColorMatrixFilter::CreateLightingFilter(make_color(), make_color());
-            break;
+            return SkColorMatrixFilter::MakeLightingFilter(make_color(), make_color());
         case 5:
         default:
-            colorFilter = nullptr;
             break;
     }
-    return colorFilter;
+    return nullptr;
 }
 
 static SkPath make_path() {
@@ -538,7 +531,7 @@ static SkPaint make_paint() {
     rasterizerBuilder.addLayer(paintForRasterizer);
     paint.setRasterizer(rasterizerBuilder.detach());
     paint.setImageFilter(make_image_filter());
-    SkAutoDataUnref data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
+    sk_sp<SkData> data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
     paint.setTextAlign(make_paint_align());
     paint.setTextSize(make_scalar());
     paint.setTextScaleX(make_scalar());
@@ -567,16 +560,16 @@ static SkImageFilter* make_image_filter(bool canBeNull) {
         break;
     case COLOR:
     {
-        SkAutoTUnref<SkColorFilter> cf(make_color_filter());
-        filter = cf.get() ? SkColorFilterImageFilter::Create(cf, make_image_filter()) : 0;
+        sk_sp<SkColorFilter> cf(make_color_filter());
+        filter = cf ? SkColorFilterImageFilter::Create(cf.get(), make_image_filter()) : 0;
     }
         break;
     case LUT3D:
     {
         int cubeDimension;
-        SkAutoDataUnref lut3D(make_3Dlut(&cubeDimension, (R(2) == 1), (R(2) == 1), (R(2) == 1)));
-        SkAutoTUnref<SkColorFilter> cf(SkColorCubeFilter::Create(lut3D, cubeDimension));
-        filter = cf.get() ? SkColorFilterImageFilter::Create(cf, make_image_filter()) : 0;
+        sk_sp<SkData> lut3D(make_3Dlut(&cubeDimension, (R(2) == 1), (R(2) == 1), (R(2) == 1)));
+        sk_sp<SkColorFilter> cf(SkColorCubeFilter::Make(lut3D, cubeDimension));
+        filter = cf ? SkColorFilterImageFilter::Create(cf.get(), make_image_filter()) : 0;
     }
         break;
     case BLUR:

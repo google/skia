@@ -359,7 +359,7 @@ public:
      *  Create a new shader that produces the same colors as invoking this shader and then applying
      *  the colorfilter.
      */
-    sk_sp<SkShader> makeWithColorFilter(SkColorFilter*) const;
+    sk_sp<SkShader> makeWithColorFilter(sk_sp<SkColorFilter>) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders
@@ -393,9 +393,7 @@ public:
     SkShader* newWithLocalMatrix(const SkMatrix& matrix) const {
         return this->makeWithLocalMatrix(matrix).release();
     }
-    SkShader* newWithColorFilter(SkColorFilter* filter) const {
-        return this->makeWithColorFilter(filter).release();
-    }
+    SkShader* newWithColorFilter(SkColorFilter* filter) const;
 #endif
 
     /**

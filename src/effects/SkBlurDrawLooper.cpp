@@ -44,8 +44,7 @@ void SkBlurDrawLooper::initEffects() {
         // be baked into the blurred mask.
         SkColor opaqueColor = SkColorSetA(fBlurColor, 255);
         //The SrcIn xfer mode will multiply 'color' by the incoming alpha
-        fColorFilter = SkColorFilter::CreateModeFilter(opaqueColor,
-                                                       SkXfermode::kSrcIn_Mode);
+        fColorFilter = SkColorFilter::MakeModeFilter(opaqueColor, SkXfermode::kSrcIn_Mode);
     } else {
         fColorFilter = nullptr;
     }
@@ -81,7 +80,6 @@ void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {
 
 SkBlurDrawLooper::~SkBlurDrawLooper() {
     SkSafeUnref(fBlur);
-    SkSafeUnref(fColorFilter);
 }
 
 bool SkBlurDrawLooper::asABlurShadow(BlurShadowRec* rec) const {

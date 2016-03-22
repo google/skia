@@ -137,8 +137,8 @@ static SkImageFilter* make_scale(float amount, SkImageFilter* input = nullptr) {
                             0, s, 0, 0, 0,
                             0, 0, s, 0, 0,
                             0, 0, 0, s, 0 };
-    SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
-    return SkColorFilterImageFilter::Create(filter, input);
+    auto filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    return SkColorFilterImageFilter::Create(filter.get(), input);
 }
 
 static SkImageFilter* make_grayscale(SkImageFilter* input, const SkImageFilter::CropRect* cropRect) {
@@ -148,14 +148,13 @@ static SkImageFilter* make_grayscale(SkImageFilter* input, const SkImageFilter::
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
-    return SkColorFilterImageFilter::Create(filter, input, cropRect);
+    auto filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    return SkColorFilterImageFilter::Create(filter.get(), input, cropRect);
 }
 
 static SkImageFilter* make_blue(SkImageFilter* input, const SkImageFilter::CropRect* cropRect) {
-    SkAutoTUnref<SkColorFilter> filter(SkColorFilter::CreateModeFilter(SK_ColorBLUE,
-                                                                       SkXfermode::kSrcIn_Mode));
-    return SkColorFilterImageFilter::Create(filter, input, cropRect);
+    auto filter(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
+    return SkColorFilterImageFilter::Create(filter.get(), input, cropRect);
 }
 
 static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context,
@@ -258,9 +257,9 @@ DEF_TEST(ImageFilter, reporter) {
         blueToRedMatrix[2] = blueToRedMatrix[18] = SK_Scalar1;
         SkScalar redToGreenMatrix[20] = { 0 };
         redToGreenMatrix[5] = redToGreenMatrix[18] = SK_Scalar1;
-        SkAutoTUnref<SkColorFilter> blueToRed(SkColorMatrixFilter::Create(blueToRedMatrix));
+        auto blueToRed(SkColorFilter::MakeMatrixFilterRowMajor255(blueToRedMatrix));
         SkAutoTUnref<SkImageFilter> filter1(SkColorFilterImageFilter::Create(blueToRed.get()));
-        SkAutoTUnref<SkColorFilter> redToGreen(SkColorMatrixFilter::Create(redToGreenMatrix));
+        auto redToGreen(SkColorFilter::MakeMatrixFilterRowMajor255(redToGreenMatrix));
         SkAutoTUnref<SkImageFilter> filter2(SkColorFilterImageFilter::Create(redToGreen.get(), filter1.get()));
 
         SkBitmap result;
@@ -320,7 +319,7 @@ static void test_crop_rects(SkImageFilter::Proxy* proxy,
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(20, 30, 60, 60));
     SkAutoTUnref<SkImageFilter> input(make_grayscale(nullptr, &inputCropRect));
 
-    SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
+    auto cf(SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
     SkPoint3 location = SkPoint3::Make(0, 0, SK_Scalar1);
     SkScalar kernel[9] = {
         SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
@@ -564,7 +563,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     // match the same filters drawn with a single full-canvas bitmap draw.
     // Tests pass by not asserting.
 
-    SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
+    auto cf(SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
     SkPoint3 location = SkPoint3::Make(0, 0, SK_Scalar1);
     SkScalar kernel[9] = {
         SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
@@ -693,7 +692,7 @@ static void draw_saveLayer_picture(int width, int height, int tileSize,
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(50), 0);
 
-    SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorWHITE, SkXfermode::kSrc_Mode));
+    auto cf(SkColorFilter::MakeModeFilter(SK_ColorWHITE, SkXfermode::kSrc_Mode));
     SkAutoTUnref<SkImageFilter> cfif(SkColorFilterImageFilter::Create(cf.get()));
     SkAutoTUnref<SkImageFilter> imageFilter(SkImageFilter::CreateMatrixFilter(matrix, kNone_SkFilterQuality, cfif.get()));
 
@@ -1122,14 +1121,13 @@ DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     SkRTreeFactory factory;
     SkPictureRecorder recorder;
 
-    SkAutoTUnref<SkColorFilter> green(
-        SkColorFilter::CreateModeFilter(SK_ColorGREEN, SkXfermode::kSrc_Mode));
+    auto green(SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkXfermode::kSrc_Mode));
     SkAutoTUnref<SkImageFilter> imageFilter(
         SkColorFilterImageFilter::Create(green.get()));
     SkPaint imageFilterPaint;
     imageFilterPaint.setImageFilter(imageFilter.get());
     SkPaint colorFilterPaint;
-    colorFilterPaint.setColorFilter(green.get());
+    colorFilterPaint.setColorFilter(green);
 
     SkRect bounds = SkRect::MakeWH(10, 10);
 
@@ -1245,8 +1243,7 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
     bitmap.allocN32Pixels(1, 1);
     bitmap.eraseARGB(255, 255, 255, 255);
 
-    SkAutoTUnref<SkColorFilter> green(
-        SkColorFilter::CreateModeFilter(SK_ColorGREEN, SkXfermode::kSrcIn_Mode));
+    auto green(SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkXfermode::kSrcIn_Mode));
     SkAutoTUnref<SkImageFilter> greenFilter(SkColorFilterImageFilter::Create(green.get()));
     SkImageFilter::CropRect cropRect(SkRect::MakeEmpty());
     SkAutoTUnref<SkImageFilter> croppedOut(
@@ -1467,8 +1464,8 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
                                  0, 0, 0, 0, 1,
                                  0, 0, 0, 0, 0,
                                  0, 0, 0, 0, 1 };
-    SkAutoTUnref<SkColorFilter> greenCF(SkColorMatrixFilter::Create(greenMatrix));
-    SkAutoTUnref<SkImageFilter> green(SkColorFilterImageFilter::Create(greenCF));
+    auto greenCF(SkColorFilter::MakeMatrixFilterRowMajor255(greenMatrix));
+    SkAutoTUnref<SkImageFilter> green(SkColorFilterImageFilter::Create(greenCF.get()));
 
     REPORTER_ASSERT(reporter, greenCF->affectsTransparentBlack());
     REPORTER_ASSERT(reporter, !green->canComputeFastBounds());
@@ -1482,14 +1479,12 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
         allOne[i] = 255;
     }
 
-    SkAutoTUnref<SkColorFilter> identityCF(
-        SkTableColorFilter::CreateARGB(identity, identity, identity, allOne));
+    auto identityCF(SkTableColorFilter::MakeARGB(identity, identity, identity, allOne));
     SkAutoTUnref<SkImageFilter> identityFilter(SkColorFilterImageFilter::Create(identityCF.get()));
     REPORTER_ASSERT(reporter, !identityCF->affectsTransparentBlack());
     REPORTER_ASSERT(reporter, identityFilter->canComputeFastBounds());
 
-    SkAutoTUnref<SkColorFilter> forceOpaqueCF(
-        SkTableColorFilter::CreateARGB(allOne, identity, identity, identity));
+    auto forceOpaqueCF(SkTableColorFilter::MakeARGB(allOne, identity, identity, identity));
     SkAutoTUnref<SkImageFilter> forceOpaque(SkColorFilterImageFilter::Create(forceOpaqueCF.get()));
     REPORTER_ASSERT(reporter, forceOpaqueCF->affectsTransparentBlack());
     REPORTER_ASSERT(reporter, !forceOpaque->canComputeFastBounds());
