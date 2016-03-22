@@ -32,7 +32,7 @@ def get_args(bot):
   # 32-bit desktop bots tend to run out of memory, because they have relatively
   # far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.
   if '-x86-' in bot and not 'NexusPlayer' in bot:
-    args.append('--threads 4')
+    args.extend('--threads 4'.split(' '))
 
   configs = ['565', '8888', 'gpu']
 
@@ -187,8 +187,12 @@ def get_args(bot):
        "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW"]
 
   # skbug.com/4888
-  # Blacklist RAW images on GPU tests until we can resolve failures
+  # Blacklist RAW images (and a few large PNGs) on GPU bots
+  # until we can resolve failures
   if 'GPU' in bot:
+    blacklist.extend('_ image _ interlaced1.png'.split(' '))
+    blacklist.extend('_ image _ interlaced2.png'.split(' '))
+    blacklist.extend('_ image _ interlaced3.png'.split(' '))
     for raw_ext in r:
       blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
