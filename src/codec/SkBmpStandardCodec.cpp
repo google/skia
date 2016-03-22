@@ -228,7 +228,7 @@ int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo, void* dst, size_t
         fSwizzler->swizzle(dstRow, fSrcBuffer.get());
     }
 
-    if (fInIco) {
+    if (fInIco && fIsOpaque) {
         const int startScanline = this->currScanline();
         if (startScanline < 0) {
             // We are not performing a scanline decode.
