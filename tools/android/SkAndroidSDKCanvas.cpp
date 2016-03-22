@@ -69,7 +69,7 @@ void Filter(SkPaint* paint) {
         bool isMode = cf->asColorMode(&color, &mode);
         if (isMode && mode > SkXfermode::kLighten_Mode) {
             paint->setColorFilter(
-                SkColorFilter::MakeModeFilter(color, SkXfermode::kSrcOver_Mode));
+                SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcOver_Mode));
         } else if (!isMode && !cf->asColorMatrix(srcColorMatrix)) {
             paint->setColorFilter(nullptr);
         }

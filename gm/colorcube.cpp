@@ -25,12 +25,27 @@ static sk_sp<SkShader> MakeLinear() {
 
 class ColorCubeGM : public GM {
 public:
-    ColorCubeGM() : fInitialized(false) {
+    ColorCubeGM()
+    : fInitialized(false)
+    , f3DLut4(nullptr)
+    , f3DLut8(nullptr)
+    , f3DLut16(nullptr)
+    , f3DLut32(nullptr)
+    , f3DLut64(nullptr)
+    {
         this->setBGColor(0xFF000000);
     }
 
+    ~ColorCubeGM() {
+        SkSafeUnref(f3DLut4);
+        SkSafeUnref(f3DLut8);
+        SkSafeUnref(f3DLut16);
+        SkSafeUnref(f3DLut32);
+        SkSafeUnref(f3DLut64);
+    }
+
 protected:
-    SkString onShortName() override {
+    virtual SkString onShortName() {
         return SkString("colorcube");
     }
 
@@ -52,8 +67,8 @@ protected:
         canvas.drawRect(SkRect::MakeWH(80, 80), paint);
     }
 
-    void make_3Dlut(sk_sp<SkData>* data, int size, bool invR, bool invG, bool invB) {
-        *data = SkData::MakeUninitialized(sizeof(SkColor) * size * size * size);
+    void make_3Dlut(SkData** data, int size, bool invR, bool invG, bool invB) {
+        *data = SkData::NewUninitialized(sizeof(SkColor) * size * size * size);
         SkColor* pixels = (SkColor*)((*data)->writable_data());
         SkAutoTMalloc<uint8_t> lutMemory(size);
         SkAutoTMalloc<uint8_t> invLutMemory(size);
@@ -77,11 +92,11 @@ protected:
         }
     }
 
-    SkISize onISize() override {
+    virtual SkISize onISize() {
         return SkISize::Make(500, 100);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    virtual void onDraw(SkCanvas* canvas) {
         if (!fInitialized) {
             this->make_bitmap();
             this->make_3Dluts();
@@ -89,19 +104,19 @@ protected:
         }
         canvas->clear(0x00000000);
         SkPaint paint;
-        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut4, 4));
+        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut4, 4))->unref();
         canvas->drawBitmap(fBitmap, 10, 10, &paint);
 
-        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut8, 8));
+        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut8, 8))->unref();
         canvas->drawBitmap(fBitmap, 110, 10, &paint);
 
-        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut16, 16));
+        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut16, 16))->unref();
         canvas->drawBitmap(fBitmap, 210, 10, &paint);
 
-        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut32, 32));
+        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut32, 32))->unref();
         canvas->drawBitmap(fBitmap, 310, 10, &paint);
 
-        paint.setColorFilter(SkColorCubeFilter::Make(f3DLut64, 64));
+        paint.setColorFilter(SkColorCubeFilter::Create(f3DLut64, 64))->unref();
         canvas->drawBitmap(fBitmap, 410, 10, &paint);
     }
 
@@ -109,11 +124,11 @@ private:
     typedef GM INHERITED;
     bool fInitialized;
     SkBitmap fBitmap;
-    sk_sp<SkData> f3DLut4;
-    sk_sp<SkData> f3DLut8;
-    sk_sp<SkData> f3DLut16;
-    sk_sp<SkData> f3DLut32;
-    sk_sp<SkData> f3DLut64;
+    SkData* f3DLut4;
+    SkData* f3DLut8;
+    SkData* f3DLut16;
+    SkData* f3DLut32;
+    SkData* f3DLut64;
 };
 
 //////////////////////////////////////////////////////////////////////////////

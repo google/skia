@@ -226,13 +226,12 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
 //  End duplication
 //////
 
-sk_sp<SkColorFilter>
-SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) const {
+SkColorFilter* SkColorMatrixFilterRowMajor255::newComposed(const SkColorFilter* innerFilter) const {
     SkScalar innerMatrix[20];
     if (innerFilter->asColorMatrix(innerMatrix) && !needs_clamping(innerMatrix)) {
         SkScalar concat[20];
         set_concat(concat, fMatrix, innerMatrix);
-        return sk_make_sp<SkColorMatrixFilterRowMajor255>(concat);
+        return new SkColorMatrixFilterRowMajor255(concat);
     }
     return nullptr;
 }
@@ -418,16 +417,15 @@ void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const SkScalar array[20]) {
-    return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array));
+SkColorFilter* SkColorFilter::CreateMatrixFilterRowMajor255(const SkScalar array[20]) {
+    return new SkColorMatrixFilterRowMajor255(array);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter>
-SkColorMatrixFilterRowMajor255::MakeSingleChannelOutput(const SkScalar row[5]) {
+SkColorFilter* SkColorMatrixFilterRowMajor255::CreateSingleChannelOutput(const SkScalar row[5]) {
     SkASSERT(row);
-    auto cf = sk_make_sp<SkColorMatrixFilterRowMajor255>();
+    SkColorMatrixFilterRowMajor255* cf = new SkColorMatrixFilterRowMajor255();
     static_assert(sizeof(SkScalar) * 5 * 4 == sizeof(cf->fMatrix), "sizes don't match");
     for (int i = 0; i < 4; ++i) {
         memcpy(cf->fMatrix + 5 * i, row, sizeof(SkScalar) * 5);

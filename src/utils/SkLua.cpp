@@ -1114,7 +1114,7 @@ static int lpaint_getColorFilter(lua_State* L) {
 
 static int lpaint_setColorFilter(lua_State* L) {
     SkPaint* paint = get_obj<SkPaint>(L, 1);
-    paint->setColorFilter(sk_ref_sp(get_ref<SkColorFilter>(L, 2)));
+    paint->setColorFilter(get_ref<SkColorFilter>(L, 2));
     return 0;
 }
 

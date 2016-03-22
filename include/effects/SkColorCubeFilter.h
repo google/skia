@@ -20,11 +20,7 @@ public:
      *  This cube contains a transform where (x,y,z) maps to the (r,g,b).
      *  The alpha components of the colors must be 0xFF.
      */
-    static sk_sp<SkColorFilter> Make(sk_sp<SkData> cubeData, int cubeDimension);
-
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
     static SkColorFilter* Create(SkData* cubeData, int cubeDimension);
-#endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
     uint32_t getFlags() const override;
@@ -37,7 +33,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorCubeFilter)
 
 protected:
-    SkColorCubeFilter(sk_sp<SkData> cubeData, int cubeDimension);
+    SkColorCubeFilter(SkData* cubeData, int cubeDimension);
     void flatten(SkWriteBuffer&) const override;
 
 private:

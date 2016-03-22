@@ -23,11 +23,7 @@
  */
 class SK_API SkLumaColorFilter : public SkColorFilter {
 public:
-    static sk_sp<SkColorFilter> Make();
-
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    static SkColorFilter* Create() { return Make().release(); }
-#endif
+    static SkColorFilter* Create();
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
 

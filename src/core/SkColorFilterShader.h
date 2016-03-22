@@ -13,7 +13,7 @@
 
 class SkColorFilterShader : public SkShader {
 public:
-    SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFilter> filter);
+    SkColorFilterShader(SkShader* shader, SkColorFilter* filter);
 
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor* asFragmentProcessor(GrContext*,
@@ -53,8 +53,8 @@ protected:
     Context* onCreateContext(const ContextRec&, void* storage) const override;
     
 private:
-    sk_sp<SkShader>      fShader;
-    sk_sp<SkColorFilter> fFilter;
+    SkAutoTUnref<SkShader>      fShader;
+    SkAutoTUnref<SkColorFilter> fFilter;
     
     typedef SkShader INHERITED;
 };

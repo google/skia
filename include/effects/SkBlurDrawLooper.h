@@ -65,7 +65,7 @@ protected:
 
 private:
     SkMaskFilter*   fBlur;
-    sk_sp<SkColorFilter> fColorFilter;
+    SkColorFilter*  fColorFilter;
     SkScalar        fDx, fDy, fSigma;
     SkColor         fBlurColor;
     uint32_t        fBlurFlags;

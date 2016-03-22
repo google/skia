@@ -15,26 +15,26 @@
 #include "GrFragmentProcessor.h"
 #endif
 
-SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFilter> filter)
-    : fShader(std::move(shader))
-    , fFilter(std::move(filter))
+SkColorFilterShader::SkColorFilterShader(SkShader* shader, SkColorFilter* filter)
+    : fShader(SkRef(shader))
+    , fFilter(SkRef(filter))
 {
-    SkASSERT(fShader);
-    SkASSERT(fFilter);
+    SkASSERT(shader);
+    SkASSERT(filter);
 }
 
 SkFlattenable* SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
     auto shader = buffer.readShader();
-    auto filter = buffer.readColorFilter();
-    if (!shader || !filter) {
+    SkAutoTUnref<SkColorFilter> filter(buffer.readColorFilter());
+    if (!shader || !filter.get()) {
         return nullptr;
     }
-    return new SkColorFilterShader(shader, filter);
+    return new SkColorFilterShader(shader.get(), filter);
 }
 
 void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeFlattenable(fShader.get());
-    buffer.writeFlattenable(fFilter.get());
+    buffer.writeFlattenable(fShader);
+    buffer.writeFlattenable(fFilter);
 }
 
 uint32_t SkColorFilterShader::FilterShaderContext::getFlags() const {
@@ -137,10 +137,10 @@ void SkColorFilterShader::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkShader> SkShader::makeWithColorFilter(sk_sp<SkColorFilter> filter) const {
+sk_sp<SkShader> SkShader::makeWithColorFilter(SkColorFilter* filter) const {
     SkShader* base = const_cast<SkShader*>(this);
     if (!filter) {
         return sk_ref_sp(base);
     }
-    return sk_make_sp<SkColorFilterShader>(sk_ref_sp(base), filter);
+    return sk_make_sp<SkColorFilterShader>(base, filter);
 }

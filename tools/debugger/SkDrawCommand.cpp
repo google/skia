@@ -1159,10 +1159,11 @@ static void extract_json_paint_colorfilter(Json::Value& jsonPaint, UrlDataManage
                                            SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_COLORFILTER)) {
         Json::Value jsonColorFilter = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_COLORFILTER];
-        sk_sp<SkColorFilter> colorFilter((SkColorFilter*)load_flattenable(jsonColorFilter,
-                                                                          urlDataManager));
+        SkColorFilter* colorFilter = (SkColorFilter*) load_flattenable(jsonColorFilter, 
+                                                                       urlDataManager);
         if (colorFilter != nullptr) {
             target->setColorFilter(colorFilter);
+            colorFilter->unref();
         }
     }
 }

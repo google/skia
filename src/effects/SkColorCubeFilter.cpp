@@ -48,19 +48,19 @@ static bool is_valid_3D_lut(SkData* cubeData, int cubeDimension) {
            (nullptr != cubeData) && (cubeData->size() >= minMemorySize);
 }
 
-sk_sp<SkColorFilter> SkColorCubeFilter::Make(sk_sp<SkData> cubeData, int cubeDimension) {
-    if (!is_valid_3D_lut(cubeData.get(), cubeDimension)) {
+SkColorFilter* SkColorCubeFilter::Create(SkData* cubeData, int cubeDimension) {
+    if (!is_valid_3D_lut(cubeData, cubeDimension)) {
         return nullptr;
     }
 
-    return sk_sp<SkColorFilter>(new SkColorCubeFilter(std::move(cubeData), cubeDimension));
+    return new SkColorCubeFilter(cubeData, cubeDimension);
 }
 
-SkColorCubeFilter::SkColorCubeFilter(sk_sp<SkData> cubeData, int cubeDimension)
-    : fCubeData(std::move(cubeData))
-    , fUniqueID(SkNextColorCubeUniqueID())
-    , fCache(cubeDimension)
-{}
+SkColorCubeFilter::SkColorCubeFilter(SkData* cubeData, int cubeDimension)
+  : fCubeData(SkRef(cubeData))
+  , fUniqueID(SkNextColorCubeUniqueID())
+  , fCache(cubeDimension) {
+}
 
 uint32_t SkColorCubeFilter::getFlags() const {
     return this->INHERITED::getFlags() | kAlphaUnchanged_Flag;
@@ -142,7 +142,7 @@ SkFlattenable* SkColorCubeFilter::CreateProc(SkReadBuffer& buffer) {
     if (!buffer.validate(is_valid_3D_lut(cubeData.get(), cubeDimension))) {
         return nullptr;
     }
-    return Make(std::move(cubeData), cubeDimension).release();
+    return Create(cubeData.get(), cubeDimension);
 }
 
 void SkColorCubeFilter::flatten(SkWriteBuffer& buffer) const {

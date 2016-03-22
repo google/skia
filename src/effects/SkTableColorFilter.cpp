@@ -46,7 +46,7 @@ public:
     virtual ~SkTable_ColorFilter() { delete fBitmap; }
 
     bool asComponentTable(SkBitmap* table) const override;
-    sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter> inner) const override;
+    SkColorFilter* newComposed(const SkColorFilter* inner) const override;
 
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor* asFragmentProcessor(GrContext*) const override;
@@ -251,7 +251,7 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
         b = ptr;
         ptr += 256;
     }
-    return SkTableColorFilter::MakeARGB(a, r, g, b).release();
+    return SkTableColorFilter::CreateARGB(a, r, g, b);
 }
 
 bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
@@ -287,7 +287,7 @@ static void combine_tables(uint8_t res[256], const uint8_t outer[256], const uin
     }
 }
 
-sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> innerFilter) const {
+SkColorFilter* SkTable_ColorFilter::newComposed(const SkColorFilter* innerFilter) const {
     SkBitmap innerBM;
     if (!innerFilter->asComponentTable(&innerBM)) {
         return nullptr;
@@ -326,7 +326,7 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
     combine_tables(concatG, tableG, innerBM.getAddr8(0, 2));
     combine_tables(concatB, tableB, innerBM.getAddr8(0, 3));
 
-    return SkTableColorFilter::MakeARGB(concatA, concatR, concatG, concatB);
+    return SkTableColorFilter::CreateARGB(concatA, concatR, concatG, concatB);
 }
 
 #if SK_SUPPORT_GPU
@@ -554,7 +554,7 @@ const GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) 
             }
         }
     }
-    auto filter(SkTableColorFilter::MakeARGB(
+    SkAutoTUnref<SkColorFilter> filter(SkTableColorFilter::CreateARGB(
         (flags & (1 << 0)) ? luts[0] : nullptr,
         (flags & (1 << 1)) ? luts[1] : nullptr,
         (flags & (1 << 2)) ? luts[2] : nullptr,
@@ -587,15 +587,15 @@ const GrFragmentProcessor* SkTable_ColorFilter::asFragmentProcessor(GrContext* c
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter> SkTableColorFilter::Make(const uint8_t table[256]) {
-    return sk_make_sp<SkTable_ColorFilter>(table, table, table, table);
+SkColorFilter* SkTableColorFilter::Create(const uint8_t table[256]) {
+    return new SkTable_ColorFilter(table, table, table, table);
 }
 
-sk_sp<SkColorFilter> SkTableColorFilter::MakeARGB(const uint8_t tableA[256],
-                                                  const uint8_t tableR[256],
-                                                  const uint8_t tableG[256],
-                                                  const uint8_t tableB[256]) {
-    return sk_make_sp<SkTable_ColorFilter>(tableA, tableR, tableG, tableB);
+SkColorFilter* SkTableColorFilter::CreateARGB(const uint8_t tableA[256],
+                                              const uint8_t tableR[256],
+                                              const uint8_t tableG[256],
+                                              const uint8_t tableB[256]) {
+    return new SkTable_ColorFilter(tableA, tableR, tableG, tableB);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkTableColorFilter)

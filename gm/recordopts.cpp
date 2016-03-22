@@ -22,26 +22,26 @@ static const int kDetectorGreenValue = 50;
 // kDetectorGreenValue and then the incorrect value is observable by some part of the drawing
 // pipeline, that pixel will remain empty.
 
-static sk_sp<SkColorFilter> make_detector_color_filter() {
+static SkColorFilter* make_detector_color_filter() {
     uint8_t tableA[256] = { 0, };
     uint8_t tableR[256] = { 0, };
     uint8_t tableG[256] = { 0, };
     uint8_t tableB[256] = { 0, };
     tableA[255] = 255;
     tableG[kDetectorGreenValue] = 255;
-    return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
+    return SkTableColorFilter::CreateARGB(tableA, tableR, tableG, tableB);
 }
 
 // This detector detects that color filter phase of the pixel pipeline receives the correct value.
 static void install_detector_color_filter(SkPaint* drawPaint) {
-    drawPaint->setColorFilter(make_detector_color_filter());
+    drawPaint->setColorFilter(make_detector_color_filter())->unref();
 }
 
 // This detector detects that image filter phase of the pixel pipeline receives the correct value.
 static void install_detector_image_filter(SkPaint* drawPaint) {
-    auto colorFilter(make_detector_color_filter());
+    SkAutoTUnref<SkColorFilter> colorFilter(make_detector_color_filter());
     SkImageFilter* imageFilter =
-            SkColorFilterImageFilter::Create(colorFilter.get(), drawPaint->getImageFilter());
+            SkColorFilterImageFilter::Create(colorFilter, drawPaint->getImageFilter());
     drawPaint->setImageFilter(imageFilter)->unref();
 }
 

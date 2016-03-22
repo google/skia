@@ -93,9 +93,9 @@ protected:
         SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width() * 2),
                                         SkIntToScalar(fBitmap->height() * 2));
         SkAutoTUnref<SkImageFilter> tile(SkTileImageFilter::Create(srcRect, dstRect, nullptr));
-        auto cf(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+        SkAutoTUnref<SkColorFilter> cf(SkColorMatrixFilter::Create(matrix));
 
-        SkAutoTUnref<SkImageFilter> cfif(SkColorFilterImageFilter::Create(cf.get(), tile.get()));
+        SkAutoTUnref<SkImageFilter> cfif(SkColorFilterImageFilter::Create(cf, tile.get()));
         SkPaint paint;
         paint.setImageFilter(cfif);
         canvas->save();
