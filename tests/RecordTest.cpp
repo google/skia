@@ -29,7 +29,7 @@ public:
 
     void apply(const SkRecord& record) {
         for (int i = 0; i < record.count(); i++) {
-            record.visit<void>(i, *this);
+            record.visit(i, *this);
         }
     }
 
@@ -47,7 +47,7 @@ struct Stretch {
 
     void apply(SkRecord* record) {
         for (int i = 0; i < record->count(); i++) {
-            record->mutate<void>(i, *this);
+            record->mutate(i, *this);
         }
     }
 };

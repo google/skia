@@ -31,7 +31,7 @@ public:
 
     void apply(const SkRecord& record) {
         for (int i = 0; i < record.count(); i++) {
-            record.visit<void>(i, *this);
+            record.visit(i, *this);
         }
     }
 

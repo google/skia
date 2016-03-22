@@ -842,15 +842,15 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         canvas->drawImage(image, 0, 0);
         return "";
     }
-    
+
     // Test various color and alpha types on CPU
     SkImageInfo decodeInfo = gen->getInfo().makeAlphaType(fDstAlphaType);
-    
+
     if (kGray_8_SkColorType == decodeInfo.colorType() &&
             kOpaque_SkAlphaType != decodeInfo.alphaType()) {
         return Error::Nonfatal("Avoid requesting non-opaque kGray8 decodes.");
     }
-    
+
     SkAutoTUnref<SkColorTable> colorTable(nullptr);
     SkPMColor* colorPtr = nullptr;
     int* colorCountPtr = nullptr;
@@ -867,7 +867,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
-    
+
     if (!gen->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), colorPtr,
                         colorCountPtr))
     {
@@ -1508,7 +1508,7 @@ Error ViaSingletonPictures::draw(
             drawables ? *drawables : empty,
         };
         for (int i = 0; i < skr.count(); i++) {
-            skr.visit<void>(i, drawsAsSingletonPictures);
+            skr.visit(i, drawsAsSingletonPictures);
         }
         sk_sp<SkPicture> macroPic(macroRec.finishRecordingAsPicture());
 

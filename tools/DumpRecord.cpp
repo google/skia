@@ -68,7 +68,7 @@ public:
 
             const SkRecord& record = *bp->record();
             for (int i = 0; i < record.count(); i++) {
-                record.visit<void>(i, *this);
+                record.visit(i, *this);
             }
 
             --fIndent;
@@ -119,6 +119,6 @@ void DumpRecord(const SkRecord& record,
                   bool timeWithCommand) {
     Dumper dumper(canvas, record.count(), timeWithCommand);
     for (int i = 0; i < record.count(); i++) {
-        record.visit<void>(i, dumper);
+        record.visit(i, dumper);
     }
 }

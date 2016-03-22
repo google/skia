@@ -88,9 +88,9 @@ SkBigPicture::Analysis::Analysis(const SkRecord& record) {
 
     bool hasText = false, hasBitmap = false;
     for (int i = 0; i < record.count(); i++) {
-        hasText   = hasText   || record.visit<bool>(i,   text);
-        hasBitmap = hasBitmap || record.visit<bool>(i, bitmap);
-        record.visit<void>(i, path);
+        hasText   = hasText   || record.visit(i,   text);
+        hasBitmap = hasBitmap || record.visit(i, bitmap);
+        record.visit(i, path);
     }
 
     fHasText                    = hasText;

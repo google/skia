@@ -40,7 +40,7 @@ void SkRecordDraw(const SkRecord& record,
             // This visit call uses the SkRecords::Draw::operator() to call
             // methods on the |canvas|, wrapped by methods defined with the
             // DRAW() macro.
-            record.visit<void>(ops[i], draw);
+            record.visit(ops[i], draw);
         }
     } else {
         // Draw all ops.
@@ -52,7 +52,7 @@ void SkRecordDraw(const SkRecord& record,
             // This visit call uses the SkRecords::Draw::operator() to call
             // methods on the |canvas|, wrapped by methods defined with the
             // DRAW() macro.
-            record.visit<void>(i, draw);
+            record.visit(i, draw);
         }
     }
 }
@@ -66,7 +66,7 @@ void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
     stop = SkTMin(stop, record.count());
     SkRecords::Draw draw(canvas, drawablePicts, nullptr, drawableCount, &initialCTM);
     for (int i = start; i < stop; i++) {
-        record.visit<void>(i, draw);
+        record.visit(i, draw);
     }
 }
 
@@ -521,7 +521,7 @@ private:
     Bounds bounds(const DrawAnnotation& op) const {
         return this->adjustAndMap(op.rect, nullptr);
     }
-    
+
     static void AdjustTextForFontMetrics(SkRect* rect, const SkPaint& paint) {
 #ifdef SK_DEBUG
         SkRect correct = *rect;
@@ -797,7 +797,7 @@ void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkRect b
     SkRecords::FillBounds visitor(cullRect, record, bounds);
     for (int curOp = 0; curOp < record.count(); curOp++) {
         visitor.setCurrentOp(curOp);
-        record.visit<void>(curOp, visitor);
+        record.visit(curOp, visitor);
     }
     visitor.cleanUp();
 }
@@ -807,7 +807,7 @@ void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record, SkRec
     SkRecords::CollectLayers visitor(cullRect, record, bounds, pictList, data);
     for (int curOp = 0; curOp < record.count(); curOp++) {
         visitor.setCurrentOp(curOp);
-        record.visit<void>(curOp, visitor);
+        record.visit(curOp, visitor);
     }
     visitor.cleanUp();
 }

@@ -99,7 +99,7 @@ public:
                     return fNumReplaced;
                 }
 
-                record->visit<void>(fOps[fIndex], *this);
+                record->visit(fOps[fIndex], *this);
             }
 
         } else {
@@ -108,7 +108,7 @@ public:
                     return fNumReplaced;
                 }
 
-                record->visit<void>(fIndex, *this);
+                record->visit(fIndex, *this);
             }
         }
 
