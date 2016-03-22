@@ -250,3 +250,9 @@ float sk_paint_measure_utf16_text(sk_paint_t* cpaint, const void* text, size_t l
     return ret;
 }
 
+void sk_paint_get_fontmetrics(sk_paint_t* cpaint, sk_fontmetrics_t* cfontmetrics)
+{
+    SkPaint *paint = AsPaint(cpaint);
+    paint->getFontMetrics(AsFontMetrics(cfontmetrics));
+}
+

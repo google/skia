@@ -256,6 +256,14 @@ static inline const SkImageFilter::CropRect* AsImageFilterCropRect(const sk_imag
     return reinterpret_cast<const SkImageFilter::CropRect*>(p);
 }
 
+static inline SkPaint::FontMetrics* AsFontMetrics(sk_fontmetrics_t* p) {
+    return reinterpret_cast<SkPaint::FontMetrics*>(p);
+}
+
+static inline sk_fontmetrics_t* ToFontMetrics(SkPaint::FontMetrics* p) {
+    return reinterpret_cast<sk_fontmetrics_t*>(p);
+}
+
 const struct {
     sk_xfermode_mode_t  fC;
     SkXfermode::Mode    fSK;
