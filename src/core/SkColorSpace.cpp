@@ -174,7 +174,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
 
 #define return_null(msg)                                             \
     do {                                                             \
-        SkDebugf("Invalid ICC Profile: %s.\n", (msg));               \
+        SkColorSpacePrintf("Invalid ICC Profile: %s.\n", (msg));     \
         return nullptr;                                              \
     } while (0)
 
