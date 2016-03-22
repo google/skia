@@ -502,7 +502,8 @@ public:
         desc.fWidth = subset.width();
         desc.fHeight = subset.height();
 
-        GrTexture* subTx = ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes);
+        SkAutoTUnref<GrTexture> subTx(ctx->textureProvider()->createTexture(desc,
+                                                                            SkBudgeted::kYes));
         if (!subTx) {
             return nullptr;
         }
