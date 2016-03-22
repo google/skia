@@ -175,8 +175,7 @@ private:
 
         paint->setMaskFilter(this->createBlur())->unref();
 
-        SkColorFilter* cf = SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcIn_Mode);
-        paint->setColorFilter(cf)->unref();
+        paint->setColorFilter(SkColorFilter::MakeModeFilter(color, SkXfermode::kSrcIn_Mode));
 
         return looperBuilder.detach();
     }
@@ -222,8 +221,8 @@ private:
 
             paint->setMaskFilter(this->createBlur())->unref();
 
-            SkColorFilter* cf = SkColorFilter::CreateModeFilter(gColors[i], SkXfermode::kSrcIn_Mode);
-            paint->setColorFilter(cf)->unref();
+            paint->setColorFilter(SkColorFilter::MakeModeFilter(gColors[i],
+                                                                SkXfermode::kSrcIn_Mode));
         }
 
         return looperBuilder.detach();

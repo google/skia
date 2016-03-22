@@ -391,16 +391,17 @@ static SkPaint* set_if_needed(SkLazyPaint* lazy, const SkPaint& orig) {
  *  If the paint has an imagefilter, but it can be simplified to just a colorfilter, return that
  *  colorfilter, else return nullptr.
  */
-static SkColorFilter* image_to_color_filter(const SkPaint& paint) {
+static sk_sp<SkColorFilter> image_to_color_filter(const SkPaint& paint) {
     SkImageFilter* imgf = paint.getImageFilter();
     if (!imgf) {
         return nullptr;
     }
 
-    SkColorFilter* imgCF;
-    if (!imgf->asAColorFilter(&imgCF)) {
+    SkColorFilter* imgCFPtr;
+    if (!imgf->asAColorFilter(&imgCFPtr)) {
         return nullptr;
     }
+    sk_sp<SkColorFilter> imgCF(imgCFPtr);
 
     SkColorFilter* paintCF = paint.getColorFilter();
     if (nullptr == paintCF) {
@@ -410,8 +411,7 @@ static SkColorFilter* image_to_color_filter(const SkPaint& paint) {
 
     // The paint has both a colorfilter(paintCF) and an imagefilter-which-is-a-colorfilter(imgCF)
     // and we need to combine them into a single colorfilter.
-    SkAutoTUnref<SkColorFilter> autoImgCF(imgCF);
-    return SkColorFilter::CreateComposeFilter(imgCF, paintCF);
+    return SkColorFilter::MakeComposeFilter(std::move(imgCF), sk_ref_sp(paintCF));
 }
 
 /**
@@ -455,10 +455,10 @@ public:
         fTempLayerForImageFilter = false;
         fDone = false;
 
-        SkColorFilter* simplifiedCF = image_to_color_filter(fOrigPaint);
+        auto simplifiedCF = image_to_color_filter(fOrigPaint);
         if (simplifiedCF) {
             SkPaint* paint = set_if_needed(&fLazyPaintInit, fOrigPaint);
-            paint->setColorFilter(simplifiedCF)->unref();
+            paint->setColorFilter(std::move(simplifiedCF));
             paint->setImageFilter(nullptr);
             fPaint = paint;
         }

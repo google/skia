@@ -31,9 +31,8 @@ private:
     SkColorFilterImageFilter(SkColorFilter* cf,
                              SkImageFilter* input,
                              const CropRect* cropRect);
-    virtual ~SkColorFilterImageFilter();
 
-    SkColorFilter*  fColorFilter;
+    sk_sp<SkColorFilter> fColorFilter;
 
     typedef SkImageFilter INHERITED;
 };

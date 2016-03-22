@@ -844,7 +844,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     if (SkXfermode::IsMode(mode, SkXfermode::kClear_Mode)) {
         SkPaint* p = paint.writable();
         shader = p->setShader(nullptr);
-        cf = p->setColorFilter(nullptr);
+        p->setColorFilter(nullptr);
+        cf = nullptr;
         mode = p->setXfermodeMode(SkXfermode::kSrc_Mode);
         p->setColor(0);
     }
@@ -867,7 +868,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (cf) {
         SkASSERT(shader);
-        paint.writable()->setShader(shader->makeWithColorFilter(cf));
+        paint.writable()->setShader(shader->makeWithColorFilter(sk_ref_sp(cf)));
         shader = paint->getShader();
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.

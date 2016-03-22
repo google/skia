@@ -192,18 +192,16 @@ protected:
             draw_bitmap,
         };
 
-        SkColorFilter* cf = SkColorFilter::CreateModeFilter(SK_ColorRED,
-                                                     SkXfermode::kSrcIn_Mode);
+        auto cf = SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode);
         SkImageFilter* filters[] = {
             nullptr,
             IdentityImageFilter::Create(),
             FailImageFilter::Create(),
-            SkColorFilterImageFilter::Create(cf),
+            SkColorFilterImageFilter::Create(cf.get()),
             SkBlurImageFilter::Create(12.0f, 0.0f),
             SkDropShadowImageFilter::Create(10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
         };
-        cf->unref();
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
         SkScalar MARGIN = SkIntToScalar(16);
@@ -320,7 +318,7 @@ public:
     ImageFiltersText_CF() : ImageFiltersTextBaseGM("color") {}
 
     void installFilter(SkPaint* paint) override {
-        paint->setColorFilter(SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode))->unref();
+        paint->setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
     }
 };
 DEF_GM( return new ImageFiltersText_CF; )

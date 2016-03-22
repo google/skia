@@ -119,11 +119,10 @@ protected:
         canvas->clear(SK_ColorBLACK);
         {
             SkAutoTUnref<SkImageFilter> bitmapSource(SkImageSource::Create(fImage.get()));
-            SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED,
-                                                         SkXfermode::kSrcIn_Mode));
+            auto cf(SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
             SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f, bitmapSource));
             SkAutoTUnref<SkImageFilter> erode(SkErodeImageFilter::Create(4, 4, blur));
-            SkAutoTUnref<SkImageFilter> color(SkColorFilterImageFilter::Create(cf, erode));
+            SkAutoTUnref<SkImageFilter> color(SkColorFilterImageFilter::Create(cf.get(), erode));
             SkAutoTUnref<SkImageFilter> merge(SkMergeImageFilter::Create(blur, color));
 
             SkPaint paint;
@@ -139,8 +138,8 @@ protected:
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
 
-            SkAutoTUnref<SkColorFilter> matrixFilter(SkColorMatrixFilter::Create(matrix));
-            SkAutoTUnref<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter, morph));
+            auto matrixFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+            SkAutoTUnref<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter.get(), morph));
             SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
             SkAutoTUnref<SkImageFilter> blendColor(SkXfermodeImageFilter::Create(mode, colorMorph));
 
@@ -154,8 +153,8 @@ protected:
                                     0, SK_Scalar1, 0, 0, 0,
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
-            SkAutoTUnref<SkColorFilter> matrixCF(SkColorMatrixFilter::Create(matrix));
-            SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(matrixCF));
+            auto matrixCF(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+            SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(matrixCF.get()));
             SkAutoTUnref<SkImageFilter> offsetFilter(
                 SimpleOffsetFilter::Create(10.0f, 10.f, matrixFilter));
 
@@ -218,16 +217,14 @@ protected:
         }
         {
             // Test that crop offsets are absolute, not relative to the parent's crop rect.
-            SkAutoTUnref<SkColorFilter> cf1(SkColorFilter::CreateModeFilter(SK_ColorBLUE,
-                                                                            SkXfermode::kSrcIn_Mode));
-            SkAutoTUnref<SkColorFilter> cf2(SkColorFilter::CreateModeFilter(SK_ColorGREEN,
-                                                                            SkXfermode::kSrcIn_Mode));
+            auto cf1(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
+            auto cf2(SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkXfermode::kSrcIn_Mode));
             SkImageFilter::CropRect outerRect(SkRect::MakeXYWH(SkIntToScalar(10), SkIntToScalar(10),
                                                                SkIntToScalar(80), SkIntToScalar(80)));
             SkImageFilter::CropRect innerRect(SkRect::MakeXYWH(SkIntToScalar(20), SkIntToScalar(20),
                                                                SkIntToScalar(60), SkIntToScalar(60)));
-            SkAutoTUnref<SkImageFilter> color1(SkColorFilterImageFilter::Create(cf1, nullptr, &outerRect));
-            SkAutoTUnref<SkImageFilter> color2(SkColorFilterImageFilter::Create(cf2, color1, &innerRect));
+            SkAutoTUnref<SkImageFilter> color1(SkColorFilterImageFilter::Create(cf1.get(), nullptr, &outerRect));
+            SkAutoTUnref<SkImageFilter> color2(SkColorFilterImageFilter::Create(cf2.get(), color1, &innerRect));
 
             SkPaint paint;
             paint.setImageFilter(color2);

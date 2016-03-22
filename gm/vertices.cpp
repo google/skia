@@ -26,17 +26,17 @@ static sk_sp<SkShader> make_shader2() {
     return SkShader::MakeColorShader(SK_ColorBLUE);
 }
 
-static SkColorFilter* make_color_filter() {
-    return SkColorFilter::CreateModeFilter(0xFFAABBCC, SkXfermode::kDarken_Mode);
+static sk_sp<SkColorFilter> make_color_filter() {
+    return SkColorFilter::MakeModeFilter(0xFFAABBCC, SkXfermode::kDarken_Mode);
 }
 
 class VerticesGM : public skiagm::GM {
-    SkPoint                     fPts[9];
-    SkPoint                     fTexs[9];
-    SkColor                     fColors[9];
-    sk_sp<SkShader>             fShader1;
-    sk_sp<SkShader>             fShader2;
-    SkAutoTUnref<SkColorFilter> fColorFilter;
+    SkPoint                 fPts[9];
+    SkPoint                 fTexs[9];
+    SkColor                 fColors[9];
+    sk_sp<SkShader>         fShader1;
+    sk_sp<SkShader>         fShader2;
+    sk_sp<SkColorFilter>    fColorFilter;
 
 public:
     VerticesGM() {}
@@ -60,7 +60,7 @@ protected:
 
         fShader1 = make_shader1(w, h);
         fShader2 = make_shader2();
-        fColorFilter.reset(make_color_filter());
+        fColorFilter = make_color_filter();
 
         SkRandom rand;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fColors); ++i) {
@@ -85,11 +85,11 @@ protected:
         };
 
         const struct {
-            const SkColor*          fColors;
-            const SkPoint*          fTexs;
-            const sk_sp<SkShader>&  fShader;
-            SkColorFilter*          fColorFilter;
-            uint8_t                 fAlpha;
+            const SkColor*              fColors;
+            const SkPoint*              fTexs;
+            const sk_sp<SkShader>&      fShader;
+            const sk_sp<SkColorFilter>& fColorFilter;
+            uint8_t                     fAlpha;
         } rec[] = {
             { fColors,  nullptr, fShader1, nullptr     , 0xFF },
             { nullptr,  fTexs  , fShader1, nullptr     , 0xFF },

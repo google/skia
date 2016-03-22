@@ -14,11 +14,11 @@
 #define HEIGHT 500
 
 static void set_color_matrix(SkPaint* paint, const SkColorMatrix& matrix) {
-    paint->setColorFilter(SkColorMatrixFilter::Create(matrix))->unref();
+    paint->setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix.fMat));
 }
 
 static void set_array(SkPaint* paint, const SkScalar array[]) {
-    paint->setColorFilter(SkColorMatrixFilter::Create(array))->unref();
+    paint->setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(array));
 }
 
 class ColorMatrixGM : public skiagm::GM {
