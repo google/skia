@@ -2114,7 +2114,8 @@ static SkSize rect_to_size(const SkRect& r) {
     return SkSize::Make(r.width(), r.height());
 }
 
-static const SkImage* color_filter(const SkImage* image, SkColorFilter* colorFilter) {
+static const SkImage* color_filter(const SkImage* image,
+                                   SkColorFilter* colorFilter) {
     sk_sp<SkSurface> surface(SkSurface::NewRaster(
             SkImageInfo::MakeN32Premul(image->dimensions())));
     if (!surface) {
@@ -2123,7 +2124,7 @@ static const SkImage* color_filter(const SkImage* image, SkColorFilter* colorFil
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorTRANSPARENT);
     SkPaint paint;
-    paint.setColorFilter(sk_ref_sp(colorFilter));
+    paint.setColorFilter(colorFilter);
     canvas->drawImage(image, 0, 0, &paint);
     canvas->flush();
     return surface->makeImageSnapshot().release();

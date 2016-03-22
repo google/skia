@@ -15,7 +15,7 @@
 #include "SkXfermode.h"
 #include "Test.h"
 
-static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
+static SkColorFilter* reincarnate_colorfilter(SkFlattenable* obj) {
     SkWriteBuffer wb;
     wb.writeFlattenable(obj);
 
@@ -30,18 +30,18 @@ static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkColorFilter> make_filter() {
+static SkColorFilter* make_filter() {
     // pick a filter that cannot compose with itself via newComposed()
-    return SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kColorBurn_Mode);
+    return SkColorFilter::CreateModeFilter(SK_ColorRED, SkXfermode::kColorBurn_Mode);
 }
 
 static void test_composecolorfilter_limit(skiatest::Reporter* reporter) {
     // Test that CreateComposeFilter() has some finite limit (i.e. that the factory can return null)
     const int way_too_many = 100;
-    auto parent(make_filter());
+    SkAutoTUnref<SkColorFilter> parent(make_filter());
     for (int i = 2; i < way_too_many; ++i) {
-        auto filter(make_filter());
-        parent = SkColorFilter::MakeComposeFilter(parent, filter);
+        SkAutoTUnref<SkColorFilter> filter(make_filter());
+        parent.reset(SkColorFilter::CreateComposeFilter(parent, filter));
         if (nullptr == parent) {
             REPORTER_ASSERT(reporter, i > 2); // we need to have succeeded at least once!
             return;
@@ -62,13 +62,15 @@ DEF_TEST(ColorFilter, reporter) {
         // special case that would return nullptr (if color's alpha is 0 or 0xFF)
         color = SkColorSetA(color, 0x7F);
 
-        auto cf = SkColorFilter::MakeModeFilter(color, (SkXfermode::Mode)mode);
+        SkColorFilter* cf = SkColorFilter::CreateModeFilter(color,
+                                                        (SkXfermode::Mode)mode);
 
         // allow for no filter if we're in Dst mode (its a no op)
         if (SkXfermode::kDst_Mode == mode && nullptr == cf) {
             continue;
         }
 
+        SkAutoUnref aur(cf);
         REPORTER_ASSERT(reporter, cf);
 
         SkColor c = ~color;
@@ -96,7 +98,8 @@ DEF_TEST(ColorFilter, reporter) {
         REPORTER_ASSERT(reporter, m == expectedMode);
 
         {
-            auto cf2 = reincarnate_colorfilter(cf.get());
+            SkColorFilter* cf2 = reincarnate_colorfilter(cf);
+            SkAutoUnref aur2(cf2);
             REPORTER_ASSERT(reporter, cf2);
 
             SkColor c2 = ~color;
@@ -114,7 +117,7 @@ DEF_TEST(ColorFilter, reporter) {
 
 DEF_TEST(LumaColorFilter, reporter) {
     SkPMColor in, out;
-    auto lf(SkLumaColorFilter::Make());
+    SkAutoTUnref<SkColorFilter> lf(SkLumaColorFilter::Create());
 
     // Applying luma to white produces black with the same transparency.
     for (unsigned i = 0; i < 256; ++i) {
@@ -180,31 +183,31 @@ static void get_grayscale_matrix(float amount, float matrix[20]) {
     matrix[18] = 1.f;
 }
 
-static sk_sp<SkColorFilter> make_cf0() {
+static SkColorFilter* make_cf0() {
     SkScalar matrix[20];
     get_brightness_matrix(0.5f, matrix);
-    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix);
+    return SkColorMatrixFilter::Create(matrix);
 }
-static sk_sp<SkColorFilter> make_cf1() {
+static SkColorFilter* make_cf1() {
     SkScalar matrix[20];
     get_grayscale_matrix(1, matrix);
-    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix);
+    return SkColorMatrixFilter::Create(matrix);
 }
-static sk_sp<SkColorFilter> make_cf2() {
+static SkColorFilter* make_cf2() {
     SkColorMatrix m0, m1;
     get_brightness_matrix(0.5f, m0.fMat);
     get_grayscale_matrix(1, m1.fMat);
     m0.preConcat(m1);
-    return SkColorFilter::MakeMatrixFilterRowMajor255(m0.fMat);
+    return SkColorMatrixFilter::Create(m0);
 }
-static sk_sp<SkColorFilter> make_cf3() {
+static SkColorFilter* make_cf3() {
     SkColorMatrix m0, m1;
     get_brightness_matrix(0.5f, m0.fMat);
     get_grayscale_matrix(1, m1.fMat);
     m0.postConcat(m1);
-    return SkColorFilter::MakeMatrixFilterRowMajor255(m0.fMat);
+    return SkColorMatrixFilter::Create(m0);
 }
-typedef sk_sp<SkColorFilter> (*CFProc)();
+typedef SkColorFilter* (*CFProc)();
 
 // Test that a colormatrix that "should" preserve opaquness actually does.
 DEF_TEST(ColorMatrixFilter, reporter) {
@@ -213,7 +216,7 @@ DEF_TEST(ColorMatrixFilter, reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
-        auto cf(procs[i]());
+        SkAutoTUnref<SkColorFilter> cf(procs[i]());
 
         // generate all possible r,g,b triples
         for (int r = 0; r < 256; ++r) {

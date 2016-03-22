@@ -13,12 +13,18 @@
 class ColorCubeBench : public Benchmark {
     SkISize fSize;
     int fCubeDimension;
-    sk_sp<SkData> fCubeData;
+    SkData* fCubeData;
     SkBitmap fBitmap;
 
 public:
-    ColorCubeBench() : fCubeDimension(0) {
+    ColorCubeBench()
+     : fCubeDimension(0)
+     , fCubeData(nullptr) {
         fSize = SkISize::Make(2880, 1800); // 2014 Macbook Pro resolution
+    }
+
+    ~ColorCubeBench() {
+        SkSafeUnref(fCubeData);
     }
 
 protected:
@@ -65,7 +71,7 @@ private:
 
     void makeCubeData() {
         fCubeDimension = 32;
-        fCubeData = SkData::MakeUninitialized(sizeof(SkColor) *
+        fCubeData = SkData::NewUninitialized(sizeof(SkColor) *
             fCubeDimension * fCubeDimension * fCubeDimension);
         SkColor* pixels = (SkColor*)(fCubeData->writable_data());
         SkAutoTMalloc<uint8_t> lutMemory(fCubeDimension);
@@ -89,7 +95,9 @@ private:
     void test(int loops, SkCanvas* canvas) {
         SkPaint paint;
         for (int i = 0; i < loops; i++) {
-            paint.setColorFilter(SkColorCubeFilter::Make(fCubeData, fCubeDimension));
+            SkAutoTUnref<SkColorFilter> colorCube(
+                SkColorCubeFilter::Create(fCubeData, fCubeDimension));
+            paint.setColorFilter(colorCube);
             canvas->drawBitmap(fBitmap, 0, 0, &paint);
         }
     }

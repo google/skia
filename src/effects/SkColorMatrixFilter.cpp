@@ -16,7 +16,7 @@ static SkScalar byte_to_scale(U8CPU byte) {
     }
 }
 
-sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColor add) {
+SkColorFilter* SkColorMatrixFilter::CreateLightingFilter(SkColor mul, SkColor add) {
     SkColorMatrix matrix;
     matrix.setScale(byte_to_scale(SkColorGetR(mul)),
                     byte_to_scale(SkColorGetG(mul)),
@@ -26,5 +26,5 @@ sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColo
                          SkIntToScalar(SkColorGetG(add)),
                          SkIntToScalar(SkColorGetB(add)),
                          0);
-    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix.fMat);
+    return SkColorMatrixFilter::Create(matrix);
 }

@@ -286,7 +286,7 @@ static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
     for (int i = 0; i < 256; ++i) {
         table[i] = (i * 41) % 256;
     }
-    auto colorFilter(SkTableColorFilter::Make(table));
+    SkAutoTUnref<SkColorFilter> colorFilter(SkTableColorFilter::Create(table));
     SkAutoTUnref<SkColorFilter> copy(
         TestFlattenableSerialization<SkColorFilter>(colorFilter.get(), true, reporter));
 }

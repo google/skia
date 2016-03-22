@@ -25,10 +25,10 @@ SkImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf, SkImageFilter
     if (input && input->isColorFilterNode(&inputCF)) {
         // This is an optimization, as it collapses the hierarchy by just combining the two
         // colorfilters into a single one, which the new imagefilter will wrap.
-        sk_sp<SkColorFilter> newCF(SkColorFilter::MakeComposeFilter(sk_ref_sp(cf),
-                                                                    sk_sp<SkColorFilter>(inputCF)));
+        SkAutoUnref autoUnref(inputCF);
+        SkAutoTUnref<SkColorFilter> newCF(SkColorFilter::CreateComposeFilter(cf, inputCF));
         if (newCF) {
-            return new SkColorFilterImageFilter(newCF.get(), input->getInput(0), cropRect);
+            return new SkColorFilterImageFilter(newCF, input->getInput(0), cropRect);
         }
     }
 
@@ -42,13 +42,17 @@ SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
 
 SkFlattenable* SkColorFilterImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    sk_sp<SkColorFilter> cf(buffer.readColorFilter());
-    return Create(cf.get(), common.getInput(0), &common.cropRect());
+    SkAutoTUnref<SkColorFilter> cf(buffer.readColorFilter());
+    return Create(cf, common.getInput(0), &common.cropRect());
 }
 
 void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeFlattenable(fColorFilter.get());
+    buffer.writeFlattenable(fColorFilter);
+}
+
+SkColorFilterImageFilter::~SkColorFilterImageFilter() {
+    fColorFilter->unref();
 }
 
 bool SkColorFilterImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& source,
@@ -90,7 +94,7 @@ bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const
     SkASSERT(1 == this->countInputs());
     if (!this->cropRectIsSet()) {
         if (filter) {
-            *filter = SkRef(fColorFilter.get());
+            *filter = SkRef(fColorFilter);
         }
         return true;
     }

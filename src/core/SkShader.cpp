@@ -449,7 +449,4 @@ SkShader* SkShader::CreatePictureShader(const SkPicture* src, TileMode tmx, Tile
     return MakePictureShader(sk_ref_sp(const_cast<SkPicture*>(src)), tmx, tmy,
                              localMatrix, tile).release();
 }
-SkShader* SkShader::newWithColorFilter(SkColorFilter* filter) const {
-    return this->makeWithColorFilter(sk_ref_sp(filter)).release();
-}
 #endif

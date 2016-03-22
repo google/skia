@@ -49,7 +49,7 @@ bool SkRGBAToYUV(const SkImage* image, const SkISize sizes[3], void* const plane
         int rowStartIdx = 5 * i;
         const SkScalar* row = kYUVColorSpaceInvMatrices[colorSpace] + rowStartIdx;
         paint.setColorFilter(
-                SkColorMatrixFilterRowMajor255::MakeSingleChannelOutput(row));
+                SkColorMatrixFilterRowMajor255::CreateSingleChannelOutput(row))->unref();
         surface->getCanvas()->drawImageRect(image, SkIRect::MakeWH(image->width(), image->height()),
                                             SkRect::MakeIWH(surface->width(), surface->height()),
                                             &paint);

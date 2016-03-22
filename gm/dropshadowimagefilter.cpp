@@ -93,7 +93,8 @@ protected:
             draw_bitmap, draw_path, draw_paint, draw_text
         };
 
-        auto cf(SkColorFilter::MakeModeFilter(SK_ColorMAGENTA, SkXfermode::kSrcIn_Mode));
+        SkAutoTUnref<SkColorFilter> cf(
+            SkColorFilter::CreateModeFilter(SK_ColorMAGENTA, SkXfermode::kSrcIn_Mode));
         SkAutoTUnref<SkImageFilter> cfif(SkColorFilterImageFilter::Create(cf.get()));
         SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
                                          SkImageFilter::CropRect::kHasAll_CropEdge);

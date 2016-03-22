@@ -207,7 +207,8 @@ void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkR
         pnt.setShader(std::move(shader));
 
         if (colors) {
-            pnt.setColorFilter(SkColorFilter::MakeModeFilter(colors[i], mode));
+            SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(colors[i], mode));
+            pnt.setColorFilter(cf);
         }
         
         path.rewind();

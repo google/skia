@@ -97,7 +97,7 @@ static void color_filter(SkPaint* paint) {
     SkRect r;
     r.setWH(SkIntToScalar(kWidth), 50);
     paint->setShader(make_shader(r));
-    paint->setColorFilter(SkColorMatrixFilter::MakeLightingFilter(0xF0F0F0, 0));
+    paint->setColorFilter(SkColorMatrixFilter::CreateLightingFilter(0xF0F0F0, 0))->unref();
 }
 
 static void kitchen_sink(SkPaint* paint) {

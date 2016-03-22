@@ -140,7 +140,7 @@ static void draw_set(SkCanvas* canvas, SkImageFilter* filters[], int count) {
 DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
     SkColorMatrix cm;
     cm.setSaturation(10);
-    auto cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    SkAutoTUnref<SkColorFilter> cf(SkColorMatrixFilter::Create(cm));
     const SkScalar kernel[] = { 4, 0, 4, 0, -15, 0, 4, 0, 4 };
     SkImageFilter* filters[] = {
         SkBlurImageFilter::Create(10, 10),
@@ -148,7 +148,7 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
         SkMatrixConvolutionImageFilter::Create({ 3, 3 }, kernel, 1, 0, { 0, 0 },
                                            SkMatrixConvolutionImageFilter::kClampToBlack_TileMode,
                                                true),
-        SkColorFilterImageFilter::Create(cf.get()),
+        SkColorFilterImageFilter::Create(cf),
     };
 
     const struct {

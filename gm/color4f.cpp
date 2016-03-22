@@ -22,43 +22,43 @@ static sk_sp<SkShader> make_alpha_color() {
     return SkShader::MakeColorShader(0x80FF0000);
 }
 
-static sk_sp<SkColorFilter> make_cf_null() {
+static SkColorFilter* make_cf_null() {
     return nullptr;
 }
 
-static sk_sp<SkColorFilter> make_cf0() {
+static SkColorFilter* make_cf0() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    return SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat);
+    return SkColorMatrixFilter::Create(cm);
 }
 
-static sk_sp<SkColorFilter> make_cf1() {
+static SkColorFilter* make_cf1() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    auto a(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    SkAutoTUnref<SkColorFilter> a(SkColorMatrixFilter::Create(cm));
     // CreateComposedFilter will try to concat these two matrices, resulting in a single
     // filter (which is good for speed). For this test, we want to force a real compose of
     // these two, so our inner filter has a scale-up, which disables the optimization of
     // combining the two matrices.
     cm.setScale(1.1f, 0.9f, 1);
-    auto b(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
-    return SkColorFilter::MakeComposeFilter(a, b);
+    SkAutoTUnref<SkColorFilter> b(SkColorMatrixFilter::Create(cm));
+    return SkColorFilter::CreateComposeFilter(a, b);
 }
 
-static sk_sp<SkColorFilter> make_cf2() {
-    return SkColorFilter::MakeModeFilter(0x8044CC88, SkXfermode::kSrcATop_Mode);
+static SkColorFilter* make_cf2() {
+    return SkColorFilter::CreateModeFilter(0x8044CC88, SkXfermode::kSrcATop_Mode);
 }
 
 static void draw_into_canvas(SkCanvas* canvas) {
     const SkRect r = SkRect::MakeWH(50, 100);
     sk_sp<SkShader> (*shaders[])() { make_opaque_color, make_alpha_color };
-    sk_sp<SkColorFilter> (*filters[])() { make_cf_null, make_cf0, make_cf1, make_cf2 };
+    SkColorFilter* (*filters[])() { make_cf_null, make_cf0, make_cf1, make_cf2 };
     
     SkPaint paint;
     for (auto shProc : shaders) {
         paint.setShader(shProc());
         for (auto cfProc : filters) {
-            paint.setColorFilter(cfProc());
+            SkSafeUnref(paint.setColorFilter(cfProc()));
             canvas->drawRect(r, paint);
             canvas->translate(60, 0);
         }

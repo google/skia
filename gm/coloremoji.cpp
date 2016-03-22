@@ -34,8 +34,8 @@ static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    auto filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
-    return SkColorFilterImageFilter::Create(filter.get(), input);
+    SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
+    return SkColorFilterImageFilter::Create(filter, input);
 }
 
 static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {

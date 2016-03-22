@@ -13,14 +13,9 @@
 
 class SkModeColorFilter : public SkColorFilter {
 public:
-    static sk_sp<SkColorFilter> Make(SkColor color, SkXfermode::Mode mode) {
-        return sk_sp<SkColorFilter>(new SkModeColorFilter(color, mode));
-    }
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
     static SkColorFilter* Create(SkColor color, SkXfermode::Mode mode) {
-        return Make(color, mode).release();
+        return new SkModeColorFilter(color, mode);
     }
-#endif
 
     SkColor getColor() const { return fColor; }
     SkXfermode::Mode getMode() const { return fMode; }

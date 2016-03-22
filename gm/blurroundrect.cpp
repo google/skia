@@ -60,9 +60,10 @@ public:
                     SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
                     SkBlurMaskFilter::kHighQuality_BlurFlag);
             paint->setMaskFilter(maskFilter)->unref();
-            paint->setColorFilter(SkColorFilter::MakeModeFilter(
+            SkColorFilter* colorFilter = SkColorFilter::CreateModeFilter(
                     sk_tool_utils::color_to_565(SK_ColorLTGRAY),
-                    SkXfermode::kSrcIn_Mode));
+                    SkXfermode::kSrcIn_Mode);
+            paint->setColorFilter(colorFilter)->unref();
             paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
         }
         {

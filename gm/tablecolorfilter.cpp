@@ -73,27 +73,27 @@ static void make_table2(uint8_t table[]) {
     }
 }
 
-static sk_sp<SkColorFilter> make_null_cf() {
+static SkColorFilter* make_null_cf() {
     return nullptr;
 }
 
-static sk_sp<SkColorFilter> make_cf0() {
+static SkColorFilter* make_cf0() {
     uint8_t table[256]; make_table0(table);
-    return SkTableColorFilter::Make(table);
+    return SkTableColorFilter::Create(table);
 }
-static sk_sp<SkColorFilter> make_cf1() {
+static SkColorFilter* make_cf1() {
     uint8_t table[256]; make_table1(table);
-    return SkTableColorFilter::Make(table);
+    return SkTableColorFilter::Create(table);
 }
-static sk_sp<SkColorFilter> make_cf2() {
+static SkColorFilter* make_cf2() {
     uint8_t table[256]; make_table2(table);
-    return SkTableColorFilter::Make(table);
+    return SkTableColorFilter::Create(table);
 }
-static sk_sp<SkColorFilter> make_cf3() {
+static SkColorFilter* make_cf3() {
     uint8_t table0[256]; make_table0(table0);
     uint8_t table1[256]; make_table1(table1);
     uint8_t table2[256]; make_table2(table2);
-    return SkTableColorFilter::MakeARGB(nullptr, table0, table1, table2);
+    return SkTableColorFilter::CreateARGB(nullptr, table0, table1, table2);
 }
 
 class TableColorFilterGM : public skiagm::GM {
@@ -114,9 +114,8 @@ protected:
         canvas->translate(20, 20);
 
 
-        static sk_sp<SkColorFilter> (*gColorFilterMakers[])() = {
-            make_null_cf, make_cf0, make_cf1, make_cf2, make_cf3
-        };
+        static SkColorFilter* (*gColorFilterMakers[])() = { make_null_cf, make_cf0, make_cf1,
+                                                 make_cf2, make_cf3 };
         static void (*gBitmapMakers[])(SkBitmap*) = { make_bm0, make_bm1 };
 
         // This test will be done once for each bitmap with the results stacked vertically.
@@ -156,25 +155,25 @@ protected:
             // each draw being at xOffset of the previous one
             for (unsigned i = 1; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
                 x += xOffset;
-                paint.setColorFilter(gColorFilterMakers[i]());
+                paint.setColorFilter(gColorFilterMakers[i]())->unref();
                 canvas->drawBitmap(bm, x, y, &paint);
             }
 
             paint.setColorFilter(nullptr);
 
             for (unsigned i = 0; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
-                auto colorFilter1(gColorFilterMakers[i]());
+                SkAutoTUnref<SkColorFilter> colorFilter1(gColorFilterMakers[i]());
                 SkAutoTUnref<SkImageFilter> imageFilter1(SkColorFilterImageFilter::Create(
-                            colorFilter1.get(), nullptr, nullptr));
+                            colorFilter1, nullptr, nullptr));
 
                 // Move down to the next line and draw it
                 // each draw being at xOffset of the previous one
                 y += yOffset;
                 x = 0;
                 for (unsigned j = 1; j < SK_ARRAY_COUNT(gColorFilterMakers); ++j) {
-                    auto colorFilter2(gColorFilterMakers[j]());
+                    SkAutoTUnref<SkColorFilter> colorFilter2(gColorFilterMakers[j]());
                     SkAutoTUnref<SkImageFilter> imageFilter2(SkColorFilterImageFilter::Create(
-                                colorFilter2.get(), imageFilter1, nullptr));
+                                colorFilter2, imageFilter1, nullptr));
                     paint.setImageFilter(imageFilter2);
                     canvas->drawBitmap(bm, x, y, &paint);
                     x += xOffset;
@@ -226,11 +225,11 @@ protected:
         canvas->drawColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
 
         const int MODES = MODE_COUNT * COLOR_COUNT;
-        sk_sp<SkColorFilter> filters[MODES];
+        SkAutoTUnref<SkColorFilter> filters[MODES];
         int index = 0;
         for (int i = 0; i < MODE_COUNT; ++i) {
             for (int j = 0; j < COLOR_COUNT; ++j) {
-                filters[index++] = SkColorFilter::MakeModeFilter(fColors[j], fModes[i]);
+                filters[index++].reset(SkColorFilter::CreateModeFilter(fColors[j], fModes[i]));
             }
         }
 
@@ -262,7 +261,9 @@ protected:
         for (int y = 0; y < MODES; ++y) {
             canvas->save();
             for (int x = 0; x < MODES; ++x) {
-                paint.setColorFilter(SkColorFilter::MakeComposeFilter(filters[y], filters[x]));
+                SkAutoTUnref<SkColorFilter> compose(SkColorFilter::CreateComposeFilter(filters[y],
+                                                                                       filters[x]));
+                paint.setColorFilter(compose);
                 canvas->drawRect(r, paint);
                 canvas->translate(r.width() + spacer, 0);
             }

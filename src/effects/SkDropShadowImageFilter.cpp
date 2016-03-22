@@ -79,9 +79,11 @@ bool SkDropShadowImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitm
     sigma.fX = SkMaxScalar(0, sigma.fX);
     sigma.fY = SkMaxScalar(0, sigma.fY);
     SkAutoTUnref<SkImageFilter> blurFilter(SkBlurImageFilter::Create(sigma.fX, sigma.fY));
+    SkAutoTUnref<SkColorFilter> colorFilter(
+        SkColorFilter::CreateModeFilter(fColor, SkXfermode::kSrcIn_Mode));
     SkPaint paint;
     paint.setImageFilter(blurFilter.get());
-    paint.setColorFilter(SkColorFilter::MakeModeFilter(fColor, SkXfermode::kSrcIn_Mode));
+    paint.setColorFilter(colorFilter.get());
     paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
     SkVector offsetVec = SkVector::Make(fDx, fDy);
     ctx.ctm().mapVectors(&offsetVec, 1);

@@ -30,7 +30,7 @@ static void install_nothing(SkPaint* paint, uint32_t, uint32_t) {
 }
 
 static void install_lighting(SkPaint* paint, uint32_t mul, uint32_t add) {
-    paint->setColorFilter(SkColorMatrixFilter::MakeLightingFilter(mul, add));
+    paint->setColorFilter(SkColorMatrixFilter::CreateLightingFilter(mul, add))->unref();
 }
 
 class ColorFiltersGM : public skiagm::GM {
