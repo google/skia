@@ -183,21 +183,8 @@ DEF_TEST(SpecialImage_Pixmap, reporter) {
     pixmap.erase(SK_ColorRED, subset);
 
     {
-        // The SkAutoPixmapStorage keeps hold of the memory
         sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromPixmap(nullptr, subset, pixmap,
                                                                  nullptr, nullptr));
-        test_image(img, reporter, true, false, kPad, kFullSize);
-    }
-
-    {
-        // The image takes ownership of the memory
-        sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromPixmap(
-                                               nullptr, subset, pixmap,
-                                               [] (void* addr, void*) -> void {
-                                                   sk_free(addr);
-                                               },
-                                               nullptr));
-        pixmap.release();
         test_image(img, reporter, true, false, kPad, kFullSize);
     }
 }

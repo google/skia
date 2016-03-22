@@ -46,14 +46,6 @@ public:
     */
     const SkData* SK_WARN_UNUSED_RESULT detachPixelsAsData();
 
-    /**
-    * Whereas 'reset' frees the backing memory and then clears the SkPixmap,
-    * this entry point disowns the backing memory before clearing so the memory
-    * isn't freed. It can be used when the Pixmap has been installed into
-    * an SkBitmap and the SkBitmap should manage the memory's lifetime.
-    */
-    void release();
-
     // We wrap these so we can clear our internal storage
 
     void reset() {

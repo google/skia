@@ -58,7 +58,3 @@ const SkData* SkAutoPixmapStorage::detachPixelsAsData() {
     return data.release();
 }
 
-void SkAutoPixmapStorage::release() {
-    fStorage = nullptr;
-    this->INHERITED::reset();
-}
