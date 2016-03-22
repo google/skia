@@ -41,6 +41,14 @@ public:
         typedef GrVkResource INHERITED;
     };
 
+    // for wrapped textures
+    class BorrowedResource : public Resource {
+    public:
+        BorrowedResource(VkImage image, VkDeviceMemory alloc, Flags flags)
+            : Resource(image, alloc, flags) {}
+    private:
+        void freeGPUData(const GrVkGpu* gpu) const override;
+    };
 
     GrVkImage(const Resource* imageResource) : fResource(imageResource) {
         if (imageResource->fFlags & Resource::kLinearTiling_Flag) {

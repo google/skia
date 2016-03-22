@@ -214,9 +214,12 @@ GrVkRenderTarget::CreateWrappedRenderTarget(GrVkGpu* gpu,
     GrVkImage::Resource::Flags flags = (VK_IMAGE_TILING_LINEAR == info->fImageTiling) 
                                      ? Resource::kLinearTiling_Flag : Resource::kNo_Flags;
 
-    const GrVkImage::Resource* imageResource = new GrVkImage::Resource(info->fImage,
-                                                                       info->fAlloc,
-                                                                       flags);
+    const GrVkImage::Resource* imageResource;
+    if (kBorrowed_LifeCycle == lifeCycle) {
+        imageResource = new GrVkImage::BorrowedResource(info->fImage, info->fAlloc, flags);
+    } else {
+        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, flags);
+    }
     if (!imageResource) {
         return nullptr;
     }
@@ -227,6 +230,7 @@ GrVkRenderTarget::CreateWrappedRenderTarget(GrVkGpu* gpu,
     }
     // Create() will increment the refCount of the image resource if it succeeds
     imageResource->unref(gpu);
+
     return rt;
 }
 

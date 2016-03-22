@@ -85,9 +85,12 @@ GrVkTexture* GrVkTexture::CreateWrappedTexture(GrVkGpu* gpu, const GrSurfaceDesc
     GrVkImage::Resource::Flags flags = (VK_IMAGE_TILING_LINEAR == info->fImageTiling)
                                      ? Resource::kLinearTiling_Flag : Resource::kNo_Flags;
 
-    const GrVkImage::Resource* imageResource = new GrVkImage::Resource(info->fImage,
-                                                                       info->fAlloc,
-                                                                       flags);
+    const GrVkImage::Resource* imageResource;
+    if (kBorrowed_LifeCycle == lifeCycle) {
+        imageResource = new GrVkImage::BorrowedResource(info->fImage, info->fAlloc, flags);
+    } else {
+        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, flags);
+    }
     if (!imageResource) {
         return nullptr;
     }

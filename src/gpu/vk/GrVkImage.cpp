@@ -113,3 +113,6 @@ void GrVkImage::Resource::freeGPUData(const GrVkGpu* gpu) const {
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
     VK_CALL(gpu, FreeMemory(gpu->device(), fAlloc, nullptr));
 }
+
+void GrVkImage::BorrowedResource::freeGPUData(const GrVkGpu* gpu) const {
+}
