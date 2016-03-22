@@ -120,6 +120,7 @@ static void dcfontname_to_skstring(HDC deviceContext, const LOGFONT& lf, SkStrin
 
 static void make_canonical(LOGFONT* lf) {
     lf->lfHeight = -64;
+    lf->lfWidth = 0;  // lfWidth is related to lfHeight, not to the OS/2::usWidthClass.
     lf->lfQuality = CLEARTYPE_QUALITY;//PROOF_QUALITY;
     lf->lfCharSet = DEFAULT_CHARSET;
 //    lf->lfClipPrecision = 64;
@@ -127,7 +128,7 @@ static void make_canonical(LOGFONT* lf) {
 
 static SkFontStyle get_style(const LOGFONT& lf) {
     return SkFontStyle(lf.lfWeight,
-                       lf.lfWidth,
+                       SkFontStyle::kNormal_Width,
                        lf.lfItalic ? SkFontStyle::kItalic_Slant : SkFontStyle::kUpright_Slant);
 }
 
