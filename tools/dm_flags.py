@@ -29,6 +29,11 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
   args = []
 
+  # 32-bit desktop bots tend to run out of memory, because they have relatively
+  # far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.
+  if '-x86-' in bot and not 'NexusPlayer' in bot:
+    args.append('--threads 4')
+
   configs = ['565', '8888', 'gpu']
 
   if '-GCE-' in bot:
@@ -107,12 +112,6 @@ def get_args(bot):
     blacklist.extend('gpu skp _ _ msaa skp _ _'.split(' '))
     blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
 
-  # the 32-bit GCE bots run out of memory in DM when running these large images
-  if 'x86' in bot and not 'x86-64' in bot:
-    blacklist.extend('_ image _ interlaced1.png'.split(' '))
-    blacklist.extend('_ image _ interlaced2.png'.split(' '))
-    blacklist.extend('_ image _ interlaced3.png'.split(' '))
-
   if 'Mac' in bot or 'iOS' in bot:
     # CG fails on questionable bmps
     blacklist.extend('_ image gen_platf rgba32abf.bmp'.split(' '))
@@ -122,7 +121,7 @@ def get_args(bot):
     blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
     blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
     blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
-    
+
     # CG has unpredictable behavior on this questionable gif
     # It's probably using uninitialized memory
     blacklist.extend('_ image gen_platf frame_larger_than_image.gif'.split(' '))
@@ -190,11 +189,6 @@ def get_args(bot):
   # skbug.com/4888
   # Blacklist RAW images on GPU tests until we can resolve failures
   if 'GPU' in bot:
-    for raw_ext in r:
-      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
-
-  # Blacklist RAW images on some 32-bit machines due to out-of-memory issues
-  if (('Win' in bot or 'Ubuntu' in bot) and not '64' in bot):
     for raw_ext in r:
       blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
