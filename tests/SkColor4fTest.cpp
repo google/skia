@@ -78,24 +78,22 @@ DEF_TEST(Color4f_premul, reporter) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-static SkColorFilter* make_mode_cf() {
-    return SkColorFilter::CreateModeFilter(0xFFBB8855, SkXfermode::kPlus_Mode);
+static sk_sp<SkColorFilter> make_mode_cf() {
+    return SkColorFilter::MakeModeFilter(0xFFBB8855, SkXfermode::kPlus_Mode);
 }
 
-static SkColorFilter* make_mx_cf() {
+static sk_sp<SkColorFilter> make_mx_cf() {
     const float mx[] = {
         0.5f, 0,    0, 0, 0.1f,
         0,    0.5f, 0, 0, 0.2f,
         0,    0,    1, 0, -0.1f,
         0,    0,    0, 1, 0,
     };
-    return SkColorMatrixFilter::Create(mx);
+    return SkColorFilter::MakeMatrixFilterRowMajor255(mx);
 }
 
-static SkColorFilter* make_compose_cf() {
-    SkAutoTUnref<SkColorFilter> cf0(make_mode_cf());
-    SkAutoTUnref<SkColorFilter> cf1(make_mx_cf());
-    return SkColorFilter::CreateComposeFilter(cf0, cf1);
+static sk_sp<SkColorFilter> make_compose_cf() {
+    return SkColorFilter::MakeComposeFilter(make_mode_cf(), make_mx_cf());
 }
 
 static sk_sp<SkShader> make_color_sh() { return SkShader::MakeColorShader(0xFFBB8855); }
@@ -124,8 +122,7 @@ static sk_sp<SkShader> make_grad_sh() {
 }
 
 static sk_sp<SkShader> make_cf_sh() {
-    SkAutoTUnref<SkColorFilter> filter(make_mx_cf());
-    return make_color_sh()->makeWithColorFilter(filter);
+    return make_color_sh()->makeWithColorFilter(make_mx_cf());
 }
 
 static bool compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int count,
@@ -178,9 +175,9 @@ DEF_TEST(Color4f_shader, reporter) {
 
 DEF_TEST(Color4f_colorfilter, reporter) {
     struct {
-        SkColorFilter* (*fFact)();
-        bool           fSupports4f;
-        const char*    fName;
+        sk_sp<SkColorFilter>    (*fFact)();
+        bool                    fSupports4f;
+        const char*             fName;
     } recs[] = {
         { make_mode_cf,     true, "mode" },
         { make_mx_cf,       true, "matrix" },
@@ -200,7 +197,7 @@ DEF_TEST(Color4f_colorfilter, reporter) {
     REPORTER_ASSERT(reporter, compare_spans(src4f, src4b, N));
 
     for (const auto& rec : recs) {
-        SkAutoTUnref<SkColorFilter> filter(rec.fFact());
+        auto filter(rec.fFact());
         SkPMColor dst4b[N];
         filter->filterSpan(src4b, N, dst4b);
         SkPM4f dst4f[N];

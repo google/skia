@@ -102,7 +102,7 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
         dst->setShader(src.getShader());
     }
     if (bits & kColorFilter_Bit) {
-        dst->setColorFilter(src.getColorFilter());
+        dst->setColorFilter(sk_ref_sp(src.getColorFilter()));
     }
     if (bits & kXfermode_Bit) {
         dst->setXfermode(src.getXfermode());

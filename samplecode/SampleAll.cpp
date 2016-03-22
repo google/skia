@@ -384,7 +384,7 @@ protected:
         SkMaskFilter* embossFilter = SkEmbossMaskFilter::Create(sigma, light);
 
         SkXfermode* xfermode = SkXfermode::Create(SkXfermode::kXor_Mode);
-        SkColorFilter* lightingFilter = SkColorMatrixFilter::CreateLightingFilter(
+        auto lightingFilter = SkColorMatrixFilter::MakeLightingFilter(
             0xff89bc45, 0xff112233);
 
         canvas->save();
@@ -406,7 +406,7 @@ protected:
         paint.setStrokeWidth(SkIntToScalar(10));
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setXfermode(xfermode)->unref();
-        paint.setColorFilter(lightingFilter)->unref();
+        paint.setColorFilter(lightingFilter);
         canvas->drawLine(start.fX, start.fY, stop.fX, stop.fY, paint); // should not be green
         paint.setXfermode(nullptr);
         paint.setColorFilter(nullptr);
@@ -543,9 +543,9 @@ protected:
 
 #if 01
             int index = i % SK_ARRAY_COUNT(gLightingColors);
-            paint.setColorFilter(SkColorMatrixFilter::CreateLightingFilter(
+            paint.setColorFilter(SkColorMatrixFilter::MakeLightingFilter(
                                     gLightingColors[index].fMul,
-                                    gLightingColors[index].fAdd))->unref();
+                                    gLightingColors[index].fAdd));
 #endif
 
             canvas->drawText(str.c_str(), str.size(), x, y, paint);

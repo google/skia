@@ -375,7 +375,9 @@ SET_PTR(Rasterizer)
 #endif
 SET_PTR(ImageFilter)
 SET_PTR(Shader)
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
 SET_PTR(ColorFilter)
+#endif
 SET_PTR(Xfermode)
 #ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
 SET_PTR(PathEffect)
@@ -1940,7 +1942,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         this->setShader(buffer.readShader());
         SkSafeUnref(this->setXfermode(buffer.readXfermode()));
         SkSafeUnref(this->setMaskFilter(buffer.readMaskFilter()));
-        SkSafeUnref(this->setColorFilter(buffer.readColorFilter()));
+        this->setColorFilter(buffer.readColorFilter());
         this->setRasterizer(buffer.readRasterizer());
         this->setLooper(buffer.readDrawLooper());
         SkSafeUnref(this->setImageFilter(buffer.readImageFilter()));

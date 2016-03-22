@@ -34,8 +34,8 @@ protected:
                                 0, 1, 0, 0, amount255,
                                 0, 0, 1, 0, amount255,
                                 0, 0, 0, 1, 0 };
-        SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
-        return SkColorFilterImageFilter::Create(filter, input);
+        auto filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+        return SkColorFilterImageFilter::Create(filter.get(), input);
     }
 
     static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
@@ -45,14 +45,13 @@ protected:
         matrix[1] = matrix[6] = matrix[11] = 0.7152f;
         matrix[2] = matrix[7] = matrix[12] = 0.0722f;
         matrix[18] = 1.0f;
-        SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
-        return SkColorFilterImageFilter::Create(filter, input);
+        auto filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+        return SkColorFilterImageFilter::Create(filter.get(), input);
     }
 
     static SkImageFilter* make_mode_blue(SkImageFilter* input = nullptr) {
-        SkAutoTUnref<SkColorFilter> filter(
-            SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
-        return SkColorFilterImageFilter::Create(filter, input);
+        auto filter(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
+        return SkColorFilterImageFilter::Create(filter.get(), input);
     }
 
     inline bool isSmall() const { return fIsSmall; }

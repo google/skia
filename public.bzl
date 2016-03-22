@@ -501,7 +501,6 @@ DEFINES_UNIX = [
     "SK_CODEC_DECODES_PNG",
     "SK_CODEC_DECODES_RAW",
     "SK_CODEC_DECODES_WEBP",
-    "SK_SUPPORT_LEGACY_CREATESHADER_PTR",
 ]
 
 DEFINES_ANDROID = [
@@ -527,6 +526,9 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_PATHEFFECT_PTR",
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",
+    # Staging flags for API changes
+    "SK_SUPPORT_LEGACY_COLORFILTER_PTR",
+    "SK_SUPPORT_LEGACY_CREATESHADER_PTR",
 ]
 
 ################################################################################

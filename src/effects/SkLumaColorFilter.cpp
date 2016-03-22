@@ -37,7 +37,9 @@ void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
     }
 }
 
-SkColorFilter* SkLumaColorFilter::Create() { return new SkLumaColorFilter; }
+sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
+    return sk_sp<SkColorFilter>(new SkLumaColorFilter);
+}
 
 SkLumaColorFilter::SkLumaColorFilter() : INHERITED() {}
 

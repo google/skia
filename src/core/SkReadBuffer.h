@@ -130,7 +130,9 @@ public:
     template <typename T> T* readFlattenable() {
         return (T*) this->readFlattenable(T::GetFlattenableType());
     }
-    SkColorFilter* readColorFilter() { return this->readFlattenable<SkColorFilter>(); }
+    sk_sp<SkColorFilter> readColorFilter() {
+        return sk_sp<SkColorFilter>(this->readFlattenable<SkColorFilter>());
+    }
     sk_sp<SkDrawLooper> readDrawLooper() {
         return sk_sp<SkDrawLooper>(this->readFlattenable<SkDrawLooper>());
     }

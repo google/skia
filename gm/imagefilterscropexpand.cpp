@@ -40,8 +40,6 @@ protected:
     SkISize onISize() override { return SkISize::Make(730, 650); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkColorFilter> cf(
-            SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
         SkImageFilter::CropRect cropRect(
             SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
             SkImageFilter::CropRect::kHasAll_CropEdge);
@@ -59,7 +57,7 @@ protected:
                                 0, 1, 0, 0, sk255,
                                 0, 0, 1, 0, 0,
                                 0, 0, 0, 0, sk255 };
-        SkAutoTUnref<SkColorFilter> cfAlphaTrans(SkColorMatrixFilter::Create(matrix));
+        auto cfAlphaTrans(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
         SkScalar MARGIN = SkIntToScalar(12);
@@ -80,7 +78,7 @@ protected:
             SkImageFilter::CropRect bigRect(rect, SkImageFilter::CropRect::kHasAll_CropEdge);
 
             Draw(canvas, checkerboard, rect, SkColorFilterImageFilter::Create(
-                cfAlphaTrans, noopCropped.get(), &bigRect));
+                cfAlphaTrans.get(), noopCropped.get(), &bigRect));
 
             Draw(canvas, checkerboard, rect, SkBlurImageFilter::Create(
                 0.3f, 0.3f, noopCropped.get(), &bigRect));

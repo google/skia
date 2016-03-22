@@ -26,7 +26,7 @@ static void draw_label(SkCanvas* canvas, const char* label,
                      paint);
 }
 
-static void draw_scene(SkCanvas* canvas, SkColorFilter* filter, SkXfermode::Mode mode,
+static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkXfermode::Mode mode,
                        const sk_sp<SkShader>& s1, const sk_sp<SkShader>& s2) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -83,7 +83,7 @@ public:
         SkPoint  g2Points[] = { { 0, 0 }, { kSize, 0   } };
         SkScalar pos[] = { 0.2f, 1.0f };
 
-        fFilter.reset(SkLumaColorFilter::Create());
+        fFilter = SkLumaColorFilter::Make();
         fGr1 = SkGradientShader::MakeLinear(g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
                                             SkShader::kClamp_TileMode);
         fGr2 = SkGradientShader::MakeLinear(g2Points, g2Colors, pos, SK_ARRAY_COUNT(g2Colors),
@@ -137,8 +137,8 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkColorFilter> fFilter;
-    sk_sp<SkShader>             fGr1, fGr2;
+    sk_sp<SkColorFilter>    fFilter;
+    sk_sp<SkShader>         fGr1, fGr2;
 
     typedef skiagm::GM INHERITED;
 };
