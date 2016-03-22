@@ -105,7 +105,7 @@ sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(const SkImageInfo& info) con
 }
 
 sk_sp<SkSurface> SkSpecialImage::makeTightSurface(const SkImageInfo& info) const {
-    sk_sp<SkSurface> tmp(SkRef(as_SIB(this)->onMakeTightSurface(info)));
+    sk_sp<SkSurface> tmp(as_SIB(this)->onMakeTightSurface(info));
     return tmp;
 }
 
