@@ -22,9 +22,9 @@ struct Sk4x4f {
     void transpose(uint8_t[16]) const;
 };
 
-// TODO: SSE2, NEON
+// TODO: NEON
 
-#if 1 && !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+#if 1 && !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
 inline Sk4x4f Sk4x4f::Transpose(const Sk4f& x, const Sk4f& y, const Sk4f& z, const Sk4f& w) {
     auto r = x.fVec,
@@ -41,15 +41,12 @@ inline Sk4x4f Sk4x4f::Transpose(const float fs[16]) {
 
 inline Sk4x4f Sk4x4f::Transpose(const uint8_t bs[16]) {
     auto b16 = _mm_loadu_si128((const __m128i*)bs);
-    auto _ = ~0;  // Shuffles in a zero byte.
-    auto r = _mm_cvtepi32_ps(
-            _mm_shuffle_epi8(b16, _mm_setr_epi8(0,_,_,_,4,_,_,_, 8,_,_,_,12,_,_,_)));
-    auto g = _mm_cvtepi32_ps(
-            _mm_shuffle_epi8(b16, _mm_setr_epi8(1,_,_,_,5,_,_,_, 9,_,_,_,13,_,_,_)));
-    auto b = _mm_cvtepi32_ps(
-            _mm_shuffle_epi8(b16, _mm_setr_epi8(2,_,_,_,6,_,_,_,10,_,_,_,14,_,_,_)));
-    auto a = _mm_cvtepi32_ps(
-            _mm_shuffle_epi8(b16, _mm_setr_epi8(3,_,_,_,7,_,_,_,11,_,_,_,15,_,_,_)));
+
+    auto mask = _mm_set1_epi32(0xFF);
+    auto r = _mm_cvtepi32_ps(_mm_and_si128(mask,               (b16    ))),
+         g = _mm_cvtepi32_ps(_mm_and_si128(mask, _mm_srli_epi32(b16,  8))),
+         b = _mm_cvtepi32_ps(_mm_and_si128(mask, _mm_srli_epi32(b16, 16))),
+         a = _mm_cvtepi32_ps(                    _mm_srli_epi32(b16, 24));
     return { r,g,b,a };
 }
 
@@ -75,14 +72,11 @@ inline void Sk4x4f::transpose(float fs[16]) const {
 }
 
 inline void Sk4x4f::transpose(uint8_t bs[16]) const {
-    auto packed = _mm_packus_epi16(_mm_packus_epi16(_mm_cvttps_epi32(r.fVec),
-                                                    _mm_cvttps_epi32(g.fVec)),
-                                   _mm_packus_epi16(_mm_cvttps_epi32(b.fVec),
-                                                    _mm_cvttps_epi32(a.fVec)));
-    _mm_storeu_si128((__m128i*)bs, _mm_shuffle_epi8(packed, _mm_setr_epi8(0, 4,  8, 12,
-                                                                          1, 5,  9, 13,
-                                                                          2, 6, 10, 14,
-                                                                          3, 7, 11, 15)));
+    auto R =                _mm_cvttps_epi32(r.fVec),
+         G = _mm_slli_epi32(_mm_cvttps_epi32(g.fVec),  8),
+         B = _mm_slli_epi32(_mm_cvttps_epi32(b.fVec), 16),
+         A = _mm_slli_epi32(_mm_cvttps_epi32(a.fVec), 24);
+    _mm_storeu_si128((__m128i*)bs, _mm_or_si128(A, _mm_or_si128(B, _mm_or_si128(G, R))));
 }
 
 #else
