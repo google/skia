@@ -118,6 +118,10 @@
 #define SK_CPU_SSE_LEVEL_AVX      51
 #define SK_CPU_SSE_LEVEL_AVX2     52
 
+#ifdef SK_BUILD_FOR_IOS
+    #define SK_CPU_SSE_LEVEL 0  // We're tired of fighting with opts/ and iOS simulator.
+#endif
+
 // Are we in GCC?
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
