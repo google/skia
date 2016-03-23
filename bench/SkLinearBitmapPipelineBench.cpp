@@ -145,7 +145,7 @@ struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {
         SkPixmap srcPixmap{fInfo, fBitmap.get(), static_cast<size_t>(4 * width)};
 
         SkLinearBitmapPipeline pipeline{
-            fInvert, filterQuality, fXTile, fYTile, srcPixmap};
+            fInvert, filterQuality, fXTile, fYTile, 1.0f, srcPixmap};
 
         int count = 100;
 
@@ -262,6 +262,31 @@ DEF_BENCH(return new SkBitmapFPOrigShader(
     srcSize, kLinear_SkColorProfileType, mS, true,
     SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);)
 
+// Repeat
+DEF_BENCH(return new SkBitmapFPGeneral(
+    srcSize, kSRGB_SkColorProfileType, mS, false,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPGeneral(
+    srcSize, kLinear_SkColorProfileType, mS, false,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPOrigShader(
+    srcSize, kLinear_SkColorProfileType, mS, false,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPGeneral(
+    srcSize, kSRGB_SkColorProfileType, mS, true,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPGeneral(
+    srcSize, kLinear_SkColorProfileType, mS, true,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPOrigShader(
+    srcSize, kLinear_SkColorProfileType, mS, true,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
 static SkMatrix rotate(SkScalar r) {
     SkMatrix m;
     m.setRotate(30);
@@ -292,4 +317,30 @@ DEF_BENCH(return new SkBitmapFPGeneral(
 DEF_BENCH(return new SkBitmapFPOrigShader(
     srcSize, kLinear_SkColorProfileType, mR, true,
     SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);)
+
+// Repeat
+DEF_BENCH(return new SkBitmapFPGeneral(
+    srcSize, kSRGB_SkColorProfileType, mR, false,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPGeneral(
+    srcSize, kLinear_SkColorProfileType, mR, false,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPOrigShader(
+    srcSize, kLinear_SkColorProfileType, mR, false,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPGeneral(
+    srcSize, kSRGB_SkColorProfileType, mR, true,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPGeneral(
+    srcSize, kLinear_SkColorProfileType, mR, true,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
+DEF_BENCH(return new SkBitmapFPOrigShader(
+    srcSize, kLinear_SkColorProfileType, mR, true,
+    SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
+
 

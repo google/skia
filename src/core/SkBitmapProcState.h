@@ -35,7 +35,9 @@ struct SkBitmapProcInfo {
     const SkBitmapProvider fProvider;
 
     SkPixmap            fPixmap;
-    SkMatrix            fInvMatrix;         // copy of what is in fBMState, can we remove the dup?
+    SkMatrix            fInvMatrix;         // This changes based on tile mode.
+    // TODO: combine fInvMatrix and fRealInvMatrix.
+    SkMatrix            fRealInvMatrix;     // The actual inverse matrix.
     SkColor             fPaintColor;
     SkShader::TileMode  fTileModeX;
     SkShader::TileMode  fTileModeY;

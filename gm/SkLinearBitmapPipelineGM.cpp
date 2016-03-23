@@ -60,12 +60,16 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
     sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, pmsrc.addr32(), pmsrc.rowBytes())));
     SkPaint paint;
     int32_t storage[300];
-    paint.setShader(image->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode));
+
+    sk_sp<SkShader> shader = image->makeShader(SkShader::kRepeat_TileMode,
+                                               SkShader::kRepeat_TileMode);
+
     if (useBilerp) {
         paint.setFilterQuality(SkFilterQuality::kLow_SkFilterQuality);
     } else {
         paint.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
     }
+    paint.setShader(std::move(shader));
     const SkShader::ContextRec rec(paint, *mat, nullptr,
                                    SkBlitter::PreferredShaderDest(pmsrc.info()));
     SkASSERT(paint.getShader()->contextSize(rec) <= sizeof(storage));
@@ -79,7 +83,6 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
     canvas->drawBitmap(bmdst, r.left(), r.top(), nullptr);
 
     ctx->~Context();
-
 }
 
 static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkMatrix* mat, bool useBilerp) {
@@ -117,7 +120,7 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
 
     SkLinearBitmapPipeline pipeline{
             inv, filterQuality,
-            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, pmsrc};
+            SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, 1.0f, pmsrc};
 
     for (int y = 0; y < ir.height(); y++) {
         pipeline.shadeSpan4f(0, y, dstBits, ir.width());
@@ -161,9 +164,9 @@ DEF_SIMPLE_GM(linear_pipeline, canvas, 580, 2200) {
     SkMatrix mt2;
     mt2.setTranslate(-18, -18);
     SkMatrix ms;
-    ms.setScale(2.7f, 2.7f);
+    ms.setScale(2.7f, 2.7f, -1.5f, 0);
     SkMatrix ms2;
-    ms2.setScale(-0.2f, 0.2f);
+    ms2.setScale(-0.4f, 0.4f);
     SkMatrix mr;
     mr.setRotate(10);
 

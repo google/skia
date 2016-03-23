@@ -18,6 +18,10 @@
 #include "SkLinearBitmapPipeline_tile.h"
 
 
+DEF_TEST(LBPBilerpEdge, reporter) {
+
+}
+
 static SkString dump(SkScalar cut, Span prefix, Span remainder) {
     SkPoint prefixStart; SkScalar prefixLen; int prefixCount;
     std::tie(prefixStart, prefixLen, prefixCount) = prefix;
@@ -100,8 +104,13 @@ DEF_TEST(LBPSpanOps, reporter) {
     }
 }
 
-template <typename Tiler>
-static bool compare_tiler_case(Tiler& tiler, Span span, skiatest::Reporter* reporter) {
+DEF_TEST(LBPBilerpSpanOps, reporter) {
+
+}
+
+template <typename XTiler, typename YTiler>
+static bool compare_tiler_case(
+    XTiler& xTiler, YTiler& yTiler, Span span, skiatest::Reporter* reporter) {
     Span originalSpan = span;
     std::vector<SkPoint> listPoints;
     std::vector<SkPoint> spanPoints;
@@ -143,17 +152,24 @@ static bool compare_tiler_case(Tiler& tiler, Span span, skiatest::Reporter* repo
     while (count >= 4) {
         Sk4f txs = xs;
         Sk4f tys = ys;
-        tiler.processPoints(&txs, &tys);
+        xTiler.tileXPoints(&txs);
+        yTiler.tileYPoints(&tys);
         listSink.pointList4(txs, tys);
         xs = xs + 4.0f * dx;
         count -= 4;
     }
     if (count > 0) {
-        tiler.processPoints(&xs, &ys);
+        xTiler.tileXPoints(&xs);
+        yTiler.tileYPoints(&ys);
         listSink.pointListFew(count, xs, ys);
     }
 
-    bool handledSpan = tiler.maybeProcessSpan(span, &spanSink);
+    std::tie(start, length, count) = originalSpan;
+    SkScalar x = X(start);
+    SkScalar y = yTiler.tileY(Y(start));
+    Span yAdjustedSpan{{x, y}, length, count};
+
+    bool handledSpan = xTiler.maybeProcessSpan(yAdjustedSpan, &spanSink);
     if (handledSpan) {
         auto firstNotTheSame = std::mismatch(
             listPoints.begin(), listPoints.end(), spanPoints.begin());
@@ -184,9 +200,10 @@ static bool compare_tiler_case(Tiler& tiler, Span span, skiatest::Reporter* repo
     return true;
 }
 
-template <typename Tiler>
+template <typename XTiler, typename YTiler>
 static bool compare_tiler_spans(int width, int height, skiatest::Reporter* reporter) {
-    Tiler tiler{SkSize::Make((SkScalar)width, (SkScalar)height)};
+    XTiler xTiler{width};
+    YTiler yTiler{height};
     INFOF(reporter, "w: %d, h: %d \n", width, height);
     std::array<int, 8> interestingX {{-5, -1, 0, 1, width - 1, width, width + 1, width + 5}};
     std::array<int, 8> interestingY {{-5, -1, 0, 1, height - 1, height, height + 1, height + 5}};
@@ -198,7 +215,7 @@ static bool compare_tiler_spans(int width, int height, skiatest::Reporter* repor
                 for (auto y : interestingY) {
                     Span span{
                         SkPoint::Make((SkScalar)startX, (SkScalar)y), (count-1.0f) * scale, count};
-                    if (!compare_tiler_case(tiler, span, reporter)) {
+                    if (!compare_tiler_case(xTiler, yTiler, span, reporter)) {
                         return false;
                     }
                 }
@@ -208,23 +225,23 @@ static bool compare_tiler_spans(int width, int height, skiatest::Reporter* repor
     return true;
 }
 
-template <typename Tiler>
+template <typename XTiler, typename YTiler>
 static void test_tiler(skiatest::Reporter* reporter) {
     std::array<int, 6> interestingSize {{1, 2, 3, 4, 5, 10}};
     for (auto width : interestingSize) {
         for (auto height : interestingSize) {
-            if (!compare_tiler_spans<Tiler>(width, height, reporter)) { return; }
+            if (!compare_tiler_spans<XTiler, YTiler>(width, height, reporter)) { return; }
         }
     }
 }
-
+/*
 DEF_TEST(LBPStrategyClampTile, reporter) {
 #if 0
     ClampStrategy tiler{SkSize::Make(1, 1)};
     Span span{SkPoint::Make(0, -5), 1.0f, 2};
     compare_tiler_case<ClampStrategy>(tiler, span, reporter);
 #else
-    test_tiler<ClampStrategy>(reporter);
+    test_tiler<XClampStrategy, YClampStrategy>(reporter);
 #endif
 }
 
@@ -234,8 +251,7 @@ DEF_TEST(LBPStrategyRepeatTile, reporter) {
     Span span{SkPoint::Make(-5, -5), 20 * 2.1f, 100};
     compare_tiler_case<RepeatStrategy>(tiler, span, reporter);
 #else
-    test_tiler<RepeatStrategy>(reporter);
+    test_tiler<XRepeatStrategy, YRepeatStrategy>(reporter);
 #endif
 }
-
-
+*/

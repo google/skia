@@ -15,39 +15,30 @@
 #include <limits>
 
 namespace {
-class ClampStrategy {
+class XClampStrategy {
 public:
-    ClampStrategy(X max)
-        : fXMin{0.0f}, fXMax{max - 1.0f} { }
+    XClampStrategy(int32_t max)
+        : fXsMax{SkScalar(max - 0.5f)}
+        , fXMax{SkScalar(max)} { }
 
-    ClampStrategy(Y max)
-        : fYMin{0.0f}, fYMax{max - 1.0f} { }
-
-    ClampStrategy(SkSize max)
-        : fXMin{0.0f}, fYMin{0.0f}, fXMax{X(max) - 1.0f}, fYMax{Y(max) - 1.0f} { }
-
-    void processPoints(Sk4s* xs, Sk4s* ys) {
-        *xs = Sk4s::Min(Sk4s::Max(*xs, fXMin), fXMax);
-        *ys = Sk4s::Min(Sk4s::Max(*ys, fYMin), fYMax);
+    void tileXPoints(Sk4s* xs) {
+        *xs = Sk4s::Min(Sk4s::Max(*xs, 0.0f), fXsMax);
+        SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXMax);
+        SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXMax);
+        SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXMax);
+        SkASSERT(0 <= (*xs)[3] && (*xs)[3] < fXMax);
     }
 
     template<typename Next>
     bool maybeProcessSpan(Span originalSpan, Next* next) {
         SkASSERT(!originalSpan.isEmpty());
-        SkPoint start;
-        SkScalar length;
-        int count;
+        SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = originalSpan;
-        SkScalar xMin = fXMin[0];
-        SkScalar xMax = fXMax[0] + 1.0f;
-        SkScalar yMin = fYMin[0];
-        SkScalar yMax = fYMax[0];
         SkScalar x = X(start);
-        SkScalar y = std::min(std::max<SkScalar>(yMin, Y(start)), yMax);
-
+        SkScalar y = Y(start);
         Span span{{x, y}, length, count};
 
-        if (span.completelyWithin(xMin, xMax)) {
+        if (span.completelyWithin(0.0f, fXMax)) {
             next->pointSpan(span);
             return true;
         }
@@ -85,84 +76,100 @@ public:
         // * Over - for the portion of the span > xMax, take the color at pixel {xMax-1, y} and
         //   use it to fill in the rest of the destination pixels.
         if (dx >= 0) {
-            Span leftClamped = span.breakAt(xMin, dx);
+            Span leftClamped = span.breakAt(0.0f, dx);
             if (!leftClamped.isEmpty()) {
-                leftClamped.clampToSinglePixel({xMin, y});
+                leftClamped.clampToSinglePixel({0.0f, y});
                 next->pointSpan(leftClamped);
             }
-            Span middle = span.breakAt(xMax, dx);
-            if (!middle.isEmpty()) {
-                next->pointSpan(middle);
+            Span center = span.breakAt(fXMax, dx);
+            if (!center.isEmpty()) {
+                next->pointSpan(center);
             }
             if (!span.isEmpty()) {
-                span.clampToSinglePixel({xMax - 1, y});
+                span.clampToSinglePixel({fXMax - 1, y});
                 next->pointSpan(span);
             }
         } else {
-            Span rightClamped = span.breakAt(xMax, dx);
+            Span center = span.breakAt(fXMax, dx);
 
-            if (!rightClamped.isEmpty()) {
-                rightClamped.clampToSinglePixel({xMax - 1, y});
-                next->pointSpan(rightClamped);
-            }
-            Span middle = span.breakAt(xMin, dx);
-            if (!middle.isEmpty()) {
-                next->pointSpan(middle);
-            }
             if (!span.isEmpty()) {
-                span.clampToSinglePixel({xMin, y});
+                span.clampToSinglePixel({fXMax - 1, y});
                 next->pointSpan(span);
+            }
+            Span leftEdge = center.breakAt(0.0f, dx);
+            if (!center.isEmpty()) {
+                next->pointSpan(center);
+            }
+            if (!leftEdge.isEmpty()) {
+                leftEdge.clampToSinglePixel({0.0f, y});
+                next->pointSpan(leftEdge);
             }
         }
         return true;
     }
 
-    template <typename Next>
-    bool maybeProcessBilerpSpan(BilerpSpan bSpan, Next* next) {
-        return false;
+private:
+    const Sk4s     fXsMax;
+    const SkScalar fXMax;
+};
+
+class YClampStrategy {
+public:
+    YClampStrategy(int32_t max)
+        : fYMax{SkScalar(max) - 0.5f}
+        , fYsMax{SkScalar(max) - 0.5f} { }
+
+    void tileYPoints(Sk4s* ys) {
+        *ys = Sk4s::Min(Sk4s::Max(*ys, 0.0f), fYsMax);
+        SkASSERT(0 <= (*ys)[0] && (*ys)[0] <= fYMax);
+        SkASSERT(0 <= (*ys)[1] && (*ys)[1] <= fYMax);
+        SkASSERT(0 <= (*ys)[2] && (*ys)[2] <= fYMax);
+        SkASSERT(0 <= (*ys)[3] && (*ys)[3] <= fYMax);
+    }
+
+    SkScalar tileY(SkScalar y) {
+        return std::min(std::max<SkScalar>(0.0f, y), fYMax);
     }
 
 private:
-    const Sk4s fXMin{SK_FloatNegativeInfinity};
-    const Sk4s fYMin{SK_FloatNegativeInfinity};
-    const Sk4s fXMax{SK_FloatInfinity};
-    const Sk4s fYMax{SK_FloatInfinity};
+    const SkScalar fYMax;
+    const Sk4s     fYsMax;
 };
 
-class RepeatStrategy {
+SkScalar tile_mod(SkScalar x, SkScalar base) {
+    return x - SkScalarFloorToScalar(x / base) * base;
+}
+
+class XRepeatStrategy {
 public:
-    RepeatStrategy(X max) : fXMax{max}, fXInvMax{1.0f / max} { }
+    XRepeatStrategy(int32_t max)
+        : fXMax{SkScalar(max)}
+        , fXsMax{SkScalar(max)}
+        , fXsCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
+        , fXsInvMax{1.0f / SkScalar(max)} { }
 
-    RepeatStrategy(Y max) : fYMax{max}, fYInvMax{1.0f / max} { }
-
-    RepeatStrategy(SkSize max)
-        : fXMax{X(max)}, fXInvMax{1.0f / X(max)}, fYMax{Y(max)}, fYInvMax{1.0f / Y(max)} { }
-
-    void processPoints(Sk4s* xs, Sk4s* ys) {
-        Sk4s divX = (*xs * fXInvMax).floor();
-        Sk4s divY = (*ys * fYInvMax).floor();
-        Sk4s baseX = (divX * fXMax);
-        Sk4s baseY = (divY * fYMax);
-        *xs = *xs - baseX;
-        *ys = *ys - baseY;
+    void tileXPoints(Sk4s* xs) {
+        Sk4s divX = *xs * fXsInvMax;
+        Sk4s modX = *xs - divX.floor() * fXsMax;
+        *xs = Sk4s::Min(fXsCap, modX);
+        SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXMax);
+        SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXMax);
+        SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXMax);
+        SkASSERT(0 <= (*xs)[3] && (*xs)[3] < fXMax);
     }
 
     template<typename Next>
     bool maybeProcessSpan(Span originalSpan, Next* next) {
         SkASSERT(!originalSpan.isEmpty());
-        SkPoint start;
-        SkScalar length;
-        int count;
+        SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = originalSpan;
         // Make x and y in range on the tile.
-        SkScalar x = TileMod(X(start), fXMax[0]);
-        SkScalar y = TileMod(Y(start), fYMax[0]);
-        SkScalar xMax = fXMax[0];
-        SkScalar xMin = 0.0f;
+        SkScalar x = tile_mod(X(start), fXMax);
+        SkScalar y = Y(start);
         SkScalar dx = length / (count - 1);
 
         // No need trying to go fast because the steps are larger than a tile or there is one point.
-        if (SkScalarAbs(dx) >= xMax || count <= 1) {
+        if (SkScalarAbs(dx) >= fXMax || count <= 1) {
             return false;
         }
 
@@ -199,16 +206,16 @@ public:
 
         Span span({x, y}, length, count);
         if (dx > 0) {
-            while (!span.isEmpty() && span.endX() >= xMax) {
-                Span toDraw = span.breakAt(xMax, dx);
+            while (!span.isEmpty() && span.endX() >= fXMax) {
+                Span toDraw = span.breakAt(fXMax, dx);
                 next->pointSpan(toDraw);
-                span.offset(-xMax);
+                span.offset(-fXMax);
             }
         } else {
-            while (!span.isEmpty() && span.endX() < xMin) {
-                Span toDraw = span.breakAt(xMin, dx);
+            while (!span.isEmpty() && span.endX() < 0.0f) {
+                Span toDraw = span.breakAt(0.0f, dx);
                 next->pointSpan(toDraw);
-                span.offset(xMax);
+                span.offset(fXMax);
             }
         }
 
@@ -220,19 +227,106 @@ public:
         return true;
     }
 
-    template <typename Next>
-    bool maybeProcessBilerpSpan(BilerpSpan bSpan, Next* next) {
-        return false;
+private:
+    const SkScalar fXMax;
+    const Sk4s     fXsMax;
+    const Sk4s     fXsCap;
+    const Sk4s     fXsInvMax;
+};
+
+class YRepeatStrategy {
+public:
+    YRepeatStrategy(int32_t max)
+        : fYMax{SkScalar(max)}
+        , fYsMax{SkScalar(max)}
+        , fYsInvMax{1.0f / SkScalar(max)} { }
+
+    void tileYPoints(Sk4s* ys) {
+        Sk4s divY = *ys * fYsInvMax;
+        Sk4s modY = *ys - divY.floor() * fYsMax;
+        *ys = modY;
+        SkASSERT(0 <= (*ys)[0] && (*ys)[0] < fYMax);
+        SkASSERT(0 <= (*ys)[1] && (*ys)[1] < fYMax);
+        SkASSERT(0 <= (*ys)[2] && (*ys)[2] < fYMax);
+        SkASSERT(0 <= (*ys)[3] && (*ys)[3] < fYMax);
+    }
+
+    SkScalar tileY(SkScalar y) {
+        SkScalar answer = tile_mod(y, fYMax);
+        SkASSERT(0 <= answer && answer < fYMax);
+        return answer;
     }
 
 private:
-    SkScalar TileMod(SkScalar x, SkScalar base) {
-        return x - std::floor(x / base) * base;
+    const SkScalar fYMax;
+    const Sk4s     fYsMax;
+    const Sk4s     fYsInvMax;
+};
+// max = 40
+// mq2[x_] := Abs[(x - 40) - Floor[(x - 40)/80] * 80 - 40]
+class XMirrorStrategy {
+public:
+    XMirrorStrategy(int32_t max)
+        : fXsMax{SkScalar(max)}
+        , fXsCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
+        , fXsDoubleInvMax{1.0f / (2.0f * SkScalar(max))} { }
+
+    void tileXPoints(Sk4s* xs) {
+        Sk4f bias   = *xs - fXsMax;
+        Sk4f div    = bias * fXsDoubleInvMax;
+        Sk4f mod    = bias - div.floor() * 2.0f * fXsMax;
+        Sk4f unbias = mod - fXsMax;
+        *xs = Sk4f::Min(unbias.abs(), fXsCap);
+        SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXsMax[0]);
+        SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXsMax[0]);
+        SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXsMax[0]);
+        SkASSERT(0 <= (*xs)[3] && (*xs)[3] < fXsMax[0]);
     }
-    const Sk4s fXMax{0.0f};
-    const Sk4s fXInvMax{0.0f};
-    const Sk4s fYMax{0.0f};
-    const Sk4s fYInvMax{0.0f};
+
+    template <typename Next>
+    bool maybeProcessSpan(Span originalSpan, Next* next) { return false; }
+
+private:
+    Sk4f     fXsMax;
+    Sk4f     fXsCap;
+    Sk4f     fXsDoubleInvMax;
+};
+
+class YMirrorStrategy {
+public:
+    YMirrorStrategy(int32_t max)
+        : fYMax{SkScalar(max)}
+        , fYsMax{SkScalar(max)}
+        , fYsCap{nextafterf(SkScalar(max), 0.0f)}
+        , fYsDoubleInvMax{1.0f / (2.0f * SkScalar(max))} { }
+
+    void tileYPoints(Sk4s* ys) {
+        Sk4f bias   = *ys - fYsMax;
+        Sk4f div    = bias * fYsDoubleInvMax;
+        Sk4f mod    = bias - div.floor() * 2.0f * fYsMax;
+        Sk4f unbias = mod - fYsMax;
+        *ys = Sk4f::Min(unbias.abs(), fYsCap);
+        SkASSERT(0 <= (*ys)[0] && (*ys)[0] < fYMax);
+        SkASSERT(0 <= (*ys)[1] && (*ys)[1] < fYMax);
+        SkASSERT(0 <= (*ys)[2] && (*ys)[2] < fYMax);
+        SkASSERT(0 <= (*ys)[3] && (*ys)[3] < fYMax);
+    }
+
+    SkScalar tileY(SkScalar y) {
+        SkScalar bias   = y - fYMax;
+        SkScalar div    = bias * fYsDoubleInvMax[0];
+        SkScalar mod    = bias - SkScalarFloorToScalar(div) * 2.0f * fYMax;
+        SkScalar unbias = mod - fYMax;
+        SkScalar answer = SkMinScalar(SkScalarAbs(unbias), fYsCap[0]);
+        SkASSERT(0 <= answer && answer < fYMax);
+        return answer;
+    };
+
+private:
+    SkScalar fYMax;
+    Sk4f     fYsMax;
+    Sk4f     fYsCap;
+    Sk4f     fYsDoubleInvMax;
 };
 
 }  // namespace

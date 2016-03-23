@@ -85,6 +85,34 @@ private:
     const Sk4s fXSkew,   fYSkew;
 };
 
+class PerspectiveMatrixStrategy {
+public:
+    PerspectiveMatrixStrategy(SkVector offset, SkVector scale, SkVector skew,
+                              SkVector zSkew, SkScalar zOffset)
+        : fXOffset{X(offset)}, fYOffset{Y(offset)}, fZOffset{zOffset}
+        , fXScale{X(scale)},   fYScale{Y(scale)}
+        , fXSkew{X(skew)},     fYSkew{Y(skew)}, fZXSkew{X(zSkew)}, fZYSkew{Y(zSkew)} { }
+    void processPoints(Sk4s* xs, Sk4s* ys) {
+        Sk4s newXs = fXScale * *xs +  fXSkew * *ys + fXOffset;
+        Sk4s newYs =  fYSkew * *xs + fYScale * *ys + fYOffset;
+        Sk4s newZs =  fZXSkew * *xs + fZYSkew * *ys + fZOffset;
+
+        *xs = newXs / newZs;
+        *ys = newYs / newZs;
+    }
+
+    template <typename Next>
+    bool maybeProcessSpan(Span span, Next* next) {
+        return false;
+    }
+
+private:
+    const Sk4s fXOffset, fYOffset, fZOffset;
+    const Sk4s fXScale,  fYScale;
+    const Sk4s fXSkew,   fYSkew, fZXSkew, fZYSkew;
+};
+
+
 }  // namespace
 
 #endif  // SkLinearBitmapPipeline_matrix_DEFINED

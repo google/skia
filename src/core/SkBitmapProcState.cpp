@@ -138,6 +138,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     }
     fPixmap = fBMState->pixmap();
     fInvMatrix = fBMState->invMatrix();
+    fRealInvMatrix = fBMState->invMatrix();
     fPaintColor = paint.getColor();
     fFilterQuality = fBMState->quality();
     SkASSERT(fPixmap.addr());
@@ -198,7 +199,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
             fFilterQuality = kNone_SkFilterQuality;
         }
     }
-    
+
     return true;
 }
 
@@ -332,7 +333,7 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
             S4444_alpha_D32_filter_DXDY,
             S4444_opaque_D32_filter_DX,
             S4444_alpha_D32_filter_DX,
-            
+
             // A8 treats alpha/opaque the same (equally efficient)
             SA8_alpha_D32_nofilter_DXDY,
             SA8_alpha_D32_nofilter_DXDY,
@@ -342,7 +343,7 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
             SA8_alpha_D32_filter_DXDY,
             SA8_alpha_D32_filter_DX,
             SA8_alpha_D32_filter_DX,
-            
+
             // todo: possibly specialize on opaqueness
             SG8_alpha_D32_nofilter_DXDY,
             SG8_alpha_D32_nofilter_DXDY,

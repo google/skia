@@ -46,7 +46,7 @@ public:
     ~BitmapProcInfoContext() override {
         fInfo->~SkBitmapProcInfo();
     }
-    
+
     uint32_t getFlags() const override { return fFlags; }
 
 private:
@@ -123,8 +123,10 @@ public:
     {
         // Need to ensure that our pipeline is created at a 16byte aligned address
         fPipeline = (SkLinearBitmapPipeline*)SkAlign16((intptr_t)fStorage);
-        new (fPipeline) SkLinearBitmapPipeline(info->fInvMatrix, info->fFilterQuality,
+        float alpha = SkColorGetA(info->fPaintColor) / 255.0f;
+        new (fPipeline) SkLinearBitmapPipeline(info->fRealInvMatrix, info->fFilterQuality,
                                                info->fTileModeX, info->fTileModeY,
+                                               alpha,
                                                info->fPixmap);
 
         // To implement the old shadeSpan entry-point, we need to efficiently convert our native
@@ -175,7 +177,8 @@ static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImag
     // These src attributes are not supported in the new 4f context (yet)
     //
     if (srcInfo.bytesPerPixel() < 4 ||
-        kRGBA_F16_SkColorType == srcInfo.colorType()) {
+        kRGBA_F16_SkColorType == srcInfo.colorType() ||
+        kIndex_8_SkColorType == srcInfo.colorType()) {
         return false;
     }
 
@@ -211,31 +214,23 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
         return nullptr;
     }
 
-    // Decide if we can/want to use the new linear pipeine
+    // Decide if we can/want to use the new linear pipeline
     bool useLinearPipeline = choose_linear_pipeline(rec, provider.info());
-
-    // New code doesn't support Mirror (YET), so we detect that here.
-    //
-    if (SkShader::kMirror_TileMode == tmx || SkShader::kMirror_TileMode == tmy) {
-        useLinearPipeline = false;
-    }
-
-    // New code doesn't support Mirror (YET), so we detect that here.
-    //
-    if (totalInverse.hasPerspective()) {
-        useLinearPipeline = false;
-    }
 
     //
     // For now, only enable locally since we are hitting some crashers on the test bots
     //
-    useLinearPipeline = false;
+    //useLinearPipeline = false;
 
     if (useLinearPipeline) {
         void* infoStorage = (char*)storage + sizeof(LinearPipelineContext);
         SkBitmapProcInfo* info = new (infoStorage) SkBitmapProcInfo(provider, tmx, tmy);
         if (!info->init(totalInverse, *rec.fPaint)) {
             info->~SkBitmapProcInfo();
+            return nullptr;
+        }
+        if (info->fPixmap.colorType() != kRGBA_8888_SkColorType
+            && info->fPixmap.colorType() != kBGRA_8888_SkColorType) {
             return nullptr;
         }
         return new (storage) LinearPipelineContext(shader, rec, info);

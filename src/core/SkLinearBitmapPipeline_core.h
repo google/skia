@@ -10,6 +10,16 @@
 
 #include <cmath>
 
+// New bilerp strategy:
+// Pass through on bilerpList4 and bilerpListFew (analogs to pointList), introduce bilerpEdge
+// which takes 4 points. If the sample spans an edge, then break it into a bilerpEdge. Bilerp
+// span then becomes a normal span except in special cases where an extra Y is given. The bilerp
+// need to stay single point calculations until the tile layer.
+// TODO:
+//  - edge span predicate.
+//  - introduce new point API
+//  - Add tile for new api.
+
 // Tweak ABI of functions that pass Sk4f by value to pass them via registers.
 #if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #define VECTORCALL __vectorcall
@@ -65,12 +75,13 @@ public:
     }
 
     bool isEmpty() const { return 0 == fCount; }
+    void clear() { fCount = 0; }
+    int count() const { return fCount; }
     SkScalar length() const { return fLength; }
     SkScalar startX() const { return X(fStart); }
-    SkScalar endX() const { return startX() + length(); }
-    void clear() {
-        fCount = 0;
-    }
+    SkScalar endX() const { return this->startX() + this->length(); }
+    SkScalar startY() const { return Y(fStart); }
+    Span emptySpan() { return Span{{0.0, 0.0}, 0.0f, 0}; }
 
     bool completelyWithin(SkScalar xMin, SkScalar xMax) const {
         SkScalar sMin, sMax;
@@ -88,23 +99,23 @@ public:
         SkASSERT(dx != 0.0f);
 
         if (this->isEmpty()) {
-            return Span{{0.0, 0.0}, 0.0f, 0};
+            return this->emptySpan();
         }
 
         int dxSteps = SkScalarFloorToInt((breakX - this->startX()) / dx);
 
-        // Calculate the values for the span to cleave off.
-        SkScalar newLength = dxSteps * dx;
-
         if (dxSteps < 0) {
             // The span is wholly after breakX.
-            return Span{{0.0, 0.0}, 0.0f, 0};
+            return this->emptySpan();
         } else if (dxSteps >= fCount) {
             // The span is wholly before breakX.
             Span answer = *this;
             this->clear();
             return answer;
         }
+
+        // Calculate the values for the span to cleave off.
+        SkScalar newLength = dxSteps * dx;
 
         // If the last (or first if count = 1) sample lands directly on the boundary. Include it
         // when dx < 0 and exclude it when dx > 0.
@@ -113,15 +124,16 @@ public:
         // pixel is after the boundary.
         //  dx < 0: The sample point on the boundary is part of the current span because the
         // entire pixel is before the boundary.
-        if (startX() + newLength == breakX && dx > 0) {
-            if (dxSteps != 0) {
+        if (this->startX() + newLength == breakX && dx > 0) {
+            if (dxSteps > 0) {
                 dxSteps -= 1;
                 newLength -= dx;
             } else {
-                return Span{{0.0, 0.0}, 0.0f, 0};
+                return this->emptySpan();
             }
         }
 
+        // Calculate new span parameters
         SkPoint newStart = fStart;
         int newCount = dxSteps + 1;
         SkASSERT(newCount > 0);
@@ -142,39 +154,6 @@ public:
 
 private:
     SkPoint  fStart;
-    SkScalar fLength;
-    int      fCount;
-};
-
-// BilerpSpans are similar to Spans, but they represent four source samples converting to single
-// destination pixel per count. The pixels for the four samples are collect along two horizontal
-// lines; one starting at {x, y0} and the other starting at {x, y1}. There are two distinct lines
-// to deal with the edge case of the tile mode. For example, y0 may be at the last y position in
-// a tile while y1 would be at the first.
-// The step of a Bilerp (dx) is still length / (count - 1) and the start to the next sample is
-// still dx * count, but the bounds are complicated by the sampling kernel so that the pixels
-// touched are from x to x + length + 1.
-class BilerpSpan {
-public:
-    BilerpSpan(SkScalar x, SkScalar y0, SkScalar y1, SkScalar length, int count)
-        : fX{x}, fY0{y0}, fY1{y1}, fLength{length}, fCount{count} {
-        SkASSERT(count >= 0);
-        SkASSERT(std::isfinite(length));
-        SkASSERT(std::isfinite(x));
-        SkASSERT(std::isfinite(y0));
-        SkASSERT(std::isfinite(y1));
-    }
-
-    operator std::tuple<SkScalar&, SkScalar&, SkScalar&, SkScalar&, int&>() {
-        return std::tie(fX, fY0, fY1, fLength, fCount);
-    }
-
-    bool isEmpty() const { return 0 == fCount; }
-
-private:
-    SkScalar fX;
-    SkScalar fY0;
-    SkScalar fY1;
     SkScalar fLength;
     int      fCount;
 };
@@ -204,26 +183,6 @@ void span_fallback(Span span, Stage* stage) {
     }
     if (count > 0) {
         stage->pointListFew(count, xs, ys);
-    }
-}
-
-template <typename Next>
-void bilerp_span_fallback(BilerpSpan span, Next* next) {
-    SkScalar x, y0, y1; SkScalar length; int count;
-    std::tie(x, y0, y1, length, count) = span;
-
-    SkASSERT(!span.isEmpty());
-    float dx = length / (count - 1);
-
-    Sk4f xs = Sk4f{x} + Sk4f{0.0f,  1.0f, 0.0f, 1.0f};
-    Sk4f ys = Sk4f{y0, y0,  y1, y1};
-
-    // If count == 1 then dx will be inf or NaN, but that is ok because the resulting addition is
-    // never used.
-    while (count > 0) {
-        next->bilerpList(xs, ys);
-        xs = xs + dx;
-        count -= 1;
     }
 }
 }  // namespace
