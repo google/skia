@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkSwizzle.h"
 #include "SkSwizzler.h"
 #include "Test.h"
 #include "SkOpts.h"
@@ -156,4 +157,13 @@ DEF_TEST(SwizzleOpts, r) {
     // all together now
     SkOpts::RGBA_to_bgrA(&dst, &src, 1);
     REPORTER_ASSERT(r, dst == 0xFA04ADCA);
+}
+
+DEF_TEST(PublicSwizzleOpts, r) {
+    uint32_t dst, src;
+
+    // check a totally arbitrary color
+    src = 0xFACEB004;
+    SkSwapRB(&dst, &src, 1);
+    REPORTER_ASSERT(r, dst == 0xFA04B0CE);
 }
