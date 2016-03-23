@@ -22,8 +22,8 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
-                                  SkIPoint* offset) const override;
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
+                                 SkIPoint* loc) const override;
     bool onIsColorFilterNode(SkColorFilter**) const override;
     bool canComputeFastBounds() const override;
 
