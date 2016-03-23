@@ -170,12 +170,6 @@ public:
     SkIRect filterBounds(const SkIRect& src, const SkMatrix& ctm,
                          MapDirection = kReverse_MapDirection) const;
 
-#ifdef SK_SUPPORT_LEGACY_FILTERBOUNDS_RETURN
-    /* DEPRECATED */
-    bool filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst,
-                      MapDirection = kReverse_MapDirection) const;
-#endif
-
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most
      *  often used for multi-pass effects, where intermediate results must be

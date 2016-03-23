@@ -290,14 +290,6 @@ bool SkImageFilter::filterInputDeprecated(int index, Proxy* proxy, const SkBitma
     return tmp->internal_getBM(result);
 }
 
-#ifdef SK_SUPPORT_LEGACY_FILTERBOUNDS_RETURN
-bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst,
-                                 MapDirection direction) const {
-    *dst = filterBounds(src, ctm, direction);
-    return true;
-}
-#endif
-
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
                                  MapDirection direction) const {
     if (kReverse_MapDirection == direction) {
