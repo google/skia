@@ -102,6 +102,14 @@ void GrGLGetDriverInfo(GrGLStandard standard,
 
     *outDriver = kUnknown_GrGLDriver;
     *outVersion = GR_GL_DRIVER_UNKNOWN_VER;
+    // These null checks are for test GL contexts that return nullptr in their
+    // glGetString implementation.
+    if (!rendererString) {
+        rendererString = "";
+    }
+    if (!versionString) {
+        versionString = "";
+    }
 
     if (0 == strcmp(rendererString, "Chromium")) {
         *outDriver = kChromium_GrGLDriver;
