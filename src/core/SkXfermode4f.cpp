@@ -8,6 +8,7 @@
 #include "SkPM4fPriv.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
+#include "Sk4x4f.h"
 
 static SkPM4f rgba_to_pmcolor_order(const SkPM4f& x) {
 #ifdef SK_PMCOLOR_IS_BGRA
@@ -235,81 +236,50 @@ const SkXfermode::D32Proc gProcs_Dst[] = {
 
 
 static void srcover_n_srgb_bw(uint32_t dst[], const SkPM4f src[], int count) {
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3  // For _mm_shuffle_epi8
     while (count >= 4) {
         // Load 4 sRGB RGBA/BGRA 8888 dst pixels.
         // We'll write most of this as if they're RGBA, and just swizzle the src pixels to match.
-        __m128i d4 = _mm_loadu_si128((const __m128i*)dst);
-
-        // Transpose into planar and convert each plane to float.
-        auto _ = ~0;  // Shuffles in a zero byte.
-        auto dr = _mm_cvtepi32_ps(
-                _mm_shuffle_epi8(d4, _mm_setr_epi8(0,_,_,_, 4,_,_,_, 8,_,_,_,12,_,_,_)));
-        auto dg = _mm_cvtepi32_ps(
-                _mm_shuffle_epi8(d4, _mm_setr_epi8(1,_,_,_, 5,_,_,_, 9,_,_,_,13,_,_,_)));
-        auto db = _mm_cvtepi32_ps(
-                _mm_shuffle_epi8(d4, _mm_setr_epi8(2,_,_,_, 6,_,_,_,10,_,_,_,14,_,_,_)));
-        auto da = _mm_cvtepi32_ps(
-                _mm_shuffle_epi8(d4, _mm_setr_epi8(3,_,_,_, 7,_,_,_,11,_,_,_,15,_,_,_)));
+        auto d = Sk4x4f::Transpose((const uint8_t*)dst);
 
         // Scale to [0,1].
-        dr = _mm_mul_ps(dr, _mm_set1_ps(1/255.0f));
-        dg = _mm_mul_ps(dg, _mm_set1_ps(1/255.0f));
-        db = _mm_mul_ps(db, _mm_set1_ps(1/255.0f));
-        da = _mm_mul_ps(da, _mm_set1_ps(1/255.0f));
+        d.r *= 1/255.0f;
+        d.g *= 1/255.0f;
+        d.b *= 1/255.0f;
+        d.a *= 1/255.0f;
 
         // Apply approximate sRGB gamma correction to convert to linear (as if gamma were 2).
-        dr = _mm_mul_ps(dr, dr);
-        dg = _mm_mul_ps(dg, dg);
-        db = _mm_mul_ps(db, db);
+        d.r *= d.r;
+        d.g *= d.g;
+        d.b *= d.b;
 
         // Load 4 linear float src pixels.
-        auto s0 = _mm_loadu_ps(src[0].fVec),
-             s1 = _mm_loadu_ps(src[1].fVec),
-             s2 = _mm_loadu_ps(src[2].fVec),
-             s3 = _mm_loadu_ps(src[3].fVec);
-
-        // Transpose src pixels to planar too, and give the registers better names.
-        _MM_TRANSPOSE4_PS(s0, s1, s2, s3);
-        auto sr = s0,
-             sg = s1,
-             sb = s2,
-             sa = s3;
+        auto s = Sk4x4f::Transpose(src->fVec);
 
         // Match color order with destination, if necessary.
     #if defined(SK_PMCOLOR_IS_BGRA)
-        SkTSwap(sr, sb);
+        SkTSwap(s.r, s.b);
     #endif
 
         // Now, the meat of what we wanted to do... perform the srcover blend.
-        auto invSA = _mm_sub_ps(_mm_set1_ps(1), sa);
-        auto r = _mm_add_ps(sr, _mm_mul_ps(dr, invSA)),
-             g = _mm_add_ps(sg, _mm_mul_ps(dg, invSA)),
-             b = _mm_add_ps(sb, _mm_mul_ps(db, invSA)),
-             a = _mm_add_ps(sa, _mm_mul_ps(da, invSA));
+        auto invSA = 1.0f - s.a;
+        auto r = s.r + d.r * invSA,
+             g = s.g + d.g * invSA,
+             b = s.b + d.b * invSA,
+             a = s.a + d.a * invSA;
 
         // Convert back to sRGB and [0,255], again approximating sRGB as gamma == 2.
-        r = _mm_mul_ps(_mm_sqrt_ps(r), _mm_set1_ps(255));
-        g = _mm_mul_ps(_mm_sqrt_ps(g), _mm_set1_ps(255));
-        b = _mm_mul_ps(_mm_sqrt_ps(b), _mm_set1_ps(255));
-        a = _mm_mul_ps(           (a), _mm_set1_ps(255));
+        r = r.sqrt() * 255.0f + 0.5f;
+        g = g.sqrt() * 255.0f + 0.5f;
+        b = b.sqrt() * 255.0f + 0.5f;
+        a = a        * 255.0f + 0.5f;
 
-        // Convert to int (with rounding) and pack back down to planar 8-bit.
-        __m128i x = _mm_packus_epi16(_mm_packus_epi16(_mm_cvtps_epi32(r), _mm_cvtps_epi32(g)),
-                                     _mm_packus_epi16(_mm_cvtps_epi32(b), _mm_cvtps_epi32(a)));
-
-        // Transpose back to interlaced RGBA and write back to dst.
-        x = _mm_shuffle_epi8(x, _mm_setr_epi8(0, 4,  8, 12,
-                                              1, 5,  9, 13,
-                                              2, 6, 10, 14,
-                                              3, 7, 11, 15));
-        _mm_storeu_si128((__m128i*)dst, x);
+        Sk4x4f{r,g,b,a}.transpose((uint8_t*)dst);
 
         count -= 4;
         dst += 4;
         src += 4;
     }
-#endif
+
     // This should look just like the non-specialized case in srcover_n.
     for (int i = 0; i < count; ++i) {
         Sk4f s4 = src[i].to4f_pmorder();
