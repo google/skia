@@ -28,12 +28,9 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
-                                 SkIPoint* offset) const override;
+    SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
+                                  SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
-    bool canFilterImageGPU() const override { return true; }
-    bool filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                  SkBitmap* result, SkIPoint* offset) const override;
 
 private:
     SkBlurImageFilter(SkScalar sigmaX,

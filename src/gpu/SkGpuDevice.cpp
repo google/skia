@@ -221,6 +221,38 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(
     return texture->asRenderTarget();
 }
 
+// This method ensures that we always have a texture-backed "bitmap" when we finally
+// call through to the base impl so that the image filtering code will take the
+// gpu-specific paths. This mirrors SkCanvas::internalDrawDevice (the other
+// use of SkImageFilter::filterImage) in that the source and dest will have
+// homogenous backing (e.g., raster or gpu).
+void SkGpuDevice::drawBitmapAsSpriteWithImageFilter(const SkDraw& draw, const SkBitmap& bitmap,
+                                                    int x, int y, const SkPaint& paint) {
+    if (bitmap.getTexture()) {
+        INHERITED::drawBitmapAsSpriteWithImageFilter(draw, bitmap, x, y, paint);
+        return;
+    }
+
+    SkAutoLockPixels alp(bitmap, !bitmap.getTexture());
+    if (!bitmap.getTexture() && !bitmap.readyToDraw()) {
+        return;
+    }
+
+    GrTexture* texture;
+    // draw sprite neither filters nor tiles.
+    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(), &texture);
+    if (!texture) {
+        return;
+    }
+
+    SkBitmap newBitmap;
+
+    GrWrapTextureInBitmap(texture, texture->width(), texture->height(),
+                          bitmap.isOpaque(), &newBitmap);
+
+    INHERITED::drawBitmapAsSpriteWithImageFilter(draw, newBitmap, x, y, paint);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,

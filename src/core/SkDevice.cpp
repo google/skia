@@ -403,10 +403,13 @@ void SkBaseDevice::drawTextOnPath(const SkDraw& draw, const void* text, size_t b
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::drawBitmapAsSprite(const SkDraw& draw, const SkBitmap& bitmap, int x, int y,
-                                      const SkPaint& paint) {
+void SkBaseDevice::drawBitmapAsSpriteWithImageFilter(const SkDraw& draw, const SkBitmap& bitmap,
+                                                     int x, int y,
+                                                     const SkPaint& paint) {
     SkImageFilter* filter = paint.getImageFilter();
-    if (filter && !this->canHandleImageFilter(filter)) {
+    SkASSERT(filter);
+
+    if (!this->canHandleImageFilter(filter)) {
         SkImageFilter::DeviceProxy proxy(this);
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix = *draw.fMatrix;
