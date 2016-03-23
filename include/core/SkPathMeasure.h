@@ -63,7 +63,7 @@ public:
 
     /** Given a start and stop distance, return in dst the intervening segment(s).
         If the segment is zero-length, return false, else return true.
-        startD and stopD are pinned to legal values (0..getLength()). If startD <= stopD
+        startD and stopD are pinned to legal values (0..getLength()). If startD > stopD
         then return false (and leave dst untouched).
         Begin the segment with a moveTo if startWithMoveTo is true
     */
