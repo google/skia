@@ -11,7 +11,6 @@
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkImageDecoder.h"
 
 SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
         SkData* data, Strategy strategy) {

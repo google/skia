@@ -10,6 +10,7 @@
 #define SkWriteBuffer_DEFINED
 
 #include "SkData.h"
+#include "SkImage.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPixelSerializer.h"
