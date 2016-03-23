@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkDropShadowImageFilter_DEFINED
+#define SkDropShadowImageFilter_DEFINED
+
 #include "SkColor.h"
 #include "SkImageFilter.h"
 #include "SkScalar.h"
@@ -33,8 +36,8 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result,
-                                 SkIPoint* loc) const override;
+    SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
+                                  SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
 
 private:
@@ -47,3 +50,5 @@ private:
 
     typedef SkImageFilter INHERITED;
 };
+
+#endif
