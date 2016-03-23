@@ -12,7 +12,7 @@
 #include "GrVkPipeline.h"
 #include "GrVkRenderPass.h"
 #include "GrVkRenderTarget.h"
-#include "GrVkProgram.h"
+#include "GrVkPipelineState.h"
 #include "GrVkTransferBuffer.h"
 #include "GrVkUtil.h"
 
@@ -347,7 +347,7 @@ void GrVkCommandBuffer::clearAttachments(const GrVkGpu* gpu,
 }
 
 void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
-                                           GrVkProgram* program,
+                                           GrVkPipelineState* pipelineState,
                                            VkPipelineLayout layout,
                                            uint32_t firstSet,
                                            uint32_t setCount,
@@ -363,7 +363,7 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
                                                          descriptorSets,
                                                          dynamicOffsetCount,
                                                          dynamicOffsets));
-    program->addUniformResources(*this);
+    pipelineState->addUniformResources(*this);
 }
 
 void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline) {

@@ -270,7 +270,6 @@ private:
         ProgramCache(GrGLGpu* gpu);
         ~ProgramCache();
 
-        void reset();
         void abandon();
         GrGLProgram* refProgram(const GrGLGpu* gpu, const GrPipeline&, const GrPrimitiveProcessor&);
 

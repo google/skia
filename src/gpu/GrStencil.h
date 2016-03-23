@@ -13,6 +13,8 @@
 #include "GrTypes.h"
 #include "SkRegion.h"
 
+class GrProcessorKeyBuilder;
+
 /**
  * Gr uses the stencil buffer to implement complex clipping inside the
  * GrDrawTarget class. The GrDrawTarget makes a subset of the stencil buffer
@@ -284,6 +286,8 @@ public:
     bool isValid() const {
         return fPassOps[0] < kStencilOpCount;
     }
+
+    void genKey(GrProcessorKeyBuilder* b) const;
 
     bool operator == (const GrStencilSettings& s) const {
         static const size_t gCompareSize = sizeof(GrStencilSettings) -

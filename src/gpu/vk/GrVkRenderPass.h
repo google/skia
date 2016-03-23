@@ -14,6 +14,7 @@
 
 #include "vulkan/vulkan.h"
 
+class GrProcessorKeyBuilder;
 class GrVkGpu;
 class GrVkRenderTarget;
 
@@ -71,6 +72,8 @@ public:
     bool isCompatible(const GrVkRenderTarget& target) const;
 
     VkRenderPass vkRenderPass() const { return fRenderPass; }
+
+    void genKey(GrProcessorKeyBuilder* b) const;
 
 private:
     GrVkRenderPass(const GrVkRenderPass&);

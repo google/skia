@@ -13,7 +13,6 @@
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
 #include "GrVkIndexBuffer.h"
-#include "GrVkProgram.h"
 #include "GrVkResourceProvider.h"
 #include "GrVkVertexBuffer.h"
 #include "GrVkUtil.h"
@@ -27,6 +26,7 @@ class GrNonInstancedMesh;
 class GrVkBufferImpl;
 class GrVkCommandBuffer;
 class GrVkPipeline;
+class GrVkPipelineState;
 class GrVkRenderPass;
 class GrVkTexture;
 struct GrVkInterface;
@@ -186,7 +186,7 @@ private:
                           const GrPrimitiveProcessor&,
                           GrPrimitiveType,
                           const GrVkRenderPass&,
-                          GrVkProgram** program);
+                          GrVkPipelineState** pipelineState);
 
     // Bind vertex and index buffers
     void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);

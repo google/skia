@@ -5,38 +5,37 @@
 * found in the LICENSE file.
 */
 
-#ifndef GrVkProgramBuilder_DEFINED
-#define GrVkProgramBuilder_DEFINED
+#ifndef GrVkPipelineStateBuilder_DEFINED
+#define GrVkPipelineStateBuilder_DEFINED
 
 #include "glsl/GrGLSLProgramBuilder.h"
 
 #include "GrPipeline.h"
-#include "vk/GrVkUniformHandler.h"
-#include "vk/GrVkVaryingHandler.h"
+#include "GrVkPipelineState.h"
+#include "GrVkUniformHandler.h"
+#include "GrVkVaryingHandler.h"
 
 #include "shaderc/shaderc.h"
 #include "vulkan/vulkan.h"
 
 class GrVkGpu;
 class GrVkRenderPass;
-class GrVkProgram;
 class GrVkProgramDesc;
 
-class GrVkProgramBuilder : public GrGLSLProgramBuilder {
+class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
-    /** Generates a shader program.
+    /** Generates a pipeline state.
     *
-    * The program implements what is specified in the stages given as input.
-    * After successful generation, the builder result objects are available
-    * to be used.
+    * The GrVkPipelineState implements what is specified in the GrPipeline and GrPrimitiveProcessor
+    * as input. After successful generation, the builder result objects are available to be used.
     * @return true if generation was successful.
     */
-    static GrVkProgram* CreateProgram(GrVkGpu*,
-                                      const GrPipeline&,
-                                      const GrPrimitiveProcessor&,
-                                      GrPrimitiveType,
-                                      const GrVkProgramDesc&,
-                                      const GrVkRenderPass& renderPass);
+    static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
+                                                  const GrPipeline&,
+                                                  const GrPrimitiveProcessor&,
+                                                  GrPrimitiveType,
+                                                  const GrVkPipelineState::Desc&,
+                                                  const GrVkRenderPass& renderPass);
 
     const GrCaps* caps() const override;
     const GrGLSLCaps* glslCaps() const override;
@@ -46,12 +45,14 @@ public:
     void finalizeFragmentOutputColor(GrGLSLShaderVar& outputColor) override;
 
 private:
-    GrVkProgramBuilder(GrVkGpu*,
-                       const GrPipeline&,
-                       const GrPrimitiveProcessor&,
-                       const GrVkProgramDesc&);
+    GrVkPipelineStateBuilder(GrVkGpu*,
+                             const GrPipeline&,
+                             const GrPrimitiveProcessor&,
+                             const GrVkProgramDesc&);
 
-    GrVkProgram* finalize(GrPrimitiveType primitiveType, const GrVkRenderPass& renderPass);
+    GrVkPipelineState* finalize(GrPrimitiveType primitiveType,
+                                const GrVkRenderPass& renderPass,
+                                const GrVkPipelineState::Desc&);
 
     static bool CreateVkShaderModule(const GrVkGpu* gpu,
                                      VkShaderStageFlagBits stage,

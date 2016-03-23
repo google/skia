@@ -77,7 +77,7 @@ GrGLGpu::ProgramCache::~ProgramCache() {
 #endif
 }
 
-void GrGLGpu::ProgramCache::reset() {
+void GrGLGpu::ProgramCache::abandon() {
     for (int i = 0; i < fCount; ++i) {
         SkASSERT(fEntries[i]->fProgram.get());
         fEntries[i]->fProgram->abandon();
@@ -97,10 +97,6 @@ void GrGLGpu::ProgramCache::reset() {
     fCacheMisses = 0;
     fHashMisses = 0;
 #endif
-}
-
-void GrGLGpu::ProgramCache::abandon() {
-    this->reset();
 }
 
 int GrGLGpu::ProgramCache::search(const GrProgramDesc& desc) const {

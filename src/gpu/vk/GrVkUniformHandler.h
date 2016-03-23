@@ -77,7 +77,7 @@ private:
     uint32_t         fCurrentFragmentUBOOffset;
     uint32_t         fCurrentSamplerBinding;
 
-    friend class GrVkProgramBuilder;
+    friend class GrVkPipelineStateBuilder;
 
     typedef GrGLSLUniformHandler INHERITED;
 };

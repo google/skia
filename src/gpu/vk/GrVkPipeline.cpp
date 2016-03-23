@@ -479,7 +479,6 @@ void GrVkPipeline::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
 }
 
-
 void set_dynamic_scissor_state(GrVkGpu* gpu,
                                GrVkCommandBuffer* cmdBuffer,
                                const GrPipeline& pipeline,
@@ -544,8 +543,6 @@ void set_dynamic_blend_constant_state(GrVkGpu* gpu,
     cmdBuffer->setBlendConstants(gpu, floatColors);
 }
 
-
-                                          
 void GrVkPipeline::SetDynamicState(GrVkGpu* gpu,
                                    GrVkCommandBuffer* cmdBuffer,
                                    const GrPipeline& pipeline) {

@@ -5,21 +5,21 @@
 * found in the LICENSE file.
 */
 
-#include "vk/GrVkProgramBuilder.h"
+#include "vk/GrVkPipelineStateBuilder.h"
 
 #include "vk/GrVkGpu.h"
 #include "vk/GrVkRenderPass.h"
-#include "vk/GrVkProgram.h"
 
-GrVkProgram* GrVkProgramBuilder::CreateProgram(GrVkGpu* gpu,
-                                               const GrPipeline& pipeline,
-                                               const GrPrimitiveProcessor& primProc,
-                                               GrPrimitiveType primitiveType,
-                                               const GrVkProgramDesc& desc,
-                                               const GrVkRenderPass& renderPass) {
+GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
+                                                               GrVkGpu* gpu,
+                                                               const GrPipeline& pipeline,
+                                                               const GrPrimitiveProcessor& primProc,
+                                                               GrPrimitiveType primitiveType,
+                                                               const GrVkPipelineState::Desc& desc,
+                                                               const GrVkRenderPass& renderPass) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkProgramBuilder builder(gpu, pipeline, primProc, desc);
+    GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, desc.fProgramDesc);
 
     GrGLSLExpr4 inputColor;
     GrGLSLExpr4 inputCoverage;
@@ -29,27 +29,27 @@ GrVkProgram* GrVkProgramBuilder::CreateProgram(GrVkGpu* gpu,
         return nullptr;
     }
 
-    return builder.finalize(primitiveType, renderPass);
+    return builder.finalize(primitiveType, renderPass, desc);
 }
 
-GrVkProgramBuilder::GrVkProgramBuilder(GrVkGpu* gpu,
-                                       const GrPipeline& pipeline,
-                                       const GrPrimitiveProcessor& primProc,
-                                       const GrVkProgramDesc& desc)
+GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
+                                                   const GrPipeline& pipeline,
+                                                   const GrPrimitiveProcessor& primProc,
+                                                   const GrVkProgramDesc& desc)
     : INHERITED(pipeline, primProc, desc) 
     , fGpu(gpu)
     , fVaryingHandler(this) 
     , fUniformHandler(this) {
 }
 
-const GrCaps* GrVkProgramBuilder::caps() const {
+const GrCaps* GrVkPipelineStateBuilder::caps() const {
     return fGpu->caps();
 }
-const GrGLSLCaps* GrVkProgramBuilder::glslCaps() const {
+const GrGLSLCaps* GrVkPipelineStateBuilder::glslCaps() const {
     return fGpu->vkCaps().glslCaps();
 }
 
-void GrVkProgramBuilder::finalizeFragmentOutputColor(GrGLSLShaderVar& outputColor) {
+void GrVkPipelineStateBuilder::finalizeFragmentOutputColor(GrGLSLShaderVar& outputColor) {
     outputColor.setLayoutQualifier("location = 0");
 }
 
@@ -76,11 +76,11 @@ shaderc_shader_kind vk_shader_stage_to_shaderc_kind(VkShaderStageFlagBits stage)
     return shaderc_glsl_fragment_shader;
 }
 
-bool GrVkProgramBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
-                                              VkShaderStageFlagBits stage,
-                                              const GrGLSLShaderBuilder& builder,
-                                              VkShaderModule* shaderModule,
-                                              VkPipelineShaderStageCreateInfo* stageInfo) {
+bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
+                                                    VkShaderStageFlagBits stage,
+                                                    const GrGLSLShaderBuilder& builder,
+                                                    VkShaderModule* shaderModule,
+                                                    VkPipelineShaderStageCreateInfo* stageInfo) {
     SkString shaderString;
     for (int i = 0; i < builder.fCompilerStrings.count(); ++i) {
         if (builder.fCompilerStrings[i]) {
@@ -140,8 +140,9 @@ bool GrVkProgramBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
     return true;
 }
 
-GrVkProgram* GrVkProgramBuilder::finalize(GrPrimitiveType primitiveType,
-                                          const GrVkRenderPass& renderPass) {
+GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveType,
+                                                      const GrVkRenderPass& renderPass,
+                                                      const GrVkPipelineState::Desc& desc) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
     VkShaderModule vertShaderModule;
@@ -272,16 +273,17 @@ GrVkProgram* GrVkProgramBuilder::finalize(GrPrimitiveType primitiveType,
         return nullptr;
     }
 
-    return new GrVkProgram(fGpu,
-                           pipeline,
-                           pipelineLayout,
-                           dsLayout,
-                           fUniformHandles,
-                           fUniformHandler.fUniforms,
-                           fUniformHandler.fCurrentVertexUBOOffset,
-                           fUniformHandler.fCurrentFragmentUBOOffset,
-                           numSamplers,
-                           fGeometryProcessor,
-                           fXferProcessor,
-                           fFragmentProcessors);
+    return new GrVkPipelineState(fGpu,
+                                 desc,
+                                 pipeline,
+                                 pipelineLayout,
+                                 dsLayout,
+                                 fUniformHandles,
+                                 fUniformHandler.fUniforms,
+                                 fUniformHandler.fCurrentVertexUBOOffset,
+                                 fUniformHandler.fCurrentFragmentUBOOffset,
+                                 numSamplers,
+                                 fGeometryProcessor,
+                                 fXferProcessor,
+                                 fFragmentProcessors);
 }

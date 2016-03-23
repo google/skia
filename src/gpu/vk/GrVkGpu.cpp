@@ -21,9 +21,7 @@
 #include "GrVkIndexBuffer.h"
 #include "GrVkMemory.h"
 #include "GrVkPipeline.h"
-#include "GrVkProgram.h"
-#include "GrVkProgramBuilder.h"
-#include "GrVkProgramDesc.h"
+#include "GrVkPipelineState.h"
 #include "GrVkRenderPass.h"
 #include "GrVkResourceProvider.h"
 #include "GrVkTexture.h"
@@ -478,12 +476,6 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::Li
     if (renderTarget) {
         tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, desc, lifeCycle,
                                                                     imageDesc);
-#if 0
-        // This clear can be included to fix warning described in htttps://bugs.skia.org/5045
-        // Obviously we do not want to be clearling needlessly every time we create a render target.
-        SkIRect rect = SkIRect::MakeWH(tex->width(), tex->height());
-        this->clear(rect, GrColor_TRANSPARENT_BLACK, tex->asRenderTarget());
-#endif
     } else {
         tex = GrVkTexture::CreateNewTexture(this, desc, lifeCycle, imageDesc);
     }
@@ -1291,32 +1283,22 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
 
     return true;
 }
-
 bool GrVkGpu::prepareDrawState(const GrPipeline& pipeline,
                                const GrPrimitiveProcessor& primProc,
                                GrPrimitiveType primitiveType,
                                const GrVkRenderPass& renderPass,
-                               GrVkProgram** program) {
-    // Get GrVkProgramDesc
-    GrVkProgramDesc desc;
-    if (!GrVkProgramDescBuilder::Build(&desc, primProc, pipeline, *this->vkCaps().glslCaps())) {
-        GrCapsDebugf(this->caps(), "Failed to vk program descriptor!\n");
+                               GrVkPipelineState** pipelineState) {
+    *pipelineState = fResourceProvider.findOrCreateCompatiblePipelineState(pipeline,
+                                                                           primProc,
+                                                                           primitiveType,
+                                                                           renderPass);
+    if (!pipelineState) {
         return false;
     }
 
-    *program = GrVkProgramBuilder::CreateProgram(this,
-                                                 pipeline,
-                                                 primProc,
-                                                 primitiveType,
-                                                 desc,
-                                                 renderPass);
-    if (!program) {
-        return false;
-    }
+    (*pipelineState)->setData(this, primProc, pipeline);
 
-    (*program)->setData(this, primProc, pipeline);
-
-    (*program)->bind(this, fCurrentCmdBuffer);
+    (*pipelineState)->bind(this, fCurrentCmdBuffer);
 
     GrVkPipeline::SetDynamicState(this, fCurrentCmdBuffer, pipeline);
 
@@ -1337,9 +1319,9 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
 
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
 
-    GrVkProgram* program = nullptr;
+    GrVkPipelineState* pipelineState = nullptr;
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
-    if (!this->prepareDrawState(pipeline, primProc, primitiveType, *renderPass, &program)) {
+    if (!this->prepareDrawState(pipeline, primProc, primitiveType, *renderPass, &pipelineState)) {
         return;
     }
 
@@ -1391,21 +1373,18 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
         do {
             if (nonIdxMesh->primitiveType() != primitiveType) {
                 // Technically we don't have to call this here (since there is a safety check in
-                // program:setData but this will allow for quicker freeing of resources if the
-                // program sits in a cache for a while.
-                program->freeTempResources(this);
-                // This free will go away once we setup a program cache, and then the cache will be
-                // responsible for call freeGpuResources.
-                program->freeGPUResources(this);
-                program->unref();
-                SkDEBUGCODE(program = nullptr);
+                // pipelineState:setData but this will allow for quicker freeing of resources if the
+                // pipelineState sits in a cache for a while.
+                pipelineState->freeTempResources(this);
+                pipelineState->unref();
+                SkDEBUGCODE(pipelineState = nullptr);
                 primitiveType = nonIdxMesh->primitiveType();
                 if (!this->prepareDrawState(pipeline, primProc, primitiveType, *renderPass,
-                                            &program)) {
+                                            &pipelineState)) {
                     return;
                 }
             }
-            SkASSERT(program);
+            SkASSERT(pipelineState);
             this->bindGeometry(primProc, *nonIdxMesh);
 
             if (nonIdxMesh->isIndexed()) {
@@ -1429,14 +1408,11 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
 
     fCurrentCmdBuffer->endRenderPass(this);
 
-    // Technically we don't have to call this here (since there is a safety check in program:setData
-    // but this will allow for quicker freeing of resources if the program sits in a cache for a
-    // while.
-    program->freeTempResources(this);
-    // This free will go away once we setup a program cache, and then the cache will be responsible
-    // for call freeGpuResources.
-    program->freeGPUResources(this);
-    program->unref();
+    // Technically we don't have to call this here (since there is a safety check in
+    // pipelineState:setData but this will allow for quicker freeing of resources if the
+    // pipelineState sits in a cache for a while.
+    pipelineState->freeTempResources(this);
+    pipelineState->unref();
 
 #if SWAP_PER_DRAW
     glFlush();

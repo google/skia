@@ -7,6 +7,7 @@
 
 #include "GrVkRenderPass.h"
 
+#include "GrProcessor.h"
 #include "GrVkFramebuffer.h"
 #include "GrVkGpu.h"
 #include "GrVkRenderTarget.h"
@@ -218,3 +219,20 @@ bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
 
     return true;
 }
+
+void GrVkRenderPass::genKey(GrProcessorKeyBuilder* b) const {
+    b->add32(fAttachmentFlags);
+    if (fAttachmentFlags & kColor_AttachmentFlag) {
+        b->add32(fAttachmentsDescriptor.fColor.fFormat);
+        b->add32(fAttachmentsDescriptor.fColor.fSamples);
+    }
+    if (fAttachmentFlags & kResolve_AttachmentFlag) {
+        b->add32(fAttachmentsDescriptor.fResolve.fFormat);
+        b->add32(fAttachmentsDescriptor.fResolve.fSamples);
+    }
+    if (fAttachmentFlags & kStencil_AttachmentFlag) {
+        b->add32(fAttachmentsDescriptor.fStencil.fFormat);
+        b->add32(fAttachmentsDescriptor.fStencil.fSamples);
+    }
+}
+

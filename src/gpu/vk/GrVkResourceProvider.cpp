@@ -21,11 +21,13 @@ SkRandom GrVkResource::fRandom;
 
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu) : fGpu(gpu)
                                                          , fPipelineCache(VK_NULL_HANDLE) {
+    fPipelineStateCache = new PipelineStateCache(gpu);
 }
 
 GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fSimpleRenderPasses.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
+    delete fPipelineStateCache;
 }
 
 void GrVkResourceProvider::init() {
@@ -94,6 +96,14 @@ GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrTexture
     return sampler;
 }
 
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
+                                                                 const GrPipeline& pipeline,
+                                                                 const GrPrimitiveProcessor& proc,
+                                                                 GrPrimitiveType primitiveType,
+                                                                 const GrVkRenderPass& renderPass) {
+    return fPipelineStateCache->refPipelineState(pipeline, proc, primitiveType, renderPass);
+}
+
 GrVkCommandBuffer* GrVkResourceProvider::createCommandBuffer() {
     GrVkCommandBuffer* cmdBuffer = GrVkCommandBuffer::Create(fGpu, fGpu->cmdPool());
     fActiveCommandBuffers.push_back(cmdBuffer);
@@ -132,6 +142,8 @@ void GrVkResourceProvider::destroyResources() {
     }
     fSamplers.reset();
 
+    fPipelineStateCache->release();
+
 #ifdef SK_TRACE_VK_RESOURCES
     SkASSERT(0 == GrVkResource::fTrace.count());
 #endif
@@ -159,6 +171,8 @@ void GrVkResourceProvider::abandonResources() {
         (*iter).unrefAndAbandon();
     }
     fSamplers.reset();
+
+    fPipelineStateCache->abandon();
 
 #ifdef SK_TRACE_VK_RESOURCES
     SkASSERT(0 == GrVkResource::fTrace.count());

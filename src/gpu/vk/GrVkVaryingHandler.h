@@ -19,7 +19,7 @@ public:
 private:
     void onFinalize() override;
 
-    friend class GrVkProgramBuilder;
+    friend class GrVkPipelineStateBuilder;
 
     typedef GrGLSLVaryingHandler INHERITED;
 };

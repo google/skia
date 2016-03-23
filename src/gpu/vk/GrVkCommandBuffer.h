@@ -83,7 +83,7 @@ public:
     }
 
     void bindDescriptorSets(const GrVkGpu* gpu,
-                            GrVkProgram*,
+                            GrVkPipelineState*,
                             VkPipelineLayout layout,
                             uint32_t firstSet,
                             uint32_t setCount,

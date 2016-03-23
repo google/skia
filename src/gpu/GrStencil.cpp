@@ -9,6 +9,8 @@
 
 #include "GrStencil.h"
 
+#include "GrProcessor.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 // Stencil Rules for Merging user stencil space into clip
 
@@ -392,4 +394,11 @@ bool GrStencilSettings::GetClipPasses(
             SkFAIL("Unknown set op");
     }
     return false;
+}
+
+void GrStencilSettings::genKey(GrProcessorKeyBuilder* b) const {
+    static const int kCount = sizeof(GrStencilSettings) / sizeof(uint32_t);
+    GR_STATIC_ASSERT(0 == sizeof(GrStencilSettings) % sizeof(uint32_t));
+    uint32_t* key = b->add32n(kCount);
+    memcpy(key, this, sizeof(GrStencilSettings));
 }

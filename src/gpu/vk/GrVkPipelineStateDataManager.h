@@ -5,8 +5,8 @@
 * found in the LICENSE file.
 */
 
-#ifndef GrVkProgramDataManager_DEFINED
-#define GrVkProgramDataManager_DEFINED
+#ifndef GrVkPipelineStateDataManager_DEFINED
+#define GrVkPipelineStateDataManager_DEFINED
 
 #include "glsl/GrGLSLProgramDataManager.h"
 
@@ -15,13 +15,13 @@
 class GrVkGpu;
 class GrVkUniformBuffer;
 
-class GrVkProgramDataManager : public GrGLSLProgramDataManager {
+class GrVkPipelineStateDataManager : public GrGLSLProgramDataManager {
 public:
     typedef GrVkUniformHandler::UniformInfoArray UniformInfoArray;
 
-    GrVkProgramDataManager(const UniformInfoArray&,
-                           uint32_t vertexUniformSize,
-                           uint32_t fragmentUniformSize);
+    GrVkPipelineStateDataManager(const UniformInfoArray&,
+                                 uint32_t vertexUniformSize,
+                                 uint32_t fragmentUniformSize);
 
     void set1f(UniformHandle, float v0) const override;
     void set1fv(UniformHandle, int arrayCount, const float v[]) const override;
