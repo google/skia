@@ -49,7 +49,6 @@
             '<(skia_src_path)/opts/SkOpts_ssse3.cpp',
         ],
         'sse41_sources': [
-            '<(skia_src_path)/opts/SkBlitRow_opts_SSE4.cpp',
             '<(skia_src_path)/opts/SkOpts_sse41.cpp',
         ],
         # These targets are empty, but XCode doesn't like that, so add an empty file to each.

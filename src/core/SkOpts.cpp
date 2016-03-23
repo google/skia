@@ -63,6 +63,7 @@ namespace SK_OPTS_NS {
 #endif
 
 namespace SkOpts {
+
     // Define default function pointer values here...
     // If our global compile options are set high enough, these defaults might even be
     // CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
@@ -84,7 +85,8 @@ namespace SkOpts {
 
     decltype(blit_mask_d32_a8) blit_mask_d32_a8 = sk_default::blit_mask_d32_a8;
 
-    decltype(blit_row_color32) blit_row_color32 = sk_default::blit_row_color32;
+    decltype(blit_row_color32)     blit_row_color32     = sk_default::blit_row_color32;
+    decltype(blit_row_s32a_opaque) blit_row_s32a_opaque = sk_default::blit_row_s32a_opaque;
 
     decltype(matrix_translate)       matrix_translate       = sk_default::matrix_translate;
     decltype(matrix_scale_translate) matrix_scale_translate = sk_default::matrix_scale_translate;

@@ -67,61 +67,6 @@ void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
-                                const SkPMColor* SK_RESTRICT src,
-                                int count, U8CPU alpha) {
-    sk_msan_assert_initialized(src, src+count);
-
-    SkASSERT(alpha == 255);
-    if (count <= 0) {
-        return;
-    }
-
-    int count16 = count / 16;
-    __m128i* dst4 = (__m128i*)dst;
-    const __m128i* src4 = (const __m128i*)src;
-
-    for (int i = 0; i < count16 * 4; i += 4) {
-        // Load 16 source pixels.
-        __m128i s0 = _mm_loadu_si128(src4+i+0),
-                s1 = _mm_loadu_si128(src4+i+1),
-                s2 = _mm_loadu_si128(src4+i+2),
-                s3 = _mm_loadu_si128(src4+i+3);
-
-        const __m128i alphaMask = _mm_set1_epi32(0xFF << SK_A32_SHIFT);
-        const __m128i ORed = _mm_or_si128(s3, _mm_or_si128(s2, _mm_or_si128(s1, s0)));
-        __m128i cmp = _mm_cmpeq_epi8(_mm_and_si128(ORed, alphaMask), _mm_setzero_si128());
-        if (0xffff == _mm_movemask_epi8(cmp)) {
-            // All 16 source pixels are fully transparent. There's nothing to do!
-            continue;
-        }
-        const __m128i ANDed = _mm_and_si128(s3, _mm_and_si128(s2, _mm_and_si128(s1, s0)));
-        cmp = _mm_cmpeq_epi8(_mm_and_si128(ANDed, alphaMask), alphaMask);
-        if (0xffff == _mm_movemask_epi8(cmp)) {
-            // All 16 source pixels are fully opaque. There's no need to read dst or blend it.
-            _mm_storeu_si128(dst4+i+0, s0);
-            _mm_storeu_si128(dst4+i+1, s1);
-            _mm_storeu_si128(dst4+i+2, s2);
-            _mm_storeu_si128(dst4+i+3, s3);
-            continue;
-        }
-        // The general slow case: do the blend for all 16 pixels.
-        _mm_storeu_si128(dst4+i+0, SkPMSrcOver_SSE2(s0, _mm_loadu_si128(dst4+i+0)));
-        _mm_storeu_si128(dst4+i+1, SkPMSrcOver_SSE2(s1, _mm_loadu_si128(dst4+i+1)));
-        _mm_storeu_si128(dst4+i+2, SkPMSrcOver_SSE2(s2, _mm_loadu_si128(dst4+i+2)));
-        _mm_storeu_si128(dst4+i+3, SkPMSrcOver_SSE2(s3, _mm_loadu_si128(dst4+i+3)));
-    }
-
-    // Wrap up the last <= 15 pixels.
-    SkASSERT(count - (count16*16) <= 15);
-    for (int i = count16*16; i < count; i++) {
-        // This check is not really necessarily, but it prevents pointless autovectorization.
-        if (src[i] & 0xFF000000) {
-            dst[i] = SkPMSrcOver(src[i], dst[i]);
-        }
-    }
-}
-
 void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
                                const SkPMColor* SK_RESTRICT src,
                                int count, U8CPU alpha) {

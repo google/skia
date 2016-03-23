@@ -36,7 +36,8 @@ namespace SkOpts {
 
         blit_mask_d32_a8 = sk_neon::blit_mask_d32_a8;
 
-        blit_row_color32 = sk_neon::blit_row_color32;
+        blit_row_color32     = sk_neon::blit_row_color32;
+        blit_row_s32a_opaque = sk_neon::blit_row_s32a_opaque;
 
         color_cube_filter_span = sk_neon::color_cube_filter_span;
 

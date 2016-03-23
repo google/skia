@@ -9,10 +9,11 @@
 
 #define SK_OPTS_NS sk_sse41
 #include "SkBlurImageFilter_opts.h"
+#include "SkBlitRow_opts.h"
 
 #ifndef SK_SUPPORT_LEGACY_X86_BLITS
 
-namespace sk_sse41 {
+namespace sk_sse41_new {
 
 // An SSE register holding at most 64 bits of useful data in the low lanes.
 struct m64i {
@@ -211,7 +212,7 @@ static void blit_mask_d32_a8(SkPMColor* dst,     size_t dstRB,
     }
 }
 
-}  // namespace sk_sse41
+}  // namespace sk_sse41_new
 
 #endif
 
@@ -222,8 +223,9 @@ namespace SkOpts {
         box_blur_yx = sk_sse41::box_blur_yx;
 
     #ifndef SK_SUPPORT_LEGACY_X86_BLITS
-        blit_row_color32 = sk_sse41::blit_row_color32;
-        blit_mask_d32_a8 = sk_sse41::blit_mask_d32_a8;
+        blit_row_color32 = sk_sse41_new::blit_row_color32;
+        blit_mask_d32_a8 = sk_sse41_new::blit_mask_d32_a8;
     #endif
+        blit_row_s32a_opaque = sk_sse41::blit_row_s32a_opaque;
     }
 }
