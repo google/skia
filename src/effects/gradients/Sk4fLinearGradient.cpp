@@ -6,6 +6,7 @@
  */
 
 #include "Sk4fLinearGradient.h"
+#include "Sk4x4f.h"
 #include "SkXfermode.h"
 
 namespace {
@@ -39,6 +40,41 @@ void ramp(const Sk4f& c, const Sk4f& dc, typename DstTraits<dstType, premul>::Ty
     }
     if (n & 1) {
         DstTraits<dstType, premul>::store(c0, dst);
+    }
+}
+
+// Planar version of ramp (S32 no-premul only).
+template<>
+void ramp<DstType::S32, ApplyPremul::False>(const Sk4f& c, const Sk4f& dc, SkPMColor dst[], int n) {
+    SkASSERT(n > 0);
+
+    const Sk4f    dc4 = dc * 4;
+    const Sk4x4f dc4x = { Sk4f(dc4[0]), Sk4f(dc4[1]), Sk4f(dc4[2]), Sk4f(dc4[3]) };
+    Sk4x4f        c4x = Sk4x4f::Transpose(c, c + dc, c + dc * 2, c + dc * 3);
+
+    while (n >= 4) {
+        const Sk4x4f cx4s32 = { c4x.r.sqrt(), c4x.g.sqrt(), c4x.b.sqrt(), c4x.a };
+        cx4s32.transpose((uint8_t*)dst);
+
+        c4x.r += dc4x.r;
+        c4x.g += dc4x.g;
+        c4x.b += dc4x.b;
+        c4x.a += dc4x.a;
+
+        dst += 4;
+        n   -= 4;
+    }
+
+    if (n & 2) {
+        DstTraits<DstType::S32, ApplyPremul::False>
+            ::store(Sk4f(c4x.r[0], c4x.g[0], c4x.b[0], c4x.a[0]), dst++);
+        DstTraits<DstType::S32, ApplyPremul::False>
+            ::store(Sk4f(c4x.r[1], c4x.g[1], c4x.b[1], c4x.a[1]), dst++);
+    }
+
+    if (n & 1) {
+        DstTraits<DstType::S32, ApplyPremul::False>
+            ::store(Sk4f(c4x.r[n & 2], c4x.g[n & 2], c4x.b[n & 2], c4x.a[n & 2]), dst);
     }
 }
 
