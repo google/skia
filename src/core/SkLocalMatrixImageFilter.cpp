@@ -23,8 +23,9 @@ SkImageFilter* SkLocalMatrixImageFilter::Create(const SkMatrix& localM, SkImageF
 }
 
 SkLocalMatrixImageFilter::SkLocalMatrixImageFilter(const SkMatrix& localM, SkImageFilter* input)
-  : INHERITED(1, &input), fLocalM(localM)
-{}
+    : INHERITED(1, &input)
+    , fLocalM(localM) {
+}
 
 SkFlattenable* SkLocalMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
@@ -38,11 +39,10 @@ void SkLocalMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(fLocalM);
 }
 
-bool SkLocalMatrixImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
-                                                       const Context& ctx,
-                                                       SkBitmap* result, SkIPoint* offset) const {
+SkSpecialImage* SkLocalMatrixImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                                        SkIPoint* offset) const {
     Context localCtx(SkMatrix::Concat(ctx.ctm(), fLocalM), ctx.clipBounds(), ctx.cache());
-    return this->filterInputDeprecated(0, proxy, src, localCtx, result, offset);
+    return this->filterInput(0, source, localCtx, offset);
 }
 
 SkIRect SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& matrix,

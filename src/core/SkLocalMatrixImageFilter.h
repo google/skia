@@ -9,8 +9,6 @@
 #define SkLocalMatrixImageFilter_DEFINED
 
 #include "SkImageFilter.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
 
 /**
  *  Wraps another imagefilter + matrix, such that using this filter will give the same result
@@ -25,14 +23,14 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* offset) const override;
+    SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
+                                  SkIPoint* offset) const override;
     SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
 
 private:
     SkLocalMatrixImageFilter(const SkMatrix& localM, SkImageFilter* input);
 
-    SkMatrix                    fLocalM;
+    SkMatrix fLocalM;
 
     typedef SkImageFilter INHERITED;
 };
