@@ -30,6 +30,7 @@ public:
         this->setTransformDataMatrix(SkMatrix::I(), pdman, index, transforms);
     }
 
+protected:
     // A helper which subclasses can use if needed
     template <class GeometryProcessor>
     void setTransformDataHelper(const GrPrimitiveProcessor& primProc,
@@ -40,7 +41,6 @@ public:
         this->setTransformDataMatrix(gp.localMatrix(), pdman, index, transforms);
     }
 
-protected:
     // Emit a uniform matrix for each coord transform.
     void emitTransforms(GrGLSLVertexBuilder* vb,
                         GrGLSLVaryingHandler* varyingHandler,

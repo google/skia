@@ -407,6 +407,7 @@ public:
             fTransfersToTexture = 0;
             fStencilAttachmentCreates = 0;
             fNumDraws = 0;
+            fNumFailedDraws = 0;
         }
 
         int renderTargetBinds() const { return fRenderTargetBinds; }
@@ -421,9 +422,11 @@ public:
         void incTransfersToTexture() { fTransfersToTexture++; }
         void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
         void incNumDraws() { fNumDraws++; }
+        void incNumFailedDraws() { ++fNumFailedDraws; }
         void dump(SkString*);
         void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
-
+        int numDraws() const { return fNumDraws; }
+        int numFailedDraws() const { return fNumFailedDraws; }
     private:
         int fRenderTargetBinds;
         int fShaderCompilations;
@@ -432,6 +435,7 @@ public:
         int fTransfersToTexture;
         int fStencilAttachmentCreates;
         int fNumDraws;
+        int fNumFailedDraws;
 #else
         void dump(SkString*) {}
         void dumpKeyValuePairs(SkTArray<SkString>*, SkTArray<double>*) {}
@@ -442,6 +446,7 @@ public:
         void incTransfersToTexture() {}
         void incStencilAttachmentCreates() {}
         void incNumDraws() {}
+        void incNumFailedDraws() {}
 #endif
     };
 

@@ -497,6 +497,7 @@ bool GrGpu::draw(const GrPipeline& pipeline,
                  const GrMesh* meshes,
                  int meshCount) {
     if (primProc.numAttribs() > this->caps()->maxVertexAttributes()) {
+        fStats.incNumFailedDraws();
         return false;
     }
     this->handleDirtyContext();
