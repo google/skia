@@ -380,8 +380,9 @@ public:
 
     // We pass in an array of meshCount GrMesh to the draw. The backend should loop over each
     // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
-    // GrPrimitiveProcessor.
-    void draw(const GrPipeline&,
+    // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
+    // number of vertex attributes is too large).
+    bool draw(const GrPipeline&,
               const GrPrimitiveProcessor&,
               const GrMesh*,
               int meshCount);

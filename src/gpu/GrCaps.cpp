@@ -106,6 +106,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fMapBufferFlags = kNone_MapFlags;
 
+    fMaxVertexAttributes = 0;
     fMaxRenderTargetSize = 1;
     fMaxTextureSize = 1;
     fMaxColorSampleCount = 0;
@@ -182,6 +183,7 @@ SkString GrCaps::dump() const {
         r.appendf("Advanced Blend Equation Blacklist  : 0x%x\n", fAdvBlendEqBlacklist);
     }
 
+    r.appendf("Max Vertex Attributes              : %d\n", fMaxVertexAttributes);
     r.appendf("Max Texture Size                   : %d\n", fMaxTextureSize);
     r.appendf("Max Render Target Size             : %d\n", fMaxRenderTargetSize);
     r.appendf("Max Color Sample Count             : %d\n", fMaxColorSampleCount);

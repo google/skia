@@ -209,6 +209,9 @@ public:
     bool reuseScratchTextures() const { return fReuseScratchTextures; }
     bool reuseScratchBuffers() const { return fReuseScratchBuffers; }
 
+    /// maximum number of attribute values per vertex
+    int maxVertexAttributes() const { return fMaxVertexAttributes; }
+
     int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
     int maxTextureSize() const { return fMaxTextureSize; }
     /** This is the maximum tile size to use by GPU devices for rendering sw-backed images/bitmaps.
@@ -301,6 +304,7 @@ protected:
     int fGeometryBufferMapThreshold;
 
     int fMaxRenderTargetSize;
+    int fMaxVertexAttributes;
     int fMaxTextureSize;
     int fMaxTileSize;
     int fMaxColorSampleCount;

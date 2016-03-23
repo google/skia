@@ -102,6 +102,7 @@ void GrVkCaps::initSampleCount(const VkPhysicalDeviceProperties& properties) {
 void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
                           const VkPhysicalDeviceFeatures& features,
                           const VkPhysicalDeviceMemoryProperties& memoryProperites) {
+    fMaxVertexAttributes = properties.limits.maxVertexInputAttributes;
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
     fMaxRenderTargetSize = properties.limits.maxImageDimension2D;

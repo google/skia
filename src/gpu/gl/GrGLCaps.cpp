@@ -26,7 +26,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMapBufferType = kNone_MapBufferType;
     fTransferBufferType = kNone_TransferBufferType;
     fMaxFragmentUniformVectors = 0;
-    fMaxVertexAttributes = 0;
     fUnpackRowLengthSupport = false;
     fUnpackFlipYSupport = false;
     fPackRowLengthSupport = false;
@@ -1064,7 +1063,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Invalidate FB Type: %s\n", kInvalidateFBTypeStr[fInvalidateFBType]);
     r.appendf("Map Buffer Type: %s\n", kMapBufferTypeStr[fMapBufferType]);
     r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
-    r.appendf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
     r.appendf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));
     r.appendf("Unpack Flip Y support: %s\n", (fUnpackFlipYSupport ? "YES": "NO"));
     r.appendf("Pack Row length support: %s\n", (fPackRowLengthSupport ? "YES": "NO"));

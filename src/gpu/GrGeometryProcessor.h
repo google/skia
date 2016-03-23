@@ -44,10 +44,9 @@ protected:
      * GrGeometryProcessor.
      */
     const Attribute& addVertexAttrib(const Attribute& attribute) {
-        SkASSERT(fNumAttribs < kMaxVertexAttribs);
         fVertexStride += attribute.fOffset;
-        fAttribs[fNumAttribs] = attribute;
-        return fAttribs[fNumAttribs++];
+        fAttribs.push_back(attribute);
+        return fAttribs.back();
     }
 
     void setWillUseGeoShader() { fWillUseGeoShader = true; }

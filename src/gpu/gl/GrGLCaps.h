@@ -248,9 +248,6 @@ public:
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
 
-    /// maximum number of attribute values per vertex
-    int maxVertexAttributes() const { return fMaxVertexAttributes; }
-
     /**
      * Depending on the ES extensions present the BGRA external format may
      * correspond to either a BGRA or RGBA internalFormat. On desktop GL it is
@@ -381,7 +378,6 @@ private:
     SkTArray<StencilFormat, true> fStencilFormats;
 
     int fMaxFragmentUniformVectors;
-    int fMaxVertexAttributes;
 
     MSFBOType           fMSFBOType;
     InvalidateFBType    fInvalidateFBType;

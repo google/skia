@@ -492,12 +492,16 @@ const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::draw(const GrPipeline& pipeline,
+bool GrGpu::draw(const GrPipeline& pipeline,
                  const GrPrimitiveProcessor& primProc,
                  const GrMesh* meshes,
                  int meshCount) {
+    if (primProc.numAttribs() > this->caps()->maxVertexAttributes()) {
+        return false;
+    }
     this->handleDirtyContext();
 
     this->onDraw(pipeline, primProc, meshes, meshCount);
+    return true;
 }
 

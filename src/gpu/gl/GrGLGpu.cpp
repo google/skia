@@ -214,8 +214,6 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
 
     fProgramCache = new ProgramCache(this);
 
-    SkASSERT(this->glCaps().maxVertexAttributes() >= GrGeometryProcessor::kMaxVertexAttribs);
-
     fHWProgramID = 0;
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
