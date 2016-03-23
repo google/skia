@@ -10,6 +10,7 @@
 
 #include "GrGpu.h"
 #include "GrGpuFactory.h"
+#include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
 #include "GrVkIndexBuffer.h"
 #include "GrVkProgram.h"
@@ -36,14 +37,12 @@ struct GrVkInterface;
 
 class GrVkGpu : public GrGpu {
 public:
-    // Currently passing in the inst so that we can properly delete it when we are done.
-    // Normally this would be done by the client.
-    GrVkGpu(GrContext* context, const GrContextOptions& options,
-            VkPhysicalDevice physDev, VkDevice device, VkQueue queue, VkCommandPool cmdPool,
-            VkInstance inst);
+    static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
+                         GrContext* context);
+
     ~GrVkGpu() override;
 
-    const GrVkInterface* vkInterface() const { return fInterface.get(); }
+    const GrVkInterface* vkInterface() const { return fBackendContext->fInterface; }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
     VkDevice device() const { return fDevice; }
@@ -124,6 +123,9 @@ public:
     void finishDrawTarget() override;
 
 private:
+    GrVkGpu(GrContext* context, const GrContextOptions& options,
+            const GrVkBackendContext* backendContext);
+
     void onResetContext(uint32_t resetBits) override {}
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
@@ -211,27 +213,30 @@ private:
                        const void* data,
                        size_t rowBytes);
 
-    SkAutoTUnref<const GrVkInterface> fInterface;
-    SkAutoTUnref<GrVkCaps>            fVkCaps;
-    VkPhysicalDeviceMemoryProperties  fPhysDevMemProps;
-    VkDevice                          fDevice;
-    VkQueue                           fQueue;   // for now, one queue
-    VkCommandPool                     fCmdPool;
-    GrVkCommandBuffer*                fCurrentCmdBuffer;
-    GrVkResourceProvider              fResourceProvider;
+    SkAutoTUnref<const GrVkBackendContext> fBackendContext;
+    SkAutoTUnref<GrVkCaps>                 fVkCaps;
+
+    // These Vulkan objects are provided by the client, and also stored in fBackendContext.
+    // They're copied here for convenient access.
+    VkInstance                             fVkInstance;
+    VkDevice                               fDevice;
+    VkQueue                                fQueue;    // Must be Graphics queue
+
+    // Created by GrVkGpu
+    GrVkResourceProvider                   fResourceProvider;
+    VkCommandPool                          fCmdPool;
+    GrVkCommandBuffer*                     fCurrentCmdBuffer;
+    VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
 #ifdef ENABLE_VK_LAYERS
     // For reporting validation layer errors
-    VkDebugReportCallbackEXT          fCallback;
+    VkDebugReportCallbackEXT               fCallback;
 #endif
 
     // Shaderc compiler used for compiling glsl in spirv. We only want to create the compiler once
     // since there is significant overhead to the first compile of any compiler.
     shaderc_compiler_t fCompiler;
 
-    // This is only for our current testing and building. The client should be holding on to the
-    // VkInstance.
-    VkInstance                        fVkInstance;
 
     typedef GrGpu INHERITED;
 };

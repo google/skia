@@ -50,12 +50,14 @@ GrVkExtensions& GrVkExtensions::operator=(const GrVkExtensions& that) {
 
 bool GrVkExtensions::init(
     uint32_t specVersion,
+    VkPhysicalDevice physDev,
     PFN_vkEnumerateInstanceExtensionProperties enumerateInstanceExtensionProperties,
     PFN_vkEnumerateDeviceExtensionProperties enumerateDeviceExtensionProperties,
     PFN_vkEnumerateInstanceLayerProperties enumerateInstanceLayerProperties,
     PFN_vkEnumerateDeviceLayerProperties enumerateDeviceLayerProperties) {
     fInitialized = false;
     this->reset();
+    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
 
     if (!enumerateInstanceExtensionProperties ||
         !enumerateDeviceExtensionProperties ||
@@ -64,24 +66,146 @@ bool GrVkExtensions::init(
         return false;
     }
 
-    // instance extensions
-    uint32_t extensionCount = 0;
-    VkResult res = enumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+    // instance layers
+    uint32_t layerCount = 0;
+    VkResult res = enumerateInstanceLayerProperties(&layerCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkLayerProperties* layers = new VkLayerProperties[layerCount];
+    res = enumerateInstanceLayerProperties(&layerCount, layers);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    for (uint32_t i = 0; i < layerCount; ++i) {
+        if (specVersion >= layers[i].specVersion) {
+            fInstanceLayerStrings->push_back() = layers[i].layerName;
+        }
+    }
+    delete[] layers;
+    if (!fInstanceLayerStrings->empty()) {
+        SkTQSort(&fInstanceLayerStrings->front(), &fInstanceLayerStrings->back(), cmp);
+    }
 
+    // instance extensions
+    // via Vulkan implementation and implicitly enabled layers
+    uint32_t extensionCount = 0;
+    res = enumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
     VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
     res = enumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
-
-    fInstanceExtensionStrings->push_back_n(extensionCount);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
     for (uint32_t i = 0; i < extensionCount; ++i) {
         if (specVersion >= extensions[i].specVersion) {
-            (*fInstanceExtensionStrings)[i] = extensions[i].extensionName;
+            fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
         }
     }
     delete [] extensions;
-
+    // sort so we can search
     if (!fInstanceExtensionStrings->empty()) {
-        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
         SkTQSort(&fInstanceExtensionStrings->front(), &fInstanceExtensionStrings->back(), cmp);
+    }
+    // via explicitly enabled layers
+    layerCount = fInstanceLayerStrings->count();
+    for (uint32_t layerIndex = 0; layerIndex < layerCount; ++layerIndex) {
+        uint32_t extensionCount = 0;
+        res = enumerateInstanceExtensionProperties((*fInstanceLayerStrings)[layerIndex].c_str(), 
+                                                   &extensionCount, nullptr);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+        res = enumerateInstanceExtensionProperties((*fInstanceLayerStrings)[layerIndex].c_str(),
+                                                   &extensionCount, extensions);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        for (uint32_t i = 0; i < extensionCount; ++i) {
+            // if not already in the list, add it
+            if (specVersion >= extensions[i].specVersion &&
+                find_string(*fInstanceExtensionStrings, extensions[i].extensionName) < 0) {
+                fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
+                SkTQSort(&fInstanceExtensionStrings->front(), &fInstanceExtensionStrings->back(), 
+                         cmp);
+            }
+        }
+        delete[] extensions;
+    }
+
+    // device layers
+    layerCount = 0;
+    res = enumerateDeviceLayerProperties(physDev, &layerCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    layers = new VkLayerProperties[layerCount];
+    res = enumerateDeviceLayerProperties(physDev, &layerCount, layers);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    for (uint32_t i = 0; i < layerCount; ++i) {
+        if (specVersion >= layers[i].specVersion) {
+            fDeviceLayerStrings->push_back() = layers[i].layerName;
+        }
+    }
+    delete[] layers;
+    if (!fDeviceLayerStrings->empty()) {
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTQSort(&fDeviceLayerStrings->front(), &fDeviceLayerStrings->back(), cmp);
+    }
+
+    // device extensions
+    // via Vulkan implementation and implicitly enabled layers
+    extensionCount = 0;
+    res = enumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    extensions = new VkExtensionProperties[extensionCount];
+    res = enumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, extensions);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    for (uint32_t i = 0; i < extensionCount; ++i) {
+        if (specVersion >= extensions[i].specVersion) {
+            fDeviceExtensionStrings->push_back() = extensions[i].extensionName;
+        }
+    }
+    delete[] extensions;
+    if (!fDeviceExtensionStrings->empty()) {
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTQSort(&fDeviceExtensionStrings->front(), &fDeviceExtensionStrings->back(), cmp);
+    }
+    // via explicitly enabled layers
+    layerCount = fDeviceLayerStrings->count();
+    for (uint32_t layerIndex = 0; layerIndex < layerCount; ++layerIndex) {
+        uint32_t extensionCount = 0;
+        res = enumerateDeviceExtensionProperties(physDev, 
+                                                 (*fDeviceLayerStrings)[layerIndex].c_str(),
+                                                 &extensionCount, nullptr);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+        res = enumerateDeviceExtensionProperties(physDev,
+                                                 (*fDeviceLayerStrings)[layerIndex].c_str(),
+                                                 &extensionCount, extensions);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        for (uint32_t i = 0; i < extensionCount; ++i) {
+            // if not already in the list, add it
+            if (specVersion >= extensions[i].specVersion &&
+                find_string(*fDeviceExtensionStrings, extensions[i].extensionName) < 0) {
+                fDeviceExtensionStrings->push_back() = extensions[i].extensionName;
+                SkTQSort(&fDeviceExtensionStrings->front(), &fDeviceExtensionStrings->back(), cmp);
+            }
+        }
+        delete[] extensions;
     }
 
     fInitialized = true;

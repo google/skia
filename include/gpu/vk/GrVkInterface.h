@@ -26,7 +26,8 @@ struct GrVkInterface;
 /**
  * Creates a GrVkInterface.
  */
-const GrVkInterface* GrVkCreateInterface(VkInstance instance);
+const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkPhysicalDevice physDev, 
+                                         VkDevice device);
 
 
 /**

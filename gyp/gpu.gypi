@@ -435,8 +435,10 @@
       '<(skia_src_path)/gpu/gl/SkGLContext.cpp'
     ],
     'skgpu_vk_sources': [
+      '<(skia_include_path)/gpu/vk/GrVkBackendContext.h',
       '<(skia_include_path)/gpu/vk/GrVkInterface.h',
-      '<(skia_include_path)/gpu/vk/GrVkTypes.h',     
+      '<(skia_include_path)/gpu/vk/GrVkTypes.h',
+      '<(skia_src_path)/gpu/vk/GrVkBackendContext.cpp',
       '<(skia_src_path)/gpu/vk/GrVkBuffer.cpp',
       '<(skia_src_path)/gpu/vk/GrVkBuffer.h',
       '<(skia_src_path)/gpu/vk/GrVkCaps.cpp',

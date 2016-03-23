@@ -13,10 +13,10 @@
 #include "GrAllocator.h"
 #include "glsl/GrGLSLShaderVar.h"
 
-static const int kUniformsPerBlock = 8;
-
 class GrVkUniformHandler : public GrGLSLUniformHandler {
 public:
+    static const int kUniformsPerBlock = 8;
+
     enum {
         kSamplerDescSet = 0,
         kUniformBufferDescSet = 1,

@@ -41,6 +41,7 @@ public:
      * We sometimes need to use this class without having yet created a GrVkInterface. 
      */
     bool init(uint32_t specVersion,
+              VkPhysicalDevice physDev,
               PFN_vkEnumerateInstanceExtensionProperties enumerateInstanceExtensionProperties,
               PFN_vkEnumerateDeviceExtensionProperties enumerateDeviceExtensionProperties,
               PFN_vkEnumerateInstanceLayerProperties enumerateInstanceLayerProperties,

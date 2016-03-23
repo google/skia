@@ -18,6 +18,9 @@
 #if SK_MESA
     #include "gl/mesa/SkMesaGLContext.h"
 #endif
+#if SK_VULKAN
+#include "vk/GrVkBackendContext.h"
+#endif
 #include "gl/SkGLContext.h"
 #include "gl/SkNullGLContext.h"
 #include "gl/GrGLGpu.h"
@@ -127,14 +130,15 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
     }
 
     glCtx->makeCurrent();
-    GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glInterface.get());
 #ifdef SK_VULKAN
     if (kEnableNVPR_GLContextOptions & options) {
         return ContextInfo();
     } else {
+        GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(GrVkBackendContext::Create());
         grCtx.reset(GrContext::Create(kVulkan_GrBackend, p3dctx, fGlobalOptions));
     }
 #else
+    GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glInterface.get());
     grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, fGlobalOptions));
 #endif
     if (!grCtx.get()) {
