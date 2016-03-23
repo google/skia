@@ -664,22 +664,6 @@ SkPDFGlyphSetMap::FontGlyphSetPair::FontGlyphSetPair(SkPDFFont* font,
           fGlyphSet(glyphSet) {
 }
 
-SkPDFGlyphSetMap::F2BIter::F2BIter(const SkPDFGlyphSetMap& map) {
-    reset(map);
-}
-
-const SkPDFGlyphSetMap::FontGlyphSetPair* SkPDFGlyphSetMap::F2BIter::next() const {
-    if (fIndex >= fMap->count()) {
-        return nullptr;
-    }
-    return &((*fMap)[fIndex++]);
-}
-
-void SkPDFGlyphSetMap::F2BIter::reset(const SkPDFGlyphSetMap& map) {
-    fMap = &(map.fMap);
-    fIndex = 0;
-}
-
 SkPDFGlyphSetMap::SkPDFGlyphSetMap() {
 }
 

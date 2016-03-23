@@ -9,7 +9,7 @@
 
 #include "SkDocument.h"
 #include "SkPDFMetadata.h"
-#include "SkPDFTypes.h"
+#include "SkPDFFont.h"
 
 class SkPDFDevice;
 
@@ -72,7 +72,10 @@ public:
 private:
     SkPDFObjectSerializer fObjectSerializer;
     SkPDFCanon fCanon;
-    SkTArray<sk_sp<const SkPDFDevice>> fPageDevices;
+    SkPDFGlyphSetMap fGlyphUsage;
+    SkTArray<sk_sp<SkPDFDict>> fPages;
+    sk_sp<SkPDFDict> fDests;
+    sk_sp<SkPDFDevice> fPageDevice;
     sk_sp<SkCanvas> fCanvas;
     SkScalar fRasterDpi;
     SkPDFMetadata fMetadata;

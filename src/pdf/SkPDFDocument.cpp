@@ -93,45 +93,9 @@ int32_t SkPDFObjectSerializer::offset(SkWStream* wStream) {
     return SkToS32(offset - fBaseOffset);
 }
 
-static void perform_font_subsetting(
-        const SkTArray<sk_sp<const SkPDFDevice>>& pageDevices,
-        SkPDFSubstituteMap* substituteMap) {
-    SkASSERT(substituteMap);
-
-    SkPDFGlyphSetMap usage;
-    for (const sk_sp<const SkPDFDevice>& pageDevice : pageDevices) {
-        usage.merge(pageDevice->getFontGlyphUsage());
-    }
-    SkPDFGlyphSetMap::F2BIter iterator(usage);
-    const SkPDFGlyphSetMap::FontGlyphSetPair* entry = iterator.next();
-    while (entry) {
-        sk_sp<SkPDFFont> subsetFont(
-                entry->fFont->getFontSubset(entry->fGlyphSet));
-        if (subsetFont) {
-            substituteMap->setSubstitute(entry->fFont, subsetFont.get());
-        }
-        entry = iterator.next();
-    }
-}
-
-static sk_sp<SkPDFDict> create_pdf_page(const SkPDFDevice* pageDevice) {
-    auto page = sk_make_sp<SkPDFDict>("Page");
-    page->insertObject("Resources", pageDevice->makeResourceDict());
-    page->insertObject("MediaBox", pageDevice->copyMediaBox());
-    auto annotations = sk_make_sp<SkPDFArray>();
-    pageDevice->appendAnnotations(annotations.get());
-    if (annotations->size() > 0) {
-        page->insertObject("Annots", std::move(annotations));
-    }
-    auto content = pageDevice->content();
-    page->insertObjRef("Contents", sk_make_sp<SkPDFStream>(content.get()));
-    return page;
-}
 
 // return root node.
-static sk_sp<SkPDFDict> generate_page_tree(
-        SkTDArray<SkPDFDict*>& pages,
-        SkTDArray<SkPDFDict*>* pageTree) {
+static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
     // PDF wants a tree describing all the pages in the document.  We arbitrary
     // choose 8 (kNodeSize) as the number of allowed children.  The internal
     // nodes have type "Pages" with an array of children, a parent pointer, and
@@ -142,22 +106,18 @@ static sk_sp<SkPDFDict> generate_page_tree(
     static const int kNodeSize = 8;
 
     // curNodes takes a reference to its items, which it passes to pageTree.
-    SkTDArray<SkPDFDict*> curNodes;
-    curNodes.setReserve(pages.count());
-    for (int i = 0; i < pages.count(); i++) {
-        SkSafeRef(pages[i]);
-        curNodes.push(pages[i]);
-    }
+    int totalPageCount = pages->count();
+    SkTArray<sk_sp<SkPDFDict>> curNodes;
+    curNodes.swap(pages);
 
     // nextRoundNodes passes its references to nodes on to curNodes.
-    SkTDArray<SkPDFDict*> nextRoundNodes;
-    nextRoundNodes.setReserve((pages.count() + kNodeSize - 1)/kNodeSize);
-
     int treeCapacity = kNodeSize;
     do {
+        SkTArray<sk_sp<SkPDFDict>> nextRoundNodes;
         for (int i = 0; i < curNodes.count(); ) {
             if (i > 0 && i + 1 == curNodes.count()) {
-                nextRoundNodes.push(curNodes[i]);
+                SkASSERT(curNodes[i]);
+                nextRoundNodes.emplace_back(std::move(curNodes[i]));
                 break;
             }
 
@@ -167,16 +127,9 @@ static sk_sp<SkPDFDict> generate_page_tree(
 
             int count = 0;
             for (; i < curNodes.count() && count < kNodeSize; i++, count++) {
+                SkASSERT(curNodes[i]);
                 curNodes[i]->insertObjRef("Parent", newNode);
-                kids->appendObjRef(sk_ref_sp(curNodes[i]));
-
-                // TODO(vandebo): put the objects in strict access order.
-                // Probably doesn't matter because they are so small.
-                if (curNodes[i] != pages[0]) {
-                    pageTree->push(curNodes[i]);  // Transfer reference.
-                } else {
-                    SkSafeUnref(curNodes[i]);
-                }
+                kids->appendObjRef(std::move(curNodes[i]));
             }
 
             // treeCapacity is the number of leaf nodes possible for the
@@ -188,20 +141,19 @@ static sk_sp<SkPDFDict> generate_page_tree(
             // consuming treeCapacity chunks.
             int pageCount = treeCapacity;
             if (i == curNodes.count()) {
-                pageCount = ((pages.count() - 1) % treeCapacity) + 1;
+                pageCount = ((totalPageCount - 1) % treeCapacity) + 1;
             }
             newNode->insertInt("Count", pageCount);
             newNode->insertObject("Kids", std::move(kids));
-            nextRoundNodes.push(newNode.release());  // Transfer reference.
+            nextRoundNodes.emplace_back(std::move(newNode));
         }
+        SkDEBUGCODE( for (const auto& n : curNodes) { SkASSERT(!n); } );
 
-        curNodes = nextRoundNodes;
-        nextRoundNodes.rewind();
+        curNodes.swap(&nextRoundNodes);
+        nextRoundNodes.reset();
         treeCapacity *= kNodeSize;
     } while (curNodes.count() > 1);
-
-    pageTree->push(curNodes[0]);  // Transfer reference.
-    return sk_ref_sp(curNodes[0]);
+    return std::move(curNodes[0]);
 }
 
 #if 0
@@ -269,16 +221,16 @@ void SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
 SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
                                      const SkRect& trimBox) {
     SkASSERT(!fCanvas.get());  // endPage() was called before this.
-    if (fPageDevices.empty()) {
+    if (fPages.empty()) {
         // if this is the first page if the document.
         fObjectSerializer.serializeHeader(this->getStream(), fMetadata);
+        fDests = sk_make_sp<SkPDFDict>();
     }
     SkISize pageSize = SkISize::Make(
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
-    sk_sp<SkPDFDevice> device(
+    fPageDevice.reset(
             SkPDFDevice::Create(pageSize, fRasterDpi, this));
-    fCanvas = sk_make_sp<SkPDFCanvas>(device);
-    fPageDevices.push_back(std::move(device));
+    fCanvas = sk_make_sp<SkPDFCanvas>(fPageDevice);
     fCanvas->clipRect(trimBox);
     fCanvas->translate(trimBox.x(), trimBox.y());
     return fCanvas.get();
@@ -288,11 +240,28 @@ void SkPDFDocument::onEndPage() {
     SkASSERT(fCanvas.get());
     fCanvas->flush();
     fCanvas.reset(nullptr);
+    SkASSERT(fPageDevice);
+    fGlyphUsage.merge(fPageDevice->getFontGlyphUsage());
+    auto page = sk_make_sp<SkPDFDict>("Page");
+    page->insertObject("Resources", fPageDevice->makeResourceDict());
+    page->insertObject("MediaBox", fPageDevice->copyMediaBox());
+    auto annotations = sk_make_sp<SkPDFArray>();
+    fPageDevice->appendAnnotations(annotations.get());
+    if (annotations->size() > 0) {
+        page->insertObject("Annots", std::move(annotations));
+    }
+    auto contentData = fPageDevice->content();
+    auto contentObject = sk_make_sp<SkPDFStream>(contentData.get());
+    this->serialize(contentObject);
+    page->insertObjRef("Contents", std::move(contentObject));
+    fPageDevice->appendDestinations(fDests.get(), page.get());
+    fPages.emplace_back(std::move(page));
+    fPageDevice.reset(nullptr);
 }
 
 void SkPDFDocument::onAbort() {
     fCanvas.reset(nullptr);
-    fPageDevices.reset();
+    fPages.reset();
     fCanon.reset();
     renew(&fObjectSerializer);
 }
@@ -308,25 +277,13 @@ void SkPDFDocument::setMetadata(const SkDocument::Attribute info[],
 
 bool SkPDFDocument::onClose(SkWStream* stream) {
     SkASSERT(!fCanvas.get());
-    if (fPageDevices.empty()) {
-        fPageDevices.reset();
+    if (fPages.empty()) {
+        fPages.reset();
         fCanon.reset();
         renew(&fObjectSerializer);
         return false;
     }
-    SkTDArray<SkPDFDict*> pages;  // TODO: SkTArray<sk_sp<SkPDFDict>>
-    auto dests = sk_make_sp<SkPDFDict>();
-
-    for (const sk_sp<const SkPDFDevice>& pageDevice : fPageDevices) {
-        SkASSERT(pageDevice);
-        SkASSERT(fPageDevices[0]->getCanon() == pageDevice->getCanon());
-        sk_sp<SkPDFDict> page(create_pdf_page(pageDevice.get()));
-        pageDevice->appendDestinations(dests.get(), page.get());
-        pages.push(page.release());
-    }
-
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
-
     sk_sp<SkPDFObject> id, xmp;
     #ifdef SK_PDF_GENERATE_PDFA
         SkPDFMetadata::UUID uuid = metadata.uuid();
@@ -352,24 +309,28 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
         docCatalog->insertObject("OutputIntents", std::move(intentArray));
     #endif
 
-    SkTDArray<SkPDFDict*> pageTree;
-    docCatalog->insertObjRef("Pages", generate_page_tree(pages, &pageTree));
+    docCatalog->insertObjRef("Pages", generate_page_tree(&fPages));
 
-    if (dests->size() > 0) {
-        docCatalog->insertObjRef("Dests", std::move(dests));
+    if (fDests->size() > 0) {
+        docCatalog->insertObjRef("Dests", std::move(fDests));
     }
 
     // Build font subsetting info before calling addObjectRecursively().
-    perform_font_subsetting(fPageDevices, &fObjectSerializer.fSubstituteMap);
+    for (const auto& entry : fGlyphUsage) {
+        sk_sp<SkPDFFont> subsetFont(
+                entry.fFont->getFontSubset(entry.fGlyphSet));
+        if (subsetFont) {
+            fObjectSerializer.fSubstituteMap.setSubstitute(
+                    entry.fFont, subsetFont.get());
+        }
+    }
 
     fObjectSerializer.addObjectRecursively(docCatalog);
     fObjectSerializer.serializeObjects(this->getStream());
     fObjectSerializer.serializeFooter(
             this->getStream(), docCatalog, std::move(id));
-    pageTree.unrefAll();  // TODO(halcanary): make this unnecesary by
-                          // refactoring generate_page_tree().
-    pages.unrefAll();
-    fPageDevices.reset();
+
+    SkASSERT(fPages.count() == 0);
     fCanon.reset();
     renew(&fObjectSerializer);
     return true;

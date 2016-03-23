@@ -46,16 +46,8 @@ public:
     SkPDFGlyphSetMap();
     ~SkPDFGlyphSetMap();
 
-    class F2BIter {
-    public:
-        explicit F2BIter(const SkPDFGlyphSetMap& map);
-        const FontGlyphSetPair* next() const;
-        void reset(const SkPDFGlyphSetMap& map);
-
-    private:
-        const SkTDArray<FontGlyphSetPair>* fMap;
-        mutable int fIndex;
-    };
+    const FontGlyphSetPair* begin() const { return fMap.begin(); }
+    const FontGlyphSetPair* end() const { return fMap.end(); }
 
     void merge(const SkPDFGlyphSetMap& usage);
     void reset();
