@@ -2265,9 +2265,9 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
             if (as_IB(image)->asBitmapForImageFilters(&bitmap)) {
                 SkPoint pt;
                 iter.fMatrix->mapXY(x, y, &pt);
-                iter.fDevice->drawBitmapAsSpriteWithImageFilter(iter, bitmap,
-                                                                SkScalarRoundToInt(pt.fX),
-                                                                SkScalarRoundToInt(pt.fY), pnt);
+                iter.fDevice->drawBitmapAsSprite(iter, bitmap,
+                                                 SkScalarRoundToInt(pt.fX),
+                                                 SkScalarRoundToInt(pt.fY), pnt);
             }
         } else {
             iter.fDevice->drawImage(iter, image, x, y, pnt);
@@ -2347,9 +2347,9 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
         if (drawAsSprite && pnt.getImageFilter()) {
             SkPoint pt;
             iter.fMatrix->mapXY(x, y, &pt);
-            iter.fDevice->drawBitmapAsSpriteWithImageFilter(iter, bitmap,
-                                                            SkScalarRoundToInt(pt.fX),
-                                                            SkScalarRoundToInt(pt.fY), pnt);
+            iter.fDevice->drawBitmapAsSprite(iter, bitmap,
+                                             SkScalarRoundToInt(pt.fX),
+                                             SkScalarRoundToInt(pt.fY), pnt);
         } else {
             iter.fDevice->drawBitmap(iter, bitmap, matrix, looper.paint());
         }

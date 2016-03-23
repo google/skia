@@ -262,9 +262,6 @@ private:
     static GrRenderTarget* CreateRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
                                               int sampleCount, GrTextureStorageAllocator);
 
-    void drawBitmapAsSpriteWithImageFilter(const SkDraw&, const SkBitmap&, int x, int y,
-                                           const SkPaint&) override;
-
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps
     typedef SkBaseDevice INHERITED;
