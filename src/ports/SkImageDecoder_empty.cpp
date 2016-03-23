@@ -8,10 +8,73 @@
 
 #include "SkBitmap.h"
 #include "SkImage.h"
+#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkMovie.h"
 #include "SkPixelSerializer.h"
 #include "SkStream.h"
+
+class SkColorTable;
+class SkPngChunkReader;
+
+// Empty implementations for SkImageDecoder.
+
+SkImageDecoder::SkImageDecoder() {}
+
+SkImageDecoder::~SkImageDecoder() {}
+
+SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable*) {
+    return nullptr;
+}
+
+void SkImageDecoder::copyFieldsToOther(SkImageDecoder* ) {}
+
+bool SkImageDecoder::DecodeFile(const char[], SkBitmap*, SkColorType, Mode, Format*) {
+    return false;
+}
+
+SkImageDecoder::Result SkImageDecoder::decode(SkStream*, SkBitmap*, SkColorType, Mode) {
+    return kFailure;
+}
+
+bool SkImageDecoder::DecodeStream(SkStreamRewindable*, SkBitmap*, SkColorType, Mode, Format*) {
+    return false;
+}
+
+bool SkImageDecoder::DecodeMemory(const void*, size_t, SkBitmap*, SkColorType, Mode, Format*) {
+    return false;
+}
+
+bool SkImageDecoder::decodeYUV8Planes(SkStream*, SkISize[3], void*[3],
+                                      size_t[3], SkYUVColorSpace*) {
+    return false;
+}
+
+SkImageDecoder::Format SkImageDecoder::getFormat() const {
+    return kUnknown_Format;
+}
+
+SkImageDecoder::Format SkImageDecoder::GetStreamFormat(SkStreamRewindable*) {
+    return kUnknown_Format;
+}
+
+const char* SkImageDecoder::GetFormatName(Format) {
+    return nullptr;
+}
+
+SkPngChunkReader* SkImageDecoder::setPeeker(SkPngChunkReader*) {
+    return nullptr;
+}
+
+SkBitmap::Allocator* SkImageDecoder::setAllocator(SkBitmap::Allocator*) {
+    return nullptr;
+}
+
+void SkImageDecoder::setSampleSize(int) {}
+
+bool SkImageDecoder::allocPixelRef(SkBitmap*, SkColorTable*) const {
+    return false;
+}
 
 /////////////////////////////////////////////////////////////////////////
 

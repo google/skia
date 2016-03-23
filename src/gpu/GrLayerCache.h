@@ -16,7 +16,6 @@
 #include "SkChecksum.h"
 #include "SkImageFilter.h"
 #include "SkMessageBus.h"
-#include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkTDynamicHash.h"
 

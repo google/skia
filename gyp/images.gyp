@@ -31,17 +31,36 @@
       ],
       'sources': [
         '../include/images/SkForceLinking.h',
+        '../src/images/SkJpegUtility.h',
         '../include/images/SkMovie.h',
         '../include/images/SkPageFlipper.h',
 
-        '../src/images/SkForceLinking.cpp',
-        '../src/images/SkImageDecoder_FactoryDefault.cpp',
+        '../src/images/bmpdecoderhelper.cpp',
+        '../src/images/bmpdecoderhelper.h',
 
-        # If encoders are added/removed to/from (all/individual)
+        '../src/images/SkForceLinking.cpp',
+        '../src/images/SkImageDecoder.cpp',
+        '../src/images/SkImageDecoder_FactoryDefault.cpp',
+        '../src/images/SkImageDecoder_FactoryRegistrar.cpp',
+
+        # If decoders are added/removed to/from (all/individual)
         # platform(s), be sure to update SkForceLinking.cpp
         # so the right decoders will be forced to link.
 
+        # IMPORTANT: The build order of the SkImageDecoder_*.cpp files
+        # defines the order image decoders are tested when decoding a
+        # stream. The last decoder is the first one tested, so the .cpp
+        # files should be in listed in order from the least likely to be
+        # used, to the most likely (jpeg and png should be the last two
+        # for instance.) As a result, they are deliberately not in
+        # alphabetical order.
+        '../src/images/SkImageDecoder_wbmp.cpp',
+        '../src/images/SkImageDecoder_pkm.cpp',
         '../src/images/SkImageDecoder_ktx.cpp',
+        '../src/images/SkImageDecoder_astc.cpp',
+        '../src/images/SkImageDecoder_libbmp.cpp',
+        '../src/images/SkImageDecoder_libgif.cpp',
+        '../src/images/SkImageDecoder_libico.cpp',
         '../src/images/SkImageDecoder_libwebp.cpp',
         '../src/images/SkImageDecoder_libjpeg.cpp',
         '../src/images/SkImageDecoder_libpng.cpp',
@@ -53,6 +72,8 @@
         '../src/images/SkMovie.cpp',
         '../src/images/SkMovie_gif.cpp',
         '../src/images/SkPageFlipper.cpp',
+        '../src/images/SkScaledBitmapSampler.cpp',
+        '../src/images/SkScaledBitmapSampler.h',
 
         '../src/ports/SkImageDecoder_CG.cpp',
         '../src/ports/SkImageDecoder_WIC.cpp',
@@ -60,6 +81,8 @@
       'conditions': [
         [ 'skia_os == "win"', {
           'sources!': [
+            '../src/images/SkImageDecoder_FactoryDefault.cpp',
+            '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
@@ -78,7 +101,9 @@
         }],
         [ 'skia_os in ["mac", "ios"]', {
           'sources!': [
+            '../src/images/SkImageDecoder_FactoryDefault.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
+            '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
         },{ #else if skia_os != mac
@@ -104,7 +129,9 @@
               # The android framework disables these decoders as they are of little use to
               # Java applications that can't take advantage of the compressed formats.
               'sources!': [
+                '../src/images/SkImageDecoder_pkm.cpp',
                 '../src/images/SkImageDecoder_ktx.cpp',
+                '../src/images/SkImageDecoder_astc.cpp',
               ],
             }],
           ],

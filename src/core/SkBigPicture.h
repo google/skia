@@ -10,11 +10,9 @@
 
 #include "SkOncePtr.h"
 #include "SkPicture.h"
-#include "SkRect.h"
 #include "SkTemplates.h"
 
 class SkBBoxHierarchy;
-class SkMatrix;
 class SkRecord;
 
 // An implementation of SkPicture supporting an arbitrary number of drawing commands.

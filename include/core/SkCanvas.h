@@ -11,7 +11,6 @@
 #include "SkTypes.h"
 #include "SkBitmap.h"
 #include "SkDeque.h"
-#include "SkImage.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
@@ -27,6 +26,7 @@ class SkData;
 class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
+class SkImage;
 class SkImageFilter;
 class SkMetaData;
 class SkPath;

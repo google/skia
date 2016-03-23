@@ -6,8 +6,17 @@
  * found in the LICENSE file.
  */
 
+#include "SkImageDecoder.h"
 #include "SkMovie.h"
 #include "SkStream.h"
+
+extern SkImageDecoder* image_decoder_from_stream(SkStreamRewindable*);
+
+SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable* stream) {
+    return image_decoder_from_stream(stream);
+}
+
+/////////////////////////////////////////////////////////////////////////
 
 typedef SkTRegistry<SkMovie*(*)(SkStreamRewindable*)> MovieReg;
 
