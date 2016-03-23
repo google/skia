@@ -117,13 +117,9 @@ inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
  */
 inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
     // FIXME: skbug.com/4895
-    // Currently, we treat both kLinear and ksRGB encoded images as if they are kLinear.
-    // This makes sense while we do not have proper support for ksRGB.  This is also
-    // the reason why we always allow the client to request kLinear.
-    if (dst.profileType() != src.profileType() &&
-            kLinear_SkColorProfileType != dst.profileType()) {
-        return false;
-    }
+    // Currently, we ignore the SkColorProfileType on the SkImageInfo.  We
+    // will treat the encoded data as linear regardless of what the client
+    // requests.
 
     // Ensure the alpha type is valid
     if (!valid_alpha(dst.alphaType(), src.alphaType())) {

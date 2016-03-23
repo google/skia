@@ -331,13 +331,6 @@ bool SkJpegCodec::onRewind() {
  * Sets the output color space
  */
 bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
-    const SkImageInfo& src = this->getInfo();
-
-    // Ensure that the profile type is unchanged
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
-
     if (kUnknown_SkAlphaType == dst.alphaType()) {
         return false;
     }
