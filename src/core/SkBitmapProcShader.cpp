@@ -176,9 +176,9 @@ private:
 static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImageInfo& srcInfo) {
     // These src attributes are not supported in the new 4f context (yet)
     //
-    if (srcInfo.bytesPerPixel() < 4 ||
-        kRGBA_F16_SkColorType == srcInfo.colorType() ||
-        kIndex_8_SkColorType == srcInfo.colorType()) {
+    if (srcInfo.colorType() != kRGBA_8888_SkColorType
+        && srcInfo.colorType() != kBGRA_8888_SkColorType
+        && srcInfo.colorType() != kIndex_8_SkColorType) {
         return false;
     }
 
@@ -230,7 +230,8 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
             return nullptr;
         }
         if (info->fPixmap.colorType() != kRGBA_8888_SkColorType
-            && info->fPixmap.colorType() != kBGRA_8888_SkColorType) {
+            && info->fPixmap.colorType() != kBGRA_8888_SkColorType
+            && info->fPixmap.colorType() != kIndex_8_SkColorType) {
             return nullptr;
         }
         return new (storage) LinearPipelineContext(shader, rec, info);

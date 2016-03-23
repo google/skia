@@ -458,6 +458,13 @@ static SkLinearBitmapPipeline::BilerpProcessorInterface* choose_pixel_sampler_ba
                 sampleStage->Initialize<Sampler<Pixel8888LBGR, Placer>>(next, srcPixmap);
             }
             break;
+        case kIndex_8_SkColorType:
+            if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
+                sampleStage->Initialize<Sampler<PixelIndex8SRGB, Placer>>(next, srcPixmap);
+            } else {
+                sampleStage->Initialize<Sampler<PixelIndex8LRGB, Placer>>(next, srcPixmap);
+            }
+            break;
         default:
             SkFAIL("Not implemented. Unsupported src");
             break;
@@ -557,9 +564,15 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
         }
     }
 
+    // If it is an index 8 color type, the sampler converts to unpremul for better fidelity.
+    SkAlphaType alphaType = srcImageInfo.alphaType();
+    if (srcPixmap.colorType() == kIndex_8_SkColorType) {
+        alphaType = kUnpremul_SkAlphaType;
+    }
+
     // As the stages are built, the chooser function may skip a stage. For example, with the
     // identity matrix, the matrix stage is skipped, and the tilerStage is the first stage.
-    auto placementStage = choose_pixel_placer(srcImageInfo.alphaType(), postAlpha, &fPixelStage);
+    auto placementStage = choose_pixel_placer(alphaType, postAlpha, &fPixelStage);
     auto samplerStage   = choose_pixel_sampler(placementStage,
                                                filterQuality, srcPixmap, &fSampleStage);
     auto tilerStage     = choose_tiler(samplerStage,

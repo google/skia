@@ -9,6 +9,7 @@
 #define SkLinearBitmapPipeline_sampler_DEFINED
 
 #include "SkLinearBitmapPipeline_core.h"
+#include <array>
 #include <tuple>
 
 namespace {
@@ -169,14 +170,14 @@ private:
 
         int ix = SkFixedFloorToInt(fx);
         int prevIX = ix;
-        Sk4f fpixel = fStrategy.getPixel(row, ix);
+        Sk4f fpixel = fStrategy.getPixelAt(row, ix);
 
         // When dx is less than one, each pixel is used more than once. Using the fixed point fx
         // allows the code to quickly check that the same pixel is being used. The code uses this
         // same pixel check to do the sRGB and normalization only once.
         auto getNextPixel = [&]() {
             if (ix != prevIX) {
-                fpixel = fStrategy.getPixel(row, ix);
+                fpixel = fStrategy.getPixelAt(row, ix);
                 prevIX = ix;
             }
             fx += fdx;
@@ -218,7 +219,7 @@ private:
             }
 
             while (count > 0) {
-                next->placePixel(fStrategy.getPixel(row, ix));
+                next->placePixel(fStrategy.getPixelAt(row, ix));
                 ix += 1;
                 count -= 1;
             }
@@ -232,7 +233,7 @@ private:
             }
 
             while (count > 0) {
-                next->placePixel(fStrategy.getPixel(row, ix));
+                next->placePixel(fStrategy.getPixelAt(row, ix));
                 ix -= 1;
                 count -= 1;
             }
@@ -265,8 +266,8 @@ private:
         SkScalar filterY0 = 1.0f - filterY1;
         int iy1 = SkScalarFloorToInt(y1);
         int ix = SkScalarFloorToInt(span.startX());
-        Sk4f pixelY0 = fStrategy.getPixel(fStrategy.row(iy0), ix);
-        Sk4f pixelY1 = fStrategy.getPixel(fStrategy.row(iy1), ix);
+        Sk4f pixelY0 = fStrategy.getPixelAt(fStrategy.row(iy0), ix);
+        Sk4f pixelY1 = fStrategy.getPixelAt(fStrategy.row(iy1), ix);
         Sk4f filterPixel = pixelY0 * filterY0 + pixelY1 * filterY1;
         int count = span.count();
         while (count >= 4) {
@@ -307,18 +308,18 @@ private:
         SkScalar yFloor = std::floor(ry0);
         Sk4f y1 = Sk4f{ry0 - yFloor};
         Sk4f y0 = Sk4f{1.0f} - y1;
-        const uint32_t* const row0 = fStrategy.row(SkScalarFloorToInt(ry0));
-        const uint32_t* const row1 = fStrategy.row(SkScalarFloorToInt(ry1));
-        Sk4f fpixel00 = y0 * fStrategy.getPixel(row0, ix);
-        Sk4f fpixel01 = y1 * fStrategy.getPixel(row1, ix);
-        Sk4f fpixel10 = y0 * fStrategy.getPixel(row0, ix + 1);
-        Sk4f fpixel11 = y1 * fStrategy.getPixel(row1, ix + 1);
+        const void* const row0 = fStrategy.row(SkScalarFloorToInt(ry0));
+        const void* const row1 = fStrategy.row(SkScalarFloorToInt(ry1));
+        Sk4f fpixel00 = y0 * fStrategy.getPixelAt(row0, ix);
+        Sk4f fpixel01 = y1 * fStrategy.getPixelAt(row1, ix);
+        Sk4f fpixel10 = y0 * fStrategy.getPixelAt(row0, ix + 1);
+        Sk4f fpixel11 = y1 * fStrategy.getPixelAt(row1, ix + 1);
         auto getNextPixel = [&]() {
             if (ix != ioldx) {
                 fpixel00 = fpixel10;
                 fpixel01 = fpixel11;
-                fpixel10 = y0 * fStrategy.getPixel(row0, ix + 1);
-                fpixel11 = y1 * fStrategy.getPixel(row1, ix + 1);
+                fpixel10 = y0 * fStrategy.getPixelAt(row0, ix + 1);
+                fpixel11 = y1 * fStrategy.getPixelAt(row1, ix + 1);
                 ioldx = ix;
                 x = x + xAdjust;
             }
@@ -367,12 +368,12 @@ private:
         SkScalar filterX0 = 1.0f - filterX1;
 
         auto getPixelY0 = [&]() {
-            Sk4f px = fStrategy.getPixel(rowY0, ix0);
+            Sk4f px = fStrategy.getPixelAt(rowY0, ix0);
             return px * filterY0;
         };
 
         auto getPixelY1 = [&]() {
-            Sk4f px = fStrategy.getPixel(rowY1, ix0);
+            Sk4f px = fStrategy.getPixelAt(rowY1, ix0);
             return px * filterY1;
         };
 
@@ -423,8 +424,8 @@ private:
                 count -= 4;
             }
             while (count > 0) {
-                Sk4f pixelY0 = fStrategy.getPixel(rowY0, ix0);
-                Sk4f pixelY1 = fStrategy.getPixel(rowY1, ix0);
+                Sk4f pixelY0 = fStrategy.getPixelAt(rowY0, ix0);
+                Sk4f pixelY1 = fStrategy.getPixelAt(rowY1, ix0);
 
                 fNext->placePixel(lerp(pixelY0, pixelY1));
                 ix0 += 1;
@@ -455,8 +456,8 @@ private:
                 count -= 4;
             }
             while (count > 0) {
-                Sk4f pixelY0 = fStrategy.getPixel(rowY0, ix0);
-                Sk4f pixelY1 = fStrategy.getPixel(rowY1, ix0);
+                Sk4f pixelY0 = fStrategy.getPixelAt(rowY0, ix0);
+                Sk4f pixelY1 = fStrategy.getPixelAt(rowY1, ix0);
 
                 fNext->placePixel(lerp(pixelY0, pixelY1));
                 ix0 -= 1;
@@ -492,8 +493,8 @@ private:
                 count -= 4;
             }
             while (count > 0) {
-                Sk4f pixelY0 = fStrategy.getPixel(rowY0, ix);
-                Sk4f pixelY1 = fStrategy.getPixel(rowY1, ix);
+                Sk4f pixelY0 = fStrategy.getPixelAt(rowY0, ix);
+                Sk4f pixelY1 = fStrategy.getPixelAt(rowY1, ix);
 
                 fNext->placePixel(lerp(&pixelY0, &pixelY1));
                 ix += 1;
@@ -512,8 +513,8 @@ private:
                 count -= 4;
             }
             while (count > 0) {
-                Sk4f pixelY0 = fStrategy.getPixel(rowY0, ix);
-                Sk4f pixelY1 = fStrategy.getPixel(rowY1, ix);
+                Sk4f pixelY0 = fStrategy.getPixelAt(rowY0, ix);
+                Sk4f pixelY1 = fStrategy.getPixelAt(rowY1, ix);
 
                 fNext->placePixel(lerp(&pixelY0, &pixelY1));
                 ix -= 1;
@@ -587,11 +588,11 @@ public:
         Sk4i bufferLoc = YIs * fWidth + XIs;
         switch (n) {
             case 3:
-                *px2 = this->getPixel(fSrc, bufferLoc[2]);
+                *px2 = this->getPixelAt(fSrc, bufferLoc[2]);
             case 2:
-                *px1 = this->getPixel(fSrc, bufferLoc[1]);
+                *px1 = this->getPixelAt(fSrc, bufferLoc[1]);
             case 1:
-                *px0 = this->getPixel(fSrc, bufferLoc[0]);
+                *px0 = this->getPixelAt(fSrc, bufferLoc[0]);
             default:
                 break;
         }
@@ -601,21 +602,21 @@ public:
         Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
         Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
         Sk4i bufferLoc = YIs * fWidth + XIs;
-        *px0 = this->getPixel(fSrc, bufferLoc[0]);
-        *px1 = this->getPixel(fSrc, bufferLoc[1]);
-        *px2 = this->getPixel(fSrc, bufferLoc[2]);
-        *px3 = this->getPixel(fSrc, bufferLoc[3]);
+        *px0 = this->getPixelAt(fSrc, bufferLoc[0]);
+        *px1 = this->getPixelAt(fSrc, bufferLoc[1]);
+        *px2 = this->getPixelAt(fSrc, bufferLoc[2]);
+        *px3 = this->getPixelAt(fSrc, bufferLoc[3]);
     }
 
     void get4Pixels(const void* vsrc, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
         const uint32_t* src = static_cast<const uint32_t*>(vsrc);
-        *px0 = this->getPixel(src, index + 0);
-        *px1 = this->getPixel(src, index + 1);
-        *px2 = this->getPixel(src, index + 2);
-        *px3 = this->getPixel(src, index + 3);
+        *px0 = this->getPixelAt(src, index + 0);
+        *px1 = this->getPixelAt(src, index + 1);
+        *px2 = this->getPixelAt(src, index + 2);
+        *px3 = this->getPixelAt(src, index + 3);
     }
 
-    Sk4f getPixel(const void* vsrc, int index) {
+    Sk4f getPixelAt(const void* vsrc, int index) {
         const uint32_t* src = static_cast<const uint32_t*>(vsrc);
         Sk4b bytePixel = Sk4b::Load((uint8_t *)(&src[index]));
         Sk4f pixel = SkNx_cast<float, uint8_t>(bytePixel);
@@ -629,16 +630,104 @@ public:
         return pixel;
     }
 
-    const uint32_t* row(int y) { return fSrc + y * fWidth[0]; }
+    const void* row(int y) { return fSrc + y * fWidth[0]; }
 
 private:
     const uint32_t* const fSrc;
-    const Sk4i fWidth;
+    const Sk4i            fWidth;
 };
 using Pixel8888SRGB = Pixel8888<kSRGB_SkColorProfileType, ColorOrder::kRGBA>;
 using Pixel8888LRGB = Pixel8888<kLinear_SkColorProfileType, ColorOrder::kRGBA>;
 using Pixel8888SBGR = Pixel8888<kSRGB_SkColorProfileType, ColorOrder::kBGRA>;
 using Pixel8888LBGR = Pixel8888<kLinear_SkColorProfileType, ColorOrder::kBGRA>;
+
+template <SkColorProfileType colorProfile>
+class PixelIndex8 {
+public:
+    PixelIndex8(const SkPixmap& srcPixmap)
+        : fSrc{srcPixmap.addr8()}, fWidth{static_cast<int>(srcPixmap.rowBytes())} {
+        SkASSERT(srcPixmap.colorType() == kIndex_8_SkColorType);
+        SkColorTable* skColorTable = srcPixmap.ctable();
+        SkASSERT(skColorTable != nullptr);
+
+        fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
+        for (int i = 0; i < skColorTable->count(); i++) {
+            fColorTable[i] = this->convertPixel((*skColorTable)[i]);
+        }
+    }
+
+    void VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
+        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
+        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
+        Sk4i bufferLoc = YIs * fWidth + XIs;
+        switch (n) {
+            case 3:
+                *px2 = this->getPixelAt(fSrc, bufferLoc[2]);
+            case 2:
+                *px1 = this->getPixelAt(fSrc, bufferLoc[1]);
+            case 1:
+                *px0 = this->getPixelAt(fSrc, bufferLoc[0]);
+            default:
+                break;
+        }
+    }
+
+    void VECTORCALL get4Pixels(Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
+        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
+        Sk4i bufferLoc = YIs * fWidth + XIs;
+        *px0 = this->getPixelAt(fSrc, bufferLoc[0]);
+        *px1 = this->getPixelAt(fSrc, bufferLoc[1]);
+        *px2 = this->getPixelAt(fSrc, bufferLoc[2]);
+        *px3 = this->getPixelAt(fSrc, bufferLoc[3]);
+    }
+
+    void get4Pixels(const void* vsrc, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+        *px0 = this->getPixelAt(vsrc, index + 0);
+        *px1 = this->getPixelAt(vsrc, index + 1);
+        *px2 = this->getPixelAt(vsrc, index + 2);
+        *px3 = this->getPixelAt(vsrc, index + 3);
+    }
+
+    Sk4f getPixelAt(const void* vsrc, int index) {
+        const uint8_t* src = static_cast<const uint8_t*>(vsrc);
+        return getPixel(src + index);
+    }
+
+    Sk4f getPixel(const uint8_t* src) {
+        Sk4f pixel = fColorTable[*src];
+        return pixel;
+    }
+
+    const void* row(int y) { return fSrc + y * fWidth[0]; }
+
+private:
+    static const size_t kColorTableSize = sizeof(Sk4f[256]) + 12;
+    Sk4f convertPixel(SkPMColor pmColor) {
+        Sk4b bPixel = Sk4b::Load(&pmColor);
+        Sk4f pixel = SkNx_cast<float, uint8_t>(bPixel);
+        float alpha = pixel[3];
+        if (alpha != 0.0f) {
+            float invAlpha = 1.0f / pixel[3];
+            Sk4f normalize = {invAlpha, invAlpha, invAlpha, 1.0f / 255.0f};
+            pixel = pixel * normalize;
+            if (colorProfile == kSRGB_SkColorProfileType) {
+                pixel = sRGBFast::sRGBToLinear(pixel);
+            }
+            return pixel;
+        } else {
+            return Sk4f{0.0f};
+        }
+    }
+    const uint8_t* const fSrc;
+    const Sk4i           fWidth;
+    SkAutoMalloc         fColorTableStorage{kColorTableSize};
+    Sk4f*                fColorTable;
+};
+
+using PixelIndex8SRGB = PixelIndex8<kSRGB_SkColorProfileType>;
+using PixelIndex8LRGB = PixelIndex8<kLinear_SkColorProfileType>;
+
 }  // namespace
 
 #endif  // SkLinearBitmapPipeline_sampler_DEFINED
