@@ -110,8 +110,12 @@ DECLARE_ENCODER_CREATOR(PNGImageEncoder);
 DECLARE_ENCODER_CREATOR(KTXImageEncoder);
 DECLARE_ENCODER_CREATOR(WEBPImageEncoder);
 
-#ifdef SK_BUILD_FOR_IOS
-DECLARE_ENCODER_CREATOR(PNGImageEncoder_IOS);
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+DECLARE_ENCODER_CREATOR(PNGImageEncoder_CG);
+#endif
+
+#if defined(SK_BUILD_FOR_WIN)
+DECLARE_ENCODER_CREATOR(ImageEncoder_WIC);
 #endif
 
 // Typedef to make registering encoder callback easier

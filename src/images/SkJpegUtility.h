@@ -10,7 +10,6 @@
 #ifndef SkJpegUtility_DEFINED
 #define SkJpegUtility_DEFINED
 
-#include "SkImageDecoder.h"
 #include "SkStream.h"
 
 extern "C" {
@@ -29,23 +28,6 @@ struct skjpeg_error_mgr : jpeg_error_mgr {
 
 
 void skjpeg_error_exit(j_common_ptr cinfo);
-
-///////////////////////////////////////////////////////////////////////////
-/* Our source struct for directing jpeg to our stream object.
-*/
-struct skjpeg_source_mgr : jpeg_source_mgr {
-    skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder);
-
-    // Unowned.
-    SkStream*       fStream;
-    // Unowned pointer to the decoder, used to check if the decoding process
-    // has been cancelled.
-    SkImageDecoder* fDecoder;
-    enum {
-        kBufferSize = 1024
-    };
-    char    fBuffer[kBufferSize];
-};
 
 /////////////////////////////////////////////////////////////////////////////
 /* Our destination struct for directing decompressed pixels to our stream
