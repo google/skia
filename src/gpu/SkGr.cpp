@@ -243,7 +243,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
 
     if (caps->srgbSupport() && !GrPixelConfigIsSRGB(desc.fConfig) &&
         kSRGB_SkColorProfileType == pixmap.info().profileType()) {
-        // We we supplied sRGB as the profile type, but we don't have a suitable pixel config.
+        // We were supplied sRGB as the profile type, but we don't have a suitable pixel config.
         // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
         // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
         // destination (claim they're linear):
@@ -257,6 +257,24 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
 
         SkImageInfo linDstInfo = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
         if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+            return nullptr;
+        }
+        if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+            return nullptr;
+        }
+        pmap = &tmpPixmap;
+        // must rebuild desc, since we've forced the info to be N32
+        desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+    } else if (kGray_8_SkColorType == pixmap.colorType()) {
+        // We don't have Gray8 support as a pixel config, so expand to 8888
+
+        // We should have converted sRGB Gray8 above (if we have sRGB support):
+        SkASSERT(!caps->srgbSupport() || kLinear_SkColorProfileType == pixmap.info().profileType());
+
+        SkImageInfo info = SkImageInfo::MakeN32(pixmap.width(), pixmap.height(),
+                                                kOpaque_SkAlphaType);
+        tmpBitmap.allocPixels(info);
+        if (!pixmap.readPixels(info, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
             return nullptr;
         }
         if (!tmpBitmap.peekPixels(&tmpPixmap)) {
