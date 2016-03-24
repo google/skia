@@ -226,10 +226,10 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(
 // gpu-specific paths. This mirrors SkCanvas::internalDrawDevice (the other
 // use of SkImageFilter::filterImage) in that the source and dest will have
 // homogenous backing (e.g., raster or gpu).
-void SkGpuDevice::drawBitmapAsSpriteWithImageFilter(const SkDraw& draw, const SkBitmap& bitmap,
-                                                    int x, int y, const SkPaint& paint) {
+void SkGpuDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitmap,
+                                       int x, int y, const SkPaint& paint) {
     if (bitmap.getTexture()) {
-        INHERITED::drawBitmapAsSpriteWithImageFilter(draw, bitmap, x, y, paint);
+        INHERITED::drawSpriteWithFilter(draw, bitmap, x, y, paint);
         return;
     }
 
@@ -250,7 +250,7 @@ void SkGpuDevice::drawBitmapAsSpriteWithImageFilter(const SkDraw& draw, const Sk
     GrWrapTextureInBitmap(texture, texture->width(), texture->height(),
                           bitmap.isOpaque(), &newBitmap);
 
-    INHERITED::drawBitmapAsSpriteWithImageFilter(draw, newBitmap, x, y, paint);
+    INHERITED::drawSpriteWithFilter(draw, newBitmap, x, y, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

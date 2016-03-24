@@ -57,8 +57,8 @@ SkMergeImageFilter::~SkMergeImageFilter() {
     }
 }
 
-SkSpecialImage* SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                                  SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                                        SkIPoint* offset) const {
     int inputCount = this->countInputs();
     if (inputCount < 1) {
         return nullptr;
@@ -67,14 +67,13 @@ SkSpecialImage* SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const 
     SkIRect bounds;
     bounds.setEmpty();
 
-    SkAutoTDeleteArray<SkAutoTUnref<SkSpecialImage>> inputs(
-                                                    new SkAutoTUnref<SkSpecialImage>[inputCount]);
+    SkAutoTDeleteArray<sk_sp<SkSpecialImage>> inputs(new sk_sp<SkSpecialImage>[inputCount]);
     SkAutoTDeleteArray<SkIPoint> offsets(new SkIPoint[inputCount]);
 
     // Filter all of the inputs.
     for (int i = 0; i < inputCount; ++i) {
         offsets[i].setZero();
-        inputs[i].reset(this->filterInput(i, source, ctx, &offsets[i]));
+        inputs[i] = this->filterInput(i, source, ctx, &offsets[i]);
         if (!inputs[i]) {
             continue;
         }
@@ -126,7 +125,7 @@ SkSpecialImage* SkMergeImageFilter::onFilterImage(SkSpecialImage* source, const 
 
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    return surf->makeImageSnapshot().release();
+    return surf->makeImageSnapshot();
 }
 
 SkFlattenable* SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {

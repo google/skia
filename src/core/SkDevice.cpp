@@ -403,9 +403,9 @@ void SkBaseDevice::drawTextOnPath(const SkDraw& draw, const void* text, size_t b
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::drawBitmapAsSpriteWithImageFilter(const SkDraw& draw, const SkBitmap& bitmap,
-                                                     int x, int y,
-                                                     const SkPaint& paint) {
+void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitmap,
+                                        int x, int y,
+                                        const SkPaint& paint) {
     SkImageFilter* filter = paint.getImageFilter();
     SkASSERT(filter);
 
@@ -423,7 +423,7 @@ void SkBaseDevice::drawBitmapAsSpriteWithImageFilter(const SkDraw& draw, const S
             return; // something disastrous happened
         }
 
-        SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
+        sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
         if (resultImg) {
             SkPaint tmpUnfiltered(paint);
             tmpUnfiltered.setImageFilter(nullptr);

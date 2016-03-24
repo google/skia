@@ -459,7 +459,7 @@ static void test_crop_rects(SkImageFilter::Proxy* proxy,
         SkImageFilter* filter = filters.getFilter(i);
         SkIPoint offset;
         SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
-        SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
+        sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
         REPORTER_ASSERT_MESSAGE(reporter, resultImg, filters.getName(i));
         REPORTER_ASSERT_MESSAGE(reporter, offset.fX == 20 && offset.fY == 30, filters.getName(i));
     }
@@ -484,36 +484,34 @@ static void test_negative_blur_sigma(SkImageFilter::Proxy* proxy,
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> positiveResult1(positiveFilter->filterImage(imgSrc.get(),
-                                                                             ctx, &offset));
+    sk_sp<SkSpecialImage> positiveResult1(positiveFilter->filterImage(imgSrc.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, positiveResult1);
 
-    SkAutoTUnref<SkSpecialImage> negativeResult1(negativeFilter->filterImage(imgSrc.get(),
-                                                                             ctx, &offset));
+    sk_sp<SkSpecialImage> negativeResult1(negativeFilter->filterImage(imgSrc.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, negativeResult1);
 
     SkMatrix negativeScale;
     negativeScale.setScale(-SK_Scalar1, SK_Scalar1);
     SkImageFilter::Context negativeCTX(negativeScale, SkIRect::MakeWH(32, 32), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> negativeResult2(positiveFilter->filterImage(imgSrc.get(),
-                                                                             negativeCTX,
-                                                                             &offset));
+    sk_sp<SkSpecialImage> negativeResult2(positiveFilter->filterImage(imgSrc.get(),
+                                                                      negativeCTX,
+                                                                      &offset));
     REPORTER_ASSERT(reporter, negativeResult2);
 
-    SkAutoTUnref<SkSpecialImage> positiveResult2(negativeFilter->filterImage(imgSrc.get(),
-                                                                             negativeCTX,
-                                                                             &offset));
+    sk_sp<SkSpecialImage> positiveResult2(negativeFilter->filterImage(imgSrc.get(),
+                                                                      negativeCTX,
+                                                                      &offset));
     REPORTER_ASSERT(reporter, positiveResult2);
 
 
     SkBitmap positiveResultBM1, positiveResultBM2;
     SkBitmap negativeResultBM1, negativeResultBM2;
 
-    TestingSpecialImageAccess::GetROPixels(positiveResult1, &positiveResultBM1);
-    TestingSpecialImageAccess::GetROPixels(positiveResult2, &positiveResultBM2);
-    TestingSpecialImageAccess::GetROPixels(negativeResult1, &negativeResultBM1);
-    TestingSpecialImageAccess::GetROPixels(negativeResult2, &negativeResultBM2);
+    TestingSpecialImageAccess::GetROPixels(positiveResult1.get(), &positiveResultBM1);
+    TestingSpecialImageAccess::GetROPixels(positiveResult2.get(), &positiveResultBM2);
+    TestingSpecialImageAccess::GetROPixels(negativeResult1.get(), &negativeResultBM1);
+    TestingSpecialImageAccess::GetROPixels(negativeResult2.get(), &negativeResultBM2);
 
     SkAutoLockPixels lockP1(positiveResultBM1);
     SkAutoLockPixels lockP2(positiveResultBM2);
@@ -606,14 +604,14 @@ static void test_zero_blur_sigma(SkImageFilter::Proxy* proxy,
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> result(filter->filterImage(image.get(), ctx, &offset));
+    sk_sp<SkSpecialImage> result(filter->filterImage(image.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, offset.fX == 5 && offset.fY == 0);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, result->width() == 5 && result->height() == 10);
 
     SkBitmap resultBM;
 
-    TestingSpecialImageAccess::GetROPixels(result, &resultBM);
+    TestingSpecialImageAccess::GetROPixels(result.get(), &resultBM);
 
     SkAutoLockPixels lock(resultBM);
     for (int y = 0; y < resultBM.height(); y++) {
@@ -835,7 +833,7 @@ static void test_imagefilter_merge_result_size(SkImageFilter::Proxy* proxy,
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(0, 0, 100, 100), nullptr);
     SkIPoint offset;
 
-    SkAutoTUnref<SkSpecialImage> resultImg(merge->filterImage(srcImg.get(), ctx, &offset));
+    sk_sp<SkSpecialImage> resultImg(merge->filterImage(srcImg.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
 
     REPORTER_ASSERT(reporter, resultImg->width() == 20 && resultImg->height() == 20);
@@ -1099,7 +1097,7 @@ static void test_clipped_picture_imagefilter(SkImageFilter::Proxy* proxy,
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(1, 1, 1, 1), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> resultImage(imageFilter->filterImage(srcImg.get(), ctx, &offset));
+    sk_sp<SkSpecialImage> resultImage(imageFilter->filterImage(srcImg.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, !resultImage);
 }
 
@@ -1353,7 +1351,7 @@ static void test_composed_imagefilter_offset(SkImageFilter::Proxy* proxy,
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> resultImg(composedFilter->filterImage(srcImg.get(), ctx, &offset));
+    sk_sp<SkSpecialImage> resultImg(composedFilter->filterImage(srcImg.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
     REPORTER_ASSERT(reporter, offset.fX == 1 && offset.fY == 0);
 }
@@ -1424,7 +1422,7 @@ static void test_partial_crop_rect(SkImageFilter::Proxy* proxy,
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
 
-    SkAutoTUnref<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
+    sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
 
     REPORTER_ASSERT(reporter, offset.fX == 0);

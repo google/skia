@@ -214,8 +214,8 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fCropRect.flags());
 }
 
-SkSpecialImage* SkImageFilter::filterImage(SkSpecialImage* src, const Context& context,
-                                           SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Context& context,
+                                                 SkIPoint* offset) const {
     SkASSERT(src && offset);
 
     uint32_t srcGenID = fUsesSrcInput ? src->uniqueID() : 0;
@@ -224,13 +224,13 @@ SkSpecialImage* SkImageFilter::filterImage(SkSpecialImage* src, const Context& c
     if (context.cache()) {
         SkSpecialImage* result = context.cache()->get(key, offset);
         if (result) {
-            return SkRef(result);
+            return sk_sp<SkSpecialImage>(SkRef(result));
         }
     }
 
-    SkSpecialImage* result = this->onFilterImage(src, context, offset);
+    sk_sp<SkSpecialImage> result(this->onFilterImage(src, context, offset));
     if (result && context.cache()) {
-        context.cache()->set(key, result, *offset);
+        context.cache()->set(key, result.get(), *offset);
         SkAutoMutexAcquire mutex(fMutex);
         fCacheKeys.push_back(key);
     }
@@ -280,9 +280,9 @@ bool SkImageFilter::filterInputDeprecated(int index, Proxy* proxy, const SkBitma
         return false;
     }
 
-    SkAutoTUnref<SkSpecialImage> tmp(input->onFilterImage(specialSrc.get(),
-                                                          this->mapContext(ctx),
-                                                          offset));
+    sk_sp<SkSpecialImage> tmp(input->onFilterImage(specialSrc.get(),
+                                                   this->mapContext(ctx),
+                                                   offset));
     if (!tmp) {
         return false;
     }
@@ -341,8 +341,8 @@ bool SkImageFilter::onFilterImageDeprecated(Proxy*, const SkBitmap&, const Conte
 
 // SkImageFilter-derived classes that do not yet have their own onFilterImage
 // implementation convert back to calling the deprecated filterImage method
-SkSpecialImage* SkImageFilter::onFilterImage(SkSpecialImage* src, const Context& ctx,
-                                             SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkImageFilter::onFilterImage(SkSpecialImage* src, const Context& ctx,
+                                                   SkIPoint* offset) const {
     SkBitmap srcBM, resultBM;
 
     if (!src->internal_getBM(&srcBM)) {
@@ -354,7 +354,7 @@ SkSpecialImage* SkImageFilter::onFilterImage(SkSpecialImage* src, const Context&
         return nullptr;
     }
 
-    return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM).release();
+    return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM);
 }
 
 bool SkImageFilter::canFilterImageGPU() const {
@@ -489,10 +489,10 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
     return surf->makeImageSnapshot();
 }
 
-SkSpecialImage* SkImageFilter::applyCropRect(const Context& ctx,
-                                             SkSpecialImage* src,
-                                             SkIPoint* srcOffset,
-                                             SkIRect* bounds) const {
+sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
+                                                   SkSpecialImage* src,
+                                                   SkIPoint* srcOffset,
+                                                   SkIRect* bounds) const {
     SkIRect srcBounds;
     srcBounds = SkIRect::MakeXYWH(srcOffset->fX, srcOffset->fY, src->width(), src->height());
 
@@ -503,14 +503,14 @@ SkSpecialImage* SkImageFilter::applyCropRect(const Context& ctx,
     }
 
     if (srcBounds.contains(*bounds)) {
-        return SkRef(src);
+        return sk_sp<SkSpecialImage>(SkRef(src));
     } else {
         sk_sp<SkSpecialImage> img(pad_image(src,
                                             bounds->width(), bounds->height(),
                                             srcOffset->x() - bounds->x(),
                                             srcOffset->y() - bounds->y()));
         *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
-        return img.release();
+        return img;
     }
 }
 
@@ -563,27 +563,27 @@ SkImageFilter* SkImageFilter::newWithLocalMatrix(const SkMatrix& matrix) const {
     return SkLocalMatrixImageFilter::Create(matrix, const_cast<SkImageFilter*>(this));
 }
 
-SkSpecialImage* SkImageFilter::filterInput(int index,
-                                           SkSpecialImage* src,
-                                           const Context& ctx,
-                                           SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
+                                                 SkSpecialImage* src,
+                                                 const Context& ctx,
+                                                 SkIPoint* offset) const {
     SkImageFilter* input = this->getInput(index);
     if (!input) {
-        return SkRef(src);
+        return sk_sp<SkSpecialImage>(SkRef(src));
     }
 
-    SkAutoTUnref<SkSpecialImage> result(input->filterImage(src, this->mapContext(ctx), offset));
+    sk_sp<SkSpecialImage> result(input->filterImage(src, this->mapContext(ctx), offset));
 
 #if SK_SUPPORT_GPU
     if (src->peekTexture() && result && !result->peekTexture()) {
         // Keep the result on the GPU - this is still required for some
         // image filters that don't support GPU in all cases
         GrContext* context = src->peekTexture()->getContext();
-        return result->makeTextureImage(src->internal_getProxy(), context).release();
+        return result->makeTextureImage(src->internal_getProxy(), context);
     }
 #endif
 
-    return result.release();
+    return result;
 }
 
 #if SK_SUPPORT_GPU
@@ -601,9 +601,9 @@ bool SkImageFilter::filterInputGPUDeprecated(int index, SkImageFilter::Proxy* pr
         return false;
     }
 
-    SkAutoTUnref<SkSpecialImage> tmp(input->onFilterImage(specialSrc.get(),
-                                                          this->mapContext(ctx),
-                                                          offset));
+    sk_sp<SkSpecialImage> tmp(input->onFilterImage(specialSrc.get(),
+                                                   this->mapContext(ctx),
+                                                   offset));
     if (!tmp) {
         return false;
     }

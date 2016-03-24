@@ -32,8 +32,8 @@ protected:
         SkASSERT(inputs[0]);
         SkASSERT(inputs[1]);
     }
-    SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
-                                  SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
 
 private:

@@ -35,8 +35,8 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    SkSpecialImage* onFilterImage(SkSpecialImage* source, const Context&,
-                                  SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
 
 private:
     SkMergeImageFilter(SkImageFilter* filters[], int count, const SkXfermode::Mode modes[],

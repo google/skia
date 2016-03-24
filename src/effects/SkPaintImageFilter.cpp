@@ -33,9 +33,9 @@ void SkPaintImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writePaint(fPaint);
 }
 
-SkSpecialImage* SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
-                                                  const Context& ctx,
-                                                  SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
+                                                        const Context& ctx,
+                                                        SkIPoint* offset) const {
     SkIRect bounds;
     const SkIRect srcBounds = SkIRect::MakeWH(source->width(), source->height());
     if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
@@ -67,7 +67,7 @@ SkSpecialImage* SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
 
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
-    return surf->makeImageSnapshot().release();
+    return surf->makeImageSnapshot();
 }
 
 bool SkPaintImageFilter::canComputeFastBounds() const {

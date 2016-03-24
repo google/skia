@@ -65,8 +65,8 @@ void SkImageSource::flatten(SkWriteBuffer& buffer) const {
     buffer.writeImage(fImage.get());
 }
 
-SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                             SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                                   SkIPoint* offset) const {
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
 
@@ -76,7 +76,7 @@ SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Conte
         offset->fX = offset->fY = 0;
         return SkSpecialImage::MakeFromImage(source->internal_getProxy(),
                                              SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                             fImage).release();
+                                             fImage);
     }
 
     const SkIRect dstIRect = dstRect.roundOut();
@@ -110,7 +110,7 @@ SkSpecialImage* SkImageSource::onFilterImage(SkSpecialImage* source, const Conte
 
     offset->fX = dstIRect.fLeft;
     offset->fY = dstIRect.fTop;
-    return surf->makeImageSnapshot().release();
+    return surf->makeImageSnapshot();
 }
 
 SkRect SkImageSource::computeFastBounds(const SkRect& src) const {

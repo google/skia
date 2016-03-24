@@ -150,7 +150,7 @@ public:
      *  TODO: Right now the imagefilters sometimes return empty result bitmaps/
      *        specialimages. That doesn't seem quite right.
      */
-    SkSpecialImage* filterImage(SkSpecialImage* src, const Context&, SkIPoint* offset) const;
+    sk_sp<SkSpecialImage> filterImage(SkSpecialImage* src, const Context&, SkIPoint* offset) const;
 
     enum MapDirection {
         kForward_MapDirection,
@@ -264,10 +264,10 @@ public:
                                              SkFilterQuality,
                                              SkImageFilter* input = NULL);
 
-    SkSpecialImage* filterInput(int index,
-                                SkSpecialImage* src,
-                                const Context&, 
-                                SkIPoint* offset) const;
+    sk_sp<SkSpecialImage> filterInput(int index,
+                                      SkSpecialImage* src,
+                                      const Context&, 
+                                      SkIPoint* offset) const;
 
 #if SK_SUPPORT_GPU
     // Helper function which invokes GPU filter processing on the
@@ -354,8 +354,8 @@ protected:
     virtual bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
                                          SkBitmap* result, SkIPoint* offset) const;
 
-    virtual SkSpecialImage* onFilterImage(SkSpecialImage* src, const Context&,
-                                          SkIPoint* offset) const;
+    virtual sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* src, const Context&,
+                                                SkIPoint* offset) const;
 
     /**
      * This function recurses into its inputs with the given rect (first
@@ -424,8 +424,8 @@ protected:
     bool applyCropRectDeprecated(const Context&, Proxy* proxy, const SkBitmap& src,
                                  SkIPoint* srcOffset, SkIRect* bounds, SkBitmap* result) const;
 
-    SkSpecialImage* applyCropRect(const Context&, SkSpecialImage* src, SkIPoint* srcOffset,
-                                  SkIRect* bounds) const;
+    sk_sp<SkSpecialImage> applyCropRect(const Context&, SkSpecialImage* src, SkIPoint* srcOffset,
+                                        SkIRect* bounds) const;
 
     /**
      *  Returns true if the filter can be expressed a single-pass

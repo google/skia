@@ -70,11 +70,12 @@ static void get_box3_params(SkScalar s, int *kernelSize, int* kernelSize3, int *
     }
 }
 
-SkSpecialImage* SkBlurImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                                 SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
+                                                       const Context& ctx,
+                                                       SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
 
-    SkAutoTUnref<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -98,7 +99,7 @@ SkSpecialImage* SkBlurImageFilter::onFilterImage(SkSpecialImage* source, const C
             offset->fX = inputBounds.x();
             offset->fY = inputBounds.y();
             return input->makeSubset(inputBounds.makeOffset(-inputOffset.x(),
-                                                            -inputOffset.y())).release();
+                                                            -inputOffset.y()));
         }
 
         GrTexture* inputTexture = input->peekTexture();
@@ -122,7 +123,7 @@ SkSpecialImage* SkBlurImageFilter::onFilterImage(SkSpecialImage* source, const C
         return SkSpecialImage::MakeFromGpu(source->internal_getProxy(),
                                            SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           tex).release();
+                                           tex);
     }
 #endif
 
@@ -139,7 +140,7 @@ SkSpecialImage* SkBlurImageFilter::onFilterImage(SkSpecialImage* source, const C
         offset->fX = inputBounds.x();
         offset->fY = inputBounds.y();
         return input->makeSubset(inputBounds.makeOffset(-inputOffset.x(),
-                                                        -inputOffset.y())).release();
+                                                        -inputOffset.y()));
     }
 
     SkPixmap inputPixmap;
@@ -214,7 +215,7 @@ SkSpecialImage* SkBlurImageFilter::onFilterImage(SkSpecialImage* source, const C
     return SkSpecialImage::MakeFromRaster(source->internal_getProxy(), 
                                           SkIRect::MakeWH(dstBounds.width(),
                                                           dstBounds.height()),
-                                          dst).release();
+                                          dst);
 }
 
 

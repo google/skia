@@ -7,6 +7,7 @@
 
 #include "SkLocalMatrixImageFilter.h"
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
 #include "SkString.h"
 
 SkImageFilter* SkLocalMatrixImageFilter::Create(const SkMatrix& localM, SkImageFilter* input) {
@@ -39,8 +40,9 @@ void SkLocalMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(fLocalM);
 }
 
-SkSpecialImage* SkLocalMatrixImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                                        SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkLocalMatrixImageFilter::onFilterImage(SkSpecialImage* source,
+                                                              const Context& ctx,
+                                                              SkIPoint* offset) const {
     Context localCtx(SkMatrix::Concat(ctx.ctm(), fLocalM), ctx.clipBounds(), ctx.cache());
     return this->filterInput(0, source, localCtx, offset);
 }

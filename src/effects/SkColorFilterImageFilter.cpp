@@ -52,10 +52,11 @@ void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fColorFilter.get());
 }
 
-SkSpecialImage* SkColorFilterImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                                        SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* source,
+                                                              const Context& ctx,
+                                                              SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    SkAutoTUnref<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -91,7 +92,7 @@ SkSpecialImage* SkColorFilterImageFilter::onFilterImage(SkSpecialImage* source, 
 
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
-    return surf->makeImageSnapshot().release();
+    return surf->makeImageSnapshot();
 }
 
 bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const {

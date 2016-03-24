@@ -15,11 +15,11 @@
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
-SkSpecialImage* SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
-                                                   const Context& ctx,
-                                                   SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
+                                                         const Context& ctx,
+                                                         SkIPoint* offset) const {
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    SkAutoTUnref<SkSpecialImage> input(this->filterInput(0, source, ctx, &srcOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &srcOffset));
     if (!input) {
         return nullptr;
     }
@@ -30,7 +30,7 @@ SkSpecialImage* SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
     if (!this->cropRectIsSet()) {
         offset->fX = srcOffset.fX + SkScalarRoundToInt(vec.fX);
         offset->fY = srcOffset.fY + SkScalarRoundToInt(vec.fY);
-        return input.release();
+        return input;
     } else {
         SkIRect bounds;
         SkIRect srcBounds = SkIRect::MakeWH(input->width(), input->height());
@@ -61,7 +61,7 @@ SkSpecialImage* SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
 
         offset->fX = bounds.fLeft;
         offset->fY = bounds.fTop;
-        return surf->makeImageSnapshot().release();
+        return surf->makeImageSnapshot();
     }
 }
 

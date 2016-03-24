@@ -381,8 +381,8 @@ protected:
     /**
      *  Calls through to drawSprite, processing the imagefilter.
      */
-    virtual void drawBitmapAsSpriteWithImageFilter(const SkDraw&, const SkBitmap&,
-                                                   int x, int y, const SkPaint&);
+    virtual void drawSpriteWithFilter(const SkDraw&, const SkBitmap&,
+                                      int x, int y, const SkPaint&);
 
 private:
     friend class SkCanvas;

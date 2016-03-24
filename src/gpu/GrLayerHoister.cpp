@@ -309,9 +309,9 @@ void GrLayerHoister::FilterLayer(GrContext* context,
                                                           layer->texture()));
 
     SkIPoint offset = SkIPoint::Make(0, 0);
-    SkAutoTUnref<SkSpecialImage> result(layer->filter()->filterImage(img.get(),
-                                                                     filterContext,
-                                                                     &offset));
+    sk_sp<SkSpecialImage> result(layer->filter()->filterImage(img.get(),
+                                                              filterContext,
+                                                              &offset));
     if (!result) {
         // Filtering failed. Press on with the unfiltered version.
         return;

@@ -51,10 +51,11 @@ void SkDropShadowImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(static_cast<int>(fShadowMode));
 }
 
-SkSpecialImage* SkDropShadowImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                                       SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(SkSpecialImage* source,
+                                                             const Context& ctx,
+                                                             SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    SkAutoTUnref<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -101,7 +102,7 @@ SkSpecialImage* SkDropShadowImageFilter::onFilterImage(SkSpecialImage* source, c
     }
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
-    return surf->makeImageSnapshot().release();
+    return surf->makeImageSnapshot();
 }
 
 SkRect SkDropShadowImageFilter::computeFastBounds(const SkRect& src) const {
