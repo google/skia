@@ -8,20 +8,23 @@
 #ifndef SkPicture_DEFINED
 #define SkPicture_DEFINED
 
-#include "SkImageDecoder.h"
 #include "SkRefCnt.h"
+#include "SkRect.h"
 #include "SkTypes.h"
 
 class GrContext;
 class SkBigPicture;
 class SkBitmap;
 class SkCanvas;
+class SkPath;
 class SkPictureData;
 class SkPixelSerializer;
+class SkReadBuffer;
 class SkRefCntSet;
 class SkStream;
 class SkTypefacePlayback;
 class SkWStream;
+class SkWriteBuffer;
 struct SkPictInfo;
 
 #define SK_SUPPORT_LEGACY_PICTURE_PTR
