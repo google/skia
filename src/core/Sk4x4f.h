@@ -17,12 +17,16 @@ struct Sk4x4f {
     static Sk4x4f Transpose(const   float[16]);
     static Sk4x4f Transpose(const uint8_t[16]);
 
-    void transpose(Sk4f*, Sk4f*, Sk4f*, Sk4f*) const;
+    void transpose(Sk4f* x, Sk4f* y, Sk4f* z, Sk4f* w) const {
+        auto t = Transpose(r,g,b,a);
+        *x = t.r;
+        *y = t.g;
+        *z = t.b;
+        *w = t.a;
+    }
     void transpose(  float[16]) const;
     void transpose(uint8_t[16]) const;
 };
-
-// TODO: NEON
 
 #if 1 && !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
@@ -50,18 +54,6 @@ inline Sk4x4f Sk4x4f::Transpose(const uint8_t bs[16]) {
     return { r,g,b,a };
 }
 
-inline void Sk4x4f::transpose(Sk4f* x, Sk4f* y, Sk4f* z, Sk4f* w) const {
-    auto R = r.fVec,
-         G = g.fVec,
-         B = b.fVec,
-         A = a.fVec;
-    _MM_TRANSPOSE4_PS(R,G,B,A);
-    *x = R;
-    *y = G;
-    *z = B;
-    *w = A;
-}
-
 inline void Sk4x4f::transpose(float fs[16]) const {
     Sk4f x,y,z,w;
     this->transpose(&x,&y,&z,&w);
@@ -77,6 +69,43 @@ inline void Sk4x4f::transpose(uint8_t bs[16]) const {
          B = _mm_slli_epi32(_mm_cvttps_epi32(b.fVec), 16),
          A = _mm_slli_epi32(_mm_cvttps_epi32(a.fVec), 24);
     _mm_storeu_si128((__m128i*)bs, _mm_or_si128(A, _mm_or_si128(B, _mm_or_si128(G, R))));
+}
+
+#elif defined(SK_ARM_HAS_NEON)
+
+inline Sk4x4f Sk4x4f::Transpose(const Sk4f& x, const Sk4f& y, const Sk4f& z, const Sk4f& w) {
+    float32x4x2_t xy = vuzpq_f32(x.fVec, y.fVec),
+                  zw = vuzpq_f32(z.fVec, w.fVec),
+                  rb = vuzpq_f32(xy.val[0], zw.val[0]),
+                  ga = vuzpq_f32(xy.val[1], zw.val[1]);
+    return { rb.val[0], ga.val[0], rb.val[1], ga.val[1] };
+}
+
+inline Sk4x4f Sk4x4f::Transpose(const float fs[16]) {
+    float32x4x4_t v = vld4q_f32(fs);
+    return { v.val[0], v.val[1], v.val[2], v.val[3] };
+}
+
+inline Sk4x4f Sk4x4f::Transpose(const uint8_t bs[16]) {
+    auto b16 = vreinterpretq_u32_u8(vld1q_u8(bs));
+    auto r =   vcvtq_f32_u32(vandq_u32(vdupq_n_u32(0x000000FF), b16)    ),
+         g = vcvtq_n_f32_u32(vandq_u32(vdupq_n_u32(0x0000FF00), b16),  8),
+         b = vcvtq_n_f32_u32(vandq_u32(vdupq_n_u32(0x00FF0000), b16), 16),
+         a = vcvtq_n_f32_u32(vandq_u32(vdupq_n_u32(0xFF000000), b16), 24);
+    return { r,g,b,a };
+}
+
+inline void Sk4x4f::transpose(float fs[16]) const {
+    float32x4x4_t v = {{ r.fVec, g.fVec, b.fVec, a.fVec }};
+    vst4q_f32(fs, v);
+}
+
+inline void Sk4x4f::transpose(uint8_t bs[16]) const {
+    auto R = vandq_u32(vdupq_n_u32(0x000000FF),   vcvtq_u32_f32(r.fVec    )),
+         G = vandq_u32(vdupq_n_u32(0x0000FF00), vcvtq_n_u32_f32(g.fVec,  8)),
+         B = vandq_u32(vdupq_n_u32(0x00FF0000), vcvtq_n_u32_f32(b.fVec, 16)),
+         A = vandq_u32(vdupq_n_u32(0xFF000000), vcvtq_n_u32_f32(a.fVec, 24));
+    vst1q_u8(bs, vreinterpretq_u8_u32(vorrq_u32(A, vorrq_u32(B, vorrq_u32(G, R)))));
 }
 
 #else
@@ -101,13 +130,6 @@ inline Sk4x4f Sk4x4f::Transpose(const uint8_t bs[16]) {
         { (float)bs[2], (float)bs[6], (float)bs[10], (float)bs[14] },
         { (float)bs[3], (float)bs[7], (float)bs[11], (float)bs[15] },
     };
-}
-
-inline void Sk4x4f::transpose(Sk4f* x, Sk4f* y, Sk4f* z, Sk4f* w) const {
-    *x = { r[0], g[0], b[0], a[0] };
-    *y = { r[1], g[1], b[1], a[1] };
-    *z = { r[2], g[2], b[2], a[2] };
-    *w = { r[3], g[3], b[3], a[3] };
 }
 
 inline void Sk4x4f::transpose(float fs[16]) const {
