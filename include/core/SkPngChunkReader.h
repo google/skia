@@ -16,7 +16,7 @@
  *
  *  Base class for optional callbacks to retrieve meta/chunk data out of a PNG
  *  encoded image as it is being decoded.
- *  Used by SkCodec.
+ *  Used by SkImageDecoder and SkCodec.
  */
 class SkPngChunkReader : public SkRefCnt {
 public:

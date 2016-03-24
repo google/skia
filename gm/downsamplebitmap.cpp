@@ -183,15 +183,23 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
 DEF_GM( return new DownsampleBitmapTextGM(72, kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kHigh_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
+                                            kHigh_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kMedium_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kMedium_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kMedium_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
+                                           kMedium_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kLow_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kLow_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kLow_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
+                                           kLow_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kNone_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kNone_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kNone_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
+                                           kNone_SkFilterQuality); )
