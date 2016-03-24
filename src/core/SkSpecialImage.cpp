@@ -67,6 +67,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(SkImageFilter::Proxy* pro
         return nullptr;
     }
 
+    if (bmp.empty()) {
+        return SkSpecialImage::MakeFromRaster(proxy, SkIRect::MakeEmpty(), bmp);
+    }
+
     SkAutoTUnref<GrTexture> resultTex(
         GrRefCachedBitmapTexture(context, bmp, GrTextureParams::ClampNoFilter()));
     if (!resultTex) {

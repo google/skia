@@ -6,18 +6,17 @@
  */
 
 #include "SkColorFilterImageFilter.h"
-#include "SkBitmap.h"
+
 #include "SkCanvas.h"
-#include "SkColorMatrixFilter.h"
-#include "SkDevice.h"
 #include "SkColorFilter.h"
 #include "SkReadBuffer.h"
-#include "SkTableColorFilter.h"
+#include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
 SkImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf, SkImageFilter* input,
                                                 const CropRect* cropRect) {
-    if (nullptr == cf) {
+    if (!cf) {
         return nullptr;
     }
 
@@ -36,8 +35,10 @@ SkImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf, SkImageFilter
 }
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
-        SkImageFilter* input, const CropRect* cropRect)
-    : INHERITED(1, &input, cropRect), fColorFilter(SkRef(cf)) {
+                                                   SkImageFilter* input, 
+                                                   const CropRect* cropRect)
+    : INHERITED(1, &input, cropRect)
+    , fColorFilter(SkRef(cf)) {
 }
 
 SkFlattenable* SkColorFilterImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -51,39 +52,46 @@ void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fColorFilter.get());
 }
 
-bool SkColorFilterImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& source,
-                                                       const Context& ctx,
-                                                       SkBitmap* result,
-                                                       SkIPoint* offset) const {
-    SkBitmap src = source;
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
-        return false;
+SkSpecialImage* SkColorFilterImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                                        SkIPoint* offset) const {
+    SkIPoint inputOffset = SkIPoint::Make(0, 0);
+    SkAutoTUnref<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    if (!input) {
+        return nullptr;
     }
 
     SkIRect bounds;
-    SkIRect srcBounds = src.bounds();
-    srcBounds.offset(srcOffset);
-    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
-        return false;
+    const SkIRect inputBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
+                                                  input->width(), input->height());
+    if (!this->applyCropRect(ctx, inputBounds, &bounds)) {
+        return nullptr;
     }
 
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-    if (nullptr == device.get()) {
-        return false;
+    SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(), kPremul_SkAlphaType);
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
+    if (!surf) {
+        return nullptr;
     }
-    SkCanvas canvas(device.get());
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    // TODO: it seems like this clear shouldn't be necessary (see skbug.com/5075)
+    canvas->clear(0x0);
+
     SkPaint paint;
 
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setColorFilter(fColorFilter);
-    canvas.drawBitmap(src, SkIntToScalar(srcOffset.fX - bounds.fLeft),
-                           SkIntToScalar(srcOffset.fY - bounds.fTop), &paint);
 
-    *result = device.get()->accessBitmap(false);
+    input->draw(canvas,
+                SkIntToScalar(inputOffset.fX - bounds.fLeft),
+                SkIntToScalar(inputOffset.fY - bounds.fTop),
+                &paint);
+
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
-    return true;
+    return surf->makeImageSnapshot().release();
 }
 
 bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const {
