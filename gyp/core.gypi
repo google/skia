@@ -360,6 +360,7 @@
         '<(skia_include_path)/core/SkFontStyle.h',
         '<(skia_include_path)/core/SkGraphics.h',
         '<(skia_include_path)/core/SkImage.h',
+        '<(skia_include_path)/core/SkImageDecoder.h',
         '<(skia_include_path)/core/SkImageEncoder.h',
         '<(skia_include_path)/core/SkImageFilter.h',
         '<(skia_include_path)/core/SkImageInfo.h',
