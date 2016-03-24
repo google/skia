@@ -42,6 +42,7 @@
 #include "SkSFNTHeader.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "SkTemplates.h"
 #include "SkTypefaceCache.h"
 #include "SkTypeface_mac.h"
 #include "SkUtils.h"
@@ -827,7 +828,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
     // If this font might have color glyphs, disable LCD as there's no way to support it.
     // CoreText doesn't tell us which format it ended up using, so we can't detect it.
-    // A8 will be ugly too (white on transparent), but TODO: we can detect gray and set to A8.
+    // A8 will end up black on transparent, but TODO: we can detect gray and set to A8.
     if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
         doLCD = false;
     }
@@ -863,9 +864,14 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
         CGContextSetTextDrawingMode(fCG, kCGTextFill);
 
+#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
         // Draw white on black to create mask.
         // TODO: Draw black on white and invert, CG has a special case codepath.
         CGContextSetGrayFillColor(fCG, 1.0f, 1.0f);
+#else
+        // Draw black on white to create mask. (Special path exists to speed this up in CG.)
+        CGContextSetGrayFillColor(fCG, 0.0f, 1.0f);
+#endif
 
         // force our checks below to happen
         fDoAA = !doAA;
@@ -893,8 +899,14 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     // skip rows based on the glyph's height
     image += (fSize.fHeight - glyph.fHeight) * fSize.fWidth;
 
+#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
     // erase to black
     sk_memset_rect32(image, 0, glyph.fWidth, glyph.fHeight, rowBytes);
+#else
+    // Erase to white (or transparent black if it's a color glyph, to not composite against white).
+    uint32_t bgColor = (SkMask::kARGB32_Format != glyph.fMaskFormat) ? 0xFFFFFFFF : 0x00000000;
+    sk_memset_rect32(image, bgColor, glyph.fWidth, glyph.fHeight, rowBytes);
+#endif
 
     float subX = 0;
     float subY = 0;
@@ -1139,11 +1151,10 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
 
 #include "SkColorPriv.h"
 
-static void build_power_table(uint8_t table[], float ee) {
+static void build_power_table(uint8_t table[]) {
     for (int i = 0; i < 256; i++) {
         float x = i / 255.f;
-        x = sk_float_pow(x, ee);
-        int xx = SkScalarRoundToInt(x * 255);
+        int xx = SkScalarRoundToInt(x * x * 255);
         table[i] = SkToU8(xx);
     }
 }
@@ -1159,7 +1170,7 @@ static const uint8_t* getInverseGammaTableCoreGraphicSmoothing() {
     static bool gInited;
     static uint8_t gTableCoreGraphicsSmoothing[256];
     if (!gInited) {
-        build_power_table(gTableCoreGraphicsSmoothing, 2.0f);
+        build_power_table(gTableCoreGraphicsSmoothing);
         gInited = true;
     }
     return gTableCoreGraphicsSmoothing;
@@ -1169,7 +1180,11 @@ static void cgpixels_to_bits(uint8_t dst[], const CGRGBPixel src[], int count) {
     while (count > 0) {
         uint8_t mask = 0;
         for (int i = 7; i >= 0; --i) {
+#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
             mask |= (CGRGBPixel_getAlpha(*src++) >> 7) << i;
+#else
+            mask |= ((CGRGBPixel_getAlpha(*src++) >> 7) ^ 0x1) << i;
+#endif
             if (0 == --count) {
                 break;
             }
@@ -1180,9 +1195,15 @@ static void cgpixels_to_bits(uint8_t dst[], const CGRGBPixel src[], int count) {
 
 template<bool APPLY_PREBLEND>
 static inline uint8_t rgb_to_a8(CGRGBPixel rgb, const uint8_t* table8) {
+#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
     U8CPU r = (rgb >> 16) & 0xFF;
     U8CPU g = (rgb >>  8) & 0xFF;
     U8CPU b = (rgb >>  0) & 0xFF;
+#else
+    U8CPU r = 0xFF - ((rgb >> 16) & 0xFF);
+    U8CPU g = 0xFF - ((rgb >>  8) & 0xFF);
+    U8CPU b = 0xFF - ((rgb >>  0) & 0xFF);
+#endif
     U8CPU lum = sk_apply_lut_if<APPLY_PREBLEND>(SkComputeLuminance(r, g, b), table8);
 #if SK_SHOW_TEXT_BLIT_COVERAGE
     lum = SkTMax(lum, (U8CPU)0x30);
@@ -1209,9 +1230,15 @@ template<bool APPLY_PREBLEND>
 static inline uint16_t rgb_to_lcd16(CGRGBPixel rgb, const uint8_t* tableR,
                                                     const uint8_t* tableG,
                                                     const uint8_t* tableB) {
+#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
     U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
+#else
+    U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >> 16) & 0xFF), tableR);
+    U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >>  8) & 0xFF), tableG);
+    U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >>  0) & 0xFF), tableB);
+#endif
 #if SK_SHOW_TEXT_BLIT_COVERAGE
     r = SkTMax(r, (U8CPU)0x30);
     g = SkTMax(g, (U8CPU)0x30);
@@ -1246,10 +1273,6 @@ static SkPMColor cgpixels_to_pmcolor(CGRGBPixel rgb) {
     return SkPackARGB32(a, r, g, b);
 }
 
-template <typename T> T* SkTAddByteOffset(T* ptr, size_t byteOffset) {
-    return (T*)((char*)ptr + byteOffset);
-}
-
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     CGGlyph cgGlyph = (CGGlyph) glyph.getGlyphID();
 
@@ -1262,10 +1285,6 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     if (cgPixels == nullptr) {
         return;
     }
-
-    //TODO: see if drawing black on white and inverting is faster (at least in
-    //lcd case) as core graphics appears to have special case code for drawing
-    //black text.
 
     // Fix the glyph
     const bool isLCD = isLCDFormat(glyph.fMaskFormat);
@@ -1285,7 +1304,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
                 int b = (addr[x] >>  0) & 0xFF;
                 addr[x] = (table[r] << 16) | (table[g] << 8) | table[b];
             }
-            addr = SkTAddByteOffset(addr, cgRowBytes);
+            addr = SkTAddOffset<CGRGBPixel>(addr, cgRowBytes);
         }
     }
 
