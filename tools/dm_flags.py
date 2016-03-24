@@ -196,6 +196,10 @@ def get_args(bot):
     for raw_ext in r:
       blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
+  # Large image that overwhelms older Mac bots
+  if 'MacMini4.1-GPU' in bot:
+    blacklist.extend('_ image _ abnormal.wbmp'.split(' '))
+
   match = []
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
@@ -256,6 +260,7 @@ def self_test():
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
     'Test-Mac10.8-Clang-MacMini4.1-CPU-SSE4-x86_64-Release',
+    'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
   ]
 
   cov = coverage.coverage()
