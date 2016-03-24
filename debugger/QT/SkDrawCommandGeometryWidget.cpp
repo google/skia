@@ -23,10 +23,10 @@ void SkDrawCommandGeometryWidget::resizeEvent(QResizeEvent* event) {
     QRect r = this->contentsRect();
     int dim = std::min(r.width(), r.height());
     if (dim == 0) {
-        fSurface.reset(nullptr);
+        fSurface = nullptr;
     } else {
         SkImageInfo info = SkImageInfo::MakeN32Premul(dim, dim);
-        fSurface.reset(SkSurface::NewRaster(info));
+        fSurface = SkSurface::MakeRaster(info);
         this->updateImage();
     }
 }

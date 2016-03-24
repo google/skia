@@ -22,10 +22,10 @@ void SkRasterWidget::resizeEvent(QResizeEvent* event) {
 
     QRect r = this->contentsRect();
     if (r.width() == 0 || r.height() == 0) {
-        fSurface.reset(nullptr);
+        fSurface = nullptr;
     } else {
         SkImageInfo info = SkImageInfo::MakeN32Premul(r.width(), r.height());
-        fSurface.reset(SkSurface::NewRaster(info));
+        fSurface = SkSurface::MakeRaster(info);
     }
     this->updateImage();
 }

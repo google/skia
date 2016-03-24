@@ -32,7 +32,7 @@ protected:
 
 private:
     SkDebugger* fDebugger;
-    SkAutoTUnref<SkSurface> fSurface;
+    sk_sp<SkSurface> fSurface;
     bool fNeedImageUpdate;
 };
 
