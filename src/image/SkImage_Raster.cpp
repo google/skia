@@ -20,6 +20,14 @@
 #include "SkGrPriv.h"
 #endif
 
+// fixes https://bug.skia.org/5096
+static bool is_not_subset(const SkBitmap& bm) {
+    SkASSERT(bm.pixelRef());
+    SkISize dim = bm.pixelRef()->info().dimensions();
+    SkASSERT(dim != bm.dimensions() || bm.pixelRefOrigin().isZero());
+    return dim == bm.dimensions();
+}
+
 class SkImage_Raster : public SkImage_Base {
 public:
     static bool ValidArgs(const Info& info, size_t rowBytes, bool hasColorTable,
@@ -82,7 +90,9 @@ public:
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
     SkImage_Raster(const SkBitmap& bm)
-        : INHERITED(bm.width(), bm.height(), bm.getGenerationID())
+        : INHERITED(bm.width(), bm.height(),
+                    is_not_subset(bm) ? bm.getGenerationID()
+                                      : (uint32_t)kNeedNewImageUniqueID)
         , fBitmap(bm)
     {
         if (bm.pixelRef()->isPreLocked()) {
