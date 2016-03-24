@@ -831,10 +831,6 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
     // Test deferred decoding path on GPU
     if (fIsGpu) {
-        // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
-        //        We have disabled these tests in DM.cpp.
-        SkASSERT(kGray_8_SkColorType != gen->getInfo().colorType());
-
         sk_sp<SkImage> image(SkImage::MakeFromGenerator(gen.release(), nullptr));
         if (!image) {
             return "Could not create image from codec image generator.";

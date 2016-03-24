@@ -589,10 +589,7 @@ static void push_codec_srcs(Path path) {
     }
 
     // Push image generator GPU test.
-    // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
-    if (kGray_8_SkColorType != codec->getInfo().colorType()) {
-        push_image_gen_src(path, ImageGenSrc::kCodec_Mode, codec->getInfo().alphaType(), true);
-    }
+    push_image_gen_src(path, ImageGenSrc::kCodec_Mode, codec->getInfo().alphaType(), true);
 
     // Push image generator CPU tests.
     for (SkAlphaType alphaType : alphaModes) {
