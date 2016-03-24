@@ -530,6 +530,7 @@ DEFINES_ALL = [
     # Staging flags for API changes
     "SK_SUPPORT_LEGACY_COLORFILTER_PTR",
     "SK_SUPPORT_LEGACY_CREATESHADER_PTR",
+    "SK_SUPPORT_LEGACY_PICTURE_PTR",
 ]
 
 ################################################################################

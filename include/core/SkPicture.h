@@ -27,8 +27,6 @@ class SkWStream;
 class SkWriteBuffer;
 struct SkPictInfo;
 
-#define SK_SUPPORT_LEGACY_PICTURE_PTR
-
 /** \class SkPicture
 
     An SkPicture records drawing commands made to a canvas to be played back at a later time.
