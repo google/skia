@@ -16,7 +16,7 @@
       'SK_GAMMA_SRGB',
       'SK_GAMMA_APPLY_TO_A8',
       'QT_NO_KEYWORDS',
-      # 'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',  # TODO(reed): Re-enable when tests don't crash with this.
+      'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',  # TODO(reed): Re-enable when tests don't crash with this.
     ],
 
     # Validate the 'skia_os' setting against 'OS', because only certain

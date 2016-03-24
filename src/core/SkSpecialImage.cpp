@@ -325,8 +325,13 @@ public:
 
     bool onPeekPixels(SkPixmap* pixmap) const override {
         const SkImageInfo info = fBitmap.info();
-        if ((kUnknown_SkColorType == info.colorType()) || !fBitmap.getPixels()) {
+
+        if (kUnknown_SkColorType == info.colorType()) {
             return false;
+        }
+
+        if (!fBitmap.peekPixels(pixmap)) {
+            fBitmap.lockPixels();
         }
 
         return fBitmap.peekPixels(pixmap);
