@@ -67,9 +67,7 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
-    void discard(GrRenderTarget*) override {
-        SkDebugf("discard not yet implemented for Vulkan\n");
-    }
+    void discard(GrRenderTarget*) override {}
 
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
@@ -82,7 +80,6 @@ public:
                                SkAutoTDeleteArray<SkPoint>*);
 
     bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override {
-        SkDebugf("initCopySurfaceDstDesc not yet implemented for Vulkan\n");
         return false;
     }
 
@@ -99,9 +96,7 @@ public:
 
     void clearStencil(GrRenderTarget* target) override;
 
-    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {
-        SkDebugf("drawDebugWireRect not yet implemented for Vulkan\n");
-    }
+    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
 
     void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                           VkPipelineStageFlags dstStageMask,
@@ -132,20 +127,14 @@ private:
                                const SkTArray<GrMipLevel>&) override;
 
     GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
-                                         const SkTArray<GrMipLevel>&) override {
-        SkDebugf("onCreateCompressedTexture not yet implemented for Vulkan\n");
-        return NULL;
-    }
+                                         const SkTArray<GrMipLevel>&) override { return NULL; }
 
     GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
 
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
     GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
-                                                       GrWrapOwnership) override {
-        SkDebugf("onWrapBackendTextureAsRenderTarget not yet implemented for Vulkan\n");
-        return NULL;
-    }
+                                                       GrWrapOwnership) override { return NULL; }
 
     GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override;
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override;
@@ -173,14 +162,9 @@ private:
     bool onTransferPixels(GrSurface*,
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrTransferBuffer* buffer,
-                          size_t offset, size_t rowBytes) override {
-        SkDebugf("onTransferPixels not yet implemented for Vulkan\n");
-        return false;
-    }
+                          size_t offset, size_t rowBytes) override { return false; }
 
-    void onResolveRenderTarget(GrRenderTarget* target) override {
-        SkDebugf("onResolveRenderTarget not yet implemented for Vulkan\n");
-    }
+    void onResolveRenderTarget(GrRenderTarget* target) override {}
 
     bool prepareDrawState(const GrPipeline&,
                           const GrPrimitiveProcessor&,
