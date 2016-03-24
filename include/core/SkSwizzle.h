@@ -14,6 +14,6 @@
   Swizzles byte order of |count| 32-bit pixels, swapping R and B.
   (RGBA <-> BGRA)
 */
-void SkSwapRB(uint32_t* dest, const uint32_t* src, int count);
+SK_API void SkSwapRB(uint32_t* dest, const uint32_t* src, int count);
 
 #endif
