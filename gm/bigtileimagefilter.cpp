@@ -11,7 +11,7 @@
 #include "gm.h"
 
 static sk_sp<SkImage> create_circle_texture(int size, SkColor color) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(size, size));
+    auto surface(SkSurface::MakeRasterN32Premul(size, size));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0xFF000000);
 

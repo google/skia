@@ -1314,16 +1314,16 @@ void SkCanvas::internalRestore() {
     }
 }
 
-SkSurface* SkCanvas::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) {
+sk_sp<SkSurface> SkCanvas::makeSurface(const SkImageInfo& info, const SkSurfaceProps* props) {
     if (nullptr == props) {
         props = &fProps;
     }
     return this->onNewSurface(info, *props);
 }
 
-SkSurface* SkCanvas::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
+sk_sp<SkSurface> SkCanvas::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
     SkBaseDevice* dev = this->getDevice();
-    return dev ? dev->newSurface(info, props) : nullptr;
+    return dev ? dev->makeSurface(info, props) : nullptr;
 }
 
 SkImageInfo SkCanvas::imageInfo() const {
@@ -3043,3 +3043,9 @@ SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatri
 SkAutoCanvasMatrixPaint::~SkAutoCanvasMatrixPaint() {
     fCanvas->restoreToCount(fSaveCount);
 }
+
+#ifdef SK_SUPPORT_LEGACY_NEW_SURFACE_API
+SkSurface* SkCanvas::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) {
+    return this->makeSurface(info, props).release();
+}
+#endif

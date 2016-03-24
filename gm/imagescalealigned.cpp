@@ -73,7 +73,7 @@ private:
         const SkPoint end   = SkPoint::Make(start.x() + vec.x() * (kSegLen - 1),
                                             start.y() + vec.y() * (kSegLen - 1));
 
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(kSegLen, kSegLen));
+        auto surface(SkSurface::MakeRasterN32Premul(kSegLen, kSegLen));
         surface->getCanvas()->clear(SK_ColorTRANSPARENT);
 
         SkPaint paint;

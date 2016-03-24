@@ -27,7 +27,7 @@ static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
 typedef sk_sp<SkImage> (*ImageMakerProc)(GrContext*, SkPicture*, const SkImageInfo&);
 
 static sk_sp<SkImage> make_raster(GrContext*, SkPicture* pic, const SkImageInfo& info) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
     return surface->makeImageSnapshot();
@@ -37,8 +37,7 @@ static sk_sp<SkImage> make_texture(GrContext* ctx, SkPicture* pic, const SkImage
     if (!ctx) {
         return nullptr;
     }
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo,
-                                                               info, 0));
+    auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
     return surface->makeImageSnapshot();

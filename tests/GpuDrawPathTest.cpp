@@ -80,9 +80,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuDrawPath, reporter, context) {
     for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
         for (auto& sampleCount : {0, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
-            SkAutoTUnref<SkSurface> surface(
-                SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info,
-                                           sampleCount, nullptr));
+            auto surface(
+                SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, sampleCount, nullptr));
             if (!surface) {
                 continue;
             }

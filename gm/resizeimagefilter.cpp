@@ -87,7 +87,7 @@ protected:
              deviceSize,
              kHigh_SkFilterQuality);
 
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(16, 16));
+        auto surface(SkSurface::MakeRasterN32Premul(16, 16));
         SkCanvas* surfaceCanvas = surface->getCanvas();
         surfaceCanvas->clear(0x000000);
         {

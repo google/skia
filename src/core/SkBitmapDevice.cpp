@@ -360,8 +360,8 @@ void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     draw.drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
 }
 
-SkSurface* SkBitmapDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
-    return SkSurface::NewRaster(info, &props);
+sk_sp<SkSurface> SkBitmapDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
+    return SkSurface::MakeRaster(info, &props);
 }
 
 SkImageFilter::Cache* SkBitmapDevice::getImageFilterCache() {

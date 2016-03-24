@@ -186,7 +186,10 @@ public:
      *  inherits the properties of the surface that owns this canvas. If this canvas has no parent
      *  surface, then the new surface is created with default properties.
      */
-    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps* = NULL);
+    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps* = nullptr);
+#ifdef SK_SUPPORT_LEGACY_NEW_SURFACE_API
+    SkSurface* newSurface(const SkImageInfo& info, const SkSurfaceProps* props = NULL);
+#endif
 
     /**
      * Return the GPU context of the device that is associated with the canvas.
@@ -1252,7 +1255,7 @@ public:
 
 protected:
     // default impl defers to getDevice()->newSurface(info)
-    virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
+    virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
 
     // default impl defers to its device
     virtual bool onPeekPixels(SkPixmap*);

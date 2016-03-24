@@ -211,8 +211,7 @@ public:
         : SkImageGenerator(info)
         , fCtx(SkRef(ctx))
     {
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo,
-                                                                   info, 0));
+        auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
         surface->getCanvas()->clear(0);
         surface->getCanvas()->translate(-100, -100);
         surface->getCanvas()->drawPicture(pic);

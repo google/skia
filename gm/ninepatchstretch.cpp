@@ -8,11 +8,11 @@
 #include "gm.h"
 #include "SkSurface.h"
 
-static SkSurface* make_surface(SkCanvas* root, int N) {
+static sk_sp<SkSurface> make_surface(SkCanvas* root, int N) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
-    SkSurface* surface = root->newSurface(info);
+    auto surface = root->makeSurface(info);
     if (!surface) {
-        surface = SkSurface::NewRaster(info);
+        surface = SkSurface::MakeRaster(info);
     }
     return surface;
 }
@@ -22,7 +22,7 @@ static sk_sp<SkImage> make_image(SkCanvas* root, SkIRect* center) {
     const int kStretchy = 8;
     const int kSize = 2*kFixed + kStretchy;
 
-    SkAutoTUnref<SkSurface> surface(make_surface(root, kSize));
+    auto surface(make_surface(root, kSize));
     SkCanvas* canvas = surface->getCanvas();
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(kSize), SkIntToScalar(kSize));

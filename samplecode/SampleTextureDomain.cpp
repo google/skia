@@ -60,7 +60,7 @@ protected:
         // Note:  GPU-backed bitmaps follow a different rendering path
         // when copying from one GPU device to another.
         SkImageInfo info = SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType);
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+        auto surface(canvas->makeSurface(info));
 
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(1, 1, 3, 3);

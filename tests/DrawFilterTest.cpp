@@ -27,7 +27,7 @@ public:
  *  it was before the save.
  */
 static void test_saverestore(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+    auto surface(SkSurface::MakeRasterN32Premul(10, 10));
     SkCanvas* canvas = surface->getCanvas();
 
     SkAutoTUnref<TestFilter> df(new TestFilter);

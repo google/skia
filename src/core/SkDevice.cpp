@@ -452,3 +452,6 @@ uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
     return flags;
 }
 
+sk_sp<SkSurface> SkBaseDevice::makeSurface(SkImageInfo const&, SkSurfaceProps const&) {
+    return nullptr;
+}

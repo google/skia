@@ -294,7 +294,7 @@ static void call_writepixels(SkCanvas* canvas) {
 
 DEF_TEST(WritePixelsSurfaceGenID, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     uint32_t genID1 = surface->generationID();
     call_writepixels(surface->getCanvas());
     uint32_t genID2 = surface->generationID();
@@ -400,8 +400,9 @@ DEF_TEST(WritePixels, reporter) {
         if (!tightRowBytes) {
             memset(pixels, DEV_PAD, size);
         }
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterDirectReleaseProc(info, pixels, rowBytes, free_pixels, nullptr));
-        test_write_pixels(reporter, surface);
+        auto surface(SkSurface::MakeRasterDirectReleaseProc(info, pixels, rowBytes,
+                                                            free_pixels, nullptr));
+        test_write_pixels(reporter, surface.get());
     }
 }
 #if SK_SUPPORT_GPU
@@ -415,8 +416,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, context) {
         desc.fOrigin = origin;
         SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
                                                                                   SkBudgeted::kNo));
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(texture->asRenderTarget()));
-        test_write_pixels(reporter, surface);
+        auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
+        test_write_pixels(reporter, surface.get());
     }
 }
 #endif

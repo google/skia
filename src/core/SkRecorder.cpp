@@ -11,6 +11,7 @@
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
 #include "SkRecorder.h"
+#include "SkSurface.h"
 
 //#define WRAP_BITMAP_AS_IMAGE
 
@@ -381,3 +382,6 @@ void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     APPEND(ClipRegion, this->devBounds(), deviceRgn, op);
 }
 
+sk_sp<SkSurface> SkRecorder::onNewSurface(const SkImageInfo&, const SkSurfaceProps&) {
+    return nullptr;
+}

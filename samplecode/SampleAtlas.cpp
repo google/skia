@@ -41,7 +41,7 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
 
 static sk_sp<SkImage> make_atlas(int atlasSize, int cellSize) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;

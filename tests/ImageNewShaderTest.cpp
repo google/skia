@@ -104,8 +104,8 @@ void runShaderTest(skiatest::Reporter* reporter, SkSurface* sourceSurface, SkSur
 DEF_TEST(ImageNewShader, reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
-    SkAutoTUnref<SkSurface> sourceSurface(SkSurface::NewRaster(info));
-    SkAutoTUnref<SkSurface> destinationSurface(SkSurface::NewRaster(info));
+    auto sourceSurface(SkSurface::MakeRaster(info));
+    auto destinationSurface(SkSurface::MakeRaster(info));
 
     runShaderTest(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
@@ -115,10 +115,8 @@ DEF_TEST(ImageNewShader, reporter) {
 void gpuToGpu(skiatest::Reporter* reporter, GrContext* context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
-    SkAutoTUnref<SkSurface> sourceSurface(
-        SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info));
-    SkAutoTUnref<SkSurface> destinationSurface(
-        SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info));
+    auto sourceSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
+    auto destinationSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
 
     runShaderTest(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
@@ -126,9 +124,8 @@ void gpuToGpu(skiatest::Reporter* reporter, GrContext* context) {
 void gpuToRaster(skiatest::Reporter* reporter, GrContext* context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
-    SkAutoTUnref<SkSurface> sourceSurface(SkSurface::NewRenderTarget(context,
-        SkBudgeted::kNo, info));
-    SkAutoTUnref<SkSurface> destinationSurface(SkSurface::NewRaster(info));
+    auto sourceSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
+    auto destinationSurface(SkSurface::MakeRaster(info));
 
     runShaderTest(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
@@ -136,9 +133,8 @@ void gpuToRaster(skiatest::Reporter* reporter, GrContext* context) {
 void rasterToGpu(skiatest::Reporter* reporter, GrContext* context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
-    SkAutoTUnref<SkSurface> sourceSurface(SkSurface::NewRaster(info));
-    SkAutoTUnref<SkSurface> destinationSurface(SkSurface::NewRenderTarget(context,
-        SkBudgeted::kNo, info));
+    auto sourceSurface(SkSurface::MakeRaster(info));
+    auto destinationSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
 
     runShaderTest(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }

@@ -44,7 +44,7 @@ struct Target {
     virtual ~Target() { }
 
     const Config config;
-    SkAutoTDelete<SkSurface> surface;
+    sk_sp<SkSurface> surface;
 
     /** Called once per target, immediately before any timing or drawing. */
     virtual void setup() { }

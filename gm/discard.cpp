@@ -45,8 +45,7 @@ protected:
         size.fWidth /= 10;
         size.fHeight /= 10;
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
-        SkSurface* surface = SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info);
-
+        auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
         if (nullptr == surface) {
             return;
         }
@@ -78,7 +77,6 @@ protected:
         }
 
         surface->getCanvas()->discard();
-        surface->unref();
     }
 
 private:

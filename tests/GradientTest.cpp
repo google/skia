@@ -184,7 +184,7 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
 }
 
 static void test_nearly_vertical(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(200, 200));
+    auto surface(SkSurface::MakeRasterN32Premul(200, 200));
 
     const SkPoint pts[] = {{ 100, 50 }, { 100.0001f, 50000 }};
     const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
@@ -200,7 +200,7 @@ static void test_nearly_vertical(skiatest::Reporter* reporter) {
 // The old code had an assert which this test triggered.
 // We now explicitly clamp the resulting fx value.
 static void test_linear_fuzz(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1300, 630));
+    auto surface(SkSurface::MakeRasterN32Premul(1300, 630));
 
     const SkPoint pts[] = {{ 179.5f, -179.5f }, { 1074.5f, 715.5f }};
     const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE };
@@ -216,7 +216,7 @@ static void test_linear_fuzz(skiatest::Reporter* reporter) {
 // https://bugs.chromium.org/p/skia/issues/detail?id=5023
 // We should still shade pixels for which the radius is exactly 0.
 static void test_two_point_conical_zero_radius(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(5, 5));
+    auto surface(SkSurface::MakeRasterN32Premul(5, 5));
     surface->getCanvas()->clear(SK_ColorRED);
 
     const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };

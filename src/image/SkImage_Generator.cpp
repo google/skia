@@ -79,7 +79,7 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
 
     const SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(),
                                       this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     if (!surface) {
         return nullptr;
     }

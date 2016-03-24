@@ -23,7 +23,7 @@ static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
 }
 
 static sk_sp<SkImage> make_raster_image(int width, int height, SkColor colors[2]) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(width, height));
+    auto surface(SkSurface::MakeRasterN32Premul(width, height));
     draw(surface->getCanvas(), width, height, colors);
     return surface->makeImageSnapshot();
 }

@@ -41,7 +41,7 @@ DEF_GPUTEST_FOR_NULL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, context)
     REPORTER_ASSERT(reporter, false == tex->texturePriv().hasMipMaps());
 
     // Painting with downscale and medium filter quality should result in mipmap creation
-    SkSurface* surface = SkSurface::NewRenderTargetDirect(texRT2->asRenderTarget());
+    auto surface = SkSurface::MakeRenderTargetDirect(texRT2->asRenderTarget());
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
     surface->getCanvas()->scale(0.2f, 0.2f);
@@ -56,7 +56,6 @@ DEF_GPUTEST_FOR_NULL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, context)
     REPORTER_ASSERT(reporter, true == tex->texturePriv().hasMipMaps());
     REPORTER_ASSERT(reporter, true == tex->texturePriv().mipMapsAreDirty());
 
-    surface->unref();
     texRT1->unref();
     texRT2->unref();
 }

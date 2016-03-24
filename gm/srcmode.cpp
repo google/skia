@@ -115,7 +115,7 @@ protected:
         }
     }
 
-    static SkSurface* compat_surface(SkCanvas* canvas, const SkISize& size, bool skipGPU) {
+    static sk_sp<SkSurface> compat_surface(SkCanvas* canvas, const SkISize& size, bool skipGPU) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
 
         bool callNewSurface = true;
@@ -124,17 +124,16 @@ protected:
             callNewSurface = false;
         }
 #endif
-        SkSurface* surface = callNewSurface ? canvas->newSurface(info) : nullptr;
+        sk_sp<SkSurface> surface = callNewSurface ? canvas->makeSurface(info) : nullptr;
         if (nullptr == surface) {
             // picture canvas will return null, so fall-back to raster
-            surface = SkSurface::NewRaster(info);
+            surface = SkSurface::MakeRaster(info);
         }
         return surface;
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkAutoTUnref<SkSurface> surf(compat_surface(canvas, this->getISize(),
-                                                    this->isCanvasDeferred()));
+        auto surf(compat_surface(canvas, this->getISize(), this->isCanvasDeferred()));
         surf->getCanvas()->drawColor(SK_ColorWHITE);
         this->drawContent(surf->getCanvas());
         surf->draw(canvas, 0, 0, nullptr);

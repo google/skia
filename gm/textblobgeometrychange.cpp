@@ -44,7 +44,7 @@ protected:
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200);
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info, &props));
+        auto surface(canvas->makeSurface(info, &props));
         if (surface) {
             SkCanvas* c = surface->getCanvas();
 

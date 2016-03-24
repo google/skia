@@ -87,7 +87,7 @@ protected:
     bool getClipDeviceBounds(SkIRect*) const override;
     bool isClipEmpty() const override;
     bool isClipRect() const override;
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessTopLayerPixels(SkPixmap*) override;
     void willSave() override;

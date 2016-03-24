@@ -51,7 +51,7 @@ private:
     }
 
     void make_bitmap() {
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(80, 80));
+        auto surface(SkSurface::MakeRasterN32Premul(80, 80));
         surface->getCanvas()->clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -63,7 +63,7 @@ private:
     }
 
     void make_checkerboard() {
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(80, 80));
+        auto surface(SkSurface::MakeRasterN32Premul(80, 80));
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(0x00000000);
         SkPaint darkPaint;

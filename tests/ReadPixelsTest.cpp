@@ -324,7 +324,7 @@ const SkIRect gReadPixelsTestRects[] = {
     SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
 };
 
-static void test_readpixels(skiatest::Reporter* reporter, SkSurface* surface,
+static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,
                             BitmapInit lastBitmapInit) {
     SkCanvas* canvas = surface->getCanvas();
     fill_src_canvas(canvas);
@@ -382,7 +382,7 @@ static void test_readpixels(skiatest::Reporter* reporter, SkSurface* surface,
 }
 DEF_TEST(ReadPixels, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     // SW readback fails a premul check when reading back to an unaligned rowbytes.
     test_readpixels(reporter, surface, kLastAligned_BitmapInit);
 }
@@ -397,7 +397,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, context) {
         desc.fOrigin = origin;
         SkAutoTUnref<GrTexture> surfaceTexture(
             context->textureProvider()->createTexture(desc, SkBudgeted::kNo));
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(surfaceTexture->asRenderTarget()));
+        auto surface(SkSurface::MakeRenderTargetDirect(surfaceTexture->asRenderTarget()));
         desc.fFlags = kNone_GrSurfaceFlags;
         test_readpixels(reporter, surface, kLast_BitmapInit);
     }
@@ -603,8 +603,8 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(ReadPixels_Subset_Gpu, reporter, context) {
 
     // do they draw the same?
     const SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    SkAutoTUnref<SkSurface> surfA(SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0));
-    SkAutoTUnref<SkSurface> surfB(SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0));
+    auto surfA(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
+    auto surfB(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
 
     if (false) {
         //
@@ -613,8 +613,8 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(ReadPixels_Subset_Gpu, reporter, context) {
         //
         SkFilterQuality quality = kLow_SkFilterQuality;
 
-        SkAutoTUnref<SkData> dataA(draw_into_surface(surfA, bm_subset, quality));
-        SkAutoTUnref<SkData> dataB(draw_into_surface(surfB, tx_subset, quality));
+        SkAutoTUnref<SkData> dataA(draw_into_surface(surfA.get(), bm_subset, quality));
+        SkAutoTUnref<SkData> dataB(draw_into_surface(surfB.get(), tx_subset, quality));
 
         REPORTER_ASSERT(reporter, dataA->equals(dataB));
         if (false) {

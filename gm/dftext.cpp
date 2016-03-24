@@ -51,9 +51,8 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
         SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                              SkSurfaceProps::kLegacyFontHost_InitType);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo,
-                                                                   info, 0, &props));
-        SkCanvas* canvas = surface.get() ? surface->getCanvas() : inputCanvas;
+        auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));
+        SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
         canvas->setMatrix(inputCanvas->getTotalMatrix());
 #else

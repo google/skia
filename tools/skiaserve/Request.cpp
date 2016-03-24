@@ -140,7 +140,7 @@ SkSurface* Request::createCPUSurface() {
     SkIRect bounds = this->getBounds();
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), kN32_SkColorType,
                                          kPremul_SkAlphaType);
-    return SkSurface::NewRaster(info);
+    return SkSurface::MakeRaster(info).release();
 }
 
 SkSurface* Request::createGPUSurface() {
@@ -150,8 +150,8 @@ SkSurface* Request::createGPUSurface() {
                                          kN32_SkColorType, kPremul_SkAlphaType);
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    SkSurface* surface = SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0,
-                                                    &props);
+    SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
+                                                     &props).release();
     return surface;
 }
 

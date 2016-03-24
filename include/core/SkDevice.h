@@ -296,7 +296,7 @@ protected:
     }
 
 protected:
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) { return NULL; }
+    virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
     virtual bool onPeekPixels(SkPixmap*) { return false; }
 
     /**

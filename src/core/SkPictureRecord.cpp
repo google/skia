@@ -791,7 +791,7 @@ void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkD
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
+sk_sp<SkSurface> SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
     return nullptr;
 }
 

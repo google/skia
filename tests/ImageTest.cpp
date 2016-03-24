@@ -62,13 +62,13 @@ static void draw_image_test_pattern(SkCanvas* canvas) {
 }
 static sk_sp<SkImage> create_image() {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
 static sk_sp<SkImage> create_image_565() {
     const SkImageInfo info = SkImageInfo::Make(20, 20, kRGB_565_SkColorType, kOpaque_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -146,8 +146,7 @@ static sk_sp<SkImage> create_codec_image() {
 #if SK_SUPPORT_GPU
 static sk_sp<SkImage> create_gpu_image(GrContext* context) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, SkBudgeted::kNo,
-                                                               info));
+    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -224,7 +223,7 @@ DEF_TEST(Image_Encode_Serializer, reporter) {
 
 // Test that image encoding failures do not break picture serialization/deserialization.
 DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
+    auto surface(SkSurface::MakeRasterN32Premul(100, 100));
     surface->getCanvas()->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image);
@@ -287,7 +286,7 @@ DEF_TEST(Image_RetainSnapshot, reporter) {
     const SkPMColor red   = SkPackARGB32(0xFF, 0xFF, 0, 0);
     const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
     SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     surface->getCanvas()->clear(0xFF00FF00);
 
     SkPMColor pixels[4];
@@ -373,7 +372,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_Gpu2Cpu, reporter, context) {
     sk_sp<SkImage> image(create_gpu_image(context));
     const uint32_t uniqueID = image->uniqueID();
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
 
     // now we can test drawing a gpu-backed image into a cpu-backed surface
 

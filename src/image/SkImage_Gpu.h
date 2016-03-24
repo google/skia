@@ -42,8 +42,8 @@ public:
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
 
-    SkSurface* onNewSurface(const SkImageInfo& info) const override {
-        return SkSurface::NewRenderTarget(fTexture->getContext(), SkBudgeted::kNo, info);
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) const override {
+        return SkSurface::MakeRenderTarget(fTexture->getContext(), SkBudgeted::kNo, info);
     }
 
     bool asBitmapForImageFilters(SkBitmap* bitmap) const override;

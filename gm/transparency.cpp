@@ -62,7 +62,7 @@ DEF_SIMPLE_GM(transparency_check, canvas, 1792, 1080) {
             sk_tool_utils::color_to_565(0xFF666666), 8);
     {
         SkAutoCanvasRestore autoCanvasRestore(canvas, true);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(256, 9));
+        auto surface(SkSurface::MakeRasterN32Premul(256, 9));
         make_transparency(surface->getCanvas(), 256.0f, 9.0f);
         canvas->scale(7.0f, 120.0f);
         surface->draw(canvas, 0, 0, nullptr);

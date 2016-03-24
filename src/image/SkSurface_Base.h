@@ -35,7 +35,7 @@ public:
      */
     virtual SkCanvas* onNewCanvas() = 0;
 
-    virtual SkSurface* onNewSurface(const SkImageInfo&) = 0;
+    virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo&) = 0;
 
     /**
      *  Allocate an SkImage that represents the current contents of the surface.
@@ -43,7 +43,7 @@ public:
      *  must faithfully represent the current contents, even if the surface
      *  is changed after this called (e.g. it is drawn to via its canvas).
      */
-    virtual SkImage* onNewImageSnapshot(SkBudgeted, ForceCopyMode) = 0;
+    virtual sk_sp<SkImage> onNewImageSnapshot(SkBudgeted, ForceCopyMode) = 0;
 
     /**
      *  Default implementation:
@@ -124,7 +124,7 @@ sk_sp<SkImage> SkSurface_Base::refCachedImage(SkBudgeted budgeted, ForceUnique u
     }
     ForceCopyMode fcm = (kYes_ForceUnique == unique) ? kYes_ForceCopyMode :
                                                        kNo_ForceCopyMode;
-    snap = this->onNewImageSnapshot(budgeted, fcm);
+    snap = this->onNewImageSnapshot(budgeted, fcm).release();
     if (kNo_ForceUnique == unique) {
         SkASSERT(!fCachedImage);
         fCachedImage = SkSafeRef(snap);

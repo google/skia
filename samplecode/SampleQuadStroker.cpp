@@ -76,7 +76,7 @@ static void getContourCounts(const SkPath& path, SkTArray<int>* contourCounts) {
     }
 }
 
-static void erase(SkSurface* surface) {
+static void erase(const sk_sp<SkSurface>& surface) {
     SkCanvas* canvas = surface->getCanvas();
     if (canvas) {
         canvas->clear(SK_ColorTRANSPARENT);
@@ -110,8 +110,8 @@ class QuadStrokerView : public SampleView {
     SkRect fBounds;
     SkMatrix fMatrix, fInverse;
     sk_sp<SkShader> fShader;
-    SkAutoTUnref<SkSurface> fMinSurface;
-    SkAutoTUnref<SkSurface> fMaxSurface;
+    sk_sp<SkSurface> fMinSurface;
+    sk_sp<SkSurface> fMaxSurface;
     StrokeTypeButton fCubicButton;
     StrokeTypeButton fConicButton;
     StrokeTypeButton fQuadButton;
@@ -267,9 +267,9 @@ protected:
         fShader = sk_tool_utils::create_checkerboard_shader(0xFFCCCCCC, 0xFFFFFFFF, zoom);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-        fMinSurface.reset(SkSurface::NewRaster(info));
+        fMinSurface = SkSurface::MakeRaster(info);
         info = info.makeWH(width * zoom, height * zoom);
-        fMaxSurface.reset(SkSurface::NewRaster(info));
+        fMaxSurface = SkSurface::MakeRaster(info);
     }
 
     void draw_points(SkCanvas* canvas, const SkPath& path, SkColor color,

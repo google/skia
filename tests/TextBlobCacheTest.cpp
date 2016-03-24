@@ -66,8 +66,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     }
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info,
-                                                               0, &props));
+    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, &props));
     REPORTER_ASSERT(reporter, surface);
     if (!surface) {
         return;
@@ -133,7 +132,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     // create surface where LCD is impossible
     info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     SkSurfaceProps propsNoLCD(0, kUnknown_SkPixelGeometry);
-    SkAutoTUnref<SkSurface> surfaceNoLCD(canvas->newSurface(info, &propsNoLCD));
+    auto surfaceNoLCD(canvas->makeSurface(info, &propsNoLCD));
     REPORTER_ASSERT(reporter, surface);
     if (!surface) {
         return;

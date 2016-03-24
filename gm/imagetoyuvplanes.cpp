@@ -13,12 +13,12 @@
 #include "SkImage.h"
 
 static sk_sp<SkImage> create_image(GrContext* context, int width, int height) {
-    SkAutoTUnref<SkSurface> surface;
+    sk_sp<SkSurface> surface;
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
     if (context) {
-        surface.reset(SkSurface::NewRenderTarget(context,  SkBudgeted::kYes, info, 0));
+        surface = SkSurface::MakeRenderTarget(context,  SkBudgeted::kYes, info);
     } else {
-        surface.reset(SkSurface::NewRaster(info));
+        surface = SkSurface::MakeRaster(info);
     }
     if (!surface) {
         return nullptr;

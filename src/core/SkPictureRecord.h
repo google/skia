@@ -149,7 +149,7 @@ protected:
         SkASSERT(fWriter.bytesWritten() == initialOffset + size);
     }
 
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
     bool onPeekPixels(SkPixmap*) override { return false; }
 
     void willSave() override;

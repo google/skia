@@ -40,9 +40,9 @@ protected:
         }
         int ts = SkScalarCeilToInt(tile_size);
         SkImageInfo info = SkImageInfo::MakeN32Premul(ts, ts);
-        SkAutoTUnref<SkSurface> tileSurface(canvas->newSurface(info));
-        if (!tileSurface.get()) {
-            tileSurface.reset(SkSurface::NewRaster(info));
+        auto tileSurface(canvas->makeSurface(info));
+        if (!tileSurface) {
+            tileSurface = SkSurface::MakeRaster(info);
         }
         SkCanvas* tileCanvas = tileSurface->getCanvas();
         for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tile_size) {

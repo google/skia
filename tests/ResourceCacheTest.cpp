@@ -37,8 +37,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, context) {
     desc.fWidth = gWidth;
     desc.fHeight = gHeight;
     SkImageInfo info = SkImageInfo::MakeN32Premul(gWidth, gHeight);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context,
-                                                               SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
 
     const SkIRect size = SkIRect::MakeWH(gWidth, gHeight);

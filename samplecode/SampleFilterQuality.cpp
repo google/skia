@@ -19,10 +19,10 @@
 #include "SkRandom.h"
 #include "SkTime.h"
 
-static SkSurface* make_surface(SkCanvas* canvas, const SkImageInfo& info) {
-    SkSurface* surface = canvas->newSurface(info);
+static sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
+    auto surface = canvas->makeSurface(info);
     if (!surface) {
-        surface = SkSurface::NewRaster(info);
+        surface = SkSurface::MakeRaster(info);
     }
     return surface;
 }
@@ -41,7 +41,7 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
 
 static sk_sp<SkImage> make_image() {
     SkImageInfo info = SkImageInfo::MakeN32(N, N, kOpaque_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     SkCanvas* canvas = surface->getCanvas();
     canvas->drawColor(SK_ColorWHITE);
 
@@ -66,7 +66,7 @@ static sk_sp<SkImage> zoom_up(SkSurface* origSurf, SkImage* orig) {
     
     SkImageInfo info = SkImageInfo::MakeN32(orig->width() * D, orig->height() * D,
                                             kOpaque_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(origSurf->newSurface(info));
+    auto surface(origSurf->makeSurface(info));
     SkCanvas* canvas = surface->getCanvas();
     canvas->drawColor(SK_ColorWHITE);
     canvas->scale(S, S);
@@ -217,12 +217,12 @@ protected:
 
         SkISize size = SkISize::Make(fImage->width(), fImage->height());
 
-        SkAutoTUnref<SkSurface> surface;
+        sk_sp<SkSurface> surface;
         if (fShowFatBits) {
             // scale up so we don't clip rotations
             SkImageInfo info = SkImageInfo::MakeN32(fImage->width() * 2, fImage->height() * 2,
                                                     kOpaque_SkAlphaType);
-            surface.reset(make_surface(canvas, info));
+            surface = make_surface(canvas, info);
             canvas = surface->getCanvas();
             canvas->drawColor(SK_ColorWHITE);
             size.set(info.width(), info.height());
@@ -234,7 +234,7 @@ protected:
 
         if (surface) {
             sk_sp<SkImage> orig(surface->makeImageSnapshot());
-            sk_sp<SkImage> zoomed(zoom_up(surface, orig.get()));
+            sk_sp<SkImage> zoomed(zoom_up(surface.get(), orig.get()));
             origCanvas->drawImage(zoomed.get(),
                                   SkScalarHalf(fCell.width() - zoomed->width()),
                                   SkScalarHalf(fCell.height() - zoomed->height()));

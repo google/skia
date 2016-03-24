@@ -259,8 +259,7 @@ bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     }
     bitmap.setIsVolatile(true); // so we don't try to cache it
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterDirect(dst.info(), dst.writable_addr(),
-                                                               dst.rowBytes()));
+    auto surface(SkSurface::MakeRasterDirect(dst.info(), dst.writable_addr(), dst.rowBytes()));
     if (!surface) {
         return false;
     }

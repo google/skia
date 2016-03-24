@@ -291,7 +291,7 @@ public:
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
-            return SkSurface::NewRenderTargetDirect(fCurRenderTarget, &props);
+            return SkSurface::MakeRenderTargetDirect(fCurRenderTarget, &props).release();
         }
 #endif
         return nullptr;
@@ -1066,7 +1066,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
         const SkScalar w = SkScalarCeilToScalar(tile.width());
         const SkScalar h = SkScalarCeilToScalar(tile.height());
         SkImageInfo info = SkImageInfo::MakeN32Premul(SkScalarTruncToInt(w), SkScalarTruncToInt(h));
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+        auto surface(canvas->makeSurface(info));
         SkCanvas* tileCanvas = surface->getCanvas();
 
         for (SkScalar y = 0; y < height(); y += h) {

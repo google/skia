@@ -72,7 +72,7 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
         for (int x = bounds.fLeft; x < bounds.fRight; x += tileW) {
             const SkIRect tileRect = SkIRect::MakeXYWH(x, y, tileW, tileH);
             *fTileRects.append() = tileRect;
-            *fSurfaces.push() = canvas->newSurface(ii);
+            *fSurfaces.push() = canvas->makeSurface(ii).release();
 
             // Never want the contents of a tile to include stuff the parent
             // canvas clips out

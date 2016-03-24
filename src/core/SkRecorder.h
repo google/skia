@@ -122,7 +122,7 @@ public:
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override { return nullptr; }
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
     void flushMiniRecorder();
 

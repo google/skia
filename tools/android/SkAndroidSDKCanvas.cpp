@@ -12,6 +12,7 @@
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "SkTLazy.h"
 
 namespace {
@@ -287,9 +288,9 @@ bool SkAndroidSDKCanvas::getClipDeviceBounds(SkIRect* rect) const {
 bool SkAndroidSDKCanvas::isClipEmpty() const { return fProxyTarget->isClipEmpty(); }
 bool SkAndroidSDKCanvas::isClipRect() const { return fProxyTarget->isClipRect(); }
 
-SkSurface* SkAndroidSDKCanvas::onNewSurface(const SkImageInfo& info,
-                                                     const SkSurfaceProps& props) {
-    return fProxyTarget->newSurface(info, &props);
+sk_sp<SkSurface> SkAndroidSDKCanvas::onNewSurface(const SkImageInfo& info,
+                                                  const SkSurfaceProps& props) {
+    return fProxyTarget->makeSurface(info, &props);
 }
 
 bool SkAndroidSDKCanvas::onPeekPixels(SkPixmap* pmap) {

@@ -13,7 +13,7 @@
 
 static sk_sp<SkImage> make_image() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(319, 52);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     SkCanvas* canvas = surface->getCanvas();
     canvas->drawColor(sk_tool_utils::color_to_565(0xFFF8F8F8));
 

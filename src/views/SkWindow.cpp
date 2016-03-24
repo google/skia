@@ -32,7 +32,8 @@ SkWindow::~SkWindow() {
 
 SkSurface* SkWindow::createSurface() {
     const SkBitmap& bm = this->getBitmap();
-    return SkSurface::NewRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes(), &fSurfaceProps);
+    return SkSurface::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes(),
+                                       &fSurfaceProps).release();
 }
 
 void SkWindow::setMatrix(const SkMatrix& matrix) {

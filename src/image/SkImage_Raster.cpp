@@ -176,7 +176,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
     // TODO : could consider heurist of sharing pixels, if subset is pretty close to complete
 
     SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(), fBitmap.alphaType());
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     if (!surface) {
         return nullptr;
     }

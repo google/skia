@@ -60,7 +60,7 @@ protected:
             0x80,
         };
 
-        SkAutoTUnref<SkSurface> tempSurface(this->possiblyCreateTempSurface(canvas, kSize, kSize));
+        auto tempSurface(this->possiblyCreateTempSurface(canvas, kSize, kSize));
 
         int test = 0;
         int x = 0, y = 0;
@@ -83,7 +83,7 @@ protected:
                     modePaint.setStyle(kStrokes[s].fStyle);
                     modePaint.setStrokeWidth(kStrokes[s].fWidth);
 
-                    this->drawMode(canvas, x, y, kSize, kSize, modePaint, tempSurface);
+                    this->drawMode(canvas, x, y, kSize, kSize, modePaint, tempSurface.get());
 
                     ++test;
                     x += kSize + 10;
@@ -100,7 +100,7 @@ protected:
                     modePaint.setStyle(kStrokes[s].fStyle);
                     modePaint.setStrokeWidth(kStrokes[s].fWidth);
 
-                    this->drawMode(canvas, x, y, kSize, kSize, modePaint, tempSurface);
+                    this->drawMode(canvas, x, y, kSize, kSize, modePaint, tempSurface.get());
 
                     ++test;
                     x += kSize + 10;
@@ -122,13 +122,13 @@ private:
      * So when running on a GPU canvas we explicitly create a temporary canvas using a texture with
      * dimensions exactly matching the layer size.
      */
-    SkSurface* possiblyCreateTempSurface(SkCanvas* baseCanvas, int w, int h) {
+    sk_sp<SkSurface> possiblyCreateTempSurface(SkCanvas* baseCanvas, int w, int h) {
 #if SK_SUPPORT_GPU
         GrContext* context = baseCanvas->getGrContext();
         SkImageInfo baseInfo = baseCanvas->imageInfo();
         SkImageInfo info = SkImageInfo::Make(w, h, baseInfo.colorType(), baseInfo.alphaType(),
                                              baseInfo.profileType());
-        return SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
+        return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
 #else
         return nullptr;
 #endif

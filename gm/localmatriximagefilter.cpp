@@ -16,9 +16,9 @@
 
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    SkAutoTUnref<SkSurface> surface(rootCanvas->newSurface(info));
+    auto surface(rootCanvas->makeSurface(info));
     if (!surface) {
-        surface.reset(SkSurface::NewRaster(info));
+        surface = SkSurface::MakeRaster(info);
     }
 
     SkPaint paint;

@@ -167,21 +167,20 @@ protected:
         sk_bzero(fBuffer, fBufferSize);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(W, H);
-        SkAutoTUnref<SkSurface> surf0(SkSurface::NewRasterDirect(info, fBuffer, RB));
-        SkAutoTUnref<SkSurface> surf1(SkSurface::NewRaster(info));
-        SkAutoTUnref<SkSurface> surf2;  // gpu
+        sk_sp<SkSurface> surf0(SkSurface::MakeRasterDirect(info, fBuffer, RB));
+        sk_sp<SkSurface> surf1(SkSurface::MakeRaster(info));
+        sk_sp<SkSurface> surf2;  // gpu
 
 #if SK_SUPPORT_GPU
-        surf2.reset(SkSurface::NewRenderTarget(canvas->getGrContext(),
-                                               SkBudgeted::kNo, info));
+        surf2 = SkSurface::MakeRenderTarget(canvas->getGrContext(), SkBudgeted::kNo, info);
 #endif
 
-        test_surface(canvas, surf0, true);
+        test_surface(canvas, surf0.get(), true);
         canvas->translate(80, 0);
-        test_surface(canvas, surf1, true);
+        test_surface(canvas, surf1.get(), true);
         if (surf2) {
             canvas->translate(80, 0);
-            test_surface(canvas, surf2, true);
+            test_surface(canvas, surf2.get(), true);
         }
     }
 
@@ -238,7 +237,7 @@ static void draw_contents(SkCanvas* canvas) {
 }
 
 static sk_sp<SkImage> make_raster(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     draw(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -258,7 +257,7 @@ static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*dra
 
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info, GrContext* ctx, void (*draw)(SkCanvas*)) {
     if (!ctx) { return nullptr; }
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
     draw(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -335,7 +334,7 @@ static void draw_opaque_contents(SkCanvas* canvas) {
 }
 
 static SkImageGenerator* gen_raster(const SkImageInfo& info) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    auto surface(SkSurface::MakeRaster(info));
     draw_opaque_contents(surface->getCanvas());
     return new ImageGeneratorFromImage(surface->makeImageSnapshot().get());
 }
@@ -481,9 +480,9 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
         },
         // Create a texture image
         [context, render_image]() -> sk_sp<SkImage> {
-            SkAutoTUnref<SkSurface> surface(
-                SkSurface::NewRenderTarget(context, SkBudgeted::kYes,
-                                           SkImageInfo::MakeN32Premul(kSize, kSize)));
+            auto surface(
+                SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
+                                            SkImageInfo::MakeN32Premul(kSize, kSize)));
             if (!surface) {
                 return nullptr;
             }

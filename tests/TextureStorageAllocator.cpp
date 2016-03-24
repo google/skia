@@ -66,7 +66,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CustomTexture, reporter, context, glContext) 
     grAllocator.fDeallocateTextureStorage= &TestStorageAllocator::deallocateTextureStorage;
     grAllocator.fCtx = &allocator;
 
-    SkAutoTUnref<SkSurface> surface(SkSurface_Gpu::NewRenderTarget(
+    auto surface(SkSurface_Gpu::MakeRenderTarget(
             context, SkBudgeted::kNo, SkImageInfo::MakeN32Premul(kWidth, kHeight), 0,
             NULL, grAllocator));
     REPORTER_ASSERT(reporter, surface);
@@ -100,7 +100,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CustomTextureFailure, reporter, context, glCo
     grAllocator.fAllocateTextureStorage = &TestStorageAllocator::allocateTextureStorage;
     grAllocator.fDeallocateTextureStorage= &TestStorageAllocator::deallocateTextureStorage;
     grAllocator.fCtx = &allocator;
-    SkAutoTUnref<SkSurface> surface(SkSurface_Gpu::NewRenderTarget(
+    auto surface(SkSurface_Gpu::MakeRenderTarget(
             context, SkBudgeted::kNo, SkImageInfo::MakeN32Premul(kWidth, kHeight), 0,
             NULL, grAllocator));
     REPORTER_ASSERT(reporter, !surface);

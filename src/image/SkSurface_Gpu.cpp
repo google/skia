@@ -68,16 +68,16 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
     return new SkCanvas(fDevice, flags);
 }
 
-SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
+sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     int sampleCount = rt->numColorSamples();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
-    return SkSurface::NewRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
-                                      &this->props());
+    return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
+                                       &this->props());
 }
 
-SkImage* SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyMode forceCopyMode) {
+sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyMode forceCopyMode) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     SkASSERT(rt);
     GrTexture* tex = rt->asTexture();
@@ -99,10 +99,10 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyMode fo
         tex = copy;
     }
     const SkImageInfo info = fDevice->imageInfo();
-    SkImage* image = nullptr;
+    sk_sp<SkImage> image;
     if (tex) {
-        image = new SkImage_Gpu(info.width(), info.height(), kNeedNewImageUniqueID,
-                                info.alphaType(), tex, budgeted);
+        image = sk_make_sp<SkImage_Gpu>(info.width(), info.height(), kNeedNewImageUniqueID,
+                                        info.alphaType(), tex, budgeted);
     }
     return image;
 }
@@ -134,29 +134,32 @@ void SkSurface_Gpu::onPrepareForExternalIO() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurfaceProps* props) {
+sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget* target,
+                                                   const SkSurfaceProps* props) {
     SkAutoTUnref<SkGpuDevice> device(
         SkGpuDevice::Create(target, props, SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
-    return new SkSurface_Gpu(device);
+    return sk_make_sp<SkSurface_Gpu>(device);
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, SkBudgeted budgeted, const SkImageInfo& info,
-                                      int sampleCount, const SkSurfaceProps* props,
-                                      GrTextureStorageAllocator customAllocator) {
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
+                                             const SkImageInfo& info, int sampleCount,
+                                             const SkSurfaceProps* props,
+                                             GrTextureStorageAllocator customAllocator) {
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(
             ctx, budgeted, info, sampleCount, props, SkGpuDevice::kClear_InitContents,
             customAllocator));
     if (!device) {
         return nullptr;
     }
-    return new SkSurface_Gpu(device);
+    return sk_make_sp<SkSurface_Gpu>(device);
 }
 
-SkSurface* SkSurface::NewFromBackendTexture(GrContext* context, const GrBackendTextureDesc& desc,
-                                            const SkSurfaceProps* props) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
+                                                   const GrBackendTextureDesc& desc,
+                                                   const SkSurfaceProps* props) {
     if (nullptr == context) {
         return nullptr;
     }
@@ -173,12 +176,12 @@ SkSurface* SkSurface::NewFromBackendTexture(GrContext* context, const GrBackendT
     if (!device) {
         return nullptr;
     }
-    return new SkSurface_Gpu(device);
+    return sk_make_sp<SkSurface_Gpu>(device);
 }
 
-SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext* context,
-                                                 const GrBackendRenderTargetDesc& desc,
-                                                 const SkSurfaceProps* props) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
+                                                        const GrBackendRenderTargetDesc& desc,
+                                                        const SkSurfaceProps* props) {
     if (nullptr == context) {
         return nullptr;
     }
@@ -191,12 +194,12 @@ SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext* context,
     if (!device) {
         return nullptr;
     }
-    return new SkSurface_Gpu(device);
+    return sk_make_sp<SkSurface_Gpu>(device);
 }
 
-SkSurface* SkSurface::NewFromBackendTextureAsRenderTarget(GrContext* context,
-                                                          const GrBackendTextureDesc& desc,
-                                                          const SkSurfaceProps* props) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                                                 const GrBackendTextureDesc& desc,
+                                                                 const SkSurfaceProps* props) {
     if (nullptr == context) {
         return nullptr;
     }
@@ -210,7 +213,7 @@ SkSurface* SkSurface::NewFromBackendTextureAsRenderTarget(GrContext* context,
     if (!device) {
         return nullptr;
     }
-    return new SkSurface_Gpu(device);
+    return sk_make_sp<SkSurface_Gpu>(device);
 }
 
 #endif

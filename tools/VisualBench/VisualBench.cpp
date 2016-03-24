@@ -78,7 +78,7 @@ void VisualBench::setTitle() {
 SkSurface* VisualBench::createSurface() {
     if (!fSurface) {
         SkSurfaceProps props(INHERITED::getSurfaceProps());
-        fSurface.reset(SkSurface::NewRenderTargetDirect(fRenderTarget, &props));
+        fSurface.reset(SkSurface::MakeRenderTargetDirect(fRenderTarget, &props).release());
     }
 
     // The caller will wrap the SkSurface in an SkAutoTUnref

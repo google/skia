@@ -231,7 +231,7 @@ void MatrixTestImageFilter::toString(SkString* str) const {
 #endif
 
 static sk_sp<SkImage> make_small_image() {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(kBitmapSize, kBitmapSize));
+    auto surface(SkSurface::MakeRasterN32Premul(kBitmapSize, kBitmapSize));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0x00000000);
     SkPaint darkPaint;
@@ -1495,7 +1495,7 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
 
 // Verify that SkImageSource survives serialization
 DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+    auto surface(SkSurface::MakeRasterN32Premul(10, 10));
     surface->getCanvas()->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     SkAutoTUnref<SkImageFilter> filter(SkImageSource::Create(image.get()));
@@ -1562,7 +1562,7 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
 }
 
 DEF_TEST(BlurLargeImage, reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(SkImageInfo::MakeN32Premul(100, 100)));
+    auto surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(100, 100)));
     test_large_blur_input(reporter, surface->getCanvas());
 }
 
@@ -1597,9 +1597,8 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(XfermodeImageFilterCroppedInput_Gpu, reporter, co
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(BlurLargeImage_Gpu, reporter, context) {
-    SkAutoTUnref<SkSurface> surface(
-        SkSurface::NewRenderTarget(context, SkBudgeted::kYes,
-                                   SkImageInfo::MakeN32Premul(100, 100)));
+    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
+                                             SkImageInfo::MakeN32Premul(100, 100)));
     test_large_blur_input(reporter, surface->getCanvas());
 }
 #endif

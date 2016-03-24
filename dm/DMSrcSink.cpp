@@ -990,7 +990,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     }
 #endif
 
-    SkAutoTUnref<SkSurface> surface(
+    auto surface(
             NewGpuSurface(&factory, fContextType, fContextOptions, info, fSampleCount, fUseDIText));
     if (!surface) {
         return "Could not create a surface.";
@@ -1309,19 +1309,19 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         const int xTiles = (size.width()  + fW - 1) / fW,
                   yTiles = (size.height() + fH - 1) / fH;
         SkMultiPictureDraw mpd(xTiles*yTiles);
-        SkTDArray<SkSurface*> surfaces;
-        surfaces.setReserve(xTiles*yTiles);
+        SkTArray<sk_sp<SkSurface>> surfaces;
+//        surfaces.setReserve(xTiles*yTiles);
 
         SkImageInfo info = canvas->imageInfo().makeWH(fW, fH);
         for (int j = 0; j < yTiles; j++) {
             for (int i = 0; i < xTiles; i++) {
                 // This lets our ultimate Sink determine the best kind of surface.
                 // E.g., if it's a GpuSink, the surfaces and images are textures.
-                SkSurface* s = canvas->newSurface(info);
+                auto s = canvas->makeSurface(info);
                 if (!s) {
-                    s = SkSurface::NewRaster(info);  // Some canvases can't create surfaces.
+                    s = SkSurface::MakeRaster(info);  // Some canvases can't create surfaces.
                 }
-                surfaces.push(s);
+                surfaces.push_back(s);
                 SkCanvas* c = s->getCanvas();
                 c->translate(SkIntToScalar(-i * fW),
                              SkIntToScalar(-j * fH));  // Line up the canvas with this tile.
@@ -1335,7 +1335,6 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
                 canvas->drawImage(image, SkIntToScalar(i*fW), SkIntToScalar(j*fH));
             }
         }
-        surfaces.unrefAll();
         return "";
     });
 }

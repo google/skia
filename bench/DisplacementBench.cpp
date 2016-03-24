@@ -48,7 +48,7 @@ protected:
     void makeCheckerboard() {
         const int w = this->isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
         const int h = this->isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(w, h));
+        auto surface(SkSurface::MakeRasterN32Premul(w, h));
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(0x00000000);
         SkPaint darkPaint;

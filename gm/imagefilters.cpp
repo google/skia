@@ -68,9 +68,9 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
 
 static sk_sp<SkImage> make_image(SkCanvas* canvas) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+    auto surface(canvas->makeSurface(info));
     if (!surface) {
-        surface.reset(SkSurface::NewRaster(info));
+        surface = SkSurface::MakeRaster(info);
     }
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), SkPaint());
     return surface->makeImageSnapshot();

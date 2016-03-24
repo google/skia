@@ -13,9 +13,9 @@
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-        SkAutoTUnref<SkSurface> surface(caller->newSurface(info));
+        auto surface(caller->makeSurface(info));
         if (nullptr == surface) {
-            surface.reset(SkSurface::NewRaster(info));
+            surface = SkSurface::MakeRaster(info);
         }
         SkCanvas* canvas = surface->getCanvas();
         // draw red everywhere, but we don't expect to see it in the draw, testing the notion

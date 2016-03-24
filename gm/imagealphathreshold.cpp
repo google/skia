@@ -95,9 +95,9 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkImageInfo info = SkImageInfo::MakeN32(WIDTH, HEIGHT, kOpaque_SkAlphaType);
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+        auto surface(canvas->makeSurface(info));
         if (nullptr == surface) {
-            surface.reset(SkSurface::NewRaster(info));
+            surface = SkSurface::MakeRaster(info);
         }
         surface->getCanvas()->clear(SK_ColorWHITE);
         draw_rects(surface->getCanvas());

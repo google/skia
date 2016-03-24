@@ -172,7 +172,7 @@ sk_sp<SkImage> SkSurface::makeImageSnapshot(SkBudgeted budgeted, ForceUnique uni
     return asSB(this)->refCachedImage(budgeted, unique);
 }
 
-SkSurface* SkSurface::newSurface(const SkImageInfo& info) {
+sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
     return asSB(this)->onNewSurface(info);
 }
 
@@ -222,27 +222,28 @@ void SkSurface::prepareForExternalIO() {
 
 #if !SK_SUPPORT_GPU
 
-SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&, int,
-                                      const SkSurfaceProps*, GrTextureStorageAllocator) {
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&, int,
+                                             const SkSurfaceProps*, GrTextureStorageAllocator) {
     return nullptr;
 }
 
-SkSurface* SkSurface::NewFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
-                                             const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
+                                                   const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext*, const GrBackendRenderTargetDesc&,
-                                                 const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTargetDesc&,
+                                                        const SkSurfaceProps*) {
     return nullptr;
 }
 
-SkSurface* NewFromBackendTextureAsRenderTarget(GrContext*, const GrBackendTextureDesc&,
-                                               const SkSurfaceProps*) {
+sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*, const GrBackendTextureDesc&,
+                                                      const SkSurfaceProps*) {
     return nullptr;
 }
 

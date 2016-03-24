@@ -1412,8 +1412,8 @@ void SkPDFDevice::onDetachFromCanvas() {
     fClipStack = nullptr;
 }
 
-SkSurface* SkPDFDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
-    return SkSurface::NewRaster(info, &props);
+sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
+    return SkSurface::MakeRaster(info, &props);
 }
 
 ContentEntry* SkPDFDevice::getLastContentEntry() {
@@ -2115,8 +2115,7 @@ static SkSize rect_to_size(const SkRect& r) {
 }
 
 static const SkImage* color_filter(const SkImage* image, SkColorFilter* colorFilter) {
-    sk_sp<SkSurface> surface(SkSurface::NewRaster(
-            SkImageInfo::MakeN32Premul(image->dimensions())));
+    auto surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(image->dimensions())));
     if (!surface) {
         return image;
     }
@@ -2194,8 +2193,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
 
         SkISize wh = rect_to_size(physicalPerspectiveBounds).toCeil();
 
-        sk_sp<SkSurface> surface(
-                SkSurface::NewRaster(SkImageInfo::MakeN32Premul(wh)));
+        auto surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(wh)));
         if (!surface) {
             return;
         }

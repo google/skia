@@ -132,8 +132,8 @@ static SkString humanize(double ms) {
 
 bool Target::init(SkImageInfo info, Benchmark* bench) {
     if (Benchmark::kRaster_Backend == config.backend) {
-        this->surface.reset(SkSurface::NewRaster(info));
-        if (!this->surface.get()) {
+        this->surface = SkSurface::MakeRaster(info);
+        if (!this->surface) {
             return false;
         }
     }
@@ -183,10 +183,10 @@ struct GPUTarget : public Target {
         uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-        this->surface.reset(SkSurface::NewRenderTarget(gGrFactory->get(this->config.ctxType,
-                                                                       this->config.ctxOptions),
+        this->surface = SkSurface::MakeRenderTarget(gGrFactory->get(this->config.ctxType,
+                                                                    this->config.ctxOptions),
                                                          SkBudgeted::kNo, info,
-                                                         this->config.samples, &props));
+                                                         this->config.samples, &props);
         this->gl = gGrFactory->getContextInfo(this->config.ctxType,
                                               this->config.ctxOptions).fGLContext;
         if (!this->surface.get()) {

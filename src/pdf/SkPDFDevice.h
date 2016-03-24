@@ -195,7 +195,7 @@ protected:
         return fLegacyBitmap;
     }
 
-    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
     void drawAnnotation(const SkDraw&, const SkRect&, const char key[], SkData* value) override;
 

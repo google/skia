@@ -47,15 +47,15 @@ template <typename T> std::shared_ptr<T> adopt(T* ptr) {
 
 static std::shared_ptr<SkSurface> create_raster_surface(int w, int h) {
     std::cout << "Using raster surface" << std::endl;
-    return adopt(SkSurface::NewRasterN32Premul(w, h));
+    return adopt(SkSurface::MakeRasterN32Premul(w, h).release());
 }
 
 static std::shared_ptr<SkSurface> create_opengl_surface(int w, int h) {
     std::cout << "Using opengl surface" << std::endl;
     std::shared_ptr<GrContext> grContext = adopt(GrContext::Create(kOpenGL_GrBackend, 0));
-    return adopt(SkSurface::NewRenderTarget(grContext.get(),
+    return adopt(SkSurface::MakeRenderTarget(grContext.get(),
                                             SkBudgeted::kNo,
-                                            SkImageInfo::MakeN32Premul(w,h)));
+                                            SkImageInfo::MakeN32Premul(w,h)).release());
 }
 
 int main(int, char**) {

@@ -716,11 +716,11 @@ static int lcanvas_newSurface(lua_State* L) {
     int width = lua2int_def(L, 2, 0);
     int height = lua2int_def(L, 3, 0);
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-    SkSurface* surface = get_ref<SkCanvas>(L, 1)->newSurface(info);
+    auto surface = get_ref<SkCanvas>(L, 1)->makeSurface(info);
     if (nullptr == surface) {
         lua_pushnil(L);
     } else {
-        push_ref(L, surface)->unref();
+        push_ref(L, surface);
     }
     return 1;
 }
@@ -1769,11 +1769,11 @@ static int lsurface_newSurface(lua_State* L) {
     int width = lua2int_def(L, 2, 0);
     int height = lua2int_def(L, 3, 0);
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-    SkSurface* surface = get_ref<SkSurface>(L, 1)->newSurface(info);
+    auto surface = get_ref<SkSurface>(L, 1)->makeSurface(info);
     if (nullptr == surface) {
         lua_pushnil(L);
     } else {
-        push_ref(L, surface)->unref();
+        push_ref(L, surface);
     }
     return 1;
 }
@@ -2063,11 +2063,11 @@ static int lsk_newRasterSurface(lua_State* L) {
     int height = lua2int_def(L, 2, 0);
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    SkSurface* surface = SkSurface::NewRaster(info, &props);
+    auto surface = SkSurface::MakeRaster(info, &props);
     if (nullptr == surface) {
         lua_pushnil(L);
     } else {
-        push_ref(L, surface)->unref();
+        push_ref(L, surface);
     }
     return 1;
 }

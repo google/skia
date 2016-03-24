@@ -28,16 +28,16 @@ namespace DM {
 
 static const bool kGPUDisabled = false;
 
-static inline SkSurface* NewGpuSurface(GrContextFactory* grFactory,
-                                       GrContextFactory::GLContextType type,
-                                       GrContextFactory::GLContextOptions options,
-                                       SkImageInfo info,
-                                       int samples,
-                                       bool useDIText) {
+static inline sk_sp<SkSurface> NewGpuSurface(GrContextFactory* grFactory,
+                                             GrContextFactory::GLContextType type,
+                                             GrContextFactory::GLContextOptions options,
+                                             SkImageInfo info,
+                                             int samples,
+                                             bool useDIText) {
     uint32_t flags = useDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    return SkSurface::NewRenderTarget(grFactory->get(type, options), SkBudgeted::kNo,
-                                      info, samples, &props);
+    return SkSurface::MakeRenderTarget(grFactory->get(type, options), SkBudgeted::kNo,
+                                       info, samples, &props);
 }
 
 }  // namespace DM

@@ -31,12 +31,12 @@ protected:
     void onPerCanvasPreDraw(SkCanvas* canvas) override {
         // create an Image reflecting the canvas (gpu or cpu)
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+        auto surface(canvas->makeSurface(info));
         canvas->drawColor(SK_ColorRED);
         fImage = surface->makeImageSnapshot();
 
         // create a cpu-backed Surface
-        fRasterSurface.reset(SkSurface::NewRaster(info));
+        fRasterSurface = SkSurface::MakeRaster(info);
     }
 
     void onPerCanvasPostDraw(SkCanvas*) override {
@@ -57,7 +57,7 @@ protected:
 private:
     SkString                fName;
     sk_sp<SkImage>   fImage;
-    SkAutoTUnref<SkSurface> fRasterSurface;
+    sk_sp<SkSurface> fRasterSurface;
 
     typedef Benchmark INHERITED;
 };

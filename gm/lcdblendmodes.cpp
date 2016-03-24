@@ -61,9 +61,9 @@ protected:
         canvas->drawRect(r, p);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+        auto surface(canvas->makeSurface(info));
         if (nullptr == surface) {
-            surface.reset(SkSurface::NewRaster(info));
+            surface = SkSurface::MakeRaster(info);
         }
 
         SkCanvas* surfCanvas = surface->getCanvas();

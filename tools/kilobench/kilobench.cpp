@@ -182,9 +182,9 @@ struct GPUTarget {
         uint32_t flags = useDfText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-        fSurface.reset(SkSurface::NewRenderTarget(context,
-                                                  SkBudgeted::kNo, info,
-                                                  numSamples, &props));
+        fSurface.reset(SkSurface::MakeRenderTarget(context,
+                                                   SkBudgeted::kNo, info,
+                                                   numSamples, &props).release());
         fGL = factory->getContextInfo(ctxType, ctxOptions).fGLContext;
         if (!fSurface.get()) {
             return false;

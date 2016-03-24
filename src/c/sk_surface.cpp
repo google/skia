@@ -433,7 +433,7 @@ sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
     }
 
     SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::NewRaster(info, &surfProps);
+    return (sk_surface_t*)SkSurface::MakeRaster(info, &surfProps).release();
 }
 
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pixels,
@@ -449,7 +449,7 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
     }
 
     SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::NewRasterDirect(info, pixels, rowBytes, &surfProps);
+    return (sk_surface_t*)SkSurface::MakeRasterDirect(info, pixels, rowBytes, &surfProps).release();
 }
 
 void sk_surface_unref(sk_surface_t* csurf) {

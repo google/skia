@@ -139,9 +139,8 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIR
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface
     //
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkBudgeted::kYes,
-                                                               surfaceInfo));
-    if (!surface.get()) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo));
+    if (!surface) {
         return nullptr;
     }
 

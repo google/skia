@@ -98,7 +98,7 @@ protected:
 
     void onDraw(SkCanvas* inputCanvas) override {
         SkCanvas* canvas = inputCanvas;
-        SkAutoTUnref<SkSurface> surface;
+        sk_sp<SkSurface> surface;
         if (fUseDFT) {
 #if SK_SUPPORT_GPU
             // Create a new Canvas to enable DFT
@@ -106,8 +106,7 @@ protected:
             SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
             SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                                  SkSurfaceProps::kLegacyFontHost_InitType);
-            surface.reset(SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo, info, 0,
-                                                     &props));
+            surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
             canvas = surface.get() ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());

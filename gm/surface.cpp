@@ -21,8 +21,8 @@ static sk_sp<SkShader> make_shader() {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
-static SkSurface* make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo,
-                               int disallowAA, int disallowDither) {
+static sk_sp<SkSurface> make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo,
+                                     int disallowAA, int disallowDither) {
     uint32_t flags = 0;
     if (disallowAA) {
         flags |= SkSurfaceProps::kDisallowAntiAlias_Flag;
@@ -33,9 +33,9 @@ static SkSurface* make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelG
 
     SkSurfaceProps props(flags, geo);
     if (ctx) {
-        return SkSurface::NewRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
+        return SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
     } else {
-        return SkSurface::NewRaster(info, &props);
+        return SkSurface::MakeRaster(info, &props);
     }
 }
 
@@ -92,8 +92,7 @@ protected:
             for (int disallowDither = 0; disallowDither <= 1; ++disallowDither) {
                 SkScalar y = 0;
                 for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
-                    SkAutoTUnref<SkSurface> surface(make_surface(ctx, info, rec[i].fGeo,
-                                                                 disallowAA, disallowDither));
+                    auto surface(make_surface(ctx, info, rec[i].fGeo, disallowAA, disallowDither));
                     test_draw(surface->getCanvas(), rec[i].fLabel);
                     surface->draw(canvas, x, y, nullptr);
                     y += H;
@@ -134,16 +133,16 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
-        SkAutoTUnref<SkSurface> surf(canvas->newSurface(info, nullptr));
-        if (!surf.get()) {
-            surf.reset(SkSurface::NewRaster(info));
+        auto surf(canvas->makeSurface(info, nullptr));
+        if (!surf) {
+            surf = SkSurface::MakeRaster(info);
         }
         drawInto(surf->getCanvas());
 
         sk_sp<SkImage> image(surf->makeImageSnapshot());
         canvas->drawImage(image, 10, 10, nullptr);
 
-        SkAutoTUnref<SkSurface> surf2(surf->newSurface(info));
+        auto surf2(surf->makeSurface(info));
         drawInto(surf2->getCanvas());
 
         // Assert that the props were communicated transitively through the first image

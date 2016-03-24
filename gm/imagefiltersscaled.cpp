@@ -139,7 +139,7 @@ private:
         SkScalar x = SkIntToScalar(width / 2);
         SkScalar y = SkIntToScalar(height / 2);
         SkScalar radius = SkScalarMul(SkMinScalar(x, y), SkIntToScalar(4) / SkIntToScalar(5));
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(width, height));
+        auto surface(SkSurface::MakeRasterN32Premul(width, height));
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(0x00000000);
         SkColor colors[2];

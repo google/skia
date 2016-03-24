@@ -264,7 +264,7 @@ protected:
         //-----------
         // Paints with a SkImageSource as a source
 
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+        auto surface(SkSurface::MakeRasterN32Premul(10, 10));
         {
             SkPaint p;
             SkCanvas* temp = surface->getCanvas();
