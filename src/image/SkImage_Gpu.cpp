@@ -355,6 +355,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         return 0;
     }
 
+    const int maxTextureSize = proxy.fCaps->maxTextureSize();
+    if (width() > maxTextureSize || height() > maxTextureSize) {
+        return 0;
+    }
+
     SkAutoPixmapStorage pixmap;
     SkImageInfo info;
     size_t pixelSize = 0;
