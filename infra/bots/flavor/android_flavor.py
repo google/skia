@@ -31,6 +31,12 @@ class _ADBWrapper(object):
     ]
     self._android_flavor._bot_info.run(
         cmd, env=self._android_flavor._default_env)
+    cmd = [
+        os.path.join(self._android_flavor.android_bin, 'adb_wait_for_charge'),
+        '-s', self._serial,
+    ]
+    self._android_flavor._bot_info.run(
+        cmd, env=self._android_flavor._default_env)
 
   def maybe_wait_for_device(self):
     """Run 'adb wait-for-device' if it hasn't already been run."""
