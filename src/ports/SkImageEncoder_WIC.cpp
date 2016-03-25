@@ -31,9 +31,9 @@
 
 #include <wincodec.h>
 #include "SkAutoCoInitialize.h"
+#include "SkBitmap.h"
 #include "SkImageEncoder.h"
 #include "SkIStream.h"
-#include "SkMovie.h"
 #include "SkStream.h"
 #include "SkTScopedComPtr.h"
 #include "SkUnPreMultiply.h"
@@ -46,14 +46,6 @@
 #if defined(CLSID_WICImagingFactory)
 #undef CLSID_WICImagingFactory
 #endif
-
-/////////////////////////////////////////////////////////////////////////
-
-SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
-    return nullptr;
-}
-
-/////////////////////////////////////////////////////////////////////////
 
 class SkImageEncoder_WIC : public SkImageEncoder {
 public:

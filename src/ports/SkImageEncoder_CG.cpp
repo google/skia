@@ -8,11 +8,11 @@
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
+#include "SkBitmap.h"
 #include "SkCGUtils.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
-#include "SkMovie.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
 #include "SkTemplates.h"
@@ -27,14 +27,6 @@
 #include <ImageIO/ImageIO.h>
 #include <MobileCoreServices/MobileCoreServices.h>
 #endif
-
-/////////////////////////////////////////////////////////////////////////
-
-SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
-    return nullptr;
-}
-
-/////////////////////////////////////////////////////////////////////////
 
 static size_t consumer_put(void* info, const void* buffer, size_t count) {
     SkWStream* stream = reinterpret_cast<SkWStream*>(info);
