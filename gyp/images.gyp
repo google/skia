@@ -32,7 +32,6 @@
       'sources': [
         '../include/images/SkForceLinking.h',
         '../include/images/SkMovie.h',
-        '../include/images/SkPageFlipper.h',
 
         '../src/images/SkForceLinking.cpp',
         '../src/images/SkMovie_FactoryDefault.cpp',
@@ -52,7 +51,6 @@
         '../src/images/SkJPEGWriteUtility.cpp',
         '../src/images/SkMovie.cpp',
         '../src/images/SkGIFMovie.cpp',
-        '../src/images/SkPageFlipper.cpp',
 
         '../src/ports/SkImageEncoder_CG.cpp',
         '../src/ports/SkImageEncoder_WIC.cpp',
