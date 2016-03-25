@@ -8,6 +8,7 @@
 #define SkPDFDocument_DEFINED
 
 #include "SkDocument.h"
+#include "SkPDFCanon.h"
 #include "SkPDFMetadata.h"
 #include "SkPDFFont.h"
 

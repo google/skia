@@ -9,8 +9,11 @@
 #include "Resources.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkData.h"
+#include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkPDFBitmap.h"
+#include "SkPDFDocument.h"
+#include "SkPDFShader.h"
 #include "SkPDFUtils.h"
 #include "SkPixmap.h"
 #include "SkRandom.h"
@@ -162,8 +165,36 @@ struct PDFScalarBench : public Benchmark {
     }
 };
 
+struct PDFShaderBench : public Benchmark {
+    sk_sp<SkShader> fShader;
+    const char* onGetName() final { return "PDFShader"; }
+    bool isSuitableFor(Backend b) final { return b == kNonRendering_Backend; }
+    void onDelayedSetup() final {
+        const SkPoint pts[2] = {{0.0f, 0.0f}, {100.0f, 100.0f}};
+        const SkColor colors[] = {
+            SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
+            SK_ColorWHITE, SK_ColorBLACK,
+        };
+        fShader = SkGradientShader::MakeLinear(
+                pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                SkShader::kClamp_TileMode);
+    }
+    void onDraw(int loops, SkCanvas*) final {
+        SkASSERT(fShader);
+        while (loops-- > 0) {
+            NullWStream nullStream;
+            SkPDFDocument doc(&nullStream, nullptr, 72, nullptr);
+            sk_sp<SkPDFObject> shader(
+                    SkPDFShader::GetPDFShader(
+                            &doc, 72, *fShader, SkMatrix::I(),
+                            SkIRect::MakeWH(400,400), 72));
+        }
+    }
+};
+
 }  // namespace
 DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
 DEF_BENCH(return new PDFCompressionBench;)
 DEF_BENCH(return new PDFScalarBench;)
+DEF_BENCH(return new PDFShaderBench;)

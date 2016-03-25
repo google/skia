@@ -51,7 +51,8 @@ static void unitToPointsMatrix(const SkPoint pts[2], SkMatrix* matrix) {
    @param result                 The result ps function.
  */
 static void interpolateColorCode(SkScalar range, SkScalar* curColor,
-                                 SkScalar* prevColor, SkString* result) {
+                                 SkScalar* prevColor,
+                                 SkDynamicMemoryWStream* result) {
     SkASSERT(range != SkIntToScalar(0));
     static const int kColorComponents = 3;
 
@@ -71,32 +72,32 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
     }
 
     if (!dupInput[0] && multiplier[0] == 0) {
-        result->append("pop ");
+        result->writeText("pop ");
     }
 
     for (int i = 0; i < kColorComponents; i++) {
         // If the next components needs t and this component will consume a
         // copy, make another copy.
         if (dupInput[i] && multiplier[i] != 0) {
-            result->append("dup ");
+            result->writeText("dup ");
         }
 
         if (multiplier[i] == 0) {
-            result->appendScalar(prevColor[i]);
-            result->append(" ");
+            SkPDFUtils::AppendScalar(prevColor[i], result);
+            result->writeText(" ");
         } else {
             if (multiplier[i] != 1) {
-                result->appendScalar(multiplier[i]);
-                result->append(" mul ");
+                SkPDFUtils::AppendScalar(multiplier[i], result);
+                result->writeText(" mul ");
             }
             if (prevColor[i] != 0) {
-                result->appendScalar(prevColor[i]);
-                result->append(" add ");
+                SkPDFUtils::AppendScalar(prevColor[i], result);
+                result->writeText(" add ");
             }
         }
 
         if (dupInput[i]) {
-            result->append("exch\n");
+            result->writeText("exch\n");
         }
     }
 }
@@ -123,7 +124,7 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
        }
  */
 static void gradientFunctionCode(const SkShader::GradientInfo& info,
-                                 SkString* result) {
+                                 SkDynamicMemoryWStream* result) {
     /* We want to linearly interpolate from the previous color to the next.
        Scale the colors from 0..255 to 0..1 and determine the multipliers
        for interpolation.
@@ -141,13 +142,13 @@ static void gradientFunctionCode(const SkShader::GradientInfo& info,
     }
 
     // Clamp the initial color.
-    result->append("dup 0 le {pop ");
-    result->appendScalar(colorData[0][0]);
-    result->append(" ");
-    result->appendScalar(colorData[0][1]);
-    result->append(" ");
-    result->appendScalar(colorData[0][2]);
-    result->append(" }\n");
+    result->writeText("dup 0 le {pop ");
+    SkPDFUtils::AppendScalar(colorData[0][0], result);
+    result->writeText(" ");
+    SkPDFUtils::AppendScalar(colorData[0][1], result);
+    result->writeText(" ");
+    SkPDFUtils::AppendScalar(colorData[0][2], result);
+    result->writeText(" }\n");
 
     // The gradient colors.
     int gradients = 0;
@@ -157,54 +158,55 @@ static void gradientFunctionCode(const SkShader::GradientInfo& info,
         }
         gradients++;
 
-        result->append("{dup ");
-        result->appendScalar(info.fColorOffsets[i]);
-        result->append(" le {");
+        result->writeText("{dup ");
+        SkPDFUtils::AppendScalar(info.fColorOffsets[i], result);
+        result->writeText(" le {");
         if (info.fColorOffsets[i - 1] != 0) {
-            result->appendScalar(info.fColorOffsets[i - 1]);
-            result->append(" sub\n");
+            SkPDFUtils::AppendScalar(info.fColorOffsets[i - 1], result);
+            result->writeText(" sub\n");
         }
 
         interpolateColorCode(info.fColorOffsets[i] - info.fColorOffsets[i - 1],
                              colorData[i], colorData[i - 1], result);
-        result->append("}\n");
+        result->writeText("}\n");
     }
 
     // Clamp the final color.
-    result->append("{pop ");
-    result->appendScalar(colorData[info.fColorCount - 1][0]);
-    result->append(" ");
-    result->appendScalar(colorData[info.fColorCount - 1][1]);
-    result->append(" ");
-    result->appendScalar(colorData[info.fColorCount - 1][2]);
+    result->writeText("{pop ");
+    SkPDFUtils::AppendScalar(colorData[info.fColorCount - 1][0], result);
+    result->writeText(" ");
+    SkPDFUtils::AppendScalar(colorData[info.fColorCount - 1][1], result);
+    result->writeText(" ");
+    SkPDFUtils::AppendScalar(colorData[info.fColorCount - 1][2], result);
 
     for (int i = 0 ; i < gradients + 1; i++) {
-        result->append("} ifelse\n");
+        result->writeText("} ifelse\n");
     }
 }
 
 /* Map a value of t on the stack into [0, 1) for Repeat or Mirror tile mode. */
-static void tileModeCode(SkShader::TileMode mode, SkString* result) {
+static void tileModeCode(SkShader::TileMode mode,
+                         SkDynamicMemoryWStream* result) {
     if (mode == SkShader::kRepeat_TileMode) {
-        result->append("dup truncate sub\n");  // Get the fractional part.
-        result->append("dup 0 le {1 add} if\n");  // Map (-1,0) => (0,1)
+        result->writeText("dup truncate sub\n");  // Get the fractional part.
+        result->writeText("dup 0 le {1 add} if\n");  // Map (-1,0) => (0,1)
         return;
     }
 
     if (mode == SkShader::kMirror_TileMode) {
         // Map t mod 2 into [0, 1, 1, 0].
         //               Code                     Stack
-        result->append("abs "                 // Map negative to positive.
-                       "dup "                 // t.s t.s
-                       "truncate "            // t.s t
-                       "dup "                 // t.s t t
-                       "cvi "                 // t.s t T
-                       "2 mod "               // t.s t (i mod 2)
-                       "1 eq "                // t.s t true|false
-                       "3 1 roll "            // true|false t.s t
-                       "sub "                 // true|false 0.s
-                       "exch "                // 0.s true|false
-                       "{1 exch sub} if\n");  // 1 - 0.s|0.s
+        result->writeText("abs "                 // Map negative to positive.
+                          "dup "                 // t.s t.s
+                          "truncate "            // t.s t
+                          "dup "                 // t.s t t
+                          "cvi "                 // t.s t T
+                          "2 mod "               // t.s t (i mod 2)
+                          "1 eq "                // t.s t true|false
+                          "3 1 roll "            // true|false t.s t
+                          "sub "                 // true|false 0.s
+                          "exch "                // 0.s true|false
+                          "{1 exch sub} if\n");  // 1 - 0.s|0.s
     }
 }
 
@@ -217,11 +219,11 @@ static void tileModeCode(SkShader::TileMode mode, SkString* result) {
  *  while the rest of the stack is preserved intact.
  *  inversePerspectiveMatrix is the inverse perspective matrix.
  */
-static SkString apply_perspective_to_coordinates(
-        const SkMatrix& inversePerspectiveMatrix) {
-    SkString code;
+static void apply_perspective_to_coordinates(
+        const SkMatrix& inversePerspectiveMatrix,
+        SkDynamicMemoryWStream* code) {
     if (!inversePerspectiveMatrix.hasPerspective()) {
-        return code;
+        return;
     }
 
     // Perspective matrix should be:
@@ -237,46 +239,46 @@ static SkString apply_perspective_to_coordinates(
     // x = x / (p2 + p0 x + p1 y)
 
     // Input on stack: x y
-    code.append(" dup ");               // x y y
-    code.appendScalar(p1);              // x y y p1
-    code.append(" mul "                 // x y y*p1
-                " 2 index ");           // x y y*p1 x
-    code.appendScalar(p0);              // x y y p1 x p0
-    code.append(" mul ");               // x y y*p1 x*p0
-    code.appendScalar(p2);              // x y y p1 x*p0 p2
-    code.append(" add "                 // x y y*p1 x*p0+p2
-                "add "                  // x y y*p1+x*p0+p2
-                "3 1 roll "             // y*p1+x*p0+p2 x y
-                "2 index "              // z x y y*p1+x*p0+p2
-                "div "                  // y*p1+x*p0+p2 x y/(y*p1+x*p0+p2)
-                "3 1 roll "             // y/(y*p1+x*p0+p2) y*p1+x*p0+p2 x
-                "exch "                 // y/(y*p1+x*p0+p2) x y*p1+x*p0+p2
-                "div "                  // y/(y*p1+x*p0+p2) x/(y*p1+x*p0+p2)
-                "exch\n");              // x/(y*p1+x*p0+p2) y/(y*p1+x*p0+p2)
-    return code;
+    code->writeText(" dup ");             // x y y
+    SkPDFUtils::AppendScalar(p1, code);   // x y y p1
+    code->writeText(" mul "               // x y y*p1
+                    " 2 index ");         // x y y*p1 x
+    SkPDFUtils::AppendScalar(p0, code);   // x y y p1 x p0
+    code->writeText(" mul ");             // x y y*p1 x*p0
+    SkPDFUtils::AppendScalar(p2, code);   // x y y p1 x*p0 p2
+    code->writeText(" add "               // x y y*p1 x*p0+p2
+                    "add "                // x y y*p1+x*p0+p2
+                    "3 1 roll "           // y*p1+x*p0+p2 x y
+                    "2 index "            // z x y y*p1+x*p0+p2
+                    "div "                // y*p1+x*p0+p2 x y/(y*p1+x*p0+p2)
+                    "3 1 roll "           // y/(y*p1+x*p0+p2) y*p1+x*p0+p2 x
+                    "exch "               // y/(y*p1+x*p0+p2) x y*p1+x*p0+p2
+                    "div "                // y/(y*p1+x*p0+p2) x/(y*p1+x*p0+p2)
+                    "exch\n");            // x/(y*p1+x*p0+p2) y/(y*p1+x*p0+p2)
 }
 
-static SkString linearCode(const SkShader::GradientInfo& info,
-                           const SkMatrix& perspectiveRemover) {
-    SkString function("{");
+static void linearCode(const SkShader::GradientInfo& info,
+                       const SkMatrix& perspectiveRemover,
+                       SkDynamicMemoryWStream* function) {
+    function->writeText("{");
 
-    function.append(apply_perspective_to_coordinates(perspectiveRemover));
+    apply_perspective_to_coordinates(perspectiveRemover, function);
 
-    function.append("pop\n");  // Just ditch the y value.
-    tileModeCode(info.fTileMode, &function);
-    gradientFunctionCode(info, &function);
-    function.append("}");
-    return function;
+    function->writeText("pop\n");  // Just ditch the y value.
+    tileModeCode(info.fTileMode, function);
+    gradientFunctionCode(info, function);
+    function->writeText("}");
 }
 
-static SkString radialCode(const SkShader::GradientInfo& info,
-                           const SkMatrix& perspectiveRemover) {
-    SkString function("{");
+static void radialCode(const SkShader::GradientInfo& info,
+                       const SkMatrix& perspectiveRemover,
+                       SkDynamicMemoryWStream* function) {
+    function->writeText("{");
 
-    function.append(apply_perspective_to_coordinates(perspectiveRemover));
+    apply_perspective_to_coordinates(perspectiveRemover, function);
 
     // Find the distance from the origin.
-    function.append("dup "      // x y y
+    function->writeText("dup "      // x y y
                     "mul "      // x y^2
                     "exch "     // y^2 x
                     "dup "      // y^2 x x
@@ -284,17 +286,17 @@ static SkString radialCode(const SkShader::GradientInfo& info,
                     "add "      // y^2+x^2
                     "sqrt\n");  // sqrt(y^2+x^2)
 
-    tileModeCode(info.fTileMode, &function);
-    gradientFunctionCode(info, &function);
-    function.append("}");
-    return function;
+    tileModeCode(info.fTileMode, function);
+    gradientFunctionCode(info, function);
+    function->writeText("}");
 }
 
 /* Conical gradient shader, based on the Canvas spec for radial gradients
    See: http://www.w3.org/TR/2dcontext/#dom-context-2d-createradialgradient
  */
-static SkString twoPointConicalCode(const SkShader::GradientInfo& info,
-                                    const SkMatrix& perspectiveRemover) {
+static void twoPointConicalCode(const SkShader::GradientInfo& info,
+                                const SkMatrix& perspectiveRemover,
+                                SkDynamicMemoryWStream* function) {
     SkScalar dx = info.fPoint[1].fX - info.fPoint[0].fX;
     SkScalar dy = info.fPoint[1].fY - info.fPoint[0].fY;
     SkScalar r0 = info.fRadius[0];
@@ -307,24 +309,24 @@ static SkString twoPointConicalCode(const SkShader::GradientInfo& info,
 
     // We start with a stack of (x y), copy it and then consume one copy in
     // order to calculate b and the other to calculate c.
-    SkString function("{");
+    function->writeText("{");
 
-    function.append(apply_perspective_to_coordinates(perspectiveRemover));
+    apply_perspective_to_coordinates(perspectiveRemover, function);
 
-    function.append("2 copy ");
+    function->writeText("2 copy ");
 
     // Calculate b and b^2; b = -2 * (y * dy + x * dx + r0 * dr).
-    function.appendScalar(dy);
-    function.append(" mul exch ");
-    function.appendScalar(dx);
-    function.append(" mul add ");
-    function.appendScalar(SkScalarMul(r0, dr));
-    function.append(" add -2 mul dup dup mul\n");
+    SkPDFUtils::AppendScalar(dy, function);
+    function->writeText(" mul exch ");
+    SkPDFUtils::AppendScalar(dx, function);
+    function->writeText(" mul add ");
+    SkPDFUtils::AppendScalar(SkScalarMul(r0, dr), function);
+    function->writeText(" add -2 mul dup dup mul\n");
 
     // c = x^2 + y^2 + radius0^2
-    function.append("4 2 roll dup mul exch dup mul add ");
-    function.appendScalar(SkScalarMul(r0, r0));
-    function.append(" sub dup 4 1 roll\n");
+    function->writeText("4 2 roll dup mul exch dup mul add ");
+    SkPDFUtils::AppendScalar(SkScalarMul(r0, r0), function);
+    function->writeText(" sub dup 4 1 roll\n");
 
     // Contents of the stack at this point: c, b, b^2, c
 
@@ -332,16 +334,16 @@ static SkString twoPointConicalCode(const SkShader::GradientInfo& info,
     if (a == 0) {
 
         // t = -c/b
-        function.append("pop pop div neg dup ");
+        function->writeText("pop pop div neg dup ");
 
         // compute radius(t)
-        function.appendScalar(dr);
-        function.append(" mul ");
-        function.appendScalar(r0);
-        function.append(" add\n");
+        SkPDFUtils::AppendScalar(dr, function);
+        function->writeText(" mul ");
+        SkPDFUtils::AppendScalar(r0, function);
+        function->writeText(" add\n");
 
         // if r(t) < 0, then it's outside the cone
-        function.append("0 lt {pop false} {true} ifelse\n");
+        function->writeText("0 lt {pop false} {true} ifelse\n");
 
     } else {
 
@@ -349,70 +351,68 @@ static SkString twoPointConicalCode(const SkShader::GradientInfo& info,
         // root t for which radius(t) > 0
 
         // compute the discriminant (b^2 - 4ac)
-        function.appendScalar(SkScalarMul(SkIntToScalar(4), a));
-        function.append(" mul sub dup\n");
+        SkPDFUtils::AppendScalar(SkScalarMul(SkIntToScalar(4), a), function);
+        function->writeText(" mul sub dup\n");
 
         // if d >= 0, proceed
-        function.append("0 ge {\n");
+        function->writeText("0 ge {\n");
 
         // an intermediate value we'll use to compute the roots:
         // q = -0.5 * (b +/- sqrt(d))
-        function.append("sqrt exch dup 0 lt {exch -1 mul} if");
-        function.append(" add -0.5 mul dup\n");
+        function->writeText("sqrt exch dup 0 lt {exch -1 mul} if");
+        function->writeText(" add -0.5 mul dup\n");
 
         // first root = q / a
-        function.appendScalar(a);
-        function.append(" div\n");
+        SkPDFUtils::AppendScalar(a, function);
+        function->writeText(" div\n");
 
         // second root = c / q
-        function.append("3 1 roll div\n");
+        function->writeText("3 1 roll div\n");
 
         // put the larger root on top of the stack
-        function.append("2 copy gt {exch} if\n");
+        function->writeText("2 copy gt {exch} if\n");
 
         // compute radius(t) for larger root
-        function.append("dup ");
-        function.appendScalar(dr);
-        function.append(" mul ");
-        function.appendScalar(r0);
-        function.append(" add\n");
+        function->writeText("dup ");
+        SkPDFUtils::AppendScalar(dr, function);
+        function->writeText(" mul ");
+        SkPDFUtils::AppendScalar(r0, function);
+        function->writeText(" add\n");
 
         // if r(t) > 0, we have our t, pop off the smaller root and we're done
-        function.append(" 0 gt {exch pop true}\n");
+        function->writeText(" 0 gt {exch pop true}\n");
 
         // otherwise, throw out the larger one and try the smaller root
-        function.append("{pop dup\n");
-        function.appendScalar(dr);
-        function.append(" mul ");
-        function.appendScalar(r0);
-        function.append(" add\n");
+        function->writeText("{pop dup\n");
+        SkPDFUtils::AppendScalar(dr, function);
+        function->writeText(" mul ");
+        SkPDFUtils::AppendScalar(r0, function);
+        function->writeText(" add\n");
 
         // if r(t) < 0, push false, otherwise the smaller root is our t
-        function.append("0 le {pop false} {true} ifelse\n");
-        function.append("} ifelse\n");
+        function->writeText("0 le {pop false} {true} ifelse\n");
+        function->writeText("} ifelse\n");
 
         // d < 0, clear the stack and push false
-        function.append("} {pop pop pop false} ifelse\n");
+        function->writeText("} {pop pop pop false} ifelse\n");
     }
 
     // if the pixel is in the cone, proceed to compute a color
-    function.append("{");
-    tileModeCode(info.fTileMode, &function);
-    gradientFunctionCode(info, &function);
+    function->writeText("{");
+    tileModeCode(info.fTileMode, function);
+    gradientFunctionCode(info, function);
 
     // otherwise, just write black
-    function.append("} {0 0 0} ifelse }");
-
-    return function;
+    function->writeText("} {0 0 0} ifelse }");
 }
 
-static SkString sweepCode(const SkShader::GradientInfo& info,
-                          const SkMatrix& perspectiveRemover) {
-    SkString function("{exch atan 360 div\n");
-    tileModeCode(info.fTileMode, &function);
-    gradientFunctionCode(info, &function);
-    function.append("}");
-    return function;
+static void sweepCode(const SkShader::GradientInfo& info,
+                          const SkMatrix& perspectiveRemover,
+                          SkDynamicMemoryWStream* function) {
+    function->writeText("{exch atan 360 div\n");
+    tileModeCode(info.fTileMode, function);
+    gradientFunctionCode(info, function);
+    function->writeText("}");
 }
 
 static void drawBitmapMatrix(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& matrix) {
@@ -689,12 +689,11 @@ sk_sp<SkPDFArray> SkPDFShader::MakeRangeObject() {
     return range;
 }
 
-static sk_sp<SkPDFStream> make_ps_function(const SkString& psCode,
-                                           SkPDFArray* domain,
-                                           sk_sp<SkPDFObject> range) {
-    SkAutoDataUnref funcData(
-            SkData::NewWithCopy(psCode.c_str(), psCode.size()));
-    auto result = sk_make_sp<SkPDFStream>(funcData.get());
+static sk_sp<SkPDFStream> make_ps_function(
+        std::unique_ptr<SkStreamAsset> psCode,
+        SkPDFArray* domain,
+        sk_sp<SkPDFObject> range) {
+    auto result = sk_make_sp<SkPDFStream>(psCode.get());
     result->insertInt("FunctionType", 4);
     result->insertObject("Domain", sk_ref_sp(domain));
     result->insertObject("Range", std::move(range));
@@ -705,8 +704,9 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
         SkPDFCanon* canon, SkAutoTDelete<SkPDFShader::State>* autoState) {
     const SkPDFShader::State& state = **autoState;
 
-    SkString (*codeFunction)(const SkShader::GradientInfo& info,
-                             const SkMatrix& perspectiveRemover) = nullptr;
+    void (*codeFunction)(const SkShader::GradientInfo& info,
+                         const SkMatrix& perspectiveRemover,
+                         SkDynamicMemoryWStream* function) = nullptr;
     SkPoint transformPoints[2];
 
     // Depending on the type of the gradient, we want to transform the
@@ -777,7 +777,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     domain->appendScalar(bbox.fTop);
     domain->appendScalar(bbox.fBottom);
 
-    SkString functionCode;
+    SkDynamicMemoryWStream functionCode;
     // The two point radial gradient further references
     // state.fInfo
     // in translating from x, y coordinates to the t parameter. So, we have
@@ -793,9 +793,9 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
             inverseMapperMatrix.mapRadius(info->fRadius[0]);
         twoPointRadialInfo.fRadius[1] =
             inverseMapperMatrix.mapRadius(info->fRadius[1]);
-        functionCode = codeFunction(twoPointRadialInfo, perspectiveInverseOnly);
+        codeFunction(twoPointRadialInfo, perspectiveInverseOnly, &functionCode);
     } else {
-        functionCode = codeFunction(*info, perspectiveInverseOnly);
+        codeFunction(*info, perspectiveInverseOnly, &functionCode);
     }
 
     auto pdfShader = sk_make_sp<SkPDFDict>();
@@ -806,7 +806,9 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     // Call canon->makeRangeObject() instead of
     // SkPDFShader::MakeRangeObject() so that the canon can
     // deduplicate.
-    auto function = make_ps_function(functionCode, domain.get(),
+    std::unique_ptr<SkStreamAsset> functionStream(
+            functionCode.detachAsStream());
+    auto function = make_ps_function(std::move(functionStream), domain.get(),
         canon->makeRangeObject());
     pdfShader->insertObjRef("Function", std::move(function));
 
