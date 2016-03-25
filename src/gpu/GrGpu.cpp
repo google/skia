@@ -8,10 +8,10 @@
 
 #include "GrGpu.h"
 
+#include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
-#include "GrIndexBuffer.h"
 #include "GrMesh.h"
 #include "GrPathRendering.h"
 #include "GrPipeline.h"
@@ -20,8 +20,6 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
-#include "GrTransferBuffer.h"
-#include "GrVertexBuffer.h"
 #include "SkTypes.h"
 
 GrMesh& GrMesh::operator =(const GrMesh& di) {
@@ -238,28 +236,13 @@ GrRenderTarget* GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDe
     return this->onWrapBackendTextureAsRenderTarget(desc, ownership);
 }
 
-GrVertexBuffer* GrGpu::createVertexBuffer(size_t size, bool dynamic) {
+GrBuffer* GrGpu::createBuffer(GrBufferType type, size_t size, GrAccessPattern accessPattern) {
     this->handleDirtyContext();
-    GrVertexBuffer* vb = this->onCreateVertexBuffer(size, dynamic);
+    GrBuffer* buffer = this->onCreateBuffer(type, size, accessPattern);
     if (!this->caps()->reuseScratchBuffers()) {
-        vb->resourcePriv().removeScratchKey();
+        buffer->resourcePriv().removeScratchKey();
     }
-    return vb;
-}
-
-GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
-    this->handleDirtyContext();
-    GrIndexBuffer* ib = this->onCreateIndexBuffer(size, dynamic);
-    if (!this->caps()->reuseScratchBuffers()) {
-        ib->resourcePriv().removeScratchKey();
-    }
-    return ib;
-}
-
-GrTransferBuffer* GrGpu::createTransferBuffer(size_t size, TransferType type) {
-    this->handleDirtyContext();
-    GrTransferBuffer* tb = this->onCreateTransferBuffer(size, type);
-    return tb;
+    return buffer;
 }
 
 void GrGpu::clear(const SkIRect& rect,
@@ -416,13 +399,13 @@ bool GrGpu::writePixels(GrSurface* surface,
 
 bool GrGpu::transferPixels(GrSurface* surface,
                            int left, int top, int width, int height,
-                           GrPixelConfig config, GrTransferBuffer* buffer,
+                           GrPixelConfig config, GrBuffer* transferBuffer,
                            size_t offset, size_t rowBytes) {
-    SkASSERT(buffer);
+    SkASSERT(transferBuffer);
 
     this->handleDirtyContext();
     if (this->onTransferPixels(surface, left, top, width, height, config,
-                               buffer, offset, rowBytes)) {
+                               transferBuffer, offset, rowBytes)) {
         fStats.incTransfersToTexture();
         return true;
     }

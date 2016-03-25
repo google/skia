@@ -26,7 +26,7 @@ public:
         out->setKnownSingleComponent(0xff);
     }
 
-    static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* rp) {
+    static const GrBuffer* GetIndexBuffer(GrResourceProvider* rp) {
         return rp->refQuadIndexBuffer();
     }
 

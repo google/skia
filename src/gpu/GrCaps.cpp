@@ -116,7 +116,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fSuppressPrints = options.fSuppressPrints;
     fImmediateFlush = options.fImmediateMode;
     fDrawPathMasksToCompressedTextureSupport = options.fDrawPathToCompressedTexture;
-    fGeometryBufferMapThreshold = options.fGeometryBufferMapThreshold;
+    fBufferMapThreshold = options.fBufferMapThreshold;
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
 

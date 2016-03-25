@@ -873,7 +873,7 @@ public:
             }
 
             if (triVertices.count()) {
-                const GrVertexBuffer* triVertexBuffer;
+                const GrBuffer* triVertexBuffer;
                 int firstTriVertex;
                 size_t triStride = triangleProcessor->getVertexStride();
                 PLSVertex* triVerts = reinterpret_cast<PLSVertex*>(target->makeVertexSpace(
@@ -892,7 +892,7 @@ public:
             }
 
             if (quadVertices.count()) {
-                const GrVertexBuffer* quadVertexBuffer;
+                const GrBuffer* quadVertexBuffer;
                 int firstQuadVertex;
                 size_t quadStride = quadProcessor->getVertexStride();
                 PLSVertex* quadVerts = reinterpret_cast<PLSVertex*>(target->makeVertexSpace(
@@ -916,7 +916,7 @@ public:
                                                                 SkPath::FillType::kEvenOdd_FillType,
                                             invert, 
                                             this->usesLocalCoords()));
-            const GrVertexBuffer* rectVertexBuffer;
+            const GrBuffer* rectVertexBuffer;
             size_t finishStride = finishProcessor->getVertexStride();
             int firstRectVertex;
             static const int kRectVertexCount = 6;

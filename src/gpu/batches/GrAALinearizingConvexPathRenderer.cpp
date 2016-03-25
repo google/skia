@@ -164,7 +164,7 @@ private:
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
-        const GrVertexBuffer* vertexBuffer;
+        const GrBuffer* vertexBuffer;
         GrMesh mesh;
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
@@ -175,7 +175,7 @@ private:
         }
         memcpy(verts, vertices, vertexCount * vertexStride);
 
-        const GrIndexBuffer* indexBuffer;
+        const GrBuffer* indexBuffer;
         int firstIndex;
         uint16_t* idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
         if (!idxs) {

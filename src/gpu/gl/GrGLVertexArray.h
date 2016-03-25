@@ -13,8 +13,6 @@
 #include "gl/GrGLTypes.h"
 #include "SkTArray.h"
 
-class GrGLVertexBuffer;
-class GrGLIndexBuffer;
 class GrGLGpu;
 
 /**

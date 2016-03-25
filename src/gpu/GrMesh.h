@@ -8,8 +8,8 @@
 #ifndef GrMesh_DEFINED
 #define GrMesh_DEFINED
 
-#include "GrIndexBuffer.h"
-#include "GrVertexBuffer.h"
+#include "GrBuffer.h"
+#include "GrGpuResourceRef.h"
 
 class GrNonInstancedMesh {
 public:
@@ -20,8 +20,8 @@ public:
     int indexCount() const { return fIndexCount; }
     bool isIndexed() const { return fIndexCount > 0; }
 
-    const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
-    const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
+    const GrBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
+    const GrBuffer* indexBuffer() const { return fIndexBuffer.get(); }
 
 protected:
     GrPrimitiveType         fPrimitiveType;
@@ -29,8 +29,8 @@ protected:
     int                     fStartIndex;
     int                     fVertexCount;
     int                     fIndexCount;
-    GrPendingIOResource<const GrVertexBuffer, kRead_GrIOType> fVertexBuffer;
-    GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>  fIndexBuffer;
+    GrPendingIOResource<const GrBuffer, kRead_GrIOType> fVertexBuffer;
+    GrPendingIOResource<const GrBuffer, kRead_GrIOType> fIndexBuffer;
     friend class GrMesh;
 };
 
@@ -46,7 +46,7 @@ public:
     GrMesh(const GrMesh& di) { (*this) = di; }
     GrMesh& operator =(const GrMesh& di);
 
-    void init(GrPrimitiveType primType, const GrVertexBuffer* vertexBuffer, int startVertex,
+    void init(GrPrimitiveType primType, const GrBuffer* vertexBuffer, int startVertex,
                 int vertexCount) {
         SkASSERT(vertexBuffer);
         SkASSERT(vertexCount);
@@ -65,8 +65,8 @@ public:
     }
 
     void initIndexed(GrPrimitiveType primType,
-                        const GrVertexBuffer* vertexBuffer,
-                        const GrIndexBuffer* indexBuffer,
+                        const GrBuffer* vertexBuffer,
+                        const GrBuffer* indexBuffer,
                         int startVertex,
                         int startIndex,
                         int vertexCount,
@@ -95,8 +95,8 @@ public:
         the number of instances supported by the index buffer. To be used with
         nextInstances() to draw in max-sized batches.*/
     void initInstanced(GrPrimitiveType primType,
-                        const GrVertexBuffer* vertexBuffer,
-                        const GrIndexBuffer* indexBuffer,
+                        const GrBuffer* vertexBuffer,
+                        const GrBuffer* indexBuffer,
                         int startVertex,
                         int verticesPerInstance,
                         int indicesPerInstance,

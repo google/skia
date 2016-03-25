@@ -13,11 +13,8 @@
 #include "GrContext.h"
 #include "GrPathProcessor.h"
 #include "GrPrimitiveProcessor.h"
-#include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
 #include "GrPipelineBuilder.h"
-#include "GrPipeline.h"
-#include "GrVertexBuffer.h"
 #include "GrXferProcessor.h"
 
 #include "batches/GrDrawBatch.h"
