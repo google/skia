@@ -344,12 +344,6 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         return texture;
     }
 
-    // SkMipMap::Build doesn't handle sRGB data correctly (yet).
-    // Failover to the GL code-path for now.
-    if (kLinear_SkColorProfileType != bitmap.profileType()) {
-        return nullptr;
-    }
-
     SkASSERT(sizeof(int) <= sizeof(uint32_t));
     if (bitmap.width() < 0 || bitmap.height() < 0) {
         return nullptr;
