@@ -22,7 +22,7 @@ protected:
     SkGlyphCache*   fCache;
     SkPaint         fPaint;
     SkScalar        fScale;
-    SkFixed         fPrevAdvance;
+    SkScalar        fPrevAdvance;
     const char*     fText;
     const char*     fStop;
     SkPaint::GlyphCacheProc fGlyphCacheProc;
@@ -75,7 +75,7 @@ public:
                 && fPaint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
             const char* text = fText;
             const SkGlyph& glyph = fGlyphCacheProc(fCache, &text);
-            SkScalar width = SkScalarMul(SkFixedToScalar((&glyph.fAdvanceX)[0]), fScale);
+            SkScalar width = SkScalarMul(SkFloatToScalar((&glyph.fAdvanceX)[0]), fScale);
             if (fPaint.getTextAlign() == SkPaint::kCenter_Align) {
                 width = SkScalarHalf(width);
             }

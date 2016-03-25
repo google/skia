@@ -388,8 +388,8 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
         fSkXform.mapVectors(vecs, SK_ARRAY_COUNT(vecs));
     }
 
-    glyph->fAdvanceX = SkScalarToFixed(vecs[0].fX);
-    glyph->fAdvanceY = SkScalarToFixed(vecs[0].fY);
+    glyph->fAdvanceX = SkScalarToFloat(vecs[0].fX);
+    glyph->fAdvanceY = SkScalarToFloat(vecs[0].fY);
 }
 
 HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,

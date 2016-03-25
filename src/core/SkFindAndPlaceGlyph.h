@@ -347,11 +347,11 @@ private:
             case SkPaint::kLeft_Align:
                 return {0.0f, 0.0f};
             case SkPaint::kCenter_Align:
-                return {SkFixedToScalar(glyph.fAdvanceX >> 1),
-                        SkFixedToScalar(glyph.fAdvanceY >> 1)};
+                return {SkFloatToScalar(glyph.fAdvanceX) / 2,
+                        SkFloatToScalar(glyph.fAdvanceY) / 2};
             case SkPaint::kRight_Align:
-                return {SkFixedToScalar(glyph.fAdvanceX),
-                        SkFixedToScalar(glyph.fAdvanceY)};
+                return {SkFloatToScalar(glyph.fAdvanceX),
+                        SkFloatToScalar(glyph.fAdvanceY)};
         }
         // Even though the entire enum is covered above, MVSC doesn't think so. Make it happy.
         SkFAIL("Should never get here.");
@@ -447,8 +447,8 @@ private:
                 if (metricGlyph.fWidth <= 0) {
                     // Exiting early, be sure to update text pointer.
                     *text = tempText;
-                    return finalPosition + SkPoint{SkFixedToScalar(metricGlyph.fAdvanceX),
-                                                   SkFixedToScalar(metricGlyph.fAdvanceY)};
+                    return finalPosition + SkPoint{SkFloatToScalar(metricGlyph.fAdvanceX),
+                                                   SkFloatToScalar(metricGlyph.fAdvanceY)};
                 }
 
                 // Adjust the final position by the alignment adjustment.
@@ -465,8 +465,8 @@ private:
                 processOneGlyph(renderGlyph, finalPosition,
                                 SubpixelPositionRounding(kAxisAlignment));
             }
-            return finalPosition + SkPoint{SkFixedToScalar(renderGlyph.fAdvanceX),
-                                           SkFixedToScalar(renderGlyph.fAdvanceY)};
+            return finalPosition + SkPoint{SkFloatToScalar(renderGlyph.fAdvanceX),
+                                           SkFloatToScalar(renderGlyph.fAdvanceY)};
         }
 
     private:
@@ -497,14 +497,14 @@ private:
             SkPoint finalPosition = position;
             const SkGlyph& glyph = fGlyphFinder->lookupGlyph(text);
             if (kUseKerning) {
-                finalPosition += {SkFixedToScalar(fAutoKern.adjust(glyph)), 0.0f};
+                finalPosition += {fAutoKern.adjust(glyph), 0.0f};
             }
             if (glyph.fWidth > 0) {
                 finalPosition -= TextAlignmentAdjustment(kTextAlignment, glyph);
                 processOneGlyph(glyph, finalPosition, {SK_ScalarHalf, SK_ScalarHalf});
             }
-            return finalPosition + SkPoint{SkFixedToScalar(glyph.fAdvanceX),
-                                           SkFixedToScalar(glyph.fAdvanceY)};
+            return finalPosition + SkPoint{SkFloatToScalar(glyph.fAdvanceX),
+                                           SkFloatToScalar(glyph.fAdvanceY)};
         }
 
     private:
@@ -564,7 +564,7 @@ private:
     }
 
     static SkPoint MeasureText(LookupGlyph& glyphFinder, const char text[], size_t byteLength) {
-        SkFixed     x = 0, y = 0;
+        SkScalar    x = 0, y = 0;
         const char* stop = text + byteLength;
 
         SkAutoKern  autokern;
@@ -574,11 +574,11 @@ private:
             // same advance
             const SkGlyph& glyph = glyphFinder->lookupGlyph(&text);
 
-            x += autokern.adjust(glyph) + glyph.fAdvanceX;
-            y += glyph.fAdvanceY;
+            x += autokern.adjust(glyph) + SkFloatToScalar(glyph.fAdvanceX);
+            y += SkFloatToScalar(glyph.fAdvanceY);
         }
         SkASSERT(text == stop);
-        return {SkFixedToScalar(x), SkFixedToScalar(y)};
+        return {x, y};
     }
 };
 

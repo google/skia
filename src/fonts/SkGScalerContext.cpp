@@ -77,20 +77,20 @@ void SkGScalerContext::generateAdvance(SkGlyph* glyph) {
     fProxy->getAdvance(glyph);
 
     SkVector advance;
-    fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
-                  SkFixedToScalar(glyph->fAdvanceY), &advance);
-    glyph->fAdvanceX = SkScalarToFixed(advance.fX);
-    glyph->fAdvanceY = SkScalarToFixed(advance.fY);
+    fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
+                  SkFloatToScalar(glyph->fAdvanceY), &advance);
+    glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+    glyph->fAdvanceY = SkScalarToFloat(advance.fY);
 }
 
 void SkGScalerContext::generateMetrics(SkGlyph* glyph) {
     fProxy->getMetrics(glyph);
 
     SkVector advance;
-    fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
-                  SkFixedToScalar(glyph->fAdvanceY), &advance);
-    glyph->fAdvanceX = SkScalarToFixed(advance.fX);
-    glyph->fAdvanceY = SkScalarToFixed(advance.fY);
+    fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
+                  SkFloatToScalar(glyph->fAdvanceY), &advance);
+    glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+    glyph->fAdvanceY = SkScalarToFloat(advance.fY);
 
     SkPath path;
     fProxy->getPath(*glyph, &path);

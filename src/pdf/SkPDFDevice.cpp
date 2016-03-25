@@ -95,26 +95,24 @@ static void align_text(SkPaint::GlyphCacheProc glyphCacheProc, const SkPaint& pa
 
     const char* start = reinterpret_cast<const char*>(glyphs);
     const char* stop = reinterpret_cast<const char*>(glyphs + len);
-    SkFixed xAdv = 0, yAdv = 0;
+    SkScalar xAdv = 0, yAdv = 0;
 
     // TODO(vandebo): This probably needs to take kerning into account.
     while (start < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &start);
-        xAdv += glyph.fAdvanceX;
-        yAdv += glyph.fAdvanceY;
+        xAdv += SkFloatToScalar(glyph.fAdvanceX);
+        yAdv += SkFloatToScalar(glyph.fAdvanceY);
     };
     if (paint.getTextAlign() == SkPaint::kLeft_Align) {
         return;
     }
 
-    SkScalar xAdj = SkFixedToScalar(xAdv);
-    SkScalar yAdj = SkFixedToScalar(yAdv);
     if (paint.getTextAlign() == SkPaint::kCenter_Align) {
-        xAdj = SkScalarHalf(xAdj);
-        yAdj = SkScalarHalf(yAdj);
+        xAdv = SkScalarHalf(xAdv);
+        yAdv = SkScalarHalf(yAdv);
     }
-    *x = *x - xAdj;
-    *y = *y - yAdj;
+    *x = *x - xAdv;
+    *y = *y - yAdv;
 }
 
 static int max_glyphid_for_typeface(SkTypeface* typeface) {

@@ -267,12 +267,12 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
     SkTArray<SkScalar> positions;
 
     const char* textPtr = text;
-    SkFixed stopX = 0;
-    SkFixed stopY = 0;
-    SkFixed origin = 0;
+    SkScalar stopX = 0;
+    SkScalar stopY = 0;
+    SkScalar origin = 0;
     switch (skPaint.getTextAlign()) {
-        case SkPaint::kRight_Align: origin = SK_Fixed1; break;
-        case SkPaint::kCenter_Align: origin = SK_FixedHalf; break;
+        case SkPaint::kRight_Align: origin = SK_Scalar1; break;
+        case SkPaint::kCenter_Align: origin = SK_ScalarHalf; break;
         case SkPaint::kLeft_Align: origin = 0; break;
     }
 
@@ -283,11 +283,11 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
         // same advance
         const SkGlyph& glyph = glyphCacheProc(origPaintCache, &textPtr);
 
-        SkFixed width = glyph.fAdvanceX + autokern.adjust(glyph);
-        positions.push_back(SkFixedToScalar(stopX + SkFixedMul(origin, width)));
+        SkScalar width = SkFloatToScalar(glyph.fAdvanceX) + autokern.adjust(glyph);
+        positions.push_back(stopX + origin * width);
 
-        SkFixed height = glyph.fAdvanceY;
-        positions.push_back(SkFixedToScalar(stopY + SkFixedMul(origin, height)));
+        SkScalar height = SkFloatToScalar(glyph.fAdvanceY);
+        positions.push_back(stopY + origin * height);
 
         stopX += width;
         stopY += height;
@@ -297,8 +297,8 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
     SkGlyphCache::AttachCache(origPaintCache);
 
     // now adjust starting point depending on alignment
-    SkScalar alignX = SkFixedToScalar(stopX);
-    SkScalar alignY = SkFixedToScalar(stopY);
+    SkScalar alignX = stopX;
+    SkScalar alignY = stopY;
     if (skPaint.getTextAlign() == SkPaint::kCenter_Align) {
         alignX = SkScalarHalf(alignX);
         alignY = SkScalarHalf(alignY);
@@ -387,8 +387,8 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                 SkScalar x = offset.x() + pos[0];
                 SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
 
-                SkScalar advanceX = SkFixedToScalar(glyph.fAdvanceX) * alignMul * textRatio;
-                SkScalar advanceY = SkFixedToScalar(glyph.fAdvanceY) * alignMul * textRatio;
+                SkScalar advanceX = SkFloatToScalar(glyph.fAdvanceX) * alignMul * textRatio;
+                SkScalar advanceY = SkFloatToScalar(glyph.fAdvanceY) * alignMul * textRatio;
 
                 if (!DfAppendGlyph(blob,
                                    runIndex,

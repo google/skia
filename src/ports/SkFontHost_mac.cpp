@@ -277,10 +277,19 @@ static CGFloat ScalarToCG(SkScalar scalar) {
 
 static SkScalar CGToScalar(CGFloat cgFloat) {
     if (sizeof(CGFloat) == sizeof(float)) {
-        return cgFloat;
+        return SkFloatToScalar(cgFloat);
     } else {
         SkASSERT(sizeof(CGFloat) == sizeof(double));
         return SkDoubleToScalar(cgFloat);
+    }
+}
+
+static float CGToFloat(CGFloat cgFloat) {
+    if (sizeof(CGFloat) == sizeof(float)) {
+        return cgFloat;
+    } else {
+        SkASSERT(sizeof(CGFloat) == sizeof(double));
+        return static_cast<float>(cgFloat);
     }
 }
 
@@ -1054,8 +1063,8 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
                                    &cgGlyph, &cgAdvance, 1);
     }
     cgAdvance = CGSizeApplyAffineTransform(cgAdvance, fTransform);
-    glyph->fAdvanceX =  SkFloatToFixed_Check(cgAdvance.width);
-    glyph->fAdvanceY = -SkFloatToFixed_Check(cgAdvance.height);
+    glyph->fAdvanceX =  CGToFloat(cgAdvance.width);
+    glyph->fAdvanceY = -CGToFloat(cgAdvance.height);
 
     // The following produces skBounds in SkGlyph units (pixels, y down),
     // or returns early if skBounds would be empty.

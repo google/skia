@@ -733,28 +733,26 @@ static void set_bounds(const SkGlyph& g, SkRect* bounds) {
                 SkIntToScalar(g.fTop + g.fHeight));
 }
 
-static void join_bounds_x(const SkGlyph& g, SkRect* bounds, Sk48Dot16 dx) {
-    SkScalar sx = Sk48Dot16ToScalar(dx);
-    bounds->join(SkIntToScalar(g.fLeft) + sx,
+static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
+    bounds->join(SkIntToScalar(g.fLeft) + dx,
                  SkIntToScalar(g.fTop),
-                 SkIntToScalar(g.fLeft + g.fWidth) + sx,
+                 SkIntToScalar(g.fLeft + g.fWidth) + dx,
                  SkIntToScalar(g.fTop + g.fHeight));
 }
 
-static void join_bounds_y(const SkGlyph& g, SkRect* bounds, Sk48Dot16 dy) {
-    SkScalar sy = Sk48Dot16ToScalar(dy);
+static void join_bounds_y(const SkGlyph& g, SkRect* bounds, SkScalar dy) {
     bounds->join(SkIntToScalar(g.fLeft),
-                 SkIntToScalar(g.fTop) + sy,
+                 SkIntToScalar(g.fTop) + dy,
                  SkIntToScalar(g.fLeft + g.fWidth),
-                 SkIntToScalar(g.fTop + g.fHeight) + sy);
+                 SkIntToScalar(g.fTop + g.fHeight) + dy);
 }
 
-typedef void (*JoinBoundsProc)(const SkGlyph&, SkRect*, Sk48Dot16);
+typedef void (*JoinBoundsProc)(const SkGlyph&, SkRect*, SkScalar);
 
 // xyIndex is 0 for fAdvanceX or 1 for fAdvanceY
-static SkFixed advance(const SkGlyph& glyph, int xyIndex) {
+static SkScalar advance(const SkGlyph& glyph, int xyIndex) {
     SkASSERT(0 == xyIndex || 1 == xyIndex);
-    return (&glyph.fAdvanceX)[xyIndex];
+    return SkFloatToScalar((&glyph.fAdvanceX)[xyIndex]);
 }
 
 SkScalar SkPaint::measure_text(SkGlyphCache* cache,
@@ -784,20 +782,14 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     int         n = 1;
     const char* stop = (const char*)text + byteLength;
     const SkGlyph* g = &glyphCacheProc(cache, &text);
-    // our accumulated fixed-point advances might overflow 16.16, so we use
-    // a 48.16 (64bit) accumulator, and then convert that to scalar at the
-    // very end.
-    Sk48Dot16 x = advance(*g, xyIndex);
-
-    SkAutoKern  autokern;
+    SkScalar x = advance(*g, xyIndex);
 
     if (nullptr == bounds) {
         if (this->isDevKernText()) {
-            int rsb;
             for (; text < stop; n++) {
-                rsb = g->fRsbDelta;
+                const int rsb = g->fRsbDelta;
                 g = &glyphCacheProc(cache, &text);
-                x += SkAutoKern_AdjustF(rsb, g->fLsbDelta) + advance(*g, xyIndex);
+                x += SkAutoKern_Adjust(rsb, g->fLsbDelta) + advance(*g, xyIndex);
             }
         } else {
             for (; text < stop; n++) {
@@ -807,11 +799,10 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     } else {
         set_bounds(*g, bounds);
         if (this->isDevKernText()) {
-            int rsb;
             for (; text < stop; n++) {
-                rsb = g->fRsbDelta;
+                const int rsb = g->fRsbDelta;
                 g = &glyphCacheProc(cache, &text);
-                x += SkAutoKern_AdjustF(rsb, g->fLsbDelta);
+                x += SkAutoKern_Adjust(rsb, g->fLsbDelta);
                 joinBoundsProc(*g, bounds, x);
                 x += advance(*g, xyIndex);
             }
@@ -826,7 +817,7 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     SkASSERT(text == stop);
 
     *count = n;
-    return Sk48Dot16ToScalar(x);
+    return x;
 }
 
 SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bounds) const {
@@ -896,19 +887,15 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
 
     GlyphCacheProc   glyphCacheProc = paint.getGlyphCacheProc(false);
     const int        xyIndex = paint.isVerticalText() ? 1 : 0;
-    // use 64bits for our accumulator, to avoid overflowing 16.16
-    Sk48Dot16        max = SkScalarTo48Dot16(maxWidth);
-    Sk48Dot16        width = 0;
-
-    SkAutoKern  autokern;
+    SkScalar         width = 0;
 
     if (this->isDevKernText()) {
         int rsb = 0;
         while (text < stop) {
             const char* curr = text;
             const SkGlyph& g = glyphCacheProc(cache, &text);
-            SkFixed x = SkAutoKern_AdjustF(rsb, g.fLsbDelta) + advance(g, xyIndex);
-            if ((width += x) > max) {
+            SkScalar x = SkAutoKern_Adjust(rsb, g.fLsbDelta) + advance(g, xyIndex);
+            if ((width += x) > maxWidth) {
                 width -= x;
                 text = curr;
                 break;
@@ -918,8 +905,8 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     } else {
         while (text < stop) {
             const char* curr = text;
-            SkFixed x = advance(glyphCacheProc(cache, &text), xyIndex);
-            if ((width += x) > max) {
+            SkScalar x = advance(glyphCacheProc(cache, &text), xyIndex);
+            if ((width += x) > maxWidth) {
                 width -= x;
                 text = curr;
                 break;
@@ -928,11 +915,10 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     }
 
     if (measuredWidth) {
-        SkScalar scalarWidth = Sk48Dot16ToScalar(width);
         if (scale) {
-            scalarWidth = SkScalarMul(scalarWidth, scale);
+            width *= scale;
         }
-        *measuredWidth = scalarWidth;
+        *measuredWidth = width;
     }
 
     // return the number of bytes measured
@@ -1022,17 +1008,16 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     if (this->isDevKernText()) {
         // we adjust the widths returned here through auto-kerning
         SkAutoKern  autokern;
-        SkFixed     prevWidth = 0;
+        SkScalar    prevWidth = 0;
 
         if (scale) {
             while (text < stop) {
                 const SkGlyph& g = glyphCacheProc(cache, &text);
                 if (widths) {
-                    SkFixed  adjust = autokern.adjust(g);
+                    SkScalar adjust = autokern.adjust(g);
 
                     if (count > 0) {
-                        SkScalar w = SkFixedToScalar(prevWidth + adjust);
-                        *widths++ = SkScalarMul(w, scale);
+                        *widths++ = SkScalarMul(prevWidth + adjust, scale);
                     }
                     prevWidth = advance(g, xyIndex);
                 }
@@ -1042,16 +1027,16 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
                 ++count;
             }
             if (count > 0 && widths) {
-                *widths = SkScalarMul(SkFixedToScalar(prevWidth), scale);
+                *widths = SkScalarMul(prevWidth, scale);
             }
         } else {
             while (text < stop) {
                 const SkGlyph& g = glyphCacheProc(cache, &text);
                 if (widths) {
-                    SkFixed  adjust = autokern.adjust(g);
+                    SkScalar adjust = autokern.adjust(g);
 
                     if (count > 0) {
-                        *widths++ = SkFixedToScalar(prevWidth + adjust);
+                        *widths++ = prevWidth + adjust;
                     }
                     prevWidth = advance(g, xyIndex);
                 }
@@ -1061,7 +1046,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
                 ++count;
             }
             if (count > 0 && widths) {
-                *widths = SkFixedToScalar(prevWidth);
+                *widths = prevWidth;
             }
         }
     } else {    // no devkern
@@ -1069,7 +1054,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
             while (text < stop) {
                 const SkGlyph& g = glyphCacheProc(cache, &text);
                 if (widths) {
-                    *widths++ = SkScalarMul(SkFixedToScalar(advance(g, xyIndex)),
+                    *widths++ = SkScalarMul(advance(g, xyIndex),
                                             scale);
                 }
                 if (bounds) {
@@ -1081,7 +1066,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
             while (text < stop) {
                 const SkGlyph& g = glyphCacheProc(cache, &text);
                 if (widths) {
-                    *widths++ = SkFixedToScalar(advance(g, xyIndex));
+                    *widths++ = advance(g, xyIndex);
                 }
                 if (bounds) {
                     set_bounds(g, bounds++);
@@ -2297,7 +2282,7 @@ bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
     if (fText < fStop) {
         const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
 
-        fXPos += SkScalarMul(SkFixedToScalar(fPrevAdvance + fAutoKern.adjust(glyph)), fScale);
+        fXPos += SkScalarMul(fPrevAdvance + fAutoKern.adjust(glyph), fScale);
         fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
 
         if (glyph.fWidth) {
@@ -2319,7 +2304,7 @@ bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
 
 bool SkTextInterceptsIter::next(SkScalar* array, int* count) {
     const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
-    fXPos += SkScalarMul(SkFixedToScalar(fPrevAdvance + fAutoKern.adjust(glyph)), fScale);
+    fXPos += SkScalarMul(fPrevAdvance + fAutoKern.adjust(glyph), fScale);
     fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
     if (fCache->findPath(glyph)) {
         fCache->findIntercepts(fBounds, fScale, fXPos, SkToBool(fXYIndex),

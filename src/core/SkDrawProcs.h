@@ -51,12 +51,12 @@ public:
         if (SkPaint::kLeft_Align == fAlign) {
             dst->set(loc.fX, loc.fY);
         } else if (SkPaint::kCenter_Align == fAlign) {
-            dst->set(loc.fX - SkFixedToScalar(glyph.fAdvanceX >> 1),
-                     loc.fY - SkFixedToScalar(glyph.fAdvanceY >> 1));
+            dst->set(loc.fX - SkFloatToScalar(glyph.fAdvanceX) / 2,
+                     loc.fY - SkFloatToScalar(glyph.fAdvanceY) / 2);
         } else {
             SkASSERT(SkPaint::kRight_Align == fAlign);
-            dst->set(loc.fX - SkFixedToScalar(glyph.fAdvanceX),
-                     loc.fY - SkFixedToScalar(glyph.fAdvanceY));
+            dst->set(loc.fX - SkFloatToScalar(glyph.fAdvanceX),
+                     loc.fY - SkFloatToScalar(glyph.fAdvanceY));
         }
     }
 private:

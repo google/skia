@@ -120,7 +120,8 @@ SkTestTypeface::SkTestTypeface(SkTestFont* testFont, const SkFontStyle& style)
 }
 
 void SkTestTypeface::getAdvance(SkGlyph* glyph) {
-    glyph->fAdvanceX = fTestFont->fWidths[glyph->getGlyphID()];
+    // TODO(benjaminwagner): Update users to use floats.
+    glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyph->getGlyphID()]);
     glyph->fAdvanceY = 0;
 }
 
@@ -129,7 +130,8 @@ void SkTestTypeface::getFontMetrics(SkPaint::FontMetrics* metrics) {
 }
 
 void SkTestTypeface::getMetrics(SkGlyph* glyph) {
-    glyph->fAdvanceX = fTestFont->fWidths[glyph->getGlyphID()];
+    // TODO(benjaminwagner): Update users to use floats.
+    glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyph->getGlyphID()]);
     glyph->fAdvanceY = 0;
 }
 
@@ -206,19 +208,19 @@ protected:
     void generateAdvance(SkGlyph* glyph) override {
         fFace->getAdvance(glyph);
 
-        const SkVector advance = fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
-                                               SkFixedToScalar(glyph->fAdvanceY));
-        glyph->fAdvanceX = SkScalarToFixed(advance.fX);
-        glyph->fAdvanceY = SkScalarToFixed(advance.fY);
+        const SkVector advance = fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
+                                               SkFloatToScalar(glyph->fAdvanceY));
+        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
     }
 
     void generateMetrics(SkGlyph* glyph) override {
         fFace->getMetrics(glyph);
 
-        const SkVector advance = fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
-                                               SkFixedToScalar(glyph->fAdvanceY));
-        glyph->fAdvanceX = SkScalarToFixed(advance.fX);
-        glyph->fAdvanceY = SkScalarToFixed(advance.fY);
+        const SkVector advance = fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
+                                               SkFloatToScalar(glyph->fAdvanceY));
+        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
 
         SkPath path;
         fFace->getPath(*glyph, &path);

@@ -1006,6 +1006,10 @@ SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
     return 0;
 }
 
+static SkScalar SkFT_FixedToScalar(FT_Fixed x) {
+  return SkFixedToScalar(x);
+}
+
 void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
    /* unhinted and light hinted text have linearly scaled advances
     * which are very cheap to compute with some font formats...
@@ -1027,8 +1031,9 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
         if (0 == error) {
             glyph->fRsbDelta = 0;
             glyph->fLsbDelta = 0;
-            glyph->fAdvanceX = SkFixedMul(fMatrix22.xx, advance);
-            glyph->fAdvanceY = - SkFixedMul(fMatrix22.yx, advance);
+            const SkScalar advanceScalar = SkFT_FixedToScalar(advance);
+            glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
+            glyph->fAdvanceY = -SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
             return;
         }
     }
@@ -1108,9 +1113,9 @@ inline void scaleGlyphMetrics(SkGlyph& glyph, SkScalar scale) {
     glyph.fTop *= scale;
     glyph.fLeft *= scale;
 
-    SkFixed fixedScale = SkScalarToFixed(scale);
-    glyph.fAdvanceX = SkFixedMul(glyph.fAdvanceX, fixedScale);
-    glyph.fAdvanceY = SkFixedMul(glyph.fAdvanceY, fixedScale);
+    float floatScale = SkScalarToFloat(scale);
+    glyph.fAdvanceX *= floatScale;
+    glyph.fAdvanceY *= floatScale;
 }
 
 void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
@@ -1181,19 +1186,21 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 
     if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
         if (fDoLinearMetrics) {
-            glyph->fAdvanceX = -SkFixedMul(fMatrix22.xy, fFace->glyph->linearVertAdvance);
-            glyph->fAdvanceY = SkFixedMul(fMatrix22.yy, fFace->glyph->linearVertAdvance);
+            const SkScalar advanceScalar = SkFT_FixedToScalar(fFace->glyph->linearVertAdvance);
+            glyph->fAdvanceX = -SkScalarToFloat(fMatrix22Scalar.getSkewX() * advanceScalar);
+            glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getScaleY() * advanceScalar);
         } else {
-            glyph->fAdvanceX = -SkFDot6ToFixed(fFace->glyph->advance.x);
-            glyph->fAdvanceY = SkFDot6ToFixed(fFace->glyph->advance.y);
+            glyph->fAdvanceX = -SkFDot6ToFloat(fFace->glyph->advance.x);
+            glyph->fAdvanceY = SkFDot6ToFloat(fFace->glyph->advance.y);
         }
     } else {
         if (fDoLinearMetrics) {
-            glyph->fAdvanceX = SkFixedMul(fMatrix22.xx, fFace->glyph->linearHoriAdvance);
-            glyph->fAdvanceY = -SkFixedMul(fMatrix22.yx, fFace->glyph->linearHoriAdvance);
+            const SkScalar advanceScalar = SkFT_FixedToScalar(fFace->glyph->linearHoriAdvance);
+            glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
+            glyph->fAdvanceY = -SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
         } else {
-            glyph->fAdvanceX = SkFDot6ToFixed(fFace->glyph->advance.x);
-            glyph->fAdvanceY = -SkFDot6ToFixed(fFace->glyph->advance.y);
+            glyph->fAdvanceX = SkFDot6ToFloat(fFace->glyph->advance.x);
+            glyph->fAdvanceY = -SkFDot6ToFloat(fFace->glyph->advance.y);
 
             if (fRec.fFlags & kDevKernText_Flag) {
                 glyph->fRsbDelta = SkToS8(fFace->glyph->rsb_delta);

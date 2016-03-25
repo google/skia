@@ -1343,13 +1343,13 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
         encDiffs->appendName(characterName.c_str());
 
         const SkGlyph& glyph = cache->getGlyphIDMetrics(gID);
-        widthArray->appendScalar(SkFixedToScalar(glyph.fAdvanceX));
+        widthArray->appendScalar(SkFloatToScalar(glyph.fAdvanceX));
         SkIRect glyphBBox = SkIRect::MakeXYWH(glyph.fLeft, glyph.fTop,
                                               glyph.fWidth, glyph.fHeight);
         bbox.join(glyphBBox);
 
         SkDynamicMemoryWStream content;
-        setGlyphWidthAndBoundingBox(SkFixedToScalar(glyph.fAdvanceX), glyphBBox,
+        setGlyphWidthAndBoundingBox(SkFloatToScalar(glyph.fAdvanceX), glyphBBox,
                                     &content);
         const SkPath* path = cache->findPath(glyph);
         if (path) {

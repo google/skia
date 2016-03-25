@@ -457,8 +457,8 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
 
     // Measure first if needed.
     if (fFont.getTextAlign() != SkPaint::kLeft_Align) {
-        SkFixed    stopX = 0;
-        SkFixed    stopY = 0;
+        SkScalar   stopX = 0;
+        SkScalar   stopY = 0;
 
         const char* textPtr = text;
         while (textPtr < stop) {
@@ -466,13 +466,13 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
             // same advance.
             const SkGlyph& glyph = glyphCacheProc(glyphCache, &textPtr);
 
-            stopX += glyph.fAdvanceX;
-            stopY += glyph.fAdvanceY;
+            stopX += SkFloatToScalar(glyph.fAdvanceX);
+            stopY += SkFloatToScalar(glyph.fAdvanceY);
         }
         SkASSERT(textPtr == stop);
 
-        SkScalar alignX = SkFixedToScalar(stopX) * fTextRatio;
-        SkScalar alignY = SkFixedToScalar(stopY) * fTextRatio;
+        SkScalar alignX = stopX * fTextRatio;
+        SkScalar alignY = stopY * fTextRatio;
 
         if (fFont.getTextAlign() == SkPaint::kCenter_Align) {
             alignX = SkScalarHalf(alignX);
@@ -485,21 +485,16 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
 
     SkAutoKern autokern;
 
-    SkFixed fixedSizeRatio = SkScalarToFixed(fTextRatio);
-
-    SkFixed fx = SkScalarToFixed(x);
-    SkFixed fy = SkScalarToFixed(y);
     FallbackBlobBuilder fallback;
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(glyphCache, &text);
-        fx += SkFixedMul(autokern.adjust(glyph), fixedSizeRatio);
+        x += autokern.adjust(glyph) * fTextRatio;
         if (glyph.fWidth) {
-            this->appendGlyph(glyph, SkPoint::Make(SkFixedToScalar(fx), SkFixedToScalar(fy)),
-                              &fallback);
+            this->appendGlyph(glyph, SkPoint::Make(x, y), &fallback);
         }
 
-        fx += SkFixedMul(glyph.fAdvanceX, fixedSizeRatio);
-        fy += SkFixedMul(glyph.fAdvanceY, fixedSizeRatio);
+        x += SkFloatToScalar(glyph.fAdvanceX) * fTextRatio;
+        y += SkFloatToScalar(glyph.fAdvanceY) * fTextRatio;
     }
 
     fFallbackTextBlob.reset(fallback.buildIfNeeded(&fFallbackGlyphCount));

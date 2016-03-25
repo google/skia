@@ -56,7 +56,7 @@ public:
     static const uint32_t kImpossibleID = ~0;
     void*       fImage;
     PathData*   fPathData;
-    SkFixed     fAdvanceX, fAdvanceY;
+    float       fAdvanceX, fAdvanceY;
 
     uint16_t    fWidth, fHeight;
     int16_t     fTop, fLeft;
