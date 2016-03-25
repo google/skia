@@ -20,10 +20,8 @@ DEF_TEST(MipMap, reporter) {
     SkRandom rand;
 
     for (int i = 0; i < 500; ++i) {
-        // for now, Build needs a min size of 2, otherwise it will return nullptr.
-        // should fix that to support 1 X N, where N > 1 to return non-null.
-        int width = 2 + rand.nextU() % 1000;
-        int height = 2 + rand.nextU() % 1000;
+        int width = 1 + rand.nextU() % 1000;
+        int height = 1 + rand.nextU() % 1000;
         make_bitmap(&bm, width, height);
         SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
 
@@ -118,7 +116,7 @@ DEF_TEST(MipMap_ComputeLevelCount, reporter) {
         {-100, -100, 0},
 
         // Test mipmaps with 0, 1, 2 as dimensions
-        // (SkMipMap::Build requires a min size of 2)
+        // (SkMipMap::Build requires a min size of 1)
         //
         // 0
         {0, 100, 0},
