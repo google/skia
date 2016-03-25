@@ -131,22 +131,6 @@ public:
     void onDetachFromCanvas() override;
     SkImageInfo imageInfo() const override;
 
-    enum DrawingArea {
-        kContent_DrawingArea,  // Drawing area for the page content.
-        kMargin_DrawingArea,   // Drawing area for the margin content.
-    };
-
-    /** Sets the drawing area for the device. Subsequent draw calls are directed
-     *  to the specific drawing area (margin or content). The default drawing
-     *  area is the content drawing area.
-     *
-     *  Currently if margin content is drawn and then a complex (for PDF) xfer
-     *  mode is used, like SrcIn, Clear, etc, the margin content will get
-     *  clipped. A simple way to avoid the bug is to always draw the margin
-     *  content last.
-     */
-    void setDrawingArea(DrawingArea drawingArea);
-
     // PDF specific methods.
 
     /** Create the resource dictionary for this device. */
@@ -250,14 +234,8 @@ private:
 
     SkAutoTDelete<ContentEntry> fContentEntries;
     ContentEntry* fLastContentEntry;
-    SkAutoTDelete<ContentEntry> fMarginContentEntries;
-    ContentEntry* fLastMarginContentEntry;
-    DrawingArea fDrawingArea;
 
     const SkClipStack* fClipStack;
-
-    // Accessor and setter functions based on the current DrawingArea.
-    SkAutoTDelete<ContentEntry>* getContentEntries();
 
     // Glyph ids used for each font on this device.
     SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
@@ -273,9 +251,6 @@ private:
                 SkScalar rasterDpi,
                 SkPDFDocument* doc,
                 bool flip);
-
-    ContentEntry* getLastContentEntry();
-    void setLastContentEntry(ContentEntry* contentEntry);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 

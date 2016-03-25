@@ -707,8 +707,6 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* do
     , fContentSize(pageSize)
     , fExistingClipRegion(SkIRect::MakeSize(pageSize))
     , fLastContentEntry(nullptr)
-    , fLastMarginContentEntry(nullptr)
-    , fDrawingArea(kContent_DrawingArea)
     , fClipStack(nullptr)
     , fFontGlyphUsage(new SkPDFGlyphSetMap)
     , fRasterDpi(rasterDpi)
@@ -736,9 +734,6 @@ SkPDFDevice::~SkPDFDevice() {
 void SkPDFDevice::init() {
     fContentEntries.reset();
     fLastContentEntry = nullptr;
-    fMarginContentEntries.reset();
-    fLastMarginContentEntry = nullptr;
-    fDrawingArea = kContent_DrawingArea;
     if (fFontGlyphUsage.get() == nullptr) {
         fFontGlyphUsage.reset(new SkPDFGlyphSetMap);
     }
@@ -1409,35 +1404,6 @@ sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     return SkSurface::MakeRaster(info, &props);
 }
 
-ContentEntry* SkPDFDevice::getLastContentEntry() {
-    if (fDrawingArea == kContent_DrawingArea) {
-        return fLastContentEntry;
-    } else {
-        return fLastMarginContentEntry;
-    }
-}
-
-SkAutoTDelete<ContentEntry>* SkPDFDevice::getContentEntries() {
-    if (fDrawingArea == kContent_DrawingArea) {
-        return &fContentEntries;
-    } else {
-        return &fMarginContentEntries;
-    }
-}
-
-void SkPDFDevice::setLastContentEntry(ContentEntry* contentEntry) {
-    if (fDrawingArea == kContent_DrawingArea) {
-        fLastContentEntry = contentEntry;
-    } else {
-        fLastMarginContentEntry = contentEntry;
-    }
-}
-
-void SkPDFDevice::setDrawingArea(DrawingArea drawingArea) {
-    // A ScopedContentEntry only exists during the course of a draw call, so
-    // this can't be called while a ScopedContentEntry exists.
-    fDrawingArea = drawingArea;
-}
 
 sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() const {
     SkTDArray<SkPDFObject*> fonts;
@@ -1499,13 +1465,6 @@ void SkPDFDevice::writeContent(SkWStream* out) const {
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
         SkPDFUtils::AppendTransform(fInitialTransform, out);
     }
-
-    // TODO(aayushkumar): Apply clip along the margins.  Currently, webkit
-    // colors the contentArea white before it starts drawing into it and
-    // that currently acts as our clip.
-    // Also, think about adding a transform here (or assume that the values
-    // sent across account for that)
-    SkPDFDevice::copyContentEntriesToData(fMarginContentEntries.get(), out);
 
     // If the content area is the entire page, then we don't need to clip
     // the content area (PDF area clips to the page size).  Otherwise,
@@ -1764,9 +1723,8 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
     ContentEntry* entry;
     SkAutoTDelete<ContentEntry> newEntry;
 
-    ContentEntry* lastContentEntry = getLastContentEntry();
-    if (lastContentEntry && lastContentEntry->fContent.getOffset() == 0) {
-        entry = lastContentEntry;
+    if (fLastContentEntry && fLastContentEntry->fContent.getOffset() == 0) {
+        entry = fLastContentEntry;
     } else {
         newEntry.reset(new ContentEntry);
         entry = newEntry.get();
@@ -1774,21 +1732,20 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
 
     populateGraphicStateEntryFromPaint(matrix, *clipStack, clipRegion, paint,
                                        hasText, &entry->fState);
-    if (lastContentEntry && xfermode != SkXfermode::kDstOver_Mode &&
-            entry->fState.compareInitialState(lastContentEntry->fState)) {
-        return lastContentEntry;
+    if (fLastContentEntry && xfermode != SkXfermode::kDstOver_Mode &&
+            entry->fState.compareInitialState(fLastContentEntry->fState)) {
+        return fLastContentEntry;
     }
 
-    SkAutoTDelete<ContentEntry>* contentEntries = getContentEntries();
-    if (!lastContentEntry) {
-        contentEntries->reset(entry);
-        setLastContentEntry(entry);
+    if (!fLastContentEntry) {
+        fContentEntries.reset(entry);
+        fLastContentEntry = entry;
     } else if (xfermode == SkXfermode::kDstOver_Mode) {
-        entry->fNext.reset(contentEntries->release());
-        contentEntries->reset(entry);
+        entry->fNext.reset(fContentEntries.release());
+        fContentEntries.reset(entry);
     } else {
-        lastContentEntry->fNext.reset(entry);
-        setLastContentEntry(entry);
+        fLastContentEntry->fNext.reset(entry);
+        fLastContentEntry = entry;
     }
     newEntry.release();
     return entry;
@@ -1812,13 +1769,11 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
     }
     if (xfermode == SkXfermode::kDstOver_Mode) {
         SkASSERT(!dst);
-        ContentEntry* firstContentEntry = getContentEntries()->get();
-        if (firstContentEntry->fContent.getOffset() == 0) {
+        if (fContentEntries->fContent.getOffset() == 0) {
             // For DstOver, an empty content entry was inserted before the rest
             // of the content entries. If nothing was drawn, it needs to be
             // removed.
-            SkAutoTDelete<ContentEntry>* contentEntries = getContentEntries();
-            contentEntries->reset(firstContentEntry->fNext.release());
+            fContentEntries.reset(fContentEntries->fNext.release());
         }
         return;
     }
@@ -1828,15 +1783,14 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
         return;
     }
 
-    ContentEntry* contentEntries = getContentEntries()->get();
     SkASSERT(dst);
-    SkASSERT(!contentEntries->fNext.get());
+    SkASSERT(!fContentEntries->fNext.get());
     // Changing the current content into a form-xobject will destroy the clip
     // objects which is fine since the xobject will already be clipped. However
     // if source has shape, we need to clip it too, so a copy of the clip is
     // saved.
-    SkClipStack clipStack = contentEntries->fState.fClipStack;
-    SkRegion clipRegion = contentEntries->fState.fClipRegion;
+    SkClipStack clipStack = fContentEntries->fState.fClipStack;
+    SkRegion clipRegion = fContentEntries->fState.fClipRegion;
 
     SkMatrix identity;
     identity.reset();
@@ -1951,9 +1905,8 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
 }
 
 bool SkPDFDevice::isContentEmpty() {
-    ContentEntry* contentEntries = getContentEntries()->get();
-    if (!contentEntries || contentEntries->fContent.getOffset() == 0) {
-        SkASSERT(!contentEntries || !contentEntries->fNext.get());
+    if (!fContentEntries || fContentEntries->fContent.getOffset() == 0) {
+        SkASSERT(!fContentEntries || !fContentEntries->fNext.get());
         return true;
     }
     return false;
