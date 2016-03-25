@@ -58,7 +58,7 @@ public:
 
     void loadPicture(SkPicture* picture);
 
-    SkPicture* copyPicture();
+    sk_sp<SkPicture> copyPicture();
 
     int getSize() const {
         return fDebugCanvas->getSize();

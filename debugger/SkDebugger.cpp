@@ -36,7 +36,7 @@ void SkDebugger::loadPicture(SkPicture* picture) {
     fIndex = fDebugCanvas->getSize() - 1;
 }
 
-SkPicture* SkDebugger::copyPicture() {
+sk_sp<SkPicture> SkDebugger::copyPicture() {
     // We can't just call clone here since we want to removed the "deleted"
     // commands. Playing back will strip those out.
     SkPictureRecorder recorder;
@@ -56,7 +56,7 @@ SkPicture* SkDebugger::copyPicture() {
     fDebugCanvas->setOverdrawViz(overDraw);
     fDebugCanvas->setAllowSimplifyClip(pathOps);
 
-    return recorder.endRecording();
+    return recorder.finishRecordingAsPicture();
 }
 
 void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,

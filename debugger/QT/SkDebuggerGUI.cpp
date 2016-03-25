@@ -279,7 +279,7 @@ void SkDebuggerGUI::drawComplete() {
 
 void SkDebuggerGUI::saveToFile(const SkString& filename) {
     SkFILEWStream file(filename.c_str());
-    SkAutoTUnref<SkPicture> copy(fDebugger.copyPicture());
+    sk_sp<SkPicture> copy(fDebugger.copyPicture());
 
     SkAutoTUnref<SkPixelSerializer> serializer(
             SkImageEncoder::CreatePixelSerializer());
