@@ -16,7 +16,9 @@
       'SK_GAMMA_SRGB',
       'SK_GAMMA_APPLY_TO_A8',
       'QT_NO_KEYWORDS',
-      'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',  # TODO(reed): Re-enable when tests don't crash with this.
+      # The discardable resource cache is tested via a special bot. This is 
+      # disabled here so we test the non-discardable use case.
+      # 'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
     ],
 
     # Validate the 'skia_os' setting against 'OS', because only certain
