@@ -130,7 +130,7 @@ private:
             vertexCount = kVertsPerStrokeRect;
         }
 
-        const GrBuffer* vertexBuffer;
+        const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,

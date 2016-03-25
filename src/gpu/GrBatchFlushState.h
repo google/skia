@@ -76,8 +76,8 @@ public:
     GrBatchToken asapToken() const { return fLastFlushedToken + 1; }
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount,
-                          const GrBuffer** buffer, int* startVertex);
-    uint16_t* makeIndexSpace(int indexCount, const GrBuffer** buffer, int* startIndex);
+                          const GrVertexBuffer** buffer, int* startVertex);
+    uint16_t* makeIndexSpace(int indexCount, const GrIndexBuffer** buffer, int* startIndex);
 
     /** This is called after each batch has a chance to prepare its draws and before the draws
         are issued. */
@@ -172,11 +172,11 @@ public:
     }
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount,
-                          const GrBuffer** buffer, int* startVertex) {
+                          const GrVertexBuffer** buffer, int* startVertex) {
         return this->state()->makeVertexSpace(vertexSize, vertexCount, buffer, startVertex);
     }
 
-    uint16_t* makeIndexSpace(int indexCount, const GrBuffer** buffer, int* startIndex) {
+    uint16_t* makeIndexSpace(int indexCount, const GrIndexBuffer** buffer, int* startIndex) {
         return this->state()->makeIndexSpace(indexCount, buffer, startIndex);
     }
 

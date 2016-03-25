@@ -10,12 +10,15 @@
 
 #include "GrGLContext.h"
 #include "GrGLIRect.h"
+#include "GrGLIndexBuffer.h"
 #include "GrGLPathRendering.h"
 #include "GrGLProgram.h"
 #include "GrGLRenderTarget.h"
 #include "GrGLStencilAttachment.h"
 #include "GrGLTexture.h"
+#include "GrGLTransferBuffer.h"
 #include "GrGLVertexArray.h"
+#include "GrGLVertexBuffer.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrTypes.h"
@@ -23,7 +26,6 @@
 #include "SkTArray.h"
 #include "SkTypes.h"
 
-class GrGLBuffer;
 class GrPipeline;
 class GrNonInstancedMesh;
 class GrSwizzle;
@@ -99,6 +101,15 @@ public:
 
     void releaseBuffer(GrGLuint id, GrGLenum type);
 
+    // sizes are in bytes
+    void* mapBuffer(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage, size_t currentSize,
+                    size_t requestedSize);
+
+    void unmapBuffer(GrGLuint id, GrGLenum type, void* mapPtr);
+
+    void bufferData(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage, size_t currentSize,
+                    const void* src, size_t srcSizeInBytes);
+
     const GrGLContext* glContextForTesting() const override {
         return &this->glContext();
     }
@@ -138,7 +149,9 @@ private:
                                          GrGpuResource::LifeCycle lifeCycle,
                                          const SkTArray<GrMipLevel>& texels) override;
 
-    GrBuffer* onCreateBuffer(GrBufferType, size_t size, GrAccessPattern) override;
+    GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override;
+    GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override;
+    GrTransferBuffer* onCreateTransferBuffer(size_t size, TransferType type) override;
     GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
@@ -195,7 +208,7 @@ private:
 
     bool onTransferPixels(GrSurface*,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrPixelConfig config, GrTransferBuffer* buffer,
                           size_t offset, size_t rowBytes) override;
 
     void onResolveRenderTarget(GrRenderTarget* target) override;
@@ -498,8 +511,8 @@ private:
          * returned GrGLAttribArrayState should be used to set vertex attribute arrays.
          */
         GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGLGpu* gpu,
-                                                        const GrGLBuffer* vbuffer,
-                                                        const GrGLBuffer* ibuffer);
+                                                        const GrGLVertexBuffer* vbuffer,
+                                                        const GrGLIndexBuffer* ibuffer);
 
         /** Variants of the above that takes GL buffer IDs. Note that 0 does not imply that a 
             buffer won't be bound. The "default buffer" will be bound, which is used for client-side

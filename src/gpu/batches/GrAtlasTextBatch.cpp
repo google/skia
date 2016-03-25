@@ -119,7 +119,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
     target->initDraw(gp);
 
     int glyphCount = this->numGlyphs();
-    const GrBuffer* vertexBuffer;
+    const GrVertexBuffer* vertexBuffer;
 
     void* vertices = target->makeVertexSpace(vertexStride,
                                              glyphCount * kVerticesPerGlyph,
@@ -181,8 +181,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
 
 void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
     GrMesh mesh;
-    int maxGlyphsPerDraw =
-        static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
+    int maxGlyphsPerDraw = flushInfo->fIndexBuffer->maxQuads();
     mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
                        flushInfo->fIndexBuffer, flushInfo->fVertexOffset,
                        kVerticesPerGlyph, kIndicesPerGlyph, flushInfo->fGlyphsToFlush,

@@ -106,7 +106,7 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
 
     int instanceCount = fGeoData.count();
 
-    const GrBuffer* vertexBuffer;
+    const GrVertexBuffer* vertexBuffer;
     int firstVertex;
 
     void* verts = target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
@@ -116,7 +116,7 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
         return;
     }
 
-    const GrBuffer* indexBuffer = nullptr;
+    const GrIndexBuffer* indexBuffer = nullptr;
     int firstIndex = 0;
 
     uint16_t* indices = nullptr;

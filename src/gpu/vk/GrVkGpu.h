@@ -136,7 +136,9 @@ private:
     GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
                                                        GrWrapOwnership) override { return NULL; }
 
-    GrBuffer* onCreateBuffer(GrBufferType, size_t size, GrAccessPattern) override;
+    GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override;
+    GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override;
+    GrTransferBuffer* onCreateTransferBuffer(size_t size, TransferType type) override;
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
 
@@ -159,7 +161,7 @@ private:
 
     bool onTransferPixels(GrSurface*,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrPixelConfig config, GrTransferBuffer* buffer,
                           size_t offset, size_t rowBytes) override { return false; }
 
     void onResolveRenderTarget(GrRenderTarget* target) override {}

@@ -10,13 +10,13 @@
 
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
-#include "GrBuffer.h"
 #include "GrContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "GrSWMaskHelper.h"
 #include "GrTexturePriv.h"
+#include "GrVertexBuffer.h"
 #include "batches/GrVertexBatch.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
@@ -177,8 +177,8 @@ private:
     }
 
     struct FlushInfo {
-        SkAutoTUnref<const GrBuffer> fVertexBuffer;
-        SkAutoTUnref<const GrBuffer> fIndexBuffer;
+        SkAutoTUnref<const GrVertexBuffer> fVertexBuffer;
+        SkAutoTUnref<const GrIndexBuffer>  fIndexBuffer;
         int fVertexOffset;
         int fInstancesToFlush;
     };
@@ -217,7 +217,7 @@ private:
         size_t vertexStride = dfProcessor->getVertexStride();
         SkASSERT(vertexStride == 2 * sizeof(SkPoint) + sizeof(GrColor));
 
-        const GrBuffer* vertexBuffer;
+        const GrVertexBuffer* vertexBuffer;
         void* vertices = target->makeVertexSpace(vertexStride,
                                                  kVerticesPerQuad * instanceCount,
                                                  &vertexBuffer,
@@ -492,8 +492,7 @@ private:
 
     void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
         GrMesh mesh;
-        int maxInstancesPerDraw =
-            static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
+        int maxInstancesPerDraw = flushInfo->fIndexBuffer->maxQuads();
         mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
             flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
             kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);

@@ -45,7 +45,7 @@ private:
     }
 };
 
-bool cache_match(GrBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
+bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
     if (!vertexBuffer) {
         return false;
     }
@@ -68,8 +68,8 @@ public:
     }
     SkPoint* lock(int vertexCount) override {
         size_t size = vertexCount * sizeof(SkPoint);
-        fVertexBuffer.reset(fResourceProvider->createBuffer(
-            kVertex_GrBufferType, size, kStatic_GrAccessPattern, 0));
+        fVertexBuffer.reset(fResourceProvider->createVertexBuffer(
+            size, GrResourceProvider::kStatic_BufferUsage, 0));
         if (!fVertexBuffer.get()) {
             return nullptr;
         }
@@ -89,9 +89,9 @@ public:
         }
         fVertices = nullptr;
     }
-    GrBuffer* vertexBuffer() { return fVertexBuffer.get(); }
+    GrVertexBuffer* vertexBuffer() { return fVertexBuffer.get(); }
 private:
-    SkAutoTUnref<GrBuffer> fVertexBuffer;
+    SkAutoTUnref<GrVertexBuffer> fVertexBuffer;
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
     SkPoint* fVertices;
@@ -158,7 +158,8 @@ private:
         fStroke.asUniqueKeyFragment(&builder[2 + clipBoundsSize32]);
         builder.finish();
         GrResourceProvider* rp = target->resourceProvider();
-        SkAutoTUnref<GrBuffer> cachedVertexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
+        SkAutoTUnref<GrVertexBuffer> cachedVertexBuffer(
+            rp->findAndRefTByUniqueKey<GrVertexBuffer>(key));
         int actualCount;
         SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(
@@ -225,7 +226,7 @@ private:
         this->draw(target, gp.get());
     }
 
-    void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrBuffer* vb,
+    void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrVertexBuffer* vb,
                       int firstVertex, int count) const {
         SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 

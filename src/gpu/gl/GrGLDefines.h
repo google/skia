@@ -122,9 +122,7 @@
 #define GR_GL_STREAM_DRAW                    0x88E0
 #define GR_GL_STREAM_READ                    0x88E1
 #define GR_GL_STATIC_DRAW                    0x88E4
-#define GR_GL_STATIC_READ                    0x88E5
 #define GR_GL_DYNAMIC_DRAW                   0x88E8
-#define GR_GL_DYNAMIC_READ                   0x88E9
 
 #define GR_GL_BUFFER_SIZE                    0x8764
 #define GR_GL_BUFFER_USAGE                   0x8765

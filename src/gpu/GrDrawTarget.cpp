@@ -19,6 +19,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
+#include "GrVertexBuffer.h"
 #include "gl/GrGLRenderTarget.h"
 
 #include "SkStrokeRec.h"

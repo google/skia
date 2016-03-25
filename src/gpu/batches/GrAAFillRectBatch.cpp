@@ -28,7 +28,7 @@ static const int kNumAAFillRectsInIndexBuffer = 256;
 static const int kVertsPerAAFillRect = 8;
 static const int kIndicesPerAAFillRect = 30;
 
-const GrBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
+const GrIndexBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
     static const uint16_t gFillAARectIdx[] = {
@@ -191,7 +191,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
-    static const GrBuffer* GetIndexBuffer(GrResourceProvider* rp) {
+    static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* rp) {
         return get_index_buffer(rp);
     }
 

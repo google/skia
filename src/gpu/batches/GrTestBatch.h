@@ -10,6 +10,7 @@
 
 #include "GrBatchFlushState.h"
 #include "GrGeometryProcessor.h"
+#include "GrVertexBuffer.h"
 
 #include "batches/GrVertexBatch.h"
 

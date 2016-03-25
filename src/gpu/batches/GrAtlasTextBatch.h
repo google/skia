@@ -99,8 +99,8 @@ private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override;
 
     struct FlushInfo {
-        SkAutoTUnref<const GrBuffer> fVertexBuffer;
-        SkAutoTUnref<const GrBuffer> fIndexBuffer;
+        SkAutoTUnref<const GrVertexBuffer> fVertexBuffer;
+        SkAutoTUnref<const GrIndexBuffer> fIndexBuffer;
         int fGlyphsToFlush;
         int fVertexOffset;
     };

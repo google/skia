@@ -20,11 +20,11 @@ GrBatchFlushState::GrBatchFlushState(GrGpu* gpu, GrResourceProvider* resourcePro
     , fLastFlushedToken(0) {}
 
 void* GrBatchFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
-                                         const GrBuffer** buffer, int* startVertex) {
+                                         const GrVertexBuffer** buffer, int* startVertex) {
     return fVertexPool.makeSpace(vertexSize, vertexCount, buffer, startVertex);
 }
 
 uint16_t* GrBatchFlushState::makeIndexSpace(int indexCount,
-                                            const GrBuffer** buffer, int* startIndex) {
+                                            const GrIndexBuffer** buffer, int* startIndex) {
     return reinterpret_cast<uint16_t*>(fIndexPool.makeSpace(indexCount, buffer, startIndex));
 }

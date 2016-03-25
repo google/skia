@@ -35,7 +35,7 @@ protected:
         /** Returns the allocated storage for the vertices. The caller should populate the before
             vertices before calling issueDraws(). */
         void* init(Target*, GrPrimitiveType, size_t vertexStride,
-                   const GrBuffer*, int verticesPerInstance, int indicesPerInstance,
+                   const GrIndexBuffer*, int verticesPerInstance, int indicesPerInstance,
                    int instancesToDraw);
 
         /** Call after init() to issue draws to the batch target.*/

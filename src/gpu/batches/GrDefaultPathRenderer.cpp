@@ -313,7 +313,7 @@ private:
         }
 
         // allocate vertex / index buffers
-        const GrBuffer* vertexBuffer;
+        const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
         void* verts = target->makeVertexSpace(vertexStride, maxVertices,
@@ -324,7 +324,7 @@ private:
             return;
         }
 
-        const GrBuffer* indexBuffer = nullptr;
+        const GrIndexBuffer* indexBuffer = nullptr;
         int firstIndex = 0;
 
         void* indices = nullptr;

@@ -8,13 +8,13 @@
 #ifndef GrVkIndexBuffer_DEFINED
 #define GrVkIndexBuffer_DEFINED
 
-#include "GrBuffer.h"
+#include "GrIndexBuffer.h"
 #include "GrVkBuffer.h"
 #include "vk/GrVkInterface.h"
 
 class GrVkGpu;
 
-class GrVkIndexBuffer : public GrBuffer, public GrVkBuffer {
+class GrVkIndexBuffer : public GrIndexBuffer, public GrVkBuffer {
 
 public:
     static GrVkIndexBuffer* Create(GrVkGpu* gpu, size_t size, bool dynamic);
@@ -27,13 +27,13 @@ private:
     GrVkIndexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                     const GrVkBuffer::Resource* resource);
 
-    void onMap() override;
+    void* onMap() override;
     void onUnmap() override;
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
 
     GrVkGpu* getVkGpu() const;
 
-    typedef GrBuffer INHERITED;
+    typedef GrIndexBuffer INHERITED;
 };
 
 #endif

@@ -9,14 +9,15 @@
 
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
-#include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrIndexBuffer.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
+#include "GrVertexBuffer.h"
 #include "SkGeometry.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
@@ -64,7 +65,7 @@ static const int kQuadNumVertices = 5;
 static const int kQuadsNumInIdxBuffer = 256;
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
 
-static const GrBuffer* ref_quads_index_buffer(GrResourceProvider* resourceProvider) {
+static const GrIndexBuffer* ref_quads_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
     return resourceProvider->findOrCreateInstancedIndexBuffer(
         kQuadIdxBufPattern, kIdxsPerQuad, kQuadsNumInIdxBuffer, kQuadNumVertices,
@@ -98,7 +99,7 @@ static const int kLineSegsNumInIdxBuffer = 256;
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
 
-static const GrBuffer* ref_lines_index_buffer(GrResourceProvider* resourceProvider) {
+static const GrIndexBuffer* ref_lines_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
     return resourceProvider->findOrCreateInstancedIndexBuffer(
         kLineSegIdxBufPattern, kIdxsPerLineSeg,  kLineSegsNumInIdxBuffer, kLineSegNumVertices,
@@ -857,11 +858,11 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
 
     // do lines first
     if (lineCount) {
-        SkAutoTUnref<const GrBuffer> linesIndexBuffer(
+        SkAutoTUnref<const GrIndexBuffer> linesIndexBuffer(
             ref_lines_index_buffer(target->resourceProvider()));
         target->initDraw(lineGP);
 
-        const GrBuffer* vertexBuffer;
+        const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
         size_t vertexStride = lineGP->getVertexStride();
@@ -890,10 +891,10 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
     }
 
     if (quadCount || conicCount) {
-        const GrBuffer* vertexBuffer;
+        const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
-        SkAutoTUnref<const GrBuffer> quadsIndexBuffer(
+        SkAutoTUnref<const GrIndexBuffer> quadsIndexBuffer(
             ref_quads_index_buffer(target->resourceProvider()));
 
         size_t vertexStride = sizeof(BezierVertex);

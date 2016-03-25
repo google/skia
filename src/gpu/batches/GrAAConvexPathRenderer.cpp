@@ -814,7 +814,7 @@ private:
                 continue;
             }
 
-            const GrBuffer* vertexBuffer;
+            const GrVertexBuffer* vertexBuffer;
             int firstVertex;
 
             void* verts = target->makeVertexSpace(vertexStride, tess.numPts(), &vertexBuffer,
@@ -824,7 +824,7 @@ private:
                 return;
             }
 
-            const GrBuffer* indexBuffer;
+            const GrIndexBuffer* indexBuffer;
             int firstIndex;
 
             uint16_t* idxs = target->makeIndexSpace(tess.numIndices(), &indexBuffer, &firstIndex);
@@ -900,7 +900,7 @@ private:
                 continue;
             }
 
-            const GrBuffer* vertexBuffer;
+            const GrVertexBuffer* vertexBuffer;
             int firstVertex;
 
             size_t vertexStride = quadProcessor->getVertexStride();
@@ -912,7 +912,7 @@ private:
                 return;
             }
 
-            const GrBuffer* indexBuffer;
+            const GrIndexBuffer* indexBuffer;
             int firstIndex;
 
             uint16_t *idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);

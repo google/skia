@@ -247,9 +247,9 @@ public:
         return fDrawPathMasksToCompressedTextureSupport;
     }
 
-    size_t bufferMapThreshold() const {
-        SkASSERT(fBufferMapThreshold >= 0);
-        return fBufferMapThreshold;
+    size_t geometryBufferMapThreshold() const {
+        SkASSERT(fGeometryBufferMapThreshold >= 0);
+        return fGeometryBufferMapThreshold;
     }
 
     bool supportsInstancedDraws() const {
@@ -301,7 +301,7 @@ protected:
     GR_STATIC_ASSERT(kLast_GrBlendEquation < 32);
 
     uint32_t fMapBufferFlags;
-    int fBufferMapThreshold;
+    int fGeometryBufferMapThreshold;
 
     int fMaxRenderTargetSize;
     int fMaxVertexAttributes;

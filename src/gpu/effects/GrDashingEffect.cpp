@@ -17,6 +17,7 @@
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrStrokeInfo.h"
+#include "GrVertexBuffer.h"
 #include "SkGr.h"
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

@@ -31,9 +31,7 @@ GrVkTransferBuffer* GrVkTransferBuffer::Create(GrVkGpu* gpu, size_t size, GrVkBu
 
 GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                                        const GrVkBuffer::Resource* bufferResource)
-    : INHERITED(gpu, kCopyRead_Type == desc.fType ?
-                     kXferCpuToGpu_GrBufferType : kXferGpuToCpu_GrBufferType,
-                desc.fSizeInBytes, kStream_GrAccessPattern, false)
+    : INHERITED(gpu, desc.fSizeInBytes)
     , GrVkBuffer(desc, bufferResource) {
     this->registerWithCache();
 }

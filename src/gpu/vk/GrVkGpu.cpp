@@ -171,26 +171,18 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GrBuffer* GrVkGpu::onCreateBuffer(GrBufferType type, size_t size, GrAccessPattern accessPattern) {
-    switch (type) {
-        case kVertex_GrBufferType:
-            SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
-                     kStatic_GrAccessPattern == accessPattern);
-            return GrVkVertexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
-        case kIndex_GrBufferType:
-            SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
-                     kStatic_GrAccessPattern == accessPattern);
-            return GrVkIndexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
-        case kXferCpuToGpu_GrBufferType:
-            SkASSERT(kStream_GrAccessPattern == accessPattern);
-            return GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyRead_Type);
-        case kXferGpuToCpu_GrBufferType:
-            SkASSERT(kStream_GrAccessPattern == accessPattern);
-            return GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyWrite_Type);
-        default:
-            SkFAIL("Unknown buffer type.");
-            return nullptr;
-    }
+GrVertexBuffer* GrVkGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
+    return GrVkVertexBuffer::Create(this, size, dynamic);
+}
+
+GrIndexBuffer* GrVkGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
+    return GrVkIndexBuffer::Create(this, size, dynamic);
+}
+
+GrTransferBuffer* GrVkGpu::onCreateTransferBuffer(size_t size, TransferType type) {
+    GrVkBuffer::Type bufferType = kCpuToGpu_TransferType ? GrVkBuffer::kCopyRead_Type 
+                                                         : GrVkBuffer::kCopyWrite_Type;
+    return GrVkTransferBuffer::Create(this, size, bufferType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1225,9 +1217,8 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
                         false);
 
     GrVkTransferBuffer* transferBuffer = 
-        static_cast<GrVkTransferBuffer*>(this->createBuffer(kXferGpuToCpu_GrBufferType,
-                                                            rowBytes * height,
-                                                            kStream_GrAccessPattern));
+        reinterpret_cast<GrVkTransferBuffer*>(this->createTransferBuffer(rowBytes * height, 
+                                                                         kGpuToCpu_TransferType));
 
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
     VkOffset3D offset = {

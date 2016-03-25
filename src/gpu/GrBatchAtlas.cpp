@@ -9,6 +9,7 @@
 #include "GrBatchFlushState.h"
 #include "GrRectanizer.h"
 #include "GrTracing.h"
+#include "GrVertexBuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

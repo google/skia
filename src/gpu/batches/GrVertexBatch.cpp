@@ -17,14 +17,14 @@ void GrVertexBatch::onPrepare(GrBatchFlushState* state) {
 }
 
 void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primType,
-                                           size_t vertexStride, const GrBuffer* indexBuffer,
+                                           size_t vertexStride, const GrIndexBuffer* indexBuffer,
                                            int verticesPerInstance, int indicesPerInstance,
                                            int instancesToDraw) {
     SkASSERT(target);
     if (!indexBuffer) {
         return nullptr;
     }
-    const GrBuffer* vertexBuffer;
+    const GrVertexBuffer* vertexBuffer;
     int firstVertex;
     int vertexCount = verticesPerInstance * instancesToDraw;
     void* vertices = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
@@ -49,7 +49,7 @@ void GrVertexBatch::InstancedHelper::recordDraw(Target* target) {
 
 void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
                                       int quadsToDraw) {
-    SkAutoTUnref<const GrBuffer> quadIndexBuffer(
+    SkAutoTUnref<const GrIndexBuffer> quadIndexBuffer(
         target->resourceProvider()->refQuadIndexBuffer());
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");

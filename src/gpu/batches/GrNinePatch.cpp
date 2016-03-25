@@ -96,7 +96,7 @@ private:
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();
 
-        SkAutoTUnref<const GrBuffer> indexBuffer(
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
                 target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,

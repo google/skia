@@ -1211,8 +1211,8 @@ static const int kNumRRectsInIndexBuffer = 256;
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
-static const GrBuffer* ref_rrect_index_buffer(bool strokeOnly,
-                                              GrResourceProvider* resourceProvider) {
+static const GrIndexBuffer* ref_rrect_index_buffer(bool strokeOnly,
+                                                   GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
     GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
     if (strokeOnly) {
@@ -1286,7 +1286,7 @@ private:
 
         // drop out the middle quad if we're stroked
         int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerRRect;
-        SkAutoTUnref<const GrBuffer> indexBuffer(
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
             ref_rrect_index_buffer(fStroked, target->resourceProvider()));
 
         InstancedHelper helper;
@@ -1434,7 +1434,7 @@ private:
 
         // drop out the middle quad if we're stroked
         int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerRRect;
-        SkAutoTUnref<const GrBuffer> indexBuffer(
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
             ref_rrect_index_buffer(fStroked, target->resourceProvider()));
 
         InstancedHelper helper;
