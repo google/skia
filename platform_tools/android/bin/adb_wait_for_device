@@ -16,4 +16,4 @@ done
 
 echo "Connected!"
 
-$SCRIPT_DIR/adb_wait_for_charge
+$SCRIPT_DIR/adb_wait_for_charge $DEVICE_SERIAL
