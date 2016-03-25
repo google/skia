@@ -14,10 +14,15 @@
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 
-
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
 
 template <class T> static void renew(T* t) { t->~T(); new (t) T; }
+
+SkPDFObjectSerializer::~SkPDFObjectSerializer() {
+    for (int i = 0; i < fObjNumMap.objects().count(); ++i) {
+        fObjNumMap.objects()[i]->drop();
+    }
+}
 
 void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& object) {
     fObjNumMap.addObjectRecursively(object.get(), fSubstituteMap);

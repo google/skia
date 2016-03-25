@@ -26,12 +26,12 @@ struct NullWStream : public SkWStream {
     size_t fN;
 };
 
-static void test_pdf_object_serialization(SkPDFObject* object) {
+static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
     // SkDebugWStream wStream;
     NullWStream wStream;
     SkPDFSubstituteMap substitutes;
     SkPDFObjNumMap objNumMap;
-    objNumMap.addObjectRecursively(object, substitutes);
+    objNumMap.addObjectRecursively(object.get(), substitutes);
     for (int i = 0; i < objNumMap.objects().count(); ++i) {
         SkPDFObject* object = objNumMap.objects()[i].get();
         wStream.writeDecAsText(i + 1);
@@ -67,8 +67,7 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            SkAutoTUnref<SkPDFObject> object(
-                    SkPDFCreateBitmapObject(fImage.get(), nullptr));
+            auto object = SkPDFCreateBitmapObject(fImage, nullptr);
             SkASSERT(object);
             if (!object) {
                 return;
@@ -94,7 +93,7 @@ protected:
     void onDelayedSetup() override {
         sk_sp<SkImage> img(GetResourceAsImage("mandrill_512_q075.jpg"));
         if (!img) { return; }
-        SkAutoTUnref<SkData> encoded(img->refEncoded());
+        sk_sp<SkData> encoded(img->refEncoded());
         SkASSERT(encoded);
         if (!encoded) { return; }
         fImage = img;
@@ -105,8 +104,7 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            SkAutoTUnref<SkPDFObject> object(
-                    SkPDFCreateBitmapObject(fImage.get(), nullptr));
+            auto object = SkPDFCreateBitmapObject(fImage, nullptr);
             SkASSERT(object);
             if (!object) {
                 return;
@@ -138,7 +136,7 @@ protected:
         SkASSERT(fAsset);
         if (!fAsset) { return; }
         while (loops-- > 0) {
-            SkAutoTUnref<SkPDFObject> object(
+            sk_sp<SkPDFObject> object(
                     new SkPDFSharedStream(fAsset->duplicate()));
             test_pdf_object_serialization(object);
         }

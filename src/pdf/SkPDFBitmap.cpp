@@ -382,7 +382,7 @@ namespace {
 // This SkPDFObject only outputs the alpha layer of the given bitmap.
 class PDFAlphaBitmap final : public SkPDFObject {
 public:
-    PDFAlphaBitmap(const SkImage* image) : fImage(SkRef(image)) { SkASSERT(image); }
+    PDFAlphaBitmap(sk_sp<SkImage> image) : fImage(std::move(image)) { SkASSERT(fImage); }
     void emitObject(SkWStream*  stream,
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& subs) const override {
@@ -392,7 +392,7 @@ public:
     void drop() override { fImage = nullptr; }
 
 private:
-    sk_sp<const SkImage> fImage;
+    sk_sp<SkImage> fImage;
 };
 
 }  // namespace
@@ -418,11 +418,11 @@ public:
         }
     }
     void drop() override { fImage = nullptr; fSMask = nullptr; }
-    PDFDefaultBitmap(const SkImage* image, SkPDFObject* smask)
-        : fImage(SkRef(image)), fSMask(smask) { SkASSERT(fImage); }
+    PDFDefaultBitmap(sk_sp<SkImage> image, sk_sp<SkPDFObject> smask)
+        : fImage(std::move(image)), fSMask(std::move(smask)) { SkASSERT(fImage); }
 
 private:
-    sk_sp<const SkImage> fImage;
+    sk_sp<SkImage> fImage;
     sk_sp<SkPDFObject> fSMask;
 };
 }  // namespace
@@ -474,8 +474,9 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
-                                     SkPixelSerializer* pixelSerializer) {
+sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
+                                           SkPixelSerializer* pixelSerializer) {
+    SkASSERT(image);
     sk_sp<SkData> data(image->refEncoded());
     SkJFIFInfo info;
     if (data && SkIsJFIF(data.get(), &info) &&
@@ -490,28 +491,30 @@ SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
             #ifdef SK_PDF_IMAGE_STATS
             gJpegImageObjects.fetch_add(1);
             #endif
-            return new PDFJpegBitmap(info.fSize, data.get(), yuv);
+            return sk_make_sp<PDFJpegBitmap>(info.fSize, data.get(), yuv);
         }
     }
 
     if (pixelSerializer) {
         SkBitmap bm;
         SkAutoPixmapUnlock apu;
-        if (as_IB(image)->getROPixels(&bm) && bm.requestLock(&apu)) {
+        if (as_IB(image.get())->getROPixels(&bm) && bm.requestLock(&apu)) {
             data.reset(pixelSerializer->encode(apu.pixmap()));
             if (data && SkIsJFIF(data.get(), &info)) {
                 bool yuv = info.fType == SkJFIFInfo::kYCbCr;
                 if (info.fSize == image->dimensions()) {  // Sanity check.
-                    return new PDFJpegBitmap(info.fSize, data.get(), yuv);
+                    return sk_make_sp<PDFJpegBitmap>(info.fSize, data.get(), yuv);
                 }
             }
         }
     }
 
-    SkPDFObject* smask =
-            image_compute_is_opaque(image) ? nullptr : new PDFAlphaBitmap(image);
+    sk_sp<SkPDFObject> smask;
+    if (!image_compute_is_opaque(image.get())) {
+        smask = sk_make_sp<PDFAlphaBitmap>(image);
+    }
     #ifdef SK_PDF_IMAGE_STATS
     gRegularImageObjects.fetch_add(1);
     #endif
-    return new PDFDefaultBitmap(image, smask);
+    return sk_make_sp<PDFDefaultBitmap>(std::move(image), std::move(smask));
 }

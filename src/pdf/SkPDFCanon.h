@@ -7,39 +7,26 @@
 #ifndef SkPDFCanon_DEFINED
 #define SkPDFCanon_DEFINED
 
-#include "SkBitmap.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFShader.h"
 #include "SkPixelSerializer.h"
 #include "SkTDArray.h"
 #include "SkTHash.h"
+#include "SkBitmapKey.h"
 
 class SkPDFFont;
 class SkPaint;
 class SkImage;
 
-class SkBitmapKey {
-public:
-    SkBitmapKey() : fSubset(SkIRect::MakeEmpty()), fGenID(0) {}
-    explicit SkBitmapKey(const SkBitmap& bm)
-        : fSubset(bm.getSubset()), fGenID(bm.getGenerationID()) {}
-    bool operator==(const SkBitmapKey& rhs) const {
-        return fGenID == rhs.fGenID && fSubset == rhs.fSubset;
-    }
-
-private:
-    SkIRect fSubset;
-    uint32_t fGenID;
-};
-
 /**
- *  The SkPDFCanon canonicalizes objects across PDF pages(SkPDFDevices).
+ *  The SkPDFCanon canonicalizes objects across PDF pages
+ *  (SkPDFDevices) and across draw calls.
  *
  *  The PDF backend works correctly if:
  *  -  There is no more than one SkPDFCanon for each thread.
  *  -  Every SkPDFDevice is given a pointer to a SkPDFCanon on creation.
  *  -  All SkPDFDevices in a document share the same SkPDFCanon.
- *  The SkDocument_PDF class makes this happen by owning a single
+ *  The SkPDFDocument class makes this happen by owning a single
  *  SkPDFCanon.
  *
  *  The addFoo() methods will ref the Foo; the canon's destructor will
@@ -75,9 +62,8 @@ public:
     const SkPDFGraphicState* findGraphicState(const SkPDFGraphicState&) const;
     void addGraphicState(const SkPDFGraphicState*);
 
-    SkPDFObject* findPDFBitmap(const SkImage* image) const;
-    void addPDFBitmap(uint32_t imageUniqueID, SkPDFObject*);
-    const SkImage* bitmapToImage(const SkBitmap&);
+    sk_sp<SkPDFObject> findPDFBitmap(SkBitmapKey key) const;
+    void addPDFBitmap(SkBitmapKey key, sk_sp<SkPDFObject>);
 
     SkTHashMap<uint32_t, bool> fCanEmbedTypeface;
 
@@ -119,8 +105,8 @@ private:
     };
     SkTHashSet<WrapGS, WrapGS::Hash> fGraphicStateRecords;
 
-    SkTHashMap<SkBitmapKey, const SkImage*> fBitmapToImageMap;
-    SkTHashMap<uint32_t /*ImageUniqueID*/, SkPDFObject*> fPDFBitmapMap;
+    // TODO(halcanary): make SkTHashMap<K, sk_sp<V>> work correctly.
+    SkTHashMap<SkBitmapKey, SkPDFObject*> fPDFBitmapMap;
 
     sk_sp<SkPixelSerializer> fPixelSerializer;
     sk_sp<SkPDFStream> fInvertFunction;

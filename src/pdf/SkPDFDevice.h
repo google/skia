@@ -9,6 +9,7 @@
 #define SkPDFDevice_DEFINED
 
 #include "SkBitmap.h"
+#include "SkBitmapKey.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
 #include "SkData.h"
@@ -317,11 +318,11 @@ private:
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
-    void internalDrawImage(const SkMatrix& matrix,
+
+    void internalDrawImage(const SkMatrix& origMatrix,
                            const SkClipStack* clipStack,
-                           const SkRegion& clipRegion,
-                           const SkImage* image,
-                           const SkIRect* srcRect,
+                           const SkRegion& origClipRegion,
+                           SkImageBitmap imageBitmap,
                            const SkPaint& paint);
 
     /** Helper method for copyContentToData. It is responsible for copying the
