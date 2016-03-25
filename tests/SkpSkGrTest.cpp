@@ -106,7 +106,7 @@ struct TestResult {
     TestStep fTestStep;
     int fDirNo;
     int fPixelError;
-    int fTime;
+    SkMSec fTime;
     bool fScaleOversized;
 };
 
@@ -343,7 +343,7 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
     SkRect rect = {0, 0, SkIntToScalar(SkTMin(maxDimension, pWidth)),
             SkIntToScalar(SkTMin(maxDimension, pHeight))};
     canvas->clipRect(rect);
-    SkMSec start = SkTime::GetMSecs();
+    skiatest::Timer timer;
     for (int x = 0; x < slices; ++x) {
         for (int y = 0; y < slices; ++y) {
             pic->draw(canvas);
@@ -351,9 +351,9 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
         }
         canvas->translate(SkIntToScalar(xInterval), SkIntToScalar(-yInterval * slices));
     }
-    SkMSec end = SkTime::GetMSecs();
+    SkMSec elapsed = timer.elapsedMsInt();
     canvas->restore();
-    return end - start;
+    return elapsed;
 }
 
 static void drawPict(SkPicture* pic, SkCanvas* canvas, int scale) {
@@ -462,8 +462,8 @@ void TestResult::testOne() {
 
         if (fTestStep == kCompareBits) {
             fPixelError = similarBits(grBitmap, bitmap);
-            int skTime = timePict(pic, &skCanvas);
-            int grTime = timePict(pic, &grCanvas);
+            SkMSec skTime = timePict(pic, &skCanvas);
+            SkMSec grTime = timePict(pic, &grCanvas);
             fTime = skTime - grTime;
         } else if (fTestStep == kEncodeFiles) {
             SkString pngStr = make_png_name(fFilename);

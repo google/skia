@@ -55,7 +55,7 @@ SkPDFMetadata::UUID SkPDFMetadata::uuid() const {
     SkMD5 md5;
     const char uuidNamespace[] = "org.skia.pdf\n";
     md5.write(uuidNamespace, strlen(uuidNamespace));
-    SkMSec msec = SkTime::GetMSecs();
+    double msec = SkTime::GetMSecs();
     md5.write(&msec, sizeof(msec));
     SkTime::DateTime dateTime;
     SkTime::GetDateTime(&dateTime);

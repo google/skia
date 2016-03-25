@@ -121,15 +121,15 @@ public:
 
         fTrans.setRepeatCount(999);
         values[0] = values[1] = 0;
-        fTrans.setKeyFrame(0, SkTime::GetMSecs() + 1000, values);
+        fTrans.setKeyFrame(0, GetMSecs() + 1000, values);
         values[1] = 1;
-        fTrans.setKeyFrame(1, SkTime::GetMSecs() + 2000, values);
+        fTrans.setKeyFrame(1, GetMSecs() + 2000, values);
         values[0] = values[1] = 1;
-        fTrans.setKeyFrame(2, SkTime::GetMSecs() + 3000, values);
+        fTrans.setKeyFrame(2, GetMSecs() + 3000, values);
         values[1] = 0;
-        fTrans.setKeyFrame(3, SkTime::GetMSecs() + 4000, values);
+        fTrans.setKeyFrame(3, GetMSecs() + 4000, values);
         values[0] = 0;
-        fTrans.setKeyFrame(4, SkTime::GetMSecs() + 5000, values);
+        fTrans.setKeyFrame(4, GetMSecs() + 5000, values);
     }
 
 protected:
@@ -231,7 +231,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         SkScalar trans[2];
-        fTrans.timeToValues(SkTime::GetMSecs(), trans);
+        fTrans.timeToValues(GetMSecs(), trans);
 
         SkPoint offset;
         offset.set(trans[0], trans[1]);
@@ -243,11 +243,16 @@ protected:
         this->inval(nullptr);
     }
 
+    SkMSec GetMSecs() const {
+        return static_cast<SkMSec>(SkTime::GetMSecs() - fStart);
+    }
+
 private:
     SkInterpolator  fTrans;
     Geometry        fGeom;
     bool            fClipFirst;
     int             fSign;
+    const double    fStart = SkTime::GetMSecs();
 
     typedef SampleView INHERITED;
 };

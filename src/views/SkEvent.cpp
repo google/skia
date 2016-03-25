@@ -298,7 +298,7 @@ void SkEvent::postDelay(SkMSec delay) {
     }
 
     if (delay) {
-        this->postTime(SkTime::GetMSecs() + delay);
+        this->postTime(GetMSecsSinceStartup() + delay);
         return;
     }
 
@@ -404,7 +404,7 @@ SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time) {
         prev->fNextEvent = evt;
     }
 
-    SkMSec delay = globals.fDelayQHead->fTime - SkTime::GetMSecs();
+    SkMSec delay = globals.fDelayQHead->fTime - GetMSecsSinceStartup();
     if ((int32_t)delay <= 0) {
         delay = 1;
     }
@@ -436,7 +436,7 @@ void SkEvent::ServiceQueueTimer()
     globals.fEventMutex.acquire();
 
     bool        wasEmpty = false;
-    SkMSec      now = SkTime::GetMSecs();
+    SkMSec      now = GetMSecsSinceStartup();
     SkEvent*    evt = globals.fDelayQHead;
 
     while (evt)
@@ -483,6 +483,11 @@ int SkEvent::CountEventsOnQueue() {
     globals.fEventMutex.release();
 
     return count;
+}
+
+SkMSec SkEvent::GetMSecsSinceStartup() {
+    static const double kEpoch = SkTime::GetMSecs();
+    return static_cast<SkMSec>(SkTime::GetMSecs() - kEpoch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

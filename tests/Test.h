@@ -85,6 +85,27 @@ enum GPUTestContexts {
 template<typename T>
 void RunWithGPUTestContexts(T testFunction, GPUTestContexts contexts, Reporter* reporter,
                             GrContextFactory* factory);
+
+/** Timer provides wall-clock duration since its creation. */
+class Timer {
+public:
+    /** Starts the timer. */
+    Timer();
+
+    /** Nanoseconds since creation. */
+    double elapsedNs() const;
+
+    /** Milliseconds since creation. */
+    double elapsedMs() const;
+
+    /** Milliseconds since creation as an integer.
+        Behavior is undefined for durations longer than SK_MSecMax.
+    */
+    SkMSec elapsedMsInt() const;
+private:
+    double fStartNanos;
+};
+
 }  // namespace skiatest
 
 #define REPORTER_ASSERT(r, cond)                  \

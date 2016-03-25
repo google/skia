@@ -23,7 +23,7 @@
 
 class DefaultTimeline : public SkAnimator::Timeline {
     virtual SkMSec getMSecs() const {
-        return SkTime::GetMSecs();
+        return SkEvent::GetMSecsSinceStartup();
     }
 } gDefaultTimeline;
 

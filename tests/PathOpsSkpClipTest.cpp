@@ -215,7 +215,7 @@ struct TestResult {
     TestStep fTestStep;
     int fDirNo;
     int fPixelError;
-    int fTime;
+    SkMSec fTime;
     int fScale;
 };
 
@@ -372,7 +372,7 @@ static bool addError(TestState* data, const TestResult& testResult) {
         }
     }
     int slowCount = data->fSlowest.count();
-    int time = testResult.fTime;
+    SkMSec time = testResult.fTime;
     if (time > 0) {
         for (int index = 0; index < slowCount; ++index) {
             if (time > data->fSlowest[index].fTime) {
@@ -402,7 +402,7 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
     SkScalar yInterval = SkTMax(pHeight - maxDimension, 0.0f) / (slices - 1);
     SkRect rect = {0, 0, SkTMin(maxDimension, pWidth), SkTMin(maxDimension, pHeight) };
     canvas->clipRect(rect);
-    SkMSec start = SkTime::GetMSecs();
+    double start = SkTime::GetMSecs();
     for (int x = 0; x < slices; ++x) {
         for (int y = 0; y < slices; ++y) {
             pic->playback(canvas);
@@ -410,9 +410,9 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
         }
         canvas->translate(xInterval, -yInterval * slices);
     }
-    SkMSec end = SkTime::GetMSecs();
+    double end = SkTime::GetMSecs();
     canvas->restore();
-    return end - start;
+    return static_cast<SkMSec>(end - start);
 }
 
 static void drawPict(SkPicture* pic, SkCanvas* canvas, int scale) {
@@ -502,9 +502,9 @@ void TestResult::testOne() {
         drawPict(pic.get(), &opCanvas, fScale);
         if (fTestStep == kCompareBits) {
             fPixelError = similarBits(oldBitmap, opBitmap);
-            int oldTime = timePict(pic.get(), &oldCanvas);
-            int opTime = timePict(pic.get(), &opCanvas);
-            fTime = SkTMax(0, oldTime - opTime);
+            SkMSec oldTime = timePict(pic.get(), &oldCanvas);
+            SkMSec opTime = timePict(pic.get(), &opCanvas);
+            fTime = SkTMax(static_cast<SkMSec>(0), oldTime - opTime);
         } else if (fTestStep == kEncodeFiles) {
             SkString pngStr = make_png_name(fFilename);
             const char* pngName = pngStr.c_str();

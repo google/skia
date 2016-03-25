@@ -73,7 +73,7 @@ using namespace DM;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const SkMSec kStartMs = SkTime::GetMSecs();
+static const double kStartMs = SkTime::GetMSecs();
 
 static FILE* gVLog;
 

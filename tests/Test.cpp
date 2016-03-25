@@ -36,3 +36,17 @@ SkString skiatest::GetTmpDir() {
     const char* tmpDir = FLAGS_tmpDir.isEmpty() ? nullptr : FLAGS_tmpDir[0];
     return SkString(tmpDir);
 }
+
+skiatest::Timer::Timer() : fStartNanos(SkTime::GetNSecs()) {}
+
+double skiatest::Timer::elapsedNs() const {
+    return SkTime::GetNSecs() - fStartNanos;
+}
+
+double skiatest::Timer::elapsedMs() const { return this->elapsedNs() * 1e-6; }
+
+SkMSec skiatest::Timer::elapsedMsInt() const {
+    const double elapsedMs = this->elapsedMs();
+    SkASSERT(SK_MSecMax >= elapsedMs);
+    return static_cast<SkMSec>(elapsedMs);
+}

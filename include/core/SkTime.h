@@ -34,11 +34,10 @@ public:
     };
     static void GetDateTime(DateTime*);
 
-    static SkMSec GetMSecs() { return (SkMSec)(GetNSecs() * 1e-6); }
+    static double GetSecs() { return GetNSecs() * 1e-9; }
+    static double GetMSecs() { return GetNSecs() * 1e-6; }
     static double GetNSecs();
 };
-
-#define SK_TIME_FACTOR      1
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -46,22 +45,16 @@ class SkAutoTime {
 public:
     // The label is not deep-copied, so its address must remain valid for the
     // lifetime of this object
-    SkAutoTime(const char* label = NULL, SkMSec minToDump = 0) : fLabel(label)
-    {
-        fNow = SkTime::GetMSecs();
-        fMinToDump = minToDump;
-    }
-    ~SkAutoTime()
-    {
-        SkMSec dur = SkTime::GetMSecs() - fNow;
-        if (dur >= fMinToDump) {
-            SkDebugf("%s %d\n", fLabel ? fLabel : "", dur);
-        }
+    SkAutoTime(const char* label = nullptr)
+        : fLabel(label)
+        , fNow(SkTime::GetMSecs()) {}
+    ~SkAutoTime() {
+        uint64_t dur = static_cast<uint64_t>(SkTime::GetMSecs() - fNow);
+        SkDebugf("%s %ld\n", fLabel ? fLabel : "", dur);
     }
 private:
     const char* fLabel;
-    SkMSec      fNow;
-    SkMSec      fMinToDump;
+    double      fNow;
 };
 #define SkAutoTime(...) SK_REQUIRE_LOCAL_VAR(SkAutoTime)
 

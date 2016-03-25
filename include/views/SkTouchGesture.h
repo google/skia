@@ -55,14 +55,14 @@ private:
         float   fStartX, fStartY;
         float   fPrevX, fPrevY;
         float   fLastX, fLastY;
-        SkMSec  fPrevT, fLastT;
+        float   fPrevT, fLastT;
     };
     SkTDArray<Rec> fTouches;
 
     State           fState;
     SkMatrix        fLocalM, fGlobalM;
     SkFlingState    fFlinger;
-    SkMSec          fLastUpT;
+    double          fLastUpMillis;
     SkPoint         fLastUpP;
 
 
