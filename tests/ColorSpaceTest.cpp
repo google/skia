@@ -57,9 +57,15 @@ DEF_TEST(ColorSpaceParsePngICCProfile, r) {
 DEF_TEST(ColorSpaceParseJpegICCProfile, r) {
     SkAutoTDelete<SkStream> stream(resource("icc-v2-gbr.jpg"));
     REPORTER_ASSERT(r, nullptr != stream);
+    if (!stream) {
+        return;
+    }
 
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, nullptr != codec);
+    if (!codec) {
+        return;
+    }
 
     SkColorSpace* colorSpace = codec->getColorSpace();
     REPORTER_ASSERT(r, nullptr != colorSpace);
