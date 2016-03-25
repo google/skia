@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkMorphologyImageFilter_DEFINED
 #define SkMorphologyImageFilter_DEFINED
 
@@ -13,6 +12,7 @@
 #include "SkImageFilter.h"
 #include "SkSize.h"
 
+///////////////////////////////////////////////////////////////////////////////
 class SK_API SkMorphologyImageFilter : public SkImageFilter {
 public:
     SkRect computeFastBounds(const SkRect& src) const override;
@@ -31,44 +31,37 @@ public:
 protected:
     SkMorphologyImageFilter(int radiusX, int radiusY, SkImageFilter* input,
                             const CropRect* cropRect);
-    bool filterImageGeneric(Proc procX, Proc procY,
-                            Proxy*, const SkBitmap& src, const Context&,
-                            SkBitmap* result, SkIPoint* offset) const;
+    sk_sp<SkSpecialImage> filterImageGeneric(bool dilate, 
+                                             SkSpecialImage* source,
+                                             const Context&,
+                                             SkIPoint* offset) const;
     void flatten(SkWriteBuffer&) const override;
-#if SK_SUPPORT_GPU
-    bool canFilterImageGPU() const override { return true; }
-    bool filterImageGPUGeneric(bool dilate, Proxy* proxy, const SkBitmap& src,
-                               const Context& ctm, SkBitmap* result,
-                               SkIPoint* offset) const;
-#endif
 
-    SkISize    radius() const { return fRadius; }
+    SkISize radius() const { return fRadius; }
 
 private:
-    SkISize    fRadius;
+    SkISize fRadius;
     typedef SkImageFilter INHERITED;
 };
 
+///////////////////////////////////////////////////////////////////////////////
 class SK_API SkDilateImageFilter : public SkMorphologyImageFilter {
 public:
-    static SkImageFilter* Create(int radiusX, int radiusY, SkImageFilter* input = NULL,
-                                 const CropRect* cropRect = NULL) {
+    static SkImageFilter* Create(int radiusX, int radiusY,
+                                 SkImageFilter* input = nullptr,
+                                 const CropRect* cropRect = nullptr) {
         if (radiusX < 0 || radiusY < 0) {
-            return NULL;
+            return nullptr;
         }
         return new SkDilateImageFilter(radiusX, radiusY, input, cropRect);
     }
 
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* offset) const override;
-
-#if SK_SUPPORT_GPU
-    bool filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context&,
-                                  SkBitmap* result, SkIPoint* offset) const override;
-#endif
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
+
+protected:
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
 
 private:
     SkDilateImageFilter(int radiusX, int radiusY, SkImageFilter* input, const CropRect* cropRect)
@@ -77,27 +70,24 @@ private:
     typedef SkMorphologyImageFilter INHERITED;
 };
 
+///////////////////////////////////////////////////////////////////////////////
 class SK_API SkErodeImageFilter : public SkMorphologyImageFilter {
 public:
     static SkImageFilter* Create(int radiusX, int radiusY,
-                                      SkImageFilter* input = NULL,
-                                      const CropRect* cropRect = NULL) {
+                                 SkImageFilter* input = nullptr,
+                                 const CropRect* cropRect = nullptr) {
         if (radiusX < 0 || radiusY < 0) {
-            return NULL;
+            return nullptr;
         }
         return new SkErodeImageFilter(radiusX, radiusY, input, cropRect);
     }
 
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* offset) const override;
-
-#if SK_SUPPORT_GPU
-    bool filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context&,
-                                  SkBitmap* result, SkIPoint* offset) const override;
-#endif
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)
+
+protected:
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
 
 private:
     SkErodeImageFilter(int radiusX, int radiusY, SkImageFilter* input, const CropRect* cropRect)
