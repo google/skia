@@ -233,6 +233,7 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     }
     fHWPLSEnabled = false;
     fPLSHasBeenUsed = false;
+    fHWMinSampleShading = 0.0;
 }
 
 GrGLGpu::~GrGLGpu() {
@@ -2070,12 +2071,26 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
     this->disableScissor();
 }
 
+void GrGLGpu::flushMinSampleShading(float minSampleShading) {
+    if (fHWMinSampleShading != minSampleShading) {
+        if (minSampleShading > 0.0) {
+            GL_CALL(Enable(GR_GL_SAMPLE_SHADING));
+            GL_CALL(MinSampleShading(minSampleShading));
+        }
+        else {
+            GL_CALL(Disable(GR_GL_SAMPLE_SHADING));
+        }
+        fHWMinSampleShading = minSampleShading;
+    }
+}
+
 bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc) {
     GrXferProcessor::BlendInfo blendInfo;
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);
 
     this->flushColorWrite(blendInfo.fWriteColor);
     this->flushDrawFace(pipeline.getDrawFace());
+    this->flushMinSampleShading(primProc.getSampleShading());
 
     SkAutoTUnref<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, primProc));
     if (!program) {

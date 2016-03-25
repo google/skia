@@ -116,6 +116,7 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
 
     fStencilWrapOpsSupport = true;
     fOversizedStencilSupport = true;
+    fSampleShadingSupport = SkToBool(featureFlags & kSampleRateShading_GrVkFeatureFlag);
 }
 
 void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,

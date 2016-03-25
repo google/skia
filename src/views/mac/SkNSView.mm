@@ -337,6 +337,7 @@ static CGLContextObj createGLContext(int msaaSampleCount) {
         kCGLPFAStencilSize, (CGLPixelFormatAttribute) 8,
         kCGLPFAAccelerated,
         kCGLPFADoubleBuffer,
+        kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
         (CGLPixelFormatAttribute)0
     };
     

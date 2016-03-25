@@ -203,7 +203,9 @@ void setup_viewport_scissor_state(const GrVkGpu* gpu,
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
-void setup_multisample_state(const GrPipeline& pipeline,
+void setup_multisample_state(const GrPipeline& pipeline, 
+                             const GrPrimitiveProcessor& primProc,
+                             const GrCaps* caps,
                              VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
     memset(multisampleInfo, 0, sizeof(VkPipelineMultisampleStateCreateInfo));
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -212,8 +214,10 @@ void setup_multisample_state(const GrPipeline& pipeline,
     int numSamples = pipeline.getRenderTarget()->numColorSamples();
     SkAssertResult(GrSampleCountToVkSampleCount(numSamples,
                    &multisampleInfo->rasterizationSamples));
-    multisampleInfo->sampleShadingEnable = VK_FALSE;
-    multisampleInfo->minSampleShading = 0;
+    float sampleShading = primProc.getSampleShading();
+    SkASSERT(sampleShading == 0.0f || caps->sampleShadingSupport());
+    multisampleInfo->sampleShadingEnable = sampleShading > 0.0f;
+    multisampleInfo->minSampleShading = sampleShading;
     multisampleInfo->pSampleMask = nullptr;
     multisampleInfo->alphaToCoverageEnable = VK_FALSE;
     multisampleInfo->alphaToOneEnable = VK_FALSE;
@@ -427,7 +431,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
     setup_viewport_scissor_state(gpu, pipeline, vkRT, &viewportInfo);
 
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
-    setup_multisample_state(pipeline, &multisampleInfo);
+    setup_multisample_state(pipeline, primProc, gpu->caps(), &multisampleInfo);
 
     // We will only have one color attachment per pipeline.
     VkPipelineColorBlendAttachmentState attachmentStates[1];

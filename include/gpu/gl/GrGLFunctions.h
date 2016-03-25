@@ -235,6 +235,9 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniformHandleui64vProc)(GrGLint locat
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformHandleui64Proc)(GrGLuint program, GrGLint location, GrGLuint64 v0);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformHandleui64vProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLuint64 *value);
 
+/* ARB_sample_shading */
+typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMinSampleShadingProc)(GrGLfloat value);
+
 /* EXT_direct_state_access */
 // (In the future some of these methods may be omitted)
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureParameteriProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, GrGLint param);

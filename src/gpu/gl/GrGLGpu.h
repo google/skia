@@ -340,6 +340,8 @@ private:
     // rt is used only if useHWAA is true.
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled);
 
+    void flushMinSampleShading(float minSampleShading);
+
     // helper for onCreateTexture and writeTexturePixels
     enum UploadType {
         kNewTexture_UploadType,    // we are creating a new texture
@@ -618,6 +620,8 @@ private:
 
     bool fHWPLSEnabled;
     bool fPLSHasBeenUsed;
+
+    float fHWMinSampleShading;
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.

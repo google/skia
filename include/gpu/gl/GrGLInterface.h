@@ -369,6 +369,9 @@ public:
         GrGLFunction<GrGLProgramUniformHandleui64Proc> fProgramUniformHandleui64;
         GrGLFunction<GrGLProgramUniformHandleui64vProc> fProgramUniformHandleui64v;
 
+        /* ARB_sample_shading */
+        GrGLFunction<GrGLMinSampleShadingProc> fMinSampleShading;
+
         /* EXT_direct_state_access */
         // We use the EXT verson because it is more expansive and interacts with more extensions
         // than the ARB or core (4.5) versions. We may switch and/or omit methods in the future.

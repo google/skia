@@ -217,6 +217,10 @@ public:
      */
     virtual const char* getDestColorOverride() const { return nullptr; }
     
+    virtual float getSampleShading() const {
+        return 0.0;
+    }
+
 protected:
     GrPrimitiveProcessor() : fVertexStride(0) {}
 

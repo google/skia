@@ -269,6 +269,8 @@ public:
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
 
+    bool sampleShadingSupport() const { return fSampleShadingSupport; }
+
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
         overrides requested by the client. Note that overrides will only reduce the caps never
@@ -302,6 +304,8 @@ protected:
 
     // ANGLE workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
+
+    bool fSampleShadingSupport                       : 1;
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqBlacklist;

@@ -533,6 +533,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fTextureSwizzleSupport = false;
     }
 
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(4, 0) || ctxInfo.hasExtension("GL_ARB_sample_shading")) {
+            fSampleShadingSupport = true;
+        }
+    } else if (ctxInfo.hasExtension("GL_OES_sample_shading")) {
+        fSampleShadingSupport = true;
+    }
+
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
     this->initConfigTable(ctxInfo, gli, glslCaps);

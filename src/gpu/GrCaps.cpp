@@ -98,6 +98,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fSupportsInstancedDraws = false;
     fFullClearIsFree = false;
     fMustClearUploadedBufferData = false;
+    fSampleShadingSupport = false;
 
     fUseDrawInsteadOfClear = false;
 

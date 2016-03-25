@@ -515,6 +515,10 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
     }
 
+    if (glVer >= GR_GL_VER(4,0) || extensions.has("GL_ARB_sample_shading")) {
+        GET_PROC(MinSampleShading);
+    }
+
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
@@ -891,6 +895,10 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     if (extensions.has("EGL_KHR_image") || extensions.has("EGL_KHR_image_base")) {
         GET_EGL_PROC_SUFFIX(CreateImage, KHR);
         GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
+    }
+
+    if (extensions.has("GL_OES_sample_shading")) {
+        GET_PROC_SUFFIX(MinSampleShading, OES);
     }
 
     interface->fStandard = kGLES_GrGLStandard;
