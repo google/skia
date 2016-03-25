@@ -15,3 +15,5 @@ while [ "$($ADB $DEVICE_SERIAL shell getprop sys.boot_completed | tr -d '\r')" !
 done
 
 echo "Connected!"
+
+$SCRIPT_DIR/adb_wait_for_charge
