@@ -46,7 +46,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fBindFragDataLocationSupport = false;
     fRectangleTextureSupport = false;
     fTextureSwizzleSupport = false;
-    fSRGBWriteControl = false;
     fRGBA8888PixelsOpsAreSlow = false;
     fPartialFBOReadIsSlow = false;
     fMipMapLevelAndLodControlSupport = false;
@@ -1080,7 +1079,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
-    r.appendf("SRGB write contol: %s\n", (fSRGBWriteControl ? "YES" : "NO"));
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
     r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
     r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
@@ -1434,7 +1432,8 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     fConfigTable[kBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     // We only enable srgb support if both textures and FBOs support srgb,
-    // *and* we can disable sRGB decode-on-read, to support "legacy" mode.
+    // *and* we can disable sRGB decode-on-read, to support "legacy" mode,
+    // *and* we can disable sRGB encode-on-write.
     if (kGL_GrGLStandard == standard) {
         if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fSRGBSupport = true;
@@ -1445,14 +1444,13 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             }
         }
         // All the above srgb extensions support toggling srgb writes
-        fSRGBWriteControl = fSRGBSupport;
     } else {
         // See https://bug.skia.org/4148 for PowerVR issue.
         fSRGBSupport = kPowerVRRogue_GrGLRenderer != ctxInfo.renderer() &&
             (ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB"));
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
-        fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
+        fSRGBSupport = fSRGBSupport && ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
     }
     if (!ctxInfo.hasExtension("GL_EXT_texture_sRGB_decode")) {
         // To support "legacy" L32 mode, we require the ability to turn off sRGB decode:

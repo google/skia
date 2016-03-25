@@ -2114,7 +2114,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, nullptr);
+    this->flushRenderTarget(glRT, nullptr, pipeline.getDisableOutputConversionToSRGB());
 
     return true;
 }
@@ -2833,7 +2833,7 @@ void GrGLGpu::finishDrawTarget() {
     }
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds) {
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds, bool disableSRGB) {
     SkASSERT(target);
 
     uint32_t rtID = target->getUniqueID();
@@ -2855,17 +2855,19 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds)
 #endif
         fHWBoundRenderTargetUniqueID = rtID;
         this->flushViewport(target->getViewport());
-        if (this->glCaps().srgbWriteControl()) {
-            bool enableSRGBWrite = GrPixelConfigIsSRGB(target->config());
-            if (enableSRGBWrite && kYes_TriState != fHWSRGBFramebuffer) {
-                GL_CALL(Enable(GR_GL_FRAMEBUFFER_SRGB));
-                fHWSRGBFramebuffer = kYes_TriState;
-            } else if (!enableSRGBWrite && kNo_TriState != fHWSRGBFramebuffer) {
-                GL_CALL(Disable(GR_GL_FRAMEBUFFER_SRGB));
-                fHWSRGBFramebuffer = kNo_TriState;
-            }
+    }
+
+    if (this->glCaps().srgbSupport()) {
+        bool enableSRGBWrite = GrPixelConfigIsSRGB(target->config()) && !disableSRGB;
+        if (enableSRGBWrite && kYes_TriState != fHWSRGBFramebuffer) {
+            GL_CALL(Enable(GR_GL_FRAMEBUFFER_SRGB));
+            fHWSRGBFramebuffer = kYes_TriState;
+        } else if (!enableSRGBWrite && kNo_TriState != fHWSRGBFramebuffer) {
+            GL_CALL(Disable(GR_GL_FRAMEBUFFER_SRGB));
+            fHWSRGBFramebuffer = kNo_TriState;
         }
     }
+
     this->didWriteToSurface(target, bounds);
 }
 

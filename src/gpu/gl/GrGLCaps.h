@@ -323,13 +323,6 @@ public:
     /// GL_ARB_texture_swizzle
     bool textureSwizzleSupport() const { return fTextureSwizzleSupport; }
 
-    /**
-     * Is there support for enabling/disabling sRGB writes for sRGB-capable color attachments?
-     * If false this does not mean sRGB is not supported but rather that if it is supported
-     * it cannot be turned off for configs that support it.
-     */
-    bool srgbWriteControl() const { return fSRGBWriteControl; }
-
     bool mipMapLevelAndLodControlSupport() const { return fMipMapLevelAndLodControlSupport; }
 
     /**
@@ -402,7 +395,6 @@ private:
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fBindFragDataLocationSupport : 1;
-    bool fSRGBWriteControl : 1;
     bool fRGBA8888PixelsOpsAreSlow : 1;
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;

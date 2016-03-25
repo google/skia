@@ -81,6 +81,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (builder.snapVerticesToPixelCenters()) {
         pipeline->fFlags |= kSnapVertices_Flag;
     }
+    if (builder.getDisableOutputConversionToSRGB()) {
+        pipeline->fFlags |= kDisableOutputConversionToSRGB_Flag;
+    }
 
     int firstColorProcessorIdx = args.fOpts.fColorPOI.firstEffectiveProcessorIndex();
 

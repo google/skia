@@ -137,6 +137,13 @@ public:
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
         only for POT textures) */
     bool mipMapSupport() const { return fMipMapSupport; }
+
+    /**
+     * Skia convention is that a device only has sRGB support if it supports sRGB formats for both
+     * textures and framebuffers. In addition:
+     *   Decoding to linear of an sRGB texture can be disabled.
+     *   Encoding and gamma-correct blending to an sRGB framebuffer can be disabled.
+     */
     bool srgbSupport() const { return fSRGBSupport; }
     bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
     bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }

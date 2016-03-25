@@ -283,12 +283,19 @@ public:
          */
         kSnapVerticesToPixelCenters_Flag = 0x02,
 
-        kLast_Flag = kSnapVerticesToPixelCenters_Flag,
+        /**
+         * Suppress linear -> sRGB conversion when rendering to sRGB render targets.
+         */
+        kDisableOutputConversionToSRGB_Flag = 0x04,
+
+        kLast_Flag = kDisableOutputConversionToSRGB_Flag,
     };
 
     bool isHWAntialias() const { return SkToBool(fFlags & kHWAntialias_Flag); }
     bool snapVerticesToPixelCenters() const {
         return SkToBool(fFlags & kSnapVerticesToPixelCenters_Flag); }
+    bool getDisableOutputConversionToSRGB() const {
+        return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag); }
 
     /**
      * Enable render state settings.

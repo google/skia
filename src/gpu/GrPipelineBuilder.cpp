@@ -44,6 +44,8 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
 
     this->setState(GrPipelineBuilder::kHWAntialias_Flag,
                    rt->isUnifiedMultisampled() && paint.isAntiAlias());
+    this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
+                   paint.getDisableOutputConversionToSRGB());
 }
 
 //////////////////////////////////////////////////////////////////////////////s

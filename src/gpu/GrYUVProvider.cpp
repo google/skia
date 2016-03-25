@@ -123,6 +123,9 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
     SkASSERT(renderTarget);
 
     GrPaint paint;
+    // We may be decoding an sRGB image, but the result of our linear math on the YUV planes
+    // is already in sRGB in that case. Don't convert (which will make the image too bright).
+    paint.setDisableOutputConversionToSRGB(true);
     SkAutoTUnref<const GrFragmentProcessor> yuvToRgbProcessor(
                                         GrYUVEffect::CreateYUVToRGB(yuvTextures[0],
                                                                     yuvTextures[1],

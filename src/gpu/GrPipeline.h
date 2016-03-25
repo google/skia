@@ -145,6 +145,9 @@ public:
 
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
+    bool getDisableOutputConversionToSRGB() const {
+        return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
+    }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
         return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
@@ -184,8 +187,9 @@ private:
                             const GrCaps&);
 
     enum Flags {
-        kHWAA_Flag              = 0x1,
-        kSnapVertices_Flag      = 0x2,
+        kHWAA_Flag                          = 0x1,
+        kSnapVertices_Flag                  = 0x2,
+        kDisableOutputConversionToSRGB_Flag = 0x4,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;

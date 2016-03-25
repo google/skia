@@ -328,7 +328,7 @@ private:
 
     // bounds is region that may be modified.
     // nullptr means whole target. Can be an empty rect.
-    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
+    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds, bool disableSRGB = false);
     // Handles cases where a surface will be updated without a call to flushRenderTarget
     void didWriteToSurface(GrSurface*, const SkIRect* bounds) const;
 
