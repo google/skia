@@ -35,33 +35,33 @@
         '../include/images/SkPageFlipper.h',
 
         '../src/images/SkForceLinking.cpp',
-        '../src/images/SkImageDecoder_FactoryDefault.cpp',
+        '../src/images/SkMovie_FactoryDefault.cpp',
 
         # If encoders are added/removed to/from (all/individual)
         # platform(s), be sure to update SkForceLinking.cpp
         # so the right decoders will be forced to link.
 
-        '../src/images/SkImageDecoder_ktx.cpp',
-        '../src/images/SkImageDecoder_libwebp.cpp',
-        '../src/images/SkImageDecoder_libjpeg.cpp',
-        '../src/images/SkImageDecoder_libpng.cpp',
+        '../src/images/SkKTXImageEncoder.cpp',
+        '../src/images/SkWEBPImageEncoder.cpp',
+        '../src/images/SkJPEGImageEncoder.cpp',
+        '../src/images/SkPNGImageEncoder.cpp',
 
         '../src/images/SkImageEncoder.cpp',
         '../src/images/SkImageEncoder_Factory.cpp',
-        '../src/images/SkImageEncoder_argb.cpp',
-        '../src/images/SkJpegUtility.cpp',
+        '../src/images/SkARGBImageEncoder.cpp',
+        '../src/images/SkJPEGWriteUtility.cpp',
         '../src/images/SkMovie.cpp',
-        '../src/images/SkMovie_gif.cpp',
+        '../src/images/SkGIFMovie.cpp',
         '../src/images/SkPageFlipper.cpp',
 
-        '../src/ports/SkImageDecoder_CG.cpp',
-        '../src/ports/SkImageDecoder_WIC.cpp',
+        '../src/ports/SkImageEncoder_CG.cpp',
+        '../src/ports/SkImageEncoder_WIC.cpp',
       ],
       'conditions': [
         [ 'skia_os == "win"', {
           'sources!': [
-            '../src/images/SkImageDecoder_libpng.cpp',
-            '../src/images/SkMovie_gif.cpp',
+            '../src/images/SkPNGImageEncoder.cpp',
+            '../src/images/SkGIFMovie.cpp',
           ],
           'dependencies!': [
             'giflib.gyp:giflib'
@@ -73,17 +73,17 @@
           },
         },{ #else if skia_os != win
           'sources!': [
-            '../src/ports/SkImageDecoder_WIC.cpp',
+            '../src/ports/SkImageEncoder_WIC.cpp',
           ],
         }],
         [ 'skia_os in ["mac", "ios"]', {
           'sources!': [
-            '../src/images/SkImageDecoder_libpng.cpp',
-            '../src/images/SkMovie_gif.cpp',
+            '../src/images/SkPNGImageEncoder.cpp',
+            '../src/images/SkGIFMovie.cpp',
           ],
         },{ #else if skia_os != mac
           'sources!': [
-            '../src/ports/SkImageDecoder_CG.cpp',
+            '../src/ports/SkImageEncoder_CG.cpp',
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
@@ -104,7 +104,7 @@
               # The android framework disables these decoders as they are of little use to
               # Java applications that can't take advantage of the compressed formats.
               'sources!': [
-                '../src/images/SkImageDecoder_ktx.cpp',
+                '../src/images/SkKTXImageEncoder.cpp',
               ],
             }],
           ],

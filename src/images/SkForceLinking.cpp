@@ -9,7 +9,7 @@
 #include "SkForceLinking.h"
 
 // This method is required to fool the linker into not discarding the pre-main
-// initialization and registration of the decoder classes. Passing true will
+// initialization and registration of the encoder classes. Passing true will
 // cause memory leaks.
 int SkForceLinking(bool doNotPassTrue) {
     if (doNotPassTrue) {

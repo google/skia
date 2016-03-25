@@ -44,7 +44,7 @@
         '../src/codec/SkIcoCodec.cpp',
         '../src/codec/SkJpegCodec.cpp',
         '../src/codec/SkJpegDecoderMgr.cpp',
-        '../src/codec/SkJpegUtility_codec.cpp',
+        '../src/codec/SkJpegUtility.cpp',
         '../src/codec/SkMaskSwizzler.cpp',
         '../src/codec/SkMasks.cpp',
         '../src/codec/SkPngCodec.cpp',

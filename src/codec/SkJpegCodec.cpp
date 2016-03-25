@@ -9,7 +9,6 @@
 #include "SkMSAN.h"
 #include "SkJpegCodec.h"
 #include "SkJpegDecoderMgr.h"
-#include "SkJpegUtility_codec.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkStream.h"
@@ -18,6 +17,7 @@
 
 // stdio is needed for libjpeg-turbo
 #include <stdio.h>
+#include "SkJpegUtility.h"
 
 extern "C" {
     #include "jerror.h"

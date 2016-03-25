@@ -71,7 +71,7 @@ if (NOT UNIX)
 endif()
 if (APPLE OR NOT UNIX)
     remove_srcs(../src/gpu/gl/glx/*
-                ../src/images/SkImageDecoder_FactoryDefault.cpp
+                ../src/images/SkMovie_FactoryDefault.cpp
                 ../src/ports/SkFontMgr_fontconfig*.cpp
                 ../src/ports/SkFontMgr_android*.cpp
                 ../src/*FreeType*)
@@ -102,6 +102,7 @@ remove_srcs(
     ../src/ports/SkFontMgr_empty_factory.cpp
     ../src/ports/SkGlobalInitialization_chromium.cpp
     ../src/ports/SkImageDecoder_empty.cpp
+    ../src/ports/SkImageEncoder_none.cpp
     ../src/ports/SkImageGenerator_none.cpp
     ../src/ports/SkTLS_none.cpp)
 
@@ -171,7 +172,7 @@ if (GIF_FOUND)
     list (APPEND libs             ${GIF_LIBRARIES})
     add_definitions(-DSK_CODEC_DECODES_GIF)
 else()
-    remove_srcs(../src/images/*gif*)
+    remove_srcs(../src/images/*GIF*)
     remove_srcs(../src/codec/*Gif*)
 endif()
 
@@ -180,8 +181,7 @@ if (JPEG_FOUND)
     list (APPEND libs             ${JPEG_LIBRARIES})
     add_definitions(-DSK_CODEC_DECODES_JPEG)
 else()
-    remove_srcs(../src/images/*jpeg*)
-    remove_srcs(../src/images/*Jpeg*)
+    remove_srcs(../src/images/*JPEG*)
     remove_srcs(../src/codec/*Jpeg*)
 endif()
 
@@ -199,7 +199,7 @@ if (PNG_FOUND)
     add_definitions(-DPNG_SKIP_SKIA_OPTS)
     add_definitions(-DSK_CODEC_DECODES_PNG)
 else()
-    remove_srcs(../src/images/*png*)
+    remove_srcs(../src/images/*PNG*)
     remove_srcs(../src/codec/*Png*)
     remove_srcs(../src/codec/*Ico*)
 endif()
@@ -218,7 +218,7 @@ if (WEBP_INCLUDE_DIRS AND WEBP_LIBRARIES)
     list (APPEND libs             ${WEBP_LIBRARIES})
     add_definitions(-DSK_CODEC_DECODES_WEBP)
 else()
-    remove_srcs(../src/images/*webp*)
+    remove_srcs(../src/images/*WEBP*)
     remove_srcs(../src/codec/*Webp*)
 endif()
 

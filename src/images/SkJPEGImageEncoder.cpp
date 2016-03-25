@@ -7,7 +7,6 @@
 
 
 #include "SkImageEncoder.h"
-#include "SkJpegUtility.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkStream.h"
@@ -20,6 +19,7 @@
 
 
 #include <stdio.h>
+#include "SkJPEGWriteUtility.h"
 extern "C" {
     #include "jpeglib.h"
     #include "jerror.h"

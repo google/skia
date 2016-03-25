@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkJpegUtility.h"
+
 #include "SkCodecPriv.h"
-#include "SkJpegUtility_codec.h"
 
 /*
  * Initialize the source manager
