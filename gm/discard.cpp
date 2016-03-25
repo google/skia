@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
-#include "SkColorShader.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkSurface.h"
@@ -66,9 +65,8 @@ protected:
                       surface->getCanvas()->clear(color);
                       break;
                   case 2:
-                      SkColorShader shader(color);
                       SkPaint paint;
-                      paint.setShader(&shader);
+                      paint.setShader(SkShader::MakeColorShader(color));
                       surface->getCanvas()->drawPaint(paint);
                       break;
               }

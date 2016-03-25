@@ -45,7 +45,7 @@ public:
      */
     static SkPDFObject* GetPDFShader(SkPDFDocument* doc,
                                      SkScalar dpi,
-                                     const SkShader& shader,
+                                     SkShader* shader,
                                      const SkMatrix& matrix,
                                      const SkIRect& surfaceBBox,
                                      SkScalar rasterScale);

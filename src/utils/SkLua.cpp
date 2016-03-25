@@ -1146,7 +1146,7 @@ static int lpaint_getShader(lua_State* L) {
 
 static int lpaint_setShader(lua_State* L) {
     SkPaint* paint = get_obj<SkPaint>(L, 1);
-    paint->setShader(get_ref<SkShader>(L, 2));
+    paint->setShader(sk_ref_sp(get_ref<SkShader>(L, 2)));
     return 0;
 }
 

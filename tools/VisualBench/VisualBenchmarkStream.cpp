@@ -56,8 +56,7 @@ private:
         paint.setStrokeWidth(2);
 
         SkPaint perlinPaint;
-        perlinPaint.setShader(SkPerlinNoiseShader::CreateTurbulence(0.1f, 0.1f, 1, 0,
-                                                                    nullptr))->unref();
+        perlinPaint.setShader(SkPerlinNoiseShader::MakeTurbulence(0.1f, 0.1f, 1, 0, nullptr));
         for (int i = 0; i < loops; i++) {
             canvas->drawPath(fPath, paint);
             canvas->drawRect(fPerlinRect, perlinPaint);

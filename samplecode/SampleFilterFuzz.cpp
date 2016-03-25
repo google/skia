@@ -648,10 +648,10 @@ static SkImageFilter* make_image_filter(bool canBeNull) {
         break;
     case NOISE:
     {
-        SkAutoTUnref<SkShader> shader((R(2) == 1) ?
-            SkPerlinNoiseShader::CreateFractalNoise(
+        sk_sp<SkShader> shader((R(2) == 1) ?
+            SkPerlinNoiseShader::MakeFractalNoise(
                 make_scalar(true), make_scalar(true), R(10.0f), make_scalar()) :
-            SkPerlinNoiseShader::CreateTurbulence(
+            SkPerlinNoiseShader::MakeTurbulence(
                 make_scalar(true), make_scalar(true), R(10.0f), make_scalar()));
         SkPaint paint;
         paint.setShader(shader);

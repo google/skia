@@ -99,7 +99,7 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
         dst->setMaskFilter(src.getMaskFilter());
     }
     if (bits & kShader_Bit) {
-        dst->setShader(src.getShader());
+        dst->setShader(sk_ref_sp(src.getShader()));
     }
     if (bits & kColorFilter_Bit) {
         dst->setColorFilter(sk_ref_sp(src.getColorFilter()));

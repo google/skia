@@ -98,14 +98,9 @@ protected:
         // TODO: correctly pull out the pure rotation
         SkVector invNormRotation = { ctm[SkMatrix::kMScaleX], ctm[SkMatrix::kMSkewY] };
 
-        SkAutoTUnref<SkShader> fShader(SkLightingShader::Create(
-                                                        fDiffuse,
-                                                        fNormalMaps[mapType],
-                                                        fLights,
-                                                        invNormRotation, &matrix, &matrix));
-
         SkPaint paint;
-        paint.setShader(fShader);
+        paint.setShader(SkLightingShader::Make(fDiffuse, fNormalMaps[mapType], fLights,
+                                               invNormRotation, &matrix, &matrix));
 
         canvas->drawRect(r, paint);
     }

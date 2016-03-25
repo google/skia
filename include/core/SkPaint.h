@@ -499,8 +499,10 @@ public:
      *  @param shader   May be NULL. The shader to be installed in the paint
      *  @return         shader
      */
-    SkShader* setShader(SkShader* shader);
     void setShader(sk_sp<SkShader>);
+#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
+    SkShader* setShader(SkShader* shader);
+#endif
 
     /** Get the paint's colorfilter. If there is a colorfilter, its reference
         count is not changed.

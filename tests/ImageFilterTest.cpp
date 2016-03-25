@@ -135,8 +135,7 @@ public:
         recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 30, 20)), greenPaint);
         sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
         SkAutoTUnref<SkImageFilter> pictureFilter(SkPictureImageFilter::Create(picture.get()));
-        SkAutoTUnref<SkShader> shader(SkPerlinNoiseShader::CreateTurbulence(
-            SK_Scalar1, SK_Scalar1, 1, 0));
+        sk_sp<SkShader> shader(SkPerlinNoiseShader::MakeTurbulence(SK_Scalar1, SK_Scalar1, 1, 0));
 
         SkPaint paint;
         paint.setShader(shader);

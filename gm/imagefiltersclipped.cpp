@@ -90,7 +90,7 @@ protected:
 
         SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle.get()));
         SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard.get()));
-        SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
+        sk_sp<SkShader> noise(SkPerlinNoiseShader::MakeFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
         SkMatrix resizeMatrix;
         resizeMatrix.setScale(RESIZE_FACTOR_X, RESIZE_FACTOR_Y);

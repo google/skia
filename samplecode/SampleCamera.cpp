@@ -20,7 +20,7 @@
 #include "SkRandom.h"
 
 class CameraView : public SampleView {
-    SkTDArray<SkShader*> fShaders;
+    SkTArray<sk_sp<SkShader>> fShaders;
     int     fShaderIndex;
     bool    fFrontFace;
 public:
@@ -39,20 +39,15 @@ public:
                 SkMatrix matrix;
                 matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
 
-                SkShader* s = SkShader::MakeBitmapShader(bm,
+                fShaders.push_back(SkShader::MakeBitmapShader(bm,
                                                            SkShader::kClamp_TileMode,
                                                            SkShader::kClamp_TileMode,
-                                                           &matrix).release();
-                *fShaders.append() = s;
+                                                           &matrix));
             } else {
                 break;
             }
         }
         this->setBGColor(0xFFDDDDDD);
-    }
-
-    virtual ~CameraView() {
-        fShaders.unrefAll();
     }
 
 protected:

@@ -6,6 +6,7 @@
  */
 
 #include "SkPaint.h"
+#include "SkShader.h"
 
 #include "sk_paint.h"
 #include "sk_types_priv.h"
@@ -63,7 +64,7 @@ void sk_paint_set_color(sk_paint_t* cpaint, sk_color_t c) {
 }
 
 void sk_paint_set_shader(sk_paint_t* cpaint, sk_shader_t* cshader) {
-    AsPaint(cpaint)->setShader(AsShader(cshader));
+    AsPaint(cpaint)->setShader(sk_ref_sp(AsShader(cshader)));
 }
 
 void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {

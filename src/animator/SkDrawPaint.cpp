@@ -237,7 +237,7 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (shader == nullptr)
         paint->setShader(nullptr);
     else if (shader != (SkDrawShader*) -1)
-        SkSafeUnref(paint->setShader(shader->getShader()));
+        paint->setShader(sk_ref_sp(shader->getShader()));
     if (strikeThru != -1)
         paint->setStrikeThruText(SkToBool(strikeThru));
     if (strokeCap != -1)

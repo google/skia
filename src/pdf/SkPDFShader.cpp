@@ -434,7 +434,7 @@ public:
     uint32_t fPixelGeneration;
     SkShader::TileMode fImageTileModes[2];
 
-    State(const SkShader& shader, const SkMatrix& canvasTransform,
+    State(SkShader* shader, const SkMatrix& canvasTransform,
           const SkIRect& bbox, SkScalar rasterScale);
 
     bool operator==(const State& b) const;
@@ -515,7 +515,7 @@ static SkPDFObject* get_pdf_shader_by_state(
 // static
 SkPDFObject* SkPDFShader::GetPDFShader(SkPDFDocument* doc,
                                        SkScalar dpi,
-                                       const SkShader& shader,
+                                       SkShader* shader,
                                        const SkMatrix& matrix,
                                        const SkIRect& surfaceBBox,
                                        SkScalar rasterScale) {
@@ -1091,7 +1091,7 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
     return true;
 }
 
-SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransform,
+SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
                           const SkIRect& bbox, SkScalar rasterScale)
         : fCanvasTransform(canvasTransform),
           fBBox(bbox),
@@ -1099,14 +1099,14 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
     fInfo.fColorCount = 0;
     fInfo.fColors = nullptr;
     fInfo.fColorOffsets = nullptr;
-    fShaderTransform = shader.getLocalMatrix();
+    fShaderTransform = shader->getLocalMatrix();
     fImageTileModes[0] = fImageTileModes[1] = SkShader::kClamp_TileMode;
 
-    fType = shader.asAGradient(&fInfo);
+    fType = shader->asAGradient(&fInfo);
 
     if (fType == SkShader::kNone_GradientType) {
         SkMatrix matrix;
-        if (shader.isABitmap(&fImage, &matrix, fImageTileModes)) {
+        if (shader->isABitmap(&fImage, &matrix, fImageTileModes)) {
             SkASSERT(matrix.isIdentity());
         } else {
             // Generic fallback for unsupported shaders:
@@ -1139,7 +1139,7 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
             fImage.eraseColor(SK_ColorTRANSPARENT);
 
             SkPaint p;
-            p.setShader(const_cast<SkShader*>(&shader));
+            p.setShader(sk_ref_sp(shader));
 
             SkCanvas canvas(fImage);
             canvas.scale(scale.width(), scale.height());
@@ -1152,7 +1152,7 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
         fPixelGeneration = fImage.getGenerationID();
     } else {
         AllocateGradientInfoStorage();
-        shader.asAGradient(&fInfo);
+        shader->asAGradient(&fInfo);
     }
 }
 

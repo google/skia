@@ -95,7 +95,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(72);
-        paint.setShader(fShader.get());
+        paint.setShader(fShader);
         paint.setMaskFilter(fMaskFilter.get());
         sk_tool_utils::set_portable_typeface(&paint);
 

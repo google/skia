@@ -1125,8 +1125,7 @@ static void extract_json_paint_shader(Json::Value& jsonPaint, UrlDataManager& ur
         Json::Value jsonShader = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_SHADER];
         SkShader* shader = (SkShader*) load_flattenable(jsonShader, urlDataManager);
         if (shader != nullptr) {
-            target->setShader(shader);
-            shader->unref();
+            target->setShader(sk_ref_sp(shader));
         }
     }
 }

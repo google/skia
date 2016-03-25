@@ -76,8 +76,8 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
 //    paint.setFilterBitmap(true);
 //    paint.setAlpha(0x80);
 
-    canvas->drawImage(imgR.get(), 0, 0, usePaint ? &paint : nullptr);
-    canvas->drawImage(imgG.get(), 0, 80, usePaint ? &paint : nullptr);
+    canvas->drawImage(imgR, 0, 0, usePaint ? &paint : nullptr);
+    canvas->drawImage(imgG, 0, 80, usePaint ? &paint : nullptr);
     surf->draw(canvas, 0, 160, usePaint ? &paint : nullptr);
 
     SkRect src1, src2, src3;
@@ -92,10 +92,10 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
     dst3.set(0, 400, 65, 465);
     dst4.set(0, 480, 65, 545);
 
-    canvas->drawImageRect(imgR.get(), src1, dst1, usePaint ? &paint : nullptr);
-    canvas->drawImageRect(imgG.get(), src2, dst2, usePaint ? &paint : nullptr);
-    canvas->drawImageRect(imgR.get(), src3, dst3, usePaint ? &paint : nullptr);
-    canvas->drawImageRect(imgG.get(), dst4, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgR, src1, dst1, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgG, src2, dst2, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgR, src3, dst3, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgG, dst4, usePaint ? &paint : nullptr);
 }
 
 class ImageGM : public skiagm::GM {

@@ -186,7 +186,7 @@ struct PDFShaderBench : public Benchmark {
             SkPDFDocument doc(&nullStream, nullptr, 72, nullptr);
             sk_sp<SkPDFObject> shader(
                     SkPDFShader::GetPDFShader(
-                            &doc, 72, *fShader, SkMatrix::I(),
+                            &doc, 72, fShader.get(), SkMatrix::I(),
                             SkIRect::MakeWH(400,400), 72));
         }
     }

@@ -194,9 +194,6 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     c->drawLine(20, 20, 80, 80, p);
 
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-    sk_sp<SkShader> shader(SkShader::MakePictureShader(picture, SkShader::kRepeat_TileMode,
-                                                       SkShader::kRepeat_TileMode,
-                                                       nullptr, nullptr));
 
     p.setColor(sk_tool_utils::color_to_565(0xFF8BC34A));  // green
     canvas->drawPaint(p);
@@ -204,7 +201,9 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     canvas->clipRect(SkRect::MakeXYWH(0, 0, 400, 350));
     p.setColor(sk_tool_utils::color_to_565(0xFFB6B6B6));  // gray
     canvas->drawPaint(p);
-    p.setShader(shader.get());
 
+    p.setShader(SkShader::MakePictureShader(std::move(picture), SkShader::kRepeat_TileMode,
+                                            SkShader::kRepeat_TileMode,
+                                            nullptr, nullptr));
     canvas->drawPaint(p);
 }

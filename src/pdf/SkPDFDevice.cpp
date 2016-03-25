@@ -1983,7 +1983,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
     // PDF treats a shader as a color, so we only set one or the other.
     sk_sp<SkPDFObject> pdfShader;
-    const SkShader* shader = paint.getShader();
+    SkShader* shader = paint.getShader();
     SkColor color = paint.getColor();
     if (shader) {
         // PDF positions patterns relative to the initial transform, so
@@ -2005,7 +2005,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         SkScalar rasterScale =
                 SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE;
         pdfShader.reset(SkPDFShader::GetPDFShader(
-                fDocument, fRasterDpi, *shader, transform, bounds, rasterScale));
+                fDocument, fRasterDpi, shader, transform, bounds, rasterScale));
 
         if (pdfShader.get()) {
             // pdfShader has been canonicalized so we can directly compare

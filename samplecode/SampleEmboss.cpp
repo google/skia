@@ -9,7 +9,6 @@
 #include "SkBlurMask.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkColorShader.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -53,7 +52,7 @@ protected:
         paint.setStrokeWidth(SkIntToScalar(10));
         paint.setMaskFilter(SkEmbossMaskFilter::Create(
             SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4)), fLight))->unref();
-        paint.setShader(new SkColorShader(SK_ColorBLUE))->unref();
+        paint.setShader(SkShader::MakeColorShader(SK_ColorBLUE));
         paint.setDither(true);
 
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),

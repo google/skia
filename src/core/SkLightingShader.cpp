@@ -700,10 +700,10 @@ static bool bitmap_is_too_big(const SkBitmap& bm) {
     return bm.width() > kMaxSize || bm.height() > kMaxSize;
 }
 
-SkShader* SkLightingShader::Create(const SkBitmap& diffuse, const SkBitmap& normal,
-                                   const Lights* lights,
-                                   const SkVector& invNormRotation,
-                                   const SkMatrix* diffLocalM, const SkMatrix* normLocalM) {
+sk_sp<SkShader> SkLightingShader::Make(const SkBitmap& diffuse, const SkBitmap& normal,
+                                       const Lights* lights,
+                                       const SkVector& invNormRotation,
+                                       const SkMatrix* diffLocalM, const SkMatrix* normLocalM) {
     if (diffuse.isNull() || bitmap_is_too_big(diffuse) ||
         normal.isNull() || bitmap_is_too_big(normal) ||
         diffuse.width() != normal.width() ||
@@ -713,8 +713,8 @@ SkShader* SkLightingShader::Create(const SkBitmap& diffuse, const SkBitmap& norm
 
     SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
 
-    return new SkLightingShaderImpl(diffuse, normal, lights, invNormRotation, diffLocalM,
-                                    normLocalM);
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, lights, invNormRotation, diffLocalM,
+                                            normLocalM);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -31,11 +31,10 @@ static const SkLightingShader::Lights* create_lights(SkScalar angle, SkScalar bl
 
 class LightingView : public SampleView {
 public:
-    SkAutoTUnref<SkShader> fShader;
-    SkBitmap               fDiffuseBitmap;
-    SkBitmap               fNormalBitmap;
-    SkScalar               fLightAngle;
-    SkScalar               fColorFactor;
+    SkBitmap        fDiffuseBitmap;
+    SkBitmap        fNormalBitmap;
+    SkScalar        fLightAngle;
+    SkScalar        fColorFactor;
 
     LightingView() {
         SkString diffusePath = GetResourcePath("brickwork-texture.jpg");
@@ -45,15 +44,7 @@ public:
 
         fLightAngle = 0.0f;
         fColorFactor = 0.0f;
-
-        SkAutoTUnref<const SkLightingShader::Lights> lights(create_lights(fLightAngle, 1.0f));
-
-        fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
-                                               lights, SkVector::Make(1.0f, 0.0f),
-                                               nullptr, nullptr));
     }
-
-    virtual ~LightingView() {}
 
 protected:
     // overrides from SkEventSink
@@ -74,13 +65,10 @@ protected:
 
         SkAutoTUnref<const SkLightingShader::Lights> lights(create_lights(fLightAngle,
                                                                           fColorFactor));
-
-        fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
+        SkPaint paint;
+        paint.setShader(SkLightingShader::Make(fDiffuseBitmap, fNormalBitmap,
                                                lights, SkVector::Make(1.0f, 0.0f),
                                                nullptr, nullptr));
-
-        SkPaint paint;
-        paint.setShader(fShader);
         paint.setColor(SK_ColorBLACK);
 
         SkRect r = SkRect::MakeWH((SkScalar)fDiffuseBitmap.width(), 

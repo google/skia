@@ -257,7 +257,7 @@ protected:
             for (int i = 0; i < fPrims.count(); ++i) {
                 for (int j = 0; j < devMats.count(); ++j) {
                     for (int k = 0; k < viewMats.count(); ++k) {
-                        paint.setShader(new DCShader(devMats[j]))->unref();
+                        paint.setShader(sk_make_sp<DCShader>(devMats[j]));
                         paint.setAntiAlias(SkToBool(aa));
                         canvas->save();
                         canvas->concat(viewMats[k]);

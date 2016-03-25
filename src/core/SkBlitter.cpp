@@ -809,16 +809,16 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     SkShader* shader = origPaint.getShader();
     SkColorFilter* cf = origPaint.getColorFilter();
     SkXfermode* mode = origPaint.getXfermode();
-    Sk3DShader* shader3D = nullptr;
+    sk_sp<Sk3DShader> shader3D;
 
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
     if (origPaint.getMaskFilter() != nullptr &&
             origPaint.getMaskFilter()->getFormat() == SkMask::k3D_Format) {
-        shader3D = new Sk3DShader(sk_sp<SkShader>(SkSafeRef(shader)));
+        shader3D = sk_make_sp<Sk3DShader>(sk_ref_sp(shader));
         // we know we haven't initialized lazyPaint yet, so just do it
-        paint.writable()->setShader(shader3D)->unref();
-        shader = shader3D;
+        paint.writable()->setShader(shader3D);
+        shader = shader3D.get();
     }
 
     if (mode) {
@@ -843,7 +843,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
      */
     if (SkXfermode::IsMode(mode, SkXfermode::kClear_Mode)) {
         SkPaint* p = paint.writable();
-        shader = p->setShader(nullptr);
+        p->setShader(nullptr);
+        shader = nullptr;
         p->setColorFilter(nullptr);
         cf = nullptr;
         mode = p->setXfermodeMode(SkXfermode::kSrc_Mode);
@@ -853,9 +854,9 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     if (nullptr == shader) {
         if (mode) {
             // xfermodes (and filters) require shaders for our current blitters
-            shader = new SkColorShader(paint->getColor());
-            paint.writable()->setShader(shader)->unref();
+            paint.writable()->setShader(SkShader::MakeColorShader(paint->getColor()));
             paint.writable()->setAlpha(0xFF);
+            shader = paint->getShader();
         } else if (cf) {
             // if no shader && no xfermode, we just apply the colorfilter to
             // our color and move on.
