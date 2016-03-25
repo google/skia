@@ -9,18 +9,16 @@
 #define GrResourceProvider_DEFINED
 
 #include "GrBatchAtlas.h"
-#include "GrIndexBuffer.h"
+#include "GrBuffer.h"
 #include "GrTextureProvider.h"
 #include "GrPathRange.h"
 
 class GrBatchAtlas;
-class GrIndexBuffer;
 class GrPath;
 class GrRenderTarget;
 class GrSingleOwner;
 class GrStencilAttachment;
 class GrStrokeInfo;
-class GrVertexBuffer;
 class SkDescriptor;
 class SkPath;
 class SkTypeface;
@@ -45,7 +43,7 @@ public:
     /**
      * Either finds and refs, or creates an index buffer for instanced drawing with a specific
      * pattern if the index buffer is not found. If the return is non-null, the caller owns
-     * a ref on the returned GrIndexBuffer.
+     * a ref on the returned GrBuffer.
      *
      * @param pattern     the pattern of indices to repeat
      * @param patternSize size in bytes of the pattern
@@ -55,12 +53,12 @@ public:
      *
      * @return The index buffer if successful, otherwise nullptr.
      */
-    const GrIndexBuffer* findOrCreateInstancedIndexBuffer(const uint16_t* pattern,
-                                                          int patternSize,
-                                                          int reps,
-                                                          int vertCount,
-                                                          const GrUniqueKey& key) {
-        if (GrIndexBuffer* buffer = this->findAndRefTByUniqueKey<GrIndexBuffer>(key)) {
+    const GrBuffer* findOrCreateInstancedIndexBuffer(const uint16_t* pattern,
+                                                     int patternSize,
+                                                     int reps,
+                                                     int vertCount,
+                                                     const GrUniqueKey& key) {
+        if (GrBuffer* buffer = this->findAndRefTByUniqueKey<GrBuffer>(key)) {
             return buffer;
         }
         return this->createInstancedIndexBuffer(pattern, patternSize, reps, vertCount, key);
@@ -69,13 +67,13 @@ public:
     /**
      * Returns an index buffer that can be used to render quads.
      * Six indices per quad: 0, 1, 2, 0, 2, 3, etc.
-     * The max number of quads can be queried using GrIndexBuffer::maxQuads().
+     * The max number of quads is the buffer's index capacity divided by 6.
      * Draw with kTriangles_GrPrimitiveType
      * @ return the quad index buffer
      */
-    const GrIndexBuffer* refQuadIndexBuffer() {
-        if (GrIndexBuffer* buffer =
-            this->findAndRefTByUniqueKey<GrIndexBuffer>(fQuadIndexBufferKey)) {
+    const GrBuffer* refQuadIndexBuffer() {
+        if (GrBuffer* buffer =
+            this->findAndRefTByUniqueKey<GrBuffer>(fQuadIndexBufferKey)) {
             return buffer;
         }
         return this->createQuadIndexBuffer();
@@ -104,16 +102,7 @@ public:
         kNoPendingIO_Flag = kNoPendingIO_ScratchTextureFlag,
     };
 
-    enum BufferUsage {
-        /** Caller intends to specify the buffer data rarely with respect to the number of draws
-            that read the data. */
-        kStatic_BufferUsage,
-        /** Caller intends to respecify the buffer data frequently between draws. */
-        kDynamic_BufferUsage,
-    };
-    GrIndexBuffer* createIndexBuffer(size_t size, BufferUsage, uint32_t flags);
-    GrVertexBuffer* createVertexBuffer(size_t size, BufferUsage, uint32_t flags);
-    GrTransferBuffer* createTransferBuffer(size_t size, TransferType, uint32_t flags);
+    GrBuffer* createBuffer(GrBufferType, size_t size, GrAccessPattern, uint32_t flags);
 
     GrTexture* createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
         SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
@@ -157,13 +146,13 @@ public:
                                                       GrWrapOwnership = kBorrow_GrWrapOwnership);
 
 private:
-    const GrIndexBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
-                                                    int patternSize,
-                                                    int reps,
-                                                    int vertCount,
-                                                    const GrUniqueKey& key);
+    const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
+                                               int patternSize,
+                                               int reps,
+                                               int vertCount,
+                                               const GrUniqueKey& key);
 
-    const GrIndexBuffer* createQuadIndexBuffer();
+    const GrBuffer* createQuadIndexBuffer();
 
     GrUniqueKey fQuadIndexBufferKey;
 

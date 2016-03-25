@@ -401,13 +401,29 @@ private:
 };
 
 /**
- * Indicates the transfer direction for a transfer buffer
- */
-enum TransferType {
-    /** Caller intends to use the buffer to transfer data to the GPU */
-    kCpuToGpu_TransferType,
-    /** Caller intends to use the buffer to transfer data from the GPU */
-    kGpuToCpu_TransferType
+* Indicates the type of data that a GPU buffer will be used for.
+*/
+enum GrBufferType {
+    kVertex_GrBufferType,
+    kIndex_GrBufferType,
+    kXferCpuToGpu_GrBufferType,
+    kXferGpuToCpu_GrBufferType,
+
+    kLast_GrBufferType = kXferGpuToCpu_GrBufferType
+};
+
+/**
+* Provides a performance hint regarding the frequency at which a data store will be accessed.
+*/
+enum GrAccessPattern {
+    /** Data store will be respecified repeatedly and used many times. */
+    kDynamic_GrAccessPattern,
+    /** Data store will be specified once and used many times. (Thus disqualified from caching.) */
+    kStatic_GrAccessPattern,
+    /** Data store will be specified once and used at most a few times. (Also can't be cached.) */
+    kStream_GrAccessPattern,
+
+    kLast_GrAccessPattern = kStream_GrAccessPattern
 };
 
 

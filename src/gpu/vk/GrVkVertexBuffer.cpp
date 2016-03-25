@@ -10,7 +10,8 @@
 
 GrVkVertexBuffer::GrVkVertexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                                    const GrVkBuffer::Resource* bufferResource)
-    : INHERITED(gpu, desc.fSizeInBytes, desc.fDynamic, false)
+    : INHERITED(gpu, kVertex_GrBufferType, desc.fSizeInBytes,
+                desc.fDynamic ? kDynamic_GrAccessPattern : kStatic_GrAccessPattern, false)
     , GrVkBuffer(desc, bufferResource) {
     this->registerWithCache();
 }
@@ -46,11 +47,9 @@ void GrVkVertexBuffer::onAbandon() {
     INHERITED::onAbandon();
 }
 
-void* GrVkVertexBuffer::onMap() {
+void GrVkVertexBuffer::onMap() {
     if (!this->wasDestroyed()) {
-        return this->vkMap(this->getVkGpu());
-    } else {
-        return NULL;
+        this->GrBuffer::fMapPtr = this->vkMap(this->getVkGpu());
     }
 }
 

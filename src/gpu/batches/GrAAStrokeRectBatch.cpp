@@ -123,8 +123,7 @@ private:
     static const int kBevelVertexCnt = 24;
     static const int kNumBevelRectsInIndexBuffer = 256;
 
-    static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* resourceProvider,
-                                               bool miterStroke);
+    static const GrBuffer* GetIndexBuffer(GrResourceProvider* resourceProvider, bool miterStroke);
 
     GrColor color() const { return fBatch.fColor; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
@@ -206,7 +205,7 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
     int instanceCount = fGeoData.count();
 
-    const SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+    const SkAutoTUnref<const GrBuffer> indexBuffer(
         GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
     InstancedHelper helper;
     void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
@@ -235,8 +234,8 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
     helper.recordDraw(target);
 }
 
-const GrIndexBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,
-                                                       bool miterStroke) {
+const GrBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,
+                                                  bool miterStroke) {
 
     if (miterStroke) {
         static const uint16_t gMiterIndices[] = {

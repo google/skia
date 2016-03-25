@@ -17,7 +17,7 @@ struct GrContextOptions {
         , fMaxTextureSizeOverride(SK_MaxS32)
         , fMaxTileSizeOverride(0)
         , fSuppressDualSourceBlending(false)
-        , fGeometryBufferMapThreshold(-1)
+        , fBufferMapThreshold(-1)
         , fUseDrawInsteadOfPartialRenderTargetWrite(false)
         , fImmediateMode(false)
         , fClipBatchToBounds(false)
@@ -47,7 +47,7 @@ struct GrContextOptions {
     /** the threshold in bytes above which we will use a buffer mapping API to map vertex and index
         buffers to CPU memory in order to update them.  A value of -1 means the GrContext should
         deduce the optimal value for this platform. */
-    int  fGeometryBufferMapThreshold;
+    int  fBufferMapThreshold;
 
     /** some gpus have problems with partial writes of the rendertarget */
     bool fUseDrawInsteadOfPartialRenderTargetWrite;

@@ -34,7 +34,7 @@
  *     const GrGeometryProcessor* CreateGP(const Geometry& seedGeometry,
  *                                         const GrXPOverridesForBatch& overrides)
  *
- *     const GrIndexBuffer* GetIndexBuffer(GrResourceProvider*)
+ *     const GrBuffer* GetIndexBuffer(GrResourceProvider*)
  *
  *     Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
  *               const GrXPOverridesForBatch& overrides)
@@ -101,7 +101,7 @@ private:
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();
 
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+        SkAutoTUnref<const GrBuffer> indexBuffer(
                 Impl::GetIndexBuffer(target->resourceProvider()));
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,

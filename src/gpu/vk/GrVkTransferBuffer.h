@@ -8,13 +8,13 @@
 #ifndef GrVkTransferBuffer_DEFINED
 #define GrVkTransferBuffer_DEFINED
 
-#include "GrTransferBuffer.h"
+#include "GrBuffer.h"
 #include "GrVkBuffer.h"
 #include "vk/GrVkInterface.h"
 
 class GrVkGpu;
 
-class GrVkTransferBuffer : public GrTransferBuffer, public GrVkBuffer {
+class GrVkTransferBuffer : public GrBuffer, public GrVkBuffer {
 
 public:
     static GrVkTransferBuffer* Create(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type);
@@ -29,11 +29,9 @@ private:
     void setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                           const SkString& dumpName) const override;
 
-    void* onMap() override {
+    void onMap() override {
         if (!this->wasDestroyed()) {
-            return this->vkMap(this->getVkGpu());
-        } else {
-            return nullptr;
+            this->GrBuffer::fMapPtr = this->vkMap(this->getVkGpu());
         }
     }
 
@@ -43,12 +41,17 @@ private:
         }
     }
 
+    bool onUpdateData(const void* src, size_t srcSizeInBytes) override {
+        SkFAIL("Not implemented for transfer buffers.");
+        return false;
+    }
+
     GrVkGpu* getVkGpu() const {
         SkASSERT(!this->wasDestroyed());
         return reinterpret_cast<GrVkGpu*>(this->getGpu());
     }
 
-    typedef GrTransferBuffer INHERITED;
+    typedef GrBuffer INHERITED;
 };
 
 #endif

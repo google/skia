@@ -9,7 +9,6 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrContext.h"
 #include "GrSWMaskHelper.h"
-#include "GrVertexBuffer.h"
 #include "batches/GrRectBatchFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////

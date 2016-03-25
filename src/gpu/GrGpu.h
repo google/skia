@@ -20,9 +20,9 @@
 #include "SkTArray.h"
 
 class GrBatchTracker;
+class GrBuffer;
 class GrContext;
 class GrGLContext;
-class GrIndexBuffer;
 class GrMesh;
 class GrNonInstancedVertices;
 class GrPath;
@@ -36,8 +36,6 @@ class GrRenderTarget;
 class GrStencilAttachment;
 class GrSurface;
 class GrTexture;
-class GrTransferBuffer;
-class GrVertexBuffer;
 
 class GrGpu : public SkRefCnt {
 public:
@@ -129,39 +127,11 @@ public:
     GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&, GrWrapOwnership);
 
     /**
-     * Creates a vertex buffer.
+     * Creates a buffer.
      *
-     * @param size    size in bytes of the vertex buffer
-     * @param dynamic hints whether the data will be frequently changed
-     *                by either GrVertexBuffer::map() or
-     *                GrVertexBuffer::updateData().
-     *
-     * @return    The vertex buffer if successful, otherwise nullptr.
+     * @return the buffer if successful, otherwise nullptr.
      */
-    GrVertexBuffer* createVertexBuffer(size_t size, bool dynamic);
-
-    /**
-     * Creates an index buffer.
-     *
-     * @param size    size in bytes of the index buffer
-     * @param dynamic hints whether the data will be frequently changed
-     *                by either GrIndexBuffer::map() or
-     *                GrIndexBuffer::updateData().
-     *
-     * @return The index buffer if successful, otherwise nullptr.
-     */
-    GrIndexBuffer* createIndexBuffer(size_t size, bool dynamic);
-
-    /**
-     * Creates a transfer buffer.
-     *
-     * @param size      size in bytes of the index buffer
-     * @param toGpu     true if used to transfer from the cpu to the gpu
-     *                  otherwise to be used to transfer from the gpu to the cpu
-     *
-     * @return The transfer buffer if successful, otherwise nullptr.
-     */
-    GrTransferBuffer* createTransferBuffer(size_t size, TransferType type);
+    GrBuffer* createBuffer(GrBufferType, size_t size, GrAccessPattern);
     
     /**
      * Resolves MSAA.
@@ -298,22 +268,22 @@ public:
                      size_t rowBytes);
 
     /**
-     * Updates the pixels in a rectangle of a surface using a GrTransferBuffer
+     * Updates the pixels in a rectangle of a surface using a buffer
      *
-     * @param surface       The surface to write to.
-     * @param left          left edge of the rectangle to write (inclusive)
-     * @param top           top edge of the rectangle to write (inclusive)
-     * @param width         width of rectangle to write in pixels.
-     * @param height        height of rectangle to write in pixels.
-     * @param config        the pixel config of the source buffer
-     * @param buffer        GrTransferBuffer to read pixels from
-     * @param offset        offset from the start of the buffer
-     * @param rowBytes      number of bytes between consecutive rows. Zero
-     *                      means rows are tightly packed.
+     * @param surface          The surface to write to.
+     * @param left             left edge of the rectangle to write (inclusive)
+     * @param top              top edge of the rectangle to write (inclusive)
+     * @param width            width of rectangle to write in pixels.
+     * @param height           height of rectangle to write in pixels.
+     * @param config           the pixel config of the source buffer
+     * @param transferBuffer   GrBuffer to read pixels from (type must be "kCpuToGpu")
+     * @param offset           offset from the start of the buffer
+     * @param rowBytes         number of bytes between consecutive rows. Zero
+     *                         means rows are tightly packed.
      */
     bool transferPixels(GrSurface* surface,
                         int left, int top, int width, int height,
-                        GrPixelConfig config, GrTransferBuffer* buffer,
+                        GrPixelConfig config, GrBuffer* transferBuffer,
                         size_t offset, size_t rowBytes);
 
     /**
@@ -558,9 +528,7 @@ private:
                                                       GrWrapOwnership) = 0;
     virtual GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
                                                                GrWrapOwnership) = 0;
-    virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;
-    virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
-    virtual GrTransferBuffer* onCreateTransferBuffer(size_t size, TransferType type) = 0;
+    virtual GrBuffer* onCreateBuffer(GrBufferType, size_t size, GrAccessPattern) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) = 0;
@@ -602,7 +570,7 @@ private:
     // overridden by backend-specific derived class to perform the surface write
     virtual bool onTransferPixels(GrSurface*,
                                   int left, int top, int width, int height,
-                                  GrPixelConfig config, GrTransferBuffer* buffer,
+                                  GrPixelConfig config, GrBuffer* transferBuffer,
                                   size_t offset, size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the resolve

@@ -345,11 +345,7 @@ private:
         return nullptr;
     }
 
-    GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override { return nullptr; }
-
-    GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override { return nullptr; }
-
-    GrTransferBuffer* onCreateTransferBuffer(size_t, TransferType) override { return nullptr; }
+    GrBuffer* onCreateBuffer(GrBufferType, size_t, GrAccessPattern) override { return nullptr; }
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override {}
 
@@ -376,7 +372,7 @@ private:
 
     bool onTransferPixels(GrSurface* surface,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrTransferBuffer* buffer,
+                          GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override {
         return false;
     }
@@ -410,7 +406,7 @@ GrContext* GrContext::CreateMockContext() {
 
 void GrContext::initMockContext() {
     GrContextOptions options;
-    options.fGeometryBufferMapThreshold = 0;
+    options.fBufferMapThreshold = 0;
     SkASSERT(nullptr == fGpu);
     fGpu = new MockGpu(this, options);
     SkASSERT(fGpu);

@@ -30,7 +30,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fUseDrawInsteadOfClear = false; //TODO: figure this out
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
-    fGeometryBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
+    fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
 
     fMaxRenderTargetSize = 4096; // minimum required by spec
     fMaxTextureSize = 4096; // minimum required by spec
@@ -110,7 +110,7 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
 
     // Assuming since we will always map in the end to upload the data we might as well just map
     // from the get go. There is no hard data to suggest this is faster or slower.
-    fGeometryBufferMapThreshold = 0;
+    fBufferMapThreshold = 0;
 
     fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
 
