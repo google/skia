@@ -59,7 +59,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     SkTArray<const char*> instanceExtensionNames;
     uint32_t extensionFlags = 0;
 #ifdef ENABLE_VK_LAYERS
-    for (int i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
         if (extensions.hasInstanceLayer(kDebugLayerNames[i])) {
             instanceLayerNames.push_back(kDebugLayerNames[i]);
         }
@@ -71,14 +71,14 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
 #endif
 
     const VkInstanceCreateInfo instance_create = {
-        VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, // sType
-        nullptr,                                // pNext
-        0,                                      // flags
-        &app_info,                              // pApplicationInfo
-        instanceLayerNames.count(),             // enabledLayerNameCount
-        instanceLayerNames.begin(),             // ppEnabledLayerNames
-        instanceExtensionNames.count(),         // enabledExtensionNameCount
-        instanceExtensionNames.begin(),         // ppEnabledExtensionNames
+        VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,    // sType
+        nullptr,                                   // pNext
+        0,                                         // flags
+        &app_info,                                 // pApplicationInfo
+        (uint32_t) instanceLayerNames.count(),     // enabledLayerNameCount
+        instanceLayerNames.begin(),                // ppEnabledLayerNames
+        (uint32_t) instanceExtensionNames.count(), // enabledExtensionNameCount
+        instanceExtensionNames.begin(),            // ppEnabledExtensionNames
     };
 
     err = vkCreateInstance(&instance_create, nullptr, &inst);
@@ -129,7 +129,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     SkTArray<const char*> deviceLayerNames;
     SkTArray<const char*> deviceExtensionNames;
 #ifdef ENABLE_VK_LAYERS
-    for (int i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
         if (extensions.hasDeviceLayer(kDebugLayerNames[i])) {
             deviceLayerNames.push_back(kDebugLayerNames[i]);
         }
@@ -170,16 +170,16 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         queuePriorities,                            // pQueuePriorities
     };
     const VkDeviceCreateInfo deviceInfo = {
-        VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,  // sType
-        nullptr,                               // pNext
-        0,                                     // VkDeviceCreateFlags
-        1,                                     // queueCreateInfoCount
-        &queueInfo,                            // pQueueCreateInfos
-        deviceLayerNames.count(),              // layerCount
-        deviceLayerNames.begin(),              // ppEnabledLayerNames
-        deviceExtensionNames.count(),          // extensionCount
-        deviceExtensionNames.begin(),          // ppEnabledExtensionNames
-        &deviceFeatures                        // ppEnabledFeatures
+        VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,    // sType
+        nullptr,                                 // pNext
+        0,                                       // VkDeviceCreateFlags
+        1,                                       // queueCreateInfoCount
+        &queueInfo,                              // pQueueCreateInfos
+        (uint32_t) deviceLayerNames.count(),     // layerCount
+        deviceLayerNames.begin(),                // ppEnabledLayerNames
+        (uint32_t) deviceExtensionNames.count(), // extensionCount
+        deviceExtensionNames.begin(),            // ppEnabledExtensionNames
+        &deviceFeatures                          // ppEnabledFeatures
     };
 
     err = vkCreateDevice(physDev, &deviceInfo, nullptr, &device);

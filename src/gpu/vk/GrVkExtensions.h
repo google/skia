@@ -8,7 +8,7 @@
 #ifndef GrVkExtensions_DEFINED
 #define GrVkExtensions_DEFINED
 
-#include "../../private/SkTArray.h"
+#include "../private/SkTArray.h"
 #include "SkString.h"
 #include "vulkan/vulkan.h"
 

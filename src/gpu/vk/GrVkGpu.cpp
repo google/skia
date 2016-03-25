@@ -706,7 +706,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
         0,                                           // VkImageCreateFlags
         VK_IMAGE_TYPE_2D,                            // VkImageType
         pixelFormat,                                 // VkFormat
-        { w, h, 1 },                                 // VkExtent3D
+        { (uint32_t) w, (uint32_t) h, 1 },           // VkExtent3D
         1,                                           // mipLevels
         1,                                           // arrayLayers
         vkSamples,                                   // samples
