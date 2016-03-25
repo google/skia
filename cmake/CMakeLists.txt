@@ -292,6 +292,11 @@ if (CMAKE_BUILD_TYPE STREQUAL Release)
 else()
     set (SK_RELEASE 0)
 endif()
+if (UNIX AND NOT APPLE)
+  set (SK_SAMPLES_FOR_X 1)
+else()
+  set (SK_SAMPLES_FOR_X 0)
+endif()
 configure_file ("SkUserConfig.h.in" "${userconfig_directory}/SkUserConfig.h")
 
 # skia_link_arguments.txt
