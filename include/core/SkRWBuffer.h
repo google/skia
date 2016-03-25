@@ -19,7 +19,7 @@ class SkStreamAsset;
  *  Contains a read-only, thread-sharable block of memory. To access the memory, the caller must
  *  instantiate a local iterator, as the memory is stored in 1 or more contiguous blocks.
  */
-class SkROBuffer : public SkRefCnt {
+class SK_API SkROBuffer : public SkRefCnt {
 public:
     /**
      *  Return the logical length of the data owned/shared by this buffer. It may be stored in
@@ -70,7 +70,7 @@ private:
  *  The growth is done such that at any time, a RBuffer or StreamAsset can be snapped off, which
  *  can see the previously stored bytes, but which will be unaware of any future writes.
  */
-class SkRWBuffer {
+class SK_API SkRWBuffer {
 public:
     SkRWBuffer(size_t initialCapacity = 0);
     ~SkRWBuffer();
