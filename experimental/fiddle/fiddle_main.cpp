@@ -48,7 +48,8 @@ static void encode_to_base64(const void* data, size_t size, FILE* out) {
     }
 }
 
-static void dump_output(SkData* data, const char* name, bool last = true) {
+static void dump_output(const sk_sp<SkData>& data,
+                        const char* name, bool last = true) {
     if (data) {
         printf("\t\"%s\": \"", name);
         encode_to_base64(data->data(), data->size(), stdout);
@@ -56,8 +57,8 @@ static void dump_output(SkData* data, const char* name, bool last = true) {
     }
 }
 
-static SkData* encode_snapshot(SkSurface* surface) {
-    SkAutoTUnref<SkImage> img(surface->newImageSnapshot());
+static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
+    sk_sp<SkImage> img(surface->newImageSnapshot());
     return img ? img->encode() : nullptr;
 }
 
@@ -72,7 +73,7 @@ static OSMesaContext create_osmesa_context() {
 }
 
 static GrContext* create_mesa_grcontext() {
-    SkAutoTUnref<const GrGLInterface> mesa(GrGLCreateMesaInterface());
+    sk_sp<const GrGLInterface> mesa(GrGLCreateMesaInterface());
     intptr_t backend = reinterpret_cast<intptr_t>(mesa.get());
     return backend ? GrContext::Create(kOpenGL_GrBackend, backend) : nullptr;
 }
@@ -82,12 +83,12 @@ int main() {
     const DrawOptions options = GetDrawOptions();
     fprintf(stderr, "%s\n", options.source);
     if (options.source) {
-        SkAutoTUnref<SkData> data(SkData::NewFromFileName(options.source));
+        sk_sp<SkData> data(SkData::NewFromFileName(options.source));
         if (!data) {
             perror(options.source);
             return 1;
         } else {
-            image = SkImage::NewFromEncoded(data);
+            image = SkImage::NewFromEncoded(data.get());
             if (!image) {
                 perror("Unable to decode the source image.");
                 return 1;
@@ -96,24 +97,23 @@ int main() {
                                    &source, SkImage::kRO_LegacyBitmapMode));
         }
     }
-    SkAutoTUnref<SkData> rasterData, gpuData, pdfData, skpData;
+    sk_sp<SkData> rasterData, gpuData, pdfData, skpData;
     if (options.raster) {
-        SkAutoTUnref<SkSurface> rasterSurface(
-                SkSurface::NewRaster(SkImageInfo::MakeN32Premul(options.size)));
+        auto rasterSurface =
+                SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(options.size));
         draw(rasterSurface->getCanvas());
         rasterData.reset(encode_snapshot(rasterSurface));
     }
     if (options.gpu) {
         OSMesaContext osMesaContext = create_osmesa_context();
-        SkAutoTUnref<GrContext> grContext(create_mesa_grcontext());
+        sk_sp<GrContext> grContext(create_mesa_grcontext());
         if (!grContext) {
             fputs("Unable to get Mesa GrContext.\n", stderr);
         } else {
-            SkAutoTUnref<SkSurface> surface(
-                    SkSurface::NewRenderTarget(
-                            grContext,
-                            SkBudgeted::kNo,
-                            SkImageInfo::MakeN32Premul(options.size)));
+            auto surface = SkSurface::MakeRenderTarget(
+                    grContext.get(),
+                    SkBudgeted::kNo,
+                    SkImageInfo::MakeN32Premul(options.size));
             if (!surface) {
                 fputs("Unable to get render surface.\n", stderr);
                 exit(1);
@@ -127,7 +127,7 @@ int main() {
     }
     if (options.pdf) {
         SkDynamicMemoryWStream pdfStream;
-        SkAutoTUnref<SkDocument> document(SkDocument::CreatePDF(&pdfStream));
+        sk_sp<SkDocument> document(SkDocument::CreatePDF(&pdfStream));
         draw(document->beginPage(options.size.width(), options.size.height()));
         document->close();
         pdfData.reset(pdfStream.copyToData());
@@ -137,7 +137,7 @@ int main() {
         size = options.size;
         SkPictureRecorder recorder;
         draw(recorder.beginRecording(size.width(), size.height()));
-        SkAutoTUnref<SkPicture> picture(recorder.endRecordingAsPicture());
+        auto picture = recorder.finishRecordingAsPicture();
         SkDynamicMemoryWStream skpStream;
         picture->serialize(&skpStream);
         skpData.reset(skpStream.copyToData());

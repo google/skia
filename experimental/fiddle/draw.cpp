@@ -20,11 +20,9 @@ void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     matrix.setScale(0.75f, 0.75f);
     matrix.preRotate(30.0f);
-    SkAutoTUnref<SkShader> shader(
-            image->newShader(SkShader::kRepeat_TileMode,
-                             SkShader::kRepeat_TileMode,
-                             &matrix));
     SkPaint paint;
-    paint.setShader(shader);
+    paint.setShader(image->makeShader(SkShader::kRepeat_TileMode,
+                                      SkShader::kRepeat_TileMode,
+                                      &matrix));
     canvas->drawPaint(paint);
 }

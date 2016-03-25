@@ -150,7 +150,7 @@ func main() {
 			if err != nil {
 				glog.Fatalf("unable to open \"%s\": %v", os.Args[2], err)
 			}
-			util.Close(inputFile)
+			defer util.Close(inputFile)
 			if err = fiddler(skiaSrc, inputFile, os.Stdout, tempDir); err != nil {
 				glog.Fatal(err)
 			}
