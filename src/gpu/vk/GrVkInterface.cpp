@@ -6,6 +6,7 @@
  */
 
 #include "vk/GrVkInterface.h"
+#include "vk/GrVkBackendContext.h"
 #include "vk/GrVkUtil.h"
 
 GrVkInterface::GrVkInterface() {
@@ -15,23 +16,8 @@ GrVkInterface::GrVkInterface() {
 #define GET_PROC_LOCAL(inst, F) PFN_vk ## F F = (PFN_vk ## F) vkGetInstanceProcAddr(inst, "vk" #F)
 #define GET_DEV_PROC(F) functions->f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
 
-const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkPhysicalDevice physDev, 
-                                         VkDevice device) {
-
-    GET_PROC_LOCAL(nullptr, EnumerateInstanceExtensionProperties);
-    GET_PROC_LOCAL(instance, EnumerateDeviceExtensionProperties);
-    GET_PROC_LOCAL(nullptr, EnumerateInstanceLayerProperties);
-    GET_PROC_LOCAL(instance, EnumerateDeviceLayerProperties);
-
-    GrVkExtensions extensions;
-    if (!extensions.init(kGrVkMinimumVersion,
-                         physDev,
-                         EnumerateInstanceExtensionProperties,
-                         EnumerateDeviceExtensionProperties,
-                         EnumerateInstanceLayerProperties,
-                         EnumerateDeviceLayerProperties)) {
-        return nullptr;
-    }
+const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device, 
+                                         uint32_t extensionFlags) {
 
     GrVkInterface* interface = new GrVkInterface();
     GrVkInterface::Functions* functions = &interface->fFunctions;
@@ -191,13 +177,11 @@ const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkPhysicalDevice p
     GET_PROC(CreateDisplayPlaneSurfaceKHR);
     GET_DEV_PROC(CreateSharedSwapchainsKHR);
 
-    if (extensions.hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
+    if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
         GET_PROC(CreateDebugReportCallbackEXT);
         GET_PROC(DebugReportMessageEXT);
         GET_PROC(DestroyDebugReportCallbackEXT);
     }
-
-    interface->fExtensions.swap(&extensions);
 
     return interface;
 }
@@ -342,28 +326,32 @@ bool GrVkInterface::validate() const {
         NULL == fFunctions.fCmdBeginRenderPass ||
         NULL == fFunctions.fCmdNextSubpass ||
         NULL == fFunctions.fCmdEndRenderPass ||
-        NULL == fFunctions.fCmdExecuteCommands ||
-        NULL == fFunctions.fDestroySurfaceKHR ||
-        NULL == fFunctions.fGetPhysicalDeviceSurfaceSupportKHR ||
-        NULL == fFunctions.fGetPhysicalDeviceSurfaceCapabilitiesKHR ||
-        NULL == fFunctions.fGetPhysicalDeviceSurfaceFormatsKHR ||
-        NULL == fFunctions.fGetPhysicalDeviceSurfacePresentModesKHR ||
-        NULL == fFunctions.fCreateSwapchainKHR ||
-        NULL == fFunctions.fDestroySwapchainKHR ||
-        NULL == fFunctions.fGetSwapchainImagesKHR ||
-        NULL == fFunctions.fAcquireNextImageKHR ||
-        NULL == fFunctions.fQueuePresentKHR ||
-        NULL == fFunctions.fGetPhysicalDeviceDisplayPropertiesKHR ||
-        NULL == fFunctions.fGetPhysicalDeviceDisplayPlanePropertiesKHR ||
-        NULL == fFunctions.fGetDisplayPlaneSupportedDisplaysKHR ||
-        NULL == fFunctions.fGetDisplayModePropertiesKHR ||
-        NULL == fFunctions.fCreateDisplayModeKHR ||
-        NULL == fFunctions.fGetDisplayPlaneCapabilitiesKHR ||
-        NULL == fFunctions.fCreateDisplayPlaneSurfaceKHR ||
-        NULL == fFunctions.fCreateSharedSwapchainsKHR ||
-        NULL == fFunctions.fCreateDebugReportCallbackEXT ||
-        NULL == fFunctions.fDebugReportMessageEXT ||
-        NULL == fFunctions.fDestroyDebugReportCallbackEXT) {
+        NULL == fFunctions.fCmdExecuteCommands
+#ifdef VK_CHECK_ALL_FUNCTIONS
+        // || NULL == fFunctions.fDestroySurfaceKHR ||
+        //NULL == fFunctions.fGetPhysicalDeviceSurfaceSupportKHR ||
+        //NULL == fFunctions.fGetPhysicalDeviceSurfaceCapabilitiesKHR ||
+        //NULL == fFunctions.fGetPhysicalDeviceSurfaceFormatsKHR ||
+        //NULL == fFunctions.fGetPhysicalDeviceSurfacePresentModesKHR ||
+        //NULL == fFunctions.fCreateSwapchainKHR ||
+        //NULL == fFunctions.fDestroySwapchainKHR ||
+        //NULL == fFunctions.fGetSwapchainImagesKHR ||
+        //NULL == fFunctions.fAcquireNextImageKHR ||
+        //NULL == fFunctions.fQueuePresentKHR ||
+        //NULL == fFunctions.fGetPhysicalDeviceDisplayPropertiesKHR ||
+        //NULL == fFunctions.fGetPhysicalDeviceDisplayPlanePropertiesKHR ||
+        //NULL == fFunctions.fGetDisplayPlaneSupportedDisplaysKHR ||
+        //NULL == fFunctions.fGetDisplayModePropertiesKHR ||
+        //NULL == fFunctions.fCreateDisplayModeKHR ||
+        //NULL == fFunctions.fGetDisplayPlaneCapabilitiesKHR ||
+        //NULL == fFunctions.fCreateDisplayPlaneSurfaceKHR ||
+        //NULL == fFunctions.fCreateSharedSwapchainsKHR ||
+        //NULL == fFunctions.fCreateDebugReportCallbackEXT ||
+        //NULL == fFunctions.fDebugReportMessageEXT ||
+        //NULL == fFunctions.fDestroyDebugReportCallbackEXT) {
+#else
+        ) {
+#endif
         return false;
     }
     return true;

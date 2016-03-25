@@ -89,8 +89,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fBackendContext.reset(backendCtx);
 
 #ifdef ENABLE_VK_LAYERS
-    if (this->vkInterface()->hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
-        /* Setup callback creation information */
+    if (backendCtx->fExtensions & kEXT_debug_report_GrVkExtensionFlag) {
+        // Setup callback creation information
         VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
         callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
         callbackCreateInfo.pNext = nullptr;
@@ -102,7 +102,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         callbackCreateInfo.pfnCallback = &DebugReportCallback;
         callbackCreateInfo.pUserData = nullptr;
 
-        /* Register the callback */
+        // Register the callback
         GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateDebugReportCallbackEXT(fVkInstance,
                             &callbackCreateInfo, nullptr, &fCallback));
     }
@@ -110,7 +110,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
 
     fCompiler = shaderc_compiler_initialize();
 
-    fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendCtx->fPhysicalDevice));
+    fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendCtx->fPhysicalDevice,
+                               backendCtx->fFeatures));
     fCaps.reset(SkRef(fVkCaps.get()));
 
     VK_CALL(GetPhysicalDeviceMemoryProperties(backendCtx->fPhysicalDevice, &fPhysDevMemProps));

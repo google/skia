@@ -10,8 +10,6 @@
 
 #include "SkRefCnt.h"
 
-#include "GrVkExtensions.h"
-
 #include "vulkan/vulkan.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,8 +24,8 @@ struct GrVkInterface;
 /**
  * Creates a GrVkInterface.
  */
-const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkPhysicalDevice physDev, 
-                                         VkDevice device);
+const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
+                                         uint32_t extensionFlags);
 
 
 /**
@@ -56,21 +54,6 @@ public:
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
     bool validate() const;
-
-    GrVkExtensions fExtensions;
-
-    bool hasInstanceExtension(const char ext[]) const {
-        return fExtensions.hasInstanceExtension(ext);
-    }
-    bool hasDeviceExtension(const char ext[]) const {
-        return fExtensions.hasDeviceExtension(ext);
-    }
-    bool hasInstanceLayer(const char ext[]) const {
-        return fExtensions.hasInstanceLayer(ext);
-    }
-    bool hasDeviceLayer(const char ext[]) const {
-        return fExtensions.hasDeviceLayer(ext);
-    }
 
     /**
      * The function pointers are in a struct so that we can have a compiler generated assignment

@@ -31,10 +31,6 @@ class GrVkRenderPass;
 class GrVkTexture;
 struct GrVkInterface;
 
-#ifdef SK_DEBUG
-#define ENABLE_VK_LAYERS
-#endif
-
 class GrVkGpu : public GrGpu {
 public:
     static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,

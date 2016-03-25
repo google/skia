@@ -27,7 +27,7 @@ public:
      * be called to fill out the caps.
      */
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-             VkPhysicalDevice device);
+             VkPhysicalDevice device, uint32_t featureFlags);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         SkASSERT(kGrPixelConfigCnt > config);
@@ -69,11 +69,11 @@ public:
 
 private:
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-              VkPhysicalDevice device);
+              VkPhysicalDevice device, uint32_t featureFlags);
     void initGrCaps(const VkPhysicalDeviceProperties&,
-                    const VkPhysicalDeviceFeatures&,
-                    const VkPhysicalDeviceMemoryProperties&);
-    void initGLSLCaps(const VkPhysicalDeviceFeatures&, const VkPhysicalDeviceProperties&);
+                    const VkPhysicalDeviceMemoryProperties&,
+                    uint32_t featureFlags);
+    void initGLSLCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
     void initConfigRenderableTable(const GrVkInterface* interface, VkPhysicalDevice physDev);
     void initConfigTexturableTable(const GrVkInterface* interface, VkPhysicalDevice physDev);

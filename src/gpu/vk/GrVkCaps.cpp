@@ -10,9 +10,10 @@
 #include "GrVkUtil.h"
 #include "glsl/GrGLSLCaps.h"
 #include "vk/GrVkInterface.h"
+#include "vk/GrVkBackendContext.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                   VkPhysicalDevice physDev) : INHERITED(contextOptions) {
+                   VkPhysicalDevice physDev, uint32_t featureFlags) : INHERITED(contextOptions) {
     /**************************************************************************
     * GrDrawTargetCaps fields
     **************************************************************************/
@@ -39,23 +40,20 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fShaderCaps.reset(new GrGLSLCaps(contextOptions));
 
-    this->init(contextOptions, vkInterface, physDev);
+    this->init(contextOptions, vkInterface, physDev, featureFlags);
 }
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                    VkPhysicalDevice physDev) {
+                    VkPhysicalDevice physDev, uint32_t featureFlags) {
 
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
 
-    VkPhysicalDeviceFeatures features;
-    GR_VK_CALL(vkInterface, GetPhysicalDeviceFeatures(physDev, &features));
-
     VkPhysicalDeviceMemoryProperties memoryProperties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
 
-    this->initGrCaps(properties, features, memoryProperties);
-    this->initGLSLCaps(features, properties);
+    this->initGrCaps(properties, memoryProperties, featureFlags);
+    this->initGLSLCaps(properties, featureFlags);
     this->initConfigTexturableTable(vkInterface, physDev);
     this->initConfigRenderableTable(vkInterface, physDev);
     this->initStencilFormats(vkInterface, physDev);
@@ -100,8 +98,8 @@ void GrVkCaps::initSampleCount(const VkPhysicalDeviceProperties& properties) {
 }
 
 void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
-                          const VkPhysicalDeviceFeatures& features,
-                          const VkPhysicalDeviceMemoryProperties& memoryProperites) {
+                          const VkPhysicalDeviceMemoryProperties& memoryProperties,
+                          uint32_t featureFlags) {
     fMaxVertexAttributes = properties.limits.maxVertexInputAttributes;
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
@@ -120,8 +118,8 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fOversizedStencilSupport = true;
 }
 
-void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceFeatures& features,
-                            const VkPhysicalDeviceProperties& properties) {
+void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,
+                            uint32_t featureFlags) {
     GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
     glslCaps->fVersionDeclString = "#version 310 es\n";
 
@@ -143,10 +141,10 @@ void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceFeatures& features,
     // GrShaderCaps
 
     glslCaps->fShaderDerivativeSupport = true;
-    glslCaps->fGeometryShaderSupport = features.geometryShader == VK_TRUE;
+    glslCaps->fGeometryShaderSupport = SkToBool(featureFlags & kGeometryShader_GrVkFeatureFlag);
 #if 0
     // For now disabling dual source blending till we get it hooked up in the rest of system
-    glslCaps->fDualSourceBlendingSupport = features.dualSrcBlend;
+    glslCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
 #endif
     glslCaps->fIntegerSupport = true;
 

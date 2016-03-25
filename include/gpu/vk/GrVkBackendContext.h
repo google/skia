@@ -18,6 +18,17 @@
 
 struct GrVkInterface;
 
+enum GrVkExtensionFlags {
+    kEXT_debug_report_GrVkExtensionFlag = 0x0001,
+    kNV_glsl_shader_GrVkExtensionFlag   = 0x0002,
+};
+
+enum GrVkFeatureFlags {
+    kGeometryShader_GrVkFeatureFlag    = 0x0001,
+    kDualSrcBlend_GrVkFeatureFlag      = 0x0002,
+    kSampleRateShading_GrVkFeatureFlag = 0x0004,
+};
+
 // The BackendContext contains all of the base Vulkan objects needed by the GrVkGpu. The assumption
 // is that the client will set these up and pass them to the GrVkGpu constructor. The VkDevice
 // created must support at least one graphics queue, which is passed in as well. 
@@ -30,6 +41,9 @@ struct GrVkBackendContext : public SkRefCnt {
     VkDevice                          fDevice;
     VkQueue                           fQueue;
     uint32_t                          fQueueFamilyIndex;
+    uint32_t                          fMinAPIVersion;
+    uint32_t                          fExtensions;
+    uint32_t                          fFeatures;
     SkAutoTUnref<const GrVkInterface> fInterface;
 
     // Helper function to create the default Vulkan objects needed by the GrVkGpu object

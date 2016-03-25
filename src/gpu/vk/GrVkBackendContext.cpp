@@ -6,6 +6,7 @@
  */
 
 #include "vk/GrVkBackendContext.h"
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
 
@@ -13,7 +14,7 @@
 // Helper code to set up Vulkan context objects
 
 #ifdef ENABLE_VK_LAYERS
-const char* kEnabledLayerNames[] = {
+const char* kDebugLayerNames[] = {
     // elements of VK_LAYER_LUNARG_standard_validation
     "VK_LAYER_LUNARG_threading",
     "VK_LAYER_LUNARG_param_checker",
@@ -26,87 +27,13 @@ const char* kEnabledLayerNames[] = {
     "VK_LAYER_GOOGLE_unique_objects",
     // not included in standard_validation
     //"VK_LAYER_LUNARG_api_dump",
+    //"VK_LAYER_LUNARG_vktrace",
+    //"VK_LAYER_LUNARG_screenshot",
 };
-const char* kEnabledInstanceExtensionNames[] = {
-    VK_EXT_DEBUG_REPORT_EXTENSION_NAME
-};
-
-bool verify_instance_layers() {
-    // make sure we can actually use the extensions and layers above
-    uint32_t extensionCount;
-    VkResult res = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    if (VK_SUCCESS != res) {
-        return false;
-    }
-    VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
-    res = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
-    if (VK_SUCCESS != res) {
-        return false;
-    }
-    int instanceExtensionsFound = 0;
-    for (uint32_t j = 0; j < ARRAYSIZE(kEnabledInstanceExtensionNames); ++j) {
-        for (uint32_t i = 0; i < extensionCount; ++i) {
-            if (!strncmp(extensions[i].extensionName, kEnabledInstanceExtensionNames[j],
-                         strlen(kEnabledInstanceExtensionNames[j]))) {
-                ++instanceExtensionsFound;
-                break;
-            }
-        }
-    }
-    delete[] extensions;
-
-    uint32_t layerCount;
-    res = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-    if (VK_SUCCESS != res) {
-        return false;
-    }
-    VkLayerProperties* layers = new VkLayerProperties[layerCount];
-    res = vkEnumerateInstanceLayerProperties(&layerCount, layers);
-    if (VK_SUCCESS != res) {
-        return false;
-    }
-    int instanceLayersFound = 0;
-    for (uint32_t j = 0; j < ARRAYSIZE(kEnabledLayerNames); ++j) {
-        for (uint32_t i = 0; i < layerCount; ++i) {
-            if (!strncmp(layers[i].layerName, kEnabledLayerNames[j],
-                         strlen(kEnabledLayerNames[j]))) {
-                ++instanceLayersFound;
-                break;
-            }
-        }
-    }
-    delete[] layers;
-
-    return instanceExtensionsFound == ARRAYSIZE(kEnabledInstanceExtensionNames) &&
-           instanceLayersFound == ARRAYSIZE(kEnabledLayerNames);
-}
-
-bool verify_device_layers(VkPhysicalDevice physDev) {
-    uint32_t layerCount;
-    VkResult res = vkEnumerateDeviceLayerProperties(physDev, &layerCount, nullptr);
-    if (VK_SUCCESS != res) {
-        return false;
-    }
-    VkLayerProperties* layers = new VkLayerProperties[layerCount];
-    res = vkEnumerateDeviceLayerProperties(physDev, &layerCount, layers);
-    if (VK_SUCCESS != res) {
-        return false;
-    }
-    int deviceLayersFound = 0;
-    for (uint32_t j = 0; j < ARRAYSIZE(kEnabledLayerNames); ++j) {
-        for (uint32_t i = 0; i < layerCount; ++i) {
-            if (!strncmp(layers[i].layerName, kEnabledLayerNames[j],
-                         strlen(kEnabledLayerNames[j]))) {
-                ++deviceLayersFound;
-                break;
-            }
-        }
-    }
-    delete[] layers;
-
-    return deviceLayersFound == ARRAYSIZE(kEnabledLayerNames);
-}
 #endif
+
+// the minimum version of Vulkan supported
+const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 3);
 
 // Create the base Vulkan objects needed by the GrVkGpu object
 const GrVkBackendContext* GrVkBackendContext::Create() {
@@ -125,16 +52,21 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         kGrVkMinimumVersion,                // apiVersion
     };
 
-    const char** enabledLayerNames = nullptr;
-    int enabledLayerCount = 0;
-    const char** enabledInstanceExtensionNames = nullptr;
-    int enabledInstanceExtensionCount = 0;
+    GrVkExtensions extensions;
+    extensions.initInstance(kGrVkMinimumVersion);
+
+    SkTArray<const char*> instanceLayerNames;
+    SkTArray<const char*> instanceExtensionNames;
+    uint32_t extensionFlags = 0;
 #ifdef ENABLE_VK_LAYERS
-    if (verify_instance_layers()) {
-        enabledLayerNames = kEnabledLayerNames;
-        enabledLayerCount = ARRAYSIZE(kEnabledLayerNames);
-        enabledInstanceExtensionNames = kEnabledInstanceExtensionNames;
-        enabledInstanceExtensionCount = ARRAYSIZE(kEnabledInstanceExtensionNames);
+    for (int i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+        if (extensions.hasInstanceLayer(kDebugLayerNames[i])) {
+            instanceLayerNames.push_back(kDebugLayerNames[i]);
+        }
+    }
+    if (extensions.hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
+        instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+        extensionFlags |= kEXT_debug_report_GrVkExtensionFlag;
     }
 #endif
 
@@ -143,10 +75,10 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         nullptr,                                // pNext
         0,                                      // flags
         &app_info,                              // pApplicationInfo
-        enabledLayerCount,                      // enabledLayerNameCount
-        enabledLayerNames,                      // ppEnabledLayerNames
-        enabledInstanceExtensionCount,          // enabledExtensionNameCount
-        enabledInstanceExtensionNames,          // ppEnabledExtensionNames
+        instanceLayerNames.count(),             // enabledLayerNameCount
+        instanceLayerNames.begin(),             // ppEnabledLayerNames
+        instanceExtensionNames.count(),         // enabledExtensionNameCount
+        instanceExtensionNames.begin(),         // ppEnabledExtensionNames
     };
 
     err = vkCreateInstance(&instance_create, nullptr, &inst);
@@ -192,13 +124,39 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     }
     SkASSERT(graphicsQueueIndex < queueCount);
 
+    extensions.initDevice(kGrVkMinimumVersion, inst, physDev);
+
+    SkTArray<const char*> deviceLayerNames;
+    SkTArray<const char*> deviceExtensionNames;
 #ifdef ENABLE_VK_LAYERS
-    // unlikely that the device will have different layers than the instance, but good to check
-    if (!verify_device_layers(physDev)) {
-        enabledLayerNames = nullptr;
-        enabledLayerCount = 0;
+    for (int i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+        if (extensions.hasDeviceLayer(kDebugLayerNames[i])) {
+            deviceLayerNames.push_back(kDebugLayerNames[i]);
+        }
     }
 #endif
+    if (extensions.hasDeviceExtension("VK_NV_glsl_shader")) {
+        deviceExtensionNames.push_back("VK_NV_glsl_shader");
+        extensionFlags |= kNV_glsl_shader_GrVkExtensionFlag;
+    }
+
+    // query to get the physical device properties
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceFeatures(physDev, &deviceFeatures);
+    // this looks like it would slow things down, 
+    // and we can't depend on it on all platforms
+    deviceFeatures.robustBufferAccess = VK_FALSE;
+
+    uint32_t featureFlags = 0;
+    if (deviceFeatures.geometryShader) {
+        featureFlags |= kGeometryShader_GrVkFeatureFlag;
+    }
+    if (deviceFeatures.dualSrcBlend) {
+        featureFlags |= kDualSrcBlend_GrVkFeatureFlag;
+    }
+    if (deviceFeatures.sampleRateShading) {
+        featureFlags |= kSampleRateShading_GrVkFeatureFlag;
+    }
 
     float queuePriorities[1] = { 0.0 };
     // Here we assume no need for swapchain queue
@@ -217,11 +175,11 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         0,                                     // VkDeviceCreateFlags
         1,                                     // queueCreateInfoCount
         &queueInfo,                            // pQueueCreateInfos
-        enabledLayerCount,                     // layerCount
-        enabledLayerNames,                     // ppEnabledLayerNames
-        0,                                     // extensionCount
-        nullptr,                               // ppEnabledExtensionNames
-        nullptr                                // ppEnabledFeatures
+        deviceLayerNames.count(),              // layerCount
+        deviceLayerNames.begin(),              // ppEnabledLayerNames
+        deviceExtensionNames.count(),          // extensionCount
+        deviceExtensionNames.begin(),          // ppEnabledExtensionNames
+        &deviceFeatures                        // ppEnabledFeatures
     };
 
     err = vkCreateDevice(physDev, &deviceInfo, nullptr, &device);
@@ -239,7 +197,10 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     ctx->fDevice = device;
     ctx->fQueue = queue;
     ctx->fQueueFamilyIndex = graphicsQueueIndex;
-    ctx->fInterface.reset(GrVkCreateInterface(inst, physDev, device));
+    ctx->fMinAPIVersion = kGrVkMinimumVersion;
+    ctx->fExtensions = extensionFlags;
+    ctx->fFeatures = featureFlags;
+    ctx->fInterface.reset(GrVkCreateInterface(inst, device, extensionFlags));
   
     return ctx;
 }
