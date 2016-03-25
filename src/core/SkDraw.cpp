@@ -1455,18 +1455,16 @@ public:
 
     void operator()(const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
         position += rounding;
-        Sk48Dot16 fx = SkScalarTo48Dot16(position.fX);
-        Sk48Dot16 fy = SkScalarTo48Dot16(position.fY);
         // Prevent glyphs from being drawn outside of or straddling the edge of device space.
-        if ((fx >> 16) > INT_MAX - (INT16_MAX + UINT16_MAX) ||
-            (fx >> 16) < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/) ||
-            (fy >> 16) > INT_MAX - (INT16_MAX + UINT16_MAX) ||
-            (fy >> 16) < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) {
+        if (position.fX > INT_MAX - (INT16_MAX + UINT16_MAX) ||
+            position.fX < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/) ||
+            position.fY > INT_MAX - (INT16_MAX + UINT16_MAX) ||
+            position.fY < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) {
             return;
         }
 
-        int left = Sk48Dot16FloorToInt(fx);
-        int top  = Sk48Dot16FloorToInt(fy);
+        int left = SkScalarFloorToInt(position.fX);
+        int top  = SkScalarFloorToInt(position.fY);
         SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
 
         left += glyph.fLeft;
