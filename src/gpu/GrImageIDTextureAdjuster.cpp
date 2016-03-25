@@ -82,7 +82,7 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
 }
 
 GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped) {
-    GrTexture* tex;
+    GrTexture* tex = nullptr;
 
     if (fOriginalKey.isValid()) {
         tex = this->context()->textureProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
@@ -90,11 +90,10 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped) {
             return tex;
         }
     }
-    // disable mipmapping until we generate anisotropic mipmap levels
-    willBeMipped = false;
     if (willBeMipped) {
         tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap);
-    } else {
+    }
+    if (!tex) {
         tex = GrUploadBitmapToTexture(this->context(), fBitmap);
     }
     if (tex && fOriginalKey.isValid()) {
