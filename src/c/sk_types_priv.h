@@ -72,6 +72,10 @@ static inline SkPath* as_path(sk_path_t* cpath) {
     return reinterpret_cast<SkPath*>(cpath);
 }
 
+static inline sk_path_t* ToPath(SkPath* cpath) {
+    return reinterpret_cast<sk_path_t*>(cpath);
+}
+
 static inline const SkImage* AsImage(const sk_image_t* cimage) {
     return reinterpret_cast<const SkImage*>(cimage);
 }

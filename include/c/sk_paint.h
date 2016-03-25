@@ -207,6 +207,22 @@ SK_API float sk_paint_measure_text(const sk_paint_t* cpaint, const void* text, s
  */
 SK_API float sk_paint_measure_utf16_text(sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* cbounds);
 /**
+ *  Get the path outline of text.
+ */
+SK_API sk_path_t* sk_paint_get_text_path(sk_paint_t* cpaint, const void* text, size_t length, float x, float y);
+/**
+*  Get the path outline of text.
+*/
+SK_API sk_path_t* sk_paint_get_utf16_text_path(sk_paint_t* cpaint, const uint16_t *text, size_t lengthInChars, float x, float y);
+/**
+*  Get the path outline of text with each glyph positioned.
+*/
+SK_API sk_path_t* sk_paint_get_pos_text_path(sk_paint_t* cpaint, const void* text, size_t length, const sk_point_t pos[]);
+/**
+*  Get the path outline of text with each glyph positioned.
+*/
+SK_API sk_path_t* sk_paint_get_pos_utf16_text_path(sk_paint_t* cpaint, const uint16_t *text, size_t lengthInChars, const sk_point_t pos[]);
+/**
  * Return the recommend spacing between lines (which will be fDescent - fAscent + fLeading). 
  * Also get the font metrics for the current typeface and type size if cfontmetrics is not null.
  */
