@@ -24,6 +24,9 @@ static bool almost_equal(float a, float b) {
 DEF_TEST(ColorSpaceParsePngICCProfile, r) {
     SkAutoTDelete<SkStream> stream(resource("color_wheel_with_profile.png"));
     REPORTER_ASSERT(r, nullptr != stream);
+    if (!stream) {
+        return;
+    }
 
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, nullptr != codec);

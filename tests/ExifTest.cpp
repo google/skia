@@ -17,6 +17,10 @@ static SkStreamAsset* resource(const char path[]) {
 DEF_TEST(ExifOrientation, r) {
     SkAutoTDelete<SkStream> stream(resource("exif-orientation-2-ur.jpg"));
     REPORTER_ASSERT(r, nullptr != stream);
+    if (!stream) {
+        return;
+    }
+
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, nullptr != codec);
     SkCodec::Origin origin = codec->getOrigin();
