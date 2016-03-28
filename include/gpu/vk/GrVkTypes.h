@@ -9,7 +9,7 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
-#include <vulkan/vulkan.h>
+#include "vk/GrVkDefines.h"
 
 /**
  * KHR_debug

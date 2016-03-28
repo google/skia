@@ -68,6 +68,30 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         extensionFlags |= kEXT_debug_report_GrVkExtensionFlag;
     }
+    if (extensions.hasInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME)) {
+        instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+        extensionFlags |= kKHR_surface_GrVkExtensionFlag;
+    }
+    if (extensions.hasInstanceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
+        instanceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+        extensionFlags |= kKHR_swapchain_GrVkExtensionFlag;
+    }
+#ifdef SK_BUILD_FOR_WIN
+    if (extensions.hasInstanceExtension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME)) {
+        instanceExtensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        extensionFlags |= kKHR_win32_surface_GrVkExtensionFlag;
+    }
+#elif SK_BUILD_FOR_ANDROID
+    if (extensions.hasInstanceExtension(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)) {
+        instanceExtensionNames.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+        extensionFlags |= kKHR_android_surface_GrVkExtensionFlag;
+}
+#elif SK_BUILD_FOR_UNIX
+    if (extensions.hasInstanceExtension(VK_KHR_XLIB_SURFACE_EXTENSION_NAME)) {
+        instanceExtensionNames.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+        extensionFlags |= kKHR_xlib_surface_GrVkExtensionFlag;
+    }
+#endif
 #endif
 
     const VkInstanceCreateInfo instance_create = {

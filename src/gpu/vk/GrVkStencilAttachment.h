@@ -10,7 +10,7 @@
 
 #include "GrStencilAttachment.h"
 #include "GrVkImage.h"
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 class GrVkImageView;
 class GrVkGpu;

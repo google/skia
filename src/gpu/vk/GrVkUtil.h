@@ -12,7 +12,7 @@
 #include "GrTypes.h"
 #include "vk/GrVkInterface.h"
 
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 // makes a Vk call on the interface
 #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X;

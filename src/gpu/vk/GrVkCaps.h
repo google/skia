@@ -10,7 +10,7 @@
 
 #include "GrCaps.h"
 #include "GrVkStencilAttachment.h"
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 struct GrVkInterface;
 class GrGLSLCaps;
@@ -75,9 +75,9 @@ private:
                     uint32_t featureFlags);
     void initGLSLCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
-    void initConfigRenderableTable(const GrVkInterface* interface, VkPhysicalDevice physDev);
-    void initConfigTexturableTable(const GrVkInterface* interface, VkPhysicalDevice physDev);
-    void initStencilFormats(const GrVkInterface* interface, VkPhysicalDevice physDev);
+    void initConfigRenderableTable(const GrVkInterface* iface, VkPhysicalDevice physDev);
+    void initConfigTexturableTable(const GrVkInterface* iface, VkPhysicalDevice physDev);
+    void initStencilFormats(const GrVkInterface* iface, VkPhysicalDevice physDev);
 
 
     bool fConfigTextureSupport[kGrPixelConfigCnt];

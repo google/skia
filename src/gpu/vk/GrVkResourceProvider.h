@@ -16,7 +16,7 @@
 #include "SkTArray.h"
 #include "SkTDynamicHash.h"
 
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 class GrPipeline;
 class GrPrimitiveProcessor;

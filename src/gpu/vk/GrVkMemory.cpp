@@ -62,11 +62,11 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
                                           VkBuffer buffer,
                                           const VkMemoryPropertyFlags flags,
                                           VkDeviceMemory* memory) {
-    const GrVkInterface* interface = gpu->vkInterface();
+    const GrVkInterface* iface = gpu->vkInterface();
     VkDevice device = gpu->device();
 
     VkMemoryRequirements memReqs;
-    GR_VK_CALL(interface, GetBufferMemoryRequirements(device, buffer, &memReqs));
+    GR_VK_CALL(iface, GetBufferMemoryRequirements(device, buffer, &memReqs));
 
 
     if (!alloc_device_memory(gpu, &memReqs, flags, memory)) {
@@ -74,9 +74,9 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
     }
 
     // Bind Memory to queue
-    VkResult err = GR_VK_CALL(interface, BindBufferMemory(device, buffer, *memory, 0));
+    VkResult err = GR_VK_CALL(iface, BindBufferMemory(device, buffer, *memory, 0));
     if (err) {
-        GR_VK_CALL(interface, FreeMemory(device, *memory, nullptr));
+        GR_VK_CALL(iface, FreeMemory(device, *memory, nullptr));
         return false;
     }
     return true;
@@ -86,20 +86,20 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
                                          VkImage image,
                                          const VkMemoryPropertyFlags flags,
                                          VkDeviceMemory* memory) {
-    const GrVkInterface* interface = gpu->vkInterface();
+    const GrVkInterface* iface = gpu->vkInterface();
     VkDevice device = gpu->device();
 
     VkMemoryRequirements memReqs;
-    GR_VK_CALL(interface, GetImageMemoryRequirements(device, image, &memReqs));
+    GR_VK_CALL(iface, GetImageMemoryRequirements(device, image, &memReqs));
 
     if (!alloc_device_memory(gpu, &memReqs, flags, memory)) {
         return false;
     }
 
     // Bind Memory to queue
-    VkResult err = GR_VK_CALL(interface, BindImageMemory(device, image, *memory, 0));
+    VkResult err = GR_VK_CALL(iface, BindImageMemory(device, image, *memory, 0));
     if (err) {
-        GR_VK_CALL(interface, FreeMemory(device, *memory, nullptr));
+        GR_VK_CALL(iface, FreeMemory(device, *memory, nullptr));
         return false;
     }
     return true;

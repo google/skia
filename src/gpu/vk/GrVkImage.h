@@ -11,7 +11,7 @@
 #include "GrVkResource.h"
 #include "SkTypes.h"
 
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 class GrVkGpu;
 

@@ -11,7 +11,7 @@
 #include "GrVkGpu.h"
 #include "GrVkResource.h"
 #include "GrVkUtil.h"
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 class GrVkPipeline;
 class GrVkRenderPass;

@@ -10,7 +10,6 @@
 
 #include "GrBuffer.h"
 #include "GrVkBuffer.h"
-#include "vk/GrVkInterface.h"
 
 class GrVkGpu;
 

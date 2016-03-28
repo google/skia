@@ -427,6 +427,7 @@
     ],
     'skgpu_vk_sources': [
       '<(skia_include_path)/gpu/vk/GrVkBackendContext.h',
+      '<(skia_include_path)/gpu/vk/GrVkDefines.h',
       '<(skia_include_path)/gpu/vk/GrVkInterface.h',
       '<(skia_include_path)/gpu/vk/GrVkTypes.h',
       '<(skia_src_path)/gpu/vk/GrVkBackendContext.cpp',

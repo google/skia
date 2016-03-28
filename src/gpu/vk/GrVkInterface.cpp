@@ -157,25 +157,45 @@ const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
     GET_DEV_PROC(CmdNextSubpass);
     GET_DEV_PROC(CmdEndRenderPass);
     GET_DEV_PROC(CmdExecuteCommands);
-    // TODO: break these out with extension checks
-    GET_PROC(DestroySurfaceKHR);
-    GET_PROC(GetPhysicalDeviceSurfaceSupportKHR);
-    GET_PROC(GetPhysicalDeviceSurfaceCapabilitiesKHR);
-    GET_PROC(GetPhysicalDeviceSurfaceFormatsKHR);
-    GET_PROC(GetPhysicalDeviceSurfacePresentModesKHR);
-    GET_DEV_PROC(CreateSwapchainKHR);
-    GET_DEV_PROC(DestroySwapchainKHR);
-    GET_DEV_PROC(GetSwapchainImagesKHR);
-    GET_DEV_PROC(AcquireNextImageKHR);
-    GET_DEV_PROC(QueuePresentKHR);
-    GET_PROC(GetPhysicalDeviceDisplayPropertiesKHR);
-    GET_PROC(GetPhysicalDeviceDisplayPlanePropertiesKHR);
-    GET_PROC(GetDisplayPlaneSupportedDisplaysKHR);
-    GET_PROC(GetDisplayModePropertiesKHR);
-    GET_PROC(CreateDisplayModeKHR);
-    GET_PROC(GetDisplayPlaneCapabilitiesKHR);
-    GET_PROC(CreateDisplayPlaneSurfaceKHR);
-    GET_DEV_PROC(CreateSharedSwapchainsKHR);
+    if (extensionFlags & kKHR_surface_GrVkExtensionFlag) {
+        GET_PROC(DestroySurfaceKHR);
+        GET_PROC(GetPhysicalDeviceSurfaceSupportKHR);
+        GET_PROC(GetPhysicalDeviceSurfaceCapabilitiesKHR);
+        GET_PROC(GetPhysicalDeviceSurfaceFormatsKHR);
+        GET_PROC(GetPhysicalDeviceSurfacePresentModesKHR);
+    }
+    if (extensionFlags & kKHR_surface_GrVkExtensionFlag) {
+        GET_DEV_PROC(CreateSwapchainKHR);
+        GET_DEV_PROC(DestroySwapchainKHR);
+        GET_DEV_PROC(GetSwapchainImagesKHR);
+        GET_DEV_PROC(AcquireNextImageKHR);
+        GET_DEV_PROC(QueuePresentKHR);
+    }
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+    if (extensionFlags & kKHR_win32_surface_GrVkExtensionFlag) {
+        GET_PROC(CreateWin32SurfaceKHR);
+        GET_PROC(GetPhysicalDeviceWin32PresentationSupportKHR);
+    }
+#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (extensionFlags & kKHR_android_surface_GrVkExtensionFlag) {
+        GET_PROC(CreateAndroidSurfaceKHR);
+    }
+#elif defined(VK_USE_PLATFORM_XLIB_KHR)
+    if (extensionFlags & kKHR_xlib_surface_GrVkExtensionFlag) {
+        GET_PROC(CreateXlibSurfaceKHR);
+        GET_PROC(GetPhysicalDeviceXlibPresentationSupportKHR);
+    }
+#endif
+
+    // We probably don't care about these, they're for consoles
+    //GET_PROC(GetPhysicalDeviceDisplayPropertiesKHR);
+    //GET_PROC(GetPhysicalDeviceDisplayPlanePropertiesKHR);
+    //GET_PROC(GetDisplayPlaneSupportedDisplaysKHR);
+    //GET_PROC(GetDisplayModePropertiesKHR);
+    //GET_PROC(CreateDisplayModeKHR);
+    //GET_PROC(GetDisplayPlaneCapabilitiesKHR);
+    //GET_PROC(CreateDisplayPlaneSurfaceKHR);
+    //GET_DEV_PROC(CreateSharedSwapchainsKHR);
 
     if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
         GET_PROC(CreateDebugReportCallbackEXT);
@@ -326,18 +346,17 @@ bool GrVkInterface::validate() const {
         NULL == fFunctions.fCmdBeginRenderPass ||
         NULL == fFunctions.fCmdNextSubpass ||
         NULL == fFunctions.fCmdEndRenderPass ||
-        NULL == fFunctions.fCmdExecuteCommands
-#ifdef VK_CHECK_ALL_FUNCTIONS
-        // || NULL == fFunctions.fDestroySurfaceKHR ||
-        //NULL == fFunctions.fGetPhysicalDeviceSurfaceSupportKHR ||
-        //NULL == fFunctions.fGetPhysicalDeviceSurfaceCapabilitiesKHR ||
-        //NULL == fFunctions.fGetPhysicalDeviceSurfaceFormatsKHR ||
-        //NULL == fFunctions.fGetPhysicalDeviceSurfacePresentModesKHR ||
-        //NULL == fFunctions.fCreateSwapchainKHR ||
-        //NULL == fFunctions.fDestroySwapchainKHR ||
-        //NULL == fFunctions.fGetSwapchainImagesKHR ||
-        //NULL == fFunctions.fAcquireNextImageKHR ||
-        //NULL == fFunctions.fQueuePresentKHR ||
+        NULL == fFunctions.fCmdExecuteCommands ||
+        NULL == fFunctions.fDestroySurfaceKHR ||
+        NULL == fFunctions.fGetPhysicalDeviceSurfaceSupportKHR ||
+        NULL == fFunctions.fGetPhysicalDeviceSurfaceCapabilitiesKHR ||
+        NULL == fFunctions.fGetPhysicalDeviceSurfaceFormatsKHR ||
+        NULL == fFunctions.fGetPhysicalDeviceSurfacePresentModesKHR ||
+        NULL == fFunctions.fCreateSwapchainKHR ||
+        NULL == fFunctions.fDestroySwapchainKHR ||
+        NULL == fFunctions.fGetSwapchainImagesKHR ||
+        NULL == fFunctions.fAcquireNextImageKHR ||
+        NULL == fFunctions.fQueuePresentKHR ||
         //NULL == fFunctions.fGetPhysicalDeviceDisplayPropertiesKHR ||
         //NULL == fFunctions.fGetPhysicalDeviceDisplayPlanePropertiesKHR ||
         //NULL == fFunctions.fGetDisplayPlaneSupportedDisplaysKHR ||
@@ -346,12 +365,10 @@ bool GrVkInterface::validate() const {
         //NULL == fFunctions.fGetDisplayPlaneCapabilitiesKHR ||
         //NULL == fFunctions.fCreateDisplayPlaneSurfaceKHR ||
         //NULL == fFunctions.fCreateSharedSwapchainsKHR ||
-        //NULL == fFunctions.fCreateDebugReportCallbackEXT ||
-        //NULL == fFunctions.fDebugReportMessageEXT ||
-        //NULL == fFunctions.fDestroyDebugReportCallbackEXT) {
-#else
-        ) {
-#endif
+        NULL == fFunctions.fCreateDebugReportCallbackEXT ||
+        NULL == fFunctions.fDebugReportMessageEXT ||
+        NULL == fFunctions.fDestroyDebugReportCallbackEXT) {
+
         return false;
     }
     return true;

@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrRadInterface_DEFINED
-#define GrRadInterface_DEFINED
+#ifndef GrVkInterface_DEFINED
+#define GrVkInterface_DEFINED
 
 #include "SkRefCnt.h"
 
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * The default interface is returned by GrVkDefaultInterface. This function's
+ * The default interface is returned by GrVkCreateInterface. This function's
  * implementation is platform-specific.
  */
 
@@ -200,6 +200,15 @@ public:
         VkPtr<PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR> fGetPhysicalDeviceSurfaceCapabilitiesKHR;
         VkPtr<PFN_vkGetPhysicalDeviceSurfaceFormatsKHR> fGetPhysicalDeviceSurfaceFormatsKHR;
         VkPtr<PFN_vkGetPhysicalDeviceSurfacePresentModesKHR> fGetPhysicalDeviceSurfacePresentModesKHR;
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+        VkPtr<PFN_vkCreateWin32SurfaceKHR> fCreateWin32SurfaceKHR;
+        VkPtr<PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR> fGetPhysicalDeviceWin32PresentationSupportKHR;
+#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
+        VkPtr<PFN_vkCreateAndroidSurfaceKHR> fCreateAndroidSurfaceKHR;
+#elif defined(VK_USE_PLATFORM_XLIB_KHR)
+        VkPtr<PFN_vkCreateXlibSurfaceKHR> fCreateXlibSurfaceKHR;
+        VkPtr<PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR> fGetPhysicalDeviceXlibPresentationSupportKHR;
+#endif
         VkPtr<PFN_vkCreateSwapchainKHR> fCreateSwapchainKHR;
         VkPtr<PFN_vkDestroySwapchainKHR> fDestroySwapchainKHR;
         VkPtr<PFN_vkGetSwapchainImagesKHR> fGetSwapchainImagesKHR;

@@ -10,7 +10,7 @@
 
 #include "SkRefCnt.h"
 
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 #ifdef SK_DEBUG
 #define ENABLE_VK_LAYERS
@@ -19,8 +19,13 @@
 struct GrVkInterface;
 
 enum GrVkExtensionFlags {
-    kEXT_debug_report_GrVkExtensionFlag = 0x0001,
-    kNV_glsl_shader_GrVkExtensionFlag   = 0x0002,
+    kEXT_debug_report_GrVkExtensionFlag    = 0x0001,
+    kNV_glsl_shader_GrVkExtensionFlag      = 0x0002,
+    kKHR_surface_GrVkExtensionFlag         = 0x0004,
+    kKHR_swapchain_GrVkExtensionFlag       = 0x0008,
+    kKHR_win32_surface_GrVkExtensionFlag   = 0x0010,
+    kKHR_android_surface_GrVkExtensionFlag = 0x0020,
+    kKHR_xlib_surface_GrVkExtensionFlag    = 0x0040,
 };
 
 enum GrVkFeatureFlags {

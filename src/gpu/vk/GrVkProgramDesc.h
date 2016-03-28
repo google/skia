@@ -14,7 +14,7 @@
 #include "GrTypesPriv.h"
 
 #include "shaderc/shaderc.h"
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 class GrVkGpu;
 class GrVkProgramDescBuilder;

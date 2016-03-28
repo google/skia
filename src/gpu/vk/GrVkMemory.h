@@ -8,7 +8,7 @@
 #ifndef GrVkMemory_DEFINED
 #define GrVkMemory_DEFINED
 
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 class GrVkGpu;
 

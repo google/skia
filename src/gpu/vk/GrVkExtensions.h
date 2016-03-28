@@ -10,7 +10,7 @@
 
 #include "../private/SkTArray.h"
 #include "SkString.h"
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 /**
  * This helper queries the Vulkan driver for available extensions and layers, remembers them, 

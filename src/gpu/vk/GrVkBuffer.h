@@ -8,8 +8,8 @@
 #ifndef GrVkBuffer_DEFINED
 #define GrVkBuffer_DEFINED
 
-#include "vk/GrVkInterface.h"
 #include "GrVkResource.h"
+#include "vk/GrVkDefines.h"
 
 class GrVkGpu;
 
@@ -86,7 +86,7 @@ private:
     const Resource*         fResource;
     void*                   fMapPtr;
 
-    typedef SkRefCnt INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
 
 #endif

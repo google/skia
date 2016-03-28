@@ -10,7 +10,7 @@
 
 #include "GrVkResource.h"
 
-#include "vulkan/vulkan.h"
+#include "vk/GrVkDefines.h"
 
 class GrTextureAccess;
 class GrTextureParams;
