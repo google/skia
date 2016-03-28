@@ -162,8 +162,10 @@ setup_device() {
   verbose "The build is targeting the device: $TARGET_DEVICE"
   exportVar DEVICE_ID $TARGET_DEVICE
 
-  # setup the appropriate cross compiling toolchains
-  source $SCRIPT_DIR/utils/setup_toolchain.sh
+  if [ -z "$SKIP_TOOLCHAIN_SETUP" ]; then
+    # setup the appropriate cross compiling toolchains
+    source $SCRIPT_DIR/utils/setup_toolchain.sh
+  fi
 
   DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
   DEFINES="${DEFINES} android_buildtype=${BUILDTYPE}"
