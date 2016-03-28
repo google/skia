@@ -89,41 +89,52 @@ bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
         }
     }
 
-    shaderc_compiler_t compiler = gpu->shadercCompiler();
-
-    shaderc_compile_options_t options = shaderc_compile_options_initialize();
-    shaderc_compile_options_set_forced_version_profile(options, 140, shaderc_profile_none);
-
-    shaderc_shader_kind shadercStage = vk_shader_stage_to_shaderc_kind(stage);
-    shaderc_compilation_result_t result = shaderc_compile_into_spv(compiler,
-                                                                   shaderString.c_str(),
-                                                                   strlen(shaderString.c_str()),
-                                                                   shadercStage,
-                                                                   "shader",
-                                                                   "main",
-                                                                   options);
-    shaderc_compile_options_release(options);
-#ifdef SK_DEBUG
-    if (shaderc_result_get_num_errors(result)) {
-        SkDebugf("%s\n", shaderString.c_str());
-        SkDebugf("%s\n", shaderc_result_get_error_message(result));
-        return false;
-    }
-#endif
-
     VkShaderModuleCreateInfo moduleCreateInfo;
     memset(&moduleCreateInfo, 0, sizeof(VkShaderModuleCreateInfo));
     moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     moduleCreateInfo.pNext = nullptr;
     moduleCreateInfo.flags = 0;
-    moduleCreateInfo.codeSize = shaderc_result_get_length(result);
-    moduleCreateInfo.pCode = (const uint32_t*)shaderc_result_get_bytes(result);
+
+    shaderc_compilation_result_t result;
+
+    if (gpu->vkCaps().canUseGLSLForShaderModule()) {
+        moduleCreateInfo.codeSize = strlen(shaderString.c_str());
+        moduleCreateInfo.pCode = (const uint32_t*)shaderString.c_str();
+    } else {
+
+        shaderc_compiler_t compiler = gpu->shadercCompiler();
+
+        shaderc_compile_options_t options = shaderc_compile_options_initialize();
+        shaderc_compile_options_set_forced_version_profile(options, 140, shaderc_profile_none);
+
+        shaderc_shader_kind shadercStage = vk_shader_stage_to_shaderc_kind(stage);
+        result = shaderc_compile_into_spv(compiler,
+                                          shaderString.c_str(),
+                                          strlen(shaderString.c_str()),
+                                          shadercStage,
+                                          "shader",
+                                          "main",
+                                          options);
+        shaderc_compile_options_release(options);
+#ifdef SK_DEBUG
+        if (shaderc_result_get_num_errors(result)) {
+            SkDebugf("%s\n", shaderString.c_str());
+            SkDebugf("%s\n", shaderc_result_get_error_message(result));
+            return false;
+        }
+#endif
+
+        moduleCreateInfo.codeSize = shaderc_result_get_length(result);
+        moduleCreateInfo.pCode = (const uint32_t*)shaderc_result_get_bytes(result);
+    }
 
     VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateShaderModule(gpu->device(),
                                                                      &moduleCreateInfo,
                                                                      nullptr,
                                                                      shaderModule));
-    shaderc_result_release(result);
+    if (!gpu->vkCaps().canUseGLSLForShaderModule()) {
+        shaderc_result_release(result);
+    }
     if (err) {
         return false;
     }

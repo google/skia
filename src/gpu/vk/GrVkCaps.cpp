@@ -13,7 +13,10 @@
 #include "vk/GrVkBackendContext.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                   VkPhysicalDevice physDev, uint32_t featureFlags) : INHERITED(contextOptions) {
+                   VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags)
+    : INHERITED(contextOptions) {
+    fCanUseGLSLForShaderModule = false;
+
     /**************************************************************************
     * GrDrawTargetCaps fields
     **************************************************************************/
@@ -40,11 +43,11 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fShaderCaps.reset(new GrGLSLCaps(contextOptions));
 
-    this->init(contextOptions, vkInterface, physDev, featureFlags);
+    this->init(contextOptions, vkInterface, physDev, featureFlags, extensionFlags);
 }
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                    VkPhysicalDevice physDev, uint32_t featureFlags) {
+                    VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags) {
 
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
@@ -58,12 +61,13 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initConfigRenderableTable(vkInterface, physDev);
     this->initStencilFormats(vkInterface, physDev);
 
-
+    if (SkToBool(extensionFlags & kNV_glsl_shader_GrVkExtensionFlag)) {
+        fCanUseGLSLForShaderModule = true;
+    }
 
     this->applyOptionsOverrides(contextOptions);
-    // need to friend GrVkCaps in GrGLSLCaps.h
-    // GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
-    // glslCaps->applyOptionsOverrides(contextOptions);
+    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+    glslCaps->applyOptionsOverrides(contextOptions);
 }
 
 int get_max_sample_count(VkSampleCountFlags flags) {

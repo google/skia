@@ -111,7 +111,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fCompiler = shaderc_compiler_initialize();
 
     fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendCtx->fPhysicalDevice,
-                               backendCtx->fFeatures));
+                               backendCtx->fFeatures, backendCtx->fExtensions));
     fCaps.reset(SkRef(fVkCaps.get()));
 
     VK_CALL(GetPhysicalDeviceMemoryProperties(backendCtx->fPhysicalDevice, &fPhysDevMemProps));

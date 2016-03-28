@@ -27,7 +27,7 @@ public:
      * be called to fill out the caps.
      */
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-             VkPhysicalDevice device, uint32_t featureFlags);
+             VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         SkASSERT(kGrPixelConfigCnt > config);
@@ -47,6 +47,10 @@ public:
     bool isConfigTexurableLinearly(GrPixelConfig config) const {
         SkASSERT(kGrPixelConfigCnt > config);
         return fConfigLinearTextureSupport[config];
+    }
+
+    bool canUseGLSLForShaderModule() const {
+        return fCanUseGLSLForShaderModule;
     }
 
     /**
@@ -69,7 +73,7 @@ public:
 
 private:
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-              VkPhysicalDevice device, uint32_t featureFlags);
+              VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
     void initGrCaps(const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
                     uint32_t featureFlags);
@@ -91,6 +95,9 @@ private:
 
     SkTArray<StencilFormat, true> fLinearStencilFormats;
     SkTArray<StencilFormat, true> fStencilFormats;
+
+    // Tells of if we can pass in straight GLSL string into vkCreateShaderModule
+    bool fCanUseGLSLForShaderModule;
 
     typedef GrCaps INHERITED;
 };

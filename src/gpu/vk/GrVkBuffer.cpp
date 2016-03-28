@@ -57,14 +57,23 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& d
     }
 
     VkMemoryPropertyFlags requiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+                                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                                             VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
 
     if (!GrVkMemory::AllocAndBindBufferMemory(gpu,
                                               buffer,
                                               requiredMemProps,
                                               &alloc)) {
-        VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
-        return nullptr;
+        // Try again without requiring host cached memory
+        requiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                           VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        if (!GrVkMemory::AllocAndBindBufferMemory(gpu,
+                                                  buffer,
+                                                  requiredMemProps,
+                                                  &alloc)) {
+            VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
+            return nullptr;
+        }
     }
 
     const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(buffer, alloc);
