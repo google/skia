@@ -1293,26 +1293,26 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
 
     return true;
 }
-bool GrVkGpu::prepareDrawState(const GrPipeline& pipeline,
-                               const GrPrimitiveProcessor& primProc,
-                               GrPrimitiveType primitiveType,
-                               const GrVkRenderPass& renderPass,
-                               GrVkPipelineState** pipelineState) {
-    *pipelineState = fResourceProvider.findOrCreateCompatiblePipelineState(pipeline,
-                                                                           primProc,
-                                                                           primitiveType,
-                                                                           renderPass);
+sk_sp<GrVkPipelineState> GrVkGpu::prepareDrawState(const GrPipeline& pipeline,
+                                                   const GrPrimitiveProcessor& primProc,
+                                                   GrPrimitiveType primitiveType,
+                                                   const GrVkRenderPass& renderPass) {
+    sk_sp<GrVkPipelineState> pipelineState =
+        fResourceProvider.findOrCreateCompatiblePipelineState(pipeline,
+                                                              primProc,
+                                                              primitiveType,
+                                                              renderPass);
     if (!pipelineState) {
-        return false;
+        return pipelineState;
     }
 
-    (*pipelineState)->setData(this, primProc, pipeline);
+    pipelineState->setData(this, primProc, pipeline);
 
-    (*pipelineState)->bind(this, fCurrentCmdBuffer);
+    pipelineState->bind(this, fCurrentCmdBuffer);
 
     GrVkPipeline::SetDynamicState(this, fCurrentCmdBuffer, pipeline);
 
-    return true;
+    return pipelineState;
 }
 
 void GrVkGpu::onDraw(const GrPipeline& pipeline,
@@ -1329,9 +1329,12 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
 
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
 
-    GrVkPipelineState* pipelineState = nullptr;
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
-    if (!this->prepareDrawState(pipeline, primProc, primitiveType, *renderPass, &pipelineState)) {
+    sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
+                                                                    primProc,
+                                                                    primitiveType,
+                                                                    *renderPass);
+    if (!pipelineState) {
         return;
     }
 
@@ -1386,11 +1389,13 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
                 // pipelineState:setData but this will allow for quicker freeing of resources if the
                 // pipelineState sits in a cache for a while.
                 pipelineState->freeTempResources(this);
-                pipelineState->unref();
                 SkDEBUGCODE(pipelineState = nullptr);
                 primitiveType = nonIdxMesh->primitiveType();
-                if (!this->prepareDrawState(pipeline, primProc, primitiveType, *renderPass,
-                                            &pipelineState)) {
+                pipelineState = this->prepareDrawState(pipeline,
+                                                       primProc,
+                                                       primitiveType,
+                                                       *renderPass);
+                if (!pipelineState) {
                     return;
                 }
             }
@@ -1422,7 +1427,6 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
     // pipelineState:setData but this will allow for quicker freeing of resources if the
     // pipelineState sits in a cache for a while.
     pipelineState->freeTempResources(this);
-    pipelineState->unref();
 
 #if SWAP_PER_DRAW
     glFlush();

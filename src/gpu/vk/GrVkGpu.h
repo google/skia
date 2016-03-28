@@ -160,11 +160,10 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override {}
 
-    bool prepareDrawState(const GrPipeline&,
-                          const GrPrimitiveProcessor&,
-                          GrPrimitiveType,
-                          const GrVkRenderPass&,
-                          GrVkPipelineState** pipelineState);
+    sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
+                                              const GrPrimitiveProcessor&,
+                                              GrPrimitiveType,
+                                              const GrVkRenderPass&);
 
     // Bind vertex and index buffers
     void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);

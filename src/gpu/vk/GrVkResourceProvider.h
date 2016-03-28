@@ -15,6 +15,8 @@
 #include "GrVkUtil.h"
 #include "SkTArray.h"
 #include "SkTDynamicHash.h"
+#include "SkTHash.h"
+#include "SkTInternalLList.h"
 
 #include "vk/GrVkDefines.h"
 
@@ -63,10 +65,10 @@ public:
     // The refcount is incremented and a pointer returned.
     GrVkSampler* findOrCreateCompatibleSampler(const GrTextureParams&);
 
-    GrVkPipelineState* findOrCreateCompatiblePipelineState(const GrPipeline&,
-                                                           const GrPrimitiveProcessor&,
-                                                           GrPrimitiveType,
-                                                           const GrVkRenderPass& renderPass);
+    sk_sp<GrVkPipelineState> findOrCreateCompatiblePipelineState(const GrPipeline&,
+                                                                 const GrPrimitiveProcessor&,
+                                                                 GrPrimitiveType,
+                                                                 const GrVkRenderPass& renderPass);
 
     // Destroy any cached resources. To be called before destroying the VkDevice.
     // The assumption is that all queues are idle and all command buffers are finished.
@@ -80,6 +82,11 @@ public:
     void abandonResources();
 
 private:
+
+#ifdef SK_DEVELOPER
+#define GR_PIPELINE_STATE_CACHE_STATS
+#endif
+
     class PipelineStateCache : public ::SkNoncopyable {
     public:
         PipelineStateCache(GrVkGpu* gpu);
@@ -87,42 +94,31 @@ private:
 
         void abandon();
         void release();
-        GrVkPipelineState* refPipelineState(const GrPipeline&,
-                                            const GrPrimitiveProcessor&,
-                                            GrPrimitiveType,
-                                            const GrVkRenderPass& renderPass);
+        sk_sp<GrVkPipelineState> refPipelineState(const GrPipeline&,
+                                                  const GrPrimitiveProcessor&,
+                                                  GrPrimitiveType,
+                                                  const GrVkRenderPass& renderPass);
 
     private:
         enum {
             // We may actually have kMaxEntries+1 PipelineStates in context because we create a new
             // PipelineState before evicting from the cache.
             kMaxEntries = 128,
-            kHashBits = 6,
         };
 
         struct Entry;
 
-        struct PipelineDescLess;
-
         void reset();
 
-        // binary search for entry matching desc. returns index into fEntries that matches desc or ~
-        // of the index of where it should be inserted.
-        int search(const GrVkPipelineState::Desc& desc) const;
-
-        // sorted array of all the entries
-        Entry*                      fEntries[kMaxEntries];
-        // hash table based on lowest kHashBits bits of the pipeline state key. Used to avoid binary
-        // searching fEntries.
-        Entry*                      fHashTable[1 << kHashBits];
-
         int                         fCount;
-        unsigned int                fCurrLRUStamp;
+        SkTHashTable<Entry*, const GrVkPipelineState::Desc&, Entry> fHashTable;
+        SkTInternalLList<Entry> fLRUList;
+
         GrVkGpu*                    fGpu;
-#ifdef PIPELINE_STATE_CACHE_STATS
+
+#ifdef GR_PIPELINE_STATE_CACHE_STATS
         int                         fTotalRequests;
         int                         fCacheMisses;
-        int                         fHashMisses; // cache hit but hash table missed
 #endif
     };
 
