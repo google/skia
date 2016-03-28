@@ -542,8 +542,8 @@
           'GCC_ENABLE_CPP_RTTI':                       'NO',   # -fno-rtti
           'GCC_THREADSAFE_STATICS':                    'NO',   # -fno-threadsafe-statics
           'GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS': 'YES',  # -mssse3
-          'GCC_SYMBOLS_PRIVATE_EXTERN':                'NO',   # -fvisibility=hidden
-          'GCC_INLINES_ARE_PRIVATE_EXTERN':            'NO',   # -fvisibility-inlines-hidden
+          'GCC_SYMBOLS_PRIVATE_EXTERN':                'YES',  # -fvisibility=hidden
+          'GCC_INLINES_ARE_PRIVATE_EXTERN':            'YES',  # -fvisibility-inlines-hidden
           'GCC_CW_ASM_SYNTAX':                         'NO',   # remove -fasm-blocks
           'GCC_ENABLE_PASCAL_STRINGS':                 'NO',   # remove -mpascal-strings
           'WARNING_CFLAGS': [
@@ -598,8 +598,8 @@
           'GCC_ENABLE_CPP_EXCEPTIONS':      'NO',   # -fno-exceptions
           'GCC_ENABLE_CPP_RTTI':            'NO',   # -fno-rtti
           'GCC_THREADSAFE_STATICS':         'NO',   # -fno-threadsafe-statics
-          'GCC_SYMBOLS_PRIVATE_EXTERN':     'NO',   # -fvisibility=hidden
-          'GCC_INLINES_ARE_PRIVATE_EXTERN': 'NO',   # -fvisibility-inlines-hidden
+          'GCC_SYMBOLS_PRIVATE_EXTERN':     'YES',  # -fvisibility=hidden
+          'GCC_INLINES_ARE_PRIVATE_EXTERN': 'YES',  # -fvisibility-inlines-hidden
 
           'GCC_THUMB_SUPPORT': 'NO',  # TODO(mtklein): why would we not want thumb?
         },
