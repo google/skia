@@ -873,14 +873,8 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
         CGContextSetTextDrawingMode(fCG, kCGTextFill);
 
-#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
-        // Draw white on black to create mask.
-        // TODO: Draw black on white and invert, CG has a special case codepath.
-        CGContextSetGrayFillColor(fCG, 1.0f, 1.0f);
-#else
         // Draw black on white to create mask. (Special path exists to speed this up in CG.)
         CGContextSetGrayFillColor(fCG, 0.0f, 1.0f);
-#endif
 
         // force our checks below to happen
         fDoAA = !doAA;
@@ -908,14 +902,9 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     // skip rows based on the glyph's height
     image += (fSize.fHeight - glyph.fHeight) * fSize.fWidth;
 
-#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
-    // erase to black
-    sk_memset_rect32(image, 0, glyph.fWidth, glyph.fHeight, rowBytes);
-#else
     // Erase to white (or transparent black if it's a color glyph, to not composite against white).
     uint32_t bgColor = (SkMask::kARGB32_Format != glyph.fMaskFormat) ? 0xFFFFFFFF : 0x00000000;
     sk_memset_rect32(image, bgColor, glyph.fWidth, glyph.fHeight, rowBytes);
-#endif
 
     float subX = 0;
     float subY = 0;
@@ -1189,11 +1178,7 @@ static void cgpixels_to_bits(uint8_t dst[], const CGRGBPixel src[], int count) {
     while (count > 0) {
         uint8_t mask = 0;
         for (int i = 7; i >= 0; --i) {
-#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
-            mask |= (CGRGBPixel_getAlpha(*src++) >> 7) << i;
-#else
             mask |= ((CGRGBPixel_getAlpha(*src++) >> 7) ^ 0x1) << i;
-#endif
             if (0 == --count) {
                 break;
             }
@@ -1204,15 +1189,9 @@ static void cgpixels_to_bits(uint8_t dst[], const CGRGBPixel src[], int count) {
 
 template<bool APPLY_PREBLEND>
 static inline uint8_t rgb_to_a8(CGRGBPixel rgb, const uint8_t* table8) {
-#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
-    U8CPU r = (rgb >> 16) & 0xFF;
-    U8CPU g = (rgb >>  8) & 0xFF;
-    U8CPU b = (rgb >>  0) & 0xFF;
-#else
     U8CPU r = 0xFF - ((rgb >> 16) & 0xFF);
     U8CPU g = 0xFF - ((rgb >>  8) & 0xFF);
     U8CPU b = 0xFF - ((rgb >>  0) & 0xFF);
-#endif
     U8CPU lum = sk_apply_lut_if<APPLY_PREBLEND>(SkComputeLuminance(r, g, b), table8);
 #if SK_SHOW_TEXT_BLIT_COVERAGE
     lum = SkTMax(lum, (U8CPU)0x30);
@@ -1239,15 +1218,9 @@ template<bool APPLY_PREBLEND>
 static inline uint16_t rgb_to_lcd16(CGRGBPixel rgb, const uint8_t* tableR,
                                                     const uint8_t* tableG,
                                                     const uint8_t* tableB) {
-#if SK_IGNORE_MAC_FONT_WEIGHT_FIX
-    U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
-    U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
-    U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
-#else
     U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >> 16) & 0xFF), tableR);
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >>  8) & 0xFF), tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >>  0) & 0xFF), tableB);
-#endif
 #if SK_SHOW_TEXT_BLIT_COVERAGE
     r = SkTMax(r, (U8CPU)0x30);
     g = SkTMax(g, (U8CPU)0x30);
