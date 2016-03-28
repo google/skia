@@ -93,6 +93,7 @@ remove_srcs(
     ../src/gpu/gl/SkCreatePlatformGLContext*.cpp     # For internal testing only.
     ../src/gpu/gl/command_buffer/*
     ../src/gpu/gl/egl/*
+    ../src/gpu/gl/glfw/*
     ../src/gpu/gl/iOS/*
     ../src/gpu/vk/*
     ../src/opts/SkBitmapProcState_opts_none.cpp
