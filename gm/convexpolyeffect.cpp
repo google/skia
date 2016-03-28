@@ -135,6 +135,11 @@ protected:
         ngon.transform(scaleM);
         fPaths.addToTail(ngon);
 
+        SkPath linePath;
+        linePath.moveTo(5.f, 5.f);
+        linePath.lineTo(6.f, 6.f);
+        fPaths.addToTail(linePath);
+
         // integer edges
         fRects.addToTail(SkRect::MakeLTRB(5.f, 1.f, 30.f, 25.f));
         // half-integer edges
@@ -175,6 +180,7 @@ protected:
                 GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I()));
 
         SkScalar y = 0;
+        static const SkScalar kDX = 12.f;
         for (PathList::Iter iter(fPaths, PathList::Iter::kHead_IterStart);
              iter.get();
              iter.next()) {
@@ -207,7 +213,7 @@ protected:
 
                 drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
 
-                x += SkScalarCeilToScalar(path->getBounds().width() + 10.f);
+                x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
 
             // Draw AA and non AA paths using normal API for reference.
@@ -254,7 +260,7 @@ protected:
 
                 drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
 
-                x += SkScalarCeilToScalar(rect.width() + 10.f);
+                x += SkScalarCeilToScalar(rect.width() + kDX);
             }
 
             // Draw rect without and with AA using normal API for reference
@@ -262,7 +268,7 @@ protected:
             canvas->translate(x, y);
             SkPaint paint;
             canvas->drawRect(*iter.get(), paint);
-            x += SkScalarCeilToScalar(iter.get()->width() + 10.f);
+            x += SkScalarCeilToScalar(iter.get()->width() + kDX);
             paint.setAntiAlias(true);
             canvas->drawRect(*iter.get(), paint);
             canvas->restore();
