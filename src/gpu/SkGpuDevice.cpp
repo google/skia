@@ -228,6 +228,13 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(
 // homogenous backing (e.g., raster or gpu).
 void SkGpuDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitmap,
                                        int x, int y, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpriteWithFilter", fContext);
+
+    if (fContext->abandoned()) {
+        return;
+    }
+
     if (bitmap.getTexture()) {
         INHERITED::drawSpriteWithFilter(draw, bitmap, x, y, paint);
         return;

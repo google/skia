@@ -481,6 +481,10 @@ public:
     }
 
     sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
+        if (!fTexture->getContext()) {
+            return nullptr;
+        }
+
         GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *fTexture->getContext()->caps());
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
 

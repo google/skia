@@ -94,7 +94,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
     const SkVector sigma = map_sigma(fSigma, ctx.ctm());
 
 #if SK_SUPPORT_GPU
-    if (input->peekTexture()) {
+    if (input->peekTexture() && input->peekTexture()->getContext()) {
         if (0 == sigma.x() && 0 == sigma.y()) {
             offset->fX = inputBounds.x();
             offset->fY = inputBounds.y();

@@ -551,7 +551,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::filterImageGeneric(bool dilate,
     }
 
 #if SK_SUPPORT_GPU
-    if (input->peekTexture()) {
+    if (input->peekTexture() && input->peekTexture()->getContext()) {
         auto type = dilate ? GrMorphologyEffect::kDilate_MorphologyType
                            : GrMorphologyEffect::kErode_MorphologyType;
         sk_sp<SkSpecialImage> result(apply_morphology(input.get(), srcBounds, type,
