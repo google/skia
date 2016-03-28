@@ -76,11 +76,6 @@ const SK_API GrGLInterface* GrGLCreateNullInterface();
  */
 const GrGLInterface* GrGLCreateDebugInterface();
 
-#if GR_GL_PER_GL_FUNC_CALLBACK
-typedef void (*GrGLInterfaceCallbackProc)(const GrGLInterface*);
-typedef intptr_t GrGLInterfaceCallbackData;
-#endif
-
 /** Function that returns a new interface identical to "interface" but without support for
     GL_NV_path_rendering. */
 const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface*);
@@ -491,12 +486,6 @@ public:
         GrGLFunction<GrEGLCreateImageProc> fEGLCreateImage;
         GrGLFunction<GrEGLDestroyImageProc> fEGLDestroyImage;
     } fFunctions;
-
-    // Per-GL func callback
-#if GR_GL_PER_GL_FUNC_CALLBACK
-    GrGLInterfaceCallbackProc fCallback;
-    GrGLInterfaceCallbackData fCallbackData;
-#endif
 
     // This exists for internal testing.
     virtual void abandon() const {}

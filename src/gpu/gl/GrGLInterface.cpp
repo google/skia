@@ -12,12 +12,6 @@
 
 #include <stdio.h>
 
-#if GR_GL_PER_GL_FUNC_CALLBACK
-namespace {
-void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
-}
-#endif
-
 const GrGLInterface* GrGLInterfaceAddTestDebugMarker(const GrGLInterface* interface,
                                                      GrGLInsertEventMarkerProc insertEventMarkerFn,
                                                      GrGLPushGroupMarkerProc pushGroupMarkerFn,
@@ -68,11 +62,6 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
 
 GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;
-
-#if GR_GL_PER_GL_FUNC_CALLBACK
-    fCallback = GrGLDefaultInterfaceCallback;
-    fCallbackData = 0;
-#endif
 }
 
 GrGLInterface* GrGLInterface::NewClone(const GrGLInterface* interface) {
@@ -82,10 +71,6 @@ GrGLInterface* GrGLInterface::NewClone(const GrGLInterface* interface) {
     clone->fStandard = interface->fStandard;
     clone->fExtensions = interface->fExtensions;
     clone->fFunctions = interface->fFunctions;
-#if GR_GL_PER_GL_FUNC_CALLBACK
-    clone->fCallback = interface->fCallback;
-    clone->fCallbackData = interface->fCallbackData;
-#endif
     return clone;
 }
 
