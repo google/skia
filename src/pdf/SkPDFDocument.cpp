@@ -362,7 +362,7 @@ SkDocument* SkDocument::CreatePDF(SkWStream* stream,
 
 SkDocument* SkDocument::CreatePDF(const char path[], SkScalar dpi) {
     auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    SkAutoTDelete<SkFILEWStream> stream(new SkFILEWStream(path));
+    std::unique_ptr<SkFILEWStream> stream(new SkFILEWStream(path));
     return stream->isValid()
         ? SkPDFMakeDocument(stream.release(), delete_wstream, dpi, nullptr).release()
         : nullptr;

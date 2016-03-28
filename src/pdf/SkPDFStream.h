@@ -59,7 +59,7 @@ protected:
     }
 
 private:
-    SkAutoTDelete<SkStreamRewindable> fCompressedData;
+    std::unique_ptr<SkStreamRewindable> fCompressedData;
 
     typedef SkPDFDict INHERITED;
 };

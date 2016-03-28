@@ -162,7 +162,7 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
     // if the data was NUL terminated so that we can use strstr() to search it.
     // Make as few copies as possible given these constraints.
     SkDynamicMemoryWStream dynamicStream;
-    SkAutoTDelete<SkMemoryStream> staticStream;
+    std::unique_ptr<SkMemoryStream> staticStream;
     SkData* data = nullptr;
     const uint8_t* src;
     size_t srcLen;
@@ -589,7 +589,7 @@ static size_t get_subset_font_stream(const char* fontName,
                                      const SkTDArray<uint32_t>& subset,
                                      SkPDFStream** fontStream) {
     int ttcIndex;
-    SkAutoTDelete<SkStream> fontData(typeface->openStream(&ttcIndex));
+    std::unique_ptr<SkStream> fontData(typeface->openStream(&ttcIndex));
     SkASSERT(fontData.get());
 
     size_t fontSize = fontData->getLength();
@@ -1056,7 +1056,7 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
             }
 #endif
             sk_sp<SkPDFSharedStream> fontStream;
-            SkAutoTDelete<SkStreamAsset> fontData(
+            std::unique_ptr<SkStreamAsset> fontData(
                     this->typeface()->openStream(nullptr));
             SkASSERT(fontData);
             fontSize = fontData->getLength();
@@ -1198,7 +1198,7 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     size_t header SK_INIT_TO_AVOID_WARNING;
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
-    SkAutoTDelete<SkStream> rawFontData(typeface()->openStream(&ttcIndex));
+    std::unique_ptr<SkStream> rawFontData(typeface()->openStream(&ttcIndex));
     sk_sp<SkData> fontData(handle_type1_stream(rawFontData.get(), &header,
                                                       &data, &trailer));
     if (fontData.get() == nullptr) {
@@ -1357,7 +1357,7 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
             SkPDFUtils::PaintPath(paint.getStyle(), path->getFillType(),
                                   &content);
         }
-        SkAutoTDelete<SkMemoryStream> glyphStream(new SkMemoryStream());
+        std::unique_ptr<SkMemoryStream> glyphStream(new SkMemoryStream());
         glyphStream->setData(content.copyToData())->unref();
 
         charProcs->insertObjRef(

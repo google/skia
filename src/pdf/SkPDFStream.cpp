@@ -26,7 +26,7 @@ void SkPDFStream::emitObject(SkWStream* stream,
     SkASSERT(fCompressedData);
     this->INHERITED::emitObject(stream, objNumMap, substitutes);
     // duplicate (a cheap operation) preserves const on fCompressedData.
-    SkAutoTDelete<SkStreamRewindable> dup(fCompressedData->duplicate());
+    std::unique_ptr<SkStreamRewindable> dup(fCompressedData->duplicate());
     SkASSERT(dup);
     SkASSERT(dup->hasLength());
     stream->writeText(" stream\n");
@@ -46,7 +46,7 @@ void SkPDFStream::setData(SkStream* stream) {
     size_t length = compressedData.bytesWritten();
 
     if (stream->hasLength()) {
-        SkAutoTDelete<SkStreamRewindable> dup(stream->duplicate());
+        std::unique_ptr<SkStreamRewindable> dup(stream->duplicate());
         if (dup && dup->hasLength() &&
             dup->getLength() <= length + strlen("/Filter_/FlateDecode_")) {
             this->insertInt("Length", dup->getLength());

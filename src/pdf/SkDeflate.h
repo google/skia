@@ -49,7 +49,7 @@ public:
 
 private:
     struct Impl;
-    SkAutoTDelete<Impl> fImpl;
+    std::unique_ptr<Impl> fImpl;
 };
 
 #endif  // SkFlate_DEFINED

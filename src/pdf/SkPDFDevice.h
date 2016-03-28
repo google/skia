@@ -232,13 +232,13 @@ private:
     SkTDArray<SkPDFFont*> fFontResources;
     SkTDArray<SkPDFObject*> fShaderResources;
 
-    SkAutoTDelete<ContentEntry> fContentEntries;
+    std::unique_ptr<ContentEntry> fContentEntries;
     ContentEntry* fLastContentEntry;
 
     const SkClipStack* fClipStack;
 
     // Glyph ids used for each font on this device.
-    SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
+    std::unique_ptr<SkPDFGlyphSetMap> fFontGlyphUsage;
 
     SkScalar fRasterDpi;
 

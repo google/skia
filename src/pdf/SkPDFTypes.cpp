@@ -473,7 +473,7 @@ void SkPDFSharedStream::emitObject(
     SkDynamicMemoryWStream buffer;
     SkDeflateWStream deflateWStream(&buffer);
     // Since emitObject is const, this function doesn't change the dictionary.
-    SkAutoTDelete<SkStreamAsset> dup(fAsset->duplicate());  // Cheap copy
+    std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());  // Cheap copy
     SkASSERT(dup);
     SkStreamCopy(&deflateWStream, dup.get());
     deflateWStream.finalize();

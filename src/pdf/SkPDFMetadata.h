@@ -15,8 +15,8 @@ class SkPDFObject;
 
 struct SkPDFMetadata {
     SkTArray<SkDocument::Attribute> fInfo;
-    SkAutoTDelete<const SkTime::DateTime> fCreation;
-    SkAutoTDelete<const SkTime::DateTime> fModified;
+    std::unique_ptr<const SkTime::DateTime> fCreation;
+    std::unique_ptr<const SkTime::DateTime> fModified;
 
     SkPDFObject* createDocumentInformationDict() const;
 

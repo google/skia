@@ -315,7 +315,7 @@ public:
     void drop() override;
 
 private:
-    SkAutoTDelete<SkStreamAsset> fAsset;
+    std::unique_ptr<SkStreamAsset> fAsset;
     sk_sp<SkPDFDict> fDict;
     SkDEBUGCODE(bool fDumped;)
     typedef SkPDFObject INHERITED;

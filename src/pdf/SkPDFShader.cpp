@@ -488,7 +488,7 @@ SkPDFImageShader::~SkPDFImageShader() {}
 static SkPDFObject* get_pdf_shader_by_state(
         SkPDFDocument* doc,
         SkScalar dpi,
-        SkAutoTDelete<SkPDFShader::State>* autoState) {
+        std::unique_ptr<SkPDFShader::State>* autoState) {
     const SkPDFShader::State& state = **autoState;
     SkPDFCanon* canon = doc->canon();
     if (state.fType == SkShader::kNone_GradientType && state.fImage.isNull()) {
@@ -519,7 +519,7 @@ SkPDFObject* SkPDFShader::GetPDFShader(SkPDFDocument* doc,
                                        const SkMatrix& matrix,
                                        const SkIRect& surfaceBBox,
                                        SkScalar rasterScale) {
-    SkAutoTDelete<SkPDFShader::State> state(new State(shader, matrix, surfaceBBox, rasterScale));
+    std::unique_ptr<SkPDFShader::State> state(new State(shader, matrix, surfaceBBox, rasterScale));
     return get_pdf_shader_by_state(doc, dpi, &state);
 }
 
@@ -585,12 +585,12 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
     SkRect bbox;
     bbox.set(state.fBBox);
 
-    SkAutoTDelete<SkPDFShader::State> alphaToLuminosityState(
+    std::unique_ptr<SkPDFShader::State> alphaToLuminosityState(
             state.CreateAlphaToLuminosityState());
     sk_sp<SkPDFObject> luminosityShader(
             get_pdf_shader_by_state(doc, dpi, &alphaToLuminosityState));
 
-    SkAutoTDelete<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
+    std::unique_ptr<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
 
     auto resources =
         get_gradient_resource_dict(luminosityShader.get(), nullptr);
@@ -606,12 +606,12 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
 SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
         SkPDFDocument* doc,
         SkScalar dpi,
-        SkAutoTDelete<SkPDFShader::State>* autoState) {
+        std::unique_ptr<SkPDFShader::State>* autoState) {
     const SkPDFShader::State& state = **autoState;
     SkRect bbox;
     bbox.set(state.fBBox);
 
-    SkAutoTDelete<SkPDFShader::State> opaqueState(state.CreateOpaqueState());
+    std::unique_ptr<SkPDFShader::State> opaqueState(state.CreateOpaqueState());
 
     sk_sp<SkPDFObject> colorShader(
             get_pdf_shader_by_state(doc, dpi, &opaqueState));
@@ -629,7 +629,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
     auto resourceDict =
             get_gradient_resource_dict(colorShader.get(), alphaGs.get());
 
-    SkAutoTDelete<SkStream> colorStream(
+    std::unique_ptr<SkStream> colorStream(
             create_pattern_fill_content(0, bbox));
     alphaFunctionShader->setData(colorStream.get());
 
@@ -701,7 +701,7 @@ static sk_sp<SkPDFStream> make_ps_function(
 }
 
 SkPDFFunctionShader* SkPDFFunctionShader::Create(
-        SkPDFCanon* canon, SkAutoTDelete<SkPDFShader::State>* autoState) {
+        SkPDFCanon* canon, std::unique_ptr<SkPDFShader::State>* autoState) {
     const SkPDFShader::State& state = **autoState;
 
     void (*codeFunction)(const SkShader::GradientInfo& info,
@@ -826,7 +826,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
 SkPDFImageShader* SkPDFImageShader::Create(
         SkPDFDocument* doc,
         SkScalar dpi,
-        SkAutoTDelete<SkPDFShader::State>* autoState) {
+        std::unique_ptr<SkPDFShader::State>* autoState) {
     const SkPDFShader::State& state = **autoState;
 
     state.fImage.lockPixels();
