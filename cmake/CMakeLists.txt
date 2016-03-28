@@ -101,7 +101,6 @@ remove_srcs(
     ../src/opts/SkBlitRow_opts_none.cpp
     ../src/ports/SkFontMgr_empty_factory.cpp
     ../src/ports/SkGlobalInitialization_chromium.cpp
-    ../src/ports/SkImageDecoder_empty.cpp
     ../src/ports/SkImageEncoder_none.cpp
     ../src/ports/SkImageGenerator_none.cpp
     ../src/ports/SkTLS_none.cpp)
