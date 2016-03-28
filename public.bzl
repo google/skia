@@ -77,6 +77,7 @@ BASE_SRCS_ALL = struct(
         "src/fonts/SkFontMgr_fontconfig.cpp",
         "src/gpu/gl/android/*",
         "src/gpu/gl/egl/*",
+        "src/gpu/gl/glfw/*",
         "src/gpu/gl/glx/*",
         "src/gpu/gl/iOS/*",
         "src/gpu/gl/mac/*",
