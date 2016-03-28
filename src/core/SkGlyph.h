@@ -94,13 +94,6 @@ public:
         return rb;
     }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    // Temporary accessor for Android.
-    SkFixed advanceXFixed() const { return fAdvanceX; }
-    // Temporary accessor for Android.
-    SkFixed advanceYFixed() const { return fAdvanceY; }
-#endif
-
     unsigned rowBytes() const {
         return ComputeRowBytes(fWidth, (SkMask::Format)fMaskFormat);
     }
