@@ -12,43 +12,44 @@
 
 // This GM exercises the SkPictureImageFilter ImageFilter class.
 
+static void fill_rect_filtered(SkCanvas* canvas,
+                               const SkRect& clipRect,
+                               sk_sp<SkImageFilter> filter) {
+    SkPaint paint;
+    paint.setImageFilter(filter);
+    canvas->save();
+    canvas->clipRect(clipRect);
+    canvas->drawPaint(paint);
+    canvas->restore();
+}
+
+static sk_sp<SkPicture> make_picture() {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
+    canvas->clear(SK_ColorBLACK);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    sk_tool_utils::set_portable_typeface(&paint);
+    paint.setColor(0xFFFFFFFF);
+    paint.setTextSize(SkIntToScalar(96));
+    const char* str = "e";
+    canvas->drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
+    return recorder.finishRecordingAsPicture();
+}
+
 class PictureImageFilterGM : public skiagm::GM {
 public:
-    PictureImageFilterGM() {
-    }
+    PictureImageFilterGM() { }
 
 protected:
     SkString onShortName() override {
         return SkString("pictureimagefilter");
     }
 
-    void makePicture() {
-        SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
-        canvas->clear(SK_ColorBLACK);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(SkIntToScalar(96));
-        const char* str = "e";
-        canvas->drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
-        fPicture = recorder.finishRecordingAsPicture();
-    }
-
     SkISize onISize() override { return SkISize::Make(600, 300); }
 
     void onOnceBeforeDraw() override {
-        this->makePicture();
-    }
-
-    static void fillRectFiltered(SkCanvas* canvas, const SkRect& clipRect, SkImageFilter* filter) {
-        SkPaint paint;
-        paint.setImageFilter(filter);
-        canvas->save();
-        canvas->clipRect(clipRect);
-        canvas->drawPaint(paint);
-        canvas->restore();
+        fPicture = make_picture();
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -57,30 +58,31 @@ protected:
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
             SkRect emptyRect = SkRect::MakeXYWH(20, 20, 0, 0);
             SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
-            SkAutoTUnref<SkImageFilter> pictureSource(
-                SkPictureImageFilter::Create(fPicture.get()));
-            SkAutoTUnref<SkImageFilter> pictureSourceSrcRect(
-                SkPictureImageFilter::Create(fPicture.get(), srcRect));
-            SkAutoTUnref<SkImageFilter> pictureSourceEmptyRect(
-                SkPictureImageFilter::Create(fPicture.get(), emptyRect));
-            SkAutoTUnref<SkImageFilter> pictureSourceResampled(
-                SkPictureImageFilter::CreateForLocalSpace(fPicture.get(), fPicture->cullRect(),
-                    kLow_SkFilterQuality));
-            SkAutoTUnref<SkImageFilter> pictureSourcePixelated(
-                SkPictureImageFilter::CreateForLocalSpace(fPicture.get(), fPicture->cullRect(),
-                    kNone_SkFilterQuality));
+            sk_sp<SkImageFilter> pictureSource(SkPictureImageFilter::Make(fPicture));
+            sk_sp<SkImageFilter> pictureSourceSrcRect(SkPictureImageFilter::Make(fPicture,
+                                                                                 srcRect));
+            sk_sp<SkImageFilter> pictureSourceEmptyRect(SkPictureImageFilter::Make(fPicture,
+                                                                                   emptyRect));
+            sk_sp<SkImageFilter> pictureSourceResampled(SkPictureImageFilter::MakeForLocalSpace(
+                                                                           fPicture,
+                                                                           fPicture->cullRect(),
+                                                                           kLow_SkFilterQuality));
+            sk_sp<SkImageFilter> pictureSourcePixelated(SkPictureImageFilter::MakeForLocalSpace(
+                                                                           fPicture,
+                                                                           fPicture->cullRect(),
+                                                                           kNone_SkFilterQuality));
 
             canvas->save();
             // Draw the picture unscaled.
-            fillRectFiltered(canvas, bounds, pictureSource);
+            fill_rect_filtered(canvas, bounds, pictureSource);
             canvas->translate(SkIntToScalar(100), 0);
 
             // Draw an unscaled subset of the source picture.
-            fillRectFiltered(canvas, bounds, pictureSourceSrcRect);
+            fill_rect_filtered(canvas, bounds, pictureSourceSrcRect);
             canvas->translate(SkIntToScalar(100), 0);
 
             // Draw the picture to an empty rect (should draw nothing).
-            fillRectFiltered(canvas, bounds, pictureSourceEmptyRect);
+            fill_rect_filtered(canvas, bounds, pictureSourceEmptyRect);
             canvas->translate(SkIntToScalar(100), 0);
 
             canvas->restore();
@@ -89,20 +91,21 @@ protected:
             canvas->translate(0, SkIntToScalar(100));
             canvas->scale(200 / srcRect.width(), 200 / srcRect.height());
             canvas->translate(-srcRect.fLeft, -srcRect.fTop);
-            fillRectFiltered(canvas, srcRect, pictureSource);
+            fill_rect_filtered(canvas, srcRect, pictureSource);
 
             // Draw the picture scaled, but rasterized at original resolution
             canvas->translate(srcRect.width(), 0);
-            fillRectFiltered(canvas, srcRect, pictureSourceResampled);
+            fill_rect_filtered(canvas, srcRect, pictureSourceResampled);
 
             // Draw the picture scaled, pixelated
             canvas->translate(srcRect.width(), 0);
-            fillRectFiltered(canvas, srcRect, pictureSourcePixelated);
+            fill_rect_filtered(canvas, srcRect, pictureSourcePixelated);
         }
     }
 
 private:
     sk_sp<SkPicture> fPicture;
+
     typedef GM INHERITED;
 };
 

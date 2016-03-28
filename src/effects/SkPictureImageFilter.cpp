@@ -13,26 +13,22 @@
 #include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
-SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture)
+SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
     : INHERITED(0, 0, nullptr)
-    , fPicture(SkSafeRef(picture))
-    , fCropRect(picture ? picture->cullRect() : SkRect::MakeEmpty())
+    , fPicture(std::move(picture))
+    , fCropRect(fPicture ? fPicture->cullRect() : SkRect::MakeEmpty())
     , fPictureResolution(kDeviceSpace_PictureResolution) 
     , fFilterQuality(kLow_SkFilterQuality) {
 }
 
-SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect,
+SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cropRect,
                                            PictureResolution pictureResolution,
                                            SkFilterQuality filterQuality)
     : INHERITED(0, 0, nullptr)
-    , fPicture(SkSafeRef(picture))
+    , fPicture(std::move(picture))
     , fCropRect(cropRect)
     , fPictureResolution(pictureResolution)
     , fFilterQuality(filterQuality) {
-}
-
-SkPictureImageFilter::~SkPictureImageFilter() {
-    SkSafeUnref(fPicture);
 }
 
 SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -62,9 +58,9 @@ SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
         } else {
             filterQuality = (SkFilterQuality)buffer.readInt();
         }
-        return CreateForLocalSpace(picture.get(), cropRect, filterQuality);
+        return MakeForLocalSpace(picture, cropRect, filterQuality).release();
     }
-    return Create(picture.get(), cropRect);
+    return Make(picture, cropRect).release();
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {

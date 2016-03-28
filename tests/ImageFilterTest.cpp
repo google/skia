@@ -134,7 +134,7 @@ public:
         greenPaint.setColor(SK_ColorGREEN);
         recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 30, 20)), greenPaint);
         sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-        SkAutoTUnref<SkImageFilter> pictureFilter(SkPictureImageFilter::Create(picture.get()));
+        sk_sp<SkImageFilter> pictureFilter(SkPictureImageFilter::Make(picture));
         sk_sp<SkShader> shader(SkPerlinNoiseShader::MakeTurbulence(SK_Scalar1, SK_Scalar1, 1, 0));
 
         SkPaint paint;
@@ -1024,18 +1024,17 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
     // Wrap that SkPicture in an SkPictureImageFilter.
-    SkAutoTUnref<SkImageFilter> imageFilter(
-        SkPictureImageFilter::Create(picture.get()));
+    sk_sp<SkImageFilter> imageFilter(SkPictureImageFilter::Make(picture));
 
     // Check that SkPictureImageFilter successfully serializes its contained
     // SkPicture when not in cross-process mode.
     SkPaint paint;
-    paint.setImageFilter(imageFilter.get());
+    paint.setImageFilter(imageFilter);
     SkPictureRecorder outerRecorder;
     SkCanvas* outerCanvas = outerRecorder.beginRecording(1, 1, &factory, 0);
     SkPaint redPaintWithFilter;
     redPaintWithFilter.setColor(SK_ColorRED);
-    redPaintWithFilter.setImageFilter(imageFilter.get());
+    redPaintWithFilter.setImageFilter(imageFilter);
     outerCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(1, 1)), redPaintWithFilter);
     sk_sp<SkPicture> outerPicture(outerRecorder.finishRecordingAsPicture());
 
@@ -1091,7 +1090,7 @@ static void test_clipped_picture_imagefilter(SkImageFilter::Proxy* proxy,
 
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 2));
 
-    SkAutoTUnref<SkImageFilter> imageFilter(SkPictureImageFilter::Create(picture.get()));
+    sk_sp<SkImageFilter> imageFilter(SkPictureImageFilter::Make(picture));
 
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(1, 1, 1, 1), nullptr);
@@ -1379,8 +1378,7 @@ static void test_composed_imagefilter_bounds(SkImageFilter::Proxy* proxy,
     recordingCanvas->clipRect(SkRect::MakeXYWH(100, 0, 100, 100));
     recordingCanvas->clear(SK_ColorGREEN);
     sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
-    sk_sp<SkImageFilter> pictureFilter(
-        SkPictureImageFilter::Create(picture.get()));
+    sk_sp<SkImageFilter> pictureFilter(SkPictureImageFilter::Make(picture));
     SkImageFilter::CropRect cropRect(SkRect::MakeWH(100, 100));
     sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(-100, 0, nullptr, &cropRect));
     sk_sp<SkImageFilter> composedFilter(

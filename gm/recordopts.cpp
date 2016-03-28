@@ -117,7 +117,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
         canvas->save();
             canvas->clipRect(targetRect);
             SkPaint drawPaint;
-            drawPaint.setImageFilter(SkPictureImageFilter::Create(shape.get()))->unref();
+            drawPaint.setImageFilter(SkPictureImageFilter::Make(shape));
             installDetector(&drawPaint);
             canvas->saveLayer(&targetRect, &drawPaint);
             canvas->restore();

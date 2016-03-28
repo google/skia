@@ -239,7 +239,7 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(50), SkIntToScalar(50)), shapePaint);
         shape = recorder.finishRecordingAsPicture();
     }
-    translucentFilterLayerPaint.setImageFilter(SkPictureImageFilter::Create(shape.get()))->unref();
+    translucentFilterLayerPaint.setImageFilter(SkPictureImageFilter::Make(shape));
 
     int index = 0;
 

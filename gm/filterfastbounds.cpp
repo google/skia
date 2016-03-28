@@ -256,10 +256,10 @@ protected:
             pic = rec.finishRecordingAsPicture();
         }
 
-        SkAutoTUnref<SkImageFilter> pif(SkPictureImageFilter::Create(pic.get()));
+        sk_sp<SkImageFilter> pif(SkPictureImageFilter::Make(pic));
 
         SkTArray<SkPaint> pifPaints;
-        create_paints(pif, &pifPaints);
+        create_paints(pif.get(), &pifPaints);
 
         //-----------
         // Paints with a SkImageSource as a source

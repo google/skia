@@ -701,7 +701,7 @@ static SkImageFilter* make_image_filter(bool canBeNull) {
                                                             &factory, 0);
         drawSomething(recordingCanvas);
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
-        filter = SkPictureImageFilter::Create(pict.get(), make_rect());
+        filter = SkPictureImageFilter::Make(pict, make_rect()).release();
     }
         break;
     case PAINT:
