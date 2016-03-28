@@ -23,6 +23,8 @@
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 
+#include "SkSinglyLinkedList.h"
+
 class SkPDFArray;
 class SkPDFCanon;
 class SkPDFDevice;
@@ -36,10 +38,6 @@ class SkPDFObject;
 class SkPDFShader;
 class SkPDFStream;
 class SkRRect;
-
-// Private classes.
-struct ContentEntry;
-struct GraphicStateEntry;
 
 /** \class SkPDFDevice
 
@@ -175,6 +173,38 @@ public:
 
     SkPDFCanon* getCanon() const;
 
+    // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
+    // later being our representation of an object in the PDF file.
+    struct GraphicStateEntry {
+        GraphicStateEntry();
+
+        // Compare the fields we care about when setting up a new content entry.
+        bool compareInitialState(const GraphicStateEntry& b);
+
+        SkMatrix fMatrix;
+        // We can't do set operations on Paths, though PDF natively supports
+        // intersect.  If the clip stack does anything other than intersect,
+        // we have to fall back to the region.  Treat fClipStack as authoritative.
+        // See https://bugs.skia.org/221
+        SkClipStack fClipStack;
+        SkRegion fClipRegion;
+
+        // When emitting the content entry, we will ensure the graphic state
+        // is set to these values first.
+        SkColor fColor;
+        SkScalar fTextScaleX;  // Zero means we don't care what the value is.
+        SkPaint::Style fTextFill;  // Only if TextScaleX is non-zero.
+        int fShaderIndex;
+        int fGraphicStateIndex;
+
+        // We may change the font (i.e. for Type1 support) within a
+        // ContentEntry.  This is the one currently in effect, or nullptr if none.
+        SkPDFFont* fFont;
+        // In PDF, text size has no default value. It is only valid if fFont is
+        // not nullptr.
+        SkScalar fTextSize;
+    };
+
 protected:
     const SkBitmap& onAccessBitmap() override {
         return fLegacyBitmap;
@@ -232,8 +262,11 @@ private:
     SkTDArray<SkPDFFont*> fFontResources;
     SkTDArray<SkPDFObject*> fShaderResources;
 
-    std::unique_ptr<ContentEntry> fContentEntries;
-    ContentEntry* fLastContentEntry;
+    struct ContentEntry {
+        GraphicStateEntry fState;
+        SkDynamicMemoryWStream fContent;
+    };
+    SkSinglyLinkedList<ContentEntry> fContentEntries;
 
     const SkClipStack* fClipStack;
 
@@ -299,11 +332,6 @@ private:
                            const SkRegion& origClipRegion,
                            SkImageBitmap imageBitmap,
                            const SkPaint& paint);
-
-    /** Helper method for copyContentToData. It is responsible for copying the
-     *  list of content entries |entry| to |data|.
-     */
-    void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
 
     bool handleInversePath(const SkDraw& d, const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable,
