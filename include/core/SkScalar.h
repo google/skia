@@ -8,7 +8,7 @@
 #ifndef SkScalar_DEFINED
 #define SkScalar_DEFINED
 
-#include "SkFixed.h"
+#include "../private/SkFixed.h"
 #include "../private/SkFloatingPoint.h"
 
 // TODO: move this sort of check into SkPostConfig.h

@@ -353,7 +353,6 @@
         '<(skia_include_path)/core/SkDrawFilter.h',
         '<(skia_include_path)/core/SkDrawLooper.h',
         '<(skia_include_path)/core/SkError.h',
-        '<(skia_include_path)/core/SkFixed.h',
         '<(skia_include_path)/core/SkFlattenable.h',
         '<(skia_include_path)/core/SkFlattenableSerialization.h',
         '<(skia_include_path)/core/SkFontHost.h',
@@ -407,6 +406,7 @@
         # private
         '<(skia_include_path)/private/SkAtomics.h',
         '<(skia_include_path)/private/SkChecksum.h',
+        '<(skia_include_path)/private/SkFixed.h',
         '<(skia_include_path)/private/SkFloatBits.h',
         '<(skia_include_path)/private/SkFloatingPoint.h',
         '<(skia_include_path)/private/SkGpuFenceSync.h',
