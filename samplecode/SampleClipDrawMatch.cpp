@@ -111,7 +111,7 @@ static void draw_normal_geom(SkCanvas* canvas, const SkPoint& offset, int geom, 
     case kRectAndConcave_Geometry:
         canvas->drawPath(create_concave_path(offset), p);
         break;
-    } 
+    }
 }
 
 class ClipDrawMatchView : public SampleView {
@@ -202,7 +202,7 @@ protected:
             canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
             canvas->clipPath(create_concave_path(offset), SkRegion::kIntersect_Op, useAA);
             } break;
-        } 
+        }
 
         SkISize size = canvas->getDeviceSize();
         SkRect bigR = SkRect::MakeWH(SkIntToScalar(size.width()), SkIntToScalar(size.height()));

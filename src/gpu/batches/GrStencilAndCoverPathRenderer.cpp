@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -28,7 +27,7 @@ GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resour
 }
 
 GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider* resourceProvider)
-    : fResourceProvider(resourceProvider) {    
+    : fResourceProvider(resourceProvider) {
 }
 
 bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {

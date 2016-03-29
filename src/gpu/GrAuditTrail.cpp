@@ -19,11 +19,11 @@ void GrAuditTrail::addBatch(const GrBatch* batch) {
     auditBatch->fClientID = kGrAuditTrailInvalidID;
     auditBatch->fBatchListID = kGrAuditTrailInvalidID;
     auditBatch->fChildID = kGrAuditTrailInvalidID;
-    
+
     // consume the current stack trace if any
     auditBatch->fStackTrace = fCurrentStackTrace;
     fCurrentStackTrace.reset();
-    
+
     if (fClientID != kGrAuditTrailInvalidID) {
         auditBatch->fClientID = fClientID;
         Batches** batchesLookup = fClientIDLookup.find(fClientID);
@@ -70,13 +70,13 @@ void GrAuditTrail::batchingResultCombined(const GrBatch* consumer, const GrBatch
     // steal all of consumed's batches
     for (int i = 0; i < consumedBatch.fChildren.count(); i++) {
         Batch* childBatch = consumedBatch.fChildren[i];
-        
+
         // set the ids for the child batch
         childBatch->fBatchListID = index;
         childBatch->fChildID = consumerBatch.fChildren.count();
         consumerBatch.fChildren.push_back(childBatch);
     }
-    
+
     // Update the bounds for the combineWith node
     consumerBatch.fBounds = consumer->bounds();
 
@@ -116,7 +116,7 @@ void GrAuditTrail::getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientI
             if (kGrAuditTrailInvalidID == currentBatchListID ||
                 batch->fBatchListID != currentBatchListID) {
                 BatchInfo& outBatchInfo = outInfo->push_back();
-                
+
                 // copy out all of the batches so the client can display them even if
                 // they have a different clientID
                 this->copyOutFromBatchList(&outBatchInfo, batch->fBatchListID);

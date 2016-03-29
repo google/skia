@@ -15,7 +15,7 @@
 
 class GrGLSLCaps : public GrShaderCaps {
 public:
-    
+
 
     /**
     * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
@@ -77,7 +77,7 @@ public:
     bool mustEnableSpecificAdvBlendEqs() const {
         return fAdvBlendEqInteraction == kSpecificEnables_AdvBlendEqInteraction;
     }
-    
+
     bool mustDeclareFragmentShaderOutput() const {
         return fGLSLGeneration > k110_GrGLSLGeneration;
     }
@@ -173,7 +173,7 @@ private:
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
     GrGLSLGeneration fGLSLGeneration;
-    
+
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;

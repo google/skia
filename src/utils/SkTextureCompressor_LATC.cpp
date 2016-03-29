@@ -81,7 +81,7 @@ typedef uint64_t (*A84x4To64BitProc)(const uint8_t block[]);
 
 // This function is used by both R11 EAC and LATC to compress 4x4 blocks
 // of 8-bit alpha into 64-bit values that comprise the compressed data.
-// For both formats, we need to make sure that the dimensions of the 
+// For both formats, we need to make sure that the dimensions of the
 // src pixels are divisible by 4, and copy 4x4 blocks one at a time
 // for compression.
 static bool compress_4x4_a8_to_64bit(uint8_t* dst, const uint8_t* src,
@@ -284,7 +284,7 @@ static uint64_t compress_latc_block(const uint8_t pixels[]) {
     if (nonExtremalPixels == nUniquePixels) {
         // This is really just for correctness, in all of my tests we
         // never take this step. We don't lose too much perf here because
-        // most of the processing in this function is worth it for the 
+        // most of the processing in this function is worth it for the
         // 1 == nUniquePixels optimization.
         return compress_latc_block_bb(pixels);
     } else {
@@ -320,7 +320,7 @@ static inline uint32_t pack_index(uint32_t x) {
 // Converts each 8-bit byte in the integer into an LATC index, and then packs
 // the indices into the low 12 bits of the integer.
 static inline uint32_t convert_index(uint32_t x) {
-    // Since the palette is 
+    // Since the palette is
     // 255, 0, 219, 182, 146, 109, 73, 36
     // we need to map the high three bits of each byte in the integer
     // from
@@ -346,7 +346,7 @@ static inline uint32_t convert_index(uint32_t x) {
     // Mask out high bits:
     // 9 7 6 5 4 3 2 0 --> 1 7 6 5 4 3 2 0
     x &= 0x07070707;
-    
+
     return pack_index(x);
 }
 

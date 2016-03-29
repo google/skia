@@ -108,7 +108,7 @@ public:
      */
     class AutoRestoreFragmentProcessorState : public ::SkNoncopyable {
     public:
-        AutoRestoreFragmentProcessorState() 
+        AutoRestoreFragmentProcessorState()
             : fPipelineBuilder(nullptr)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0) {}
@@ -169,7 +169,7 @@ public:
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
      */
-    bool willXPNeedDstTexture(const GrCaps& caps, 
+    bool willXPNeedDstTexture(const GrCaps& caps,
                               const GrPipelineOptimizations& optimizations) const;
 
     /// @}
@@ -303,7 +303,7 @@ public:
      * @param flags bitfield of Flags specifying the states to enable
      */
     void enableState(uint32_t flags) { fFlags |= flags; }
-        
+
     /**
      * Disable render state settings.
      *

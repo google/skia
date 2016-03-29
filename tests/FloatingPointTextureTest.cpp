@@ -62,7 +62,7 @@ static const float kMaxIntegerRepresentableInSPFloatingPoint = 16777216;  // 2 ^
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, context) {
     runFPTest<float>(reporter, context, FLT_MIN, FLT_MAX, FLT_EPSILON,
-                     kMaxIntegerRepresentableInSPFloatingPoint, 
+                     kMaxIntegerRepresentableInSPFloatingPoint,
                      FP_CONTROL_ARRAY_SIZE, kRGBA_float_GrPixelConfig);
 }
 

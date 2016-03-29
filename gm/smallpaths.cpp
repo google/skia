@@ -63,16 +63,16 @@ static SkScalar make_three_line(SkPath* path) {
     static SkScalar yOffset = 50.f;
     path->moveTo(-32.5f + xOffset, 0.0f + yOffset);
     path->lineTo(32.5f + xOffset, 0.0f + yOffset);
-    
+
     path->moveTo(-32.5f + xOffset, 19 + yOffset);
     path->lineTo(32.5f + xOffset, 19 + yOffset);
-    
+
     path->moveTo(-32.5f + xOffset, -19 + yOffset);
     path->lineTo(32.5f + xOffset, -19 + yOffset);
     path->lineTo(-32.5f + xOffset, -19 + yOffset);
-    
+
     path->close();
-    
+
     return SkIntToScalar(70);
 }
 
@@ -81,16 +81,16 @@ static SkScalar make_arrow(SkPath* path) {
     static SkScalar yOffset = 40.f;
     path->moveTo(-26.f + xOffset, 0.0f + yOffset);
     path->lineTo(26.f + xOffset, 0.0f + yOffset);
-    
+
     path->moveTo(-28.f + xOffset, -2.4748745f + yOffset);
     path->lineTo(0 + xOffset, 25.525126f + yOffset);
-    
+
     path->moveTo(-28.f + xOffset, 2.4748745f + yOffset);
     path->lineTo(0 + xOffset, -25.525126f + yOffset);
     path->lineTo(-28.f + xOffset, 2.4748745f + yOffset);
 
     path->close();
-    
+
     return SkIntToScalar(70);
 }
 
@@ -101,7 +101,7 @@ static SkScalar make_curve(SkPath* path) {
     path->conicTo(435.93292f + xOffset, 56.000031f + yOffset,
                   382.61078f + xOffset, 69.752716f + yOffset,
                   0.9920463f);
-    
+
     return SkIntToScalar(40);
 }
 
@@ -118,7 +118,7 @@ static SkScalar make_battery(SkPath* path) {
     path->lineTo(24.67f + xOffset, 5.3299999f);
     path->lineTo(24.67f + xOffset, 0.33000004f);
     path->close();
-    
+
     path->moveTo(25.727224f + xOffset, 12.886665f);
     path->lineTo(10.907918f + xOffset, 12.886665f);
     path->lineTo(7.5166659f + xOffset, 28.683645f);
@@ -133,14 +133,14 @@ static SkScalar make_battery(SkPath* path) {
 
 static SkScalar make_battery2(SkPath* path) {
     static SkScalar xOffset = 5.f;
-    
+
     path->moveTo(32.669998f + xOffset, 9.8640003f);
     path->lineTo(0.33000004f + xOffset, 9.8640003f);
     path->lineTo(0.33000004f + xOffset, 50.669998f);
     path->lineTo(32.669998f + xOffset, 50.669998f);
     path->lineTo(32.669998f + xOffset, 9.8640003f);
     path->close();
-    
+
     path->moveTo(10.907918f + xOffset, 12.886665f);
     path->lineTo(25.727224f + xOffset, 12.886665f);
     path->lineTo(16.854223f + xOffset, 25.136419f);
@@ -150,7 +150,7 @@ static SkScalar make_battery2(SkPath* path) {
     path->lineTo(7.5166659f + xOffset, 28.683645f);
     path->lineTo(10.907918f + xOffset, 12.886665f);
     path->close();
-    
+
     return SkIntToScalar(70);
 }
 
@@ -229,7 +229,7 @@ protected:
         }
         canvas->restore();
         canvas->translate(SkIntToScalar(120), SkIntToScalar(0));
-     
+
         // second column: stroked paths
         canvas->save();
         paint.setStyle(SkPaint::kStroke_Style);
@@ -242,7 +242,7 @@ protected:
         }
         canvas->restore();
         canvas->translate(SkIntToScalar(120), SkIntToScalar(0));
-        
+
         // third column: stroked paths with different widths
         canvas->save();
         paint.setStyle(SkPaint::kStroke_Style);
@@ -255,7 +255,7 @@ protected:
         }
         canvas->restore();
         canvas->translate(SkIntToScalar(120), SkIntToScalar(0));
-        
+
         // fourth column: stroked and filled paths
         paint.setStyle(SkPaint::kStrokeAndFill_Style);
         paint.setStrokeCap(SkPaint::kButt_Cap);
@@ -265,7 +265,7 @@ protected:
             canvas->drawPath(fPath[i], paint);
             canvas->translate(SkIntToScalar(0), fDY[i]);
         }
-        
+
     }
 
 private:
@@ -273,4 +273,3 @@ private:
 };
 
 DEF_GM(return new SmallPathsGM;)
-

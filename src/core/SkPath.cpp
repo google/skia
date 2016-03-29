@@ -3177,7 +3177,7 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     if ((onCurveCount & 1) || evenOddFill) {
         return SkToBool(onCurveCount & 1) ^ isInverse;
     }
-    // If the point touches an even number of curves, and the fill is winding, check for  
+    // If the point touches an even number of curves, and the fill is winding, check for
     // coincidence. Count coincidence as places where the on curve points have identical tangents.
     iter.setPath(*this, true);
     done = false;

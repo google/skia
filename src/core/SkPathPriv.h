@@ -29,7 +29,7 @@ public:
      */
     static FirstDirection OppositeFirstDirection(FirstDirection dir) {
         static const FirstDirection gOppositeDir[] = {
-            kCCW_FirstDirection, kCW_FirstDirection, kUnknown_FirstDirection, 
+            kCCW_FirstDirection, kCW_FirstDirection, kUnknown_FirstDirection,
         };
         return gOppositeDir[dir];
     }

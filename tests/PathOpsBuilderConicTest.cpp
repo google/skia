@@ -111,7 +111,7 @@ DEF_TEST(SixtyOvals, reporter) {
                         }
                     }
                     setupOne(reporter, col, row, rot, trial);
-            skipTest: 
+            skipTest:
                     ;
                 }
             }
@@ -403,7 +403,7 @@ path.close();
 path.moveTo(306.588f, -227.984f);
 path.conicTo(212.465f, -262.242f, 95.5512f, 58.9764f, 0.707107f);
 path.lineTo(306.588f, -227.984f);
-path.close();    
+path.close();
 testSimplify(reporter, path, __FUNCTION__);
 }
 

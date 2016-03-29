@@ -242,7 +242,7 @@ private:
     static void OffsetResults(const SkGlyph::Intercept* intercept, SkScalar scale,
                               SkScalar xPos, SkScalar* array, int* count);
     static void AddInterval(SkScalar val, SkGlyph::Intercept* intercept);
-    static void AddPoints(const SkPoint* pts, int ptCount, const SkScalar bounds[2], 
+    static void AddPoints(const SkPoint* pts, int ptCount, const SkScalar bounds[2],
                           bool yAxis, SkGlyph::Intercept* intercept);
     static void AddLine(const SkPoint pts[2], SkScalar axis, bool yAxis,
                         SkGlyph::Intercept* intercept);

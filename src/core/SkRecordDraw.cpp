@@ -811,4 +811,3 @@ void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record, SkRec
     }
     visitor.cleanUp();
 }
-

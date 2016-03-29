@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -37,7 +36,7 @@ GrGpuResource::~GrGpuResource() {
     SkASSERT(this->wasDestroyed());
 }
 
-void GrGpuResource::release() { 
+void GrGpuResource::release() {
     SkASSERT(fGpu);
     this->onRelease();
     get_resource_cache(fGpu)->resourceAccess().removeResource(this);

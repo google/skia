@@ -42,21 +42,21 @@ int tool_main(int argc, char** argv) {
             SkDebugf("Channel (--rgb) must be between 0 and 3 (inclusive) - value is %d.\n",
                      FLAGS_rgb);
         }
-        return kError;        
+        return kError;
     }
 
     if (FLAGS_row >= 0 && FLAGS_column >= 0) {
         if (!FLAGS_quiet) {
             SkDebugf("Only one of '-c' or '-r' can be specified at at time.\n");
         }
-        return kError;       
+        return kError;
     }
 
     if (FLAGS_row < 0 && FLAGS_column < 0) {
         if (!FLAGS_quiet) {
             SkDebugf("At least one of '-c' or '-r' need to be specified.\n");
         }
-        return kError;       
+        return kError;
     }
 
     sk_sp<SkData> data(SkData::MakeFromFileName(FLAGS_image[0]));
@@ -128,7 +128,7 @@ int tool_main(int argc, char** argv) {
 
                 SkDebugf(", %d", ((c) >> (FLAGS_rgb*8)) & 0xFF);
             }
-        }        
+        }
     }
 
     SkDebugf("\n");

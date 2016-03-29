@@ -86,7 +86,7 @@ protected:
             { kRGB_V_SkPixelGeometry,   "RGB_V" },
             { kBGR_V_SkPixelGeometry,   "BGR_V" },
         };
-    
+
         SkScalar x = 0;
         for (int disallowAA = 0; disallowAA <= 1; ++disallowAA) {
             for (int disallowDither = 0; disallowDither <= 1; ++disallowDither) {
@@ -156,4 +156,3 @@ private:
     typedef GM INHERITED;
 };
 DEF_GM( return new NewSurfaceGM )
-

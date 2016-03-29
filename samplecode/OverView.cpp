@@ -172,4 +172,3 @@ void OverView::onDraw(SkCanvas* canvas) {
         }
     }
 }
-

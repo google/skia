@@ -53,7 +53,7 @@ static void draw_into_canvas(SkCanvas* canvas) {
     const SkRect r = SkRect::MakeWH(50, 100);
     sk_sp<SkShader> (*shaders[])() { make_opaque_color, make_alpha_color };
     sk_sp<SkColorFilter> (*filters[])() { make_cf_null, make_cf0, make_cf1, make_cf2 };
-    
+
     SkPaint paint;
     for (auto shProc : shaders) {
         paint.setShader(shProc());

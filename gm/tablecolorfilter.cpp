@@ -209,12 +209,12 @@ public:
     {
         fName.printf("colorcomposefilter_%s", suffix);
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return fName;
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(790, 790);
     }
@@ -270,7 +270,7 @@ protected:
             canvas->translate(0, r.height() + spacer);
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };

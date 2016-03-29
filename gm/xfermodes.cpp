@@ -61,7 +61,7 @@ enum SrcType {
     kSmallTransparentImage_SrcType        = 0x40,
     //! kRectangleImage_SrcType drawn directly with a mask.
     kRectangleWithMask_SrcType            = 0x80,
-    
+
     kAll_SrcType                          = 0xFF, //!< All the source types.
     kBasic_SrcType                        = 0x03, //!< Just basic source types.
 };
@@ -87,7 +87,7 @@ const struct {
     { SkXfermode::kDstOut_Mode,       "DstOut",       kAll_SrcType   },
     { SkXfermode::kSrcATop_Mode,      "SrcATop",      kAll_SrcType   },
     { SkXfermode::kDstATop_Mode,      "DstATop",      kAll_SrcType   },
-    
+
     { SkXfermode::kXor_Mode,          "Xor",          kBasic_SrcType },
     { SkXfermode::kPlus_Mode,         "Plus",         kBasic_SrcType },
     { SkXfermode::kModulate_Mode,     "Modulate",     kAll_SrcType   },

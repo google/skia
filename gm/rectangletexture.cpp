@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2016 Google Inc.
  *
@@ -95,7 +94,7 @@ protected:
         GR_GL_CALL(gl, TexParameteri(TARGET, GR_GL_TEXTURE_MIN_FILTER,
                                      GR_GL_NEAREST));
         GR_GL_CALL(gl, TexParameteri(TARGET, GR_GL_TEXTURE_WRAP_S,
-                                     GR_GL_CLAMP_TO_EDGE));    
+                                     GR_GL_CLAMP_TO_EDGE));
         GR_GL_CALL(gl, TexParameteri(TARGET, GR_GL_TEXTURE_WRAP_T,
                                      GR_GL_CLAMP_TO_EDGE));
         GR_GL_CALL(gl, TexImage2D(TARGET, 0, GR_GL_RGBA, width, height, 0,

@@ -192,4 +192,3 @@ sk_sp<SkData> SkData::MakeFromStream(SkStream* stream, size_t size) {
     }
     return data;
 }
-

@@ -298,7 +298,7 @@ protected:
             canvas->translate(0, 200);
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };
@@ -322,4 +322,3 @@ public:
     }
 };
 DEF_GM( return new ImageFiltersText_CF; )
-

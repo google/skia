@@ -608,7 +608,7 @@ DEF_TEST(BitmapReadPixels, reporter) {
                                  gRec[i].fRequestedDstSize.height());
         bool success = srcBM.readPixels(dstInfo, dstPixels, rowBytes,
                                         gRec[i].fRequestedSrcLoc.x(), gRec[i].fRequestedSrcLoc.y());
-        
+
         REPORTER_ASSERT(reporter, gRec[i].fExpectedSuccess == success);
         if (success) {
             const SkIRect srcR = gRec[i].fExpectedSrcR;
@@ -695,7 +695,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BitmapCopy_Texture, reporter, ctx) {
                 refData = (kRGBA_8888_SkColorType == dstBmp.colorType()) ? kData : swizData;
 #elif defined(SK_PMCOLOR_IS_BGRA)
                 refData = (kBGRA_8888_SkColorType == dstBmp.colorType()) ? kData : swizData;
-#else 
+#else
     #error "PM Color must be BGRA or RGBA to use GPU backend."
 #endif
                 bool foundError = false;

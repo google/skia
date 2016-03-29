@@ -22,7 +22,7 @@ public:
         , fFlags(flags & ~USE_AA)
     {
         fXfer.reset(SkXfermode::Create(mode));
-        
+
         fProc1 = SkXfermode::GetD32Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_D32Flag);
         fProcN = SkXfermode::GetD32Proc(fXfer, fFlags);
         fName.printf("xfer4f_%s_%s_%c_%s_%s",
@@ -37,7 +37,7 @@ public:
             fDst[i] = 0;
             fAAStorage[i] = i * 255 / (N - 1);
         }
-        
+
         if (flags & USE_AA) {
             fAA = fAAStorage;
         } else {

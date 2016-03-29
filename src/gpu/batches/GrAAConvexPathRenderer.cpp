@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -710,7 +709,7 @@ static void extract_verts(const GrAAConvexTessellator& tess,
             *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
         } else {
             *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
-            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 
+            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) =
                     tess.coverage(i);
         }
     }
@@ -755,7 +754,7 @@ public:
 
     const char* name() const override { return "AAConvexBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle

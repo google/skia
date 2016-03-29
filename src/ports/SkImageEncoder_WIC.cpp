@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -50,7 +49,7 @@
 class SkImageEncoder_WIC : public SkImageEncoder {
 public:
     SkImageEncoder_WIC(Type t) : fType(t) {}
-    
+
     // DO NOT USE this constructor.  This exists only so SkForceLinking can
     // link the WIC image encoder.
     SkImageEncoder_WIC() {}

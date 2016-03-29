@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -345,4 +344,3 @@ private:
     typedef SampleView INHERITED;
 };
 DEF_SAMPLE( return new ArcToView; )
-

@@ -140,4 +140,3 @@ private:
 
 DEF_GM( return new DrawMiniBitmapRectGM(true); )
 DEF_GM( return new DrawMiniBitmapRectGM(false); )
-

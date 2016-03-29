@@ -410,4 +410,3 @@ void SkAlphaThresholdFilterImpl::toString(SkString* str) const {
     str->append(")");
 }
 #endif
-

@@ -100,7 +100,7 @@ protected:
 
         long totArea = 0;
         for (int i = 0; i < fCurRandRect; ++i) {
-            r = SkRect::MakeXYWH(SkIntToScalar(fRectLocations[i].fX), 
+            r = SkRect::MakeXYWH(SkIntToScalar(fRectLocations[i].fX),
                                  SkIntToScalar(fRectLocations[i].fY),
                                  SkIntToScalar((*fCurRects)[i].fWidth),
                                  SkIntToScalar((*fCurRects)[i].fHeight));

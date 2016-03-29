@@ -700,7 +700,7 @@ DEF_TEST(Canvas_SaveState, reporter) {
     n = canvas.saveLayer(nullptr, nullptr);
     REPORTER_ASSERT(reporter, 2 == n);
     REPORTER_ASSERT(reporter, 3 == canvas.getSaveCount());
-    
+
     canvas.restore();
     REPORTER_ASSERT(reporter, 2 == canvas.getSaveCount());
     canvas.restore();

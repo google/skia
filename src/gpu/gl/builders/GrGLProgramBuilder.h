@@ -47,7 +47,7 @@ private:
     bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,
                                  GrGLenum type,
-                                 SkTDArray<GrGLuint>* shaderIds); 
+                                 SkTDArray<GrGLuint>* shaderIds);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);
@@ -67,6 +67,6 @@ private:
     GrGLVaryingHandler    fVaryingHandler;
     GrGLUniformHandler    fUniformHandler;
 
-    typedef GrGLSLProgramBuilder INHERITED; 
+    typedef GrGLSLProgramBuilder INHERITED;
 };
 #endif

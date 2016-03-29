@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -157,7 +156,7 @@ public:
         canArgs.fAntiAlias = args.fAntiAlias;
 
         canArgs.fIsStencilDisabled = args.fPipelineBuilder->getStencil().isDisabled();
-        canArgs.fIsStencilBufferMSAA = 
+        canArgs.fIsStencilBufferMSAA =
                           args.fPipelineBuilder->getRenderTarget()->isStencilBufferMultisampled();
         SkASSERT(this->canDrawPath(canArgs));
         SkASSERT(args.fPipelineBuilder->getStencil().isDisabled() ||

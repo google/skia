@@ -106,7 +106,7 @@ public:
                                VkPipelineStageFlags dstStageMask,
                                bool byRegion,
                                VkImageMemoryBarrier* barrier) const;
-    
+
     shaderc_compiler_t shadercCompiler() const {
         return fCompiler;
     }
@@ -169,7 +169,7 @@ private:
     void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);
 
     // Ends and submits the current command buffer to the queue and then creates a new command
-    // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all 
+    // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
     // work in the queue to finish before returning.
     void submitCommandBuffer(SyncQueue sync);
 

@@ -367,4 +367,3 @@ DEF_TEST(Paint_nothingToDraw, r) {
     paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     REPORTER_ASSERT(r, !paint.nothingToDraw());
 }
-

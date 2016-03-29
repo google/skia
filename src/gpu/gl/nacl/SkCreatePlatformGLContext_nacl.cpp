@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -11,5 +10,3 @@ SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI, SkGLContext* s
     SkASSERT(!shareContext);
     return nullptr;
 }
-
-

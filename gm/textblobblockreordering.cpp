@@ -58,9 +58,9 @@ protected:
         SkRect bounds = fBlob->bounds();
         const int yDelta = SkScalarFloorToInt(bounds.height()) + 20;
         const int xDelta = SkScalarFloorToInt(bounds.width());
-        
+
         canvas->drawTextBlob(fBlob, 0, 0, paint);
-        
+
         canvas->translate(SkIntToScalar(xDelta), SkIntToScalar(yDelta));
 
 	// draw a rect where the text should be, and then twiddle the xfermode
@@ -84,7 +84,7 @@ private:
 
     typedef GM INHERITED;
 };
- 
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new TextBlobBlockReordering;)

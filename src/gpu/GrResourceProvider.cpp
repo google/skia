@@ -192,4 +192,3 @@ GrRenderTarget* GrResourceProvider::wrapBackendTextureAsRenderTarget(
     }
     return this->gpu()->wrapBackendTextureAsRenderTarget(desc, ownership);
 }
-

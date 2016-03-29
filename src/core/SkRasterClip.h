@@ -48,7 +48,7 @@ public:
     bool op(const SkRect&, const SkIRect&, SkRegion::Op, bool doAA);
     bool op(const SkRRect&, const SkIRect&, SkRegion::Op, bool doAA);
     bool op(const SkPath&, const SkIRect&, SkRegion::Op, bool doAA);
-    
+
     void translate(int dx, int dy, SkRasterClip* dst) const;
     void translate(int dx, int dy) {
         this->translate(dx, dy, this);

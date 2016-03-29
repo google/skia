@@ -37,4 +37,3 @@ int DataHandler::handle(Request* request, MHD_Connection* connection,
     }
     return MHD_NO;
 }
-

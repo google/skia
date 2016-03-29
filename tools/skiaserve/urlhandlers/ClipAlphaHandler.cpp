@@ -35,4 +35,3 @@ int ClipAlphaHandler::handle(Request* request, MHD_Connection* connection,
     request->fDebugCanvas->setClipVizColor(SkColorSetARGB(alpha, 0, 0, 0));
     return SendOK(connection);
 }
-

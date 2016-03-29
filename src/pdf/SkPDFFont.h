@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -70,7 +69,7 @@ private:
     reference to each instantiated class.
 */
 class SkPDFFont : public SkPDFDict {
-    
+
 public:
     virtual ~SkPDFFont();
 

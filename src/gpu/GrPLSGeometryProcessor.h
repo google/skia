@@ -16,7 +16,7 @@
  */
 class GrPLSGeometryProcessor : public GrGeometryProcessor {
 public:
-    GrPixelLocalStorageState getPixelLocalStorageState() const override { 
+    GrPixelLocalStorageState getPixelLocalStorageState() const override {
         return GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState;
     }
 

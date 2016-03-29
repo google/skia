@@ -72,4 +72,3 @@ GrVkGpu* GrVkIndexBuffer::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
 }
-

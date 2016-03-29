@@ -29,4 +29,3 @@ bool GrInvariantOutput::colorComponentsAllEqual() const {
 }
 
 #endif // end DEBUG
-

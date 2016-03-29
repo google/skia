@@ -223,7 +223,7 @@ private:
     }
 
     AvoidFP(SkColor opColor, uint8_t tolerance,
-            SkAvoidXfermode::Mode mode, const GrFragmentProcessor* dst) 
+            SkAvoidXfermode::Mode mode, const GrFragmentProcessor* dst)
         : fOpColor(opColor), fTolerance(tolerance), fMode(mode) {
         this->initClassID<AvoidFP>();
 
@@ -377,7 +377,7 @@ private:
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    bool onIsEqual(const GrXferProcessor& xpBase) const override { 
+    bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const AvoidXP& xp = xpBase.cast<AvoidXP>();
 
         return fOpColor == xp.fOpColor &&

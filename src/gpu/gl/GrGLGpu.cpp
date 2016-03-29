@@ -297,7 +297,7 @@ void GrGLGpu::createPLSSetupProgram() {
     GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar uTexture("u_texture", kSampler2D_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
-    
+
     SkString vshaderTxt(version);
     if (glslCaps->noperspectiveInterpolationSupport()) {
         if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
@@ -313,7 +313,7 @@ void GrGLGpu::createPLSSetupProgram() {
     vshaderTxt.append(";");
     vTexCoord.appendDecl(glslCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    
+
     vshaderTxt.append(
         "// PLS Setup Program VS\n"
         "void main() {"
@@ -2621,8 +2621,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 
 void GrGLGpu::finishDrawTarget() {
     if (fPLSHasBeenUsed) {
-        /* There is an ARM driver bug where if we use PLS, and then draw a frame which does not 
-         * use PLS, it leaves garbage all over the place. As a workaround, we use PLS in a 
+        /* There is an ARM driver bug where if we use PLS, and then draw a frame which does not
+         * use PLS, it leaves garbage all over the place. As a workaround, we use PLS in a
          * trivial way every frame. And since we use it every frame, there's never a point at which
          * it becomes safe to stop using this workaround once we start.
          */
@@ -2632,9 +2632,9 @@ void GrGLGpu::finishDrawTarget() {
         SkASSERT(!fHWPLSEnabled);
         SkASSERT(fMSAAEnabled != kYes_TriState);
         GL_CALL(Enable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
-        this->stampRectUsingProgram(fPLSSetupProgram.fProgram, 
-                                    SkRect::MakeXYWH(-100.0f, -100.0f, 0.01f, 0.01f), 
-                                    fPLSSetupProgram.fPosXformUniform, 
+        this->stampRectUsingProgram(fPLSSetupProgram.fProgram,
+                                    SkRect::MakeXYWH(-100.0f, -100.0f, 0.01f, 0.01f),
+                                    fPLSSetupProgram.fPosXformUniform,
                                     fPLSSetupProgram.fArrayBuffer);
         GL_CALL(Disable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
     }
@@ -2803,7 +2803,7 @@ void GrGLGpu::onDraw(const GrPipeline& pipeline,
 #endif
 }
 
-void GrGLGpu::stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform, 
+void GrGLGpu::stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform,
                                     GrGLuint arrayBuffer) {
     GL_CALL(UseProgram(program));
     this->fHWGeometryState.setVertexArrayID(this, 0);
@@ -2813,7 +2813,7 @@ void GrGLGpu::stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGL
     attribs->set(this, 0, arrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 
-    GL_CALL(Uniform4f(posXformUniform, bounds.width(), bounds.height(), bounds.left(), 
+    GL_CALL(Uniform4f(posXformUniform, bounds.width(), bounds.height(), bounds.left(),
                       bounds.top()));
 
     GrXferProcessor::BlendInfo blendInfo;
@@ -2834,7 +2834,7 @@ void GrGLGpu::stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGL
 void GrGLGpu::setupPixelLocalStorage(const GrPipeline& pipeline,
                                      const GrPrimitiveProcessor& primProc) {
     fPLSHasBeenUsed = true;
-    const SkRect& bounds = 
+    const SkRect& bounds =
             static_cast<const GrPLSGeometryProcessor&>(primProc).getBounds();
     // setup pixel local storage -- this means capturing and storing the current framebuffer color
     // and initializing the winding counts to zero
@@ -2849,9 +2849,9 @@ void GrGLGpu::setupPixelLocalStorage(const GrPipeline& pipeline,
     GrGLfloat dy0 = -2.0f * (bounds.top() - 1) / height + 1.0f;
     GrGLfloat dy1 = -2.0f * (bounds.bottom() + 1) / height + 1.0f;
     SkRect deviceBounds = SkRect::MakeXYWH(dx0, dy0, dx1 - dx0, dy1 - dy0);
-    
+
     GL_CALL(Enable(GR_GL_FETCH_PER_SAMPLE_ARM));
-    this->stampRectUsingProgram(fPLSSetupProgram.fProgram, deviceBounds, 
+    this->stampRectUsingProgram(fPLSSetupProgram.fProgram, deviceBounds,
                                 fPLSSetupProgram.fPosXformUniform, fPLSSetupProgram.fArrayBuffer);
 }
 

@@ -69,9 +69,9 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
     this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentProcessors(), inputColor);
     this->emitAndInstallFragProcs(this->pipeline().numColorFragmentProcessors(), numProcs,
                                   inputCoverage);
-    if (primProc.getPixelLocalStorageState() != 
+    if (primProc.getPixelLocalStorageState() !=
         GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
-        this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor, 
+        this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor,
                                      *inputCoverage, this->pipeline().ignoresCoverage(),
                                      primProc.getPixelLocalStorageState());
         this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());

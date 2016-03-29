@@ -55,7 +55,7 @@ SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
 
     // write to png
     SkDynamicMemoryWStream buffer;
-    SkDrawCommand::WritePNG((const png_bytep) bmp->getPixels(), bmp->width(), bmp->height(), 
+    SkDrawCommand::WritePNG((const png_bytep) bmp->getPixels(), bmp->width(), bmp->height(),
                             buffer);
     return buffer.copyToData();
 }
@@ -155,7 +155,7 @@ SkSurface* Request::createGPUSurface() {
     return surface;
 }
 
-bool Request::enableGPU(bool enable) {    
+bool Request::enableGPU(bool enable) {
     if (enable) {
         SkSurface* surface = this->createGPUSurface();
         if (surface) {
@@ -175,7 +175,7 @@ bool Request::enableGPU(bool enable) {
     fSurface.reset(this->createCPUSurface());
     fGPUEnabled = false;
     return true;
-} 
+}
 
 bool Request::initPictureFromStream(SkStream* stream) {
     // parse picture from stream
@@ -254,4 +254,3 @@ SkColor Request::getPixel(int x, int y) {
     bitmap->unlockPixels();
     return result;
 }
-

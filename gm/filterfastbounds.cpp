@@ -298,14 +298,14 @@ protected:
         for (int i = 0; i < (int)SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols; ++i) {
             canvas->drawLine(SkIntToScalar(i * kTileWidth),
                              0,
-                             SkIntToScalar(i * kTileWidth), 
+                             SkIntToScalar(i * kTileWidth),
                              SkIntToScalar(paints.count() * kTileWidth),
                              blackFill);
         }
 
         // A column of saveLayers with PictureImageFilters
         for (int i = 0; i < pifPaints.count(); ++i) {
-            draw_savelayer_with_paint(SkIPoint::Make(0, i*kTileHeight), 
+            draw_savelayer_with_paint(SkIPoint::Make(0, i*kTileHeight),
                                       canvas, pifPaints[i]);
         }
 

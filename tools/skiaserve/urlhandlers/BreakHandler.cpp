@@ -83,4 +83,3 @@ int BreakHandler::handle(Request* request, MHD_Connection* connection,
     SkAutoTUnref<SkData> data(stream.copyToData());
     return SendData(connection, data, "application/json");
 }
-

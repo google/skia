@@ -271,7 +271,7 @@ static void check_alphabet_stream(skiatest::Reporter* reporter, SkStream* stream
 static void check_alphabet_buffer(skiatest::Reporter* reporter, const SkROBuffer* reader) {
     size_t size = reader->size();
     REPORTER_ASSERT(reporter, size % 26 == 0);
-    
+
     SkAutoTMalloc<char> storage(size);
     SkROBuffer::Iter iter(reader);
     size_t offset = 0;

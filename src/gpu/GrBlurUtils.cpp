@@ -99,8 +99,8 @@ static GrTexture* create_mask_GPU(GrContext* context,
                                   const GrStrokeInfo& strokeInfo,
                                   bool doAA,
                                   int sampleCnt) {
-    // This mask will ultimately be drawn as a non-AA rect (see draw_mask). 
-    // Non-AA rects have a bad habit of snapping arbitrarily. Integerize here 
+    // This mask will ultimately be drawn as a non-AA rect (see draw_mask).
+    // Non-AA rects have a bad habit of snapping arbitrarily. Integerize here
     // so the mask draws in a reproducible manner.
     *maskRect = SkRect::Make(maskRect->roundOut());
 
@@ -275,7 +275,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                strokeInfo, pathPtr, pathIsMutable);
 }
 
-void GrBlurUtils::drawPathWithMaskFilter(GrContext* context, 
+void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          GrDrawContext* drawContext,
                                          const GrClip& clip,
                                          const SkPath& origSrcPath,
@@ -347,4 +347,3 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
         drawContext->drawPath(clip, grPaint, viewMatrix, *pathPtr, strokeInfo);
     }
 }
-

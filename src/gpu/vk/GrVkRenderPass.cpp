@@ -187,7 +187,7 @@ void GrVkRenderPass::getBeginInfo(const GrVkRenderTarget& target,
     beginInfo->clearValueCount = 0;
     beginInfo->pClearValues = nullptr;
 
-    // Currently just assuming no secondary cmd buffers. This value will need to be update if we 
+    // Currently just assuming no secondary cmd buffers. This value will need to be update if we
     // have them.
     *contents = VK_SUBPASS_CONTENTS_INLINE;
 }
@@ -235,4 +235,3 @@ void GrVkRenderPass::genKey(GrProcessorKeyBuilder* b) const {
         b->add32(fAttachmentsDescriptor.fStencil.fSamples);
     }
 }
-

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -113,7 +112,7 @@ CoverageSetOpXP::onGetOptimizations(const GrPipelineOptimizations& optimizations
                                     GrColor* color,
                                     const GrCaps& caps) const {
     // We never look at the color input
-    return GrXferProcessor::kIgnoreColor_OptFlag; 
+    return GrXferProcessor::kIgnoreColor_OptFlag;
 }
 
 void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
@@ -168,10 +167,10 @@ public:
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*, 
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*,
                                                  const GrCaps&) const override {
         // We never look at the color input
-        return GrXferProcessor::kIgnoreColor_OptFlag; 
+        return GrXferProcessor::kIgnoreColor_OptFlag;
     }
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
@@ -342,4 +341,3 @@ const GrXPFactory* GrCoverageSetOpXPFactory::TestCreate(GrProcessorTestData* d) 
     bool invertCoverage = !d->fRenderTarget->hasMixedSamples() && d->fRandom->nextBool();
     return GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage);
 }
-

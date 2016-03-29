@@ -75,4 +75,3 @@ inline void SkTextMapStateProc::operator()(const SkScalar pos[], SkPoint* loc) c
 }
 
 #endif
-

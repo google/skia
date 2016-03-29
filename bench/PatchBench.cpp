@@ -12,11 +12,11 @@
 #include "SkString.h"
 
 /**
- * This bench measures the rendering time of the call SkCanvas::drawPatch with different types of 
- * input patches (regular case, with loops, a square, with a big difference between "parallel" 
- * sides). This bench also tests the different combination of optional parameters for the function 
+ * This bench measures the rendering time of the call SkCanvas::drawPatch with different types of
+ * input patches (regular case, with loops, a square, with a big difference between "parallel"
+ * sides). This bench also tests the different combination of optional parameters for the function
  * (passing texture coordinates and colors, only textures coordinates, only colors or none).
- * Finally, it applies a scale to test if the size affects the rendering time. 
+ * Finally, it applies a scale to test if the size affects the rendering time.
  */
 
 class PatchBench : public Benchmark {

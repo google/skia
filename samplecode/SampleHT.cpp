@@ -57,7 +57,7 @@ public:
         fInterp = nullptr;
         fTime = 0;
     }
-    
+
     void spawnAnimation(SkMSec now) {
         this->setTime(now);
 
@@ -122,14 +122,14 @@ public:
         W = 640,
         H = 480,
     };
-    
+
     struct Rec {
         HTDrawable* fDrawable;
     };
     Rec fArray[N];
     sk_sp<SkDrawable> fRoot;
     SkMSec fTime;
-    
+
     HTView() {
         SkRandom rand;
 

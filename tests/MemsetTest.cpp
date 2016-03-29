@@ -22,7 +22,7 @@ static void* simple_alloc(skiatest::Reporter* reporter, SkChunkAlloc* alloc, siz
     REPORTER_ASSERT(reporter, alloc->contains(ptr));
     return ptr;
 }
-                        
+
 static void test_chunkalloc(skiatest::Reporter* reporter) {
     static const size_t kMin = 1024;
     SkChunkAlloc alloc(kMin);

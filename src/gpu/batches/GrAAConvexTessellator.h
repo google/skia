@@ -31,8 +31,8 @@ class GrAAConvexTessellator;
 // computeDepthFromEdge requests.
 class GrAAConvexTessellator {
 public:
-    GrAAConvexTessellator(SkScalar strokeWidth = -1.0f, 
-                          SkPaint::Join join = SkPaint::Join::kBevel_Join, 
+    GrAAConvexTessellator(SkScalar strokeWidth = -1.0f,
+                          SkPaint::Join join = SkPaint::Join::kBevel_Join,
                           SkScalar miterLimit = 0.0f)
         : fSide(SkPoint::kOn_Side)
         , fStrokeWidth(strokeWidth)
@@ -61,7 +61,7 @@ public:
     void rewind();
 
 private:
-    // CandidateVerts holds the vertices for the next ring while they are 
+    // CandidateVerts holds the vertices for the next ring while they are
     // being generated. Its main function is to de-dup the points.
     class CandidateVerts {
     public:
@@ -213,14 +213,14 @@ private:
 
     Ring* getNextRing(Ring* lastRing);
 
-    void createOuterRing(const Ring& previousRing, SkScalar outset, SkScalar coverage, 
+    void createOuterRing(const Ring& previousRing, SkScalar outset, SkScalar coverage,
                          Ring* nextRing);
 
-    bool createInsetRings(Ring& previousRing, SkScalar initialDepth, SkScalar initialCoverage, 
+    bool createInsetRings(Ring& previousRing, SkScalar initialDepth, SkScalar initialCoverage,
                           SkScalar targetDepth, SkScalar targetCoverage, Ring** finalRing);
 
-    bool createInsetRing(const Ring& lastRing, Ring* nextRing, 
-                         SkScalar initialDepth, SkScalar initialCoverage, SkScalar targetDepth, 
+    bool createInsetRing(const Ring& lastRing, Ring* nextRing,
+                         SkScalar initialDepth, SkScalar initialCoverage, SkScalar targetDepth,
                          SkScalar targetCoverage, bool forceNew);
 
     void validate() const;
@@ -237,7 +237,7 @@ private:
     // needed for exterior ring creation and then handed off to the initial ring.
     SkTDArray<SkVector> fBisectors;
 
-    // Tracks whether a given point is interior to a curve. Such points are 
+    // Tracks whether a given point is interior to a curve. Such points are
     // assumed to have shallow curvature.
     SkTDArray<bool> fIsCurve;
 
@@ -267,4 +267,3 @@ private:
 
 
 #endif
-

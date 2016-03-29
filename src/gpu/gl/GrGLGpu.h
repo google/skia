@@ -245,7 +245,7 @@ private:
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
 
-    void stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform, 
+    void stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform,
                                GrGLuint arrayBuffer);
 
     void setupPixelLocalStorage(const GrPipeline&, const GrPrimitiveProcessor&);
@@ -503,7 +503,7 @@ private:
                                                         const GrGLBuffer* vbuffer,
                                                         const GrGLBuffer* ibuffer);
 
-        /** Variants of the above that takes GL buffer IDs. Note that 0 does not imply that a 
+        /** Variants of the above that takes GL buffer IDs. Note that 0 does not imply that a
             buffer won't be bound. The "default buffer" will be bound, which is used for client-side
             array rendering. */
         GrGLAttribArrayState* bindArrayAndBufferToDraw(GrGLGpu* gpu, GrGLuint vbufferID);

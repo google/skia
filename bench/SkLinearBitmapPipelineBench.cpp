@@ -342,5 +342,3 @@ DEF_BENCH(return new SkBitmapFPGeneral(
 DEF_BENCH(return new SkBitmapFPOrigShader(
     srcSize, kLinear_SkColorProfileType, mR, true,
     SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);)
-
-

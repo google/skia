@@ -92,7 +92,7 @@ protected:
 
         SkMatrix matrix;
         matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
-    
+
         const SkMatrix& ctm = canvas->getTotalMatrix();
 
         // TODO: correctly pull out the pure rotation

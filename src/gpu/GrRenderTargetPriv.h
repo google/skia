@@ -42,7 +42,7 @@ private:
     GrRenderTargetPriv* operator&();
 
     GrRenderTarget* fRenderTarget;
-        
+
     friend class GrRenderTarget; // to construct/copy this type.
 };
 

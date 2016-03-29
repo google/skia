@@ -86,9 +86,9 @@ bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
             path.toggleInverseFillType();
         }
         GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
-    
+
         GrPathRendererChain::DrawType type;
-        
+
         if (needsStencil) {
             type = element->isAA()
                             ? GrPathRendererChain::kStencilAndColorAntiAlias_DrawType
@@ -96,9 +96,9 @@ bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
         } else {
             type = element->isAA()
                             ? GrPathRendererChain::kColorAntiAlias_DrawType
-                            : GrPathRendererChain::kColor_DrawType;    
+                            : GrPathRendererChain::kColor_DrawType;
         }
-    
+
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
         canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
         canDrawArgs.fViewMatrix = &viewMatrix;
@@ -177,7 +177,7 @@ bool GrClipMaskManager::UseSWOnlyPath(GrContext* context,
 
         SkRegion::Op op = element->getOp();
         bool invert = element->isInverseFilled();
-        bool needsStencil = invert || 
+        bool needsStencil = invert ||
                             SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op;
 
         if (PathNeedsSWRenderer(context, pipelineBuilder.getStencil().isDisabled(),

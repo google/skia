@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2016 Google Inc.
  *
@@ -57,4 +56,3 @@ const SkData* SkAutoPixmapStorage::detachPixelsAsData() {
 
     return data.release();
 }
-

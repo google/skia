@@ -79,7 +79,7 @@ GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options, 
+GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
                  const GrVkBackendContext* backendCtx)
     : INHERITED(context)
     , fVkInstance(backendCtx->fInstance)
@@ -122,7 +122,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,       // CmdPoolCreateFlags
         backendCtx->fQueueFamilyIndex,              // queueFamilyIndex
     };
-    GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateCommandPool(fDevice, &cmdPoolInfo, nullptr, 
+    GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateCommandPool(fDevice, &cmdPoolInfo, nullptr,
                                                                &fCmdPool));
 
     // must call this after creating the CommandPool
@@ -141,7 +141,7 @@ GrVkGpu::~GrVkGpu() {
     SkDEBUGCODE(VkResult res =) VK_CALL(QueueWaitIdle(fQueue));
     // VK_ERROR_DEVICE_LOST is acceptable when tearing down (see 4.2.4 in spec)
     SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
- 
+
     // must call this just before we destroy the VkDevice
     fResourceProvider.destroyResources();
 
@@ -208,7 +208,7 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     }
 
     if (dstSurface->config() != srcConfig) {
-        // TODO: This should fall back to drawing or copying to change config of dstSurface to 
+        // TODO: This should fall back to drawing or copying to change config of dstSurface to
         // match that of srcConfig.
         return false;
     }
@@ -319,7 +319,7 @@ bool GrVkGpu::uploadTexData(GrVkTexture* tex,
         VkDeviceSize offset = texTop*layout.rowPitch + left*bpp;
         VkDeviceSize size = height*layout.rowPitch;
         void* mapPtr;
-        err = GR_VK_CALL(interface, MapMemory(fDevice, tex->textureMemory(), offset, size, 0, 
+        err = GR_VK_CALL(interface, MapMemory(fDevice, tex->textureMemory(), offset, size, 0,
                                                 &mapPtr));
         if (err) {
             return false;
@@ -556,11 +556,11 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
 
     GrVkTexture* texture = nullptr;
     if (renderTarget) {
-        texture = GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(this, surfDesc, 
+        texture = GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(this, surfDesc,
                                                                             lifeCycle, format,
                                                                             info);
     } else {
-        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, lifeCycle, format, 
+        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, lifeCycle, format,
                                                     info);
     }
     if (!texture) {
@@ -572,7 +572,7 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
 
 GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
                                                    GrWrapOwnership ownership) {
-    
+
     const GrVkTextureInfo* info =
         reinterpret_cast<const GrVkTextureInfo*>(wrapDesc.fRenderTargetHandle);
     if (VK_NULL_HANDLE == info->fImage ||
@@ -594,7 +594,7 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin);
 
     GrVkRenderTarget* tgt = GrVkRenderTarget::CreateWrappedRenderTarget(this, desc,
-                                                                        lifeCycle, 
+                                                                        lifeCycle,
                                                                         info);
     if (tgt && wrapDesc.fStencilBits) {
         if (!createStencilAttachmentForRenderTarget(tgt, desc.fWidth, desc.fHeight)) {
@@ -975,7 +975,7 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
 
     VkClearColorValue vkColor;
     GrColorToRGBAFloat(color, vkColor.float32);
-   
+
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
     VkImageLayout origDstLayout = vkRT->currentLayout();
 
@@ -1045,7 +1045,7 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
     subRange.baseArrayLayer = 0;
     subRange.layerCount = 1;
 
-    // In the future we may not actually be doing this type of clear at all. If we are inside a 
+    // In the future we may not actually be doing this type of clear at all. If we are inside a
     // render pass or doing a non full clear then we will use CmdClearColorAttachment. The more
     // common use case will be clearing an attachment at the start of a render pass, in which case
     // we will use the clear load ops.
@@ -1091,7 +1091,7 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
     // the cache is flushed since it is only being written to.
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);;
     VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    
+
     dstTex->setImageLayout(this,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            srcAccessMask,
@@ -1099,7 +1099,7 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
                            srcStageMask,
                            dstStageMask,
                            false);
-    
+
     srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origSrcLayout);
     dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
@@ -1225,7 +1225,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
                         dstStageMask,
                         false);
 
-    GrVkTransferBuffer* transferBuffer = 
+    GrVkTransferBuffer* transferBuffer =
         static_cast<GrVkTransferBuffer*>(this->createBuffer(kXferGpuToCpu_GrBufferType,
                                                             rowBytes * height,
                                                             kStream_GrAccessPattern));
@@ -1441,4 +1441,3 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
 #endif
 #endif
 }
-

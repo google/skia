@@ -157,4 +157,3 @@ void GrGLSLVaryingHandler::getFragDecls(SkString* inputDecls, SkString* outputDe
     this->appendDecls(fFragInputs, inputDecls);
     this->appendDecls(fFragOutputs, outputDecls);
 }
-

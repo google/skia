@@ -61,9 +61,9 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
 
 
 // To create framebuffers, we first need to create a simple RenderPass that is
-// only used for framebuffer creation. When we actually render we will create 
+// only used for framebuffer creation. When we actually render we will create
 // RenderPasses as needed that are compatible with the framebuffer.
-const GrVkRenderPass* 
+const GrVkRenderPass*
 GrVkResourceProvider::findOrCreateCompatibleRenderPass(const GrVkRenderTarget& target) {
     for (int i = 0; i < fSimpleRenderPasses.count(); ++i) {
         GrVkRenderPass* renderPass = fSimpleRenderPasses[i];

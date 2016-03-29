@@ -58,7 +58,7 @@ DEF_TEST(CompressAlphaFailDimensions, reporter) {
     SkAutoPixmapStorage pixmap;
     pixmap.alloc(SkImageInfo::MakeA8(kWidth, kHeight));
     // leaving the pixels uninitialized, as they don't affect the test...
-    
+
     for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
         const SkTextureCompressor::Format fmt = static_cast<SkTextureCompressor::Format>(i);
         if (!compresses_a8(fmt)) {

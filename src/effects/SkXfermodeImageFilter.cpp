@@ -247,4 +247,3 @@ bool SkXfermodeImageFilter::filterImageGPUDeprecated(Proxy* proxy,
 }
 
 #endif
-

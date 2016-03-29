@@ -84,4 +84,3 @@ bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
         return true;
     }
 }
-

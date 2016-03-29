@@ -167,7 +167,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     // query to get the physical device properties
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceFeatures(physDev, &deviceFeatures);
-    // this looks like it would slow things down, 
+    // this looks like it would slow things down,
     // and we can't depend on it on all platforms
     deviceFeatures.robustBufferAccess = VK_FALSE;
 
@@ -225,7 +225,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     ctx->fExtensions = extensionFlags;
     ctx->fFeatures = featureFlags;
     ctx->fInterface.reset(GrVkCreateInterface(inst, device, extensionFlags));
-  
+
     return ctx;
 }
 

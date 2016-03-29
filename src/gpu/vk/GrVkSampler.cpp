@@ -74,7 +74,7 @@ void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
 uint8_t GrVkSampler::GenerateKey(const GrTextureParams& params) {
 
     uint8_t key = params.filterMode();
-    
+
     SkASSERT(params.filterMode() <= 3);
     key |= (params.getTileModeX() << 2);
 
@@ -83,4 +83,3 @@ uint8_t GrVkSampler::GenerateKey(const GrTextureParams& params) {
 
     return key;
 }
-

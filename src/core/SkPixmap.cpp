@@ -58,7 +58,7 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     if (!r.intersect(srcRect, subset)) {
         return false;   // r is empty (i.e. no intersection)
     }
-    
+
     // If the upper left of the rectangle was outside the bounds of this SkBitmap, we should have
     // exited above.
     SkASSERT(static_cast<unsigned>(r.fLeft) < static_cast<unsigned>(this->width()));
@@ -84,15 +84,15 @@ bool SkPixmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, 
     if (0 == requestedDstInfo.width() || 0 == requestedDstInfo.height()) {
         return false;
     }
-    
+
     SkIRect srcR = SkIRect::MakeXYWH(x, y, requestedDstInfo.width(), requestedDstInfo.height());
     if (!srcR.intersect(0, 0, this->width(), this->height())) {
         return false;
     }
-    
+
     // the intersect may have shrunk info's logical size
     const SkImageInfo dstInfo = requestedDstInfo.makeWH(srcR.width(), srcR.height());
-    
+
     // if x or y are negative, then we have to adjust pixels
     if (x > 0) {
         x = 0;
@@ -134,7 +134,7 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
     int height = area.height();
     const int width = area.width();
     const int rowBytes = this->rowBytes();
-    
+
     switch (this->colorType()) {
         case kGray_8_SkColorType: {
             if (255 != a) {
@@ -162,14 +162,14 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
         case kRGB_565_SkColorType: {
             uint16_t* p = this->writable_addr16(area.fLeft, area.fTop);
             uint16_t v;
-            
+
             // make rgb premultiplied
             if (255 != a) {
                 r = SkMulDiv255Round(r, a);
                 g = SkMulDiv255Round(g, a);
                 b = SkMulDiv255Round(b, a);
             }
-            
+
             if (kARGB_4444_SkColorType == this->colorType()) {
                 v = pack_8888_to_4444(a, r, g, b);
             } else {
@@ -186,7 +186,7 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
         case kBGRA_8888_SkColorType:
         case kRGBA_8888_SkColorType: {
             uint32_t* p = this->writable_addr32(area.fLeft, area.fTop);
-            
+
             if (255 != a && kPremul_SkAlphaType == this->alphaType()) {
                 r = SkMulDiv255Round(r, a);
                 g = SkMulDiv255Round(g, a);
@@ -273,4 +273,3 @@ bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-

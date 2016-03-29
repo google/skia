@@ -207,4 +207,3 @@ void SkTaskGroup::add(std::function<void(void)> fn) { ThreadPool::Add(fn, &fPend
 void SkTaskGroup::batch(int N, std::function<void(int)> fn) {
     ThreadPool::Batch(N, fn, &fPending);
 }
-

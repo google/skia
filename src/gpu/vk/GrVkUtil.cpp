@@ -91,4 +91,3 @@ bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSam
             return false;
     }
 }
-

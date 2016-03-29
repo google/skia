@@ -13,7 +13,7 @@
 
 GrVkDescriptorPool::GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type, uint32_t count)
     : INHERITED()
-    , fType (type) 
+    , fType (type)
     , fCount(count) {
     VkDescriptorPoolSize poolSize;
     memset(&poolSize, 0, sizeof(VkDescriptorPoolSize));

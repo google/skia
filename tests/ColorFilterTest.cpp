@@ -165,17 +165,17 @@ static void get_grayscale_matrix(float amount, float matrix[20]) {
     matrix[1] = 0.7152f - 0.7152f * amount;
     matrix[2] = 1.f - (matrix[0] + matrix[1]);
     matrix[3] = matrix[4] = 0.f;
-    
+
     matrix[5] = 0.2126f - 0.2126f * amount;
     matrix[6] = 0.7152f + 0.2848f * amount;
     matrix[7] = 1.f - (matrix[5] + matrix[6]);
     matrix[8] = matrix[9] = 0.f;
-    
+
     matrix[10] = 0.2126f - 0.2126f * amount;
     matrix[11] = 0.7152f - 0.7152f * amount;
     matrix[12] = 1.f - (matrix[10] + matrix[11]);
     matrix[13] = matrix[14] = 0.f;
-    
+
     matrix[15] = matrix[16] = matrix[17] = matrix[19] = 0.f;
     matrix[18] = 1.f;
 }

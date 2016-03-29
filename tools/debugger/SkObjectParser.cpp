@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -26,7 +25,7 @@ SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
     mBitmap->appendS32(bitmap.width());
     mBitmap->append(" H: ");
     mBitmap->appendS32(bitmap.height());
-    
+
     const char* gColorTypeStrings[] = {
         "None", "A8", "565", "4444", "RGBA", "BGRA", "Index8", "G8", "RGBAf16"
     };
@@ -136,7 +135,7 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
 
 SkString* SkObjectParser::PathToString(const SkPath& path) {
     SkString* mPath = new SkString;
-    
+
     mPath->appendf("Path (%d) (", path.getGenerationID());
 
     static const char* gFillStrings[] = {

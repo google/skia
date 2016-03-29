@@ -204,7 +204,7 @@ protected:
             canvas->translate(0, r.height() + 5);
         }
     }
-    
+
 private:
     /** This determines the length and width of the bitmaps used in the ComposeShaders.  Values
      *  above 20 may cause an SkASSERT to fail in SkSmallAllocator. However, larger values will

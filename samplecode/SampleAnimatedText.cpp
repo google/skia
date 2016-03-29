@@ -133,7 +133,7 @@ protected:
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
-        // We add noise to the scale and rotation animations to 
+        // We add noise to the scale and rotation animations to
         // keep the font atlas from falling into a steady state
         fRotation += (1.0f + gRand.nextRangeF(-0.1f, 0.1f));
         fScale += (fScaleInc + gRand.nextRangeF(-0.025f, 0.025f));

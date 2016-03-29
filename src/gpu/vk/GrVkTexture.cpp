@@ -76,7 +76,7 @@ GrVkTexture* GrVkTexture::CreateNewTexture(GrVkGpu* gpu, const GrSurfaceDesc& de
 
 GrVkTexture* GrVkTexture::CreateWrappedTexture(GrVkGpu* gpu, const GrSurfaceDesc& desc,
                                                GrGpuResource::LifeCycle lifeCycle,
-                                               VkFormat format, 
+                                               VkFormat format,
                                                const GrVkTextureInfo* info) {
     SkASSERT(info);
     // Wrapped textures require both image and allocation (because they can be mapped)
@@ -145,4 +145,3 @@ GrVkGpu* GrVkTexture::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
 }
-

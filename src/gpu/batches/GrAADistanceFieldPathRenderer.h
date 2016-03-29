@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -37,7 +36,7 @@ private:
         public:
             // default ctor needed for new of uninitialized PathData
             // since fStroke has no default ctor
-            Key() 
+            Key()
                 : fGenID(0)
                 , fDimension(0)
                 , fStroke(SkStrokeRec::kFill_InitStyle) {}
@@ -45,12 +44,12 @@ private:
                 : fGenID(genID)
                 , fDimension(dim)
                 , fStroke(stroke) {}
-           
+
             bool operator==(const Key& other) const {
                 return other.fGenID == fGenID && other.fDimension == fDimension &&
                        fStroke.hasEqualEffect(other.fStroke);
             }
-           
+
         private:
             uint32_t   fGenID;
             // rendered size for stored path (32x32 max, 64x64 max, 128x128 max)
@@ -64,11 +63,11 @@ private:
         SkRect                fBounds;
         SkIPoint16            fAtlasLocation;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(PathData);
-        
+
         static inline const Key& GetKey(const PathData& data) {
             return data.fKey;
         }
-        
+
         static inline uint32_t Hash(Key key) {
             return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(key));
         }
@@ -78,11 +77,11 @@ private:
 
     typedef SkTDynamicHash<PathData, PathData::Key> PathCache;
     typedef SkTInternalLList<PathData> PathDataList;
-    
+
     GrBatchAtlas*                      fAtlas;
     PathCache                          fPathCache;
     PathDataList                       fPathList;
-    
+
     typedef GrPathRenderer INHERITED;
 
     friend class AADistanceFieldPathBatch;

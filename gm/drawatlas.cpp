@@ -39,17 +39,17 @@ class DrawAtlasGM : public skiagm::GM {
 
 public:
     DrawAtlasGM() {}
-    
+
 protected:
-    
+
     SkString onShortName() override {
         return SkString("draw-atlas");
     }
-    
+
     SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
-    
+
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = { 50, 50, 80, 90 };
         if (nullptr == fAtlas) {
@@ -61,7 +61,7 @@ protected:
             SkScalar fDegrees;
             SkScalar fTx;
             SkScalar fTy;
-            
+
             void apply(SkRSXform* xform) const {
                 const SkScalar rad = SkDegreesToRadians(fDegrees);
                 xform->fSCos = fScale * SkScalarCos(rad);
@@ -95,9 +95,8 @@ protected:
         canvas->translate(0, 100);
         canvas->drawAtlas(fAtlas.get(), xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
     }
-    
+
 private:
     typedef GM INHERITED;
 };
 DEF_GM( return new DrawAtlasGM; )
-

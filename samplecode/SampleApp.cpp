@@ -852,7 +852,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         fDeviceType = kGPU_DeviceType;
     }
 #endif
-        
+
 #if DEFAULT_TO_GPU
     fDeviceType = kGPU_DeviceType;
 #endif
@@ -1792,13 +1792,13 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
 void SampleWindow::setDeviceType(DeviceType type) {
     if (type == fDeviceType)
         return;
-    
+
     fDevManager->tearDownBackend(this);
-    
+
     fDeviceType = type;
-    
+
     fDevManager->setUpBackend(this, fMSAASampleCount);
-    
+
     this->updateTitle();
     this->inval(nullptr);
 }
@@ -1807,9 +1807,9 @@ void SampleWindow::setDeviceColorType(SkColorType ct, SkColorProfileType pt) {
     this->setColorType(ct, pt);
 
     fDevManager->tearDownBackend(this);
-    
+
     fDevManager->setUpBackend(this, fMSAASampleCount);
-    
+
     this->updateTitle();
     this->inval(nullptr);
 }

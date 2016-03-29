@@ -696,8 +696,8 @@ static SkImageFilter* make_image_filter(bool canBeNull) {
     {
         SkRTreeFactory factory;
         SkPictureRecorder recorder;
-        SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(kBitmapSize), 
-                                                            SkIntToScalar(kBitmapSize), 
+        SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(kBitmapSize),
+                                                            SkIntToScalar(kBitmapSize),
                                                             &factory, 0);
         drawSomething(recordingCanvas);
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());

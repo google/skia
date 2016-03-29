@@ -154,4 +154,3 @@ VkAccessFlags GrVkMemory::LayoutToSrcAccessMask(const VkImageLayout layout) {
     }
     return flags;
 }
-

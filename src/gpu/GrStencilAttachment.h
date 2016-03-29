@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -18,7 +17,7 @@ class GrResourceKey;
 
 class GrStencilAttachment : public GrGpuResource {
 public:
-    
+
 
     virtual ~GrStencilAttachment() {
         // TODO: allow SB to be purged and detach itself from rts

@@ -6,7 +6,7 @@
  */
 
 
-/* 
+/*
  * Tests text rendering with LCD and the various blend modes.
  */
 
@@ -40,7 +40,7 @@ public:
         const int kPointSize = 25;
         fTextHeight = SkIntToScalar(kPointSize);
     }
-    
+
 protected:
     SkString onShortName() override {
         return SkString("lcdblendmodes");
@@ -49,9 +49,9 @@ protected:
     void onOnceBeforeDraw() override {
         fCheckerboard = sk_tool_utils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);
     }
-    
+
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
-    
+
     void onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setAntiAlias(false);
@@ -142,7 +142,7 @@ protected:
             y+=fTextHeight;
         }
     }
-    
+
 private:
     SkScalar fTextHeight;
     sk_sp<SkShader> fCheckerboard;

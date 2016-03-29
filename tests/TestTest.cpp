@@ -72,4 +72,3 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuGrContextAndGLContext, reporter, context, gl
     REPORTER_ASSERT(reporter, glContext);
 }
 #endif
-

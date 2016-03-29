@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -102,7 +101,7 @@ bool GrRenderTargetPriv::attachStencilAttachment(GrStencilAttachment* stencil) {
     if (!fRenderTarget->completeStencilAttachment()) {
         SkSafeSetNull(fRenderTarget->fStencilAttachment);
         return false;
-    } 
+    }
     return true;
 }
 

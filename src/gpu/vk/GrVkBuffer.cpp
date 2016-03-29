@@ -195,4 +195,3 @@ void GrVkBuffer::validate() const {
              || kCopyRead_Type == fDesc.fType || kCopyWrite_Type == fDesc.fType
              || kUniform_Type == fDesc.fType);
 }
-

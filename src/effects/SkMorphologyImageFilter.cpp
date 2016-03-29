@@ -611,7 +611,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::filterImageGeneric(bool dilate,
         call_proc_X(procX, inputPixmap, &dst, width, srcBounds);
     } else if (height > 0) {
         call_proc_Y(procY,
-                    inputPixmap.addr32(srcBounds.left(), srcBounds.top()), 
+                    inputPixmap.addr32(srcBounds.left(), srcBounds.top()),
                     inputPixmap.rowBytesAsPixels(),
                     &dst, height, srcBounds);
     }
@@ -632,4 +632,3 @@ sk_sp<SkSpecialImage> SkErodeImageFilter::onFilterImage(SkSpecialImage* source, 
                                                         SkIPoint* offset) const {
     return this->filterImageGeneric(false, source, ctx, offset);
 }
-

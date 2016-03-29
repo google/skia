@@ -60,7 +60,7 @@ protected:
         canvas->drawRect(rect, fillPaint);
 
         canvas->restore();
-      
+
         fillPaint.setColor(0xFF000000);
 
         for (size_t i = 0; i < 4; i++) {

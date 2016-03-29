@@ -74,7 +74,7 @@ protected:
         for (size_t et = 0; et < SK_ARRAY_COUNT(kEdgeTypes); ++et) {
             GrPrimitiveEdgeType edgeType = kEdgeTypes[et];
             canvas->save();
-                canvas->translate(SkIntToScalar(x), SkIntToScalar(y));                
+                canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
 
                 // Draw a background for the test case
                 SkPaint paint;

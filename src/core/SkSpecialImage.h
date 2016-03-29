@@ -76,7 +76,7 @@ public:
     static sk_sp<SkSpecialImage> MakeFromGpu(SkImageFilter::Proxy*,
                                              const SkIRect& subset,
                                              uint32_t uniqueID,
-                                             GrTexture*, 
+                                             GrTexture*,
                                              SkAlphaType at = kPremul_SkAlphaType);
     static sk_sp<SkSpecialImage> MakeFromPixmap(SkImageFilter::Proxy*,
                                                 const SkIRect& subset,
@@ -164,4 +164,3 @@ private:
 };
 
 #endif
-

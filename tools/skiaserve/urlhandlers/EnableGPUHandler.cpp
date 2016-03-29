@@ -38,4 +38,3 @@ int EnableGPUHandler::handle(Request* request, MHD_Connection* connection,
     }
     return SendOK(connection);
 }
-

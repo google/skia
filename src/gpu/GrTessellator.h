@@ -37,10 +37,10 @@ struct WindingVertex {
 // WindingVertex entries, each of which contains the position and winding count (which is the same
 // for all three vertices of a triangle). The 'verts' out parameter is set to point to the resultant
 // vertex array. CALLER IS RESPONSIBLE for deleting this buffer to avoid a memory leak!
-int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
+int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    WindingVertex** verts);
 
-int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
+int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                     VertexAllocator*, bool *isLinear);
 }
 

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -167,4 +166,3 @@ GrLayerAtlas::Plot* GrLayerAtlas::addToAtlas(ClientPlotUsage* usage,
     // If the above fails, then the current plot list has no room
     return nullptr;
 }
-

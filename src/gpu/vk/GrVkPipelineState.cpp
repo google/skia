@@ -489,7 +489,7 @@ void GrVkPipelineState::BuildStateKey(const GrPipeline& pipeline, GrPrimitiveTyp
 
     b.add32(primitiveType);
 
-    // Set key length 
+    // Set key length
     int keyLength = key->count();
     SkASSERT(0 == (keyLength % 4));
     *reinterpret_cast<uint32_t*>(key->begin()) = SkToU32(keyLength);

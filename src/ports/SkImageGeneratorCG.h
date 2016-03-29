@@ -36,7 +36,7 @@ private:
 
     SkAutoTCallVProc<const void, CFRelease> fImageSrc;
     SkAutoTUnref<SkData>                    fData;
-    
+
     typedef SkImageGenerator INHERITED;
 };
 

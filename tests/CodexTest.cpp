@@ -637,7 +637,7 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
         return;
     }
     SkAutoTDelete<SkCodec> decoder(SkCodec::NewFromStream(stream.release()));
-    
+
     // This should return kSuccess because kIndex8 is supported.
     SkPMColor colorStorage[256];
     int colorCount;

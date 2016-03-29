@@ -114,4 +114,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, context) 
     test_premul_alpha_roundtrip(reporter, device);
 }
 #endif
-

@@ -40,4 +40,3 @@ int InfoHandler::handle(Request* request, MHD_Connection* connection,
     SkAutoTUnref<SkData> data(request->getJsonInfo(n));
     return SendData(connection, data, "application/json");
 }
-

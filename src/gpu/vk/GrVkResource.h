@@ -80,7 +80,7 @@ public:
         return false;
     }
 
-    /** Increment the reference count. 
+    /** Increment the reference count.
         Must be balanced by a call to unref() or unrefAndFreeResources().
      */
     void ref() const {
@@ -122,13 +122,13 @@ public:
 #endif
 
 private:
-    /** Must be implemented by any subclasses. 
-     *  Deletes any Vk data associated with this resource 
+    /** Must be implemented by any subclasses.
+     *  Deletes any Vk data associated with this resource
      */
     virtual void freeGPUData(const GrVkGpu* gpu) const = 0;
 
-    /** Must be overridden by subclasses that themselves store GrVkResources. 
-     *  Will unrefAndAbandon those resources without deleting the underlying Vk data 
+    /** Must be overridden by subclasses that themselves store GrVkResources.
+     *  Will unrefAndAbandon those resources without deleting the underlying Vk data
      */
     virtual void abandonSubResources() const {}
 

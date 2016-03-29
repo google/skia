@@ -35,4 +35,3 @@ int BatchBoundsHandler::handle(Request* request, MHD_Connection* connection,
     request->fDebugCanvas->setDrawGpuBatchBounds(enabled);
     return SendOK(connection);
 }
-

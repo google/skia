@@ -23,7 +23,7 @@
 
 /*
  * This path renderer tessellates the path into triangles using GrTessellator, uploads the triangles
- * to a vertex buffer, and renders them with a single draw call. It does not currently do 
+ * to a vertex buffer, and renders them with a single draw call. It does not currently do
  * antialiasing, so it must be used in conjunction with multisampling.
  */
 namespace {
@@ -124,7 +124,7 @@ public:
 
     const char* name() const override { return "TessellatingPathBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         color->setKnownFourComponents(fColor);

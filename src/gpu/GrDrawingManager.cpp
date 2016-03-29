@@ -63,7 +63,7 @@ void GrDrawingManager::flush() {
     }
     fFlushing = true;
 
-    SkDEBUGCODE(bool result =) 
+    SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrDrawTarget, GrDrawTarget::TopoSortTraits>(&fDrawTargets);
     SkASSERT(result);
 
@@ -129,7 +129,7 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
 
     *fDrawTargets.append() = dt;
 
-    // DrawingManager gets the creation ref - this ref is for the caller 
+    // DrawingManager gets the creation ref - this ref is for the caller
     return SkRef(dt);
 }
 

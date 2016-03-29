@@ -35,7 +35,7 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
     for (int i = 0; i < count; ++i) {
         SkMatrix matrix;
         matrix.setRSXform(xform[i]);
-        
+
         canvas->save();
         canvas->concat(matrix);
         canvas->drawImageRect(atlas, tex[i], tex[i].makeOffset(-tex[i].x(), -tex[i].y()), paint,
@@ -58,7 +58,7 @@ public:
                 return;
             }
         }
-        
+
         SkScalar anchorX = fAtlas->width()*0.5f;
         SkScalar anchorY = fAtlas->height()*0.5f;
         int currIndex = 0;
@@ -66,7 +66,7 @@ public:
             for (int y = 0; y < kGrid; y++) {
                 float xPos = (x / (kGrid - 1.0f)) * kWidth;
                 float yPos = (y / (kGrid - 1.0f)) * kWidth;
-                
+
                 fTex[currIndex] = SkRect::MakeLTRB(0.0f, 0.0f,
                                                    SkIntToScalar(fAtlas->width()),
                                                    SkIntToScalar(fAtlas->height()));
@@ -80,13 +80,13 @@ public:
                                            SkIntToScalar(fAtlas->height()));
         fXform[currIndex] = SkRSXform::MakeFromRadians(0.5f, SK_ScalarPI*0.5f,
                                                        kWidth*0.5f, kHeight*0.5f, anchorX, anchorY);
-        
+
         fCurrentTime = 0;
         fTimer.start();
     }
 
     ~DrawShipView() override {}
-    
+
 protected:
     // overrides from SkEventSink
     bool onQuery(SkEvent* evt) override {
@@ -96,25 +96,25 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void onDrawContent(SkCanvas* canvas) override {
         const float kCosDiff = 0.99984769515f;
         const float kSinDiff = 0.01745240643f;
-        
+
         if (!fAtlas) {
             return;
         }
-        
+
         SkPaint paint;
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setColor(SK_ColorWHITE);
         paint.setTextSize(15.0f);
-        
+
         fTimer.end();
-        
+
         fTimes[fCurrentTime] = (float)(fTimer.fWall);
         fCurrentTime = (fCurrentTime + 1) & 0x1f;
-        
+
         float meanTime = 0.0f;
         for (int i = 0; i < 32; ++i) {
             meanTime += fTimes[i];
@@ -125,27 +125,27 @@ protected:
         outString.appendScalar(fps);
         outString.append(" ms: ");
         outString.appendScalar(meanTime);
-        
+
         fTimer.start();
-        
+
         SkScalar anchorX = fAtlas->width()*0.5f;
         SkScalar anchorY = fAtlas->height()*0.5f;
         for (int i = 0; i < kGrid*kGrid+1; ++i) {
             SkScalar c = fXform[i].fSCos;
             SkScalar s = fXform[i].fSSin;
-            
+
             SkScalar dx = c*anchorX - s*anchorY;
             SkScalar dy = s*anchorX + c*anchorY;
-            
+
             fXform[i].fSCos = kCosDiff*c - kSinDiff*s;
             fXform[i].fSSin = kSinDiff*c + kCosDiff*s;
-            
+
             dx -= fXform[i].fSCos*anchorX - fXform[i].fSSin*anchorY;
             dy -= fXform[i].fSSin*anchorX + fXform[i].fSCos*anchorY;
             fXform[i].fTx += dx;
             fXform[i].fTy += dy;
         }
-        
+
         fProc(canvas, fAtlas.get(), fXform, fTex, nullptr, kGrid*kGrid+1, nullptr, &paint);
         paint.setColor(SK_ColorBLACK);
         canvas->drawRect(SkRect::MakeXYWH(0, 0, 200, 24), paint);
@@ -167,15 +167,15 @@ protected:
 private:
     const char*         fName;
     DrawAtlasProc       fProc;
-    
+
     sk_sp<SkImage> fAtlas;
     SkRSXform   fXform[kGrid*kGrid+1];
     SkRect      fTex[kGrid*kGrid+1];
     WallTimer   fTimer;
     float       fTimes[32];
     int         fCurrentTime;
-    
-    
+
+
     typedef SampleView INHERITED;
 };
 

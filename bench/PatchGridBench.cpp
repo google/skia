@@ -13,34 +13,34 @@
 #include "SkString.h"
 
  /**
- * This bench measures the rendering time of a gridof patches. 
- * This bench also tests the different combination of optional parameters for the function 
+ * This bench measures the rendering time of a gridof patches.
+ * This bench also tests the different combination of optional parameters for the function
  * (passing texture coordinates and colors, only textures coordinates, only colors or none).
  * Finally, it also has 3 possible sizes small, medium and big to test if the size of the patches
- * in the grid affects time. 
+ * in the grid affects time.
  */
 
 class PatchGridBench : public Benchmark {
-    
+
 public:
-    
+
     enum Size {
         kSmall_Size,
         kMedium_Size,
         kBig_Size
     };
-    
+
     enum VertexMode {
         kNone_VertexMode,
         kColors_VertexMode,
         kTexCoords_VertexMode,
         kBoth_VertexMode
     };
-    
+
     PatchGridBench(Size size, VertexMode vertexMode)
     : fVertexMode(vertexMode)
     , fSize(size) { }
-    
+
     void setScale(SkCanvas* canvas){
         switch (fSize) {
             case kSmall_Size:
@@ -54,7 +54,7 @@ public:
                 break;
         }
     }
-    
+
     void setGrid() {
         SkPoint vertices[4][5] = {
             {{50,50}, {150,50}, {250,50},{350,50},{450,50}},
@@ -62,28 +62,28 @@ public:
             {{50,250}, {150,250}, {250,250},{350,250},{450,250}},
             {{100,300}, {150,350}, {250,350},{350,350},{450,350}}
         };
-        
+
         SkColor cornerColors[4][5] = {
             {SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE},
             {SK_ColorRED, SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE, SK_ColorRED},
             {SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE},
             {SK_ColorRED, SK_ColorBLUE, SK_ColorRED, SK_ColorBLUE, SK_ColorRED},
         };
-        
+
         SkPoint texCoords[4][5] = {
             {{0.0f,0.0f}, {1.0f,0.0f}, {2.0f,0.0f}, {3.0f,0.0f}, {4.0f,0.0f}},
             {{0.0f,1.0f}, {1.0f,1.0f}, {2.0f,1.0f}, {3.0f,1.0f}, {4.0f,1.0f}},
             {{0.0f,2.0f}, {1.0f,2.0f}, {2.0f,2.0f}, {3.0f,2.0f}, {4.0f,2.0f}},
             {{0.0f,3.0f}, {1.0f,3.0f}, {2.0f,3.0f}, {3.0f,3.0f}, {4.0f,3.0f}},
         };
-        
+
         SkPoint hrzCtrl[4][8] = {
             {{75,30},{125,45},{175,70},{225,20},{275,50},{325,50},{375,5},{425,90}},
             {{75,150},{125,150},{175,150},{225,150},{275,150},{325,150},{375,150},{425,150}},
             {{75,250},{125,250},{175,250},{225,250},{275,200},{325,150},{375,250},{425,250}},
             {{75,350},{125,350},{175,350},{225,350},{275,350},{325,350},{375,350},{425,350}}
         };
-        
+
         SkPoint vrtCtrl[6][5] = {
             {{50,75},{150,75},{250,75},{350,75},{450,75}},
             {{50,125},{150,125},{250,125},{350,125},{450,125}},
@@ -92,43 +92,43 @@ public:
             {{50,275},{150,275},{250,275},{350,275},{400,305}},
             {{50,325},{150,325},{250,325},{350,325},{450,325}}
         };
-        
+
         static const int kRows = 3;
         static const int kCols = 4;
-        
+
         fGrid.reset(kRows, kCols, SkPatchGrid::kColors_VertexType, nullptr);
         for (int i = 0; i < kRows; i++) {
             for (int j = 0; j < kCols; j++) {
                 SkPoint points[12];
-                
+
                 //set corners
                 points[SkPatchUtils::kTopP0_CubicCtrlPts] = vertices[i][j];
                 points[SkPatchUtils::kTopP3_CubicCtrlPts] = vertices[i][j + 1];
                 points[SkPatchUtils::kBottomP0_CubicCtrlPts] = vertices[i + 1][j];
                 points[SkPatchUtils::kBottomP3_CubicCtrlPts] = vertices[i + 1][j + 1];
-                
+
                 points[SkPatchUtils::kTopP1_CubicCtrlPts] = hrzCtrl[i][j * 2];
                 points[SkPatchUtils::kTopP2_CubicCtrlPts] = hrzCtrl[i][j * 2 + 1];
                 points[SkPatchUtils::kBottomP1_CubicCtrlPts] = hrzCtrl[i + 1][j * 2];
                 points[SkPatchUtils::kBottomP2_CubicCtrlPts] = hrzCtrl[i + 1][j * 2 + 1];
-                
+
                 points[SkPatchUtils::kLeftP1_CubicCtrlPts] = vrtCtrl[i * 2][j];
                 points[SkPatchUtils::kLeftP2_CubicCtrlPts] = vrtCtrl[i * 2 + 1][j];
                 points[SkPatchUtils::kRightP1_CubicCtrlPts] = vrtCtrl[i * 2][j + 1];
                 points[SkPatchUtils::kRightP2_CubicCtrlPts] = vrtCtrl[i * 2 + 1][j + 1];
-                
+
                 SkColor colors[4];
                 colors[0] = cornerColors[i][j];
                 colors[1] = cornerColors[i][j + 1];
                 colors[3] = cornerColors[i + 1][j];
                 colors[2] = cornerColors[i + 1][j + 1];
-                
+
                 SkPoint texs[4];
                 texs[0] = texCoords[i][j];
                 texs[1] = texCoords[i][j + 1];
                 texs[3] = texCoords[i + 1][j];
                 texs[2] = texCoords[i + 1][j + 1];
-                
+
                 switch (fVertexMode) {
                     case kNone_VertexMode:
                         fGrid.setPatch(j, i, points, nullptr, nullptr);
@@ -148,7 +148,7 @@ public:
             }
         }
     }
-    
+
     // override this method to change the shader
     sk_sp<SkShader> createShader() {
         const SkColor colors[] = {
@@ -156,7 +156,7 @@ public:
             SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
         };
         const SkPoint pts[] = { { 200.f / 4.f, 0.f }, { 3.f * 200.f / 4, 200.f } };
-        
+
         return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                             SkShader::kMirror_TileMode);
     }
@@ -180,7 +180,7 @@ protected:
             default:
                 break;
         }
-        
+
         SkString size;
         switch (fSize) {
             case kSmall_Size:
@@ -198,7 +198,7 @@ protected:
         fName.printf("patch_grid_%s_%s", vertexMode.c_str(), size.c_str());
         return fName.c_str();
     }
-    
+
     void onDelayedSetup() override {
         this->setGrid();
         switch (fVertexMode) {
@@ -225,7 +225,7 @@ protected:
     SkPatchGrid fGrid;
     VertexMode  fVertexMode;
     Size        fSize;
-    
+
     typedef Benchmark INHERITED;
 };
 

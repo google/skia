@@ -19,7 +19,7 @@ class GrGLSLCaps;
  * Stores some capabilities of a Vk backend.
  */
 class GrVkCaps : public GrCaps {
-public:    
+public:
     typedef GrVkStencilAttachment::Format StencilFormat;
 
     /**

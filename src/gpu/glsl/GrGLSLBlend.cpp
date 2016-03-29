@@ -479,4 +479,3 @@ void GrGLSLBlend::AppendRegionOp(GrGLSLFragmentBuilder* fsBuilder, const char* s
     }
     fsBuilder->codeAppend(";");
 }
-

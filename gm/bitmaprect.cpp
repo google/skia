@@ -281,4 +281,3 @@ DEF_GM( return new DrawBitmapRect3(); )
 DEF_GM( return new DrawBitmapRect4(false); )
 DEF_GM( return new DrawBitmapRect4(true); )
 #endif
-

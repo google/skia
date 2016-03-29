@@ -14,7 +14,7 @@
 
 class RefClass : public SkRefCnt {
 public:
-    
+
 
     RefClass(int n) : fN(n) {}
     int get() const { return fN; }

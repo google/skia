@@ -95,7 +95,7 @@ public:
         vertBuilder->codeAppendf("%s = vec2(%d, %d) * %s;", st.vsOut(),
                                  atlas->width(), atlas->height(),
                                  dfTexEffect.inTextureCoords()->fName);
-        
+
         // Use highp to work around aliasing issues
         fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
                                                                  kHigh_GrSLPrecision));
@@ -116,7 +116,7 @@ public:
         fragBuilder->codeAppend("float afwidth;");
         if (isUniformScale) {
             // For uniform scale, we adjust for the effect of the transformation on the distance
-            // by using the length of the gradient of the t coordinate in the y direction. 
+            // by using the length of the gradient of the t coordinate in the y direction.
             // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
@@ -356,7 +356,7 @@ public:
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
         if (isUniformScale) {
             // For uniform scale, we adjust for the effect of the transformation on the distance
-            // by using the length of the gradient of the t coordinate in the y direction. 
+            // by using the length of the gradient of the t coordinate in the y direction.
             // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
@@ -403,7 +403,7 @@ public:
         SkASSERT(fTextureSizeUni.isValid());
 
         GrTexture* texture = proc.texture(0);
-        if (texture->width() != fTextureSize.width() || 
+        if (texture->width() != fTextureSize.width() ||
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
             pdman.set2f(fTextureSizeUni,
@@ -645,8 +645,8 @@ public:
         // trade-off between quality and speed.
         fragBuilder->codeAppend("float afwidth;");
         if (isSimilarity) {
-            // For similarity transform (uniform scale-only is a subset of this), we adjust for the 
-            // effect of the transformation on the distance by using the length of the gradient of 
+            // For similarity transform (uniform scale-only is a subset of this), we adjust for the
+            // effect of the transformation on the distance by using the length of the gradient of
             // the texture coordinates. We use st coordinates to ensure we're mapping 1:1 from texel
             // space to pixel space.
 

@@ -13,7 +13,7 @@
 
 // added to suppress 'no previous prototype' warning and because this code is duplicated in
 // SkNullGLContext.cpp
-namespace {      
+namespace {
 
 class BufferObj {
 public:

@@ -334,7 +334,7 @@ static void test_really_a_rect(skiatest::Reporter* reporter) {
     // This rect should intersect the clip, but slice-out all of the "soft" parts,
     // leaving just a rect.
     const SkIRect ir = SkIRect::MakeLTRB(10, -10, 50, 90);
-    
+
     clip.op(ir, SkRegion::kIntersect_Op);
 
     REPORTER_ASSERT(reporter, clip.getBounds() == SkIRect::MakeLTRB(10, 0, 50, 90));

@@ -43,4 +43,3 @@ int ImgHandler::handle(Request* request, MHD_Connection* connection,
     SkAutoTUnref<SkData> data(request->drawToPng(n, m));
     return SendData(connection, data, "image/png");
 }
-

@@ -107,4 +107,3 @@ protected:
 };
 
 #endif  // SkAndroidSDKCanvas_DEFINED
-

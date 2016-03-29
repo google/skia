@@ -85,12 +85,12 @@ public:
                                   GrXPFactory::InvariantBlendedColor*) const override;
 
 private:
-    GrArithmeticXPFactory(float k1, float k2, float k3, float k4, bool enforcePMColor); 
+    GrArithmeticXPFactory(float k1, float k2, float k3, float k4, bool enforcePMColor);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineOptimizations& optimizations,
                                            bool hasMixedSamples,
-                                           const DstTexture*) const override; 
+                                           const DstTexture*) const override;
 
     bool onWillReadDstColor(const GrCaps& caps,
                             const GrPipelineOptimizations& optimizations,

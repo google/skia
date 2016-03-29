@@ -510,7 +510,7 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
         } else {
             rightEdge = SkScalarRoundToInt(path.getBounds().right()) << shiftEdgesUp;
         }
-        
+
         walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc, rightEdge);
     }
 }

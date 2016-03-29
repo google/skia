@@ -26,17 +26,17 @@ public:
 
     void blitH(int x, int y, int width) override {
         SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
-        
+
         fState.fProc1(fState.fXfer, State::WritableAddr(fDevice, x, y),
                       &fState.fPM4f, width, nullptr);
     }
 
     void blitV(int x, int y, int height, SkAlpha alpha) override {
         SkASSERT(x >= 0 && y >= 0 && y + height <= fDevice.height());
-        
+
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         size_t                 deviceRB = fDevice.rowBytes();
-        
+
         for (int i = 0; i < height; ++i) {
             fState.fProc1(fState.fXfer, device, &fState.fPM4f, 1, &alpha);
             device = (typename State::DstType*)((char*)device + deviceRB);
@@ -46,10 +46,10 @@ public:
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(x >= 0 && y >= 0 &&
                  x + width <= fDevice.width() && y + height <= fDevice.height());
-        
+
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         size_t        deviceRB = fDevice.rowBytes();
-        
+
         do {
             fState.fProc1(fState.fXfer, device, &fState.fPM4f, width, nullptr);
             y += 1;
@@ -59,7 +59,7 @@ public:
 
     void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
-        
+
         for (;;) {
             int count = *runs;
             if (count <= 0) {
@@ -84,24 +84,24 @@ public:
 
     void blitLCDMask(const SkMask& mask, const SkIRect& clip) {
         auto proc = fState.getLCDProc(SkXfermode::kSrcIsSingle_LCDFlag);
-        
+
         const int x = clip.fLeft;
         const int width = clip.width();
         const int y = clip.fTop;
         const int height = clip.height();
-        
+
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         const size_t dstRB = fDevice.rowBytes();
         const uint16_t* maskRow = (const uint16_t*)mask.getAddr(x, y);
         const size_t maskRB = mask.fRowBytes;
-        
+
         for (int i = 0; i < height; ++i) {
             proc(device, &fState.fPM4f, width, maskRow);
             device = (typename State::DstType*)((char*)device + dstRB);
             maskRow = (const uint16_t*)((const char*)maskRow + maskRB);
         }
     }
-    
+
     void blitMask(const SkMask& mask, const SkIRect& clip) override {
         if (SkMask::kLCD16_Format == mask.fFormat) {
             this->blitLCDMask(mask, clip);
@@ -111,19 +111,19 @@ public:
             this->INHERITED::blitMask(mask, clip);
             return;
         }
-        
+
         SkASSERT(mask.fBounds.contains(clip));
-        
+
         const int x = clip.fLeft;
         const int width = clip.width();
         const int y = clip.fTop;
         const int height = clip.height();
-        
+
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         const size_t dstRB = fDevice.rowBytes();
         const uint8_t* maskRow = (const uint8_t*)mask.getAddr(x, y);
         const size_t maskRB = mask.fRowBytes;
-        
+
         for (int i = 0; i < height; ++i) {
             fState.fProc1(fState.fXfer, device, &fState.fPM4f, width, maskRow);
             device = (typename State::DstType*)((char*)device + dstRB);
@@ -144,10 +144,10 @@ public:
         , fBlitBW(bstate.fBlitBW)
         , fBlitAA(bstate.fBlitAA)
     {}
-    
+
     void blitH(int x, int y, int width) override {
         SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
-        
+
         if (fBlitBW) {
             fBlitBW(&fBState, x, y, fDevice, width);
             return;
@@ -170,7 +170,7 @@ public:
 
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         size_t                   deviceRB = fDevice.rowBytes();
-        
+
         if (fConstInY) {
             fShaderContext->shadeSpan4f(x, y, fState.fBuffer, 1);
         }
@@ -186,17 +186,17 @@ public:
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(x >= 0 && y >= 0 &&
                  x + width <= fDevice.width() && y + height <= fDevice.height());
-        
+
         if (fBlitBW) {
             for (const int bottom = y + height; y < bottom; ++y) {
                 fBlitBW(&fBState, x, y, fDevice, width);
             }
             return;
         }
-        
+
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         size_t                   deviceRB = fDevice.rowBytes();
-        
+
         if (fConstInY) {
             fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
         }
@@ -211,7 +211,7 @@ public:
 
     void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
-        
+
         for (;;) {
             int count = *runs;
             if (count <= 0) {
@@ -241,16 +241,16 @@ public:
 
     void blitLCDMask(const SkMask& mask, const SkIRect& clip) {
         auto proc = fState.getLCDProc(0);
-        
+
         const int x = clip.fLeft;
         const int width = clip.width();
         int y = clip.fTop;
-        
+
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         const size_t deviceRB = fDevice.rowBytes();
         const uint16_t* maskRow = (const uint16_t*)mask.getAddr(x, y);
         const size_t maskRB = mask.fRowBytes;
-        
+
         if (fConstInY) {
             fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
         }
@@ -292,7 +292,7 @@ public:
 
         typename State::DstType* device = State::WritableAddr(fDevice, x, y);
         const size_t deviceRB = fDevice.rowBytes();
-        
+
         if (fConstInY) {
             fShaderContext->shadeSpan4f(x, y, fState.fBuffer, width);
         }
@@ -305,7 +305,7 @@ public:
             maskRow += maskRB;
         }
     }
-    
+
 protected:
     State                        fState;
     SkShader::Context::BlitState fBState;
@@ -344,10 +344,10 @@ struct State4f {
 
 struct State32 : State4f {
     typedef uint32_t    DstType;
-    
+
     SkXfermode::D32Proc fProc1;
     SkXfermode::D32Proc fProcN;
-    
+
     State32(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext)
         : State4f(info, paint, shaderContext)
     {
@@ -360,7 +360,7 @@ struct State32 : State4f {
         fProc1 = SkXfermode::GetD32Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_D32Flag);
         fProcN = SkXfermode::GetD32Proc(fXfer, fFlags);
     }
-    
+
     SkXfermode::LCD32Proc getLCDProc(uint32_t oneOrManyFlag) const {
         uint32_t flags = fFlags & 1;
         if (!(fFlags & SkXfermode::kDstIsSRGB_D32Flag)) {
@@ -376,10 +376,10 @@ struct State32 : State4f {
 
 struct State64 : State4f {
     typedef uint64_t    DstType;
-    
+
     SkXfermode::D64Proc fProc1;
     SkXfermode::D64Proc fProcN;
-    
+
     State64(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext)
         : State4f(info, paint, shaderContext)
     {
@@ -400,7 +400,7 @@ struct State64 : State4f {
         }
         return SkXfermode::GetLCD64Proc(flags | oneOrManyFlag);
     }
-    
+
     static DstType* WritableAddr(const SkPixmap& device, int x, int y) {
         return device.writable_addr64(x, y);
     }

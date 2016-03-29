@@ -47,7 +47,7 @@ public:
         @param topLevelPicture The top-level picture that is about to be rendered
         @param initialMat  The CTM of the canvas into which the layers will be drawn
         @param query       The rectangle that is about to be drawn.
-        @param atlasedNeedRendering Out parameter storing the layers that 
+        @param atlasedNeedRendering Out parameter storing the layers that
                                     should be hoisted to the atlas
         @param recycled    Out parameter storing layers that are atlased but do not need rendering
         @param numSamples  The number if MSAA samples required
@@ -95,7 +95,7 @@ public:
         @param layers       The hoisted layers
         @param replacements Replacement object that will be used for a replacement draw
     */
-    static void ConvertLayersToReplacements(const SkPicture* topLevelPicture, 
+    static void ConvertLayersToReplacements(const SkPicture* topLevelPicture,
                                             const SkTDArray<GrHoistedLayer>& layers,
                                             GrReplacements* replacements);
 

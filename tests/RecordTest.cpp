@@ -116,4 +116,3 @@ DEF_TEST(Record_Alignment, r) {
         REPORTER_ASSERT(r, is_aligned(record.alloc<uint64_t>()));
     }
 }
-

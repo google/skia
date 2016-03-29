@@ -78,7 +78,7 @@ class BitmapRectView : public SampleView {
     void resetBounce() {
         fSrcPts[0].set(0, 0);
         fSrcPts[1].set(SCALAR_SIZE, SCALAR_SIZE);
-        
+
         fSrcVec[0] = unit_vec(30);
         fSrcVec[1] = unit_vec(107);
     }

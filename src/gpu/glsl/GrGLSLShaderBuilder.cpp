@@ -174,4 +174,3 @@ void GrGLSLShaderBuilder::finalize(uint32_t visibility) {
 
     fFinalized = true;
 }
-

@@ -300,7 +300,7 @@ GrTexture* GaussianBlur(GrContext* context,
                     srcDrawContext.reset(context->drawContext(srcTexture->asRenderTarget()));
                     if (!srcDrawContext) {
                         return nullptr;
-                    }        
+                    }
                 }
 
                 // Clear out a radius to the right of the srcRect to prevent the
@@ -333,7 +333,7 @@ GrTexture* GaussianBlur(GrContext* context,
                     srcDrawContext.reset(context->drawContext(srcTexture->asRenderTarget()));
                     if (!srcDrawContext) {
                         return nullptr;
-                    }        
+                    }
                 }
 
                 // Clear out a radius below the srcRect to prevent the Y

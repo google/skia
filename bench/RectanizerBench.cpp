@@ -41,7 +41,7 @@ public:
         kSmallPow2_RectType
     };
 
-    RectanizerBench(RectanizerType rectanizerType, RectType rectType) 
+    RectanizerBench(RectanizerType rectanizerType, RectType rectType)
         : fName("rectanizer_")
         , fRectanizerType(rectanizerType)
         , fRectType(rectType) {

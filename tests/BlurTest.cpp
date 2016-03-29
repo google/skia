@@ -559,7 +559,7 @@ DEF_TEST(BlurAsABlur, reporter) {
 
 #if SK_SUPPORT_GPU
 
-// This exercises the problem discovered in crbug.com/570232. The return value from 
+// This exercises the problem discovered in crbug.com/570232. The return value from
 // SkBlurMask::BoxBlur wasn't being checked in SkBlurMaskFilter.cpp::GrRRectBlurEffect::Create
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctx) {
 

@@ -166,7 +166,7 @@ public:
     }
 
     ~SkSpecialImage_Image() override { }
-    
+
     bool isOpaque() const override { return fImage->isOpaque(); }
 
     size_t getSize() const override {
@@ -200,7 +200,7 @@ public:
     bool getBitmapDeprecated(SkBitmap* result) const override {
 #if SK_SUPPORT_GPU
         if (GrTexture* texture = as_IB(fImage.get())->peekTexture()) {
-            const SkImageInfo info = GrMakeInfoFromTexture(texture, 
+            const SkImageInfo info = GrMakeInfoFromTexture(texture,
                                                            fImage->width(), fImage->height(),
                                                            fImage->isOpaque());
             if (!result->setInfo(info)) {
@@ -357,7 +357,7 @@ public:
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
         SkBitmap subsetBM;
-        
+
         if (!fBitmap.extractSubset(&subsetBM, subset)) {
             return nullptr;
         }
@@ -415,7 +415,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(SkImageFilter::Proxy* proxy
 #include "SkImage_Gpu.h"
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
-public:                                       
+public:
     SkSpecialImage_Gpu(SkImageFilter::Proxy* proxy, const SkIRect& subset,
                        uint32_t uniqueID, GrTexture* tex, SkAlphaType at)
         : INHERITED(proxy, subset, uniqueID)
@@ -447,7 +447,7 @@ public:
     GrTexture* onPeekTexture() const override { return fTexture; }
 
     bool getBitmapDeprecated(SkBitmap* result) const override {
-        const SkImageInfo info = GrMakeInfoFromTexture(fTexture, 
+        const SkImageInfo info = GrMakeInfoFromTexture(fTexture,
                                                        this->width(), this->height(),
                                                        this->isOpaque());
         if (!result->setInfo(info)) {
@@ -463,7 +463,7 @@ public:
 
     bool testingOnlyOnGetROPixels(SkBitmap* result) const override {
 
-        const SkImageInfo info = SkImageInfo::MakeN32(this->width(), 
+        const SkImageInfo info = SkImageInfo::MakeN32(this->width(),
                                                       this->height(),
                                                       this->isOpaque() ? kOpaque_SkAlphaType
                                                                        : kPremul_SkAlphaType);
@@ -495,7 +495,7 @@ public:
         return SkSpecialImage::MakeFromGpu(this->internal_getProxy(),
                                            subset,
                                            this->uniqueID(),
-                                           fTexture, 
+                                           fTexture,
                                            fAlphaType);
     }
 
@@ -536,7 +536,7 @@ private:
 };
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(SkImageFilter::Proxy* proxy,
-                                                  const SkIRect& subset, 
+                                                  const SkIRect& subset,
                                                   uint32_t uniqueID,
                                                   GrTexture* tex,
                                                   SkAlphaType at) {

@@ -570,14 +570,14 @@ bool GrGLInterface::validate() const {
                 nullptr == fFunctions.fDrawElementsInstanced) {
                 RETURN_FALSE_INTERFACE
             }
-        }    
+        }
     } else if (kGLES_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_draw_instanced")) {
             if (nullptr == fFunctions.fDrawArraysInstanced ||
                 nullptr == fFunctions.fDrawElementsInstanced) {
                 RETURN_FALSE_INTERFACE
             }
-        }    
+        }
     }
 
     if (kGL_GrGLStandard == fStandard) {
@@ -585,13 +585,13 @@ bool GrGLInterface::validate() const {
             if (nullptr == fFunctions.fVertexAttribDivisor) {
                 RETURN_FALSE_INTERFACE
             }
-        }    
+        }
     } else if (kGLES_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_instanced_arrays")) {
             if (nullptr == fFunctions.fVertexAttribDivisor) {
                 RETURN_FALSE_INTERFACE
             }
-        }    
+        }
     }
 
     if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||

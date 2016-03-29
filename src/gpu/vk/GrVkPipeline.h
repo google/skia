@@ -23,7 +23,7 @@ class GrVkRenderPass;
 
 class GrVkPipeline : public GrVkResource {
 public:
-    static GrVkPipeline* Create(GrVkGpu* gpu, 
+    static GrVkPipeline* Create(GrVkGpu* gpu,
                                 const GrPipeline& pipeline,
                                 const GrPrimitiveProcessor& primProc,
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,

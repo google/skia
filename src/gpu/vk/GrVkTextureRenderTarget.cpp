@@ -129,7 +129,7 @@ GrVkTextureRenderTarget::CreateNewTextureRenderTarget(GrVkGpu* gpu,
         return nullptr;
     }
 
-    GrVkTextureRenderTarget* trt = GrVkTextureRenderTarget::Create(gpu, desc, lifeCycle, 
+    GrVkTextureRenderTarget* trt = GrVkTextureRenderTarget::Create(gpu, desc, lifeCycle,
                                                                    imageDesc.fFormat, imageRsrc);
     // Create() will increment the refCount of the image resource if it succeeds
     imageRsrc->unref(gpu);
@@ -141,7 +141,7 @@ GrVkTextureRenderTarget*
 GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(GrVkGpu* gpu,
                                                           const GrSurfaceDesc& desc,
                                                           GrGpuResource::LifeCycle lifeCycle,
-                                                          VkFormat format, 
+                                                          VkFormat format,
                                                           const GrVkTextureInfo* info) {
     SkASSERT(info);
     // Wrapped textures require both image and allocation (because they can be mapped)
@@ -170,4 +170,3 @@ GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(GrVkGpu* gpu,
 
     return trt;
 }
-

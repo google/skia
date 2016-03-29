@@ -146,4 +146,3 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
 
     return result.release();
 }
-

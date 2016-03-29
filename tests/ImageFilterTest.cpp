@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -567,7 +566,7 @@ static void run_gpu_test(skiatest::Reporter* reporter,
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkBudgeted::kNo,
-                                                         SkImageInfo::MakeN32Premul(widthHeight, 
+                                                         SkImageInfo::MakeN32Premul(widthHeight,
                                                                                     widthHeight),
                                                          0,
                                                          &props,

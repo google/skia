@@ -300,7 +300,7 @@ bool SkAndroidSDKCanvas::onPeekPixels(SkPixmap* pmap) {
 bool SkAndroidSDKCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
     SkASSERT(pmap);
     SkImageInfo info;
-    size_t rowBytes; 
+    size_t rowBytes;
     const void* addr = fProxyTarget->accessTopLayerPixels(&info, &rowBytes, nullptr);
     if (addr) {
         pmap->reset(info, addr, rowBytes);
@@ -355,5 +355,3 @@ void SkAndroidSDKCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
 }
 
 void SkAndroidSDKCanvas::onDiscard() { fProxyTarget->discard(); }
-
-

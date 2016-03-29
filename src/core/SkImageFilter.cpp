@@ -804,4 +804,3 @@ bool SkImageFilter::DeviceProxy::filterImage(const SkImageFilter* filter, const 
                                        SkBitmap* result, SkIPoint* offset) {
     return fDevice->filterImage(filter, src, ctx, result, offset);
 }
-

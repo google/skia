@@ -50,4 +50,3 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             return false;
     }
 }
-

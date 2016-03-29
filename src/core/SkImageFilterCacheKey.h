@@ -39,4 +39,3 @@ struct SkImageFilter::Cache::Key {
 };
 
 #endif
-

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -16,7 +15,7 @@ static sk_sp<SkShader> make_shader() {
         SK_ColorYELLOW,
     };
     const SkPoint pts[] = { { 100.f / 4.f, 0.f }, { 3.f * 100.f / 4.f, 100.f } };
-    
+
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                         SkShader::kMirror_TileMode);
 }
@@ -66,7 +65,7 @@ static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
 
 DEF_SIMPLE_GM(patch_primitive, canvas, 800, 800) {
         SkPaint paint;
-        
+
         // The order of the colors and points is clockwise starting at upper-left corner.
         const SkPoint cubics[SkPatchUtils::kNumCtrlPts] = {
             //top points
@@ -78,22 +77,22 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 800, 800) {
             //left points
             {50,250},{150,150}
         };
-        
+
         const SkColor colors[SkPatchUtils::kNumCorners] = {
             SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
         };
         const SkPoint texCoords[SkPatchUtils::kNumCorners] = {
             {0.0f, 0.0f}, {100.0f, 0.0f}, {100.0f,100.0f}, {0.0f, 100.0f}}
         ;
-        
+
         const SkXfermode::Mode modes[] = {
             SkXfermode::kSrc_Mode,
             SkXfermode::kDst_Mode,
             SkXfermode::kModulate_Mode,
         };
-        
+
         sk_sp<SkShader> shader(make_shader());
-        
+
         canvas->save();
         for (int y = 0; y < 3; y++) {
             SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(modes[y]));
@@ -121,7 +120,7 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 800, 800) {
                     default:
                         break;
                 }
-                
+
                 draw_control_points(canvas, cubics);
                 canvas->restore();
             }

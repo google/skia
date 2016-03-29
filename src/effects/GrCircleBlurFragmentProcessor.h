@@ -18,7 +18,7 @@
 
 class GrTextureProvider;
 
-// This FP handles the special case of a blurred circle. It uses a 1D 
+// This FP handles the special case of a blurred circle. It uses a 1D
 // profile that is just rotated about the origin of the circle.
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:

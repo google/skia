@@ -203,7 +203,7 @@ void setup_viewport_scissor_state(const GrVkGpu* gpu,
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
-void setup_multisample_state(const GrPipeline& pipeline, 
+void setup_multisample_state(const GrPipeline& pipeline,
                              const GrPrimitiveProcessor& primProc,
                              const GrCaps* caps,
                              VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
@@ -469,8 +469,8 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
 
     VkPipeline vkPipeline;
     VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
-                                                                          cache, 1, 
-                                                                          &pipelineCreateInfo, 
+                                                                          cache, 1,
+                                                                          &pipelineCreateInfo,
                                                                           nullptr, &vkPipeline));
     if (err) {
         return nullptr;
@@ -493,7 +493,7 @@ void set_dynamic_scissor_state(GrVkGpu* gpu,
     if (scissorState.enabled() &&
         !scissorState.rect().contains(0, 0, target.width(), target.height())) {
         // This all assumes the scissorState has previously been clipped to the device space render
-        // target. 
+        // target.
         scissor.offset.x = scissorState.rect().fLeft;
         scissor.extent.width = scissorState.rect().width();
         if (kTopLeft_GrSurfaceOrigin == target.origin()) {

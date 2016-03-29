@@ -94,4 +94,3 @@ SkString GrGLSLCaps::dump() const {
 
 void GrGLSLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
 }
-

@@ -510,7 +510,7 @@ protected:
         paint.setDither(fDither);
         canvas->drawRect(SkRect::MakeWH(500, 500), paint);
     }
-    
+
 private:
     sk_sp<SkShader> fShader;
     bool fDither;
@@ -548,7 +548,7 @@ protected:
         paint.setShader(fShader);
         canvas->drawRect(SkRect::MakeWH(500, 500), paint);
     }
-    
+
 private:
     sk_sp<SkShader> fShader;
     bool fDither;
@@ -600,7 +600,7 @@ protected:
                     (index + 1) * kHeight), paint);
         }
     }
-    
+
 private:
     sk_sp<SkShader> fShader[100];
     bool fDither;

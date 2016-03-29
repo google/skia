@@ -204,7 +204,7 @@ protected:
             canvas->translate(0, bm.height() * 0.85f);
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
@@ -300,7 +300,7 @@ protected:
             canvas->translate(0, SkScalarRoundToScalar(bm.height() * 0.85f));
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Intel Inc.
  *
@@ -155,7 +154,7 @@ protected:
         giantPaint.setAntiAlias(true);
         giantPaint.setColor(0x80808080);
         canvas->drawCircle(giantCenter.fX, giantCenter.fY, giantRadius, giantPaint);
-        
+
         SkRandom rand;
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
         int i;

@@ -176,7 +176,7 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
             // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
             // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,
             // depending on the surrounding code, accessing .xy with a uniform involved can
-            // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand 
+            // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand
             // (and only accessing .xy) seems to "fix" things.
             const char* precision = glslCaps->usesPrecisionModifiers() ? "highp " : "";
             this->codePrependf("\t%svec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n",
@@ -264,7 +264,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
         return fbFetchColorName;
     } else {
         return kDstTextureColorName;
-    } 
+    }
 }
 
 void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {
@@ -322,7 +322,7 @@ void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {
     va_list argp;
     va_start(argp, fmt);
     inputs().appendVAList(fmt, argp);
-    va_end(argp);    
+    va_end(argp);
 }
 
 const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
@@ -392,4 +392,3 @@ void GrGLSLFragmentShaderBuilder::onAfterChildProcEmitCode() {
     int removeAt = fMangleString.findLastOf('_');
     fMangleString.remove(removeAt, fMangleString.size() - removeAt);
 }
-

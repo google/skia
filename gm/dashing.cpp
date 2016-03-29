@@ -12,7 +12,7 @@
 
 static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
                      SkScalar finalX = SkIntToScalar(600), SkScalar finalY = SkIntToScalar(0),
-                     SkScalar phase = SkIntToScalar(0), 
+                     SkScalar phase = SkIntToScalar(0),
                      SkScalar startX = SkIntToScalar(0), SkScalar startY = SkIntToScalar(0)) {
     SkPaint p(paint);
 
@@ -453,8 +453,8 @@ protected:
             paint.setStrokeWidth(SkIntToScalar(phase+1));
             paint.setColor(gColors[phase]);
             sign = (x % 20) ? 1 : -1;
-            drawline(canvas, kOn, kOff, paint, 
-                     SkIntToScalar(x), -sign * SkIntToScalar(10003), 
+            drawline(canvas, kOn, kOff, paint,
+                     SkIntToScalar(x), -sign * SkIntToScalar(10003),
                      SkIntToScalar(phase),
                      SkIntToScalar(x),  sign * SkIntToScalar(10003));
             phase = (phase + 1) % kIntervalLength;
@@ -464,8 +464,8 @@ protected:
             paint.setStrokeWidth(SkIntToScalar(phase+1));
             paint.setColor(gColors[phase]);
             sign = (y % 20) ? 1 : -1;
-            drawline(canvas, kOn, kOff, paint, 
-                     -sign * SkIntToScalar(10003), SkIntToScalar(y), 
+            drawline(canvas, kOn, kOff, paint,
+                     -sign * SkIntToScalar(10003), SkIntToScalar(y),
                      SkIntToScalar(phase),
                       sign * SkIntToScalar(10003), SkIntToScalar(y));
             phase = (phase + 1) % kIntervalLength;

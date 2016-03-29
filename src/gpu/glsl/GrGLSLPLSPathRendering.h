@@ -10,4 +10,3 @@
                                  "    layout(rgba8i) ivec4 windings;\n"\
                                  "    layout(rgba8) vec4 dstColor;\n"\
                                  "} pls;\n"
-

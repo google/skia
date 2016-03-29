@@ -171,7 +171,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     } else {
         constraintMode = GrTextureAdjuster::kYes_FilterConstraint;
     }
-    
+
     // If we have to outset for AA then we will generate texture coords outside the src rect. The
     // same happens for any mask filter that extends the bounds rendered in the dst.
     // This is conservative as a mask filter does not have to expand the bounds rendered.

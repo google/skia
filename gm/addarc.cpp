@@ -120,12 +120,12 @@ DEF_GM( return new AddArcMeasGM; )
 class StrokeCircleGM : public skiagm::GM {
 public:
     StrokeCircleGM() : fRotate(0) {}
-    
+
 protected:
     SkString onShortName() override { return SkString("strokecircle"); }
-    
+
     SkISize onISize() override { return SkISize::Make(520, 520); }
-    
+
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(20, 20);
         canvas->translate(13, 13);
@@ -176,12 +176,12 @@ static void html_canvas_arc(SkPath* path, SkScalar x, SkScalar y, SkScalar r, Sk
 class ManyArcsGM : public skiagm::GM {
 public:
     ManyArcsGM() {}
-    
+
 protected:
     SkString onShortName() override { return SkString("manyarcs"); }
-    
+
     SkISize onISize() override { return SkISize::Make(620, 330); }
-    
+
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -197,12 +197,12 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(sweepAngles); ++i) {
             sweepAngles[i] *= 180;
         }
-        
+
         SkScalar startAngles[] = { -1, -0.5f, 0, 0.5f };
         for (size_t i = 0; i < SK_ARRAY_COUNT(startAngles); ++i) {
             startAngles[i] *= 180;
         }
-        
+
         bool anticlockwise = false;
         SkScalar sign = 1;
         for (size_t i = 0; i < SK_ARRAY_COUNT(startAngles) * 2; ++i) {
@@ -225,9 +225,8 @@ protected:
             canvas->translate(0, 40);
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ManyArcsGM; )
-

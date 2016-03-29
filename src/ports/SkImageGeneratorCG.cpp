@@ -33,7 +33,7 @@ SkImageGenerator* SkImageGeneratorCG::NewFromEncodedCG(SkData* data) {
     if (!imageSrc) {
         return nullptr;
     }
-    
+
     // Make sure we call CFRelease to free the imageSrc.  Since CFRelease actually takes
     // a const void*, we must cast the imageSrc to a const void*.
     SkAutoTCallVProc<const void, CFRelease> autoImageSrc(imageSrc);
@@ -42,7 +42,7 @@ SkImageGenerator* SkImageGeneratorCG::NewFromEncodedCG(SkData* data) {
     if (!properties) {
         return nullptr;
     }
-    
+
     CFNumberRef widthRef = (CFNumberRef) (CFDictionaryGetValue(properties,
             kCGImagePropertyPixelWidth));
     CFNumberRef heightRef = (CFNumberRef) (CFDictionaryGetValue(properties,
@@ -58,7 +58,7 @@ SkImageGenerator* SkImageGeneratorCG::NewFromEncodedCG(SkData* data) {
             !CFNumberGetValue(heightRef, kCFNumberIntType, &height)) {
         return nullptr;
     }
-    
+
     SkAlphaType alphaType = hasAlpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
     SkImageInfo info = SkImageInfo::Make(width, height, kN32_SkColorType, alphaType);
 
@@ -85,7 +85,7 @@ bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size
         // FIXME: Support other colorTypes.
         return false;
     }
-    
+
     switch (info.alphaType()) {
         case kOpaque_SkAlphaType:
             if (kOpaque_SkAlphaType != this->getInfo().alphaType()) {
@@ -97,7 +97,7 @@ bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size
         default:
             return false;
     }
-    
+
     CGImageRef image = CGImageSourceCreateImageAtIndex((CGImageSourceRef) fImageSrc.get(), 0,
             nullptr);
     if (!image) {

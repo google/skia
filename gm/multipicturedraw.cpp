@@ -424,7 +424,7 @@ static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
 
             SkCanvas* subCanvas = step.fSurf->getCanvas();
 
-            const SkMatrix trans = SkMatrix::MakeTrans(-SkIntToScalar(x*kTileWidth), 
+            const SkMatrix trans = SkMatrix::MakeTrans(-SkIntToScalar(x*kTileWidth),
                                                        -SkIntToScalar(y*kTileHeight));
 
             create_content(mpd, pfGen, pictures, subCanvas, trans);
@@ -518,7 +518,7 @@ namespace skiagm {
 
         SkString onShortName() override {
             static const char* gContentNames[] = {
-                "noclip", "rectclip", "rrectclip", "pathclip", 
+                "noclip", "rectclip", "rrectclip", "pathclip",
                 "invpathclip", "sierpinski", "biglayer"
             };
             static const char* gLayoutNames[] = { "simple", "tiled" };

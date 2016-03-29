@@ -28,7 +28,7 @@ public:
                                                                  GrGpuResource::LifeCycle,
                                                                  const GrVkImage::ImageDesc&);
 
-    static GrVkTextureRenderTarget* CreateWrappedTextureRenderTarget(GrVkGpu*, 
+    static GrVkTextureRenderTarget* CreateWrappedTextureRenderTarget(GrVkGpu*,
                                                                      const GrSurfaceDesc&,
                                                                      GrGpuResource::LifeCycle,
                                                                      VkFormat,

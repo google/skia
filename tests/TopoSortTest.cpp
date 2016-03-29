@@ -121,7 +121,7 @@ DEF_TEST(TopoSort, reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(tests); ++i) {
         SkTDArray<sk_tool_utils::TopoTestNode*> graph;
-        
+
         (tests[i].fCreate)(&graph);
 
         sk_tool_utils::TopoTestNode::Shuffle(&graph, &rand);
@@ -139,4 +139,3 @@ DEF_TEST(TopoSort, reporter) {
         sk_tool_utils::TopoTestNode::DeallocNodes(&graph);
     }
 }
-

@@ -62,7 +62,7 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
                                                                imageResource, imageView);
     imageResource->unref(gpu);
     imageView->unref(gpu);
-    
+
     return stencil;
 }
 

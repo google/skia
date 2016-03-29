@@ -116,7 +116,7 @@
 #define GR_GL_PIXEL_PACK_BUFFER              0x88EB
 #define GR_GL_PIXEL_UNPACK_BUFFER            0x88EC
 
-#define GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM 0x78EC 
+#define GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM 0x78EC
 #define GR_GL_PIXEL_PACK_TRANSFER_BUFFER_CHROMIUM   0x78ED
 
 #define GR_GL_STREAM_DRAW                    0x88E0
@@ -168,7 +168,7 @@
 #define GR_GL_FRAMEBUFFER_SRGB               0x8DB9
 #define GR_GL_SHADER_PIXEL_LOCAL_STORAGE     0x8F64
 #define GR_GL_SAMPLE_SHADING                 0x8C36
- 
+
 /* ErrorCode */
 #define GR_GL_NO_ERROR                       0
 #define GR_GL_INVALID_ENUM                   0x0500

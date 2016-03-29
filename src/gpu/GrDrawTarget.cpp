@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -468,7 +467,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
         batch->bounds().fLeft, batch->bounds().fRight,
         batch->bounds().fTop, batch->bounds().fBottom);
     GrBATCH_INFO(SkTabString(batch->dumpInfo(), 1).c_str());
-    GrBATCH_INFO("\tOutcome:\n");    
+    GrBATCH_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxBatchLookback, fBatches.count());
     if (maxCandidates) {
         int i = 0;
@@ -568,13 +567,13 @@ bool GrDrawTarget::installPipelineInDrawBatch(const GrPipelineBuilder* pipelineB
         viewport.fWidth = rt->width();
         viewport.fHeight = rt->height();
         SkIRect ibounds;
-        ibounds.fLeft = SkTPin(SkScalarFloorToInt(batch->bounds().fLeft), viewport.fLeft, 
+        ibounds.fLeft = SkTPin(SkScalarFloorToInt(batch->bounds().fLeft), viewport.fLeft,
                               viewport.fWidth);
-        ibounds.fTop = SkTPin(SkScalarFloorToInt(batch->bounds().fTop), viewport.fBottom, 
+        ibounds.fTop = SkTPin(SkScalarFloorToInt(batch->bounds().fTop), viewport.fBottom,
                              viewport.fHeight);
-        ibounds.fRight = SkTPin(SkScalarCeilToInt(batch->bounds().fRight), viewport.fLeft, 
+        ibounds.fRight = SkTPin(SkScalarCeilToInt(batch->bounds().fRight), viewport.fLeft,
                                viewport.fWidth);
-        ibounds.fBottom = SkTPin(SkScalarCeilToInt(batch->bounds().fBottom), viewport.fBottom, 
+        ibounds.fBottom = SkTPin(SkScalarCeilToInt(batch->bounds().fBottom), viewport.fBottom,
                                 viewport.fHeight);
         if (scissor != nullptr && scissor->enabled()) {
             if (!ibounds.intersect(scissor->rect())) {

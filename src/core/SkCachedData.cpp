@@ -98,7 +98,7 @@ void SkCachedData::inMutexRef(bool fromCache) {
     if ((1 == fRefCnt) && fInCache) {
         this->inMutexLock();
     }
-    
+
     fRefCnt += 1;
     if (fromCache) {
         SkASSERT(!fInCache);
@@ -125,22 +125,22 @@ bool SkCachedData::inMutexUnref(bool fromCache) {
         default:
             break;
     }
-    
+
     if (fromCache) {
         SkASSERT(fInCache);
         fInCache = false;
     }
-    
+
     // return true when we need to be deleted
     return 0 == fRefCnt;
 }
 
 void SkCachedData::inMutexLock() {
     fMutex.assertHeld();
-    
+
     SkASSERT(!fIsLocked);
     fIsLocked = true;
-    
+
     switch (fStorageType) {
         case kMalloc_StorageType:
             this->setData(fStorage.fMalloc);
@@ -159,10 +159,10 @@ void SkCachedData::inMutexLock() {
 
 void SkCachedData::inMutexUnlock() {
     fMutex.assertHeld();
-    
+
     SkASSERT(fIsLocked);
     fIsLocked = false;
-    
+
     switch (fStorageType) {
         case kMalloc_StorageType:
             // nothing to do/check

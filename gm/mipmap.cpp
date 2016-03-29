@@ -47,4 +47,3 @@ DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
     }
     canvas->drawImage(img.get(), 20, 20, nullptr);
 }
-

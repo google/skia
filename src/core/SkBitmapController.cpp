@@ -49,7 +49,7 @@ public:
 private:
     SkBitmap                     fResultBitmap;
     SkAutoTUnref<const SkMipMap> fCurrMip;
-    
+
     bool processHQRequest(const SkBitmapProvider&);
     bool processMediumRequest(const SkBitmapProvider&);
 };
@@ -77,17 +77,17 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     if (fQuality != kHigh_SkFilterQuality) {
         return false;
     }
-    
+
     // Our default return state is to downgrade the request to Medium, w/ or w/o setting fBitmap
     // to a valid bitmap. If we succeed, we will set this to Low instead.
     fQuality = kMedium_SkFilterQuality;
-    
+
     if (kN32_SkColorType != provider.info().colorType() || !cache_size_okay(provider, fInvMatrix) ||
         fInvMatrix.hasPerspective())
     {
         return false; // can't handle the reqeust
     }
-    
+
     SkScalar invScaleX = fInvMatrix.getScaleX();
     SkScalar invScaleY = fInvMatrix.getScaleY();
     if (fInvMatrix.getType() & SkMatrix::kAffine_Mask) {
@@ -126,7 +126,7 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
                                     dstW, dstH, SkResourceCache::GetAllocator())) {
             return false; // we failed to create fScaledBitmap
         }
-        
+
         SkASSERT(fResultBitmap.getPixels());
         fResultBitmap.setImmutable();
         if (!provider.isVolatile()) {
@@ -135,9 +135,9 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
             }
         }
     }
-    
+
     SkASSERT(fResultBitmap.getPixels());
-    
+
     fInvMatrix.postScale(SkIntToScalar(dstW) / provider.width(),
                          SkIntToScalar(dstH) / provider.height());
     fQuality = kLow_SkFilterQuality;
@@ -153,11 +153,11 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
     if (fQuality != kMedium_SkFilterQuality) {
         return false;
     }
-    
+
     // Our default return state is to downgrade the request to Low, w/ or w/o setting fBitmap
     // to a valid bitmap.
     fQuality = kLow_SkFilterQuality;
-    
+
     SkSize invScaleSize;
     if (!fInvMatrix.decomposeScale(&invScaleSize, nullptr)) {
         return false;
@@ -179,7 +179,7 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
         if (nullptr == fCurrMip->data()) {
             sk_throw();
         }
-        
+
         const SkSize scale = SkSize::Make(SkScalarInvert(invScaleSize.width()),
                                           SkScalarInvert(invScaleSize.height()));
         SkMipMap::Level level;
@@ -225,4 +225,3 @@ SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBi
                                                                       void* storage, size_t size) {
     return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality);
 }
-

@@ -25,7 +25,7 @@ public:
         fK[3] = k4;
         fEnforcePMColor = enforcePMColor;
     }
-    
+
     void xfer32(SkPMColor[], const SkPMColor[], int count, const SkAlpha[]) const override;
 
     SK_TO_STRING_OVERRIDE()
@@ -147,7 +147,7 @@ SkXfermode* SkArithmeticMode::Create(SkScalar k1, SkScalar k2,
                SkScalarNearlyEqual(k3, SK_Scalar1) && SkScalarNearlyZero(k4)) {
         return SkXfermode::Create(SkXfermode::kDst_Mode);
     }
-    
+
     return new SkArithmeticMode_scalar(k1, k2, k3, k4, enforcePMColor);
 }
 

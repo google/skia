@@ -59,7 +59,7 @@ public:
 
     static const int kOpTypeCount = kLast_OpType + 1;
 
-    static void WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_32 height, 
+    static void WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_32 height,
                          SkWStream& out);
 
     SkDrawCommand(OpType opType);

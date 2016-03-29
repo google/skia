@@ -192,4 +192,3 @@ void application_term() {
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     return new VisualBench(hwnd, argc, argv);
 }
-

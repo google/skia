@@ -211,7 +211,7 @@ bool SkRasterClip::op(const SkPath& path, const SkIRect& bounds, SkRegion::Op op
         }
     } else {
         base.setRect(bounds);
-        
+
         if (SkRegion::kReplace_Op == op) {
             return this->setPath(path, base, doAA);
         } else {
@@ -302,7 +302,7 @@ bool SkRasterClip::op(const SkRect& r, const SkIRect& bounds, SkRegion::Op op, b
         }
         return this->op(ir, op);
     }
-    
+
     if (fIsBW && doAA) {
         // check that the rect really needs aa, or is it close enought to
         // integer boundaries that we can just treat it as a BW rect?
@@ -369,13 +369,13 @@ const SkRegion& SkRasterClip::forceGetBW() {
 
 void SkRasterClip::convertToAA() {
     AUTO_RASTERCLIP_VALIDATE(*this);
-    
+
     SkASSERT(!fForceConservativeRects);
-    
+
     SkASSERT(fIsBW);
     fAA.setRegion(fBW);
     fIsBW = false;
-    
+
     // since we are being explicitly asked to convert-to-aa, we pass false so we don't "optimize"
     // ourselves back to BW.
     (void)this->updateCacheAndReturnNonEmpty(false);

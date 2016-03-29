@@ -43,7 +43,7 @@ SkString GrAtlasTextBatch::dumpInfo() const {
     return str;
 }
 
-void GrAtlasTextBatch::computePipelineOptimizations(GrInitInvariantOutput* color, 
+void GrAtlasTextBatch::computePipelineOptimizations(GrInitInvariantOutput* color,
                                                     GrInitInvariantOutput* coverage,
                                                     GrBatchToXPOverrides* overrides) const {
     if (kColorBitmapMask_MaskType == fMaskType) {

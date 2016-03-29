@@ -69,7 +69,7 @@ public:
         @param  normal      the normal map
         @param  light       the light applied to the normal map
         @param  ambient     the linear (unpremul) ambient light color. Range is 0..1/channel.
-        @param  localMatrix the matrix mapping the textures to the dest rect 
+        @param  localMatrix the matrix mapping the textures to the dest rect
 
         nullptr will be returned if:
             either 'diffuse' or 'normal' are empty

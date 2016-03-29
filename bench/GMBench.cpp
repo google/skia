@@ -34,4 +34,3 @@ SkIPoint GMBench::onGetSize() {
     SkISize size = fGM->getISize();
     return SkIPoint::Make(size.fWidth, size.fHeight);
 }
-

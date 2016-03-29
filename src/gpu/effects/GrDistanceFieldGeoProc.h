@@ -24,7 +24,7 @@ enum GrDistanceFieldEffectFlags {
     kPortrait_DistanceFieldEffectFlag   = 0x10,   // lcd display is in portrait mode (not used yet)
 
     kInvalid_DistanceFieldEffectFlag    = 0x80,   // invalid state (for initialization)
-    
+
     kUniformScale_DistanceFieldEffectMask = kSimilarity_DistanceFieldEffectFlag |
                                             kScaleOnly_DistanceFieldEffectFlag,
     // The subset of the flags relevant to GrDistanceFieldA8TextGeoProc

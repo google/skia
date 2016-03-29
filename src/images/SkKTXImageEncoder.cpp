@@ -59,7 +59,7 @@ bool SkKTXImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int)
         if (SkKTXFile::is_ktx(bytes)) {
             return stream->write(bytes, data->size());
         }
-        
+
         // If it's neither a KTX nor a PKM, then we need to
         // get at the actual pixels, so fall through and decompress...
     }

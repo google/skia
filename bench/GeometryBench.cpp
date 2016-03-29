@@ -97,7 +97,7 @@ protected:
 class GeoRectBench_Intersects : public GeoRectBench {
 public:
     GeoRectBench_Intersects() : GeoRectBench("rect_Intersects") {}
-    
+
 protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int outer = 0; outer < loops; ++outer) {
@@ -113,7 +113,7 @@ protected:
 class GeoRectBench_sort : public GeoRectBench {
 public:
     GeoRectBench_sort() : GeoRectBench("rect_sort") {}
-    
+
 protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int outer = 0; outer < loops; ++outer) {
@@ -243,4 +243,3 @@ protected:
     }
 };
 DEF_BENCH( return new ChopCubicAt; )
-

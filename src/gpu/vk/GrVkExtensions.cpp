@@ -91,7 +91,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
     layerCount = fInstanceLayerStrings->count();
     for (uint32_t layerIndex = 0; layerIndex < layerCount; ++layerIndex) {
         uint32_t extensionCount = 0;
-        res = EnumerateInstanceExtensionProperties((*fInstanceLayerStrings)[layerIndex].c_str(), 
+        res = EnumerateInstanceExtensionProperties((*fInstanceLayerStrings)[layerIndex].c_str(),
                                                    &extensionCount, nullptr);
         if (VK_SUCCESS != res) {
             return false;
@@ -107,7 +107,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
             if (specVersion >= extensions[i].specVersion &&
                 find_string(*fInstanceExtensionStrings, extensions[i].extensionName) < 0) {
                 fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
-                SkTQSort(&fInstanceExtensionStrings->front(), &fInstanceExtensionStrings->back(), 
+                SkTQSort(&fInstanceExtensionStrings->front(), &fInstanceExtensionStrings->back(),
                          cmp);
             }
         }

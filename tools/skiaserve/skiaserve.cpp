@@ -86,7 +86,7 @@ int skiaserve_main() {
     address.sin_port = htons(FLAGS_port);
     int result = inet_pton(AF_INET, FLAGS_address[0], &address.sin_addr);
     if (result != 1) {
-        printf("inet_pton for %s:%d failed with return %d %s\n", 
+        printf("inet_pton for %s:%d failed with return %d %s\n",
                 FLAGS_address[0], FLAGS_port, result, strerror(errno));
         return 1;
     }
@@ -97,7 +97,7 @@ int skiaserve_main() {
     daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY
 #ifdef SK_DEBUG
                               | MHD_USE_DEBUG
-#endif  
+#endif
                               , FLAGS_port, nullptr, nullptr,
                               &answer_to_connection, &request,
                               MHD_OPTION_SOCK_ADDR, &address,

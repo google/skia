@@ -137,7 +137,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool doReplace
     if (doReplace) {
         REPORTER_ASSERT(r, 0 == numLayers);
     } else {
-        REPORTER_ASSERT(r, 1 == numLayers);    
+        REPORTER_ASSERT(r, 1 == numLayers);
     }
 }
 

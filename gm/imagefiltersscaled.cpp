@@ -60,8 +60,8 @@ protected:
         noisePaint.setShader(noise);
 
         SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
-        SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10), 
-                                               SkIntToScalar(-10), 
+        SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10),
+                                               SkIntToScalar(-10),
                                                SkIntToScalar(20));
         SkPoint3 spotTarget = SkPoint3::Make(SkIntToScalar(40), SkIntToScalar(40), 0);
         SkScalar spotExponent = SK_Scalar1;

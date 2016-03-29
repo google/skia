@@ -23,7 +23,7 @@
 #define BLUR_SIGMA_LARGE    10.0f
 #define BLUR_SIGMA_HUGE     80.0f
 
-  
+
 // When 'cropped' is set we apply a cropRect to the blurImageFilter. The crop rect is an inset of
 // the source's natural dimensions. This is intended to exercise blurring a larger source bitmap
 // to a smaller destination bitmap.

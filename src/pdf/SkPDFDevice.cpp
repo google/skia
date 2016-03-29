@@ -1988,7 +1988,7 @@ static SkSize rect_to_size(const SkRect& r) {
 
 static sk_sp<SkImage> color_filter(const SkImageBitmap& imageBitmap,
                                    SkColorFilter* colorFilter) {
-    auto surface = 
+    auto surface =
         SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(imageBitmap.dimensions()));
     SkASSERT(surface);
     SkCanvas* canvas = surface->getCanvas();

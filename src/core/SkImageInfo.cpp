@@ -121,4 +121,3 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
 
     return true;
 }
-

@@ -23,7 +23,7 @@ static sk_sp<SkPicture> make_picture() {
     paint.setColor(0x80FF0000);
     path.moveTo(0, 0); path.lineTo(100, 0); path.lineTo(100, 100);
     canvas->drawPath(path, paint);
-    
+
     paint.setColor(0x8000FF00);
     path.reset(); path.moveTo(0, 0); path.lineTo(100, 0); path.lineTo(0, 100);
     canvas->drawPath(path, paint);
@@ -63,10 +63,10 @@ protected:
         SkPaint paint;
 
         canvas->drawPicture(fPicture);
-        
+
         matrix.setTranslate(110, 0);
         canvas->drawPicture(fPicture, &matrix, nullptr);
-        
+
         matrix.postTranslate(110, 0);
         canvas->drawPicture(fPicture, &matrix, &paint);
 

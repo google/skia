@@ -4845,4 +4845,3 @@ const SkPaint::FontMetrics LiberationMonoBoldItalicMetrics = {
 0x30307833, -0.83252f, -0.83252f, 0.300293f, 0.300293f, 0, 0.791992f, 0.0123749f,
 -0.0942383f, 0.697754f, 0.538086f, 0.0104446f, 0.100098f, 0.23291f
 };
-

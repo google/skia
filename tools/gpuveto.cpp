@@ -52,8 +52,8 @@ int tool_main(int argc, char** argv) {
     // The SkPicture tracking information is only generated during recording
     // an isn't serialized. Replay the picture to regenerated the tracking data.
     SkPictureRecorder recorder;
-    picture->playback(recorder.beginRecording(picture->cullRect().width(), 
-                                              picture->cullRect().height(), 
+    picture->playback(recorder.beginRecording(picture->cullRect().width(),
+                                              picture->cullRect().height(),
                                               nullptr, 0));
     sk_sp<SkPicture> recorded(recorder.finishRecordingAsPicture());
 

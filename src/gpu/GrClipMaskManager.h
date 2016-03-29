@@ -71,7 +71,7 @@ public:
 
     bool setupScissorClip(const GrPipelineBuilder& pipelineBuilder,
                           GrPipelineBuilder::AutoRestoreStencil* ars,
-                          const SkIRect& scissor,    
+                          const SkIRect& scissor,
                           const SkRect* devBounds,
                           GrAppliedClip* out);
 

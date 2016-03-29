@@ -34,7 +34,7 @@ static void test_big_grad(skiatest::Reporter* reporter) {
     SkMatrix matrix;
     matrix.setAffine(affine);
     c.concat(matrix);
-    
+
     c.drawPaint(paint);
 }
 

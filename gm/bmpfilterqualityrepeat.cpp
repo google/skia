@@ -39,7 +39,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        static const struct { 
+        static const struct {
             SkFilterQuality fQuality;
             const char* fName;
         } kQualities[] = {

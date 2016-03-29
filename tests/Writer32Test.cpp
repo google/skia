@@ -288,14 +288,14 @@ DEF_TEST(Writer32_data, reporter) {
         SkWriter32::WriteDataSize(data0),
         SkWriter32::WriteDataSize(data1),
     };
-    
+
     SkSWriter32<1000> writer;
     size_t sizeWritten = 0;
 
     writer.writeData(nullptr);
     sizeWritten += sizes[0];
     REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
-    
+
     writer.writeData(data0);
     sizeWritten += sizes[1];
     REPORTER_ASSERT(reporter, sizeWritten == writer.bytesWritten());
@@ -315,7 +315,7 @@ DEF_TEST(Writer32_data, reporter) {
     REPORTER_ASSERT(reporter, strlen(str)+1 == d1->size());
     REPORTER_ASSERT(reporter, !memcmp(str, d1->data(), strlen(str)+1));
     REPORTER_ASSERT(reporter, 0 == d2->size());
-    
+
     REPORTER_ASSERT(reporter, reader.offset() == sizeWritten);
     REPORTER_ASSERT(reporter, reader.eof());
 }

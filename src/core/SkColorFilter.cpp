@@ -78,17 +78,17 @@ public:
         // Can only claim alphaunchanged and SkPM4f support if both our proxys do.
         return fOuter->getFlags() & fInner->getFlags();
     }
-    
+
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
         fInner->filterSpan(shader, count, result);
         fOuter->filterSpan(result, count, result);
     }
-    
+
     void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override {
         fInner->filterSpan4f(shader, count, result);
         fOuter->filterSpan4f(result, count, result);
     }
-    
+
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
         SkString outerS, innerS;
@@ -111,13 +111,13 @@ public:
 #endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeColorFilter)
-    
+
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fOuter.get());
         buffer.writeFlattenable(fInner.get());
     }
-    
+
 private:
     SkComposeColorFilter(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner,
                          int composedFilterCount)
@@ -178,4 +178,3 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
-

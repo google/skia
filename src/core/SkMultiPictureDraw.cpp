@@ -204,4 +204,3 @@ void SkMultiPictureDraw::draw(bool flush) {
     GrLayerHoister::End(context);
 #endif
 }
-

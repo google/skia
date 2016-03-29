@@ -72,7 +72,7 @@ public:
      */
     class DeviceManager : public SkRefCnt {
     public:
-        
+
 
         virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) = 0;
 

@@ -280,4 +280,3 @@ void GrVkCaps::initStencilFormats(const GrVkInterface* interface, VkPhysicalDevi
     SET_CONFIG_CAN_STENCIL(gS8);
     SET_CONFIG_CAN_STENCIL(gD24S8);
 }
-

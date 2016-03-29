@@ -589,4 +589,3 @@ void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {
     // first pixel to the center of the last pixel. This implies that length is count-1.
     fFirstStage->pointSpan(Span{{x + 0.5f, y + 0.5f}, count - 1.0f, count});
 }
-

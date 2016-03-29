@@ -59,4 +59,3 @@ void GMSampleView::onDrawBackground(SkCanvas* canvas) {
 bool GMSampleView::onAnimate(const SkAnimTimer& timer) {
     return fGM->animate(timer);
 }
-

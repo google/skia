@@ -13,7 +13,7 @@
 #include "vk/GrVkDefines.h"
 
 /**
- * This helper queries the Vulkan driver for available extensions and layers, remembers them, 
+ * This helper queries the Vulkan driver for available extensions and layers, remembers them,
  * and can be queried. It supports queries for both instance and device extensions and layers.
  */
 class SK_API GrVkExtensions {
@@ -22,7 +22,7 @@ public:
                      , fDeviceExtensionStrings(new SkTArray<SkString>)
                      , fInstanceLayerStrings(new SkTArray<SkString>)
                      , fDeviceLayerStrings(new SkTArray<SkString>) {}
-     
+
     bool initInstance(uint32_t specVersion);
     bool initDevice(uint32_t specVersion, VkInstance, VkPhysicalDevice);
 

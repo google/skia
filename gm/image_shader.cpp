@@ -124,4 +124,3 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ImageShaderGM; )
-

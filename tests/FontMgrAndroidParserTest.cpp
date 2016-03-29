@@ -213,4 +213,3 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
         SkDebugf("---- Resource files missing for FontConfigParser test\n");
     }
 }
-

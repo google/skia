@@ -91,4 +91,3 @@ void GrStrokeInfo::asUniqueKeyFragment(uint32_t* data) const {
 
     SkASSERT(this->computeUniqueKeyFragmentData32Cnt() == i);
 }
-

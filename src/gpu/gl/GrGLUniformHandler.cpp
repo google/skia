@@ -86,5 +86,3 @@ const GrGLGpu* GrGLUniformHandler::glGpu() const {
     GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
     return glPB->gpu();
 }
-
-

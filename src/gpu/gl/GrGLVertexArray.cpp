@@ -117,7 +117,7 @@ GrGLAttribArrayState* GrGLVertexArray::bind(GrGLGpu* gpu) {
 GrGLAttribArrayState* GrGLVertexArray::bindWithIndexBuffer(GrGLGpu* gpu, GrGLuint ibufferID) {
     GrGLAttribArrayState* state = this->bind(gpu);
     if (state) {
-        if (!fIndexBufferIDIsValid || ibufferID != fIndexBufferID) {            
+        if (!fIndexBufferIDIsValid || ibufferID != fIndexBufferID) {
             GR_GL_CALL(gpu->glInterface(), BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, ibufferID));
             fIndexBufferIDIsValid = true;
             fIndexBufferID = ibufferID;

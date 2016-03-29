@@ -286,9 +286,9 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
 }
 static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
     GrPipelineOptimizations optimizations;
-    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
                                                   false);
-    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
                                                      true);
 
     SkASSERT(!optimizations.fColorPOI.isOpaque());
@@ -482,7 +482,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
     GrPipelineOptimizations optimizations;
     optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(229, 0, 154, 0),
                                    kR_GrColorComponentFlag | kB_GrColorComponentFlag, false);
-    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
                                                      kRGBA_GrColorComponentFlags, true);
 
     SkASSERT(!optimizations.fColorPOI.isOpaque());
@@ -684,9 +684,9 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
 
 static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
     GrPipelineOptimizations optimizations;
-    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
                                                   kA_GrColorComponentFlag, false);
-    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
                                                      true);
 
     SkASSERT(optimizations.fColorPOI.isOpaque());
@@ -885,7 +885,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
     GrPipelineOptimizations optimizations;
     optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(0, 82, 0, 255),
                                    kG_GrColorComponentFlag | kA_GrColorComponentFlag, false);
-    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
                                                      kRGBA_GrColorComponentFlags, true);
 
     SkASSERT(optimizations.fColorPOI.isOpaque());
@@ -1098,7 +1098,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         TestLCDCoverageBatch() : INHERITED(ClassID()) {}
 
     private:
-        void computePipelineOptimizations(GrInitInvariantOutput* color, 
+        void computePipelineOptimizations(GrInitInvariantOutput* color,
                                           GrInitInvariantOutput* coverage,
                                           GrBatchToXPOverrides* overrides) const override {
             color->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
@@ -1186,11 +1186,11 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
 
     for (size_t c = 0; c < SK_ARRAY_COUNT(testColors); c++) {
         GrPipelineOptimizations optimizations;
-        optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, testColors[c], testColorFlags[c], 
+        optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, testColors[c], testColorFlags[c],
                                                       false);
         for (int f = 0; f <= 1; f++) {
             if (!f) {
-                optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, 
+                optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0,
                                                                  kNone_GrColorComponentFlags, true);
             } else {
                 optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
@@ -1217,4 +1217,3 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
 }
 
 #endif
-

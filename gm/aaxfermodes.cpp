@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -113,8 +112,8 @@ protected:
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2,
                         kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
                 canvas->drawText("Src Opaque", sizeof("Src Opaque") - 1,
-                        kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2 + 
-                        kPaintSpacing, kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, 
+                        kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2 +
+                        kPaintSpacing, kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3,
                         fLabelPaint);
             }
 

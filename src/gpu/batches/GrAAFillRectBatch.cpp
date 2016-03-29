@@ -250,7 +250,7 @@ public:
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
                           const GrXPOverridesForBatch& overrides) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
-                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, 
+                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect,
                                        overrides, nullptr);
     }
 };
@@ -298,7 +298,7 @@ public:
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
                           const GrXPOverridesForBatch& overrides) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
-                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, 
+                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect,
                                        overrides, &geo.fLocalMatrix);
     }
 };

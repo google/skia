@@ -373,6 +373,3 @@ DEF_GM( return new ImageCacheratorGM("ctable", make_ctable_generator); )
 #if SK_SUPPORT_GPU
     DEF_GM( return new ImageCacheratorGM("texture", make_tex_generator); )
 #endif
-
-
-

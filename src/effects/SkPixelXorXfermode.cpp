@@ -294,7 +294,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrXferProcessor& processor) override {
         const PixelXorXP& pixelXor = processor.cast<PixelXorXP>();
-        pdman.set3f(fOpColorUni, 
+        pdman.set3f(fOpColorUni,
                     SkGetPackedR32(pixelXor.opColor())/255.0f,
                     SkGetPackedG32(pixelXor.opColor())/255.0f,
                     SkGetPackedB32(pixelXor.opColor())/255.0f);

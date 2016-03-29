@@ -212,7 +212,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
         SkOpts::box_blur_xy(t,  h,  dstBoundsT,   d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
     }
 
-    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(), 
+    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
                                           SkIRect::MakeWH(dstBounds.width(),
                                                           dstBounds.height()),
                                           dst);

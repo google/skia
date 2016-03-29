@@ -1115,7 +1115,7 @@ void SkPaint::getTextPath(const void* textData, size_t length,
 }
 
 int SkPaint::getTextIntercepts(const void* textData, size_t length,
-                               SkScalar x, SkScalar y, const SkScalar bounds[2], 
+                               SkScalar x, SkScalar y, const SkScalar bounds[2],
                                SkScalar* array) const {
     SkASSERT(length == 0 || textData != nullptr);
     if (!length) {

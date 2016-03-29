@@ -46,7 +46,7 @@ private:
     GrDrawContextPriv* operator&();
 
     GrDrawContext* fDrawContext;
-        
+
     friend class GrDrawContext; // to construct/copy this type.
 };
 
@@ -57,4 +57,3 @@ inline const GrDrawContextPriv GrDrawContext::drawContextPriv () const {
 }
 
 #endif
-

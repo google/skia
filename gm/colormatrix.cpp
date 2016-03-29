@@ -35,7 +35,7 @@ protected:
     SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
-    
+
     void onOnceBeforeDraw() override {
         fSolidImg = CreateSolidBitmap(64, 64);
         fTransparentImg = CreateTransparentBitmap(64, 64);
@@ -145,4 +145,3 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ColorMatrixGM; )
-

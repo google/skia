@@ -12,7 +12,7 @@
 const GrVkImageView* GrVkImageView::Create(GrVkGpu* gpu, VkImage image, VkFormat format,
                                            Type viewType) {
     VkImageView imageView;
-    
+
     // Create the VkImageView
     VkImageViewCreateInfo viewInfo = {
         VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,               // sType
@@ -32,18 +32,16 @@ const GrVkImageView* GrVkImageView::Create(GrVkGpu* gpu, VkImage image, VkFormat
         viewInfo.components.a = VK_COMPONENT_SWIZZLE_ZERO;
         viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
     }
-    
+
     VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateImageView(gpu->device(), &viewInfo,
                                                                   nullptr, &imageView));
     if (err) {
         return nullptr;
     }
-    
+
     return new GrVkImageView(imageView);
 }
 
 void GrVkImageView::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyImageView(gpu->device(), fImageView, nullptr));
 }
-
-

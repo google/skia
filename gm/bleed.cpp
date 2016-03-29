@@ -156,7 +156,7 @@ bool make_ringed_alpha_image(GrContext* ctx, TestPixels* result, int width, int 
 
 /** Similar to make_ringed_bitmap with these modifications:
         - The backing store is a texture.
-        - The texture is larger than the bitmap dimensions (it is surrounded by non-content 
+        - The texture is larger than the bitmap dimensions (it is surrounded by non-content
           padding on the right/bottom of the contents.)
         - The right/bottom sides of the rings are omitted so that the rect to draw is adjacent to
           the texture padding.

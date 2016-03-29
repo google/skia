@@ -43,7 +43,7 @@ static SkBitmap create_bm() {
     p.setAntiAlias(false);
 
     temp.drawRect(SkRect::MakeXYWH(SkIntToScalar(kPad), SkIntToScalar(kPad),
-                                   SkIntToScalar(kSmallerSize), SkIntToScalar(kSmallerSize)), 
+                                   SkIntToScalar(kSmallerSize), SkIntToScalar(kSmallerSize)),
                   p);
 
     return bm;
@@ -292,7 +292,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, context) {
 
     {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromGpu(
-                                                               nullptr, subset, 
+                                                               nullptr, subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
                                                                texture));
         test_image(subSImg1, reporter, false, true, kPad, kFullSize);

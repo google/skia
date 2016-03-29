@@ -1277,7 +1277,7 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
 
 // This is a driver function which calls stages 2-5 in turn.
 
-Poly* contours_to_polys(Vertex** contours, int contourCnt, const SkRect& pathBounds, 
+Poly* contours_to_polys(Vertex** contours, int contourCnt, const SkRect& pathBounds,
                         SkChunkAlloc& alloc) {
     Comparator c;
     if (pathBounds.width() > pathBounds.height()) {
@@ -1316,7 +1316,7 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt, const SkRect& pathBou
     return tessellate(vertices, alloc);
 }
 
-Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
+Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                     int contourCnt, SkChunkAlloc& alloc, bool* isLinear) {
     SkPath::FillType fillType = path.getFillType();
     if (SkPath::IsInverseFillType(fillType)) {
@@ -1328,7 +1328,7 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     return contours_to_polys(contours.get(), contourCnt, path.getBounds(), alloc);
 }
 
-void get_contour_count_and_size_estimate(const SkPath& path, SkScalar tolerance, int* contourCnt, 
+void get_contour_count_and_size_estimate(const SkPath& path, SkScalar tolerance, int* contourCnt,
                                          int* sizeEstimate) {
     int maxPts = GrPathUtils::worstCasePointCount(path, contourCnt, tolerance);
     if (maxPts <= 0) {
@@ -1363,7 +1363,7 @@ namespace GrTessellator {
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
-int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
+int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                     VertexAllocator* vertexAllocator, bool* isLinear) {
     int contourCnt;
     int sizeEstimate;
@@ -1398,7 +1398,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     return actualCount;
 }
 
-int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
+int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    GrTessellator::WindingVertex** verts) {
     int contourCnt;
     int sizeEstimate;

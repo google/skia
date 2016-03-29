@@ -743,7 +743,7 @@ class GrGLLight;
 
 class SkImageFilterLight : public SkRefCnt {
 public:
-    
+
 
     enum LightType {
         kDistant_LightType,
@@ -880,8 +880,8 @@ public:
         // Use X scale and Y scale on Z and average the result
         SkPoint locationZ = SkPoint::Make(fLocation.fZ, fLocation.fZ);
         matrix.mapVectors(&locationZ, 1);
-        SkPoint3 location = SkPoint3::Make(location2.fX, 
-                                           location2.fY, 
+        SkPoint3 location = SkPoint3::Make(location2.fX,
+                                           location2.fY,
                                            SkScalarAve(locationZ.fX, locationZ.fY));
         return new SkPointLight(location, color());
     }

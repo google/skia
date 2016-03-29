@@ -117,7 +117,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSampleLocationsSupport = version >= GR_GL_VER(3,1);
     }
 
-    // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support GL_RED 
+    // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support GL_RED
     // and GL_RG on FBO textures.
     if (kMesa_GrGLDriver != ctxInfo.driver()) {
         if (kGL_GrGLStandard == standard) {
@@ -245,7 +245,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // We're assuming that on Windows Chromium we're using ANGLE.
     bool isANGLE = kANGLE_GrGLDriver == ctxInfo.driver() ||
                    kChromium_GrGLDriver == ctxInfo.driver();
-    // Angle has slow read/write pixel paths for 32bit RGBA (but fast for BGRA). 
+    // Angle has slow read/write pixel paths for 32bit RGBA (but fast for BGRA).
     fRGBA8888PixelsOpsAreSlow = isANGLE;
     // On DX9 ANGLE reading a partial FBO is slow. TODO: Check whether this is still true and
     // check DX11 ANGLE.
@@ -300,7 +300,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (ctxInfo.hasExtension("GL_EXT_shader_pixel_local_storage")) {
         #define GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_FAST_SIZE_EXT 0x8F63
-        GR_GL_GetIntegerv(gli, GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_FAST_SIZE_EXT, 
+        GR_GL_GetIntegerv(gli, GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_FAST_SIZE_EXT,
                           &glslCaps->fPixelLocalStorageSize);
         glslCaps->fPLSPathRenderingSupport = glslCaps->fFBFetchSupport;
     }
@@ -388,7 +388,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object")) {
             fTransferBufferType = kPBO_TransferBufferType;
-        } 
+        }
     } else {
         if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_NV_pixel_buffer_object")) {
             fTransferBufferType = kPBO_TransferBufferType;
@@ -1092,7 +1092,7 @@ SkString GrGLCaps::dump() const {
     r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
     r.appendf("Rectangle texture support: %s\n", (fRectangleTextureSupport? "YES" : "NO"));
     r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
-    r.appendf("BGRA to RGBA readback conversions are slow: %s\n", 
+    r.appendf("BGRA to RGBA readback conversions are slow: %s\n",
               (fRGBAToBGRAReadbackConversionsAreSlow ? "YES" : "NO"));
 
     r.append("Configs\n-------\n");
@@ -1141,7 +1141,7 @@ static GrGLenum shader_type_to_gl_shader(GrShaderType type) {
 }
 
 void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
-                                        const GrGLInterface* intf, 
+                                        const GrGLInterface* intf,
                                         GrGLSLCaps* glslCaps) {
     if (kGLES_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(4, 1) ||
         ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
@@ -1165,7 +1165,7 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                             first = &glslCaps->fFloatPrecisions[s][p];
                         }
                         else if (!glslCaps->fShaderPrecisionVaries) {
-                            glslCaps->fShaderPrecisionVaries = 
+                            glslCaps->fShaderPrecisionVaries =
                                                      (*first != glslCaps->fFloatPrecisions[s][p]);
                         }
                     }
@@ -1192,7 +1192,7 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
     // are recommended against.
     if (glslCaps->fGeometryShaderSupport) {
         for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-            glslCaps->fFloatPrecisions[kGeometry_GrShaderType][p] = 
+            glslCaps->fFloatPrecisions[kGeometry_GrShaderType][p] =
                                                glslCaps->fFloatPrecisions[kVertex_GrShaderType][p];
         }
     }
@@ -1833,7 +1833,7 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     //      This extension GL_BGRA as an unsized internal format. However, it is written against ES
     //      2.0 and therefore doesn't define a value for GL_BGRA8 as ES 2.0 uses unsized internal
     //      formats.
-    // GL_APPLE_texture_format_BGRA8888: 
+    // GL_APPLE_texture_format_BGRA8888:
     //     ES 2.0: the extension makes BGRA an external format but not an internal format.
     //     ES 3.0: the extension explicitly states GL_BGRA8 is not a valid internal format for
     //             glTexImage (just for glTexStorage).

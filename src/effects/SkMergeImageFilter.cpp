@@ -77,7 +77,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
         if (!inputs[i]) {
             continue;
         }
-        const SkIRect inputBounds = SkIRect::MakeXYWH(offsets[i].fX, offsets[i].fY, 
+        const SkIRect inputBounds = SkIRect::MakeXYWH(offsets[i].fX, offsets[i].fY,
                                                       inputs[i]->width(), inputs[i]->height());
         bounds.join(inputBounds);
     }
@@ -165,7 +165,7 @@ void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {
 #ifndef SK_IGNORE_TO_STRING
 void SkMergeImageFilter::toString(SkString* str) const {
     str->appendf("SkMergeImageFilter: (");
-    
+
     for (int i = 0; i < this->countInputs(); ++i) {
         SkImageFilter* filter = this->getInput(i);
         str->appendf("%d: (", i);

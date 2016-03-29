@@ -377,7 +377,7 @@ public:
     const Attribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
     const Attribute* inEllipseOffsets1() const { return fInEllipseOffsets1; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    
+
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor()
@@ -530,12 +530,12 @@ GrDrawBatch* GrOvalRenderer::CreateOvalBatch(GrColor color,
     if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
         return CreateCircleBatch(color, viewMatrix, oval, stroke);
     }
-    
+
     // if we have shader derivative support, render as device-independent
     if (shaderCaps->shaderDerivativeSupport()) {
         return CreateDIEllipseBatch(color, viewMatrix, oval, stroke);
     }
-    
+
     // otherwise axis-aligned ellipses only
     if (viewMatrix.rectStaysRect()) {
         return CreateEllipseBatch(color, viewMatrix, oval, stroke);
@@ -581,7 +581,7 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
@@ -765,7 +765,7 @@ public:
 
     const char* name() const override { return "EllipseBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
@@ -990,7 +990,7 @@ public:
 
     const char* name() const override { return "DIEllipseBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
@@ -1063,7 +1063,7 @@ private:
         }
         helper.recordDraw(target);
     }
-    
+
     DIEllipseBatch(const Geometry& geometry, const SkRect& bounds) : INHERITED(ClassID()) {
         fGeoData.push_back(geometry);
 
@@ -1251,7 +1251,7 @@ public:
 
     const char* name() const override { return "RRectCircleBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
@@ -1400,7 +1400,7 @@ public:
 
     const char* name() const override { return "RRectEllipseRendererBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle

@@ -56,7 +56,7 @@ public:
 };
 
 /**
-   Controls whether GPU rendering is enabled. Posting to /enableGPU/1 turns GPU on, /enableGPU/0 
+   Controls whether GPU rendering is enabled. Posting to /enableGPU/1 turns GPU on, /enableGPU/0
    disables it.
  */
 class EnableGPUHandler : public UrlHandler {
@@ -128,4 +128,3 @@ public:
                const char* url, const char* method,
                const char* upload_data, size_t* upload_data_size) override;
 };
-

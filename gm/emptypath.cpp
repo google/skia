@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -201,7 +200,7 @@ protected:
             canvas->translate(0, 40);
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };

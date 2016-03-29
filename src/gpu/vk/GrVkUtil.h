@@ -33,4 +33,3 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format);
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
 #endif
-

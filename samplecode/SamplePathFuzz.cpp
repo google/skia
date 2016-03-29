@@ -698,5 +698,3 @@ private:
 
 static SkView* MyFactory() { return new PathFuzzView; }
 static SkViewRegister reg(MyFactory);
-
-

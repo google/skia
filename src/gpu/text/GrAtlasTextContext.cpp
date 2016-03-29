@@ -397,7 +397,7 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     int yInt = (random->nextU() % kMaxTrans) * yPos;
     SkScalar x = SkIntToScalar(xInt);
     SkScalar y = SkIntToScalar(yInt);
-    
+
     // right now we don't handle textblobs, nor do we handle drawPosText.  Since we only
     // intend to test the batch with this unit test, that is okay.
     SkAutoTUnref<GrAtlasTextBlob> blob(

@@ -30,8 +30,7 @@ private:
 
     friend class GrGLProgramBuilder;
 
-    typedef GrGLSLVaryingHandler INHERITED; 
+    typedef GrGLSLVaryingHandler INHERITED;
 };
 
 #endif
-

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -177,7 +176,7 @@ GrGLint SkGLContext::createTextureRectangle(int width, int height, GrGLenum inte
     GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MIN_FILTER,
                                   GR_GL_NEAREST));
     GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_S,
-                                  GR_GL_CLAMP_TO_EDGE));    
+                                  GR_GL_CLAMP_TO_EDGE));
     GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_T,
                                   GR_GL_CLAMP_TO_EDGE));
     GR_GL_CALL(fGL, TexImage2D(GR_GL_TEXTURE_RECTANGLE, 0, internalFormat, width, height, 0,

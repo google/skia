@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -17,4 +16,3 @@ void sk_setenv(const char* key, const char* value) {
     setenv(key, value, 1);
 #endif
 }
-

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -41,7 +40,7 @@ private:
      * ownership of.
      */
     bool isAdopted() const { return GrGpuResource::kAdopted_LifeCycle == fResource->fLifeCycle; }
- 
+
     /**
      * Called by the cache to delete the resource under normal circumstances.
      */

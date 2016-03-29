@@ -33,7 +33,7 @@ public:
 
     GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps*);
 
-    // The caller automatically gets a ref on the returned drawTarget. It must 
+    // The caller automatically gets a ref on the returned drawTarget. It must
     // be balanced by an unref call.
     GrDrawTarget* newDrawTarget(GrRenderTarget* rt);
 

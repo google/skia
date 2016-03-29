@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -393,7 +392,7 @@ void SkDumpCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, cons
         toString(*src, &ss);
         rs.prependf("%s ", ss.c_str());
     }
-    
+
     this->dump(kDrawBitmap_Verb, paint, "drawImageRectToRect(%s %s)",
                bs.c_str(), rs.c_str());
 }

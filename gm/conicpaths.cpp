@@ -120,7 +120,7 @@ protected:
         }
         canvas->restore();
 
-        this->drawGiantCircle(canvas);  
+        this->drawGiantCircle(canvas);
     }
 
 private:

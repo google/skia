@@ -428,7 +428,7 @@ private:
         /** The external format and type are to be used when uploading/downloading data using this
             config where both the CPU data and GrSurface are the same config. To get the external
             format and type when converting between configs while copying to/from memory use
-            getExternalFormat(). 
+            getExternalFormat().
             The kTexImage external format is usually the same as kOther except for kSRGBA on some
             GL contexts. */
         GrGLenum fExternalFormat[kExternalFormatUsageCnt];

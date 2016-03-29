@@ -21,7 +21,7 @@ public:
     static GrVkTexture* CreateNewTexture(GrVkGpu*, const GrSurfaceDesc&,
                                          GrGpuResource::LifeCycle,
                                          const GrVkImage::ImageDesc&);
-                                          
+
     static GrVkTexture* CreateWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
                                              GrGpuResource::LifeCycle,
                                              VkFormat, const GrVkTextureInfo*);
@@ -47,7 +47,7 @@ protected:
                                GrGpuResource::LifeCycle, VkFormat,
                                const GrVkImage::Resource* texImpl);
 
-    GrVkGpu* getVkGpu() const; 
+    GrVkGpu* getVkGpu() const;
 
     void onAbandon() override;
     void onRelease() override;

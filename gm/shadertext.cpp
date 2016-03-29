@@ -133,7 +133,7 @@ protected:
                                                    SkShader::kClamp_TileMode);
             }
         }
-        
+
         SkBitmap bm;
         makebm(&bm, w/16, h/4);
         for (size_t tx = 0; tx < SK_ARRAY_COUNT(tileModes); ++tx) {

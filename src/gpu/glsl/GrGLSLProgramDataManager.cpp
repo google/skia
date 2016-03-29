@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2016 Google Inc.
  *
@@ -24,4 +23,3 @@ void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matr
     };
     this->setMatrix3f(u, mt);
 }
-

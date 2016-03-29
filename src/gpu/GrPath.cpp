@@ -211,4 +211,3 @@ bool GrPath::isEqualTo(const SkPath& path, const GrStrokeInfo& stroke) const {
     return fSkPath == path;
 }
 #endif
-

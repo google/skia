@@ -15,7 +15,7 @@
 class GrVkGpu;
 
 /**
- * We require that all descriptor sets are of a single descriptor type. We also use a pool to only 
+ * We require that all descriptor sets are of a single descriptor type. We also use a pool to only
  * make one type of descriptor set. Thus a single VkDescriptorPool will only allocated space for
  * for one type of descriptor.
  */

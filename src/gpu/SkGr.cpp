@@ -609,7 +609,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     SkASSERT(!grPaint->getXPFactory());
     SkXfermode* xfermode = skPaint.getXfermode();
     if (xfermode) {
-        // SafeUnref in case a new xfermode is added that returns null. 
+        // SafeUnref in case a new xfermode is added that returns null.
         // In such cases we will fall back to kSrcOver_Mode.
         SkSafeUnref(grPaint->setXPFactory(xfermode->asXPFactory()));
     }

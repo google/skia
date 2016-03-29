@@ -17,7 +17,7 @@ SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
     : INHERITED(0, 0, nullptr)
     , fPicture(std::move(picture))
     , fCropRect(fPicture ? fPicture->cullRect() : SkRect::MakeEmpty())
-    , fPictureResolution(kDeviceSpace_PictureResolution) 
+    , fPictureResolution(kDeviceSpace_PictureResolution)
     , fFilterQuality(kLow_SkFilterQuality) {
 }
 
@@ -48,7 +48,7 @@ SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
         pictureResolution = kDeviceSpace_PictureResolution;
     } else {
         pictureResolution = (PictureResolution)buffer.readInt();
-    }  
+    }
 
     if (kLocalSpace_PictureResolution == pictureResolution) {
         //filterLevel is only serialized if pictureResolution is LocalSpace
@@ -105,9 +105,9 @@ bool SkPictureImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap&
         return false;
     }
 
-    if (kDeviceSpace_PictureResolution == fPictureResolution || 
+    if (kDeviceSpace_PictureResolution == fPictureResolution ||
         0 == (ctx.ctm().getType() & ~SkMatrix::kTranslate_Mask)) {
-        this->drawPictureAtDeviceResolution(device.get(), bounds, ctx);        
+        this->drawPictureAtDeviceResolution(device.get(), bounds, ctx);
     } else {
         this->drawPictureAtLocalResolution(proxy, device.get(), bounds, ctx);
     }
@@ -161,7 +161,7 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(Proxy* proxy, SkBaseDevi
 #ifndef SK_IGNORE_TO_STRING
 void SkPictureImageFilter::toString(SkString* str) const {
     str->appendf("SkPictureImageFilter: (");
-    str->appendf("crop: (%f,%f,%f,%f) ", 
+    str->appendf("crop: (%f,%f,%f,%f) ",
                  fCropRect.fLeft, fCropRect.fTop, fCropRect.fRight, fCropRect.fBottom);
     if (fPicture) {
         str->appendf("picture: (%f,%f,%f,%f)",

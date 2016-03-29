@@ -201,4 +201,3 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }
-

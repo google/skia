@@ -41,22 +41,22 @@ static SkCachedData* make_data(size_t size, SkDiscardableMemoryPool* pool) {
 static SkCachedData* test_locking(skiatest::Reporter* reporter,
                                   size_t size, SkDiscardableMemoryPool* pool) {
     SkCachedData* data = make_data(size, pool);
-    
+
     memset(data->writable_data(), 0x80, size);  // just to use writable_data()
 
     check_data(reporter, data, 1, kNotInCache, kLocked);
-    
+
     data->ref();
     check_data(reporter, data, 2, kNotInCache, kLocked);
     data->unref();
     check_data(reporter, data, 1, kNotInCache, kLocked);
-    
+
     data->attachToCacheAndRef();
     check_data(reporter, data, 2, kInCache, kLocked);
-    
+
     data->unref();
     check_data(reporter, data, 1, kInCache, kUnlocked);
-    
+
     data->ref();
     check_data(reporter, data, 2, kInCache, kLocked);
 
@@ -92,4 +92,3 @@ DEF_TEST(CachedData, reporter) {
         data->detachFromCacheAndUnref();
     }
 }
-

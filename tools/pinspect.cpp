@@ -38,7 +38,7 @@ static sk_sp<SkPicture> inspect(const char path[]) {
         SkDebugf("Could not create SkPicture: %s\n", path);
         return nullptr;
     }
-    printf("picture cullRect: [%f %f %f %f]\n", 
+    printf("picture cullRect: [%f %f %f %f]\n",
            pic->cullRect().fLeft, pic->cullRect().fTop,
            pic->cullRect().fRight, pic->cullRect().fBottom);
     return pic;

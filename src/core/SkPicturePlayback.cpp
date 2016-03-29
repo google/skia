@@ -24,7 +24,7 @@ enum LegacySaveFlags {
 
 SkCanvas::SaveLayerFlags SkCanvas::LegacySaveFlagsToSaveLayerFlags(uint32_t flags) {
     uint32_t layerFlags = 0;
-    
+
     if (0 == (flags & kClipToLayer_LegacySaveFlags)) {
         layerFlags |= SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag;
     }
@@ -532,4 +532,3 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             SkASSERTF(false, "Unknown draw type: %d", op);
     }
 }
-

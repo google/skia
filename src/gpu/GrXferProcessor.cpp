@@ -201,10 +201,10 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineOptimizations&
         if (!caps.shaderCaps()->dstReadInShaderSupport()) {
             SkASSERT(dstTexture && dstTexture->texture());
         } else {
-            SkASSERT(!dstTexture || !dstTexture->texture()); 
+            SkASSERT(!dstTexture || !dstTexture->texture());
         }
     } else {
-        SkASSERT(!dstTexture || !dstTexture->texture()); 
+        SkASSERT(!dstTexture || !dstTexture->texture());
     }
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
 #endif

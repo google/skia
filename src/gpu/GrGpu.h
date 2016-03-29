@@ -132,7 +132,7 @@ public:
      * @return the buffer if successful, otherwise nullptr.
      */
     GrBuffer* createBuffer(GrBufferType, size_t size, GrAccessPattern);
-    
+
     /**
      * Resolves MSAA.
      */
@@ -357,7 +357,7 @@ public:
               const GrMesh*,
               int meshCount);
 
-    // Called by drawtarget when flushing. 
+    // Called by drawtarget when flushing.
     // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
     virtual void finishDrawTarget() {}
 

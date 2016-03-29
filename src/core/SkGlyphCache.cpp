@@ -53,7 +53,7 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkSca
 }
 
 SkGlyphCache::~SkGlyphCache() {
-    fGlyphMap.foreach ([](SkGlyph* g) { 
+    fGlyphMap.foreach ([](SkGlyph* g) {
         if (g->fPathData) {
             delete g->fPathData->fPath;
         } } );
@@ -267,7 +267,7 @@ void SkGlyphCache::AddInterval(SkScalar val, SkGlyph::Intercept* intercept) {
     intercept->fInterval[1] = SkTMax(intercept->fInterval[1], val);
 }
 
-void SkGlyphCache::AddPoints(const SkPoint* pts, int ptCount, const SkScalar bounds[2], 
+void SkGlyphCache::AddPoints(const SkPoint* pts, int ptCount, const SkScalar bounds[2],
         bool yAxis, SkGlyph::Intercept* intercept) {
     for (int i = 0; i < ptCount; ++i) {
         SkScalar val = *(&pts[i].fY - yAxis);

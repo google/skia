@@ -41,7 +41,7 @@ void VisualInteractiveModule::drawStats(SkCanvas* canvas) {
     canvas->drawRect(rect, paint);
     // draw the 16ms line
     paint.setColor(SK_ColorLTGRAY);
-    canvas->drawLine(rect.fLeft, rect.fBottom - kBaseMS*kPixelPerMS, 
+    canvas->drawLine(rect.fLeft, rect.fBottom - kBaseMS*kPixelPerMS,
                      rect.fRight, rect.fBottom - kBaseMS*kPixelPerMS, paint);
     paint.setColor(SK_ColorRED);
     paint.setStyle(SkPaint::kStroke_Style);
@@ -53,7 +53,7 @@ void VisualInteractiveModule::drawStats(SkCanvas* canvas) {
     int i = fCurrentMeasurement;
     do {
         int endY = startY - (int)(fMeasurements[i] * kPixelPerMS + 0.5);  // round to nearest value
-        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY), 
+        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
                          SkIntToScalar(x), SkIntToScalar(endY), paint);
         i++;
         i &= (kMeasurementCount - 1);  // fast mod

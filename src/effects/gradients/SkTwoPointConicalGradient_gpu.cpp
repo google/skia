@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -293,7 +292,7 @@ void GLEdge2PtConicalEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     if (fCachedRadius != radius0 ||
         fCachedDiffRadius != diffRadius) {
 
-        pdman.set3f(fParamUni, SkScalarToFloat(radius0), 
+        pdman.set3f(fParamUni, SkScalarToFloat(radius0),
                     SkScalarToFloat(SkScalarMul(radius0, radius0)), SkScalarToFloat(diffRadius));
         fCachedRadius = radius0;
         fCachedDiffRadius = diffRadius;

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -43,7 +42,7 @@
 
 class AutoCheckFlush {
 public:
-    AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) { 
+    AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) {
         SkASSERT(fDrawingManager);
     }
     ~AutoCheckFlush() { fDrawingManager->getContext()->flushIfNecessary(); }
@@ -270,7 +269,7 @@ GrDrawBatch* GrDrawContext::getFillRectBatch(const GrPaint& paint,
     } else {
         // filled BW rect
         batch = GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rect,
-                                                    nullptr, nullptr);        
+                                                    nullptr, nullptr);
     }
 
     return batch;
@@ -348,7 +347,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
                                                               width, snapToPixelCenters));
 
             // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
-            // hairline rects. We jam all the vertices to pixel centers to avoid this, but not 
+            // hairline rects. We jam all the vertices to pixel centers to avoid this, but not
             // when MSAA is enabled because it can cause ugly artifacts.
         }
     }
@@ -364,7 +363,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
         this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
         return;
     }
-    
+
     SkPath path;
     path.setIsVolatile(true);
     path.addRect(rect);
@@ -519,12 +518,12 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawAtlas");
 
     AutoCheckFlush acf(fDrawingManager);
-        
+
     GrDrawAtlasBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
     SkAutoTUnref<GrDrawBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount,
                                                              xform, texRect, colors));
-    
+
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
@@ -599,7 +598,7 @@ bool GrDrawContext::drawFilledDRRect(const GrClip& clip,
         }
     } else {
         inverseVM.reset();
-    }         
+    }
 
     GrPaint grPaint(paintIn);
     grPaint.setAntiAlias(false);
@@ -622,7 +621,7 @@ bool GrDrawContext::drawFilledDRRect(const GrClip& clip,
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-  
+
     this->fillRectWithLocalMatrix(clip, grPaint, SkMatrix::I(), bounds, inverseVM);
     return true;
 }
@@ -866,8 +865,8 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
     GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::drawPath");
 
     if (path.isEmpty() && path.isInverseFillType()) {
-        this->drawAndStencilRect(scissorRect, ss, op, invert, false, SkMatrix::I(), 
-                                 SkRect::MakeIWH(fDrawContext->fRenderTarget->width(), 
+        this->drawAndStencilRect(scissorRect, ss, op, invert, false, SkMatrix::I(),
+                                 SkRect::MakeIWH(fDrawContext->fRenderTarget->width(),
                                                  fDrawContext->fRenderTarget->height()));
         return true;
     }

@@ -727,4 +727,3 @@ const GrGeometryProcessor* GrCubicEffect::TestCreate(GrProcessorTestData* d) {
     } while (nullptr == gp);
     return gp;
 }
-

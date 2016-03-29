@@ -16,7 +16,7 @@ GrVkInterface::GrVkInterface() {
 #define GET_PROC_LOCAL(inst, F) PFN_vk ## F F = (PFN_vk ## F) vkGetInstanceProcAddr(inst, "vk" #F)
 #define GET_DEV_PROC(F) functions->f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
 
-const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device, 
+const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
                                          uint32_t extensionFlags) {
 
     GrVkInterface* interface = new GrVkInterface();
@@ -373,4 +373,3 @@ bool GrVkInterface::validate() const {
     }
     return true;
 }
-

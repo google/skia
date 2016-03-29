@@ -631,4 +631,3 @@ void GrGLDisplacementMapEffect::GenKey(const GrProcessor& proc,
     b->add32(xKey | yKey);
 }
 #endif
-

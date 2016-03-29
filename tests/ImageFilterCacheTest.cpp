@@ -233,4 +233,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, context
     test_explicit_purging(reporter, fullImg, subsetImg);
 }
 #endif
-

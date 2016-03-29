@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -102,7 +101,7 @@ protected:
         for (int i = 0; i < 3; ++i) {
             SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
             yuvHandles[i] = gpu->createTestingOnlyBackendTexture(fYUVBmps[i].getPixels(),
-                                                                 fYUVBmps[i].width(), 
+                                                                 fYUVBmps[i].width(),
                                                                  fYUVBmps[i].height(),
                                                                  kAlpha_8_GrPixelConfig);
         }

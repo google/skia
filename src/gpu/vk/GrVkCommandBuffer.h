@@ -160,7 +160,7 @@ public:
               uint32_t instanceCount,
               uint32_t firstVertex,
               uint32_t firstInstance) const;
-    
+
     // Add ref-counted resource that will be tracked and released when this
     // command buffer finishes execution
     void addResource(const GrVkResource* resource) {
@@ -213,4 +213,3 @@ private:
 
 
 #endif
-

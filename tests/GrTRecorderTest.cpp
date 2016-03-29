@@ -40,7 +40,7 @@ static void test_empty_back_and_pop(skiatest::Reporter* reporter) {
 
             for (int i = 0; i < 100; ++i) {
                 if (data) {
-                    REPORTER_ASSERT(reporter, i == *GrNEW_APPEND_TO_RECORDER(recorder, 
+                    REPORTER_ASSERT(reporter, i == *GrNEW_APPEND_TO_RECORDER(recorder,
                                                                              IntWrapper, (i)));
                 } else {
                     REPORTER_ASSERT(reporter, i ==

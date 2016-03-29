@@ -15,7 +15,7 @@ class SkBitmap;
 class SkImage_Base;
 class SkImageCacherator;
 
-/** Implementation for texture-backed SkBitmaps. The bitmap must stay in scope and unmodified 
+/** Implementation for texture-backed SkBitmaps. The bitmap must stay in scope and unmodified
     while this object exists. */
 class GrBitmapTextureAdjuster : public GrTextureAdjuster {
 public:

@@ -824,4 +824,3 @@ void  Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void* sIn, int x, int y,
         }
     }
 }
-

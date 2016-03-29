@@ -34,7 +34,7 @@ protected:
     void onOnceBeforeDraw() override {
         fBitmap = SkImage::MakeFromBitmap(
             sk_tool_utils::create_string_bitmap(80, 80, 0xD000D000, 15, 65, 96, "e"));
-        
+
         fCheckerboard = SkImage::MakeFromBitmap(
             sk_tool_utils::create_checkerboard_bitmap(80, 80,
                                                       sk_tool_utils::color_to_565(0xFFA0A0A0),
@@ -103,14 +103,14 @@ DEF_GM( return new OffsetImageFilterGM; )
 class SimpleOffsetImageFilterGM : public skiagm::GM {
 public:
     SimpleOffsetImageFilterGM() {}
-    
+
 protected:
     SkString onShortName() override {
         return SkString("simple-offsetimagefilter");
     }
-    
+
     SkISize onISize() override { return SkISize::Make(640, 200); }
-    
+
     void doDraw(SkCanvas* canvas, const SkRect& r, SkImageFilter* imgf,
                 const SkRect* clipR = nullptr) {
         SkPaint p;
@@ -157,22 +157,22 @@ protected:
         SkImageFilter::CropRect cr2(r2);
 
         canvas->translate(40, 40);
-        
+
         canvas->save();
         this->doDraw(canvas, r, nullptr);
-        
+
         canvas->translate(100, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20));
-        
+
         canvas->translate(100, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, &cr0));
-        
+
         canvas->translate(100, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20), &r);
-        
+
         canvas->translate(100, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, &cr1));
-        
+
         SkRect clipR = SkRect::MakeXYWH(40, 40, 40, 40);
         canvas->translate(100, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, nullptr), &clipR);

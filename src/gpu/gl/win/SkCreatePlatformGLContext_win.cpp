@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -199,4 +198,3 @@ SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI, SkGLContext* s
     }
     return ctx;
 }
-

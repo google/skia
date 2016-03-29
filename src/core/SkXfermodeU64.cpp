@@ -238,7 +238,7 @@ static SkXfermode::D64Proc find_proc(SkXfermode::Mode mode, uint32_t flags) {
 SkXfermode::D64Proc SkXfermode::onGetD64Proc(uint32_t flags) const {
     SkASSERT(0 == (flags & ~7));
     flags &= 7;
-    
+
     Mode mode;
     return this->asMode(&mode) ? find_proc(mode, flags) : gProcs_General[flags];
 }
@@ -246,4 +246,3 @@ SkXfermode::D64Proc SkXfermode::onGetD64Proc(uint32_t flags) const {
 SkXfermode::D64Proc SkXfermode::GetD64Proc(SkXfermode* xfer, uint32_t flags) {
     return xfer ? xfer->onGetD64Proc(flags) : find_proc(SkXfermode::kSrcOver_Mode, flags);
 }
-

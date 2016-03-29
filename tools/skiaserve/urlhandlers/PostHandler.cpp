@@ -66,11 +66,10 @@ int PostHandler::handle(Request* request, MHD_Connection* connection,
         fprintf(stderr, "Could not create picture from stream.\n");
         return MHD_NO;
     }
-    
+
     // clear upload context
     delete request->fUploadContext;
     request->fUploadContext = nullptr;
 
     return SendTemplate(connection, true, "/");
 }
-

@@ -488,4 +488,3 @@ bool GrGpu::draw(const GrPipeline& pipeline,
     this->onDraw(pipeline, primProc, meshes, meshCount);
     return true;
 }
-

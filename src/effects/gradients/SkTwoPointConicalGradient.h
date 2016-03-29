@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *

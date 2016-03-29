@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -57,7 +56,7 @@ bool GrPaint::isConstantBlendedColor(GrColor* color) const {
         GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(colorProcInfo.color(),
                                                             colorProcInfo.validFlags(),
                                                             colorProcInfo.isOpaque(),
-                                                            &blendedColor); 
+                                                            &blendedColor);
     }
 
     if (kRGBA_GrColorComponentFlags == blendedColor.fKnownColorFlags) {

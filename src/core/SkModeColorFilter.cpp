@@ -52,7 +52,7 @@ uint32_t SkModeColorFilter::getFlags() const {
 void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const {
     SkPMColor       color = fPMColor;
     SkXfermodeProc  proc = fProc;
-    
+
     for (int i = 0; i < count; i++) {
         result[i] = proc(color, shader[i]);
     }
@@ -61,7 +61,7 @@ void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColo
 void SkModeColorFilter::filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const {
     SkPM4f            color = SkPM4f::FromPMColor(fPMColor);
     SkXfermodeProc4f  proc = SkXfermode::GetProc4f(fMode);
-    
+
     for (int i = 0; i < count; i++) {
         result[i] = proc(color, shader[i]);
     }

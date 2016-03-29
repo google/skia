@@ -262,7 +262,7 @@ protected:
         paint.setTextSkewX(fSkewX);
 
         const SkColor boundsColors[2] = { SK_ColorRED, SK_ColorBLUE };
-        
+
         SkFontMgr* fm = fFM;
         int count = SkMin32(fm->countFamilies(), 32);
 

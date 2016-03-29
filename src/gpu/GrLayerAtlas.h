@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -20,10 +19,10 @@ class GrTextureProvider;
 class GrRectanizer;
 
 // The backing GrTexture for a GrLayerAtlas is broken into a spatial grid of Plots. When
-// the atlas needs space on the texture (i.e., in response to an addToAtlas call), it 
-// iterates through the plots in use by the requesting client looking for space and, 
-// if no space is found, opens up a new Plot for that client. The Plots keep track of 
-// subimage placement via their GrRectanizer. 
+// the atlas needs space on the texture (i.e., in response to an addToAtlas call), it
+// iterates through the plots in use by the requesting client looking for space and,
+// if no space is found, opens up a new Plot for that client. The Plots keep track of
+// subimage placement via their GrRectanizer.
 //
 // If all Plots are full, the replacement strategy is up to the client. The Plot::reset
 // call will remove a Plot's knowledge of any allocated rects - freeing its space for reuse.
@@ -57,7 +56,7 @@ public:
 
     // This class allows each client to independently track the Plots in
     // which its data is stored.
-    // For example, multiple pictures may simultaneously store their layers in the 
+    // For example, multiple pictures may simultaneously store their layers in the
     // layer atlas. When a picture goes away it can use the ClientPlotUsage to remove itself
     // from those plots.
     class ClientPlotUsage {
@@ -87,8 +86,8 @@ public:
         }
 
 #ifdef SK_DEBUG
-        bool contains(const Plot* plot) const { 
-            return fPlots.contains(const_cast<Plot*>(plot)); 
+        bool contains(const Plot* plot) const {
+            return fPlots.contains(const_cast<Plot*>(plot));
         }
 #endif
 
@@ -97,13 +96,13 @@ public:
         SkDEBUGCODE(int fMaxPlots;)
     };
 
-    GrLayerAtlas(GrTextureProvider*, GrPixelConfig, GrSurfaceFlags flags, 
+    GrLayerAtlas(GrTextureProvider*, GrPixelConfig, GrSurfaceFlags flags,
                  const SkISize& backingTextureSize,
                  int numPlotsX, int numPlotsY);
     ~GrLayerAtlas();
 
-    // Requests a width x height block in the atlas. Upon success it returns 
-    // the containing Plot and absolute location in the backing texture. 
+    // Requests a width x height block in the atlas. Upon success it returns
+    // the containing Plot and absolute location in the backing texture.
     // nullptr is returned if there is no more space in the atlas.
     Plot* addToAtlas(ClientPlotUsage*, int width, int height, SkIPoint16* loc);
 

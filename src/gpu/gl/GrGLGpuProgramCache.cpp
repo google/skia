@@ -23,7 +23,7 @@ SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
 struct GrGLGpu::ProgramCache::Entry {
-    
+
     Entry() : fProgram(nullptr), fLRUStamp(0) {}
 
     SkAutoTUnref<GrGLProgram>   fProgram;

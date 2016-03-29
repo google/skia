@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2009 The Android Open Source Project
  *
@@ -109,4 +108,3 @@ SkColorTable* SkColorTable::Create(SkReadBuffer& buffer) {
 
     return new SkColorTable(colors.release(), count, kAllocatedWithMalloc);
 }
-

@@ -646,4 +646,3 @@ const SkTextBlob* SkTextBlobBuilder::build() {
 
     return blob;
 }
-

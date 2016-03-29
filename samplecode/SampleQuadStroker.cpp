@@ -393,7 +393,7 @@ protected:
             return;
         }
         SkRect bounds = path.getBounds();
-        this->setWHZ(SkScalarCeilToInt(bounds.right()), drawText 
+        this->setWHZ(SkScalarCeilToInt(bounds.right()), drawText
                 ? SkScalarRoundToInt(scale * 3 / 2) : SkScalarRoundToInt(scale),
                 SkScalarRoundToInt(950.0f / scale));
         erase(fMinSurface);
@@ -474,7 +474,7 @@ protected:
         path.reset();
         path.setFillType(SkPath::kEvenOdd_FillType);
         path.addCircle(center.fX, center.fY, maxSide + width / 2);
-        SkRect outside = SkRect::MakeXYWH(center.fX - maxSide - width, center.fY - maxSide - width, 
+        SkRect outside = SkRect::MakeXYWH(center.fX - maxSide - width, center.fY - maxSide - width,
                 (maxSide + width) * 2, (maxSide + width) * 2);
         path.addRect(outside);
         canvas->drawPath(path, paint);
@@ -648,7 +648,7 @@ protected:
                 if (fArcButton.fEnabled) {
                     SkPoint center;
                     if (arcCenter(&center)) {
-                        r.set(center.fX - fRadius, center.fY - fRadius, center.fX + fRadius, 
+                        r.set(center.fX - fRadius, center.fY - fRadius, center.fX + fRadius,
                                 center.fY + fRadius);
                     }
                 }

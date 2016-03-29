@@ -291,7 +291,7 @@ protected:
             canvas->translate(0, 120);
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

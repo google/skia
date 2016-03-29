@@ -217,7 +217,7 @@ static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, size_t row
     //     - Single plane
     //     - Low-precision index values
     //     - Index range 0-7 (three bits per index)
-    // 2. Partitions: 0b00 
+    // 2. Partitions: 0b00
     //     - One partition
     // 3. Color Endpoint Mode: 0b0000
     //     - Direct luminance -- e0=(v0,v0,v0,0xFF); e1=(v1,v1,v1,0xFF);
@@ -270,7 +270,7 @@ inline void CompressA8ASTCBlockVertical(uint8_t* dst, const uint8_t* src) {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// Enable this to assert whenever a decoded block has invalid ASTC values. Otherwise, 
+// Enable this to assert whenever a decoded block has invalid ASTC values. Otherwise,
 // each invalid block will result in a disgusting magenta color.
 #define ASSERT_ASTC_DECODE_ERROR 0
 
@@ -369,7 +369,7 @@ static uint64_t read_astc_bits(const ASTCBlock &block, int from, int to) {
         SkASSERT(nBits > (64 - from));
         const int nLow = 64 - from;
         const int nHigh = nBits - nLow;
-        result = 
+        result =
             ((block.fLow >> from) & ((1ULL << nLow) - 1)) |
             ((block.fHigh & ((1ULL << nHigh) - 1)) << nLow);
     }
@@ -452,7 +452,7 @@ static inline void decode_rgba_basescale(const int *v, SkColor *endpoints, bool 
         v4 = v[4];
         v5 = v[5];
     }
-                  
+
     endpoints[0] = SkColorSetARGB(v4,
                                   (v[0]*v[3]) >> 8,
                                   (v[1]*v[3]) >> 8,
@@ -1256,7 +1256,7 @@ struct ASTCDecompressionData {
 
                 case kLDR_LuminanceAlpha_Direct_ColorEndpointMode: {
                     const int* v = colorValues;
-                    
+
                     endpoints[i][0] = SkColorSetARGB(v[2], v[0], v[0], v[0]);
                     endpoints[i][1] = SkColorSetARGB(v[3], v[1], v[1], v[1]);
 
@@ -1272,7 +1272,7 @@ struct ASTCDecompressionData {
 
                     bit_transfer_signed(&v1, &v0);
                     bit_transfer_signed(&v3, &v2);
-                    
+
                     endpoints[i][0] = SkColorSetARGB(v2, v0, v0, v0);
                     endpoints[i][1] = SkColorSetARGB(
                         clamp_byte(v3+v2),
@@ -1669,7 +1669,7 @@ struct ASTCDecompressionData {
             this->decodeDualPlane(dualPlaneBitLoc);
 
             return;
-        } 
+        }
 
         // If we have more than one partition, then we need to make
         // room for the partition index.
@@ -1691,7 +1691,7 @@ struct ASTCDecompressionData {
             this->decodeDualPlane(dualPlaneBitLoc);
 
             return;
-        } 
+        }
 
         // Move the dual plane selector bits down based on how many
         // partitions the block contains.
@@ -1756,7 +1756,7 @@ struct ASTCDecompressionData {
 
     // Decodes the block mode. This function determines whether or not we use
     // dual plane encoding, the size of the texel weight grid, and the number of
-    // bits, trits and quints that are used to encode it. For more information, 
+    // bits, trits and quints that are used to encode it. For more information,
     // see section C.2.10 of the ASTC spec.
     //
     // For 2D blocks, the Block Mode field is laid out as follows:

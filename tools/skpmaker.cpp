@@ -77,9 +77,9 @@ int tool_main(int argc, char** argv) {
     }
 
     SkColor color = SkColorSetRGB(FLAGS_red, FLAGS_green, FLAGS_blue);
-    make_skp(SkIntToScalar(FLAGS_width), 
-             SkIntToScalar(FLAGS_height), 
-             SkIntToScalar(FLAGS_border), 
+    make_skp(SkIntToScalar(FLAGS_width),
+             SkIntToScalar(FLAGS_height),
+             SkIntToScalar(FLAGS_border),
              color, FLAGS_writePath[0]);
     return 0;
 }

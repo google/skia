@@ -31,11 +31,10 @@ int BatchesHandler::handle(Request* request, MHD_Connection* connection,
     // /batches
     if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
         int n = request->getLastOp();
-        
+
         SkAutoTUnref<SkData> data(request->getJsonBatchList(n));
         return SendData(connection, data, "application/json");
     }
 
     return MHD_NO;
 }
-

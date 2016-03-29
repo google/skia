@@ -57,7 +57,7 @@ public:
         fColor = (gRand.nextU() & 0x7F7F7F7F) | SkColorSetARGB(0xFF, 0, 0, 0x80);
         fFast32 = fast;
     }
-    
+
 protected:
     void onPrepareWidEvent(SkEvent* evt) override {
         evt->setType("push-button");
@@ -101,7 +101,7 @@ protected:
         }
         return true;
     }
-    
+
 private:
     typedef HasEventWig INHERITED;
 };
@@ -151,7 +151,7 @@ class XferDemo : public SampleView {
     enum {
         N = 4
     };
-    
+
     SkRect        fModeRect[N_Modes];
     SkAutoTUnref<CircDrawable> fDrs[N];
     CircDrawable* fSelected;
@@ -234,7 +234,7 @@ protected:
         this->inval(nullptr);
         return fSelected ? new Click(this) : nullptr;
     }
-    
+
     bool onClick(Click* click) override {
         fSelected->fLoc.fX += click->fCurr.fX - click->fPrev.fX;
         fSelected->fLoc.fY += click->fCurr.fY - click->fPrev.fY;

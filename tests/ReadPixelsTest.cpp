@@ -52,7 +52,7 @@ static SkPMColor get_src_color(int x, int y) {
     }
     return SkPremultiplyARGBInline(a, r, g, b);
 }
-    
+
 static SkPMColor get_dst_bmp_init_color(int x, int y, int w) {
     int n = y * w + x;
 

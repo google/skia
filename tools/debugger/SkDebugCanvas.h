@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -44,8 +43,8 @@ public:
     void setClipVizColor(SkColor clipVizColor) { this->fClipVizColor = clipVizColor; }
     SkColor getClipVizColor() const { return fClipVizColor; }
 
-    void setDrawGpuBatchBounds(bool drawGpuBatchBounds) { 
-        fDrawGpuBatchBounds = drawGpuBatchBounds; 
+    void setDrawGpuBatchBounds(bool drawGpuBatchBounds) {
+        fDrawGpuBatchBounds = drawGpuBatchBounds;
     }
 
     bool getDrawGpuBatchBounds() const { return fDrawGpuBatchBounds; }
@@ -156,7 +155,7 @@ public:
 
     /**
         Returns a JSON object representing up to the Nth draw, where N is less than
-        SkDebugCanvas::getSize(). The encoder may use the UrlDataManager to store binary data such 
+        SkDebugCanvas::getSize(). The encoder may use the UrlDataManager to store binary data such
         as images, referring to them via URLs embedded in the JSON.
      */
     Json::Value toJSON(UrlDataManager& urlDataManager, int n, SkCanvas*);

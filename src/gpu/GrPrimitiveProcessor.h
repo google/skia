@@ -47,7 +47,7 @@ class GrGLSLPrimitiveProcessor;
 
 struct GrInitInvariantOutput;
 
-// Describes the state of pixel local storage with respect to the current draw. 
+// Describes the state of pixel local storage with respect to the current draw.
 enum GrPixelLocalStorageState {
     // The draw is actively updating PLS.
     kDraw_GrPixelLocalStorageState,
@@ -208,7 +208,7 @@ public:
      */
     virtual bool hasTransformedLocalCoords() const = 0;
 
-    virtual GrPixelLocalStorageState getPixelLocalStorageState() const { 
+    virtual GrPixelLocalStorageState getPixelLocalStorageState() const {
         return kDisabled_GrPixelLocalStorageState;
     }
 
@@ -216,7 +216,7 @@ public:
      * If non-null, overrides the dest color returned by GrGLSLFragmentShaderBuilder::dstColor().
      */
     virtual const char* getDestColorOverride() const { return nullptr; }
-    
+
     virtual float getSampleShading() const {
         return 0.0;
     }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -328,7 +327,7 @@ bool SkKTXFile::readKTXFile(const uint8_t* data, size_t dataLen) {
                 }
             }
         }
-        
+
         uint32_t imgSizePadded = (imgSize + 3) & ~3;
         buf += imgSizePadded;
         bytesLeft -= imgSizePadded;
@@ -380,7 +379,7 @@ bool SkKTXFile::WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,
     if (!stream->write(&kKTX_ENDIANNESS_CODE, 4)) {
         return false;
     }
-    
+
     Header hdr;
     hdr.fGLType = 0;
     hdr.fGLTypeSize = 1;
@@ -554,6 +553,6 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
             rowPtr += bitmap.rowBytes();
         }
     }
-    
+
     return true;
 }

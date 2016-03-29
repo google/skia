@@ -519,7 +519,7 @@ public:
     SkXfermode::Mode getXfermode() const { return fXfermode; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*, 
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*,
                                                  const GrCaps&) const override {
         return kNone_OptFlags;
     }
@@ -755,7 +755,7 @@ GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
         }
         blendFormula = get_lcd_blend_formula(optimizations.fCoveragePOI, fXfermode);
     } else {
-        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, 
+        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
                                          hasMixedSamples, fXfermode);
     }
 
@@ -804,7 +804,7 @@ bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
-    
+
     // When we have four channel coverage we always need to read the dst in order to correctly
     // blend. The one exception is when we are using srcover mode and we know the input color into
     // the XP.
@@ -818,7 +818,7 @@ bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
     }
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
-    return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, hasMixedSamples, 
+    return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, hasMixedSamples,
                              fXfermode).hasSecondaryOutput();
 }
 
@@ -884,7 +884,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         }
         blendFormula = get_lcd_blend_formula(optimizations.fCoveragePOI, SkXfermode::kSrcOver_Mode);
     } else {
-        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, 
+        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
                                          hasMixedSamples, SkXfermode::kSrcOver_Mode);
     }
 
@@ -912,7 +912,7 @@ bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
         }
-        return get_lcd_blend_formula(optimizations.fCoveragePOI, 
+        return get_lcd_blend_formula(optimizations.fCoveragePOI,
                                      SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
     }
     // We fallback on the shader XP when the blend formula would use dual source blending but we
@@ -920,4 +920,3 @@ bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
     return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
                              hasMixedSamples, SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
 }
-

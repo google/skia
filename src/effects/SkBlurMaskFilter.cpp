@@ -624,8 +624,8 @@ public:
         // in OpenGL ES, mediump floats have a minimum range of 2^14. If we have coordinates bigger
         // than that, the shader math will end up with infinities and result in the blur effect not
         // working correctly. To avoid this, we switch into highp when the coordinates are too big.
-        // As 2^14 is the minimum range but the actual range can be bigger, we might end up 
-        // switching to highp sooner than strictly necessary, but most devices that have a bigger 
+        // As 2^14 is the minimum range but the actual range can be bigger, we might end up
+        // switching to highp sooner than strictly necessary, but most devices that have a bigger
         // range for mediump also have mediump being exactly the same as highp (e.g. all non-OpenGL
         // ES devices), and thus incur no additional penalty for the switch.
         static const SkScalar kMAX_BLUR_COORD = SkIntToScalar(16000);
@@ -744,12 +744,12 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("vec4 src=vec4(1);");
     }
 
-    fragBuilder->codeAppendf("%s vec2 translatedPos = %s.xy - %s.xy;", precisionString, fragmentPos, 
+    fragBuilder->codeAppendf("%s vec2 translatedPos = %s.xy - %s.xy;", precisionString, fragmentPos,
                              rectName);
     fragBuilder->codeAppendf("%s float width = %s.z - %s.x;", precisionString, rectName, rectName);
     fragBuilder->codeAppendf("%s float height = %s.w - %s.y;", precisionString, rectName, rectName);
 
-    fragBuilder->codeAppendf("%s vec2 smallDims = vec2(width - %s, height - %s);", precisionString, 
+    fragBuilder->codeAppendf("%s vec2 smallDims = vec2(width - %s, height - %s);", precisionString,
                              profileSizeName, profileSizeName);
     fragBuilder->codeAppendf("%s float center = 2.0 * floor(%s/2.0 + .25) - 1.0;", precisionString,
                              profileSizeName);
@@ -757,7 +757,7 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
 
     OutputRectBlurProfileLookup(fragBuilder, args.fSamplers[0], "horiz_lookup", profileSizeName,
                                 "translatedPos.x", "width", "wh.x");
-    OutputRectBlurProfileLookup(fragBuilder, args.fSamplers[0], "vert_lookup", profileSizeName, 
+    OutputRectBlurProfileLookup(fragBuilder, args.fSamplers[0], "vert_lookup", profileSizeName,
                                 "translatedPos.y", "height", "wh.y");
 
     fragBuilder->codeAppendf("float final = horiz_lookup * vert_lookup;");
@@ -1168,7 +1168,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrTextureProvider* texProvid
     SkRect proxyRect = rrect.rect();
     proxyRect.outset(extra, extra);
 
-    SkAutoTUnref<const GrFragmentProcessor> fp(GrRRectBlurEffect::Create(texProvider, 
+    SkAutoTUnref<const GrFragmentProcessor> fp(GrRRectBlurEffect::Create(texProvider,
                                                                          xformedSigma, rrect));
     if (!fp) {
         return false;

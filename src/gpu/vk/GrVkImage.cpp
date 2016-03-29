@@ -24,7 +24,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     if (newLayout == fCurrentLayout) {
         return;
     }
-    
+
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // sType
         NULL,                                     // pNext
@@ -44,7 +44,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     fCurrentLayout = newLayout;
 }
 
-const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu, 
+const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
                                                      const ImageDesc& imageDesc) {
     VkImage image = 0;
     VkDeviceMemory alloc;

@@ -120,7 +120,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
                          const GrVkImage::Resource* imageResource) {
     VkFormat pixelFormat;
     GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat);
-    
+
     VkImage colorImage;
 
     // create msaa surface if necessary
@@ -211,7 +211,7 @@ GrVkRenderTarget::CreateWrappedRenderTarget(GrVkGpu* gpu,
     SkASSERT(VK_NULL_HANDLE != info->fImage);
     SkASSERT(VK_NULL_HANDLE != info->fAlloc || kAdopted_LifeCycle != lifeCycle);
 
-    GrVkImage::Resource::Flags flags = (VK_IMAGE_TILING_LINEAR == info->fImageTiling) 
+    GrVkImage::Resource::Flags flags = (VK_IMAGE_TILING_LINEAR == info->fImageTiling)
                                      ? Resource::kLinearTiling_Flag : Resource::kNo_Flags;
 
     const GrVkImage::Resource* imageResource;
@@ -410,4 +410,3 @@ GrVkGpu* GrVkRenderTarget::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
 }
-

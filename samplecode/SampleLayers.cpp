@@ -306,4 +306,3 @@ private:
     typedef SampleView INHERITED;
 };
 DEF_SAMPLE( return new BackdropView; )
-

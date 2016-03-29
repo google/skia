@@ -88,7 +88,7 @@ public:
     }
 
 protected:
-    virtual void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    virtual void computePipelineOptimizations(GrInitInvariantOutput* color,
                                               GrInitInvariantOutput* coverage,
                                               GrBatchToXPOverrides* overrides) const = 0;
 

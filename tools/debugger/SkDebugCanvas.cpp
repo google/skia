@@ -218,13 +218,13 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
     if (fPaintFilterCanvas) {
         fPaintFilterCanvas->addCanvas(canvas);
         canvas = fPaintFilterCanvas.get();
-    
+
     }
 
     if (fMegaVizMode) {
         this->markActiveCommands(index);
     }
-   
+
 #if SK_SUPPORT_GPU
     // If we have a GPU backend we can also visualize the batching information
     GrAuditTrail* at = nullptr;
@@ -237,7 +237,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         if (i == index && fFilter) {
             canvas->clear(0xAAFFFFFF);
         }
-   
+
 #if SK_SUPPORT_GPU
         GrAuditTrail::AutoCollectBatches* acb = nullptr;
         if (at) {
@@ -457,7 +457,7 @@ void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
 
 Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanvas* canvas) {
     this->drawAndCollectBatches(n, canvas);
-    
+
     // now collect json
 #if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -527,12 +526,12 @@ int SkTKSearch(const T base[], int count, const K& key) {
     if (count <= 0) {
         return ~0;
     }
-    
+
     SkASSERT(base != nullptr); // base may be nullptr if count is zero
-    
+
     int lo = 0;
     int hi = count - 1;
-    
+
     while (lo < hi) {
         int mid = (hi + lo) >> 1;
         if (base[mid].fDistance < key) {
@@ -541,7 +540,7 @@ int SkTKSearch(const T base[], int count, const K& key) {
             hi = mid;
         }
     }
-    
+
     if (base[hi].fDistance < key) {
         hi += 1;
         hi = ~hi;

@@ -400,7 +400,7 @@ path.close();
     SkPath path2(path);
     testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
-// ../../third_party/tcmalloc/chromium/src/free_list.h:118] Memory corruption detected. 
+// ../../third_party/tcmalloc/chromium/src/free_list.h:118] Memory corruption detected.
 
 static void battleOp13(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;

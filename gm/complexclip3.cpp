@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -26,7 +25,7 @@ protected:
         SkString str;
         str.printf("complexclip3_%s", fDoSimpleClipFirst ? "simple" : "complex");
         return str;
-    }    
+    }
 
     SkISize onISize() { return SkISize::Make(1000, 950); }
 

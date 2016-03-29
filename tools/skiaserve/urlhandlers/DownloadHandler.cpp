@@ -31,4 +31,3 @@ int DownloadHandler::handle(Request* request, MHD_Connection* connection,
     return SendData(connection, data, "application/octet-stream", true,
                     "attachment; filename=something.skp;");
 }
-

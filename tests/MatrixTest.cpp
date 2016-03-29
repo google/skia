@@ -93,10 +93,10 @@ static void test_set9(skiatest::Reporter* reporter) {
     SkMatrix m;
     m.reset();
     assert9(reporter, m, 1, 0, 0, 0, 1, 0, 0, 0, 1);
-    
+
     m.setScale(2, 3);
     assert9(reporter, m, 2, 0, 0, 0, 3, 0, 0, 0, 1);
-    
+
     m.postTranslate(4, 5);
     assert9(reporter, m, 2, 0, 4, 0, 3, 5, 0, 0, 1);
 

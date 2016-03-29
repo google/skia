@@ -20,7 +20,7 @@ public:
         kColor_Type,
         kStencil_Type
     };
-    
+
     static const GrVkImageView* Create(GrVkGpu* gpu, VkImage image, VkFormat format, Type viewType);
 
     VkImageView imageView() const { return fImageView; }

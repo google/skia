@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -71,7 +70,7 @@ protected:
                                                nullptr, nullptr));
         paint.setColor(SK_ColorBLACK);
 
-        SkRect r = SkRect::MakeWH((SkScalar)fDiffuseBitmap.width(), 
+        SkRect r = SkRect::MakeWH((SkScalar)fDiffuseBitmap.width(),
                                   (SkScalar)fDiffuseBitmap.height());
         canvas->drawRect(r, paint);
 

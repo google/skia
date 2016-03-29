@@ -37,7 +37,7 @@ public:
             fDst[i] = 0;
             fAAStorage[i] = i * 255 / (N - 1);
         }
-        
+
         if (flags & USE_AA) {
             fAA = fAAStorage;
         } else {

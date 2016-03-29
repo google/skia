@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
@@ -53,7 +52,7 @@ public:
     SkLightingShaderImpl(const SkBitmap& diffuse, const SkBitmap& normal,
                          const SkLightingShader::Lights* lights,
                          const SkVector& invNormRotation,
-                         const SkMatrix* diffLocalM, const SkMatrix* normLocalM) 
+                         const SkMatrix* diffLocalM, const SkMatrix* normLocalM)
         : INHERITED(diffLocalM)
         , fDiffuseMap(diffuse)
         , fNormalMap(normal)
@@ -204,14 +203,14 @@ public:
                                                    "Xform", &xformUniName);
 
             fragBuilder->codeAppend("vec4 diffuseColor = ");
-            fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0], 
-                                                args.fCoords[0].c_str(), 
+            fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0],
+                                                args.fCoords[0].c_str(),
                                                 args.fCoords[0].getType());
             fragBuilder->codeAppend(";");
 
             fragBuilder->codeAppend("vec4 normalColor = ");
             fragBuilder->appendTextureLookup(args.fSamplers[1],
-                                     args.fCoords[1].c_str(), 
+                                     args.fCoords[1].c_str(),
                                      args.fCoords[1].getType());
             fragBuilder->codeAppend(";");
 
@@ -220,7 +219,7 @@ public:
             fragBuilder->codeAppendf(
                                  "mat3 m = mat3(%s.x, -%s.y, 0.0, %s.y, %s.x, 0.0, 0.0, 0.0, 1.0);",
                                  xformUniName, xformUniName, xformUniName, xformUniName);
-            
+
             // TODO: inverse map the light direction vectors in the vertex shader rather than
             // transforming all the normals here!
             fragBuilder->codeAppend("normal = normalize(m*normal);");
@@ -302,7 +301,7 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new LightingGLFP; }
 
-    bool onIsEqual(const GrFragmentProcessor& proc) const override { 
+    bool onIsEqual(const GrFragmentProcessor& proc) const override {
         const LightingFP& lightingFP = proc.cast<LightingFP>();
         return fDiffDeviceTransform == lightingFP.fDiffDeviceTransform &&
                fNormDeviceTransform == lightingFP.fNormDeviceTransform &&
@@ -331,7 +330,7 @@ static bool make_mat(const SkBitmap& bm,
                      const SkMatrix& localMatrix1,
                      const SkMatrix* localMatrix2,
                      SkMatrix* result) {
-    
+
     result->setIDiv(bm.width(), bm.height());
 
     SkMatrix lmInverse;
@@ -360,7 +359,7 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
     SkASSERT(fDiffuseMap.width() == fNormalMap.width() &&
              fDiffuseMap.height() == fNormalMap.height());
     SkMatrix diffM, normM;
-    
+
     if (!make_mat(fDiffuseMap, this->getLocalMatrix(), localMatrix, &diffM)) {
         return nullptr;
     }
@@ -371,17 +370,17 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
 
     bool doBicubic;
     GrTextureParams::FilterMode diffFilterMode = GrSkFilterQualityToGrFilterMode(
-                                        SkTMin(filterQuality, kMedium_SkFilterQuality), 
+                                        SkTMin(filterQuality, kMedium_SkFilterQuality),
                                         viewM,
                                         this->getLocalMatrix(),
-                                        &doBicubic); 
+                                        &doBicubic);
     SkASSERT(!doBicubic);
 
     GrTextureParams::FilterMode normFilterMode = GrSkFilterQualityToGrFilterMode(
-                                        SkTMin(filterQuality, kMedium_SkFilterQuality), 
+                                        SkTMin(filterQuality, kMedium_SkFilterQuality),
                                         viewM,
                                         fNormLocalMatrix,
-                                        &doBicubic); 
+                                        &doBicubic);
     SkASSERT(!doBicubic);
 
     // TODO: support other tile modes
@@ -447,19 +446,19 @@ static inline SkPMColor convert(SkColor3f color, U8CPU a) {
         color.fX = 0.0f;
     } else if (color.fX >= 255.0f) {
         color.fX = 255.0f;
-    } 
+    }
 
     if (color.fY <= 0.0f) {
         color.fY = 0.0f;
     } else if (color.fY >= 255.0f) {
         color.fY = 255.0f;
-    } 
+    }
 
     if (color.fZ <= 0.0f) {
         color.fZ = 0.0f;
     } else if (color.fZ >= 255.0f) {
         color.fZ = 255.0f;
-    } 
+    }
 
     return SkPreMultiplyARGB(a, (int) color.fX,  (int) color.fY, (int) color.fZ);
 }
@@ -511,7 +510,7 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
 
             xformedNorm.fX = lightShader.fInvNormRotation.fX * norm.fX +
                              lightShader.fInvNormRotation.fY * norm.fY;
-            xformedNorm.fY = lightShader.fInvNormRotation.fX * norm.fX - 
+            xformedNorm.fY = lightShader.fInvNormRotation.fX * norm.fX -
                              lightShader.fInvNormRotation.fY * norm.fY;
             xformedNorm.fZ = norm.fZ;
 
@@ -601,7 +600,7 @@ SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
             if (!buf.readScalarArray(&dir.fX, 3)) {
                 return nullptr;
             }
-            builder.add(SkLight(color, dir));        
+            builder.add(SkLight(color, dir));
         }
     }
 

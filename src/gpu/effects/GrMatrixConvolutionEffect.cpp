@@ -76,7 +76,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
             GrGLSLShaderBuilder::ShaderBlock block(fragBuilder);
             int offset = y*kWidth + x;
 
-            fragBuilder->codeAppendf("float k = %s[%d]%s;", kernel, offset / 4, 
+            fragBuilder->codeAppendf("float k = %s[%d]%s;", kernel, offset / 4,
                                      kVecSuffix[offset & 0x3]);
             SkString coord;
             coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);

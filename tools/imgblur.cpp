@@ -37,7 +37,7 @@ int tool_main(int argc, char** argv) {
         if (!FLAGS_quiet) {
             SkDebugf("Sigma must be greater than zero (it is %f).\n", FLAGS_sigma);
         }
-        return kError;       
+        return kError;
     }
 
     sk_sp<SkData> data(SkData::MakeFromFileName(FLAGS_in[0]));
@@ -70,7 +70,7 @@ int tool_main(int argc, char** argv) {
         if (!FLAGS_quiet) {
             SkDebugf("Couldn't write to file: %s\n", FLAGS_out[0]);
         }
-        return kError;       
+        return kError;
     }
 
     return kSuccess;

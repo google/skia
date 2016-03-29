@@ -63,7 +63,7 @@ public:
     // Returns the total number of attachments
     void getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
                                   GrVkRenderPass::AttachmentFlags* flags) const;
-    
+
     void addResources(GrVkCommandBuffer& commandBuffer) const;
 
 protected:
@@ -130,7 +130,7 @@ private:
     const GrVkImage::Resource* fMSAAImageResource;
     const GrVkImageView*       fResolveAttachmentView;
     int                        fColorValuesPerPixel;
-    
+
     // This is a cached pointer to a simple render pass. The render target should unref it
     // once it is done with it.
     const GrVkRenderPass*      fCachedSimpleRenderPass;

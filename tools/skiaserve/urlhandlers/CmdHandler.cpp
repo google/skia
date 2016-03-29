@@ -36,7 +36,7 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
         } else {
             sscanf(commands[1].c_str(), "%d", &n);
         }
-        
+
         SkAutoTUnref<SkData> data(request->getJsonOps(n));
         return SendData(connection, data, "application/json");
     }
@@ -60,4 +60,3 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
 
     return MHD_NO;
 }
-

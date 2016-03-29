@@ -115,7 +115,7 @@ static void set_face(SkPaint* paint) {
 static void draw_pair(SkCanvas* canvas, SkPaint* paint, const sk_sp<SkShader>& shader) {
     const char text[] = "Now is the time for all good";
     const size_t len = strlen(text);
-    
+
     paint->setShader(nullptr);
     canvas->drawText(text, len, 10, 20, *paint);
     paint->setShader(SkShader::MakeColorShader(paint->getColor()));
@@ -140,7 +140,7 @@ protected:
     SkString onShortName() override {
         return SkString("gammagradienttext");
     }
-    
+
     SkISize onISize() override {
         return SkISize::Make(300, 300);
     }
@@ -164,10 +164,9 @@ protected:
             canvas->translate(0, 80);
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
 
 DEF_GM( return new GammaShaderTextGM; )
-

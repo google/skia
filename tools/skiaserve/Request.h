@@ -59,7 +59,7 @@ struct Request {
     UploadContext* fUploadContext;
     SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
     UrlDataManager fUrlDataManager;
-    
+
 private:
     SkData* writeCanvasToPng(SkCanvas* canvas);
     void drawToCanvas(int n, int m = -1);
@@ -67,7 +67,7 @@ private:
     SkSurface* createGPUSurface();
     SkIRect getBounds();
     GrContext* getContext();
-    
+
     sk_sp<SkPicture> fPicture;
     GrContextFactory* fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;
@@ -75,4 +75,3 @@ private:
 };
 
 #endif
-

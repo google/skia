@@ -23,4 +23,3 @@ int RootHandler::handle(Request* request, MHD_Connection* connection,
                         const char* upload_data, size_t* upload_data_size) {
     return SendTemplate(connection);
 }
-

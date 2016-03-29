@@ -15,7 +15,7 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
                                                            uint32_t fragmentUniformSize)
     : fVertexUniformSize(vertexUniformSize)
     , fFragmentUniformSize(fragmentUniformSize)
-    , fVertexUniformsDirty(false) 
+    , fVertexUniformsDirty(false)
     , fFragmentUniformsDirty(false) {
     fVertexUniformData.reset(vertexUniformSize);
     fFragmentUniformData.reset(fragmentUniformSize);
@@ -279,4 +279,3 @@ void GrVkPipelineStateDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
         fFragmentUniformsDirty = false;
     }
 }
-

@@ -1,5 +1,4 @@
 
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -46,8 +45,8 @@ protected:
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
         // Next we play that picture into another picture of the same size.
-        pict->playback(recorder.beginRecording(pict->cullRect().width(), 
-                                               pict->cullRect().height(), 
+        pict->playback(recorder.beginRecording(pict->cullRect().width(),
+                                               pict->cullRect().height(),
                                                nullptr, 0));
         sk_sp<SkPicture> pict2(recorder.finishRecordingAsPicture());
 

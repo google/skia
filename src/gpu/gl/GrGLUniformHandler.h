@@ -55,7 +55,7 @@ private:
 
     friend class GrGLProgramBuilder;
 
-    typedef GrGLSLUniformHandler INHERITED; 
+    typedef GrGLSLUniformHandler INHERITED;
 };
 
 #endif

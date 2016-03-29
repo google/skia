@@ -1,4 +1,3 @@
-
 /*
 * Copyright 2015 Google Inc.
 *
@@ -373,4 +372,3 @@ const GrFragmentProcessor* GrFragmentProcessor::RunInSeries(const GrFragmentProc
         return new SeriesFragmentProcessor(series, cnt);
     }
 }
-

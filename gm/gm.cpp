@@ -107,4 +107,3 @@ SkISize skiagm::SimpleGM::onISize() {
 SkString skiagm::SimpleGM::onShortName() {
     return fName;
 }
-

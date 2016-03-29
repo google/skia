@@ -199,7 +199,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
             fCompressedBuffer.reset(cmpSz);
             fCompressionMode = kBlitter_CompressionMode;
         }
-    } 
+    }
 
     sk_bzero(&fDraw, sizeof(fDraw));
 

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 The Android Open Source Project
  *
@@ -23,7 +22,7 @@ class SkPDFFormXObject;
     once, we want to canonicalize them.
 */
 class SkPDFGraphicState final : public SkPDFObject {
-    
+
 public:
     enum SkPDFSMaskMode {
         kAlpha_SMaskMode,

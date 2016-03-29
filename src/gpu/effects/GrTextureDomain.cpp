@@ -102,7 +102,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler,
                                                           inCoords.c_str());
                 builder->codeAppend(";");
-                
+
                 builder->codeAppend(GrGLSLShaderVar::PrecisionString(glslCaps,
                                                                      kHigh_GrSLPrecision));
                 builder->codeAppendf("float x = (%s).x;", inCoords.c_str());

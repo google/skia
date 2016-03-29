@@ -397,7 +397,7 @@ static bool has_valid_tangent(const SkPath::Iter* iter) {
                     continue;
                 }
                 return true;
-            case SkPath::kClose_Verb: 
+            case SkPath::kClose_Verb:
             case SkPath::kDone_Verb:
                 return false;
         }
@@ -627,7 +627,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& coni
     SkScalar xT = 0, yT = 0;
     (void) conic.findXExtrema(&xT);
     (void) conic.findYExtrema(&yT);
-    SkScalar t = SkTMax(xT, yT); 
+    SkScalar t = SkTMax(xT, yT);
     if (0 == t) {
         return kLine_ReductionType;
     }

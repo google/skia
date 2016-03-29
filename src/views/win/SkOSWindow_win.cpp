@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -557,7 +556,7 @@ bool SkOSWindow::attachCommandBuffer(int msaaSampleCount, AttachmentInfo* info) 
         fCommandBuffer = SkCommandBufferGLContext::Create((HWND)fHWND, msaaSampleCount);
         if (!fCommandBuffer)
             return false;
-    
+
         SkAutoTUnref<const GrGLInterface> intf(GrGLCreateCommandBufferInterface());
         if (intf) {
             COMMAND_BUFFER_GL_CALL(intf, ClearStencil(0));
@@ -736,7 +735,7 @@ bool SkOSWindow::makeFullscreen() {
     WindowRect.left = 0;
     WindowRect.right = kWidth;
     WindowRect.top = 0;
-    WindowRect.bottom = kHeight;     
+    WindowRect.bottom = kHeight;
     ShowCursor(FALSE);
     AdjustWindowRectEx(&WindowRect, WS_POPUP, FALSE, WS_EX_APPWINDOW);
     HWND fsHWND = CreateWindowEx(

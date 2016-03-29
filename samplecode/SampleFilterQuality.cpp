@@ -54,7 +54,7 @@ static sk_sp<SkImage> make_image() {
 
     SkPaint paint;
     paint.setShader(make_shader(SkRect::MakeWH(N, N)));
-    
+
     canvas->drawPath(path, paint);
     return surface->makeImageSnapshot();
 }
@@ -63,7 +63,7 @@ static sk_sp<SkImage> zoom_up(SkSurface* origSurf, SkImage* orig) {
     const SkScalar S = 16;    // amount to scale up
     const int D = 2;    // dimension scaling for the offscreen
     // since we only view the center, don't need to produce the entire thing
-    
+
     SkImageInfo info = SkImageInfo::MakeN32(orig->width() * D, orig->height() * D,
                                             kOpaque_SkAlphaType);
     auto surface(origSurf->makeSurface(info));
@@ -73,7 +73,7 @@ static sk_sp<SkImage> zoom_up(SkSurface* origSurf, SkImage* orig) {
     canvas->translate(-SkScalarHalf(orig->width()) * (S - D) / S,
                       -SkScalarHalf(orig->height()) * (S - D) / S);
     canvas->drawImage(orig, 0, 0, nullptr);
-    
+
     if (S > 3) {
         SkPaint paint;
         paint.setColor(SK_ColorWHITE);

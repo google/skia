@@ -18,13 +18,13 @@ public:
         fFilter = SkFilterSpanProc_Choose(paint);
         fBuffer.reset(src.width());
     }
-    
+
 protected:
     SkXfermode*             fXfer;
     SkLoadSpanProc          fLoader;
     SkFilterSpanProc        fFilter;
     SkAutoTMalloc<SkPM4f>   fBuffer;
-    
+
 private:
     typedef SkSpriteBlitter INHERITED;
 };
@@ -53,7 +53,7 @@ public:
             dst = (uint64_t* SK_RESTRICT)((char*)dst + dstRB);
         }
     }
-    
+
 private:
     SkXfermode::D64Proc fWriter;
 
@@ -89,12 +89,12 @@ public:
         }
         fWriter = SkXfermode::GetD32Proc(fXfer, flags);
     }
-    
+
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(width > 0 && height > 0);
         uint32_t* SK_RESTRICT dst = fDst.writable_addr32(x, y);
         size_t dstRB = fDst.rowBytes();
-        
+
         for (int bottom = y + height; y < bottom; ++y) {
             fLoader(fSource, x - fLeft, y - fTop, fBuffer, width);
             fFilter(*fPaint, fBuffer, width);
@@ -102,10 +102,10 @@ public:
             dst = (uint32_t* SK_RESTRICT)((char*)dst + dstRB);
         }
     }
-    
+
 protected:
     SkXfermode::D32Proc fWriter;
-    
+
 private:
     typedef Sprite_4f INHERITED;
 };
@@ -114,11 +114,11 @@ private:
 SkSpriteBlitter* SkSpriteBlitter::ChooseS32(const SkPixmap& source, const SkPaint& paint,
                                             SkTBlitterAllocator* allocator) {
     SkASSERT(allocator != nullptr);
-    
+
     if (paint.getMaskFilter() != nullptr) {
         return nullptr;
     }
-    
+
     switch (source.colorType()) {
         case kN32_SkColorType:
         case kRGBA_F16_SkColorType:

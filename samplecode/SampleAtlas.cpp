@@ -30,7 +30,7 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
     for (int i = 0; i < count; ++i) {
         SkMatrix matrix;
         matrix.setRSXform(xform[i]);
-        
+
         canvas->save();
         canvas->concat(matrix);
         canvas->drawImageRect(atlas, tex[i], tex[i].makeOffset(-tex[i].x(), -tex[i].y()), paint,
@@ -118,7 +118,7 @@ class DrawAtlasDrawable : public SkDrawable {
                 fDAlpha = -fDAlpha;
             }
         }
-        
+
         SkRSXform asRSXform() const {
             return SkRSXform::MakeFromRadians(fScale, fRadian, fCenter.x(), fCenter.y(),
                                               SkScalarHalf(kCellSize), SkScalarHalf(kCellSize));
@@ -151,7 +151,7 @@ public:
                 const SkScalar sx = SkIntToScalar(x);
                 const SkScalar sy = SkIntToScalar(y);
                 fTex[i].setXYWH(sx, sy, cell, cell);
-                
+
                 fRec[i].fCenter.set(sx + cell/2, sy + 3*cell/4);
                 fRec[i].fVelocity.fX = rand.nextSScalar1() * kMaxSpeed;
                 fRec[i].fVelocity.fY = rand.nextSScalar1() * kMaxSpeed;
@@ -189,7 +189,7 @@ protected:
         const SkColor* colorsPtr = fUseColors ? colors : nullptr;
         fProc(canvas, fAtlas.get(), xform, fTex, colorsPtr, N, &cull, &paint);
     }
-    
+
     SkRect onGetBounds() override {
         const SkScalar border = kMaxScale * kCellSize;
         SkRect r = fBounds;

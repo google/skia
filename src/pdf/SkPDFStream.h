@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -23,7 +22,7 @@ class SkPDFObjNumMap;
     SkObjRef).
 */
 class SkPDFStream : public SkPDFDict {
-    
+
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary.

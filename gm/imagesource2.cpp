@@ -47,7 +47,7 @@ protected:
         int curColor = 0;
 
         for (int x = 0; x < kImageSize; x += 3) {
-            SkRect r = SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(0), 
+            SkRect r = SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(0),
                                         SkIntToScalar(3), SkIntToScalar(kImageSize));
             SkPaint p;
             p.setColor(gColors[curColor]);

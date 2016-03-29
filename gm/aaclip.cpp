@@ -206,7 +206,7 @@ public:
     ClipCubicGM() {
         fVPath.moveTo(W, 0);
         fVPath.cubicTo(W, H-10, 0, 10, 0, H);
-    
+
         SkMatrix pivot;
         pivot.setRotate(90, W/2, H/2);
         fVPath.transform(pivot, &fHPath);
@@ -216,7 +216,7 @@ protected:
     SkString onShortName() override {
         return SkString("clipcubic");
     }
-    
+
     SkISize onISize() override {
         return SkISize::Make(400, 410);
     }
@@ -224,10 +224,10 @@ protected:
     void doDraw(SkCanvas* canvas, const SkPath& path) {
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         paint.setColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
         canvas->drawPath(path, paint);
-        
+
         paint.setColor(SK_ColorRED);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawPath(path, paint);
@@ -242,7 +242,7 @@ protected:
 
         canvas->drawRect(r, paint);
         this->doDraw(canvas, path);
-        
+
         canvas->translate(dx, dy);
 
         canvas->drawRect(r, paint);
@@ -256,7 +256,7 @@ protected:
         canvas->translate(0, 200);
         this->drawAndClip(canvas, fHPath, 200, 0);
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

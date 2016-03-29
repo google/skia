@@ -120,4 +120,3 @@ private:
 };
 DEF_GM( return new VeryLargeBitmapGM(make_raster_image, "bitmap"); )
 DEF_GM( return new VeryLargeBitmapGM(make_picture_image, "_picture_image"); )
-

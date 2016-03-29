@@ -70,7 +70,7 @@ public:
                             SkPixelRef* pr,
                             const SkIRect& subset,
                             const SkSurfaceProps* props)
-        : INHERITED(proxy, subset, props) {   
+        : INHERITED(proxy, subset, props) {
         const SkImageInfo& info = pr->info();
 
         fBitmap.setInfo(info, info.minRowBytes());
@@ -148,7 +148,7 @@ private:
     typedef SkSpecialSurface_Base INHERITED;
 };
 
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromTexture(SkImageFilter::Proxy* proxy, 
+sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromTexture(SkImageFilter::Proxy* proxy,
                                                           const SkIRect& subset,
                                                           GrTexture* texture,
                                                           const SkSurfaceProps* props) {

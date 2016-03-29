@@ -35,7 +35,7 @@ public:
     /**
     *  Return a canvas that will draw into this surface. This will always
     *  return the same canvas for a given surface, and is managed/owned by the
-    *  surface. 
+    *  surface.
     *
     *  The canvas will be invalid after 'newImageSnapshot' is called.
     */

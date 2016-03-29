@@ -358,4 +358,3 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     }
     return false;
 }
-
