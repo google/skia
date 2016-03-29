@@ -81,7 +81,6 @@ static GrContext* create_mesa_grcontext() {
 
 int main() {
     const DrawOptions options = GetDrawOptions();
-    fprintf(stderr, "%s\n", options.source);
     if (options.source) {
         sk_sp<SkData> data(SkData::NewFromFileName(options.source));
         if (!data) {
