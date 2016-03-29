@@ -33,10 +33,20 @@ void SkPDFStream::emitObject(SkWStream* stream,
     stream->writeText("\nendstream");
 }
 
+
 void SkPDFStream::setData(SkStream* stream) {
     SkASSERT(!fCompressedData);  // Only call this function once.
     SkASSERT(stream);
     // Code assumes that the stream starts at the beginning.
+
+    #ifdef SK_PDF_LESS_COMPRESSION
+    std::unique_ptr<SkStreamRewindable> duplicate(stream->duplicate());
+    if (duplicate && duplicate->hasLength()) {
+        this->insertInt("Length", duplicate->getLength());
+        fCompressedData.reset(duplicate.release());
+        return;
+    }
+    #endif
 
     SkDynamicMemoryWStream compressedData;
     SkDeflateWStream deflateWStream(&compressedData);

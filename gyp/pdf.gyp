@@ -17,7 +17,10 @@
       'product_name': 'skia_pdf',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'variables': { 'skia_pdf_use_sfntly%': 1, },
+      'variables': {
+        'skia_pdf_use_sfntly%': 1,
+        'skia_pdf_less_compression%': 0,  # enable for debugging only
+      },
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'zlib.gyp:zlib',
@@ -40,6 +43,9 @@
           { 'dependencies': [ 'sfntly.gyp:sfntly' ] }
         ],
         [ 'skia_pdf_generate_pdfa', { 'defines': ['SK_PDF_GENERATE_PDFA'] } ],
+        [ 'skia_pdf_less_compression',
+          {'defines': ['SK_PDF_LESS_COMPRESSION'] }
+        ],
         [ 'skia_android_framework', {
             # Add SFTNLY support for PDF (which in turns depends on ICU)
             'include_dirs': [

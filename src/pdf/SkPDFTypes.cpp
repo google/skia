@@ -465,6 +465,28 @@ void SkPDFSharedStream::drop() {
     SkDEBUGCODE(fDumped = true;)
 }
 
+#ifdef SK_PDF_LESS_COMPRESSION
+void SkPDFSharedStream::emitObject(
+        SkWStream* stream,
+        const SkPDFObjNumMap& objNumMap,
+        const SkPDFSubstituteMap& substitutes) const {
+    SkASSERT(!fDumped);
+    std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());
+    SkASSERT(dup && dup->hasLength());
+    size_t length = dup->getLength();
+    stream->writeText("<<");
+    fDict->emitAll(stream, objNumMap, substitutes);
+    stream->writeText("\n");
+    SkPDFUnion::Name("Length").emitObject(
+            stream, objNumMap, substitutes);
+    stream->writeText(" ");
+    SkPDFUnion::Int(length).emitObject(
+            stream, objNumMap, substitutes);
+    stream->writeText("\n>>stream\n");
+    SkStreamCopy(stream, dup.get());
+    stream->writeText("\nendstream");
+}
+#else
 void SkPDFSharedStream::emitObject(
         SkWStream* stream,
         const SkPDFObjNumMap& objNumMap,
@@ -493,6 +515,7 @@ void SkPDFSharedStream::emitObject(
     buffer.writeToStream(stream);
     stream->writeText("\nendstream");
 }
+#endif
 
 void SkPDFSharedStream::addResources(
         SkPDFObjNumMap* catalog, const SkPDFSubstituteMap& substitutes) const {
