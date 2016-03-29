@@ -840,6 +840,11 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
                                       left, top, width, height, config, texels);
     }
 
+    if (success) {
+        SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
+        this->didWriteToSurface(surface, &rect);
+    }
+
     return success;
 }
 
@@ -876,7 +881,8 @@ bool GrGLGpu::onTransferPixels(GrSurface* surface,
     success = this->uploadTexData(glTex->desc(), glTex->target(), kTransfer_UploadType,
                                   left, top, width, height, config, texels);
     if (success) {
-        glTex->texturePriv().dirtyMipMaps(true);
+        SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
+        this->didWriteToSurface(surface, &rect);
         return true;
     }
 
