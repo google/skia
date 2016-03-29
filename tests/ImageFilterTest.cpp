@@ -138,17 +138,17 @@ public:
 
         SkPaint paint;
         paint.setShader(shader);
-        SkAutoTUnref<SkImageFilter> paintFilter(SkPaintImageFilter::Create(paint));
+        sk_sp<SkImageFilter> paintFilter(SkPaintImageFilter::Make(paint));
 
         sk_sp<SkShader> greenColorShader(SkShader::MakeColorShader(SK_ColorGREEN));
         SkPaint greenColorShaderPaint;
         greenColorShaderPaint.setShader(greenColorShader);
         SkImageFilter::CropRect leftSideCropRect(SkRect::MakeXYWH(0, 0, 32, 64));
-        SkAutoTUnref<SkImageFilter> paintFilterLeft(SkPaintImageFilter::Create(
-            greenColorShaderPaint, &leftSideCropRect));
+        sk_sp<SkImageFilter> paintFilterLeft(SkPaintImageFilter::Make(greenColorShaderPaint,
+                                                                      &leftSideCropRect));
         SkImageFilter::CropRect rightSideCropRect(SkRect::MakeXYWH(32, 0, 32, 64));
-        SkAutoTUnref<SkImageFilter> paintFilterRight(SkPaintImageFilter::Create(
-            greenColorShaderPaint, &rightSideCropRect));
+        sk_sp<SkImageFilter> paintFilterRight(SkPaintImageFilter::Make(greenColorShaderPaint,
+                                                                       &rightSideCropRect));
 
         this->addFilter("color filter",
             SkColorFilterImageFilter::Create(cf.get(), input, cropRect));
@@ -172,7 +172,8 @@ public:
         this->addFilter("merge", SkMergeImageFilter::Create(input, input, SkXfermode::kSrcOver_Mode,
                   cropRect));
         this->addFilter("merge with disjoint inputs", SkMergeImageFilter::Create(
-                  paintFilterLeft, paintFilterRight, SkXfermode::kSrcOver_Mode, cropRect));
+                  paintFilterLeft.get(), paintFilterRight.get(),
+                  SkXfermode::kSrcOver_Mode, cropRect));
         this->addFilter("offset",
                         SkOffsetImageFilter::Create(SK_Scalar1, SK_Scalar1, input, cropRect));
         this->addFilter("dilate", SkDilateImageFilter::Create(3, 2, input, cropRect));

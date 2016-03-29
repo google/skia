@@ -16,10 +16,27 @@
  */
 class SkLocalMatrixImageFilter : public SkImageFilter {
 public:
-    static SkImageFilter* Create(const SkMatrix& localM, SkImageFilter* input);
+    static sk_sp<SkImageFilter> Make(const SkMatrix& localM, sk_sp<SkImageFilter> input) {
+        if (!input) {
+            return nullptr;
+        }
+        if (localM.getType() & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
+            return nullptr;
+        }
+        if (localM.isIdentity()) {
+            return input;
+        }
+        return sk_sp<SkImageFilter>(new SkLocalMatrixImageFilter(localM, input));
+    }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixImageFilter)
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(const SkMatrix& localM, SkImageFilter* input) {
+        return Make(localM, sk_sp<SkImageFilter>(SkSafeRef(input))).release();
+    }
+#endif
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -28,7 +45,7 @@ protected:
     SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
 
 private:
-    SkLocalMatrixImageFilter(const SkMatrix& localM, SkImageFilter* input);
+    SkLocalMatrixImageFilter(const SkMatrix& localM, sk_sp<SkImageFilter> input);
 
     SkMatrix fLocalM;
 

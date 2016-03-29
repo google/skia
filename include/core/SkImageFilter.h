@@ -255,7 +255,13 @@ public:
      *  If this filter can be represented by another filter + a localMatrix, return that filter,
      *  else return null.
      */
-    SkImageFilter* newWithLocalMatrix(const SkMatrix& matrix) const;
+    sk_sp<SkImageFilter> makeWithLocalMatrix(const SkMatrix&) const;
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    SkImageFilter* newWithLocalMatrix(const SkMatrix& matrix) const {
+        this->makeWithLocalMatrix(matrix).release();
+    }
+#endif
 
     /**
      * Create an SkMatrixImageFilter, which transforms its input by the given matrix.
@@ -320,7 +326,9 @@ protected:
         void allocInputs(int count);
     };
 
-    SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);
+    SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = nullptr);
+
+    SkImageFilter(sk_sp<SkImageFilter>* inputs, int inputCount, const CropRect* cropRect);
 
     virtual ~SkImageFilter();
 

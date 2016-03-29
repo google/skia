@@ -14,7 +14,7 @@
 #include "SkValidationUtils.h"
 
 SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
-    : INHERITED(0, 0, nullptr)
+    : INHERITED(nullptr, 0, nullptr)
     , fPicture(std::move(picture))
     , fCropRect(fPicture ? fPicture->cullRect() : SkRect::MakeEmpty())
     , fPictureResolution(kDeviceSpace_PictureResolution)
@@ -24,7 +24,7 @@ SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
 SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cropRect,
                                            PictureResolution pictureResolution,
                                            SkFilterQuality filterQuality)
-    : INHERITED(0, 0, nullptr)
+    : INHERITED(nullptr, 0, nullptr)
     , fPicture(std::move(picture))
     , fCropRect(cropRect)
     , fPictureResolution(pictureResolution)

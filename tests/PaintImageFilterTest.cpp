@@ -38,7 +38,7 @@ static void test_unscaled(skiatest::Reporter* reporter) {
     {
         SkPaint paint;
         SkImageFilter::CropRect cr(r);
-        paint.setImageFilter(SkPaintImageFilter::Create(gradientPaint, &cr))->unref();
+        paint.setImageFilter(SkPaintImageFilter::Make(gradientPaint, &cr));
         canvasFilter.drawRect(r, paint);
     }
 
@@ -84,7 +84,7 @@ static void test_scaled(skiatest::Reporter* reporter) {
     {
         SkPaint paint;
         SkImageFilter::CropRect cr(r);
-        paint.setImageFilter(SkPaintImageFilter::Create(gradientPaint, &cr))->unref();
+        paint.setImageFilter(SkPaintImageFilter::Make(gradientPaint, &cr));
         canvasFilter.scale(SkIntToScalar(2), SkIntToScalar(2));
         canvasFilter.drawRect(r, paint);
     }
