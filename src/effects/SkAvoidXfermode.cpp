@@ -25,7 +25,7 @@ SkFlattenable* SkAvoidXfermode::CreateProc(SkReadBuffer& buffer) {
     const SkColor color = buffer.readColor();
     const unsigned tolerance = buffer.readUInt();
     const unsigned mode = buffer.readUInt();
-    return Create(color, tolerance, (Mode)mode);
+    return Make(color, tolerance, (Mode)mode).release();
 }
 
 void SkAvoidXfermode::flatten(SkWriteBuffer& buffer) const {

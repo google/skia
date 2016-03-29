@@ -41,8 +41,6 @@ protected:
         SkScalar x = 0, y = 0;
         for (size_t m = 0; m <= SkXfermode::kLastMode; m++) {
             SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(m);
-            SkXfermode* xm = SkXfermode::Create(mode);
-            SkAutoUnref aur(xm);
 
             canvas->save();
 
@@ -59,7 +57,7 @@ protected:
             p.setShader(fDst);
             canvas->drawRect(r, p);
             p.setShader(fSrc);
-            p.setXfermode(xm);
+            p.setXfermode(SkXfermode::Make(mode));
             canvas->drawRect(r, p);
 
             canvas->restore();

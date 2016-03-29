@@ -246,13 +246,13 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     SkAutoTUnref<SkImageFilter> validBitmapSource(SkImageSource::Create(validImage.get()));
     sk_sp<SkImage> invalidImage(SkImage::MakeFromBitmap(invalidBitmap));
     SkAutoTUnref<SkImageFilter> invalidBitmapSource(SkImageSource::Create(invalidImage.get()));
-    SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
-    SkAutoTUnref<SkImageFilter> xfermodeImageFilter(
-        SkXfermodeImageFilter::Create(mode, invalidBitmapSource, validBitmapSource));
+    sk_sp<SkImageFilter> xfermodeImageFilter(
+        SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcOver_Mode),
+                                    invalidBitmapSource, validBitmapSource, nullptr));
 
     SkAutoTUnref<SkImageFilter> deserializedFilter(
         TestFlattenableSerialization<SkImageFilter>(
-            xfermodeImageFilter, shouldSucceed, reporter));
+            xfermodeImageFilter.get(), shouldSucceed, reporter));
 
     // Try to render a small bitmap using the invalid deserialized filter
     // to make sure we don't crash while trying to render it
@@ -274,8 +274,8 @@ static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
             // skip SrcOver, as it is allowed to return nullptr from Create()
             continue;
         }
-        SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(static_cast<SkXfermode::Mode>(i)));
-        REPORTER_ASSERT(reporter, mode.get());
+        auto mode(SkXfermode::Make(static_cast<SkXfermode::Mode>(i)));
+        REPORTER_ASSERT(reporter, mode);
         SkAutoTUnref<SkXfermode> copy(
             TestFlattenableSerialization<SkXfermode>(mode.get(), true, reporter));
     }

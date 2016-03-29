@@ -1169,10 +1169,9 @@ static void extract_json_paint_xfermode(Json::Value& jsonPaint, UrlDataManager& 
                                         SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_XFERMODE)) {
         Json::Value jsonXfermode = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_XFERMODE];
-        SkXfermode* xfermode = (SkXfermode*) load_flattenable(jsonXfermode, urlDataManager);
+        sk_sp<SkXfermode> xfermode((SkXfermode*) load_flattenable(jsonXfermode, urlDataManager));
         if (xfermode != nullptr) {
             target->setXfermode(xfermode);
-            xfermode->unref();
         }
     }
 }

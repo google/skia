@@ -39,9 +39,14 @@ public:
                 Tolerance near 0: draw only on colors that are nearly identical to the op-color
                 Tolerance near 255: draw on any colors even remotely similar to the op-color
      */
-    static SkAvoidXfermode* Create(SkColor opColor, U8CPU tolerance, Mode mode) {
-        return new SkAvoidXfermode(opColor, tolerance, mode);
+    static sk_sp<SkXfermode> Make(SkColor opColor, U8CPU tolerance, Mode mode) {
+        return sk_sp<SkXfermode>(new SkAvoidXfermode(opColor, tolerance, mode));
     }
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
+    static SkAvoidXfermode* Create(SkColor opColor, U8CPU tolerance, Mode mode) {
+        return (SkAvoidXfermode*)(Make(opColor, tolerance, mode).release());
+    }
+#endif
 
     // overrides from SkXfermode
     void xfer32(SkPMColor dst[], const SkPMColor src[], int count,

@@ -199,12 +199,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-
-        SkXfermode* mode = SkXfermode::Create(SkXfermode::kXor_Mode);
-
         SkPaint paint;
         paint.setAlpha(128);
-        paint.setXfermode(mode)->unref();
+        paint.setXfermode(SkXfermode::Make(SkXfermode::kXor_Mode));
 
         SkRect srcR1 = { 0.0f, 0.0f, 4096.0f, 2040.0f };
         SkRect dstR1 = { 10.1f, 10.1f, 629.9f, 400.9f };

@@ -14,7 +14,7 @@ class SkXfermode;
 
 class SkOverdrawMode {
 public:
-    static SkXfermode* Create();
+    static sk_sp<SkXfermode> Make();
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
 

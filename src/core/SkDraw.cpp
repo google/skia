@@ -32,6 +32,7 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
+#include "SkXfermode.h"
 
 #include "SkBitmapProcShader.h"
 #include "SkDrawProcs.h"
@@ -1900,15 +1901,9 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         } else {
             // colors * texture
             SkASSERT(shader);
-            bool releaseMode = false;
-            if (nullptr == xmode) {
-                xmode = SkXfermode::Create(SkXfermode::kModulate_Mode);
-                releaseMode = true;
-            }
-            p.setShader(sk_make_sp<SkComposeShader>(triShader, sk_ref_sp(shader), xmode));
-            if (releaseMode) {
-                xmode->unref();
-            }
+            sk_sp<SkXfermode> xfer = xmode ? sk_ref_sp(xmode)
+                                           : SkXfermode::Make(SkXfermode::kModulate_Mode);
+            p.setShader(SkShader::MakeComposeShader(triShader, sk_ref_sp(shader), std::move(xfer)));
         }
     }
 

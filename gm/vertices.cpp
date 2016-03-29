@@ -154,7 +154,7 @@ protected:
         canvas->translate(4, 4);
         int x = 0;
         for (size_t j = 0; j < SK_ARRAY_COUNT(modes); ++j) {
-            SkXfermode* xfer = SkXfermode::Create(modes[j]);
+            auto xfer = SkXfermode::Make(modes[j]);
             canvas->save();
             for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
                 paint.setShader(rec[i].fShader);
@@ -170,7 +170,6 @@ protected:
             }
             canvas->restore();
             canvas->translate(0, 40);
-            SkSafeUnref(xfer);
         }
     }
 

@@ -81,8 +81,7 @@ const int gHeight = 64;
 const SkScalar W = SkIntToScalar(gWidth);
 const SkScalar H = SkIntToScalar(gHeight);
 
-static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
-                         SkAlpha a0, SkAlpha a1) {
+static SkScalar drawCell(SkCanvas* canvas, sk_sp<SkXfermode> mode, SkAlpha a0, SkAlpha a1) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -96,7 +95,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
 
     paint.setColor(SK_ColorRED);
     paint.setAlpha(a1);
-    paint.setXfermode(mode);
+    paint.setXfermode(std::move(mode));
 
     SkScalar offset = SK_Scalar1 / 3;
     SkRect rect = SkRect::MakeXYWH(W / 4 + offset,
@@ -154,17 +153,14 @@ namespace skiagm {
                         canvas->translate(W * 5, 0);
                         canvas->save();
                     }
-                    SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-
                     canvas->drawRect(bounds, fBGPaint);
                     canvas->saveLayer(&bounds, nullptr);
-                    SkScalar dy = drawCell(canvas, mode,
+                    SkScalar dy = drawCell(canvas, SkXfermode::Make(gModes[i].fMode),
                                            gAlphaValue[alpha & 1],
                                            gAlphaValue[alpha & 2]);
                     canvas->restore();
 
                     canvas->translate(0, dy * 5 / 4);
-                    SkSafeUnref(mode);
                 }
                 canvas->restore();
                 canvas->restore();

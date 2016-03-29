@@ -380,7 +380,9 @@ SET_PTR(Shader)
 #ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
 SET_PTR(ColorFilter)
 #endif
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
 SET_PTR(Xfermode)
+#endif
 #ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
 SET_PTR(PathEffect)
 #endif
@@ -395,8 +397,8 @@ SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
 #endif
 
 SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
-    fXfermode.reset(SkXfermode::Create(mode));
-    return fXfermode.get();
+    fXfermode = SkXfermode::Make(mode);
+    return fXfermode.get(); // can/should we change this API to be void, like the other setters?
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1927,7 +1929,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     if (flatFlags & kHasEffects_FlatFlag) {
         this->setPathEffect(buffer.readPathEffect());
         this->setShader(buffer.readShader());
-        SkSafeUnref(this->setXfermode(buffer.readXfermode()));
+        this->setXfermode(buffer.readXfermode());
         SkSafeUnref(this->setMaskFilter(buffer.readMaskFilter()));
         this->setColorFilter(buffer.readColorFilter());
         this->setRasterizer(buffer.readRasterizer());

@@ -582,10 +582,9 @@ static SkImageFilter* make_image_filter(bool canBeNull) {
         filter = SkDownSampleImageFilter::Create(make_scalar());
         break;
     case XFERMODE:
-    {
-        SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(make_xfermode()));
-        filter = SkXfermodeImageFilter::Create(mode, make_image_filter(), make_image_filter());
-    }
+        filter = SkXfermodeImageFilter::Make(SkXfermode::Make(make_xfermode()),
+                                             make_image_filter(), make_image_filter(),
+                                             nullptr).release();
         break;
     case OFFSET:
         filter = SkOffsetImageFilter::Create(make_scalar(), make_scalar(), make_image_filter());

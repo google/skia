@@ -307,15 +307,15 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
                 texCoords = (const SkPoint*)reader->skip(SkPatchUtils::kNumCorners *
                                                          sizeof(SkPoint));
             }
-            SkAutoTUnref<SkXfermode> xfer;
+            sk_sp<SkXfermode> xfer;
             if (flag & DRAW_VERTICES_HAS_XFER) {
                 int mode = reader->readInt();
                 if (mode < 0 || mode > SkXfermode::kLastMode) {
                     mode = SkXfermode::kModulate_Mode;
                 }
-                xfer.reset(SkXfermode::Create((SkXfermode::Mode)mode));
+                xfer = SkXfermode::Make((SkXfermode::Mode)mode);
             }
-            canvas->drawPatch(cubics, colors, texCoords, xfer, paint);
+            canvas->drawPatch(cubics, colors, texCoords, std::move(xfer), paint);
         } break;
         case DRAW_PATH: {
             const SkPaint& paint = *fPictureData->getPaint(reader);
@@ -435,7 +435,7 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             canvas->drawTextOnPath(text.text(), text.length(), path, &matrix, paint);
         } break;
         case DRAW_VERTICES: {
-            SkAutoTUnref<SkXfermode> xfer;
+            sk_sp<SkXfermode> xfer;
             const SkPaint& paint = *fPictureData->getPaint(reader);
             DrawVertexFlags flags = (DrawVertexFlags)reader->readInt();
             SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader->readInt();
@@ -460,7 +460,7 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
                 if (mode < 0 || mode > SkXfermode::kLastMode) {
                     mode = SkXfermode::kModulate_Mode;
                 }
-                xfer.reset(SkXfermode::Create((SkXfermode::Mode)mode));
+                xfer = SkXfermode::Make((SkXfermode::Mode)mode);
             }
             canvas->drawVertices(vmode, vCount, verts, texs, colors, xfer, indices, iCount, paint);
         } break;

@@ -85,11 +85,7 @@ private:
 class SrcModeRectBench : public RectBench {
 public:
     SrcModeRectBench() : INHERITED(1, 0) {
-        fMode = SkXfermode::Create(SkXfermode::kSrc_Mode);
-    }
-
-    virtual ~SrcModeRectBench() {
-        SkSafeUnref(fMode);
+        fMode = SkXfermode::Make(SkXfermode::kSrc_Mode);
     }
 
 protected:
@@ -108,7 +104,7 @@ protected:
 
 private:
     SkString fName;
-    SkXfermode* fMode;
+    sk_sp<SkXfermode> fMode;
 
     typedef RectBench INHERITED;
 };

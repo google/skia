@@ -76,8 +76,7 @@ protected:
         this->drawColumn(surfCanvas, SK_ColorCYAN, SK_ColorMAGENTA, true);
 
         SkPaint surfPaint;
-        SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
-        surfPaint.setXfermode(xfermode);
+        surfPaint.setXfermode(SkXfermode::Make(SkXfermode::kSrcOver_Mode));
         surface->draw(canvas, 0, 0, &surfPaint);
     }
 
@@ -123,14 +122,13 @@ protected:
                                backgroundPaint);
         SkScalar y = fTextHeight;
         for (size_t m = 0; m < SK_ARRAY_COUNT(gModes); m++) {
-            SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(gModes[m].fMode));
             SkPaint paint;
             paint.setColor(textColor);
             paint.setAntiAlias(true);
             paint.setSubpixelText(true);
             paint.setLCDRenderText(true);
             paint.setTextSize(fTextHeight);
-            paint.setXfermode(xfermode);
+            paint.setXfermode(SkXfermode::Make(gModes[m].fMode));
             sk_tool_utils::set_portable_typeface(&paint);
             if (useGrad) {
                 SkRect r;

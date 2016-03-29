@@ -95,7 +95,7 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 800, 800) {
 
         canvas->save();
         for (int y = 0; y < 3; y++) {
-            SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(modes[y]));
+            sk_sp<SkXfermode> xfer(SkXfermode::Make(modes[y]));
 
             for (int x = 0; x < 4; x++) {
                 canvas->save();

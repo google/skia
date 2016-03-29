@@ -33,7 +33,7 @@ public:
                            bool overrideFilterQuality,
                            SkFilterQuality quality)
         : INHERITED(width, height)
-        , fOverdrawXfermode(overdrawViz ? SkOverdrawMode::Create() : nullptr)
+        , fOverdrawXfermode(overdrawViz ? SkOverdrawMode::Make() : nullptr)
         , fOverrideFilterQuality(overrideFilterQuality)
         , fFilterQuality(quality) {}
 
@@ -42,7 +42,7 @@ protected:
         if (*paint) {
             if (nullptr != fOverdrawXfermode.get()) {
                 paint->writable()->setAntiAlias(false);
-                paint->writable()->setXfermode(fOverdrawXfermode.get());
+                paint->writable()->setXfermode(fOverdrawXfermode);
             }
 
             if (fOverrideFilterQuality) {
@@ -60,7 +60,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkXfermode> fOverdrawXfermode;
+    sk_sp<SkXfermode> fOverdrawXfermode;
 
     bool fOverrideFilterQuality;
     SkFilterQuality fFilterQuality;

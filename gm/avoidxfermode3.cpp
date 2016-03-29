@@ -38,9 +38,7 @@ protected:
         SkPaint p1;
         p1.setColor(SK_ColorGREEN);
         p1.setAntiAlias(true);
-        p1.setXfermode(SkAvoidXfermode::Create(SK_ColorWHITE,
-                                               5,
-                                               SkAvoidXfermode::kTargetColor_Mode))->unref();
+        p1.setXfermode(SkAvoidXfermode::Make(SK_ColorWHITE, 5, SkAvoidXfermode::kTargetColor_Mode));
 
         canvas->drawRect(r, p1);
 
@@ -50,9 +48,8 @@ protected:
         SkPaint p2;
         p2.setColor(SK_ColorRED);
         p2.setAntiAlias(true);
-        p2.setXfermode(SkAvoidXfermode::Create(SK_ColorWHITE,
-                                               250,
-                                               SkAvoidXfermode::kAvoidColor_Mode))->unref();
+        p2.setXfermode(SkAvoidXfermode::Make(SK_ColorWHITE, 250,
+                                             SkAvoidXfermode::kAvoidColor_Mode));
 
         canvas->drawRect(r, p2);
 
@@ -62,9 +59,8 @@ protected:
         SkPaint p3;
         p3.setColor(SK_ColorBLUE);
         p3.setAntiAlias(true);
-        p3.setXfermode(SkAvoidXfermode::Create(SK_ColorWHITE,
-                                               250,
-                                               SkAvoidXfermode::kTargetColor_Mode))->unref();
+        p3.setXfermode(SkAvoidXfermode::Make(SK_ColorWHITE, 250,
+                                             SkAvoidXfermode::kTargetColor_Mode));
 
         canvas->drawRect(r, p3);
 
@@ -74,9 +70,7 @@ protected:
         SkPaint p4;
         p4.setColor(SK_ColorYELLOW);
         p4.setAntiAlias(true);
-        p4.setXfermode(SkAvoidXfermode::Create(SK_ColorWHITE,
-                                               5,
-                                               SkAvoidXfermode::kAvoidColor_Mode))->unref();
+        p4.setXfermode(SkAvoidXfermode::Make(SK_ColorWHITE, 5, SkAvoidXfermode::kAvoidColor_Mode));
 
         canvas->drawRect(r, p4);
     }

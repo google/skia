@@ -132,7 +132,7 @@ public:
         // To implement the old shadeSpan entry-point, we need to efficiently convert our native
         // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
         //
-        sk_sp<SkXfermode> xfer(SkXfermode::Create(SkXfermode::kSrc_Mode));
+        sk_sp<SkXfermode> xfer(SkXfermode::Make(SkXfermode::kSrc_Mode));
         fXferProc = SkXfermode::GetD32Proc(xfer.get(), 0);
     }
 

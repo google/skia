@@ -317,7 +317,7 @@ SkFlattenable* SkOverdrawXfermode::CreateProc(SkReadBuffer& buffer) {
     return Create();
 }
 
-SkXfermode* SkOverdrawMode::Create() { return new SkOverdrawXfermode; }
+sk_sp<SkXfermode> SkOverdrawMode::Make() { return sk_make_sp<SkOverdrawXfermode>(); }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkOverdrawMode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOverdrawXfermode)

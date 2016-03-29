@@ -5,13 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkComposeShader_DEFINED
 #define SkComposeShader_DEFINED
 
 #include "SkShader.h"
-
-class SkXfermode;
+#include "SkXfermode.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,8 +28,11 @@ public:
         @param mode     The xfermode that combines the colors from the two shaders. If mode
                         is null, then SRC_OVER is assumed.
     */
-    SkComposeShader(sk_sp<SkShader> sA, sk_sp<SkShader> sB, SkXfermode* mode = NULL);
-    virtual ~SkComposeShader();
+    SkComposeShader(sk_sp<SkShader> sA, sk_sp<SkShader> sB, sk_sp<SkXfermode> mode)
+        : fShaderA(std::move(sA))
+        , fShaderB(std::move(sB))
+        , fMode(std::move(mode))
+    {}
 
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor*  asFragmentProcessor(GrContext*,
@@ -72,15 +73,15 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeShader)
 
 protected:
-    SkComposeShader(SkReadBuffer& );
+    SkComposeShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void*) const override;
 
 private:
-    sk_sp<SkShader> fShaderA;
-    sk_sp<SkShader> fShaderB;
-    SkXfermode*     fMode;
+    sk_sp<SkShader>     fShaderA;
+    sk_sp<SkShader>     fShaderB;
+    sk_sp<SkXfermode>   fMode;
 
     typedef SkShader INHERITED;
 };

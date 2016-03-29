@@ -140,11 +140,10 @@ protected:
 
             auto matrixFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
             SkAutoTUnref<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter.get(), morph));
-            SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
-            SkAutoTUnref<SkImageFilter> blendColor(SkXfermodeImageFilter::Create(mode, colorMorph));
-
             SkPaint paint;
-            paint.setImageFilter(blendColor);
+            paint.setImageFilter(SkXfermodeImageFilter::Make(
+                                        SkXfermode::Make(SkXfermode::kSrcOver_Mode), colorMorph));
+
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
@@ -158,12 +157,11 @@ protected:
             SkAutoTUnref<SkImageFilter> offsetFilter(
                 SimpleOffsetFilter::Create(10.0f, 10.f, matrixFilter));
 
-            SkAutoTUnref<SkXfermode> arith(SkArithmeticMode::Create(0, SK_Scalar1, SK_Scalar1, 0));
-            SkAutoTUnref<SkImageFilter> arithFilter(
-                SkXfermodeImageFilter::Create(arith, matrixFilter, offsetFilter));
-
             SkPaint paint;
-            paint.setImageFilter(arithFilter);
+            paint.setImageFilter(
+                SkXfermodeImageFilter::Make(SkArithmeticMode::Make(0, SK_Scalar1, SK_Scalar1, 0),
+                                            matrixFilter, offsetFilter, nullptr));
+
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
@@ -171,13 +169,11 @@ protected:
             SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(
               SkIntToScalar(10), SkIntToScalar(10)));
 
-            SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcIn_Mode));
             SkImageFilter::CropRect cropRect(SkRect::MakeWH(SkIntToScalar(95), SkIntToScalar(100)));
-            SkAutoTUnref<SkImageFilter> blend(
-                SkXfermodeImageFilter::Create(mode, blur, nullptr, &cropRect));
-
             SkPaint paint;
-            paint.setImageFilter(blend);
+            paint.setImageFilter(
+                SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcIn_Mode), blur,
+                                            nullptr, &cropRect));
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
@@ -187,8 +183,6 @@ protected:
             // convolution) correctly handles a non-zero source offset
             // (supplied by the dilate).
             SkAutoTUnref<SkImageFilter> dilate(SkDilateImageFilter::Create(5, 5));
-
-            SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcIn_Mode));
 
             SkScalar kernel[9] = {
                 SkIntToScalar(-1), SkIntToScalar( -1 ), SkIntToScalar(-1),

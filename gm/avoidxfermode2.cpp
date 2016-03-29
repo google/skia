@@ -35,9 +35,8 @@ protected:
         // UL corner: replace the green with a tight tolerance
         SkPaint p1;
         p1.setColor(SK_ColorRED);
-        p1.setXfermode(SkAvoidXfermode::Create(SK_ColorGREEN,
-                                               55,
-                                               SkAvoidXfermode::kTargetColor_Mode))->unref();
+        p1.setXfermode(SkAvoidXfermode::Make(SK_ColorGREEN, 55,
+                                             SkAvoidXfermode::kTargetColor_Mode));
 
         canvas->drawRect(r, p1);
 
@@ -46,9 +45,8 @@ protected:
         // UR corner: avoid the green with a tight tolerance
         SkPaint p2;
         p2.setColor(SK_ColorRED);
-        p2.setXfermode(SkAvoidXfermode::Create(SK_ColorGREEN,
-                                               200,
-                                               SkAvoidXfermode::kAvoidColor_Mode))->unref();
+        p2.setXfermode(SkAvoidXfermode::Make(SK_ColorGREEN, 200,
+                                             SkAvoidXfermode::kAvoidColor_Mode));
 
         canvas->drawRect(r, p2);
 
@@ -57,9 +55,8 @@ protected:
         // LL corner: replace the green with a loose tolerance
         SkPaint p3;
         p3.setColor(SK_ColorRED);
-        p3.setXfermode(SkAvoidXfermode::Create(SK_ColorGREEN,
-                                               200,
-                                               SkAvoidXfermode::kTargetColor_Mode))->unref();
+        p3.setXfermode(SkAvoidXfermode::Make(SK_ColorGREEN, 200,
+                                             SkAvoidXfermode::kTargetColor_Mode));
 
         canvas->drawRect(r, p3);
 
@@ -68,9 +65,7 @@ protected:
         // LR corner: avoid the green with a loose tolerance
         SkPaint p4;
         p4.setColor(SK_ColorRED);
-        p4.setXfermode(SkAvoidXfermode::Create(SK_ColorGREEN,
-                                               55,
-                                               SkAvoidXfermode::kAvoidColor_Mode))->unref();
+        p4.setXfermode(SkAvoidXfermode::Make(SK_ColorGREEN, 55, SkAvoidXfermode::kAvoidColor_Mode));
 
         canvas->drawRect(r, p4);
     }

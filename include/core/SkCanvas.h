@@ -1053,6 +1053,14 @@ public:
                       const SkColor colors[], SkXfermode* xmode,
                       const uint16_t indices[], int indexCount,
                       const SkPaint& paint);
+    void drawVertices(VertexMode vmode, int vertexCount,
+                      const SkPoint vertices[], const SkPoint texs[],
+                      const SkColor colors[], sk_sp<SkXfermode>& xmode,
+                      const uint16_t indices[], int indexCount,
+                      const SkPaint& paint) {
+        this->drawVertices(vmode, vertexCount, vertices, texs, colors, xmode.get(),
+                           indices, indexCount, paint);
+    }
 
     /**
      Draw a cubic coons patch
@@ -1069,6 +1077,10 @@ public:
      */
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
+    void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4],
+                   const sk_sp<SkXfermode>& xmode, const SkPaint& paint) {
+        this->drawPatch(cubics, colors, texCoords, xmode.get(), paint);
+    }
 
     /**
      *  Draw a set of sprites from the atlas. Each is specified by a tex rectangle in the

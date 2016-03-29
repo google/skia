@@ -292,7 +292,7 @@ DEF_TEST(Paint_MoreFlattening, r) {
     paint.setColor(0x00AABBCC);
     paint.setTextScaleX(1.0f);  // Default value, ignored.
     paint.setTextSize(19);
-    paint.setXfermode(SkXfermode::Create(SkXfermode::kModulate_Mode))->unref();
+    paint.setXfermode(SkXfermode::Make(SkXfermode::kModulate_Mode));
     paint.setLooper(nullptr);  // Default value, ignored.
 
     SkWriteBuffer writer;

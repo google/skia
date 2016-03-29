@@ -1098,7 +1098,7 @@ static int lpaint_getXfermode(lua_State* L) {
 
 static int lpaint_setXfermode(lua_State* L) {
     SkPaint* paint = get_obj<SkPaint>(L, 1);
-    paint->setXfermode(get_ref<SkXfermode>(L, 2));
+    paint->setXfermode(sk_ref_sp(get_ref<SkXfermode>(L, 2)));
     return 0;
 }
 

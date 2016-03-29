@@ -105,17 +105,13 @@ void GrSWMaskHelper::draw(const SkRect& rect, SkRegion::Op op,
                           bool antiAlias, uint8_t alpha) {
     SkPaint paint;
 
-    SkXfermode* mode = SkXfermode::Create(op_to_mode(op));
-
     SkASSERT(kNone_CompressionMode == fCompressionMode);
 
-    paint.setXfermode(mode);
+    paint.setXfermode(SkXfermode::Make(op_to_mode(op)));
     paint.setAntiAlias(antiAlias);
     paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
 
     fDraw.drawRect(rect, paint);
-
-    SkSafeUnref(mode);
 }
 
 /**

@@ -382,7 +382,6 @@ protected:
         SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(12)/5);
         SkMaskFilter* embossFilter = SkEmbossMaskFilter::Create(sigma, light);
 
-        SkXfermode* xfermode = SkXfermode::Create(SkXfermode::kXor_Mode);
         auto lightingFilter = SkColorMatrixFilter::MakeLightingFilter(
             0xff89bc45, 0xff112233);
 
@@ -404,7 +403,7 @@ protected:
         paint.setColor(SK_ColorGREEN);
         paint.setStrokeWidth(SkIntToScalar(10));
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setXfermode(xfermode)->unref();
+        paint.setXfermode(SkXfermode::Make(SkXfermode::kXor_Mode));
         paint.setColorFilter(lightingFilter);
         canvas->drawLine(start.fX, start.fY, stop.fX, stop.fY, paint); // should not be green
         paint.setXfermode(nullptr);
@@ -505,8 +504,8 @@ protected:
         SkColor colors2[] = {SK_ColorBLACK,  SkColorSetARGB(0x80, 0, 0, 0)};
         auto shaderB = SkGradientShader::MakeLinear(pts, colors2, nullptr,
             2, SkShader::kClamp_TileMode);
-        SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kDstIn_Mode));
-        return SkShader::MakeComposeShader(shaderA, shaderB, mode);
+        return SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB),
+                                           SkXfermode::Make(SkXfermode::kDstIn_Mode));
     }
 
     virtual void startTest() {

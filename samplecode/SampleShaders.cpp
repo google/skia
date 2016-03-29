@@ -32,11 +32,10 @@ static sk_sp<SkShader> make_bitmapfade(const SkBitmap& bm) {
     auto shaderA = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 
     auto shaderB = SkShader::MakeBitmapShader(bm,
-                        SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+                                              SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
 
-    SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kDstIn_Mode));
-
-    return SkShader::MakeComposeShader(std::move(shaderB), std::move(shaderA), mode);
+    return SkShader::MakeComposeShader(std::move(shaderB), std::move(shaderA),
+                                       SkXfermode::Make(SkXfermode::kDstIn_Mode));
 }
 
 class ShaderView : public SampleView {
@@ -62,9 +61,8 @@ public:
         colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
         auto shaderB = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 
-        SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kDstIn_Mode));
-
-        fShader = SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB), mode);
+        fShader = SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB),
+                                              SkXfermode::Make(SkXfermode::kDstIn_Mode));
     }
 
 protected:

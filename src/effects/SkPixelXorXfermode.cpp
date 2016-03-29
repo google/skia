@@ -27,7 +27,7 @@ void SkPixelXorXfermode::flatten(SkWriteBuffer& wb) const {
 }
 
 SkFlattenable* SkPixelXorXfermode::CreateProc(SkReadBuffer& buffer) {
-    return Create(buffer.readColor());
+    return Make(buffer.readColor()).release();
 }
 
 #ifndef SK_IGNORE_TO_STRING

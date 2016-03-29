@@ -126,6 +126,9 @@ public:
      *  if the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
      */
     static bool AsMode(const SkXfermode*, Mode* mode);
+    static bool AsMode(const sk_sp<SkXfermode>& xfer, Mode* mode) {
+        return AsMode(xfer.get(), mode);
+    }
 
     /**
      *  Returns true if the xfermode claims to be the specified Mode. This works
@@ -138,10 +141,22 @@ public:
      *  }
      */
     static bool IsMode(const SkXfermode* xfer, Mode mode);
+    static bool IsMode(const sk_sp<SkXfermode>& xfer, Mode mode) {
+        return IsMode(xfer.get(), mode);
+    }
 
     /** Return an SkXfermode object for the specified mode.
      */
-    static SkXfermode* Create(Mode mode);
+    static sk_sp<SkXfermode> Make(Mode);
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
+    static SkXfermode* Create(Mode mode) {
+        return Make(mode).release();
+    }
+    SK_ATTR_DEPRECATED("use AsMode(...)")
+    static bool IsMode(const SkXfermode* xfer, Mode* mode) {
+        return AsMode(xfer, mode);
+    }
+#endif
 
     /** Return a function pointer to a routine that applies the specified
         porter-duff transfer mode.
@@ -159,11 +174,6 @@ public:
      */
     static bool ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst);
 
-    SK_ATTR_DEPRECATED("use AsMode(...)")
-    static bool IsMode(const SkXfermode* xfer, Mode* mode) {
-        return AsMode(xfer, mode);
-    }
-
     /**
      * Returns whether or not the xfer mode can support treating coverage as alpha
      */
@@ -174,6 +184,9 @@ public:
      *  the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
      */
     static bool SupportsCoverageAsAlpha(const SkXfermode* xfer);
+    static bool SupportsCoverageAsAlpha(const sk_sp<SkXfermode>& xfer) {
+        return SupportsCoverageAsAlpha(xfer.get());
+    }
 
     enum SrcColorOpacity {
         // The src color is known to be opaque (alpha == 255)
@@ -198,6 +211,9 @@ public:
      *  the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
      */
     static bool IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType);
+    static bool IsOpaque(const sk_sp<SkXfermode>& xfer, SrcColorOpacity opacityType) {
+        return IsOpaque(xfer.get(), opacityType);
+    }
 
 #if SK_SUPPORT_GPU
     /** Used by the SkXfermodeImageFilter to blend two colors via a GrFragmentProcessor.
@@ -228,6 +244,9 @@ public:
     typedef void (*D32Proc)(const SkXfermode*, uint32_t dst[], const SkPM4f src[],
                             int count, const SkAlpha coverage[]);
     static D32Proc GetD32Proc(SkXfermode*, uint32_t flags);
+    static D32Proc GetD32Proc(const sk_sp<SkXfermode>& xfer, uint32_t flags) {
+        return GetD32Proc(xfer.get(), flags);
+    }
 
     enum D64Flags {
         kSrcIsOpaque_D64Flag  = 1 << 0,
@@ -237,6 +256,9 @@ public:
     typedef void (*D64Proc)(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
                             const SkAlpha coverage[]);
     static D64Proc GetD64Proc(SkXfermode*, uint32_t flags);
+    static D64Proc GetD64Proc(const sk_sp<SkXfermode>& xfer, uint32_t flags) {
+        return GetD64Proc(xfer.get(), flags);
+    }
 
     enum LCDFlags {
         kSrcIsOpaque_LCDFlag    = 1 << 0,   // else src(s) may have alpha < 1

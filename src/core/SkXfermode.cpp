@@ -1097,7 +1097,7 @@ SkFlattenable* SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
     if (!buffer.validate(mode32 < SK_ARRAY_COUNT(gProcCoeffs))) {
         return nullptr;
     }
-    return SkXfermode::Create((SkXfermode::Mode)mode32);
+    return SkXfermode::Make((SkXfermode::Mode)mode32).release();
 }
 
 void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {
@@ -1305,7 +1305,7 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
 
 SK_DECLARE_STATIC_ONCE_PTR(SkXfermode, cached[SkXfermode::kLastMode + 1]);
 
-SkXfermode* SkXfermode::Create(Mode mode) {
+sk_sp<SkXfermode> SkXfermode::Make(Mode mode) {
     SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
 
     if ((unsigned)mode >= kModeCount) {
@@ -1319,7 +1319,7 @@ SkXfermode* SkXfermode::Create(Mode mode) {
         return nullptr;
     }
 
-    return SkSafeRef(cached[mode].get([=]{
+    return sk_ref_sp(cached[mode].get([=]{
         ProcCoeff rec = gProcCoeffs[mode];
         if (auto xfermode = SkOpts::create_xfermode(rec, mode)) {
             return xfermode;

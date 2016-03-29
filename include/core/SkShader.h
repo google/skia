@@ -404,7 +404,11 @@ public:
      *  The caller is responsible for managing its reference-count for the xfer (if not null).
      */
     static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                             sk_sp<SkXfermode> xfer);
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
+    static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
                                              SkXfermode* xfer);
+#endif
 
     /** Call this to create a new shader that will draw with the specified bitmap.
      *

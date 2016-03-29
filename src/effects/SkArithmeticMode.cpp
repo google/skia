@@ -60,7 +60,7 @@ SkFlattenable* SkArithmeticMode_scalar::CreateProc(SkReadBuffer& buffer) {
     const SkScalar k3 = buffer.readScalar();
     const SkScalar k4 = buffer.readScalar();
     const bool enforcePMColor = buffer.readBool();
-    return SkArithmeticMode::Create(k1, k2, k3, k4, enforcePMColor);
+    return SkArithmeticMode::Make(k1, k2, k3, k4, enforcePMColor).release();
 }
 
 static int pinToByte(int value) {
@@ -137,18 +137,16 @@ void SkArithmeticMode_scalar::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkXfermode* SkArithmeticMode::Create(SkScalar k1, SkScalar k2,
-                                     SkScalar k3, SkScalar k4,
-                                     bool enforcePMColor) {
+sk_sp<SkXfermode> SkArithmeticMode::Make(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
+                                         bool enforcePMColor) {
     if (SkScalarNearlyZero(k1) && SkScalarNearlyEqual(k2, SK_Scalar1) &&
         SkScalarNearlyZero(k3) && SkScalarNearlyZero(k4)) {
-        return SkXfermode::Create(SkXfermode::kSrc_Mode);
+        return SkXfermode::Make(SkXfermode::kSrc_Mode);
     } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) &&
                SkScalarNearlyEqual(k3, SK_Scalar1) && SkScalarNearlyZero(k4)) {
-        return SkXfermode::Create(SkXfermode::kDst_Mode);
+        return SkXfermode::Make(SkXfermode::kDst_Mode);
     }
-
-    return new SkArithmeticMode_scalar(k1, k2, k3, k4, enforcePMColor);
+    return sk_make_sp<SkArithmeticMode_scalar>(k1, k2, k3, k4, enforcePMColor);
 }
 
 

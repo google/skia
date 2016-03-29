@@ -16,7 +16,7 @@
 class XfermodeBench : public Benchmark {
 public:
     XfermodeBench(SkXfermode::Mode mode, bool aa) {
-        fXfermode.reset(SkXfermode::Create(mode));
+        fXfermode = SkXfermode::Make(mode);
         fAA = aa;
         SkASSERT(fXfermode.get() || SkXfermode::kSrcOver_Mode == mode);
         fName.printf("Xfermode_%s%s", SkXfermode::ModeName(mode), aa ? "_aa" : "");
@@ -39,7 +39,7 @@ protected:
         SkRandom random;
         for (int i = 0; i < loops; ++i) {
             SkPaint paint;
-            paint.setXfermode(fXfermode.get());
+            paint.setXfermode(fXfermode);
             paint.setColor(random.nextU());
             if (fAA) {
                 // Draw text to exercise AA code paths.
@@ -68,9 +68,9 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkXfermode> fXfermode;
-    SkString fName;
-    bool fAA;
+    sk_sp<SkXfermode>   fXfermode;
+    SkString            fName;
+    bool                fAA;
 
     typedef Benchmark INHERITED;
 };
@@ -87,8 +87,7 @@ protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int outer = 0; outer < loops * 10; ++outer) {
             for (int i = 0; i <= SkXfermode::kLastMode; ++i) {
-                SkXfermode* xfer = SkXfermode::Create(SkXfermode::Mode(i));
-                SkSafeUnref(xfer);
+                (void)SkXfermode::Make(SkXfermode::Mode(i));
             }
         }
     }

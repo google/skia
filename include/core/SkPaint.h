@@ -539,8 +539,10 @@ public:
                         paint
         @return         xfermode
     */
-    SkXfermode* setXfermode(SkXfermode* xfermode);
     void setXfermode(sk_sp<SkXfermode>);
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
+    SkXfermode* setXfermode(SkXfermode* xfermode);
+#endif
 
     /** Create an xfermode based on the specified Mode, and assign it into the
         paint, returning the mode that was set. If the Mode is SrcOver, then

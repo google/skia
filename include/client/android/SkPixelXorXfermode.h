@@ -17,9 +17,14 @@
 */
 class SK_API SkPixelXorXfermode : public SkXfermode {
 public:
-    static SkXfermode* Create(SkColor opColor) {
-        return new SkPixelXorXfermode(opColor);
+    static sk_sp<SkXfermode> Make(SkColor opColor) {
+        return sk_sp<SkXfermode>(new SkPixelXorXfermode(opColor));
     }
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
+    static SkXfermode* Create(SkColor opColor) {
+        return Make(opColor).release();
+    }
+#endif
 
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor* getFragmentProcessorForImageFilter(

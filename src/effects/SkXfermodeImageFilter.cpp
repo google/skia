@@ -23,22 +23,30 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkXfermodeImageFilter::SkXfermodeImageFilter(SkXfermode* mode,
+sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode, SkImageFilter* background,
+                                                 SkImageFilter* foreground,
+                                                 const CropRect* cropRect) {
+    SkImageFilter* inputs[2] = { background, foreground };
+    return sk_sp<SkImageFilter>(new SkXfermodeImageFilter(mode, inputs, cropRect));
+}
+
+SkXfermodeImageFilter::SkXfermodeImageFilter(sk_sp<SkXfermode> mode,
                                              SkImageFilter* inputs[2],
                                              const CropRect* cropRect)
     : INHERITED(2, inputs, cropRect)
-    , fMode(SkSafeRef(mode)) {
-}
+    , fMode(std::move(mode))
+{}
 
 SkFlattenable* SkXfermodeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    SkAutoTUnref<SkXfermode> mode(buffer.readXfermode());
-    return Create(mode, common.getInput(0), common.getInput(1), &common.cropRect());
+    sk_sp<SkXfermode> mode(buffer.readXfermode());
+    return Make(std::move(mode), common.getInput(0),
+                common.getInput(1), &common.cropRect()).release();
 }
 
 void SkXfermodeImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeFlattenable(fMode);
+    buffer.writeFlattenable(fMode.get());
 }
 
 bool SkXfermodeImageFilter::onFilterImageDeprecated(Proxy* proxy,

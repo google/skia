@@ -110,9 +110,8 @@ protected:
             SkRect rect = SkRect::MakeXYWH(x, y, SkIntToScalar(WW), SkIntToScalar(HH));
             canvas->saveLayer(&rect, nullptr);
             canvas->drawBitmap(dst, x, y, nullptr);
-            SkXfermode* xfer = SkArithmeticMode::Create(k[0], k[1], k[2], k[3]);
             SkPaint paint;
-            paint.setXfermode(xfer)->unref();
+            paint.setXfermode(SkArithmeticMode::Make(k[0], k[1], k[2], k[3]));
             canvas->drawBitmap(src, x, y, &paint);
             canvas->restore();
             x += gap;
@@ -133,13 +132,11 @@ protected:
             x += gap;
             SkRect rect = SkRect::MakeXYWH(x, y, SkIntToScalar(WW), SkIntToScalar(HH));
             canvas->saveLayer(&rect, nullptr);
-            SkXfermode* xfer1 = SkArithmeticMode::Create(0, -one / 2, 0, 1, enforcePMColor);
             SkPaint paint1;
-            paint1.setXfermode(xfer1)->unref();
+            paint1.setXfermode(SkArithmeticMode::Make(0, -one / 2, 0, 1, enforcePMColor));
             canvas->drawBitmap(dst, x, y, &paint1);
-            SkXfermode* xfer2 = SkArithmeticMode::Create(0, one / 2, -one, 1);
             SkPaint paint2;
-            paint2.setXfermode(xfer2)->unref();
+            paint2.setXfermode(SkArithmeticMode::Make(0, one / 2, -one, 1));
             canvas->drawBitmap(dst, x, y, &paint2);
             canvas->restore();
             x += gap;

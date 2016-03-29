@@ -481,7 +481,7 @@ public:
              */
             SkPaint tmp;
             tmp.setImageFilter(fPaint->getImageFilter());
-            tmp.setXfermode(fPaint->getXfermode());
+            tmp.setXfermode(sk_ref_sp(fPaint->getXfermode()));
             SkRect storage;
             if (rawBounds) {
                 // Make rawBounds include all paint outsets except for those due to image filters.

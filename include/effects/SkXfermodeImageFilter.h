@@ -21,13 +21,19 @@ class SK_API SkXfermodeImageFilter : public SkImageFilter {
       */
 
 public:
+    static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, SkImageFilter* background,
+                                     SkImageFilter* foreground, const CropRect* cropRect);
+    static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, SkImageFilter* background) {
+        return Make(std::move(mode), background, nullptr, nullptr);
+    }
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
     static SkImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
                                  SkImageFilter* foreground = NULL,
                                  const CropRect* cropRect = NULL) {
-        SkImageFilter* inputs[2] = { background, foreground };
-        return new SkXfermodeImageFilter(mode, inputs, cropRect);
+        return Make(sk_ref_sp(mode), background, foreground, cropRect).release();
     }
-
+#endif
+    
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter)
 
@@ -43,12 +49,12 @@ public:
 #endif
 
 protected:
-    SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* inputs[2],
+    SkXfermodeImageFilter(sk_sp<SkXfermode> mode, SkImageFilter* inputs[2],
                           const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    SkAutoTUnref<SkXfermode> fMode;
+    sk_sp<SkXfermode> fMode;
     typedef SkImageFilter INHERITED;
 };
 

@@ -30,9 +30,8 @@ static sk_sp<SkShader> make_shader(SkXfermode::Mode mode) {
     colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
     auto shaderB = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 
-    SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
-
-    return SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB), xfer);
+    return SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB),
+                                       SkXfermode::Make(mode));
 }
 
 class ComposeShaderGM : public skiagm::GM {
@@ -176,7 +175,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(SkXfermode::kDstOver_Mode));
+        auto xfer(SkXfermode::Make(SkXfermode::kDstOver_Mode));
 
         sk_sp<SkShader> shaders[] = {
             // gradient should appear over color bitmap

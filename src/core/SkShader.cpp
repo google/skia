@@ -453,3 +453,11 @@ SkShader* SkShader::newWithColorFilter(SkColorFilter* filter) const {
     return this->makeWithColorFilter(sk_ref_sp(filter)).release();
 }
 #endif
+
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
+#include "SkXfermode.h"
+sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                            SkXfermode* xfer) {
+    return MakeComposeShader(std::move(dst), std::move(src), sk_ref_sp(xfer));
+}
+#endif

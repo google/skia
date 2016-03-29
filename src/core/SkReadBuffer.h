@@ -145,7 +145,9 @@ public:
         return sk_sp<SkRasterizer>(this->readFlattenable<SkRasterizer>());
     }
     sk_sp<SkShader> readShader()     { return sk_sp<SkShader>(this->readFlattenable<SkShader>()); }
-    SkXfermode*    readXfermode()    { return this->readFlattenable<SkXfermode>(); }
+    sk_sp<SkXfermode> readXfermode() {
+        return sk_sp<SkXfermode>(this->readFlattenable<SkXfermode>());
+    }
 
     /**
      *  Like readFlattenable() but explicitly just skips the data that was written for the

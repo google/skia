@@ -21,8 +21,7 @@ public:
         : fDoN(doN)
         , fFlags(flags & ~USE_AA)
     {
-        fXfer.reset(SkXfermode::Create(mode));
-
+        fXfer = SkXfermode::Make(mode);
         fProc1 = SkXfermode::GetD32Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_D32Flag);
         fProcN = SkXfermode::GetD32Proc(fXfer, fFlags);
         fName.printf("xfer4f_%s_%s_%c_%s_%s",
@@ -53,15 +52,15 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops * INNER_LOOPS; ++i) {
             if (fDoN) {
-                fProcN(fXfer, fDst, fSrc, N, fAA);
+                fProcN(fXfer.get(), fDst, fSrc, N, fAA);
             } else {
-                fProc1(fXfer, fDst, fSrc, N, fAA);
+                fProc1(fXfer.get(), fDst, fSrc, N, fAA);
             }
         }
     }
 
 private:
-    SkAutoTUnref<SkXfermode> fXfer;
+    sk_sp<SkXfermode>   fXfer;
     SkString             fName;
     SkXfermode::D32Proc  fProc1;
     SkXfermode::D32Proc  fProcN;

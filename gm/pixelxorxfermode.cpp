@@ -38,7 +38,7 @@ protected:
         // the green & blue channels alone
         SkPaint p1;
         p1.setColor(SK_ColorBLACK); // noop
-        p1.setXfermode(SkPixelXorXfermode::Create(0x7FFF0000))->unref();
+        p1.setXfermode(SkPixelXorXfermode::Make(0x7FFF0000));
 
         canvas->drawRect(r, p1);
 
@@ -47,7 +47,7 @@ protected:
         // Negate the dst color via the src color
         SkPaint p2;
         p2.setColor(SK_ColorWHITE);
-        p2.setXfermode(SkPixelXorXfermode::Create(SK_ColorBLACK))->unref(); // noop
+        p2.setXfermode(SkPixelXorXfermode::Make(SK_ColorBLACK)); // noop
 
         canvas->drawRect(r, p2);
 
@@ -56,7 +56,7 @@ protected:
         // Just return the original color
         SkPaint p3;
         p3.setColor(SK_ColorBLACK); // noop
-        p3.setXfermode(SkPixelXorXfermode::Create(SK_ColorBLACK))->unref(); // noop
+        p3.setXfermode(SkPixelXorXfermode::Make(SK_ColorBLACK)); // noop
 
         canvas->drawRect(r, p3);
 
@@ -66,7 +66,7 @@ protected:
         // the blue channel alone
         SkPaint p4;
         p4.setColor(SK_ColorBLACK); // noop
-        p4.setXfermode(SkPixelXorXfermode::Create(SK_ColorYELLOW))->unref();
+        p4.setXfermode(SkPixelXorXfermode::Make(SK_ColorYELLOW));
 
         canvas->drawRect(r, p4);
     }

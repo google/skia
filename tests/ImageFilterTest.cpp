@@ -191,8 +191,8 @@ public:
             five, five, pictureFilter.get(), cropRect));
         this->addFilter("paint and blur", SkBlurImageFilter::Create(
             five, five, paintFilter.get(), cropRect));
-        this->addFilter("xfermode", SkXfermodeImageFilter::Create(
-            SkXfermode::Create(SkXfermode::kSrc_Mode), input, input, cropRect));
+        this->addFilter("xfermode", SkXfermodeImageFilter::Make(
+            SkXfermode::Make(SkXfermode::kSrc_Mode), input, input, cropRect).release());
     }
     int count() const { return fFilters.count(); }
     SkImageFilter* getFilter(int index) const { return fFilters[index].fFilter.get(); }
@@ -799,16 +799,15 @@ DEF_TEST(ImageFilterUnionBounds, reporter) {
     // Regardless of which order they appear in, the image filter bounds should
     // be combined correctly.
     {
-        SkAutoTUnref<SkImageFilter> composite(SkXfermodeImageFilter::Create(
-            nullptr, offset.get(), nullptr));
+        sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(nullptr, offset.get()));
         SkRect bounds = SkRect::MakeWH(100, 100);
         // Intentionally aliasing here, as that's what the real callers do.
         bounds = composite->computeFastBounds(bounds);
         REPORTER_ASSERT(reporter, bounds == SkRect::MakeWH(150, 100));
     }
     {
-        SkAutoTUnref<SkImageFilter> composite(SkXfermodeImageFilter::Create(
-            nullptr, nullptr, offset.get()));
+        sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(nullptr, nullptr,
+                                                                   offset.get(), nullptr));
         SkRect bounds = SkRect::MakeWH(100, 100);
         // Intentionally aliasing here, as that's what the real callers do.
         bounds = composite->computeFastBounds(bounds);
@@ -1249,13 +1248,10 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
 
     // Check that an xfermode image filter whose input has been cropped out still draws the other
     // input. Also check that drawing with both inputs cropped out doesn't cause a GPU warning.
-    SkXfermode* mode = SkXfermode::Create(SkXfermode::kSrcOver_Mode);
-    SkAutoTUnref<SkImageFilter> xfermodeNoFg(
-        SkXfermodeImageFilter::Create(mode, greenFilter, croppedOut));
-    SkAutoTUnref<SkImageFilter> xfermodeNoBg(
-        SkXfermodeImageFilter::Create(mode, croppedOut, greenFilter));
-    SkAutoTUnref<SkImageFilter> xfermodeNoFgNoBg(
-        SkXfermodeImageFilter::Create(mode, croppedOut, croppedOut));
+    auto mode = SkXfermode::Make(SkXfermode::kSrcOver_Mode);
+    auto xfermodeNoFg(SkXfermodeImageFilter::Make(mode, greenFilter, croppedOut, nullptr));
+    auto xfermodeNoBg(SkXfermodeImageFilter::Make(mode, croppedOut, greenFilter, nullptr));
+    auto xfermodeNoFgNoBg(SkXfermodeImageFilter::Make(mode, croppedOut, croppedOut, nullptr));
 
     SkPaint paint;
     paint.setImageFilter(xfermodeNoFg);

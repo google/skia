@@ -121,8 +121,6 @@ protected:
         SkScalar y0 = 0;
         SkScalar x = x0, y = y0;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
-            SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-            SkAutoUnref aur(mode);
             SkRect r;
             r.set(x, y, x+w, y+h);
 
@@ -136,7 +134,7 @@ protected:
             p.setShader(nullptr);
             canvas->drawRect(r, p);
 
-            textP.setXfermode(mode);
+            textP.setXfermode(SkXfermode::Make(gModes[i].fMode));
             canvas->drawText("H", 1, x+ w/10.f, y + 7.f*h/8.f, textP);
 #if 1
             canvas->drawText(gModes[i].fLabel, strlen(gModes[i].fLabel),
