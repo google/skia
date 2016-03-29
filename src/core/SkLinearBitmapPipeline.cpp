@@ -34,9 +34,13 @@ public:
     virtual void pointSpan(Span span) = 0;
 };
 
-class SkLinearBitmapPipeline::BilerpProcessorInterface
+class SkLinearBitmapPipeline::SampleProcessorInterface
     : public SkLinearBitmapPipeline::PointProcessorInterface {
 public:
+    // Used for nearest neighbor when scale factor is 1.0. The span can just be repeated with no
+    // edge pixel alignment problems. This is for handling a very common case.
+    virtual void repeatSpan(Span span, int32_t repeatCount) = 0;
+
     // The x's and y's are setup in the following order:
     // +--------+--------+
     // |        |        |
@@ -339,7 +343,7 @@ void make_tile_stage(
 template <typename XStrategy>
 void choose_tiler_ymode(
     SkShader::TileMode yMode, SkFilterQuality filterQuality, SkISize dimensions,
-    SkLinearBitmapPipeline::BilerpProcessorInterface* next,
+    SkLinearBitmapPipeline::SampleProcessorInterface* next,
     SkLinearBitmapPipeline::TileStage* tileStage) {
     switch (yMode) {
         case SkShader::kClamp_TileMode:
@@ -355,7 +359,7 @@ void choose_tiler_ymode(
 };
 
 static SkLinearBitmapPipeline::PointProcessorInterface* choose_tiler(
-    SkLinearBitmapPipeline::BilerpProcessorInterface* next,
+    SkLinearBitmapPipeline::SampleProcessorInterface* next,
     SkISize dimensions,
     SkShader::TileMode xMode,
     SkShader::TileMode yMode,
@@ -380,7 +384,7 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_tiler(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Source Sampling Stage
 template <typename SourceStrategy, typename Next>
-class NearestNeighborSampler final : public SkLinearBitmapPipeline::BilerpProcessorInterface {
+class NearestNeighborSampler final : public SkLinearBitmapPipeline::SampleProcessorInterface {
 public:
     template <typename... Args>
     NearestNeighborSampler(Next* next, Args&&... args)
@@ -389,12 +393,22 @@ public:
     void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fSampler.nearestListFew(n, xs, ys);
     }
+
     void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         fSampler.nearestList4(xs, ys);
     }
+
     void pointSpan(Span span) override {
         fSampler.nearestSpan(span);
     }
+
+    virtual void repeatSpan(Span span, int32_t repeatCount) override {
+        while (repeatCount > 0) {
+            fSampler.nearestSpan(span);
+            repeatCount--;
+        }
+    }
+
     void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override {
         SkFAIL("Using nearest neighbor sampler, but calling a bilerpEdge.");
     }
@@ -408,7 +422,7 @@ private:
 };
 
 template <typename SourceStrategy, typename Next>
-class BilerpSampler final : public SkLinearBitmapPipeline::BilerpProcessorInterface {
+class BilerpSampler final : public SkLinearBitmapPipeline::SampleProcessorInterface {
 public:
     template <typename... Args>
     BilerpSampler(Next* next, Args&&... args)
@@ -417,12 +431,22 @@ public:
     void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fSampler.bilerpListFew(n, xs, ys);
     }
+
     void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
         fSampler.bilerpList4(xs, ys);
     }
+
     void pointSpan(Span span) override {
         fSampler.bilerpSpan(span);
     }
+
+    virtual void repeatSpan(Span span, int32_t repeatCount) override {
+        while (repeatCount > 0) {
+            fSampler.bilerpSpan(span);
+            repeatCount--;
+        }
+    }
+
     void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override {
         fSampler.bilerpEdge(xs, ys);
     }
@@ -438,7 +462,7 @@ private:
 using Placer = SkLinearBitmapPipeline::PixelPlacerInterface;
 
 template<template <typename, typename> class Sampler>
-static SkLinearBitmapPipeline::BilerpProcessorInterface* choose_pixel_sampler_base(
+static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_base(
     Placer* next,
     const SkPixmap& srcPixmap,
     SkLinearBitmapPipeline::SampleStage* sampleStage) {
@@ -472,7 +496,7 @@ static SkLinearBitmapPipeline::BilerpProcessorInterface* choose_pixel_sampler_ba
     return sampleStage->get();
 }
 
-SkLinearBitmapPipeline::BilerpProcessorInterface* choose_pixel_sampler(
+SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler(
     Placer* next,
     SkFilterQuality filterQuality,
     const SkPixmap& srcPixmap,
