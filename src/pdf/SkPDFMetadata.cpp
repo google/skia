@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkMilestone.h"
 #include "SkPDFMetadata.h"
 #include "SkPDFTypes.h"
 #include <utility>
@@ -27,6 +28,9 @@ static SkString pdf_date(const SkTime::DateTime& dt) {
             timeZoneMinutes);
 }
 
+#define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
+#define SKPDF_STRING_IMPL(X) #X
+
 SkPDFObject* SkPDFMetadata::createDocumentInformationDict() const {
     auto dict = sk_make_sp<SkPDFDict>();
     static const char* keys[] = {
@@ -38,7 +42,7 @@ SkPDFObject* SkPDFMetadata::createDocumentInformationDict() const {
             }
         }
     }
-    dict->insertString("Producer", "Skia/PDF");
+    dict->insertString("Producer", "Skia/PDF m" SKPDF_STRING(SK_MILESTONE));
     if (fCreation) {
         dict->insertString("CreationDate", pdf_date(*fCreation.get()));
     }
@@ -47,6 +51,9 @@ SkPDFObject* SkPDFMetadata::createDocumentInformationDict() const {
     }
     return dict.release();
 }
+
+#undef SKPDF_STRING
+#undef SKPDF_STRING_IMPL
 
 #ifdef SK_PDF_GENERATE_PDFA
 SkPDFMetadata::UUID SkPDFMetadata::uuid() const {

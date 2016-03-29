@@ -34,7 +34,7 @@ DEF_TEST(SkPDF_MetadataAttribute, r) {
         "/Subject (A3)",
         "/Keywords (A4)",
         "/Creator (A5)",
-        "/Producer (Skia/PDF)",
+        "/Producer (Skia/PDF ",
         "/CreationDate (D:",
         "/ModDate (D:"
     };
