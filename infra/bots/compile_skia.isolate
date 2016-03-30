@@ -2,9 +2,4 @@
   'includes': [
     'skia_repo.isolate',
   ],
-  'variables': {
-    'command': [
-      'python', 'compile_skia.py', '--builder_name', '<(BUILDER_NAME)', '--swarm_out_dir', '${ISOLATED_OUTDIR}',
-    ],
-  },
 }

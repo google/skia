@@ -2,6 +2,7 @@
   'variables': {
     'files': [
       '../../../images/',
+      '../../../tmp/SK_IMAGE_VERSION',
     ],
   },
 }
