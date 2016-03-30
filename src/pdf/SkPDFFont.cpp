@@ -590,7 +590,10 @@ static size_t get_subset_font_stream(const char* fontName,
                                      SkPDFStream** fontStream) {
     int ttcIndex;
     std::unique_ptr<SkStream> fontData(typeface->openStream(&ttcIndex));
-    SkASSERT(fontData.get());
+    SkASSERT(fontData);
+    if (!fontData) {
+        return 0;
+    }
 
     size_t fontSize = fontData->getLength();
 
@@ -1047,6 +1050,9 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
                                                   typeface(),
                                                   *subset,
                                                   &rawStream);
+                if (0 == fontSize) {
+                    return false;
+                }
                 if (rawStream) {
                     fontStream.reset(rawStream);
                     fontStream->insertInt("Length1", fontSize);
@@ -1059,6 +1065,9 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
             std::unique_ptr<SkStreamAsset> fontData(
                     this->typeface()->openStream(nullptr));
             SkASSERT(fontData);
+            if (!fontData || 0 == fontData->getLength()) {
+                return false;
+            }
             fontSize = fontData->getLength();
             SkASSERT(fontSize > 0);
             fontStream.reset(new SkPDFSharedStream(fontData.release()));
@@ -1068,9 +1077,15 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
         }
         case SkAdvancedTypefaceMetrics::kCFF_Font:
         case SkAdvancedTypefaceMetrics::kType1CID_Font: {
+            std::unique_ptr<SkStreamAsset> fontData(
+                    this->typeface()->openStream(nullptr));
+            SkASSERT(fontData);
+            SkASSERT(fontData->getLength() > 0);
+            if (!fontData || 0 == fontData->getLength()) {
+                return false;
+            }
             sk_sp<SkPDFSharedStream> fontStream(
-                    new SkPDFSharedStream(this->typeface()->openStream(nullptr)));
-
+                    new SkPDFSharedStream(fontData.release()));
             if (getType() == SkAdvancedTypefaceMetrics::kCFF_Font) {
                 fontStream->dict()->insertName("Subtype", "Type1C");
             } else {
@@ -1198,7 +1213,12 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     size_t header SK_INIT_TO_AVOID_WARNING;
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
-    std::unique_ptr<SkStream> rawFontData(typeface()->openStream(&ttcIndex));
+    std::unique_ptr<SkStreamAsset> rawFontData(typeface()->openStream(&ttcIndex));
+    SkASSERT(rawFontData);
+    SkASSERT(rawFontData->getLength() > 0);
+    if (!rawFontData || 0 == rawFontData->getLength()) {
+        return false;
+    }
     sk_sp<SkData> fontData(handle_type1_stream(rawFontData.get(), &header,
                                                       &data, &trailer));
     if (fontData.get() == nullptr) {
