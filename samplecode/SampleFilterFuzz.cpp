@@ -646,13 +646,9 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                                         &cropR));
         break;
     }
-    case COMPOSE: {
-        sk_sp<SkImageFilter> subFilter1(make_image_filter());
-        sk_sp<SkImageFilter> subFilter2(make_image_filter());
-        filter = sk_sp<SkImageFilter>(SkComposeImageFilter::Create(subFilter1.get(),
-                                                                   subFilter2.get()));
+    case COMPOSE:
+        filter = SkComposeImageFilter::Make(make_image_filter(), make_image_filter());
         break;
-    }
     case DISTANT_LIGHT: {
         sk_sp<SkImageFilter> subFilter(make_image_filter());
 

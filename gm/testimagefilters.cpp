@@ -21,59 +21,55 @@
 #define FILTER_WIDTH    SkIntToScalar(150)
 #define FILTER_HEIGHT   SkIntToScalar(200)
 
-static SkImageFilter* make0() { return SkDownSampleImageFilter::Create(SK_Scalar1 / 5); }
-static SkImageFilter* make1() { return SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)); }
+static SkImageFilter* make0() {
+    return SkDownSampleImageFilter::Create(SK_Scalar1 / 5);
+}
+
+static SkImageFilter* make1() {
+    return SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16));
+}
+
 static SkImageFilter* make2() {
-    auto cf = SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode);
+    sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
     return SkColorFilterImageFilter::Create(cf.get());
 }
+
 static SkImageFilter* make3() {
     return SkBlurImageFilter::Create(8, 0);
 }
 
 static SkImageFilter* make4() {
-    SkImageFilter* outer = SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16));
-    SkImageFilter* inner = SkDownSampleImageFilter::Create(SK_Scalar1 / 5);
-    SkAutoUnref aur0(outer);
-    SkAutoUnref aur1(inner);
-    return SkComposeImageFilter::Create(outer, inner);
+    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
+    sk_sp<SkImageFilter> inner(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
+    return SkComposeImageFilter::Make(std::move(outer), std::move(inner)).release();
 }
+
 static SkImageFilter* make5() {
-    SkImageFilter* first = SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16));
-    SkImageFilter* second = SkDownSampleImageFilter::Create(SK_Scalar1 / 5);
-    SkAutoUnref aur0(first);
-    SkAutoUnref aur1(second);
-    return SkMergeImageFilter::Create(first, second);
+    sk_sp<SkImageFilter> first(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
+    sk_sp<SkImageFilter> second(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
+    return SkMergeImageFilter::Create(first.get(), second.get());
 }
 
 static SkImageFilter* make6() {
-    SkImageFilter* outer = SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16));
-    SkImageFilter* inner = SkDownSampleImageFilter::Create(SK_Scalar1 / 5);
-    SkAutoUnref aur0(outer);
-    SkAutoUnref aur1(inner);
-    SkImageFilter* compose = SkComposeImageFilter::Create(outer, inner);
-    SkAutoUnref aur2(compose);
+    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
+    sk_sp<SkImageFilter> inner(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
+    sk_sp<SkImageFilter> compose(SkComposeImageFilter::Make(std::move(outer), std::move(inner)));
 
-    auto cf = SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode);
-    SkImageFilter* blue = SkColorFilterImageFilter::Create(cf.get());
-    SkAutoUnref aur4(blue);
+    sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));
+    sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Create(cf.get()));
 
-    return SkMergeImageFilter::Create(compose, blue);
+    return SkMergeImageFilter::Create(compose.get(), blue.get());
 }
 
 static SkImageFilter* make7() {
-    SkImageFilter* outer = SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16));
-    SkImageFilter* inner = make3();
-    SkAutoUnref aur0(outer);
-    SkAutoUnref aur1(inner);
-    SkImageFilter* compose = SkComposeImageFilter::Create(outer, inner);
-    SkAutoUnref aur2(compose);
+    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
+    sk_sp<SkImageFilter> inner(make3());
+    sk_sp<SkImageFilter> compose(SkComposeImageFilter::Make(std::move(outer), std::move(inner)));
 
-    auto cf = SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode);
-    SkImageFilter* blue = SkColorFilterImageFilter::Create(cf.get());
-    SkAutoUnref aur4(blue);
+    sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));
+    sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Create(cf.get()));
 
-    return SkMergeImageFilter::Create(compose, blue);
+    return SkMergeImageFilter::Create(compose.get(), blue.get());
 }
 
 static void draw0(SkCanvas* canvas) {

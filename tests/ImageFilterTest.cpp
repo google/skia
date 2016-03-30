@@ -783,9 +783,10 @@ DEF_TEST(ImageFilterDilateThenBlurBounds, reporter) {
 }
 
 DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
-    SkAutoTUnref<SkImageFilter> filter1(makeBlur());
-    SkAutoTUnref<SkImageFilter> filter2(makeBlur());
-    SkAutoTUnref<SkImageFilter> composedFilter(SkComposeImageFilter::Create(filter1.get(), filter2.get()));
+    sk_sp<SkImageFilter> filter1(makeBlur());
+    sk_sp<SkImageFilter> filter2(makeBlur());
+    sk_sp<SkImageFilter> composedFilter(SkComposeImageFilter::Make(std::move(filter1),
+                                                                   std::move(filter2)));
 
     SkRect boundsSrc = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
     SkRect expectedBounds = SkRect::MakeXYWH(
@@ -1337,11 +1338,11 @@ static void test_composed_imagefilter_offset(SkImageFilter::Proxy* proxy,
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(1, 0, 20, 20));
-    SkAutoTUnref<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
-    SkAutoTUnref<SkImageFilter> blurFilter(SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1,
-                                                                     nullptr, &cropRect));
-    SkAutoTUnref<SkImageFilter> composedFilter(SkComposeImageFilter::Create(blurFilter,
-                                                                            offsetFilter.get()));
+    sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
+    sk_sp<SkImageFilter> blurFilter(SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1,
+                                                              nullptr, &cropRect));
+    sk_sp<SkImageFilter> composedFilter(SkComposeImageFilter::Make(std::move(blurFilter),
+                                                                   std::move(offsetFilter)));
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
 
@@ -1373,12 +1374,12 @@ static void test_composed_imagefilter_bounds(SkImageFilter::Proxy* proxy,
     SkCanvas* recordingCanvas = recorder.beginRecording(SkRect::MakeWH(200, 100));
     recordingCanvas->clipRect(SkRect::MakeXYWH(100, 0, 100, 100));
     recordingCanvas->clear(SK_ColorGREEN);
-    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     sk_sp<SkImageFilter> pictureFilter(SkPictureImageFilter::Make(picture));
     SkImageFilter::CropRect cropRect(SkRect::MakeWH(100, 100));
     sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(-100, 0, nullptr, &cropRect));
-    sk_sp<SkImageFilter> composedFilter(
-        SkComposeImageFilter::Create(offsetFilter.get(), pictureFilter.get()));
+    sk_sp<SkImageFilter> composedFilter(SkComposeImageFilter::Make(std::move(offsetFilter),
+                                                                   std::move(pictureFilter)));
 
     sk_sp<SkSpecialImage> sourceImage(create_empty_special_image(context, proxy, 100));
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
