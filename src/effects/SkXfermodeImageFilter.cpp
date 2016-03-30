@@ -40,8 +40,8 @@ SkXfermodeImageFilter::SkXfermodeImageFilter(sk_sp<SkXfermode> mode,
 SkFlattenable* SkXfermodeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     sk_sp<SkXfermode> mode(buffer.readXfermode());
-    return Make(std::move(mode), common.getInput(0),
-                common.getInput(1), &common.cropRect()).release();
+    return Make(std::move(mode), common.getInput(0).get(),
+                common.getInput(1).get(), &common.cropRect()).release();
 }
 
 void SkXfermodeImageFilter::flatten(SkWriteBuffer& buffer) const {

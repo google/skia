@@ -77,7 +77,7 @@ bool SkDownSampleImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitm
 
 SkFlattenable* SkDownSampleImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    return Create(buffer.readScalar(), common.getInput(0));
+    return Create(buffer.readScalar(), common.getInput(0).get());
 }
 
 void SkDownSampleImageFilter::flatten(SkWriteBuffer& buffer) const {

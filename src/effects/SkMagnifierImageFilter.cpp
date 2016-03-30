@@ -285,7 +285,7 @@ SkFlattenable* SkMagnifierImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src;
     buffer.readRect(&src);
-    return Create(src, buffer.readScalar(), common.getInput(0));
+    return Create(src, buffer.readScalar(), common.getInput(0).get());
 }
 
 void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {

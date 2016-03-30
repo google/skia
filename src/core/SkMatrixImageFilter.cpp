@@ -34,7 +34,7 @@ SkFlattenable* SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkFilterQuality quality = static_cast<SkFilterQuality>(buffer.readInt());
-    return Create(matrix, quality, common.getInput(0));
+    return Create(matrix, quality, common.getInput(0).get());
 }
 
 void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {

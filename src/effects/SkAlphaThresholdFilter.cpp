@@ -269,7 +269,7 @@ SkFlattenable* SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SkScalar outer = buffer.readScalar();
     SkRegion rgn;
     buffer.readRegion(&rgn);
-    return SkAlphaThresholdFilter::Create(rgn, inner, outer, common.getInput(0));
+    return SkAlphaThresholdFilter::Create(rgn, inner, outer, common.getInput(0).get());
 }
 
 SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,

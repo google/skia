@@ -91,7 +91,7 @@ static IdentityImageFilter::Registrar gReg1;
 
 SkFlattenable* IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    return IdentityImageFilter::Create(common.getInput(0));
+    return IdentityImageFilter::Create(common.getInput(0).get());
 }
 
 #ifndef SK_IGNORE_TO_STRING

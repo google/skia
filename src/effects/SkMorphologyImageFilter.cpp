@@ -76,14 +76,14 @@ SkFlattenable* SkErodeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     const int width = buffer.readInt();
     const int height = buffer.readInt();
-    return Create(width, height, common.getInput(0), &common.cropRect());
+    return Create(width, height, common.getInput(0).get(), &common.cropRect());
 }
 
 SkFlattenable* SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     const int width = buffer.readInt();
     const int height = buffer.readInt();
-    return Create(width, height, common.getInput(0), &common.cropRect());
+    return Create(width, height, common.getInput(0).get(), &common.cropRect());
 }
 
 #ifndef SK_IGNORE_TO_STRING

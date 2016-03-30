@@ -88,7 +88,7 @@ SkFlattenable* SimpleOffsetFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar dx = buffer.readScalar();
     SkScalar dy = buffer.readScalar();
-    return Create(dx, dy, common.getInput(0));
+    return Create(dx, dy, common.getInput(0).get());
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -118,15 +118,16 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         {
-            SkAutoTUnref<SkImageFilter> bitmapSource(SkImageSource::Create(fImage.get()));
-            auto cf(SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
-            SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f, bitmapSource));
-            SkAutoTUnref<SkImageFilter> erode(SkErodeImageFilter::Create(4, 4, blur));
-            SkAutoTUnref<SkImageFilter> color(SkColorFilterImageFilter::Create(cf.get(), erode));
-            SkAutoTUnref<SkImageFilter> merge(SkMergeImageFilter::Create(blur, color));
+            sk_sp<SkImageFilter> bitmapSource(SkImageSource::Create(fImage.get()));
+            sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorRED,
+                                                                  SkXfermode::kSrcIn_Mode));
+            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f, bitmapSource.get()));
+            sk_sp<SkImageFilter> erode(SkErodeImageFilter::Create(4, 4, blur.get()));
+            sk_sp<SkImageFilter> color(SkColorFilterImageFilter::Create(cf.get(), erode.get()));
+            sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(blur, color));
 
             SkPaint paint;
-            paint.setImageFilter(merge);
+            paint.setImageFilter(std::move(merge));
             canvas->drawPaint(paint);
             canvas->translate(SkIntToScalar(100), 0);
         }

@@ -44,7 +44,7 @@ SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
 SkFlattenable* SkColorFilterImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     sk_sp<SkColorFilter> cf(buffer.readColorFilter());
-    return Create(cf.get(), common.getInput(0), &common.cropRect());
+    return Create(cf.get(), common.getInput(0).get(), &common.cropRect());
 }
 
 void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {

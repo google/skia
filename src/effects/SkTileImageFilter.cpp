@@ -127,7 +127,7 @@ SkFlattenable* SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
-    return Create(src, dst, common.getInput(0));
+    return Create(src, dst, common.getInput(0).get());
 }
 
 void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {

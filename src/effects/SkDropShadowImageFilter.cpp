@@ -37,7 +37,7 @@ SkFlattenable* SkDropShadowImageFilter::CreateProc(SkReadBuffer& buffer) {
     ShadowMode shadowMode = buffer.isVersionLT(SkReadBuffer::kDropShadowMode_Version) ?
                             kDrawShadowAndForeground_ShadowMode :
                             static_cast<ShadowMode>(buffer.readInt());
-    return Create(dx, dy, sigmaX, sigmaY, color, shadowMode, common.getInput(0),
+    return Create(dx, dy, sigmaX, sigmaY, color, shadowMode, common.getInput(0).get(),
                   &common.cropRect());
 }
 

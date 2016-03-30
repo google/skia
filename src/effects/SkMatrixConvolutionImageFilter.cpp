@@ -97,7 +97,7 @@ SkFlattenable* SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) 
     TileMode tileMode = (TileMode)buffer.readInt();
     bool convolveAlpha = buffer.readBool();
     return Create(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode, convolveAlpha,
-                  common.getInput(0), &common.cropRect());
+                  common.getInput(0).get(), &common.cropRect());
 }
 
 void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {

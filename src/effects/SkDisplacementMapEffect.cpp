@@ -200,7 +200,8 @@ SkFlattenable* SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer) {
     ChannelSelectorType xsel = (ChannelSelectorType)buffer.readInt();
     ChannelSelectorType ysel = (ChannelSelectorType)buffer.readInt();
     SkScalar scale = buffer.readScalar();
-    return Create(xsel, ysel, scale, common.getInput(0), common.getInput(1), &common.cropRect());
+    return Create(xsel, ysel, scale,
+                  common.getInput(0).get(), common.getInput(1).get(), &common.cropRect());
 }
 
 void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {

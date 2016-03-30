@@ -293,9 +293,6 @@ public:
 protected:
     class Common {
     public:
-        Common() {}
-        ~Common();
-
         /**
          *  Attempt to unflatten the cropRect and the expected number of input filters.
          *  If any number of input filters is valid, pass -1.
@@ -308,9 +305,9 @@ protected:
 
         const CropRect& cropRect() const { return fCropRect; }
         int             inputCount() const { return fInputs.count(); }
-        SkImageFilter** inputs() const { return fInputs.get(); }
+        sk_sp<SkImageFilter>* inputs() const { return fInputs.get(); }
 
-        SkImageFilter*  getInput(int index) const { return fInputs[index]; }
+        sk_sp<SkImageFilter>  getInput(int index) const { return fInputs[index]; }
 
         // If the caller wants a copy of the inputs, call this and it will transfer ownership
         // of the unflattened input filters to the caller. This is just a short-cut for copying
@@ -321,7 +318,7 @@ protected:
     private:
         CropRect fCropRect;
         // most filters accept at most 2 input-filters
-        SkAutoSTArray<2, SkImageFilter*> fInputs;
+        SkAutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 
         void allocInputs(int count);
     };

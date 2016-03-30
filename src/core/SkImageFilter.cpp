@@ -105,22 +105,14 @@ static int32_t next_image_filter_unique_id() {
     return id;
 }
 
-SkImageFilter::Common::~Common() {
-    for (int i = 0; i < fInputs.count(); ++i) {
-        SkSafeUnref(fInputs[i]);
-    }
-}
-
 void SkImageFilter::Common::allocInputs(int count) {
-    const size_t size = count * sizeof(SkImageFilter*);
     fInputs.reset(count);
-    sk_bzero(fInputs.get(), size);
 }
 
 void SkImageFilter::Common::detachInputs(SkImageFilter** inputs) {
-    const size_t size = fInputs.count() * sizeof(SkImageFilter*);
-    memcpy(inputs, fInputs.get(), size);
-    sk_bzero(fInputs.get(), size);
+    for (int i = 0; i < fInputs.count(); ++i) {
+        inputs[i] = fInputs[i].release();
+    }
 }
 
 bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
@@ -135,7 +127,7 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
     this->allocInputs(count);
     for (int i = 0; i < count; i++) {
         if (buffer.readBool()) {
-            fInputs[i] = buffer.readImageFilter();
+            fInputs[i] = sk_sp<SkImageFilter>(buffer.readImageFilter());
         }
         if (!buffer.isValid()) {
             return false;

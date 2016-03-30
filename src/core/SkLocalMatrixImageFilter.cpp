@@ -20,8 +20,7 @@ SkFlattenable* SkLocalMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkMatrix lm;
     buffer.readMatrix(&lm);
-    return SkLocalMatrixImageFilter::Make(lm,
-                                          sk_ref_sp<SkImageFilter>(common.getInput(0))).release();
+    return SkLocalMatrixImageFilter::Make(lm, common.getInput(0)).release();
 }
 
 void SkLocalMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {

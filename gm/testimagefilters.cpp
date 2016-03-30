@@ -47,7 +47,7 @@ static SkImageFilter* make4() {
 static SkImageFilter* make5() {
     sk_sp<SkImageFilter> first(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
     sk_sp<SkImageFilter> second(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
-    return SkMergeImageFilter::Create(first.get(), second.get());
+    return SkMergeImageFilter::Make(std::move(first), std::move(second)).release();
 }
 
 static SkImageFilter* make6() {
@@ -58,7 +58,7 @@ static SkImageFilter* make6() {
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));
     sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Create(cf.get()));
 
-    return SkMergeImageFilter::Create(compose.get(), blue.get());
+    return SkMergeImageFilter::Make(std::move(compose), std::move(blue)).release();
 }
 
 static SkImageFilter* make7() {
@@ -69,7 +69,7 @@ static SkImageFilter* make7() {
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));
     sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Create(cf.get()));
 
-    return SkMergeImageFilter::Create(compose.get(), blue.get());
+    return SkMergeImageFilter::Make(std::move(compose), std::move(blue)).release();
 }
 
 static void draw0(SkCanvas* canvas) {

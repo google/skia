@@ -122,7 +122,7 @@ protected:
         SkAutoTUnref<SkImageFilter> offset(SkOffsetImageFilter::Create(
             SkIntToScalar(-10), SkIntToScalar(-10)));
 
-        SkAutoTUnref<SkImageFilter> cfOffset(SkColorFilterImageFilter::Create(cf.get(), offset.get()));
+        sk_sp<SkImageFilter> cfOffset(SkColorFilterImageFilter::Create(cf.get(), offset.get()));
 
         SkAutoTUnref<SkImageFilter> erodeX(SkErodeImageFilter::Create(8, 0, nullptr, &cropRect));
         SkAutoTUnref<SkImageFilter> erodeY(SkErodeImageFilter::Create(0, 8, nullptr, &cropRect));
@@ -139,7 +139,8 @@ protected:
             SkErodeImageFilter::Create(8, 0, erodeY, &cropRect),
             SkErodeImageFilter::Create(0, 8, erodeX, &cropRect),
             SkErodeImageFilter::Create(8, 8, nullptr, &cropRect),
-            SkMergeImageFilter::Create(nullptr, cfOffset.get(), SkXfermode::kSrcOver_Mode, &cropRect),
+            SkMergeImageFilter::Make(nullptr, std::move(cfOffset),
+                                     SkXfermode::kSrcOver_Mode, &cropRect).release(),
             SkBlurImageFilter::Create(8.0f, 8.0f, nullptr, &bogusRect),
             SkColorFilterImageFilter::Create(cf.get(), nullptr, &bogusRect),
         };

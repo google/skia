@@ -1215,7 +1215,7 @@ SkFlattenable* SkDiffuseLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkImageFilterLight> light(SkImageFilterLight::UnflattenLight(buffer));
     SkScalar surfaceScale = buffer.readScalar();
     SkScalar kd = buffer.readScalar();
-    return Create(light, surfaceScale, kd, common.getInput(0), &common.cropRect());
+    return Create(light, surfaceScale, kd, common.getInput(0).get(), &common.cropRect());
 }
 
 void SkDiffuseLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
@@ -1358,7 +1358,7 @@ SkFlattenable* SkSpecularLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkScalar surfaceScale = buffer.readScalar();
     SkScalar ks = buffer.readScalar();
     SkScalar shine = buffer.readScalar();
-    return Create(light, surfaceScale, ks, shine, common.getInput(0), &common.cropRect());
+    return Create(light, surfaceScale, ks, shine, common.getInput(0).get(), &common.cropRect());
 }
 
 void SkSpecularLightingImageFilter::flatten(SkWriteBuffer& buffer) const {

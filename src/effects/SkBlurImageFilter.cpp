@@ -46,7 +46,7 @@ SkFlattenable* SkBlurImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
-    return Create(sigmaX, sigmaY, common.getInput(0), &common.cropRect());
+    return Create(sigmaX, sigmaY, common.getInput(0).get(), &common.cropRect());
 }
 
 void SkBlurImageFilter::flatten(SkWriteBuffer& buffer) const {

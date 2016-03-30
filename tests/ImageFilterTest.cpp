@@ -169,11 +169,13 @@ public:
                   SkMatrixConvolutionImageFilter::Create(
                       kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1),
                       SkMatrixConvolutionImageFilter::kRepeat_TileMode, false, input, cropRect));
-        this->addFilter("merge", SkMergeImageFilter::Create(input, input, SkXfermode::kSrcOver_Mode,
-                  cropRect));
-        this->addFilter("merge with disjoint inputs", SkMergeImageFilter::Create(
-                  paintFilterLeft.get(), paintFilterRight.get(),
-                  SkXfermode::kSrcOver_Mode, cropRect));
+        this->addFilter("merge", SkMergeImageFilter::Make(sk_ref_sp<SkImageFilter>(input),
+                                                          sk_ref_sp<SkImageFilter>(input),
+                                                          SkXfermode::kSrcOver_Mode,
+                                                          cropRect).release());
+        this->addFilter("merge with disjoint inputs", SkMergeImageFilter::Make(
+                  std::move(paintFilterLeft), std::move(paintFilterRight),
+                  SkXfermode::kSrcOver_Mode, cropRect).release());
         this->addFilter("offset",
                         SkOffsetImageFilter::Create(SK_Scalar1, SK_Scalar1, input, cropRect));
         this->addFilter("dilate", SkDilateImageFilter::Create(3, 2, input, cropRect));
@@ -824,8 +826,8 @@ static void test_imagefilter_merge_result_size(SkImageFilter::Proxy* proxy,
     greenBM.allocN32Pixels(20, 20);
     greenBM.eraseColor(SK_ColorGREEN);
     sk_sp<SkImage> greenImage(SkImage::MakeFromBitmap(greenBM));
-    SkAutoTUnref<SkImageFilter> source(SkImageSource::Create(greenImage.get()));
-    SkAutoTUnref<SkImageFilter> merge(SkMergeImageFilter::Create(source.get(), source.get()));
+    sk_sp<SkImageFilter> source(SkImageSource::Create(greenImage.get()));
+    sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(source, source));
 
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 1));
 
