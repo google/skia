@@ -28,12 +28,13 @@ namespace DM {
 
 static const bool kGPUDisabled = false;
 
-static inline sk_sp<SkSurface> NewGpuSurface(GrContextFactory* grFactory,
-                                             GrContextFactory::GLContextType type,
-                                             GrContextFactory::GLContextOptions options,
-                                             SkImageInfo info,
-                                             int samples,
-                                             bool useDIText) {
+static inline sk_sp<SkSurface> NewGpuSurface(
+        sk_gpu_test::GrContextFactory* grFactory,
+        sk_gpu_test::GrContextFactory::GLContextType type,
+        sk_gpu_test::GrContextFactory::GLContextOptions options,
+        SkImageInfo info,
+        int samples,
+        bool useDIText) {
     uint32_t flags = useDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
     return SkSurface::MakeRenderTarget(grFactory->get(type, options), SkBudgeted::kNo,
@@ -59,6 +60,7 @@ public:
     void dumpGpuStats(SkString*) const {}
 };
 
+namespace sk_gpu_test {
 class GrContextFactory {
 public:
     GrContextFactory() {};
@@ -83,14 +85,15 @@ public:
 
     void abandonContexts() {}
 };
+}  // namespace sk_gpu_test
 
 namespace DM {
 
 static const bool kGPUDisabled = true;
 
-static inline SkSurface* NewGpuSurface(GrContextFactory*,
-                                       GrContextFactory::GLContextType,
-                                       GrContextFactory::GLContextOptions,
+static inline SkSurface* NewGpuSurface(sk_gpu_test::GrContextFactory*,
+                                       sk_gpu_test::GrContextFactory::GLContextType,
+                                       sk_gpu_test::GrContextFactory::GLContextOptions,
                                        SkImageInfo,
                                        int,
                                        bool) {

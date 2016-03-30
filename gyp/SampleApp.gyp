@@ -153,6 +153,7 @@
         'lua.gyp:lua',
         'pdf.gyp:pdf',
         'skia_lib.gyp:skia_lib',
+        'gputest.gyp:skgputest',
         'tools.gyp:resources',
         'tools.gyp:sk_tool_utils',
         'tools.gyp:timer',

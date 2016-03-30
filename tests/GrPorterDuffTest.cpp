@@ -1147,8 +1147,8 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
 DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     GrContextOptions opts;
     opts.fSuppressDualSourceBlending = true;
-    GrContextFactory mockFactory(opts);
-    GrContext* ctx = mockFactory.get(GrContextFactory::kNull_GLContextType);
+    sk_gpu_test::GrContextFactory mockFactory(opts);
+    GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kNull_GLContextType);
     if (!ctx) {
         SkFAIL("Failed to create null context without ARB_blend_func_extended.");
         return;

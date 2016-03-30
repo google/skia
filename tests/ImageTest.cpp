@@ -26,6 +26,8 @@
 #include "SkUtils.h"
 #include "Test.h"
 
+using sk_gpu_test::GrContextFactory;
+
 static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect* subsetA,
                          SkImage* b) {
     const int widthA = subsetA ? subsetA->width() : a->width();

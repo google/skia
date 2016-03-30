@@ -11,7 +11,7 @@
 #include "GrDrawContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
-#include "gl/SkGLContext.h"
+#include "gl/GLContext.h"
 
 static void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
                              GrTexture* rectangleTexture, uint32_t expectedPixelValues[]) {

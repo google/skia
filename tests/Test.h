@@ -11,9 +11,11 @@
 #include "SkTRegistry.h"
 #include "SkTypes.h"
 
+namespace sk_gpu_test {
 class GrContextFactory;
+class GLContext;
+}  // namespace sk_gpu_test
 class GrContext;
-class SkGLContext;
 
 namespace skiatest {
 
@@ -41,7 +43,7 @@ public:
 #define REPORT_FAILURE(reporter, cond, message) \
     reporter->reportFailed(skiatest::Failure(__FILE__, __LINE__, cond, message))
 
-typedef void (*TestProc)(skiatest::Reporter*, GrContextFactory*);
+typedef void (*TestProc)(skiatest::Reporter*, sk_gpu_test::GrContextFactory*);
 
 struct Test {
     Test(const char* n, bool g, TestProc p) : name(n), needsGpu(g), proc(p) {}
@@ -83,7 +85,7 @@ enum GPUTestContexts {
 };
 template<typename T>
 void RunWithGPUTestContexts(T testFunction, GPUTestContexts contexts, Reporter* reporter,
-                            GrContextFactory* factory);
+                            sk_gpu_test::GrContextFactory* factory);
 
 /** Timer provides wall-clock duration since its creation. */
 class Timer {
@@ -133,32 +135,32 @@ private:
         }                            \
     } while (0)
 
-#define DEF_TEST(name, reporter)                                     \
-    static void test_##name(skiatest::Reporter*, GrContextFactory*); \
-    skiatest::TestRegistry name##TestRegistry(                       \
-            skiatest::Test(#name, false, test_##name));              \
-    void test_##name(skiatest::Reporter* reporter, GrContextFactory*)
+#define DEF_TEST(name, reporter)                                                  \
+    static void test_##name(skiatest::Reporter*, sk_gpu_test::GrContextFactory*); \
+    skiatest::TestRegistry name##TestRegistry(                                    \
+            skiatest::Test(#name, false, test_##name));                           \
+    void test_##name(skiatest::Reporter* reporter, sk_gpu_test::GrContextFactory*)
 
 #define GPUTEST_EXPAND_MSVC(x) x
 #define GPUTEST_APPLY(C, ...) GPUTEST_EXPAND_MSVC(C(__VA_ARGS__))
 #define GPUTEST_SELECT(a1, a2, N, ...) N
 
 #define GPUTEST_CONTEXT_ARGS1(a1) GrContext* a1
-#define GPUTEST_CONTEXT_ARGS2(a1, a2) GrContext* a1, SkGLContext* a2
+#define GPUTEST_CONTEXT_ARGS2(a1, a2) GrContext* a1, sk_gpu_test::GLContext* a2
 #define GPUTEST_CONTEXT_ARGS(...)                                                            \
     GPUTEST_APPLY(GPUTEST_SELECT(__VA_ARGS__, GPUTEST_CONTEXT_ARGS2, GPUTEST_CONTEXT_ARGS1), \
                   __VA_ARGS__)
 
-#define DEF_GPUTEST(name, reporter, factory)                         \
-    static void test_##name(skiatest::Reporter*, GrContextFactory*); \
-    skiatest::TestRegistry name##TestRegistry(                       \
-            skiatest::Test(#name, true, test_##name));               \
-    void test_##name(skiatest::Reporter* reporter, GrContextFactory* factory)
+#define DEF_GPUTEST(name, reporter, factory)                                      \
+    static void test_##name(skiatest::Reporter*, sk_gpu_test::GrContextFactory*); \
+    skiatest::TestRegistry name##TestRegistry(                                    \
+            skiatest::Test(#name, true, test_##name));                            \
+    void test_##name(skiatest::Reporter* reporter, sk_gpu_test::GrContextFactory* factory)
 
 #define DEF_GPUTEST_FOR_CONTEXTS(name, contexts, reporter, ...)                      \
     static void test_##name(skiatest::Reporter*, GPUTEST_CONTEXT_ARGS(__VA_ARGS__)); \
     static void test_gpu_contexts_##name(skiatest::Reporter* reporter,               \
-                                         GrContextFactory* factory) {                \
+                                         sk_gpu_test::GrContextFactory* factory) {   \
         skiatest::RunWithGPUTestContexts(test_##name, contexts, reporter, factory);  \
     }                                                                                \
     skiatest::TestRegistry name##TestRegistry(                                       \

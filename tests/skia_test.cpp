@@ -24,6 +24,7 @@
 #endif
 
 using namespace skiatest;
+using namespace sk_gpu_test;
 
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 

@@ -9,28 +9,85 @@
       'product_name': 'skia_skgputest',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'dependencies': [
-        'skia_lib.gyp:skia_lib',
-      ],
       'include_dirs': [
+        '../include/core',
+        '../include/config',
         '../include/gpu',
         '../include/private',
         '../include/utils',
         '../src/core',
         '../src/gpu',
-        '../../src/gpu',
+        '../src/utils',
+        '../tools/gpu',
       ],
-      'direct_dependent_settings': {
+      'all_dependent_settings': {
         'include_dirs': [
-          '../src/gpu',
-          '../../src/gpu',
+          '../tools/gpu',
         ],
       },
+      'dependencies': [
+        'gpu.gyp:skgpu',
+      ],
       'sources': [
-        '<(skia_src_path)/gpu/GrContextFactory.cpp',
-        '<(skia_src_path)/gpu/GrContextFactory.h',
-        '<(skia_src_path)/gpu/GrTest.cpp',
-        '<(skia_src_path)/gpu/GrTest.h',
+        '<!@(python find.py ../tools/gpu "*")'
+      ],
+      'conditions': [
+        [ 'skia_mesa and skia_os == "linux"', {
+          'link_settings': {
+            'libraries': [
+              '-lOSMesa',
+            ],
+          },
+        }],
+        [ 'skia_mesa and skia_os == "mac"', {
+          'link_settings': {
+            'libraries': [
+              '/opt/X11/lib/libOSMesa.dylib',
+            ],
+          },
+          'include_dirs': [
+             '/opt/X11/include/',
+          ],
+        }],
+        [ 'skia_angle', {
+          'dependencies': [
+            'angle.gyp:*',
+          ],
+          'export_dependent_settings': [
+            'angle.gyp:*',
+          ],
+        }],
+        ['skia_os != "win"', {
+          'sources/': [ ['exclude', '_win\.(h|cpp)$'],],
+        }],
+        ['skia_os != "mac"', {
+          'sources/': [ ['exclude', '_mac\.(h|cpp|m|mm)$'],],
+        }],
+        ['skia_os != "linux" and skia_os != "chromeos"', {
+          'sources/': [ ['exclude', '_glx\.(h|cpp)$'],],
+        }],
+        ['skia_os != "ios"', {
+          'sources/': [ ['exclude', '_iOS\.(h|cpp|m|mm)$'],],
+        }],
+        ['skia_os != "android"', {
+          'sources/': [ ['exclude', '_android\.(h|cpp)$'],],
+        }],
+        ['skia_egl == 0', {
+          'sources/': [ ['exclude', '_egl\.(h|cpp)$'],],
+        }],
+        [ 'skia_mesa == 0', {
+          'sources/': [
+            ['exclude', '_mesa\.(h|cpp)$'],
+          ],
+        }],
+        [ 'skia_angle == 0', {
+          'sources/': [
+            ['exclude', '_angle\.(h|cpp)$'],
+          ],
+        }],
+        [ 'skia_command_buffer == 0', {
+          'sources/': [ ['exclude', '_command_buffer\.(h|cpp)$'], ],
+        }],
       ],
     },
   ],

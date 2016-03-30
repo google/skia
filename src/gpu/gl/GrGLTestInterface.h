@@ -11,6 +11,10 @@
 #include "gl/GrGLInterface.h"
 #include "GrGLDefines.h"
 
+/**
+ * Base class for interfaces used for Skia testing. We would like to move this to tools/gpu/gl
+ * when Chromium is no longer using GrGLCreateNullInterface in its unit testing.
+ */
 class GrGLTestInterface : public GrGLInterface {
 public:
     virtual GrGLvoid activeTexture(GrGLenum texture) {}

@@ -37,15 +37,6 @@
             '-llog',
           ],
         }],
-        [ 'skia_gpu == 1', {
-          'include_dirs': [
-            '../src/gpu',
-          ],
-	  'sources': [
-            '../src/gpu/GrContextFactory.cpp',
-            '../src/gpu/GrContextFactory.h',
-          ]
-        }],
       ],
     },
   ],

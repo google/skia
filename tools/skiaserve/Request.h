@@ -19,7 +19,9 @@
 
 #include "UrlDataManager.h"
 
+namespace sk_gpu_test {
 class GrContextFactory;
+}
 struct MHD_Connection;
 struct MHD_PostProcessor;
 
@@ -69,7 +71,7 @@ private:
     GrContext* getContext();
 
     sk_sp<SkPicture> fPicture;
-    GrContextFactory* fContextFactory;
+    sk_gpu_test::GrContextFactory* fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;
     bool fGPUEnabled;
 };
