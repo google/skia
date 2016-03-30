@@ -1161,9 +1161,8 @@ static void draw_filter_into_device(SkBaseDevice* src, const SkImageFilter* filt
 
     SkCanvas c(dst);
 
-    SkAutoTUnref<SkImageFilter> localF(filter->newWithLocalMatrix(ctm));
     SkPaint p;
-    p.setImageFilter(localF);
+    p.setImageFilter(filter->makeWithLocalMatrix(ctm));
     const SkScalar x = SkIntToScalar(src->getOrigin().x());
     const SkScalar y = SkIntToScalar(src->getOrigin().y());
     c.drawBitmap(srcBM, x, y, &p);

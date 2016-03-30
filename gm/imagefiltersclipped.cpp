@@ -138,11 +138,11 @@ protected:
 
         SkPaint noisePaint;
         noisePaint.setShader(noise);
-        SkAutoTUnref<SkImageFilter> rectFilter(SkPaintImageFilter::Create(noisePaint));
+        sk_sp<SkImageFilter> rectFilter(SkPaintImageFilter::Make(noisePaint));
         canvas->translate(SK_ARRAY_COUNT(filters)*(r.width() + margin), 0);
         for (int xOffset = 0; xOffset < 80; xOffset += 16) {
             bounds.fLeft = SkIntToScalar(xOffset);
-            draw_clipped_filter(canvas, rectFilter, 0, r, bounds);
+            draw_clipped_filter(canvas, rectFilter.get(), 0, r, bounds);
             canvas->translate(0, r.height() + margin);
         }
     }
