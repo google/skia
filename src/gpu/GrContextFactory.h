@@ -53,6 +53,7 @@ public:
     enum GLContextOptions {
         kNone_GLContextOptions = 0,
         kEnableNVPR_GLContextOptions = 0x1,
+        kRequireSRGBSupport_GLContextOptions = 0x2,
     };
 
     static bool IsRenderingGLContext(GLContextType type) {

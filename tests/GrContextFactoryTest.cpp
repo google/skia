@@ -46,6 +46,29 @@ DEF_GPUTEST(GrContextFactory_NoPathRenderingUnlessNVPRRequested, reporter, /*fac
     }
 }
 
+DEF_GPUTEST(GrContextFactory_RequiredSRGBSupport, reporter, /*factory*/) {
+    // Test that if sRGB support is requested, the context always has that capability
+    // or the context creation fails. Also test that if the creation fails, a context
+    // created without that flag would not have had sRGB support.
+    GrContextFactory testFactory;
+    // Test that if sRGB is requested, caps are in sync.
+    for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
+        GrContextFactory::GLContextType glCtxType = static_cast<GrContextFactory::GLContextType>(i);
+        GrContext* context =
+            testFactory.get(glCtxType,
+                            GrContextFactory::kRequireSRGBSupport_GLContextOptions);
+
+        if (context) {
+            REPORTER_ASSERT(reporter, context->caps()->srgbSupport());
+        } else {
+            context = testFactory.get(glCtxType);
+            if (context) {
+                REPORTER_ASSERT(reporter, !context->caps()->srgbSupport());
+            }
+        }
+    }
+}
+
 DEF_GPUTEST(GrContextFactory_abandon, reporter, /*factory*/) {
     GrContextFactory testFactory;
     for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {

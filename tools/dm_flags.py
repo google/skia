@@ -34,7 +34,7 @@ def get_args(bot):
   if '-x86-' in bot and not 'NexusPlayer' in bot:
     args.extend('--threads 4'.split(' '))
 
-  configs = ['565', '8888', 'gpu']
+  configs = ['565', '8888', 'gpu', 'gpusrgb']
 
   if '-GCE-' in bot:
     configs.extend(['f16', 'srgb'])              # Gamma-correct formats.
@@ -93,6 +93,7 @@ def get_args(bot):
   blacklist.extend('f16 _ _ dstreadshuffle'.split(' '))
   blacklist.extend('f16 image _ _'.split(' '))
   blacklist.extend('srgb image _ _'.split(' '))
+  blacklist.extend('gpusrgb image _ _'.split(' '))
 
   # Certain gm's on win7 gpu and pdf are never finishing and keeping the test
   # running forever

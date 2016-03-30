@@ -148,6 +148,11 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
             return ContextInfo();
         }
     }
+    if (kRequireSRGBSupport_GLContextOptions & options) {
+        if (!grCtx->caps()->srgbSupport()) {
+            return ContextInfo();
+        }
+    }
 
     Context& context = fContexts.push_back();
     context.fGLContext = glCtx.release();

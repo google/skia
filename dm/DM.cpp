@@ -819,6 +819,11 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
                 contextOptions = static_cast<GrContextFactory::GLContextOptions>(
                     contextOptions | GrContextFactory::kEnableNVPR_GLContextOptions);
             }
+            if (kSRGB_SkColorProfileType == gpuConfig->getProfileType() ||
+                kRGBA_F16_SkColorType == gpuConfig->getColorType()) {
+                contextOptions = static_cast<GrContextFactory::GLContextOptions>(
+                    contextOptions | GrContextFactory::kRequireSRGBSupport_GLContextOptions);
+            }
             GrContextFactory testFactory;
             if (!testFactory.get(contextType, contextOptions)) {
                 info("WARNING: can not create GPU context for config '%s'. "
