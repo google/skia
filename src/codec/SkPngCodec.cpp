@@ -174,6 +174,11 @@ static float png_fixed_point_to_float(png_fixed_point x) {
     return ((float) x) * 0.00001f;
 }
 
+static float png_inverted_fixed_point_to_float(png_fixed_point x) {
+    // This is necessary because the gAMA chunk actually stores 1/gamma.
+    return 1.0f / png_fixed_point_to_float(x);
+}
+
 // Returns a colorSpace object that represents any color space information in
 // the encoded data.  If the encoded data contains no color space, this will
 // return NULL.
@@ -226,13 +231,15 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
             toXYZD50.fMat[i] = png_fixed_point_to_float(XYZ[i]);
         }
 
-        if (PNG_INFO_gAMA != png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
-
+        if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
+            gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] =
+                    png_inverted_fixed_point_to_float(gamma);
+        } else {
             // If the image does not specify gamma, let's choose linear.  Should we default
             // to sRGB?  Most images are intended to be sRGB (gamma = 2.2f).
-            gamma = PNG_GAMMA_LINEAR;
+            gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] = 1.0f;
         }
-        gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] = png_fixed_point_to_float(gamma);
+
 
         return SkColorSpace::NewRGB(toXYZD50, gammas);
     }
@@ -247,7 +254,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         toXYZD50.fMat[0] = toXYZD50.fMat[4] = toXYZD50.fMat[8] = 1.0f;
 
         // Set the gammas.
-        gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] = png_fixed_point_to_float(gamma);
+        gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] = png_inverted_fixed_point_to_float(gamma);
 
         return SkColorSpace::NewRGB(toXYZD50, gammas);
     }
