@@ -49,7 +49,7 @@ protected:
         return SkISize::Make(640, 640);
     }
 
-    static void show_image(SkCanvas* canvas, SkImage* image, sk_sp<SkImageFilter> filter) {
+    static void show_image(SkCanvas* canvas, SkImage* image, SkImageFilter* filter) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         SkRect r = SkRect::MakeIWH(image->width(), image->height()).makeOutset(SK_ScalarHalf,
@@ -81,14 +81,14 @@ protected:
 
         canvas->translate(40, 40);
         for (auto&& factory : factories) {
-            sk_sp<SkImageFilter> filter(factory());
+            SkAutoTUnref<SkImageFilter> filter(factory());
 
             canvas->save();
             show_image(canvas, image0.get(), filter);
             for (const auto& matrix : matrices) {
-                sk_sp<SkImageFilter> localFilter(filter->makeWithLocalMatrix(matrix));
+                SkAutoTUnref<SkImageFilter> localFilter(filter->newWithLocalMatrix(matrix));
                 canvas->translate(spacer, 0);
-                show_image(canvas, image0.get(), std::move(localFilter));
+                show_image(canvas, image0.get(), localFilter);
             }
             canvas->restore();
             canvas->translate(0, spacer);

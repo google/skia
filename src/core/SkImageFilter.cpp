@@ -158,22 +158,6 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkImageFilter::SkImageFilter(sk_sp<SkImageFilter>* inputs,
-                             int inputCount,
-                             const CropRect* cropRect)
-    : fInputCount(inputCount),
-    fInputs(new SkImageFilter*[inputCount]),
-    fUsesSrcInput(false),
-    fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)),
-    fUniqueID(next_image_filter_unique_id()) {
-    for (int i = 0; i < inputCount; ++i) {
-        if (nullptr == inputs[i] || inputs[i]->usesSrcInput()) {
-            fUsesSrcInput = true;
-        }
-        fInputs[i] = SkSafeRef(inputs[i].get());
-    }
-}
-
 SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
   : fInputCount(inputCount),
     fInputs(new SkImageFilter*[inputCount]),
@@ -184,7 +168,8 @@ SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropR
         if (nullptr == inputs[i] || inputs[i]->usesSrcInput()) {
             fUsesSrcInput = true;
         }
-        fInputs[i] = SkSafeRef(inputs[i]);
+        fInputs[i] = inputs[i];
+        SkSafeRef(fInputs[i]);
     }
 }
 
@@ -571,12 +556,11 @@ SkImageFilter* SkImageFilter::CreateMatrixFilter(const SkMatrix& matrix,
     return SkMatrixImageFilter::Create(matrix, filterQuality, input);
 }
 
-sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) const {
+SkImageFilter* SkImageFilter::newWithLocalMatrix(const SkMatrix& matrix) const {
     // SkLocalMatrixImageFilter takes SkImage* in its factory, but logically that parameter
     // is *always* treated as a const ptr. Hence the const-cast here.
     //
-    SkImageFilter* nonConstThis = const_cast<SkImageFilter*>(this);
-    return SkLocalMatrixImageFilter::Make(matrix, sk_ref_sp<SkImageFilter>(nonConstThis));
+    return SkLocalMatrixImageFilter::Create(matrix, const_cast<SkImageFilter*>(this));
 }
 
 sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,

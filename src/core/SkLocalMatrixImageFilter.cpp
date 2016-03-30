@@ -10,9 +10,21 @@
 #include "SkSpecialImage.h"
 #include "SkString.h"
 
-SkLocalMatrixImageFilter::SkLocalMatrixImageFilter(const SkMatrix& localM,
-                                                   sk_sp<SkImageFilter> input)
-    : INHERITED(&input, 1, nullptr)
+SkImageFilter* SkLocalMatrixImageFilter::Create(const SkMatrix& localM, SkImageFilter* input) {
+    if (!input) {
+        return nullptr;
+    }
+    if (localM.getType() & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
+        return nullptr;
+    }
+    if (localM.isIdentity()) {
+        return SkRef(input);
+    }
+    return new SkLocalMatrixImageFilter(localM, input);
+}
+
+SkLocalMatrixImageFilter::SkLocalMatrixImageFilter(const SkMatrix& localM, SkImageFilter* input)
+    : INHERITED(1, &input)
     , fLocalM(localM) {
 }
 
@@ -20,8 +32,7 @@ SkFlattenable* SkLocalMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkMatrix lm;
     buffer.readMatrix(&lm);
-    return SkLocalMatrixImageFilter::Make(lm,
-                                          sk_ref_sp<SkImageFilter>(common.getInput(0))).release();
+    return SkLocalMatrixImageFilter::Create(lm, common.getInput(0));
 }
 
 void SkLocalMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {

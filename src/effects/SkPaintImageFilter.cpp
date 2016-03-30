@@ -12,16 +12,20 @@
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
+SkImageFilter* SkPaintImageFilter::Create(const SkPaint& paint, const CropRect* cropRect) {
+    return new SkPaintImageFilter(paint, cropRect);
+}
+
 SkPaintImageFilter::SkPaintImageFilter(const SkPaint& paint, const CropRect* cropRect)
-    : INHERITED(nullptr, 0, cropRect)
-    , fPaint(paint) {
+  : INHERITED(0, nullptr, cropRect)
+  , fPaint(paint) {
 }
 
 SkFlattenable* SkPaintImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     SkPaint paint;
     buffer.readPaint(&paint);
-    return SkPaintImageFilter::Make(paint, &common.cropRect()).release();
+    return Create(paint, &common.cropRect());
 }
 
 void SkPaintImageFilter::flatten(SkWriteBuffer& buffer) const {
@@ -76,7 +80,6 @@ bool SkPaintImageFilter::canComputeFastBounds() const {
 #ifndef SK_IGNORE_TO_STRING
 void SkPaintImageFilter::toString(SkString* str) const {
     str->appendf("SkPaintImageFilter: (");
-    fPaint.toString(str);
     str->append(")");
 }
 #endif
