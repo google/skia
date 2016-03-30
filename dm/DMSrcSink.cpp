@@ -1162,8 +1162,8 @@ static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkS
     public:
         ProxySrc(SkISize size, const Fn& draw) : fSize(size), fDraw(draw) {}
         Error   draw(SkCanvas* canvas) const override { return fDraw(canvas); }
-        Name                    name() const override { sk_throw(); return ""; } // Won't be called.
-        SkISize                 size() const override { return fSize; }
+        Name    name() const override { return "ProxySrc"; }
+        SkISize size() const override { return fSize; }
     private:
         SkISize   fSize;
         const Fn& fDraw;
@@ -1182,7 +1182,8 @@ static Error check_against_reference(const SkBitmap* bitmap, const Src& src, Sin
     if (FLAGS_check && bitmap) {
         SkBitmap reference;
         SkString log;
-        Error err = sink->draw(src, &reference, nullptr, &log);
+        SkDynamicMemoryWStream wStream;
+        Error err = sink->draw(src, &reference, &wStream, &log);
         // If we can draw into this Sink via some pipeline, we should be able to draw directly.
         SkASSERT(err.isEmpty());
         if (!err.isEmpty()) {
