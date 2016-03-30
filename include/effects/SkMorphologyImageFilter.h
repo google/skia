@@ -29,18 +29,25 @@ public:
                          int width, int height, int srcStride, int dstStride);
 
 protected:
+    enum Op {
+        kErode_Op,
+        kDilate_Op,
+    };
+
+    virtual Op op() const = 0;
+
     SkMorphologyImageFilter(int radiusX, int radiusY, SkImageFilter* input,
                             const CropRect* cropRect);
-    sk_sp<SkSpecialImage> filterImageGeneric(bool dilate, 
-                                             SkSpecialImage* source,
-                                             const Context&,
-                                             SkIPoint* offset) const;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source,
+                                        const Context&,
+                                        SkIPoint* offset) const override;
     void flatten(SkWriteBuffer&) const override;
 
     SkISize radius() const { return fRadius; }
 
 private:
-    SkISize fRadius;
+    SkISize  fRadius;
+
     typedef SkImageFilter INHERITED;
 };
 
@@ -60,8 +67,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    Op op() const override { return kDilate_Op; }
 
 private:
     SkDilateImageFilter(int radiusX, int radiusY, SkImageFilter* input, const CropRect* cropRect)
@@ -86,8 +92,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
+    Op op() const override { return kErode_Op; }
 
 private:
     SkErodeImageFilter(int radiusX, int radiusY, SkImageFilter* input, const CropRect* cropRect)

@@ -515,10 +515,9 @@ static sk_sp<SkSpecialImage> apply_morphology(SkSpecialImage* input,
 }
 #endif
 
-sk_sp<SkSpecialImage> SkMorphologyImageFilter::filterImageGeneric(bool dilate,
-                                                                  SkSpecialImage* source,
-                                                                  const Context& ctx,
-                                                                  SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* source,
+                                                             const Context& ctx,
+                                                             SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
     if (!input) {
@@ -552,8 +551,8 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::filterImageGeneric(bool dilate,
 
 #if SK_SUPPORT_GPU
     if (input->peekTexture() && input->peekTexture()->getContext()) {
-        auto type = dilate ? GrMorphologyEffect::kDilate_MorphologyType
-                           : GrMorphologyEffect::kErode_MorphologyType;
+        auto type = (kDilate_Op == this->op()) ? GrMorphologyEffect::kDilate_MorphologyType
+                                               : GrMorphologyEffect::kErode_MorphologyType;
         sk_sp<SkSpecialImage> result(apply_morphology(input.get(), srcBounds, type,
                                                       SkISize::Make(width, height)));
         if (result) {
@@ -586,7 +585,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::filterImageGeneric(bool dilate,
 
     SkMorphologyImageFilter::Proc procX, procY;
 
-    if (dilate) {
+    if (kDilate_Op == this->op()) {
         procX = SkOpts::dilate_x;
         procY = SkOpts::dilate_y;
     } else {
@@ -621,14 +620,4 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::filterImageGeneric(bool dilate,
     return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
                                           SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst);
-}
-
-sk_sp<SkSpecialImage> SkDilateImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                                         SkIPoint* offset) const {
-    return this->filterImageGeneric(true, source, ctx, offset);
-}
-
-sk_sp<SkSpecialImage> SkErodeImageFilter::onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                                        SkIPoint* offset) const {
-    return this->filterImageGeneric(false, source, ctx, offset);
 }
