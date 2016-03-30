@@ -98,6 +98,11 @@ def get_args(bot):
     match.append('~interlaced2.png')
     match.append('~interlaced3.png')
 
+  # This low-end Android bot crashes about 25% of the time while running the
+  # (somewhat intense) shapes benchmarks.
+  if 'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release' in bot:
+    match.append('~shapes_')
+
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
   match.append('~inc0.gif')
@@ -139,6 +144,7 @@ def self_test():
     'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
     'Perf-Android-Nexus7-Tegra3-Arm7-Release',
     'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
+    'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
     'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
