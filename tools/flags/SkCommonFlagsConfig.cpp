@@ -9,10 +9,6 @@
 
 #include <stdlib.h>
 
-#if SK_SUPPORT_GPU
-using sk_gpu_test::GrContextFactory;
-#endif
-
 static const char defaultConfigs[] =
     "565 8888 gpu nonrendering"
 #if SK_ANGLE

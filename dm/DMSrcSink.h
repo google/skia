@@ -232,8 +232,7 @@ public:
 
 class GPUSink : public Sink {
 public:
-    GPUSink(sk_gpu_test::GrContextFactory::GLContextType,
-            sk_gpu_test::GrContextFactory::GLContextOptions,
+    GPUSink(GrContextFactory::GLContextType, GrContextFactory::GLContextOptions,
             int samples, bool diText, SkColorType colorType, SkColorProfileType profileType,
             bool threaded);
 
@@ -242,13 +241,13 @@ public:
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
 private:
-    sk_gpu_test::GrContextFactory::GLContextType    fContextType;
-    sk_gpu_test::GrContextFactory::GLContextOptions fContextOptions;
-    int                                             fSampleCount;
-    bool                                            fUseDIText;
-    SkColorType                                     fColorType;
-    SkColorProfileType                              fProfileType;
-    bool                                            fThreaded;
+    GrContextFactory::GLContextType    fContextType;
+    GrContextFactory::GLContextOptions fContextOptions;
+    int                                fSampleCount;
+    bool                               fUseDIText;
+    SkColorType                        fColorType;
+    SkColorProfileType                 fProfileType;
+    bool                               fThreaded;
 };
 
 class PDFSink : public Sink {

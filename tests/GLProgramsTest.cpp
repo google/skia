@@ -455,7 +455,7 @@ DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
     // We suppress prints to avoid spew
     GrContextOptions opts;
     opts.fSuppressPrints = true;
-    sk_gpu_test::GrContextFactory debugFactory(opts);
+    GrContextFactory debugFactory(opts);
     skiatest::RunWithGPUTestContexts(test_glprograms_native, skiatest::kNative_GPUTestContexts,
                                      reporter, &debugFactory);
     skiatest::RunWithGPUTestContexts(test_glprograms_other_contexts,

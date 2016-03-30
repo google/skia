@@ -90,6 +90,7 @@ remove_srcs(
     ../src/gpu/GrContextFactory.cpp                  # For internal testing only.
     ../src/gpu/gl/GrGLCreateNativeInterface_none.cpp
     ../src/gpu/gl/GrGLDefaultInterface_none.cpp
+    ../src/gpu/gl/SkCreatePlatformGLContext*.cpp     # For internal testing only.
     ../src/gpu/gl/command_buffer/*
     ../src/gpu/gl/egl/*
     ../src/gpu/gl/glfw/*
@@ -119,6 +120,8 @@ if (WIN32)
         remove_srcs(../src/ports/SkFontMgr_win_gdi_factory.cpp)
     endif()
 endif()
+
+remove_srcs(../src/gpu/gl/angle/*)  # TODO
 
 # Certain files must be compiled with support for SSSE3, SSE4.1, AVX, or AVX2 intrinsics.
 file (GLOB_RECURSE ssse3_srcs ../src/*ssse3*.cpp ../src/*SSSE3*.cpp)

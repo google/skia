@@ -13,8 +13,6 @@
 #include "GrCaps.h"
 #include "Test.h"
 
-using sk_gpu_test::GrContextFactory;
-
 DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter, /*factory*/) {
     // Test that if NVPR is requested, the context always has path rendering
     // or the context creation fails.

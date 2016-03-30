@@ -20,7 +20,6 @@
         '../include/private',
         '../src/core',
         '../src/effects',
-        '../src/gpu',
         '../src/images',
         '../src/image',
         '../src/pdf',

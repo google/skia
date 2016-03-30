@@ -395,36 +395,6 @@ void SkOSWindow::presentGL() {
 
 #if SK_ANGLE
 
-void* get_angle_egl_display(void* nativeDisplay) {
-    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT;
-    eglGetPlatformDisplayEXT =
-        (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
-
-    // We expect ANGLE to support this extension
-    if (!eglGetPlatformDisplayEXT) {
-        return EGL_NO_DISPLAY;
-    }
-
-    EGLDisplay display = EGL_NO_DISPLAY;
-    // Try for an ANGLE D3D11 context, fall back to D3D9, and finally GL.
-    EGLint attribs[3][3] = {
-        {
-            EGL_PLATFORM_ANGLE_TYPE_ANGLE,
-            EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
-            EGL_NONE
-        },
-        {
-            EGL_PLATFORM_ANGLE_TYPE_ANGLE,
-            EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE,
-            EGL_NONE
-        },
-    };
-    for (int i = 0; i < 3 && display == EGL_NO_DISPLAY; ++i) {
-        display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,nativeDisplay, attribs[i]);
-    }
-    return display;
-}
-
 bool create_ANGLE(EGLNativeWindowType hWnd,
                   int msaaSampleCount,
                   EGLDisplay* eglDisplay,
@@ -448,7 +418,7 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
         EGL_NONE, EGL_NONE
     };
 
-    EGLDisplay display = get_angle_egl_display(GetDC(hWnd), false);
+    EGLDisplay display = SkANGLEGLContext::GetD3DEGLDisplay(GetDC(hWnd), false);
 
     if (EGL_NO_DISPLAY == display) {
         SkDebugf("Could not create ANGLE egl display!\n");

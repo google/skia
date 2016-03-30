@@ -29,8 +29,8 @@ struct Config {
     SkColorProfileType profile;
     int samples;
 #if SK_SUPPORT_GPU
-    sk_gpu_test::GrContextFactory::GLContextType ctxType;
-    sk_gpu_test::GrContextFactory::GLContextOptions ctxOptions;
+    GrContextFactory::GLContextType ctxType;
+    GrContextFactory::GLContextOptions ctxOptions;
     bool useDFText;
 #else
     int bogusInt;

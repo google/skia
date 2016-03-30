@@ -9,8 +9,6 @@
 #include "Test.h"
 #include <initializer_list>
 
-using sk_gpu_test::GrContextFactory;
-
 namespace {
 // The code
 //   SkCommandLineFlags::StringArray FLAGS_config1 = make_string_array({"a", "b"})

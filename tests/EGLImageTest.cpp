@@ -11,11 +11,9 @@
 #include "GrContextFactory.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
-#include "gl/GLContext.h"
+#include "gl/SkGLContext.h"
 
-using sk_gpu_test::GLContext;
-
-static void cleanup(GLContext* glctx0, GrGLuint texID0, GLContext* glctx1, GrContext* grctx1,
+static void cleanup(SkGLContext* glctx0, GrGLuint texID0, SkGLContext* glctx1, GrContext* grctx1,
                     const GrGLTextureInfo* grbackendtex1, GrEGLImage image1) {
     if (glctx1) {
         glctx1->makeCurrent();
@@ -93,7 +91,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EGLImageTest, reporter, context0, glCtx0) {
         return;
     }
 
-    SkAutoTDelete<GLContext> glCtx1 = glCtx0->createNew();
+    SkAutoTDelete<SkGLContext> glCtx1 = glCtx0->createNew();
     if (!glCtx1) {
         return;
     }

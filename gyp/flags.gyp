@@ -24,14 +24,7 @@
         'include_dirs': [
           '../tools/flags',
         ],
-      },
-      'conditions': [
-        ['skia_gpu', {
-          'dependencies': [
-            'gputest.gyp:skgputest',
-          ],
-        }],
-      ],
+      }
     },
     {
       'target_name': 'flags_common',

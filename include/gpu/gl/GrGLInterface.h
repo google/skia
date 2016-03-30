@@ -43,17 +43,38 @@ const GrGLInterface* GrGLDefaultInterface();
  */
 SK_API const GrGLInterface* GrGLCreateNativeInterface();
 
-#if GR_GL_PER_GL_FUNC_CALLBACK
-typedef void (*GrGLInterfaceCallbackProc)(const GrGLInterface*);
-typedef intptr_t GrGLInterfaceCallbackData;
+#if SK_MESA
+/**
+ * Creates a GrGLInterface for an OSMesa context.
+ */
+SK_API const GrGLInterface* GrGLCreateMesaInterface();
+#endif
+
+#if SK_ANGLE
+/**
+ * Creates a GrGLInterface for an ANGLE context.
+ */
+SK_API const GrGLInterface* GrGLCreateANGLEInterface();
+#endif
+
+#if SK_COMMAND_BUFFER
+/**
+ * Creates a GrGLInterface for a Command Buffer context.
+ */
+SK_API const GrGLInterface* GrGLCreateCommandBufferInterface();
 #endif
 
 /**
  * Creates a null GrGLInterface that doesn't draw anything. Used for measuring
- * CPU overhead. TODO: We would like to move this to tools/gpu/gl/null but currently
- * Chromium is using it in its unit tests.
+ * CPU overhead.
  */
 const SK_API GrGLInterface* GrGLCreateNullInterface();
+
+/**
+ * Creates a debugging GrGLInterface that doesn't draw anything. Used for
+ * finding memory leaks and invalid memory accesses.
+ */
+const GrGLInterface* GrGLCreateDebugInterface();
 
 /** Function that returns a new interface identical to "interface" but without support for
     GL_NV_path_rendering. */

@@ -10,8 +10,6 @@
 #include "SkPictureRecorder.h"
 #include "SkPixelSerializer.h"
 
-using namespace sk_gpu_test;
-
 static int kDefaultWidth = 1920;
 static int kDefaultHeight = 1080;
 
@@ -65,8 +63,8 @@ SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
 SkCanvas* Request::getCanvas() {
 #if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
-    GLContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
-                                            GrContextFactory::kNone_GLContextOptions).fGLContext;
+    SkGLContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
+                                              GrContextFactory::kNone_GLContextOptions).fGLContext;
     gl->makeCurrent();
 #endif
     SkASSERT(fDebugCanvas);

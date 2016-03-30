@@ -8,9 +8,9 @@
 #include "Test.h"
 #if SK_SUPPORT_GPU
 #include "gl/GrGLGpu.h"
-#include "gl/GLContext.h"
 #include "GrContext.h"
 #include "SkSurface_Gpu.h"
+#include "../include/gpu/gl/SkGLContext.h"
 #include "../include/gpu/GrTypes.h"
 #include "../include/private/SkTemplates.h"
 

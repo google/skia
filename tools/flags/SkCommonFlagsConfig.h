@@ -50,7 +50,7 @@ class SkCommandLineConfig {
 // * backends that represent a shorthand of above (such as "msaa16" representing "gpu(samples=16)")
 class SkCommandLineConfigGpu : public SkCommandLineConfig {
   public:
-    typedef sk_gpu_test::GrContextFactory::GLContextType ContextType;
+    typedef GrContextFactory::GLContextType ContextType;
     SkCommandLineConfigGpu(const SkString& tag, const SkTArray<SkString>& viaParts,
                            ContextType contextType, bool useNVPR, bool useDIText, int samples,
                            SkColorType colorType, SkColorProfileType profileType);
