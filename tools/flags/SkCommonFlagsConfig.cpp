@@ -23,8 +23,8 @@ static const char defaultConfigs[] =
 
 static const char configHelp[] =
     "Options: 565 8888 debug gpu gpudebug gpudft gpunull "
-    "msaa16 msaa4 gpuf16 gpusrgb nonrendering null nullgpu nvprmsaa16 nvprmsaa4 "
-    "pdf pdf_poppler skp svg xps"
+    "msaa16 msaa4 gpuf16 gpusrgb nonrendering null nullgpu "
+    "nvpr16 nvpr4 nvprdit16 nvprdit4 pdf pdf_poppler skp svg xps"
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     " angle"
@@ -82,11 +82,13 @@ static const char configExtendedHelp[] =
     "\t    Use multisampling with N samples.\n"
     "\n"
     "Predefined configs:\n\n"
-    "\tgpu      \t= gpu()\n"
-    "\tmsaa4    \t= gpu(samples=4)\n"
-    "\tmsaa16   \t= gpu(samples=16)\n"
-    "\tnvprmsaa4\t= gpu(nvpr=true,samples=4)\n"
-    "\tnvprmsaa16\t= gpu(nvpr=true,samples=16)\n"
+    "\tgpu       \t= gpu()\n"
+    "\tmsaa4     \t= gpu(samples=4)\n"
+    "\tmsaa16    \t= gpu(samples=16)\n"
+    "\tnvpr4     \t= gpu(nvpr=true,samples=4)\n"
+    "\tnvpr16    \t= gpu(nvpr=true,samples=16)\n"
+    "\tnvprdit4  \t= gpu(nvpr=true,samples=4,dit=true)\n"
+    "\tnvprdit16 \t= gpu(nvpr=true,samples=16,dit=true)\n"
     "\tgpuf16    \t= gpu(color=f16)\n"
     "\tgpusrgb   \t= gpu(color=srgb)\n"
     "\tgpudft    \t= gpu(dit=true)\n"
@@ -120,8 +122,10 @@ static const struct {
     { "gpu",        "gpu", "" },
     { "msaa4",      "gpu", "samples=4" },
     { "msaa16",     "gpu", "samples=16" },
-    { "nvprmsaa4",  "gpu", "nvpr=true,samples=4,dit=true" },
-    { "nvprmsaa16", "gpu", "nvpr=true,samples=16,dit=true" },
+    { "nvpr4",      "gpu", "nvpr=true,samples=4" },
+    { "nvpr16",     "gpu", "nvpr=true,samples=16" },
+    { "nvprdit4",   "gpu", "nvpr=true,samples=4,dit=true" },
+    { "nvprdit16",  "gpu", "nvpr=true,samples=16,dit=true" },
     { "gpuf16",     "gpu", "color=f16" },
     { "gpusrgb",    "gpu", "color=srgb" },
     { "gpudft",     "gpu", "dit=true" },

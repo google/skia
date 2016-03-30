@@ -67,8 +67,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
-        "nonrendering", "null", "nullgpu", "nvprmsaa16", "nvprmsaa4", "pdf", "pdf_poppler",
-        "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
+        "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf",
+        "pdf_poppler", "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
         "gpuf16", "gpusrgb"
     });
 
@@ -95,44 +95,50 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[11]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[12]->asConfigGpu()->getSamples() == 16);
     REPORTER_ASSERT(reporter, configs[12]->asConfigGpu()->getUseNVPR());
-    REPORTER_ASSERT(reporter, configs[12]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, !configs[12]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getSamples() == 4);
     REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getUseNVPR());
-    REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, !configs[14]->asConfigGpu());
-    REPORTER_ASSERT(reporter, !configs[15]->asConfigGpu());
+    REPORTER_ASSERT(reporter, !configs[13]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, configs[14]->asConfigGpu()->getSamples() == 16);
+    REPORTER_ASSERT(reporter, configs[14]->asConfigGpu()->getUseNVPR());
+    REPORTER_ASSERT(reporter, configs[14]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, configs[15]->asConfigGpu()->getSamples() == 4);
+    REPORTER_ASSERT(reporter, configs[15]->asConfigGpu()->getUseNVPR());
+    REPORTER_ASSERT(reporter, configs[15]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, !configs[16]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[17]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[18]->asConfigGpu());
-    REPORTER_ASSERT(reporter, !configs[23]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[24]->asConfigGpu()->getColorType()
+    REPORTER_ASSERT(reporter, !configs[19]->asConfigGpu());
+    REPORTER_ASSERT(reporter, !configs[20]->asConfigGpu());
+    REPORTER_ASSERT(reporter, !configs[25]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType()
                     == kRGBA_F16_SkColorType);
-    REPORTER_ASSERT(reporter, configs[24]->asConfigGpu()->getProfileType()
+    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getProfileType()
                     == kLinear_SkColorProfileType);
-    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorType()
+    REPORTER_ASSERT(reporter, configs[27]->asConfigGpu()->getColorType()
                     == kN32_SkColorType);
-    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getProfileType()
+    REPORTER_ASSERT(reporter, configs[27]->asConfigGpu()->getProfileType()
                     == kSRGB_SkColorProfileType);
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
-    REPORTER_ASSERT(reporter, configs[19]->asConfigGpu());
-#else
-    REPORTER_ASSERT(reporter, !configs[19]->asConfigGpu());
-#endif
-    REPORTER_ASSERT(reporter, configs[20]->asConfigGpu());
-#else
-    REPORTER_ASSERT(reporter, !configs[19]->asConfigGpu());
-    REPORTER_ASSERT(reporter, !configs[20]->asConfigGpu());
-#endif
-#if SK_COMMAND_BUFFER
     REPORTER_ASSERT(reporter, configs[21]->asConfigGpu());
 #else
     REPORTER_ASSERT(reporter, !configs[21]->asConfigGpu());
 #endif
-#if SK_MESA
     REPORTER_ASSERT(reporter, configs[22]->asConfigGpu());
 #else
+    REPORTER_ASSERT(reporter, !configs[21]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[22]->asConfigGpu());
+#endif
+#if SK_COMMAND_BUFFER
+    REPORTER_ASSERT(reporter, configs[23]->asConfigGpu());
+#else
+    REPORTER_ASSERT(reporter, !configs[23]->asConfigGpu());
+#endif
+#if SK_MESA
+    REPORTER_ASSERT(reporter, configs[24]->asConfigGpu());
+#else
+    REPORTER_ASSERT(reporter, !configs[24]->asConfigGpu());
 #endif
 #endif
 }

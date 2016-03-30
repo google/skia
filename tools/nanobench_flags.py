@@ -49,9 +49,9 @@ def get_args(bot):
     if ('GalaxyS4'    not in bot and
         'NexusPlayer' not in bot):
       if 'Android' in bot:
-        config.extend(['msaa4', 'nvprmsaa4'])
+        config.extend(['msaa4', 'nvpr4', 'nvprdit4'])
       else:
-        config.extend(['msaa16', 'nvprmsaa16'])
+        config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
     args.append('--config')
     args.extend(config)
 

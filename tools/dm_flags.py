@@ -46,9 +46,9 @@ def get_args(bot):
         'GTX660'   in bot or
         'GT610'    in bot):
       if 'Android' in bot:
-        configs.append('nvprmsaa4')
+        configs.append('nvprdit4')
       else:
-        configs.append('nvprmsaa16')
+        configs.append('nvprdit16')
 
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.  The Tegra2 and Tegra3 just don't support it.
