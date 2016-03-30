@@ -53,6 +53,10 @@ void GrVkPipelineStateBuilder::finalizeFragmentOutputColor(GrGLSLShaderVar& outp
     outputColor.setLayoutQualifier("location = 0");
 }
 
+void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrGLSLShaderVar& outputColor) {
+    outputColor.setLayoutQualifier("location = 1");
+}
+
 VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
     VkShaderStageFlags flags = 0;
 

@@ -62,7 +62,9 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initStencilFormats(vkInterface, physDev);
 
     if (SkToBool(extensionFlags & kNV_glsl_shader_GrVkExtensionFlag)) {
-        fCanUseGLSLForShaderModule = true;
+        // Currently disabling this feature since it does not play well with validation layers which
+        // expect a SPIR-V shader
+        // fCanUseGLSLForShaderModule = true;
     }
 
     this->applyOptionsOverrides(contextOptions);
@@ -147,10 +149,9 @@ void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,
 
     glslCaps->fShaderDerivativeSupport = true;
     glslCaps->fGeometryShaderSupport = SkToBool(featureFlags & kGeometryShader_GrVkFeatureFlag);
-#if 0
-    // For now disabling dual source blending till we get it hooked up in the rest of system
+
     glslCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
-#endif
+
     glslCaps->fIntegerSupport = true;
 
     glslCaps->fMaxVertexSamplers =
