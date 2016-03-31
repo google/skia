@@ -47,7 +47,7 @@ public:
     LCGRandom(uint32_t seed) : fSeed(seed) {}
 
     /** Return the next pseudo random number expressed as a SkScalar
-        in the range (-SK_Scalar1..SK_Scalar1).
+        in the range [-SK_Scalar1..SK_Scalar1).
     */
     SkScalar nextSScalar1() { return SkFixedToScalar(this->nextSFixed1()); }
 
@@ -61,7 +61,7 @@ private:
     int32_t nextS() { return (int32_t)this->nextU(); }
 
     /** Return the next pseudo random number expressed as a signed SkFixed
-     in the range (-SK_Fixed1..SK_Fixed1).
+     in the range [-SK_Fixed1..SK_Fixed1).
      */
     SkFixed nextSFixed1() { return this->nextS() >> 15; }
 

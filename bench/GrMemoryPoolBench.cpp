@@ -50,9 +50,9 @@ protected:
         };
         A* objects[kMaxObjects];
 
-        // We delete if a random [-1, 1] fixed pt is < the thresh. Otherwise,
+        // We delete if a random number [-1, 1] is < the thresh. Otherwise,
         // we allocate. We start allocate-biased and ping-pong to delete-biased
-        SkFixed delThresh = -SK_FixedHalf;
+        SkScalar delThresh = -SK_ScalarHalf;
         const int kSwitchThreshPeriod = loops / (2 * kMaxObjects);
         int s = 0;
 
@@ -62,7 +62,7 @@ protected:
                 delThresh = -delThresh;
                 s = 0;
             }
-            SkFixed del = r.nextSFixed1();
+            SkScalar del = r.nextSScalar1();
             if (count &&
                 (kMaxObjects == count || del < delThresh)) {
                 delete objects[count-1];
