@@ -199,20 +199,8 @@ public:
      *  were created/written by the writer. SkPicture uses this.
      */
     void setFactoryPlayback(SkFlattenable::Factory array[], int count) {
-        fFactoryTDArray = nullptr;
         fFactoryArray = array;
         fFactoryCount = count;
-    }
-
-    /**
-     *  Call this with an initially empty array, so the reader can cache each
-     *  factory it sees by name. Used by the pipe code in conjunction with
-     *  SkWriteBuffer::setNamedFactoryRecorder.
-     */
-    void setFactoryArray(SkTDArray<SkFlattenable::Factory>* array) {
-        fFactoryTDArray = array;
-        fFactoryArray = nullptr;
-        fFactoryCount = 0;
     }
 
     /**
@@ -244,7 +232,6 @@ private:
     SkTypeface** fTFArray;
     int        fTFCount;
 
-    SkTDArray<SkFlattenable::Factory>* fFactoryTDArray;
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
 
