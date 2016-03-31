@@ -64,21 +64,13 @@ bool SkXfermodeImageFilter::onFilterImageDeprecated(Proxy* proxy,
         foreground.reset();
     }
 
-    SkIRect bounds, foregroundBounds;
-    SkIRect foregroundSrcBounds = foreground.bounds();
-    foregroundSrcBounds.offset(foregroundOffset);
-    if (!applyCropRect(ctx, foregroundSrcBounds, &foregroundBounds)) {
-        foregroundBounds.setEmpty();
-        foreground.reset();
-    }
-    SkIRect backgroundSrcBounds = background.bounds();
-    backgroundSrcBounds.offset(backgroundOffset);
-    if (!applyCropRect(ctx, backgroundSrcBounds, &bounds)) {
-        bounds.setEmpty();
-        background.reset();
-    }
-    bounds.join(foregroundBounds);
-    if (bounds.isEmpty()) {
+    SkIRect foregroundBounds = foreground.bounds();
+    foregroundBounds.offset(foregroundOffset);
+    SkIRect srcBounds = background.bounds();
+    srcBounds.offset(backgroundOffset);
+    srcBounds.join(foregroundBounds);
+    SkIRect bounds;
+    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
         return false;
     }
 

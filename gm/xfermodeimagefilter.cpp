@@ -183,6 +183,18 @@ protected:
             x = 0;
             y += fBitmap.height() + MARGIN;
         }
+        // Test small fg, large bg with SrcIn with a crop that forces it to full size.
+        // This tests that SkXfermodeImageFilter correctly applies the compositing mode to
+        // the region outside the foreground.
+        mode = SkXfermode::Make(SkXfermode::kSrcIn_Mode);
+        SkImageFilter::CropRect cropRectFull(SkRect::MakeXYWH(0, 0, 80, 80));
+        paint.setImageFilter(SkXfermodeImageFilter::Make(mode, background, cropped, &cropRectFull));
+        DrawClippedPaint(canvas, clipRect, paint, x, y);
+        x += fBitmap.width() + MARGIN;
+        if (x + fBitmap.width() > WIDTH) {
+            x = 0;
+            y += fBitmap.height() + MARGIN;
+        }
     }
 
 private:
