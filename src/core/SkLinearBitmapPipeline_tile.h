@@ -234,6 +234,79 @@ private:
     const Sk4s     fXsInvMax;
 };
 
+class XRepeatUnitScaleStrategy {
+public:
+    XRepeatUnitScaleStrategy(int32_t max)
+        : fXMax{SkScalar(max)}
+        , fXsMax{SkScalar(max)}
+        , fXsCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
+        , fXsInvMax{1.0f / SkScalar(max)} { }
+
+    void tileXPoints(Sk4s* xs) {
+        Sk4s divX = *xs * fXsInvMax;
+        Sk4s modX = *xs - divX.floor() * fXsMax;
+        *xs = Sk4s::Min(fXsCap, modX);
+        SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXMax);
+        SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXMax);
+        SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXMax);
+        SkASSERT(0 <= (*xs)[3] && (*xs)[3] < fXMax);
+    }
+
+    template<typename Next>
+    bool maybeProcessSpan(Span originalSpan, Next* next) {
+        SkASSERT(!originalSpan.isEmpty());
+        SkPoint start; SkScalar length; int count;
+        std::tie(start, length, count) = originalSpan;
+        // Make x and y in range on the tile.
+        SkScalar x = tile_mod(X(start), fXMax);
+        SkScalar y = Y(start);
+
+        // No need trying to go fast because the steps are larger than a tile or there is one point.
+        if (fXMax == 1 || count <= 1) {
+            return false;
+        }
+
+        // x should be on the tile.
+        SkASSERT(0.0f <= x && x < fXMax);
+        Span span({x, y}, length, count);
+
+        if (SkScalarFloorToScalar(x) != 0.0f) {
+            Span toDraw = span.breakAt(fXMax, 1.0f);
+            next->pointSpan(toDraw);
+            span.offset(-fXMax);
+        }
+
+        // All of the span could have been on the first tile. If so, then no work to do.
+        if (span.isEmpty()) return true;
+
+        // At this point the span should be aligned to zero.
+        SkASSERT(SkScalarFloorToScalar(span.startX()) == 0.0f);
+
+        SkScalar div = span.length() / fXMax;
+        int32_t repeatCount = SkScalarFloorToInt(div);
+        Span repeatableSpan{{0.0f, y}, fXMax - 1.0f, SkScalarFloorToInt(fXMax)};
+
+        // Repeat the center section.
+        next->repeatSpan(repeatableSpan, repeatCount);
+
+        // There may be some of the span left over.
+        span.breakAt(SkScalar(repeatCount) * fXMax, 1.0f);
+
+        // All on a single tile.
+        if (!span.isEmpty()) {
+            next->pointSpan(span);
+        }
+
+        return true;
+    }
+
+private:
+    const SkScalar fXMax;
+    const Sk4s     fXsMax;
+    const Sk4s     fXsCap;
+    const Sk4s     fXsInvMax;
+};
+
 class YRepeatStrategy {
 public:
     YRepeatStrategy(int32_t max)

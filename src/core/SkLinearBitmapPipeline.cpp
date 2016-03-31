@@ -238,6 +238,12 @@ public:
             processor->breakIntoEdges(span);
         }
 
+        void repeatSpan(Span span, int32_t repeatCount) {
+            while (repeatCount --> 0) {
+                processor->pointSpan(span);
+            }
+        }
+
         BilerpTileStage* processor;
     };
 
@@ -364,13 +370,21 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_tiler(
     SkShader::TileMode xMode,
     SkShader::TileMode yMode,
     SkFilterQuality filterQuality,
-    SkLinearBitmapPipeline::TileStage* tileStage) {
+    SkScalar dx,
+    SkLinearBitmapPipeline::TileStage* tileStage)
+{
     switch (xMode) {
         case SkShader::kClamp_TileMode:
             choose_tiler_ymode<XClampStrategy>(yMode, filterQuality, dimensions, next, tileStage);
             break;
         case SkShader::kRepeat_TileMode:
-            choose_tiler_ymode<XRepeatStrategy>(yMode, filterQuality, dimensions, next, tileStage);
+            if (dx == 1.0f && filterQuality == kNone_SkFilterQuality) {
+                choose_tiler_ymode<XRepeatUnitScaleStrategy>(
+                    yMode, kNone_SkFilterQuality, dimensions, next, tileStage);
+            } else {
+                choose_tiler_ymode<XRepeatStrategy>(
+                    yMode, filterQuality, dimensions, next, tileStage);
+            }
             break;
         case SkShader::kMirror_TileMode:
             choose_tiler_ymode<XMirrorStrategy>(yMode, filterQuality, dimensions, next, tileStage);
@@ -588,6 +602,8 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
         }
     }
 
+    SkScalar dx = adjustedInverse.getScaleX();
+
     // If it is an index 8 color type, the sampler converts to unpremul for better fidelity.
     SkAlphaType alphaType = srcImageInfo.alphaType();
     if (srcPixmap.colorType() == kIndex_8_SkColorType) {
@@ -600,7 +616,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     auto samplerStage   = choose_pixel_sampler(placementStage,
                                                filterQuality, srcPixmap, &fSampleStage);
     auto tilerStage     = choose_tiler(samplerStage,
-                                       dimensions, xTile, yTile, filterQuality, &fTiler);
+                                       dimensions, xTile, yTile, filterQuality, dx, &fTiler);
     fFirstStage         = choose_matrix(tilerStage, adjustedInverse, &fMatrixStage);
 }
 
