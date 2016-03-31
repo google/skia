@@ -320,7 +320,6 @@ static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
     return Op(clipPath, invPath, kIntersect_SkPathOp, outPath);
 }
 
-#ifdef SK_PDF_USE_PATHOPS_CLIPPING
 // Sanity check the numerical values of the SkRegion ops and PathOps ops
 // enums so region_op_to_pathops_op can do a straight passthrough cast.
 // If these are failing, it may be necessary to make region_op_to_pathops_op
@@ -387,7 +386,6 @@ static bool get_clip_stack_path(const SkMatrix& transform,
     }
     return true;
 }
-#endif
 
 // TODO(vandebo): Take advantage of SkClipStack::getSaveCount(), the PDF
 // graphic state stack, and the fact that we can know all the clips used
@@ -413,13 +411,12 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     SkMatrix transform;
     transform.setTranslate(translation.fX, translation.fY);
 
-#ifdef SK_PDF_USE_PATHOPS_CLIPPING
     SkPath clipPath;
     if (get_clip_stack_path(transform, clipStack, clipRegion, &clipPath)) {
         emit_clip(&clipPath, nullptr, fContentStream);
         return;
     }
-#endif
+
     // gsState->initialEntry()->fClipStack/Region specifies the clip that has
     // already been applied.  (If this is a top level device, then it specifies
     // a clip to the content area.  If this is a layer, then it specifies

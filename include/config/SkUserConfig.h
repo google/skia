@@ -93,11 +93,6 @@
  */
 //#define SK_DEFAULT_IMAGE_CACHE_LIMIT (1024 * 1024)
 
-/*  Define this to allow PDF scalars above 32k.  The PDF/A spec doesn't allow
-    them, but modern PDF interpreters should handle them just fine.
- */
-//#define SK_ALLOW_LARGE_PDF_SCALARS
-
 /*  Define this to provide font subsetter in PDF generation.
  */
 //#define SK_SFNTLY_SUBSETTER "sfntly/subsetter/font_subsetter.h"
@@ -135,16 +130,6 @@
    backend. Defaults to 1 (build the GPU code).
  */
 //#define SK_SUPPORT_GPU 1
-
-
-/* The PDF generation code uses Path Ops to handle complex clipping paths,
- * but at this time, Path Ops is not release ready yet. So, the code is
- * hidden behind this #define guard. If you are feeling adventurous and
- * want the latest and greatest PDF generation code, uncomment the #define.
- * When Path Ops is release ready, the define guards and this user config
- * define should be removed entirely.
- */
-//#define SK_PDF_USE_PATHOPS_CLIPPING
 
 /* Skia makes use of histogram logging macros to trace the frequency of
  * events. By default, Skia provides no-op versions of these macros.
