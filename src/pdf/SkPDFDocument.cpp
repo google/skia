@@ -28,9 +28,16 @@ void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& objec
     fObjNumMap.addObjectRecursively(object.get(), fSubstituteMap);
 }
 
+#define SKPDF_MAGIC "\xD3\xEB\xE9\xE1"
+#ifndef SK_BUILD_FOR_WIN32
+static_assert((SKPDF_MAGIC[0] & 0x7F) == "Skia"[0], "");
+static_assert((SKPDF_MAGIC[1] & 0x7F) == "Skia"[1], "");
+static_assert((SKPDF_MAGIC[2] & 0x7F) == "Skia"[2], "");
+static_assert((SKPDF_MAGIC[3] & 0x7F) == "Skia"[3], "");
+#endif
 void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream, const SkPDFMetadata& md) {
     fBaseOffset = wStream->bytesWritten();
-    static const char kHeader[] = "%PDF-1.4\n%\xE1\xE9\xEB\xD3\n";
+    static const char kHeader[] = "%PDF-1.4\n%" SKPDF_MAGIC "\n";
     wStream->write(kHeader, strlen(kHeader));
     // The PDF spec recommends including a comment with four
     // bytes, all with their high bits set.  "\xD3\xEB\xE9\xE1" is
@@ -39,6 +46,7 @@ void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream, const SkPDFMetad
     this->addObjectRecursively(fInfoDict);
     this->serializeObjects(wStream);
 }
+#undef SKPDF_MAGIC
 
 // Serialize all objects in the fObjNumMap that have not yet been serialized;
 void SkPDFObjectSerializer::serializeObjects(SkWStream* wStream) {
