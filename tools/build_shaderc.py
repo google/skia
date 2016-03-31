@@ -64,7 +64,8 @@ def main():
 
   try:
     subprocess.check_call(['cmake', '-G', generator,
-        '-DSPIRV_SKIP_EXECUTABLES=ON', args.src_dir], cwd=args.output_dir)
+        '-DSPIRV_SKIP_EXECUTABLES=ON', '-DSHADERC_ENABLE_SHARED_CRT=ON',
+        args.src_dir], cwd=args.output_dir)
   except subprocess.CalledProcessError as error:
     sys.exit('Error (ret code: {code}) calling "{cmd}" in {dir}'.format(
         code = error.returncode, cmd = error.cmd, dir = args.src_dir))

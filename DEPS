@@ -52,10 +52,10 @@ deps = {
   "third_party/externals/mojo/public" : "https://chromium.googlesource.com/external/github.com/domokit/mojo_sdk@172be18ea745ab29aea132e6cb952e726dc32543",
   
   # shaderc for the vulkan backend
-  "third_party/externals/shaderc2" : "https://github.com/google/shaderc.git@f76848a36d539888828006b9b7c088b3f362b607",
-  "third_party/externals/shaderc2/third_party/googletest" : "https://github.com/google/googletest.git@ff07a5de0e81580547f1685e101194ed1a4fcd56",
-  "third_party/externals/shaderc2/third_party/glslang" : "https://github.com/bsalomon/glslang.git@5dc8a76265ee31733b5a765e034ad7f5097a3cbe",
-  "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@c31a31942b3697f2f71148555e5ffa298a572dbd",
+  "third_party/externals/shaderc2" : "https://github.com/google/shaderc.git@d63c5e070fa966a33e1d352b2272bd57e1e9da00",
+  "third_party/externals/shaderc2/third_party/googletest" : "https://github.com/google/googletest.git@d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0",
+  "third_party/externals/shaderc2/third_party/glslang" : "https://github.com/google/glslang.git@c3869fee412a90c4eadea0bf936ab2530d2dff51",
+  "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@6836e17f243eebfc4a2950faee49ed3a0015b20b",
 }
 
 deps_os = {
