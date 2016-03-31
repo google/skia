@@ -588,6 +588,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = png_static_neon;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -706,6 +707,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = png_static;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
@@ -804,6 +806,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = png_static_neon;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -849,6 +852,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = png_static_neon;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -938,6 +942,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = png_static_neon;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1039,6 +1044,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = png_static;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
@@ -1087,6 +1093,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = png_static;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
@@ -1186,6 +1193,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = png_static;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
