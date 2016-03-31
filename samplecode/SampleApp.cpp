@@ -471,6 +471,20 @@ static HintingState gHintingStates[] = {
     {SkPaint::kFull_Hinting, "Full", "Hf " },
 };
 
+struct PixelGeometryState {
+    SkPixelGeometry pixelGeometry;
+    const char* name;
+    const char* label;
+};
+static PixelGeometryState gPixelGeometryStates[] = {
+    {SkPixelGeometry::kUnknown_SkPixelGeometry, "Mixed", nullptr },
+    {SkPixelGeometry::kUnknown_SkPixelGeometry, "Flat",  "{Flat} "  },
+    {SkPixelGeometry::kRGB_H_SkPixelGeometry,   "RGB H", "{RGB H} " },
+    {SkPixelGeometry::kBGR_H_SkPixelGeometry,   "BGR H", "{BGR H} " },
+    {SkPixelGeometry::kRGB_V_SkPixelGeometry,   "RGB_V", "{RGB V} " },
+    {SkPixelGeometry::kBGR_V_SkPixelGeometry,   "BGR_V", "{BGR V} " },
+};
+
 struct FilterQualityState {
     SkFilterQuality fQuality;
     const char*     fName;
@@ -878,6 +892,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAAState = SkOSMenu::kMixedState;
     fSubpixelState = SkOSMenu::kMixedState;
     fHintingState = 0;
+    fPixelGeometryIndex = 0;
     fFilterQualityIndex = 0;
     fFlipAxis = 0;
 
@@ -937,6 +952,16 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                   gHintingStates[4].name,
                                   nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'h');
+
+    itemID = fAppMenu->appendList("Pixel Geometry", "Pixel Geometry", sinkID, fPixelGeometryIndex,
+                                  gPixelGeometryStates[0].name,
+                                  gPixelGeometryStates[1].name,
+                                  gPixelGeometryStates[2].name,
+                                  gPixelGeometryStates[3].name,
+                                  gPixelGeometryStates[4].name,
+                                  gPixelGeometryStates[5].name,
+                                  nullptr);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'P');
 
     itemID =fAppMenu->appendList("Tiling", "Tiling", sinkID, fTilingMode,
                                  gTilingInfo[kNo_Tiling].label,
@@ -1614,6 +1639,10 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->updateTitle();
         return true;
     }
+    if (SkOSMenu::FindListIndex(evt, "Pixel Geometry", &fPixelGeometryIndex)) {
+        this->setPixelGeometry(fPixelGeometryIndex);
+        return true;
+    }
     if (SkOSMenu::FindListIndex(evt, "Tiling", &fTilingMode)) {
         if (SampleView::IsSampleView(curr_view(this))) {
             ((SampleView*)curr_view(this))->onTileSizeChanged(this->tileSize());
@@ -1797,9 +1826,7 @@ void SampleWindow::setDeviceType(DeviceType type) {
         return;
 
     fDevManager->tearDownBackend(this);
-
     fDeviceType = type;
-
     fDevManager->setUpBackend(this, fMSAASampleCount);
 
     this->updateTitle();
@@ -1810,7 +1837,6 @@ void SampleWindow::setDeviceColorType(SkColorType ct, SkColorProfileType pt) {
     this->setColorType(ct, pt);
 
     fDevManager->tearDownBackend(this);
-
     fDevManager->setUpBackend(this, fMSAASampleCount);
 
     this->updateTitle();
@@ -1843,6 +1869,23 @@ void SampleWindow::toggleDistanceFieldFonts() {
     SkSurfaceProps props = this->getSurfaceProps();
     uint32_t flags = props.flags() ^ SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
     this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
+
+    this->updateTitle();
+    this->inval(nullptr);
+}
+
+void SampleWindow::setPixelGeometry(int pixelGeometryIndex) {
+    // reset backend
+    fDevManager->tearDownBackend(this);
+    fDevManager->setUpBackend(this, fMSAASampleCount);
+
+    const SkSurfaceProps& oldProps = this->getSurfaceProps();
+    SkSurfaceProps newProps(oldProps.flags(), SkSurfaceProps::kLegacyFontHost_InitType);
+    if (pixelGeometryIndex > 0) {
+        newProps = SkSurfaceProps(oldProps.flags(),
+                                  gPixelGeometryStates[pixelGeometryIndex].pixelGeometry);
+    }
+    this->setSurfaceProps(newProps);
 
     this->updateTitle();
     this->inval(nullptr);
@@ -2074,6 +2117,7 @@ void SampleWindow::updateTitle() {
     title.prepend(fFlipAxis & kFlipAxis_X ? "X " : nullptr);
     title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : nullptr);
     title.prepend(gHintingStates[fHintingState].label);
+    title.prepend(gPixelGeometryStates[fPixelGeometryIndex].label);
 
     if (fOffset.fX || fOffset.fY) {
         title.prependf("(%.2f, %.2f) ", SkScalarToFloat(fOffset.fX), SkScalarToFloat(fOffset.fY));
