@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/GLTestContext.h"
+#include "gl/GLContext.h"
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>
@@ -44,10 +44,10 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
     return 0;
 }
 
-class GLXGLTestContext : public sk_gpu_test::GLTestContext {
+class GLXGLContext : public sk_gpu_test::GLContext {
 public:
-    GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* shareList);
-    ~GLXGLTestContext() override;
+    GLXGLContext(GrGLStandard forcedGpuAPI, GLXGLContext* shareList);
+    ~GLXGLContext() override;
 
 private:
     void destroyGLContext();
@@ -62,7 +62,7 @@ private:
     GLXPixmap fGlxPixmap;
 };
 
-GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* shareContext)
+GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI, GLXGLContext* shareContext)
     : fContext(nullptr)
     , fDisplay(nullptr)
     , fPixmap(0)
@@ -288,12 +288,12 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
 }
 
 
-GLXGLTestContext::~GLXGLTestContext() {
+GLXGLContext::~GLXGLContext() {
     this->teardown();
     this->destroyGLContext();
 }
 
-void GLXGLTestContext::destroyGLContext() {
+void GLXGLContext::destroyGLContext() {
     if (fDisplay) {
         glXMakeCurrent(fDisplay, 0, 0);
 
@@ -317,27 +317,26 @@ void GLXGLTestContext::destroyGLContext() {
     }
 }
 
-void GLXGLTestContext::onPlatformMakeCurrent() const {
+void GLXGLContext::onPlatformMakeCurrent() const {
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void GLXGLTestContext::onPlatformSwapBuffers() const {
+void GLXGLContext::onPlatformSwapBuffers() const {
     glXSwapBuffers(fDisplay, fGlxPixmap);
 }
 
-GrGLFuncPtr GLXGLTestContext::onPlatformGetProcAddress(const char* procName) const {
+GrGLFuncPtr GLXGLContext::onPlatformGetProcAddress(const char* procName) const {
     return glXGetProcAddress(reinterpret_cast<const GLubyte*>(procName));
 }
 
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
-                                           GLTestContext *shareContext) {
-    GLXGLTestContext *glxShareContext = reinterpret_cast<GLXGLTestContext *>(shareContext);
-    GLXGLTestContext *ctx = new GLXGLTestContext(forcedGpuAPI, glxShareContext);
+GLContext *CreatePlatformGLContext(GrGLStandard forcedGpuAPI, GLContext *shareContext) {
+    GLXGLContext *glxShareContext = reinterpret_cast<GLXGLContext *>(shareContext);
+    GLXGLContext *ctx = new GLXGLContext(forcedGpuAPI, glxShareContext);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;

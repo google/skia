@@ -218,10 +218,10 @@ struct GPUTarget {
         return true;
     }
 
-    GLTestContext* gl() { return fGL; }
+    GLContext* gl() { return fGL; }
 
 private:
-    GLTestContext* fGL;
+    GLContext* fGL;
     SkAutoTDelete<SkSurface> fSurface;
 };
 
@@ -282,7 +282,7 @@ static int clamp_loops(int loops) {
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 struct TimingThread {
-    TimingThread(GLTestContext* mainContext)
+    TimingThread(GLContext* mainContext)
         : fFenceSync(mainContext->fenceSync())
         ,  fMainContext(mainContext)
         ,  fDone(false) {}
@@ -308,8 +308,8 @@ struct TimingThread {
 
     void timingLoop() {
         // Create a context which shares display lists with the main thread
-        SkAutoTDelete<GLTestContext> glContext(CreatePlatformGLTestContext(kNone_GrGLStandard,
-                                                                           fMainContext));
+        SkAutoTDelete<GLContext> glContext(CreatePlatformGLContext(kNone_GrGLStandard,
+                                                                   fMainContext));
         glContext->makeCurrent();
 
         // Basic timing methodology is:
@@ -405,7 +405,7 @@ private:
     SyncQueue fFrameEndSyncs;
     SkTArray<double> fTimings;
     SkMutex fDoneMutex;
-    GLTestContext* fMainContext;
+    GLContext* fMainContext;
     bool fDone;
 };
 

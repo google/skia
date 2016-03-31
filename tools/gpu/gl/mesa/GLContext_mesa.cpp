@@ -8,7 +8,7 @@
 
 #include <GL/osmesa.h>
 
-#include "gl/mesa/GLTestContext_mesa.h"
+#include "gl/mesa/GLContext_mesa.h"
 #include "gl/GrGLDefines.h"
 
 #include "gl/GrGLAssembleInterface.h"
@@ -32,7 +32,7 @@ static const GrGLInterface* create_mesa_interface() {
 
 static const GrGLint gBOGUS_SIZE = 16;
 
-class MesaGLContext : public sk_gpu_test::GLTestContext {
+class MesaGLContext : public sk_gpu_test::GLContext {
 private:
     typedef intptr_t Context;
 
@@ -140,7 +140,7 @@ GrGLFuncPtr MesaGLContext::onPlatformGetProcAddress(const char *procName) const 
 
 
 namespace sk_gpu_test {
-GLTestContext *CreateMesaGLTestContext() {
+GLContext *CreateMesaGLContext() {
     MesaGLContext *ctx = new MesaGLContext;
     if (!ctx->isValid()) {
         delete ctx;

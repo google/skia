@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "GLTestContext.h"
+#include "GLContext.h"
 #import <OpenGLES/EAGL.h>
 #include <dlfcn.h>
 
@@ -14,10 +14,10 @@
 
 namespace {
 
-class IOSGLTestContext : public sk_gpu_test::GLTestContext {
+class IOSGLContext : public sk_gpu_test::GLContext {
 public:
-    IOSGLTestContext();
-    ~IOSGLTestContext() override;
+    IOSGLContext();
+    ~IOSGLContext() override;
 
 private:
     void destroyGLContext();
@@ -30,7 +30,7 @@ private:
     void* fGLLibrary;
 };
 
-IOSGLTestContext::IOSGLTestContext()
+IOSGLContext::IOSGLContext()
     : fEAGLContext(NULL)
     , fGLLibrary(RTLD_DEFAULT) {
 
@@ -56,12 +56,12 @@ IOSGLTestContext::IOSGLTestContext()
     this->init(gl.release());
 }
 
-IOSGLTestContext::~IOSGLTestContext() {
+IOSGLContext::~IOSGLContext() {
     this->teardown();
     this->destroyGLContext();
 }
 
-void IOSGLTestContext::destroyGLContext() {
+void IOSGLContext::destroyGLContext() {
     if (fEAGLContext) {
         if ([EAGLContext currentContext] == EAGLCTX) {
             [EAGLContext setCurrentContext:nil];
@@ -75,23 +75,22 @@ void IOSGLTestContext::destroyGLContext() {
 }
 
 
-void IOSGLTestContext::onPlatformMakeCurrent() const {
+void IOSGLContext::onPlatformMakeCurrent() const {
     if (![EAGLContext setCurrentContext:EAGLCTX]) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void IOSGLTestContext::onPlatformSwapBuffers() const { }
+void IOSGLContext::onPlatformSwapBuffers() const { }
 
-GrGLFuncPtr IOSGLTestContext::onPlatformGetProcAddress(const char* procName) const {
+GrGLFuncPtr IOSGLContext::onPlatformGetProcAddress(const char* procName) const {
     return reinterpret_cast<GrGLFuncPtr>(dlsym(fGLLibrary, procName));
 }
 
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
-                                           GLTestContext *shareContext) {
+GLContext *CreatePlatformGLContext(GrGLStandard forcedGpuAPI, GLContext *shareContext) {
     SkASSERT(!shareContext);
     if (shareContext) {
         return NULL;
@@ -99,7 +98,7 @@ GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
     if (kGL_GrGLStandard == forcedGpuAPI) {
         return NULL;
     }
-    IOSGLTestContext *ctx = new IOSGLTestContext;
+    IOSGLContext *ctx = new IOSGLContext;
     if (!ctx->isValid()) {
         delete ctx;
         return NULL;

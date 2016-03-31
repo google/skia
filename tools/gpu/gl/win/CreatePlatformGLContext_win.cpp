@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GLTestContext.h"
+#include "gl/GLContext.h"
 
 #include <windows.h>
 #include <GL/GL.h>
@@ -17,10 +17,10 @@
 
 namespace {
 
-class WinGLTestContext : public sk_gpu_test::GLTestContext {
+class WinGLContext : public sk_gpu_test::GLContext {
 public:
-    WinGLTestContext(GrGLStandard forcedGpuAPI);
-	~WinGLTestContext() override;
+    WinGLContext(GrGLStandard forcedGpuAPI);
+	~WinGLContext() override;
 
 private:
     void destroyGLContext();
@@ -36,9 +36,9 @@ private:
     SkWGLPbufferContext* fPbufferContext;
 };
 
-ATOM WinGLTestContext::gWC = 0;
+ATOM WinGLContext::gWC = 0;
 
-WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI)
+WinGLContext::WinGLContext(GrGLStandard forcedGpuAPI)
     : fWindow(nullptr)
     , fDeviceContext(nullptr)
     , fGlRenderContext(0)
@@ -130,12 +130,12 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI)
     this->init(gl.release());
 }
 
-WinGLTestContext::~WinGLTestContext() {
+WinGLContext::~WinGLContext() {
     this->teardown();
     this->destroyGLContext();
 }
 
-void WinGLTestContext::destroyGLContext() {
+void WinGLContext::destroyGLContext() {
     SkSafeSetNull(fPbufferContext);
     if (fGlRenderContext) {
         wglDeleteContext(fGlRenderContext);
@@ -151,7 +151,7 @@ void WinGLTestContext::destroyGLContext() {
     }
 }
 
-void WinGLTestContext::onPlatformMakeCurrent() const {
+void WinGLContext::onPlatformMakeCurrent() const {
     HDC dc;
     HGLRC glrc;
 
@@ -168,7 +168,7 @@ void WinGLTestContext::onPlatformMakeCurrent() const {
     }
 }
 
-void WinGLTestContext::onPlatformSwapBuffers() const {
+void WinGLContext::onPlatformSwapBuffers() const {
     HDC dc;
 
     if (nullptr == fPbufferContext) {
@@ -181,20 +181,19 @@ void WinGLTestContext::onPlatformSwapBuffers() const {
     }
 }
 
-GrGLFuncPtr WinGLTestContext::onPlatformGetProcAddress(const char* name) const {
+GrGLFuncPtr WinGLContext::onPlatformGetProcAddress(const char* name) const {
     return reinterpret_cast<GrGLFuncPtr>(wglGetProcAddress(name));
 }
 
 } // anonymous namespace
 
 namespace sk_gpu_test {
-GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
-                                           GLTestContext *shareContext) {
+GLContext* CreatePlatformGLContext(GrGLStandard forcedGpuAPI, GLContext *shareContext) {
     SkASSERT(!shareContext);
     if (shareContext) {
         return nullptr;
     }
-    WinGLTestContext *ctx = new WinGLTestContext(forcedGpuAPI);
+    WinGLContext *ctx = new WinGLContext(forcedGpuAPI);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;

@@ -16,7 +16,7 @@
 #include "SkSurface.h"
 #include "VisualFlags.h"
 #include "VisualModule.h"
-#include "gl/GLTestContext.h"
+#include "gl/GLContext.h"
 
 class GrContext;
 struct GrGLInterface;

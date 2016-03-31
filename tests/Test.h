@@ -13,7 +13,7 @@
 
 namespace sk_gpu_test {
 class GrContextFactory;
-class GLTestContext;
+class GLContext;
 }  // namespace sk_gpu_test
 class GrContext;
 
@@ -146,7 +146,7 @@ private:
 #define GPUTEST_SELECT(a1, a2, N, ...) N
 
 #define GPUTEST_CONTEXT_ARGS1(a1) GrContext* a1
-#define GPUTEST_CONTEXT_ARGS2(a1, a2) GrContext* a1, sk_gpu_test::GLTestContext* a2
+#define GPUTEST_CONTEXT_ARGS2(a1, a2) GrContext* a1, sk_gpu_test::GLContext* a2
 #define GPUTEST_CONTEXT_ARGS(...)                                                            \
     GPUTEST_APPLY(GPUTEST_SELECT(__VA_ARGS__, GPUTEST_CONTEXT_ARGS2, GPUTEST_CONTEXT_ARGS1), \
                   __VA_ARGS__)

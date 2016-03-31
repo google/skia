@@ -5,8 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GLTestContext_DEFINED
-#define GLTestContext_DEFINED
+#ifndef GLContext_DEFINED
+#define GLContext_DEFINED
 
 #include "gl/GrGLInterface.h"
 #include "../private/SkGpuFenceSync.h"
@@ -17,9 +17,9 @@ namespace sk_gpu_test {
  * Create an offscreen Oppengl context. Provides a GrGLInterface struct of function pointers for
  * the context. This class is intended for Skia's internal testing needs and not for general use.
  */
-class GLTestContext : public SkNoncopyable {
+class GLContext : public SkNoncopyable {
 public:
-    virtual ~GLTestContext();
+    virtual ~GLContext();
 
     bool isValid() const { return NULL != gl(); }
 
@@ -82,17 +82,17 @@ public:
      * Creates a new GL context of the same type and makes the returned context current
      * (if not null).
      */
-    virtual GLTestContext *createNew() const { return nullptr; }
+    virtual GLContext *createNew() const { return nullptr; }
 
     class GLFenceSync;  // SkGpuFenceSync implementation that uses the OpenGL functionality.
 
     /*
-     * returns the fencesync object owned by this GLTestContext
+     * returns the fencesync object owned by this GLContext
      */
     SkGpuFenceSync *fenceSync() { return fFenceSync.get(); }
 
 protected:
-    GLTestContext();
+    GLContext();
 
     /*
      * Methods that sublcasses must call from their constructors and destructors.
@@ -128,14 +128,14 @@ private:
 
 
 /** Creates platform-dependent GL context object.  The shareContext parameter is in an optional
- * context with which to share display lists. This should be a pointer to an GLTestContext created
- * with SkCreatePlatformGLTestContext.  NULL indicates that no sharing is to take place. Returns a valid
+ * context with which to share display lists. This should be a pointer to an GLContext created
+ * with SkCreatePlatformGLContext.  NULL indicates that no sharing is to take place. Returns a valid
  * gl context object or NULL if such can not be created.
  * Note: If Skia embedder needs a custom GL context that sets up the GL interface, this function
  * should be implemented by the embedder. Otherwise, the default implementation for the platform
  * should be compiled in the library.
  */
-GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI, GLTestContext *shareContext = nullptr);
+GLContext* CreatePlatformGLContext(GrGLStandard forcedGpuAPI, GLContext *shareContext = nullptr);
 
 }  // namespace sk_gpu_test
 #endif

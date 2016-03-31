@@ -1,17 +1,17 @@
 
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GLTestContext_mesa_DEFINED
-#define GLTestContext_mesa_DEFINED
+#ifndef DebugGLContext_DEFINED
+#define DebugGLContext_DEFINED
 
-#include "gl/GLTestContext.h"
+#include "gl/GLContext.h"
 
 namespace sk_gpu_test {
-GLTestContext* CreateMesaGLTestContext();
+GLContext* CreateDebugGLContext();
 }  // namespace sk_gpu_test
 
 #endif
