@@ -8,10 +8,10 @@
 #ifndef NullGLContext_DEFINED
 #define NullGLContext_DEFINED
 
-#include "gl/GLContext.h"
+#include "gl/GLTestContext.h"
 
 namespace sk_gpu_test {
-GLContext* CreateNullGLContext();
+GLTestContext* CreateNullGLTestContext();
 }  // namespace sk_gpu_test
 
 #endif

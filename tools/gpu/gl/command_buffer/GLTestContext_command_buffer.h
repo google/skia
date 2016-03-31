@@ -6,18 +6,18 @@
  * found in the LICENSE file.
  */
 
-#ifndef GLContext_command_buffer_DEFINED
-#define GLContext_command_buffer_DEFINED
+#ifndef GLTestContext_command_buffer_DEFINED
+#define GLTestContext_command_buffer_DEFINED
 
-#include "gl/GLContext.h"
+#include "gl/GLTestContext.h"
 
 namespace sk_gpu_test {
-class CommandBufferGLContext : public GLContext {
+class CommandBufferGLTestContext : public GLTestContext {
 public:
-    ~CommandBufferGLContext() override;
+    ~CommandBufferGLTestContext() override;
 
-    static CommandBufferGLContext *Create() {
-        CommandBufferGLContext *ctx = new CommandBufferGLContext;
+    static CommandBufferGLTestContext *Create() {
+        CommandBufferGLTestContext *ctx = new CommandBufferGLTestContext;
         if (!ctx->isValid()) {
             delete ctx;
             return nullptr;
@@ -25,8 +25,8 @@ public:
         return ctx;
     }
 
-    static CommandBufferGLContext *Create(void *nativeWindow, int msaaSampleCount) {
-        CommandBufferGLContext *ctx = new CommandBufferGLContext(nativeWindow, msaaSampleCount);
+    static CommandBufferGLTestContext *Create(void *nativeWindow, int msaaSampleCount) {
+        CommandBufferGLTestContext *ctx = new CommandBufferGLTestContext(nativeWindow, msaaSampleCount);
         if (!ctx->isValid()) {
             delete ctx;
             return nullptr;
@@ -43,9 +43,9 @@ public:
     int getSampleCount();
 
 private:
-    CommandBufferGLContext();
+    CommandBufferGLTestContext();
 
-    CommandBufferGLContext(void *nativeWindow, int msaaSampleCount);
+    CommandBufferGLTestContext(void *nativeWindow, int msaaSampleCount);
 
     void initializeGLContext(void *nativeWindow, const int *configAttribs,
                              const int *surfaceAttribs);

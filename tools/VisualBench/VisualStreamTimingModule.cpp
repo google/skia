@@ -23,7 +23,7 @@ inline void VisualStreamTimingModule::handleInitState(SkCanvas* canvas) {
             fBenchmarkStream->current()->delayedSetup();
             // fallthrough
         case kReset_InitState:
-            // This will flicker unfortunately, but as we are reseting the GLContext each bench,
+            // This will flicker unfortunately, but as we are reseting the GLTestContext each bench,
             // we unfortunately don't have a choice
             fOwner->clear(canvas, SK_ColorWHITE, 3);
             fBenchmarkStream->current()->preTimingHooks(canvas);

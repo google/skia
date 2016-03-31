@@ -9,7 +9,7 @@
 #include "SkOnce.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
-#include "gl/command_buffer/GLContext_command_buffer.h"
+#include "gl/command_buffer/GLTestContext_command_buffer.h"
 #include "../ports/SkOSEnvironment.h"
 #include "../ports/SkOSLibrary.h"
 
@@ -143,7 +143,7 @@ static const GrGLInterface* create_command_buffer_interface() {
 
 namespace sk_gpu_test {
 
-CommandBufferGLContext::CommandBufferGLContext()
+CommandBufferGLTestContext::CommandBufferGLTestContext()
     : fContext(EGL_NO_CONTEXT), fDisplay(EGL_NO_DISPLAY), fSurface(EGL_NO_SURFACE) {
 
     static const EGLint configAttribs[] = {
@@ -165,7 +165,7 @@ CommandBufferGLContext::CommandBufferGLContext()
     initializeGLContext(nullptr, configAttribs, surfaceAttribs);
 }
 
-CommandBufferGLContext::CommandBufferGLContext(void *nativeWindow, int msaaSampleCount) {
+CommandBufferGLTestContext::CommandBufferGLTestContext(void *nativeWindow, int msaaSampleCount) {
     static const EGLint surfaceAttribs[] = {EGL_NONE};
 
     EGLint configAttribs[] = {
@@ -186,7 +186,7 @@ CommandBufferGLContext::CommandBufferGLContext(void *nativeWindow, int msaaSampl
     initializeGLContext(nativeWindow, configAttribs, surfaceAttribs);
 }
 
-void CommandBufferGLContext::initializeGLContext(void *nativeWindow, const int *configAttribs,
+void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const int *configAttribs,
                                                  const int *surfaceAttribs) {
     load_command_buffer_once();
     if (!gfFunctionsLoadedSuccessfully) {
@@ -266,12 +266,12 @@ void CommandBufferGLContext::initializeGLContext(void *nativeWindow, const int *
     this->init(gl.release());
 }
 
-CommandBufferGLContext::~CommandBufferGLContext() {
+CommandBufferGLTestContext::~CommandBufferGLTestContext() {
     this->teardown();
     this->destroyGLContext();
 }
 
-void CommandBufferGLContext::destroyGLContext() {
+void CommandBufferGLTestContext::destroyGLContext() {
     if (!gfFunctionsLoadedSuccessfully) {
         return;
     }
@@ -293,7 +293,7 @@ void CommandBufferGLContext::destroyGLContext() {
     }
 }
 
-void CommandBufferGLContext::onPlatformMakeCurrent() const {
+void CommandBufferGLTestContext::onPlatformMakeCurrent() const {
     if (!gfFunctionsLoadedSuccessfully) {
         return;
     }
@@ -302,7 +302,7 @@ void CommandBufferGLContext::onPlatformMakeCurrent() const {
     }
 }
 
-void CommandBufferGLContext::onPlatformSwapBuffers() const {
+void CommandBufferGLTestContext::onPlatformSwapBuffers() const {
     if (!gfFunctionsLoadedSuccessfully) {
         return;
     }
@@ -311,14 +311,14 @@ void CommandBufferGLContext::onPlatformSwapBuffers() const {
     }
 }
 
-GrGLFuncPtr CommandBufferGLContext::onPlatformGetProcAddress(const char *name) const {
+GrGLFuncPtr CommandBufferGLTestContext::onPlatformGetProcAddress(const char *name) const {
     if (!gfFunctionsLoadedSuccessfully) {
         return nullptr;
     }
     return gfGetProcAddress(name);
 }
 
-void CommandBufferGLContext::presentCommandBuffer() {
+void CommandBufferGLTestContext::presentCommandBuffer() {
     if (this->gl()) {
         this->gl()->fFunctions.fFlush();
     }
@@ -326,17 +326,17 @@ void CommandBufferGLContext::presentCommandBuffer() {
     this->onPlatformSwapBuffers();
 }
 
-bool CommandBufferGLContext::makeCurrent() {
+bool CommandBufferGLTestContext::makeCurrent() {
     return gfMakeCurrent(fDisplay, fSurface, fSurface, fContext) != EGL_FALSE;
 }
 
-int CommandBufferGLContext::getStencilBits() {
+int CommandBufferGLTestContext::getStencilBits() {
     EGLint result = 0;
     gfGetConfigAttrib(fDisplay, static_cast<EGLConfig>(fConfig), EGL_STENCIL_SIZE, &result);
     return result;
 }
 
-int CommandBufferGLContext::getSampleCount() {
+int CommandBufferGLTestContext::getSampleCount() {
     EGLint result = 0;
     gfGetConfigAttrib(fDisplay, static_cast<EGLConfig>(fConfig), EGL_SAMPLES, &result);
     return result;

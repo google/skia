@@ -7,17 +7,17 @@
  */
 #include "SkTypes.h"
 
-#include "gl/GLContext.h"
+#include "gl/GLTestContext.h"
 #include "AvailabilityMacros.h"
 
 #include <OpenGL/OpenGL.h>
 #include <dlfcn.h>
 
 namespace {
-class MacGLContext : public sk_gpu_test::GLContext {
+class MacGLTestContext : public sk_gpu_test::GLTestContext {
 public:
-    MacGLContext();
-    ~MacGLContext() override;
+    MacGLTestContext();
+    ~MacGLTestContext() override;
 
 private:
     void destroyGLContext();
@@ -30,7 +30,7 @@ private:
     void* fGLLibrary;
 };
 
-MacGLContext::MacGLContext()
+MacGLTestContext::MacGLTestContext()
     : fContext(nullptr)
     , fGLLibrary(RTLD_DEFAULT) {
     CGLPixelFormatAttribute attributes[] = {
@@ -79,12 +79,12 @@ MacGLContext::MacGLContext()
     this->init(gl.release());
 }
 
-MacGLContext::~MacGLContext() {
+MacGLTestContext::~MacGLTestContext() {
     this->teardown();
     this->destroyGLContext();
 }
 
-void MacGLContext::destroyGLContext() {
+void MacGLTestContext::destroyGLContext() {
     if (fContext) {
         CGLReleaseContext(fContext);
         fContext = nullptr;
@@ -94,22 +94,23 @@ void MacGLContext::destroyGLContext() {
     }
 }
 
-void MacGLContext::onPlatformMakeCurrent() const {
+void MacGLTestContext::onPlatformMakeCurrent() const {
     CGLSetCurrentContext(fContext);
 }
 
-void MacGLContext::onPlatformSwapBuffers() const {
+void MacGLTestContext::onPlatformSwapBuffers() const {
     CGLFlushDrawable(fContext);
 }
 
-GrGLFuncPtr MacGLContext::onPlatformGetProcAddress(const char* procName) const {
+GrGLFuncPtr MacGLTestContext::onPlatformGetProcAddress(const char* procName) const {
     return reinterpret_cast<GrGLFuncPtr>(dlsym(fGLLibrary, procName));
 }
 
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-GLContext* CreatePlatformGLContext(GrGLStandard forcedGpuAPI, GLContext* shareContext) {
+GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
+                                           GLTestContext* shareContext) {
     SkASSERT(!shareContext);
     if (shareContext) {
         return nullptr;
@@ -118,7 +119,7 @@ GLContext* CreatePlatformGLContext(GrGLStandard forcedGpuAPI, GLContext* shareCo
     if (kGLES_GrGLStandard == forcedGpuAPI) {
         return nullptr;
     }
-    MacGLContext* ctx = new MacGLContext;
+    MacGLTestContext* ctx = new MacGLTestContext;
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;

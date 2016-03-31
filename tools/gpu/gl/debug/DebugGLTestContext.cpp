@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "DebugGLContext.h"
+#include "DebugGLTestContext.h"
 
 #include "GrBufferObj.h"
 #include "GrFrameBufferObj.h"
@@ -1229,7 +1229,7 @@ const char* DebugInterface::kExtensions[] = {
     nullptr, // signifies the end of the array.
 };
 
-class DebugGLContext : public sk_gpu_test::GLContext {
+class DebugGLContext : public sk_gpu_test::GLTestContext {
 public:
    DebugGLContext() {
        this->init(new DebugInterface());
@@ -1245,8 +1245,8 @@ private:
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-GLContext* CreateDebugGLContext() {
-    GLContext* ctx = new DebugGLContext();
+GLTestContext* CreateDebugGLTestContext() {
+    GLTestContext* ctx = new DebugGLContext();
     if (ctx->isValid()) {
         return ctx;
     }

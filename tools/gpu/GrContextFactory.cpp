@@ -7,19 +7,19 @@
  */
 
 #include "GrContextFactory.h"
-#include "gl/GLContext.h"
+#include "gl/GLTestContext.h"
 
 #if SK_ANGLE
-    #include "gl/angle/GLContext_angle.h"
+    #include "gl/angle/GLTestContext_angle.h"
 #endif
 #if SK_COMMAND_BUFFER
-    #include "gl/command_buffer/GLContext_command_buffer.h"
+    #include "gl/command_buffer/GLTestContext_command_buffer.h"
 #endif
-#include "gl/debug/DebugGLContext.h"
+#include "gl/debug/DebugGLTestContext.h"
 #if SK_MESA
-    #include "gl/mesa/GLContext_mesa.h"
+    #include "gl/mesa/GLTestContext_mesa.h"
 #endif
-#include "gl/null/NullGLContext.h"
+#include "gl/null/NullGLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "GrCaps.h"
 
@@ -73,43 +73,43 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
             return ContextInfo(context.fGrContext, context.fGLContext);
         }
     }
-    SkAutoTDelete<GLContext> glCtx;
+    SkAutoTDelete<GLTestContext> glCtx;
     SkAutoTUnref<GrContext> grCtx;
     switch (type) {
         case kNative_GLContextType:
-            glCtx.reset(CreatePlatformGLContext(kNone_GrGLStandard));
+            glCtx.reset(CreatePlatformGLTestContext(kNone_GrGLStandard));
             break;
         case kGL_GLContextType:
-            glCtx.reset(CreatePlatformGLContext(kGL_GrGLStandard));
+            glCtx.reset(CreatePlatformGLTestContext(kGL_GrGLStandard));
             break;
         case kGLES_GLContextType:
-            glCtx.reset(CreatePlatformGLContext(kGLES_GrGLStandard));
+            glCtx.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
             break;
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
         case kANGLE_GLContextType:
-            glCtx.reset(CreateANGLEDirect3DGLContext());
+            glCtx.reset(CreateANGLEDirect3DGLTestContext());
             break;
 #endif
         case kANGLE_GL_GLContextType:
-            glCtx.reset(CreateANGLEOpenGLGLContext());
+            glCtx.reset(CreateANGLEOpenGLGLTestContext());
             break;
 #endif
 #if SK_COMMAND_BUFFER
         case kCommandBuffer_GLContextType:
-            glCtx.reset(CommandBufferGLContext::Create());
+            glCtx.reset(CommandBufferGLTestContext::Create());
             break;
 #endif
 #if SK_MESA
         case kMESA_GLContextType:
-            glCtx.reset(CreateMesaGLContext());
+            glCtx.reset(CreateMesaGLTestContext());
             break;
 #endif
         case kNull_GLContextType:
-            glCtx.reset(CreateNullGLContext());
+            glCtx.reset(CreateNullGLTestContext());
             break;
         case kDebug_GLContextType:
-            glCtx.reset(CreateDebugGLContext());
+            glCtx.reset(CreateDebugGLTestContext());
             break;
     }
     if (nullptr == glCtx.get()) {

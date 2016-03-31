@@ -5,14 +5,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "GLContext.h"
+#include "GLTestContext.h"
 #include "gl/GrGLUtil.h"
 #include "SkGpuFenceSync.h"
 
 namespace sk_gpu_test {
-class GLContext::GLFenceSync : public SkGpuFenceSync {
+class GLTestContext::GLFenceSync : public SkGpuFenceSync {
 public:
-    static GLFenceSync* CreateIfSupported(const GLContext*);
+    static GLFenceSync* CreateIfSupported(const GLTestContext*);
 
     SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override;
     bool waitFence(SkPlatformGpuFence fence, bool flush) const override;
@@ -38,12 +38,12 @@ private:
     typedef SkGpuFenceSync INHERITED;
 };
 
-GLContext::GLContext()
+GLTestContext::GLTestContext()
     : fCurrentFenceIdx(0) {
     memset(fFrameFences, 0, sizeof(fFrameFences));
 }
 
-GLContext::~GLContext() {
+GLTestContext::~GLTestContext() {
     // Subclass should call teardown.
 #ifdef SK_DEBUG
     for (size_t i = 0; i < SK_ARRAY_COUNT(fFrameFences); i++) {
@@ -54,13 +54,13 @@ GLContext::~GLContext() {
     SkASSERT(nullptr == fFenceSync.get());
 }
 
-void GLContext::init(const GrGLInterface* gl, SkGpuFenceSync* fenceSync) {
+void GLTestContext::init(const GrGLInterface* gl, SkGpuFenceSync* fenceSync) {
     SkASSERT(!fGL.get());
     fGL.reset(gl);
     fFenceSync.reset(fenceSync ? fenceSync : GLFenceSync::CreateIfSupported(this));
 }
 
-void GLContext::teardown() {
+void GLTestContext::teardown() {
     if (fFenceSync) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fFrameFences); i++) {
             if (fFrameFences[i]) {
@@ -74,15 +74,15 @@ void GLContext::teardown() {
     fGL.reset(nullptr);
 }
 
-void GLContext::makeCurrent() const {
+void GLTestContext::makeCurrent() const {
     this->onPlatformMakeCurrent();
 }
 
-void GLContext::swapBuffers() {
+void GLTestContext::swapBuffers() {
     this->onPlatformSwapBuffers();
 }
 
-void GLContext::waitOnSyncOrSwap() {
+void GLTestContext::waitOnSyncOrSwap() {
     if (!fFenceSync) {
         // Fallback on the platform SwapBuffers method for synchronization. This may have no effect.
         this->swapBuffers();
@@ -100,7 +100,7 @@ void GLContext::waitOnSyncOrSwap() {
     fCurrentFenceIdx = (fCurrentFenceIdx + 1) % SK_ARRAY_COUNT(fFrameFences);
 }
 
-void GLContext::testAbandon() {
+void GLTestContext::testAbandon() {
     if (fGL) {
         fGL->abandon();
     }
@@ -109,7 +109,7 @@ void GLContext::testAbandon() {
     }
 }
 
-GLContext::GLFenceSync* GLContext::GLFenceSync::CreateIfSupported(const GLContext* ctx) {
+GLTestContext::GLFenceSync* GLTestContext::GLFenceSync::CreateIfSupported(const GLTestContext* ctx) {
     SkAutoTDelete<GLFenceSync> ret(new GLFenceSync);
 
     if (kGL_GrGLStandard == ctx->gl()->fStandard) {
@@ -144,21 +144,21 @@ GLContext::GLFenceSync* GLContext::GLFenceSync::CreateIfSupported(const GLContex
     return ret.release();
 }
 
-SkPlatformGpuFence GLContext::GLFenceSync::insertFence() const {
+SkPlatformGpuFence GLTestContext::GLFenceSync::insertFence() const {
     return fGLFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
-bool GLContext::GLFenceSync::waitFence(SkPlatformGpuFence fence, bool flush) const {
+bool GLTestContext::GLFenceSync::waitFence(SkPlatformGpuFence fence, bool flush) const {
     GLsync glsync = static_cast<GLsync>(fence);
     return GL_WAIT_FAILED != fGLClientWaitSync(glsync, flush ? GL_SYNC_FLUSH_COMMANDS_BIT : 0, -1);
 }
 
-void GLContext::GLFenceSync::deleteFence(SkPlatformGpuFence fence) const {
+void GLTestContext::GLFenceSync::deleteFence(SkPlatformGpuFence fence) const {
     GLsync glsync = static_cast<GLsync>(fence);
     fGLDeleteSync(glsync);
 }
 
-GrGLint GLContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
+GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
                                           GrGLenum externalFormat, GrGLenum externalType,
                                           GrGLvoid* data) {
     if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL) >= GR_GL_VER(3, 1)) &&

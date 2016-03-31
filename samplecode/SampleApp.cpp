@@ -39,7 +39,7 @@
 #   include "GrContext.h"
 #   include "SkGpuDevice.h"
 #   if SK_ANGLE
-#       include "gl/angle/GLContext_angle.h"
+#       include "gl/angle/GLTestContext_angle.h"
 #   endif
 #else
 class GrContext;
