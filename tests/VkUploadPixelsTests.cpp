@@ -16,6 +16,7 @@
 #include "Test.h"
 #include "vk/GrVkGpu.h"
 
+using sk_gpu_test::GrContextFactory;
 
 void fill_pixel_data(int width, int height, GrColor* data) {
 

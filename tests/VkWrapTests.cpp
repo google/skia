@@ -19,6 +19,8 @@
 #include "vk/GrVkMemory.h"
 #include "vk/GrVkTypes.h"
 
+using sk_gpu_test::GrContextFactory;
+
 const int kW = 1024;
 const int kH = 1024;
 const GrPixelConfig kPixelConfig = kRGBA_8888_GrPixelConfig;

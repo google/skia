@@ -16,6 +16,8 @@
 #include "Test.h"
 #include "vk/GrVkGpu.h"
 
+using sk_gpu_test::GrContextFactory;
+
 bool does_full_buffer_contain_correct_color(GrColor* buffer,
                                             GrColor clearColor,
                                             GrPixelConfig config,
