@@ -57,6 +57,23 @@
             'angle.gyp:*',
           ],
         }],
+        [ '(skia_os == "linux" or skia_os == "chromeos") and skia_egl == 1', {
+          'link_settings': {
+            'libraries': [
+              '-lEGL',
+              '-lGLESv2',
+            ],
+          },
+        }],
+        [ '(skia_os == "linux" or skia_os == "chromeos") and skia_egl == 0', {
+          'link_settings': {
+            'libraries': [
+              '-lGL',
+              '-lGLU',
+              '-lX11',
+            ],
+          },
+        }],
         [ 'skia_os == "android"', {
           'defines': [
             'GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE=1',
