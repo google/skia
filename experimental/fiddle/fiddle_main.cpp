@@ -72,12 +72,23 @@ static OSMesaContext create_osmesa_context() {
     return osMesaContext;
 }
 
-static GrContext* create_mesa_grcontext() {
-    sk_sp<const GrGLInterface> mesa(GrGLCreateMesaInterface());
-    intptr_t backend = reinterpret_cast<intptr_t>(mesa.get());
-    return backend ? GrContext::Create(kOpenGL_GrBackend, backend) : nullptr;
+static sk_sp<GrContext> create_mesa_grcontext() {
+    if (nullptr == OSMesaGetCurrentContext()) {
+        return nullptr;
+    }
+    auto osmesa_get = [](void* ctx, const char name[]) {
+        SkASSERT(nullptr == ctx);
+        SkASSERT(OSMesaGetCurrentContext());
+        return OSMesaGetProcAddress(name);
+    };
+    sk_sp<const GrGLInterface> mesa(GrGLAssembleInterface(nullptr, osmesa_get));
+    if (!mesa) {
+        return nullptr;
+    }
+    return sk_sp<GrContext>(GrContext::Create(
+                                    kOpenGL_GrBackend,
+                                    reinterpret_cast<intptr_t>(mesa.get())));
 }
-
 
 int main() {
     const DrawOptions options = GetDrawOptions();
@@ -105,7 +116,7 @@ int main() {
     }
     if (options.gpu) {
         OSMesaContext osMesaContext = create_osmesa_context();
-        sk_sp<GrContext> grContext(create_mesa_grcontext());
+        auto grContext = create_mesa_grcontext();
         if (!grContext) {
             fputs("Unable to get Mesa GrContext.\n", stderr);
         } else {
