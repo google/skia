@@ -225,7 +225,7 @@ GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
 
 sk_gpu_test::GLTestContext* ANGLEGLContext::createNew() const {
 #ifdef SK_BUILD_FOR_WIN
-    sk_gpu_test::GLTestContext* ctx = fIsGLBackend?
+    sk_gpu_test::GLTestContext* ctx = fIsGLBackend
         ? sk_gpu_test::CreateANGLEOpenGLGLTestContext()
         : sk_gpu_test::CreateANGLEDirect3DGLTestContext();
 #else
