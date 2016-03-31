@@ -20,26 +20,22 @@
 #include "SkGraphics.h"
 
 #if SK_ANGLE
-#include "gl/angle/SkANGLEGLContext.h"
+#include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLInterface.h"
 #include "GLES2/gl2.h"
-
-#define ANGLE_GL_CALL(IFACE, X)                                 \
-    do {                                                        \
-        (IFACE)->fFunctions.f##X;                               \
-    } while (false)
-
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 #endif // SK_ANGLE
 
 #if SK_COMMAND_BUFFER
 #include "gl/command_buffer/SkCommandBufferGLContext.h"
-
-#define COMMAND_BUFFER_GL_CALL(IFACE, X)                                 \
-    do {                                                        \
-        (IFACE)->fFunctions.f##X;                               \
-    } while (false)
-
 #endif // SK_COMMAND_BUFFER
+
+#define GL_CALL(IFACE, X)                                 \
+    SkASSERT(IFACE);                                      \
+    do {                                                  \
+        (IFACE)->fFunctions.f##X;                         \
+    } while (false)
 
 #define WM_EVENT_CALLBACK (WM_USER+0)
 
@@ -395,6 +391,69 @@ void SkOSWindow::presentGL() {
 
 #if SK_ANGLE
 
+static void* get_angle_egl_display(void* nativeDisplay) {
+    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT;
+    eglGetPlatformDisplayEXT =
+        (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
+
+    // We expect ANGLE to support this extension
+    if (!eglGetPlatformDisplayEXT) {
+        return EGL_NO_DISPLAY;
+    }
+
+    EGLDisplay display = EGL_NO_DISPLAY;
+    // Try for an ANGLE D3D11 context, fall back to D3D9, and finally GL.
+    EGLint attribs[3][3] = {
+        {
+            EGL_PLATFORM_ANGLE_TYPE_ANGLE,
+            EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+            EGL_NONE
+        },
+        {
+            EGL_PLATFORM_ANGLE_TYPE_ANGLE,
+            EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE,
+            EGL_NONE
+        },
+    };
+    for (int i = 0; i < 3 && display == EGL_NO_DISPLAY; ++i) {
+        display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,nativeDisplay, attribs[i]);
+    }
+    return display;
+}
+
+struct ANGLEAssembleContext {
+    ANGLEAssembleContext() {
+        fEGL = GetModuleHandle("libEGL.dll");
+        fGL = GetModuleHandle("libEGLESv2.dll");
+    }
+
+    bool isValid() const { return SkToBool(fEGL) && SkToBool(fGL); }
+
+    HMODULE fEGL;
+    HMODULE fGL;
+};
+
+static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
+    const ANGLEAssembleContext& context = *reinterpret_cast<const ANGLEAssembleContext*>(ctx);
+    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcAddress(context.fGL, name);
+    if (proc) {
+        return proc;
+    }
+    proc = (GrGLFuncPtr) GetProcAddress(context.fEGL, name);
+    if (proc) {
+        return proc;
+    }
+    return eglGetProcAddress(name);
+}
+
+static const GrGLInterface* get_angle_gl_interface() {
+    ANGLEAssembleContext context;
+    if (!context.isValid()) {
+        return nullptr;
+    }
+    return GrGLAssembleGLESInterface(&context, angle_get_gl_proc);
+}
+
 bool create_ANGLE(EGLNativeWindowType hWnd,
                   int msaaSampleCount,
                   EGLDisplay* eglDisplay,
@@ -418,7 +477,7 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
         EGL_NONE, EGL_NONE
     };
 
-    EGLDisplay display = SkANGLEGLContext::GetD3DEGLDisplay(GetDC(hWnd), false);
+    EGLDisplay display = get_angle_egl_display(GetDC(hWnd));
 
     if (EGL_NO_DISPLAY == display) {
         SkDebugf("Could not create ANGLE egl display!\n");
@@ -500,32 +559,31 @@ bool SkOSWindow::attachANGLE(int msaaSampleCount, AttachmentInfo* info) {
         if (false == bResult) {
             return false;
         }
-        SkAutoTUnref<const GrGLInterface> intf(GrGLCreateANGLEInterface());
-
-        if (intf) {
-            ANGLE_GL_CALL(intf, ClearStencil(0));
-            ANGLE_GL_CALL(intf, ClearColor(0, 0, 0, 0));
-            ANGLE_GL_CALL(intf, StencilMask(0xffffffff));
-            ANGLE_GL_CALL(intf, Clear(GL_STENCIL_BUFFER_BIT |GL_COLOR_BUFFER_BIT));
+        fANGLEInterface.reset(get_angle_gl_interface());
+        if (!fANGLEInterface) {
+            this->detachANGLE();
+            return false;
         }
-    }
-    if (eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+        GL_CALL(fANGLEInterface, ClearStencil(0));
+        GL_CALL(fANGLEInterface, ClearColor(0, 0, 0, 0));
+        GL_CALL(fANGLEInterface, StencilMask(0xffffffff));
+        GL_CALL(fANGLEInterface, Clear(GL_STENCIL_BUFFER_BIT |GL_COLOR_BUFFER_BIT));
+        if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+            this->detachANGLE();
+            return false;
+        }
         eglGetConfigAttrib(fDisplay, fConfig, EGL_STENCIL_SIZE, &info->fStencilBits);
         eglGetConfigAttrib(fDisplay, fConfig, EGL_SAMPLES, &info->fSampleCount);
 
-        SkAutoTUnref<const GrGLInterface> intf(GrGLCreateANGLEInterface());
-
-        if (intf ) {
-            ANGLE_GL_CALL(intf, Viewport(0, 0,
-                                         SkScalarRoundToInt(this->width()),
-                                         SkScalarRoundToInt(this->height())));
-        }
+        GL_CALL(fANGLEInterface, Viewport(0, 0, SkScalarRoundToInt(this->width()),
+                                                SkScalarRoundToInt(this->height())));
         return true;
     }
     return false;
 }
 
 void SkOSWindow::detachANGLE() {
+    fANGLEInterface.reset(nullptr);
     eglMakeCurrent(fDisplay, EGL_NO_SURFACE , EGL_NO_SURFACE , EGL_NO_CONTEXT);
 
     eglDestroyContext(fDisplay, fContext);
@@ -539,11 +597,7 @@ void SkOSWindow::detachANGLE() {
 }
 
 void SkOSWindow::presentANGLE() {
-    SkAutoTUnref<const GrGLInterface> intf(GrGLCreateANGLEInterface());
-
-    if (intf) {
-        ANGLE_GL_CALL(intf, Flush());
-    }
+    GL_CALL(fANGLEInterface, Flush());
 
     eglSwapBuffers(fDisplay, fSurface);
 }
@@ -559,10 +613,10 @@ bool SkOSWindow::attachCommandBuffer(int msaaSampleCount, AttachmentInfo* info) 
 
         SkAutoTUnref<const GrGLInterface> intf(GrGLCreateCommandBufferInterface());
         if (intf) {
-            COMMAND_BUFFER_GL_CALL(intf, ClearStencil(0));
-            COMMAND_BUFFER_GL_CALL(intf, ClearColor(0, 0, 0, 0));
-            COMMAND_BUFFER_GL_CALL(intf, StencilMask(0xffffffff));
-            COMMAND_BUFFER_GL_CALL(intf, Clear(GL_STENCIL_BUFFER_BIT |GL_COLOR_BUFFER_BIT));
+            GL_CALL(intf, ClearStencil(0));
+            GL_CALL(intf, ClearColor(0, 0, 0, 0));
+            GL_CALL(intf, StencilMask(0xffffffff));
+            GL_CALL(intf, Clear(GL_STENCIL_BUFFER_BIT |GL_COLOR_BUFFER_BIT));
         }
     }
 
@@ -573,8 +627,7 @@ bool SkOSWindow::attachCommandBuffer(int msaaSampleCount, AttachmentInfo* info) 
         SkAutoTUnref<const GrGLInterface> intf(GrGLCreateCommandBufferInterface());
 
         if (intf ) {
-            COMMAND_BUFFER_GL_CALL(intf, Viewport(0, 0,
-                                         SkScalarRoundToInt(this->width()),
+            GL_CALL(intf, Viewport(0, 0, SkScalarRoundToInt(this->width()),
                                          SkScalarRoundToInt(this->height())));
         }
         return true;

@@ -433,7 +433,7 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
     GrContext* context = nullptr;
 #if SK_SUPPORT_GPU
     context = canvas->getGrContext();
-    GrContextFactory factory;
+    sk_gpu_test::GrContextFactory factory;
 #endif
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);

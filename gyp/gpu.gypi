@@ -318,6 +318,7 @@
       '<(skia_src_path)/gpu/gl/GrGLContext.cpp',
       '<(skia_src_path)/gpu/gl/GrGLContext.h',
       '<(skia_src_path)/gpu/gl/GrGLCreateNativeInterface_none.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLCreateNullInterface.cpp',
       '<(skia_src_path)/gpu/gl/GrGLDefaultInterface_none.cpp',
       '<(skia_src_path)/gpu/gl/GrGLDefines.h',
       '<(skia_src_path)/gpu/gl/GrGLGLSL.cpp',
@@ -408,8 +409,6 @@
       '<(skia_include_path)/gpu/SkGrPixelRef.h',
       '<(skia_include_path)/gpu/SkGrTexturePixelRef.h',
 
-      '<(skia_include_path)/gpu/gl/SkGLContext.h',
-
       '<(skia_src_path)/gpu/SkGpuDevice.cpp',
       '<(skia_src_path)/gpu/SkGpuDevice.h',
       '<(skia_src_path)/gpu/SkGpuDevice_drawTexture.cpp',
@@ -422,8 +421,6 @@
       '<(skia_src_path)/image/SkImage_Gpu.cpp',
       '<(skia_src_path)/image/SkSurface_Gpu.h',
       '<(skia_src_path)/image/SkSurface_Gpu.cpp',
-
-      '<(skia_src_path)/gpu/gl/SkGLContext.cpp'
     ],
     'skgpu_vk_sources': [
       '<(skia_include_path)/gpu/vk/GrVkBackendContext.h',
@@ -501,60 +498,8 @@
       '<(skia_src_path)/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp',
       '<(skia_src_path)/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp',
       '<(skia_src_path)/gpu/gl/android/GrGLCreateNativeInterface_android.cpp',
-
-      # Sk files
-      '<(skia_src_path)/gpu/gl/mac/SkCreatePlatformGLContext_mac.cpp',
-      '<(skia_src_path)/gpu/gl/win/SkCreatePlatformGLContext_win.cpp',
-      '<(skia_src_path)/gpu/gl/glx/SkCreatePlatformGLContext_glx.cpp',
-      '<(skia_src_path)/gpu/gl/egl/SkCreatePlatformGLContext_egl.cpp',
-      '<(skia_src_path)/gpu/gl/iOS/SkCreatePlatformGLContext_iOS.mm',
-    ],
-    'skgpu_mesa_gl_sources': [
-      '<(skia_src_path)/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
-
-      # Sk files
-      '<(skia_src_path)/gpu/gl/mesa/SkMesaGLContext.cpp',
-      '<(skia_src_path)/gpu/gl/mesa/SkMesaGLContext.h',
-    ],
-    'skgpu_angle_gl_sources': [
-      '<(skia_src_path)/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
-
-      # Sk files
-      '<(skia_include_path)/gpu/gl/angle/SkANGLEGLContext.h',
-      '<(skia_src_path)/gpu/gl/angle/SkANGLEGLContext.cpp',
-    ],
-    'skgpu_command_buffer_gl_sources': [
-      # Sk files
-      '<(skia_include_path)/gpu/gl/command_buffer/SkCommandBufferGLContext.h',
-      '<(skia_src_path)/gpu/gl/command_buffer/SkCommandBufferGLContext.cpp',
-    ],
-    'skgpu_debug_gl_sources': [
-      '<(skia_src_path)/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
-      '<(skia_src_path)/gpu/gl/debug/GrFakeRefObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrBufferObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrBufferObj.cpp',
-      '<(skia_src_path)/gpu/gl/debug/GrFBBindableObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrRenderBufferObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrTextureObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrTextureObj.cpp',
-      '<(skia_src_path)/gpu/gl/debug/GrTextureUnitObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrTextureUnitObj.cpp',
-      '<(skia_src_path)/gpu/gl/debug/GrFrameBufferObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrFrameBufferObj.cpp',
-      '<(skia_src_path)/gpu/gl/debug/GrShaderObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrShaderObj.cpp',
-      '<(skia_src_path)/gpu/gl/debug/GrProgramObj.h',
-      '<(skia_src_path)/gpu/gl/debug/GrProgramObj.cpp',
-      '<(skia_src_path)/gpu/gl/debug/GrVertexArrayObj.h',
-
-      # Sk files
-      '<(skia_src_path)/gpu/gl/debug/SkDebugGLContext.cpp',
-      '<(skia_src_path)/gpu/gl/debug/SkDebugGLContext.h',
     ],
     'skgpu_null_gl_sources': [
-      '<(skia_src_path)/gpu/gl/GrGLCreateNullInterface.cpp',
-      '<(skia_src_path)/gpu/gl/SkNullGLContext.cpp',
-      '<(skia_include_path)/gpu/gl/SkNullGLContext.h',
     ],
   },
 }

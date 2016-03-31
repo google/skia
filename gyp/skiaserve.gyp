@@ -14,6 +14,7 @@
       'type': 'executable',
       'include_dirs': [
         '../src/core',
+        '../src/gpu',
         '../src/ports',
         '../tools/debugger',
         '../tools/json',

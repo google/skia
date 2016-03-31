@@ -102,11 +102,6 @@
       'sources': [
         '<@(skgpu_sources)',
         '<@(skgpu_native_gl_sources)',
-        '<@(skgpu_angle_gl_sources)',
-        '<@(skgpu_command_buffer_gl_sources)',
-        '<@(skgpu_mesa_gl_sources)',
-        '<@(skgpu_debug_gl_sources)',
-        '<@(skgpu_null_gl_sources)',
         '<@(skgpu_vk_sources)',
         'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
@@ -151,23 +146,6 @@
             ],
           },
         }],
-        [ 'skia_egl == 1', {
-          'defines': [
-            'SK_EGL=1',
-          ],
-        }],
-        [ 'skia_egl == 0', {
-          'defines': [
-            'SK_EGL=0',
-          ],
-        }],
-        [ 'skia_mesa and skia_os == "linux"', {
-          'link_settings': {
-            'libraries': [
-              '-lOSMesa',
-            ],
-          },
-        }],
         [ 'skia_os == "mac"', {
           'link_settings': {
             'libraries': [
@@ -179,44 +157,10 @@
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
           ],
         }],
-        [ 'not skia_mesa', {
-          'sources!': [
-            '../src/gpu/gl/mesa/SkMesaGLContext.cpp',
-            '../src/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
-          ],
-        }],
-        [ 'skia_mesa and skia_os == "mac"', {
-          'link_settings': {
-            'libraries': [
-              '/opt/X11/lib/libOSMesa.dylib',
-            ],
-          },
-          'include_dirs': [
-             '/opt/X11/include/',
-          ],
-        }],
         [ 'skia_os in ["win", "ios"]', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
-          ],
-        }],
-        [ 'skia_angle', {
-          'dependencies': [
-            'angle.gyp:*',
-          ],
-          'export_dependent_settings': [
-            'angle.gyp:*',
-          ],
-        }, { # not skia_angle
-          'sources!': [
-            '<@(skgpu_angle_gl_sources)',
-          ],
-        }],
-        [ 'skia_command_buffer', {
-        }, { # not skia_command_buffer
-          'sources!': [
-            '<@(skgpu_command_buffer_gl_sources)',
           ],
         }],
         [ 'skia_os == "android"', {

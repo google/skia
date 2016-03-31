@@ -33,11 +33,14 @@
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLUtil.h"
-#include "GrRenderTarget.h"
-#include "GrContext.h"
-#include "SkGpuDevice.h"
+#   include "gl/GrGLInterface.h"
+#   include "gl/GrGLUtil.h"
+#   include "GrRenderTarget.h"
+#   include "GrContext.h"
+#   include "SkGpuDevice.h"
+#   if SK_ANGLE
+#       include "gl/angle/GLContext_angle.h"
+#   endif
 #else
 class GrContext;
 #endif
@@ -233,7 +236,7 @@ public:
                 break;
 #if SK_ANGLE
             case kANGLE_DeviceType:
-                glInterface.reset(GrGLCreateANGLEInterface());
+                glInterface.reset(sk_gpu_test::CreateANGLEGLInterface());
                 break;
 #endif // SK_ANGLE
 #if SK_COMMAND_BUFFER

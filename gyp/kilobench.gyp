@@ -17,6 +17,7 @@
         '../gm',
         '../include/private',
         '../src/core',
+        '../src/gpu',
         '../tools/VisualBench',
       ],
       'sources': [ 
@@ -26,6 +27,7 @@
       ],
       'dependencies': [
         'flags.gyp:flags',
+        'gpu.gyp:skgpu',
         'gputest.gyp:skgputest',
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',

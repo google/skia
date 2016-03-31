@@ -125,6 +125,11 @@
             '../include/gpu',
           ],
         }],
+        [ 'skia_angle', {
+          'dependencies': [
+            'angle.gyp:*',
+          ],
+        }],
         [ 'skia_use_sdl == 1', {
           'defines': [
             'SK_USE_SDL',

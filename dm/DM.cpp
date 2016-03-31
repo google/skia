@@ -70,6 +70,8 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_bool(simpleCodec, false, "Only decode images to native scale");
 
 using namespace DM;
+using sk_gpu_test::GrContextFactory;
+using sk_gpu_test::GLContext;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1416,7 +1418,7 @@ int dm_main() {
 namespace skiatest {
 namespace {
 typedef void(*TestWithGrContext)(skiatest::Reporter*, GrContext*);
-typedef void(*TestWithGrContextAndGLContext)(skiatest::Reporter*, GrContext*, SkGLContext*);
+typedef void(*TestWithGrContextAndGLContext)(skiatest::Reporter*, GrContext*, GLContext*);
 #if SK_SUPPORT_GPU
 template<typename T>
 void call_test(T test, skiatest::Reporter* reporter, const GrContextFactory::ContextInfo& context);
