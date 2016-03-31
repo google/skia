@@ -48,6 +48,7 @@
       '<(skia_include_path)/gpu/effects/GrPorterDuffXferProcessor.h',
       '<(skia_include_path)/gpu/effects/GrXfermodeFragmentProcessor.h',
 
+      '<(skia_include_path)/gpu/gl/GrGLAssembleInterface.h',
       '<(skia_include_path)/gpu/gl/GrGLConfig.h',
       '<(skia_include_path)/gpu/gl/GrGLExtensions.h',
       '<(skia_include_path)/gpu/gl/GrGLFunctions.h',
@@ -310,7 +311,6 @@
       '<(skia_src_path)/gpu/text/GrTextUtils.h',
 
       '<(skia_src_path)/gpu/gl/GrGLAssembleInterface.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLAssembleInterface.h',
       '<(skia_src_path)/gpu/gl/GrGLBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLBuffer.h',
       '<(skia_src_path)/gpu/gl/GrGLCaps.cpp',
