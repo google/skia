@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "NullGLContext.h"
+#include "NullGLTestContext.h"
 #include "gl/GrGLTestInterface.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLInterface.h"
@@ -605,7 +605,7 @@ const char* NullInterface::kExtensions[] = {
     nullptr, // signifies the end of the array.
 };
 
-class NullGLContext : public sk_gpu_test::GLContext {
+class NullGLContext : public sk_gpu_test::GLTestContext {
 public:
     NullGLContext() { this->init(new NullInterface); }
    ~NullGLContext() override { this->teardown(); }
@@ -618,8 +618,8 @@ private:
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-GLContext* CreateNullGLContext() {
-    GLContext* ctx = new NullGLContext();
+GLTestContext* CreateNullGLTestContext() {
+    GLTestContext* ctx = new NullGLContext();
     if (ctx->isValid()) {
         return ctx;
     }

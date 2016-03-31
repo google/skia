@@ -65,7 +65,7 @@ SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
 SkCanvas* Request::getCanvas() {
 #if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
-    GLContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
+    GLTestContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
                                             GrContextFactory::kNone_GLContextOptions).fGLContext;
     gl->makeCurrent();
 #endif

@@ -5,10 +5,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GLContext_angle_DEFINED
-#define GLContext_angle_DEFINED
+#ifndef GLTestContext_angle_DEFINED
+#define GLTestContext_angle_DEFINED
 
-#include "gl/GLContext.h"
+#include "gl/GLTestContext.h"
 
 namespace sk_gpu_test {
 
@@ -19,12 +19,12 @@ namespace sk_gpu_test {
 const GrGLInterface* CreateANGLEGLInterface();
 
 #ifdef SK_BUILD_FOR_WIN
-/** Creates a GLContext backed by ANGLE's Direct3D backend. */
-GLContext* CreateANGLEDirect3DGLContext();
+/** Creates a GLTestContext backed by ANGLE's Direct3D backend. */
+GLTestContext* CreateANGLEDirect3DGLTestContext();
 #endif
 
-/** Creates a GLContext backed by ANGLE's OpenGL backend. */
-GLContext* CreateANGLEOpenGLGLContext();
+/** Creates a GLTestContext backed by ANGLE's OpenGL backend. */
+GLTestContext* CreateANGLEOpenGLGLTestContext();
 
 }  // namespace sk_gpu_test
 #endif

@@ -9,7 +9,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "gl/GLContext.h"
+#include "gl/GLTestContext.h"
 #endif
 
 
@@ -64,7 +64,7 @@ DEF_GPUTEST_FOR_NULL_CONTEXT(TestGpuNullContext, reporter, context) {
 #endif
 
 // This is an example of a GPU test that tests a property that should work for all GPU contexts.
-// It uses the additional GLContext* glContext to implement the test.
+// It uses the additional GLTestContext* glContext to implement the test.
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuGrContextAndGLContext, reporter, context, glContext) {
     REPORTER_ASSERT(reporter, reporter);

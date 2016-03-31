@@ -58,7 +58,7 @@
     #include "GrContextFactory.h"
     #include "gl/GrGLUtil.h"
     using sk_gpu_test::GrContextFactory;
-    using sk_gpu_test::GLContext;
+    using sk_gpu_test::GLTestContext;
     SkAutoTDelete<GrContextFactory> gGrFactory;
 #endif
 
@@ -158,7 +158,7 @@ bool Target::capturePixels(SkBitmap* bmp) {
 #if SK_SUPPORT_GPU
 struct GPUTarget : public Target {
     explicit GPUTarget(const Config& c) : Target(c), gl(nullptr) { }
-    GLContext* gl;
+    GLTestContext* gl;
 
     void setup() override {
         this->gl->makeCurrent();

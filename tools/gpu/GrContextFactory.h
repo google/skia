@@ -11,7 +11,7 @@
 #include "GrContext.h"
 #include "GrContextOptions.h"
 
-#include "gl/GLContext.h"
+#include "gl/GLTestContext.h"
 #include "SkTArray.h"
 
 namespace sk_gpu_test {
@@ -111,10 +111,10 @@ public:
     struct ContextInfo {
         ContextInfo()
             : fGrContext(nullptr), fGLContext(nullptr) { }
-        ContextInfo(GrContext* grContext, GLContext* glContext)
+        ContextInfo(GrContext* grContext, GLTestContext* glContext)
             : fGrContext(grContext), fGLContext(glContext) { }
         GrContext* fGrContext;
-        GLContext* fGLContext; //! Valid until the factory destroys it via abandonContexts() or
+        GLTestContext* fGLContext; //! Valid until the factory destroys it via abandonContexts() or
                                //! destroyContexts().
     };
 
@@ -136,7 +136,7 @@ private:
     struct Context {
         GLContextType       fType;
         GLContextOptions    fOptions;
-        GLContext*          fGLContext;
+        GLTestContext*          fGLContext;
         GrContext*          fGrContext;
     };
     SkTArray<Context, true> fContexts;

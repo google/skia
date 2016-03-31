@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "GLContext_angle.h"
+#include "GLTestContext_angle.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -84,7 +84,7 @@ void* get_angle_egl_display(void* nativeDisplay, bool useGLBackend) {
     return display;
 }
 
-class ANGLEGLContext : public sk_gpu_test::GLContext {
+class ANGLEGLContext : public sk_gpu_test::GLTestContext {
 public:
     ANGLEGLContext(bool preferGLBackend);
     ~ANGLEGLContext() override;
@@ -92,7 +92,7 @@ public:
     GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
     void destroyEGLImage(GrEGLImage) const override;
     GrGLuint eglImageToExternalTexture(GrEGLImage) const override;
-    sk_gpu_test::GLContext* createNew() const override;
+    sk_gpu_test::GLTestContext* createNew() const override;
 
 private:
     void destroyGLContext();
@@ -223,12 +223,12 @@ GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
     return texID;
 }
 
-sk_gpu_test::GLContext* ANGLEGLContext::createNew() const {
+sk_gpu_test::GLTestContext* ANGLEGLContext::createNew() const {
 #ifdef SK_BUILD_FOR_WIN
-    sk_gpu_test::GLContext* ctx = fIsGLBackend ? sk_gpu_test::CreateANGLEOpenGLGLContext()
+    sk_gpu_test::GLTestContext* ctx = fIsGLBackend ? sk_gpu_test::CreateANGLEOpenGLGLContext()
                                                : sk_gpu_test::CreateANGLEDirect3DGLContext();
 #else
-    sk_gpu_test::GLContext* ctx = sk_gpu_test::CreateANGLEOpenGLGLContext();
+    sk_gpu_test::GLTestContext* ctx = sk_gpu_test::CreateANGLEOpenGLGLTestContext();
 #endif
     if (ctx) {
         ctx->makeCurrent();
@@ -299,7 +299,7 @@ const GrGLInterface* CreateANGLEGLInterface() {
 }
 
 #ifdef SK_BUILD_FOR_WIN
-GLContext* CreateANGLEDirect3DGLContext() {
+GLTestContext* CreateANGLEDirect3DGLTestContext() {
         ANGLEGLContext* ctx = new ANGLEGLContext(false);
         if (!ctx->isValid()) {
             delete ctx;
@@ -309,7 +309,7 @@ GLContext* CreateANGLEDirect3DGLContext() {
     }
 #endif
 
-GLContext* CreateANGLEOpenGLGLContext() {
+GLTestContext* CreateANGLEOpenGLGLTestContext() {
     ANGLEGLContext* ctx = new ANGLEGLContext(true);
     if (!ctx->isValid()) {
         delete ctx;
