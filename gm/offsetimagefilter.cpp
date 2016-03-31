@@ -53,20 +53,17 @@ protected:
                                                  image->width() - i * 8,
                                                  image->height() - i * 12);
             SkImageFilter::CropRect rect(SkRect::Make(cropRect));
-            SkAutoTUnref<SkImageFilter> tileInput(SkImageSource::Create(image));
+            sk_sp<SkImageFilter> tileInput(SkImageSource::Create(image));
             SkScalar dx = SkIntToScalar(i*5);
             SkScalar dy = SkIntToScalar(i*10);
-            SkAutoTUnref<SkImageFilter> filter(SkOffsetImageFilter::Create(dx, dy, tileInput,
-                                                                           &rect));
-            paint.setImageFilter(filter);
+            paint.setImageFilter(SkOffsetImageFilter::Make(dx, dy, std::move(tileInput), &rect));
             DrawClippedImage(canvas, image, paint, 1, cropRect);
             canvas->translate(SkIntToScalar(image->width() + MARGIN), 0);
         }
 
         SkIRect cropRect = SkIRect::MakeXYWH(0, 0, 100, 100);
         SkImageFilter::CropRect rect(SkRect::Make(cropRect));
-        SkAutoTUnref<SkImageFilter> filter(SkOffsetImageFilter::Create(-5, -10, nullptr, &rect));
-        paint.setImageFilter(filter);
+        paint.setImageFilter(SkOffsetImageFilter::Make(-5, -10, nullptr, &rect));
         DrawClippedImage(canvas, fBitmap.get(), paint, 2, cropRect);
     }
 private:
@@ -111,7 +108,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(640, 200); }
 
-    void doDraw(SkCanvas* canvas, const SkRect& r, SkImageFilter* imgf,
+    void doDraw(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imgf,
                 const SkRect* clipR = nullptr) {
         SkPaint p;
 
@@ -139,7 +136,7 @@ protected:
             canvas->clipRect(*clipR);
         }
         if (imgf) {
-            p.setImageFilter(imgf)->unref();
+            p.setImageFilter(std::move(imgf));
         }
         p.setColor(0x66FF0000);
         canvas->drawRect(r, p);
@@ -162,20 +159,20 @@ protected:
         this->doDraw(canvas, r, nullptr);
 
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20));
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(20, 20, nullptr));
 
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, &cr0));
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(20, 20, nullptr, &cr0));
 
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20), &r);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(20, 20, nullptr), &r);
 
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, &cr1));
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(20, 20, nullptr, &cr1));
 
         SkRect clipR = SkRect::MakeXYWH(40, 40, 40, 40);
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, nullptr), &clipR);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(20, 20, nullptr, nullptr), &clipR);
         canvas->restore();
 
         // 2nd row
@@ -186,19 +183,19 @@ protected:
          */
 
         // crop==clip==src
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, nullptr, &cr0), &r);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(40, 0, nullptr, &cr0), &r);
 
         // crop==src, clip==dst
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, nullptr, &cr0), &r2);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(40, 0, nullptr, &cr0), &r2);
 
         // crop==dst, clip==src
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, nullptr, &cr2), &r);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(40, 0, nullptr, &cr2), &r);
 
         // crop==clip==dst
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, nullptr, &cr2), &r2);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Make(40, 0, nullptr, &cr2), &r2);
     }
 
 private:

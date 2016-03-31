@@ -21,55 +21,63 @@
 #define FILTER_WIDTH    SkIntToScalar(150)
 #define FILTER_HEIGHT   SkIntToScalar(200)
 
-static SkImageFilter* make0() {
-    return SkDownSampleImageFilter::Create(SK_Scalar1 / 5);
+static sk_sp<SkImageFilter> make0() {
+    return sk_sp<SkImageFilter>(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
 }
 
-static SkImageFilter* make1() {
-    return SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16));
+static sk_sp<SkImageFilter> make1() {
+    return SkOffsetImageFilter::Make(SkIntToScalar(16), SkIntToScalar(16), nullptr);
 }
 
-static SkImageFilter* make2() {
+static sk_sp<SkImageFilter> make2() {
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
-    return SkColorFilterImageFilter::Create(cf.get());
+    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf.get()));
 }
 
-static SkImageFilter* make3() {
-    return SkBlurImageFilter::Create(8, 0);
+static sk_sp<SkImageFilter> make3() {
+    return sk_sp<SkImageFilter>(SkBlurImageFilter::Create(8, 0));
 }
 
-static SkImageFilter* make4() {
-    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
+static sk_sp<SkImageFilter> make4() {
+    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Make(SkIntToScalar(16),
+                                                         SkIntToScalar(16),
+                                                         nullptr));
     sk_sp<SkImageFilter> inner(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
-    return SkComposeImageFilter::Make(std::move(outer), std::move(inner)).release();
+    return SkComposeImageFilter::Make(std::move(outer), std::move(inner));
 }
 
-static SkImageFilter* make5() {
-    sk_sp<SkImageFilter> first(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
+static sk_sp<SkImageFilter> make5() {
+    sk_sp<SkImageFilter> first(SkOffsetImageFilter::Make(SkIntToScalar(16),
+                                                         SkIntToScalar(16),
+                                                         nullptr));
     sk_sp<SkImageFilter> second(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
-    return SkMergeImageFilter::Make(std::move(first), std::move(second)).release();
+    return SkMergeImageFilter::Make(std::move(first), std::move(second));
 }
 
-static SkImageFilter* make6() {
-    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
+static sk_sp<SkImageFilter> make6() {
+    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Make(SkIntToScalar(16),
+                                                         SkIntToScalar(16),
+                                                         nullptr));
     sk_sp<SkImageFilter> inner(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
     sk_sp<SkImageFilter> compose(SkComposeImageFilter::Make(std::move(outer), std::move(inner)));
 
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));
     sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Create(cf.get()));
 
-    return SkMergeImageFilter::Make(std::move(compose), std::move(blue)).release();
+    return SkMergeImageFilter::Make(std::move(compose), std::move(blue));
 }
 
-static SkImageFilter* make7() {
-    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Create(SkIntToScalar(16), SkIntToScalar(16)));
+static sk_sp<SkImageFilter> make7() {
+    sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Make(SkIntToScalar(16),
+                                                         SkIntToScalar(16),
+                                                         nullptr));
     sk_sp<SkImageFilter> inner(make3());
     sk_sp<SkImageFilter> compose(SkComposeImageFilter::Make(std::move(outer), std::move(inner)));
 
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));
     sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Create(cf.get()));
 
-    return SkMergeImageFilter::Make(std::move(compose), std::move(blue)).release();
+    return SkMergeImageFilter::Make(std::move(compose), std::move(blue));
 }
 
 static void draw0(SkCanvas* canvas) {
@@ -96,7 +104,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
 //        this->drawSizeBounds(canvas, 0xFFCCCCCC);
 
-        static SkImageFilter* (*gFilterProc[])() = {
+        static sk_sp<SkImageFilter> (*gFilterProc[])() = {
             make0, make1, make2, make3, make4, make5, make6, make7
         };
 
@@ -119,7 +127,7 @@ protected:
             canvas->drawRect(bounds, p);
 
             SkPaint paint;
-            paint.setImageFilter(gFilterProc[i]())->unref();
+            paint.setImageFilter(gFilterProc[i]());
             canvas->saveLayer(&bounds, &paint);
             draw0(canvas);
         }

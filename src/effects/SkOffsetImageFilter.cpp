@@ -86,7 +86,7 @@ SkFlattenable* SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkPoint offset;
     buffer.readPoint(&offset);
-    return Create(offset.x(), offset.y(), common.getInput(0).get(), &common.cropRect());
+    return Make(offset.x(), offset.y(), common.getInput(0), &common.cropRect()).release();
 }
 
 void SkOffsetImageFilter::flatten(SkWriteBuffer& buffer) const {
@@ -94,9 +94,10 @@ void SkOffsetImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fOffset);
 }
 
-SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input,
+SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy,
+                                         sk_sp<SkImageFilter> input,
                                          const CropRect* cropRect)
-  : INHERITED(1, &input, cropRect) {
+    : INHERITED(&input, 1, cropRect) {
     fOffset.set(dx, dy);
 }
 

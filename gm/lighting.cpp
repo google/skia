@@ -80,7 +80,7 @@ protected:
 
         SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(20, 10, 60, 65));
         SkImageFilter::CropRect fullSizeCropRect(SkRect::MakeXYWH(0, 0, 100, 100));
-        SkAutoTUnref<SkImageFilter> noopCropped(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
+        sk_sp<SkImageFilter> noopCropped(SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect));
 
         int y = 0;
         for (int i = 0; i < 3; i++) {

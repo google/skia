@@ -61,7 +61,7 @@ protected:
             SkBlurImageFilter::Create(5, 5),
             SkDropShadowImageFilter::Create(10, 10, 3, 3, SK_ColorGREEN,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
-            SkOffsetImageFilter::Create(-16, 32),
+            SkOffsetImageFilter::Make(-16, 32, nullptr).release(),
             SkImageFilter::CreateMatrixFilter(resizeMatrix, kNone_SkFilterQuality),
         };
 

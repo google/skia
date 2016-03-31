@@ -73,8 +73,7 @@ protected:
                                                 SkIntToScalar(fCheckerboard.height()));
         const SkImageFilter::CropRect cropRect(bmpRect.makeInset(10.f, 10.f));
         const SkImageFilter::CropRect cropRectLarge(bmpRect);
-        SkAutoTUnref<SkImageFilter> noOpCropped(SkOffsetImageFilter::Create(0, 0, nullptr,
-                                                &cropRect));
+        sk_sp<SkImageFilter> noOpCropped(SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect));
 
         SkImageFilter* input = fIsExpanded ? noOpCropped.get() : nullptr;
 

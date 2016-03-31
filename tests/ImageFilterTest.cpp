@@ -119,7 +119,7 @@ public:
 
         sk_sp<SkImage> gradientImage(SkImage::MakeFromBitmap(make_gradient_circle(64, 64)));
         SkAutoTUnref<SkImageFilter> gradientSource(SkImageSource::Create(gradientImage.get()));
-        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(five, five, input));
+        sk_sp<SkImageFilter> blur(SkBlurImageFilter::Create(five, five, input));
         SkMatrix matrix;
 
         matrix.setTranslate(SK_Scalar1, SK_Scalar1);
@@ -177,7 +177,9 @@ public:
                   std::move(paintFilterLeft), std::move(paintFilterRight),
                   SkXfermode::kSrcOver_Mode, cropRect).release());
         this->addFilter("offset",
-                        SkOffsetImageFilter::Create(SK_Scalar1, SK_Scalar1, input, cropRect));
+                        SkOffsetImageFilter::Make(SK_Scalar1, SK_Scalar1,
+                                                  sk_ref_sp<SkImageFilter>(input),
+                                                  cropRect).release());
         this->addFilter("dilate", SkDilateImageFilter::Create(3, 2, input, cropRect));
         this->addFilter("erode", SkErodeImageFilter::Create(2, 3, input, cropRect));
         this->addFilter("tile", SkTileImageFilter::Create(
@@ -188,8 +190,9 @@ public:
             this->addFilter("matrix", SkImageFilter::CreateMatrixFilter(
                 matrix, kLow_SkFilterQuality, input));
         }
-        this->addFilter("blur and offset", SkOffsetImageFilter::Create(
-            five, five, blur.get(), cropRect));
+        this->addFilter("blur and offset",
+                        SkOffsetImageFilter::Make(five, five, blur,
+                                                  cropRect).release());
         this->addFilter("picture and blur", SkBlurImageFilter::Create(
             five, five, pictureFilter.get(), cropRect));
         this->addFilter("paint and blur", SkBlurImageFilter::Create(
@@ -595,8 +598,8 @@ static void test_zero_blur_sigma(SkImageFilter::Proxy* proxy,
                                  GrContext* context) {
     // Check that SkBlurImageFilter with a zero sigma and a non-zero srcOffset works correctly.
     SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(5, 0, 5, 10)));
-    SkAutoTUnref<SkImageFilter> input(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
-    SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(0, 0, input, &cropRect));
+    sk_sp<SkImageFilter> input(SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect));
+    sk_sp<SkImageFilter> filter(SkBlurImageFilter::Create(0, 0, input.get(), &cropRect));
 
     sk_sp<SkSpecialSurface> surf(create_empty_special_surface(context, proxy, 10));
     surf->getCanvas()->clear(SK_ColorGREEN);
@@ -799,7 +802,7 @@ DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
 }
 
 DEF_TEST(ImageFilterUnionBounds, reporter) {
-    SkAutoTUnref<SkImageFilter> offset(SkOffsetImageFilter::Create(50, 0));
+    sk_sp<SkImageFilter> offset(SkOffsetImageFilter::Make(50, 0, nullptr));
     // Regardless of which order they appear in, the image filter bounds should
     // be combined correctly.
     {
@@ -1340,7 +1343,7 @@ static void test_composed_imagefilter_offset(SkImageFilter::Proxy* proxy,
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(1, 0, 20, 20));
-    sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
+    sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect));
     sk_sp<SkImageFilter> blurFilter(SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1,
                                                               nullptr, &cropRect));
     sk_sp<SkImageFilter> composedFilter(SkComposeImageFilter::Make(std::move(blurFilter),
@@ -1379,7 +1382,7 @@ static void test_composed_imagefilter_bounds(SkImageFilter::Proxy* proxy,
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     sk_sp<SkImageFilter> pictureFilter(SkPictureImageFilter::Make(picture));
     SkImageFilter::CropRect cropRect(SkRect::MakeWH(100, 100));
-    sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(-100, 0, nullptr, &cropRect));
+    sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Make(-100, 0, nullptr, &cropRect));
     sk_sp<SkImageFilter> composedFilter(SkComposeImageFilter::Make(std::move(offsetFilter),
                                                                    std::move(pictureFilter)));
 

@@ -119,8 +119,9 @@ protected:
         SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)), SkImageFilter::CropRect::kHasAll_CropEdge);
         SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)), SkImageFilter::CropRect::kHasAll_CropEdge);
 
-        SkAutoTUnref<SkImageFilter> offset(SkOffsetImageFilter::Create(
-            SkIntToScalar(-10), SkIntToScalar(-10)));
+        sk_sp<SkImageFilter> offset(SkOffsetImageFilter::Make(SkIntToScalar(-10),
+                                                              SkIntToScalar(-10),
+                                                              nullptr));
 
         sk_sp<SkImageFilter> cfOffset(SkColorFilterImageFilter::Create(cf.get(), offset.get()));
 

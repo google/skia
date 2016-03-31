@@ -13,18 +13,27 @@
 
 class SK_API SkOffsetImageFilter : public SkImageFilter {
 public:
-    static SkImageFilter* Create(SkScalar dx, SkScalar dy, SkImageFilter* input = NULL,
-                                 const CropRect* cropRect = NULL) {
+    static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy,
+                                     sk_sp<SkImageFilter> input,
+                                     const CropRect* cropRect = nullptr) {
         if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
-            return NULL;
+            return nullptr;
         }
-        return new SkOffsetImageFilter(dx, dy, input, cropRect);
+
+        return sk_sp<SkImageFilter>(new SkOffsetImageFilter(dx, dy, std::move(input), cropRect));
     }
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(SkScalar dx, SkScalar dy, SkImageFilter* input = nullptr,
+                                 const CropRect* cropRect = nullptr) {
+        return Make(dx, dy, sk_ref_sp(input), cropRect).release();
+    }
+#endif
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -33,7 +42,7 @@ protected:
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
 
 private:
-    SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input, const CropRect*);
+    SkOffsetImageFilter(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input, const CropRect*);
 
     SkVector fOffset;
 

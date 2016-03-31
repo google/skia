@@ -605,12 +605,9 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                              nullptr);
         break;
     }
-    case OFFSET: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-        filter = sk_sp<SkImageFilter>(SkOffsetImageFilter::Create(make_scalar(), make_scalar(),
-                                                                  subFilter.get()));
+    case OFFSET:
+        filter = SkOffsetImageFilter::Make(make_scalar(), make_scalar(), make_image_filter());
         break;
-    }
     case MATRIX: {
         sk_sp<SkImageFilter> subFilter(make_image_filter());
         filter = sk_sp<SkImageFilter>(SkImageFilter::CreateMatrixFilter(make_matrix(),

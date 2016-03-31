@@ -28,9 +28,10 @@ SkImageFilter* SkTileImageFilter::Create(const SkRect& srcRect, const SkRect& ds
             return SkSafeRef(input);
         }
         CropRect cropRect(ir);
-        return SkOffsetImageFilter::Create(dstRect.x() - srcRect.x(),
-                                           dstRect.y() - srcRect.y(),
-                                           input, &cropRect);
+        return SkOffsetImageFilter::Make(dstRect.x() - srcRect.x(),
+                                         dstRect.y() - srcRect.y(),
+                                         sk_ref_sp<SkImageFilter>(input),
+                                         &cropRect).release();
     }
     return new SkTileImageFilter(srcRect, dstRect, input);
 }

@@ -150,9 +150,10 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
     }
 
     {
-        SkAutoTUnref<SkImageFilter> oif(SkOffsetImageFilter::Create(15, 15, source));
+        sk_sp<SkImageFilter> oif(SkOffsetImageFilter::Make(15, 15,
+                                                           sk_ref_sp<SkImageFilter>(source)));
 
-        add_paint(oif, paints);
+        add_paint(oif.get(), paints);
     }
 }
 

@@ -68,7 +68,7 @@ protected:
             IFCCast([]{ return SkBlurImageFilter::Create(8, 8); }),
             IFCCast([]{ return SkDilateImageFilter::Create(8, 8); }),
             IFCCast([]{ return SkErodeImageFilter::Create(8, 8); }),
-            IFCCast([]{ return SkOffsetImageFilter::Create(8, 8); }),
+            IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr).release(); }),
         };
 
         const SkMatrix matrices[] = {
