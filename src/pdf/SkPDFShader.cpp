@@ -452,7 +452,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
-    : SkPDFDict("Pattern"), fShaderState(state) {}
+    : SkPDFDict("Pattern"), fShaderState(state) {
+    state->fImage.reset();
+}
 
 SkPDFFunctionShader::~SkPDFFunctionShader() {}
 
@@ -463,7 +465,9 @@ bool SkPDFFunctionShader::equals(const SkPDFShader::State& state) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFAlphaFunctionShader::SkPDFAlphaFunctionShader(SkPDFShader::State* state)
-    : fShaderState(state) {}
+    : fShaderState(state) {
+    state->fImage.reset();
+}
 
 bool SkPDFAlphaFunctionShader::equals(const SkPDFShader::State& state) const {
     return state == *fShaderState;
@@ -474,7 +478,9 @@ SkPDFAlphaFunctionShader::~SkPDFAlphaFunctionShader() {}
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state)
-    : fShaderState(state) {}
+    : fShaderState(state) {
+    state->fImage.reset();
+}
 
 bool SkPDFImageShader::equals(const SkPDFShader::State& state) const {
     return state == *fShaderState;
