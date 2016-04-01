@@ -117,8 +117,6 @@ private:
                                                      this->viewMatrix()));
         }
 
-        target->initDraw(gp);
-
         size_t vertexStride = gp->getVertexStride();
 
         SkASSERT(vertexStride == sizeof(GrDefaultGeoProcFactory::PositionAttr));
@@ -159,7 +157,7 @@ private:
 
         GrMesh mesh;
         mesh.init(primType, vertexBuffer, firstVertex, vertexCount);
-        target->draw(mesh);
+        target->draw(gp, mesh);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {

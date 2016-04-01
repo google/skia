@@ -269,8 +269,6 @@ private:
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
 
-        target->initDraw(gp);
-
         int instanceCount = fGeoData.count();
 
         // compute number of vertices
@@ -369,7 +367,7 @@ private:
         } else {
             mesh.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
-        target->draw(mesh);
+        target->draw(gp, mesh);
 
         // put back reserves
         target->putBackIndices((size_t)(maxIndices - indexOffset));

@@ -10,8 +10,6 @@
 
 #include "GrGeometryProcessor.h"
 
-class GrDrawState;
-
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform
  * view matrix and wire through color, coverage, UV coords if requested.  Right now this is only

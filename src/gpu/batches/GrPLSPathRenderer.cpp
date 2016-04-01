@@ -887,8 +887,7 @@ public:
                 }
                 mesh.init(kTriangles_GrPrimitiveType, triVertexBuffer, firstTriVertex,
                           triVertices.count());
-                target->initDraw(triangleProcessor);
-                target->draw(mesh);
+                target->draw(triangleProcessor, mesh);
             }
 
             if (quadVertices.count()) {
@@ -906,8 +905,7 @@ public:
                 }
                 mesh.init(kTriangles_GrPrimitiveType, quadVertexBuffer, firstQuadVertex,
                           quadVertices.count());
-                target->initDraw(quadProcessor);
-                target->draw(mesh);
+                target->draw(quadProcessor, mesh);
             }
 
             SkAutoTUnref<GrGeometryProcessor> finishProcessor(
@@ -935,8 +933,7 @@ public:
 
             mesh.init(kTriangles_GrPrimitiveType, rectVertexBuffer, firstRectVertex,
                       kRectVertexCount);
-            target->initDraw(finishProcessor);
-            target->draw(mesh);
+            target->draw(finishProcessor, mesh);
         }
     }
 

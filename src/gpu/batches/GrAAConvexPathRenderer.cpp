@@ -792,8 +792,6 @@ private:
             return;
         }
 
-        target->initDraw(gp);
-
         size_t vertexStride = gp->getVertexStride();
 
         SkASSERT(canTweakAlphaForCoverage ?
@@ -839,7 +837,7 @@ private:
                              vertexBuffer, indexBuffer,
                              firstVertex, firstIndex,
                              tess.numPts(), tess.numIndices());
-            target->draw(mesh);
+            target->draw(gp, mesh);
         }
     }
 
@@ -862,8 +860,6 @@ private:
         // Setup GrGeometryProcessor
         SkAutoTUnref<GrGeometryProcessor> quadProcessor(
                 QuadEdgeEffect::Create(this->color(), invert, this->usesLocalCoords()));
-
-        target->initDraw(quadProcessor);
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
@@ -929,7 +925,7 @@ private:
                 const Draw& draw = draws[j];
                 mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
                                  firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
-                target->draw(mesh);
+                target->draw(quadProcessor, mesh);
                 firstVertex += draw.fVertexCnt;
                 firstIndex += draw.fIndexCnt;
             }

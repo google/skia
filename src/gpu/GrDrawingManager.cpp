@@ -84,7 +84,7 @@ void GrDrawingManager::flush() {
         fDrawTargets[i]->drawBatches(&fFlushState);
     }
 
-    SkASSERT(fFlushState.lastFlushedToken() == fFlushState.currentToken());
+    SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
 
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->reset();

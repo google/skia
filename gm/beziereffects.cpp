@@ -32,67 +32,48 @@ namespace skiagm {
 class BezierCubicOrConicTestBatch : public GrTestBatch {
 public:
     DEFINE_BATCH_CLASS_ID
-    struct Geometry : public GrTestBatch::Geometry {
-        SkRect fBounds;
-    };
 
     const char* name() const override { return "BezierCubicOrConicTestBatch"; }
 
-    static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
-                               const SkScalar klmEqs[9], SkScalar sign) {
-        return new BezierCubicOrConicTestBatch(gp, geo, klmEqs, sign);
-    }
-
-private:
-    BezierCubicOrConicTestBatch(const GrGeometryProcessor* gp, const Geometry& geo,
-                                const SkScalar klmEqs[9], SkScalar sign)
-        : INHERITED(ClassID(), gp, geo.fBounds) {
+    BezierCubicOrConicTestBatch(const GrGeometryProcessor* gp, const SkRect& bounds,
+                                GrColor color, const SkScalar klmEqs[9], SkScalar sign)
+        : INHERITED(ClassID(), bounds, color)
+        , fGeometryProcessor(SkRef(gp)) {
         for (int i = 0; i < 9; i++) {
             fKlmEqs[i] = klmEqs[i];
         }
-
-        fGeometry = geo;
         fSign = sign;
     }
+
+private:
 
     struct Vertex {
         SkPoint fPosition;
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    Geometry* geoData(int index) override {
-        SkASSERT(0 == index);
-        return &fGeometry;
-    }
-
-    const Geometry* geoData(int index) const override {
-        SkASSERT(0 == index);
-        return &fGeometry;
-    }
-
-    void generateGeometry(Target* target) const override {
+    void onPrepareDraws(Target* target) const override {
         QuadHelper helper;
-        size_t vertexStride = this->geometryProcessor()->getVertexStride();
+        size_t vertexStride = fGeometryProcessor->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
         Vertex* verts = reinterpret_cast<Vertex*>(helper.init(target, vertexStride, 1));
         if (!verts) {
             return;
         }
-
-        verts[0].fPosition.setRectFan(fGeometry.fBounds.fLeft, fGeometry.fBounds.fTop,
-                                      fGeometry.fBounds.fRight, fGeometry.fBounds.fBottom,
+        const SkRect& bounds = this->bounds();
+        verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom,
                                       sizeof(Vertex));
         for (int v = 0; v < 4; ++v) {
             verts[v].fKLM[0] = eval_line(verts[v].fPosition, fKlmEqs + 0, fSign);
             verts[v].fKLM[1] = eval_line(verts[v].fPosition, fKlmEqs + 3, fSign);
             verts[v].fKLM[2] = eval_line(verts[v].fPosition, fKlmEqs + 6, 1.f);
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, fGeometryProcessor);
     }
 
-    Geometry fGeometry;
-    SkScalar fKlmEqs[9];
-    SkScalar fSign;
+    SkScalar                                fKlmEqs[9];
+    SkScalar                                fSign;
+    SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
 
     static const int kVertsPerCubic = 4;
     static const int kIndicesPerCubic = 6;
@@ -218,12 +199,8 @@ protected:
                         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     pipelineBuilder.setRenderTarget(rt);
 
-                    BezierCubicOrConicTestBatch::Geometry geometry;
-                    geometry.fColor = color;
-                    geometry.fBounds = bounds;
-
                     SkAutoTUnref<GrDrawBatch> batch(
-                            BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, klmSigns[c]));
+                        new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, klmSigns[c]));
 
                     drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
                 }
@@ -359,12 +336,8 @@ protected:
                         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     pipelineBuilder.setRenderTarget(rt);
 
-                    BezierCubicOrConicTestBatch::Geometry geometry;
-                    geometry.fColor = color;
-                    geometry.fBounds = bounds;
-
                     SkAutoTUnref<GrDrawBatch> batch(
-                            BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, 1.f));
+                        new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
 
                     drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
                 }
@@ -423,57 +396,39 @@ private:
 class BezierQuadTestBatch : public GrTestBatch {
 public:
     DEFINE_BATCH_CLASS_ID
-    struct Geometry : public GrTestBatch::Geometry {
-        SkRect fBounds;
-    };
-
     const char* name() const override { return "BezierQuadTestBatch"; }
 
-    static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
-                               const GrPathUtils::QuadUVMatrix& devToUV) {
-        return new BezierQuadTestBatch(gp, geo, devToUV);
+    BezierQuadTestBatch(const GrGeometryProcessor* gp, const SkRect& bounds, GrColor color,
+                        const GrPathUtils::QuadUVMatrix& devToUV)
+        : INHERITED(ClassID(), bounds, color)
+        , fDevToUV(devToUV)
+        , fGeometryProcessor(SkRef(gp)) {
     }
 
 private:
-    BezierQuadTestBatch(const GrGeometryProcessor* gp, const Geometry& geo,
-                        const GrPathUtils::QuadUVMatrix& devToUV)
-        : INHERITED(ClassID(), gp, geo.fBounds)
-        , fGeometry(geo)
-        , fDevToUV(devToUV) {
-    }
 
     struct Vertex {
         SkPoint fPosition;
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    Geometry* geoData(int index) override {
-        SkASSERT(0 == index);
-        return &fGeometry;
-    }
-
-    const Geometry* geoData(int index) const override {
-        SkASSERT(0 == index);
-        return &fGeometry;
-    }
-
-    void generateGeometry(Target* target) const override {
+    void onPrepareDraws(Target* target) const override {
         QuadHelper helper;
-        size_t vertexStride = this->geometryProcessor()->getVertexStride();
+        size_t vertexStride = fGeometryProcessor->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
         Vertex* verts = reinterpret_cast<Vertex*>(helper.init(target, vertexStride, 1));
         if (!verts) {
             return;
         }
-        verts[0].fPosition.setRectFan(fGeometry.fBounds.fLeft, fGeometry.fBounds.fTop,
-                                      fGeometry.fBounds.fRight, fGeometry.fBounds.fBottom,
+        const SkRect& bounds = this->bounds();
+        verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom,
                                       sizeof(Vertex));
         fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
-        helper.recordDraw(target);
+        helper.recordDraw(target, fGeometryProcessor);
     }
 
-    Geometry fGeometry;
-    GrPathUtils::QuadUVMatrix fDevToUV;
+    GrPathUtils::QuadUVMatrix               fDevToUV;
+    SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
 
     static const int kVertsPerCubic = 4;
     static const int kIndicesPerCubic = 6;
@@ -595,12 +550,8 @@ protected:
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
-                    BezierQuadTestBatch::Geometry geometry;
-                    geometry.fColor = color;
-                    geometry.fBounds = bounds;
-
-                    SkAutoTUnref<GrDrawBatch> batch(BezierQuadTestBatch::Create(gp, geometry,
-                                                                                DevToUV));
+                    SkAutoTUnref<GrDrawBatch> batch(
+                        new BezierQuadTestBatch(gp, bounds, color, DevToUV));
 
                     drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
                 }

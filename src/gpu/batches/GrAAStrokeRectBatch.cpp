@@ -192,8 +192,6 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
         return;
     }
 
-    target->initDraw(gp);
-
     size_t vertexStride = gp->getVertexStride();
 
     SkASSERT(canTweakAlphaForCoverage ?
@@ -231,7 +229,7 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
                                            args.fDegenerate,
                                            canTweakAlphaForCoverage);
     }
-    helper.recordDraw(target);
+    helper.recordDraw(target, gp);
 }
 
 const GrBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,

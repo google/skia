@@ -231,11 +231,9 @@ private:
 
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType
                                                               : kTriangles_GrPrimitiveType;
-        target->initDraw(gp);
-
         GrMesh mesh;
         mesh.init(primitiveType, vb, firstVertex, count);
-        target->draw(mesh);
+        target->draw(gp, mesh);
     }
 
     bool onCombineIfPossible(GrBatch*, const GrCaps&) override { return false; }

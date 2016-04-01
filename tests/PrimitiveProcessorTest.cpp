@@ -88,12 +88,11 @@ private:
             SkTArray<SkString> fAttribNames;
         };
         SkAutoTUnref<GrGeometryProcessor> gp(new GP(fNumAttribs));
-        target->initDraw(gp);
         QuadHelper helper;
         size_t vertexStride = gp->getVertexStride();
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         vertices->setRectFan(0.f, 0.f, 1.f, 1.f, vertexStride);
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     int fNumAttribs;

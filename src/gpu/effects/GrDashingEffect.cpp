@@ -358,8 +358,6 @@ private:
             return;
         }
 
-        target->initDraw(gp);
-
         // useAA here means Edge AA or MSAA
         bool useAA = this->aaMode() != kBW_DashAAMode;
         bool fullDash = this->fullDash();
@@ -627,7 +625,7 @@ private:
             rectIndex++;
         }
         SkASSERT(0 == (curVIdx % 4) && (curVIdx / 4) == totalRectCount);
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {

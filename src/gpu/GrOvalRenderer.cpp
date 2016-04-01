@@ -607,8 +607,6 @@ private:
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fStroked, localMatrix));
 
-        target->initDraw(gp);
-
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(CircleVertex));
@@ -656,7 +654,7 @@ private:
 
             verts += kVerticesPerQuad;
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -793,8 +791,6 @@ private:
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
-        target->initDraw(gp);
-
         int instanceCount = fGeoData.count();
         QuadHelper helper;
         size_t vertexStride = gp->getVertexStride();
@@ -847,7 +843,7 @@ private:
 
             verts += kVerticesPerQuad;
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -1011,8 +1007,6 @@ private:
         SkAutoTUnref<GrGeometryProcessor> gp(new DIEllipseGeometryProcessor(this->viewMatrix(),
                                                                             this->style()));
 
-        target->initDraw(gp);
-
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(DIEllipseVertex));
@@ -1061,7 +1055,7 @@ private:
 
             verts += kVerticesPerQuad;
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     DIEllipseBatch(const Geometry& geometry, const SkRect& bounds) : INHERITED(ClassID()) {
@@ -1278,8 +1272,6 @@ private:
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fStroked, localMatrix));
 
-        target->initDraw(gp);
-
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(CircleVertex));
@@ -1347,7 +1339,7 @@ private:
             }
         }
 
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -1425,8 +1417,6 @@ private:
 
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
-
-        target->initDraw(gp);
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -1506,7 +1496,7 @@ private:
                 verts++;
             }
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {

@@ -97,26 +97,24 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
 
     GrMaskFormat maskFormat = this->maskFormat();
 
-    SkAutoTUnref<const GrGeometryProcessor> gp;
+    FlushInfo flushInfo;
     if (this->usesDistanceFields()) {
-        gp.reset(this->setupDfProcessor(this->viewMatrix(), fFilteredColor, this->color(),
-                                        texture));
+        flushInfo.fGeometryProcessor.reset(
+            this->setupDfProcessor(this->viewMatrix(), fFilteredColor, this->color(), texture));
     } else {
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
-        gp.reset(GrBitmapTextGeoProc::Create(this->color(),
-                                             texture,
-                                             params,
-                                             maskFormat,
-                                             localMatrix,
-                                             this->usesLocalCoords()));
+        flushInfo.fGeometryProcessor.reset(
+            GrBitmapTextGeoProc::Create(this->color(),
+                                        texture,
+                                        params,
+                                        maskFormat,
+                                        localMatrix,
+                                        this->usesLocalCoords()));
     }
 
-    FlushInfo flushInfo;
     flushInfo.fGlyphsToFlush = 0;
-    size_t vertexStride = gp->getVertexStride();
+    size_t vertexStride = flushInfo.fGeometryProcessor->getVertexStride();
     SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat));
-
-    target->initDraw(gp);
 
     int glyphCount = this->numGlyphs();
     const GrBuffer* vertexBuffer;
@@ -141,7 +139,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
     GrFontScaler* scaler = nullptr;
     SkTypeface* typeface = nullptr;
 
-    GrBlobRegenHelper helper(this, target, &flushInfo, gp);
+    GrBlobRegenHelper helper(this, target, &flushInfo);
 
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
@@ -187,7 +185,7 @@ void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo
                        flushInfo->fIndexBuffer, flushInfo->fVertexOffset,
                        kVerticesPerGlyph, kIndicesPerGlyph, flushInfo->fGlyphsToFlush,
                        maxGlyphsPerDraw);
-    target->draw(mesh);
+    target->draw(flushInfo->fGeometryProcessor, mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }
@@ -314,5 +312,4 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
 
 void GrBlobRegenHelper::flush() {
     fBatch->flush(fTarget, fFlushInfo);
-    fTarget->initDraw(fGP);
 }

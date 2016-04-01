@@ -96,8 +96,6 @@ private:
             return;
         }
 
-        target->initDraw(gp);
-
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();
 
@@ -117,7 +115,7 @@ private:
                              i * Impl::kVertsPerInstance * vertexStride;
             Impl::Tesselate(verts, vertexStride, fGeoData[i], fOverrides);
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     const Geometry& seedGeometry() const { return fGeoData[0]; }

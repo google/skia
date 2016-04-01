@@ -206,7 +206,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
                 SkASSERT(success);
             }
             fontCache->addGlyphToBulkAndSetUseToken(info->bulkUseToken(), glyph,
-                                                    target->currentToken());
+                                                    target->nextDrawToken());
             log2Width = fontCache->log2Width(info->maskFormat());
             log2Height = fontCache->log2Height(info->maskFormat());
         }
@@ -311,7 +311,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
 
             // set use tokens for all of the glyphs in our subrun.  This is only valid if we
             // have a valid atlas generation
-            fontCache->setUseTokenBulk(*info.bulkUseToken(), target->currentToken(),
+            fontCache->setUseTokenBulk(*info.bulkUseToken(), target->nextDrawToken(),
                                         info.maskFormat());
             break;
     }

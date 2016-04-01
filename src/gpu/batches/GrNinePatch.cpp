@@ -91,8 +91,6 @@ private:
             return;
         }
 
-        target->initDraw(gp);
-
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fGeoData.count();
 
@@ -138,7 +136,7 @@ private:
                 verts += kVertsPerRect * vertexStride;
             }
         }
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {

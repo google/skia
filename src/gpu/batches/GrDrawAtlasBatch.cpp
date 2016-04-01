@@ -58,8 +58,6 @@ void GrDrawAtlasBatch::onPrepareDraws(Target* target) const {
                                                                      this->viewMatrix(),
                                                                      this->coverageIgnored()));
 
-    target->initDraw(gp);
-
     int instanceCount = fGeoData.count();
     size_t vertexStride = gp->getVertexStride();
     SkASSERT(vertexStride == sizeof(SkPoint) + sizeof(SkPoint)
@@ -81,7 +79,7 @@ void GrDrawAtlasBatch::onPrepareDraws(Target* target) const {
         memcpy(vertPtr, args.fVerts.begin(), allocSize);
         vertPtr += allocSize;
     }
-    helper.recordDraw(target);
+    helper.recordDraw(target, gp);
 }
 
 GrDrawAtlasBatch::GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix,

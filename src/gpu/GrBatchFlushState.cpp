@@ -12,11 +12,10 @@
 
 GrBatchFlushState::GrBatchFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
     : fGpu(gpu)
-    , fUploader(gpu)
     , fResourceProvider(resourceProvider)
     , fVertexPool(gpu)
     , fIndexPool(gpu)
-    , fCurrentToken(0)
+    , fLastIssuedToken(GrBatchDrawToken::AlreadyFlushedToken())
     , fLastFlushedToken(0) {}
 
 void* GrBatchFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,

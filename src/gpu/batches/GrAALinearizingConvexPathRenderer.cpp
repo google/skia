@@ -158,7 +158,7 @@ private:
         fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
     }
 
-    void draw(GrVertexBatch::Target* target, const GrPipeline* pipeline, int vertexCount,
+    void draw(GrVertexBatch::Target* target, const GrGeometryProcessor* gp, int vertexCount,
               size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
@@ -184,7 +184,7 @@ private:
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
         mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
                          firstIndex, vertexCount, indexCount);
-        target->draw(mesh);
+        target->draw(gp, mesh);
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -199,8 +199,6 @@ private:
             SkDebugf("Couldn't create a GrGeometryProcessor\n");
             return;
         }
-
-        target->initDraw(gp);
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -229,8 +227,7 @@ private:
             if (indexCount + currentIndices > UINT16_MAX) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->draw(target, this->pipeline(), vertexCount, vertexStride, vertices,
-                           indexCount, indices);
+                this->draw(target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -249,8 +246,7 @@ private:
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        this->draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
-                   indices);
+        this->draw(target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
         sk_free(vertices);
         sk_free(indices);
     }

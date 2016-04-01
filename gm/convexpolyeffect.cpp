@@ -26,45 +26,43 @@
 
 #include "effects/GrConvexPolyEffect.h"
 
-namespace skiagm {
+/** outset rendered rect to visualize anti-aliased poly edges */
+static SkRect outset(const SkRect& unsorted) {
+    SkRect r = unsorted;
+    r.outset(5.f, 5.f);
+    return r;
+}
 
-class ConvexPolyTestBatch : public GrTestBatch {
+/** sorts a rect */
+static SkRect sorted_rect(const SkRect& unsorted) {
+    SkRect r = unsorted;
+    r.sort();
+    return r;
+}
+
+namespace skiagm {
+class PolyBoundsBatch : public GrTestBatch {
 public:
     DEFINE_BATCH_CLASS_ID
-    struct Geometry : public GrTestBatch::Geometry {
-        SkRect fRect;
-        SkRect fBounds; // This will be == fRect, except fBounds must be sorted, whereas fRect can
-                        // be inverted
-    };
 
-    const char* name() const override { return "ConvexPolyTestBatch"; }
+    const char* name() const override { return "PolyBoundsBatch"; }
 
-    static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo) {
-        return new ConvexPolyTestBatch(gp, geo);
+    PolyBoundsBatch(const SkRect& rect, GrColor color)
+        : INHERITED(ClassID(), outset(sorted_rect(rect)), color)
+        , fRect(outset(rect)) {
     }
 
 private:
-    ConvexPolyTestBatch(const GrGeometryProcessor* gp, const Geometry& geo)
-        : INHERITED(ClassID(), gp, geo.fBounds)
-        , fGeometry(geo) {
-        // Make sure any artifacts around the exterior of path are visible by using overly
-        // conservative bounding geometry.
-        fGeometry.fBounds.outset(5.f, 5.f);
-        fGeometry.fRect.outset(5.f, 5.f);
-    }
+    void onPrepareDraws(Target* target) const override {
+        using namespace GrDefaultGeoProcFactory;
 
-    Geometry* geoData(int index) override {
-        SkASSERT(0 == index);
-        return &fGeometry;
-    }
+        Color color(this->color());
+        Coverage coverage(Coverage::kSolid_Type);
+        LocalCoords localCoords(LocalCoords::kUnused_Type);
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+            GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I()));
 
-    const Geometry* geoData(int index) const override {
-        SkASSERT(0 == index);
-        return &fGeometry;
-    }
-
-    void generateGeometry(Target* target) const override {
-        size_t vertexStride = this->geometryProcessor()->getVertexStride();
+        size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
         QuadHelper helper;
         SkPoint* verts = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
@@ -72,12 +70,12 @@ private:
             return;
         }
 
-        fGeometry.fRect.toQuad(verts);
+        fRect.toQuad(verts);
 
-        helper.recordDraw(target);
+        helper.recordDraw(target, gp);
     }
 
-    Geometry fGeometry;
+    SkRect fRect;
 
     typedef GrTestBatch INHERITED;
 };
@@ -156,7 +154,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        using namespace GrDefaultGeoProcFactory;
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (nullptr == rt) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
@@ -171,12 +168,6 @@ protected:
         if (!drawContext) {
             return;
         }
-
-        Color color(0xff000000);
-        Coverage coverage(Coverage::kSolid_Type);
-        LocalCoords localCoords(LocalCoords::kUnused_Type);
-        SkAutoTUnref<const GrGeometryProcessor> gp(
-                GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I()));
 
         SkScalar y = 0;
         static const SkScalar kDX = 12.f;
@@ -203,12 +194,7 @@ protected:
                 pipelineBuilder.addCoverageFragmentProcessor(fp);
                 pipelineBuilder.setRenderTarget(rt);
 
-                ConvexPolyTestBatch::Geometry geometry;
-                geometry.fColor = color.fColor;
-                geometry.fRect = p.getBounds();
-                geometry.fBounds = p.getBounds();
-
-                SkAutoTUnref<GrDrawBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
+                SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
 
                 drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
 
@@ -249,13 +235,7 @@ protected:
                 pipelineBuilder.addCoverageFragmentProcessor(fp);
                 pipelineBuilder.setRenderTarget(rt);
 
-                ConvexPolyTestBatch::Geometry geometry;
-                geometry.fColor = color.fColor;
-                geometry.fRect = rect;
-                geometry.fBounds = rect;
-                geometry.fBounds.sort();
-
-                SkAutoTUnref<GrDrawBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
+                SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
 
                 drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
 
