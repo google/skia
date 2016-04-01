@@ -661,8 +661,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     return GrGLRenderTarget::CreateWrapped(this, desc, idDesc, wrapDesc.fStencilBits);
 }
 
-GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc,
-                                                            GrWrapOwnership ownership) {
+GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
 #ifdef SK_IGNORE_GL_TEXTURE_TARGET
     if (!desc.fTextureHandle) {
         return nullptr;
@@ -674,32 +673,23 @@ GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextu
     }
 #endif
 
-    GrGLTexture::IDDesc idDesc;
+    GrGLTextureInfo texInfo;
     GrSurfaceDesc surfDesc;
 
 #ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    idDesc.fInfo.fID = static_cast<GrGLuint>(desc.fTextureHandle);
+    texInfo.fID = static_cast<GrGLuint>(desc.fTextureHandle);
     // We only support GL_TEXTURE_2D at the moment.
-    idDesc.fInfo.fTarget = GR_GL_TEXTURE_2D;
+    texInfo.fTarget = GR_GL_TEXTURE_2D;
 #else
-    idDesc.fInfo = *info;
+    texInfo = *info;
 #endif
 
-    if (GR_GL_TEXTURE_RECTANGLE != idDesc.fInfo.fTarget &&
-        GR_GL_TEXTURE_2D != idDesc.fInfo.fTarget) {
+    if (GR_GL_TEXTURE_RECTANGLE != texInfo.fTarget &&
+        GR_GL_TEXTURE_2D != texInfo.fTarget) {
         // Only texture rectangle and texture 2d are supported. We do not check whether texture
         // rectangle is supported by Skia - if the caller provided us with a texture rectangle,
         // we assume the necessary support exists.
         return nullptr;
-    }
-
-    switch (ownership) {
-        case kAdopt_GrWrapOwnership:
-            idDesc.fLifeCycle = GrGpuResource::kAdopted_LifeCycle;
-            break;
-        case kBorrow_GrWrapOwnership:
-            idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
-            break;
     }
 
     surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
@@ -719,7 +709,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextu
 
     GrGLRenderTarget::IDDesc rtIDDesc;
     if (!this->createRenderTargetObjects(surfDesc, GrGpuResource::kUncached_LifeCycle,
-                                         idDesc.fInfo, &rtIDDesc)) {
+                                         texInfo, &rtIDDesc)) {
         return nullptr;
     }
     return GrGLRenderTarget::CreateWrapped(this, surfDesc, rtIDDesc, 0);

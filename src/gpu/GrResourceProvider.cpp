@@ -186,9 +186,9 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
 }
 
 GrRenderTarget* GrResourceProvider::wrapBackendTextureAsRenderTarget(
-        const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
+        const GrBackendTextureDesc& desc) {
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return this->gpu()->wrapBackendTextureAsRenderTarget(desc, ownership);
+    return this->gpu()->wrapBackendTextureAsRenderTarget(desc);
 }

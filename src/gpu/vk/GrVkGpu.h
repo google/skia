@@ -129,8 +129,7 @@ private:
 
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
-    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
-                                                       GrWrapOwnership) override { return NULL; }
+    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override { return NULL; }
 
     GrBuffer* onCreateBuffer(GrBufferType, size_t size, GrAccessPattern) override;
 

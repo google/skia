@@ -220,8 +220,7 @@ GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& 
     return this->onWrapBackendRenderTarget(desc, ownership);
 }
 
-GrRenderTarget* GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc,
-                                                        GrWrapOwnership ownership) {
+GrRenderTarget* GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
     this->handleDirtyContext();
     if (!(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
       return nullptr;
@@ -233,7 +232,7 @@ GrRenderTarget* GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDe
     if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
         return nullptr;
     }
-    return this->onWrapBackendTextureAsRenderTarget(desc, ownership);
+    return this->onWrapBackendTextureAsRenderTarget(desc);
 }
 
 GrBuffer* GrGpu::createBuffer(GrBufferType type, size_t size, GrAccessPattern accessPattern) {

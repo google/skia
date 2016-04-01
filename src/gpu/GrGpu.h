@@ -124,7 +124,7 @@ public:
     /**
      * Implements GrTextureProvider::wrapBackendTextureAsRenderTarget
      */
-    GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&, GrWrapOwnership);
+    GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&);
 
     /**
      * Creates a buffer.
@@ -526,8 +526,7 @@ private:
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                                       GrWrapOwnership) = 0;
-    virtual GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
-                                                               GrWrapOwnership) = 0;
+    virtual GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) = 0;
     virtual GrBuffer* onCreateBuffer(GrBufferType, size_t size, GrAccessPattern) = 0;
 
     // overridden by backend-specific derived class to perform the clear.

@@ -340,8 +340,7 @@ private:
         return nullptr;
     }
 
-    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&,
-                                                       GrWrapOwnership) override {
+    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override {
         return nullptr;
     }
 

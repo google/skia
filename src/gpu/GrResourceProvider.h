@@ -140,10 +140,12 @@ public:
       * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided
       * texture has a format that cannot be textured from by Skia, but we want to raster to it.
       *
+      * The texture is wrapped as borrowed. The texture object will not be freed once the
+      * render target is destroyed.
+      *
       * @return GrRenderTarget object or NULL on failure.
       */
-     GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc,
-                                                      GrWrapOwnership = kBorrow_GrWrapOwnership);
+     GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
 
 private:
     const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
