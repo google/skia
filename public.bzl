@@ -101,8 +101,6 @@ BASE_SRCS_ALL = struct(
         "src/gpu/gl/GrGLDefaultInterface_none.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
-        "src/gpu/gl/angle/*",  # Requires SK_ANGLE define.
-        "src/gpu/gl/command_buffer/*",  # unknown type name 'HMODULE'
         "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
         "src/svg/parser/*",  # Missing SkSVG.h.
 
@@ -399,6 +397,8 @@ DM_SRCS_ALL = struct(
         "tools/Resources.h",
         "tools/flags/*.cpp",
         "tools/flags/*.h",
+        "tools/gpu/**/*.cpp",
+        "tools/gpu/**/*.h",
         "tools/random_parse_path.cpp",
         "tools/random_parse_path.h",
         "tools/sk_tool_utils.cpp",
@@ -413,22 +413,40 @@ DM_SRCS_ALL = struct(
         "tests/PathOpsSkpClipTest.cpp",  # Alternate main.
         "tests/skia_test.cpp",  # Old main.
         "tests/SkpSkGrTest.cpp",  # Alternate main.
+        "tools/gpu/gl/angle/*",
+        "tools/gpu/gl/command_buffer/*",
+        "tools/gpu/gl/egl/*",
+        "tools/gpu/gl/glx/*",
+        "tools/gpu/gl/iOS/*",
+        "tools/gpu/gl/mac/*",
+        "tools/gpu/gl/mesa/*",
+        "tools/gpu/gl/win/*",
         "tools/timer/SysTimer_mach.cpp",
         "tools/timer/SysTimer_windows.cpp",
     ],
 )
 
-DM_SRCS_UNIX = struct()
+DM_SRCS_UNIX = struct(
+    include = [
+        "tools/gpu/gl/CreatePlatformGLContext_none.cpp",
+    ],
+)
 
 DM_SRCS_ANDROID = struct(
     include = [
         # Depends on Android HWUI library that is not available in google3.
         #"dm/DMSrcSinkAndroid.cpp",
         "tests/FontMgrAndroidParserTest.cpp",
+        # TODO(benjaminwagner): Figure out how to compile with EGL.
+        "tools/gpu/gl/CreatePlatformGLContext_none.cpp",
     ],
 )
 
-DM_SRCS_IOS = struct()
+DM_SRCS_IOS = struct(
+    include = [
+        "tools/gpu/iOS/CreatePlatformGLContext_iOS.cpp",
+    ],
+)
 
 ################################################################################
 ## DM_INCLUDES
@@ -448,6 +466,7 @@ DM_INCLUDES = [
     "tests",
     "tools",
     "tools/flags",
+    "tools/gpu",
     "tools/timer",
 ]
 
