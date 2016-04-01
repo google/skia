@@ -99,7 +99,7 @@ bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
     moduleCreateInfo.pNext = nullptr;
     moduleCreateInfo.flags = 0;
 
-    shaderc_compilation_result_t result;
+    shaderc_compilation_result_t result = nullptr;
 
     if (gpu->vkCaps().canUseGLSLForShaderModule()) {
         moduleCreateInfo.codeSize = strlen(shaderString.c_str());
