@@ -63,9 +63,10 @@ def main():
       sys.exit('Error creating output dir ' + args.output_dir)
 
   try:
+    build_type_arg='-DCMAKE_BUILD_TYPE=' + args.build_type
     subprocess.check_call(['cmake', '-G', generator,
         '-DSPIRV_SKIP_EXECUTABLES=ON', '-DSHADERC_ENABLE_SHARED_CRT=ON',
-        args.src_dir], cwd=args.output_dir)
+        args.src_dir, build_type_arg], cwd=args.output_dir)
   except subprocess.CalledProcessError as error:
     sys.exit('Error (ret code: {code}) calling "{cmd}" in {dir}'.format(
         code = error.returncode, cmd = error.cmd, dir = args.src_dir))
