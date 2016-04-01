@@ -21,6 +21,7 @@ DECLARE_bool(quiet);
 DECLARE_bool(resetGpuContext);
 DECLARE_bool(preAbandonGpuContext);
 DECLARE_bool(abandonGpuContext);
+DECLARE_bool(releaseAndAbandonGpuContext);
 DECLARE_string(skps);
 DECLARE_int32(threads);
 DECLARE_string(resourcePath);

@@ -107,6 +107,7 @@ public:
 
     void destroyContexts();
     void abandonContexts();
+    void releaseResourcesAndAbandonContexts();
 
     struct ContextInfo {
         ContextInfo()

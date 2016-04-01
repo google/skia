@@ -386,9 +386,51 @@ void GrGLGpu::createPLSSetupProgram() {
                              GR_GL_STATIC_DRAW));
 }
 
-void GrGLGpu::contextAbandoned() {
-    INHERITED::contextAbandoned();
-    fProgramCache->abandon();
+void GrGLGpu::disconnect(DisconnectType type) {
+    INHERITED::disconnect(type);
+    if (DisconnectType::kCleanup == type) {
+        if (fHWProgramID) {
+            GL_CALL(UseProgram(0));
+        }
+        if (fTempSrcFBOID) {
+            GL_CALL(DeleteFramebuffers(1, &fTempSrcFBOID));
+        }
+        if (fTempDstFBOID) {
+            GL_CALL(DeleteFramebuffers(1, &fTempDstFBOID));
+        }
+        if (fStencilClearFBOID) {
+            GL_CALL(DeleteFramebuffers(1, &fStencilClearFBOID));
+        }
+        if (fCopyProgramArrayBuffer) {
+            GL_CALL(DeleteBuffers(1, &fCopyProgramArrayBuffer));
+        }
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
+            if (fCopyPrograms[i].fProgram) {
+                GL_CALL(DeleteProgram(fCopyPrograms[i].fProgram));
+            }
+        }
+        if (fWireRectProgram.fProgram) {
+            GL_CALL(DeleteProgram(fWireRectProgram.fProgram));
+        }
+        if (fWireRectArrayBuffer) {
+            GL_CALL(DeleteBuffers(1, &fWireRectArrayBuffer));
+        }
+
+        if (fPLSSetupProgram.fProgram) {
+            GL_CALL(DeleteProgram(fPLSSetupProgram.fProgram));
+        }
+        if (fPLSSetupProgram.fArrayBuffer) {
+            GL_CALL(DeleteBuffers(1, &fPLSSetupProgram.fArrayBuffer));
+        }
+    } else {
+        if (fProgramCache) {
+            fProgramCache->abandon();
+        }
+    }
+
+    delete fProgramCache;
+    fProgramCache = nullptr;
+
     fHWProgramID = 0;
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
@@ -399,8 +441,10 @@ void GrGLGpu::contextAbandoned() {
     }
     fWireRectProgram.fProgram = 0;
     fWireRectArrayBuffer = 0;
+    fPLSSetupProgram.fProgram = 0;
+    fPLSSetupProgram.fArrayBuffer = 0;
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
-        this->glPathRendering()->abandonGpuResources();
+        this->glPathRendering()->disconnect(type);
     }
 }
 

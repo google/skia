@@ -91,7 +91,10 @@ GrGLPathRendering::~GrGLPathRendering() {
     }
 }
 
-void GrGLPathRendering::abandonGpuResources() {
+void GrGLPathRendering::disconnect(GrGpu::DisconnectType type) {
+    if (GrGpu::DisconnectType::kCleanup == type) {
+        this->deletePaths(fFirstPreallocatedPathID, fPreallocatedPathCount);
+    };
     fPreallocatedPathCount = 0;
 }
 

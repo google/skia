@@ -1011,6 +1011,8 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     canvas->readPixels(dst, 0, 0);
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
+    } else if (FLAGS_releaseAndAbandonGpuContext) {
+        factory.releaseResourcesAndAbandonContexts();
     }
     return "";
 }

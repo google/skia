@@ -63,6 +63,17 @@ void GrContextFactory::abandonContexts() {
     }
 }
 
+void GrContextFactory::releaseResourcesAndAbandonContexts() {
+    for (Context& context : fContexts) {
+        if (context.fGLContext) {
+            context.fGLContext->makeCurrent();
+            context.fGrContext->releaseResourcesAndAbandonContext();
+            delete(context.fGLContext);
+            context.fGLContext = nullptr;
+        }
+    }
+}
+
 GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType type,
                                                                GLContextOptions options) {
     for (int i = 0; i < fContexts.count(); ++i) {

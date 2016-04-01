@@ -41,10 +41,10 @@ public:
     void resetContext();
 
     /**
-     * Called when the GPU resources have been lost and need to be abandoned
-     * (for example after a context loss).
+     * Called when the context either is about to be lost or is lost. DisconnectType indicates
+     * whether GPU resources should be cleaned up or abandoned when this is called.
      */
-    void abandonGpuResources();
+    void disconnect(GrGpu::DisconnectType);
 
     bool shouldBindFragmentInputs() const {
         return fCaps.bindFragmentInputSupport;

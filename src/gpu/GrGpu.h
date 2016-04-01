@@ -61,11 +61,17 @@ public:
 
     GrPathRendering* pathRendering() { return fPathRendering.get();  }
 
-    // Called by GrContext when the underlying backend context has been destroyed.
-    // GrGpu should use this to ensure that no backend API calls will be made from
-    // here onward, including in its destructor. Subclasses should call
-    // INHERITED::contextAbandoned() if they override this.
-    virtual void contextAbandoned();
+    enum class DisconnectType {
+        // No cleanup should be attempted, immediately cease making backend API calls
+        kAbandon,
+        // Free allocated resources (not known by GrResourceCache) before returning and
+        // ensure no backend backend 3D API calls will be made after disconnect() returns.
+        kCleanup,
+    };
+
+    // Called by GrContext when the underlying backend context is already or will be destroyed
+    // before GrContext.
+    virtual void disconnect(DisconnectType);
 
     /**
      * The GrGpu object normally assumes that no outsider is setting state

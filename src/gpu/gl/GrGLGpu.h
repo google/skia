@@ -38,7 +38,7 @@ public:
                          GrContext* context);
     ~GrGLGpu() override;
 
-    void contextAbandoned() override;
+    void disconnect(DisconnectType) override;
 
     const GrGLContext& glContext() const { return *fGLContext; }
 

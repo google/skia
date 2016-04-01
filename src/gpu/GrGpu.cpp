@@ -51,7 +51,7 @@ GrGpu::GrGpu(GrContext* context)
 
 GrGpu::~GrGpu() {}
 
-void GrGpu::contextAbandoned() {}
+void GrGpu::disconnect(DisconnectType) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 

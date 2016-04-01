@@ -84,6 +84,8 @@ public:
     void destroyContexts() {}
 
     void abandonContexts() {}
+
+    void releaseResourcesAndAbandonContexts() {}
 };
 }  // namespace sk_gpu_test
 

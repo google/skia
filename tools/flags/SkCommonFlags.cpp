@@ -30,9 +30,13 @@ DEFINE_string2(match, m, nullptr,
 
 DEFINE_bool2(quiet, q, false, "if true, don't print status updates.");
 
-DEFINE_bool(preAbandonGpuContext, false, "Abandons the GrContext before running the test.");
+DEFINE_bool(preAbandonGpuContext, false, "Test abandoning the GrContext before running the test.");
 
-DEFINE_bool(abandonGpuContext, false, "Abandon the GrContext after running each test.");
+DEFINE_bool(abandonGpuContext, false, "Test abandoning the GrContext after running each test.");
+
+DEFINE_bool(releaseAndAbandonGpuContext, false,
+            "Test releasing all gpu resources and abandoning the GrContext after running each "
+            "test");
 
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
