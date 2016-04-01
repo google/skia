@@ -85,6 +85,9 @@
             ],
           },
         }],
+        ['skia_os in ["linux", "win", "mac", "chromeos", "android", "ios"]', {
+          'sources/': [ ['exclude', '_none\.(h|cpp)$'],],
+        }],
         ['skia_os != "win"', {
           'sources/': [ ['exclude', '_win\.(h|cpp)$'],],
         }],
