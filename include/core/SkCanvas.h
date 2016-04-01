@@ -1055,7 +1055,7 @@ public:
                       const SkPaint& paint);
     void drawVertices(VertexMode vmode, int vertexCount,
                       const SkPoint vertices[], const SkPoint texs[],
-                      const SkColor colors[], sk_sp<SkXfermode>& xmode,
+                      const SkColor colors[], const sk_sp<SkXfermode>& xmode,
                       const uint16_t indices[], int indexCount,
                       const SkPaint& paint) {
         this->drawVertices(vmode, vertexCount, vertices, texs, colors, xmode.get(),
