@@ -30,8 +30,9 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
-                                 SkIPoint* loc) const override;
+
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
 
 private:
     SkDownSampleImageFilter(SkScalar scale, SkImageFilter* input)
