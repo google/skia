@@ -227,6 +227,7 @@ def device_cfg(builder_dict):
       'Nexus5':        'arm_v7_neon',
       'Nexus6':        'arm_v7_neon',
       'Nexus7':        'arm_v7_neon',
+      'Nexus7v2':      'arm_v7_neon',
       'Nexus9':        'arm64',
       'NexusPlayer':   'x86',
     }[builder_dict['model']]
@@ -247,6 +248,25 @@ def device_cfg(builder_dict):
 
 
 cov_skip.extend([lineno(), lineno() + 1])
+def product_board(builder_dict):
+  if 'Android' in builder_dict.get('os', ''):
+    return {
+      'AndroidOne':    None,  # TODO(borenet,kjlubick)
+      'GalaxyS3':      'smdk4x12',
+      'GalaxyS4':      None,  # TODO(borenet,kjlubick)
+      'NVIDIA_Shield': None,  # TODO(borenet,kjlubick)
+      'Nexus10':       'manta',
+      'Nexus5':        'hammerhead',
+      'Nexus6':        'shamu',
+      'Nexus7':        'grouper',
+      'Nexus7v2':      'flo',
+      'Nexus9':        'flounder',
+      'NexusPlayer':   'fugu',
+    }[builder_dict['model']]
+  return None
+
+
+cov_skip.extend([lineno(), lineno() + 1])
 def get_builder_spec(builder_name):
   builder_dict = builder_name_schema.DictForBuilderName(builder_name)
   env = get_extra_env_vars(builder_dict)
@@ -263,6 +283,9 @@ def get_builder_spec(builder_name):
   device = device_cfg(builder_dict)
   if device:
     rv['device_cfg'] = device
+  board = product_board(builder_dict)
+  if board:
+    rv['product.board'] = board
 
   role = builder_dict['role']
   if role == builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
