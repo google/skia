@@ -31,22 +31,37 @@ public:
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigTextureSupport[config];
+        return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
         SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigRenderSupport[config][withMSAA];
-    }
-
-    bool isConfigRenderableLinearly(GrPixelConfig config, bool withMSAA) const {
-        SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigLinearRenderSupport[config][withMSAA];
+        return SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
     bool isConfigTexurableLinearly(GrPixelConfig config) const {
         SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigLinearTextureSupport[config];
+        return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);
+    }
+
+    bool isConfigRenderableLinearly(GrPixelConfig config, bool withMSAA) const {
+        SkASSERT(kGrPixelConfigCnt > config);
+        return !withMSAA && SkToBool(ConfigInfo::kRenderable_Flag &
+                                     fConfigTable[config].fLinearFlags);
+    }
+
+    bool configCanBeDstofBlit(GrPixelConfig config, bool linearTiled) const {
+        SkASSERT(kGrPixelConfigCnt > config);
+        const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
+                                              fConfigTable[config].fOptimalFlags;
+        return SkToBool(ConfigInfo::kBlitDst_Flag & flags);
+    }
+
+    bool configCanBeSrcofBlit(GrPixelConfig config, bool linearTiled) const {
+        SkASSERT(kGrPixelConfigCnt > config);
+        const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
+                                              fConfigTable[config].fOptimalFlags;
+        return SkToBool(ConfigInfo::kBlitSrc_Flag & flags);
     }
 
     bool canUseGLSLForShaderModule() const {
@@ -54,19 +69,10 @@ public:
     }
 
     /**
-     * Gets an array of legal stencil formats. These formats are not guaranteed to be supported by
-     * the driver but are legal VK_TEXTURE_FORMATs.
+     * Returns both a supported and most prefered stencil format to use in draws.
      */
-    const SkTArray<StencilFormat, true>& stencilFormats() const {
-        return fStencilFormats;
-    }
-
-    /**
-     * Gets an array of legal stencil formats. These formats are not guaranteed to be supported by
-     * the driver but are legal VK_TEXTURE_FORMATs.
-     */
-    const SkTArray<StencilFormat, true>& linearStencilFormats() const {
-        return fLinearStencilFormats;
+    const StencilFormat& preferedStencilFormat() const {
+        return fPreferedStencilFormat;
     }
 
     GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
@@ -79,22 +85,30 @@ private:
                     uint32_t featureFlags);
     void initGLSLCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
-    void initConfigRenderableTable(const GrVkInterface* iface, VkPhysicalDevice physDev);
-    void initConfigTexturableTable(const GrVkInterface* iface, VkPhysicalDevice physDev);
-    void initStencilFormats(const GrVkInterface* iface, VkPhysicalDevice physDev);
 
 
-    bool fConfigTextureSupport[kGrPixelConfigCnt];
-    // For Vulkan we track whether a config is supported linearly (without need for swizzling)
-    bool fConfigLinearTextureSupport[kGrPixelConfigCnt];
+    void initConfigTable(const GrVkInterface*, VkPhysicalDevice);
+    void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
 
-    // The first entry for each config is without msaa and the second is with.
-    bool fConfigRenderSupport[kGrPixelConfigCnt][2];
-    // The first entry for each config is without msaa and the second is with.
-    bool fConfigLinearRenderSupport[kGrPixelConfigCnt][2];
+    struct ConfigInfo {
+        ConfigInfo() : fOptimalFlags(0), fLinearFlags(0) {}
 
-    SkTArray<StencilFormat, true> fLinearStencilFormats;
-    SkTArray<StencilFormat, true> fStencilFormats;
+        void init(const GrVkInterface*, VkPhysicalDevice, VkFormat);
+        static void InitConfigFlags(VkFormatFeatureFlags, uint16_t* flags);
+
+        enum {
+            kTextureable_Flag = 0x1,
+            kRenderable_Flag  = 0x2,
+            kBlitSrc_Flag     = 0x4,
+            kBlitDst_Flag     = 0x8,
+        };
+
+        uint16_t fOptimalFlags;
+        uint16_t fLinearFlags;
+    };
+    ConfigInfo fConfigTable[kGrPixelConfigCnt];
+    
+    StencilFormat fPreferedStencilFormat;
 
     // Tells of if we can pass in straight GLSL string into vkCreateShaderModule
     bool fCanUseGLSLForShaderModule;

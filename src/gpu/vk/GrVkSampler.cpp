@@ -52,6 +52,11 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& para
     createInfo.maxAnisotropy = 1.0f;
     createInfo.compareEnable = VK_FALSE;
     createInfo.compareOp = VK_COMPARE_OP_NEVER;
+    // Vulkan doesn't have a direct mapping of GL's nearest or linear filters for minFilter since
+    // there is always a mipmapMode. To get the same effect as GL we can set minLod = maxLod = 0.0.
+    // This works since our min and mag filters are the same (this forces us to use mag on the 0
+    // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
+    // the minFilter on mip level 0.
     createInfo.minLod = 0.0f;
     createInfo.maxLod = 0.0f;
     createInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;

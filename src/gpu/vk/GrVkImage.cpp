@@ -58,6 +58,10 @@ const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
     if (!GrSampleCountToVkSampleCount(imageDesc.fSamples, &vkSamples)) {
         return nullptr;
     }
+
+    SkASSERT(VK_IMAGE_TILING_OPTIMAL == imageDesc.fImageTiling ||
+             VK_SAMPLE_COUNT_1_BIT == vkSamples);
+
     const VkImageCreateInfo imageCreateInfo = {
         VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,         // sType
         NULL,                                        // pNext

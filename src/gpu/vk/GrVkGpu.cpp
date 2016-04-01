@@ -650,8 +650,7 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
     int samples = rt->numStencilSamples();
 
-    SkASSERT(this->vkCaps().stencilFormats().count());
-    const GrVkCaps::StencilFormat& sFmt = this->vkCaps().stencilFormats()[0];
+    const GrVkCaps::StencilFormat& sFmt = this->vkCaps().preferedStencilFormat();
 
     GrVkStencilAttachment* stencil(GrVkStencilAttachment::Create(this,
                                                                  GrGpuResource::kCached_LifeCycle,
