@@ -162,12 +162,12 @@ DEF_GPUTEST(VkWrapTests, reporter, factory) {
     GrContextOptions opts;
     opts.fSuppressPrints = true;
     GrContextFactory debugFactory(opts);
-    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        if (static_cast<GrContextFactory::GLContextType>(type) !=
-            GrContextFactory::kNative_GLContextType) {
+    for (int type = 0; type < GrContextFactory::kLastContextType; ++type) {
+        if (static_cast<GrContextFactory::ContextType>(type) !=
+            GrContextFactory::kNativeGL_ContextType) {
             continue;
         }
-        GrContext* context = debugFactory.get(static_cast<GrContextFactory::GLContextType>(type));
+        GrContext* context = debugFactory.get(static_cast<GrContextFactory::ContextType>(type));
         if (context) {
             wrap_tex_test(reporter, context);
             wrap_rt_test(reporter, context);

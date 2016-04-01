@@ -253,11 +253,11 @@ static SkString make_png_name(const char* filename) {
     return pngName;
 }
 
-typedef GrContextFactory::GLContextType GLContextType;
+typedef GrContextFactory::ContextType ContextType;
 #ifdef SK_BUILD_FOR_WIN
-static const GLContextType kAngle = GrContextFactory::kANGLE_GLContextType;
+static const ContextType kAngle = GrContextFactory::kANGLE_ContextType;
 #else
-static const GLContextType kNative = GrContextFactory::kNative_GLContextType;
+static const ContextType kNative = GrContextFactory::kNativeGL_ContextType;
 #endif
 
 static int similarBits(const SkBitmap& gr, const SkBitmap& sk) {

@@ -407,7 +407,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_Gpu2Cpu, reporter, context) {
 DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_newTextureImage, reporter, context, glContext) {
     GrContextFactory otherFactory;
     GrContextFactory::ContextInfo otherContextInfo =
-        otherFactory.getContextInfo(GrContextFactory::kNative_GLContextType);
+        otherFactory.getContextInfo(GrContextFactory::kNativeGL_ContextType);
     glContext->makeCurrent();
 
     std::function<sk_sp<SkImage>()> imageFactories[] = {
@@ -825,7 +825,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(DeferredTextureImage, reporter, context, glContex
 
     GrContextFactory otherFactory;
     GrContextFactory::ContextInfo otherContextInfo =
-        otherFactory.getContextInfo(GrContextFactory::kNative_GLContextType);
+        otherFactory.getContextInfo(GrContextFactory::kNativeGL_ContextType);
 
     glContext->makeCurrent();
     REPORTER_ASSERT(reporter, proxy);
