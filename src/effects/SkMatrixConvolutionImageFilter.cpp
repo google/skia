@@ -337,10 +337,10 @@ SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, c
     return dst;
 }
 
-bool SkMatrixConvolutionImageFilter::canComputeFastBounds() const {
+bool SkMatrixConvolutionImageFilter::affectsTransparentBlack() const {
     // Because the kernel is applied in device-space, we have no idea what
     // pixels it will affect in object-space.
-    return false;
+    return true;
 }
 
 #if SK_SUPPORT_GPU

@@ -86,7 +86,10 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
     }
 
     // Apply the crop rect to the union of the inputs' bounds.
-    this->getCropRect().applyTo(bounds, ctx.ctm(), &bounds);
+    // Note that the crop rect can only reduce the bounds, since this
+    // filter does not affect transparent black.
+    bool embiggen = false;
+    this->getCropRect().applyTo(bounds, ctx.ctm(), embiggen, &bounds);
     if (!bounds.intersect(ctx.clipBounds())) {
         return nullptr;
     }

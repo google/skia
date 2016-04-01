@@ -88,12 +88,16 @@ public:
 
         /**
          *  Apply this cropRect to the imageBounds. If a given edge of the cropRect is not
-         *  set, then the corresponding edge from imageBounds will be used.
+         *  set, then the corresponding edge from imageBounds will be used. If "embiggen"
+         *  is true, the crop rect is allowed to enlarge the size of the rect, otherwise
+         *  it may only reduce the rect. Filters that can affect transparent black should 
+         *  pass "true", while all other filters should pass "false".
          *
          *  Note: imageBounds is in "device" space, as the output cropped rectangle will be,
          *  so the matrix is ignored for those. It is only applied the croprect's bounds.
          */
-        void applyTo(const SkIRect& imageBounds, const SkMatrix&, SkIRect* cropped) const;
+        void applyTo(const SkIRect& imageBounds, const SkMatrix&, bool embiggen,
+                     SkIRect* cropped) const;
 
     private:
         SkRect fRect;
@@ -249,7 +253,7 @@ public:
     virtual SkRect computeFastBounds(const SkRect&) const;
 
     // Can this filter DAG compute the resulting bounds of an object-space rectangle?
-    virtual bool canComputeFastBounds() const;
+    bool canComputeFastBounds() const;
 
     /**
      *  If this filter can be represented by another filter + a localMatrix, return that filter,
@@ -466,6 +470,7 @@ private:
                                SkBitmap* result, SkIPoint* offset) const;
 
     bool usesSrcInput() const { return fUsesSrcInput; }
+    virtual bool affectsTransparentBlack() const { return false; }
 
     typedef SkFlattenable INHERITED;
     int fInputCount;

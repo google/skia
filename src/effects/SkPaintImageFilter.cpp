@@ -66,11 +66,8 @@ sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
     return surf->makeImageSnapshot();
 }
 
-bool SkPaintImageFilter::canComputeFastBounds() const {
-    // http:skbug.com/4627: "make computeFastBounds and onFilterBounds() CropRect-aware"
-    // computeFastBounds() doesn't currently take the crop rect into account,
-    // so we can't compute it. If a full crop rect is set, we should return true here.
-    return false;
+bool SkPaintImageFilter::affectsTransparentBlack() const {
+    return true;
 }
 
 #ifndef SK_IGNORE_TO_STRING

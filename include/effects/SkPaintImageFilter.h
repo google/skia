@@ -26,7 +26,7 @@ public:
         return sk_sp<SkImageFilter>(new SkPaintImageFilter(paint, cropRect));
     }
 
-    bool canComputeFastBounds() const override;
+    bool affectsTransparentBlack() const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPaintImageFilter)

@@ -69,25 +69,38 @@ void SkImageFilter::CropRect::toString(SkString* str) const {
 
 void SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds,
                                       const SkMatrix& ctm,
+                                      bool embiggen,
                                       SkIRect* cropped) const {
     *cropped = imageBounds;
     if (fFlags) {
         SkRect devCropR;
         ctm.mapRect(&devCropR, fRect);
-        const SkIRect devICropR = devCropR.roundOut();
+        SkIRect devICropR = devCropR.roundOut();
 
-        // Compute the left/top first, in case we have to read them to compute right/bottom
+        // Compute the left/top first, in case we need to modify the right/bottom for a missing edge
         if (fFlags & kHasLeft_CropEdge) {
-            cropped->fLeft = devICropR.fLeft;
+            if (embiggen || devICropR.fLeft > cropped->fLeft) {
+                cropped->fLeft = devICropR.fLeft;
+            }
+        } else {
+            devICropR.fRight = cropped->fLeft + devICropR.width();
         }
         if (fFlags & kHasTop_CropEdge) {
-            cropped->fTop = devICropR.fTop;
+            if (embiggen || devICropR.fTop > cropped->fTop) {
+                cropped->fTop = devICropR.fTop;
+            }
+        } else {
+            devICropR.fBottom = cropped->fTop + devICropR.height();
         }
         if (fFlags & kHasWidth_CropEdge) {
-            cropped->fRight = cropped->fLeft + devICropR.width();
+            if (embiggen || devICropR.fRight < cropped->fRight) {
+                cropped->fRight = devICropR.fRight;
+            }
         }
         if (fFlags & kHasHeight_CropEdge) {
-            cropped->fBottom = cropped->fTop + devICropR.height();
+            if (embiggen || devICropR.fBottom < cropped->fBottom) {
+                cropped->fBottom = devICropR.fBottom;
+            }
         }
     }
 }
@@ -306,7 +319,7 @@ SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
         SkIRect bounds = this->onFilterBounds(src, ctm, direction);
         bounds = this->onFilterNodeBounds(bounds, ctm, direction);
         SkIRect dst;
-        this->getCropRect().applyTo(bounds, ctm, &dst);
+        this->getCropRect().applyTo(bounds, ctm, this->affectsTransparentBlack(), &dst);
         return dst;
     }
 }
@@ -328,6 +341,9 @@ SkRect SkImageFilter::computeFastBounds(const SkRect& src) const {
 }
 
 bool SkImageFilter::canComputeFastBounds() const {
+    if (this->affectsTransparentBlack()) {
+        return false;
+    }
     for (int i = 0; i < fInputCount; i++) {
         SkImageFilter* input = this->getInput(i);
         if (input && !input->canComputeFastBounds()) {
@@ -437,7 +453,7 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
                                   SkIRect* dstBounds) const {
     SkIRect temp = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(temp, ctx.ctm(), dstBounds);
+    fCropRect.applyTo(temp, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
     // Intersect against the clip bounds, in case the crop rect has
     // grown the bounds beyond the original clip. This can happen for
     // example in tiling, where the clip is much smaller than the filtered
@@ -453,7 +469,7 @@ bool SkImageFilter::applyCropRectDeprecated(const Context& ctx, Proxy* proxy, co
     src.getBounds(&srcBounds);
     srcBounds.offset(*srcOffset);
     SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(dstBounds, ctx.ctm(), bounds);
+    fCropRect.applyTo(dstBounds, ctx.ctm(), this->affectsTransparentBlack(), bounds);
     if (!bounds->intersect(ctx.clipBounds())) {
         return false;
     }
@@ -504,7 +520,7 @@ sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
     srcBounds = SkIRect::MakeXYWH(srcOffset->fX, srcOffset->fY, src->width(), src->height());
 
     SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(dstBounds, ctx.ctm(), bounds);
+    fCropRect.applyTo(dstBounds, ctx.ctm(), this->affectsTransparentBlack(), bounds);
     if (!bounds->intersect(ctx.clipBounds())) {
         return nullptr;
     }
