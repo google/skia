@@ -85,7 +85,7 @@ protected:
         };
 
         int x = 0, y = 0;
-        sk_sp<SkImageFilter> background(SkImageSource::Create(fCheckerboard.get()));
+        sk_sp<SkImageFilter> background(SkImageSource::Make(fCheckerboard));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
             paint.setImageFilter(SkXfermodeImageFilter::Make(SkXfermode::Make(gModes[i].fMode),
                                                              background.get()));
@@ -98,8 +98,7 @@ protected:
         }
         // Test arithmetic mode as image filter
         paint.setImageFilter(SkXfermodeImageFilter::Make(
-                         SkArithmeticMode::Make(0, SK_Scalar1, SK_Scalar1, 0),
-                         background.get()));
+                         SkArithmeticMode::Make(0, SK_Scalar1, SK_Scalar1, 0), background.get()));
         DrawClippedBitmap(canvas, fBitmap, paint, x, y);
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
@@ -118,7 +117,7 @@ protected:
                                          SkIntToScalar(fBitmap.height() + 4));
         // Test offsets on SrcMode (uses fixed-function blend)
         sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(fBitmap));
-        sk_sp<SkImageFilter> foreground(SkImageSource::Create(bitmapImage.get()));
+        sk_sp<SkImageFilter> foreground(SkImageSource::Make(std::move(bitmapImage)));
         sk_sp<SkImageFilter> offsetForeground(SkOffsetImageFilter::Make(SkIntToScalar(4),
                                                                         SkIntToScalar(-4),
                                                                         foreground));

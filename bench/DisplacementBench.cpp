@@ -102,11 +102,11 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard.get()));
+        sk_sp<SkImageFilter> displ(SkImageSource::Make(fCheckerboard));
         // No displacement effect
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
-            SkDisplacementMapEffect::kG_ChannelSelectorType, 0.0f, displ))->unref();
+            SkDisplacementMapEffect::kG_ChannelSelectorType, 0.0f, displ.get()))->unref();
 
         for (int i = 0; i < loops; i++) {
             this->drawClippedBitmap(canvas, 0, 0, paint);
@@ -129,11 +129,11 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard.get()));
+        sk_sp<SkImageFilter> displ(SkImageSource::Make(fCheckerboard));
         // Displacement, with 1 alpha component (which isn't pre-multiplied)
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
-            SkDisplacementMapEffect::kA_ChannelSelectorType, 16.0f, displ))->unref();
+            SkDisplacementMapEffect::kA_ChannelSelectorType, 16.0f, displ.get()))->unref();
         for (int i = 0; i < loops; i++) {
             drawClippedBitmap(canvas, 100, 0, paint);
         }
@@ -155,11 +155,11 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard.get()));
+        sk_sp<SkImageFilter> displ(SkImageSource::Make(fCheckerboard));
         // Displacement, with 2 non-alpha components
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
-            SkDisplacementMapEffect::kB_ChannelSelectorType, 32.0f, displ))->unref();
+            SkDisplacementMapEffect::kB_ChannelSelectorType, 32.0f, displ.get()))->unref();
         for (int i = 0; i < loops; ++i) {
             this->drawClippedBitmap(canvas, 200, 0, paint);
         }

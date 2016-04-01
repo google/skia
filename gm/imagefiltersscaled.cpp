@@ -52,8 +52,8 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
-        SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle.get()));
-        SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard.get()));
+        sk_sp<SkImageFilter> gradient(SkImageSource::Make(fGradientCircle));
+        sk_sp<SkImageFilter> checkerboard(SkImageSource::Make(fCheckerboard));
         sk_sp<SkShader> noise(SkPerlinNoiseShader::MakeFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
         SkPaint noisePaint;

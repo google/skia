@@ -48,8 +48,7 @@ protected:
         SkBitmap checkerboard;
         MakeCheckerboard(&checkerboard);
 
-        SkAutoTUnref<SkImageFilter> gradientCircleSource(
-            SkImageSource::Create(gradientCircle.get()));
+        sk_sp<SkImageFilter> gradientCircleSource(SkImageSource::Make(std::move(gradientCircle)));
         sk_sp<SkImageFilter> noopCropped(SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect));
         SkScalar sk255 = SkIntToScalar(255);
         SkScalar matrix[20] = { 1, 0, 0, 0, 0,

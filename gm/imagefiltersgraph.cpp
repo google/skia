@@ -118,7 +118,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         {
-            sk_sp<SkImageFilter> bitmapSource(SkImageSource::Create(fImage.get()));
+            sk_sp<SkImageFilter> bitmapSource(SkImageSource::Make(fImage));
             sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorRED,
                                                                   SkXfermode::kSrcIn_Mode));
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f, bitmapSource.get()));

@@ -277,10 +277,10 @@ protected:
         }
 
         sk_sp<SkImage> image(surface->makeImageSnapshot());
-        SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(image.get()));
+        sk_sp<SkImageFilter> imageSource(SkImageSource::Make(std::move(image)));
 
         SkTArray<SkPaint> bmsPaints;
-        create_paints(imageSource, &bmsPaints);
+        create_paints(imageSource.get(), &bmsPaints);
 
         //-----------
         SkASSERT(paints.count() == kNumVertTiles);

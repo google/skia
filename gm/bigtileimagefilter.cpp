@@ -54,13 +54,15 @@ protected:
         {
             SkPaint p;
 
-            SkRect bound = SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
-            sk_sp<SkImageFilter> imageSource(SkImageSource::Create(fRedImage.get()));
-            SkAutoTUnref<SkImageFilter> tif(SkTileImageFilter::Create(
-                            SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
-                            SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)),
-                            imageSource.get()));
-            p.setImageFilter(tif);
+            const SkRect bound = SkRect::MakeIWH(kWidth, kHeight);
+            sk_sp<SkImageFilter> imageSource(SkImageSource::Make(fRedImage));
+
+            sk_sp<SkImageFilter> tif(SkTileImageFilter::Create(
+                                                    SkRect::MakeIWH(kBitmapSize, kBitmapSize),
+                                                    SkRect::MakeIWH(kWidth, kHeight),
+                                                    imageSource.get()));
+
+            p.setImageFilter(std::move(tif));
 
             canvas->saveLayer(&bound, &p);
             canvas->restore();
@@ -69,13 +71,14 @@ protected:
         {
             SkPaint p2;
 
-            SkRect bound2 = SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize));
+            const SkRect bound2 = SkRect::MakeIWH(kBitmapSize, kBitmapSize);
 
-            SkAutoTUnref<SkImageFilter> tif2(SkTileImageFilter::Create(
-                            SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
-                            SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
-                            nullptr));
-            p2.setImageFilter(tif2);
+            sk_sp<SkImageFilter> tif(SkTileImageFilter::Create(
+                                                        SkRect::MakeIWH(kBitmapSize, kBitmapSize),
+                                                        SkRect::MakeIWH(kBitmapSize, kBitmapSize),
+                                                        nullptr));
+
+            p2.setImageFilter(std::move(tif));
 
             canvas->translate(320, 320);
             canvas->saveLayer(&bound2, &p2);

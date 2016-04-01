@@ -118,7 +118,7 @@ public:
         const SkScalar five = SkIntToScalar(5);
 
         sk_sp<SkImage> gradientImage(SkImage::MakeFromBitmap(make_gradient_circle(64, 64)));
-        SkAutoTUnref<SkImageFilter> gradientSource(SkImageSource::Create(gradientImage.get()));
+        sk_sp<SkImageFilter> gradientSource(SkImageSource::Make(std::move(gradientImage)));
         sk_sp<SkImageFilter> blur(SkBlurImageFilter::Create(five, five, input));
         SkMatrix matrix;
 
@@ -430,12 +430,12 @@ DEF_TEST(ImageFilter, reporter) {
             // 3 ) large negative specular exponent value
             SkScalar specularExponent = -1000;
 
-            SkAutoTUnref<SkImageFilter> bmSrc(SkImageSource::Create(image.get()));
+            sk_sp<SkImageFilter> bmSrc(SkImageSource::Make(std::move(image)));
             SkPaint paint;
             paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(
                     location, target, specularExponent, 180,
                     0xFFFFFFFF, SK_Scalar1, SK_Scalar1, SK_Scalar1,
-                    bmSrc))->unref();
+                    bmSrc.get()))->unref();
             SkCanvas canvas(result);
             SkRect r = SkRect::MakeWH(SkIntToScalar(kBitmapSize),
                                       SkIntToScalar(kBitmapSize));
@@ -829,7 +829,7 @@ static void test_imagefilter_merge_result_size(SkImageFilter::Proxy* proxy,
     greenBM.allocN32Pixels(20, 20);
     greenBM.eraseColor(SK_ColorGREEN);
     sk_sp<SkImage> greenImage(SkImage::MakeFromBitmap(greenBM));
-    sk_sp<SkImageFilter> source(SkImageSource::Create(greenImage.get()));
+    sk_sp<SkImageFilter> source(SkImageSource::Make(std::move(greenImage)));
     sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(source, source));
 
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 1));
@@ -1495,10 +1495,10 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
     auto surface(SkSurface::MakeRasterN32Premul(10, 10));
     surface->getCanvas()->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
-    SkAutoTUnref<SkImageFilter> filter(SkImageSource::Create(image.get()));
+    sk_sp<SkImageFilter> filter(SkImageSource::Make(std::move(image)));
 
-    SkAutoTUnref<SkData> data(SkValidatingSerializeFlattenable(filter));
-    SkAutoTUnref<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
+    sk_sp<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
+    sk_sp<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
         data->data(), data->size(), SkImageFilter::GetFlattenableType()));
     SkImageFilter* unflattenedFilter = static_cast<SkImageFilter*>(flattenable.get());
     REPORTER_ASSERT(reporter, unflattenedFilter);
@@ -1539,20 +1539,20 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
         return;
     }
 
-    SkAutoTUnref<SkImageFilter> largeSource(SkImageSource::Create(largeImage.get()));
+    sk_sp<SkImageFilter> largeSource(SkImageSource::Make(std::move(largeImage)));
     if (!largeSource) {
         ERRORF(reporter, "Failed to create large SkImageSource.");
         return;
     }
 
-    SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(10.f, 10.f, largeSource));
+    sk_sp<SkImageFilter> blur(SkBlurImageFilter::Create(10.f, 10.f, largeSource.get()));
     if (!blur) {
         ERRORF(reporter, "Failed to create SkBlurImageFilter.");
         return;
     }
 
     SkPaint paint;
-    paint.setImageFilter(blur);
+    paint.setImageFilter(std::move(blur));
 
     // This should not crash (http://crbug.com/570479).
     canvas->drawRect(SkRect::MakeIWH(largeW, largeH), paint);

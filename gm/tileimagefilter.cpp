@@ -56,7 +56,7 @@ protected:
 
         int x = 0, y = 0;
         for (size_t i = 0; i < 4; i++) {
-            SkImage* image = (i & 0x01) ? fCheckerboard.get() : fBitmap.get();
+            sk_sp<SkImage> image = (i & 0x01) ? fCheckerboard : fBitmap;
             SkRect srcRect = SkRect::MakeXYWH(SkIntToScalar(image->width()/4),
                                               SkIntToScalar(image->height()/4),
                                               SkIntToScalar(image->width()/(i+1)),
@@ -65,13 +65,12 @@ protected:
                                               SkIntToScalar(i * 4),
                                               SkIntToScalar(image->width() - i * 12),
                                               SkIntToScalar(image->height()) - i * 12);
-            SkAutoTUnref<SkImageFilter> tileInput(SkImageSource::Create(image));
-            SkAutoTUnref<SkImageFilter> filter(
-                SkTileImageFilter::Create(srcRect, dstRect, tileInput));
+            sk_sp<SkImageFilter> tileInput(SkImageSource::Make(image));
+            sk_sp<SkImageFilter> filter(SkTileImageFilter::Create(srcRect, dstRect, tileInput.get()));
             canvas->save();
             canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
             SkPaint paint;
-            paint.setImageFilter(filter);
+            paint.setImageFilter(std::move(filter));
             canvas->drawImage(fBitmap.get(), 0, 0, &paint);
             canvas->drawRect(srcRect, red);
             canvas->drawRect(dstRect, blue);

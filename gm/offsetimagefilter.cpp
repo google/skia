@@ -47,17 +47,17 @@ protected:
         SkPaint paint;
 
         for (int i = 0; i < 4; i++) {
-            SkImage* image = (i & 0x01) ? fCheckerboard.get() : fBitmap.get();
+            sk_sp<SkImage> image = (i & 0x01) ? fCheckerboard : fBitmap;
             SkIRect cropRect = SkIRect::MakeXYWH(i * 12,
                                                  i * 8,
                                                  image->width() - i * 8,
                                                  image->height() - i * 12);
             SkImageFilter::CropRect rect(SkRect::Make(cropRect));
-            sk_sp<SkImageFilter> tileInput(SkImageSource::Create(image));
+            sk_sp<SkImageFilter> tileInput(SkImageSource::Make(image));
             SkScalar dx = SkIntToScalar(i*5);
             SkScalar dy = SkIntToScalar(i*10);
             paint.setImageFilter(SkOffsetImageFilter::Make(dx, dy, std::move(tileInput), &rect));
-            DrawClippedImage(canvas, image, paint, 1, cropRect);
+            DrawClippedImage(canvas, image.get(), paint, 1, cropRect);
             canvas->translate(SkIntToScalar(image->width() + MARGIN), 0);
         }
 

@@ -13,16 +13,42 @@
 
 class SK_API SkImageSource : public SkImageFilter {
 public:
-    static SkImageFilter* Create(SkImage*);
-    static SkImageFilter* Create(SkImage*,
-                                 const SkRect& srcRect,
-                                 const SkRect& dstRect,
-                                 SkFilterQuality);
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImage> image) {
+        if (!image) {
+            return nullptr;
+        }
+
+        return sk_sp<SkImageFilter>(new SkImageSource(std::move(image)));
+    }
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImage> image,
+                                     const SkRect& srcRect,
+                                     const SkRect& dstRect,
+                                     SkFilterQuality filterQuality) {
+        if (!image) {
+            return nullptr;
+        }
+
+        return sk_sp<SkImageFilter>(new SkImageSource(std::move(image),
+                                                      srcRect, dstRect,
+                                                      filterQuality));
+    }
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageSource)
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(SkImage* image) {
+        return Make(sk_ref_sp<SkImage>(image)).release();
+    }
+    static SkImageFilter* Create(SkImage* image,
+                                 const SkRect& srcRect,
+                                 const SkRect& dstRect,
+                                 SkFilterQuality filterQuality) {
+        return Make(sk_ref_sp<SkImage>(image), srcRect, dstRect, filterQuality).release();
+   }
+#endif
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -31,8 +57,8 @@ protected:
                                         SkIPoint* offset) const override;
 
 private:
-    explicit SkImageSource(SkImage*);
-    SkImageSource(SkImage*,
+    explicit SkImageSource(sk_sp<SkImage>);
+    SkImageSource(sk_sp<SkImage>,
                   const SkRect& srcRect,
                   const SkRect& dstRect,
                   SkFilterQuality);

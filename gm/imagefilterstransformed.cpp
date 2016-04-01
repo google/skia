@@ -63,8 +63,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle.get()));
-        SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard.get()));
+        sk_sp<SkImageFilter> gradient(SkImageSource::Make(fGradientCircle));
+        sk_sp<SkImageFilter> checkerboard(SkImageSource::Make(fCheckerboard));
         SkImageFilter* filters[] = {
             SkBlurImageFilter::Create(12, 0),
             SkDropShadowImageFilter::Create(0, 15, 8, 0, SK_ColorGREEN,

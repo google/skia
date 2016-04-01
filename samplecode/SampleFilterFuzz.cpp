@@ -726,12 +726,12 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     case BITMAP: {
         sk_sp<SkImage> image(SkImage::MakeFromBitmap(make_bitmap()));
         if (R(2) == 1) {
-            filter = sk_sp<SkImageFilter>(SkImageSource::Create(image.get(),
-                                                                make_rect(),
-                                                                make_rect(),
-                                                                kHigh_SkFilterQuality));
+            filter = SkImageSource::Make(std::move(image),
+                                         make_rect(),
+                                         make_rect(),
+                                         kHigh_SkFilterQuality);
         } else {
-            filter = sk_sp<SkImageFilter>(SkImageSource::Create(image.get()));
+            filter = SkImageSource::Make(std::move(image));
         }
         break;
     }

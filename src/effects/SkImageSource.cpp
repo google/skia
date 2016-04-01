@@ -15,33 +15,25 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
-SkImageFilter* SkImageSource::Create(SkImage* image) {
-    return image ? new SkImageSource(image) : nullptr;
-}
 
-SkImageFilter* SkImageSource::Create(SkImage* image,
-                                     const SkRect& srcRect,
-                                     const SkRect& dstRect,
-                                     SkFilterQuality filterQuality) {
-    return image ? new SkImageSource(image, srcRect, dstRect, filterQuality) : nullptr;
-}
-
-SkImageSource::SkImageSource(SkImage* image)
+SkImageSource::SkImageSource(sk_sp<SkImage> image)
     : INHERITED(0, nullptr)
-    , fImage(SkRef(image))
-    , fSrcRect(SkRect::MakeIWH(image->width(), image->height()))
+    , fImage(std::move(image))
+    , fSrcRect(SkRect::MakeIWH(fImage->width(), fImage->height()))
     , fDstRect(fSrcRect)
-    , fFilterQuality(kHigh_SkFilterQuality) { }
+    , fFilterQuality(kHigh_SkFilterQuality) {
+}
 
-SkImageSource::SkImageSource(SkImage* image,
+SkImageSource::SkImageSource(sk_sp<SkImage> image,
                              const SkRect& srcRect,
                              const SkRect& dstRect,
                              SkFilterQuality filterQuality)
     : INHERITED(0, nullptr)
-    , fImage(SkRef(image))
+    , fImage(std::move(image))
     , fSrcRect(srcRect)
     , fDstRect(dstRect)
-    , fFilterQuality(filterQuality) { }
+    , fFilterQuality(filterQuality) {
+}
 
 SkFlattenable* SkImageSource::CreateProc(SkReadBuffer& buffer) {
     SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
@@ -50,12 +42,12 @@ SkFlattenable* SkImageSource::CreateProc(SkReadBuffer& buffer) {
     buffer.readRect(&src);
     buffer.readRect(&dst);
 
-    SkAutoTUnref<SkImage> image(buffer.readImage());
+    sk_sp<SkImage> image(buffer.readImage());
     if (!image) {
         return nullptr;
     }
 
-    return SkImageSource::Create(image, src, dst, filterQuality);
+    return SkImageSource::Make(std::move(image), src, dst, filterQuality).release();
 }
 
 void SkImageSource::flatten(SkWriteBuffer& buffer) const {

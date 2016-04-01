@@ -80,9 +80,8 @@ protected:
 
 private:
     sk_sp<SkImageFilter> mergeBitmaps() {
-        sk_sp<SkImageFilter> first(SkImageSource::Create(fCheckerboard.get()));
-        sk_sp<SkImageFilter> second(SkImageSource::Create(fImage.get()));
-        return SkMergeImageFilter::Make(std::move(first), std::move(second));
+        return SkMergeImageFilter::Make(SkImageSource::Make(fCheckerboard),
+                                        SkImageSource::Make(fImage));
     }
 
     bool fIsSmall;
