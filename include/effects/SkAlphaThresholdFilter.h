@@ -8,8 +8,8 @@
 #ifndef SkAlphaThresholdFilter_DEFINED
 #define SkAlphaThresholdFilter_DEFINED
 
-#include "SkRegion.h"
 #include "SkImageFilter.h"
+#include "SkRegion.h"
 
 class SK_API SkAlphaThresholdFilter {
 public:
@@ -20,8 +20,17 @@ public:
      * The 0,0 point of the region corresponds to the upper left corner of the
      * source image.
      */
+    static sk_sp<SkImageFilter> Make(const SkRegion& region, SkScalar innerMin,
+                                     SkScalar outerMax, sk_sp<SkImageFilter> input);
+
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
     static SkImageFilter* Create(const SkRegion& region, SkScalar innerMin,
-                                 SkScalar outerMax, SkImageFilter* input = NULL);
+                                 SkScalar outerMax, SkImageFilter* input = nullptr) {
+        return Make(region, innerMin, outerMax, sk_ref_sp<SkImageFilter>(input)).release();
+    }
+#endif
+
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
 };
 

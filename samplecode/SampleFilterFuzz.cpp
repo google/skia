@@ -555,9 +555,10 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
 
     switch (R(NUM_FILTERS)) {
     case ALPHA_THRESHOLD:
-        filter = sk_sp<SkImageFilter>(SkAlphaThresholdFilter::Create(make_region(),
-                                                                     make_scalar(),
-                                                                     make_scalar()));
+        filter = SkAlphaThresholdFilter::Make(make_region(),
+                                              make_scalar(),
+                                              make_scalar(),
+                                              nullptr);
         break;
     case MERGE:
         filter = SkMergeImageFilter::Make(make_image_filter(),

@@ -6,6 +6,7 @@
  */
 
 #include "SkAlphaThresholdFilter.h"
+
 #include "SkBitmap.h"
 #include "SkDevice.h"
 #include "SkReadBuffer.h"
@@ -18,7 +19,7 @@
 class SK_API SkAlphaThresholdFilterImpl : public SkImageFilter {
 public:
     SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold,
-                               SkScalar outerThreshold, SkImageFilter* input);
+                               SkScalar outerThreshold, sk_sp<SkImageFilter> input);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAlphaThresholdFilterImpl)
@@ -49,16 +50,17 @@ static SkScalar pin_0_1(SkScalar x) {
     return SkMinScalar(SkMaxScalar(x, 0), 1);
 }
 
-SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
-                                              SkScalar innerThreshold,
-                                              SkScalar outerThreshold,
-                                              SkImageFilter* input) {
+sk_sp<SkImageFilter> SkAlphaThresholdFilter::Make(const SkRegion& region,
+                                                  SkScalar innerThreshold,
+                                                  SkScalar outerThreshold,
+                                                  sk_sp<SkImageFilter> input) {
     innerThreshold = pin_0_1(innerThreshold);
     outerThreshold = pin_0_1(outerThreshold);
     if (!SkScalarIsFinite(innerThreshold) || !SkScalarIsFinite(outerThreshold)) {
         return nullptr;
     }
-    return new SkAlphaThresholdFilterImpl(region, innerThreshold, outerThreshold, input);
+    return sk_sp<SkImageFilter>(new SkAlphaThresholdFilterImpl(region, innerThreshold,
+                                                               outerThreshold, std::move(input)));
 }
 
 #if SK_SUPPORT_GPU
@@ -269,14 +271,14 @@ SkFlattenable* SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SkScalar outer = buffer.readScalar();
     SkRegion rgn;
     buffer.readRegion(&rgn);
-    return SkAlphaThresholdFilter::Create(rgn, inner, outer, common.getInput(0).get());
+    return SkAlphaThresholdFilter::Make(rgn, inner, outer, common.getInput(0)).release();
 }
 
 SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
                                                        SkScalar innerThreshold,
                                                        SkScalar outerThreshold,
-                                                       SkImageFilter* input)
-    : INHERITED(1, &input)
+                                                       sk_sp<SkImageFilter> input)
+    : INHERITED(&input, 1, nullptr)
     , fRegion(region)
     , fInnerThreshold(innerThreshold)
     , fOuterThreshold(outerThreshold) {

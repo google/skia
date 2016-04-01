@@ -35,7 +35,7 @@ SkPaint create_filter_paint() {
     region.setRects(rects, 2);
 
     SkPaint paint;
-    paint.setImageFilter(SkAlphaThresholdFilter::Create(region, 0.2f, 0.7f))->unref();
+    paint.setImageFilter(SkAlphaThresholdFilter::Make(region, 0.2f, 0.7f, nullptr));
     return paint;
 }
 

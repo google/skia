@@ -29,8 +29,8 @@ DEF_TEST(FlattenableFactoryToName, r) {
     rects[1] = SkIRect::MakeXYWH(150, 0, 200, 500);
     SkRegion region;
     region.setRects(rects, 2);
-    SkAutoTUnref<SkImageFilter> filter( SkAlphaThresholdFilter::Create(region, 0.2f, 0.7f));
-    test_flattenable(r, filter, "SkAlphaThresholdFilter()");
+    sk_sp<SkImageFilter> filter(SkAlphaThresholdFilter::Make(region, 0.2f, 0.7f, nullptr));
+    test_flattenable(r, filter.get(), "SkAlphaThresholdFilter()");
 
     SkBitmap bm;
     bm.allocN32Pixels(8, 8);
