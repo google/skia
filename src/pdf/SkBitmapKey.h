@@ -25,6 +25,7 @@ public:
         return fID == rhs.fID && fSubset == rhs.fSubset;
     }
     bool operator!=(const SkBitmapKey& rhs) const { return !(*this == rhs); }
+    uint32_t id() const { return fID; }
 
 private:
     SkIRect fSubset;
