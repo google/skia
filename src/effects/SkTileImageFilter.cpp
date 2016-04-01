@@ -83,8 +83,8 @@ bool SkTileImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& sr
             return false;
         }
         SkCanvas canvas(device);
-        canvas.drawBitmap(src, SkIntToScalar(srcOffset.x()),
-                               SkIntToScalar(srcOffset.y()));
+        canvas.drawBitmap(source, SkIntToScalar(srcOffset.x()),
+                                  SkIntToScalar(srcOffset.y()));
         subset = device->accessBitmap(false);
     }
     SkASSERT(subset.width() == srcIRect.width());

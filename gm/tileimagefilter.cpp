@@ -14,7 +14,7 @@
 #include "gm.h"
 
 #define WIDTH 400
-#define HEIGHT 100
+#define HEIGHT 200
 #define MARGIN 12
 
 namespace skiagm {
@@ -107,6 +107,20 @@ protected:
         canvas->drawRect(srcRect, red);
         canvas->drawRect(dstRect, blue);
         canvas->restore();
+
+        canvas->translate(0, SkIntToScalar(100));
+
+        srcRect = SkRect::MakeXYWH(0, 0, 50, 50);
+        dstRect = SkRect::MakeXYWH(0, 0, 100, 100);
+        SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(5, 5, 40, 40));
+        sk_sp<SkColorFilter> greenCF = SkColorFilter::MakeModeFilter(SK_ColorGREEN,
+                                                                     SkXfermode::kSrc_Mode);
+        SkAutoTUnref<SkImageFilter> green(SkColorFilterImageFilter::Create(greenCF.get(), nullptr,
+                                                                           &cropRect));
+        tile.reset(SkTileImageFilter::Create(srcRect, dstRect, green));
+        paint.setColor(SK_ColorRED);
+        paint.setImageFilter(tile);
+        canvas->drawRect(dstRect, paint);
     }
 private:
     sk_sp<SkImage> fBitmap, fCheckerboard;
