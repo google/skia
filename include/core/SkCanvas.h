@@ -1141,6 +1141,9 @@ public:
      *  a picture or drawing to a PDF document) will pass on this information.
      */
     void drawAnnotation(const SkRect&, const char key[], SkData* value);
+    void drawAnnotation(const SkRect& rect, const char key[], const sk_sp<SkData>& value) {
+        this->drawAnnotation(rect, key, value.get());
+    }
 
     //////////////////////////////////////////////////////////////////////////
 #ifdef SK_INTERNAL
