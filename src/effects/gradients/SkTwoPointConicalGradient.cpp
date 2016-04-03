@@ -305,7 +305,7 @@ SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
     return kConical_GradientType;
 }
 
-SkFlattenable* SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
         return nullptr;
@@ -340,7 +340,7 @@ SkFlattenable* SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer) {
 
     return SkGradientShader::MakeTwoPointConical(c1, r1, c2, r2, desc.fColors, desc.fPos,
                                                  desc.fCount, desc.fTileMode, desc.fGradFlags,
-                                                 desc.fLocalMatrix).release();
+                                                 desc.fLocalMatrix);
 }
 
 void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {

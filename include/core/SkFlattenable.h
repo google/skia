@@ -48,7 +48,7 @@ class SkPrivateEffectInitializer;
 
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)    \
     private:                                                                \
-    static SkFlattenable* CreateProc(SkReadBuffer&);                        \
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);                        \
     friend class SkFlattenable::PrivateInitializer;                         \
     public:                                                                 \
     Factory getFactory() const override { return CreateProc; }
@@ -82,7 +82,7 @@ public:
         kSkXfermode_Type,
     };
 
-    typedef SkFlattenable* (*Factory)(SkReadBuffer&);
+    typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
 
     SkFlattenable() {}
 

@@ -82,11 +82,11 @@ SkIRect SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatr
     return src.makeOffset(SkScalarCeilToInt(vec.fX), SkScalarCeilToInt(vec.fY));
 }
 
-SkFlattenable* SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkPoint offset;
     buffer.readPoint(&offset);
-    return Make(offset.x(), offset.y(), common.getInput(0), &common.cropRect()).release();
+    return Make(offset.x(), offset.y(), common.getInput(0), &common.cropRect());
 }
 
 void SkOffsetImageFilter::flatten(SkWriteBuffer& buffer) const {

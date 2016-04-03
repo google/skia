@@ -21,11 +21,11 @@ SkAvoidXfermode::SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode) {
     fMode = mode;
 }
 
-SkFlattenable* SkAvoidXfermode::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkAvoidXfermode::CreateProc(SkReadBuffer& buffer) {
     const SkColor color = buffer.readColor();
     const unsigned tolerance = buffer.readUInt();
     const unsigned mode = buffer.readUInt();
-    return Make(color, tolerance, (Mode)mode).release();
+    return Make(color, tolerance, (Mode)mode);
 }
 
 void SkAvoidXfermode::flatten(SkWriteBuffer& buffer) const {

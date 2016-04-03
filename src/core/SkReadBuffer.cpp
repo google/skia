@@ -356,7 +356,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
 
     // if we get here, factory may still be null, but if that is the case, the
     // failure was ours, not the writer.
-    SkFlattenable* obj = nullptr;
+    sk_sp<SkFlattenable> obj;
     uint32_t sizeRecorded = fReader.readU32();
     if (factory) {
         size_t offset = fReader.offset();
@@ -371,7 +371,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         // we must skip the remaining data
         fReader.skip(sizeRecorded);
     }
-    return obj;
+    return obj.release();
 }
 
 /**

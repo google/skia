@@ -77,10 +77,10 @@ void SkModeColorFilter::updateCache() {
     fProc = SkXfermode::GetProc(fMode);
 }
 
-SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
     SkColor color = buffer.readColor();
     SkXfermode::Mode mode = (SkXfermode::Mode)buffer.readUInt();
-    return SkColorFilter::MakeModeFilter(color, mode).release();
+    return SkColorFilter::MakeModeFilter(color, mode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -74,7 +74,7 @@ SkImageFilter* SkMatrixConvolutionImageFilter::Create(
                                               tileMode, convolveAlpha, input, cropRect);
 }
 
-SkFlattenable* SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkISize kernelSize;
     kernelSize.fWidth = buffer.readInt();
@@ -96,8 +96,8 @@ SkFlattenable* SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) 
     kernelOffset.fY = buffer.readInt();
     TileMode tileMode = (TileMode)buffer.readInt();
     bool convolveAlpha = buffer.readBool();
-    return Create(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode, convolveAlpha,
-                  common.getInput(0).get(), &common.cropRect());
+    return sk_sp<SkFlattenable>(Create(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode,
+                                   convolveAlpha, common.getInput(0).get(), &common.cropRect()));
 }
 
 void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {

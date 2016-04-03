@@ -142,10 +142,10 @@ private:
     typedef SkColorFilter INHERITED;
 };
 
-SkFlattenable* SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkColorFilter> outer(buffer.readColorFilter());
     sk_sp<SkColorFilter> inner(buffer.readColorFilter());
-    return MakeComposeFilter(std::move(outer), std::move(inner)).release();
+    return MakeComposeFilter(std::move(outer), std::move(inner));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

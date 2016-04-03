@@ -7,14 +7,14 @@
 
 #include "SkLocalMatrixShader.h"
 
-SkFlattenable* SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
     auto baseShader(buffer.readShader());
     if (!baseShader) {
         return nullptr;
     }
-    return baseShader->makeWithLocalMatrix(lm).release();
+    return baseShader->makeWithLocalMatrix(lm);
 }
 
 void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {

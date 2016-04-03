@@ -43,7 +43,9 @@ private:
 
 int DummyRasterizer::gCount;
 
-SkFlattenable* DummyRasterizer::CreateProc(SkReadBuffer&) { return new DummyRasterizer; }
+sk_sp<SkFlattenable> DummyRasterizer::CreateProc(SkReadBuffer&) {
+    return sk_make_sp<DummyRasterizer>();
+}
 
 // Check to make sure that the SkPaint in the layer has its destructor called.
 DEF_TEST(LayerRasterizer_destructor, reporter) {

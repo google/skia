@@ -313,8 +313,8 @@ private:
     typedef SkXfermode INHERITED;
 };
 
-SkFlattenable* SkOverdrawXfermode::CreateProc(SkReadBuffer& buffer) {
-    return Create();
+sk_sp<SkFlattenable> SkOverdrawXfermode::CreateProc(SkReadBuffer& buffer) {
+    return sk_sp<SkFlattenable>(Create());
 }
 
 sk_sp<SkXfermode> SkOverdrawMode::Make() { return sk_make_sp<SkOverdrawXfermode>(); }

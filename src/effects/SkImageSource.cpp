@@ -35,7 +35,7 @@ SkImageSource::SkImageSource(sk_sp<SkImage> image,
     , fFilterQuality(filterQuality) {
 }
 
-SkFlattenable* SkImageSource::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkImageSource::CreateProc(SkReadBuffer& buffer) {
     SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
 
     SkRect src, dst;
@@ -47,7 +47,7 @@ SkFlattenable* SkImageSource::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return SkImageSource::Make(std::move(image), src, dst, filterQuality).release();
+    return SkImageSource::Make(std::move(image), src, dst, filterQuality);
 }
 
 void SkImageSource::flatten(SkWriteBuffer& buffer) const {

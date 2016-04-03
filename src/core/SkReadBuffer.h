@@ -127,27 +127,17 @@ public:
     void readPaint(SkPaint* paint) { paint->unflatten(*this); }
 
     virtual SkFlattenable* readFlattenable(SkFlattenable::Type);
-    template <typename T> T* readFlattenable() {
-        return (T*) this->readFlattenable(T::GetFlattenableType());
+    template <typename T> sk_sp<T> readFlattenable() {
+        return sk_sp<T>((T*)this->readFlattenable(T::GetFlattenableType()));
     }
-    sk_sp<SkColorFilter> readColorFilter() {
-        return sk_sp<SkColorFilter>(this->readFlattenable<SkColorFilter>());
-    }
-    sk_sp<SkDrawLooper> readDrawLooper() {
-        return sk_sp<SkDrawLooper>(this->readFlattenable<SkDrawLooper>());
-    }
-    SkImageFilter* readImageFilter() { return this->readFlattenable<SkImageFilter>(); }
-    SkMaskFilter*  readMaskFilter()  { return this->readFlattenable<SkMaskFilter>(); }
-    sk_sp<SkPathEffect> readPathEffect()  {
-        return sk_sp<SkPathEffect>(this->readFlattenable<SkPathEffect>());
-    }
-    sk_sp<SkRasterizer> readRasterizer() {
-        return sk_sp<SkRasterizer>(this->readFlattenable<SkRasterizer>());
-    }
-    sk_sp<SkShader> readShader()     { return sk_sp<SkShader>(this->readFlattenable<SkShader>()); }
-    sk_sp<SkXfermode> readXfermode() {
-        return sk_sp<SkXfermode>(this->readFlattenable<SkXfermode>());
-    }
+    sk_sp<SkColorFilter> readColorFilter() { return this->readFlattenable<SkColorFilter>(); }
+    sk_sp<SkDrawLooper> readDrawLooper() { return this->readFlattenable<SkDrawLooper>(); }
+    sk_sp<SkImageFilter> readImageFilter() { return this->readFlattenable<SkImageFilter>(); }
+    sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilter>(); }
+    sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
+    sk_sp<SkRasterizer> readRasterizer() { return this->readFlattenable<SkRasterizer>(); }
+    sk_sp<SkShader> readShader() { return this->readFlattenable<SkShader>(); }
+    sk_sp<SkXfermode> readXfermode() { return this->readFlattenable<SkXfermode>(); }
 
     /**
      *  Like readFlattenable() but explicitly just skips the data that was written for the

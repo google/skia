@@ -552,7 +552,7 @@ void SkLightingShaderImpl::toString(SkString* str) const {
 }
 #endif
 
-SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
+sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
     SkMatrix diffLocalM;
     bool hasDiffLocalM = buf.readBool();
     if (hasDiffLocalM) {
@@ -606,8 +606,8 @@ SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     SkAutoTUnref<const SkLightingShader::Lights> lights(builder.finish());
 
-    return new SkLightingShaderImpl(diffuse, normal, lights, SkVector::Make(1.0f, 0.0f),
-                                    &diffLocalM, &normLocalM);
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, lights, SkVector::Make(1.0f, 0.0f),
+                                            &diffLocalM, &normLocalM);
 }
 
 void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {

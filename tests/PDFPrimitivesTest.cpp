@@ -381,10 +381,10 @@ private:
     mutable bool fVisited;
 };
 
-SkFlattenable* DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     bool visited = buffer.readBool();
-    return new DummyImageFilter(visited);
+    return sk_make_sp<DummyImageFilter>(visited);
 }
 
 #ifndef SK_IGNORE_TO_STRING

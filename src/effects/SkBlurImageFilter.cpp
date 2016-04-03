@@ -42,11 +42,12 @@ SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
     : INHERITED(1, &input, cropRect), fSigma(SkSize::Make(sigmaX, sigmaY)) {
 }
 
-SkFlattenable* SkBlurImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkBlurImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
-    return Create(sigmaX, sigmaY, common.getInput(0).get(), &common.cropRect());
+    return sk_sp<SkFlattenable>(Create(sigmaX, sigmaY, common.getInput(0).get(),
+                                       &common.cropRect()));
 }
 
 void SkBlurImageFilter::flatten(SkWriteBuffer& buffer) const {

@@ -84,11 +84,11 @@ private:
 
 static SimpleOffsetFilter::Registrar gReg;
 
-SkFlattenable* SimpleOffsetFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SimpleOffsetFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar dx = buffer.readScalar();
     SkScalar dy = buffer.readScalar();
-    return Create(dx, dy, common.getInput(0).get());
+    return sk_sp<SkFlattenable>(Create(dx, dy, common.getInput(0).get()));
 }
 
 #ifndef SK_IGNORE_TO_STRING

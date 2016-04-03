@@ -28,12 +28,12 @@ SkMatrixImageFilter* SkMatrixImageFilter::Create(const SkMatrix& transform,
     return new SkMatrixImageFilter(transform, filterQuality, input);
 }
 
-SkFlattenable* SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkFilterQuality quality = static_cast<SkFilterQuality>(buffer.readInt());
-    return Create(matrix, quality, common.getInput(0).get());
+    return sk_sp<SkImageFilter>(Create(matrix, quality, common.getInput(0).get()));
 }
 
 void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {

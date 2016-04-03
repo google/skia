@@ -265,13 +265,13 @@ void AlphaThresholdEffect::onComputeInvariantOutput(GrInvariantOutput* inout) co
 
 #endif
 
-SkFlattenable* SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar inner = buffer.readScalar();
     SkScalar outer = buffer.readScalar();
     SkRegion rgn;
     buffer.readRegion(&rgn);
-    return SkAlphaThresholdFilter::Make(rgn, inner, outer, common.getInput(0)).release();
+    return SkAlphaThresholdFilter::Make(rgn, inner, outer, common.getInput(0));
 }
 
 SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,

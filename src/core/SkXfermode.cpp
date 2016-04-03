@@ -1092,12 +1092,12 @@ bool SkXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFlattenable* SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
     uint32_t mode32 = buffer.read32();
     if (!buffer.validate(mode32 < SK_ARRAY_COUNT(gProcCoeffs))) {
         return nullptr;
     }
-    return SkXfermode::Make((SkXfermode::Mode)mode32).release();
+    return SkXfermode::Make((SkXfermode::Mode)mode32);
 }
 
 void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {

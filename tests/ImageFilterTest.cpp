@@ -219,12 +219,12 @@ private:
 
 }
 
-SkFlattenable* MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     skiatest::Reporter* reporter = (skiatest::Reporter*)buffer.readFunctionPtr();
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
-    return new MatrixTestImageFilter(reporter, matrix);
+    return sk_make_sp<MatrixTestImageFilter>(reporter, matrix);
 }
 
 #ifndef SK_IGNORE_TO_STRING

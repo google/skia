@@ -145,14 +145,14 @@ SkScalar SkPath1DPathEffect::begin(SkScalar contourLength) const {
     return fInitialOffset;
 }
 
-SkFlattenable* SkPath1DPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPath1DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkScalar advance = buffer.readScalar();
     if (advance > 0) {
         SkPath path;
         buffer.readPath(&path);
         SkScalar phase = buffer.readScalar();
         Style style = (Style)buffer.readUInt();
-        return SkPath1DPathEffect::Make(path, advance, phase, style).release();
+        return SkPath1DPathEffect::Make(path, advance, phase, style);
     }
     return nullptr;
 }

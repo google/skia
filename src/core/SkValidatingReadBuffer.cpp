@@ -243,7 +243,7 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
 
     // if we get here, factory may still be null, but if that is the case, the
     // failure was ours, not the writer.
-    SkFlattenable* obj = nullptr;
+    sk_sp<SkFlattenable> obj;
     uint32_t sizeRecorded = this->readUInt();
     if (factory) {
         size_t offset = fReader.offset();
@@ -252,8 +252,6 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
         size_t sizeRead = fReader.offset() - offset;
         this->validate(sizeRecorded == sizeRead);
         if (fError) {
-            // we could try to fix up the offset...
-            SkSafeUnref(obj);
             obj = nullptr;
         }
     } else {
@@ -261,7 +259,7 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
         this->skip(sizeRecorded);
         SkASSERT(false);
     }
-    return obj;
+    return obj.release();
 }
 
 void SkValidatingReadBuffer::skipFlattenable() {

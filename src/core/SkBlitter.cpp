@@ -730,8 +730,8 @@ private:
     typedef SkShader INHERITED;
 };
 
-SkFlattenable* Sk3DShader::CreateProc(SkReadBuffer& buffer) {
-    return new Sk3DShader(buffer.readShader());
+sk_sp<SkFlattenable> Sk3DShader::CreateProc(SkReadBuffer& buffer) {
+    return sk_make_sp<Sk3DShader>(buffer.readShader());
 }
 
 class Sk3DBlitter : public SkBlitter {
@@ -745,8 +745,7 @@ public:
         fProxy->blitH(x, y, width);
     }
 
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
-                           const int16_t runs[]) override {
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
         fProxy->blitAntiH(x, y, antialias, runs);
     }
 

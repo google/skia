@@ -136,13 +136,13 @@ void SkColorCubeFilter::filterSpan(const SkPMColor src[], int count, SkPMColor d
                                    (const SkColor*)fCubeData->data());
 }
 
-SkFlattenable* SkColorCubeFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkColorCubeFilter::CreateProc(SkReadBuffer& buffer) {
     int cubeDimension = buffer.readInt();
     auto cubeData(buffer.readByteArrayAsData());
     if (!buffer.validate(is_valid_3D_lut(cubeData.get(), cubeDimension))) {
         return nullptr;
     }
-    return Make(std::move(cubeData), cubeDimension).release();
+    return Make(std::move(cubeData), cubeDimension);
 }
 
 void SkColorCubeFilter::flatten(SkWriteBuffer& buffer) const {

@@ -54,7 +54,7 @@ SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
     , fEnd(pts[1]) {
 }
 
-SkFlattenable* SkLinearGradient::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkLinearGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
         return nullptr;
@@ -63,7 +63,7 @@ SkFlattenable* SkLinearGradient::CreateProc(SkReadBuffer& buffer) {
     pts[0] = buffer.readPoint();
     pts[1] = buffer.readPoint();
     return SkGradientShader::MakeLinear(pts, desc.fColors, desc.fPos, desc.fCount, desc.fTileMode,
-                                        desc.fGradFlags, desc.fLocalMatrix).release();
+                                        desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {

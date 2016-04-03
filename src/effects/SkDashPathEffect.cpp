@@ -360,12 +360,12 @@ void SkDashPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalarArray(fIntervals, fCount);
 }
 
-SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
     const SkScalar phase = buffer.readScalar();
     uint32_t count = buffer.getArrayCount();
     SkAutoSTArray<32, SkScalar> intervals(count);
     if (buffer.readScalarArray(intervals.get(), count)) {
-        return Make(intervals.get(), SkToInt(count), phase).release();
+        return Make(intervals.get(), SkToInt(count), phase);
     }
     return nullptr;
 }

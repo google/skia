@@ -73,12 +73,12 @@ void SkTableMaskFilter::flatten(SkWriteBuffer& wb) const {
     wb.writeByteArray(fTable, 256);
 }
 
-SkFlattenable* SkTableMaskFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkTableMaskFilter::CreateProc(SkReadBuffer& buffer) {
     uint8_t table[256];
     if (!buffer.readByteArray(table, 256)) {
         return nullptr;
     }
-    return Create(table);
+    return sk_sp<SkFlattenable>(Create(table));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -286,7 +286,7 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
 SkPerlinNoiseShader::~SkPerlinNoiseShader() {
 }
 
-SkFlattenable* SkPerlinNoiseShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPerlinNoiseShader::CreateProc(SkReadBuffer& buffer) {
     Type type = (Type)buffer.readInt();
     SkScalar freqX = buffer.readScalar();
     SkScalar freqY = buffer.readScalar();
@@ -299,10 +299,10 @@ SkFlattenable* SkPerlinNoiseShader::CreateProc(SkReadBuffer& buffer) {
     switch (type) {
         case kFractalNoise_Type:
             return SkPerlinNoiseShader::MakeFractalNoise(freqX, freqY, octaves, seed,
-                                                         &tileSize).release();
+                                                         &tileSize);
         case kTurbulence_Type:
             return SkPerlinNoiseShader::MakeTurbulence(freqX, freqY, octaves, seed,
-                                                       &tileSize).release();
+                                                       &tileSize);
         default:
             return nullptr;
     }

@@ -49,7 +49,7 @@ private:
     };
 };
 
-SkFlattenable* TestLooper::CreateProc(SkReadBuffer&) { return new TestLooper; }
+sk_sp<SkFlattenable> TestLooper::CreateProc(SkReadBuffer&) { return sk_make_sp<TestLooper>(); }
 
 static void test_drawBitmap(skiatest::Reporter* reporter) {
     SkBitmap src;

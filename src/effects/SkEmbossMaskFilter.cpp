@@ -112,12 +112,12 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     return true;
 }
 
-SkFlattenable* SkEmbossMaskFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkEmbossMaskFilter::CreateProc(SkReadBuffer& buffer) {
     Light light;
     if (buffer.readByteArray(&light, sizeof(Light))) {
         light.fPad = 0; // for the font-cache lookup to be clean
         const SkScalar sigma = buffer.readScalar();
-        return Create(sigma, light);
+        return sk_sp<SkFlattenable>(Create(sigma, light));
     }
     return nullptr;
 }

@@ -19,7 +19,7 @@ SkImageShader::SkImageShader(const SkImage* img, TileMode tmx, TileMode tmy, con
     , fTileModeY(tmy)
 {}
 
-SkFlattenable* SkImageShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     const TileMode tx = (TileMode)buffer.readUInt();
     const TileMode ty = (TileMode)buffer.readUInt();
     SkMatrix matrix;
@@ -28,7 +28,7 @@ SkFlattenable* SkImageShader::CreateProc(SkReadBuffer& buffer) {
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(img, tx, ty, &matrix).release();
+    return SkImageShader::Make(img, tx, ty, &matrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {

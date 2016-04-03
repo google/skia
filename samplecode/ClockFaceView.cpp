@@ -101,10 +101,10 @@ private:
     typedef Sk2DPathEffect INHERITED;
 };
 
-SkFlattenable* Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
-    return new Dot2DPathEffect(buffer.readScalar(), matrix, nullptr);
+    return sk_make_sp<Dot2DPathEffect>(buffer.readScalar(), matrix, nullptr);
 }
 
 class InverseFillPE : public SkPathEffect {
@@ -129,7 +129,9 @@ private:
     typedef SkPathEffect INHERITED;
 };
 
-SkFlattenable* InverseFillPE::CreateProc(SkReadBuffer& buffer) { return new InverseFillPE; }
+sk_sp<SkFlattenable> InverseFillPE::CreateProc(SkReadBuffer& buffer) {
+    return sk_make_sp<InverseFillPE>();
+}
 
 static sk_sp<SkPathEffect> makepe(float interp, SkTDArray<SkPoint>* pts) {
     SkMatrix    lattice;

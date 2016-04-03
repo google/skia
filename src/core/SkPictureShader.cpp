@@ -110,7 +110,7 @@ sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, TileMode tmx, Ti
     return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
 }
 
-SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
     TileMode mx = (TileMode)buffer.read32();
@@ -136,7 +136,7 @@ SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
             picture = SkPicture::MakeFromBuffer(buffer);
         }
     }
-    return SkPictureShader::Make(picture, mx, my, &lm, &tile).release();
+    return SkPictureShader::Make(picture, mx, my, &lm, &tile);
 }
 
 void SkPictureShader::flatten(SkWriteBuffer& buffer) const {

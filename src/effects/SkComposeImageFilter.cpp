@@ -58,9 +58,9 @@ SkIRect SkComposeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&
     return outer->filterBounds(inner->filterBounds(src, ctm, direction), ctm, direction);
 }
 
-SkFlattenable* SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    return SkComposeImageFilter::Make(common.getInput(0), common.getInput(1)).release();
+    return SkComposeImageFilter::Make(common.getInput(0), common.getInput(1));
 }
 
 #ifndef SK_IGNORE_TO_STRING

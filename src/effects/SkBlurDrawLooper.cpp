@@ -61,13 +61,13 @@ void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
     this->initEffects();
 }
 
-SkFlattenable* SkBlurDrawLooper::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkBlurDrawLooper::CreateProc(SkReadBuffer& buffer) {
     const SkColor color = buffer.readColor();
     const SkScalar sigma = buffer.readScalar();
     const SkScalar dx = buffer.readScalar();
     const SkScalar dy = buffer.readScalar();
     const uint32_t flags = buffer.read32();
-    return Make(color, sigma, dx, dy, flags).release();
+    return Make(color, sigma, dx, dy, flags);
 }
 
 void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {

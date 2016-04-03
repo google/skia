@@ -131,7 +131,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
     return surf->makeImageSnapshot();
 }
 
-SkFlattenable* SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
     Common common;
     if (!common.unflatten(buffer, -1)) {
         return nullptr;
@@ -152,9 +152,9 @@ SkFlattenable* SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
         if (!buffer.isValid()) {
             return nullptr;
         }
-        return Make(common.inputs(), count, modes.get(), &common.cropRect()).release();
+        return Make(common.inputs(), count, modes.get(), &common.cropRect());
     }
-    return Make(common.inputs(), count, nullptr, &common.cropRect()).release();
+    return Make(common.inputs(), count, nullptr, &common.cropRect());
 }
 
 void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {

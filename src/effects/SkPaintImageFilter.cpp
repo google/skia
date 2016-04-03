@@ -17,11 +17,11 @@ SkPaintImageFilter::SkPaintImageFilter(const SkPaint& paint, const CropRect* cro
     , fPaint(paint) {
 }
 
-SkFlattenable* SkPaintImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPaintImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     SkPaint paint;
     buffer.readPaint(&paint);
-    return SkPaintImageFilter::Make(paint, &common.cropRect()).release();
+    return SkPaintImageFilter::Make(paint, &common.cropRect());
 }
 
 void SkPaintImageFilter::flatten(SkWriteBuffer& buffer) const {

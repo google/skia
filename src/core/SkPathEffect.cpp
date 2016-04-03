@@ -57,10 +57,10 @@ void SkPairPathEffect::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFlattenable* SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
     sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
-    return SkComposePathEffect::Make(std::move(pe0), std::move(pe1)).release();
+    return SkComposePathEffect::Make(std::move(pe0), std::move(pe1));
 }
 
 bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
@@ -85,10 +85,10 @@ void SkComposePathEffect::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFlattenable* SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
     sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
-    return SkSumPathEffect::Make(pe0, pe1).release();
+    return SkSumPathEffect::Make(pe0, pe1);
 }
 
 bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,

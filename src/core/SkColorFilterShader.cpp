@@ -23,13 +23,13 @@ SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFi
     SkASSERT(fFilter);
 }
 
-SkFlattenable* SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
     auto shader = buffer.readShader();
     auto filter = buffer.readColorFilter();
     if (!shader || !filter) {
         return nullptr;
     }
-    return new SkColorFilterShader(shader, filter);
+    return sk_make_sp<SkColorFilterShader>(shader, filter);
 }
 
 void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {

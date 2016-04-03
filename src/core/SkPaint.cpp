@@ -1930,11 +1930,11 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         this->setPathEffect(buffer.readPathEffect());
         this->setShader(buffer.readShader());
         this->setXfermode(buffer.readXfermode());
-        SkSafeUnref(this->setMaskFilter(buffer.readMaskFilter()));
+        this->setMaskFilter(buffer.readMaskFilter());
         this->setColorFilter(buffer.readColorFilter());
         this->setRasterizer(buffer.readRasterizer());
         this->setLooper(buffer.readDrawLooper());
-        SkSafeUnref(this->setImageFilter(buffer.readImageFilter()));
+        this->setImageFilter(buffer.readImageFilter());
 
         if (buffer.isVersionLT(SkReadBuffer::kAnnotationsMovedToCanvas_Version)) {
             // We used to store annotations here (string+skdata) if this bool was true

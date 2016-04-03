@@ -29,14 +29,14 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
     return kSweep_GradientType;
 }
 
-SkFlattenable* SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
         return nullptr;
     }
     const SkPoint center = buffer.readPoint();
     return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors, desc.fPos,
-                                       desc.fCount, desc.fGradFlags, desc.fLocalMatrix).release();
+                                       desc.fCount, desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {

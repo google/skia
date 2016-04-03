@@ -127,11 +127,11 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
-SkFlattenable* SkDiscretePathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkDiscretePathEffect::CreateProc(SkReadBuffer& buffer) {
     SkScalar segLength = buffer.readScalar();
     SkScalar perterb = buffer.readScalar();
     uint32_t seed = buffer.readUInt();
-    return Make(segLength, perterb, seed).release();
+    return Make(segLength, perterb, seed);
 }
 
 void SkDiscretePathEffect::flatten(SkWriteBuffer& buffer) const {

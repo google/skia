@@ -123,12 +123,12 @@ SkRect SkTileImageFilter::computeFastBounds(const SkRect& src) const {
     return fDstRect;
 }
 
-SkFlattenable* SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
-    return Create(src, dst, common.getInput(0).get());
+    return sk_sp<SkFlattenable>(Create(src, dst, common.getInput(0).get()));
 }
 
 void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {

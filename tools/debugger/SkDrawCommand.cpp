@@ -726,12 +726,12 @@ static SkFlattenable* load_flattenable(Json::Value jsonFlattenable,
     const void* data;
     int size = decode_data(jsonFlattenable[SKDEBUGCANVAS_ATTRIBUTE_DATA], urlDataManager, &data);
     SkValidatingReadBuffer buffer(data, size);
-    SkFlattenable* result = factory(buffer);
+    sk_sp<SkFlattenable> result = factory(buffer);
     if (!buffer.isValid()) {
         SkDebugf("invalid buffer loading flattenable\n");
         return nullptr;
     }
-    return result;
+    return result.release();
 }
 
 static SkColorType colortype_from_name(const char* name) {

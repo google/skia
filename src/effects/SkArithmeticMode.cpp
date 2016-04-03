@@ -54,13 +54,13 @@ private:
     typedef SkXfermode INHERITED;
 };
 
-SkFlattenable* SkArithmeticMode_scalar::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkArithmeticMode_scalar::CreateProc(SkReadBuffer& buffer) {
     const SkScalar k1 = buffer.readScalar();
     const SkScalar k2 = buffer.readScalar();
     const SkScalar k3 = buffer.readScalar();
     const SkScalar k4 = buffer.readScalar();
     const bool enforcePMColor = buffer.readBool();
-    return SkArithmeticMode::Make(k1, k2, k3, k4, enforcePMColor).release();
+    return SkArithmeticMode::Make(k1, k2, k3, k4, enforcePMColor);
 }
 
 static int pinToByte(int value) {

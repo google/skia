@@ -207,7 +207,7 @@ void SkTable_ColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeByteArray(storage, size);
 }
 
-SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     const int flags = buffer.read32();
     const size_t count = gCountNibBits[flags & 0xF];
     SkASSERT(count <= 4);
@@ -251,7 +251,7 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
         b = ptr;
         ptr += 256;
     }
-    return SkTableColorFilter::MakeARGB(a, r, g, b).release();
+    return SkTableColorFilter::MakeARGB(a, r, g, b);
 }
 
 bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {

@@ -39,14 +39,14 @@ private:
 };
 #define SkAutoAlphaRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoAlphaRestore)
 
-SkFlattenable* SkComposeShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> shaderA(buffer.readShader());
     sk_sp<SkShader> shaderB(buffer.readShader());
     sk_sp<SkXfermode> mode(buffer.readXfermode());
     if (!shaderA || !shaderB) {
         return nullptr;
     }
-    return new SkComposeShader(std::move(shaderA), std::move(shaderB), std::move(mode));
+    return sk_make_sp<SkComposeShader>(std::move(shaderA), std::move(shaderB), std::move(mode));
 }
 
 void SkComposeShader::flatten(SkWriteBuffer& buffer) const {

@@ -281,11 +281,11 @@ bool SkMagnifierImageFilter::asFragmentProcessor(GrFragmentProcessor** fp,
 }
 #endif
 
-SkFlattenable* SkMagnifierImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMagnifierImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src;
     buffer.readRect(&src);
-    return Create(src, buffer.readScalar(), common.getInput(0).get());
+    return sk_sp<SkFlattenable>(Create(src, buffer.readScalar(), common.getInput(0).get()));
 }
 
 void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {

@@ -31,7 +31,7 @@ SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRec
     , fFilterQuality(filterQuality) {
 }
 
-SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPicture> picture;
     SkRect cropRect;
 
@@ -58,9 +58,9 @@ SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
         } else {
             filterQuality = (SkFilterQuality)buffer.readInt();
         }
-        return MakeForLocalSpace(picture, cropRect, filterQuality).release();
+        return MakeForLocalSpace(picture, cropRect, filterQuality);
     }
-    return Make(picture, cropRect).release();
+    return Make(picture, cropRect);
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {

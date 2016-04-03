@@ -72,18 +72,20 @@ SkIRect SkMorphologyImageFilter::onFilterNodeBounds(const SkIRect& src, const Sk
     return src.makeOutset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
 }
 
-SkFlattenable* SkErodeImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkErodeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     const int width = buffer.readInt();
     const int height = buffer.readInt();
-    return Create(width, height, common.getInput(0).get(), &common.cropRect());
+    return sk_sp<SkFlattenable>(Create(width, height, common.getInput(0).get(),
+                                       &common.cropRect()));
 }
 
-SkFlattenable* SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     const int width = buffer.readInt();
     const int height = buffer.readInt();
-    return Create(width, height, common.getInput(0).get(), &common.cropRect());
+    return sk_sp<SkFlattenable>(Create(width, height, common.getInput(0).get(),
+                                       &common.cropRect()));
 }
 
 #ifndef SK_IGNORE_TO_STRING
