@@ -14,6 +14,12 @@
 
 sk_sp<SkPathEffect> SkDiscretePathEffect::Make(SkScalar segLength, SkScalar deviation,
                                                uint32_t seedAssist) {
+    if (!SkScalarIsFinite(segLength) || !SkScalarIsFinite(deviation)) {
+        return nullptr;
+    }
+    if (segLength <= SK_ScalarNearlyZero) {
+        return nullptr;
+    }
     return sk_sp<SkPathEffect>(new SkDiscretePathEffect(segLength, deviation, seedAssist));
 }
 
