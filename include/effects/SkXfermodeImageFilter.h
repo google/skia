@@ -21,16 +21,20 @@ class SK_API SkXfermodeImageFilter : public SkImageFilter {
       */
 
 public:
-    static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, SkImageFilter* background,
-                                     SkImageFilter* foreground, const CropRect* cropRect);
-    static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, SkImageFilter* background) {
-        return Make(std::move(mode), background, nullptr, nullptr);
+    static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, sk_sp<SkImageFilter> background,
+                                     sk_sp<SkImageFilter> foreground, const CropRect* cropRect);
+    static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, sk_sp<SkImageFilter> background) {
+        return Make(std::move(mode), std::move(background), nullptr, nullptr);
     }
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
+
+#if defined(SK_SUPPORT_LEGACY_XFERMODE_PTR) || defined(SK_SUPPORT_LEGACY_IMAGEFILTER_PTR)
     static SkImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
                                  SkImageFilter* foreground = NULL,
                                  const CropRect* cropRect = NULL) {
-        return Make(sk_ref_sp(mode), background, foreground, cropRect).release();
+        return Make(sk_ref_sp(mode), 
+                    sk_ref_sp(background),
+                    sk_ref_sp(foreground),
+                    cropRect).release();
     }
 #endif
     
@@ -49,7 +53,7 @@ public:
 #endif
 
 protected:
-    SkXfermodeImageFilter(sk_sp<SkXfermode> mode, SkImageFilter* inputs[2],
+    SkXfermodeImageFilter(sk_sp<SkXfermode> mode, sk_sp<SkImageFilter> inputs[2],
                           const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
 
