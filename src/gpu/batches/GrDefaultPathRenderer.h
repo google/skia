@@ -9,7 +9,6 @@
 #define GrDefaultPathRenderer_DEFINED
 
 #include "GrPathRenderer.h"
-#include "GrPathStencilSettings.h"
 #include "SkTypes.h"
 
 /**
