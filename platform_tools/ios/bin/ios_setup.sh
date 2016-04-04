@@ -41,19 +41,29 @@ if [[ -z "$SKIA_OUT" ]]; then
   SKIA_OUT="$SKIA_SRC_DIR/out"
 fi 
 
+# Name of the iOS app.
+IOS_APP=iOSShell.ipa
+
+# Location of the compiled iOS app.
+IOS_APP_PATH=${SKIA_OUT}/${BUILDTYPE}/${IOS_APP}
+
+
 ios_uninstall_app() {
   ideviceinstaller -U "$IOS_BUNDLE_ID"
 }
 
-ios_install_app() {
+ios_package_app() {
   rm -rf $IOS_PCKG_DIR
   mkdir -p $IOS_PCKG_DIR/Payload  # this directory must be named 'Payload'
   cp -rf "${SKIA_SRC_DIR}/xcodebuild/${BUILDTYPE}-iphoneos/iOSShell.app" "${IOS_PCKG_DIR}/Payload/"
-  local RET_DIR=`pwd`
-  cd $IOS_PCKG_DIR
-  zip -r iOSShell.ipa Payload
-  ideviceinstaller -i ./iOSShell.ipa
-  cd $RET_DIR
+  pushd $IOS_PCKG_DIR
+  zip -r ${IOS_APP} Payload
+  cp ${IOS_APP} ${IOS_APP_PATH}
+  popd
+}
+
+ios_install_app() {
+  ideviceinstaller -i ${IOS_APP_PATH}
 }
 
 ios_rm() {
