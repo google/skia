@@ -19,7 +19,7 @@ deps = {
   "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@c4e33043fb071b6ea0a153845da625d7ed633d3d",
   # NOTE: If we update libpng, we may need to update the generated file at third_party/libpng/pnglibconf.h
   #"third_party/externals/libpng"  : "https://skia.googlesource.com/third_party/libpng.git@52846504da1f519cf1bb89636caf9110e8677443",
-  "third_party/externals/libpng"   : "https://github.com/mtklein/libpng.git@0cf9bc11a54a18e6bc34a656b0012580aa05e70b",
+  "third_party/externals/libpng"   : "https://github.com/mtklein/libpng.git@d0513638e7cc7d22b7dace879afea848b342fe33",
   "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@ab10e256df4f684260ca239905b1cec727181f6c",
 
   "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@1754202ed3e25b98179a4f377f0bdd605d9a157a",
