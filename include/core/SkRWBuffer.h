@@ -26,8 +26,8 @@ public:
      *  multiple contiguous blocks, accessible via the iterator.
      */
     size_t size() const { return fUsed; }
-    
-    class Iter {
+
+    class SK_API Iter {
     public:
         Iter(const SkROBuffer*);
 
@@ -58,10 +58,10 @@ public:
 private:
     SkROBuffer(const SkBufferHead* head, size_t used);
     virtual ~SkROBuffer();
-    
+
     const SkBufferHead* fHead;
     const size_t        fUsed;
-    
+
     friend class SkRWBuffer;
 };
 
@@ -74,14 +74,14 @@ class SK_API SkRWBuffer {
 public:
     SkRWBuffer(size_t initialCapacity = 0);
     ~SkRWBuffer();
-    
+
     size_t size() const { return fTotalUsed; }
     void append(const void* buffer, size_t length);
     void* append(size_t length);
 
     SkROBuffer* newRBufferSnapshot() const;
     SkStreamAsset* newStreamSnapshot() const;
-    
+
 #ifdef SK_DEBUG
     void validate() const;
 #else
