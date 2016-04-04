@@ -21,6 +21,7 @@
 #include "SkPDFUtils.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"
+#include "SkSpecialImage.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 #include "Test.h"
@@ -373,12 +374,11 @@ public:
     bool visited() const { return fVisited; }
 
 protected:
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override {
         fVisited = true;
         offset->fX = offset->fY = 0;
-        *result = src;
-        return true;
+        return sk_ref_sp<SkSpecialImage>(source);
     }
 
 private:

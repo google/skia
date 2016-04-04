@@ -60,10 +60,11 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context& ctx,
-                                 SkBitmap* result, SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                        SkIPoint* offset) const override {
         REPORTER_ASSERT(fReporter, ctx.ctm() == fExpectedMatrix);
-        return true;
+        offset->fX = offset->fY = 0;
+        return sk_ref_sp<SkSpecialImage>(source);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

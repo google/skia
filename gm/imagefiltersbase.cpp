@@ -14,6 +14,7 @@
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkDropShadowImageFilter.h"
+#include "SkSpecialImage.h"
 #include "SkTestImageFilters.h"
 
 class FailImageFilter : public SkImageFilter {
@@ -36,9 +37,9 @@ public:
 protected:
     FailImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* offset) const override {
-        return false;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override {
+        return nullptr;
     }
 
 private:
@@ -77,11 +78,10 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(IdentityImageFilter)
 
 protected:
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* offset) const override {
-        *result = src;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override {
         offset->set(0, 0);
-        return true;
+        return sk_ref_sp<SkSpecialImage>(source);
     }
 
 private:

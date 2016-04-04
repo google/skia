@@ -8,7 +8,6 @@
 #include "gm.h"
 
 #include "SkArithmeticMode.h"
-#include "SkDevice.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -17,6 +16,8 @@
 #include "SkImageSource.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
@@ -43,28 +44,38 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
 
 protected:
-    bool onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                 SkBitmap* dst, SkIPoint* offset) const override {
-        SkBitmap source = src;
-        SkIPoint srcOffset = SkIPoint::Make(0, 0);
-        if (!this->filterInputDeprecated(0, proxy, src, ctx, &source, &srcOffset)) {
-            return false;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context& ctx,
+                                        SkIPoint* offset) const override {
+        SkIPoint inputOffset = SkIPoint::Make(0, 0);
+        sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+        if (!input) {
+            return nullptr;
         }
 
         SkIRect bounds;
-        if (!this->applyCropRectDeprecated(ctx, proxy, source, &srcOffset, &bounds, &source)) {
-            return false;
+        input = this->applyCropRect(ctx, input.get(), &inputOffset, &bounds);
+        if (!input) {
+            return nullptr;
         }
 
-        SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-        SkCanvas canvas(device);
+        SkImageInfo info = SkImageInfo::MakeN32Premul(bounds.width(), bounds.height());
+
+        sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
+        if (!surf) {
+            return nullptr;
+        }
+
+        SkCanvas* canvas = surf->getCanvas();
+        SkASSERT(canvas);
+
         SkPaint paint;
         paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-        canvas.drawBitmap(source, fDX - bounds.left(), fDY - bounds.top(), &paint);
-        *dst = device->accessBitmap(false);
+
+        input->draw(canvas, fDX - bounds.left(), fDY - bounds.top(), &paint);
+
         offset->fX += bounds.left();
         offset->fY += bounds.top();
-        return true;
+        return surf->makeImageSnapshot();
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
