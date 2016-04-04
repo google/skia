@@ -248,8 +248,7 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     sk_sp<SkImageFilter> invalidBitmapSource(SkImageSource::Make(std::move(invalidImage)));
     sk_sp<SkImageFilter> xfermodeImageFilter(
         SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcOver_Mode),
-                                    std::move(invalidBitmapSource),
-                                    std::move(validBitmapSource), nullptr));
+                                    invalidBitmapSource.get(), validBitmapSource.get(), nullptr));
 
     SkAutoTUnref<SkImageFilter> deserializedFilter(
         TestFlattenableSerialization<SkImageFilter>(

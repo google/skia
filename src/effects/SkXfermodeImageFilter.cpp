@@ -23,25 +23,24 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode,
-                                                 sk_sp<SkImageFilter> background,
-                                                 sk_sp<SkImageFilter> foreground,
+sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode, SkImageFilter* background,
+                                                 SkImageFilter* foreground,
                                                  const CropRect* cropRect) {
-    sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
+    SkImageFilter* inputs[2] = { background, foreground };
     return sk_sp<SkImageFilter>(new SkXfermodeImageFilter(mode, inputs, cropRect));
 }
 
 SkXfermodeImageFilter::SkXfermodeImageFilter(sk_sp<SkXfermode> mode,
-                                             sk_sp<SkImageFilter> inputs[2],
+                                             SkImageFilter* inputs[2],
                                              const CropRect* cropRect)
-    : INHERITED(inputs, 2, cropRect)
+    : INHERITED(2, inputs, cropRect)
     , fMode(std::move(mode))
 {}
 
 sk_sp<SkFlattenable> SkXfermodeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     sk_sp<SkXfermode> mode(buffer.readXfermode());
-    return Make(std::move(mode), common.getInput(0), common.getInput(1),
+    return Make(std::move(mode), common.getInput(0).get(), common.getInput(1).get(),
                 &common.cropRect());
 }
 

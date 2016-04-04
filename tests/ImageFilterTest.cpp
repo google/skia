@@ -231,10 +231,7 @@ public:
                                                                       cropRect).release());
         }
         this->addFilter("xfermode", SkXfermodeImageFilter::Make(
-                                            SkXfermode::Make(SkXfermode::kSrc_Mode), 
-                                            sk_ref_sp<SkImageFilter>(input), 
-                                            sk_ref_sp<SkImageFilter>(input), 
-                                            cropRect).release());
+            SkXfermode::Make(SkXfermode::kSrc_Mode), input, input, cropRect).release());
     }
     int count() const { return fFilters.count(); }
     SkImageFilter* getFilter(int index) const { return fFilters[index].fFilter.get(); }
@@ -842,7 +839,7 @@ DEF_TEST(ImageFilterUnionBounds, reporter) {
     // Regardless of which order they appear in, the image filter bounds should
     // be combined correctly.
     {
-        sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(nullptr, offset));
+        sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(nullptr, offset.get()));
         SkRect bounds = SkRect::MakeWH(100, 100);
         // Intentionally aliasing here, as that's what the real callers do.
         bounds = composite->computeFastBounds(bounds);
@@ -850,7 +847,7 @@ DEF_TEST(ImageFilterUnionBounds, reporter) {
     }
     {
         sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(nullptr, nullptr,
-                                                                   offset, nullptr));
+                                                                   offset.get(), nullptr));
         SkRect bounds = SkRect::MakeWH(100, 100);
         // Intentionally aliasing here, as that's what the real callers do.
         bounds = composite->computeFastBounds(bounds);
@@ -1280,25 +1277,21 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
     bitmap.allocN32Pixels(1, 1);
     bitmap.eraseARGB(255, 255, 255, 255);
 
-    sk_sp<SkColorFilter> green(SkColorFilter::MakeModeFilter(SK_ColorGREEN,
-                                                             SkXfermode::kSrcIn_Mode));
-    sk_sp<SkImageFilter> greenFilter(SkColorFilterImageFilter::Create(green.get()));
+    auto green(SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkXfermode::kSrcIn_Mode));
+    SkAutoTUnref<SkImageFilter> greenFilter(SkColorFilterImageFilter::Create(green.get()));
     SkImageFilter::CropRect cropRect(SkRect::MakeEmpty());
-    sk_sp<SkImageFilter> croppedOut(
+    SkAutoTUnref<SkImageFilter> croppedOut(
         SkColorFilterImageFilter::Create(green.get(), nullptr, &cropRect));
 
     // Check that an xfermode image filter whose input has been cropped out still draws the other
     // input. Also check that drawing with both inputs cropped out doesn't cause a GPU warning.
-    sk_sp<SkXfermode> mode(SkXfermode::Make(SkXfermode::kSrcOver_Mode));
-    sk_sp<SkImageFilter> xfermodeNoFg(SkXfermodeImageFilter::Make(mode, greenFilter,
-                                                                  croppedOut, nullptr));
-    sk_sp<SkImageFilter> xfermodeNoBg(SkXfermodeImageFilter::Make(mode, croppedOut,
-                                                                  greenFilter, nullptr));
-    sk_sp<SkImageFilter> xfermodeNoFgNoBg(SkXfermodeImageFilter::Make(mode, croppedOut,
-                                                                      croppedOut, nullptr));
+    auto mode = SkXfermode::Make(SkXfermode::kSrcOver_Mode);
+    auto xfermodeNoFg(SkXfermodeImageFilter::Make(mode, greenFilter, croppedOut, nullptr));
+    auto xfermodeNoBg(SkXfermodeImageFilter::Make(mode, croppedOut, greenFilter, nullptr));
+    auto xfermodeNoFgNoBg(SkXfermodeImageFilter::Make(mode, croppedOut, croppedOut, nullptr));
 
     SkPaint paint;
-    paint.setImageFilter(std::move(xfermodeNoFg));
+    paint.setImageFilter(xfermodeNoFg);
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
 
     uint32_t pixel;
@@ -1306,12 +1299,12 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
-    paint.setImageFilter(std::move(xfermodeNoBg));
+    paint.setImageFilter(xfermodeNoBg);
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
-    paint.setImageFilter(std::move(xfermodeNoFgNoBg));
+    paint.setImageFilter(xfermodeNoFgNoBg);
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
