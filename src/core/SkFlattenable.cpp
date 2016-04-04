@@ -53,18 +53,20 @@ void SkRefCntSet::decPtr(void* ptr) {
 struct Entry {
     const char*             fName;
     SkFlattenable::Factory  fFactory;
+    SkFlattenable::Type     fType;
 };
 
 static int gCount = 0;
 static Entry gEntries[MAX_ENTRY_COUNT];
 
-void SkFlattenable::Register(const char name[], Factory factory) {
+void SkFlattenable::Register(const char name[], Factory factory, SkFlattenable::Type type) {
     SkASSERT(name);
     SkASSERT(factory);
     SkASSERT(gCount < MAX_ENTRY_COUNT);
 
     gEntries[gCount].fName = name;
     gEntries[gCount].fFactory = factory;
+    gEntries[gCount].fType = type;
     gCount += 1;
 }
 
@@ -90,6 +92,22 @@ SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
         }
     }
     return nullptr;
+}
+
+bool SkFlattenable::NameToType(const char name[], SkFlattenable::Type* type) {
+    SkASSERT(type);
+    InitializeFlattenablesIfNeeded();
+#ifdef SK_DEBUG
+    report_no_entries(__FUNCTION__);
+#endif
+    const Entry* entries = gEntries;
+    for (int i = gCount - 1; i >= 0; --i) {
+        if (strcmp(entries[i].fName, name) == 0) {
+            *type = entries[i].fType;
+            return true;
+        }
+    }
+    return false;
 }
 
 const char* SkFlattenable::FactoryToName(Factory fact) {

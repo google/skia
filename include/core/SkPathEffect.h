@@ -129,6 +129,7 @@ public:
     virtual DashType asADash(DashInfo* info) const;
 
     SK_TO_STRING_PUREVIRT()
+    SK_DEFINE_FLATTENABLE_TYPE(SkPathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     /// Override for subclasses as appropriate.

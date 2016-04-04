@@ -31,7 +31,7 @@ static void run_test_case(const SkString& testdata, const SkBitmap& bitmap,
   // This call shouldn't crash or cause ASAN to flag any memory issues
   // If nothing bad happens within this call, everything is fine
   SkFlattenable* flattenable = SkValidatingDeserializeFlattenable(
-        testdata.c_str(), testdata.size());
+        testdata.c_str(), testdata.size(), SkImageFilter::GetFlattenableType());
 
   // Adding some info, but the test passed if we got here without any trouble
   if (flattenable != nullptr) {

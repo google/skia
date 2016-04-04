@@ -456,6 +456,7 @@ public:
     virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
     SK_TO_STRING_VIRT()
+    SK_DEFINE_FLATTENABLE_TYPE(SkShader)
 
 protected:
     void flatten(SkWriteBuffer&) const override;

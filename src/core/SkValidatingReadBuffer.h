@@ -39,7 +39,7 @@ public:
     void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) override;
 
     // common data structures
-    SkFlattenable* readFlattenable() override;
+    SkFlattenable* readFlattenable(SkFlattenable::Type type) override;
     void skipFlattenable() override;
     void readPoint(SkPoint* point) override;
     void readMatrix(SkMatrix* matrix) override;

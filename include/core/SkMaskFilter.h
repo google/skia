@@ -171,6 +171,7 @@ public:
     virtual bool asABlur(BlurRec*) const;
 
     SK_TO_STRING_PUREVIRT()
+    SK_DEFINE_FLATTENABLE_TYPE(SkMaskFilter)
 
 protected:
     SkMaskFilter() {}

@@ -23,7 +23,8 @@ public:
     public:
         Registrar() {
             SkFlattenable::Register("FailImageFilter",
-                                    FailImageFilter::CreateProc);
+                                    FailImageFilter::CreateProc,
+                                    FailImageFilter::GetFlattenableType());
         }
     };
     static sk_sp<SkImageFilter> Make() {
@@ -65,7 +66,8 @@ public:
     public:
         Registrar() {
             SkFlattenable::Register("IdentityImageFilter",
-                                    IdentityImageFilter::CreateProc);
+                                    IdentityImageFilter::CreateProc,
+                                    IdentityImageFilter::GetFlattenableType());
         }
     };
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> input) {

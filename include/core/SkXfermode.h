@@ -234,6 +234,7 @@ public:
 
     SK_TO_STRING_PUREVIRT()
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+    SK_DEFINE_FLATTENABLE_TYPE(SkXfermode)
 
     enum D32Flags {
         kSrcIsOpaque_D32Flag  = 1 << 0,

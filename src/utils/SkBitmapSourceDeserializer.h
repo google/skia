@@ -14,6 +14,7 @@
 // Should be removed when SKP versions which may contain SkBitmapSource records are phased out.
 class SkBitmapSourceDeserializer : public SkFlattenable {
 public:
+    SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapSource)
 };
 
