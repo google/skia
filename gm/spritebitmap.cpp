@@ -23,7 +23,7 @@ static void make_bm(SkBitmap* bm) {
 }
 
 static void draw_1_bitmap(SkCanvas* canvas, const SkBitmap& bm, bool doClip,
-                         int dx, int dy, SkImageFilter* filter = nullptr) {
+                         int dx, int dy, sk_sp<SkImageFilter> filter) {
     SkAutoCanvasRestore acr(canvas, true);
     SkPaint paint;
 
@@ -32,7 +32,7 @@ static void draw_1_bitmap(SkCanvas* canvas, const SkBitmap& bm, bool doClip,
                                     SkIntToScalar(bm.width()),
                                     SkIntToScalar(bm.height()));
 
-    paint.setImageFilter(filter);
+    paint.setImageFilter(std::move(filter));
     clipR.inset(5, 5);
 
     canvas->translate(SkIntToScalar(bm.width() + 20), 0);
@@ -72,13 +72,13 @@ protected:
         int dy = 10;
 
         SkScalar sigma = 8;
-        SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(sigma, sigma));
+        sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(sigma, sigma, nullptr));
 
-        draw_1_bitmap(canvas, bm, false, dx, dy);
+        draw_1_bitmap(canvas, bm, false, dx, dy, nullptr);
         dy += bm.height() + 20;
         draw_1_bitmap(canvas, bm, false, dx, dy, filter);
         dy += bm.height() + 20;
-        draw_1_bitmap(canvas, bm, true, dx, dy);
+        draw_1_bitmap(canvas, bm, true, dx, dy, nullptr);
         dy += bm.height() + 20;
         draw_1_bitmap(canvas, bm, true, dx, dy, filter);
     }

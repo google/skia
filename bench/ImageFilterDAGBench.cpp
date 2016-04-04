@@ -28,7 +28,7 @@ protected:
         const SkRect rect = SkRect::Make(SkIRect::MakeWH(400, 400));
 
         for (int j = 0; j < loops; j++) {
-            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Create(20.0f, 20.0f));
+            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(20.0f, 20.0f, nullptr));
             sk_sp<SkImageFilter> inputs[kNumInputs];
             for (int i = 0; i < kNumInputs; ++i) {
                 inputs[i] = blur;
@@ -58,14 +58,14 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int j = 0; j < loops; j++) {
-            SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f));
-            SkDisplacementMapEffect::ChannelSelectorType xSelector = SkDisplacementMapEffect::kR_ChannelSelectorType;
-            SkDisplacementMapEffect::ChannelSelectorType ySelector = SkDisplacementMapEffect::kB_ChannelSelectorType;
+            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(4.0f, 4.0f, nullptr));
+            auto xSelector = SkDisplacementMapEffect::kR_ChannelSelectorType;
+            auto ySelector = SkDisplacementMapEffect::kB_ChannelSelectorType;
             SkScalar scale = 2;
-            SkAutoTUnref<SkImageFilter> displ(SkDisplacementMapEffect::Create(xSelector, ySelector, scale,
-                                                                              blur.get(), blur.get()));
+            sk_sp<SkImageFilter> displ(SkDisplacementMapEffect::Create(xSelector, ySelector, scale,
+                                                                       blur.get(), blur.get()));
             SkPaint paint;
-            paint.setImageFilter(displ);
+            paint.setImageFilter(std::move(displ));
             SkRect rect = SkRect::Make(SkIRect::MakeWH(400, 400));
             canvas->drawRect(rect, paint);
         }

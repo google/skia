@@ -87,26 +87,29 @@ static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {
-    return SkBlurImageFilter::Create(amount, amount, input);
+static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) {
+    return SkBlurImageFilter::Make(amount, amount, std::move(input));
 }
 
-static SkImageFilter* make_brightness(float amount, SkImageFilter* input = nullptr) {
-    return SkColorFilterImageFilter::Create(cf_make_brightness(amount).get(), input);
+static sk_sp<SkImageFilter> make_brightness(float amount, sk_sp<SkImageFilter> input) {
+    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf_make_brightness(amount).get(),
+                                                                 input.get()));
 }
 
-static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
-    return SkColorFilterImageFilter::Create(cf_make_grayscale().get(), input);
+static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
+    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf_make_grayscale().get(),
+                                                                 input.get()));
 }
 
-static SkImageFilter* make_mode_blue(SkImageFilter* input = nullptr) {
-    return SkColorFilterImageFilter::Create(cf_make_colorize(SK_ColorBLUE).get(), input);
+static sk_sp<SkImageFilter> make_mode_blue(sk_sp<SkImageFilter> input) {
+    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf_make_colorize(SK_ColorBLUE).get(),
+                                                                 input.get()));
 }
 
-static void drawClippedRect(SkCanvas* canvas,
-                            const SkRect& r,
-                            const SkPaint& paint,
-                            float outset = 0.0f) {
+static void draw_clipped_rect(SkCanvas* canvas,
+                              const SkRect& r,
+                              const SkPaint& paint,
+                              float outset = 0.0f) {
         canvas->save();
         SkRect clip(r);
         clip.outset(outset, outset);
@@ -121,53 +124,53 @@ DEF_SIMPLE_GM(colorfilterimagefilter, canvas, 400, 100){
         paint.setColor(SK_ColorRED);
         canvas->save();
         for (float brightness = -1.0f; brightness <= 1.0f; brightness += 0.2f) {
-            SkAutoTUnref<SkImageFilter> dim(make_brightness(-brightness));
-            SkAutoTUnref<SkImageFilter> bright(make_brightness(brightness, dim));
-            paint.setImageFilter(bright);
-            drawClippedRect(canvas, r, paint);
+            sk_sp<SkImageFilter> dim(make_brightness(-brightness, nullptr));
+            sk_sp<SkImageFilter> bright(make_brightness(brightness, std::move(dim)));
+            paint.setImageFilter(std::move(bright));
+            draw_clipped_rect(canvas, r, paint);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
         canvas->restore();
         canvas->translate(0, FILTER_HEIGHT + MARGIN);
         {
-            SkAutoTUnref<SkImageFilter> brightness(make_brightness(0.9f));
-            SkAutoTUnref<SkImageFilter> grayscale(make_grayscale(brightness));
-            paint.setImageFilter(grayscale);
-            drawClippedRect(canvas, r, paint);
+            sk_sp<SkImageFilter> brightness(make_brightness(0.9f, nullptr));
+            sk_sp<SkImageFilter> grayscale(make_grayscale(std::move(brightness)));
+            paint.setImageFilter(std::move(grayscale));
+            draw_clipped_rect(canvas, r, paint);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
         {
-            SkAutoTUnref<SkImageFilter> grayscale(make_grayscale());
-            SkAutoTUnref<SkImageFilter> brightness(make_brightness(0.9f, grayscale));
-            paint.setImageFilter(brightness);
-            drawClippedRect(canvas, r, paint);
+            sk_sp<SkImageFilter> grayscale(make_grayscale(nullptr));
+            sk_sp<SkImageFilter> brightness(make_brightness(0.9f, std::move(grayscale)));
+            paint.setImageFilter(std::move(brightness));
+            draw_clipped_rect(canvas, r, paint);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
         {
-            SkAutoTUnref<SkImageFilter> blue(make_mode_blue());
-            SkAutoTUnref<SkImageFilter> brightness(make_brightness(1.0f, blue));
-            paint.setImageFilter(brightness);
-            drawClippedRect(canvas, r, paint);
+            sk_sp<SkImageFilter> blue(make_mode_blue(nullptr));
+            sk_sp<SkImageFilter> brightness(make_brightness(1.0f, std::move(blue)));
+            paint.setImageFilter(std::move(brightness));
+            draw_clipped_rect(canvas, r, paint);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
         {
-            SkAutoTUnref<SkImageFilter> brightness(make_brightness(1.0f));
-            SkAutoTUnref<SkImageFilter> blue(make_mode_blue(brightness));
-            paint.setImageFilter(blue);
-            drawClippedRect(canvas, r, paint);
+            sk_sp<SkImageFilter> brightness(make_brightness(1.0f, nullptr));
+            sk_sp<SkImageFilter> blue(make_mode_blue(std::move(brightness)));
+            paint.setImageFilter(std::move(blue));
+            draw_clipped_rect(canvas, r, paint);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
         {
-            SkAutoTUnref<SkImageFilter> blur(make_blur(3.0f));
-            SkAutoTUnref<SkImageFilter> brightness(make_brightness(0.5f, blur));
-            paint.setImageFilter(brightness);
-            drawClippedRect(canvas, r, paint, 3);
+            sk_sp<SkImageFilter> blur(make_blur(3.0f, nullptr));
+            sk_sp<SkImageFilter> brightness(make_brightness(0.5f, std::move(blur)));
+            paint.setImageFilter(std::move(brightness));
+            draw_clipped_rect(canvas, r, paint, 3);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
         {
-            SkAutoTUnref<SkImageFilter> blue(make_mode_blue());
-            paint.setImageFilter(blue.get());
-            drawClippedRect(canvas, r, paint, 5);
+            sk_sp<SkImageFilter> blue(make_mode_blue(nullptr));
+            paint.setImageFilter(std::move(blue));
+            draw_clipped_rect(canvas, r, paint, 5);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
 }
@@ -177,9 +180,9 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     SkColorMatrix cm;
     cm.setSaturation(0.0f);
     auto cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
-    SkAutoTUnref<SkImageFilter> imf(SkColorFilterImageFilter::Create(cf.get()));
+    sk_sp<SkImageFilter> imf(SkColorFilterImageFilter::Create(cf.get()));
     SkPaint p;
-    p.setImageFilter(imf);
+    p.setImageFilter(std::move(imf));
     canvas->saveLayer(NULL, &p);
     canvas->clear(SK_ColorRED);
 }

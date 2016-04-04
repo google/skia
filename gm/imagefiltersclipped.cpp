@@ -94,7 +94,7 @@ protected:
         SkPoint3 pointLocation = SkPoint3::Make(32, 32, SkIntToScalar(10));
 
         SkImageFilter* filters[] = {
-            SkBlurImageFilter::Create(SkIntToScalar(12), SkIntToScalar(12)),
+            SkBlurImageFilter::Make(SkIntToScalar(12), SkIntToScalar(12), nullptr).release(),
             SkDropShadowImageFilter::Create(SkIntToScalar(10), SkIntToScalar(10),
                 SkIntToScalar(3), SkIntToScalar(3), SK_ColorGREEN,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),

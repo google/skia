@@ -87,8 +87,7 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
     canvas->translate(10, 10);
     for (SkScalar sigma = 8; sigma <= 128; sigma *= 2) {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(sigma, sigma));
-        paint.setImageFilter(blur);
+        paint.setImageFilter(SkBlurImageFilter::Make(sigma, sigma, nullptr));
 
         canvas->save();
         // we outset the clip by 1, to fall out of the fast-case in drawImage
@@ -143,7 +142,7 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
     auto cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     const SkScalar kernel[] = { 4, 0, 4, 0, -15, 0, 4, 0, 4 };
     SkImageFilter* filters[] = {
-        SkBlurImageFilter::Create(10, 10),
+        SkBlurImageFilter::Make(10, 10, nullptr).release(),
         SkDilateImageFilter::Create(8, 8),
         SkMatrixConvolutionImageFilter::Create({ 3, 3 }, kernel, 1, 0, { 0, 0 },
                                            SkMatrixConvolutionImageFilter::kClampToBlack_TileMode,

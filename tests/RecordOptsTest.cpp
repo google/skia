@@ -188,8 +188,8 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     REPORTER_ASSERT(r, drawRect->paint.getColor() == 0x03020202);
 
     // saveLayer w/ backdrop should NOT go away
-    SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(3, 3));
-    recorder.saveLayer({ nullptr, nullptr, filter, 0});
+    sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(3, 3, nullptr));
+    recorder.saveLayer({ nullptr, nullptr, filter.get(), 0});
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_draw_restore(r, &record, 18, false);
@@ -244,7 +244,7 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
     int index = 0;
 
     {
-        SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(3, 3));
+        sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(3, 3, nullptr));
         // first (null) should be optimized, 2nd should not
         SkImageFilter* filters[] = { nullptr, filter.get() };
 

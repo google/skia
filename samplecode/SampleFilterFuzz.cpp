@@ -583,13 +583,11 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                     : nullptr;
         break;
     }
-    case BLUR: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-        filter = sk_sp<SkImageFilter>(SkBlurImageFilter::Create(make_scalar(true),
-                                                                make_scalar(true),
-                                                                subFilter.get()));
+    case BLUR:
+        filter = SkBlurImageFilter::Make(make_scalar(true),
+                                         make_scalar(true),
+                                         make_image_filter());
         break;
-    }
     case MAGNIFIER:
         filter = sk_sp<SkImageFilter>(SkMagnifierImageFilter::Create(make_rect(), 
                                                                      make_scalar(true)));

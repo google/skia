@@ -1963,11 +1963,11 @@ static int lsk_newDocumentPDF(lua_State* L) {
 static int lsk_newBlurImageFilter(lua_State* L) {
     SkScalar sigmaX = lua2scalar_def(L, 1, 0);
     SkScalar sigmaY = lua2scalar_def(L, 2, 0);
-    SkImageFilter* imf = SkBlurImageFilter::Create(sigmaX, sigmaY);
-    if (nullptr == imf) {
+    sk_sp<SkImageFilter> imf(SkBlurImageFilter::Make(sigmaX, sigmaY, nullptr));
+    if (!imf) {
         lua_pushnil(L);
     } else {
-        push_ref(L, imf)->unref();
+        push_ref(L, std::move(imf));
     }
     return 1;
 }
@@ -1982,7 +1982,8 @@ static int lsk_newLinearGradient(lua_State* L) {
 
     SkPoint pts[] = { { x0, y0 }, { x1, y1 } };
     SkColor colors[] = { c0, c1 };
-    auto s = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    sk_sp<SkShader> s(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                   SkShader::kClamp_TileMode));
     if (!s) {
         lua_pushnil(L);
     } else {

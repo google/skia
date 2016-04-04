@@ -80,15 +80,13 @@ protected:
                                                                        noopCropped.get(),
                                                                        &bigRect)));
 
-            Draw(canvas, checkerboard, rect,
-                 sk_sp<SkImageFilter>(SkBlurImageFilter::Create(0.3f, 0.3f,
-                                                                noopCropped.get(),
-                                                                &bigRect)));
+            Draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(0.3f, 0.3f,
+                                                                     noopCropped,
+                                                                     &bigRect));
 
-            Draw(canvas, checkerboard, rect,
-                 sk_sp<SkImageFilter>(SkBlurImageFilter::Create(8.0f, 8.0f,
-                                                                noopCropped.get(),
-                                                                &bigRect)));
+            Draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(8.0f, 8.0f,
+                                                                     noopCropped,
+                                                                     &bigRect));
 
             Draw(canvas, checkerboard, rect,
                  sk_sp<SkImageFilter>(SkDilateImageFilter::Create(2, 2,

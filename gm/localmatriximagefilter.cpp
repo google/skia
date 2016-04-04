@@ -65,7 +65,7 @@ protected:
         sk_sp<SkImage> image0(make_image(canvas));
 
         const ImageFilterFactory factories[] = {
-            IFCCast([]{ return SkBlurImageFilter::Create(8, 8); }),
+            IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr).release(); }),
             IFCCast([]{ return SkDilateImageFilter::Create(8, 8); }),
             IFCCast([]{ return SkErodeImageFilter::Create(8, 8); }),
             IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr).release(); }),

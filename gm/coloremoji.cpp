@@ -27,19 +27,19 @@ static sk_sp<SkShader> MakeLinear() {
                                         SkShader::kClamp_TileMode);
 }
 
-static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
+static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
     SkScalar matrix[20];
     memset(matrix, 0, 20 * sizeof(SkScalar));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    auto filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
-    return SkColorFilterImageFilter::Create(filter.get(), input);
+    sk_sp<SkColorFilter> filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(filter.get(), input.get()));
 }
 
-static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {
-    return SkBlurImageFilter::Create(amount, amount, input);
+static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) {
+    return SkBlurImageFilter::Make(amount, amount, std::move(input));
 }
 
 namespace skiagm {
@@ -98,15 +98,13 @@ protected:
                     }
 
                     if (SkToBool(makeBlur) && SkToBool(makeGray)) {
-                        SkAutoTUnref<SkImageFilter> grayScale(make_grayscale(nullptr));
-                        SkAutoTUnref<SkImageFilter> blur(make_blur(3.0f, grayScale));
-                        shaderPaint.setImageFilter(blur);
+                        sk_sp<SkImageFilter> grayScale(make_grayscale(nullptr));
+                        sk_sp<SkImageFilter> blur(make_blur(3.0f, std::move(grayScale)));
+                        shaderPaint.setImageFilter(std::move(blur));
                     } else if (SkToBool(makeBlur)) {
-                        SkAutoTUnref<SkImageFilter> blur(make_blur(3.0f, nullptr));
-                        shaderPaint.setImageFilter(blur);
+                        shaderPaint.setImageFilter(make_blur(3.0f, nullptr));
                     } else if (SkToBool(makeGray)) {
-                        SkAutoTUnref<SkImageFilter> grayScale(make_grayscale(nullptr));
-                        shaderPaint.setImageFilter(grayScale);
+                        shaderPaint.setImageFilter(make_grayscale(nullptr));
                     }
                     shaderPaint.setTextSize(30);
                     canvas->drawText(text, strlen(text), 380, SkIntToScalar(y_offset),
@@ -160,7 +158,6 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ColorEmojiGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM(return new ColorEmojiGM;)
 
 }

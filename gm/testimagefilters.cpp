@@ -35,7 +35,7 @@ static sk_sp<SkImageFilter> make2() {
 }
 
 static sk_sp<SkImageFilter> make3() {
-    return sk_sp<SkImageFilter>(SkBlurImageFilter::Create(8, 0));
+    return SkBlurImageFilter::Make(8, 0, nullptr);
 }
 
 static sk_sp<SkImageFilter> make4() {

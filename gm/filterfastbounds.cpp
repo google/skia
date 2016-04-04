@@ -82,79 +82,68 @@ static const drawMth gDrawMthds[] = {
     draw_rect, draw_oval, draw_rrect, draw_drrect, draw_path, draw_points, draw_bitmap
 };
 
-static void add_paint(SkImageFilter* filter, SkTArray<SkPaint>* paints) {
+static void add_paint(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> filter) {
     SkPaint& p = paints->push_back();
-    p.setImageFilter(filter);
+    p.setImageFilter(std::move(filter));
     SkASSERT(p.canComputeFastBounds());
 }
 
 // Create a selection of imagefilter-based paints to test
-static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
+static void create_paints(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> source) {
     {
         SkMatrix scale;
         scale.setScale(2.0f, 2.0f);
 
-        SkAutoTUnref<SkImageFilter> scaleMIF(
-            SkImageFilter::CreateMatrixFilter(scale, kLow_SkFilterQuality, source));
+        sk_sp<SkImageFilter> scaleMIF(
+            SkImageFilter::CreateMatrixFilter(scale, kLow_SkFilterQuality, source.get()));
 
-        add_paint(scaleMIF, paints);
+        add_paint(paints, std::move(scaleMIF));
     }
 
     {
         SkMatrix rot;
         rot.setRotate(-33.3f);
 
-        SkAutoTUnref<SkImageFilter> rotMIF(
-            SkImageFilter::CreateMatrixFilter(rot, kLow_SkFilterQuality, source));
+        sk_sp<SkImageFilter> rotMIF(
+            SkImageFilter::CreateMatrixFilter(rot, kLow_SkFilterQuality, source.get()));
 
-        add_paint(rotMIF, paints);
+        add_paint(paints, std::move(rotMIF));
     }
 
     {
         SkRect src = SkRect::MakeXYWH(20, 20, 10, 10);
         SkRect dst = SkRect::MakeXYWH(30, 30, 30, 30);
-        SkAutoTUnref<SkImageFilter> tileIF(
-            SkTileImageFilter::Create(src, dst, nullptr));
+        sk_sp<SkImageFilter> tileIF(SkTileImageFilter::Create(src, dst, nullptr));
 
-        add_paint(tileIF, paints);
+        add_paint(paints, std::move(tileIF));
     }
 
     {
         static const SkDropShadowImageFilter::ShadowMode kBoth =
                     SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode;
 
-        SkAutoTUnref<SkImageFilter> dsif(
+        sk_sp<SkImageFilter> dsif(
             SkDropShadowImageFilter::Create(10.0f, 10.0f,
                                             3.0f, 3.0f,
                                             SK_ColorRED, kBoth,
-                                            source, nullptr));
+                                            source.get(), nullptr));
 
-        add_paint(dsif, paints);
+        add_paint(paints, std::move(dsif));
     }
 
     {
-        SkAutoTUnref<SkImageFilter> dsif(
+        sk_sp<SkImageFilter> dsif(
             SkDropShadowImageFilter::Create(27.0f, 27.0f,
                                             3.0f, 3.0f,
                                             SK_ColorRED,
                                             SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode,
-                                            source, nullptr));
+                                            source.get(), nullptr));
 
-        add_paint(dsif, paints);
+        add_paint(paints, std::move(dsif));
     }
 
-    {
-        SkAutoTUnref<SkImageFilter> bif(SkBlurImageFilter::Create(3, 3, source));
-
-        add_paint(bif, paints);
-    }
-
-    {
-        sk_sp<SkImageFilter> oif(SkOffsetImageFilter::Make(15, 15,
-                                                           sk_ref_sp<SkImageFilter>(source)));
-
-        add_paint(oif.get(), paints);
-    }
+    add_paint(paints, SkBlurImageFilter::Make(3, 3, source));
+    add_paint(paints, SkOffsetImageFilter::Make(15, 15, source));
 }
 
 // This GM visualizes the fast bounds for various combinations of geometry
@@ -243,7 +232,7 @@ protected:
         //-----------
         // Normal paints (no source)
         SkTArray<SkPaint> paints;
-        create_paints(nullptr, &paints);
+        create_paints(&paints, nullptr);
 
         //-----------
         // Paints with a PictureImageFilter as a source
@@ -257,10 +246,8 @@ protected:
             pic = rec.finishRecordingAsPicture();
         }
 
-        sk_sp<SkImageFilter> pif(SkPictureImageFilter::Make(pic));
-
         SkTArray<SkPaint> pifPaints;
-        create_paints(pif.get(), &pifPaints);
+        create_paints(&pifPaints, SkPictureImageFilter::Make(pic));
 
         //-----------
         // Paints with a SkImageSource as a source
@@ -278,9 +265,8 @@ protected:
 
         sk_sp<SkImage> image(surface->makeImageSnapshot());
         sk_sp<SkImageFilter> imageSource(SkImageSource::Make(std::move(image)));
-
         SkTArray<SkPaint> bmsPaints;
-        create_paints(imageSource.get(), &bmsPaints);
+        create_paints(&bmsPaints, std::move(imageSource));
 
         //-----------
         SkASSERT(paints.count() == kNumVertTiles);

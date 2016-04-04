@@ -73,7 +73,7 @@ protected:
         resizeMatrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
 
         SkImageFilter* filters[] = {
-            SkBlurImageFilter::Create(SkIntToScalar(4), SkIntToScalar(4)),
+            SkBlurImageFilter::Make(SkIntToScalar(4), SkIntToScalar(4), nullptr).release(),
             SkDropShadowImageFilter::Create(SkIntToScalar(5), SkIntToScalar(10),
                 SkIntToScalar(3), SkIntToScalar(3), SK_ColorYELLOW,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),

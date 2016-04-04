@@ -198,7 +198,7 @@ protected:
             IdentityImageFilter::Create(),
             FailImageFilter::Create(),
             SkColorFilterImageFilter::Create(cf.get()),
-            SkBlurImageFilter::Create(12.0f, 0.0f),
+            SkBlurImageFilter::Make(12.0f, 0.0f, nullptr).release(),
             SkDropShadowImageFilter::Create(10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
         };
@@ -308,7 +308,7 @@ public:
     ImageFiltersText_IF() : ImageFiltersTextBaseGM("image") {}
 
     void installFilter(SkPaint* paint) override {
-        paint->setImageFilter(SkBlurImageFilter::Create(1.5f, 1.5f))->unref();
+        paint->setImageFilter(SkBlurImageFilter::Make(1.5f, 1.5f, nullptr));
     }
 };
 DEF_GM( return new ImageFiltersText_IF; )

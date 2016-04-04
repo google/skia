@@ -121,7 +121,7 @@ protected:
             sk_sp<SkImageFilter> bitmapSource(SkImageSource::Make(fImage));
             sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorRED,
                                                                   SkXfermode::kSrcIn_Mode));
-            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f, bitmapSource.get()));
+            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(4.0f, 4.0f, std::move(bitmapSource)));
             sk_sp<SkImageFilter> erode(SkErodeImageFilter::Create(4, 4, blur.get()));
             sk_sp<SkImageFilter> color(SkColorFilterImageFilter::Create(cf.get(), erode.get()));
             sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(blur, color));
@@ -167,13 +167,14 @@ protected:
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
-            SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(
-              SkIntToScalar(10), SkIntToScalar(10)));
+            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(SkIntToScalar(10),
+                                                              SkIntToScalar(10),
+                                                              nullptr));
 
             SkImageFilter::CropRect cropRect(SkRect::MakeWH(SkIntToScalar(95), SkIntToScalar(100)));
             SkPaint paint;
             paint.setImageFilter(
-                SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcIn_Mode), blur,
+                SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcIn_Mode), blur.get(),
                                             nullptr, &cropRect));
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);

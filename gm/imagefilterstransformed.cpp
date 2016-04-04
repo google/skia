@@ -66,7 +66,7 @@ protected:
         sk_sp<SkImageFilter> gradient(SkImageSource::Make(fGradientCircle));
         sk_sp<SkImageFilter> checkerboard(SkImageSource::Make(fCheckerboard));
         SkImageFilter* filters[] = {
-            SkBlurImageFilter::Create(12, 0),
+            SkBlurImageFilter::Make(12, 0, nullptr).release(),
             SkDropShadowImageFilter::Create(0, 15, 8, 0, SK_ColorGREEN,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
             SkDisplacementMapEffect::Create(SkDisplacementMapEffect::kR_ChannelSelectorType,

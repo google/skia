@@ -84,9 +84,8 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(SkSpecialImage* sou
     sigma.fX = SkMaxScalar(0, sigma.fX);
     sigma.fY = SkMaxScalar(0, sigma.fY);
 
-    SkAutoTUnref<SkImageFilter> blurFilter(SkBlurImageFilter::Create(sigma.fX, sigma.fY));
     SkPaint paint;
-    paint.setImageFilter(blurFilter.get());
+    paint.setImageFilter(SkBlurImageFilter::Make(sigma.fX, sigma.fY, nullptr));
     paint.setColorFilter(SkColorFilter::MakeModeFilter(fColor, SkXfermode::kSrcIn_Mode));
     paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
 
