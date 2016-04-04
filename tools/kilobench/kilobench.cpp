@@ -175,8 +175,8 @@ struct GPUTarget {
     }
 
     bool init(Benchmark* bench, GrContextFactory* factory, bool useDfText,
-              GrContextFactory::ContextType ctxType,
-              GrContextFactory::ContextOptions ctxOptions, int numSamples) {
+              GrContextFactory::GLContextType ctxType,
+              GrContextFactory::GLContextOptions ctxOptions, int numSamples) {
         GrContext* context = factory->get(ctxType, ctxOptions);
         int maxRTSize = context->caps()->maxRenderTargetSize();
         SkImageInfo info = SkImageInfo::Make(SkTMin(bench->getSize().fX, maxRTSize),
@@ -478,8 +478,8 @@ struct AutoSetupContextBenchAndTarget {
         fCtxFactory.reset(new GrContextFactory(grContextOpts));
 
         SkAssertResult(fTarget.init(bench, fCtxFactory, false,
-                                    GrContextFactory::kNativeGL_ContextType,
-                                    GrContextFactory::kNone_ContextOptions, 0));
+                                    GrContextFactory::kNative_GLContextType,
+                                    GrContextFactory::kNone_GLContextOptions, 0));
 
         fCanvas = fTarget.getCanvas();
         fTarget.setup();

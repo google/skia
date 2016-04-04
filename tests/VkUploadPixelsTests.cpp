@@ -137,12 +137,12 @@ DEF_GPUTEST(VkUploadPixelsTests, reporter, factory) {
     GrContextOptions opts;
     opts.fSuppressPrints = true;
     GrContextFactory debugFactory(opts);
-    for (int type = 0; type < GrContextFactory::kContextTypeCnt; ++type) {
-        if (static_cast<GrContextFactory::ContextType>(type) !=
-            GrContextFactory::kNativeGL_ContextType) {
+    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
+        if (static_cast<GrContextFactory::GLContextType>(type) !=
+            GrContextFactory::kNative_GLContextType) {
             continue;
         }
-        GrContext* context = debugFactory.get(static_cast<GrContextFactory::ContextType>(type));
+        GrContext* context = debugFactory.get(static_cast<GrContextFactory::GLContextType>(type));
         if (context) {
             basic_texture_test(reporter, context, kRGBA_8888_GrPixelConfig, false, false);
             basic_texture_test(reporter, context, kRGBA_8888_GrPixelConfig, true, false);

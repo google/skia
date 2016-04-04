@@ -30,8 +30,8 @@ static const bool kGPUDisabled = false;
 
 static inline sk_sp<SkSurface> NewGpuSurface(
         sk_gpu_test::GrContextFactory* grFactory,
-        sk_gpu_test::GrContextFactory::ContextType type,
-        sk_gpu_test::GrContextFactory::ContextOptions options,
+        sk_gpu_test::GrContextFactory::GLContextType type,
+        sk_gpu_test::GrContextFactory::GLContextOptions options,
         SkImageInfo info,
         int samples,
         bool useDIText) {
@@ -66,22 +66,20 @@ public:
     GrContextFactory() {};
     explicit GrContextFactory(const GrContextOptions&) {}
 
-    typedef int ContextType;
+    typedef int GLContextType;
 
-    static const ContextType kANGLE_ContextType         = 0,
-                             kANGLE_GL_ContextType      = 0,
-                             kCommandBuffer_ContextType = 0,
-                             kDebugGL_ContextType       = 0,
-                             kMESA_ContextType          = 0,
-                             kNVPR_ContextType          = 0,
-                             kNativeGL_ContextType      = 0,
-                             kGL_ContextType            = 0,
-                             kGLES_ContextType          = 0,
-                             kNullGL_ContextType        = 0;
-    static const int kContextTypeCnt = 1;
-    enum ContextOptions {
-        kNone_ContextOptions = 0,
-        kEnableNVPR_ContextOptions = 0x1,
+    static const GLContextType kANGLE_GLContextType         = 0,
+                               kANGLE_GL_GLContextType      = 0,
+                               kCommandBuffer_GLContextType = 0,
+                               kDebug_GLContextType         = 0,
+                               kMESA_GLContextType          = 0,
+                               kNVPR_GLContextType          = 0,
+                               kNative_GLContextType        = 0,
+                               kNull_GLContextType          = 0;
+    static const int kGLContextTypeCnt = 1;
+    enum GLContextOptions {
+        kNone_GLContextOptions = 0,
+        kEnableNVPR_GLContextOptions = 0x1,
     };
     void destroyContexts() {}
 
@@ -96,8 +94,8 @@ namespace DM {
 static const bool kGPUDisabled = true;
 
 static inline SkSurface* NewGpuSurface(sk_gpu_test::GrContextFactory*,
-                                       sk_gpu_test::GrContextFactory::ContextType,
-                                       sk_gpu_test::GrContextFactory::ContextOptions,
+                                       sk_gpu_test::GrContextFactory::GLContextType,
+                                       sk_gpu_test::GrContextFactory::GLContextOptions,
                                        SkImageInfo,
                                        int,
                                        bool) {

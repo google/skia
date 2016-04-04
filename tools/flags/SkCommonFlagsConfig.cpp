@@ -201,43 +201,47 @@ static bool parse_option_bool(const SkString& value, bool* outBool) {
 }
 static bool parse_option_gpu_api(const SkString& value,
                                  SkCommandLineConfigGpu::ContextType* outContextType) {
+    if (value.equals("native")) {
+        *outContextType = GrContextFactory::kNative_GLContextType;
+        return true;
+    }
     if (value.equals("gl")) {
-        *outContextType = GrContextFactory::kGL_ContextType;
+        *outContextType = GrContextFactory::kGL_GLContextType;
         return true;
     }
     if (value.equals("gles")) {
-        *outContextType = GrContextFactory::kGLES_ContextType;
+        *outContextType = GrContextFactory::kGLES_GLContextType;
         return true;
     }
     if (value.equals("debug")) {
-        *outContextType = GrContextFactory::kDebugGL_ContextType;
+        *outContextType = GrContextFactory::kDebug_GLContextType;
         return true;
     }
     if (value.equals("null")) {
-        *outContextType = GrContextFactory::kNullGL_ContextType;
+        *outContextType = GrContextFactory::kNull_GLContextType;
         return true;
     }
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     if (value.equals("angle")) {
-        *outContextType = GrContextFactory::kANGLE_ContextType;
+        *outContextType = GrContextFactory::kANGLE_GLContextType;
         return true;
     }
 #endif
     if (value.equals("angle-gl")) {
-        *outContextType = GrContextFactory::kANGLE_GL_ContextType;
+        *outContextType = GrContextFactory::kANGLE_GL_GLContextType;
         return true;
     }
 #endif
 #if SK_COMMAND_BUFFER
     if (value.equals("commandbuffer")) {
-        *outContextType = GrContextFactory::kCommandBuffer_ContextType;
+        *outContextType = GrContextFactory::kCommandBuffer_GLContextType;
         return true;
     }
 #endif
 #if SK_MESA
     if (value.equals("mesa")) {
-        *outContextType = GrContextFactory::kMESA_ContextType;
+        *outContextType = GrContextFactory::kMESA_GLContextType;
         return true;
     }
 #endif
@@ -269,7 +273,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
                                                       const SkString& options) {
     // Defaults for GPU backend.
     bool seenAPI = false;
-    SkCommandLineConfigGpu::ContextType contextType = GrContextFactory::kNativeGL_ContextType;
+    SkCommandLineConfigGpu::ContextType contextType = GrContextFactory::kNative_GLContextType;
     bool seenUseNVPR = false;
     bool useNVPR = false;
     bool seenUseDIText =false;

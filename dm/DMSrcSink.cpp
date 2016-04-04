@@ -941,8 +941,8 @@ Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
 
 DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
-GPUSink::GPUSink(GrContextFactory::ContextType ct,
-                 GrContextFactory::ContextOptions options,
+GPUSink::GPUSink(GrContextFactory::GLContextType ct,
+                 GrContextFactory::GLContextOptions options,
                  int samples,
                  bool diText,
                  SkColorType colorType,
