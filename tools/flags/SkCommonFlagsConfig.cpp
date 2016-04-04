@@ -28,7 +28,7 @@ static const char defaultConfigs[] =
 static const char configHelp[] =
     "Options: 565 8888 debug gpu gpudebug gpudft gpunull "
     "msaa16 msaa4 gpuf16 gpusrgb nonrendering null nullgpu "
-    "nvpr16 nvpr4 nvprdit16 nvprdit4 pdf pdf_poppler skp svg xps"
+    "nvpr16 nvpr4 nvprdit16 nvprdit4 pdf skp svg xps"
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     " angle"

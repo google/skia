@@ -850,8 +850,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
         SINK("8888", RasterSink, kN32_SkColorType);
         SINK("srgb", RasterSink, kN32_SkColorType, kSRGB_SkColorProfileType);
         SINK("f16",  RasterSink, kRGBA_F16_SkColorType);
-        SINK("pdf",  PDFSink, "Pdfium");
-        SINK("pdf_poppler",  PDFSink, "Poppler");
+        SINK("pdf",  PDFSink);
         SINK("skp",  SKPSink);
         SINK("svg",  SVGSink);
         SINK("null", NullSink);

@@ -70,7 +70,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
         "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf",
-        "pdf_poppler", "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
+        "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
         "gpuf16", "gpusrgb"
     });
 

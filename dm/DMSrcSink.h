@@ -253,13 +253,9 @@ private:
 
 class PDFSink : public Sink {
 public:
-    PDFSink(const char* rasterizer);
-
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "pdf"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
-private:
-    const char* fRasterizer;
 };
 
 class XPSSink : public Sink {
