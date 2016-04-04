@@ -42,7 +42,7 @@ template<typename T> struct SerializationUtils {
         writer.writeFlattenable(flattenable);
     }
     static void Read(SkValidatingReadBuffer& reader, T** flattenable) {
-        *flattenable = (T*)reader.readFlattenable(T::GetFlattenableType());
+        *flattenable = (T*)reader.readFlattenable();
     }
 };
 

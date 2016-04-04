@@ -43,8 +43,7 @@ class SkPrivateEffectInitializer;
     }
 
 #define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(flattenable) \
-    SkFlattenable::Register(#flattenable, flattenable::CreateProc, \
-                            flattenable::GetFlattenableType());
+    SkFlattenable::Register(#flattenable, flattenable::CreateProc);
 
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)    \
     private:                                                                \
@@ -52,14 +51,6 @@ class SkPrivateEffectInitializer;
     friend class SkFlattenable::PrivateInitializer;                         \
     public:                                                                 \
     Factory getFactory() const override { return CreateProc; }
-
-/** For SkFlattenable derived objects with a valid type
-    This macro should only be used in base class objects in core
-  */
-#define SK_DEFINE_FLATTENABLE_TYPE(flattenable) \
-    static Type GetFlattenableType() { \
-        return k##flattenable##_Type; \
-    }
 
 /** \class SkFlattenable
 
@@ -69,19 +60,6 @@ class SkPrivateEffectInitializer;
  */
 class SK_API SkFlattenable : public SkRefCnt {
 public:
-    enum Type {
-        kSkColorFilter_Type,
-        kSkDrawLooper_Type,
-        kSkImageFilter_Type,
-        kSkMaskFilter_Type,
-        kSkPathEffect_Type,
-        kSkPixelRef_Type,
-        kSkRasterizer_Type,
-        kSkShader_Type,
-        kSkUnused_Type,     // used to be SkUnitMapper
-        kSkXfermode_Type,
-    };
-
     typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
 
     SkFlattenable() {}
@@ -98,9 +76,8 @@ public:
 
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
-    static bool NameToType(const char name[], Type* type);
 
-    static void Register(const char name[], Factory, Type);
+    static void Register(const char name[], Factory);
 
     /**
      *  Override this if your subclass needs to record data that it will need to recreate itself

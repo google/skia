@@ -32,8 +32,7 @@ public:
     public:
         Registrar() {
             SkFlattenable::Register("SimpleOffsetFilter",
-                                    SimpleOffsetFilter::CreateProc,
-                                    SimpleOffsetFilter::GetFlattenableType());
+                                    SimpleOffsetFilter::CreateProc);
         }
     };
     static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input) {

@@ -1089,7 +1089,7 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
     // cross-process. Do this by "laundering" it through SkValidatingReadBuffer.
     SkAutoTUnref<SkData> data(SkValidatingSerializeFlattenable(imageFilter.get()));
     SkAutoTUnref<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
-        data->data(), data->size(), SkImageFilter::GetFlattenableType()));
+        data->data(), data->size()));
     SkImageFilter* unflattenedFilter = static_cast<SkImageFilter*>(flattenable.get());
 
     redPaintWithFilter.setImageFilter(unflattenedFilter);
@@ -1536,7 +1536,7 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
 
     sk_sp<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
     sk_sp<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
-        data->data(), data->size(), SkImageFilter::GetFlattenableType()));
+        data->data(), data->size()));
     SkImageFilter* unflattenedFilter = static_cast<SkImageFilter*>(flattenable.get());
     REPORTER_ASSERT(reporter, unflattenedFilter);
 

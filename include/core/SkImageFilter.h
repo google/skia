@@ -292,7 +292,6 @@ public:
 #endif
 
     SK_TO_STRING_PUREVIRT()
-    SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
 
 protected:
     class Common {

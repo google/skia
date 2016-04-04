@@ -329,11 +329,7 @@ SkTypeface* SkReadBuffer::readTypeface() {
     }
 }
 
-SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
-    //
-    // TODO: confirm that ft matches the factory we decide to use
-    //
-
+SkFlattenable* SkReadBuffer::readFlattenable() {
     SkFlattenable::Factory factory = nullptr;
 
     if (fFactoryCount > 0) {

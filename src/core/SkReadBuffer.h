@@ -126,9 +126,9 @@ public:
     virtual void readPath(SkPath* path);
     void readPaint(SkPaint* paint) { paint->unflatten(*this); }
 
-    virtual SkFlattenable* readFlattenable(SkFlattenable::Type);
+    virtual SkFlattenable* readFlattenable();
     template <typename T> sk_sp<T> readFlattenable() {
-        return sk_sp<T>((T*)this->readFlattenable(T::GetFlattenableType()));
+        return sk_sp<T>((T*)this->readFlattenable());
     }
     sk_sp<SkColorFilter> readColorFilter() { return this->readFlattenable<SkColorFilter>(); }
     sk_sp<SkDrawLooper> readDrawLooper() { return this->readFlattenable<SkDrawLooper>(); }

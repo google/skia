@@ -799,8 +799,7 @@ static SkImageFilter* make_serialized_image_filter() {
         }
     }
 #endif // SK_ADD_RANDOM_BIT_FLIPS
-    SkFlattenable* flattenable = SkValidatingDeserializeFlattenable(ptr, len,
-                                    SkImageFilter::GetFlattenableType());
+    SkFlattenable* flattenable = SkValidatingDeserializeFlattenable(ptr, len);
     return static_cast<SkImageFilter*>(flattenable);
 }
 

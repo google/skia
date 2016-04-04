@@ -20,8 +20,7 @@ SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
     return data.release();
 }
 
-SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size,
-                                                  SkFlattenable::Type type) {
+SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size) {
     SkValidatingReadBuffer buffer(data, size);
-    return buffer.readFlattenable(type);
+    return buffer.readFlattenable();
 }

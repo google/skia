@@ -13,7 +13,6 @@
 class SkData;
 
 SK_API SkData* SkValidatingSerializeFlattenable(SkFlattenable*);
-SK_API SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size,
-                                                         SkFlattenable::Type type);
+SK_API SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size);
 
 #endif
