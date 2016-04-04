@@ -7,22 +7,36 @@
 
 #include "SkTestImageFilters.h"
 #include "SkCanvas.h"
+#include "SkDevice.h"
 #include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
+
+// Simple helper canvas that "takes ownership" of the provided device, so that
+// when this canvas goes out of scope, so will its device. Could be replaced
+// with the following:
+//
+//  SkCanvas canvas(device);
+//  SkAutoTUnref<SkBaseDevice> aur(device);
+//
+class OwnDeviceCanvas : public SkCanvas {
+public:
+    OwnDeviceCanvas(SkBaseDevice* device) : SkCanvas(device) {
+        SkSafeUnref(device);
+    }
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkSpecialImage> SkDownSampleImageFilter::onFilterImage(SkSpecialImage* source,
-                                                             const Context& ctx,
-                                                             SkIPoint* offset) const {
-    if (fScale > SK_Scalar1 || fScale <= 0) {
-        return nullptr;
+bool SkDownSampleImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src,
+                                                      const Context&,
+                                                      SkBitmap* result, SkIPoint*) const {
+    SkScalar scale = fScale;
+    if (scale > SK_Scalar1 || scale <= 0) {
+        return false;
     }
 
-    int dstW = SkScalarRoundToInt(source->width() * fScale);
-    int dstH = SkScalarRoundToInt(source->height() * fScale);
+    int dstW = SkScalarRoundToInt(src.width() * scale);
+    int dstH = SkScalarRoundToInt(src.height() * scale);
     if (dstW < 1) {
         dstW = 1;
     }
@@ -30,50 +44,35 @@ sk_sp<SkSpecialImage> SkDownSampleImageFilter::onFilterImage(SkSpecialImage* sou
         dstH = 1;
     }
 
-    sk_sp<SkSpecialImage> tmp;
+    SkBitmap tmp;
 
     // downsample
     {
-        const SkImageInfo info = SkImageInfo::MakeN32Premul(dstW, dstH);
-
-        sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
-        if (!surf) {
-            return nullptr;
+        SkBaseDevice* dev = proxy->createDevice(dstW, dstH);
+        if (nullptr == dev) {
+            return false;
         }
-
-        SkCanvas* canvas = surf->getCanvas();
-        SkASSERT(canvas);
-
+        OwnDeviceCanvas canvas(dev);
         SkPaint paint;
-        paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
+
         paint.setFilterQuality(kLow_SkFilterQuality);
-
-        canvas->scale(fScale, fScale);
-        source->draw(canvas, 0, 0, &paint);
-
-        tmp = surf->makeImageSnapshot();
+        canvas.scale(scale, scale);
+        canvas.drawBitmap(src, 0, 0, &paint);
+        tmp = dev->accessBitmap(false);
     }
 
     // upscale
     {
-        const SkImageInfo info = SkImageInfo::MakeN32Premul(source->width(), source->height());
-
-        sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
-        if (!surf) {
-            return nullptr;
+        SkBaseDevice* dev = proxy->createDevice(src.width(), src.height());
+        if (nullptr == dev) {
+            return false;
         }
+        OwnDeviceCanvas canvas(dev);
 
-        SkCanvas* canvas = surf->getCanvas();
-        SkASSERT(canvas);
-
-        SkPaint paint;
-        paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
-
-        canvas->scale(SkScalarInvert(fScale), SkScalarInvert(fScale));
-        tmp->draw(canvas, 0, 0, &paint);
-
-        return surf->makeImageSnapshot();
+        canvas.drawBitmapRect(tmp, SkRect::MakeIWH(src.width(), src.height()), nullptr);
+        *result = dev->accessBitmap(false);
     }
+    return true;
 }
 
 sk_sp<SkFlattenable> SkDownSampleImageFilter::CreateProc(SkReadBuffer& buffer) {
