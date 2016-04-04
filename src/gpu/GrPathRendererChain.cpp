@@ -20,10 +20,9 @@
 #include "batches/GrAALinearizingConvexPathRenderer.h"
 #include "batches/GrDashLinePathRenderer.h"
 #include "batches/GrDefaultPathRenderer.h"
-#include "batches/GrMSAAPathRenderer.h"
-#include "batches/GrPLSPathRenderer.h"
 #include "batches/GrStencilAndCoverPathRenderer.h"
 #include "batches/GrTessellatingPathRenderer.h"
+#include "batches/GrPLSPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context) {
     const GrCaps& caps = *context->caps();
@@ -32,9 +31,6 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context) {
     if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(context->resourceProvider(),
                                                                    caps)) {
         this->addPathRenderer(pr)->unref();
-    }
-    if (caps.sampleShadingSupport()) {
-        this->addPathRenderer(new GrMSAAPathRenderer)->unref();
     }
     this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
     this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
