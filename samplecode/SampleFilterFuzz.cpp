@@ -461,13 +461,12 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
     return pathEffect;
 }
 
-static SkMaskFilter* make_mask_filter() {
-    SkMaskFilter* maskFilter;
+static sk_sp<SkMaskFilter> make_mask_filter() {
+    sk_sp<SkMaskFilter> maskFilter;
     switch (R(3)) {
         case 0:
-            maskFilter = SkBlurMaskFilter::Create(make_blur_style(),
-                                                  make_scalar(),
-                                                  make_blur_mask_filter_flag());
+            maskFilter = SkBlurMaskFilter::Make(make_blur_style(), make_scalar(),
+                                                make_blur_mask_filter_flag());
         case 1: {
             SkEmbossMaskFilter::Light light;
             for (int i = 0; i < 3; ++i) {
@@ -476,12 +475,10 @@ static SkMaskFilter* make_mask_filter() {
             light.fPad = R(65536);
             light.fAmbient = R(256);
             light.fSpecular = R(256);
-            maskFilter = SkEmbossMaskFilter::Create(make_scalar(),
-                                                    light);
+            maskFilter = SkEmbossMaskFilter::Make(make_scalar(), light);
         }
         case 2:
         default:
-            maskFilter = nullptr;
             break;
     }
     return maskFilter;

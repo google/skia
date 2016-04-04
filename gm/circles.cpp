@@ -51,11 +51,10 @@ protected:
         // AA with mask filter
         SkPaint p;
         p.setAntiAlias(true);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(
+        p.setMaskFilter(SkBlurMaskFilter::Make(
                                kNormal_SkBlurStyle,
                                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
-                               SkBlurMaskFilter::kHighQuality_BlurFlag);
-        p.setMaskFilter(mf)->unref();
+                               SkBlurMaskFilter::kHighQuality_BlurFlag));
         fPaints.push_back(p);
         }
 

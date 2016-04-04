@@ -65,10 +65,9 @@ protected:
             r.offset(fRadius, fRadius);
 
             if (fRadius > 0) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(fStyle,
-                                            SkBlurMask::ConvertRadiusToSigma(fRadius),
-                                            fFlags);
-                paint.setMaskFilter(mf)->unref();
+                paint.setMaskFilter(SkBlurMaskFilter::Make(fStyle,
+                                                          SkBlurMask::ConvertRadiusToSigma(fRadius),
+                                                          fFlags));
             }
             canvas->drawOval(r, paint);
         }

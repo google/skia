@@ -671,7 +671,7 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
     if (!find_blurstyle(cstyle, &style)) {
         return NULL;
     }
-    return ToMaskFilter(SkBlurMaskFilter::Create(style, sigma));
+    return ToMaskFilter(SkBlurMaskFilter::Make(style, sigma).release());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

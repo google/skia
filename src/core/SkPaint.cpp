@@ -386,7 +386,9 @@ SET_PTR(Xfermode)
 #ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
 SET_PTR(PathEffect)
 #endif
+#ifdef SK_SUPPORT_LEGACY_MASKFILTER_PTR
 SET_PTR(MaskFilter)
+#endif
 #undef SET_PTR
 
 #ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
@@ -2255,7 +2257,7 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     }
     fPaint.setStyle(style);
     fPaint.setPathEffect(pe);
-    fPaint.setMaskFilter(paint.getMaskFilter());    // restore
+    fPaint.setMaskFilter(sk_ref_sp(paint.getMaskFilter()));    // restore
 
     // now compute fXOffset if needed
 

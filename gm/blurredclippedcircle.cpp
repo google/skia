@@ -63,10 +63,10 @@ protected:
 
                     SkPaint paint;
 
-                    paint.setMaskFilter(SkBlurMaskFilter::Create(
+                    paint.setMaskFilter(SkBlurMaskFilter::Make(
                                             kNormal_SkBlurStyle,
                                             1.366025f,
-                                            SkBlurMaskFilter::kHighQuality_BlurFlag))->unref();
+                                            SkBlurMaskFilter::kHighQuality_BlurFlag));
                     paint.setColorFilter(SkColorFilter::MakeModeFilter(
                                              SK_ColorRED,
                                              SkXfermode::kSrcIn_Mode));

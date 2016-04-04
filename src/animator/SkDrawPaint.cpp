@@ -229,7 +229,7 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (maskFilter == nullptr)
         paint->setMaskFilter(nullptr);
     else if (maskFilter != (SkDrawMaskFilter*) -1)
-        SkSafeUnref(paint->setMaskFilter(maskFilter->getMaskFilter()));
+        paint->setMaskFilter(sk_sp<SkMaskFilter>(maskFilter->getMaskFilter()));
     if (pathEffect == nullptr)
         paint->setPathEffect(nullptr);
     else if (pathEffect != (SkDrawPathEffect*) -1)

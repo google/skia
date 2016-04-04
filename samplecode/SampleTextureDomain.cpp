@@ -77,12 +77,11 @@ protected:
         // renders correctly
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(5, 405, 305, 305);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(
+        paint.setMaskFilter(SkBlurMaskFilter::Make(
             kNormal_SkBlurStyle,
             SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
             SkBlurMaskFilter::kHighQuality_BlurFlag |
-            SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
-        paint.setMaskFilter(mf)->unref();
+            SkBlurMaskFilter::kIgnoreTransform_BlurFlag));
         canvas->drawImageRect(image, srcRect, dstRect, &paint);
 
         // Blur and a rotation + nullptr src rect
@@ -90,10 +89,9 @@ protected:
         // but it will test a code path in SkGpuDevice::drawBitmap
         // that handles blurs with rects transformed to non-
         // orthogonal rects. It also tests the nullptr src rect handling
-        mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                      SkBlurMask::ConvertRadiusToSigma(5),
-                                      SkBlurMaskFilter::kHighQuality_BlurFlag);
-        paint.setMaskFilter(mf)->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                                   SkBlurMask::ConvertRadiusToSigma(5),
+                                                   SkBlurMaskFilter::kHighQuality_BlurFlag));
 
         dstRect.setXYWH(-150, -150, 300, 300);
         canvas->translate(550, 550);

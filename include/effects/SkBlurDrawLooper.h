@@ -46,8 +46,6 @@ public:
     }
 #endif
 
-    virtual ~SkBlurDrawLooper();
-
     SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const override;
 
     size_t contextSize() const override { return sizeof(BlurDrawLooperContext); }
@@ -64,7 +62,7 @@ protected:
     bool asABlurShadow(BlurShadowRec*) const override;
 
 private:
-    SkMaskFilter*   fBlur;
+    sk_sp<SkMaskFilter>  fBlur;
     sk_sp<SkColorFilter> fColorFilter;
     SkScalar        fDx, fDy, fSigma;
     SkColor         fBlurColor;

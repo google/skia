@@ -135,9 +135,8 @@ protected:
         // setup blur paint
         SkPaint blurPaint(paint);
         blurPaint.setColor(sk_tool_utils::color_to_565(SK_ColorBLACK));
-        SkAutoTUnref<SkMaskFilter> mf(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, kSigma));
-        blurPaint.setMaskFilter(mf);
-
+        blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));
+        
         for (int i = 0; i < 4; i++) {
             canvas->save();
             switch (i % 2) {

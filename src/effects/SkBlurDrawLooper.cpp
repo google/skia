@@ -34,7 +34,7 @@ void SkBlurDrawLooper::initEffects() {
                     SkBlurMaskFilter::kHighQuality_BlurFlag :
                     SkBlurMaskFilter::kNone_BlurFlag;
 
-        fBlur = SkBlurMaskFilter::Create(kNormal_SkBlurStyle, fSigma, flags);
+        fBlur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, fSigma, flags);
     } else {
         fBlur = nullptr;
     }
@@ -76,10 +76,6 @@ void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fDx);
     buffer.writeScalar(fDy);
     buffer.write32(fBlurFlags);
-}
-
-SkBlurDrawLooper::~SkBlurDrawLooper() {
-    SkSafeUnref(fBlur);
 }
 
 bool SkBlurDrawLooper::asABlurShadow(BlurShadowRec* rec) const {

@@ -1145,10 +1145,10 @@ static void extract_json_paint_maskfilter(Json::Value& jsonPaint, UrlDataManager
                                           SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_MASKFILTER)) {
         Json::Value jsonMaskFilter = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_MASKFILTER];
-        SkMaskFilter* maskFilter = (SkMaskFilter*) load_flattenable(jsonMaskFilter, urlDataManager);
-        if (maskFilter != nullptr) {
-            target->setMaskFilter(maskFilter);
-            maskFilter->unref();
+        sk_sp<SkMaskFilter> maskFilter((SkMaskFilter*)load_flattenable(jsonMaskFilter,
+                                                                       urlDataManager));
+        if (maskFilter) {
+            target->setMaskFilter(std::move(maskFilter));
         }
     }
 }
@@ -1339,7 +1339,7 @@ static void extract_json_paint_blur(Json::Value& jsonPaint, SkPaint* target) {
             SkASSERT(false);
             flags = SkBlurMaskFilter::BlurFlags::kNone_BlurFlag;
         }
-        target->setMaskFilter(SkBlurMaskFilter::Create(style, sigma, flags));
+        target->setMaskFilter(SkBlurMaskFilter::Make(style, sigma, flags));
     }
 }
 

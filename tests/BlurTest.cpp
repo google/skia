@@ -111,11 +111,7 @@ DEF_TEST(BlurDrawing, reporter) {
 
         const uint32_t flagPermutations = SkBlurMaskFilter::kAll_BlurFlag;
         for (uint32_t flags = 0; flags < flagPermutations; ++flags) {
-            SkMaskFilter* filter;
-            filter = SkBlurMaskFilter::Create(blurStyle, sigma, flags);
-
-            paint.setMaskFilter(filter);
-            filter->unref();
+            paint.setMaskFilter(SkBlurMaskFilter::Make(blurStyle, sigma, flags));
 
             for (size_t test = 0; test < SK_ARRAY_COUNT(tests); ++test) {
                 SkPath path;
@@ -234,10 +230,8 @@ static void blur_path(SkCanvas* canvas, const SkPath& path,
 
     SkPaint blurPaint;
     blurPaint.setColor(SK_ColorWHITE);
-    SkMaskFilter* filter = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                                    gaussianSigma,
-                                                    SkBlurMaskFilter::kHighQuality_BlurFlag);
-    blurPaint.setMaskFilter(filter)->unref();
+    blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, gaussianSigma,
+                                                   SkBlurMaskFilter::kHighQuality_BlurFlag));
 
     canvas->drawColor(SK_ColorBLACK);
     canvas->drawPath(path, blurPaint);
@@ -463,17 +457,18 @@ static void make_noop_layer(SkLayerDrawLooper::Builder* builder) {
     builder->addLayer(info);
 }
 
-static void make_blur_layer(SkLayerDrawLooper::Builder* builder, SkMaskFilter* mf) {
+static void make_blur_layer(SkLayerDrawLooper::Builder* builder, sk_sp<SkMaskFilter> mf) {
     SkLayerDrawLooper::LayerInfo info;
 
     info.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit;
     info.fColorMode = SkXfermode::kSrc_Mode;
     SkPaint* paint = builder->addLayer(info);
-    paint->setMaskFilter(mf);
+    paint->setMaskFilter(std::move(mf));
 }
 
-static void test_layerDrawLooper(skiatest::Reporter* reporter, SkMaskFilter* mf, SkScalar sigma,
-                                 SkBlurStyle style, SkBlurQuality quality, bool expectSuccess) {
+static void test_layerDrawLooper(skiatest::Reporter* reporter, sk_sp<SkMaskFilter> mf,
+                                 SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+                                 bool expectSuccess) {
 
     SkLayerDrawLooper::LayerInfo info;
     SkLayerDrawLooper::Builder builder;
@@ -517,7 +512,7 @@ DEF_TEST(BlurAsABlur, reporter) {
             for (int flags = 0; flags <= SkBlurMaskFilter::kAll_BlurFlag; ++flags) {
                 const SkBlurQuality quality = blurMaskFilterFlags_as_quality(flags);
 
-                SkAutoTUnref<SkMaskFilter> mf(SkBlurMaskFilter::Create(style, sigma, flags));
+                sk_sp<SkMaskFilter> mf(SkBlurMaskFilter::Make(style, sigma, flags));
                 if (nullptr == mf.get()) {
                     REPORTER_ASSERT(reporter, sigma <= 0);
                 } else {
@@ -532,7 +527,7 @@ DEF_TEST(BlurAsABlur, reporter) {
                         REPORTER_ASSERT(reporter, rec.fStyle == style);
                         REPORTER_ASSERT(reporter, rec.fQuality == quality);
                     }
-                    test_layerDrawLooper(reporter, mf, sigma, style, quality, success);
+                    test_layerDrawLooper(reporter, std::move(mf), sigma, style, quality, success);
                 }
                 test_blurDrawLooper(reporter, sigma, style, flags);
             }
@@ -547,8 +542,8 @@ DEF_TEST(BlurAsABlur, reporter) {
         };
         for (size_t j = 0; j < SK_ARRAY_COUNT(sigmas); ++j) {
             const SkScalar sigma = sigmas[j];
-            SkAutoTUnref<SkMaskFilter> mf(SkEmbossMaskFilter::Create(sigma, light));
-            if (mf.get()) {
+            auto mf(SkEmbossMaskFilter::Make(sigma, light));
+            if (mf) {
                 SkMaskFilter::BlurRec rec;
                 bool success = mf->asABlur(&rec);
                 REPORTER_ASSERT(reporter, !success);
@@ -571,7 +566,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctx) {
     SkRRect rr = SkRRect::MakeRectXY(r, 10, 10);
 
     SkPaint p;
-    p.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, 0.01f))->unref();
+    p.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 0.01f));
 
     canvas->drawRRect(rr, p);
 }

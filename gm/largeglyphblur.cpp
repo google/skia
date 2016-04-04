@@ -26,8 +26,7 @@ DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
         static const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(40));
 
         SkPaint blurPaint(paint);
-        SkAutoTUnref<SkMaskFilter> mf(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, kSigma));
-        blurPaint.setMaskFilter(mf);
+        blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));
 
         SkTextBlobBuilder builder;
 

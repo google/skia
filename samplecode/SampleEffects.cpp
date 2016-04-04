@@ -22,18 +22,15 @@ static void paint_proc0(SkPaint*) {
 }
 
 static void paint_proc1(SkPaint* paint) {
-    paint->setMaskFilter(SkBlurMaskFilter::Create(
+    paint->setMaskFilter(SkBlurMaskFilter::Make(
                                 kNormal_SkBlurStyle,
-                                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2))))->unref();
+                                SkBlurMask::ConvertRadiusToSigma(2)));
 }
 
 static void paint_proc2(SkPaint* paint) {
     SkScalar dir[3] = { 1, 1, 1};
     paint->setMaskFilter(
-            SkBlurMaskFilter::CreateEmboss(SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
-                                           dir,
-                                           0.1f,
-                                           0.05f))->unref();
+            SkBlurMaskFilter::MakeEmboss(SkBlurMask::ConvertRadiusToSigma(1), dir, 0.1f, 0.05f));
 }
 
 static void paint_proc3(SkPaint* paint) {

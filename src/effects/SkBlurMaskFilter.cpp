@@ -123,7 +123,7 @@ private:
 
 const SkScalar SkBlurMaskFilterImpl::kMAX_BLUR_SIGMA = SkIntToScalar(128);
 
-SkMaskFilter* SkBlurMaskFilter::Create(SkBlurStyle style, SkScalar sigma, uint32_t flags) {
+sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma, uint32_t flags) {
     if (!SkScalarIsFinite(sigma) || sigma <= 0) {
         return nullptr;
     }
@@ -133,7 +133,7 @@ SkMaskFilter* SkBlurMaskFilter::Create(SkBlurStyle style, SkScalar sigma, uint32
     if (flags > SkBlurMaskFilter::kAll_BlurFlag) {
         return nullptr;
     }
-    return new SkBlurMaskFilterImpl(sigma, style, flags);
+    return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, flags));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -586,7 +586,7 @@ sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     const unsigned style = buffer.readUInt();
     const unsigned flags = buffer.readUInt();
     if (style <= kLastEnum_SkBlurStyle) {
-        return sk_sp<SkFlattenable>(SkBlurMaskFilter::Create((SkBlurStyle)style, sigma, flags));
+        return SkBlurMaskFilter::Make((SkBlurStyle)style, sigma, flags);
     }
     return nullptr;
 }

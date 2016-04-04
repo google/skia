@@ -61,9 +61,8 @@ struct LooperSettings {
 };
 
 static void mask_filter(SkPaint* paint) {
-    SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                        SkBlurMask::ConvertRadiusToSigma(3.f));
-    paint->setMaskFilter(mf)->unref();
+    paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                                SkBlurMask::ConvertRadiusToSigma(3.f)));
 }
 
 static sk_sp<SkPathEffect> make_tile_effect() {

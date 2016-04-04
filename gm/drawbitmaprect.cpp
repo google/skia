@@ -211,12 +211,11 @@ protected:
             paint.setFilterQuality(kLow_SkFilterQuality);
 
             srcRect.setXYWH(1, 1, 3, 3);
-            SkMaskFilter* mf = SkBlurMaskFilter::Create(
+            paint.setMaskFilter(SkBlurMaskFilter::Make(
                 kNormal_SkBlurStyle,
                 SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                 SkBlurMaskFilter::kHighQuality_BlurFlag |
-                SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
-            paint.setMaskFilter(mf)->unref();
+                SkBlurMaskFilter::kIgnoreTransform_BlurFlag));
             canvas->drawBitmapRect(bm, srcRect, dstRect, &paint);
         }
     }

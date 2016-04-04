@@ -83,7 +83,7 @@ static sk_sp<SkShader> MakeRadial() {
 typedef void (*PaintProc)(SkPaint*, SkScalar width);
 
 class BlurRectGM : public skiagm::GM {
-      SkAutoTUnref<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
+      sk_sp<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
       SkString  fName;
       SkAlpha   fAlpha;
 public:
@@ -95,9 +95,9 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         for (int i = 0; i <= kLastEnum_SkBlurStyle; ++i) {
-            fMaskFilters[i].reset(SkBlurMaskFilter::Create((SkBlurStyle)i,
+            fMaskFilters[i] = SkBlurMaskFilter::Make((SkBlurStyle)i,
                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(STROKE_WIDTH/2)),
-                                  SkBlurMaskFilter::kHighQuality_BlurFlag));
+                                  SkBlurMaskFilter::kHighQuality_BlurFlag);
         }
     }
 

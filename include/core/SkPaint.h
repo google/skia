@@ -41,7 +41,6 @@ class SkTypeface;
     The SkPaint class holds the style and color information about how to draw
     geometries, text and bitmaps.
 */
-
 class SK_API SkPaint {
 public:
     SkPaint();
@@ -589,7 +588,9 @@ public:
                             the paint
         @return             maskfilter
     */
+#ifdef SK_SUPPORT_LEGACY_MASKFILTER_PTR
     SkMaskFilter* setMaskFilter(SkMaskFilter* maskfilter);
+#endif
     void setMaskFilter(sk_sp<SkMaskFilter>);
 
     // These attributes are for text/fonts

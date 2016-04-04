@@ -33,7 +33,7 @@ public:
 }
 
 class DrawFilterGM : public skiagm::GM {
-    SkAutoTUnref<SkMaskFilter> fBlur;
+    sk_sp<SkMaskFilter> fBlur;
 
 protected:
     SkISize onISize() override {
@@ -45,15 +45,15 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBlur.reset(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
+        fBlur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(10.0f),
-                    kLow_SkBlurQuality));
+                    kLow_SkBlurQuality);
     }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setColor(SK_ColorBLUE);
-        p.setMaskFilter(fBlur.get());
+        p.setMaskFilter(fBlur);
         SkRect r = { 20, 20, 100, 100 };
         canvas->setDrawFilter(nullptr);
         canvas->drawRect(r, p);

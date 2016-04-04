@@ -86,10 +86,8 @@ private:
 
         SkPaint* paint = looperBuilder.addLayer(info);
 
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                                    sigma,
-                                                    SkBlurMaskFilter::kHighQuality_BlurFlag);
-        paint->setMaskFilter(mf)->unref();
+        paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma,
+                                                    SkBlurMaskFilter::kHighQuality_BlurFlag));
 
         //-----------------------------------------------
         info.fPaintBits = 0;

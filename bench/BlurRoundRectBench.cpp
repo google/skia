@@ -49,11 +49,9 @@ public:
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);
-            SkMaskFilter* maskFilter = SkBlurMaskFilter::Create(
-                    kNormal_SkBlurStyle,
-                    SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
-                    SkBlurMaskFilter::kHighQuality_BlurFlag);
-            paint->setMaskFilter(maskFilter)->unref();
+            paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                                        SkBlurMask::ConvertRadiusToSigma(0.5),
+                                                        SkBlurMaskFilter::kHighQuality_BlurFlag));
             paint->setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorLTGRAY,
                                                                 SkXfermode::kSrcIn_Mode));
             paint->setColor(SK_ColorGRAY);

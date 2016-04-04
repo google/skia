@@ -76,12 +76,12 @@ protected:
     }
 
     void createMaskFilter() {
-        if (fMaskFilter.get()) {
+        if (fMaskFilter) {
             return;
         }
 
         const SkScalar sigma = 1;
-        fMaskFilter.reset(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, sigma));
+        fMaskFilter = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -96,7 +96,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setTextSize(72);
         paint.setShader(fShader);
-        paint.setMaskFilter(fMaskFilter.get());
+        paint.setMaskFilter(fMaskFilter);
         sk_tool_utils::set_portable_typeface(&paint);
 
         SkRect temp;
@@ -138,7 +138,7 @@ private:
     SkBitmap        fTexture;
     bool            fTextureCreated;
     sk_sp<SkShader> fShader;
-    SkAutoTUnref<SkMaskFilter> fMaskFilter;
+    sk_sp<SkMaskFilter> fMaskFilter;
 
     typedef GM INHERITED;
 };

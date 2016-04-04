@@ -96,7 +96,7 @@ private:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setMaskFilter(createBlur())->unref();
+        paint.setMaskFilter(MakeBlur());
 
         for (int i = 0; i < 4; ++i) {
             paint.setColor(gColors[i]);
@@ -110,11 +110,11 @@ private:
         canvas->restore();
     }
 
-    SkMaskFilter* createBlur() {
+    static sk_sp<SkMaskFilter> MakeBlur() {
         static const SkScalar kBlurSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(25));
 
-        return SkBlurMaskFilter::Create(kNormal_SkBlurStyle, kBlurSigma,
-                                        SkBlurMaskFilter::kHighQuality_BlurFlag);
+        return SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma,
+                                      SkBlurMaskFilter::kHighQuality_BlurFlag);
     }
 
     // This draws 4 blurred shadows around a single square (centered at x, y).
@@ -173,7 +173,7 @@ private:
 
         SkPaint* paint = looperBuilder.addLayer(info);
 
-        paint->setMaskFilter(this->createBlur())->unref();
+        paint->setMaskFilter(MakeBlur());
 
         paint->setColorFilter(SkColorFilter::MakeModeFilter(color, SkXfermode::kSrcIn_Mode));
 
@@ -219,7 +219,7 @@ private:
             info.fOffset.set(xOff+gBlurOffsets[i].fX, yOff+gBlurOffsets[i].fY);
             paint = looperBuilder.addLayer(info);
 
-            paint->setMaskFilter(this->createBlur())->unref();
+            paint->setMaskFilter(MakeBlur());
 
             paint->setColorFilter(SkColorFilter::MakeModeFilter(gColors[i],
                                                                 SkXfermode::kSrcIn_Mode));

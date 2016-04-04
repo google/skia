@@ -13,19 +13,21 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
-SkMaskFilter* SkEmbossMaskFilter::Create(SkScalar blurSigma, const Light& light) {
-    return new SkEmbossMaskFilter(blurSigma, light);
+sk_sp<SkMaskFilter> SkEmbossMaskFilter::Make(SkScalar blurSigma, const Light& light) {
+    return sk_sp<SkMaskFilter>(new SkEmbossMaskFilter(blurSigma, light));
 }
 
+#ifdef SK_SUPPORT_LEGACY_MASKFILTER_PTR
 SkMaskFilter* SkBlurMaskFilter::CreateEmboss(const SkScalar direction[3],
                                              SkScalar ambient, SkScalar specular,
                                              SkScalar blurRadius) {
     return SkBlurMaskFilter::CreateEmboss(SkBlurMask::ConvertRadiusToSigma(blurRadius),
                                           direction, ambient, specular);
 }
+#endif
 
-SkMaskFilter* SkBlurMaskFilter::CreateEmboss(SkScalar blurSigma, const SkScalar direction[3],
-                                             SkScalar ambient, SkScalar specular) {
+sk_sp<SkMaskFilter> SkBlurMaskFilter::MakeEmboss(SkScalar blurSigma, const SkScalar direction[3],
+                                                 SkScalar ambient, SkScalar specular) {
     if (direction == nullptr) {
         return nullptr;
     }
@@ -39,7 +41,7 @@ SkMaskFilter* SkBlurMaskFilter::CreateEmboss(SkScalar blurSigma, const SkScalar 
     static const SkScalar kSpecularMultiplier = SkIntToScalar(255) / 16;
     light.fSpecular = static_cast<U8CPU>(SkScalarPin(specular, 0, 16) * kSpecularMultiplier + 0.5);
 
-    return SkEmbossMaskFilter::Create(blurSigma, light);
+    return SkEmbossMaskFilter::Make(blurSigma, light);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -117,7 +119,7 @@ sk_sp<SkFlattenable> SkEmbossMaskFilter::CreateProc(SkReadBuffer& buffer) {
     if (buffer.readByteArray(&light, sizeof(Light))) {
         light.fPad = 0; // for the font-cache lookup to be clean
         const SkScalar sigma = buffer.readScalar();
-        return sk_sp<SkFlattenable>(Create(sigma, light));
+        return Make(sigma, light);
     }
     return nullptr;
 }

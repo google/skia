@@ -43,7 +43,7 @@ protected:
         canvas->drawBitmap(bm, 10, 10, &paint);
 
         const SkScalar dir[] = { 1, 1, 1 };
-        paint.setMaskFilter(SkBlurMaskFilter::CreateEmboss(3, dir, 0.3f, 0.1f))->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::MakeEmboss(3, dir, 0.3f, 0.1f));
         canvas->translate(bm.width() + SkIntToScalar(10), 0);
         canvas->drawBitmap(bm, 10, 10, &paint);
 

@@ -410,9 +410,8 @@ protected:
 
         SkPaint paint;
         paint.setFilterQuality(filter);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
-                                         SkBlurMask::ConvertRadiusToSigma(3));
-        paint.setMaskFilter(mf)->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                                                   SkBlurMask::ConvertRadiusToSigma(3)));
         paint.setShader(fShader);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
@@ -429,9 +428,8 @@ protected:
 
         SkPaint paint;
         paint.setFilterQuality(filter);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(kOuter_SkBlurStyle,
-                                                    SkBlurMask::ConvertRadiusToSigma(7));
-        paint.setMaskFilter(mf)->unref();
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kOuter_SkBlurStyle,
+                                                   SkBlurMask::ConvertRadiusToSigma(7)));
         paint.setShader(fShader);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
