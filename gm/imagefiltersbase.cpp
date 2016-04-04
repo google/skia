@@ -26,13 +26,15 @@ public:
                                     FailImageFilter::GetFlattenableType());
         }
     };
-    static FailImageFilter* Create() { return new FailImageFilter; }
+    static sk_sp<SkImageFilter> Make() {
+        return sk_sp<SkImageFilter>(new FailImageFilter);
+    }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
 
 protected:
-    FailImageFilter() : INHERITED(0, nullptr) {}
+    FailImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
     bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
                                  SkBitmap* result, SkIPoint* offset) const override {
@@ -47,7 +49,7 @@ static FailImageFilter::Registrar gReg0;
 
 sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
-    return sk_sp<SkFlattenable>(FailImageFilter::Create());
+    return FailImageFilter::Make();
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -67,15 +69,14 @@ public:
                                     IdentityImageFilter::GetFlattenableType());
         }
     };
-    static IdentityImageFilter* Create(SkImageFilter* input = nullptr) {
-        return new IdentityImageFilter(input);
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> input) {
+        return sk_sp<SkImageFilter>(new IdentityImageFilter(std::move(input)));
     }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(IdentityImageFilter)
-protected:
-    IdentityImageFilter(SkImageFilter* input) : INHERITED(1, &input) {}
 
+protected:
     bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
                                  SkBitmap* result, SkIPoint* offset) const override {
         *result = src;
@@ -84,6 +85,8 @@ protected:
     }
 
 private:
+    IdentityImageFilter(sk_sp<SkImageFilter> input) : INHERITED(&input, 1, nullptr) {}
+
     typedef SkImageFilter INHERITED;
 };
 
@@ -91,7 +94,7 @@ static IdentityImageFilter::Registrar gReg1;
 
 sk_sp<SkFlattenable> IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    return sk_sp<SkFlattenable>(IdentityImageFilter::Create(common.getInput(0).get()));
+    return IdentityImageFilter::Make(common.getInput(0));
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -195,8 +198,8 @@ protected:
         auto cf = SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode);
         SkImageFilter* filters[] = {
             nullptr,
-            IdentityImageFilter::Create(),
-            FailImageFilter::Create(),
+            IdentityImageFilter::Make(nullptr).release(),
+            FailImageFilter::Make().release(),
             SkColorFilterImageFilter::Create(cf.get()),
             SkBlurImageFilter::Make(12.0f, 0.0f, nullptr).release(),
             SkDropShadowImageFilter::Create(10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,

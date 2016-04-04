@@ -51,20 +51,21 @@ namespace {
 
 class MatrixTestImageFilter : public SkImageFilter {
 public:
-    MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
-      : SkImageFilter(0, nullptr), fReporter(reporter), fExpectedMatrix(expectedMatrix) {
-    }
-
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context& ctx,
-                                 SkBitmap* result, SkIPoint* offset) const override {
-        REPORTER_ASSERT(fReporter, ctx.ctm() == fExpectedMatrix);
-        return true;
+    static sk_sp<SkImageFilter> Make(skiatest::Reporter* reporter,
+                                     const SkMatrix& expectedMatrix) {
+        return sk_sp<SkImageFilter>(new MatrixTestImageFilter(reporter, expectedMatrix));
     }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
+    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context& ctx,
+                                 SkBitmap* result, SkIPoint* offset) const override {
+        REPORTER_ASSERT(fReporter, ctx.ctm() == fExpectedMatrix);
+        return true;
+    }
+
     void flatten(SkWriteBuffer& buffer) const override {
         this->INHERITED::flatten(buffer);
         buffer.writeFunctionPtr(fReporter);
@@ -72,6 +73,12 @@ protected:
     }
 
 private:
+    MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
+        : INHERITED(nullptr, 0, nullptr)
+        , fReporter(reporter)
+        , fExpectedMatrix(expectedMatrix) {
+    }
+
     skiatest::Reporter* fReporter;
     SkMatrix fExpectedMatrix;
 
@@ -250,7 +257,7 @@ sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
     skiatest::Reporter* reporter = (skiatest::Reporter*)buffer.readFunctionPtr();
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
-    return sk_make_sp<MatrixTestImageFilter>(reporter, matrix);
+    return MatrixTestImageFilter::Make(reporter, matrix);
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -1027,9 +1034,7 @@ DEF_TEST(ImageFilterMatrix, reporter) {
     SkCanvas* recordingCanvas = recorder.beginRecording(100, 100, &factory, 0);
 
     SkPaint paint;
-    SkAutoTUnref<MatrixTestImageFilter> imageFilter(
-        new MatrixTestImageFilter(reporter, expectedMatrix));
-    paint.setImageFilter(imageFilter.get());
+    paint.setImageFilter(MatrixTestImageFilter::Make(reporter, expectedMatrix));
     recordingCanvas->saveLayer(nullptr, &paint);
     SkPaint solidPaint;
     solidPaint.setColor(0xFFFFFFFF);

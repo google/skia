@@ -35,10 +35,14 @@ public:
                                     SimpleOffsetFilter::GetFlattenableType());
         }
     };
-    static SkImageFilter* Create(SkScalar dx, SkScalar dy, SkImageFilter* input) {
-        return new SimpleOffsetFilter(dx, dy, input);
+    static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input) {
+        return sk_sp<SkImageFilter>(new SimpleOffsetFilter(dx, dy, std::move(input)));
     }
 
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
+
+protected:
     bool onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                  SkBitmap* dst, SkIPoint* offset) const override {
         SkBitmap source = src;
@@ -63,10 +67,6 @@ public:
         return true;
     }
 
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
-
-protected:
     void flatten(SkWriteBuffer& buffer) const override {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fDX);
@@ -74,8 +74,11 @@ protected:
     }
 
 private:
-    SimpleOffsetFilter(SkScalar dx, SkScalar dy, SkImageFilter* input)
-        : SkImageFilter(1, &input), fDX(dx), fDY(dy) {}
+    SimpleOffsetFilter(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input)
+        : SkImageFilter(&input, 1, nullptr)
+        , fDX(dx)
+        , fDY(dy) {
+    }
 
     SkScalar fDX, fDY;
 
@@ -88,7 +91,7 @@ sk_sp<SkFlattenable> SimpleOffsetFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar dx = buffer.readScalar();
     SkScalar dy = buffer.readScalar();
-    return sk_sp<SkFlattenable>(Create(dx, dy, common.getInput(0).get()));
+    return Make(dx, dy, common.getInput(0));
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -132,18 +135,20 @@ protected:
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
-            SkAutoTUnref<SkImageFilter> morph(SkDilateImageFilter::Create(5, 5));
+            sk_sp<SkImageFilter> morph(SkDilateImageFilter::Create(5, 5));
 
             SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
                                     0, SK_Scalar1, 0, 0, 0,
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
 
-            auto matrixFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
-            SkAutoTUnref<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter.get(), morph));
+            sk_sp<SkColorFilter> matrixFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+            sk_sp<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter.get(),
+                                                                             morph.get()));
             SkPaint paint;
             paint.setImageFilter(SkXfermodeImageFilter::Make(
-                                        SkXfermode::Make(SkXfermode::kSrcOver_Mode), colorMorph));
+                                        SkXfermode::Make(SkXfermode::kSrcOver_Mode),
+                                        colorMorph.get()));
 
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
@@ -153,15 +158,14 @@ protected:
                                     0, SK_Scalar1, 0, 0, 0,
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
-            auto matrixCF(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
-            SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(matrixCF.get()));
-            SkAutoTUnref<SkImageFilter> offsetFilter(
-                SimpleOffsetFilter::Create(10.0f, 10.f, matrixFilter));
+            sk_sp<SkColorFilter> matrixCF(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+            sk_sp<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(matrixCF.get()));
+            sk_sp<SkImageFilter> offsetFilter(SimpleOffsetFilter::Make(10.0f, 10.f, matrixFilter));
 
             SkPaint paint;
             paint.setImageFilter(
                 SkXfermodeImageFilter::Make(SkArithmeticMode::Make(0, SK_Scalar1, SK_Scalar1, 0),
-                                            matrixFilter, offsetFilter, nullptr));
+                                            matrixFilter.get(), offsetFilter.get(), nullptr));
 
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
