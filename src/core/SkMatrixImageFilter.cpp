@@ -16,16 +16,18 @@
 
 SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
                                          SkFilterQuality filterQuality,
-                                         SkImageFilter* input)
-    : INHERITED(1, &input)
+                                         sk_sp<SkImageFilter> input)
+    : INHERITED(&input, 1, nullptr)
     , fTransform(transform)
     , fFilterQuality(filterQuality) {
 }
 
-SkMatrixImageFilter* SkMatrixImageFilter::Create(const SkMatrix& transform,
-                                                 SkFilterQuality filterQuality,
-                                                 SkImageFilter* input) {
-    return new SkMatrixImageFilter(transform, filterQuality, input);
+sk_sp<SkImageFilter> SkMatrixImageFilter::Make(const SkMatrix& transform,
+                                               SkFilterQuality filterQuality,
+                                               sk_sp<SkImageFilter> input) {
+    return sk_sp<SkImageFilter>(new SkMatrixImageFilter(transform,
+                                                        filterQuality,
+                                                        std::move(input)));
 }
 
 sk_sp<SkFlattenable> SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -33,7 +35,7 @@ sk_sp<SkFlattenable> SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkFilterQuality quality = static_cast<SkFilterQuality>(buffer.readInt());
-    return sk_sp<SkImageFilter>(Create(matrix, quality, common.getInput(0).get()));
+    return Make(matrix, quality, common.getInput(0));
 }
 
 void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {

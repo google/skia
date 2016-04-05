@@ -57,12 +57,12 @@ protected:
         SkMatrix resizeMatrix;
         resizeMatrix.setScale(RESIZE_FACTOR_X, RESIZE_FACTOR_Y);
 
-        SkImageFilter* filters[] = {
-            SkBlurImageFilter::Make(5, 5, nullptr).release(),
-            SkDropShadowImageFilter::Create(10, 10, 3, 3, SK_ColorGREEN,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
-            SkOffsetImageFilter::Make(-16, 32, nullptr).release(),
-            SkImageFilter::CreateMatrixFilter(resizeMatrix, kNone_SkFilterQuality),
+        sk_sp<SkImageFilter> filters[] = {
+            SkBlurImageFilter::Make(5, 5, nullptr),
+            sk_sp<SkImageFilter>(SkDropShadowImageFilter::Create(10, 10, 3, 3, SK_ColorGREEN,
+                            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode)),
+            SkOffsetImageFilter::Make(-16, 32, nullptr),
+            SkImageFilter::MakeMatrixFilter(resizeMatrix, kNone_SkFilterQuality, nullptr),
         };
 
         SkRect r = SkRect::MakeWH(64, 64);
@@ -94,10 +94,6 @@ protected:
             }
             canvas->restore();
             canvas->translate(0, r.height());
-        }
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
-            SkSafeUnref(filters[i]);
         }
     }
 

@@ -39,9 +39,9 @@ protected:
         canvas->translate(-rect.x(), -rect.y());
         SkMatrix matrix;
         matrix.setScale(SkScalarInvert(deviceScaleX), SkScalarInvert(deviceScaleY));
-        sk_sp<SkImageFilter> filter(SkImageFilter::CreateMatrixFilter(matrix,
-                                                                      filterQuality,
-                                                                      input.get()));
+        sk_sp<SkImageFilter> filter(SkImageFilter::MakeMatrixFilter(matrix,
+                                                                    filterQuality,
+                                                                    std::move(input)));
         SkPaint filteredPaint;
         filteredPaint.setImageFilter(std::move(filter));
         canvas->saveLayer(&rect, &filteredPaint);

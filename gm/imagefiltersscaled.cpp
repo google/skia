@@ -85,7 +85,7 @@ protected:
             SkDilateImageFilter::Make(1, 1, checkerboard).release(),
             SkErodeImageFilter::Make(1, 1, checkerboard).release(),
             SkOffsetImageFilter::Make(SkIntToScalar(32), 0, nullptr).release(),
-            SkImageFilter::CreateMatrixFilter(resizeMatrix, kNone_SkFilterQuality),
+            SkImageFilter::MakeMatrixFilter(resizeMatrix, kNone_SkFilterQuality, nullptr).release(),
             SkPaintImageFilter::Make(noisePaint).release(),
             SkLightingImageFilter::CreatePointLitDiffuse(pointLocation, white, surfaceScale, kd),
             SkLightingImageFilter::CreateSpotLitDiffuse(spotLocation, spotTarget, spotExponent,

@@ -270,9 +270,17 @@ public:
     /**
      * Create an SkMatrixImageFilter, which transforms its input by the given matrix.
      */
+    static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
+                                                 SkFilterQuality,
+                                                 sk_sp<SkImageFilter> input);
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
     static SkImageFilter* CreateMatrixFilter(const SkMatrix& matrix,
-                                             SkFilterQuality,
-                                             SkImageFilter* input = NULL);
+                                             SkFilterQuality filterQuality,
+                                             SkImageFilter* input = nullptr) {
+        return MakeMatrixFilter(matrix, filterQuality, sk_ref_sp<SkImageFilter>(input)).release();
+    }
+#endif
+
 
     sk_sp<SkSpecialImage> filterInput(int index,
                                       SkSpecialImage* src,

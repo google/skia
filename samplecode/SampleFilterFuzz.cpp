@@ -597,13 +597,11 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     case OFFSET:
         filter = SkOffsetImageFilter::Make(make_scalar(), make_scalar(), make_image_filter());
         break;
-    case MATRIX: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-        filter = sk_sp<SkImageFilter>(SkImageFilter::CreateMatrixFilter(make_matrix(),
-                                                                        (SkFilterQuality)R(4),
-                                                                        subFilter.get()));
+    case MATRIX:
+        filter = SkImageFilter::MakeMatrixFilter(make_matrix(),
+                                                 (SkFilterQuality)R(4),
+                                                 make_image_filter());
         break;
-    }
     case MATRIX_CONVOLUTION: {
         SkImageFilter::CropRect cropR(SkRect::MakeWH(SkIntToScalar(kBitmapSize),
                                                      SkIntToScalar(kBitmapSize)));

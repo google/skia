@@ -25,19 +25,27 @@ public:
      *                       passed to filterImage() is used instead.
      */
 
-    static SkMatrixImageFilter* Create(const SkMatrix& transform,
-                                       SkFilterQuality filterQuality,
-                                       SkImageFilter* input = nullptr);
+    static sk_sp<SkImageFilter> Make(const SkMatrix& transform,
+                                     SkFilterQuality filterQuality,
+                                     sk_sp<SkImageFilter> input);
 
     SkRect computeFastBounds(const SkRect&) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixImageFilter)
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(const SkMatrix& transform,
+                                 SkFilterQuality filterQuality,
+                                 SkImageFilter* input = nullptr) {
+        return Make(transform, filterQuality, sk_ref_sp<SkImageFilter>(input)).release();
+    }
+#endif
+
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
                         SkFilterQuality,
-                        SkImageFilter* input);
+                        sk_sp<SkImageFilter> input);
     void flatten(SkWriteBuffer&) const override;
 
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,

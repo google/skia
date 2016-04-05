@@ -573,10 +573,10 @@ bool SkImageFilter::asFragmentProcessor(GrFragmentProcessor**, GrTexture*,
     return false;
 }
 
-SkImageFilter* SkImageFilter::CreateMatrixFilter(const SkMatrix& matrix,
-                                                 SkFilterQuality filterQuality,
-                                                 SkImageFilter* input) {
-    return SkMatrixImageFilter::Create(matrix, filterQuality, input);
+sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkMatrix& matrix,
+                                                     SkFilterQuality filterQuality,
+                                                     sk_sp<SkImageFilter> input) {
+    return SkMatrixImageFilter::Make(matrix, filterQuality, std::move(input));
 }
 
 sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) const {

@@ -225,8 +225,8 @@ public:
             cropRect ? cropRect->rect() : SkRect::MakeXYWH(0, 0, 100, 100),
             input.get()));
         if (!cropRect) {
-            this->addFilter("matrix", SkImageFilter::CreateMatrixFilter(
-                matrix, kLow_SkFilterQuality, input.get()));
+            this->addFilter("matrix",
+                SkImageFilter::MakeMatrixFilter(matrix, kLow_SkFilterQuality, input).release());
         }
 
         {
@@ -801,9 +801,9 @@ static void draw_saveLayer_picture(int width, int height, int tileSize,
 
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorWHITE, SkXfermode::kSrc_Mode));
     sk_sp<SkImageFilter> cfif(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
-    sk_sp<SkImageFilter> imageFilter(SkImageFilter::CreateMatrixFilter(matrix, 
-                                                                       kNone_SkFilterQuality,
-                                                                       cfif.get()));
+    sk_sp<SkImageFilter> imageFilter(SkImageFilter::MakeMatrixFilter(matrix,
+                                                                     kNone_SkFilterQuality,
+                                                                     std::move(cfif)));
 
     SkPaint paint;
     paint.setImageFilter(std::move(imageFilter));
@@ -1397,15 +1397,15 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
     SkMatrix matrix;
     matrix.setScale(SkIntToScalar(2), SkIntToScalar(2));
     matrix.postTranslate(SkIntToScalar(-20), SkIntToScalar(-20));
-    SkAutoTUnref<SkImageFilter> matrixFilter(
-        SkImageFilter::CreateMatrixFilter(matrix, kLow_SkFilterQuality));
+    sk_sp<SkImageFilter> matrixFilter(
+        SkImageFilter::MakeMatrixFilter(matrix, kLow_SkFilterQuality, nullptr));
 
     // Test that saveLayer() with a filter nested inside another saveLayer() applies the
     // correct offset to the filter matrix.
     SkRect bounds1 = SkRect::MakeXYWH(10, 10, 30, 30);
     canvas.saveLayer(&bounds1, nullptr);
     SkPaint filterPaint;
-    filterPaint.setImageFilter(matrixFilter);
+    filterPaint.setImageFilter(std::move(matrixFilter));
     SkRect bounds2 = SkRect::MakeXYWH(20, 20, 10, 10);
     canvas.saveLayer(&bounds2, &filterPaint);
     SkPaint greenPaint;
