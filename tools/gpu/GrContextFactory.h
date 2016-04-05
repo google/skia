@@ -24,76 +24,76 @@ namespace sk_gpu_test {
  */
 class GrContextFactory : SkNoncopyable {
 public:
-    enum GLContextType {
-        kNative_GLContextType,  //! OpenGL or OpenGL ES context.
-        kGL_GLContextType,      //! OpenGL context.
-        kGLES_GLContextType,    //! OpenGL ES context.
+    enum ContextType {
+        kGL_ContextType,            //! OpenGL context.
+        kGLES_ContextType,          //! OpenGL ES context.
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
-        kANGLE_GLContextType,    //! ANGLE on DirectX OpenGL ES context.
+        kANGLE_ContextType,         //! ANGLE on DirectX OpenGL ES context.
 #endif
-        kANGLE_GL_GLContextType, //! ANGLE on OpenGL OpenGL ES context.
+        kANGLE_GL_ContextType,      //! ANGLE on OpenGL OpenGL ES context.
 #endif
 #if SK_COMMAND_BUFFER
-        kCommandBuffer_GLContextType, //! Chromium command buffer OpenGL ES context.
+        kCommandBuffer_ContextType, //! Chromium command buffer OpenGL ES context.
 #endif
 #if SK_MESA
-        kMESA_GLContextType,  //! MESA OpenGL context
+        kMESA_ContextType,          //! MESA OpenGL context
 #endif
-        kNull_GLContextType,  //! Non-rendering OpenGL mock context.
-        kDebug_GLContextType, //! Non-rendering, state verifying OpenGL context.
-        kLastGLContextType = kDebug_GLContextType
+        kNullGL_ContextType,        //! Non-rendering OpenGL mock context.
+        kDebugGL_ContextType,       //! Non-rendering, state verifying OpenGL context.
+        kLastContextType = kDebugGL_ContextType
     };
 
-    static const int kGLContextTypeCnt = kLastGLContextType + 1;
+    //! OpenGL or OpenGL ES context depending on the platform. To be removed.
+    static const ContextType kNativeGL_ContextType;
+
+    static const int kContextTypeCnt = kLastContextType + 1;
 
     /**
      * Options for GL context creation. For historical and testing reasons the options will default
      * to not using GL_NV_path_rendering extension  even when the driver supports it.
      */
-    enum GLContextOptions {
-        kNone_GLContextOptions = 0,
-        kEnableNVPR_GLContextOptions = 0x1,
-        kRequireSRGBSupport_GLContextOptions = 0x2,
+    enum ContextOptions {
+        kNone_ContextOptions                = 0x0,
+        kEnableNVPR_ContextOptions          = 0x1,
+        kRequireSRGBSupport_ContextOptions  = 0x2,
     };
 
-    static bool IsRenderingGLContext(GLContextType type) {
+    static bool IsRenderingContext(ContextType type) {
         switch (type) {
-            case kNull_GLContextType:
-            case kDebug_GLContextType:
+            case kNullGL_ContextType:
+            case kDebugGL_ContextType:
                 return false;
             default:
                 return true;
         }
     }
 
-    static const char* GLContextTypeName(GLContextType type) {
+    static const char* ContextTypeName(ContextType type) {
         switch (type) {
-            case kNative_GLContextType:
-                return "native";
-            case kGL_GLContextType:
+            case kGL_ContextType:
                 return "gl";
-            case kGLES_GLContextType:
+            case kGLES_ContextType:
                 return "gles";
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
-            case kANGLE_GLContextType:
+            case kANGLE_ContextType:
                 return "angle";
 #endif
-            case kANGLE_GL_GLContextType:
+            case kANGLE_GL_ContextType:
                 return "angle-gl";
 #endif
 #if SK_COMMAND_BUFFER
-            case kCommandBuffer_GLContextType:
+            case kCommandBuffer_ContextType:
                 return "commandbuffer";
 #endif
 #if SK_MESA
-            case kMESA_GLContextType:
+            case kMESA_ContextType:
                 return "mesa";
 #endif
-            case kNull_GLContextType:
+            case kNullGL_ContextType:
                 return "null";
-            case kDebug_GLContextType:
+            case kDebugGL_ContextType:
                 return "debug";
             default:
                 SkFAIL("Unknown GL Context type.");
@@ -122,22 +122,21 @@ public:
     /**
      * Get a context initialized with a type of GL context. It also makes the GL context current.
      */
-    ContextInfo getContextInfo(GLContextType type,
-                               GLContextOptions options = kNone_GLContextOptions);
+    ContextInfo getContextInfo(ContextType type,
+                               ContextOptions options = kNone_ContextOptions);
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(GLContextType type,
-                   GLContextOptions options = kNone_GLContextOptions) {
+    GrContext* get(ContextType type, ContextOptions options = kNone_ContextOptions) {
         return this->getContextInfo(type, options).fGrContext;
     }
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
     struct Context {
-        GLContextType       fType;
-        GLContextOptions    fOptions;
-        GLTestContext*          fGLContext;
+        ContextType         fType;
+        ContextOptions      fOptions;
+        GLTestContext*      fGLContext; //  null if non-GL
         GrContext*          fGrContext;
     };
     SkTArray<Context, true> fContexts;

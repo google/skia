@@ -200,12 +200,12 @@ DEF_GPUTEST(VkClearTests, reporter, factory) {
     GrContextOptions opts;
     opts.fSuppressPrints = true;
     GrContextFactory debugFactory(opts);
-    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        if (static_cast<GrContextFactory::GLContextType>(type) !=
-            GrContextFactory::kNative_GLContextType) {
+    for (int type = 0; type < GrContextFactory::kContextTypeCnt; ++type) {
+        if (static_cast<GrContextFactory::ContextType>(type) !=
+            GrContextFactory::kNativeGL_ContextType) {
             continue;
         }
-        GrContext* context = debugFactory.get(static_cast<GrContextFactory::GLContextType>(type));
+        GrContext* context = debugFactory.get(static_cast<GrContextFactory::ContextType>(type));
         if (context) {
             basic_clear_test(reporter, context, kRGBA_8888_GrPixelConfig);
             basic_clear_test(reporter, context, kBGRA_8888_GrPixelConfig);

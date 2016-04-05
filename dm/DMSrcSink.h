@@ -232,8 +232,8 @@ public:
 
 class GPUSink : public Sink {
 public:
-    GPUSink(sk_gpu_test::GrContextFactory::GLContextType,
-            sk_gpu_test::GrContextFactory::GLContextOptions,
+    GPUSink(sk_gpu_test::GrContextFactory::ContextType,
+            sk_gpu_test::GrContextFactory::ContextOptions,
             int samples, bool diText, SkColorType colorType, SkColorProfileType profileType,
             bool threaded);
 
@@ -242,8 +242,8 @@ public:
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
 private:
-    sk_gpu_test::GrContextFactory::GLContextType    fContextType;
-    sk_gpu_test::GrContextFactory::GLContextOptions fContextOptions;
+    sk_gpu_test::GrContextFactory::ContextType      fContextType;
+    sk_gpu_test::GrContextFactory::ContextOptions   fContextOptions;
     int                                             fSampleCount;
     bool                                            fUseDIText;
     SkColorType                                     fColorType;

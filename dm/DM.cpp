@@ -814,17 +814,17 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 #if SK_SUPPORT_GPU
     if (gpu_supported()) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
-            GrContextFactory::GLContextType contextType = gpuConfig->getContextType();
-            GrContextFactory::GLContextOptions contextOptions =
-                    GrContextFactory::kNone_GLContextOptions;
+            GrContextFactory::ContextType contextType = gpuConfig->getContextType();
+            GrContextFactory::ContextOptions contextOptions =
+                    GrContextFactory::kNone_ContextOptions;
             if (gpuConfig->getUseNVPR()) {
-                contextOptions = static_cast<GrContextFactory::GLContextOptions>(
-                    contextOptions | GrContextFactory::kEnableNVPR_GLContextOptions);
+                contextOptions = static_cast<GrContextFactory::ContextOptions>(
+                    contextOptions | GrContextFactory::kEnableNVPR_ContextOptions);
             }
             if (kSRGB_SkColorProfileType == gpuConfig->getProfileType() ||
                 kRGBA_F16_SkColorType == gpuConfig->getColorType()) {
-                contextOptions = static_cast<GrContextFactory::GLContextOptions>(
-                    contextOptions | GrContextFactory::kRequireSRGBSupport_GLContextOptions);
+                contextOptions = static_cast<GrContextFactory::ContextOptions>(
+                    contextOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
             }
             GrContextFactory testFactory;
             if (!testFactory.get(contextType, contextOptions)) {
@@ -1441,35 +1441,36 @@ void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* repo
     // Iterate over context types, except use "native" instead of explicitly trying OpenGL and
     // OpenGL ES. Do not use GLES on desktop, since tests do not account for not fixing
     // http://skbug.com/2809
-    GrContextFactory::GLContextType contextTypes[] = {
-        GrContextFactory::kNative_GLContextType,
+    GrContextFactory::ContextType contextTypes[] = {
+        GrContextFactory::kNativeGL_ContextType,
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
-        GrContextFactory::kANGLE_GLContextType,
+        GrContextFactory::kANGLE_ContextType,
 #endif
-        GrContextFactory::kANGLE_GL_GLContextType,
+        GrContextFactory::kANGLE_GL_ContextType,
 #endif
 #if SK_COMMAND_BUFFER
-        GrContextFactory::kCommandBuffer_GLContextType,
+        GrContextFactory::kCommandBuffer_ContextType,
 #endif
 #if SK_MESA
-        GrContextFactory::kMESA_GLContextType,
+        GrContextFactory::kMESA_ContextType,
 #endif
-        GrContextFactory::kNull_GLContextType,
-        GrContextFactory::kDebug_GLContextType,
+        GrContextFactory::kNullGL_ContextType,
+        GrContextFactory::kDebugGL_ContextType,
     };
-    static_assert(SK_ARRAY_COUNT(contextTypes) == GrContextFactory::kGLContextTypeCnt - 2,
-                  "Skipping unexpected GLContextType for GPU tests");
+    // Should have named all the context types except one of GL or GLES.
+    static_assert(SK_ARRAY_COUNT(contextTypes) == GrContextFactory::kContextTypeCnt - 1,
+                  "Skipping unexpected ContextType for GPU tests");
 
     for (auto& contextType : contextTypes) {
         int contextSelector = kNone_GPUTestContexts;
-        if (GrContextFactory::IsRenderingGLContext(contextType)) {
+        if (GrContextFactory::IsRenderingContext(contextType)) {
             contextSelector |= kAllRendering_GPUTestContexts;
-        } else if (contextType == GrContextFactory::kNative_GLContextType) {
+        } else if (contextType == GrContextFactory::kNativeGL_ContextType) {
             contextSelector |= kNative_GPUTestContexts;
-        } else if (contextType == GrContextFactory::kNull_GLContextType) {
+        } else if (contextType == GrContextFactory::kNullGL_ContextType) {
             contextSelector |= kNull_GPUTestContexts;
-        } else if (contextType == GrContextFactory::kDebug_GLContextType) {
+        } else if (contextType == GrContextFactory::kDebugGL_ContextType) {
             contextSelector |= kDebug_GPUTestContexts;
         }
         if ((testContexts & contextSelector) == 0) {
@@ -1480,7 +1481,7 @@ void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* repo
             call_test(test, reporter, context);
         }
         context = factory->getContextInfo(contextType,
-                                          GrContextFactory::kEnableNVPR_GLContextOptions);
+                                          GrContextFactory::kEnableNVPR_ContextOptions);
         if (context.fGrContext) {
             call_test(test, reporter, context);
         }

@@ -74,8 +74,16 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
     }
 }
 
-GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType type,
-                                                               GLContextOptions options) {
+#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
+const GrContextFactory::ContextType GrContextFactory::kNativeGL_ContextType =
+    GrContextFactory::kGL_ContextType;
+#else
+const GrContextFactory::ContextType GrContextFactory::kNativeGL_ContextType =
+    GrContextFactory::kGLES_ContextType;
+#endif
+
+GrContextFactory::ContextInfo GrContextFactory::getContextInfo(ContextType type,
+                                                               ContextOptions options) {
     for (int i = 0; i < fContexts.count(); ++i) {
         Context& context = fContexts[i];
         if (!context.fGLContext) {
@@ -90,39 +98,36 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
     SkAutoTDelete<GLTestContext> glCtx;
     SkAutoTUnref<GrContext> grCtx;
     switch (type) {
-        case kNative_GLContextType:
-            glCtx.reset(CreatePlatformGLTestContext(kNone_GrGLStandard));
-            break;
-        case kGL_GLContextType:
+        case kGL_ContextType:
             glCtx.reset(CreatePlatformGLTestContext(kGL_GrGLStandard));
             break;
-        case kGLES_GLContextType:
+        case kGLES_ContextType:
             glCtx.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
             break;
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
-        case kANGLE_GLContextType:
+        case kANGLE_ContextType:
             glCtx.reset(CreateANGLEDirect3DGLTestContext());
             break;
 #endif
-        case kANGLE_GL_GLContextType:
+        case kANGLE_GL_ContextType:
             glCtx.reset(CreateANGLEOpenGLGLTestContext());
             break;
 #endif
 #if SK_COMMAND_BUFFER
-        case kCommandBuffer_GLContextType:
+        case kCommandBuffer_ContextType:
             glCtx.reset(CommandBufferGLTestContext::Create());
             break;
 #endif
 #if SK_MESA
-        case kMESA_GLContextType:
+        case kMESA_ContextType:
             glCtx.reset(CreateMesaGLTestContext());
             break;
 #endif
-        case kNull_GLContextType:
+        case kNullGL_ContextType:
             glCtx.reset(CreateNullGLTestContext());
             break;
-        case kDebug_GLContextType:
+        case kDebugGL_ContextType:
             glCtx.reset(CreateDebugGLTestContext());
             break;
     }
@@ -134,7 +139,7 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
 
     // Block NVPR from non-NVPR types.
     SkAutoTUnref<const GrGLInterface> glInterface(SkRef(glCtx->gl()));
-    if (!(kEnableNVPR_GLContextOptions & options)) {
+    if (!(kEnableNVPR_ContextOptions & options)) {
         glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface));
         if (!glInterface) {
             return ContextInfo();
@@ -143,7 +148,7 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
 
     glCtx->makeCurrent();
 #ifdef SK_VULKAN
-    if (kEnableNVPR_GLContextOptions & options) {
+    if (kEnableNVPR_ContextOptions & options) {
         return ContextInfo();
     } else {
         GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(GrVkBackendContext::Create());
@@ -156,12 +161,12 @@ GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType typ
     if (!grCtx.get()) {
         return ContextInfo();
     }
-    if (kEnableNVPR_GLContextOptions & options) {
+    if (kEnableNVPR_ContextOptions & options) {
         if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
             return ContextInfo();
         }
     }
-    if (kRequireSRGBSupport_GLContextOptions & options) {
+    if (kRequireSRGBSupport_ContextOptions & options) {
         if (!grCtx->caps()->srgbSupport()) {
             return ContextInfo();
         }

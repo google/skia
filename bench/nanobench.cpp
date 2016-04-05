@@ -385,11 +385,11 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 }
 
 #if SK_SUPPORT_GPU
-#define kBogusGLContextType GrContextFactory::kNative_GLContextType
-#define kBogusGLContextOptions GrContextFactory::kNone_GLContextOptions
+#define kBogusContextType GrContextFactory::kNativeGL_ContextType
+#define kBogusContextOptions GrContextFactory::kNone_ContextOptions
 #else
-#define kBogusGLContextType 0
-#define kBogusGLContextOptions 0
+#define kBogusContextType 0
+#define kBogusContextOptions 0
 #endif
 
 static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* configs) {
@@ -399,8 +399,8 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (!FLAGS_gpu)
             return;
 
-        const auto ctxOptions = gpuConfig->getUseNVPR() ? GrContextFactory::kEnableNVPR_GLContextOptions
-                                                        : GrContextFactory::kNone_GLContextOptions;
+        const auto ctxOptions = gpuConfig->getUseNVPR() ? GrContextFactory::kEnableNVPR_ContextOptions
+                                                        : GrContextFactory::kNone_ContextOptions;
         const auto ctxType = gpuConfig->getContextType();
         const auto sampleCount = gpuConfig->getSamples();
 
@@ -437,7 +437,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (config->getTag().equals(#name)) {                                \
             Config config = {                                                \
                 SkString(#name), Benchmark::backend, color, alpha, profile,  \
-                0, kBogusGLContextType, kBogusGLContextOptions, false        \
+                0, kBogusContextType, kBogusContextOptions, false            \
             };                                                               \
             configs->push_back(config);                                      \
             return;                                                          \
@@ -463,7 +463,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
     if (config->getTag().equals("hwui")) {
         Config config = { SkString("hwui"), Benchmark::kHWUI_Backend,
                           kRGBA_8888_SkColorType, kPremul_SkAlphaType, kLinear_SkColorProfileType,
-                          0, kBogusGLContextType, kBogusGLContextOptions, false };
+                          0, kBogusContextType, kBogusContextOptions, false };
         configs->push_back(config);
     }
 #endif

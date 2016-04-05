@@ -16,10 +16,10 @@ using sk_gpu_test::GrContextFactory;
 
 DEF_GPUTEST(GrContext_abandonContext, reporter, /*factory*/) {
     for (int testType = 0; testType < 6; ++testType) {
-    for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
-        GrContextFactory testFactory;
-        GrContextFactory::GLContextType ctxType = (GrContextFactory::GLContextType) i;
-        GrContextFactory::ContextInfo info = testFactory.getContextInfo(ctxType);
+        for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+            GrContextFactory testFactory;
+            GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
+            GrContextFactory::ContextInfo info = testFactory.getContextInfo(ctxType);
             if (GrContext* context = info.fGrContext) {
                 switch (testType) {
                     case 0:
