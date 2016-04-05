@@ -301,7 +301,7 @@ def get_builder_spec(builder_name):
   rv['do_perf_steps'] = (role == builder_name_schema.BUILDER_ROLE_PERF or
                          (role == builder_name_schema.BUILDER_ROLE_TEST and
                           configuration == CONFIG_DEBUG))
-  if 'Valgrind' in builder_name:
+  if rv['do_test_steps'] and 'Valgrind' in builder_name:
     rv['do_perf_steps'] = True
   if 'GalaxyS4' in builder_name:
     rv['do_perf_steps'] = False
