@@ -244,6 +244,12 @@ def device_cfg(builder_dict):
       'Daisy': 'daisy',
     }[builder_dict['model']]
 
+  # iOS.
+  if 'iOS' in builder_dict.get('os', ''):
+    return {
+      'iPad4': 'iPad4,1',
+    }[builder_dict['model']]
+
   return None
 
 
