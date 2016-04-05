@@ -124,6 +124,15 @@ public:
                    uint32_t copyRegionCount,
                    const VkImageCopy* copyRegions);
 
+    void blitImage(const GrVkGpu* gpu,
+                   GrVkImage* srcImage,
+                   VkImageLayout srcLayout,
+                   GrVkImage* dstImage,
+                   VkImageLayout dstLayout,
+                   uint32_t blitRegionCount,
+                   const VkImageBlit* blitRegions,
+                   VkFilter filter);
+
     void copyImageToBuffer(const GrVkGpu* gpu,
                            GrVkImage* srcImage,
                            VkImageLayout srcLayout,

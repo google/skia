@@ -174,8 +174,17 @@ private:
 
     void copySurfaceAsCopyImage(GrSurface* dst,
                                 GrSurface* src,
+                                GrVkImage* dstImage,
+                                GrVkImage* srcImage,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint);
+
+    void copySurfaceAsBlit(GrSurface* dst,
+                           GrSurface* src,
+                           GrVkImage* dstImage,
+                           GrVkImage* srcImage,
+                           const SkIRect& srcRect,
+                           const SkIPoint& dstPoint);
 
     void copySurfaceAsDraw(GrSurface* dst,
                            GrSurface* src,

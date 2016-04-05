@@ -1057,31 +1057,35 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
 inline bool can_copy_image(const GrSurface* dst,
                            const GrSurface* src,
                            const GrVkGpu* gpu) {
-    if (src->asTexture() &&
-        dst->asTexture() &&
-        src->origin() == dst->origin() &&
-        src->config() == dst->config()) {
+    // Currently we don't support msaa
+    if ((dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1) ||
+        (src->asRenderTarget() && src->asRenderTarget()->numColorSamples() > 1)) {
+        return false;
+    }
+
+    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src 
+    // as image usage flags.
+    if (src->origin() == dst->origin() &&
+        GrBytesPerPixel(src->config()) == GrBytesPerPixel(dst->config())) {
         return true;
     }
 
     // How does msaa play into this? If a VkTexture is multisampled, are we copying the multisampled
-    // or the resolved image here?
+    // or the resolved image here? Im multisampled, Vulkan requires sample counts to be the same.
 
     return false;
 }
 
 void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
                                      GrSurface* src,
+                                     GrVkImage* dstImage,
+                                     GrVkImage* srcImage,
                                      const SkIRect& srcRect,
                                      const SkIPoint& dstPoint) {
     SkASSERT(can_copy_image(dst, src, this));
 
-    // Insert memory barriers to switch src and dst to transfer_source and transfer_dst layouts
-    GrVkTexture* dstTex = static_cast<GrVkTexture*>(dst->asTexture());
-    GrVkTexture* srcTex = static_cast<GrVkTexture*>(src->asTexture());
-
-    VkImageLayout origDstLayout = dstTex->currentLayout();
-    VkImageLayout origSrcLayout = srcTex->currentLayout();
+    VkImageLayout origDstLayout = dstImage->currentLayout();
+    VkImageLayout origSrcLayout = srcImage->currentLayout();
 
     VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -1091,13 +1095,13 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);;
     VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-    dstTex->setImageLayout(this,
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           srcAccessMask,
-                           dstAccessMask,
-                           srcStageMask,
-                           dstStageMask,
-                           false);
+    dstImage->setImageLayout(this,
+                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                            srcAccessMask,
+                            dstAccessMask,
+                            srcStageMask,
+                            dstStageMask,
+                            false);
 
     srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origSrcLayout);
     dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -1105,13 +1109,13 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
     srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origSrcLayout);
     dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-    srcTex->setImageLayout(this,
-                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           srcAccessMask,
-                           dstAccessMask,
-                           srcStageMask,
-                           dstStageMask,
-                           false);
+    srcImage->setImageLayout(this,
+                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                             srcAccessMask,
+                             dstAccessMask,
+                             srcStageMask,
+                             dstStageMask,
+                             false);
 
     // Flip rect if necessary
     SkIRect srcVkRect = srcRect;
@@ -1133,12 +1137,119 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
     copyRegion.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 0 };
 
     fCurrentCmdBuffer->copyImage(this,
-                                 srcTex,
+                                 srcImage,
                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                 dstTex,
+                                 dstImage,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  1,
                                  &copyRegion);
+}
+
+inline bool can_copy_as_blit(const GrSurface* dst,
+                             const GrSurface* src,
+                             const GrVkImage* dstImage,
+                             const GrVkImage* srcImage,
+                             const GrVkGpu* gpu) {
+    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src 
+    // as image usage flags.
+    const GrVkCaps& caps = gpu->vkCaps();
+    if (!caps.configCanBeDstofBlit(dst->config(), dstImage->isLinearTiled()) ||
+        !caps.configCanBeSrcofBlit(src->config(), srcImage->isLinearTiled())) {
+        return false;
+    }
+
+    // We cannot blit images that are multisampled. Will need to figure out if we can blit the
+    // resolved msaa though.
+    if ((dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1) ||
+        (src->asRenderTarget() && src->asRenderTarget()->numColorSamples() > 1)) {
+        return false;
+    }
+
+    return true;
+}
+
+void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
+                                GrSurface* src,
+                                GrVkImage* dstImage,
+                                GrVkImage* srcImage,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint) {
+    SkASSERT(can_copy_as_blit(dst, src, dstImage, srcImage, this));
+
+    VkImageLayout origDstLayout = dstImage->currentLayout();
+    VkImageLayout origSrcLayout = srcImage->currentLayout();
+
+    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);;
+    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+    dstImage->setImageLayout(this,
+                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                             srcAccessMask,
+                             dstAccessMask,
+                             srcStageMask,
+                             dstStageMask,
+                             false);
+
+    srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origSrcLayout);
+    dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+    srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origSrcLayout);
+    dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+    srcImage->setImageLayout(this,
+                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                             srcAccessMask,
+                             dstAccessMask,
+                             srcStageMask,
+                             dstStageMask,
+                             false);
+
+    // Flip rect if necessary
+    SkIRect srcVkRect;
+    SkIRect dstRect;
+    dstRect.fLeft = dstPoint.fX;
+    dstRect.fRight = dstPoint.fX + srcVkRect.width();
+
+    if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
+        srcVkRect.fTop = src->height() - srcRect.fBottom;
+        srcVkRect.fBottom = src->height() - srcRect.fTop;
+    } else {
+        srcVkRect = srcRect;
+    }
+
+    if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
+        dstRect.fTop = dst->height() - dstPoint.fY - srcVkRect.height();
+    } else {
+        dstRect.fTop = dstPoint.fY;
+    }
+    dstRect.fBottom = dstRect.fTop + srcVkRect.height();
+
+    // If we have different origins, we need to flip the top and bottom of the dst rect so that we
+    // get the correct origintation of the copied data.
+    if (src->origin() != dst->origin()) {
+        SkTSwap(dstRect.fTop, dstRect.fBottom);
+    }
+
+    VkImageBlit blitRegion;
+    memset(&blitRegion, 0, sizeof(VkImageBlit));
+    blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    blitRegion.srcOffsets[0] = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
+    blitRegion.srcOffsets[1] = { srcVkRect.fRight, srcVkRect.fBottom, 0 };
+    blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    blitRegion.dstOffsets[0] = { dstRect.fLeft, dstRect.fTop, 0 };
+    blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 0 };
+
+    fCurrentCmdBuffer->blitImage(this,
+                                 srcImage,
+                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                 dstImage,
+                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                 1,
+                                 &blitRegion,
+                                 VK_FILTER_NEAREST); // We never scale so any filter works here
 }
 
 inline bool can_copy_as_draw(const GrSurface* dst,
@@ -1158,8 +1269,28 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
                             GrSurface* src,
                             const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
+    GrVkImage* dstImage;
+    GrVkImage* srcImage;
+    if (dst->asTexture()) {
+        dstImage = static_cast<GrVkTexture*>(dst->asTexture());
+    } else {
+        SkASSERT(dst->asRenderTarget());
+        dstImage = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());
+    }
+    if (src->asTexture()) {
+        srcImage = static_cast<GrVkTexture*>(src->asTexture());
+    } else {
+        SkASSERT(src->asRenderTarget());
+        srcImage = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
+    }
+
     if (can_copy_image(dst, src, this)) {
-        this->copySurfaceAsCopyImage(dst, src, srcRect, dstPoint);
+        this->copySurfaceAsCopyImage(dst, src, dstImage, srcImage, srcRect, dstPoint);
+        return true;
+    }
+
+    if (can_copy_as_blit(dst, src, dstImage, srcImage, this)) {
+        this->copySurfaceAsBlit(dst, src, dstImage, srcImage, srcRect, dstPoint);
         return true;
     }
 
