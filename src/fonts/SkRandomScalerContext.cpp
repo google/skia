@@ -60,7 +60,7 @@ void SkRandomScalerContext::generateAdvance(SkGlyph* glyph) {
 void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
     // Here we will change the mask format of the glyph
     // NOTE this is being overridden by the base class
-    SkMask::Format format;
+    SkMask::Format format = SkMask::kARGB32_Format; // init to handle defective compilers
     switch (glyph->getGlyphID() % 4) {
         case 0:
             format = SkMask::kLCD16_Format;
