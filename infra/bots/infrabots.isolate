@@ -7,6 +7,7 @@
       '../../tools/builder_name_schema.py',
       '../../tools/dm_flags.py',
       '../../tools/nanobench_flags.py',
+      '../../tools/valgrind.supp',
       './',
     ],
   },
