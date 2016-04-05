@@ -127,7 +127,8 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
 void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,
                             uint32_t featureFlags) {
     GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
-    glslCaps->fVersionDeclString = "#version 310 es\n";
+    glslCaps->fVersionDeclString = "#version 330\n";
+
 
     // fConfigOutputSwizzle will default to RGBA so we only need to set it for alpha only config.
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {

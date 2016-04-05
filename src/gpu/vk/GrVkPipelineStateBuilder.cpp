@@ -50,11 +50,11 @@ const GrGLSLCaps* GrVkPipelineStateBuilder::glslCaps() const {
 }
 
 void GrVkPipelineStateBuilder::finalizeFragmentOutputColor(GrGLSLShaderVar& outputColor) {
-    outputColor.setLayoutQualifier("location = 0");
+    outputColor.setLayoutQualifier("location = 0, index = 0");
 }
 
 void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrGLSLShaderVar& outputColor) {
-    outputColor.setLayoutQualifier("location = 1");
+    outputColor.setLayoutQualifier("location = 0, index = 1");
 }
 
 VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
@@ -109,7 +109,6 @@ bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
         shaderc_compiler_t compiler = gpu->shadercCompiler();
 
         shaderc_compile_options_t options = shaderc_compile_options_initialize();
-        shaderc_compile_options_set_forced_version_profile(options, 140, shaderc_profile_none);
 
         shaderc_shader_kind shadercStage = vk_shader_stage_to_shaderc_kind(stage);
         result = shaderc_compile_into_spv(compiler,
