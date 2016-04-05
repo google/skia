@@ -13,7 +13,7 @@
 #include "GrCaps.h"
 #include "Test.h"
 
-using sk_gpu_test::GrContextFactory;
+using namespace sk_gpu_test;
 
 DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter, /*factory*/) {
     // Test that if NVPR is requested, the context always has path rendering
@@ -74,7 +74,7 @@ DEF_GPUTEST(GrContextFactory_abandon, reporter, /*factory*/) {
     GrContextFactory testFactory;
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
-        GrContextFactory::ContextInfo info1 = testFactory.getContextInfo(ctxType);
+        ContextInfo info1 = testFactory.getContextInfo(ctxType);
         if (!info1.fGrContext) {
             continue;
         }
@@ -84,8 +84,7 @@ DEF_GPUTEST(GrContextFactory_abandon, reporter, /*factory*/) {
         testFactory.abandonContexts();
 
         // Test that we get different context after abandon.
-        GrContextFactory::ContextInfo info2 =
-                testFactory.getContextInfo(ctxType);
+        ContextInfo info2 = testFactory.getContextInfo(ctxType);
         REPORTER_ASSERT(reporter, info2.fGrContext);
         REPORTER_ASSERT(reporter, info2.fGLContext);
         REPORTER_ASSERT(reporter, info1.fGrContext != info2.fGrContext);

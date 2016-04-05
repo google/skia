@@ -101,7 +101,8 @@ private:
 };
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, context) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.fGrContext;
     GrTextureDesc desc;
     desc.fHeight = 1;
     desc.fWidth = 1;

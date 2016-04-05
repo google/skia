@@ -15,7 +15,8 @@
 
 #include "SkUtils.h"
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.fGrContext;
     static const int kW = 10;
     static const int kH = 10;
     static const size_t kRowBytes = sizeof(uint32_t) * kW;

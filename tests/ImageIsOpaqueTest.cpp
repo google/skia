@@ -66,7 +66,8 @@ DEF_TEST(ImageIsOpaqueTest, reporter) {
 
 #if SK_SUPPORT_GPU
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.fGrContext;
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
     auto surfaceTransparent(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, infoTransparent));
     check_isopaque(reporter, surfaceTransparent, false);

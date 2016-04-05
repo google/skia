@@ -12,11 +12,11 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawTargetPrint, reporter, context) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawTargetPrint, reporter, ctxInfo) {
     // This used to assert.
-    SkString result = context->caps()->dump();
+    SkString result = ctxInfo.fGrContext->caps()->dump();
     SkASSERT(!result.isEmpty());
-    SkString shaderResult = context->caps()->shaderCaps()->dump();
+    SkString shaderResult = ctxInfo.fGrContext->caps()->shaderCaps()->dump();
     SkASSERT(!shaderResult.isEmpty());
 }
 

@@ -82,27 +82,28 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 
 #if SK_SUPPORT_GPU
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fFlags  = kRenderTarget_GrSurfaceFlag;
     desc.fWidth  = kSmallerSize;
     desc.fHeight = kSmallerSize;
 
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(nullptr, context, desc));
+    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(nullptr, ctxInfo.fGrContext,
+                                                                    desc));
 
     test_surface(surf, reporter, 0);
 }
 
 // test the more flexible factory
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu2, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu2, reporter, ctxInfo) {
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = kFullSize;
     desc.fHeight = kFullSize;
 
-    SkAutoTUnref<GrTexture> temp(context->textureProvider()->createApproxTexture(desc));
+    SkAutoTUnref<GrTexture> temp(ctxInfo.fGrContext->textureProvider()->createApproxTexture(desc));
     SkASSERT_RELEASE(temp);
 
     const SkIRect subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);

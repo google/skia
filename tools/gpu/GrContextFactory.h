@@ -15,6 +15,17 @@
 #include "SkTArray.h"
 
 namespace sk_gpu_test {
+
+struct ContextInfo {
+    ContextInfo()
+        : fGrContext(nullptr), fGLContext(nullptr) { }
+    ContextInfo(GrContext* grContext, GLTestContext* glContext)
+        : fGrContext(grContext), fGLContext(glContext) { }
+    GrContext* fGrContext;
+    GLTestContext* fGLContext; //! Valid until the factory destroys it via abandonContexts() or
+                               //! destroyContexts().
+};
+
 /**
  * This is a simple class that is useful in test apps that use different
  * GrContexts backed by different types of GL contexts. It manages creating the
@@ -108,16 +119,6 @@ public:
     void destroyContexts();
     void abandonContexts();
     void releaseResourcesAndAbandonContexts();
-
-    struct ContextInfo {
-        ContextInfo()
-            : fGrContext(nullptr), fGLContext(nullptr) { }
-        ContextInfo(GrContext* grContext, GLTestContext* glContext)
-            : fGrContext(grContext), fGLContext(glContext) { }
-        GrContext* fGrContext;
-        GLTestContext* fGLContext; //! Valid until the factory destroys it via abandonContexts() or
-                               //! destroyContexts().
-    };
 
     /**
      * Get a context initialized with a type of GL context. It also makes the GL context current.

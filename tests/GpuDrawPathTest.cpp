@@ -76,12 +76,13 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     fill_and_stroke(canvas, oval1, oval2, SkDashPathEffect::Make(intervals, 2, 0));
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuDrawPath, reporter, context) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuDrawPath, reporter, ctxInfo) {
     for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
         for (auto& sampleCount : {0, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
             auto surface(
-                SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, sampleCount, nullptr));
+                SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info, sampleCount,
+                                            nullptr));
             if (!surface) {
                 continue;
             }

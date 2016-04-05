@@ -422,16 +422,19 @@ static int get_glprograms_max_stages(GrContext* context) {
     return 0;
 }
 
-static void test_glprograms_native(skiatest::Reporter* reporter, GrContext* context) {
-    int maxStages = get_glprograms_max_stages(context);
+static void test_glprograms_native(skiatest::Reporter* reporter,
+                                   const sk_gpu_test::ContextInfo& ctxInfo) {
+    int maxStages = get_glprograms_max_stages(ctxInfo.fGrContext);
     if (maxStages == 0) {
         return;
     }
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.fGrContext, maxStages));
 }
 
-static void test_glprograms_other_contexts(skiatest::Reporter* reporter, GrContext* context) {
-    int maxStages = get_glprograms_max_stages(context);
+static void test_glprograms_other_contexts(
+            skiatest::Reporter* reporter,
+            const sk_gpu_test::ContextInfo& ctxInfo) {
+    int maxStages = get_glprograms_max_stages(ctxInfo.fGrContext);
 #ifdef SK_BUILD_FOR_WIN
     // Some long shaders run out of temporary registers in the D3D compiler on ANGLE and
     // command buffer.
@@ -440,7 +443,7 @@ static void test_glprograms_other_contexts(skiatest::Reporter* reporter, GrConte
     if (maxStages == 0) {
         return;
     }
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.fGrContext, maxStages));
 }
 
 DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {

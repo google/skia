@@ -12,14 +12,14 @@
 #include "GrContextFactory.h"
 #include "Test.h"
 
-using sk_gpu_test::GrContextFactory;
+using namespace sk_gpu_test;
 
 DEF_GPUTEST(GrContext_abandonContext, reporter, /*factory*/) {
     for (int testType = 0; testType < 6; ++testType) {
         for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
             GrContextFactory testFactory;
             GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
-            GrContextFactory::ContextInfo info = testFactory.getContextInfo(ctxType);
+            ContextInfo info = testFactory.getContextInfo(ctxType);
             if (GrContext* context = info.fGrContext) {
                 switch (testType) {
                     case 0:

@@ -406,7 +406,7 @@ DEF_TEST(WritePixels, reporter) {
     }
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         GrSurfaceDesc desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -414,8 +414,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, context) {
         desc.fHeight = DEV_H;
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
-        SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
-                                                                                  SkBudgeted::kNo));
+        SkAutoTUnref<GrTexture> texture(
+            ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo));
         auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
         test_write_pixels(reporter, surface.get());
     }

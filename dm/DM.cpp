@@ -72,6 +72,7 @@ DEFINE_bool(simpleCodec, false, "Only decode images to native scale");
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
+using sk_gpu_test::ContextInfo;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1415,28 +1416,8 @@ int dm_main() {
 // TODO: currently many GPU tests are declared outside SK_SUPPORT_GPU guards.
 // Thus we export the empty RunWithGPUTestContexts when SK_SUPPORT_GPU=0.
 namespace skiatest {
-namespace {
-typedef void(*TestWithGrContext)(skiatest::Reporter*, GrContext*);
-typedef void(*TestWithGrContextAndGLContext)(skiatest::Reporter*, GrContext*, GLTestContext*);
-#if SK_SUPPORT_GPU
-template<typename T>
-void call_test(T test, skiatest::Reporter* reporter, const GrContextFactory::ContextInfo& context);
-template<>
-void call_test(TestWithGrContext test, skiatest::Reporter* reporter,
-               const GrContextFactory::ContextInfo& context) {
-    test(reporter, context.fGrContext);
-}
-template<>
-void call_test(TestWithGrContextAndGLContext test, skiatest::Reporter* reporter,
-               const GrContextFactory::ContextInfo& context) {
-    test(reporter, context.fGrContext, context.fGLContext);
-}
-#endif
-} // namespace
-
-template<typename T>
-void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* reporter,
-                            GrContextFactory* factory) {
+void RunWithGPUTestContexts(GrContextTestFn* test, GPUTestContexts testContexts,
+                            Reporter* reporter, GrContextFactory* factory) {
 #if SK_SUPPORT_GPU
     // Iterate over context types, except use "native" instead of explicitly trying OpenGL and
     // OpenGL ES. Do not use GLES on desktop, since tests do not account for not fixing
@@ -1476,29 +1457,18 @@ void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* repo
         if ((testContexts & contextSelector) == 0) {
             continue;
         }
-        GrContextFactory::ContextInfo context = factory->getContextInfo(contextType);
-        if (context.fGrContext) {
-            call_test(test, reporter, context);
+        ContextInfo ctxInfo = factory->getContextInfo(contextType);
+        if (ctxInfo.fGrContext) {
+            (*test)(reporter, ctxInfo);
         }
-        context = factory->getContextInfo(contextType,
+        ctxInfo = factory->getContextInfo(contextType,
                                           GrContextFactory::kEnableNVPR_ContextOptions);
-        if (context.fGrContext) {
-            call_test(test, reporter, context);
+        if (ctxInfo.fGrContext) {
+            (*test)(reporter, ctxInfo);
         }
     }
 #endif
 }
-
-template
-void RunWithGPUTestContexts<TestWithGrContext>(TestWithGrContext test,
-                                               GPUTestContexts testContexts,
-                                               Reporter* reporter,
-                                               GrContextFactory* factory);
-template
-void RunWithGPUTestContexts<TestWithGrContextAndGLContext>(TestWithGrContextAndGLContext test,
-                                                           GPUTestContexts testContexts,
-                                                           Reporter* reporter,
-                                                           GrContextFactory* factory);
 } // namespace skiatest
 
 #if !defined(SK_BUILD_FOR_IOS)

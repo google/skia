@@ -156,19 +156,19 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     draw(canvas, 1, blobs);
 }
 
-DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobCache, reporter, context) {
-    text_blob_cache_inner(reporter, context, 1024, 256, 30, true, false);
+DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobCache, reporter, ctxInfo) {
+    text_blob_cache_inner(reporter, ctxInfo.fGrContext, 1024, 256, 30, true, false);
 }
 
-DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobStressCache, reporter, context) {
-    text_blob_cache_inner(reporter, context, 256, 256, 10, true, true);
+DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobStressCache, reporter, ctxInfo) {
+    text_blob_cache_inner(reporter, ctxInfo.fGrContext, 256, 256, 10, true, true);
 }
 
-DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobAbnormal, reporter, context) {
-    text_blob_cache_inner(reporter, context, 256, 256, 10, false, false);
+DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
+    text_blob_cache_inner(reporter, ctxInfo.fGrContext, 256, 256, 10, false, false);
 }
 
-DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobStressAbnormal, reporter, context) {
-    text_blob_cache_inner(reporter, context, 256, 256, 10, false, true);
+DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
+    text_blob_cache_inner(reporter, ctxInfo.fGrContext, 256, 256, 10, false, true);
 }
 #endif

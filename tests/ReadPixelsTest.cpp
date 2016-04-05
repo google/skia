@@ -387,7 +387,7 @@ DEF_TEST(ReadPixels, reporter) {
     test_readpixels(reporter, surface, kLastAligned_BitmapInit);
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
     for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         GrSurfaceDesc desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -396,7 +396,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, context) {
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
         SkAutoTUnref<GrTexture> surfaceTexture(
-            context->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+            ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo));
         auto surface(SkSurface::MakeRenderTargetDirect(surfaceTexture->asRenderTarget()));
         desc.fFlags = kNone_GrSurfaceFlags;
         test_readpixels(reporter, surface, kLast_BitmapInit);
@@ -442,7 +442,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
         }
     }
 }
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         SkAutoTUnref<GrTexture> texture;
@@ -453,7 +453,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, context) {
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
         desc.fFlags = kNone_GrSurfaceFlags;
-        texture.reset(context->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+        texture.reset(ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo));
         test_readpixels_texture(reporter, texture);
     }
 }
@@ -576,7 +576,7 @@ static void dump_to_file(const char name[], SkData* data) {
  *
  *  https://bug.skia.org/4351
  */
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, ctxInfo) {
     SkBitmap bitmap;
     make_ringed_bitmap(&bitmap, 6, 6);
     const SkIRect subset = SkIRect::MakeLTRB(2, 2, 4, 4);
@@ -585,7 +585,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, context) {
     SkBitmap bm_subset, tx_subset;
 
     // ... one from a texture-subset
-    SkAutoTUnref<GrTexture> fullTx(GrRefCachedBitmapTexture(context, bitmap,
+    SkAutoTUnref<GrTexture> fullTx(GrRefCachedBitmapTexture(ctxInfo.fGrContext, bitmap,
                                                             GrTextureParams::ClampNoFilter()));
     SkBitmap tx_full;
     GrWrapTextureInBitmap(fullTx, bitmap.width(), bitmap.height(), true, &tx_full);
@@ -594,7 +594,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, context) {
     // ... one from a bitmap-subset
     SkBitmap tmp_subset;
     bitmap.extractSubset(&tmp_subset, subset);
-    SkAutoTUnref<GrTexture> subsetTx(GrRefCachedBitmapTexture(context, tmp_subset,
+    SkAutoTUnref<GrTexture> subsetTx(GrRefCachedBitmapTexture(ctxInfo.fGrContext, tmp_subset,
                                                               GrTextureParams::ClampNoFilter()));
     GrWrapTextureInBitmap(subsetTx, tmp_subset.width(), tmp_subset.height(), true, &bm_subset);
 
@@ -603,8 +603,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, context) {
 
     // do they draw the same?
     const SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    auto surfA(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
-    auto surfB(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
+    auto surfA(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info));
+    auto surfB(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info));
 
     if (false) {
         //

@@ -26,7 +26,7 @@
 #include "SkUtils.h"
 #include "Test.h"
 
-using sk_gpu_test::GrContextFactory;
+using namespace sk_gpu_test;
 
 static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect* subsetA,
                          SkImage* b) {
@@ -176,8 +176,8 @@ DEF_TEST(ImageEncode, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, context) {
-    test_encode(reporter, create_gpu_image(context).get());
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
+    test_encode(reporter, create_gpu_image(ctxInfo.fGrContext).get());
 }
 #endif
 
@@ -369,9 +369,9 @@ DEF_TEST(image_newfrombitmap, reporter) {
  *  but we don't have that facility (at the moment) so we use a little internal knowledge
  *  of *how* the raster version is cached, and look for that.
  */
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    sk_sp<SkImage> image(create_gpu_image(context));
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.fGrContext));
     const uint32_t uniqueID = image->uniqueID();
 
     auto surface(SkSurface::MakeRaster(info));
@@ -404,9 +404,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, context) {
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, context, glContext) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInfo) {
+    GrContext* context = contextInfo.fGrContext;
+    sk_gpu_test::GLTestContext* glContext = contextInfo.fGLContext;
+
     GrContextFactory otherFactory;
-    GrContextFactory::ContextInfo otherContextInfo =
+    ContextInfo otherContextInfo =
         otherFactory.getContextInfo(GrContextFactory::kNativeGL_ContextType);
     glContext->makeCurrent();
 
@@ -574,8 +577,8 @@ DEF_TEST(ImageReadPixels, reporter) {
     test_read_pixels(reporter, image.get());
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, context) {
-    test_read_pixels(reporter, create_gpu_image(context).get());
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
+    test_read_pixels(reporter, create_gpu_image(ctxInfo.fGrContext).get());
 }
 #endif
 
@@ -637,13 +640,13 @@ DEF_TEST(ImageLegacyBitmap, reporter) {
     }
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
     const SkImage::LegacyBitmapMode modes[] = {
         SkImage::kRO_LegacyBitmapMode,
         SkImage::kRW_LegacyBitmapMode,
     };
     for (auto& mode : modes) {
-        sk_sp<SkImage> image(create_gpu_image(context));
+        sk_sp<SkImage> image(create_gpu_image(ctxInfo.fGrContext));
         test_legacy_bitmap(reporter, image.get(), mode);
     }
 }
@@ -681,8 +684,8 @@ DEF_TEST(ImagePeek, reporter) {
     test_peek(reporter, image.get(), false);
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImagePeek_Gpu, reporter, context) {
-    sk_sp<SkImage> image(create_gpu_image(context));
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImagePeek_Gpu, reporter, ctxInfo) {
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.fGrContext));
     test_peek(reporter, image.get(), false);
 }
 #endif
@@ -701,8 +704,8 @@ static void check_image_color(skiatest::Reporter* reporter, SkImage* image, SkPM
     REPORTER_ASSERT(reporter, image->readPixels(info, &pixel, sizeof(pixel), 0, 0));
     REPORTER_ASSERT(reporter, pixel == expected);
 }
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, context) {
-    GrTextureProvider* provider = context->textureProvider();
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, ctxInfo) {
+    GrTextureProvider* provider = ctxInfo.fGrContext->textureProvider();
     const int w = 10;
     const int h = 10;
     SkPMColor storage[w * h];
@@ -730,9 +733,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, context) {
     backendDesc.fTextureHandle = tex->getTextureHandle();
     TextureReleaseChecker releaseChecker;
     sk_sp<SkImage> refImg(
-        SkImage::MakeFromTexture(context, backendDesc, kPremul_SkAlphaType,
+        SkImage::MakeFromTexture(ctxInfo.fGrContext, backendDesc, kPremul_SkAlphaType,
                                  TextureReleaseChecker::Release, &releaseChecker));
-    sk_sp<SkImage> cpyImg(SkImage::MakeFromTextureCopy(context, backendDesc, kPremul_SkAlphaType));
+    sk_sp<SkImage> cpyImg(SkImage::MakeFromTextureCopy(ctxInfo.fGrContext, backendDesc,
+                                                       kPremul_SkAlphaType));
 
     check_image_color(reporter, refImg.get(), expected0);
     check_image_color(reporter, cpyImg.get(), expected0);
@@ -795,7 +799,7 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
     for (auto create : {&create_image,
                         &create_image_565,
                         &create_image_ct}) {
@@ -809,7 +813,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, context) {
         if (!image->peekPixels(&pixmap)) {
             ERRORF(reporter, "peek failed");
         } else {
-            sk_sp<SkImage> texImage(SkImage::MakeTextureFromPixmap(context, pixmap,
+            sk_sp<SkImage> texImage(SkImage::MakeTextureFromPixmap(ctxInfo.fGrContext, pixmap,
                                                                    SkBudgeted::kNo));
             if (!texImage) {
                 ERRORF(reporter, "NewTextureFromPixmap failed.");
@@ -820,11 +824,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, context) {
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, context, glContext) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.fGrContext;
+    sk_gpu_test::GLTestContext* glContext = ctxInfo.fGLContext;
     SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
 
     GrContextFactory otherFactory;
-    GrContextFactory::ContextInfo otherContextInfo =
+    ContextInfo otherContextInfo =
         otherFactory.getContextInfo(GrContextFactory::kNativeGL_ContextType);
 
     glContext->makeCurrent();

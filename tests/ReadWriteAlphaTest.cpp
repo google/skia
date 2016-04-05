@@ -33,7 +33,7 @@ static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, cons
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     unsigned char alphaData[X_SIZE * Y_SIZE];
 
     bool match;
@@ -50,7 +50,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, context) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
         SkAutoTUnref<GrTexture> texture(
-            context->textureProvider()->createTexture(desc, SkBudgeted::kNo , alphaData, 0));
+            ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo , alphaData,
+                                                                 0));
         if (!texture) {
             if (!rt) {
                 ERRORF(reporter, "Could not create alpha texture.");
@@ -150,7 +151,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, context) {
                 }
             }
             SkAutoTUnref<GrTexture> texture(
-                context->textureProvider()->createTexture(desc, SkBudgeted::kNo, rgbaData, 0));
+                ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo,
+                                                                     rgbaData, 0));
             if (!texture) {
                 // We always expect to be able to create a RGBA texture
                 if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {

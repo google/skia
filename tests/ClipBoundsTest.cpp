@@ -13,7 +13,7 @@
 
 // Ensure that the 'getConservativeBounds' calls are returning bounds clamped
 // to the render target
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     static const int kXSize = 100;
     static const int kYSize = 100;
 
@@ -24,7 +24,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, context) {
     desc.fHeight    = kYSize;
 
     SkAutoTUnref<GrTexture> texture(
-        context->textureProvider()->createTexture(desc, SkBudgeted::kYes, nullptr, 0));
+        ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kYes, nullptr, 0));
     if (!texture) {
         return;
     }

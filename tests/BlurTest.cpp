@@ -314,7 +314,7 @@ static bool match(int* first, int* second, int count, int tol) {
 }
 
 // Test out the normal blur style with a wide range of sigmas
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurSigmaRange, reporter, context) {
+DEF_TEST(BlurSigmaRange, reporter) {
     static const int kSize = 100;
 
     // The geometry is offset a smidge to trigger:
@@ -556,10 +556,10 @@ DEF_TEST(BlurAsABlur, reporter) {
 
 // This exercises the problem discovered in crbug.com/570232. The return value from
 // SkBlurMask::BoxBlur wasn't being checked in SkBlurMaskFilter.cpp::GrRRectBlurEffect::Create
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctx) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo) {
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
 
     SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);

@@ -82,8 +82,7 @@ const GrContextFactory::ContextType GrContextFactory::kNativeGL_ContextType =
     GrContextFactory::kGLES_ContextType;
 #endif
 
-GrContextFactory::ContextInfo GrContextFactory::getContextInfo(ContextType type,
-                                                               ContextOptions options) {
+ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions options) {
     for (int i = 0; i < fContexts.count(); ++i) {
         Context& context = fContexts[i];
         if (!context.fGLContext) {
