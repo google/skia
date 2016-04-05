@@ -12,16 +12,12 @@
 #include "SkPM4f.h"
 
 #include "SkArithmeticMode.h"
-#include "SkPixelXorXfermode.h"
-#include "SkAvoidXfermode.h"
 
 #define kCustomShift    16
 #define kCustomMask     (~0xFFFF)
 
 enum CustomModes {
     kArithmetic_CustomMode  = 1 << kCustomShift,
-    kPixelXor_CustomMode    = 2 << kCustomShift,
-    kAvoid_CustomMode       = 3 << kCustomShift,
 };
 
 static sk_sp<SkXfermode> make_custom(int customMode) {
@@ -33,10 +29,6 @@ static sk_sp<SkXfermode> make_custom(int customMode) {
             const SkScalar k4 = -0.25;
             return SkArithmeticMode::Make(k1, k2, k3, k4);
         }
-        case kPixelXor_CustomMode:
-            return SkPixelXorXfermode::Make(0xFF88CC44);
-        case kAvoid_CustomMode:
-            return SkAvoidXfermode::Make(0xFFFF0000, 0x44, SkAvoidXfermode::kAvoidColor_Mode);
         default:
             break;
     }
@@ -108,8 +100,6 @@ const struct {
     { SkXfermode::kLuminosity_Mode,   "Luminosity",   kBasic_SrcType },
 
     { SkXfermode::Mode(0xFFFF),       "Arithmetic",   kBasic_SrcType + kArithmetic_CustomMode   },
-    { SkXfermode::Mode(0xFFFF),       "PixelXor",     kBasic_SrcType + kPixelXor_CustomMode     },
-    { SkXfermode::Mode(0xFFFF),       "Avoid",        kBasic_SrcType + kAvoid_CustomMode        },
 };
 
 static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
