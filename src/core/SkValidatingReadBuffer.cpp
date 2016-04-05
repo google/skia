@@ -222,14 +222,20 @@ bool SkValidatingReadBuffer::validateAvailable(size_t size) {
     return this->validate((size <= SK_MaxU32) && fReader.isAvailable(static_cast<uint32_t>(size)));
 }
 
-SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type) {
+SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type) {
     SkString name;
     this->readString(&name);
     if (fError) {
         return nullptr;
     }
 
+    // Is this the type we wanted ?
     const char* cname = name.c_str();
+    SkFlattenable::Type baseType;
+    if (!SkFlattenable::NameToType(cname, &baseType) || (baseType != type)) {
+        return nullptr;
+    }
+
     SkFlattenable::Factory factory = SkFlattenable::NameToFactory(cname);
     if (nullptr == factory) {
         return nullptr; // writer failed to give us the flattenable
