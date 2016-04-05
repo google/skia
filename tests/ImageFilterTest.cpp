@@ -86,6 +86,36 @@ private:
     typedef SkImageFilter INHERITED;
 };
 
+class FailImageFilter : public SkImageFilter {
+public:
+    FailImageFilter() : SkImageFilter(0, nullptr) {
+    }
+
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source,
+                                        const Context& ctx,
+                                        SkIPoint* offset) const override {
+        return nullptr;
+    }
+
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
+
+private:
+    typedef SkImageFilter INHERITED;
+};
+
+sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
+    return sk_sp<SkFlattenable>(new FailImageFilter());
+}
+
+#ifndef SK_IGNORE_TO_STRING
+void FailImageFilter::toString(SkString* str) const {
+    str->appendf("FailImageFilter: (");
+    str->append(")");
+}
+#endif
+
 void draw_gradient_circle(SkCanvas* canvas, int width, int height) {
     SkScalar x = SkIntToScalar(width / 2);
     SkScalar y = SkIntToScalar(height / 2);
@@ -670,6 +700,40 @@ DEF_TEST(TestZeroBlurSigma, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestZeroBlurSigma_Gpu, reporter, context) {
     run_gpu_test(reporter, context, 100, test_zero_blur_sigma);
+}
+#endif
+
+
+// Tests that, even when an upstream filter has returned null (due to failure or clipping), a
+// downstream filter that affects transparent black still does so even with a nullptr input.
+static void test_fail_affects_transparent_black(SkImageFilter::Proxy* proxy,
+                                                skiatest::Reporter* reporter,
+                                                GrContext* context) {
+    sk_sp<FailImageFilter> failFilter(new FailImageFilter());
+    sk_sp<SkSpecialImage> source(create_empty_special_image(context, proxy, 5));
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(0, 0, 1, 1), nullptr);
+    sk_sp<SkColorFilter> green(SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkXfermode::kSrc_Mode));
+    SkASSERT(green->affectsTransparentBlack());
+    sk_sp<SkImageFilter> greenFilter(SkColorFilterImageFilter::Create(green.get(),
+                                                                      failFilter.get()));
+    SkIPoint offset;
+    sk_sp<SkSpecialImage> result(greenFilter->filterImage(source.get(), ctx, &offset));
+    REPORTER_ASSERT(reporter, nullptr != result.get());
+    if (result.get()) {
+        SkBitmap resultBM;
+        TestingSpecialImageAccess::GetROPixels(result.get(), &resultBM);
+        SkAutoLockPixels lock(resultBM);
+        REPORTER_ASSERT(reporter, *resultBM.getAddr32(0, 0) == SK_ColorGREEN);
+    }
+}
+
+DEF_TEST(ImageFilterFailAffectsTransparentBlack, reporter) {
+    run_raster_test(reporter, 100, test_fail_affects_transparent_black);
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(ImageFilterFailAffectsTransparentBlack_Gpu, reporter, context) {
+    run_gpu_test(reporter, context, 100, test_fail_affects_transparent_black);
 }
 #endif
 
