@@ -378,8 +378,8 @@ int fuzz_skp(SkData* bytes) {
 
 Fuzz::Fuzz(SkData* bytes) : fBytes(SkSafeRef(bytes)), fNextByte(0) {}
 
-void Fuzz::signalBug   () { raise(SIGSEGV); }
-void Fuzz::signalBoring() { exit(0); }
+void Fuzz::signalBug   () { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
+void Fuzz::signalBoring() { SkDebugf("Signal boring\n"); exit(0); }
 
 template <typename T>
 T Fuzz::nextT() {
@@ -398,6 +398,12 @@ bool  Fuzz::nextBool() { return nextB()&1; }
 uint32_t Fuzz::nextU() { return this->nextT<uint32_t>(); }
 float    Fuzz::nextF() { return this->nextT<float   >(); }
 
+float    Fuzz::nextF1() {
+    // This is the same code as is in SkRandom's nextF()
+    unsigned int floatint = 0x3f800000 | (this->nextU() >> 9);
+    float f = SkBits2Float(floatint) - 1.0f;
+    return f;
+}
 
 uint32_t Fuzz::nextRangeU(uint32_t min, uint32_t max) {
     if (min > max) {

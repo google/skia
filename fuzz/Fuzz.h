@@ -21,6 +21,8 @@ public:
     uint32_t nextU();
     // This can be nan, +- infinity, 0, anything.
     float    nextF();
+    // Returns a float between [0..1) as a IEEE float
+    float    nextF1();
 
     // Return the next fuzzed value [min, max) as an unsigned 32bit integer.
     uint32_t nextRangeU(uint32_t min, uint32_t max);
