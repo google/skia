@@ -160,7 +160,7 @@ protected:
             SkPaint paint;
             paint.setImageFilter(SkXfermodeImageFilter::Make(
                                         SkXfermode::Make(SkXfermode::kSrcOver_Mode),
-                                        colorMorph.get()));
+                                        std::move(colorMorph)));
 
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
@@ -178,7 +178,9 @@ protected:
             SkPaint paint;
             paint.setImageFilter(
                 SkXfermodeImageFilter::Make(SkArithmeticMode::Make(0, SK_Scalar1, SK_Scalar1, 0),
-                                            matrixFilter.get(), offsetFilter.get(), nullptr));
+                                            std::move(matrixFilter),
+                                            std::move(offsetFilter),
+                                            nullptr));
 
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
@@ -191,7 +193,8 @@ protected:
             SkImageFilter::CropRect cropRect(SkRect::MakeWH(SkIntToScalar(95), SkIntToScalar(100)));
             SkPaint paint;
             paint.setImageFilter(
-                SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcIn_Mode), blur.get(),
+                SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcIn_Mode),
+                                            std::move(blur),
                                             nullptr, &cropRect));
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);

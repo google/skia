@@ -1,0 +1,20 @@
+*************** public:
+*** 231,237 ****
+                                                                        cropRect).release());
+          }
+          this->addFilter("xfermode", SkXfermodeImageFilter::Make(
+-             SkXfermode::Make(SkXfermode::kSrc_Mode), input, input, cropRect).release());
+      }
+      int count() const { return fFilters.count(); }
+      SkImageFilter* getFilter(int index) const { return fFilters[index].fFilter.get(); }
+--- 231,240 ----
+                                                                        cropRect).release());
+          }
+          this->addFilter("xfermode", SkXfermodeImageFilter::Make(
++                                             SkXfermode::Make(SkXfermode::kSrc_Mode), 
++                                             sk_ref_sp<SkImageFilter>(input), 
++                                             sk_ref_sp<SkImageFilter>(input), 
++                                             cropRect).release());
+      }
+      int count() const { return fFilters.count(); }
+      SkImageFilter* getFilter(int index) const { return fFilters[index].fFilter.get(); }

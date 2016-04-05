@@ -45,7 +45,7 @@ static sk_sp<SkImageFilter> make_mode_blue(sk_sp<SkImageFilter> input) {
 class ColorFilterBaseBench : public Benchmark {
 
 public:
-    ColorFilterBaseBench(bool small) : fIsSmall(small) {}
+    ColorFilterBaseBench(bool small) : fIsSmall(small) { }
 
 protected:
     SkRect getFilterRect() const {
