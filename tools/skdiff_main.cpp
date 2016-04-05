@@ -405,6 +405,10 @@ static void create_diff_images (DiffMetricProc dmp,
               sizeof(SkString*), SkCastForQSort(compare_file_name_metrics));
     }
 
+    if (!outputDir.isEmpty()) {
+        sk_mkdir(outputDir.c_str());
+    }
+
     int i = 0;
     int j = 0;
 
