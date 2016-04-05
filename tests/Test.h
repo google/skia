@@ -173,8 +173,6 @@ private:
         DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kAllRendering_GPUTestContexts, reporter, __VA_ARGS__)
 #define DEF_GPUTEST_FOR_NULL_CONTEXT(name, reporter, ...) \
         DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kNull_GPUTestContexts, reporter, __VA_ARGS__)
-#define DEF_GPUTEST_FOR_NATIVE_CONTEXT(name, reporter, ...) \
-        DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kNative_GPUTestContexts, reporter, __VA_ARGS__)
 
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                             \
     do {                                                                      \

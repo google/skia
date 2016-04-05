@@ -331,7 +331,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     GrClip clip;
 
     SkRandom random;
-    static const int NUM_TESTS = 2048;
+    static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
         SkAutoTUnref<GrRenderTarget> rt(random_render_target(

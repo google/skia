@@ -369,7 +369,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
  *  but we don't have that facility (at the moment) so we use a little internal knowledge
  *  of *how* the raster version is cached, and look for that.
  */
-DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_Gpu2Cpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, context) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     sk_sp<SkImage> image(create_gpu_image(context));
     const uint32_t uniqueID = image->uniqueID();
@@ -404,7 +404,7 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_Gpu2Cpu, reporter, context) {
     }
 }
 
-DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_newTextureImage, reporter, context, glContext) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, context, glContext) {
     GrContextFactory otherFactory;
     GrContextFactory::ContextInfo otherContextInfo =
         otherFactory.getContextInfo(GrContextFactory::kNative_GLContextType);
@@ -701,7 +701,7 @@ static void check_image_color(skiatest::Reporter* reporter, SkImage* image, SkPM
     REPORTER_ASSERT(reporter, image->readPixels(info, &pixel, sizeof(pixel), 0, 0));
     REPORTER_ASSERT(reporter, pixel == expected);
 }
-DEF_GPUTEST_FOR_NATIVE_CONTEXT(SkImage_NewFromTexture, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, context) {
     GrTextureProvider* provider = context->textureProvider();
     const int w = 10;
     const int h = 10;
@@ -820,7 +820,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, context) {
     }
 }
 
-DEF_GPUTEST_FOR_NATIVE_CONTEXT(DeferredTextureImage, reporter, context, glContext) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, context, glContext) {
     SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
 
     GrContextFactory otherFactory;

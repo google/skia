@@ -576,7 +576,7 @@ static void dump_to_file(const char name[], SkData* data) {
  *
  *  https://bug.skia.org/4351
  */
-DEF_GPUTEST_FOR_NATIVE_CONTEXT(ReadPixels_Subset_Gpu, reporter, context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, context) {
     SkBitmap bitmap;
     make_ringed_bitmap(&bitmap, 6, 6);
     const SkIRect subset = SkIRect::MakeLTRB(2, 2, 4, 4);

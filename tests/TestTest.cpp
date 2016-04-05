@@ -44,16 +44,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, context) 
 }
 #endif
 
-// This is an example of a GPU test that tests a property that should work at least for the native
-// GPU context. If the test takes a long time to run, it may be appropriate to test only the native
-// context.
-#if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestGpuNativeContext, reporter, context) {
-    REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, context);
-}
-#endif
-
 // This is an example of a GPU test that tests a property that uses the null GPU context.  It should
 // be used if the test tests some behavior that is mocked with the null context.
 #if SK_SUPPORT_GPU
