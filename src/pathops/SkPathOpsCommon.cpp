@@ -494,7 +494,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     }
     DEBUG_COINCIDENCE_HEALTH(contourList, "expand2");
     // the expanded ranges may not align -- add the missing spans
-    coincidence->mark();  // mark spans of coincident segments as coincident
+    if (!coincidence->mark()) {  // mark spans of coincident segments as coincident
+        return false;
+    }
     DEBUG_COINCIDENCE_HEALTH(contourList, "mark1");
     // look for coincidence missed earlier
     if (missingCoincidence(contourList, coincidence, allocator)) {
