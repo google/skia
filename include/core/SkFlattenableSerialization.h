@@ -14,6 +14,6 @@ class SkData;
 
 SK_API SkData* SkValidatingSerializeFlattenable(SkFlattenable*);
 SK_API SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size,
-                                                         SkFlattenable::Type type);
+        SkFlattenable::Type type = SkFlattenable::kSkUnused_Type);
 
 #endif
