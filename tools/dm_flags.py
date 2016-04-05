@@ -50,6 +50,13 @@ def get_args(bot):
       else:
         configs.append('nvprdit16')
 
+  # We want to test the OpenGL config not the GLES config on the X1
+  if 'TegraX1' in bot:
+    configs.remove('gpu')
+    configs.remove('gpusrgb')
+    configs.append('gl')
+    configs.append('glsrgb')
+    
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.  The Tegra2 and Tegra3 just don't support it.
   if ('GalaxyS4'    not in bot and
@@ -261,6 +268,7 @@ def self_test():
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
     'Test-Mac10.8-Clang-MacMini4.1-CPU-SSE4-x86_64-Release',
     'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
+    'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release',
   ]
 
   cov = coverage.coverage()
