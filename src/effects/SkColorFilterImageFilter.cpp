@@ -14,8 +14,9 @@
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
-SkImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf, SkImageFilter* input,
-                                                const CropRect* cropRect) {
+sk_sp<SkImageFilter> SkColorFilterImageFilter::Make(sk_sp<SkColorFilter> cf,
+                                                    sk_sp<SkImageFilter> input,
+                                                    const CropRect* cropRect) {
     if (!cf) {
         return nullptr;
     }
@@ -24,27 +25,31 @@ SkImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf, SkImageFilter
     if (input && input->isColorFilterNode(&inputCF)) {
         // This is an optimization, as it collapses the hierarchy by just combining the two
         // colorfilters into a single one, which the new imagefilter will wrap.
-        sk_sp<SkColorFilter> newCF(SkColorFilter::MakeComposeFilter(sk_ref_sp(cf),
+        sk_sp<SkColorFilter> newCF(SkColorFilter::MakeComposeFilter(cf,// can't move bc of fallthru
                                                                     sk_sp<SkColorFilter>(inputCF)));
         if (newCF) {
-            return new SkColorFilterImageFilter(newCF.get(), input->getInput(0), cropRect);
+            return sk_sp<SkImageFilter>(new SkColorFilterImageFilter(std::move(newCF),
+                                                                     sk_ref_sp(input->getInput(0)),
+                                                                     cropRect));
         }
     }
 
-    return new SkColorFilterImageFilter(cf, input, cropRect);
+    return sk_sp<SkImageFilter>(new SkColorFilterImageFilter(std::move(cf),
+                                                             std::move(input),
+                                                             cropRect));
 }
 
-SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
-                                                   SkImageFilter* input,
+SkColorFilterImageFilter::SkColorFilterImageFilter(sk_sp<SkColorFilter> cf,
+                                                   sk_sp<SkImageFilter> input,
                                                    const CropRect* cropRect)
-    : INHERITED(1, &input, cropRect)
-    , fColorFilter(SkRef(cf)) {
+    : INHERITED(&input, 1, cropRect)
+    , fColorFilter(std::move(cf)) {
 }
 
 sk_sp<SkFlattenable> SkColorFilterImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     sk_sp<SkColorFilter> cf(buffer.readColorFilter());
-    return sk_sp<SkFlattenable>(Create(cf.get(), common.getInput(0).get(), &common.cropRect()));
+    return Make(std::move(cf), common.getInput(0), &common.cropRect());
 }
 
 void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {

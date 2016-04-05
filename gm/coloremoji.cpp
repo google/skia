@@ -35,7 +35,7 @@ static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
     sk_sp<SkColorFilter> filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
-    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(filter.get(), input.get()));
+    return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) {

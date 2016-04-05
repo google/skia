@@ -564,19 +564,15 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         break;
     case COLOR: {
         sk_sp<SkColorFilter> cf(make_color_filter());
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-        filter = cf ? sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf.get(),
-                                                                            subFilter.get()))
+        filter = cf ? SkColorFilterImageFilter::Make(std::move(cf), make_image_filter())
                     : nullptr;
         break;
     }
     case LUT3D: {
         int cubeDimension;
         sk_sp<SkData> lut3D(make_3Dlut(&cubeDimension, (R(2) == 1), (R(2) == 1), (R(2) == 1)));
-        sk_sp<SkColorFilter> cf(SkColorCubeFilter::Make(lut3D, cubeDimension));
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-        filter = cf ? sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf.get(), 
-                                                                            subFilter.get()))
+        sk_sp<SkColorFilter> cf(SkColorCubeFilter::Make(std::move(lut3D), cubeDimension));
+        filter = cf ? SkColorFilterImageFilter::Make(std::move(cf), make_image_filter())
                     : nullptr;
         break;
     }

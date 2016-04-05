@@ -106,11 +106,11 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    virtual void onOnceBeforeDraw() override{
+    void onOnceBeforeDraw() override{
         make_checkerboard();
     }
 
-    virtual void onDraw(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
             draw_bitmap, draw_path, draw_paint, draw_text
         };
@@ -126,14 +126,14 @@ protected:
                                                               SkIntToScalar(-10),
                                                               nullptr));
 
-        sk_sp<SkImageFilter> cfOffset(SkColorFilterImageFilter::Create(cf.get(), offset.get()));
+        sk_sp<SkImageFilter> cfOffset(SkColorFilterImageFilter::Make(cf, std::move(offset)));
 
         sk_sp<SkImageFilter> erodeX(SkErodeImageFilter::Make(8, 0, nullptr, &cropRect));
         sk_sp<SkImageFilter> erodeY(SkErodeImageFilter::Make(0, 8, nullptr, &cropRect));
 
         sk_sp<SkImageFilter> filters[] = {
             nullptr,
-            sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf.get(), nullptr, &cropRect)),
+            SkColorFilterImageFilter::Make(cf, nullptr, &cropRect),
             SkBlurImageFilter::Make(0.0f, 0.0f, nullptr, &cropRect),
             SkBlurImageFilter::Make(1.0f, 1.0f, nullptr, &cropRect),
             SkBlurImageFilter::Make(8.0f, 0.0f, nullptr, &cropRect),
@@ -148,7 +148,7 @@ protected:
                                      SkXfermode::kSrcOver_Mode,
                                      &cropRect),
             SkBlurImageFilter::Make(8.0f, 8.0f, nullptr, &bogusRect),
-            sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf.get(), nullptr, &bogusRect)),
+            SkColorFilterImageFilter::Make(cf, nullptr, &bogusRect),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));

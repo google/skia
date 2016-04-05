@@ -278,11 +278,11 @@ static void test_savelayer_extraction(skiatest::Reporter* reporter) {
     // optimize away
     SkScalar blueToRedMatrix[20] = { 0 };
     blueToRedMatrix[2] = blueToRedMatrix[18] = SK_Scalar1;
-    auto blueToRed(SkColorFilter::MakeMatrixFilterRowMajor255(blueToRedMatrix));
-    SkAutoTUnref<SkImageFilter> filter(SkColorFilterImageFilter::Create(blueToRed.get()));
+    sk_sp<SkColorFilter> blueToRed(SkColorFilter::MakeMatrixFilterRowMajor255(blueToRedMatrix));
+    sk_sp<SkImageFilter> filter(SkColorFilterImageFilter::Make(std::move(blueToRed), nullptr));
 
     SkPaint complexPaint;
-    complexPaint.setImageFilter(filter);
+    complexPaint.setImageFilter(std::move(filter));
 
     sk_sp<SkPicture> pict, child;
     SkRTreeFactory bbhFactory;

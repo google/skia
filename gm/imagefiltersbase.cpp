@@ -106,9 +106,9 @@ void IdentityImageFilter::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void draw_paint(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_paint(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
-    paint.setImageFilter(imf);
+    paint.setImageFilter(std::move(imf));
     paint.setColor(SK_ColorGREEN);
     canvas->save();
     canvas->clipRect(r);
@@ -116,7 +116,7 @@ static void draw_paint(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     canvas->restore();
 }
 
-static void draw_line(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_line(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
     paint.setImageFilter(imf);
@@ -124,7 +124,7 @@ static void draw_line(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     canvas->drawLine(r.fLeft, r.fTop, r.fRight, r.fBottom, paint);
 }
 
-static void draw_rect(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_rect(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setColor(SK_ColorYELLOW);
     paint.setImageFilter(imf);
@@ -133,7 +133,7 @@ static void draw_rect(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     canvas->drawRect(rr, paint);
 }
 
-static void draw_path(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_path(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setColor(SK_ColorMAGENTA);
     paint.setImageFilter(imf);
@@ -141,7 +141,7 @@ static void draw_path(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     canvas->drawCircle(r.centerX(), r.centerY(), r.width()*2/5, paint);
 }
 
-static void draw_text(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setImageFilter(imf);
     paint.setColor(SK_ColorCYAN);
@@ -152,9 +152,9 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     canvas->drawText("Text", 4, r.centerX(), r.centerY(), paint);
 }
 
-static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
-    paint.setImageFilter(imf);
+    paint.setImageFilter(std::move(imf));
 
     SkIRect bounds;
     r.roundOut(&bounds);
@@ -189,21 +189,22 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        void (*drawProc[])(SkCanvas*, const SkRect&, SkImageFilter*) = {
+        void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
             draw_paint,
             draw_line, draw_rect, draw_path, draw_text,
             draw_bitmap,
         };
 
         auto cf = SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode);
-        SkImageFilter* filters[] = {
+        sk_sp<SkImageFilter> filters[] = {
             nullptr,
-            IdentityImageFilter::Make(nullptr).release(),
-            FailImageFilter::Make().release(),
-            SkColorFilterImageFilter::Create(cf.get()),
-            SkBlurImageFilter::Make(12.0f, 0.0f, nullptr).release(),
-            SkDropShadowImageFilter::Create(10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
+            IdentityImageFilter::Make(nullptr),
+            FailImageFilter::Make(),
+            SkColorFilterImageFilter::Make(std::move(cf), nullptr),
+            SkBlurImageFilter::Make(12.0f, 0.0f, nullptr),
+            sk_sp<SkImageFilter>(SkDropShadowImageFilter::Create(
+                                    10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
+                                    SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode)),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
@@ -222,10 +223,6 @@ protected:
             }
             canvas->restore();
             canvas->translate(DX, 0);
-        }
-
-        for(size_t j = 0; j < SK_ARRAY_COUNT(filters); ++j) {
-            SkSafeUnref(filters[j]);
         }
     }
 

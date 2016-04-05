@@ -91,12 +91,11 @@ protected:
                                         SkIntToScalar(fBitmap->height()));
         SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width() * 2),
                                         SkIntToScalar(fBitmap->height() * 2));
-        SkAutoTUnref<SkImageFilter> tile(SkTileImageFilter::Create(srcRect, dstRect, nullptr));
-        auto cf(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+        sk_sp<SkImageFilter> tile(SkTileImageFilter::Create(srcRect, dstRect, nullptr));
+        sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
 
-        SkAutoTUnref<SkImageFilter> cfif(SkColorFilterImageFilter::Create(cf.get(), tile.get()));
         SkPaint paint;
-        paint.setImageFilter(cfif);
+        paint.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), std::move(tile)));
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
         canvas->clipRect(dstRect);
@@ -114,11 +113,12 @@ protected:
         SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(5, 5, 40, 40));
         sk_sp<SkColorFilter> greenCF = SkColorFilter::MakeModeFilter(SK_ColorGREEN,
                                                                      SkXfermode::kSrc_Mode);
-        SkAutoTUnref<SkImageFilter> green(SkColorFilterImageFilter::Create(greenCF.get(), nullptr,
-                                                                           &cropRect));
-        tile.reset(SkTileImageFilter::Create(srcRect, dstRect, green));
+        sk_sp<SkImageFilter> green(SkColorFilterImageFilter::Make(std::move(greenCF),
+                                                                  nullptr,
+                                                                  &cropRect));
+        tile.reset(SkTileImageFilter::Create(srcRect, dstRect, green.get()));
         paint.setColor(SK_ColorRED);
-        paint.setImageFilter(tile);
+        paint.setImageFilter(std::move(tile));
         canvas->drawRect(dstRect, paint);
     }
 private:

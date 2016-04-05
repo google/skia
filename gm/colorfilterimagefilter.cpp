@@ -92,30 +92,27 @@ static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) 
 }
 
 static sk_sp<SkImageFilter> make_brightness(float amount, sk_sp<SkImageFilter> input) {
-    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf_make_brightness(amount).get(),
-                                                                 input.get()));
+    return SkColorFilterImageFilter::Make(cf_make_brightness(amount), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
-    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf_make_grayscale().get(),
-                                                                 input.get()));
+    return SkColorFilterImageFilter::Make(cf_make_grayscale(), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_mode_blue(sk_sp<SkImageFilter> input) {
-    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf_make_colorize(SK_ColorBLUE).get(),
-                                                                 input.get()));
+    return SkColorFilterImageFilter::Make(cf_make_colorize(SK_ColorBLUE), std::move(input));
 }
 
 static void draw_clipped_rect(SkCanvas* canvas,
                               const SkRect& r,
                               const SkPaint& paint,
                               float outset = 0.0f) {
-        canvas->save();
-        SkRect clip(r);
-        clip.outset(outset, outset);
-        canvas->clipRect(clip);
-        canvas->drawRect(r, paint);
-        canvas->restore();
+    canvas->save();
+    SkRect clip(r);
+    clip.outset(outset, outset);
+    canvas->clipRect(clip);
+    canvas->drawRect(r, paint);
+    canvas->restore();
 }
 
 DEF_SIMPLE_GM(colorfilterimagefilter, canvas, 400, 100){
@@ -179,10 +176,9 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
     SkColorMatrix cm;
     cm.setSaturation(0.0f);
-    auto cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
-    sk_sp<SkImageFilter> imf(SkColorFilterImageFilter::Create(cf.get()));
+    sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     SkPaint p;
-    p.setImageFilter(std::move(imf));
+    p.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
     canvas->saveLayer(NULL, &p);
     canvas->clear(SK_ColorRED);
 }

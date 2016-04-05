@@ -22,20 +22,15 @@
 
 class BaseImageFilterCollapseBench : public Benchmark {
 public:
-    BaseImageFilterCollapseBench(): fImageFilter(nullptr) {}
-    ~BaseImageFilterCollapseBench() {
-        SkSafeUnref(fImageFilter);
-    }
+    BaseImageFilterCollapseBench() {}
 
 protected:
     void doPreDraw(sk_sp<SkColorFilter> colorFilters[], int nFilters) {
+        SkASSERT(!fImageFilter);
+
         // Create a chain of ImageFilters from colorFilters
-        fImageFilter = nullptr;
         for(int i = nFilters; i --> 0;) {
-            SkAutoTUnref<SkImageFilter> filter(
-                    SkColorFilterImageFilter::Create(colorFilters[i].get(), fImageFilter, nullptr)
-            );
-            SkRefCnt_SafeAssign(fImageFilter, filter.get());
+            fImageFilter = SkColorFilterImageFilter::Make(colorFilters[i], fImageFilter);
         }
     }
 
@@ -50,7 +45,7 @@ protected:
     }
 
 private:
-    SkImageFilter* fImageFilter;
+    sk_sp<SkImageFilter> fImageFilter;
     SkBitmap fBitmap;
 
     void makeBitmap() {
@@ -95,7 +90,7 @@ protected:
             SkTableColorFilter::Make(table3),
         };
 
-        doPreDraw(colorFilters, SK_ARRAY_COUNT(colorFilters));
+        this->doPreDraw(colorFilters, SK_ARRAY_COUNT(colorFilters));
     }
 
 private:
@@ -134,7 +129,7 @@ protected:
             make_brightness(-0.1f),
         };
 
-        doPreDraw(colorFilters, SK_ARRAY_COUNT(colorFilters));
+        this->doPreDraw(colorFilters, SK_ARRAY_COUNT(colorFilters));
     }
 };
 

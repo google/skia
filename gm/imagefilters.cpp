@@ -147,7 +147,7 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
         SkMatrixConvolutionImageFilter::Create({ 3, 3 }, kernel, 1, 0, { 0, 0 },
                                            SkMatrixConvolutionImageFilter::kClampToBlack_TileMode,
                                                true),
-        SkColorFilterImageFilter::Create(cf.get()),
+        SkColorFilterImageFilter::Make(std::move(cf), nullptr).release(),
     };
 
     const struct {

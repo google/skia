@@ -137,7 +137,8 @@ protected:
                                                                   SkXfermode::kSrcIn_Mode));
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(4.0f, 4.0f, std::move(bitmapSource)));
             sk_sp<SkImageFilter> erode(SkErodeImageFilter::Make(4, 4, blur));
-            sk_sp<SkImageFilter> color(SkColorFilterImageFilter::Create(cf.get(), erode.get()));
+            sk_sp<SkImageFilter> color(SkColorFilterImageFilter::Make(std::move(cf),
+                                                                      std::move(erode)));
             sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(blur, color));
 
             SkPaint paint;
@@ -154,8 +155,8 @@ protected:
                                     0, 0, 0, 0.5f, 0 };
 
             sk_sp<SkColorFilter> matrixFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
-            sk_sp<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter.get(),
-                                                                             morph.get()));
+            sk_sp<SkImageFilter> colorMorph(SkColorFilterImageFilter::Make(std::move(matrixFilter),
+                                                                           std::move(morph)));
             SkPaint paint;
             paint.setImageFilter(SkXfermodeImageFilter::Make(
                                         SkXfermode::Make(SkXfermode::kSrcOver_Mode),
@@ -170,7 +171,8 @@ protected:
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
             sk_sp<SkColorFilter> matrixCF(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
-            sk_sp<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(matrixCF.get()));
+            sk_sp<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Make(std::move(matrixCF),
+                                                                             nullptr));
             sk_sp<SkImageFilter> offsetFilter(SimpleOffsetFilter::Make(10.0f, 10.f, matrixFilter));
 
             SkPaint paint;
@@ -228,18 +230,20 @@ protected:
         }
         {
             // Test that crop offsets are absolute, not relative to the parent's crop rect.
-            auto cf1(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
-            auto cf2(SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkXfermode::kSrcIn_Mode));
+            sk_sp<SkColorFilter> cf1(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
+                                                                   SkXfermode::kSrcIn_Mode));
+            sk_sp<SkColorFilter> cf2(SkColorFilter::MakeModeFilter(SK_ColorGREEN,
+                                                                   SkXfermode::kSrcIn_Mode));
             SkImageFilter::CropRect outerRect(SkRect::MakeXYWH(SkIntToScalar(10), SkIntToScalar(10),
                                                                SkIntToScalar(80), SkIntToScalar(80)));
             SkImageFilter::CropRect innerRect(SkRect::MakeXYWH(SkIntToScalar(20), SkIntToScalar(20),
                                                                SkIntToScalar(60), SkIntToScalar(60)));
-            sk_sp<SkImageFilter> color1(SkColorFilterImageFilter::Create(cf1.get(),
-                                                                         nullptr,
-                                                                         &outerRect));
-            sk_sp<SkImageFilter> color2(SkColorFilterImageFilter::Create(cf2.get(),
-                                                                         color1.get(),
-                                                                         &innerRect));
+            sk_sp<SkImageFilter> color1(SkColorFilterImageFilter::Make(std::move(cf1),
+                                                                       nullptr,
+                                                                       &outerRect));
+            sk_sp<SkImageFilter> color2(SkColorFilterImageFilter::Make(std::move(cf2),
+                                                                       std::move(color1),
+                                                                       &innerRect));
 
             SkPaint paint;
             paint.setImageFilter(std::move(color2));

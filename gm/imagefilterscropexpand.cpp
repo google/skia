@@ -75,10 +75,9 @@ protected:
                         SkIntToScalar(outset));
             SkImageFilter::CropRect bigRect(rect, SkImageFilter::CropRect::kHasAll_CropEdge);
 
-            Draw(canvas, checkerboard, rect,
-                 sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cfAlphaTrans.get(),
-                                                                       noopCropped.get(),
-                                                                       &bigRect)));
+            Draw(canvas, checkerboard, rect, SkColorFilterImageFilter::Make(cfAlphaTrans,
+                                                                            noopCropped,
+                                                                            &bigRect));
 
             Draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(0.3f, 0.3f,
                                                                      noopCropped,

@@ -93,8 +93,9 @@ protected:
             draw_bitmap, draw_path, draw_paint, draw_text
         };
 
-        auto cf(SkColorFilter::MakeModeFilter(SK_ColorMAGENTA, SkXfermode::kSrcIn_Mode));
-        SkAutoTUnref<SkImageFilter> cfif(SkColorFilterImageFilter::Create(cf.get()));
+        sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorMAGENTA,
+                                                              SkXfermode::kSrcIn_Mode));
+        sk_sp<SkImageFilter> cfif(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
         SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
                                          SkImageFilter::CropRect::kHasAll_CropEdge);
         SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)),
@@ -109,7 +110,7 @@ protected:
             SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
             SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, cfif, nullptr),
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, cfif.get(), nullptr),
             SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr, &cropRect),
             SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,

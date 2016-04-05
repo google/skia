@@ -31,7 +31,7 @@ static sk_sp<SkImageFilter> make1() {
 
 static sk_sp<SkImageFilter> make2() {
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
-    return sk_sp<SkImageFilter>(SkColorFilterImageFilter::Create(cf.get()));
+    return SkColorFilterImageFilter::Make(std::move(cf), nullptr);
 }
 
 static sk_sp<SkImageFilter> make3() {
@@ -62,7 +62,7 @@ static sk_sp<SkImageFilter> make6() {
     sk_sp<SkImageFilter> compose(SkComposeImageFilter::Make(std::move(outer), std::move(inner)));
 
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));
-    sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Create(cf.get()));
+    sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
 
     return SkMergeImageFilter::Make(std::move(compose), std::move(blue));
 }
@@ -75,7 +75,7 @@ static sk_sp<SkImageFilter> make7() {
     sk_sp<SkImageFilter> compose(SkComposeImageFilter::Make(std::move(outer), std::move(inner)));
 
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));
-    sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Create(cf.get()));
+    sk_sp<SkImageFilter> blue(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
 
     return SkMergeImageFilter::Make(std::move(compose), std::move(blue));
 }

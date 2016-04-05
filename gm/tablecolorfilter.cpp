@@ -163,19 +163,19 @@ protected:
             paint.setColorFilter(nullptr);
 
             for (unsigned i = 0; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
-                auto colorFilter1(gColorFilterMakers[i]());
-                SkAutoTUnref<SkImageFilter> imageFilter1(SkColorFilterImageFilter::Create(
-                            colorFilter1.get(), nullptr, nullptr));
+                sk_sp<SkColorFilter> colorFilter1(gColorFilterMakers[i]());
+                sk_sp<SkImageFilter> imageFilter1(SkColorFilterImageFilter::Make(
+                            std::move(colorFilter1), nullptr));
 
                 // Move down to the next line and draw it
                 // each draw being at xOffset of the previous one
                 y += yOffset;
                 x = 0;
                 for (unsigned j = 1; j < SK_ARRAY_COUNT(gColorFilterMakers); ++j) {
-                    auto colorFilter2(gColorFilterMakers[j]());
-                    SkAutoTUnref<SkImageFilter> imageFilter2(SkColorFilterImageFilter::Create(
-                                colorFilter2.get(), imageFilter1, nullptr));
-                    paint.setImageFilter(imageFilter2);
+                    sk_sp<SkColorFilter> colorFilter2(gColorFilterMakers[j]());
+                    sk_sp<SkImageFilter> imageFilter2(SkColorFilterImageFilter::Make(
+                                std::move(colorFilter2), imageFilter1, nullptr));
+                    paint.setImageFilter(std::move(imageFilter2));
                     canvas->drawBitmap(bm, x, y, &paint);
                     x += xOffset;
                 }
