@@ -88,15 +88,13 @@ protected:
                                                                      noopCropped,
                                                                      &bigRect));
 
-            Draw(canvas, checkerboard, rect,
-                 sk_sp<SkImageFilter>(SkDilateImageFilter::Create(2, 2,
-                                                                  noopCropped.get(),
-                                                                  &bigRect)));
+            Draw(canvas, checkerboard, rect, SkDilateImageFilter::Make(2, 2,
+                                                                       noopCropped,
+                                                                       &bigRect));
 
-            Draw(canvas, checkerboard, rect,
-                 sk_sp<SkImageFilter>(SkErodeImageFilter::Create(2, 2,
-                                                                 noopCropped.get(),
-                                                                 &bigRect)));
+            Draw(canvas, checkerboard, rect, SkErodeImageFilter::Make(2, 2,
+                                                                      noopCropped,
+                                                                      &bigRect));
 
             Draw(canvas, checkerboard, rect,
                  sk_sp<SkImageFilter>(SkDropShadowImageFilter::Create(

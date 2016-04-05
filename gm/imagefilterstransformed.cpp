@@ -74,8 +74,8 @@ protected:
                                             12,
                                             gradient.get(),
                                             checkerboard.get()),
-            SkDilateImageFilter::Create(2, 2, checkerboard.get()),
-            SkErodeImageFilter::Create(2, 2, checkerboard.get()),
+            SkDilateImageFilter::Make(2, 2, checkerboard).release(),
+            SkErodeImageFilter::Make(2, 2, checkerboard).release(),
         };
 
         const SkScalar margin = SkIntToScalar(20);

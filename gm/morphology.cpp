@@ -70,17 +70,15 @@ protected:
             for (unsigned i = 0; i < SK_ARRAY_COUNT(samples); ++i) {
                 const SkImageFilter::CropRect* cr = j & 0x02 ? &cropRect : nullptr;
                 if (j & 0x01) {
-                    paint.setImageFilter(SkErodeImageFilter::Create(
-                        samples[i].fRadiusX,
-                        samples[i].fRadiusY,
-                        nullptr,
-                        cr))->unref();
+                    paint.setImageFilter(SkErodeImageFilter::Make(samples[i].fRadiusX,
+                                                                  samples[i].fRadiusY,
+                                                                  nullptr,
+                                                                  cr));
                 } else {
-                    paint.setImageFilter(SkDilateImageFilter::Create(
-                        samples[i].fRadiusX,
-                        samples[i].fRadiusY,
-                        nullptr,
-                        cr))->unref();
+                    paint.setImageFilter(SkDilateImageFilter::Make(samples[i].fRadiusX,
+                                                                   samples[i].fRadiusY,
+                                                                   nullptr,
+                                                                   cr));
                 }
                 this->drawClippedBitmap(canvas, paint, i * 140, j * 140);
             }

@@ -245,13 +245,13 @@ class BackdropView : public SampleView {
     SkPoint fCenter;
     SkScalar fAngle;
     sk_sp<SkImage> fImage;
-    SkAutoTUnref<SkImageFilter> fFilter;
+    sk_sp<SkImageFilter> fFilter;
 public:
     BackdropView() {
         fCenter.set(200, 150);
         fAngle = 0;
         fImage = GetResourceAsImage("mandrill_512.png");
-        fFilter.reset(SkDilateImageFilter::Create(8, 8));
+        fFilter = SkDilateImageFilter::Make(8, 8, nullptr);
     }
 
 protected:
@@ -281,7 +281,7 @@ protected:
 
         SkPaint paint;
         paint.setAlpha(0xCC);
-        canvas->saveLayer({ &bounds, &paint, fFilter, 0 });
+        canvas->saveLayer({ &bounds, &paint, fFilter.get(), 0 });
 
         canvas->restore();
     }

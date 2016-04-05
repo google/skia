@@ -30,9 +30,9 @@
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
                                                  int radiusY,
-                                                 SkImageFilter* input,
+                                                 sk_sp<SkImageFilter> input,
                                                  const CropRect* cropRect)
-    : INHERITED(1, &input, cropRect)
+    : INHERITED(&input, 1, cropRect)
     , fRadius(SkISize::Make(radiusX, radiusY)) {
 }
 
@@ -76,16 +76,14 @@ sk_sp<SkFlattenable> SkErodeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     const int width = buffer.readInt();
     const int height = buffer.readInt();
-    return sk_sp<SkFlattenable>(Create(width, height, common.getInput(0).get(),
-                                       &common.cropRect()));
+    return Make(width, height, common.getInput(0), &common.cropRect());
 }
 
 sk_sp<SkFlattenable> SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     const int width = buffer.readInt();
     const int height = buffer.readInt();
-    return sk_sp<SkFlattenable>(Create(width, height, common.getInput(0).get(),
-                                       &common.cropRect()));
+    return Make(width, height, common.getInput(0), &common.cropRect());
 }
 
 #ifndef SK_IGNORE_TO_STRING

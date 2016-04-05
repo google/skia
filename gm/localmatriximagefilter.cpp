@@ -28,7 +28,7 @@ static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     return surface->makeImageSnapshot();
 }
 
-typedef SkImageFilter* (*ImageFilterFactory)();
+typedef sk_sp<SkImageFilter> (*ImageFilterFactory)();
 
 // +[]{...} did not work on windows (VS)
 // (ImageFilterFactory)[]{...} did not work on linux (gcc)
@@ -65,10 +65,10 @@ protected:
         sk_sp<SkImage> image0(make_image(canvas));
 
         const ImageFilterFactory factories[] = {
-            IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr).release(); }),
-            IFCCast([]{ return SkDilateImageFilter::Create(8, 8); }),
-            IFCCast([]{ return SkErodeImageFilter::Create(8, 8); }),
-            IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr).release(); }),
+            IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr); }),
+            IFCCast([]{ return SkDilateImageFilter::Make(8, 8, nullptr); }),
+            IFCCast([]{ return SkErodeImageFilter::Make(8, 8, nullptr); }),
+            IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr); }),
         };
 
         const SkMatrix matrices[] = {

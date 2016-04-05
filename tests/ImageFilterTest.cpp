@@ -143,7 +143,7 @@ SkBitmap make_gradient_circle(int width, int height) {
 
 class FilterList {
 public:
-    FilterList(SkImageFilter* input = nullptr, const SkImageFilter::CropRect* cropRect = nullptr) {
+    FilterList(sk_sp<SkImageFilter> input, const SkImageFilter::CropRect* cropRect = nullptr) {
         SkPoint3 location = SkPoint3::Make(0, 0, SK_Scalar1);
         SkScalar kernel[9] = {
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
@@ -164,7 +164,7 @@ public:
                                                                   SkXfermode::kSrcIn_Mode));
 
             this->addFilter("color filter",
-                SkColorFilterImageFilter::Create(cf.get(), input, cropRect));
+                SkColorFilterImageFilter::Create(cf.get(), input.get(), cropRect));
         }
 
         {
@@ -174,27 +174,28 @@ public:
             this->addFilter("displacement map", SkDisplacementMapEffect::Create(
                 SkDisplacementMapEffect::kR_ChannelSelectorType,
                 SkDisplacementMapEffect::kB_ChannelSelectorType,
-                20.0f, gradientSource.get(), input, cropRect));
+                20.0f, gradientSource.get(), input.get(), cropRect));
         }
 
         this->addFilter("blur", SkBlurImageFilter::Make(SK_Scalar1,
                                                         SK_Scalar1,
-                                                        sk_ref_sp<SkImageFilter>(input),
+                                                        input,
                                                         cropRect).release());
         this->addFilter("drop shadow", SkDropShadowImageFilter::Create(
                   SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN,
-                  SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, input, cropRect));
+                  SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
+                  input.get(), cropRect));
         this->addFilter("diffuse lighting", SkLightingImageFilter::CreatePointLitDiffuse(
-                  location, SK_ColorGREEN, 0, 0, input, cropRect));
+                  location, SK_ColorGREEN, 0, 0, input.get(), cropRect));
         this->addFilter("specular lighting",
                   SkLightingImageFilter::CreatePointLitSpecular(location, SK_ColorGREEN, 0, 0, 0,
-                                                                input, cropRect));
+                                                                input.get(), cropRect));
         this->addFilter("matrix convolution",
                   SkMatrixConvolutionImageFilter::Create(
                       kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1),
-                      SkMatrixConvolutionImageFilter::kRepeat_TileMode, false, input, cropRect));
-        this->addFilter("merge", SkMergeImageFilter::Make(sk_ref_sp<SkImageFilter>(input),
-                                                          sk_ref_sp<SkImageFilter>(input),
+                      SkMatrixConvolutionImageFilter::kRepeat_TileMode, false,
+                      input.get(), cropRect));
+        this->addFilter("merge", SkMergeImageFilter::Make(input, input,
                                                           SkXfermode::kSrcOver_Mode,
                                                           cropRect).release());
         {
@@ -215,23 +216,21 @@ public:
         }
 
         this->addFilter("offset",
-                        SkOffsetImageFilter::Make(SK_Scalar1, SK_Scalar1,
-                                                  sk_ref_sp<SkImageFilter>(input),
+                        SkOffsetImageFilter::Make(SK_Scalar1, SK_Scalar1, input,
                                                   cropRect).release());
-        this->addFilter("dilate", SkDilateImageFilter::Create(3, 2, input, cropRect));
-        this->addFilter("erode", SkErodeImageFilter::Create(2, 3, input, cropRect));
+        this->addFilter("dilate", SkDilateImageFilter::Make(3, 2, input, cropRect).release());
+        this->addFilter("erode", SkErodeImageFilter::Make(2, 3, input, cropRect).release());
         this->addFilter("tile", SkTileImageFilter::Create(
             SkRect::MakeXYWH(0, 0, 50, 50),
             cropRect ? cropRect->rect() : SkRect::MakeXYWH(0, 0, 100, 100),
-            input));
+            input.get()));
         if (!cropRect) {
             this->addFilter("matrix", SkImageFilter::CreateMatrixFilter(
-                matrix, kLow_SkFilterQuality, input));
+                matrix, kLow_SkFilterQuality, input.get()));
         }
 
         {
-            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(five, five, 
-                                                              sk_ref_sp<SkImageFilter>(input)));
+            sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(five, five, input));
 
             this->addFilter("blur and offset", SkOffsetImageFilter::Make(five, five,
                                                                          std::move(blur),
@@ -262,7 +261,8 @@ public:
                                                                       cropRect).release());
         }
         this->addFilter("xfermode", SkXfermodeImageFilter::Make(
-            SkXfermode::Make(SkXfermode::kSrc_Mode), input, input, cropRect).release());
+            SkXfermode::Make(SkXfermode::kSrc_Mode), input.get(), input.get(),
+            cropRect).release());
     }
     int count() const { return fFilters.count(); }
     SkImageFilter* getFilter(int index) const { return fFilters[index].fFilter.get(); }
@@ -519,9 +519,9 @@ static void test_crop_rects(SkImageFilter::Proxy* proxy,
 
     SkImageFilter::CropRect inputCropRect(SkRect::MakeXYWH(8, 13, 80, 80));
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(20, 30, 60, 60));
-    SkAutoTUnref<SkImageFilter> input(make_grayscale(nullptr, &inputCropRect));
+    sk_sp<SkImageFilter> input(make_grayscale(nullptr, &inputCropRect));
 
-    FilterList filters(input.get(), &cropRect);
+    FilterList filters(input, &cropRect);
 
     for (int i = 0; i < filters.count(); ++i) {
         SkImageFilter* filter = filters.getFilter(i);
@@ -742,7 +742,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     // match the same filters drawn with a single full-canvas bitmap draw.
     // Tests pass by not asserting.
 
-    FilterList filters;
+    FilterList filters(nullptr);
 
     SkBitmap untiledResult, tiledResult;
     const int width = 64, height = 64;
@@ -875,7 +875,7 @@ DEF_TEST(ImageFilterShadowThenBlurBounds, reporter) {
 }
 
 DEF_TEST(ImageFilterDilateThenBlurBounds, reporter) {
-    sk_sp<SkImageFilter> filter1(SkDilateImageFilter::Create(2, 2));
+    sk_sp<SkImageFilter> filter1(SkDilateImageFilter::Make(2, 2, nullptr));
     sk_sp<SkImageFilter> filter2(make_drop_shadow(std::move(filter1)));
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);

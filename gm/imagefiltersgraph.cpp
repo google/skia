@@ -136,7 +136,7 @@ protected:
             sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorRED,
                                                                   SkXfermode::kSrcIn_Mode));
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(4.0f, 4.0f, std::move(bitmapSource)));
-            sk_sp<SkImageFilter> erode(SkErodeImageFilter::Create(4, 4, blur.get()));
+            sk_sp<SkImageFilter> erode(SkErodeImageFilter::Make(4, 4, blur));
             sk_sp<SkImageFilter> color(SkColorFilterImageFilter::Create(cf.get(), erode.get()));
             sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(blur, color));
 
@@ -146,7 +146,7 @@ protected:
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
-            sk_sp<SkImageFilter> morph(SkDilateImageFilter::Create(5, 5));
+            sk_sp<SkImageFilter> morph(SkDilateImageFilter::Make(5, 5, nullptr));
 
             SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
                                     0, SK_Scalar1, 0, 0, 0,
@@ -199,7 +199,7 @@ protected:
             // This tests that a filter using asFragmentProcessor (matrix
             // convolution) correctly handles a non-zero source offset
             // (supplied by the dilate).
-            SkAutoTUnref<SkImageFilter> dilate(SkDilateImageFilter::Create(5, 5));
+            sk_sp<SkImageFilter> dilate(SkDilateImageFilter::Make(5, 5, nullptr));
 
             SkScalar kernel[9] = {
                 SkIntToScalar(-1), SkIntToScalar( -1 ), SkIntToScalar(-1),
@@ -211,7 +211,7 @@ protected:
             SkIPoint kernelOffset = SkIPoint::Make(1, 1);
             auto tileMode = SkMatrixConvolutionImageFilter::kClamp_TileMode;
             bool convolveAlpha = false;
-            SkAutoTUnref<SkImageFilter> convolve(
+            sk_sp<SkImageFilter> convolve(
                 SkMatrixConvolutionImageFilter::Create(kernelSize,
                                                        kernel,
                                                        gain,
@@ -219,10 +219,10 @@ protected:
                                                        kernelOffset,
                                                        tileMode,
                                                        convolveAlpha,
-                                                       dilate));
+                                                       dilate.get()));
 
             SkPaint paint;
-            paint.setImageFilter(convolve);
+            paint.setImageFilter(std::move(convolve));
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
@@ -234,11 +234,15 @@ protected:
                                                                SkIntToScalar(80), SkIntToScalar(80)));
             SkImageFilter::CropRect innerRect(SkRect::MakeXYWH(SkIntToScalar(20), SkIntToScalar(20),
                                                                SkIntToScalar(60), SkIntToScalar(60)));
-            SkAutoTUnref<SkImageFilter> color1(SkColorFilterImageFilter::Create(cf1.get(), nullptr, &outerRect));
-            SkAutoTUnref<SkImageFilter> color2(SkColorFilterImageFilter::Create(cf2.get(), color1, &innerRect));
+            sk_sp<SkImageFilter> color1(SkColorFilterImageFilter::Create(cf1.get(),
+                                                                         nullptr,
+                                                                         &outerRect));
+            sk_sp<SkImageFilter> color2(SkColorFilterImageFilter::Create(cf2.get(),
+                                                                         color1.get(),
+                                                                         &innerRect));
 
             SkPaint paint;
-            paint.setImageFilter(color2);
+            paint.setImageFilter(std::move(color2));
             paint.setColor(SK_ColorRED);
             canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), paint);
             canvas->translate(SkIntToScalar(100), 0);

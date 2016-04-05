@@ -705,20 +705,17 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                                                       nullptr));
         break;
     }
-    case MORPHOLOGY: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-
+    case MORPHOLOGY:
         if (R(2) == 1) {
-            filter = sk_sp<SkImageFilter>(SkDilateImageFilter::Create(R(static_cast<float>(kBitmapSize)),
-                                                R(static_cast<float>(kBitmapSize)),
-                                                subFilter.get()));
+            filter = SkDilateImageFilter::Make(R(static_cast<float>(kBitmapSize)),
+                                               R(static_cast<float>(kBitmapSize)),
+                                               make_image_filter());
         } else {
-            filter = sk_sp<SkImageFilter>(SkErodeImageFilter::Create(R(static_cast<float>(kBitmapSize)),
-                                                R(static_cast<float>(kBitmapSize)),
-                                                subFilter.get()));
+            filter = SkErodeImageFilter::Make(R(static_cast<float>(kBitmapSize)),
+                                              R(static_cast<float>(kBitmapSize)),
+                                              make_image_filter());
         }
         break;
-    }
     case BITMAP: {
         sk_sp<SkImage> image(SkImage::MakeFromBitmap(make_bitmap()));
         if (R(2) == 1) {
