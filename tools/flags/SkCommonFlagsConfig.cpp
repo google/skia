@@ -26,9 +26,9 @@ static const char defaultConfigs[] =
     ;
 
 static const char configHelp[] =
-    "Options: 565 8888 debug gpu gl gpudebug gpudft gpunull "
-    "msaa16 msaa4 glmsaa4 gpuf16 gpusrgb glsrgb nonrendering null nullgpu "
-    "nvpr16 nvpr4 nvprdit16 nvprdit4 glnvpr4 glnvprdit4 pdf skp svg xps"
+    "Options: 565 8888 debug gpu gpudebug gpudft gpunull "
+    "msaa16 msaa4 gpuf16 gpusrgb nonrendering null nullgpu "
+    "nvpr16 nvpr4 nvprdit16 nvprdit4 pdf skp svg xps"
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     " angle"
@@ -87,19 +87,14 @@ static const char configExtendedHelp[] =
     "\n"
     "Predefined configs:\n\n"
     "\tgpu       \t= gpu()\n"
-    "\tgl        \t= gpu(api=gl)\n"
     "\tmsaa4     \t= gpu(samples=4)\n"
-    "\tglmsaa4   \t= gpu(api=gl,samples=4)\n"
     "\tmsaa16    \t= gpu(samples=16)\n"
     "\tnvpr4     \t= gpu(nvpr=true,samples=4)\n"
-    "\tglnvpr4   \t= gpu(api=gl,nvpr=true,samples=4)\n"
     "\tnvpr16    \t= gpu(nvpr=true,samples=16)\n"
     "\tnvprdit4  \t= gpu(nvpr=true,samples=4,dit=true)\n"
-    "\tglnvprdit4\t= gpu(api=gl,nvpr=true,samples=4,dit=true)\n"
     "\tnvprdit16 \t= gpu(nvpr=true,samples=16,dit=true)\n"
     "\tgpuf16    \t= gpu(color=f16)\n"
     "\tgpusrgb   \t= gpu(color=srgb)\n"
-    "\tglsrgb    \t= gpu(api=gl,color=srgb)\n"
     "\tgpudft    \t= gpu(dit=true)\n"
     "\tgpudebug  \t= gpu(api=debug)\n"
     "\tgpunull   \t= gpu(api=null)\n"
@@ -129,19 +124,14 @@ static const struct {
 } gPredefinedConfigs[] = {
 #if SK_SUPPORT_GPU
     { "gpu",        "gpu", "" },
-    { "gl",         "gpu", "api=gl" },
     { "msaa4",      "gpu", "samples=4" },
-    { "glmsaa4",    "gpu", "api=gl,samples=4" },
     { "msaa16",     "gpu", "samples=16" },
     { "nvpr4",      "gpu", "nvpr=true,samples=4" },
-    { "glnvpr4",    "gpu", "api=gl,nvpr=true,samples=4" },
     { "nvpr16",     "gpu", "nvpr=true,samples=16" },
     { "nvprdit4",   "gpu", "nvpr=true,samples=4,dit=true" },
-    { "glnvprdit4", "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
     { "nvprdit16",  "gpu", "nvpr=true,samples=16,dit=true" },
     { "gpuf16",     "gpu", "color=f16" },
     { "gpusrgb",    "gpu", "color=srgb" },
-    { "glsrgb",     "gpu", "api=gl,color=srgb" },
     { "gpudft",     "gpu", "dit=true" },
     { "gpudebug",   "gpu", "api=debug" },
     { "gpunull",    "gpu", "api=null" },

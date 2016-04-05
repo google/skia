@@ -58,16 +58,10 @@ DEF_TEST(ParseConfigs_OutParam, reporter) {
     ParseConfigs(config1, &configs);
     REPORTER_ASSERT(reporter, configs.count() == 1);
     REPORTER_ASSERT(reporter, configs[0]->getTag().equals("gpu"));
-
     SkCommandLineFlags::StringArray config2 = make_string_array({"8888"});
     ParseConfigs(config2, &configs);
     REPORTER_ASSERT(reporter, configs.count() == 1);
     REPORTER_ASSERT(reporter, configs[0]->getTag().equals("8888"));
-
-    SkCommandLineFlags::StringArray config3 = make_string_array({"gl"});
-    ParseConfigs(config3, &configs);
-    REPORTER_ASSERT(reporter, configs.count() == 1);
-    REPORTER_ASSERT(reporter, configs[0]->getTag().equals("gl"));
 }
 
 DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
@@ -77,7 +71,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
         "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf",
         "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
-        "gpuf16", "gpusrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4"
+        "gpuf16", "gpusrgb"
     });
 
     SkCommandLineConfigArray configs;
@@ -147,20 +141,6 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 #else
     REPORTER_ASSERT(reporter, !configs[23]->asConfigGpu());
 #endif
-    REPORTER_ASSERT(reporter, configs[27]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[28]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[28]->asConfigGpu()->getSamples() == 4);
-    REPORTER_ASSERT(reporter, configs[28]->asConfigGpu()->getUseNVPR());
-    REPORTER_ASSERT(reporter, configs[29]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getSamples() == 4);
-    REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getUseNVPR());
-    REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorType()  == kN32_SkColorType);
-    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getProfileType() ==
-                              kSRGB_SkColorProfileType);
-    REPORTER_ASSERT(reporter, configs[31]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[31]->asConfigGpu()->getSamples() == 4);
 #endif
 }
 
@@ -172,8 +152,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
         "gpu(api=mesa,samples=77)",
         "gpu(dit=true,api=commandbuffer)",
         "gpu()",
-        "gpu(api=gles)",
-        "gpu(api=gl)"
+        "gpu(api=gles)"
     });
 
     SkCommandLineConfigArray configs;
@@ -224,11 +203,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     REPORTER_ASSERT(reporter, !configs[6]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[6]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[6]->asConfigGpu()->getSamples() == 0);
-    REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGL_GLContextType);
-    REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseNVPR());
-    REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getSamples() == 0);
+
 #endif
 }
 

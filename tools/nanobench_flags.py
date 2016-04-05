@@ -49,13 +49,7 @@ def get_args(bot):
     if ('GalaxyS4'    not in bot and
         'NexusPlayer' not in bot):
       if 'Android' in bot:
-        # The TegraX1 has a regular OpenGL implementation. We bench that instead
-        # of ES.
-        if 'TegraX1' in bot:
-          config.remove('gpu')
-          config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
-        else:
-          config.extend(['msaa4', 'nvpr4', 'nvprdit4'])
+        config.extend(['msaa4', 'nvpr4', 'nvprdit4'])
       else:
         config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
     args.append('--config')
@@ -156,7 +150,6 @@ def self_test():
     'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot',
-    'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release',
   ]
 
   cov = coverage.coverage()
