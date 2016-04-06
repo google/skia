@@ -96,15 +96,15 @@ protected:
                                                                       &bigRect));
 
             Draw(canvas, checkerboard, rect,
-                 sk_sp<SkImageFilter>(SkDropShadowImageFilter::Create(
+                 SkDropShadowImageFilter::Make(
                                     SkIntToScalar(10),
                                     SkIntToScalar(10),
                                     SkIntToScalar(3),
                                     SkIntToScalar(3),
                                     SK_ColorBLUE,
                                     SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-                                    noopCropped.get(),
-                                    &bigRect)));
+                                    noopCropped,
+                                    &bigRect));
 
             Draw(canvas, checkerboard, rect,
                  sk_sp<SkImageFilter>(SkDisplacementMapEffect::Create(

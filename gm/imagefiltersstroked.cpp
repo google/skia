@@ -59,8 +59,9 @@ protected:
 
         sk_sp<SkImageFilter> filters[] = {
             SkBlurImageFilter::Make(5, 5, nullptr),
-            sk_sp<SkImageFilter>(SkDropShadowImageFilter::Create(10, 10, 3, 3, SK_ColorGREEN,
-                            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode)),
+            SkDropShadowImageFilter::Make(10, 10, 3, 3, SK_ColorGREEN,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
+                nullptr),
             SkOffsetImageFilter::Make(-16, 32, nullptr),
             SkImageFilter::MakeMatrixFilter(resizeMatrix, kNone_SkFilterQuality, nullptr),
         };

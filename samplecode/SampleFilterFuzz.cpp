@@ -683,19 +683,16 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         filter = SkPaintImageFilter::Make(paint, &cropR);
         break;
     }
-    case DROP_SHADOW: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-
-        filter = sk_sp<SkImageFilter>(SkDropShadowImageFilter::Create(make_scalar(),
-                                                                      make_scalar(),
-                                                                      make_scalar(true),
-                                                                      make_scalar(true),
-                                                                      make_color(),
-                                                                      make_shadow_mode(),
-                                                                      subFilter.get(),
-                                                                      nullptr));
+    case DROP_SHADOW:
+        filter = SkDropShadowImageFilter::Make(make_scalar(),
+                                               make_scalar(),
+                                               make_scalar(true),
+                                               make_scalar(true),
+                                               make_color(),
+                                               make_shadow_mode(),
+                                               make_image_filter(),
+                                               nullptr);
         break;
-    }
     case MORPHOLOGY:
         if (R(2) == 1) {
             filter = SkDilateImageFilter::Make(R(static_cast<float>(kBitmapSize)),

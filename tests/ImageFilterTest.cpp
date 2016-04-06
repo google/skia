@@ -181,10 +181,10 @@ public:
                                                         SK_Scalar1,
                                                         input,
                                                         cropRect).release());
-        this->addFilter("drop shadow", SkDropShadowImageFilter::Create(
+        this->addFilter("drop shadow", SkDropShadowImageFilter::Make(
                   SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN,
                   SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-                  input.get(), cropRect));
+                  input, cropRect).release());
         this->addFilter("diffuse lighting", SkLightingImageFilter::CreatePointLitDiffuse(
                   location, SK_ColorGREEN, 0, 0, input.get(), cropRect));
         this->addFilter("specular lighting",
@@ -851,11 +851,11 @@ static sk_sp<SkImageFilter> make_blur(sk_sp<SkImageFilter> input) {
 }
 
 static sk_sp<SkImageFilter> make_drop_shadow(sk_sp<SkImageFilter> input) {
-    return sk_sp<SkImageFilter>(SkDropShadowImageFilter::Create(
+    return SkDropShadowImageFilter::Make(
         SkIntToScalar(100), SkIntToScalar(100),
         SkIntToScalar(10), SkIntToScalar(10),
         SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-        input.get(), nullptr));
+        std::move(input));
 }
 
 DEF_TEST(ImageFilterBlurThenShadowBounds, reporter) {

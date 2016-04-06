@@ -202,9 +202,10 @@ protected:
             FailImageFilter::Make(),
             SkColorFilterImageFilter::Make(std::move(cf), nullptr),
             SkBlurImageFilter::Make(12.0f, 0.0f, nullptr),
-            sk_sp<SkImageFilter>(SkDropShadowImageFilter::Create(
+            SkDropShadowImageFilter::Make(
                                     10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                                    SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode)),
+                                    SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
+                                    nullptr),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));

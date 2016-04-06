@@ -209,8 +209,10 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     // We draw a rectangle with a long drop shadow.  We used to not update the clip
     // bounds based on SaveLayer paints, so the drop shadow could be cut off.
     SkPaint paint;
-    paint.setImageFilter(SkDropShadowImageFilter::Create(20, 0, 0, 0, SK_ColorBLACK,
-                         SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode))->unref();
+    paint.setImageFilter(SkDropShadowImageFilter::Make(
+                                 20, 0, 0, 0, SK_ColorBLACK,
+                                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
+                                 nullptr));
 
     recorder.saveLayer(nullptr, &paint);
         recorder.clipRect(SkRect::MakeWH(20, 40));

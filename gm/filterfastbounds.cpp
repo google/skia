@@ -122,22 +122,21 @@ static void create_paints(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> source
         static const SkDropShadowImageFilter::ShadowMode kBoth =
                     SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode;
 
-        sk_sp<SkImageFilter> dsif(
-            SkDropShadowImageFilter::Create(10.0f, 10.0f,
-                                            3.0f, 3.0f,
-                                            SK_ColorRED, kBoth,
-                                            source.get(), nullptr));
+        sk_sp<SkImageFilter> dsif(SkDropShadowImageFilter::Make(10.0f, 10.0f,
+                                                                3.0f, 3.0f,
+                                                                SK_ColorRED, kBoth,
+                                                                source));
 
         add_paint(paints, std::move(dsif));
     }
 
     {
         sk_sp<SkImageFilter> dsif(
-            SkDropShadowImageFilter::Create(27.0f, 27.0f,
+            SkDropShadowImageFilter::Make(27.0f, 27.0f,
                                             3.0f, 3.0f,
                                             SK_ColorRED,
                                             SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode,
-                                            source.get(), nullptr));
+                                            source));
 
         add_paint(paints, std::move(dsif));
     }

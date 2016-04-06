@@ -65,17 +65,18 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImageFilter> gradient(SkImageSource::Make(fGradientCircle));
         sk_sp<SkImageFilter> checkerboard(SkImageSource::Make(fCheckerboard));
-        SkImageFilter* filters[] = {
-            SkBlurImageFilter::Make(12, 0, nullptr).release(),
-            SkDropShadowImageFilter::Create(0, 15, 8, 0, SK_ColorGREEN,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
-            SkDisplacementMapEffect::Create(SkDisplacementMapEffect::kR_ChannelSelectorType,
+        sk_sp<SkImageFilter> filters[] = {
+            SkBlurImageFilter::Make(12, 0, nullptr),
+            SkDropShadowImageFilter::Make(0, 15, 8, 0, SK_ColorGREEN,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
+            sk_sp<SkImageFilter>(SkDisplacementMapEffect::Create(
+                                            SkDisplacementMapEffect::kR_ChannelSelectorType,
                                             SkDisplacementMapEffect::kR_ChannelSelectorType,
                                             12,
                                             gradient.get(),
-                                            checkerboard.get()),
-            SkDilateImageFilter::Make(2, 2, checkerboard).release(),
-            SkErodeImageFilter::Make(2, 2, checkerboard).release(),
+                                            checkerboard.get())),
+            SkDilateImageFilter::Make(2, 2, checkerboard),
+            SkErodeImageFilter::Make(2, 2, checkerboard),
         };
 
         const SkScalar margin = SkIntToScalar(20);
@@ -105,10 +106,6 @@ protected:
             }
             canvas->restore();
             canvas->translate(0, size + margin);
-        }
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
-            SkSafeUnref(filters[i]);
         }
     }
 
