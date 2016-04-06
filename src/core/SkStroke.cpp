@@ -85,6 +85,7 @@ struct SkQuadConstruct {    // The state of the quad stroke under construction.
     SkScalar fEndT;         //              "
     bool fStartSet;         // state to share common points across structs
     bool fEndSet;           //                     "
+    bool fOppositeTangents; // set if coincident tangents have opposite directions
 
     // return false if start and end are too close to have a unique middle
     bool init(SkScalar start, SkScalar end) {
@@ -861,8 +862,10 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
      */
     SkScalar denom = aLen.cross(bLen);
     if (denom == 0 || !SkScalarIsFinite(denom)) {
+        quadPts->fOppositeTangents = aLen.dot(bLen) < 0;
         return STROKER_RESULT(kDegenerate_ResultType, depth, quadPts, "denom == 0");
     }
+    quadPts->fOppositeTangents = false;
     SkVector ab0 = start - end;
     SkScalar numerA = bLen.cross(ab0);
     SkScalar numerB = aLen.cross(ab0);
@@ -893,6 +896,7 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
         return STROKER_RESULT(kQuad_ResultType, depth, quadPts,
                 "(numerA=%g >= 0) != (numerB=%g >= 0)", numerA, numerB);
     }
+    quadPts->fOppositeTangents = aLen.dot(bLen) < 0;
     // if the lines are parallel, straight line is good enough
     return STROKER_RESULT(kDegenerate_ResultType, depth, quadPts,
             "SkScalarNearlyZero(denom=%g)", denom);
@@ -1116,8 +1120,10 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             return true;
         }
         if (kDegenerate_ResultType == resultType) {
-            addDegenerateLine(quadPts);
-            return true;
+            if (!quadPts->fOppositeTangents) {
+              addDegenerateLine(quadPts);
+              return true;
+            }
         }
         if (kNormalError_ResultType == resultType) {
             return false;
