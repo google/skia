@@ -35,7 +35,7 @@ function default_toolchain() {
   TOOLCHAINS=${SCRIPT_DIR}/../toolchains
 
   ANDROID_ARCH=${ANDROID_ARCH-arm}
-  NDK=r11b
+  NDK=r11c
 
   if [[ $ANDROID_ARCH == *64* ]]; then
       API=21  # Android 5.0
