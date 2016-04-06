@@ -8,6 +8,7 @@
 #include "SkMipMap.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkHalf.h"
 #include "SkMath.h"
 #include "SkNx.h"
 #include "SkTypes.h"
@@ -70,8 +71,34 @@ struct ColorTypeFilter_8 {
     }
 };
 
+struct ColorTypeFilter_F16 {
+    typedef uint64_t Type; // SkHalf x4
+    static Sk4f Expand(uint64_t x) {
+        return SkHalfToFloat_01(x);
+    }
+    static uint64_t Compact(const Sk4f& x) {
+        return SkFloatToHalf_01(x);
+    }
+};
+
 template <typename T> T add_121(const T& a, const T& b, const T& c) {
     return a + b + b + c;
+}
+
+template <typename T> T shift_right(const T& x, int bits) {
+    return x >> bits;
+}
+
+Sk4f shift_right(const Sk4f& x, int bits) {
+    return x * (1.0f / (1 << bits));
+}
+
+template <typename T> T shift_left(const T& x, int bits) {
+    return x << bits;
+}
+
+Sk4f shift_left(const Sk4f& x, int bits) {
+    return x * (1 << bits);
 }
 
 //
@@ -98,7 +125,7 @@ template <typename F> void downsample_1_2(void* dst, const void* src, size_t src
         auto c10 = F::Expand(p1[0]);
 
         auto c = c00 + c10;
-        d[i] = F::Compact(c >> 1);
+        d[i] = F::Compact(shift_right(c, 1));
         p0 += 2;
         p1 += 2;
     }
@@ -117,7 +144,7 @@ template <typename F> void downsample_1_3(void* dst, const void* src, size_t src
         auto c20 = F::Expand(p2[0]);
 
         auto c = add_121(c00, c10, c20);
-        d[i] = F::Compact(c >> 2);
+        d[i] = F::Compact(shift_right(c, 2));
         p0 += 2;
         p1 += 2;
         p2 += 2;
@@ -134,7 +161,7 @@ template <typename F> void downsample_2_1(void* dst, const void* src, size_t src
         auto c01 = F::Expand(p0[1]);
 
         auto c = c00 + c01;
-        d[i] = F::Compact(c >> 1);
+        d[i] = F::Compact(shift_right(c, 1));
         p0 += 2;
     }
 }
@@ -152,7 +179,7 @@ template <typename F> void downsample_2_2(void* dst, const void* src, size_t src
         auto c11 = F::Expand(p1[1]);
 
         auto c = c00 + c10 + c01 + c11;
-        d[i] = F::Compact(c >> 2);
+        d[i] = F::Compact(shift_right(c, 2));
         p0 += 2;
         p1 += 2;
     }
@@ -174,7 +201,7 @@ template <typename F> void downsample_2_3(void* dst, const void* src, size_t src
         auto c21 = F::Expand(p2[1]);
 
         auto c = add_121(c00, c10, c20) + add_121(c01, c11, c21);
-        d[i] = F::Compact(c >> 3);
+        d[i] = F::Compact(shift_right(c, 3));
         p0 += 2;
         p1 += 2;
         p2 += 2;
@@ -193,7 +220,7 @@ template <typename F> void downsample_3_1(void* dst, const void* src, size_t src
              c02 = F::Expand(p0[2]);
 
         auto c = add_121(c00, c01, c02);
-        d[i] = F::Compact(c >> 2);
+        d[i] = F::Compact(shift_right(c, 2));
         p0 += 2;
     }
 }
@@ -215,7 +242,7 @@ template <typename F> void downsample_3_2(void* dst, const void* src, size_t src
              c12 = F::Expand(p1[2]);
 
         auto c = add_121(c00, c01, c02) + add_121(c10, c11, c12);
-        d[i] = F::Compact(c >> 3);
+        d[i] = F::Compact(shift_right(c, 3));
         p0 += 2;
         p1 += 2;
     }
@@ -242,8 +269,11 @@ template <typename F> void downsample_3_3(void* dst, const void* src, size_t src
         auto c21 = F::Expand(p2[1]);
              c22 = F::Expand(p2[2]);
 
-        auto c = add_121(c00, c01, c02) + (add_121(c10, c11, c12) << 1) + add_121(c20, c21, c22);
-        d[i] = F::Compact(c >> 4);
+        auto c =
+            add_121(c00, c01, c02) +
+            shift_left(add_121(c10, c11, c12), 1) +
+            add_121(c20, c21, c22);
+        d[i] = F::Compact(shift_right(c, 4));
         p0 += 2;
         p1 += 2;
         p2 += 2;
@@ -319,6 +349,16 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_1 = downsample_3_1<ColorTypeFilter_8>;
             proc_3_2 = downsample_3_2<ColorTypeFilter_8>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_8>;
+            break;
+        case kRGBA_F16_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_F16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_F16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_F16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_F16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_F16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_F16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_F16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_F16>;
             break;
         default:
             // TODO: We could build miplevels for kIndex8 if the levels were in 8888.
