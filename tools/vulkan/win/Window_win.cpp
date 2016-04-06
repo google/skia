@@ -11,6 +11,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
+#include "SkUtils.h"
 #include "VulkanTestContext_win.h"
 
 Window* Window::CreateNativeWindow(void* platformData) {
@@ -85,6 +86,71 @@ bool Window_win::init(HINSTANCE hInstance) {
     return true;
 }
 
+static Window::Key get_key(WPARAM vk) {
+    static const struct {
+        WPARAM      fVK;
+        Window::Key fKey;
+    } gPair[] = {
+        { VK_BACK, Window::kBack_Key },
+        { VK_CLEAR, Window::kBack_Key },
+        { VK_RETURN, Window::kOK_Key },
+        { VK_UP, Window::kUp_Key },
+        { VK_DOWN, Window::kDown_Key },
+        { VK_LEFT, Window::kLeft_Key },
+        { VK_RIGHT, Window::kRight_Key }
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
+        if (gPair[i].fVK == vk) {
+            return gPair[i].fKey;
+        }
+    }
+    return Window::kNONE_Key;
+}
+
+static uint32_t get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
+    uint32_t modifiers = 0;
+
+    switch (message) {
+        case WM_UNICHAR:
+        case WM_CHAR:
+            if (0 == (lParam & (1 << 30))) {
+                modifiers |= Window::kFirstPress_ModifierKey;
+            }
+            if (lParam & (1 << 29)) {
+                modifiers |= Window::kOption_ModifierKey;
+            }
+            break;
+
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+            if (0 == (lParam & (1 << 30))) {
+                modifiers |= Window::kFirstPress_ModifierKey;
+            }
+            if (lParam & (1 << 29)) {
+                modifiers |= Window::kOption_ModifierKey;
+            }
+            break;
+
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            if (lParam & (1 << 29)) {
+                modifiers |= Window::kOption_ModifierKey;
+            }
+            break;
+
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_MOUSEMOVE:
+            if (wParam & MK_CONTROL) {
+                modifiers |= Window::kControl_ModifierKey;
+            }
+            if (wParam & MK_SHIFT) {
+                modifiers |= Window::kShift_ModifierKey;
+            }
+    }
+
+    return modifiers;
+}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -93,66 +159,59 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     Window_win* window = (Window_win*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-    switch (message)
-    {
-    case WM_PAINT:
-        hdc = BeginPaint(hWnd, &ps);
-        window->onPaint();
-        EndPaint(hWnd, &ps);
-        break;
+    bool eventHandled = false;
 
-    case WM_CLOSE:
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
+    switch (message) {
+        case WM_PAINT:
+            hdc = BeginPaint(hWnd, &ps);
+            window->onPaint();
+            EndPaint(hWnd, &ps);
+            eventHandled = true;
+            break;
 
-    case WM_ACTIVATE:
-        // disable/enable rendering here, depending on wParam != WA_INACTIVE
-        break;
+        case WM_CLOSE:
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            eventHandled = true;
+            break;
 
-    case WM_SIZE:
-        window->onSize();
-        break;
+        case WM_ACTIVATE:
+            // disable/enable rendering here, depending on wParam != WA_INACTIVE
+            break;
 
-    case WM_KEYDOWN:
-    case WM_SYSKEYDOWN:
-        {
-            DWORD dwMask = (1 << 29);
-            bool bAltDown = ((lParam & dwMask) != 0);
-            UINT theChar = MapVirtualKey((UINT)wParam, 2);
-            // Handle Extended ASCII only
-            if (theChar < 256) {
-                return window->onKeyboard(theChar, true, bAltDown);
-            }
-        }
-        break;
+        case WM_SIZE:
+            window->onResize(LOWORD(lParam), HIWORD(lParam));
+            eventHandled = true;
+            break;
 
-    case WM_KEYUP:
-    case WM_SYSKEYUP:
-        {
-            DWORD dwMask = (1 << 29);
-            bool bAltDown = ((lParam & dwMask) != 0);
-            UINT theChar = MapVirtualKey((UINT)wParam, 2);
-            // Handle Extended ASCII only
-            if (theChar < 256) {
-                return window->onKeyboard(theChar, false, bAltDown);
-            }
-        }
-        break;
+        case WM_UNICHAR:
+            eventHandled = window->onChar((SkUnichar)wParam, 
+                                          get_modifiers(message, wParam, lParam));
+            break;
 
-    case WM_LBUTTONDOWN:
-    case WM_RBUTTONDOWN:
-    case WM_MBUTTONDOWN:
-    case WM_LBUTTONUP:
-    case WM_RBUTTONUP:
-    case WM_MBUTTONUP:
-        {
-            bool bLeftDown = ((wParam & MK_LBUTTON) != 0);
-            bool bRightDown = ((wParam & MK_RBUTTON) != 0);
-            bool bMiddleDown = ((wParam & MK_MBUTTON) != 0);
+        case WM_CHAR: {
+            const uint16_t* c = reinterpret_cast<uint16_t*>(&wParam);
+            eventHandled = window->onChar(SkUTF16_NextUnichar(&c), 
+                                          get_modifiers(message, wParam, lParam));
+        } break;
 
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+            eventHandled = window->onKey(get_key(wParam), Window::kDown_InputState, 
+                                         get_modifiers(message, wParam, lParam));
+            break;
+
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            eventHandled = window->onKey(get_key(wParam), Window::kUp_InputState,
+                                         get_modifiers(message, wParam, lParam));
+            break;
+
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP: {
             int xPos = GET_X_LPARAM(lParam);
             int yPos = GET_Y_LPARAM(lParam);
+
             //if (!gIsFullscreen)
             //{
             //    RECT rc = { 0, 0, 640, 480 };
@@ -161,25 +220,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //    yPos -= rc.top;
             //}
 
-            return window->onMouse(bLeftDown, bRightDown, bMiddleDown, false, false, 0, xPos, yPos);
-        }
-    break;
+            Window::InputState istate = ((wParam & MK_LBUTTON) != 0) ? Window::kDown_InputState
+                                                                     : Window::kUp_InputState;
 
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+            eventHandled = window->onMouse(xPos, yPos, istate, 
+                                            get_modifiers(message, wParam, lParam));
+        } break;
+
+        case WM_MOUSEMOVE: 
+            // only track if left button is down
+            if ((wParam & MK_LBUTTON) != 0) {
+                int xPos = GET_X_LPARAM(lParam);
+                int yPos = GET_Y_LPARAM(lParam);
+
+                //if (!gIsFullscreen)
+                //{
+                //    RECT rc = { 0, 0, 640, 480 };
+                //    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+                //    xPos -= rc.left;
+                //    yPos -= rc.top;
+                //}
+
+                eventHandled = window->onMouse(xPos, yPos, Window::kMove_InputState,
+                                               get_modifiers(message, wParam, lParam));
+            }
+            break;
+
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
     }
 
-    return 0;
-}
-
-bool Window_win::onKeyboard(UINT nChar, bool bKeyDown, bool bAltDown) {
-    return fKeyFunc(nChar, bKeyDown, fKeyUserData);
-}
-
-bool Window_win::onMouse(bool bLeftButtonDown, bool bRightButtonDown, bool bMiddleButtonDown,
-                         bool bSideButton1Down, bool bSideButton2Down, int nMouseWheelDelta,
-                         int xPos, int yPos) {
-    return fMouseFunc(xPos, yPos, bLeftButtonDown, fMouseUserData);
+    return eventHandled ? 0 : 1;
 }
 
 void Window_win::setTitle(const char* title) {

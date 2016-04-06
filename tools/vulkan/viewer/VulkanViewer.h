@@ -9,7 +9,6 @@
 #define VulkanViewer_DEFINED
 
 #include "../Application.h"
-#include "InputHandler.h"
 #include "../Window.h"
 #include "gm.h"
 
@@ -20,15 +19,13 @@ public:
     VulkanViewer(int argc, char** argv, void* platformData);
     ~VulkanViewer() override;
 
-    bool onKey(int key, bool keyDown);
-    bool onMouse(int x, int y, bool mouseDown);
+    bool onKey(Window::Key key, Window::InputState state, uint32_t modifiers);
     void onPaint(SkCanvas* canvas);
 
     void onIdle(float dt) override;
 
 private:
     Window*      fWindow;
-    InputHandler fInputHandler;
 
     const skiagm::GMRegistry* fGMs;
 };

@@ -42,8 +42,8 @@ public:
 
     bool isValid() { return SkToBool(fBackendContext.get()); }
 
-    void resize() { 
-        this->createSwapchain(0, 0); 
+    void resize(uint32_t w, uint32_t h) {
+        this->createSwapchain(w, h); 
     }
 
     GrBackendContext getBackendContext() { return (GrBackendContext)fBackendContext.get(); }

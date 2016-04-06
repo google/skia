@@ -79,8 +79,7 @@ void VulkanTestContext::initializeContext(void* platformData) {
         return;
     }
 
-    // get this info from somewhere?
-    if (!this->createSwapchain(1024, 768)) {
+    if (!this->createSwapchain(-1, -1)) {
         this->destroyContext();
         return;
     }
@@ -152,7 +151,7 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
         extent.height = height;
     }
 
-    // clamp width; to protect us from broken hints?
+    // clamp width; to protect us from broken hints
     if (extent.width < caps.minImageExtent.width) {
         extent.width = caps.minImageExtent.width;
     } else if (extent.width > caps.maxImageExtent.width) {

@@ -11,17 +11,24 @@
 #include "SkCanvas.h"
 #include "VulkanTestContext.h"
 
-static bool default_key_func(int key, bool down, void* userData) {
+static bool default_char_func(SkUnichar c, uint32_t modifiers, void* userData) {
     return false;
 }
 
-static bool default_mouse_func(int x, int y, bool down, void* userData) {
+static bool default_key_func(Window::Key key, Window::InputState state, uint32_t modifiers, 
+                             void* userData) {
+    return false;
+}
+
+static bool default_mouse_func(int x, int y, Window::InputState state, uint32_t modifiers, 
+                               void* userData) {
     return false;
 }
 
 static void default_paint_func(SkCanvas*, void* userData) {}
 
-Window::Window() : fKeyFunc(default_key_func)
+Window::Window() : fCharFunc(default_char_func)
+                 , fKeyFunc(default_key_func)
                  , fMouseFunc(default_mouse_func)
                  , fPaintFunc(default_paint_func) {
 }
@@ -29,6 +36,18 @@ Window::Window() : fKeyFunc(default_key_func)
 void Window::detach() {
     delete fTestContext;
     fTestContext = nullptr;
+}
+
+bool Window::onChar(SkUnichar c, uint32_t modifiers) {
+    return fCharFunc(c, modifiers, fCharUserData);
+}
+
+bool Window::onKey(Key key, InputState state, uint32_t modifiers) {
+    return fKeyFunc(key, state, modifiers, fKeyUserData);
+}
+
+bool Window::onMouse(int x, int y, InputState state, uint32_t modifiers) {
+    return fMouseFunc(x, y, state, modifiers, fMouseUserData);
 }
 
 void Window::onPaint() {
@@ -47,6 +66,6 @@ void Window::onPaint() {
 }
 
 
-void Window::onSize() {
-    fTestContext->resize();
+void Window::onResize(uint32_t w, uint32_t h) {
+    fTestContext->resize(w, h);
 }

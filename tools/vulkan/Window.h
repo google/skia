@@ -8,6 +8,8 @@
 #ifndef Window_DEFINED
 #define Window_DEFINED
 
+#include "SkTypes.h"
+
 class SkCanvas;
 class VulkanTestContext;
 
@@ -34,9 +36,70 @@ public:
     void detach();
 
     // input handling
-    typedef bool(*OnKeyFunc)(int key, bool down, void* userData);
-    typedef bool(*OnMouseFunc)(int x, int y, bool down, void* userData);
+    enum Key {
+        kNONE_Key,    //corresponds to android's UNKNOWN
+
+        kLeftSoftKey_Key,
+        kRightSoftKey_Key,
+
+        kHome_Key,    //!< the home key - added to match android
+        kBack_Key,    //!< (CLR)
+        kSend_Key,    //!< the green (talk) key
+        kEnd_Key,     //!< the red key
+
+        k0_Key,
+        k1_Key,
+        k2_Key,
+        k3_Key,
+        k4_Key,
+        k5_Key,
+        k6_Key,
+        k7_Key,
+        k8_Key,
+        k9_Key,
+        kStar_Key,    //!< the * key
+        kHash_Key,    //!< the # key
+
+        kUp_Key,
+        kDown_Key,
+        kLeft_Key,
+        kRight_Key,
+
+        kOK_Key,      //!< the center key
+
+        kVolUp_Key,   //!< volume up    - match android
+        kVolDown_Key, //!< volume down  - same
+        kPower_Key,   //!< power button - same
+        kCamera_Key,  //!< camera       - same
+
+        kLast_Key = kCamera_Key
+    };
+    static const int kKeyCount = kLast_Key + 1;
+
+    enum ModifierKeys {
+        kShift_ModifierKey = 1 << 0,
+        kControl_ModifierKey = 1 << 1,
+        kOption_ModifierKey = 1 << 2,   // same as ALT
+        kCommand_ModifierKey = 1 << 3,
+        kFirstPress_ModifierKey = 1 << 4,
+    };
+
+    enum InputState {
+        kDown_InputState,
+        kUp_InputState,
+        kMove_InputState   // only valid for mouse
+    };
+
+    // return value of 'true' means 'I have handled this event'
+    typedef bool(*OnCharFunc)(SkUnichar c, uint32_t modifiers, void* userData);
+    typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
+    typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
     typedef void(*OnPaintFunc)(SkCanvas*, void* userData);
+
+    void registerCharFunc(OnCharFunc func, void* userData) {
+        fCharFunc = func;
+        fCharUserData = userData;
+    }
 
     void registerKeyFunc(OnKeyFunc func, void* userData) {
         fKeyFunc = func;
@@ -53,12 +116,17 @@ public:
         fPaintUserData = userData;
     }
 
+    bool onChar(SkUnichar c, uint32_t modifiers);
+    bool onKey(Key key, InputState state, uint32_t modifiers);
+    bool onMouse(int x, int y, InputState state, uint32_t modifiers);
     void onPaint();
-    void onSize();
+    void onResize(uint32_t width, uint32_t height);
 
 protected:
     Window();
 
+    OnCharFunc   fCharFunc;
+    void*        fCharUserData;
     OnKeyFunc    fKeyFunc;
     void*        fKeyUserData;
     OnMouseFunc  fMouseFunc;

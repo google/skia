@@ -18,16 +18,11 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
     return new VulkanViewer(argc, argv, platformData);
 }
 
-static bool on_key_handler(int key, bool keyDown, void* userData) {
+static bool on_key_handler(Window::Key key, Window::InputState state, uint32_t modifiers,
+                           void* userData) {
     VulkanViewer* vv = reinterpret_cast<VulkanViewer*>(userData);
 
-    return vv->onKey(key, keyDown);
-}
-
-static bool on_mouse_handler(int x, int y, bool mouseDown, void* userData) {
-    VulkanViewer* vv = reinterpret_cast<VulkanViewer*>(userData);
-
-    return vv->onMouse(x, y, mouseDown);
+    return vv->onKey(key, state, modifiers);
 }
 
 static void on_paint_handler(SkCanvas* canvas, void* userData) {
@@ -44,7 +39,6 @@ VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData) :
 
     // register callbacks
     fWindow->registerKeyFunc(on_key_handler, this);
-    fWindow->registerMouseFunc(on_mouse_handler, this);
     fWindow->registerPaintFunc(on_paint_handler, this);
 
     fWindow->setTitle("VulkanViewer");
@@ -56,21 +50,12 @@ VulkanViewer::~VulkanViewer() {
     delete fWindow;
 }
 
-bool VulkanViewer::onKey(int key, bool keyDown) {
-    if (keyDown) {
-        fInputHandler.onKeyDown(key);
-    } else {
-        fInputHandler.onKeyUp(key);
-    }
-    return true;
-}
+bool VulkanViewer::onKey(Window::Key key, Window::InputState state, uint32_t modifiers) {
+    if (Window::kDown_InputState == state && (modifiers & Window::kFirstPress_ModifierKey) &&
+        key == Window::kRight_Key) {
+        fGMs = fGMs->next();
+    } 
 
-bool VulkanViewer::onMouse(int x, int y, bool mouseDown) {
-    if (mouseDown) {
-        fInputHandler.onMouseDown(x, y);
-    } else {
-        fInputHandler.onMouseUp();
-    }
     return true;
 }
 
@@ -85,10 +70,5 @@ void VulkanViewer::onPaint(SkCanvas* canvas) {
 }
 
 void VulkanViewer::onIdle(float dt) {
-    if (fInputHandler.isKeyPressed('l') || fInputHandler.isKeyPressed('L')) {
-        fGMs = fGMs->next();
-    }
     fWindow->onPaint();
-
-    fInputHandler.Update();
 }

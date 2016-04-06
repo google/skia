@@ -21,12 +21,6 @@ public:
     void setTitle(const char*) override;
     void show() override;
 
-    // event callbacks
-    bool onKeyboard(UINT nChar, bool bKeyDown, bool bAltDown);
-    bool onMouse(bool bLeftButtonDown, bool bRightButtonDown, bool bMiddleButtonDown,
-                 bool bSideButton1Down, bool bSideButton2Down, int nMouseWheelDelta,
-                 int xPos, int yPos);
-
     bool attach(BackEndTypes attachType, int msaaSampleCount, AttachmentInfo*) override;
 
 private:
