@@ -84,7 +84,8 @@ def get_args(bot):
     match.append('~desk_unicodetable')
   if 'GalaxyS4' in bot:
     match.append('~GLInstancedArraysBench')  # skia:4371
-
+  if 'Nexus5' in bot:
+    match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
   if 'iOS' in bot:
     match.append('~blurroundrect')
     match.append('~patch_grid')  # skia:2847
@@ -157,6 +158,7 @@ def self_test():
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot',
     'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Release',
+    'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Release',
   ]
 
   cov = coverage.coverage()
