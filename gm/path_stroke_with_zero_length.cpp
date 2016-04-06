@@ -91,7 +91,7 @@ protected:
                 if (indexMask & (1 << index)) {
                     canvas->drawPath(path, paint);
                 }
-                if (paint.getStrokeWidth() < 2) {
+                if (this->getMode() == skiagm::GM::kSample_Mode && paint.getStrokeWidth() < 2) {
                     drawFat(canvas, path, paint, index);
                 }
                 ++index;

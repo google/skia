@@ -168,13 +168,11 @@ def get_args(bot):
                'fontmgr_match',
                'fontmgr_iter',
                'lightingshader',
-               'path_stroke_with_zero_length',
                'verylargebitmap',              # Windows only.
                'verylarge_picture_image']:     # Windows only.
     blacklist.extend(['serialize-8888', 'gm', '_', test])
   # skia:4769
-  for test in ['drawfilter',
-               'path_stroke_with_zero_length']:
+  for test in ['drawfilter']:
     blacklist.extend([    'sp-8888', 'gm', '_', test])
     blacklist.extend([   'pic-8888', 'gm', '_', test])
     blacklist.extend(['2ndpic-8888', 'gm', '_', test])
