@@ -24,7 +24,7 @@ const char* kDebugLayerNames[] = {
     "VK_LAYER_LUNARG_mem_tracker",
     "VK_LAYER_LUNARG_draw_state",
     "VK_LAYER_LUNARG_swapchain",
-    "VK_LAYER_GOOGLE_unique_objects",
+    //"VK_LAYER_GOOGLE_unique_objects",
     // not included in standard_validation
     //"VK_LAYER_LUNARG_api_dump",
     //"VK_LAYER_LUNARG_vktrace",
@@ -68,6 +68,8 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         extensionFlags |= kEXT_debug_report_GrVkExtensionFlag;
     }
+#endif
+
     if (extensions.hasInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_surface_GrVkExtensionFlag;
@@ -91,7 +93,6 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         instanceExtensionNames.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_xlib_surface_GrVkExtensionFlag;
     }
-#endif
 #endif
 
     const VkInstanceCreateInfo instance_create = {
@@ -159,6 +160,10 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         }
     }
 #endif
+    if (extensions.hasDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
+        deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+        extensionFlags |= kKHR_swapchain_GrVkExtensionFlag;
+    }
     if (extensions.hasDeviceExtension("VK_NV_glsl_shader")) {
         deviceExtensionNames.push_back("VK_NV_glsl_shader");
         extensionFlags |= kNV_glsl_shader_GrVkExtensionFlag;

@@ -23,6 +23,9 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kSRGBA_8888_GrPixelConfig:
             *format = VK_FORMAT_R8G8B8A8_SRGB;
             break;
+        case kSBGRA_8888_GrPixelConfig:
+            *format = VK_FORMAT_B8G8R8A8_SRGB;
+            break;
         case kRGB_565_GrPixelConfig:
             *format = VK_FORMAT_R5G6B5_UNORM_PACK16;
             break;
@@ -30,7 +33,7 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             *format = VK_FORMAT_R4G4B4A4_UNORM_PACK16;
             break;
         case kIndex_8_GrPixelConfig:
-            // No current rad support for this config
+            // No current vulkan support for this config
             return false;
         case kAlpha_8_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
@@ -40,7 +43,7 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             *format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
             break;
         case kLATC_GrPixelConfig:
-            // No current rad support for this config
+            // No current vulkan support for this config
             return false;
         case kR11_EAC_GrPixelConfig:
             *format = VK_FORMAT_EAC_R11_UNORM_BLOCK;
@@ -56,6 +59,58 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             break;
         case kAlpha_half_GrPixelConfig:
             *format = VK_FORMAT_R16_SFLOAT;
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config) {
+    GrPixelConfig dontCare;
+    if (!config) {
+        config = &dontCare;
+    }
+
+    switch (format) {
+        case VK_FORMAT_R8G8B8A8_UNORM:
+            *config = kRGBA_8888_GrPixelConfig;
+            break;
+        case VK_FORMAT_B8G8R8A8_UNORM:
+            *config = kBGRA_8888_GrPixelConfig;
+            break;
+        case VK_FORMAT_R8G8B8A8_SRGB:
+            *config = kSRGBA_8888_GrPixelConfig;
+            break;
+        case VK_FORMAT_B8G8R8A8_SRGB:
+            *config = kSBGRA_8888_GrPixelConfig;
+            break;
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+            *config = kRGB_565_GrPixelConfig;
+            break;
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
+            *config = kRGBA_4444_GrPixelConfig;
+            break;
+        case VK_FORMAT_R8_UNORM:
+            *config = kAlpha_8_GrPixelConfig;
+            break;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            *config = kETC1_GrPixelConfig;
+            break;
+        case VK_FORMAT_EAC_R11_UNORM_BLOCK:
+            *config = kR11_EAC_GrPixelConfig;
+            break;
+        case VK_FORMAT_ASTC_12x12_UNORM_BLOCK:
+            *config = kASTC_12x12_GrPixelConfig;
+            break;
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            *config = kRGBA_float_GrPixelConfig;
+            break;
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+            *config = kRGBA_half_GrPixelConfig;
+            break;
+        case VK_FORMAT_R16_SFLOAT:
+            *config = kAlpha_half_GrPixelConfig;
             break;
         default:
             return false;

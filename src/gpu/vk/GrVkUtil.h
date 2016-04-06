@@ -30,6 +30,11 @@
  */
 bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format);
 
+/**
+* Returns the GrPixelConfig for the given vulkan texture format
+*/
+bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config);
+
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
 #endif
