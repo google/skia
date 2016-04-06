@@ -586,7 +586,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                                                      make_scalar(true)));
         break;
     case DOWN_SAMPLE:
-        filter = sk_sp<SkImageFilter>(SkDownSampleImageFilter::Create(make_scalar()));
+        filter = SkDownSampleImageFilter::Make(make_scalar(), make_image_filter());
         break;
     case XFERMODE:
         filter = SkXfermodeImageFilter::Make(SkXfermode::Make(make_xfermode()),

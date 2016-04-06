@@ -22,7 +22,7 @@
 #define FILTER_HEIGHT   SkIntToScalar(200)
 
 static sk_sp<SkImageFilter> make0() {
-    return sk_sp<SkImageFilter>(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
+    return SkDownSampleImageFilter::Make(SK_Scalar1 / 5, nullptr);
 }
 
 static sk_sp<SkImageFilter> make1() {
@@ -42,7 +42,7 @@ static sk_sp<SkImageFilter> make4() {
     sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Make(SkIntToScalar(16),
                                                          SkIntToScalar(16),
                                                          nullptr));
-    sk_sp<SkImageFilter> inner(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
+    sk_sp<SkImageFilter> inner(SkDownSampleImageFilter::Make(SK_Scalar1 / 5, nullptr));
     return SkComposeImageFilter::Make(std::move(outer), std::move(inner));
 }
 
@@ -50,7 +50,7 @@ static sk_sp<SkImageFilter> make5() {
     sk_sp<SkImageFilter> first(SkOffsetImageFilter::Make(SkIntToScalar(16),
                                                          SkIntToScalar(16),
                                                          nullptr));
-    sk_sp<SkImageFilter> second(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
+    sk_sp<SkImageFilter> second(SkDownSampleImageFilter::Make(SK_Scalar1 / 5, nullptr));
     return SkMergeImageFilter::Make(std::move(first), std::move(second));
 }
 
@@ -58,7 +58,7 @@ static sk_sp<SkImageFilter> make6() {
     sk_sp<SkImageFilter> outer(SkOffsetImageFilter::Make(SkIntToScalar(16),
                                                          SkIntToScalar(16),
                                                          nullptr));
-    sk_sp<SkImageFilter> inner(SkDownSampleImageFilter::Create(SK_Scalar1 / 5));
+    sk_sp<SkImageFilter> inner(SkDownSampleImageFilter::Make(SK_Scalar1 / 5, nullptr));
     sk_sp<SkImageFilter> compose(SkComposeImageFilter::Make(std::move(outer), std::move(inner)));
 
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(0x880000FF, SkXfermode::kSrcIn_Mode));

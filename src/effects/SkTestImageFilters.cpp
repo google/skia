@@ -82,7 +82,7 @@ sk_sp<SkSpecialImage> SkDownSampleImageFilter::onFilterImage(SkSpecialImage* sou
 
 sk_sp<SkFlattenable> SkDownSampleImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    return sk_sp<SkFlattenable>(Create(buffer.readScalar(), common.getInput(0).get()));
+    return Make(buffer.readScalar(), common.getInput(0));
 }
 
 void SkDownSampleImageFilter::flatten(SkWriteBuffer& buffer) const {
