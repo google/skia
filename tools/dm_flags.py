@@ -75,7 +75,7 @@ def get_args(bot):
   if 'TegraX1' in bot:
     configs = [x.replace('gpu', 'gl') for x in configs]
     configs = [x.replace('msaa', 'glmsaa') for x in configs]
-    
+
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
@@ -169,7 +169,6 @@ def get_args(bot):
                'fontmgr_match',
                'fontmgr_iter',
                'lightingshader',
-               'localmatriximagefilter',
                'path_stroke_with_zero_length',
                'textblobgeometrychange',
                'verylargebitmap',              # Windows only.

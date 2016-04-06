@@ -30,6 +30,7 @@
 #include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
 #include "SkLightingShader.h"
+#include "SkLocalMatrixImageFilter.h"
 #include "SkLumaColorFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
@@ -105,6 +106,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDropShadowImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkErodeImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageSource)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLocalMatrixImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPaintImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTileImageFilter)
