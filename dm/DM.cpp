@@ -1415,48 +1415,41 @@ int dm_main() {
 // TODO: currently many GPU tests are declared outside SK_SUPPORT_GPU guards.
 // Thus we export the empty RunWithGPUTestContexts when SK_SUPPORT_GPU=0.
 namespace skiatest {
-void RunWithGPUTestContexts(GrContextTestFn* test, GPUTestContexts testContexts,
+
+#if SK_SUPPORT_GPU
+bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return kOpenGL_GrBackend == GrContextFactory::ContextTypeBackend(type);
+}
+bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
+}
+bool IsNullGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return type == GrContextFactory::kNullGL_ContextType;
+}
+#else
+bool IsGLContextType(int) { return false; }
+bool IsRenderingGLContextType(int) { return false; }
+bool IsNullGLContextType(int) { return false; }
+#endif
+
+void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
                             Reporter* reporter, GrContextFactory* factory) {
 #if SK_SUPPORT_GPU
-    // Iterate over context types, except use "native" instead of explicitly trying OpenGL and
-    // OpenGL ES. Do not use GLES on desktop, since tests do not account for not fixing
-    // http://skbug.com/2809
-    GrContextFactory::ContextType contextTypes[] = {
-        GrContextFactory::kNativeGL_ContextType,
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-        GrContextFactory::kANGLE_ContextType,
-#endif
-        GrContextFactory::kANGLE_GL_ContextType,
-#endif
-#if SK_COMMAND_BUFFER
-        GrContextFactory::kCommandBuffer_ContextType,
-#endif
-#if SK_MESA
-        GrContextFactory::kMESA_ContextType,
-#endif
-        GrContextFactory::kNullGL_ContextType,
-        GrContextFactory::kDebugGL_ContextType,
-    };
-    // Should have named all the context types except one of GL or GLES.
-    static_assert(SK_ARRAY_COUNT(contextTypes) == GrContextFactory::kContextTypeCnt - 1,
-                  "Skipping unexpected ContextType for GPU tests");
 
-    for (auto& contextType : contextTypes) {
-        int contextSelector = kNone_GPUTestContexts;
-        if (GrContextFactory::IsRenderingContext(contextType)) {
-            contextSelector |= kAllRendering_GPUTestContexts;
-        } else if (contextType == GrContextFactory::kNativeGL_ContextType) {
-            contextSelector |= kNative_GPUTestContexts;
-        } else if (contextType == GrContextFactory::kNullGL_ContextType) {
-            contextSelector |= kNull_GPUTestContexts;
-        } else if (contextType == GrContextFactory::kDebugGL_ContextType) {
-            contextSelector |= kDebug_GPUTestContexts;
-        }
-        if ((testContexts & contextSelector) == 0) {
+    for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
+        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
+        ContextInfo ctxInfo = factory->getContextInfo(contextType);
+        if (!(*contextTypeFilter)(contextType)) {
             continue;
         }
-        ContextInfo ctxInfo = factory->getContextInfo(contextType);
+        // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on,
+        // desktop since tests do not account for not fixing http://skbug.com/2809
+        if (contextType == GrContextFactory::kGL_ContextType ||
+            contextType == GrContextFactory::kGLES_ContextType) {
+            if (contextType != GrContextFactory::kNativeGL_ContextType) {
+                continue;
+            }
+        }
         if (ctxInfo.fGrContext) {
             (*test)(reporter, ctxInfo);
         }

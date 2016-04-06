@@ -53,7 +53,7 @@ class TestStorageAllocator {
   bool m_allowAllocation;
 };
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CustomTexture, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(CustomTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.fGrContext;
     sk_gpu_test::GLTestContext* glContext = ctxInfo.fGLContext;
     static const int kWidth = 13;
@@ -90,7 +90,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CustomTexture, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, GrColorUnpackG(dest) == 255);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CustomTextureFailure, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(CustomTextureFailure, reporter, ctxInfo) {
     static const int kWidth = 13;
     static const int kHeight = 13;
 

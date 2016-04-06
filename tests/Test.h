@@ -77,22 +77,22 @@ typedef SkTRegistry<Test> TestRegistry;
         ...
     }
 */
-enum GPUTestContexts {
-    kNone_GPUTestContexts         = 0,
-    kNull_GPUTestContexts         = 1,
-    kDebug_GPUTestContexts        = 1 << 1,
-    kNative_GPUTestContexts       = 1 << 2,
-    kOther_GPUTestContexts        = 1 << 3, // Other than native, used only for below.
-    kAllRendering_GPUTestContexts = kNative_GPUTestContexts | kOther_GPUTestContexts,
-    kAll_GPUTestContexts          = kAllRendering_GPUTestContexts
-                                       | kNull_GPUTestContexts
-                                       | kDebug_GPUTestContexts
-};
+
+#if SK_SUPPORT_GPU
+using GrContextFactoryContextType = sk_gpu_test::GrContextFactory::ContextType;
+#else
+using GrContextFactoryContextType = int;
+#endif
 
 typedef void GrContextTestFn(Reporter*, const sk_gpu_test::ContextInfo&);
+typedef bool GrContextTypeFilterFn(GrContextFactoryContextType);
 
-void RunWithGPUTestContexts(GrContextTestFn* testFunction, GPUTestContexts contexts,
-                            Reporter* reporter, sk_gpu_test::GrContextFactory* factory);
+extern bool IsGLContextType(GrContextFactoryContextType);
+extern bool IsRenderingGLContextType(GrContextFactoryContextType);
+extern bool IsNullGLContextType(GrContextFactoryContextType);
+
+void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*,
+                            Reporter*, sk_gpu_test::GrContextFactory*);
 
 /** Timer provides wall-clock duration since its creation. */
 class Timer {
@@ -167,13 +167,12 @@ private:
     void test_##name(skiatest::Reporter* reporter,                                  \
                      const sk_gpu_test::ContextInfo& context_info)
 
-#define DEF_GPUTEST_FOR_ALL_CONTEXTS(name, reporter, context_info)                              \
-        DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kAll_GPUTestContexts, reporter, context_info)
-#define DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name, reporter, context_info)                        \
-        DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kAllRendering_GPUTestContexts, reporter,       \
-                                 context_info)
-#define DEF_GPUTEST_FOR_NULL_CONTEXT(name, reporter, context_info)                              \
-        DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kNull_GPUTestContexts, reporter, context_info)
+#define DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(name, reporter, context_info)                       \
+        DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsGLContextType, reporter, context_info)
+#define DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(name, reporter, context_info)                 \
+        DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsRenderingGLContextType, reporter, context_info)
+#define DEF_GPUTEST_FOR_NULLGL_CONTEXT(name, reporter, context_info)                        \
+        DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsNullGLContextType, reporter, context_info)
 
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                             \
     do {                                                                      \

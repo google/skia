@@ -203,7 +203,7 @@ static void test_texture_backed(skiatest::Reporter* reporter,
 }
 
 // Test out the SkSpecialImage::makeTextureImage entry point
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.fGrContext;
     SkBitmap bm = create_bm();
 
@@ -267,7 +267,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.fGrContext;
     SkBitmap bm = create_bm();
 

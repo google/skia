@@ -29,7 +29,7 @@ DEF_GPUTEST(TestGpuFactory, reporter, factory) {
 // This is an example of a GPU test that tests a property that should work for all GPU contexts.
 // Note: Some of the contexts might not produce a rendering output.
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContexts, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(TestGpuAllContexts, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.fGrContext);
 }
@@ -38,7 +38,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContexts, reporter, ctxInfo) {
 // This is an example of a GPU test that tests a property that should work for all GPU contexts that
 // produce a rendering output.
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.fGrContext);
 }
@@ -47,7 +47,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, ctxInfo) 
 // This is an example of a GPU test that tests a property that uses the null GPU context.  It should
 // be used if the test tests some behavior that is mocked with the null context.
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_NULL_CONTEXT(TestGpuNullContext, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_NULLGL_CONTEXT(TestGpuNullContext, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.fGrContext);
 }

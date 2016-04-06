@@ -82,7 +82,7 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 
 #if SK_SUPPORT_GPU
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fFlags  = kRenderTarget_GrSurfaceFlag;
@@ -96,7 +96,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
 }
 
 // test the more flexible factory
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu2, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SpecialSurface_Gpu2, reporter, ctxInfo) {
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;

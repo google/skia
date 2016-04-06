@@ -28,7 +28,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps);
 
-DEF_GPUTEST_FOR_NULL_CONTEXT(GrPorterDuff, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrPorterDuff, reporter, ctxInfo) {
     const GrCaps& caps = *ctxInfo.fGrContext->getGpu()->caps();
     if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
         SkFAIL("Null context does not support dual source blending.");

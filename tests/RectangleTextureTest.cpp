@@ -137,7 +137,7 @@ static void test_clear(skiatest::Reporter* reporter, GrContext* context,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.fGrContext;
     sk_gpu_test::GLTestContext* glContext = ctxInfo.fGLContext;
     static const int kWidth = 13;

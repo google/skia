@@ -187,7 +187,7 @@ static GrTexture* create_texture(GrContext* context) {
     return context->textureProvider()->createTexture(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
     SkAutoTUnref<GrTexture> srcTexture(create_texture(ctxInfo.fGrContext));
     if (!srcTexture) {
         return;
@@ -208,7 +208,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     test_image_backed(reporter, srcImage);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
 
     SkAutoTUnref<GrTexture> srcTexture(create_texture(ctxInfo.fGrContext));
     if (!srcTexture) {

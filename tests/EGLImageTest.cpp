@@ -81,7 +81,7 @@ static void test_copy_surface(skiatest::Reporter* reporter, GrContext* context,
     test_read_pixels(reporter, context, copy, expectedPixelValues);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     GrContext* context0 = ctxInfo.fGrContext;
     sk_gpu_test::GLTestContext* glCtx0 = ctxInfo.fGLContext;
 

@@ -80,6 +80,11 @@ public:
         }
     }
 
+    static GrBackend ContextTypeBackend(ContextType type) {
+        // Currently all the context types use the GL backed
+        return kOpenGL_GrBackend;
+    }
+
     static const char* ContextTypeName(ContextType type) {
         switch (type) {
             case kGL_ContextType:

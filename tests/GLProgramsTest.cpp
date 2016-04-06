@@ -446,6 +446,16 @@ static void test_glprograms_other_contexts(
     REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.fGrContext, maxStages));
 }
 
+static bool is_native_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {
+    return type == sk_gpu_test::GrContextFactory::kNativeGL_ContextType;
+}
+
+static bool is_other_rendering_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {
+    return !is_native_gl_context_type(type) &&
+           kOpenGL_GrBackend == sk_gpu_test::GrContextFactory::ContextTypeBackend(type) &&
+           sk_gpu_test::GrContextFactory::IsRenderingContext(type);
+}
+
 DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
     // Set a locale that would cause shader compilation to fail because of , as decimal separator.
     // skbug 3330
@@ -459,10 +469,10 @@ DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
     GrContextOptions opts;
     opts.fSuppressPrints = true;
     sk_gpu_test::GrContextFactory debugFactory(opts);
-    skiatest::RunWithGPUTestContexts(test_glprograms_native, skiatest::kNative_GPUTestContexts,
+    skiatest::RunWithGPUTestContexts(test_glprograms_native, &is_native_gl_context_type,
                                      reporter, &debugFactory);
     skiatest::RunWithGPUTestContexts(test_glprograms_other_contexts,
-                                     skiatest::kOther_GPUTestContexts, reporter, &debugFactory);
+                                     &is_other_rendering_gl_context_type, reporter, &debugFactory);
 }
 
 #endif
