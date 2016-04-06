@@ -85,9 +85,10 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
 // This version is slightly different from SkCodecPriv's version of conversion_possible. It
 // supports both byte orders for 8888.
 static bool webp_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
+    // FIXME: skbug.com/4895
+    // Currently, we ignore the SkColorProfileType on the SkImageInfo.  We
+    // will treat the encoded data as linear regardless of what the client
+    // requests.
 
     if (!valid_alpha(dst.alphaType(), src.alphaType())) {
         return false;
@@ -252,4 +253,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 }
 
 SkWebpCodec::SkWebpCodec(const SkImageInfo& info, SkStream* stream)
-    : INHERITED(info, stream) {}
+    // The spec says an unmarked image is sRGB, so we return that space here.
+    // TODO: Add support for parsing ICC profiles from webps.
+    : INHERITED(info, stream, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)) {}
