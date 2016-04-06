@@ -13,6 +13,7 @@
 #include "gl/GrGLTypes.h"
 #include "SkTArray.h"
 
+class GrGLBuffer;
 class GrGLGpu;
 
 /**
@@ -39,7 +40,7 @@ public:
      */
     void set(GrGLGpu*,
              int attribIndex,
-             GrGLuint vertexBufferID,
+             const GrGLBuffer* vertexBuffer,
              GrVertexAttribType type,
              GrGLsizei stride,
              GrGLvoid* offset);
@@ -57,16 +58,6 @@ public:
         }
     }
 
-    void notifyVertexBufferDelete(GrGLuint id) {
-        int count = fAttribArrayStates.count();
-        for (int i = 0; i < count; ++i) {
-            if (fAttribArrayStates[i].fAttribPointerIsValid &&
-                id == fAttribArrayStates[i].fVertexBufferID) {
-                fAttribArrayStates[i].invalidate();
-            }
-        }
-    }
-
     /**
      * The number of attrib arrays that this object is configured to track.
      */
@@ -79,13 +70,12 @@ private:
     struct AttribArrayState {
             void invalidate() {
                 fEnableIsValid = false;
-                fAttribPointerIsValid = false;
+                fVertexBufferUniqueID = SK_InvalidUniqueID;
             }
 
             bool                  fEnableIsValid;
-            bool                  fAttribPointerIsValid;
             bool                  fEnabled;
-            GrGLuint              fVertexBufferID;
+            uint32_t              fVertexBufferUniqueID;
             GrVertexAttribType    fType;
             GrGLsizei             fStride;
             GrGLvoid*             fOffset;
@@ -113,13 +103,7 @@ public:
      * This is a version of the above function that also binds an index buffer to the vertex
      * array object.
      */
-    GrGLAttribArrayState* bindWithIndexBuffer(GrGLGpu* gpu, GrGLuint indexBufferID);
-
-    void notifyIndexBufferDelete(GrGLuint bufferID);
-
-    void notifyVertexBufferDelete(GrGLuint id) {
-        fAttribArrays.notifyVertexBufferDelete(id);
-    }
+    GrGLAttribArrayState* bindWithIndexBuffer(GrGLGpu* gpu, const GrGLBuffer* indexBuffer);
 
     GrGLuint arrayID() const { return fID; }
 
@@ -128,8 +112,7 @@ public:
 private:
     GrGLuint                fID;
     GrGLAttribArrayState    fAttribArrays;
-    GrGLuint                fIndexBufferID;
-    bool                    fIndexBufferIDIsValid;
+    uint32_t                fIndexBufferUniqueID;
 };
 
 #endif

@@ -172,7 +172,7 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GrBuffer* GrVkGpu::onCreateBuffer(GrBufferType type, size_t size, GrAccessPattern accessPattern) {
+GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern accessPattern) {
     switch (type) {
         case kVertex_GrBufferType:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
@@ -1356,8 +1356,8 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
                         false);
 
     GrVkTransferBuffer* transferBuffer =
-        static_cast<GrVkTransferBuffer*>(this->createBuffer(kXferGpuToCpu_GrBufferType,
-                                                            rowBytes * height,
+        static_cast<GrVkTransferBuffer*>(this->createBuffer(rowBytes * height,
+                                                            kXferGpuToCpu_GrBufferType,
                                                             kStream_GrAccessPattern));
 
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();

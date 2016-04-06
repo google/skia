@@ -32,7 +32,7 @@ class GrSwizzle;
 #define PROGRAM_CACHE_STATS
 #endif
 
-class GrGLGpu : public GrGpu {
+class GrGLGpu final : public GrGpu {
 public:
     static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
                          GrContext* context);
@@ -73,31 +73,20 @@ public:
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
     void bindVertexArray(GrGLuint id) {
-        fHWGeometryState.setVertexArrayID(this, id);
-    }
-    void bindIndexBufferAndDefaultVertexArray(GrGLuint id) {
-        fHWGeometryState.setIndexBufferIDOnDefaultVertexArray(this, id);
-    }
-    void bindVertexBuffer(GrGLuint id) {
-        fHWGeometryState.setVertexBufferID(this, id);
+        fHWVertexArrayState.setVertexArrayID(this, id);
     }
 
     // These callbacks update state tracking when GL objects are deleted. They are called from
     // GrGLResource onRelease functions.
     void notifyVertexArrayDelete(GrGLuint id) {
-        fHWGeometryState.notifyVertexArrayDelete(id);
-    }
-    void notifyVertexBufferDelete(GrGLuint id) {
-        fHWGeometryState.notifyVertexBufferDelete(id);
-    }
-    void notifyIndexBufferDelete(GrGLuint id) {
-        fHWGeometryState.notifyIndexBufferDelete(id);
+        fHWVertexArrayState.notifyVertexArrayDelete(id);
     }
 
-    // id and type (GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.) of buffer to bind
-    void bindBuffer(GrGLuint id, GrGLenum type);
-
-    void releaseBuffer(GrGLuint id, GrGLenum type);
+    // Binds a buffer to the GL target corresponding to 'type', updates internal state tracking, and
+    // returns the GL target the buffer was bound to.
+    // When 'type' is kIndex_GrBufferType, this function will also implicitly bind the default VAO.
+    // If the caller wishes to bind an index buffer to a specific VAO, it can call glBind directly.
+    GrGLenum bindBuffer(GrBufferType type, const GrGLBuffer*);
 
     const GrGLContext* glContextForTesting() const override {
         return &this->glContext();
@@ -138,7 +127,7 @@ private:
                                          GrGpuResource::LifeCycle lifeCycle,
                                          const SkTArray<GrMipLevel>& texels) override;
 
-    GrBuffer* onCreateBuffer(GrBufferType, size_t size, GrAccessPattern) override;
+    GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern) override;
     GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
@@ -231,7 +220,7 @@ private:
 
     bool hasExtension(const char* ext) const { return fGLContext->hasExtension(ext); }
 
-    void copySurfaceAsDraw(GrSurface* dst,
+    bool copySurfaceAsDraw(GrSurface* dst,
                            GrSurface* src,
                            const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
@@ -244,8 +233,7 @@ private:
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
 
-    void stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform,
-                               GrGLuint arrayBuffer);
+    void stampPLSSetupRect(const SkRect& bounds);
 
     void setupPixelLocalStorage(const GrPipeline&, const GrPrimitiveProcessor&);
 
@@ -373,11 +361,9 @@ private:
 
     SkAutoTUnref<GrGLContext>  fGLContext;
 
-    void createCopyPrograms();
-    void createWireRectProgram();
-    void createUnitRectBuffer();
-
-    void createPLSSetupProgram();
+    bool createCopyProgram(int progIdx);
+    bool createWireRectProgram();
+    bool createPLSSetupProgram();
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -412,22 +398,19 @@ private:
     GrGLIRect                   fHWViewport;
 
     /**
-     * Tracks bound vertex and index buffers and vertex attrib array state.
+     * Tracks vertex attrib array state.
      */
-    class HWGeometryState {
+    class HWVertexArrayState {
     public:
-        HWGeometryState() { fVBOVertexArray = nullptr; this->invalidate(); }
+        HWVertexArrayState() : fCoreProfileVertexArray(nullptr) { this->invalidate(); }
 
-        ~HWGeometryState() { delete fVBOVertexArray; }
+        ~HWVertexArrayState() { delete fCoreProfileVertexArray; }
 
         void invalidate() {
             fBoundVertexArrayIDIsValid = false;
-            fBoundVertexBufferIDIsValid = false;
-            fDefaultVertexArrayBoundIndexBufferID = false;
-            fDefaultVertexArrayBoundIndexBufferIDIsValid = false;
             fDefaultVertexArrayAttribState.invalidate();
-            if (fVBOVertexArray) {
-                fVBOVertexArray->invalidateCachedState();
+            if (fCoreProfileVertexArray) {
+                fCoreProfileVertexArray->invalidateCachedState();
             }
         }
 
@@ -450,89 +433,41 @@ private:
             }
         }
 
-        void notifyVertexBufferDelete(GrGLuint id) {
-            if (fBoundVertexBufferIDIsValid && id == fBoundVertexBufferID) {
-                fBoundVertexBufferID = 0;
-            }
-            if (fVBOVertexArray) {
-                fVBOVertexArray->notifyVertexBufferDelete(id);
-            }
-            fDefaultVertexArrayAttribState.notifyVertexBufferDelete(id);
-        }
-
-        void notifyIndexBufferDelete(GrGLuint id) {
-            if (fDefaultVertexArrayBoundIndexBufferIDIsValid &&
-                id == fDefaultVertexArrayBoundIndexBufferID) {
-                fDefaultVertexArrayBoundIndexBufferID = 0;
-            }
-            if (fVBOVertexArray) {
-                fVBOVertexArray->notifyIndexBufferDelete(id);
-            }
-        }
-
-        void setVertexBufferID(GrGLGpu* gpu, GrGLuint id) {
-            if (!fBoundVertexBufferIDIsValid || id != fBoundVertexBufferID) {
-                GR_GL_CALL(gpu->glInterface(), BindBuffer(GR_GL_ARRAY_BUFFER, id));
-                fBoundVertexBufferIDIsValid = true;
-                fBoundVertexBufferID = id;
-            }
-        }
-
         /**
-         * Binds the default vertex array and binds the index buffer. This is used when binding
-         * an index buffer in order to update it.
+         * Binds the vertex array that should be used for internal draws, and returns its attrib
+         * state. This binds the default VAO (ID=zero) unless we are on a core profile, in which
+         * case we use a dummy array instead.
+         *
+         * If an index buffer is privided, it will be bound to the vertex array. Otherwise the
+         * index buffer binding will be left unchanged.
+         *
+         * The returned GrGLAttribArrayState should be used to set vertex attribute arrays.
          */
-        void setIndexBufferIDOnDefaultVertexArray(GrGLGpu* gpu, GrGLuint id) {
-            this->setVertexArrayID(gpu, 0);
-            if (!fDefaultVertexArrayBoundIndexBufferIDIsValid ||
-                id != fDefaultVertexArrayBoundIndexBufferID) {
-                GR_GL_CALL(gpu->glInterface(), BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, id));
-                fDefaultVertexArrayBoundIndexBufferIDIsValid = true;
-                fDefaultVertexArrayBoundIndexBufferID = id;
-            }
-        }
-
-        /**
-         * Binds the vertex array object that should be used to render from the vertex buffer.
-         * The vertex array is bound and its attrib array state object is returned. The vertex
-         * buffer is bound. The index buffer (if non-nullptr) is bound to the vertex array. The
-         * returned GrGLAttribArrayState should be used to set vertex attribute arrays.
-         */
-        GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGLGpu* gpu,
-                                                        const GrGLBuffer* vbuffer,
-                                                        const GrGLBuffer* ibuffer);
-
-        /** Variants of the above that takes GL buffer IDs. Note that 0 does not imply that a
-            buffer won't be bound. The "default buffer" will be bound, which is used for client-side
-            array rendering. */
-        GrGLAttribArrayState* bindArrayAndBufferToDraw(GrGLGpu* gpu, GrGLuint vbufferID);
-        GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGLGpu* gpu,
-                                                        GrGLuint vbufferID,
-                                                        GrGLuint ibufferID);
+        GrGLAttribArrayState* bindInternalVertexArray(GrGLGpu*, const GrGLBuffer* ibuff = nullptr);
 
     private:
-        GrGLAttribArrayState* internalBind(GrGLGpu* gpu, GrGLuint vbufferID, GrGLuint* ibufferID);
-
         GrGLuint                fBoundVertexArrayID;
-        GrGLuint                fBoundVertexBufferID;
         bool                    fBoundVertexArrayIDIsValid;
-        bool                    fBoundVertexBufferIDIsValid;
 
-        GrGLuint                fDefaultVertexArrayBoundIndexBufferID;
-        bool                    fDefaultVertexArrayBoundIndexBufferIDIsValid;
         // We return a non-const pointer to this from bindArrayAndBuffersToDraw when vertex array 0
         // is bound. However, this class is internal to GrGLGpu and this object never leaks out of
         // GrGLGpu.
         GrGLAttribArrayState    fDefaultVertexArrayAttribState;
 
-        // This is used when we're using a core profile and the vertices are in a VBO.
-        GrGLVertexArray*        fVBOVertexArray;
-    } fHWGeometryState;
+        // This is used when we're using a core profile.
+        GrGLVertexArray*        fCoreProfileVertexArray;
+    } fHWVertexArrayState;
 
-    GrGLuint    fHWBoundTextureBufferID;
-    GrGLuint    fHWBoundDrawIndirectBufferID;
-    bool        fHWBoundTextureBufferIDIsValid;
-    bool        fHWBoundDrawIndirectBufferIDIsValid;
+    struct {
+        GrGLenum   fGLTarget;
+        uint32_t   fBoundBufferUniqueID;
+        bool       fBufferZeroKnownBound;
+
+        void invalidate() {
+            fBoundBufferUniqueID = SK_InvalidUniqueID;
+            fBufferZeroKnownBound = false;
+        }
+    } fHWBufferState[kGrBufferTypeCount];
 
     struct {
         GrBlendEquation fEquation;
@@ -575,14 +510,14 @@ private:
         GrGLint     fTexCoordXformUniform;
         GrGLint     fPosXformUniform;
     }                           fCopyPrograms[3];
-    GrGLuint                    fCopyProgramArrayBuffer;
+    SkAutoTUnref<GrGLBuffer>    fCopyProgramArrayBuffer;
 
     struct {
         GrGLuint fProgram;
         GrGLint  fColorUniform;
         GrGLint  fRectUniform;
     }                           fWireRectProgram;
-    GrGLuint                    fWireRectArrayBuffer;
+    SkAutoTUnref<GrGLBuffer>    fWireRectArrayBuffer;
 
     static int TextureTargetToCopyProgramIdx(GrGLenum target) {
         switch (target) {
@@ -599,9 +534,9 @@ private:
     }
 
     struct {
-        GrGLuint    fProgram;
-        GrGLint     fPosXformUniform;
-        GrGLuint    fArrayBuffer;
+        GrGLuint                    fProgram;
+        GrGLint                     fPosXformUniform;
+        SkAutoTUnref<GrGLBuffer>    fArrayBuffer;
     } fPLSSetupProgram;
 
     bool fHWPLSEnabled;

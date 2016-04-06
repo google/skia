@@ -319,7 +319,7 @@ GrBuffer* GrBufferAllocPool::getBuffer(size_t size) {
 
     // Shouldn't have to use this flag (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    return rp->createBuffer(fBufferType, size, kDynamic_GrAccessPattern, kFlags);
+    return rp->createBuffer(size, fBufferType, kDynamic_GrAccessPattern, kFlags);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
