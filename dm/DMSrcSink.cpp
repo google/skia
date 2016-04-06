@@ -1450,6 +1450,7 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 struct DrawsAsSingletonPictures {
     SkCanvas* fCanvas;
     const SkDrawableList& fDrawables;
+    SkRect fBounds;
 
     template <typename T>
     void draw(const T& op, SkCanvas* canvas) {
@@ -1464,7 +1465,7 @@ struct DrawsAsSingletonPictures {
     template <typename T>
     SK_WHEN(T::kTags & SkRecords::kDraw_Tag, void) operator()(const T& op) {
         SkPictureRecorder rec;
-        this->draw(op, rec.beginRecording(SkRect::MakeLargest()));
+        this->draw(op, rec.beginRecording(fBounds));
         sk_sp<SkPicture> pic(rec.finishRecordingAsPicture());
         fCanvas->drawPicture(pic);
     }
@@ -1501,6 +1502,7 @@ Error ViaSingletonPictures::draw(
         DrawsAsSingletonPictures drawsAsSingletonPictures = {
             macroCanvas,
             drawables ? *drawables : empty,
+            SkRect::MakeWH((SkScalar)size.width(), (SkScalar)size.height()),
         };
         for (int i = 0; i < skr.count(); i++) {
             skr.visit(i, drawsAsSingletonPictures);

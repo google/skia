@@ -63,7 +63,7 @@ static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
     canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, right + 1, paint);
 }
 
-DEF_SIMPLE_GM(patch_primitive, canvas, 800, 800) {
+DEF_SIMPLE_GM(patch_primitive, canvas, 1500, 1100) {
         SkPaint paint;
 
         // The order of the colors and points is clockwise starting at upper-left corner.
