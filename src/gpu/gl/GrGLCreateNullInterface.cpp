@@ -47,7 +47,9 @@ private:
 // This class maintains a sparsely populated array of buffer pointers.
 class BufferManager {
 public:
-    BufferManager() : fFreeListHead(kFreeListEnd) {}
+    BufferManager() : fFreeListHead(kFreeListEnd) {
+        *fBuffers.append() = nullptr; // 0 is not a valid GL buffer id.
+    }
 
     ~BufferManager() {
         // nullptr out the entries that are really free list links rather than ptrs before deleting.
@@ -89,6 +91,7 @@ public:
     }
 
     void free(BufferObj* buffer) {
+        SkASSERT(buffer);
         SkASSERT(fBuffers.count() > 0);
 
         GrGLuint id = buffer->id();
@@ -201,8 +204,10 @@ public:
                 fCurrPixelUnpackBuffer = 0;
             }
 
-            BufferObj* buffer = fBufferManager.lookUp(ids[i]);
-            fBufferManager.free(buffer);
+            if (ids[i] > 0) {
+                BufferObj* buffer = fBufferManager.lookUp(ids[i]);
+                fBufferManager.free(buffer);
+            }
         }
     }
 
