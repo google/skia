@@ -18,8 +18,8 @@ public:
     static const int kUniformsPerBlock = 8;
 
     enum {
-        kSamplerDescSet = 0,
-        kUniformBufferDescSet = 1,
+        kUniformBufferDescSet = 0,
+        kSamplerDescSet = 1,
     };
     enum {
         kVertexBinding = 0,

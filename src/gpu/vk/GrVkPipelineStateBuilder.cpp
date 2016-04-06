@@ -170,7 +170,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
         UniformHandle uniHandle = fSamplerUniforms[i];
         GrVkUniformHandler::UniformInfo uniformInfo = fUniformHandler.getUniformInfo(uniHandle);
         SkASSERT(kSampler2D_GrSLType == uniformInfo.fVariable.getType());
-        SkASSERT(0 == uniformInfo.fSetNumber);
+        SkASSERT(GrVkUniformHandler::kSamplerDescSet == uniformInfo.fSetNumber);
         SkASSERT(uniformInfo.fBinding == i);
         dsSamplerBindings[i].binding = uniformInfo.fBinding;
         dsSamplerBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -203,12 +203,12 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
     memset(&dsUniBindings, 0, 2 * sizeof(VkDescriptorSetLayoutBinding));
     dsUniBindings[0].binding = GrVkUniformHandler::kVertexBinding;
     dsUniBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    dsUniBindings[0].descriptorCount = fUniformHandler.hasVertexUniforms() ? 1 : 0;
+    dsUniBindings[0].descriptorCount = 1;
     dsUniBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     dsUniBindings[0].pImmutableSamplers = nullptr;
     dsUniBindings[1].binding = GrVkUniformHandler::kFragBinding;
     dsUniBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    dsUniBindings[1].descriptorCount = fUniformHandler.hasFragmentUniforms() ? 1 : 0;
+    dsUniBindings[1].descriptorCount = 1;
     dsUniBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     dsUniBindings[1].pImmutableSamplers = nullptr;
 
