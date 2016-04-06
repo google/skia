@@ -157,7 +157,6 @@ def get_args(bot):
                'bleed_image',
                'bleed_alpha_image',
                'bleed_alpha_image_shader',
-               'blend',
                'c_gms',
                'colortype',
                'colortype_xfermodes',
@@ -175,8 +174,7 @@ def get_args(bot):
                'verylarge_picture_image']:     # Windows only.
     blacklist.extend(['serialize-8888', 'gm', '_', test])
   # skia:4769
-  for test in ['blend',
-               'drawfilter',
+  for test in ['drawfilter',
                'path_stroke_with_zero_length',
                'textblobgeometrychange']:
     blacklist.extend([    'sp-8888', 'gm', '_', test])

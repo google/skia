@@ -33,17 +33,4 @@ DEF_SIMPLE_GM(blend, canvas, 300, 100) {
             canvas->drawRect(SkRect::MakeXYWH(2,0,1,1), p);
         canvas->restore();
     canvas->restore();
-
-    // Print out the colors in each block (if we're looking at 8888 raster).
-    if (canvas->imageInfo().colorType() == kN32_SkColorType) {
-        SkPixmap pmap;
-        if (const SkPMColor* px = canvas->peekPixels(&pmap) ? pmap.addr32() : nullptr) {
-            p.setColor(SK_ColorWHITE);
-            for (int i = 0; i < 3; i++) {
-                SkPMColor c = px[i * 100];
-                SkString text = SkStringPrintf("0x%08x", c);
-                canvas->drawText(text.c_str(), text.size(), i * 100.0f + 20.0f, 50.0f, p);
-            }
-        }
-    }
 }
