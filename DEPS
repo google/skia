@@ -21,7 +21,7 @@ deps = {
   "third_party/externals/libpng"  : "https://skia.googlesource.com/third_party/libpng.git@5765a2224946b953ec6702bd01205af475f8c80a",
   "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@ab10e256df4f684260ca239905b1cec727181f6c",
 
-  "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@1754202ed3e25b98179a4f377f0bdd605d9a157a",
+  "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@e95f96bb9d29978211250ee764ba78731ad316df",
   "third_party/externals/piex"    : "https://android.googlesource.com/platform/external/piex.git@883a1e5419990f51b8e928969e9c5a09869bce0e",
 
   "third_party/externals/libjpeg-turbo"             : "https://skia.googlesource.com/third_party/libjpeg-turbo.git@b38b934d246fca482eb6801f4ce79422954a635e",
