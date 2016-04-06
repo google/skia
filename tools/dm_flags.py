@@ -34,7 +34,28 @@ def get_args(bot):
   if '-x86-' in bot and not 'NexusPlayer' in bot:
     args.extend('--threads 4'.split(' '))
 
-  configs = ['565', '8888', 'gpu', 'gpusrgb']
+  # These are the canonical configs that we would ideally run on all bots. We
+  # may opt out or substitute some below for specific bots
+  configs = ['565', '8888', 'gpu', 'gpusrgb', 'pdf']
+  # Add in either msaa4 or msaa16 to the canonical set of configs to run
+  if 'Android' in bot or 'iOS' in bot:
+    configs.append('msaa4')
+  else:
+    configs.append('msaa16')
+
+  # With msaa, the S4 crashes and the NP produces a long error stream when we
+  # run with MSAA. The Tegra2 and Tegra3 just don't support it. No record of
+  # why we're not running msaa on iOS, probably started with gpu config and just
+  # haven't tried.
+  if ('GalaxyS4'    in bot or
+      'NexusPlayer' in bot or
+      'Tegra3'      in bot or
+      'iOS'         in bot):
+    configs = [x for x in configs if 'msaa' not in x]
+
+  # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
+  if 'Android' in bot or 'Daisy' in bot:
+    configs.remove('pdf')
 
   if '-GCE-' in bot:
     configs.extend(['f16', 'srgb'])              # Gamma-correct formats.
@@ -52,25 +73,9 @@ def get_args(bot):
 
   # We want to test the OpenGL config not the GLES config on the X1
   if 'TegraX1' in bot:
-    configs.remove('gpu')
-    configs.remove('gpusrgb')
-    configs.append('gl')
-    configs.append('glsrgb')
+    configs = [x.replace('gpu', 'gl') for x in configs]
+    configs = [x.replace('msaa', 'glmsaa') for x in configs]
     
-  # The S4 crashes and the NP produces a long error stream when we run with
-  # MSAA.  The Tegra2 and Tegra3 just don't support it.
-  if ('GalaxyS4'    not in bot and
-      'NexusPlayer' not in bot and
-      'Tegra3'      not in bot and
-      'iOS'         not in bot):
-    if 'Android' in bot:
-      configs.append('msaa4')
-    else:
-      configs.append('msaa16')
-  # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
-  if 'Android' not in bot and 'Daisy' not in bot:
-    configs.append('pdf')
-
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
