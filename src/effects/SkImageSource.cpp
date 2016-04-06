@@ -68,11 +68,13 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
         offset->fX = offset->fY = 0;
         return SkSpecialImage::MakeFromImage(source->internal_getProxy(),
                                              SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                             fImage);
+                                             fImage,
+                                             &source->props());
     }
 
     const SkIRect dstIRect = dstRect.roundOut();
 
+    // SRGBTODO: Propagate SkColorType?
     const SkImageInfo info = SkImageInfo::MakeN32(dstIRect.width(), dstIRect.height(),
                                                   kPremul_SkAlphaType);
 

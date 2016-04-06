@@ -387,6 +387,7 @@ void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
                                              const SkIRect& bounds) const {
     SkRect srcRect = dstRect.makeOffset(SkIntToScalar(bounds.x()), SkIntToScalar(bounds.y()));
     GrPaint paint;
+    // SRGBTODO: AllowSRGBInputs?
     GrFragmentProcessor* fp = this->getFragmentProcessor(src, matrix, srcBounds, boundaryMode);
     paint.addColorFragmentProcessor(fp)->unref();
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);

@@ -366,6 +366,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             if (!drawContext) {
                 return false;
             }
+            // SRGBTODO: AllowSRGBInputs? (We could force it on here, so we don't need the
+            // per-texture override in config conversion effect?)
             GrPaint paint;
             paint.addColorFragmentProcessor(fp);
             paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
@@ -476,6 +478,8 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                     GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
             }
             if (fp) {
+                // SRGBTODO: AllowSRGBInputs? (We could force it on here, so we don't need the
+                // per-texture override in config conversion effect?)
                 GrPaint paint;
                 paint.addColorFragmentProcessor(fp);
                 paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);

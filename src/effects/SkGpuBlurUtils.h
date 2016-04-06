@@ -26,6 +26,7 @@ namespace SkGpuBlurUtils {
     * @param srcTexture      The source texture to be blurred.
     * @param canClobberSrc   If true, srcTexture may be overwritten, and
     *                        may be returned as the result.
+    * @param allowSRGBInputs Should sRGB inputs be allowed to perform sRGB to linear conversion.
     * @param dstBounds       The destination bounds, relative to the source texture.
     * @param srcBounds       The source bounds, relative to the source texture. If non-null,
     *                        no pixels will be sampled outside of this rectangle.
@@ -37,6 +38,7 @@ namespace SkGpuBlurUtils {
     GrTexture* GaussianBlur(GrContext* context,
                             GrTexture* srcTexture,
                             bool canClobberSrc,
+                            bool allowSRGBInputs,
                             const SkRect& dstBounds,
                             const SkRect* srcBounds,
                             float sigmaX,

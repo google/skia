@@ -41,6 +41,13 @@ public:
     virtual SkImageInfo imageInfo() const;
 
     /**
+     *  Return SurfaceProps for this device.
+     */
+    const SkSurfaceProps& surfaceProps() const {
+        return fSurfaceProps;
+    }
+
+    /**
      *  Return the bounds of the device in the coordinate space of the root
      *  canvas. The root device will have its top-left at 0,0, but other devices
      *  such as those associated with saveLayer may have a non-zero origin.
@@ -316,10 +323,6 @@ protected:
     virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y);
 
     virtual bool onAccessPixels(SkPixmap*) { return false; }
-
-    const SkSurfaceProps& surfaceProps() const {
-        return fSurfaceProps;
-    }
 
     /**
      *  PRIVATE / EXPERIMENTAL -- do not call

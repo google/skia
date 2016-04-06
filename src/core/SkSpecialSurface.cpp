@@ -82,7 +82,8 @@ public:
     ~SkSpecialSurface_Raster() override { }
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
-        return SkSpecialImage::MakeFromRaster(this->proxy(), this->subset(), fBitmap);
+        return SkSpecialImage::MakeFromRaster(this->proxy(), this->subset(), fBitmap,
+                                              &this->props());
     }
 
 private:
@@ -139,7 +140,8 @@ public:
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
         return SkSpecialImage::MakeFromGpu(this->proxy(), this->subset(),
-                                           kNeedNewImageUniqueID_SpecialImage, fTexture);
+                                           kNeedNewImageUniqueID_SpecialImage, fTexture,
+                                           &this->props());
     }
 
 private:

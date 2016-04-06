@@ -418,7 +418,8 @@ void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitm
         SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
-        sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, bitmap));
+        sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, bitmap,
+                                                                     &this->surfaceProps()));
         if (!srcImg) {
             return; // something disastrous happened
         }

@@ -370,6 +370,7 @@ static void apply_morphology_rect(GrDrawContext* drawContext,
                                   float bounds[2],
                                   Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
+    // SRGBTODO: AllowSRGBInputs?
     paint.addColorFragmentProcessor(GrMorphologyEffect::Create(texture,
                                                                direction,
                                                                radius,
@@ -389,6 +390,7 @@ static void apply_morphology_rect_no_bounds(GrDrawContext* drawContext,
                                             GrMorphologyEffect::MorphologyType morphType,
                                             Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
+    // SRGBTODO: AllowSRGBInputs?
     paint.addColorFragmentProcessor(GrMorphologyEffect::Create(texture,
                                                                direction,
                                                                radius,
@@ -511,7 +513,7 @@ static sk_sp<SkSpecialImage> apply_morphology(SkSpecialImage* input,
     return SkSpecialImage::MakeFromGpu(input->internal_getProxy(),
                                        SkIRect::MakeWH(rect.width(), rect.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       srcTexture);
+                                       srcTexture, &input->props());
 }
 #endif
 
@@ -619,5 +621,5 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
 
     return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
                                           SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                          dst);
+                                          dst, &source->props());
 }

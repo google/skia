@@ -63,6 +63,13 @@ public:
     void setDisableOutputConversionToSRGB(bool srgb) { fDisableOutputConversionToSRGB = srgb; }
     bool getDisableOutputConversionToSRGB() const { return fDisableOutputConversionToSRGB; }
 
+    /**
+     * Should sRGB inputs be allowed to perform sRGB to linear conversion. With this flag
+     * set to false, sRGB textures will be treated as linear (including filtering).
+     */
+    void setAllowSRGBInputs(bool allowSRGBInputs) { fAllowSRGBInputs = allowSRGBInputs; }
+    bool getAllowSRGBInputs() const { return fAllowSRGBInputs; }
+
     const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
         fXPFactory.reset(SkSafeRef(xpFactory));
         return xpFactory;
@@ -120,6 +127,7 @@ public:
     GrPaint& operator=(const GrPaint& paint) {
         fAntiAlias = paint.fAntiAlias;
         fDisableOutputConversionToSRGB = paint.fDisableOutputConversionToSRGB;
+        fAllowSRGBInputs = paint.fAllowSRGBInputs;
 
         fColor = paint.fColor;
         this->resetFragmentProcessors();
@@ -163,6 +171,7 @@ private:
 
     bool                                            fAntiAlias;
     bool                                            fDisableOutputConversionToSRGB;
+    bool                                            fAllowSRGBInputs;
 
     GrColor                                         fColor;
 };

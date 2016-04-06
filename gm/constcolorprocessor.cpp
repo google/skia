@@ -104,7 +104,8 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
-                    SkAssertResult(SkPaintToGrPaint(context, skPaint, viewMatrix, &grPaint));
+                    // SRGBTODO: No sRGB inputs allowed here?
+                    SkAssertResult(SkPaintToGrPaint(context, skPaint, viewMatrix, false, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
                     GrColor color = kColors[procColor];

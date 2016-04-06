@@ -306,7 +306,8 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     const SkIRect subset = SkIRect::MakeWH(layer->texture()->width(), layer->texture()->height());
     sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromGpu(&proxy, subset,
                                                           kNeedNewImageUniqueID_SpecialImage,
-                                                          layer->texture()));
+                                                          layer->texture(),
+                                                          &device->surfaceProps()));
 
     SkIPoint offset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> result(layer->filter()->filterImage(img.get(),

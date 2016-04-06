@@ -122,6 +122,13 @@ public:
      */
     SkImageInfo imageInfo() const;
 
+    /**
+     *  If the canvas is backed by pixels (cpu or gpu), this writes a copy of the SurfaceProps
+     *  for the canvas to the location supplied by the caller, and returns true. Otherwise,
+     *  return false and leave the supplied props unchanged.
+     */
+    bool getProps(SkSurfaceProps*) const;
+
     ///////////////////////////////////////////////////////////////////////////
 
     /**

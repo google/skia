@@ -822,8 +822,8 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
                 contextOptions = static_cast<GrContextFactory::ContextOptions>(
                     contextOptions | GrContextFactory::kEnableNVPR_ContextOptions);
             }
-            if (kSRGB_SkColorProfileType == gpuConfig->getProfileType() ||
-                kRGBA_F16_SkColorType == gpuConfig->getColorType()) {
+            if (SkColorAndProfileAreGammaCorrect(gpuConfig->getColorType(),
+                                                 gpuConfig->getProfileType())) {
                 contextOptions = static_cast<GrContextFactory::ContextOptions>(
                     contextOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
             }
@@ -1169,8 +1169,7 @@ struct Task {
                             const SkBitmap* bitmap) {
         bool gammaCorrect = false;
         if (bitmap) {
-            gammaCorrect = bitmap->profileType() == kSRGB_SkColorProfileType
-                        || bitmap->  colorType() == kRGBA_F16_SkColorType;
+            gammaCorrect = SkImageInfoIsGammaCorrect(bitmap->info());
         }
 
         JsonWriter::BitmapResult result;

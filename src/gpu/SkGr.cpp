@@ -495,8 +495,10 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            const GrFragmentProcessor** shaderProcessor,
                                            SkXfermode::Mode* primColorMode,
                                            bool primitiveIsSrc,
+                                           bool allowSRGBInputs,
                                            GrPaint* grPaint) {
     grPaint->setAntiAlias(skPaint.isAntiAlias());
+    grPaint->setAllowSRGBInputs(allowSRGBInputs);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -623,31 +625,34 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 }
 
 bool SkPaintToGrPaint(GrContext* context, const SkPaint& skPaint, const SkMatrix& viewM,
-                      GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, nullptr, false, grPaint);
+                      bool allowSRGBInputs, GrPaint* grPaint) {
+    return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, nullptr, false,
+                                   allowSRGBInputs, grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
 bool SkPaintToGrPaintReplaceShader(GrContext* context,
                                    const SkPaint& skPaint,
                                    const GrFragmentProcessor* shaderFP,
+                                   bool allowSRGBInputs,
                                    GrPaint* grPaint) {
     if (!shaderFP) {
         return false;
     }
     return skpaint_to_grpaint_impl(context, skPaint, SkMatrix::I(), &shaderFP, nullptr, false,
-                                   grPaint);
+                                   allowSRGBInputs, grPaint);
 }
 
 /** Ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
                               const SkPaint& skPaint,
+                              bool allowSRGBInputs,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
     static const GrFragmentProcessor* kNullShaderFP = nullptr;
     static const GrFragmentProcessor** kIgnoreShader = &kNullShaderFP;
     return skpaint_to_grpaint_impl(context, skPaint, SkMatrix::I(), kIgnoreShader, nullptr, false,
-                                   grPaint);
+                                   allowSRGBInputs, grPaint);
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
@@ -657,9 +662,10 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   const SkMatrix& viewM,
                                   SkXfermode::Mode primColorMode,
                                   bool primitiveIsSrc,
+                                  bool allowSRGBInputs,
                                   GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, &primColorMode, primitiveIsSrc,
-                                   grPaint);
+                                   allowSRGBInputs, grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrContext* context,
@@ -667,6 +673,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  const SkMatrix& viewM,
                                  const GrFragmentProcessor* fp,
                                  bool textureIsAlphaOnly,
+                                 bool allowSRGBInputs,
                                  GrPaint* grPaint) {
     SkAutoTUnref<const GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
@@ -687,7 +694,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
         shaderFP.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
     }
 
-    return SkPaintToGrPaintReplaceShader(context, paint, shaderFP.get(), grPaint);
+    return SkPaintToGrPaintReplaceShader(context, paint, shaderFP.get(), allowSRGBInputs, grPaint);
 }
 
 

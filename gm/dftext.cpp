@@ -48,8 +48,12 @@ protected:
         // set up offscreen rendering with distance field text
 #if SK_SUPPORT_GPU
         GrContext* ctx = inputCanvas->getGrContext();
-        SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
-        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
+        SkImageInfo info = SkImageInfo::MakeN32Premul(onISize(),
+                                                      inputCanvas->imageInfo().profileType());
+        SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
+        uint32_t allowSRGBInputs = inputCanvas->getProps(&canvasProps)
+            ? canvasProps.flags() & SkSurfaceProps::kAllowSRGBInputs_Flag : 0;
+        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag | allowSRGBInputs,
                              SkSurfaceProps::kLegacyFontHost_InitType);
         auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;

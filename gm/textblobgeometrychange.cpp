@@ -42,8 +42,11 @@ protected:
 
         SkAutoTUnref<const SkTextBlob> blob(builder.build());
 
-        SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200);
-        SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+        SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, canvas->imageInfo().profileType());
+        SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
+        uint32_t allowSRGBInputs = canvas->getProps(&canvasProps)
+            ? canvasProps.flags() & SkSurfaceProps::kAllowSRGBInputs_Flag : 0;
+        SkSurfaceProps props(allowSRGBInputs, kUnknown_SkPixelGeometry);
         auto surface(canvas->makeSurface(info, &props));
         if (surface) {
             SkCanvas* c = surface->getCanvas();

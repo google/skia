@@ -113,6 +113,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
         SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(inputTexture->getContext(),
                                                                  inputTexture,
                                                                  false,
+                                                                 source->props().allowSRGBInputs(),
                                                                  SkRect::Make(dstBounds),
                                                                  &inputBoundsF,
                                                                  sigma.x(),
@@ -124,7 +125,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
         return SkSpecialImage::MakeFromGpu(source->internal_getProxy(),
                                            SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           tex);
+                                           tex, &source->props());
     }
 #endif
 
@@ -216,7 +217,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
     return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
                                           SkIRect::MakeWH(dstBounds.width(),
                                                           dstBounds.height()),
-                                          dst);
+                                          dst, &source->props());
 }
 
 

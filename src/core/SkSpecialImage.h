@@ -10,6 +10,7 @@
 
 #include "SkNextID.h"
 #include "SkRefCnt.h"
+#include "SkSurfaceProps.h"
 
 // remove this when internal_getProxy goes away (see skbug.com/4965)
 #include "SkImageFilter.h"
@@ -47,6 +48,8 @@ public:
     typedef void* ReleaseContext;
     typedef void(*RasterReleaseProc)(void* pixels, ReleaseContext);
 
+    const SkSurfaceProps& props() const { return fProps; }
+
     int width() const { return fSubset.width(); }
     int height() const { return fSubset.height(); }
     const SkIRect& subset() const { return fSubset; }
@@ -69,20 +72,24 @@ public:
 
     static sk_sp<SkSpecialImage> MakeFromImage(SkImageFilter::Proxy*,
                                                const SkIRect& subset,
-                                               sk_sp<SkImage>);
+                                               sk_sp<SkImage>,
+                                               const SkSurfaceProps* = nullptr);
     static sk_sp<SkSpecialImage> MakeFromRaster(SkImageFilter::Proxy*,
                                                 const SkIRect& subset,
-                                                const SkBitmap&);
+                                                const SkBitmap&,
+                                                const SkSurfaceProps* = nullptr);
     static sk_sp<SkSpecialImage> MakeFromGpu(SkImageFilter::Proxy*,
                                              const SkIRect& subset,
                                              uint32_t uniqueID,
                                              GrTexture*,
+                                             const SkSurfaceProps* = nullptr,
                                              SkAlphaType at = kPremul_SkAlphaType);
     static sk_sp<SkSpecialImage> MakeFromPixmap(SkImageFilter::Proxy*,
                                                 const SkIRect& subset,
                                                 const SkPixmap&,
                                                 RasterReleaseProc,
-                                                ReleaseContext);
+                                                ReleaseContext,
+                                                const SkSurfaceProps* = nullptr);
 
     /**
      *  Create a new special surface with a backend that is compatible with this special image.
@@ -110,7 +117,8 @@ public:
 
     // These three internal methods will go away (see skbug.com/4965)
     bool internal_getBM(SkBitmap* result);
-    static sk_sp<SkSpecialImage> internal_fromBM(SkImageFilter::Proxy*, const SkBitmap&);
+    static sk_sp<SkSpecialImage> internal_fromBM(SkImageFilter::Proxy*, const SkBitmap&,
+                                                 const SkSurfaceProps*);
     SkImageFilter::Proxy* internal_getProxy() const;
 
     // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)
@@ -135,12 +143,8 @@ public:
     bool peekPixels(SkPixmap*) const;
 
 protected:
-    SkSpecialImage(SkImageFilter::Proxy* proxy, const SkIRect& subset, uint32_t uniqueID)
-        : fSubset(subset)
-        , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID()
-                                                                   : uniqueID)
-        , fProxy(proxy) {
-    }
+    SkSpecialImage(SkImageFilter::Proxy*, const SkIRect& subset, uint32_t uniqueID,
+                   const SkSurfaceProps*);
 
     // The following 2 are for testing and shouldn't be used.
     friend class TestingSpecialImageAccess;
@@ -154,8 +158,9 @@ protected:
     SkImageFilter::Proxy* proxy() const { return fProxy; }
 
 private:
-    const SkIRect   fSubset;
-    const uint32_t  fUniqueID;
+    const SkSurfaceProps fProps;
+    const SkIRect        fSubset;
+    const uint32_t       fUniqueID;
 
     // TODO: remove this ASAP (see skbug.com/4965)
     SkImageFilter::Proxy* fProxy;

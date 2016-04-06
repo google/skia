@@ -128,7 +128,9 @@ private:
         SkImageInfo baseInfo = baseCanvas->imageInfo();
         SkImageInfo info = SkImageInfo::Make(w, h, baseInfo.colorType(), baseInfo.alphaType(),
                                              baseInfo.profileType());
-        return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
+        SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
+        baseCanvas->getProps(&canvasProps);
+        return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, &canvasProps);
 #else
         return nullptr;
 #endif

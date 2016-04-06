@@ -399,16 +399,6 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
     }
 }
 
-static inline bool GrAllowSRGBForDestinationPixelConfig(GrPixelConfig config) {
-    switch (config) {
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-            return false;
-        default:
-            return true;
-    }
-}
-
 /**
  * Optional bitfield flags that can be set on GrSurfaceDesc (below).
  */

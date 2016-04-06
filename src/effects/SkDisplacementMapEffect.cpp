@@ -431,6 +431,7 @@ bool SkDisplacementMapEffect::filterImageGPUDeprecated(Proxy* proxy, const SkBit
     ctx.ctm().mapVectors(&scale, 1);
 
     GrPaint paint;
+    // SRGBTODO: AllowSRGBInputs?
     SkMatrix offsetMatrix = GrCoordTransform::MakeDivByTextureWHMatrix(displacement);
     offsetMatrix.preTranslate(SkIntToScalar(colorOffset.fX - displacementOffset.fX),
                               SkIntToScalar(colorOffset.fY - displacementOffset.fY));

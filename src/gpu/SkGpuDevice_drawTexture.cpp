@@ -206,7 +206,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
 
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(fContext, paint, viewMatrix, fp, producer->isAlphaOnly(),
-                                     &grPaint)) {
+                                     this->surfaceProps().allowSRGBInputs(), &grPaint)) {
         return;
     }
 

@@ -318,4 +318,14 @@ private:
     {}
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+static inline bool SkColorAndProfileAreGammaCorrect(SkColorType ct, SkColorProfileType pt) {
+    return kSRGB_SkColorProfileType == pt || kRGBA_F16_SkColorType == ct;
+}
+
+static inline bool SkImageInfoIsGammaCorrect(const SkImageInfo& info) {
+    return SkColorAndProfileAreGammaCorrect(info.colorType(), info.profileType());
+}
+
 #endif

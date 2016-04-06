@@ -70,6 +70,13 @@ void SkWindow::resize(int width, int height) {
 void SkWindow::setColorType(SkColorType ct, SkColorProfileType pt) {
     const SkImageInfo& info = fBitmap.info();
     this->resize(SkImageInfo::Make(info.width(), info.height(), ct, kPremul_SkAlphaType, pt));
+
+    // Set the global flag that enables or disables "legacy" mode, depending on our format.
+    // With sRGB 32-bit or linear FP 16, we turn on gamma-correct handling of inputs:
+    SkSurfaceProps props = this->getSurfaceProps();
+    uint32_t flags = (props.flags() & ~SkSurfaceProps::kAllowSRGBInputs_Flag) |
+        (SkColorAndProfileAreGammaCorrect(ct, pt) ? SkSurfaceProps::kAllowSRGBInputs_Flag : 0);
+    this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
 }
 
 bool SkWindow::handleInval(const SkRect* localR) {
@@ -333,9 +340,7 @@ GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
     //
     // Also, we may not have real sRGB support (ANGLE, in particular), so check for
     // that, and fall back to L32:
-    desc.fConfig = grContext->caps()->srgbSupport() &&
-                   (info().profileType() == kSRGB_SkColorProfileType ||
-                    info().colorType() == kRGBA_F16_SkColorType)
+    desc.fConfig = grContext->caps()->srgbSupport() && SkImageInfoIsGammaCorrect(info())
         ? kSkiaGamma8888_GrPixelConfig
         : kSkia8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;

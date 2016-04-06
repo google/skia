@@ -148,6 +148,9 @@ public:
     bool getDisableOutputConversionToSRGB() const {
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
     }
+    bool getAllowSRGBInputs() const {
+        return SkToBool(fFlags & kAllowSRGBInputs_Flag);
+    }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
         return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
@@ -190,6 +193,7 @@ private:
         kHWAA_Flag                          = 0x1,
         kSnapVertices_Flag                  = 0x2,
         kDisableOutputConversionToSRGB_Flag = 0x4,
+        kAllowSRGBInputs_Flag               = 0x8,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;

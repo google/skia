@@ -84,6 +84,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (builder.getDisableOutputConversionToSRGB()) {
         pipeline->fFlags |= kDisableOutputConversionToSRGB_Flag;
     }
+    if (builder.getAllowSRGBInputs()) {
+        pipeline->fFlags |= kAllowSRGBInputs_Flag;
+    }
 
     int firstColorProcessorIdx = args.fOpts.fColorPOI.firstEffectiveProcessorIndex();
 

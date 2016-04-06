@@ -288,7 +288,12 @@ public:
          */
         kDisableOutputConversionToSRGB_Flag = 0x04,
 
-        kLast_Flag = kDisableOutputConversionToSRGB_Flag,
+        /**
+         * Allow sRGB -> linear conversion when reading from sRGB inputs.
+         */
+        kAllowSRGBInputs_Flag = 0x08,
+
+        kLast_Flag = kAllowSRGBInputs_Flag,
     };
 
     bool isHWAntialias() const { return SkToBool(fFlags & kHWAntialias_Flag); }
@@ -296,6 +301,8 @@ public:
         return SkToBool(fFlags & kSnapVerticesToPixelCenters_Flag); }
     bool getDisableOutputConversionToSRGB() const {
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag); }
+    bool getAllowSRGBInputs() const {
+        return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
 
     /**
      * Enable render state settings.

@@ -295,7 +295,8 @@ bool SkImageFilter::filterInputDeprecated(int index, Proxy* proxy, const SkBitma
         return true;
     }
 
-    sk_sp<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src));
+    // SRGBTODO: Don't handle sRGB here, in anticipation of this code path being deleted.
+    sk_sp<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src, nullptr));
     if (!specialSrc) {
         return false;
     }
@@ -377,7 +378,7 @@ sk_sp<SkSpecialImage> SkImageFilter::onFilterImage(SkSpecialImage* src, const Co
         return nullptr;
     }
 
-    return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM);
+    return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM, &src->props());
 }
 
 bool SkImageFilter::canFilterImageGPU() const {
@@ -418,6 +419,7 @@ bool SkImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, 
     SkMatrix matrix(ctx.ctm());
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
     GrPaint paint;
+    // SRGBTODO: Don't handle sRGB here, in anticipation of this code path being deleted.
     if (this->asFragmentProcessor(&fp, srcTexture, matrix, bounds)) {
         SkASSERT(fp);
         paint.addColorFragmentProcessor(fp)->unref();
@@ -620,7 +622,8 @@ bool SkImageFilter::filterInputGPUDeprecated(int index, SkImageFilter::Proxy* pr
         return true;
     }
 
-    sk_sp<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src));
+    // SRGBTODO: Don't handle sRGB here, in anticipation of this code path being deleted.
+    sk_sp<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src, nullptr));
     if (!specialSrc) {
         return false;
     }

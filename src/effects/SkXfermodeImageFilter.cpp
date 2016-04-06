@@ -174,6 +174,7 @@ bool SkXfermodeImageFilter::filterImageGPUDeprecated(Proxy* proxy,
     }
 
     GrPaint paint;
+    // SRGBTODO: AllowSRGBInputs?
     SkAutoTUnref<const GrFragmentProcessor> bgFP;
 
     if (backgroundTex) {

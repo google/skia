@@ -100,8 +100,12 @@ protected:
 
         canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorWHITE));
 
-        SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-        SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+        SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight,
+                                                      canvas->imageInfo().profileType());
+        SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
+        uint32_t allowSRGBInputs = canvas->getProps(&canvasProps)
+            ? canvasProps.flags() & SkSurfaceProps::kAllowSRGBInputs_Flag : 0;
+        SkSurfaceProps props(allowSRGBInputs, kUnknown_SkPixelGeometry);
         auto surface(canvas->makeSurface(info, &props));
         if (surface) {
             SkPaint paint;

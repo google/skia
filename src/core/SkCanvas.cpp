@@ -1334,6 +1334,18 @@ SkImageInfo SkCanvas::imageInfo() const {
     }
 }
 
+bool SkCanvas::getProps(SkSurfaceProps* props) const {
+    SkBaseDevice* dev = this->getDevice();
+    if (dev) {
+        if (props) {
+            *props = fProps;
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 #ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
 const void* SkCanvas::peekPixels(SkImageInfo* info, size_t* rowBytes) {
     SkPixmap pmap;
@@ -1406,7 +1418,8 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
             SkAutoTUnref<SkImageFilter::Cache> cache(dstDev->getImageFilterCache());
             SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
-            sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, srcBM));
+            sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, srcBM,
+                                                                         &dstDev->surfaceProps()));
             if (!srcImg) {
                 continue; // something disastrous happened
             }

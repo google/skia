@@ -2051,15 +2051,13 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     SkSTArray<8, const GrTextureAccess*> textureAccesses;
     program->setData(primProc, pipeline, &textureAccesses);
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
-    bool allowSRGB = GrAllowSRGBForDestinationPixelConfig(glRT->config());
-
     int numTextureAccesses = textureAccesses.count();
     for (int i = 0; i < numTextureAccesses; i++) {
-        this->bindTexture(i, textureAccesses[i]->getParams(), allowSRGB,
+        this->bindTexture(i, textureAccesses[i]->getParams(), pipeline.getAllowSRGBInputs(),
                           static_cast<GrGLTexture*>(textureAccesses[i]->getTexture()));
     }
 
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !pipeline.getStencil().isDisabled());
