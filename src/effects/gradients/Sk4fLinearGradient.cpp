@@ -419,9 +419,8 @@ bool SkLinearGradient::LinearGradient4fContext::onChooseBlitProcs(const SkImageI
         return false;
     }
 
-    const SkGradientShaderBase& shader = static_cast<const SkGradientShaderBase&>(fShader);
     if (mode != SkXfermode::kSrc_Mode &&
-        !(mode == SkXfermode::kSrcOver_Mode && shader.colorsAreOpaque())) {
+        !(mode == SkXfermode::kSrcOver_Mode && (fFlags & kOpaqueAlpha_Flag))) {
         return false;
     }
 
