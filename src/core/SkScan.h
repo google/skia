@@ -93,7 +93,7 @@ static inline void XRect_set(SkXRect* xr, const SkIRect& src) {
 }
 
 /** Assign an SkXRect from a SkRect, by promoting the src rect's coordinates
-    from SkScalar to SkFixed. Does not check for overflow if the src coordinates
+    from SkScalar to SkFixed. Behavior is undefined if the src coordinates
     exceed 32K
 */
 static inline void XRect_set(SkXRect* xr, const SkRect& src) {

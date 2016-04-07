@@ -129,7 +129,7 @@ SkFixed TwoPtRadialContext::nextT() {
             return TwoPtRadial::kDontDrawT;
         }
     }
-    return SkFloatToFixed(t);
+    return SkFloatPinToFixed(t);
 }
 
 typedef void (*TwoPointConicalProc)(TwoPtRadialContext* rec, SkPMColor* dstC,
