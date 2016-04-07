@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkPM4fPriv_DEFINED
+#define SkPM4fPriv_DEFINED
+
 #include "SkColorPriv.h"
 #include "SkPM4f.h"
 
@@ -56,3 +59,5 @@ static inline uint32_t Sk4f_toL32(const Sk4f& x4) {
 static inline uint32_t Sk4f_toS32(const Sk4f& x4) {
     return to_4b(linear_to_srgb(x4) * Sk4f(255) + Sk4f(0.5f));
 }
+
+#endif
