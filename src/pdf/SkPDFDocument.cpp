@@ -238,6 +238,18 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
         // if this is the first page if the document.
         fObjectSerializer.serializeHeader(this->getStream(), fMetadata);
         fDests = sk_make_sp<SkPDFDict>();
+        #ifdef SK_PDF_GENERATE_PDFA
+            SkPDFMetadata::UUID uuid = fMetadata.uuid();
+            // We use the same UUID for Document ID and Instance ID since this
+            // is the first revision of this document (and Skia does not
+            // support revising existing PDF documents).
+            // If we are not in PDF/A mode, don't use a UUID since testing
+            // works best with reproducible outputs.
+            fID.reset(SkPDFMetadata::CreatePdfId(uuid, uuid));
+            fXMP.reset(fMetadata.createXMPObject(uuid, uuid));
+            fObjectSerializer.addObjectRecursively(fXMP);
+            fObjectSerializer.serializeObjects(this->getStream());
+        #endif
     }
     SkISize pageSize = SkISize::Make(
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
@@ -297,18 +309,9 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
         return false;
     }
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
-    sk_sp<SkPDFObject> id, xmp;
     #ifdef SK_PDF_GENERATE_PDFA
-        SkPDFMetadata::UUID uuid = metadata.uuid();
-        // We use the same UUID for Document ID and Instance ID since this
-        // is the first revision of this document (and Skia does not
-        // support revising existing PDF documents).
-        // If we are not in PDF/A mode, don't use a UUID since testing
-        // works best with reproducible outputs.
-        id.reset(SkPDFMetadata::CreatePdfId(uuid, uuid));
-        xmp.reset(metadata.createXMPObject(uuid, uuid));
-        docCatalog->insertObjRef("Metadata", std::move(xmp));
-
+        SkASSERT(fXMP);
+        docCatalog->insertObjRef("Metadata", fXMP);
         // sRGB is specified by HTML, CSS, and SVG.
         auto outputIntent = sk_make_sp<SkPDFDict>("OutputIntent");
         outputIntent->insertName("S", "GTS_PDFA1");
@@ -321,7 +324,6 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
         // no one has ever asked for this feature.
         docCatalog->insertObject("OutputIntents", std::move(intentArray));
     #endif
-
     docCatalog->insertObjRef("Pages", generate_page_tree(&fPages));
 
     if (fDests->size() > 0) {
@@ -340,9 +342,12 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
 
     fObjectSerializer.addObjectRecursively(docCatalog);
     fObjectSerializer.serializeObjects(this->getStream());
-    fObjectSerializer.serializeFooter(
-            this->getStream(), docCatalog, std::move(id));
-
+    #ifdef SK_PDF_GENERATE_PDFA
+        fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
+    #else
+        fObjectSerializer.serializeFooter(
+                this->getStream(), docCatalog, nullptr);
+    #endif
     SkASSERT(fPages.count() == 0);
     fCanon.reset();
     renew(&fObjectSerializer);

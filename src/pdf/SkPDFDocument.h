@@ -79,6 +79,10 @@ private:
     sk_sp<SkPDFDict> fDests;
     sk_sp<SkPDFDevice> fPageDevice;
     sk_sp<SkCanvas> fCanvas;
+    #ifdef SK_PDF_GENERATE_PDFA
+    sk_sp<SkPDFObject> fID;
+    sk_sp<SkPDFObject> fXMP;
+    #endif
     SkScalar fRasterDpi;
     SkPDFMetadata fMetadata;
 };

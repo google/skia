@@ -52,9 +52,6 @@ SkPDFObject* SkPDFMetadata::createDocumentInformationDict() const {
     return dict.release();
 }
 
-#undef SKPDF_STRING
-#undef SKPDF_STRING_IMPL
-
 #ifdef SK_PDF_GENERATE_PDFA
 SkPDFMetadata::UUID SkPDFMetadata::uuid() const {
     // The main requirement is for the UUID to be unique; the exact
@@ -297,7 +294,7 @@ SkPDFObject* SkPDFMetadata::createXMPObject(const UUID& doc,
             "%s"  // keywords
             "<xmpMM:DocumentID>uuid:%s</xmpMM:DocumentID>\n"
             "<xmpMM:InstanceID>uuid:%s</xmpMM:InstanceID>\n"
-            "<pdf:Producer>Skia/PDF</pdf:Producer>\n"
+            "<pdf:Producer>Skia/PDF m" SKPDF_STRING(SK_MILESTONE) "</pdf:Producer>\n"
             "%s"  // pdf:Keywords
             "</rdf:Description>\n"
             "</rdf:RDF>\n"
@@ -356,3 +353,7 @@ SkPDFObject* SkPDFMetadata::createXMPObject(const UUID& doc,
 }
 
 #endif  // SK_PDF_GENERATE_PDFA
+
+#undef SKPDF_STRING
+#undef SKPDF_STRING_IMPL
+
