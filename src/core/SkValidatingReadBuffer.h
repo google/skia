@@ -28,7 +28,6 @@ public:
     // primitives
     bool readBool() override;
     SkColor readColor() override;
-    SkFixed readFixed() override;
     int32_t readInt() override;
     SkScalar readScalar() override;
     uint32_t readUInt() override;

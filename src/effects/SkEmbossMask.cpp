@@ -7,6 +7,7 @@
 
 
 #include "SkEmbossMask.h"
+#include "SkFixed.h"
 #include "SkMath.h"
 
 static inline int nonzero_to_one(int x) {

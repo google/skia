@@ -8,6 +8,7 @@
 #ifndef SkTestScalerContext_DEFINED
 #define SkTestScalerContext_DEFINED
 
+#include "SkFixed.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRefCnt.h"

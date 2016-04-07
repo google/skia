@@ -7,10 +7,11 @@
 
 
 #include "SkDiscretePathEffect.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "SkFixed.h"
 #include "SkPathMeasure.h"
+#include "SkReadBuffer.h"
 #include "SkStrokeRec.h"
+#include "SkWriteBuffer.h"
 
 sk_sp<SkPathEffect> SkDiscretePathEffect::Make(SkScalar segLength, SkScalar deviation,
                                                uint32_t seedAssist) {

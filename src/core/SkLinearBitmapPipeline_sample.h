@@ -8,6 +8,7 @@
 #ifndef SkLinearBitmapPipeline_sampler_DEFINED
 #define SkLinearBitmapPipeline_sampler_DEFINED
 
+#include "SkFixed.h"
 #include "SkLinearBitmapPipeline_core.h"
 #include <array>
 #include <tuple>

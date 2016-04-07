@@ -9,6 +9,7 @@
 #ifndef SkPerspIter_DEFINED
 #define SkPerspIter_DEFINED
 
+#include "SkFixed.h"
 #include "SkMatrix.h"
 
 class SkPerspIter {

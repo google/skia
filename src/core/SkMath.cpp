@@ -6,6 +6,7 @@
  */
 
 #include "SkMathPriv.h"
+#include "SkFixed.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkScalar.h"

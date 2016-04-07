@@ -90,10 +90,6 @@ SkColor SkReadBuffer::readColor() {
     return fReader.readInt();
 }
 
-SkFixed SkReadBuffer::readFixed() {
-    return fReader.readS32();
-}
-
 int32_t SkReadBuffer::readInt() {
     return fReader.readInt();
 }

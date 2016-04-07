@@ -8,6 +8,7 @@
 #ifndef SkFixed_DEFINED
 #define SkFixed_DEFINED
 
+#include "SkScalar.h"
 #include "SkTypes.h"
 
 /** \file SkFixed.h
@@ -138,6 +139,20 @@ inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b) {
 
     #undef SkFloatToFixed
     #define SkFloatToFixed(x)  SkFloatToFixed_arm(x)
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+#if SK_SCALAR_IS_FLOAT
+
+#define SkFixedToScalar(x)          SkFixedToFloat(x)
+#define SkScalarToFixed(x)          SkFloatToFixed(x)
+
+#else   // SK_SCALAR_IS_DOUBLE
+
+#define SkFixedToScalar(x)          SkFixedToDouble(x)
+#define SkScalarToFixed(x)          SkDoubleToFixed(x)
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

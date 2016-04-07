@@ -111,7 +111,6 @@ char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
 #define SkStrAppendScalar SkStrAppendFloat
 
 char* SkStrAppendFloat(char buffer[], float);
-char* SkStrAppendFixed(char buffer[], SkFixed);
 
 /** \class SkString
 

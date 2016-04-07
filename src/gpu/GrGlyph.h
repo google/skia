@@ -13,6 +13,7 @@
 #include "GrTypes.h"
 
 #include "SkChecksum.h"
+#include "SkFixed.h"
 #include "SkPath.h"
 
 class GrPlot;

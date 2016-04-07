@@ -47,10 +47,6 @@ void SkWriteBuffer::writeBool(bool value) {
     fWriter.writeBool(value);
 }
 
-void SkWriteBuffer::writeFixed(SkFixed value) {
-    fWriter.write32(value);
-}
-
 void SkWriteBuffer::writeScalar(SkScalar value) {
     fWriter.writeScalar(value);
 }

@@ -8,7 +8,6 @@
 #ifndef SkScalar_DEFINED
 #define SkScalar_DEFINED
 
-#include "../private/SkFixed.h"
 #include "../private/SkFloatingPoint.h"
 
 // TODO: move this sort of check into SkPostConfig.h
@@ -31,9 +30,6 @@ typedef float SkScalar;
 #define SK_ScalarInfinity           SK_FloatInfinity
 #define SK_ScalarNegativeInfinity   SK_FloatNegativeInfinity
 #define SK_ScalarNaN                SK_FloatNaN
-
-#define SkFixedToScalar(x)          SkFixedToFloat(x)
-#define SkScalarToFixed(x)          SkFloatToFixed(x)
 
 #define SkScalarFloorToScalar(x)    sk_float_floor(x)
 #define SkScalarCeilToScalar(x)     sk_float_ceil(x)
@@ -74,9 +70,6 @@ typedef double SkScalar;
 #define SK_ScalarInfinity           SK_DoubleInfinity
 #define SK_ScalarNegativeInfinity   SK_DoubleNegativeInfinity
 #define SK_ScalarNaN                SK_DoubleNaN
-
-#define SkFixedToScalar(x)          SkFixedToDouble(x)
-#define SkScalarToFixed(x)          SkDoubleToFixed(x)
 
 #define SkScalarFloorToScalar(x)    floor(x)
 #define SkScalarCeilToScalar(x)     ceil(x)

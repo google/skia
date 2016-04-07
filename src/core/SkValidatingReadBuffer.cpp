@@ -66,10 +66,6 @@ SkColor SkValidatingReadBuffer::readColor() {
     return this->readInt();
 }
 
-SkFixed SkValidatingReadBuffer::readFixed() {
-    return this->readInt();
-}
-
 int32_t SkValidatingReadBuffer::readInt() {
     const size_t inc = sizeof(int32_t);
     this->validate(IsPtrAlign4(fReader.peek()) && fReader.isAvailable(inc));

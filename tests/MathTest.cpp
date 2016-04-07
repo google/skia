@@ -7,6 +7,7 @@
 
 #include "SkColorPriv.h"
 #include "SkEndian.h"
+#include "SkFixed.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkHalf.h"

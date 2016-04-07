@@ -105,7 +105,6 @@ public:
     // primitives
     virtual bool readBool();
     virtual SkColor readColor();
-    virtual SkFixed readFixed();
     virtual int32_t readInt();
     virtual SkScalar readScalar();
     virtual uint32_t readUInt();

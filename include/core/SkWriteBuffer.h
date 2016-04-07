@@ -51,7 +51,6 @@ public:
     void writeByteArray(const void* data, size_t size);
     void writeDataAsByteArray(SkData* data) { this->writeByteArray(data->data(), data->size()); }
     void writeBool(bool value);
-    void writeFixed(SkFixed value);
     void writeScalar(SkScalar value);
     void writeScalarArray(const SkScalar* value, uint32_t count);
     void writeInt(int32_t value);

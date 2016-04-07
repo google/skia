@@ -6,10 +6,11 @@
  */
 
 
-#include "SkTableMaskFilter.h"
+#include "SkFixed.h"
 #include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkString.h"
+#include "SkTableMaskFilter.h"
+#include "SkWriteBuffer.h"
 
 SkTableMaskFilter::SkTableMaskFilter() {
     for (int i = 0; i < 256; i++) {

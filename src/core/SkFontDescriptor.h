@@ -8,6 +8,7 @@
 #ifndef SkFontDescriptor_DEFINED
 #define SkFontDescriptor_DEFINED
 
+#include "SkFixed.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypeface.h"

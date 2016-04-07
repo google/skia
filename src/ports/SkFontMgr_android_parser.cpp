@@ -7,6 +7,7 @@
 
 // Despite the name and location, this is portable code.
 
+#include "SkFixed.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_android_parser.h"
 #include "SkStream.h"

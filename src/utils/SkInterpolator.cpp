@@ -6,6 +6,7 @@
  */
 
 
+#include "SkFixed.h"
 #include "SkInterpolator.h"
 #include "SkMath.h"
 #include "SkTSearch.h"
