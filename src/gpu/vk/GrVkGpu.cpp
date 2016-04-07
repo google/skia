@@ -1209,15 +1209,18 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
 
     // Flip rect if necessary
     SkIRect srcVkRect;
+    srcVkRect.fLeft = srcRect.fLeft;
+    srcVkRect.fRight = srcRect.fRight;
     SkIRect dstRect;
     dstRect.fLeft = dstPoint.fX;
-    dstRect.fRight = dstPoint.fX + srcVkRect.width();
+    dstRect.fRight = dstPoint.fX + srcRect.width();
 
     if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
         srcVkRect.fTop = src->height() - srcRect.fBottom;
         srcVkRect.fBottom = src->height() - srcRect.fTop;
     } else {
-        srcVkRect = srcRect;
+        srcVkRect.fTop = srcRect.fTop;
+        srcVkRect.fBottom = srcRect.fBottom;
     }
 
     if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {

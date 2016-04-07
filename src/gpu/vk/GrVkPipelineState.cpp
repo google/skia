@@ -80,6 +80,9 @@ GrVkPipelineState::~GrVkPipelineState() {
     SkASSERT(!fSamplers.count());
     SkASSERT(!fTextureViews.count());
     SkASSERT(!fTextures.count());
+    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+        delete fFragmentProcessors[i];
+    }
 }
 
 void GrVkPipelineState::freeTempResources(const GrVkGpu* gpu) {

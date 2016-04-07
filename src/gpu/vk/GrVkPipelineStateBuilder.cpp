@@ -284,6 +284,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
                                                                    nullptr));
         GR_VK_CALL(fGpu->vkInterface(), DestroyDescriptorSetLayout(fGpu->device(), dsLayout[1],
                                                                    nullptr));
+        this->cleanupFragmentProcessors();
         return nullptr;
     }
 

@@ -53,6 +53,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
     VkLayerProperties* layers = new VkLayerProperties[layerCount];
     res = EnumerateInstanceLayerProperties(&layerCount, layers);
     if (VK_SUCCESS != res) {
+        delete[] layers;
         return false;
     }
     for (uint32_t i = 0; i < layerCount; ++i) {
@@ -75,6 +76,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
     VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
     res = EnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
     if (VK_SUCCESS != res) {
+        delete[] extensions;
         return false;
     }
     for (uint32_t i = 0; i < extensionCount; ++i) {
@@ -100,6 +102,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
         res = EnumerateInstanceExtensionProperties((*fInstanceLayerStrings)[layerIndex].c_str(),
                                                    &extensionCount, extensions);
         if (VK_SUCCESS != res) {
+            delete[] extensions;
             return false;
         }
         for (uint32_t i = 0; i < extensionCount; ++i) {
@@ -138,6 +141,7 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
     VkLayerProperties* layers = new VkLayerProperties[layerCount];
     res = EnumerateDeviceLayerProperties(physDev, &layerCount, layers);
     if (VK_SUCCESS != res) {
+        delete[] layers;
         return false;
     }
     for (uint32_t i = 0; i < layerCount; ++i) {
@@ -161,6 +165,7 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
     VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
     res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, extensions);
     if (VK_SUCCESS != res) {
+        delete[] extensions;
         return false;
     }
     for (uint32_t i = 0; i < extensionCount; ++i) {
@@ -188,6 +193,7 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
             (*fDeviceLayerStrings)[layerIndex].c_str(),
             &extensionCount, extensions);
         if (VK_SUCCESS != res) {
+            delete[] extensions;
             return false;
         }
         for (uint32_t i = 0; i < extensionCount; ++i) {

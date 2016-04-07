@@ -116,6 +116,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     err = vkEnumeratePhysicalDevices(inst, &gpuCount, nullptr);
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
+        vkDestroyInstance(inst, nullptr);
         SkFAIL("failing");
     }
     SkASSERT(gpuCount > 0);
@@ -125,6 +126,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     err = vkEnumeratePhysicalDevices(inst, &gpuCount, &physDev);
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
+        vkDestroyInstance(inst, nullptr);
         SkFAIL("failing");
     }
 
@@ -214,6 +216,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     err = vkCreateDevice(physDev, &deviceInfo, nullptr, &device);
     if (err) {
         SkDebugf("CreateDevice failed: %d\n", err);
+        vkDestroyInstance(inst, nullptr);
         return nullptr;
     }
 
