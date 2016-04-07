@@ -18,19 +18,21 @@ public:
      * Computes a scratch key for a buffer with a "dynamic" access pattern. (Buffers with "static"
      * and "stream" access patterns are disqualified by nature from being cached and reused.)
      */
-    static void ComputeScratchKeyForDynamicBuffer(size_t size, GrBufferType intendedType,
+    static void ComputeScratchKeyForDynamicBuffer(GrBufferType type, size_t size,
                                                   GrScratchKey* key) {
         static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
         GrScratchKey::Builder builder(key, kType, 1 + (sizeof(size_t) + 3) / 4);
         // TODO: There's not always reason to cache a buffer by type. In some (all?) APIs it's just
         // a chunk of memory we can use/reuse for any type of data. We really only need to
         // differentiate between the "read" types (e.g. kGpuToCpu_BufferType) and "draw" types.
-        builder[0] = intendedType;
+        builder[0] = type;
         builder[1] = (uint32_t)size;
         if (sizeof(size_t) > 4) {
             builder[2] = (uint32_t)((uint64_t)size >> 32);
         }
     }
+
+    GrBufferType type() const { return fType; }
 
     GrAccessPattern accessPattern() const { return fAccessPattern; }
 
@@ -108,16 +110,17 @@ public:
     }
 
 protected:
-    GrBuffer(GrGpu* gpu, size_t gpuMemorySize, GrBufferType intendedType,
-             GrAccessPattern accessPattern, bool cpuBacked)
+    GrBuffer(GrGpu* gpu, GrBufferType type, size_t gpuMemorySize, GrAccessPattern accessPattern,
+             bool cpuBacked)
         : INHERITED(gpu, kCached_LifeCycle),
           fMapPtr(nullptr),
+          fType(type),
           fGpuMemorySize(gpuMemorySize), // TODO: Zero for cpu backed buffers?
           fAccessPattern(accessPattern),
           fCPUBacked(cpuBacked) {
         if (!fCPUBacked && SkIsPow2(fGpuMemorySize) && kDynamic_GrAccessPattern == fAccessPattern) {
             GrScratchKey key;
-            ComputeScratchKeyForDynamicBuffer(fGpuMemorySize, intendedType, &key);
+            ComputeScratchKeyForDynamicBuffer(fType, fGpuMemorySize, &key);
             this->setScratchKey(key);
         }
     }
@@ -131,6 +134,7 @@ private:
     virtual void onUnmap() = 0;
     virtual bool onUpdateData(const void* src, size_t srcSizeInBytes) = 0;
 
+    GrBufferType      fType;
     size_t            fGpuMemorySize;
     GrAccessPattern   fAccessPattern;
     bool              fCPUBacked;

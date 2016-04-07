@@ -188,44 +188,11 @@ static bool gPrintStartupSpew;
 
 GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     : GrGpu(context)
-    , fGLContext(ctx)
-    , fProgramCache(new ProgramCache(this))
-    , fHWProgramID(0)
-    , fTempSrcFBOID(0)
-    , fTempDstFBOID(0)
-    , fStencilClearFBOID(0)
-    , fHWPLSEnabled(false)
-    , fPLSHasBeenUsed(false)
-    , fHWMinSampleShading(0.0) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
-        fCopyPrograms[i].fProgram = 0;
-    }
-    fWireRectProgram.fProgram = 0;
-    fPLSSetupProgram.fProgram = 0;
-
+    , fGLContext(ctx) {
     SkASSERT(ctx);
     fCaps.reset(SkRef(ctx->caps()));
 
     fHWBoundTextureUniqueIDs.reset(this->glCaps().glslCaps()->maxCombinedSamplers());
-
-    fHWBufferState[kVertex_GrBufferType].fGLTarget = GR_GL_ARRAY_BUFFER;
-    fHWBufferState[kIndex_GrBufferType].fGLTarget = GR_GL_ELEMENT_ARRAY_BUFFER;
-    fHWBufferState[kTexel_GrBufferType].fGLTarget = GR_GL_TEXTURE_BUFFER;
-    fHWBufferState[kDrawIndirect_GrBufferType].fGLTarget = GR_GL_DRAW_INDIRECT_BUFFER;
-    if (GrGLCaps::kChromium_TransferBufferType == this->glCaps().transferBufferType()) {
-        fHWBufferState[kXferCpuToGpu_GrBufferType].fGLTarget =
-            GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM;
-        fHWBufferState[kXferGpuToCpu_GrBufferType].fGLTarget =
-            GR_GL_PIXEL_PACK_TRANSFER_BUFFER_CHROMIUM;
-    } else {
-        fHWBufferState[kXferCpuToGpu_GrBufferType].fGLTarget = GR_GL_PIXEL_UNPACK_BUFFER;
-        fHWBufferState[kXferGpuToCpu_GrBufferType].fGLTarget = GR_GL_PIXEL_PACK_BUFFER;
-    }
-    GR_STATIC_ASSERT(6 == SK_ARRAY_COUNT(fHWBufferState));
-
-    if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
-        fPathRendering.reset(new GrGLPathRendering(this));
-    }
 
     GrGLClearErr(this->glInterface());
     if (gPrintStartupSpew) {
@@ -245,15 +212,35 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
         SkDebugf("\n");
         SkDebugf("%s", this->glCaps().dump().c_str());
     }
+
+    fProgramCache = new ProgramCache(this);
+
+    fHWProgramID = 0;
+    fTempSrcFBOID = 0;
+    fTempDstFBOID = 0;
+    fStencilClearFBOID = 0;
+
+    if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
+        fPathRendering.reset(new GrGLPathRendering(this));
+    }
+    this->createCopyPrograms();
+    fWireRectProgram.fProgram = 0;
+    fWireRectArrayBuffer = 0;
+    if (this->glCaps().shaderCaps()->plsPathRenderingSupport()) {
+        this->createPLSSetupProgram();
+    }
+    else {
+        memset(&fPLSSetupProgram, 0, sizeof(fPLSSetupProgram));
+    }
+    fHWPLSEnabled = false;
+    fPLSHasBeenUsed = false;
+    fHWMinSampleShading = 0.0;
 }
 
 GrGLGpu::~GrGLGpu() {
-    // Ensure any GrGpuResource objects get deleted first, since they may require a working GrGLGpu
-    // to release the resources held by the objects themselves.
+    // Delete the path rendering explicitly, since it will need working gpu object to release the
+    // resources the object itself holds.
     fPathRendering.reset();
-    fCopyProgramArrayBuffer.reset();
-    fWireRectArrayBuffer.reset();
-    fPLSSetupProgram.fArrayBuffer.reset();
 
     if (0 != fHWProgramID) {
         // detach the current program so there is no confusion on OpenGL's part
@@ -277,8 +264,20 @@ GrGLGpu::~GrGLGpu() {
         }
     }
 
+    if (0 != fCopyProgramArrayBuffer) {
+        GL_CALL(DeleteBuffers(1, &fCopyProgramArrayBuffer));
+    }
+
     if (0 != fWireRectProgram.fProgram) {
         GL_CALL(DeleteProgram(fWireRectProgram.fProgram));
+    }
+
+    if (0 != fWireRectArrayBuffer) {
+        GL_CALL(DeleteBuffers(1, &fWireRectArrayBuffer));
+    }
+
+    if (0 != fPLSSetupProgram.fArrayBuffer) {
+        GL_CALL(DeleteBuffers(1, &fPLSSetupProgram.fArrayBuffer));
     }
 
     if (0 != fPLSSetupProgram.fProgram) {
@@ -288,28 +287,7 @@ GrGLGpu::~GrGLGpu() {
     delete fProgramCache;
 }
 
-bool GrGLGpu::createPLSSetupProgram() {
-    if (!fPLSSetupProgram.fArrayBuffer) {
-        static const GrGLfloat vdata[] = {
-            0, 0,
-            0, 1,
-            1, 0,
-            1, 1
-        };
-        fPLSSetupProgram.fArrayBuffer.reset(GrGLBuffer::Create(this, sizeof(vdata),
-                                                               kVertex_GrBufferType,
-                                                               kStatic_GrAccessPattern, vdata));
-        if (!fPLSSetupProgram.fArrayBuffer) {
-            return false;
-        }
-    }
-
-    SkASSERT(!fPLSSetupProgram.fProgram);
-    GL_CALL_RET(fPLSSetupProgram.fProgram, CreateProgram());
-    if (!fPLSSetupProgram.fProgram) {
-        return false;
-    }
-
+void GrGLGpu::createPLSSetupProgram() {
     const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
     const char* version = glslCaps->versionDeclString();
 
@@ -369,7 +347,7 @@ bool GrGLGpu::createPLSSetupProgram() {
         "    pls.windings = ivec4(0, 0, 0, 0);\n"
         "}"
     );
-
+    GL_CALL_RET(fPLSSetupProgram.fProgram, CreateProgram());
     const char* str;
     GrGLint length;
 
@@ -393,7 +371,19 @@ bool GrGLGpu::createPLSSetupProgram() {
     GL_CALL(DeleteShader(vshader));
     GL_CALL(DeleteShader(fshader));
 
-    return true;
+    GL_CALL(GenBuffers(1, &fPLSSetupProgram.fArrayBuffer));
+    fHWGeometryState.setVertexBufferID(this, fPLSSetupProgram.fArrayBuffer);
+    static const GrGLfloat vdata[] = {
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 1
+    };
+    GL_ALLOC_CALL(this->glInterface(),
+                  BufferData(GR_GL_ARRAY_BUFFER,
+                             (GrGLsizeiptr) sizeof(vdata),
+                             vdata,  // data ptr
+                             GR_GL_STATIC_DRAW));
 }
 
 void GrGLGpu::disconnect(DisconnectType type) {
@@ -411,6 +401,9 @@ void GrGLGpu::disconnect(DisconnectType type) {
         if (fStencilClearFBOID) {
             GL_CALL(DeleteFramebuffers(1, &fStencilClearFBOID));
         }
+        if (fCopyProgramArrayBuffer) {
+            GL_CALL(DeleteBuffers(1, &fCopyProgramArrayBuffer));
+        }
         for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
             if (fCopyPrograms[i].fProgram) {
                 GL_CALL(DeleteProgram(fCopyPrograms[i].fProgram));
@@ -419,8 +412,15 @@ void GrGLGpu::disconnect(DisconnectType type) {
         if (fWireRectProgram.fProgram) {
             GL_CALL(DeleteProgram(fWireRectProgram.fProgram));
         }
+        if (fWireRectArrayBuffer) {
+            GL_CALL(DeleteBuffers(1, &fWireRectArrayBuffer));
+        }
+
         if (fPLSSetupProgram.fProgram) {
             GL_CALL(DeleteProgram(fPLSSetupProgram.fProgram));
+        }
+        if (fPLSSetupProgram.fArrayBuffer) {
+            GL_CALL(DeleteBuffers(1, &fPLSSetupProgram.fArrayBuffer));
         }
     } else {
         if (fProgramCache) {
@@ -435,14 +435,14 @@ void GrGLGpu::disconnect(DisconnectType type) {
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
     fStencilClearFBOID = 0;
-    fCopyProgramArrayBuffer.reset();
+    fCopyProgramArrayBuffer = 0;
     for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
         fCopyPrograms[i].fProgram = 0;
     }
     fWireRectProgram.fProgram = 0;
-    fWireRectArrayBuffer.reset();
+    fWireRectArrayBuffer = 0;
     fPLSSetupProgram.fProgram = 0;
-    fPLSSetupProgram.fArrayBuffer.reset();
+    fPLSSetupProgram.fArrayBuffer = 0;
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->disconnect(type);
     }
@@ -456,10 +456,8 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         GL_CALL(Disable(GR_GL_DEPTH_TEST));
         GL_CALL(DepthMask(GR_GL_FALSE));
 
-        fHWBufferState[kTexel_GrBufferType].invalidate();
-        fHWBufferState[kDrawIndirect_GrBufferType].invalidate();
-        fHWBufferState[kXferCpuToGpu_GrBufferType].invalidate();
-        fHWBufferState[kXferGpuToCpu_GrBufferType].invalidate();
+        fHWBoundTextureBufferIDIsValid = false;
+        fHWBoundDrawIndirectBufferIDIsValid = false;
 
         fHWDrawFace = GrPipelineBuilder::kInvalid_DrawFace;
 
@@ -540,9 +538,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     // Vertex
     if (resetBits & kVertex_GrGLBackendState) {
-        fHWVertexArrayState.invalidate();
-        fHWBufferState[kVertex_GrBufferType].invalidate();
-        fHWBufferState[kIndex_GrBufferType].invalidate();
+        fHWGeometryState.invalidate();
     }
 
     if (resetBits & kRenderTarget_GrGLBackendState) {
@@ -904,10 +900,11 @@ bool GrGLGpu::onTransferPixels(GrSurface* surface,
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
 
+    SkASSERT(kXferCpuToGpu_GrBufferType == transferBuffer->type());
     SkASSERT(!transferBuffer->isMapped());
     SkASSERT(!transferBuffer->isCPUBacked());
     const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(transferBuffer);
-    this->bindBuffer(kXferCpuToGpu_GrBufferType, glBuffer);
+    this->bindBuffer(glBuffer->bufferID(), glBuffer->target());
 
     bool success = false;
     GrMipLevel mipLevel;
@@ -1977,9 +1974,8 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 // objects are implemented as client-side-arrays on tile-deferred architectures.
 #define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
 
-GrBuffer* GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
-                                  GrAccessPattern accessPattern) {
-    return GrGLBuffer::Create(this, size, intendedType, accessPattern);
+GrBuffer* GrGLGpu::onCreateBuffer(GrBufferType type, size_t size, GrAccessPattern accessPattern) {
+    return GrGLBuffer::Create(this, type, size, accessPattern);
 }
 
 void GrGLGpu::flushScissor(const GrScissorState& scissorState,
@@ -2081,21 +2077,22 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
 
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
+    SkASSERT(kVertex_GrBufferType == vbuf->type());
 
-    GrGLAttribArrayState* attribState;
+    const GrGLBuffer* ibuf = nullptr;
     if (mesh.isIndexed()) {
         SkASSERT(indexOffsetInBytes);
 
         *indexOffsetInBytes = 0;
-        const GrGLBuffer* ibuf = static_cast<const GrGLBuffer*>(mesh.indexBuffer());
+        ibuf = static_cast<const GrGLBuffer*>(mesh.indexBuffer());
 
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
+        SkASSERT(kIndex_GrBufferType == ibuf->type());
         *indexOffsetInBytes += ibuf->baseOffset();
-        attribState = fHWVertexArrayState.bindInternalVertexArray(this, ibuf);
-    } else {
-        attribState = fHWVertexArrayState.bindInternalVertexArray(this);
     }
+    GrGLAttribArrayState* attribState =
+        fHWGeometryState.bindArrayAndBuffersToDraw(this, vbuf, ibuf);
 
     int vaCount = primProc.numAttribs();
     if (vaCount > 0) {
@@ -2115,7 +2112,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
             GrVertexAttribType attribType = attrib.fType;
             attribState->set(this,
                              attribIndex,
-                             vbuf,
+                             vbuf->bufferID(),
                              attribType,
                              stride,
                              reinterpret_cast<GrGLvoid*>(vertexOffsetInBytes + offset));
@@ -2125,26 +2122,57 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
     }
 }
 
-GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrGLBuffer* buffer) {
+void GrGLGpu::bindBuffer(GrGLuint id, GrGLenum type) {
     this->handleDirtyContext();
-
-    // Index buffer state is tied to the vertex array.
-    if (kIndex_GrBufferType == type) {
-        this->bindVertexArray(0);
+    switch (type) {
+        case GR_GL_ARRAY_BUFFER:
+            this->bindVertexBuffer(id);
+            break;
+        case GR_GL_ELEMENT_ARRAY_BUFFER:
+            this->bindIndexBufferAndDefaultVertexArray(id);
+            break;
+        case GR_GL_TEXTURE_BUFFER:
+            if (!fHWBoundTextureBufferIDIsValid || id != fHWBoundTextureBufferID) {
+                GR_GL_CALL(this->glInterface(), BindBuffer(type, id));
+                fHWBoundTextureBufferID = id;
+                fHWBoundTextureBufferIDIsValid = true;
+            }
+            break;
+        case GR_GL_DRAW_INDIRECT_BUFFER:
+            if (!fHWBoundDrawIndirectBufferIDIsValid || id != fHWBoundDrawIndirectBufferID) {
+                GR_GL_CALL(this->glInterface(), BindBuffer(type, id));
+                fHWBoundDrawIndirectBufferID = id;
+                fHWBoundDrawIndirectBufferIDIsValid = true;
+            }
+            break;
+        default:
+            SkDebugf("WARNING: buffer target 0x%x is not tracked by GrGLGpu.\n", type);
+            GR_GL_CALL(this->glInterface(), BindBuffer(type, id));
+            break;
     }
+}
 
-    SkASSERT(type >= 0 && type <= kLast_GrBufferType);
-    auto& bufferState = fHWBufferState[type];
-
-    if (buffer->getUniqueID() != bufferState.fBoundBufferUniqueID) {
-        if (!buffer->isCPUBacked() || !bufferState.fBufferZeroKnownBound) {
-            GL_CALL(BindBuffer(bufferState.fGLTarget, buffer->bufferID()));
-            bufferState.fBufferZeroKnownBound = buffer->isCPUBacked();
-        }
-        bufferState.fBoundBufferUniqueID = buffer->getUniqueID();
+void GrGLGpu::releaseBuffer(GrGLuint id, GrGLenum type) {
+    this->handleDirtyContext();
+    GL_CALL(DeleteBuffers(1, &id));
+    switch (type) {
+        case GR_GL_ARRAY_BUFFER:
+            this->notifyVertexBufferDelete(id);
+            break;
+        case GR_GL_ELEMENT_ARRAY_BUFFER:
+            this->notifyIndexBufferDelete(id);
+            break;
+        case GR_GL_TEXTURE_BUFFER:
+            if (fHWBoundTextureBufferIDIsValid && id == fHWBoundTextureBufferID) {
+                fHWBoundTextureBufferID = 0;
+            }
+            break;
+        case GR_GL_DRAW_INDIRECT_BUFFER:
+            if (fHWBoundDrawIndirectBufferIDIsValid && id == fHWBoundDrawIndirectBufferID) {
+                fHWBoundDrawIndirectBufferID = 0;
+            }
+            break;
     }
-
-    return bufferState.fGLTarget;
 }
 
 void GrGLGpu::disableScissor() {
@@ -2642,7 +2670,10 @@ void GrGLGpu::finishDrawTarget() {
         SkASSERT(!fHWPLSEnabled);
         SkASSERT(fMSAAEnabled != kYes_TriState);
         GL_CALL(Enable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
-        this->stampPLSSetupRect(SkRect::MakeXYWH(-100.0f, -100.0f, 0.01f, 0.01f));
+        this->stampRectUsingProgram(fPLSSetupProgram.fProgram,
+                                    SkRect::MakeXYWH(-100.0f, -100.0f, 0.01f, 0.01f),
+                                    fPLSSetupProgram.fPosXformUniform,
+                                    fPLSSetupProgram.fArrayBuffer);
         GL_CALL(Disable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
     }
 }
@@ -2810,26 +2841,18 @@ void GrGLGpu::onDraw(const GrPipeline& pipeline,
 #endif
 }
 
-void GrGLGpu::stampPLSSetupRect(const SkRect& bounds) {
-    SkASSERT(this->glCaps().glslCaps()->plsPathRenderingSupport())
+void GrGLGpu::stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform,
+                                    GrGLuint arrayBuffer) {
+    GL_CALL(UseProgram(program));
+    this->fHWGeometryState.setVertexArrayID(this, 0);
 
-    if (!fPLSSetupProgram.fProgram) {
-        if (!this->createPLSSetupProgram()) {
-            SkDebugf("Failed to create PLS setup program.\n");
-            return;
-        }
-    }
-
-    GL_CALL(UseProgram(fPLSSetupProgram.fProgram));
-    this->fHWVertexArrayState.setVertexArrayID(this, 0);
-
-    GrGLAttribArrayState* attribs = this->fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->set(this, 0, fPLSSetupProgram.fArrayBuffer, kVec2f_GrVertexAttribType,
-                 2 * sizeof(GrGLfloat), 0);
+    GrGLAttribArrayState* attribs =
+            this->fHWGeometryState.bindArrayAndBufferToDraw(this, arrayBuffer);
+    attribs->set(this, 0, arrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 
-    GL_CALL(Uniform4f(fPLSSetupProgram.fPosXformUniform, bounds.width(), bounds.height(),
-                      bounds.left(), bounds.top()));
+    GL_CALL(Uniform4f(posXformUniform, bounds.width(), bounds.height(), bounds.left(),
+                      bounds.top()));
 
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();
@@ -2866,7 +2889,8 @@ void GrGLGpu::setupPixelLocalStorage(const GrPipeline& pipeline,
     SkRect deviceBounds = SkRect::MakeXYWH(dx0, dy0, dx1 - dx0, dy1 - dy0);
 
     GL_CALL(Enable(GR_GL_FETCH_PER_SAMPLE_ARM));
-    this->stampPLSSetupRect(deviceBounds);
+    this->stampRectUsingProgram(fPLSSetupProgram.fProgram, deviceBounds,
+                                fPLSSetupProgram.fPosXformUniform, fPLSSetupProgram.fArrayBuffer);
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
@@ -3538,9 +3562,8 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
     bool preferCopy = SkToBool(dst->asRenderTarget());
     if (preferCopy && src->asTexture()) {
-        if (this->copySurfaceAsDraw(dst, src, srcRect, dstPoint)) {
-            return true;
-        }
+        this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
+        return true;
     }
 
     if (can_copy_texsubimage(dst, src, this)) {
@@ -3553,173 +3576,151 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
     }
 
     if (!preferCopy && src->asTexture()) {
-        if (this->copySurfaceAsDraw(dst, src, srcRect, dstPoint)) {
-            return true;
-        }
+        this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
+        return true;
     }
 
     return false;
 }
 
-bool GrGLGpu::createCopyProgram(int progIdx) {
+void GrGLGpu::createCopyPrograms() {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
+        fCopyPrograms[i].fProgram = 0;
+    }
     const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
+    const char* version = glslCaps->versionDeclString();
     static const GrSLType kSamplerTypes[3] = { kSampler2D_GrSLType, kSamplerExternal_GrSLType,
                                                kSampler2DRect_GrSLType };
-    if (kSamplerExternal_GrSLType == kSamplerTypes[progIdx] &&
-        !this->glCaps().glslCaps()->externalTextureSupport()) {
-        return false;
-    }
-    if (kSampler2DRect_GrSLType == kSamplerTypes[progIdx] &&
-        !this->glCaps().rectangleTextureSupport()) {
-        return false;
-    }
-
-    if (!fCopyProgramArrayBuffer) {
-        static const GrGLfloat vdata[] = {
-            0, 0,
-            0, 1,
-            1, 0,
-            1, 1
-        };
-        fCopyProgramArrayBuffer.reset(GrGLBuffer::Create(this, sizeof(vdata), kVertex_GrBufferType,
-                                                         kStatic_GrAccessPattern, vdata));
-    }
-    if (!fCopyProgramArrayBuffer) {
-        return false;
-    }
-
-    SkASSERT(!fCopyPrograms[progIdx].fProgram);
-    GL_CALL_RET(fCopyPrograms[progIdx].fProgram, CreateProgram());
-    if (!fCopyPrograms[progIdx].fProgram) {
-        return false;
-    }
-
-    const char* version = glslCaps->versionDeclString();
-    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
+    SkASSERT(3 == SK_ARRAY_COUNT(fCopyPrograms));
+    for (int i = 0; i < 3; ++i) {
+        if (kSamplerExternal_GrSLType == kSamplerTypes[i] &&
+            !this->glCaps().glslCaps()->externalTextureSupport()) {
+            continue;
+        }
+        if (kSampler2DRect_GrSLType == kSamplerTypes[i] &&
+            !this->glCaps().rectangleTextureSupport()) {
+            continue;
+        }
+        GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+        GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
+                                     GrShaderVar::kUniform_TypeModifier);
+        GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType,
+                                  GrShaderVar::kUniform_TypeModifier);
+        GrGLSLShaderVar uTexture("u_texture", kSamplerTypes[i],
                                  GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType,
-                              GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar uTexture("u_texture", kSamplerTypes[progIdx],
-                             GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType,
-                              GrShaderVar::kVaryingOut_TypeModifier);
-    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType,
-                               GrShaderVar::kOut_TypeModifier);
+        GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType,
+                                  GrShaderVar::kVaryingOut_TypeModifier);
+        GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType,
+                                   GrShaderVar::kOut_TypeModifier);
 
-    SkString vshaderTxt(version);
-    if (glslCaps->noperspectiveInterpolationSupport()) {
-        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
-            vshaderTxt.appendf("#extension %s : require\n", extension);
+        SkString vshaderTxt(version);
+        if (glslCaps->noperspectiveInterpolationSupport()) {
+            if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+                vshaderTxt.appendf("#extension %s : require\n", extension);
+            }
+            vTexCoord.addModifier("noperspective");
         }
-        vTexCoord.addModifier("noperspective");
-    }
 
-    aVertex.appendDecl(glslCaps, &vshaderTxt);
-    vshaderTxt.append(";");
-    uTexCoordXform.appendDecl(glslCaps, &vshaderTxt);
-    vshaderTxt.append(";");
-    uPosXform.appendDecl(glslCaps, &vshaderTxt);
-    vshaderTxt.append(";");
-    vTexCoord.appendDecl(glslCaps, &vshaderTxt);
-    vshaderTxt.append(";");
+        aVertex.appendDecl(glslCaps, &vshaderTxt);
+        vshaderTxt.append(";");
+        uTexCoordXform.appendDecl(glslCaps, &vshaderTxt);
+        vshaderTxt.append(";");
+        uPosXform.appendDecl(glslCaps, &vshaderTxt);
+        vshaderTxt.append(";");
+        vTexCoord.appendDecl(glslCaps, &vshaderTxt);
+        vshaderTxt.append(";");
 
-    vshaderTxt.append(
-        "// Copy Program VS\n"
-        "void main() {"
-        "  v_texCoord = a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw;"
-        "  gl_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
-        "  gl_Position.zw = vec2(0, 1);"
-        "}"
-    );
+        vshaderTxt.append(
+            "// Copy Program VS\n"
+            "void main() {"
+            "  v_texCoord = a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw;"
+            "  gl_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
+            "  gl_Position.zw = vec2(0, 1);"
+            "}"
+        );
 
-    SkString fshaderTxt(version);
-    if (glslCaps->noperspectiveInterpolationSupport()) {
-        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
-            fshaderTxt.appendf("#extension %s : require\n", extension);
+        SkString fshaderTxt(version);
+        if (glslCaps->noperspectiveInterpolationSupport()) {
+            if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+                fshaderTxt.appendf("#extension %s : require\n", extension);
+            }
         }
-    }
-    if (kSamplerTypes[progIdx] == kSamplerExternal_GrSLType) {
-        fshaderTxt.appendf("#extension %s : require\n",
-                           glslCaps->externalTextureExtensionString());
-    }
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps,
-                                                 &fshaderTxt);
-    vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-    vTexCoord.appendDecl(glslCaps, &fshaderTxt);
-    fshaderTxt.append(";");
-    uTexture.appendDecl(glslCaps, &fshaderTxt);
-    fshaderTxt.append(";");
-    const char* fsOutName;
-    if (glslCaps->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(glslCaps, &fshaderTxt);
+        if (kSamplerTypes[i] == kSamplerExternal_GrSLType) {
+            fshaderTxt.appendf("#extension %s : require\n",
+                               glslCaps->externalTextureExtensionString());
+        }
+        GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps,
+                                                     &fshaderTxt);
+        vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+        vTexCoord.appendDecl(glslCaps, &fshaderTxt);
         fshaderTxt.append(";");
-        fsOutName = oFragColor.c_str();
-    } else {
-        fsOutName = "gl_FragColor";
+        uTexture.appendDecl(glslCaps, &fshaderTxt);
+        fshaderTxt.append(";");
+        const char* fsOutName;
+        if (glslCaps->mustDeclareFragmentShaderOutput()) {
+            oFragColor.appendDecl(glslCaps, &fshaderTxt);
+            fshaderTxt.append(";");
+            fsOutName = oFragColor.c_str();
+        } else {
+            fsOutName = "gl_FragColor";
+        }
+        fshaderTxt.appendf(
+            "// Copy Program FS\n"
+            "void main() {"
+            "  %s = %s(u_texture, v_texCoord);"
+            "}",
+            fsOutName,
+            GrGLSLTexture2DFunctionName(kVec2f_GrSLType, kSamplerTypes[i], this->glslGeneration())
+        );
+
+        GL_CALL_RET(fCopyPrograms[i].fProgram, CreateProgram());
+        const char* str;
+        GrGLint length;
+
+        str = vshaderTxt.c_str();
+        length = SkToInt(vshaderTxt.size());
+        GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[i].fProgram,
+                                                      GR_GL_VERTEX_SHADER, &str, &length, 1,
+                                                      &fStats);
+
+        str = fshaderTxt.c_str();
+        length = SkToInt(fshaderTxt.size());
+        GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[i].fProgram,
+                                                      GR_GL_FRAGMENT_SHADER, &str, &length, 1,
+                                                      &fStats);
+
+        GL_CALL(LinkProgram(fCopyPrograms[i].fProgram));
+
+        GL_CALL_RET(fCopyPrograms[i].fTextureUniform,
+                    GetUniformLocation(fCopyPrograms[i].fProgram, "u_texture"));
+        GL_CALL_RET(fCopyPrograms[i].fPosXformUniform,
+                    GetUniformLocation(fCopyPrograms[i].fProgram, "u_posXform"));
+        GL_CALL_RET(fCopyPrograms[i].fTexCoordXformUniform,
+                    GetUniformLocation(fCopyPrograms[i].fProgram, "u_texCoordXform"));
+
+        GL_CALL(BindAttribLocation(fCopyPrograms[i].fProgram, 0, "a_vertex"));
+
+        GL_CALL(DeleteShader(vshader));
+        GL_CALL(DeleteShader(fshader));
     }
-    fshaderTxt.appendf(
-        "// Copy Program FS\n"
-        "void main() {"
-        "  %s = %s(u_texture, v_texCoord);"
-        "}",
-        fsOutName,
-        GrGLSLTexture2DFunctionName(kVec2f_GrSLType, kSamplerTypes[progIdx], this->glslGeneration())
-    );
-
-    const char* str;
-    GrGLint length;
-
-    str = vshaderTxt.c_str();
-    length = SkToInt(vshaderTxt.size());
-    GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
-                                                  GR_GL_VERTEX_SHADER, &str, &length, 1,
-                                                  &fStats);
-
-    str = fshaderTxt.c_str();
-    length = SkToInt(fshaderTxt.size());
-    GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1,
-                                                  &fStats);
-
-    GL_CALL(LinkProgram(fCopyPrograms[progIdx].fProgram));
-
-    GL_CALL_RET(fCopyPrograms[progIdx].fTextureUniform,
-                GetUniformLocation(fCopyPrograms[progIdx].fProgram, "u_texture"));
-    GL_CALL_RET(fCopyPrograms[progIdx].fPosXformUniform,
-                GetUniformLocation(fCopyPrograms[progIdx].fProgram, "u_posXform"));
-    GL_CALL_RET(fCopyPrograms[progIdx].fTexCoordXformUniform,
-                GetUniformLocation(fCopyPrograms[progIdx].fProgram, "u_texCoordXform"));
-
-    GL_CALL(BindAttribLocation(fCopyPrograms[progIdx].fProgram, 0, "a_vertex"));
-
-    GL_CALL(DeleteShader(vshader));
-    GL_CALL(DeleteShader(fshader));
-
-    return true;
+    fCopyProgramArrayBuffer = 0;
+    GL_CALL(GenBuffers(1, &fCopyProgramArrayBuffer));
+    fHWGeometryState.setVertexBufferID(this, fCopyProgramArrayBuffer);
+    static const GrGLfloat vdata[] = {
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 1
+    };
+    GL_ALLOC_CALL(this->glInterface(),
+                  BufferData(GR_GL_ARRAY_BUFFER,
+                             (GrGLsizeiptr) sizeof(vdata),
+                             vdata,  // data ptr
+                             GR_GL_STATIC_DRAW));
 }
 
-bool GrGLGpu::createWireRectProgram() {
-    if (!fWireRectArrayBuffer) {
-        static const GrGLfloat vdata[] = {
-            0, 0,
-            0, 1,
-            1, 1,
-            1, 0
-        };
-        fWireRectArrayBuffer.reset(GrGLBuffer::Create(this, sizeof(vdata), kVertex_GrBufferType,
-                                                      kStatic_GrAccessPattern, vdata));
-        if (!fWireRectArrayBuffer) {
-            return false;
-        }
-    }
-
+void GrGLGpu::createWireRectProgram() {
     SkASSERT(!fWireRectProgram.fProgram);
-    GL_CALL_RET(fWireRectProgram.fProgram, CreateProgram());
-    if (!fWireRectProgram.fProgram) {
-        return false;
-    }
-
     GrGLSLShaderVar uColor("u_color", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar uRect("u_rect", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
@@ -3767,6 +3768,7 @@ bool GrGLGpu::createWireRectProgram() {
         uColor.c_str()
     );
 
+    GL_CALL_RET(fWireRectProgram.fProgram, CreateProgram());
     const char* str;
     GrGLint length;
 
@@ -3792,8 +3794,19 @@ bool GrGLGpu::createWireRectProgram() {
 
     GL_CALL(DeleteShader(vshader));
     GL_CALL(DeleteShader(fshader));
-
-    return true;
+    GL_CALL(GenBuffers(1, &fWireRectArrayBuffer));
+    fHWGeometryState.setVertexBufferID(this, fWireRectArrayBuffer);
+    static const GrGLfloat vdata[] = {
+        0, 0,
+        0, 1,
+        1, 1,
+        1, 0,
+    };
+    GL_ALLOC_CALL(this->glInterface(),
+                  BufferData(GR_GL_ARRAY_BUFFER,
+                             (GrGLsizeiptr) sizeof(vdata),
+                             vdata,  // data ptr
+                             GR_GL_STATIC_DRAW));
 }
 
 void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor color) {
@@ -3802,10 +3815,7 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
 
     this->handleDirtyContext();
     if (!fWireRectProgram.fProgram) {
-        if (!this->createWireRectProgram()) {
-            SkDebugf("Failed to create wire rect program.\n");
-            return;
-        }
+        this->createWireRectProgram();
     }
 
     int w = rt->width();
@@ -3841,9 +3851,10 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
     GL_CALL(UseProgram(fWireRectProgram.fProgram));
     fHWProgramID = fWireRectProgram.fProgram;
 
-    fHWVertexArrayState.setVertexArrayID(this, 0);
+    fHWGeometryState.setVertexArrayID(this, 0);
 
-    GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
+    GrGLAttribArrayState* attribs =
+        fHWGeometryState.bindArrayAndBufferToDraw(this, fWireRectArrayBuffer);
     attribs->set(this, 0, fWireRectArrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat),
                  0);
     attribs->disableUnusedArrays(this, 0x1);
@@ -3866,23 +3877,14 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
 }
 
 
-bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
+void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
                                 GrSurface* src,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) {
-    GrGLTexture* srcTex = static_cast<GrGLTexture*>(src->asTexture());
-    int progIdx = TextureTargetToCopyProgramIdx(srcTex->target());
-
-    if (!fCopyPrograms[progIdx].fProgram) {
-        if (!this->createCopyProgram(progIdx)) {
-            SkDebugf("Failed to create copy program.\n");
-            return false;
-        }
-    }
-
     int w = srcRect.width();
     int h = srcRect.height();
 
+    GrGLTexture* srcTex = static_cast<GrGLTexture*>(src->asTexture());
     GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
     this->bindTexture(0, params, true, srcTex);
 
@@ -3893,12 +3895,15 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
 
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
 
+    int progIdx = TextureTargetToCopyProgramIdx(srcTex->target());
+
     GL_CALL(UseProgram(fCopyPrograms[progIdx].fProgram));
     fHWProgramID = fCopyPrograms[progIdx].fProgram;
 
-    fHWVertexArrayState.setVertexArrayID(this, 0);
+    fHWGeometryState.setVertexArrayID(this, 0);
 
-    GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
+    GrGLAttribArrayState* attribs =
+        fHWGeometryState.bindArrayAndBufferToDraw(this, fCopyProgramArrayBuffer);
     attribs->set(this, 0, fCopyProgramArrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat),
                  0);
     attribs->disableUnusedArrays(this, 0x1);
@@ -3954,7 +3959,6 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->unbindTextureFBOForCopy(GR_GL_FRAMEBUFFER, dst);
     this->didWriteToSurface(dst, &dstRect);
 
-    return true;
 }
 
 void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
@@ -4192,27 +4196,52 @@ void GrGLGpu::resetShaderCacheForTesting() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(
+                                                GrGLGpu* gpu,
+                                                const GrGLBuffer* vbuffer,
+                                                const GrGLBuffer* ibuffer) {
+    SkASSERT(vbuffer);
+    GrGLuint vbufferID = vbuffer->bufferID();
+    GrGLuint* ibufferIDPtr = nullptr;
+    GrGLuint ibufferID;
+    if (ibuffer) {
+        ibufferID = ibuffer->bufferID();
+        ibufferIDPtr = &ibufferID;
+    }
+    return this->internalBind(gpu, vbufferID, ibufferIDPtr);
+}
 
-GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLGpu* gpu,
-                                                                           const GrGLBuffer* ibuf) {
+GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBufferToDraw(GrGLGpu* gpu,
+                                                                         GrGLuint vbufferID) {
+    return this->internalBind(gpu, vbufferID, nullptr);
+}
+
+GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(GrGLGpu* gpu,
+                                                                          GrGLuint vbufferID,
+                                                                          GrGLuint ibufferID) {
+    return this->internalBind(gpu, vbufferID, &ibufferID);
+}
+
+GrGLAttribArrayState* GrGLGpu::HWGeometryState::internalBind(GrGLGpu* gpu,
+                                                             GrGLuint vbufferID,
+                                                             GrGLuint* ibufferID) {
     GrGLAttribArrayState* attribState;
 
-    if (gpu->glCaps().isCoreProfile()) {
-        if (!fCoreProfileVertexArray) {
+    if (gpu->glCaps().isCoreProfile() && 0 != vbufferID) {
+        if (!fVBOVertexArray) {
             GrGLuint arrayID;
             GR_GL_CALL(gpu->glInterface(), GenVertexArrays(1, &arrayID));
             int attrCount = gpu->glCaps().maxVertexAttributes();
-            fCoreProfileVertexArray = new GrGLVertexArray(arrayID, attrCount);
+            fVBOVertexArray = new GrGLVertexArray(arrayID, attrCount);
         }
-        if (ibuf) {
-            attribState = fCoreProfileVertexArray->bindWithIndexBuffer(gpu, ibuf);
+        if (ibufferID) {
+            attribState = fVBOVertexArray->bindWithIndexBuffer(gpu, *ibufferID);
         } else {
-            attribState = fCoreProfileVertexArray->bind(gpu);
+            attribState = fVBOVertexArray->bind(gpu);
         }
     } else {
-        if (ibuf) {
-            // bindBuffer implicitly binds VAO 0 when binding an index buffer.
-            gpu->bindBuffer(kIndex_GrBufferType, ibuf);
+        if (ibufferID) {
+            this->setIndexBufferIDOnDefaultVertexArray(gpu, *ibufferID);
         } else {
             this->setVertexArrayID(gpu, 0);
         }

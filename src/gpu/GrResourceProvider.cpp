@@ -32,7 +32,7 @@ const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* p
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
     // This is typically used in GrBatchs, so we assume kNoPendingIO.
-    GrBuffer* buffer = this->createBuffer(bufferSize, kIndex_GrBufferType, kStatic_GrAccessPattern,
+    GrBuffer* buffer = this->createBuffer(kIndex_GrBufferType, bufferSize, kStatic_GrAccessPattern,
                                           kNoPendingIO_Flag);
     if (!buffer) {
         return nullptr;
@@ -88,7 +88,7 @@ GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf, const SkDesc
     return this->gpu()->pathRendering()->createGlyphs(tf, desc, stroke);
 }
 
-GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedType,
+GrBuffer* GrResourceProvider::createBuffer(GrBufferType type, size_t size,
                                            GrAccessPattern accessPattern, uint32_t flags) {
     if (this->isAbandoned()) {
         return nullptr;
@@ -100,7 +100,7 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
         size = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
 
         GrScratchKey key;
-        GrBuffer::ComputeScratchKeyForDynamicBuffer(size, intendedType, &key);
+        GrBuffer::ComputeScratchKeyForDynamicBuffer(type, size, &key);
         uint32_t scratchFlags = 0;
         if (flags & kNoPendingIO_Flag) {
             scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
@@ -112,7 +112,7 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
             return static_cast<GrBuffer*>(resource);
         }
     }
-    return this->gpu()->createBuffer(size, intendedType, accessPattern);
+    return this->gpu()->createBuffer(type, size, accessPattern);
 }
 
 GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
