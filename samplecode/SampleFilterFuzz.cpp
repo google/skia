@@ -582,8 +582,9 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                          make_image_filter());
         break;
     case MAGNIFIER:
-        filter = sk_sp<SkImageFilter>(SkMagnifierImageFilter::Create(make_rect(), 
-                                                                     make_scalar(true)));
+        filter = SkMagnifierImageFilter::Make(make_rect(),
+                                              make_scalar(true),
+                                              make_image_filter());
         break;
     case DOWN_SAMPLE:
         filter = SkDownSampleImageFilter::Make(make_scalar(), make_image_filter());

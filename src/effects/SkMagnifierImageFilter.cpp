@@ -232,8 +232,8 @@ void GrMagnifierEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkImageFilter* SkMagnifierImageFilter::Create(const SkRect& srcRect, SkScalar inset,
-                                              SkImageFilter* input) {
+sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScalar inset,
+                                                  sk_sp<SkImageFilter> input) {
 
     if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
         return nullptr;
@@ -242,13 +242,15 @@ SkImageFilter* SkMagnifierImageFilter::Create(const SkRect& srcRect, SkScalar in
     if (srcRect.fLeft < 0 || srcRect.fTop < 0) {
         return nullptr;
     }
-    return new SkMagnifierImageFilter(srcRect, inset, input);
+    return sk_sp<SkImageFilter>(new SkMagnifierImageFilter(srcRect, inset, std::move(input)));
 }
 
 
 SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect, SkScalar inset,
-                                               SkImageFilter* input)
-    : INHERITED(1, &input), fSrcRect(srcRect), fInset(inset) {
+                                               sk_sp<SkImageFilter> input)
+    : INHERITED(&input, 1, nullptr)
+    , fSrcRect(srcRect)
+    , fInset(inset) {
     SkASSERT(srcRect.x() >= 0 && srcRect.y() >= 0 && inset >= 0);
 }
 
@@ -285,7 +287,7 @@ sk_sp<SkFlattenable> SkMagnifierImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src;
     buffer.readRect(&src);
-    return sk_sp<SkFlattenable>(Create(src, buffer.readScalar(), common.getInput(0).get()));
+    return Make(src, buffer.readScalar(), common.getInput(0));
 }
 
 void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {

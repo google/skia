@@ -15,11 +15,11 @@
 DEF_SIMPLE_GM_BG(imagemagnifier, canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
         SkPaint filterPaint;
         filterPaint.setImageFilter(
-            SkMagnifierImageFilter::Create(
+            SkMagnifierImageFilter::Make(
                 SkRect::MakeXYWH(SkIntToScalar(100), SkIntToScalar(100),
                                  SkIntToScalar(WIDTH / 2),
                                  SkIntToScalar(HEIGHT / 2)),
-                100))->unref();
+                100, nullptr));
         canvas->saveLayer(nullptr, &filterPaint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
         SkRandom rand;
