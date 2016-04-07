@@ -14,7 +14,7 @@ public:
 
     virtual ~Application() {}
 
-    virtual void onIdle(float dt) = 0;
+    virtual void onIdle(double ms) = 0;
 };
 
 #endif

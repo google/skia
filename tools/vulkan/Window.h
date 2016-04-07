@@ -27,12 +27,12 @@ public:
         int fStencilBits;
     };
 
-    enum BackEndTypes {
+    enum BackEndType {
         kNativeGL_BackendType,
         kVulkan_BackendType
     };
 
-    virtual bool attach(BackEndTypes attachType, int msaaSampleCount, AttachmentInfo*) = 0;
+    virtual bool attach(BackEndType attachType, int msaaSampleCount, AttachmentInfo*) = 0;
     void detach();
 
     // input handling

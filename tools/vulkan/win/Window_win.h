@@ -21,7 +21,7 @@ public:
     void setTitle(const char*) override;
     void show() override;
 
-    bool attach(BackEndTypes attachType, int msaaSampleCount, AttachmentInfo*) override;
+    bool attach(BackEndType attachType, int msaaSampleCount, AttachmentInfo*) override;
 
 private:
     HINSTANCE fHInstance;

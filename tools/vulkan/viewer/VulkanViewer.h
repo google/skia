@@ -22,10 +22,16 @@ public:
     bool onKey(Window::Key key, Window::InputState state, uint32_t modifiers);
     void onPaint(SkCanvas* canvas);
 
-    void onIdle(float dt) override;
+    void onIdle(double ms) override;
 
 private:
+    void drawStats(SkCanvas* canvas);
+
     Window*      fWindow;
+
+    static const int kMeasurementCount = 64;  // should be power of 2 for fast mod
+    double fMeasurements[kMeasurementCount];
+    int fCurrentMeasurement;
 
     const skiagm::GMRegistry* fGMs;
 };

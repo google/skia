@@ -9,6 +9,7 @@
 #include <tchar.h>
 
 #include "SkTypes.h"
+#include "Timer.h"
 #include "Window_win.h"
 #include "../Application.h"
 
@@ -23,6 +24,8 @@ static char* tchar_to_utf8(const TCHAR* str) {
     return _strdup(str);
 #endif
 }
+
+static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 // This file can work with GUI or CONSOLE subsystem types since we define _tWinMain and main().
 
@@ -60,6 +63,10 @@ static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
     Application* app = Application::Create(argc, argv, (void*)hInstance);
 
     MSG msg = { 0 };
+
+    double currentTime = 0.0;
+    double previousTime = 0.0;
+
     // Main message loop
     while (WM_QUIT != msg.message) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -67,7 +74,9 @@ static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
             DispatchMessage(&msg);
         } 
         
-        app->onIdle(0.0f);
+        previousTime = currentTime;
+        currentTime = now_ms();
+        app->onIdle(currentTime - previousTime);
     }
 
     delete app;

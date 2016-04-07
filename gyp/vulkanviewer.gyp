@@ -24,6 +24,7 @@
         '../src/gpu',
         '../src/images',
         '../src/image',
+        '../tools/timer',
       ],
       'sources': [
         '../gm/gm.cpp',

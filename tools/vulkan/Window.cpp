@@ -61,6 +61,8 @@ void Window::onPaint() {
         canvas->flush();
 
         fTestContext->swapBuffers();
+    } else {
+        // try recreating testcontext
     }
 
 }

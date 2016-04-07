@@ -66,7 +66,7 @@ void VulkanTestContext::initializeContext(void* platformData) {
             break;
         }
     }
-    SkASSERT(0 <= fPresentQueueIndex && fPresentQueueIndex < queueCount);
+    SkASSERT(fPresentQueueIndex < queueCount);
 
     VkBool32 supported;
     VkResult res = GR_VK_CALL(fBackendContext->fInterface,
@@ -184,13 +184,14 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
                                         VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR :
                                         VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
-    // FIFO is the only mode universally supported
+    // If mailbox mode is available, use it, as it is the lowest-latency non-
+    // tearing mode. If not, fall back to FIFO which is always available.
     VkPresentModeKHR mode = VK_PRESENT_MODE_FIFO_KHR;
-    bool vsync = false;
     for (uint32_t i = 0; i < presentModeCount; ++i) {
-        if ((vsync && VK_PRESENT_MODE_MAILBOX_KHR == presentModes[i]) ||
-            (!vsync && VK_PRESENT_MODE_IMMEDIATE_KHR == presentModes[i])) {
+        // use mailbox
+        if (VK_PRESENT_MODE_MAILBOX_KHR == presentModes[i]) {
             mode = presentModes[i];
+            break;
         }
     }
 
@@ -447,9 +448,10 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
                                                   &backbuffer->fImageIndex));
     if (VK_ERROR_SURFACE_LOST_KHR == res) {
         // need to figure out how to create a new vkSurface without the platformData*
+        // maybe use attach somehow? but need a Window
         return nullptr;
     }
-    if (VK_ERROR_OUT_OF_DATE_KHR == res || VK_ERROR_SURFACE_LOST_KHR == res) {
+    if (VK_ERROR_OUT_OF_DATE_KHR == res) {
         // tear swapchain down and try again
         if (!this->createSwapchain(0, 0)) {
             return nullptr;
