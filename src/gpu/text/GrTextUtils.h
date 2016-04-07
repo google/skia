@@ -9,6 +9,7 @@
 #define GrTextUtils_DEFINED
 
 #include "GrColor.h"
+#include "SkPaint.h"
 #include "SkScalar.h"
 
 class GrAtlasTextBlob;
@@ -22,7 +23,6 @@ class GrShaderCaps;
 class SkGlyph;
 class SkMatrix;
 struct SkIRect;
-class SkPaint;
 struct SkPoint;
 class SkGlyphCache;
 class SkSurfaceProps;
@@ -38,13 +38,13 @@ public:
     static void DrawBmpText(GrAtlasTextBlob*, int runIndex,
                             GrBatchFontCache*, const SkSurfaceProps&,
                             const SkPaint&,
-                            GrColor, const SkMatrix& viewMatrix,
+                            GrColor, SkPaint::FakeGamma, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
                             SkScalar x, SkScalar y);
 
     static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex,
                                GrBatchFontCache*, const SkSurfaceProps&, const SkPaint&,
-                               GrColor, const SkMatrix& viewMatrix,
+                               GrColor, SkPaint::FakeGamma, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset);
@@ -55,14 +55,14 @@ public:
 
     static void DrawDFText(GrAtlasTextBlob* blob, int runIndex,
                            GrBatchFontCache*, const SkSurfaceProps&,
-                           const SkPaint& skPaint, GrColor color,
+                           const SkPaint& skPaint, GrColor color, SkPaint::FakeGamma,
                            const SkMatrix& viewMatrix,
                            const char text[], size_t byteLength,
                            SkScalar x, SkScalar y);
 
     static void DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                               GrBatchFontCache*, const SkSurfaceProps&, const SkPaint&,
-                              GrColor color, const SkMatrix& viewMatrix,
+                              GrColor color, SkPaint::FakeGamma, const SkMatrix& viewMatrix,
                               const char text[], size_t byteLength,
                               const SkScalar pos[], int scalarsPerPosition,
                               const SkPoint& offset);
