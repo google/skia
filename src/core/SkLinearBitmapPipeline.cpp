@@ -65,7 +65,10 @@ public:
 class SkLinearBitmapPipeline::PixelPlacerInterface {
 public:
     virtual ~PixelPlacerInterface() { }
-    virtual void setDestination(SkPM4f* dst) = 0;
+    // Count is normally not needed, but in these early stages of development it is useful to
+    // check bounds.
+    // TODO(herb): 4/6/2016 - remove count when code is stable.
+    virtual void setDestination(void* dst, int count) = 0;
     virtual void VECTORCALL placePixel(Sk4f pixel0) = 0;
     virtual void VECTORCALL place4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
 };
@@ -238,6 +241,12 @@ public:
             processor->breakIntoEdges(span);
         }
 
+        void repeatSpan(Span span, int32_t repeatCount) {
+            while (repeatCount --> 0) {
+                processor->pointSpan(span);
+            }
+        }
+
         BilerpTileStage* processor;
     };
 
@@ -364,13 +373,21 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_tiler(
     SkShader::TileMode xMode,
     SkShader::TileMode yMode,
     SkFilterQuality filterQuality,
-    SkLinearBitmapPipeline::TileStage* tileStage) {
+    SkScalar dx,
+    SkLinearBitmapPipeline::TileStage* tileStage)
+{
     switch (xMode) {
         case SkShader::kClamp_TileMode:
             choose_tiler_ymode<XClampStrategy>(yMode, filterQuality, dimensions, next, tileStage);
             break;
         case SkShader::kRepeat_TileMode:
-            choose_tiler_ymode<XRepeatStrategy>(yMode, filterQuality, dimensions, next, tileStage);
+            if (dx == 1.0f && filterQuality == kNone_SkFilterQuality) {
+                choose_tiler_ymode<XRepeatUnitScaleStrategy>(
+                    yMode, kNone_SkFilterQuality, dimensions, next, tileStage);
+            } else {
+                choose_tiler_ymode<XRepeatStrategy>(
+                    yMode, filterQuality, dimensions, next, tileStage);
+            }
             break;
         case SkShader::kMirror_TileMode:
             choose_tiler_ymode<XMirrorStrategy>(yMode, filterQuality, dimensions, next, tileStage);
@@ -402,7 +419,7 @@ public:
         fSampler.nearestSpan(span);
     }
 
-    virtual void repeatSpan(Span span, int32_t repeatCount) override {
+    void repeatSpan(Span span, int32_t repeatCount) override {
         while (repeatCount > 0) {
             fSampler.nearestSpan(span);
             repeatCount--;
@@ -413,7 +430,7 @@ public:
         SkFAIL("Using nearest neighbor sampler, but calling a bilerpEdge.");
     }
 
-    virtual void bilerpSpan(Span span, SkScalar y) override {
+    void bilerpSpan(Span span, SkScalar y) override {
         SkFAIL("Using nearest neighbor sampler, but calling a bilerpSpan.");
     }
 
@@ -440,7 +457,7 @@ public:
         fSampler.bilerpSpan(span);
     }
 
-    virtual void repeatSpan(Span span, int32_t repeatCount) override {
+    void repeatSpan(Span span, int32_t repeatCount) override {
         while (repeatCount > 0) {
             fSampler.bilerpSpan(span);
             repeatCount--;
@@ -451,7 +468,7 @@ public:
         fSampler.bilerpEdge(xs, ys);
     }
 
-    virtual void bilerpSpan(Span span, SkScalar y) override {
+    void bilerpSpan(Span span, SkScalar y) override {
         fSampler.bilerpSpanWithY(span, y);
     }
 
@@ -515,11 +532,13 @@ class PlaceFPPixel final : public SkLinearBitmapPipeline::PixelPlacerInterface {
 public:
     PlaceFPPixel(float postAlpha) : fPostAlpha{postAlpha} { }
     void VECTORCALL placePixel(Sk4f pixel) override {
+        SkASSERT(fDst + 1 <= fEnd );
         PlacePixel(fDst, pixel, 0);
         fDst += 1;
     }
 
     void VECTORCALL place4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) override {
+        SkASSERT(fDst + 4 <= fEnd);
         SkPM4f* dst = fDst;
         PlacePixel(dst, p0, 0);
         PlacePixel(dst, p1, 1);
@@ -528,8 +547,9 @@ public:
         fDst += 4;
     }
 
-    void setDestination(SkPM4f* dst) override {
-        fDst = dst;
+    void setDestination(void* dst, int count) override {
+        fDst = static_cast<SkPM4f*>(dst);
+        fEnd = fDst + count;
     }
 
 private:
@@ -547,6 +567,7 @@ private:
     }
 
     SkPM4f* fDst;
+    SkPM4f* fEnd;
     Sk4f fPostAlpha;
 };
 
@@ -572,7 +593,8 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     SkFilterQuality filterQuality,
     SkShader::TileMode xTile, SkShader::TileMode yTile,
     float postAlpha,
-    const SkPixmap& srcPixmap) {
+    const SkPixmap& srcPixmap)
+{
     SkISize dimensions = srcPixmap.info().dimensions();
     const SkImageInfo& srcImageInfo = srcPixmap.info();
 
@@ -588,6 +610,8 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
         }
     }
 
+    SkScalar dx = adjustedInverse.getScaleX();
+
     // If it is an index 8 color type, the sampler converts to unpremul for better fidelity.
     SkAlphaType alphaType = srcImageInfo.alphaType();
     if (srcPixmap.colorType() == kIndex_8_SkColorType) {
@@ -600,13 +624,13 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     auto samplerStage   = choose_pixel_sampler(placementStage,
                                                filterQuality, srcPixmap, &fSampleStage);
     auto tilerStage     = choose_tiler(samplerStage,
-                                       dimensions, xTile, yTile, filterQuality, &fTiler);
+                                       dimensions, xTile, yTile, filterQuality, dx, &fTiler);
     fFirstStage         = choose_matrix(tilerStage, adjustedInverse, &fMatrixStage);
 }
 
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {
     SkASSERT(count > 0);
-    fPixelStage->setDestination(dst);
+    fPixelStage->setDestination(dst, count);
     // The count and length arguments start out in a precise relation in order to keep the
     // math correct through the different stages. Count is the number of pixel to produce.
     // Since the code samples at pixel centers, length is the distance from the center of the
