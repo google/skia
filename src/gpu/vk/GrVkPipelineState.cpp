@@ -409,7 +409,11 @@ void GrVkPipelineState::DescriptorPoolManager::getNewPool(GrVkGpu* gpu) {
     if (fPool) {
         fPool->unref(gpu);
         SkASSERT(fMaxDescriptorSets < (SK_MaxU32 >> 1));
-        fMaxDescriptorSets = fMaxDescriptorSets << 1;
+        if (fMaxDescriptorSets < kMaxDescSetLimit >> 1) {
+            fMaxDescriptorSets = fMaxDescriptorSets << 1;
+        } else {
+            fMaxDescriptorSets = kMaxDescSetLimit;
+        }
 
     }
     if (fMaxDescriptorSets) {

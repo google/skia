@@ -168,7 +168,7 @@ private:
             , fDescType(type)
             , fCurrentDescriptorSet(0)
             , fPool(nullptr) {
-            SkASSERT(descCount < (SK_MaxU32 >> 2));
+            SkASSERT(descCount < (kMaxDescSetLimit >> 2));
             fMaxDescriptorSets = descCount << 2;
             this->getNewPool(gpu);
         }
@@ -190,6 +190,8 @@ private:
         GrVkDescriptorPool*    fPool;
 
     private:
+        static const uint32_t kMaxDescSetLimit = 1 << 10;
+
         void getNewPool(GrVkGpu* gpu);
     };
 
