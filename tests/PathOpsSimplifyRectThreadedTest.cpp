@@ -42,7 +42,8 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
         SkPath path, out;
         char* str = pathStr;
         path.setFillType(SkPath::kWinding_FillType);
-        int l, t, r, b;
+        int l SK_INIT_TO_AVOID_WARNING, t SK_INIT_TO_AVOID_WARNING,
+            r SK_INIT_TO_AVOID_WARNING, b SK_INIT_TO_AVOID_WARNING;
         if (aShape) {
             switch (aShape) {
                 case 1:  // square

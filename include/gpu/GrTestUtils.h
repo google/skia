@@ -51,7 +51,7 @@ static inline GrColor GrRandomColor(SkRandom* random) {
     };
 
     ColorMode colorMode = ColorMode(random->nextULessThan(kLast_ColorMode + 1));
-    GrColor color;
+    GrColor color SK_INIT_TO_AVOID_WARNING;
     switch (colorMode) {
         case kAllOnes_ColorMode:
             color = GrColorPackRGBA(0xFF, 0xFF, 0xFF, 0xFF);
@@ -87,7 +87,7 @@ static inline uint8_t GrRandomCoverage(SkRandom* random) {
     };
 
     CoverageMode colorMode = CoverageMode(random->nextULessThan(kLast_CoverageMode + 1));
-    uint8_t coverage;
+    uint8_t coverage SK_INIT_TO_AVOID_WARNING;
     switch (colorMode) {
         case kZero_CoverageMode:
             coverage = 0;
