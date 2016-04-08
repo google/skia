@@ -95,6 +95,11 @@ SK_API void sk_path_close(sk_path_t*);
 */
 SK_API void sk_path_add_rect(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
 /**
+   Add a closed rectangle contour to the path with an initial point of the contour
+   (startIndex) expressed as a corner index (0-3)
+ */
+SK_API void sk_path_add_rect_start(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir, uint32_t startIndex);
+/**
     Add a closed oval contour to the path
 */
 SK_API void sk_path_add_oval(sk_path_t*, const sk_rect_t*, sk_path_direction_t);

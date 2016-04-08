@@ -140,6 +140,14 @@ void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_directio
     as_path(cpath)->addRect(AsRect(*crect), dir);
 }
 
+void sk_path_add_rect_start(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir, uint32_t startIndex) {
+    SkPath::Direction dir;
+    if (!find_sk(cdir, &dir)) {
+        return;
+    }
+    as_path(cpath)->addRect(AsRect(*crect), dir, startIndex);
+}
+
 void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
     SkPath::Direction dir;
     if (!find_sk(cdir, &dir)) {
