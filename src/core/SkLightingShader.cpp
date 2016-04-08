@@ -606,7 +606,12 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     SkAutoTUnref<const SkLightingShader::Lights> lights(builder.finish());
 
-    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, lights, SkVector::Make(1.0f, 0.0f),
+    SkVector invNormRotation = {1,0};
+    if (!buf.isVersionLT(SkReadBuffer::kLightingShaderWritesInvNormRotation)) {
+        invNormRotation = buf.readPoint();
+    }
+
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, lights, invNormRotation,
                                             &diffLocalM, &normLocalM);
 }
 
@@ -634,6 +639,7 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
             buf.writeScalarArray(&light.dir().fX, 3);
         }
     }
+    buf.writePoint(fInvNormRotation);
 }
 
 bool SkLightingShaderImpl::computeNormTotalInverse(const ContextRec& rec,

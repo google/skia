@@ -167,7 +167,6 @@ def get_args(bot):
                'fontmgr_bounds',
                'fontmgr_match',
                'fontmgr_iter',
-               'lightingshader',
                'verylargebitmap',              # Windows only.
                'verylarge_picture_image']:     # Windows only.
     blacklist.extend(['serialize-8888', 'gm', '_', test])
