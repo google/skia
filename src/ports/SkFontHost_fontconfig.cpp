@@ -70,7 +70,8 @@ SK_DECLARE_STATIC_MUTEX(gSkFontHostRequestCacheMutex);
 class SkFontHostRequestCache {
 
     // The value of maxSize here is a compromise between cache hits and cache size.
-    static const size_t gMaxSize = 1 << 12;
+    // See https://crbug.com/424082#63 for reason for current size.
+    static const size_t gMaxSize = 1 << 15;
 
     static SkFontHostRequestCache& Get() {
         gSkFontHostRequestCacheMutex.assertHeld();
