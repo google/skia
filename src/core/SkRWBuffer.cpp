@@ -13,9 +13,11 @@
 static const size_t kMinAllocSize = 4096;
 
 struct SkBufferBlock {
-    SkBufferBlock*  fNext;
-    size_t          fUsed;
-    size_t          fCapacity;
+    SkBufferBlock*  fNext;      // updated by the writer
+    size_t          fUsed;      // updated by the writer
+    const size_t    fCapacity;
+
+    SkBufferBlock(size_t capacity) : fNext(nullptr), fUsed(0), fCapacity(capacity) {}
 
     const void* startData() const { return this + 1; };
 
@@ -24,14 +26,13 @@ struct SkBufferBlock {
 
     static SkBufferBlock* Alloc(size_t length) {
         size_t capacity = LengthToCapacity(length);
-        SkBufferBlock* block = (SkBufferBlock*)sk_malloc_throw(sizeof(SkBufferBlock) + capacity);
-        block->fNext = nullptr;
-        block->fUsed = 0;
-        block->fCapacity = capacity;
-        return block;
+        void* buffer = sk_malloc_throw(sizeof(SkBufferBlock) + capacity);
+        return new (buffer) SkBufferBlock(capacity);
     }
 
-    // Return number of bytes actually appended
+    // Return number of bytes actually appended. Important that we always completely this block
+    // before spilling into the next, since the reader uses fCapacity to know how many it can read.
+    //
     size_t append(const void* src, size_t length) {
         this->validate();
         size_t amount = SkTMin(this->avail(), length);
@@ -59,6 +60,8 @@ struct SkBufferHead {
     mutable int32_t fRefCnt;
     SkBufferBlock   fBlock;
 
+    SkBufferHead(size_t capacity) : fRefCnt(1), fBlock(capacity) {}
+
     static size_t LengthToCapacity(size_t length) {
         const size_t minSize = kMinAllocSize - sizeof(SkBufferHead);
         return SkTMax(length, minSize);
@@ -67,12 +70,8 @@ struct SkBufferHead {
     static SkBufferHead* Alloc(size_t length) {
         size_t capacity = LengthToCapacity(length);
         size_t size = sizeof(SkBufferHead) + capacity;
-        SkBufferHead* head = (SkBufferHead*)sk_malloc_throw(size);
-        head->fRefCnt = 1;
-        head->fBlock.fNext = nullptr;
-        head->fBlock.fUsed = 0;
-        head->fBlock.fCapacity = capacity;
-        return head;
+        void* buffer = sk_malloc_throw(size);
+        return new (buffer) SkBufferHead(capacity);
     }
 
     void ref() const {
@@ -115,19 +114,25 @@ struct SkBufferHead {
     }
 };
 
-SkROBuffer::SkROBuffer(const SkBufferHead* head, size_t used) : fHead(head), fUsed(used) {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// The reader can only access block.fCapacity (which never changes), and cannot access
+// block.fUsed, which may be updated by the writer.
+//
+SkROBuffer::SkROBuffer(const SkBufferHead* head, size_t available)
+    : fHead(head), fAvailable(available)
+{
     if (head) {
         fHead->ref();
-        SkASSERT(used > 0);
-        head->validate(used);
+        SkASSERT(available > 0);
+        head->validate(available);
     } else {
-        SkASSERT(0 == used);
+        SkASSERT(0 == available);
     }
 }
 
 SkROBuffer::~SkROBuffer() {
     if (fHead) {
-        fHead->validate(fUsed);
+        fHead->validate(fAvailable);
         fHead->unref();
     }
 }
@@ -139,7 +144,7 @@ SkROBuffer::Iter::Iter(const SkROBuffer* buffer) {
 void SkROBuffer::Iter::reset(const SkROBuffer* buffer) {
     if (buffer) {
         fBlock = &buffer->fHead->fBlock;
-        fRemaining = buffer->fUsed;
+        fRemaining = buffer->fAvailable;
     } else {
         fBlock = nullptr;
         fRemaining = 0;
@@ -154,7 +159,7 @@ size_t SkROBuffer::Iter::size() const {
     if (!fBlock) {
         return 0;
     }
-    return SkTMin(fBlock->fUsed, fRemaining);
+    return SkTMin(fBlock->fCapacity, fRemaining);
 }
 
 bool SkROBuffer::Iter::next() {
@@ -165,6 +170,8 @@ bool SkROBuffer::Iter::next() {
     return fRemaining != 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 SkRWBuffer::SkRWBuffer(size_t initialCapacity) : fHead(nullptr), fTail(nullptr), fTotalUsed(0) {}
 
 SkRWBuffer::~SkRWBuffer() {
@@ -174,6 +181,10 @@ SkRWBuffer::~SkRWBuffer() {
     }
 }
 
+// It is important that we always completely fill the current block before spilling over to the
+// next, since our reader will be using fCapacity (min'd against its total available) to know how
+// many bytes to read from a given block.
+//
 void SkRWBuffer::append(const void* src, size_t length) {
     this->validate();
     if (0 == length) {
@@ -200,28 +211,6 @@ void SkRWBuffer::append(const void* src, size_t length) {
         SkASSERT(written == length);
     }
     this->validate();
-}
-
-void* SkRWBuffer::append(size_t length) {
-    this->validate();
-    if (0 == length) {
-        return nullptr;
-    }
-
-    fTotalUsed += length;
-
-    if (nullptr == fHead) {
-        fHead = SkBufferHead::Alloc(length);
-        fTail = &fHead->fBlock;
-    } else if (fTail->avail() < length) {
-        SkBufferBlock* block = SkBufferBlock::Alloc(length);
-        fTail->fNext = block;
-        fTail = block;
-    }
-
-    fTail->fUsed += length;
-    this->validate();
-    return (char*)fTail->availData() - length;
 }
 
 #ifdef SK_DEBUG

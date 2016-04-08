@@ -294,11 +294,7 @@ DEF_TEST(RWBuffer, reporter) {
     {
         SkRWBuffer buffer;
         for (int i = 0; i < N; ++i) {
-            if (0 == (i & 1)) {
-                buffer.append(gABC, 26);
-            } else {
-                memcpy(buffer.append(26), gABC, 26);
-            }
+            buffer.append(gABC, 26);
             readers[i] = buffer.newRBufferSnapshot();
             streams[i] = buffer.newStreamSnapshot();
         }

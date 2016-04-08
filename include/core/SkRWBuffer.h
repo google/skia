@@ -25,7 +25,7 @@ public:
      *  Return the logical length of the data owned/shared by this buffer. It may be stored in
      *  multiple contiguous blocks, accessible via the iterator.
      */
-    size_t size() const { return fUsed; }
+    size_t size() const { return fAvailable; }
 
     class SK_API Iter {
     public:
@@ -56,11 +56,11 @@ public:
     };
 
 private:
-    SkROBuffer(const SkBufferHead* head, size_t used);
+    SkROBuffer(const SkBufferHead* head, size_t available);
     virtual ~SkROBuffer();
 
     const SkBufferHead* fHead;
-    const size_t        fUsed;
+    const size_t        fAvailable;
 
     friend class SkRWBuffer;
 };
@@ -77,7 +77,6 @@ public:
 
     size_t size() const { return fTotalUsed; }
     void append(const void* buffer, size_t length);
-    void* append(size_t length);
 
     SkROBuffer* newRBufferSnapshot() const;
     SkStreamAsset* newStreamSnapshot() const;
