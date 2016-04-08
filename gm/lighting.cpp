@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkAnimTimer.h"
 #include "SkLightingImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPoint3.h"
@@ -17,7 +18,8 @@ namespace skiagm {
 
 class ImageLightingGM : public GM {
 public:
-    ImageLightingGM() {
+    ImageLightingGM()
+        : fAzimuth(SkIntToScalar(kStartAzimuth)) {
         this->setBGColor(0xFF000000);
     }
 
@@ -57,19 +59,25 @@ protected:
             canvas->restore();
           }
         }
-        SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
-        SkScalar azimuthRad = SkDegreesToRadians(SkIntToScalar(225));
+        SkScalar cosAzimuth;
+        SkScalar sinAzimuth = SkScalarSinCos(SkDegreesToRadians(fAzimuth), &cosAzimuth);
+
+        SkPoint3 spotTarget = SkPoint3::Make(SkIntToScalar(40), SkIntToScalar(40), 0);
+        SkPoint3 spotLocation = SkPoint3::Make(spotTarget.fX + 70.7214f * cosAzimuth,
+                                               spotTarget.fY + 70.7214f * sinAzimuth,
+                                               spotTarget.fZ + SkIntToScalar(20));
+        SkScalar spotExponent = SK_Scalar1;
+
+        SkPoint3 pointLocation = SkPoint3::Make(spotTarget.fX + 50 * cosAzimuth,
+                                                spotTarget.fY + 50 * sinAzimuth,
+                                                SkIntToScalar(10));
         SkScalar elevationRad = SkDegreesToRadians(SkIntToScalar(5));
-        SkPoint3 distantDirection = SkPoint3::Make(SkScalarMul(SkScalarCos(azimuthRad),
+
+        SkPoint3 distantDirection = SkPoint3::Make(SkScalarMul(cosAzimuth,
                                                                SkScalarCos(elevationRad)),
-                                                   SkScalarMul(SkScalarSin(azimuthRad),
+                                                   SkScalarMul(sinAzimuth,
                                                                SkScalarCos(elevationRad)),
                                                    SkScalarSin(elevationRad));
-        SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10),
-                                               SkIntToScalar(-10),
-                                               SkIntToScalar(20));
-        SkPoint3 spotTarget = SkPoint3::Make(SkIntToScalar(40), SkIntToScalar(40), 0);
-        SkScalar spotExponent = SK_Scalar1;
         SkScalar cutoffAngle = SkIntToScalar(15);
         SkScalar kd = SkIntToScalar(2);
         SkScalar ks = SkIntToScalar(1);
@@ -149,8 +157,18 @@ protected:
         }
     }
 
+    bool onAnimate(const SkAnimTimer& timer) override {
+        static const SkScalar kDesiredDurationSecs = 15.0f;
+
+        fAzimuth = kStartAzimuth + timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
+        return true;
+    }
+
 private:
+    static const int kStartAzimuth = 225;
+
     SkBitmap fBitmap;
+    SkScalar fAzimuth;
 
     typedef GM INHERITED;
 };
