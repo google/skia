@@ -122,7 +122,7 @@ static SkString sk_string_printf(const char* format, ...) {
     va_end(args);
     SkASSERT(check == length);
     SkASSERT(string[length] == '\0');
-    return std::move(string);
+    return string;
 #else  // C99/C++11 standard vsnprintf
     // TODO: When all compilers support this, remove windows-specific code.
     va_list args;
@@ -143,7 +143,7 @@ static SkString sk_string_printf(const char* format, ...) {
     va_end(args);
     SkASSERT(check == length);
     SkASSERT(string[length] == '\0');
-    return std::move(string);
+    return string;
 #endif
 }
 
