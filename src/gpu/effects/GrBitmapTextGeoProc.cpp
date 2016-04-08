@@ -179,7 +179,7 @@ const GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
     GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
-    GrMaskFormat format;
+    GrMaskFormat format = kARGB_GrMaskFormat; // init to avoid warning
     switch (d->fRandom->nextULessThan(3)) {
         case 0:
             format = kA8_GrMaskFormat;
