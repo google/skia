@@ -97,7 +97,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
         GrContext* context = source->getContext();
-        GrTexture* inputTexture = input->asTextureRef(context);
+        SkAutoTUnref<GrTexture> inputTexture(input->asTextureRef(context));
         SkASSERT(inputTexture);
 
         if (0 == sigma.x() && 0 == sigma.y()) {
