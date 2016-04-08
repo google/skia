@@ -132,6 +132,7 @@
         '<(skia_src_path)/core/SkFontDescriptor.h',
         '<(skia_src_path)/core/SkFontStream.cpp',
         '<(skia_src_path)/core/SkFontStream.h',
+        '<(skia_src_path)/core/SkFuzzLogging.h',
         '<(skia_src_path)/core/SkGeometry.cpp',
         '<(skia_src_path)/core/SkGeometry.h',
         '<(skia_src_path)/core/SkGlobalInitialization_core.cpp',

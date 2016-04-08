@@ -12,6 +12,7 @@
 #include "SkBitmapDevice.h"
 #include "SkChecksum.h"
 #include "SkDevice.h"
+#include "SkFuzzLogging.h"
 #include "SkLocalMatrixImageFilter.h"
 #include "SkMatrixImageFilter.h"
 #include "SkOncePtr.h"
@@ -137,6 +138,7 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
         return false;
     }
 
+    SkFUZZF(("allocInputs: %d\n", count));
     this->allocInputs(count);
     for (int i = 0; i < count; i++) {
         if (buffer.readBool()) {
