@@ -15,6 +15,19 @@
 #include "SkOncePtr.h"
 #include "SkRTConf.h"
 
+
+/*
+ *****************************************
+ *********This file is deprecated*********
+ *****************************************
+ * New CPU-specific work should be done in
+ * SkOpts framework. Run-time detection of
+ * available instruction set extensions is
+ * implemented in src/core/SkOpts.cpp file
+ *****************************************
+ */
+
+
 #if defined(_MSC_VER) && defined(_WIN64)
 #include <intrin.h>
 #endif
