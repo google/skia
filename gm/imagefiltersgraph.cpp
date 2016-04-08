@@ -216,15 +216,14 @@ protected:
             SkIPoint kernelOffset = SkIPoint::Make(1, 1);
             auto tileMode = SkMatrixConvolutionImageFilter::kClamp_TileMode;
             bool convolveAlpha = false;
-            sk_sp<SkImageFilter> convolve(
-                SkMatrixConvolutionImageFilter::Create(kernelSize,
-                                                       kernel,
-                                                       gain,
-                                                       bias,
-                                                       kernelOffset,
-                                                       tileMode,
-                                                       convolveAlpha,
-                                                       dilate.get()));
+            sk_sp<SkImageFilter> convolve(SkMatrixConvolutionImageFilter::Make(kernelSize,
+                                                                               kernel,
+                                                                               gain,
+                                                                               bias,
+                                                                               kernelOffset,
+                                                                               tileMode,
+                                                                               convolveAlpha,
+                                                                               std::move(dilate)));
 
             SkPaint paint;
             paint.setImageFilter(std::move(convolve));

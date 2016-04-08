@@ -114,7 +114,7 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
 #include "SkColorFilterImageFilter.h"
 #include "SkRRect.h"
 
-static void draw_set(SkCanvas* canvas, SkImageFilter* filters[], int count) {
+static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count) {
     const SkRect r = SkRect::MakeXYWH(30, 30, 200, 200);
     const SkScalar offset = 250;
     SkScalar dx = 0, dy = 0;
@@ -123,7 +123,7 @@ static void draw_set(SkCanvas* canvas, SkImageFilter* filters[], int count) {
         canvas->save();
         SkRRect rr = SkRRect::MakeRectXY(r.makeOffset(dx, dy), 20, 20);
         canvas->clipRRect(rr, SkRegion::kIntersect_Op, true);
-        canvas->saveLayer({ &rr.getBounds(), nullptr, filters[i], 0 });
+        canvas->saveLayer({ &rr.getBounds(), nullptr, filters[i].get(), 0 });
         canvas->drawColor(0x40FFFFFF);
         canvas->restore();
         canvas->restore();
@@ -142,13 +142,14 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
     cm.setSaturation(10);
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     const SkScalar kernel[] = { 4, 0, 4, 0, -15, 0, 4, 0, 4 };
-    SkImageFilter* filters[] = {
-        SkBlurImageFilter::Make(10, 10, nullptr).release(),
-        SkDilateImageFilter::Make(8, 8, nullptr).release(),
-        SkMatrixConvolutionImageFilter::Create({ 3, 3 }, kernel, 1, 0, { 0, 0 },
+    sk_sp<SkImageFilter> filters[] = {
+        SkBlurImageFilter::Make(10, 10, nullptr),
+        SkDilateImageFilter::Make(8, 8, nullptr),
+        SkMatrixConvolutionImageFilter::Make(
+                                           { 3, 3 }, kernel, 1, 0, { 0, 0 },
                                            SkMatrixConvolutionImageFilter::kClampToBlack_TileMode,
-                                               true),
-        SkColorFilterImageFilter::Make(std::move(cf), nullptr).release(),
+                                           true, nullptr),
+        SkColorFilterImageFilter::Make(std::move(cf), nullptr),
     };
 
     const struct {
@@ -172,9 +173,5 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
         canvas->drawImage(image, 0, 0, &paint);
         draw_set(canvas, filters, SK_ARRAY_COUNT(filters));
         canvas->restore();
-    }
-
-    for (auto& filter : filters) {
-        filter->unref();
     }
 }

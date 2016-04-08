@@ -191,10 +191,10 @@ public:
                   SkLightingImageFilter::CreatePointLitSpecular(location, SK_ColorGREEN, 0, 0, 0,
                                                                 input.get(), cropRect));
         this->addFilter("matrix convolution",
-                  SkMatrixConvolutionImageFilter::Create(
+                  SkMatrixConvolutionImageFilter::Make(
                       kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1),
                       SkMatrixConvolutionImageFilter::kRepeat_TileMode, false,
-                      input.get(), cropRect));
+                      input, cropRect).release());
         this->addFilter("merge", SkMergeImageFilter::Make(input, input,
                                                           SkXfermode::kSrcOver_Mode,
                                                           cropRect).release());
@@ -1033,10 +1033,11 @@ DEF_TEST(ImageFilterMatrixConvolution, reporter) {
     SkScalar gain = SK_Scalar1, bias = 0;
     SkIPoint kernelOffset = SkIPoint::Make(0, 0);
 
-    SkAutoTUnref<SkImageFilter> filter(
-        SkMatrixConvolutionImageFilter::Create(
-            kernelSize, kernel, gain, bias, kernelOffset,
-            SkMatrixConvolutionImageFilter::kRepeat_TileMode, false));
+    sk_sp<SkImageFilter> filter(SkMatrixConvolutionImageFilter::Make(
+                                            kernelSize, kernel,
+                                            gain, bias, kernelOffset,
+                                            SkMatrixConvolutionImageFilter::kRepeat_TileMode,
+                                            false, nullptr));
 
     SkBitmap result;
     int width = 16, height = 16;
@@ -1045,7 +1046,7 @@ DEF_TEST(ImageFilterMatrixConvolution, reporter) {
     canvas.clear(0);
 
     SkPaint paint;
-    paint.setImageFilter(filter);
+    paint.setImageFilter(std::move(filter));
     SkRect rect = SkRect::Make(SkIRect::MakeWH(width, height));
     canvas.drawRect(rect, paint);
 }
@@ -1060,10 +1061,10 @@ DEF_TEST(ImageFilterMatrixConvolutionBorder, reporter) {
     SkScalar gain = SK_Scalar1, bias = 0;
     SkIPoint kernelOffset = SkIPoint::Make(2, 0);
 
-    SkAutoTUnref<SkImageFilter> filter(
-        SkMatrixConvolutionImageFilter::Create(
-            kernelSize, kernel, gain, bias, kernelOffset,
-            SkMatrixConvolutionImageFilter::kClamp_TileMode, true));
+    sk_sp<SkImageFilter> filter(SkMatrixConvolutionImageFilter::Make(
+                                            kernelSize, kernel, gain, bias, kernelOffset,
+                                            SkMatrixConvolutionImageFilter::kClamp_TileMode,
+                                            true, nullptr));
 
     SkBitmap result;
 
@@ -1073,7 +1074,7 @@ DEF_TEST(ImageFilterMatrixConvolutionBorder, reporter) {
     canvas.clear(0);
 
     SkPaint filterPaint;
-    filterPaint.setImageFilter(filter);
+    filterPaint.setImageFilter(std::move(filter));
     SkRect bounds = SkRect::MakeWH(1, 10);
     SkRect rect = SkRect::Make(SkIRect::MakeWH(width, height));
     SkPaint rectPaint;
@@ -1293,50 +1294,54 @@ DEF_TEST(MatrixConvolutionSanityTest, reporter) {
     SkIPoint kernelOffset = SkIPoint::Make(1, 1);
 
     // Check that an enormous (non-allocatable) kernel gives a nullptr filter.
-    SkAutoTUnref<SkImageFilter> conv(SkMatrixConvolutionImageFilter::Create(
+    sk_sp<SkImageFilter> conv(SkMatrixConvolutionImageFilter::Make(
         SkISize::Make(1<<30, 1<<30),
         kernel,
         gain,
         bias,
         kernelOffset,
         SkMatrixConvolutionImageFilter::kRepeat_TileMode,
-        false));
+        false,
+        nullptr));
 
     REPORTER_ASSERT(reporter, nullptr == conv.get());
 
     // Check that a nullptr kernel gives a nullptr filter.
-    conv.reset(SkMatrixConvolutionImageFilter::Create(
+    conv = SkMatrixConvolutionImageFilter::Make(
         SkISize::Make(1, 1),
         nullptr,
         gain,
         bias,
         kernelOffset,
         SkMatrixConvolutionImageFilter::kRepeat_TileMode,
-        false));
+        false,
+        nullptr);
 
     REPORTER_ASSERT(reporter, nullptr == conv.get());
 
     // Check that a kernel width < 1 gives a nullptr filter.
-    conv.reset(SkMatrixConvolutionImageFilter::Create(
+    conv = SkMatrixConvolutionImageFilter::Make(
         SkISize::Make(0, 1),
         kernel,
         gain,
         bias,
         kernelOffset,
         SkMatrixConvolutionImageFilter::kRepeat_TileMode,
-        false));
+        false,
+        nullptr);
 
     REPORTER_ASSERT(reporter, nullptr == conv.get());
 
     // Check that kernel height < 1 gives a nullptr filter.
-    conv.reset(SkMatrixConvolutionImageFilter::Create(
+    conv = SkMatrixConvolutionImageFilter::Make(
         SkISize::Make(1, -1),
         kernel,
         gain,
         bias,
         kernelOffset,
         SkMatrixConvolutionImageFilter::kRepeat_TileMode,
-        false));
+        false,
+        nullptr);
 
     REPORTER_ASSERT(reporter, nullptr == conv.get());
 }

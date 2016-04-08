@@ -23,11 +23,9 @@ public:
         };
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkIPoint kernelOffset = SkIPoint::Make(1, 1);
-        fFilter = SkMatrixConvolutionImageFilter::Create(kernelSize, kernel, gain, bias, kernelOffset, tileMode, convolveAlpha);
-    }
-
-    ~MatrixConvolutionBench() {
-        fFilter->unref();
+        fFilter = SkMatrixConvolutionImageFilter::Make(kernelSize, kernel, gain, bias, 
+                                                       kernelOffset, tileMode, convolveAlpha,
+                                                       nullptr);
     }
 
 protected:
@@ -49,9 +47,10 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
-    SkImageFilter* fFilter;
+    sk_sp<SkImageFilter> fFilter;
     SkString fName;
+
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClamp_TileMode, true); )

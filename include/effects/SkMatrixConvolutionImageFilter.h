@@ -52,6 +52,20 @@ public:
                               passed to filterImage() is used instead.
         @param cropRect       The rectangle to which the output processing will be limited.
     */
+    static sk_sp<SkImageFilter> Make(const SkISize& kernelSize,
+                                     const SkScalar* kernel,
+                                     SkScalar gain,
+                                     SkScalar bias,
+                                     const SkIPoint& kernelOffset,
+                                     TileMode tileMode,
+                                     bool convolveAlpha,
+                                     sk_sp<SkImageFilter> input,
+                                     const CropRect* cropRect = nullptr);
+
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
     static SkImageFilter* Create(const SkISize& kernelSize,
                                  const SkScalar* kernel,
                                  SkScalar gain,
@@ -60,10 +74,11 @@ public:
                                  TileMode tileMode,
                                  bool convolveAlpha,
                                  SkImageFilter* input = NULL,
-                                 const CropRect* cropRect = NULL);
-
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
+                                 const CropRect* cropRect = NULL) {
+        return Make(kernelSize, kernel, gain, bias, kernelOffset, tileMode, convolveAlpha,
+                    sk_ref_sp<SkImageFilter>(input), cropRect).release();
+    }
+#endif
 
 protected:
     SkMatrixConvolutionImageFilter(const SkISize& kernelSize,
@@ -73,7 +88,7 @@ protected:
                                    const SkIPoint& kernelOffset,
                                    TileMode tileMode,
                                    bool convolveAlpha,
-                                   SkImageFilter* input,
+                                   sk_sp<SkImageFilter> input,
                                    const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
 
@@ -95,7 +110,6 @@ private:
     SkIPoint  fKernelOffset;
     TileMode  fTileMode;
     bool      fConvolveAlpha;
-    typedef SkImageFilter INHERITED;
 
     template <class PixelFetcher, bool convolveAlpha>
     void filterPixels(const SkBitmap& src,
@@ -115,6 +129,8 @@ private:
                             SkBitmap* result,
                             const SkIRect& rect,
                             const SkIRect& bounds) const;
+
+    typedef SkImageFilter INHERITED;
 };
 
 #endif

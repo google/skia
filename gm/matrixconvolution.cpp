@@ -58,17 +58,15 @@ protected:
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> filter(
-            SkMatrixConvolutionImageFilter::Create(kernelSize,
-                                                   kernel,
-                                                   gain,
-                                                   bias,
-                                                   kernelOffset,
-                                                   tileMode,
-                                                   convolveAlpha,
-                                                   nullptr,
-                                                   cropRect));
-        paint.setImageFilter(filter);
+        paint.setImageFilter(SkMatrixConvolutionImageFilter::Make(kernelSize,
+                                                                  kernel,
+                                                                  gain,
+                                                                  bias,
+                                                                  kernelOffset,
+                                                                  tileMode,
+                                                                  convolveAlpha,
+                                                                  nullptr,
+                                                                  cropRect));
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
         canvas->clipRect(SkRect::MakeWH(SkIntToScalar(fBitmap.width()),

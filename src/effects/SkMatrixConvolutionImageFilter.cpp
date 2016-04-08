@@ -22,23 +22,22 @@
 // by the size of a scalar to know how many scalars we can read.
 static const int32_t gMaxKernelSize = SK_MaxS32 / sizeof(SkScalar);
 
-SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
-    const SkISize& kernelSize,
-    const SkScalar* kernel,
-    SkScalar gain,
-    SkScalar bias,
-    const SkIPoint& kernelOffset,
-    TileMode tileMode,
-    bool convolveAlpha,
-    SkImageFilter* input,
-    const CropRect* cropRect)
-  : INHERITED(1, &input, cropRect),
-    fKernelSize(kernelSize),
-    fGain(gain),
-    fBias(bias),
-    fKernelOffset(kernelOffset),
-    fTileMode(tileMode),
-    fConvolveAlpha(convolveAlpha) {
+SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(const SkISize& kernelSize,
+                                                               const SkScalar* kernel,
+                                                               SkScalar gain,
+                                                               SkScalar bias,
+                                                               const SkIPoint& kernelOffset,
+                                                               TileMode tileMode,
+                                                               bool convolveAlpha,
+                                                               sk_sp<SkImageFilter> input,
+                                                               const CropRect* cropRect)
+    : INHERITED(&input, 1, cropRect)
+    , fKernelSize(kernelSize)
+    , fGain(gain)
+    , fBias(bias)
+    , fKernelOffset(kernelOffset)
+    , fTileMode(tileMode)
+    , fConvolveAlpha(convolveAlpha) {
     size_t size = (size_t) sk_64_mul(fKernelSize.width(), fKernelSize.height());
     fKernel = new SkScalar[size];
     memcpy(fKernel, kernel, size * sizeof(SkScalar));
@@ -47,16 +46,15 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     SkASSERT(kernelOffset.fY >= 0 && kernelOffset.fY < kernelSize.fHeight);
 }
 
-SkImageFilter* SkMatrixConvolutionImageFilter::Create(
-    const SkISize& kernelSize,
-    const SkScalar* kernel,
-    SkScalar gain,
-    SkScalar bias,
-    const SkIPoint& kernelOffset,
-    TileMode tileMode,
-    bool convolveAlpha,
-    SkImageFilter* input,
-    const CropRect* cropRect) {
+sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelSize,
+                                                          const SkScalar* kernel,
+                                                          SkScalar gain,
+                                                          SkScalar bias,
+                                                          const SkIPoint& kernelOffset,
+                                                          TileMode tileMode,
+                                                          bool convolveAlpha,
+                                                          sk_sp<SkImageFilter> input,
+                                                          const CropRect* cropRect) {
     if (kernelSize.width() < 1 || kernelSize.height() < 1) {
         return nullptr;
     }
@@ -70,8 +68,10 @@ SkImageFilter* SkMatrixConvolutionImageFilter::Create(
         (kernelOffset.fY < 0) || (kernelOffset.fY >= kernelSize.fHeight)) {
         return nullptr;
     }
-    return new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain, bias, kernelOffset,
-                                              tileMode, convolveAlpha, input, cropRect);
+    return sk_sp<SkImageFilter>(new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain,
+                                                                   bias, kernelOffset,
+                                                                   tileMode, convolveAlpha,
+                                                                   std::move(input), cropRect));
 }
 
 sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -96,8 +96,8 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
     kernelOffset.fY = buffer.readInt();
     TileMode tileMode = (TileMode)buffer.readInt();
     bool convolveAlpha = buffer.readBool();
-    return sk_sp<SkFlattenable>(Create(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode,
-                                   convolveAlpha, common.getInput(0).get(), &common.cropRect()));
+    return Make(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode,
+                convolveAlpha, common.getInput(0), &common.cropRect());
 }
 
 void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {

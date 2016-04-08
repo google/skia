@@ -552,7 +552,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         filter = SkAlphaThresholdFilter::Make(make_region(),
                                               make_scalar(),
                                               make_scalar(),
-                                              nullptr);
+                                              make_image_filter());
         break;
     case MERGE:
         filter = SkMergeImageFilter::Make(make_image_filter(),
@@ -611,18 +611,16 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         }
         SkIPoint kernelOffset = SkIPoint::Make(R(SkIntToScalar(size.width())),
                                                R(SkIntToScalar(size.height())));
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
 
-        filter = sk_sp<SkImageFilter>(SkMatrixConvolutionImageFilter::Create(
-                                                        size,
-                                                        kernel.begin(),
-                                                        make_scalar(),
-                                                        make_scalar(),
-                                                        kernelOffset,
-                                                        (SkMatrixConvolutionImageFilter::TileMode)R(3),
-                                                        R(2) == 1,
-                                                        subFilter.get(),
-                                                        &cropR));
+        filter = SkMatrixConvolutionImageFilter::Make(size,
+                                                      kernel.begin(),
+                                                      make_scalar(),
+                                                      make_scalar(),
+                                                      kernelOffset,
+                                                      (SkMatrixConvolutionImageFilter::TileMode)R(3),
+                                                      R(2) == 1,
+                                                      make_image_filter(),
+                                                      &cropR);
         break;
     }
     case COMPOSE:
