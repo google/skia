@@ -148,6 +148,10 @@ void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_directio
     as_path(cpath)->addOval(AsRect(*crect), dir);
 }
 
+void sk_path_add_arc(sk_path_t* cpath, const sk_rect_t* crect, float startAngle, float sweepAngle) {
+    as_path(cpath)->addArc(AsRect(*crect), startAngle, sweepAngle);
+}
+
 void sk_path_set_filltype(sk_path_t* cpath, sk_path_filltype_t cfilltype) {
     SkPath::FillType filltype;
     if (!find_sk(cfilltype, &filltype)) {

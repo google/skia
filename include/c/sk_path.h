@@ -98,6 +98,10 @@ SK_API void sk_path_add_rect(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
     Add a closed oval contour to the path
 */
 SK_API void sk_path_add_oval(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
+/**
+ Add the specified arc to the path as a new contour.
+ */
+SK_API void sk_path_add_arc(sk_path_t* cpath, const sk_rect_t* crect, float startAngle, float sweepAngle);
 
 /**
     Get the fill type of the path.
