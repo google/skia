@@ -65,20 +65,65 @@ public:
 class SkLinearBitmapPipeline::DestinationInterface {
 public:
     virtual ~DestinationInterface() { }
-    virtual void setDestination(void* dst, int count) = 0;
-};
-
-class SkLinearBitmapPipeline::PixelPlacerInterface
-    : public SkLinearBitmapPipeline::DestinationInterface {
-public:
-    virtual ~PixelPlacerInterface() { }
     // Count is normally not needed, but in these early stages of development it is useful to
     // check bounds.
     // TODO(herb): 4/6/2016 - remove count when code is stable.
     virtual void setDestination(void* dst, int count) = 0;
-    virtual void VECTORCALL placePixel(Sk4f pixel0) = 0;
-    virtual void VECTORCALL place4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
 };
+
+class SkLinearBitmapPipeline::BlendProcessorInterface
+    : public SkLinearBitmapPipeline::DestinationInterface {
+public:
+    virtual void VECTORCALL blendPixel(Sk4f pixel0) = 0;
+    virtual void VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) = 0;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// SkLinearBitmapPipeline::Stage
+template<typename Base, size_t kSize, typename Next>
+SkLinearBitmapPipeline::Stage<Base, kSize, Next>::~Stage() {
+    if (fIsInitialized) {
+        this->get()->~Base();
+    }
+}
+
+template<typename Base, size_t kSize, typename Next>
+template<typename Variant, typename... Args>
+void SkLinearBitmapPipeline::Stage<Base, kSize, Next>::initStage(Next* next, Args&& ... args) {
+    SkASSERTF(sizeof(Variant) <= sizeof(fSpace),
+              "Size Variant: %d, Space: %d", sizeof(Variant), sizeof(fSpace));
+
+    new (&fSpace) Variant(next, std::forward<Args>(args)...);
+    fStageCloner = [this](Next* nextClone, void* addr) {
+        new (addr) Variant(nextClone, (const Variant&)*this->get());
+    };
+    fIsInitialized = true;
+};
+
+template<typename Base, size_t kSize, typename Next>
+template<typename Variant, typename... Args>
+void SkLinearBitmapPipeline::Stage<Base, kSize, Next>::initSink(Args&& ... args) {
+    SkASSERTF(sizeof(Variant) <= sizeof(fSpace),
+              "Size Variant: %d, Space: %d", sizeof(Variant), sizeof(fSpace));
+    new (&fSpace) Variant(std::forward<Args>(args)...);
+    fIsInitialized = true;
+};
+
+template<typename Base, size_t kSize, typename Next>
+template <typename To, typename From>
+To* SkLinearBitmapPipeline::Stage<Base, kSize, Next>::getInterface() {
+    From* down = static_cast<From*>(this->get());
+    return static_cast<To*>(down);
+}
+
+template<typename Base, size_t kSize, typename Next>
+Base* SkLinearBitmapPipeline::Stage<Base, kSize, Next>::cloneStageTo(
+    Next* next, Stage* cloneToStage) const
+{
+    if (!fIsInitialized) return nullptr;
+    fStageCloner(next, &cloneToStage->fSpace);
+    return cloneToStage->get();
+}
 
 namespace  {
 
@@ -100,6 +145,10 @@ public:
     MatrixStage(Next* next, Args&&... args)
         : fNext{next}
         , fStrategy{std::forward<Args>(args)...}{ }
+
+    MatrixStage(Next* next, const MatrixStage& stage)
+        : fNext{next}
+        , fStrategy{stage.fStrategy} { }
 
     void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
@@ -142,7 +191,7 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_matrix(
     const SkMatrix& inverse,
     SkLinearBitmapPipeline::MatrixStage* matrixProc) {
     if (inverse.hasPerspective()) {
-        matrixProc->Initialize<PerspectiveMatrix<>>(
+        matrixProc->initStage<PerspectiveMatrix<>>(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
             SkVector{inverse.getScaleX(), inverse.getScaleY()},
@@ -150,18 +199,18 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_matrix(
             SkVector{inverse.getPerspX(), inverse.getPerspY()},
             inverse.get(SkMatrix::kMPersp2));
     } else if (inverse.getSkewX() != 0.0f || inverse.getSkewY() != 0.0f) {
-        matrixProc->Initialize<AffineMatrix<>>(
+        matrixProc->initStage<AffineMatrix<>>(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
             SkVector{inverse.getScaleX(), inverse.getScaleY()},
             SkVector{inverse.getSkewX(), inverse.getSkewY()});
     } else if (inverse.getScaleX() != 1.0f || inverse.getScaleY() != 1.0f) {
-        matrixProc->Initialize<ScaleMatrix<>>(
+        matrixProc->initStage<ScaleMatrix<>>(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
             SkVector{inverse.getScaleX(), inverse.getScaleY()});
     } else if (inverse.getTranslateX() != 0.0f || inverse.getTranslateY() != 0.0f) {
-        matrixProc->Initialize<TranslateMatrix<>>(
+        matrixProc->initStage<TranslateMatrix<>>(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()});
     } else {
@@ -181,6 +230,11 @@ public:
         : fNext{next}
         , fXStrategy{dimensions.width()}
         , fYStrategy{dimensions.height()}{ }
+
+    NearestTileStage(Next* next, const NearestTileStage& stage)
+        : fNext{next}
+        , fXStrategy{stage.fXStrategy}
+        , fYStrategy{stage.fYStrategy} { }
 
     void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fXStrategy.tileXPoints(&xs);
@@ -218,11 +272,18 @@ class BilerpTileStage final : public SkLinearBitmapPipeline::PointProcessorInter
 public:
     template <typename... Args>
     BilerpTileStage(Next* next, SkISize dimensions)
-        : fXMax(dimensions.width())
+        : fNext{next}
+        , fXMax(dimensions.width())
         , fYMax(dimensions.height())
-        , fNext{next}
         , fXStrategy{dimensions.width()}
-        , fYStrategy{dimensions.height()}{ }
+        , fYStrategy{dimensions.height()} { }
+
+    BilerpTileStage(Next* next, const BilerpTileStage& stage)
+        : fNext{next}
+        , fXMax{stage.fXMax}
+        , fYMax{stage.fYMax}
+        , fXStrategy{stage.fXStrategy}
+        , fYStrategy{stage.fYStrategy} { }
 
     void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fXStrategy.tileXPoints(&xs);
@@ -339,9 +400,9 @@ private:
         }
     }
 
+    Next* const fNext;
     SkScalar fXMax;
     SkScalar fYMax;
-    Next* const fNext;
     XStrategy fXStrategy;
     YStrategy fYStrategy;
 };
@@ -351,9 +412,9 @@ void make_tile_stage(
     SkFilterQuality filterQuality, SkISize dimensions,
     Next* next, SkLinearBitmapPipeline::TileStage* tileStage) {
     if (filterQuality == kNone_SkFilterQuality) {
-        tileStage->Initialize<NearestTileStage<XStrategy, YStrategy, Next>>(next, dimensions);
+        tileStage->initStage<NearestTileStage<XStrategy, YStrategy, Next>>(next, dimensions);
     } else {
-        tileStage->Initialize<BilerpTileStage<XStrategy, YStrategy, Next>>(next, dimensions);
+        tileStage->initStage<BilerpTileStage<XStrategy, YStrategy, Next>>(next, dimensions);
     }
 }
 template <typename XStrategy>
@@ -413,6 +474,9 @@ public:
     NearestNeighborSampler(Next* next, Args&&... args)
     : fSampler{next, std::forward<Args>(args)...} { }
 
+    NearestNeighborSampler(Next* next, const NearestNeighborSampler& sampler)
+        : fSampler{next, sampler.fSampler} { }
+
     void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fSampler.nearestListFew(n, xs, ys);
     }
@@ -450,6 +514,9 @@ public:
     template <typename... Args>
     BilerpSampler(Next* next, Args&&... args)
         : fSampler{next, std::forward<Args>(args)...} { }
+
+    BilerpSampler(Next* next, const BilerpSampler& sampler)
+    : fSampler{next, sampler.fSampler} { }
 
     void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fSampler.bilerpListFew(n, xs, ys);
@@ -554,34 +621,34 @@ private:
     uint32_t*             fEnd;
 };
 
-using Placer = SkLinearBitmapPipeline::PixelPlacerInterface;
+using Blender = SkLinearBitmapPipeline::BlendProcessorInterface;
 
 template<template <typename, typename> class Sampler>
 static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_base(
-    Placer* next,
+    Blender* next,
     const SkPixmap& srcPixmap,
     SkLinearBitmapPipeline::SampleStage* sampleStage) {
     const SkImageInfo& imageInfo = srcPixmap.info();
     switch (imageInfo.colorType()) {
         case kRGBA_8888_SkColorType:
             if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                sampleStage->Initialize<Sampler<Pixel8888SRGB, Placer>>(next, srcPixmap);
+                sampleStage->initStage<Sampler<Pixel8888SRGB, Blender>>(next, srcPixmap);
             } else {
-                sampleStage->Initialize<Sampler<Pixel8888LRGB, Placer>>(next, srcPixmap);
+                sampleStage->initStage<Sampler<Pixel8888LRGB, Blender>>(next, srcPixmap);
             }
             break;
         case kBGRA_8888_SkColorType:
             if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                sampleStage->Initialize<Sampler<Pixel8888SBGR, Placer>>(next, srcPixmap);
+                sampleStage->initStage<Sampler<Pixel8888SBGR, Blender>>(next, srcPixmap);
             } else {
-                sampleStage->Initialize<Sampler<Pixel8888LBGR, Placer>>(next, srcPixmap);
+                sampleStage->initStage<Sampler<Pixel8888LBGR, Blender>>(next, srcPixmap);
             }
             break;
         case kIndex_8_SkColorType:
             if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                sampleStage->Initialize<Sampler<PixelIndex8SRGB, Placer>>(next, srcPixmap);
+                sampleStage->initStage<Sampler<PixelIndex8SRGB, Blender>>(next, srcPixmap);
             } else {
-                sampleStage->Initialize<Sampler<PixelIndex8LRGB, Placer>>(next, srcPixmap);
+                sampleStage->initStage<Sampler<PixelIndex8LRGB, Blender>>(next, srcPixmap);
             }
             break;
         default:
@@ -592,10 +659,11 @@ static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_ba
 }
 
 SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler(
-    Placer* next,
+    Blender* next,
     SkFilterQuality filterQuality,
     const SkPixmap& srcPixmap,
-    SkLinearBitmapPipeline::SampleStage* sampleStage) {
+    SkLinearBitmapPipeline::SampleStage* sampleStage)
+{
     if (filterQuality == kNone_SkFilterQuality) {
         return choose_pixel_sampler_base<NearestNeighborSampler>(next, srcPixmap, sampleStage);
     } else {
@@ -604,25 +672,25 @@ SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler(
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Pixel Placement Stage
+// Pixel Blender Stage
 template <SkAlphaType alphaType>
-class PlaceFPPixel final : public SkLinearBitmapPipeline::PixelPlacerInterface {
+class SrcFPPixel final : public SkLinearBitmapPipeline::BlendProcessorInterface {
 public:
-    PlaceFPPixel(float postAlpha) : fPostAlpha{postAlpha} { }
-
-    void VECTORCALL placePixel(Sk4f pixel) override {
+    SrcFPPixel(float postAlpha) : fPostAlpha{postAlpha} { }
+    SrcFPPixel(const SrcFPPixel& Blender) : fPostAlpha(Blender.fPostAlpha) {}
+    void VECTORCALL blendPixel(Sk4f pixel) override {
         SkASSERT(fDst + 1 <= fEnd );
-        PlacePixel(fDst, pixel, 0);
+        SrcPixel(fDst, pixel, 0);
         fDst += 1;
     }
 
-    void VECTORCALL place4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) override {
+    void VECTORCALL blend4Pixels(Sk4f p0, Sk4f p1, Sk4f p2, Sk4f p3) override {
         SkASSERT(fDst + 4 <= fEnd);
         SkPM4f* dst = fDst;
-        PlacePixel(dst, p0, 0);
-        PlacePixel(dst, p1, 1);
-        PlacePixel(dst, p2, 2);
-        PlacePixel(dst, p3, 3);
+        SrcPixel(dst, p0, 0);
+        SrcPixel(dst, p1, 1);
+        SrcPixel(dst, p2, 2);
+        SrcPixel(dst, p3, 3);
         fDst += 4;
     }
 
@@ -632,7 +700,7 @@ public:
     }
 
 private:
-    void VECTORCALL PlacePixel(SkPM4f* dst, Sk4f pixel, int index) {
+    void VECTORCALL SrcPixel(SkPM4f* dst, Sk4f pixel, int index) {
         Sk4f newPixel = pixel;
         if (alphaType == kUnpremul_SkAlphaType) {
             newPixel = Premultiply(pixel);
@@ -650,21 +718,22 @@ private:
     Sk4f fPostAlpha;
 };
 
-static SkLinearBitmapPipeline::PixelPlacerInterface* choose_pixel_placer(
+static SkLinearBitmapPipeline::BlendProcessorInterface* choose_blender(
     SkAlphaType alphaType,
     float postAlpha,
-    SkLinearBitmapPipeline::PixelStage* placerStage) {
+    SkLinearBitmapPipeline::BlenderStage* blenderStage) {
     if (alphaType == kUnpremul_SkAlphaType) {
-        placerStage->Initialize<PlaceFPPixel<kUnpremul_SkAlphaType>>(postAlpha);
+        blenderStage->initSink<SrcFPPixel<kUnpremul_SkAlphaType>>(postAlpha);
     } else {
         // kOpaque_SkAlphaType is treated the same as kPremul_SkAlphaType
-        placerStage->Initialize<PlaceFPPixel<kPremul_SkAlphaType>>(postAlpha);
+        blenderStage->initSink<SrcFPPixel<kPremul_SkAlphaType>>(postAlpha);
     }
-    return placerStage->get();
+    return blenderStage->get();
 }
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// SkLinearBitmapPipeline
 SkLinearBitmapPipeline::~SkLinearBitmapPipeline() {}
 
 SkLinearBitmapPipeline::SkLinearBitmapPipeline(
@@ -699,14 +768,12 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
 
     // As the stages are built, the chooser function may skip a stage. For example, with the
     // identity matrix, the matrix stage is skipped, and the tilerStage is the first stage.
-    auto placementStage = choose_pixel_placer(alphaType, postAlpha, &fPixelStage);
-    auto samplerStage   = choose_pixel_sampler(placementStage,
-                                               filterQuality, srcPixmap, &fSampleStage);
-    auto tilerStage     = choose_tiler(samplerStage,
-                                       dimensions, xTile, yTile, filterQuality, dx, &fTiler);
-    fFirstStage         = choose_matrix(tilerStage, adjustedInverse, &fMatrixStage);
-    fLastStage          = placementStage;
-
+    auto blenderStage = choose_blender(alphaType, postAlpha, &fBlenderStage);
+    auto samplerStage = choose_pixel_sampler(blenderStage, filterQuality, srcPixmap, &fSampleStage);
+    auto tilerStage   = choose_tiler(samplerStage, dimensions, xTile, yTile,
+                                     filterQuality, dx, &fTileStage);
+    fFirstStage       = choose_matrix(tilerStage, adjustedInverse, &fMatrixStage);
+    fLastStage        = blenderStage;
 }
 
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {

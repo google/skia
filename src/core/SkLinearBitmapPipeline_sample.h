@@ -52,22 +52,26 @@ template<typename SourceStrategy, typename Next>
 class GeneralSampler {
 public:
     template<typename... Args>
-    GeneralSampler(SkLinearBitmapPipeline::PixelPlacerInterface* next, Args&& ... args)
+    GeneralSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next, Args&& ... args)
         : fNext{next}, fStrategy{std::forward<Args>(args)...} { }
+
+    GeneralSampler(SkLinearBitmapPipeline::BlendProcessorInterface* next,
+                   const GeneralSampler& sampler)
+        : fNext{next}, fStrategy{sampler.fStrategy} { }
 
     void VECTORCALL nearestListFew(int n, Sk4s xs, Sk4s ys) {
         SkASSERT(0 < n && n < 4);
         Sk4f px0, px1, px2;
         fStrategy.getFewPixels(n, xs, ys, &px0, &px1, &px2);
-        if (n >= 1) fNext->placePixel(px0);
-        if (n >= 2) fNext->placePixel(px1);
-        if (n >= 3) fNext->placePixel(px2);
+        if (n >= 1) fNext->blendPixel(px0);
+        if (n >= 2) fNext->blendPixel(px1);
+        if (n >= 3) fNext->blendPixel(px2);
     }
 
     void VECTORCALL nearestList4(Sk4s xs, Sk4s ys) {
         Sk4f px0, px1, px2, px3;
         fStrategy.get4Pixels(xs, ys, &px0, &px1, &px2, &px3);
-        fNext->place4Pixels(px0, px1, px2, px3);
+        fNext->blend4Pixels(px0, px1, px2, px3);
     }
 
     void nearestSpan(Span span) {
@@ -102,16 +106,16 @@ public:
             return this->bilerNonEdgePixel(xs[index], ys[index]);
         };
 
-        if (n >= 1) fNext->placePixel(bilerpPixel(0));
-        if (n >= 2) fNext->placePixel(bilerpPixel(1));
-        if (n >= 3) fNext->placePixel(bilerpPixel(2));
+        if (n >= 1) fNext->blendPixel(bilerpPixel(0));
+        if (n >= 2) fNext->blendPixel(bilerpPixel(1));
+        if (n >= 3) fNext->blendPixel(bilerpPixel(2));
     }
 
     void VECTORCALL bilerpList4(Sk4s xs, Sk4s ys) {
         auto bilerpPixel = [&](int index) {
             return this->bilerNonEdgePixel(xs[index], ys[index]);
         };
-        fNext->place4Pixels(bilerpPixel(0), bilerpPixel(1), bilerpPixel(2), bilerpPixel(3));
+        fNext->blend4Pixels(bilerpPixel(0), bilerpPixel(1), bilerpPixel(2), bilerpPixel(3));
     }
 
     void VECTORCALL bilerpEdge(Sk4s sampleXs, Sk4s sampleYs) {
@@ -120,7 +124,7 @@ public:
         Sk4f ys = Sk4f{sampleYs[0]};
         fStrategy.get4Pixels(sampleXs, sampleYs, &px00, &px10, &px01, &px11);
         Sk4f pixel = bilerp4(xs, ys, px00, px10, px01, px11);
-        fNext->placePixel(pixel);
+        fNext->blendPixel(pixel);
     }
 
     void bilerpSpan(Span span) {
@@ -191,11 +195,11 @@ private:
             Sk4f px1 = getNextPixel();
             Sk4f px2 = getNextPixel();
             Sk4f px3 = getNextPixel();
-            next->place4Pixels(px0, px1, px2, px3);
+            next->blend4Pixels(px0, px1, px2, px3);
             count -= 4;
         }
         while (count > 0) {
-            next->placePixel(getNextPixel());
+            next->blendPixel(getNextPixel());
             count -= 1;
         }
     }
@@ -214,13 +218,13 @@ private:
             while (count >= 4) {
                 Sk4f px0, px1, px2, px3;
                 fStrategy.get4Pixels(row, ix, &px0, &px1, &px2, &px3);
-                next->place4Pixels(px0, px1, px2, px3);
+                next->blend4Pixels(px0, px1, px2, px3);
                 ix += 4;
                 count -= 4;
             }
 
             while (count > 0) {
-                next->placePixel(fStrategy.getPixelAt(row, ix));
+                next->blendPixel(fStrategy.getPixelAt(row, ix));
                 ix += 1;
                 count -= 1;
             }
@@ -228,13 +232,13 @@ private:
             while (count >= 4) {
                 Sk4f px0, px1, px2, px3;
                 fStrategy.get4Pixels(row, ix - 3, &px3, &px2, &px1, &px0);
-                next->place4Pixels(px0, px1, px2, px3);
+                next->blend4Pixels(px0, px1, px2, px3);
                 ix -= 4;
                 count -= 4;
             }
 
             while (count > 0) {
-                next->placePixel(fStrategy.getPixelAt(row, ix));
+                next->blendPixel(fStrategy.getPixelAt(row, ix));
                 ix -= 1;
                 count -= 1;
             }
@@ -272,11 +276,11 @@ private:
         Sk4f filterPixel = pixelY0 * filterY0 + pixelY1 * filterY1;
         int count = span.count();
         while (count >= 4) {
-            fNext->place4Pixels(filterPixel, filterPixel, filterPixel, filterPixel);
+            fNext->blend4Pixels(filterPixel, filterPixel, filterPixel, filterPixel);
             count -= 4;
         }
         while (count > 0) {
-            fNext->placePixel(filterPixel);
+            fNext->blendPixel(filterPixel);
             count -= 1;
         }
     }
@@ -341,12 +345,12 @@ private:
             Sk4f fpixel2 = getNextPixel();
             Sk4f fpixel3 = getNextPixel();
 
-            fNext->place4Pixels(fpixel0, fpixel1, fpixel2, fpixel3);
+            fNext->blend4Pixels(fpixel0, fpixel1, fpixel2, fpixel3);
             count -= 4;
         }
 
         while (count > 0) {
-            fNext->placePixel(getNextPixel());
+            fNext->blendPixel(getNextPixel());
 
             count -= 1;
         }
@@ -416,11 +420,7 @@ private:
                 Sk4f pxS3 = px30 + px31;
                 Sk4f px3 = lerp(pxS2, pxS3);
                 pxB = pxS3;
-                fNext->place4Pixels(
-                    px0,
-                    px1,
-                    px2,
-                    px3);
+                fNext->blend4Pixels(px0, px1, px2, px3);
                 ix0 += 4;
                 count -= 4;
             }
@@ -428,7 +428,7 @@ private:
                 Sk4f pixelY0 = fStrategy.getPixelAt(rowY0, ix0);
                 Sk4f pixelY1 = fStrategy.getPixelAt(rowY1, ix0);
 
-                fNext->placePixel(lerp(pixelY0, pixelY1));
+                fNext->blendPixel(lerp(pixelY0, pixelY1));
                 ix0 += 1;
                 count -= 1;
             }
@@ -448,11 +448,7 @@ private:
                 Sk4f pxS0 = px00 + px01;
                 Sk4f px3 = lerp(pxS0, pxS1);
                 pxB = pxS0;
-                fNext->place4Pixels(
-                    px0,
-                    px1,
-                    px2,
-                    px3);
+                fNext->blend4Pixels(px0, px1, px2, px3);
                 ix0 -= 4;
                 count -= 4;
             }
@@ -460,7 +456,7 @@ private:
                 Sk4f pixelY0 = fStrategy.getPixelAt(rowY0, ix0);
                 Sk4f pixelY1 = fStrategy.getPixelAt(rowY1, ix0);
 
-                fNext->placePixel(lerp(pixelY0, pixelY1));
+                fNext->blendPixel(lerp(pixelY0, pixelY1));
                 ix0 -= 1;
                 count -= 1;
             }
@@ -488,7 +484,7 @@ private:
                 fStrategy.get4Pixels(rowY0, ix, &px00, &px10, &px20, &px30);
                 Sk4f px01, px11, px21, px31;
                 fStrategy.get4Pixels(rowY1, ix, &px01, &px11, &px21, &px31);
-                fNext->place4Pixels(
+                fNext->blend4Pixels(
                     lerp(&px00, &px01), lerp(&px10, &px11), lerp(&px20, &px21), lerp(&px30, &px31));
                 ix += 4;
                 count -= 4;
@@ -497,7 +493,7 @@ private:
                 Sk4f pixelY0 = fStrategy.getPixelAt(rowY0, ix);
                 Sk4f pixelY1 = fStrategy.getPixelAt(rowY1, ix);
 
-                fNext->placePixel(lerp(&pixelY0, &pixelY1));
+                fNext->blendPixel(lerp(&pixelY0, &pixelY1));
                 ix += 1;
                 count -= 1;
             }
@@ -508,7 +504,7 @@ private:
                 fStrategy.get4Pixels(rowY0, ix - 3, &px30, &px20, &px10, &px00);
                 Sk4f px01, px11, px21, px31;
                 fStrategy.get4Pixels(rowY1, ix - 3, &px31, &px21, &px11, &px01);
-                fNext->place4Pixels(
+                fNext->blend4Pixels(
                     lerp(&px00, &px01), lerp(&px10, &px11), lerp(&px20, &px21), lerp(&px30, &px31));
                 ix -= 4;
                 count -= 4;
@@ -517,7 +513,7 @@ private:
                 Sk4f pixelY0 = fStrategy.getPixelAt(rowY0, ix);
                 Sk4f pixelY1 = fStrategy.getPixelAt(rowY1, ix);
 
-                fNext->placePixel(lerp(&pixelY0, &pixelY1));
+                fNext->blendPixel(lerp(&pixelY0, &pixelY1));
                 ix -= 1;
                 count -= 1;
             }
@@ -654,6 +650,15 @@ public:
         fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
         for (int i = 0; i < skColorTable->count(); i++) {
             fColorTable[i] = this->convertPixel((*skColorTable)[i]);
+        }
+    }
+
+    PixelIndex8(const PixelIndex8& strategy)
+        : fSrc{strategy.fSrc}, fWidth{strategy.fWidth} {
+        fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
+        // TODO: figure out the count.
+        for (int i = 0; i < 256; i++) {
+            fColorTable[i] = strategy.fColorTable[i];
         }
     }
 
