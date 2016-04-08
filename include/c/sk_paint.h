@@ -46,6 +46,16 @@ SK_API bool sk_paint_is_antialias(const sk_paint_t*);
 SK_API void sk_paint_set_antialias(sk_paint_t*, bool);
 
 /**
+ Return true iff the paint has verticaltext enabled.
+ */
+SK_API bool sk_paint_is_verticaltext(const sk_paint_t*);
+/**
+ Set to true to enable verticaltext, false to disable it on this
+ sk_paint_t.
+ */
+SK_API void sk_paint_set_verticaltext(sk_paint_t*, bool);
+
+/**
     Return the paint's curent drawing color.
 */
 SK_API sk_color_t sk_paint_get_color(const sk_paint_t*);

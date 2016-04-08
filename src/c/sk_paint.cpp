@@ -24,6 +24,14 @@ void sk_paint_set_antialias(sk_paint_t* cpaint, bool aa) {
     AsPaint(cpaint)->setAntiAlias(aa);
 }
 
+bool sk_paint_is_verticaltext(const sk_paint_t* cpaint) {
+    return AsPaint(*cpaint).isVerticalText();
+}
+
+void sk_paint_set_verticaltext(sk_paint_t* cpaint, bool aa) {
+    AsPaint(cpaint)->setVerticalText(aa);
+}
+
 sk_color_t sk_paint_get_color(const sk_paint_t* cpaint) {
     return AsPaint(*cpaint).getColor();
 }
