@@ -253,9 +253,10 @@ template<> struct set_uniform_matrix<4> {
     }
 };
 
-void GrVkPipelineStateDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
+bool GrVkPipelineStateDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
                                                         GrVkUniformBuffer* vertexBuffer,
                                                         GrVkUniformBuffer* fragmentBuffer) const {
+    bool updatedBuffer = false;
     if (vertexBuffer && fVertexUniformsDirty) {
         vertexBuffer->addMemoryBarrier(gpu,
                                        VK_ACCESS_UNIFORM_READ_BIT,
@@ -263,7 +264,8 @@ void GrVkPipelineStateDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
                                        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
                                        VK_PIPELINE_STAGE_HOST_BIT,
                                        false);
-        SkAssertResult(vertexBuffer->updateData(gpu, fVertexUniformData.get(), fVertexUniformSize));
+        SkAssertResult(vertexBuffer->updateData(gpu, fVertexUniformData.get(), fVertexUniformSize,
+                                                &updatedBuffer));
         fVertexUniformsDirty = false;
     }
 
@@ -275,7 +277,8 @@ void GrVkPipelineStateDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
                                          VK_PIPELINE_STAGE_HOST_BIT,
                                          false);
         SkAssertResult(fragmentBuffer->updateData(gpu, fFragmentUniformData.get(),
-                                                  fFragmentUniformSize));
+                                                  fFragmentUniformSize, &updatedBuffer));
         fFragmentUniformsDirty = false;
     }
+    return updatedBuffer;
 }

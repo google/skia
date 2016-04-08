@@ -200,17 +200,17 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
         this->writeSamplers(gpu, textureBindings);
     }
 
-
     if (fVertexUniformBuffer.get() || fFragmentUniformBuffer.get()) {
-        fUniformPoolManager.getNewDescriptorSet(gpu,
+        if (fDataManager.uploadUniformBuffers(gpu, fVertexUniformBuffer, fFragmentUniformBuffer) ||
+            VK_NULL_HANDLE == fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet]) {
+            fUniformPoolManager.getNewDescriptorSet(gpu,
                                        &fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet]);
-        this->writeUniformBuffers(gpu);
+            this->writeUniformBuffers(gpu);
+        }
     }
 }
 
 void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
-    fDataManager.uploadUniformBuffers(gpu, fVertexUniformBuffer, fFragmentUniformBuffer);
-
     VkWriteDescriptorSet descriptorWrites[2];
     memset(descriptorWrites, 0, 2 * sizeof(VkWriteDescriptorSet));
 

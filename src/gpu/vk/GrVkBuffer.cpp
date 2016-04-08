@@ -163,7 +163,8 @@ bool GrVkBuffer::vkIsMapped() const {
     return SkToBool(fMapPtr);
 }
 
-bool GrVkBuffer::vkUpdateData(const GrVkGpu* gpu, const void* src, size_t srcSizeInBytes) {
+bool GrVkBuffer::vkUpdateData(const GrVkGpu* gpu, const void* src, size_t srcSizeInBytes,
+                              bool* createdNewBuffer) {
     SkASSERT(!this->vkIsMapped());
     VALIDATE();
     if (srcSizeInBytes > fDesc.fSizeInBytes) {
@@ -174,6 +175,9 @@ bool GrVkBuffer::vkUpdateData(const GrVkGpu* gpu, const void* src, size_t srcSiz
         // in use by the command buffer, so we need to create a new one
         fResource->unref(gpu);
         fResource = Create(gpu, fDesc);
+        if (createdNewBuffer) {
+            *createdNewBuffer = true;
+        }
     }
 
     void* mapPtr;
