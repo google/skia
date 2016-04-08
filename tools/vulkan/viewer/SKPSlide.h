@@ -13,12 +13,15 @@
 
 class SKPSlide : public Slide {
 public:
-    SKPSlide(const char* name, sk_sp<const SkPicture> pic);
+    SKPSlide(const SkString& name, const SkString& path);
     ~SKPSlide() override;
 
     void draw(SkCanvas* canvas) override;
+    void load() override;
+    void unload() override;
 
 private:
+    SkString               fPath;
     sk_sp<const SkPicture> fPic;
     SkIRect                fCullRect;
 };

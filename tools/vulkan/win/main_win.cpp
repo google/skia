@@ -72,11 +72,11 @@ static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
-        } 
-        
-        previousTime = currentTime;
-        currentTime = now_ms();
-        app->onIdle(currentTime - previousTime);
+        } else {
+            previousTime = currentTime;
+            currentTime = now_ms();
+            app->onIdle(currentTime - previousTime);
+        }
     }
 
     delete app;

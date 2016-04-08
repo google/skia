@@ -26,3 +26,7 @@ void GMSlide::draw(SkCanvas* canvas) {
     fGM->drawBackground(canvas);
     fGM->drawContent(canvas);
 }
+
+bool GMSlide::animate(const SkAnimTimer& timer) {
+    return fGM->animate(timer);
+}

@@ -8,25 +8,51 @@
 #include "SKPSlide.h"
 
 #include "SkCanvas.h"
+#include "SkCommonFlags.h"
+#include "SkOSFile.h"
+#include "SkStream.h"
 
-SKPSlide::SKPSlide(const char* name, sk_sp<const SkPicture> pic)
-    : fPic(pic)
-    , fCullRect(fPic->cullRect().roundOut()) {
+SKPSlide::SKPSlide(const SkString& name, const SkString& path) : fPath(path) {
     fName = name;
 }
 
 SKPSlide::~SKPSlide() {}
 
 void SKPSlide::draw(SkCanvas* canvas) {
-    bool isOffset = SkToBool(fCullRect.left() | fCullRect.top());
-    if (isOffset) {
-        canvas->save();
-        canvas->translate(SkIntToScalar(-fCullRect.left()), SkIntToScalar(-fCullRect.top()));
+    if (fPic.get()) {
+        bool isOffset = SkToBool(fCullRect.left() | fCullRect.top());
+        if (isOffset) {
+            canvas->save();
+            canvas->translate(SkIntToScalar(-fCullRect.left()), SkIntToScalar(-fCullRect.top()));
+        }
+
+        canvas->drawPicture(fPic.get());
+
+        if (isOffset) {
+            canvas->restore();
+        }
+    }
+}
+
+static sk_sp<SkPicture> read_picture(const char path[]) {
+    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+    if (stream.get() == nullptr) {
+        SkDebugf("Could not read %s.\n", path);
+        return nullptr;
     }
 
-    canvas->drawPicture(fPic.get());
-
-    if (isOffset) {
-        canvas->restore();
+    auto pic = SkPicture::MakeFromStream(stream.get());
+    if (!pic) {
+        SkDebugf("Could not read %s as an SkPicture.\n", path);
     }
+    return pic;
+}
+
+void SKPSlide::load() {
+    fPic = read_picture(fPath.c_str());
+    fCullRect = fPic->cullRect().roundOut();
+}
+
+void SKPSlide::unload() {
+    fPic.reset(nullptr);
 }

@@ -275,3 +275,7 @@ bool Window_win::attach(BackEndType attachType, int msaaSampleCount, AttachmentI
 
     return (SkToBool(fTestContext));
 }
+
+void Window_win::inval() {
+    InvalidateRect(fHWnd, nullptr, false);
+}

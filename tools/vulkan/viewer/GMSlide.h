@@ -17,6 +17,7 @@ public:
     ~GMSlide() override;
 
     void draw(SkCanvas* canvas) override;
+    bool animate(const SkAnimTimer&) override;
 
 private:
     skiagm::GM* fGM;

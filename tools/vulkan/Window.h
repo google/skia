@@ -21,6 +21,7 @@ public:
 
     virtual void setTitle(const char*) = 0;
     virtual void show() = 0;
+    virtual void inval() = 0;
 
     struct AttachmentInfo {
         int fSampleCount;
@@ -122,8 +123,14 @@ public:
     void onPaint();
     void onResize(uint32_t width, uint32_t height);
 
+    uint32_t width() { return fWidth; }
+    uint32_t height() { return fHeight;  }
+
 protected:
     Window();
+
+    uint32_t     fWidth;
+    uint32_t     fHeight;
 
     OnCharFunc   fCharFunc;
     void*        fCharUserData;

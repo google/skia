@@ -27,6 +27,12 @@ static bool on_key_handler(Window::Key key, Window::InputState state, uint32_t m
     return vv->onKey(key, state, modifiers);
 }
 
+static bool on_char_handler(SkUnichar c, uint32_t modifiers, void* userData) {
+    VulkanViewer* vv = reinterpret_cast<VulkanViewer*>(userData);
+
+    return vv->onChar(c, modifiers);
+}
+
 static void on_paint_handler(SkCanvas* canvas, void* userData) {
     VulkanViewer* vv = reinterpret_cast<VulkanViewer*>(userData);
 
@@ -46,12 +52,10 @@ DEFINE_string2(match, m, nullptr,
                "it is skipped unless some list entry starts with ~");
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
-
-
-
-
-
-VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData) : fCurrentMeasurement(0) {
+VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData)
+    : fCurrentMeasurement(0)
+    , fDisplayStats(false)
+{
     memset(fMeasurements, 0, sizeof(fMeasurements));
 
     SkDebugf("Command line arguments: ");
@@ -67,46 +71,18 @@ VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData) : fCurrent
 
     // register callbacks
     fWindow->registerKeyFunc(on_key_handler, this);
+    fWindow->registerCharFunc(on_char_handler, this);
     fWindow->registerPaintFunc(on_paint_handler, this);
 
     // set up slides
     this->initSlides();
 
     // set up first frame
-    SkString title("VulkanViewer: ");
-    title.append(fSlides[0]->getName());
     fCurrentSlide = 0;
-    fWindow->setTitle(title.c_str());
+    setupCurrentSlide(-1);
+    fLocalMatrix.reset();
+
     fWindow->show();
-}
-
-static sk_sp<SkPicture> read_picture(const char path[]) {
-    if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path)) {
-        return nullptr;
-    }
-
-    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
-    if (stream.get() == nullptr) {
-        SkDebugf("Could not read %s.\n", path);
-        return nullptr;
-    }
-
-    auto pic = SkPicture::MakeFromStream(stream.get());
-    if (!pic) {
-        SkDebugf("Could not read %s as an SkPicture.\n", path);
-    }
-    return pic;
-}
-
-
-static sk_sp<SKPSlide> loadSKP(const SkString& path) {
-    sk_sp<SkPicture> pic = read_picture(path.c_str());
-    if (!pic) {
-        return nullptr;
-    }
-
-    SkString name = SkOSPath::Basename(path.c_str());
-    return sk_sp<SKPSlide>(new SKPSlide(name.c_str(), pic));
 }
 
 void VulkanViewer::initSlides() {
@@ -132,17 +108,25 @@ void VulkanViewer::initSlides() {
     // SKPs
     for (int i = 0; i < FLAGS_skps.count(); i++) {
         if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
+                continue;
+            }
+
             SkString path(FLAGS_skps[i]);
-            sk_sp<SKPSlide> slide = loadSKP(path);
+            sk_sp<SKPSlide> slide(new SKPSlide(SkOSPath::Basename(path.c_str()), path));
             if (slide) {
                 fSlides.push_back(slide);
             }
         } else {
             SkOSFile::Iter it(FLAGS_skps[i], ".skp");
-            SkString path;
-            while (it.next(&path)) {
-                SkString skpName = SkOSPath::Join(FLAGS_skps[i], path.c_str());
-                sk_sp<SKPSlide> slide = loadSKP(skpName);
+            SkString skpName;
+            while (it.next(&skpName)) {
+                if (SkCommandLineFlags::ShouldSkip(FLAGS_match, skpName.c_str())) {
+                    continue;
+                }
+
+                SkString path = SkOSPath::Join(FLAGS_skps[i], skpName.c_str());
+                sk_sp<SKPSlide> slide(new SKPSlide(skpName, path));
                 if (slide) {
                     fSlides.push_back(slide);
                 }
@@ -157,39 +141,124 @@ VulkanViewer::~VulkanViewer() {
     delete fWindow;
 }
 
+void VulkanViewer::setupCurrentSlide(int previousSlide) {
+    SkString title("VulkanViewer: ");
+    title.append(fSlides[fCurrentSlide]->getName());
+    fSlides[fCurrentSlide]->load();
+    if (previousSlide >= 0) {
+        fSlides[previousSlide]->unload();
+    }
+    fWindow->setTitle(title.c_str());
+    fWindow->inval();
+}
+
+#define MAX_ZOOM_LEVEL  8
+#define MIN_ZOOM_LEVEL  -8
+
+void VulkanViewer::changeZoomLevel(float delta) {
+    fZoomLevel += delta;
+    if (fZoomLevel > 0) {
+        fZoomLevel = SkMinScalar(fZoomLevel, MAX_ZOOM_LEVEL);
+        fZoomScale = fZoomLevel + SK_Scalar1;
+    } else if (fZoomLevel < 0) {
+        fZoomLevel = SkMaxScalar(fZoomLevel, MIN_ZOOM_LEVEL);
+        fZoomScale = SK_Scalar1 / (SK_Scalar1 - fZoomLevel);
+    } else {
+        fZoomScale = SK_Scalar1;
+    }
+    this->updateMatrix();
+}
+
+void VulkanViewer::updateMatrix(){
+    SkMatrix m;
+    m.reset();
+
+    if (fZoomLevel) {
+        SkPoint center;
+        //m = this->getLocalMatrix();//.invert(&m);
+        m.mapXY(fZoomCenterX, fZoomCenterY, &center);
+        SkScalar cx = center.fX;
+        SkScalar cy = center.fY;
+
+        m.setTranslate(-cx, -cy);
+        m.postScale(fZoomScale, fZoomScale);
+        m.postTranslate(cx, cy);
+    }
+
+    // TODO: add gesture support
+    // Apply any gesture matrix
+    //m.preConcat(fGesture.localM());
+    //m.preConcat(fGesture.globalM());
+
+    fLocalMatrix = m;
+}
+
 bool VulkanViewer::onKey(Window::Key key, Window::InputState state, uint32_t modifiers) {
-    if (Window::kDown_InputState == state && (modifiers & Window::kFirstPress_ModifierKey)) {
-        if (key == Window::kRight_Key) {
-            fCurrentSlide++;
-            if (fCurrentSlide >= fSlides.count()) {
-                fCurrentSlide = 0;
+    if (Window::kDown_InputState == state) {
+        switch (key) {
+            case Window::kRight_Key: {
+                int previousSlide = fCurrentSlide;
+                fCurrentSlide++;
+                if (fCurrentSlide >= fSlides.count()) {
+                    fCurrentSlide = 0;
+                }
+                setupCurrentSlide(previousSlide);
+                return true;
             }
-            SkString title("VulkanViewer: ");
-            title.append(fSlides[fCurrentSlide]->getName());
-            fWindow->setTitle(title.c_str());
-        } else if (key == Window::kLeft_Key) {
-            fCurrentSlide--;
-            if (fCurrentSlide < 0) {
-                fCurrentSlide = fSlides.count()-1;
+
+            case Window::kLeft_Key: {
+                int previousSlide = fCurrentSlide;
+                fCurrentSlide--;
+                if (fCurrentSlide < 0) {
+                    fCurrentSlide = fSlides.count() - 1;
+                }
+                SkString title("VulkanViewer: ");
+                title.append(fSlides[fCurrentSlide]->getName());
+                fWindow->setTitle(title.c_str());
+                setupCurrentSlide(previousSlide);
+                return true;
             }
-            SkString title("VulkanViewer: ");
-            title.append(fSlides[fCurrentSlide]->getName());
-            fWindow->setTitle(title.c_str());
+
+            case Window::kUp_Key: {
+                this->changeZoomLevel(1.f / 32.f);
+                return true;
+            }
+
+            case Window::kDown_Key: {
+                this->changeZoomLevel(-1.f / 32.f);
+                return true;
+            }
+
+            default:
+                break;
         }
     }
 
-    return true;
+    return false;
+}
+
+bool VulkanViewer::onChar(SkUnichar c, uint32_t modifiers) {
+    if ('s' == c) {
+        fDisplayStats = !fDisplayStats;
+        return true;
+    }
+
+    return false;
 }
 
 void VulkanViewer::onPaint(SkCanvas* canvas) {
 
     canvas->clear(SK_ColorWHITE);
 
-    canvas->save();
-    fSlides[fCurrentSlide]->draw(canvas);
-    canvas->restore();
+    int count = canvas->save();
+    canvas->setMatrix(fLocalMatrix);
 
-    drawStats(canvas);
+    fSlides[fCurrentSlide]->draw(canvas);
+    canvas->restoreToCount(count);
+
+    if (fDisplayStats) {
+        drawStats(canvas);
+    }
 }
 
 void VulkanViewer::drawStats(SkCanvas* canvas) {
@@ -240,5 +309,8 @@ void VulkanViewer::onIdle(double ms) {
     fCurrentMeasurement &= (kMeasurementCount - 1);  // fast mod
     SkASSERT(fCurrentMeasurement < kMeasurementCount);
 
-    fWindow->onPaint();
+    fAnimTimer.updateTime();
+    if (fDisplayStats || fSlides[fCurrentSlide]->animate(fAnimTimer)) {
+        fWindow->inval();
+    }
 }

@@ -23,6 +23,8 @@ public:
 
     bool attach(BackEndType attachType, int msaaSampleCount, AttachmentInfo*) override;
 
+    void inval() override;
+
 private:
     HINSTANCE fHInstance;
     HWND      fHWnd;

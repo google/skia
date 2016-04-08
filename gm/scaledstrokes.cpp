@@ -73,6 +73,7 @@ protected:
 
                 canvas->translate(80.0f, 0.0f);
             }
+            canvas->restore();
         }
 
     }

@@ -67,7 +67,8 @@ void Window::onPaint() {
 
 }
 
-
 void Window::onResize(uint32_t w, uint32_t h) {
+    fWidth = w;
+    fHeight = h;
     fTestContext->resize(w, h);
 }
