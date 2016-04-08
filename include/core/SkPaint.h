@@ -1085,8 +1085,14 @@ private:
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
 
-    enum class FakeGamma {
-        Off = 0, On
+    enum ScalerContextFlags : uint32_t {
+        kNone_ScalerContextFlags = 0,
+
+        kFakeGamma_ScalerContextFlag = 1 << 0,
+        kBoostContrast_ScalerContextFlag = 1 << 1,
+
+        kFakeGammaAndBoostContrast_ScalerContextFlags =
+            kFakeGamma_ScalerContextFlag | kBoostContrast_ScalerContextFlag,
     };
 
     /*
@@ -1094,12 +1100,12 @@ private:
      * SkData.  Caller is responsible for managing the lifetime of this object.
      */
     void getScalerContextDescriptor(SkAutoDescriptor*, const SkSurfaceProps& surfaceProps,
-                                    FakeGamma fakeGamma, const SkMatrix*) const;
+                                    uint32_t scalerContextFlags, const SkMatrix*) const;
 
-    SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps, FakeGamma fakeGamma,
+    SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
                               const SkMatrix*) const;
 
-    void descriptorProc(const SkSurfaceProps* surfaceProps, FakeGamma fakeGamma,
+    void descriptorProc(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
                         const SkMatrix* deviceMatrix,
                         void (*proc)(SkTypeface*, const SkDescriptor*, void*),
                         void* context) const;

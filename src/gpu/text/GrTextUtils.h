@@ -38,13 +38,13 @@ public:
     static void DrawBmpText(GrAtlasTextBlob*, int runIndex,
                             GrBatchFontCache*, const SkSurfaceProps&,
                             const SkPaint&,
-                            GrColor, SkPaint::FakeGamma, const SkMatrix& viewMatrix,
+                            GrColor, uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
                             SkScalar x, SkScalar y);
 
     static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex,
                                GrBatchFontCache*, const SkSurfaceProps&, const SkPaint&,
-                               GrColor, SkPaint::FakeGamma, const SkMatrix& viewMatrix,
+                               GrColor, uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset);
@@ -55,14 +55,15 @@ public:
 
     static void DrawDFText(GrAtlasTextBlob* blob, int runIndex,
                            GrBatchFontCache*, const SkSurfaceProps&,
-                           const SkPaint& skPaint, GrColor color, SkPaint::FakeGamma,
+                           const SkPaint& skPaint, GrColor color, uint32_t scalerContextFlags,
                            const SkMatrix& viewMatrix,
                            const char text[], size_t byteLength,
                            SkScalar x, SkScalar y);
 
     static void DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                               GrBatchFontCache*, const SkSurfaceProps&, const SkPaint&,
-                              GrColor color, SkPaint::FakeGamma, const SkMatrix& viewMatrix,
+                              GrColor color, uint32_t scalerContextFlags,
+                              const SkMatrix& viewMatrix,
                               const char text[], size_t byteLength,
                               const SkScalar pos[], int scalarsPerPosition,
                               const SkPoint& offset);

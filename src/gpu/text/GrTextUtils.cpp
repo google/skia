@@ -40,7 +40,7 @@ static const int kLargeDFFontLimit = 2 * kLargeDFFontSize;
 void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
                               GrBatchFontCache* fontCache,
                               const SkSurfaceProps& props, const SkPaint& skPaint,
-                              GrColor color, SkPaint::FakeGamma fakeGamma,
+                              GrColor color, uint32_t scalerContextFlags,
                               const SkMatrix& viewMatrix,
                               const char text[], size_t byteLength,
                               SkScalar x, SkScalar y) {
@@ -57,8 +57,8 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
     GrBatchTextStrike* currStrike = nullptr;
 
     // Get GrFontScaler from cache
-    SkGlyphCache* cache = blob->setupCache(runIndex, props, fakeGamma,
-                                           skPaint, &viewMatrix);
+    SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, skPaint,
+                                           &viewMatrix);
     GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessText(
@@ -80,7 +80,7 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
 void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
                                  GrBatchFontCache* fontCache,
                                  const SkSurfaceProps& props, const SkPaint& skPaint,
-                                 GrColor color, SkPaint::FakeGamma fakeGamma,
+                                 GrColor color, uint32_t scalerContextFlags,
                                  const SkMatrix& viewMatrix,
                                  const char text[], size_t byteLength,
                                  const SkScalar pos[], int scalarsPerPosition,
@@ -99,8 +99,8 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
     GrBatchTextStrike* currStrike = nullptr;
 
     // Get GrFontScaler from cache
-    SkGlyphCache* cache = blob->setupCache(runIndex, props, fakeGamma,
-                                           skPaint, &viewMatrix);
+    SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, skPaint,
+                                           &viewMatrix);
     GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessPosText(
@@ -247,7 +247,7 @@ void GrTextUtils::InitDistanceFieldPaint(GrAtlasTextBlob* blob,
 
 void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
                              GrBatchFontCache* fontCache, const SkSurfaceProps& props,
-                             const SkPaint& skPaint, GrColor color, SkPaint::FakeGamma fakeGamma,
+                             const SkPaint& skPaint, GrColor color, uint32_t scalerContextFlags,
                              const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y) {
@@ -261,8 +261,8 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
     SkPaint::GlyphCacheProc glyphCacheProc = skPaint.getGlyphCacheProc(true);
     SkAutoDescriptor desc;
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
-    // fakeGamma parameter. (It's only used when we fall-back to bitmap text).
-    skPaint.getScalerContextDescriptor(&desc, props, SkPaint::FakeGamma::Off, nullptr);
+    // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
+    skPaint.getScalerContextDescriptor(&desc, props, SkPaint::kNone_ScalerContextFlags, nullptr);
     SkGlyphCache* origPaintCache = SkGlyphCache::DetachCache(skPaint.getTypeface(),
                                                              desc.getDesc());
 
@@ -312,14 +312,14 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
     y -= alignY;
     SkPoint offset = SkPoint::Make(x, y);
 
-    DrawDFPosText(blob, runIndex, fontCache, props, skPaint, color, fakeGamma, viewMatrix,
+    DrawDFPosText(blob, runIndex, fontCache, props, skPaint, color, scalerContextFlags, viewMatrix,
                   text, byteLength, positions.begin(), 2, offset);
 }
 
 void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                                 GrBatchFontCache* fontCache, const SkSurfaceProps& props,
                                 const SkPaint& origPaint,
-                                GrColor color, SkPaint::FakeGamma fakeGamma,
+                                GrColor color, uint32_t scalerContextFlags,
                                 const SkMatrix& viewMatrix,
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
@@ -345,8 +345,8 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     GrBatchTextStrike* currStrike = nullptr;
 
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
-    // fakeGamma parameter. (It's only used when we fall-back to bitmap text).
-    SkGlyphCache* cache = blob->setupCache(runIndex, props, SkPaint::FakeGamma::Off,
+    // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
+    SkGlyphCache* cache = blob->setupCache(runIndex, props, SkPaint::kNone_ScalerContextFlags,
                                            dfPaint, nullptr);
     SkPaint::GlyphCacheProc glyphCacheProc = dfPaint.getGlyphCacheProc(true);
     GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
@@ -420,7 +420,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     if (fallbackTxt.count()) {
         blob->initOverride(runIndex);
         GrTextUtils::DrawBmpPosText(blob, runIndex, fontCache, props,
-                                    origPaint, origPaint.getColor(), fakeGamma, viewMatrix,
+                                    origPaint, origPaint.getColor(), scalerContextFlags, viewMatrix,
                                     fallbackTxt.begin(), fallbackTxt.count(),
                                     fallbackPos.begin(), scalarsPerPosition, offset);
     }

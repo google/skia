@@ -51,7 +51,7 @@ GrAtlasTextBlob* GrAtlasTextBlob::Create(GrMemoryPool* pool, int glyphCount, int
 
 SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
                                           const SkSurfaceProps& props,
-                                          SkPaint::FakeGamma fakeGamma,
+                                          uint32_t scalerContextFlags,
                                           const SkPaint& skPaint,
                                           const SkMatrix* viewMatrix) {
     GrAtlasTextBlob::Run* run = &fRuns[runIndex];
@@ -59,7 +59,7 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
     // if we have an override descriptor for the run, then we should use that
     SkAutoDescriptor* desc = run->fOverrideDescriptor.get() ? run->fOverrideDescriptor.get() :
                                                               &run->fDescriptor;
-    skPaint.getScalerContextDescriptor(desc, props, fakeGamma, viewMatrix);
+    skPaint.getScalerContextDescriptor(desc, props, scalerContextFlags, viewMatrix);
     run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
     return SkGlyphCache::DetachCache(run->fTypeface, desc->getDesc());
 }

@@ -959,7 +959,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         metrics = &storage;
     }
 
-    paint.descriptorProc(nullptr, FakeGamma::Off, zoomPtr, FontMetricsDescProc, metrics);
+    paint.descriptorProc(nullptr, kNone_ScalerContextFlags, zoomPtr, FontMetricsDescProc, metrics);
 
     if (scale) {
         metrics->fTop = SkScalarMul(metrics->fTop, scale);
@@ -1516,7 +1516,7 @@ void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContext::Rec* rec) {
             break;
         }
         case SkMask::kBW_Format:
-            // No need to differentiate gamma if we're BW
+            // No need to differentiate gamma or apply contrast if we're BW
             rec->ignorePreBlend();
             break;
     }
@@ -1551,14 +1551,17 @@ static void write_out_descriptor(SkDescriptor* desc, const SkScalerContext::Rec&
 
 static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
                            const SkSurfaceProps* surfaceProps,
-                           bool fakeGamma,
+                           bool fakeGamma, bool boostContrast,
                            const SkMatrix* deviceMatrix,
                            const SkPathEffect* pe, SkWriteBuffer* peBuffer,
                            const SkMaskFilter* mf, SkWriteBuffer* mfBuffer,
                            const SkRasterizer* ra, SkWriteBuffer* raBuffer) {
     SkScalerContext::MakeRec(paint, surfaceProps, deviceMatrix, rec);
     if (!fakeGamma) {
-        rec->ignorePreBlend();
+        rec->ignoreGamma();
+    }
+    if (!boostContrast) {
+        rec->setContrast(0);
     }
 
     int entryCount = 1;
@@ -1647,7 +1650,7 @@ static void test_desc(const SkScalerContext::Rec& rec,
 /* see the note on ignoreGamma on descriptorProc */
 void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
                                          const SkSurfaceProps& surfaceProps,
-                                         FakeGamma fakeGamma,
+                                         uint32_t scalerContextFlags,
                                          const SkMatrix* deviceMatrix) const {
     SkScalerContext::Rec    rec;
 
@@ -1656,9 +1659,10 @@ void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
     SkRasterizer*   ra = this->getRasterizer();
 
     SkWriteBuffer   peBuffer, mfBuffer, raBuffer;
-    size_t descSize = fill_out_rec(*this, &rec,
-                                   &surfaceProps, FakeGamma::On == fakeGamma, deviceMatrix,
-                                   pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
+    size_t descSize = fill_out_rec(*this, &rec, &surfaceProps,
+                                   SkToBool(scalerContextFlags & kFakeGamma_ScalerContextFlag),
+                                   SkToBool(scalerContextFlags & kBoostContrast_ScalerContextFlag),
+                                   deviceMatrix, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
 
     ad->reset(descSize);
     SkDescriptor* desc = ad->getDesc();
@@ -1678,7 +1682,7 @@ void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
  *  contrast = 0, luminanceColor = transparent black.
  */
 void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
-                             FakeGamma fakeGamma,
+                             uint32_t scalerContextFlags,
                              const SkMatrix* deviceMatrix,
                              void (*proc)(SkTypeface*, const SkDescriptor*, void*),
                              void* context) const {
@@ -1689,9 +1693,10 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
     SkRasterizer*   ra = this->getRasterizer();
 
     SkWriteBuffer   peBuffer, mfBuffer, raBuffer;
-    size_t descSize = fill_out_rec(*this, &rec,
-                                   surfaceProps, FakeGamma::On == fakeGamma, deviceMatrix,
-                                   pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
+    size_t descSize = fill_out_rec(*this, &rec, surfaceProps,
+                                   SkToBool(scalerContextFlags & kFakeGamma_ScalerContextFlag),
+                                   SkToBool(scalerContextFlags & kBoostContrast_ScalerContextFlag),
+                                   deviceMatrix, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
 
     SkAutoDescriptor    ad(descSize);
     SkDescriptor*       desc = ad.getDesc();
@@ -1708,10 +1713,10 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
 }
 
 SkGlyphCache* SkPaint::detachCache(const SkSurfaceProps* surfaceProps,
-                                   FakeGamma fakeGamma,
+                                   uint32_t scalerContextFlags,
                                    const SkMatrix* deviceMatrix) const {
     SkGlyphCache* cache;
-    this->descriptorProc(surfaceProps, fakeGamma, deviceMatrix, DetachDescProc, &cache);
+    this->descriptorProc(surfaceProps, scalerContextFlags, deviceMatrix, DetachDescProc, &cache);
     return cache;
 }
 
@@ -2246,7 +2251,9 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
         fPaint.setPathEffect(nullptr);
     }
 
-    fCache = fPaint.detachCache(nullptr, SkPaint::FakeGamma::On, nullptr);
+    // SRGBTODO: Is this correct?
+    fCache = fPaint.detachCache(nullptr, SkPaint::kFakeGammaAndBoostContrast_ScalerContextFlags,
+                                nullptr);
 
     SkPaint::Style  style = SkPaint::kFill_Style;
     sk_sp<SkPathEffect> pe;
