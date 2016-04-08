@@ -24,12 +24,20 @@ void sk_paint_set_antialias(sk_paint_t* cpaint, bool aa) {
     AsPaint(cpaint)->setAntiAlias(aa);
 }
 
+bool sk_paint_is_dither(const sk_paint_t* cpaint) {
+    return AsPaint(*cpaint).isDither();
+}
+
+void sk_paint_set_dither(sk_paint_t* cpaint, bool isdither) {
+    AsPaint(cpaint)->setDither(isdither);
+}
+
 bool sk_paint_is_verticaltext(const sk_paint_t* cpaint) {
     return AsPaint(*cpaint).isVerticalText();
 }
 
-void sk_paint_set_verticaltext(sk_paint_t* cpaint, bool aa) {
-    AsPaint(cpaint)->setVerticalText(aa);
+void sk_paint_set_verticaltext(sk_paint_t* cpaint, bool vt) {
+    AsPaint(cpaint)->setVerticalText(vt);
 }
 
 sk_color_t sk_paint_get_color(const sk_paint_t* cpaint) {

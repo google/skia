@@ -46,6 +46,16 @@ SK_API bool sk_paint_is_antialias(const sk_paint_t*);
 SK_API void sk_paint_set_antialias(sk_paint_t*, bool);
 
 /**
+ Return true iff the paint has dithering enabled.
+ */
+SK_API bool sk_paint_is_dither(const sk_paint_t*);
+/**
+ Set to true to enable dithering, false to disable it on this
+ sk_paint_t.
+ */
+SK_API void sk_paint_set_dither(sk_paint_t*, bool);
+
+/**
  Return true iff the paint has verticaltext enabled.
  */
 SK_API bool sk_paint_is_verticaltext(const sk_paint_t*);
