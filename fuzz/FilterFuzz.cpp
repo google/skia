@@ -626,52 +626,46 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     case COMPOSE:
         filter = SkComposeImageFilter::Make(make_image_filter(), make_image_filter());
         break;
-    case DISTANT_LIGHT: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-
+    case DISTANT_LIGHT:
         filter = (R(2) == 1)
-                 ? sk_sp<SkImageFilter>(SkLightingImageFilter::CreateDistantLitDiffuse(make_point(),
-                                                make_color(), make_scalar(), make_scalar(),
-                                                subFilter.get()))
-                 : sk_sp<SkImageFilter>(SkLightingImageFilter::CreateDistantLitSpecular(make_point(),
-                                                make_color(), make_scalar(),
-                                                make_scalar(), SkIntToScalar(R(10)),
-                                                subFilter.get()));
+                 ? SkLightingImageFilter::MakeDistantLitDiffuse(make_point(), make_color(),
+                                                                make_scalar(), make_scalar(),
+                                                                make_image_filter())
+                 : SkLightingImageFilter::MakeDistantLitSpecular(make_point(), make_color(),
+                                                                 make_scalar(), make_scalar(),
+                                                                 SkIntToScalar(R(10)),
+                                                                 make_image_filter());
         break;
-    }
-    case POINT_LIGHT: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-
+    case POINT_LIGHT:
         filter = (R(2) == 1)
-                 ? sk_sp<SkImageFilter>(SkLightingImageFilter::CreatePointLitDiffuse(make_point(),
-                                                make_color(), make_scalar(), make_scalar(),
-                                                subFilter.get()))
-                 : sk_sp<SkImageFilter>(SkLightingImageFilter::CreatePointLitSpecular(make_point(),
-                                                make_color(), make_scalar(), make_scalar(),
-                                                SkIntToScalar(R(10)),
-                                                subFilter.get()));
+                 ? SkLightingImageFilter::MakePointLitDiffuse(make_point(), make_color(),
+                                                              make_scalar(), make_scalar(),
+                                                              make_image_filter())
+                 : SkLightingImageFilter::MakePointLitSpecular(make_point(), make_color(),
+                                                               make_scalar(), make_scalar(),
+                                                               SkIntToScalar(R(10)),
+                                                               make_image_filter());
         break;
-    }
-    case SPOT_LIGHT: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter());
-
+    case SPOT_LIGHT:
         filter = (R(2) == 1)
-                 ? sk_sp<SkImageFilter>(SkLightingImageFilter::CreateSpotLitDiffuse(SkPoint3::Make(0, 0, 0),
-                                                 make_point(), make_scalar(), make_scalar(),
-                                                 make_color(), make_scalar(), make_scalar(),
-                                                 subFilter.get()))
-                 : sk_sp<SkImageFilter>(SkLightingImageFilter::CreateSpotLitSpecular(SkPoint3::Make(0, 0, 0),
-                                                 make_point(), make_scalar(), make_scalar(),
-                                                 make_color(), make_scalar(), make_scalar(),
-                                                 SkIntToScalar(R(10)), subFilter.get()));
+                 ? SkLightingImageFilter::MakeSpotLitDiffuse(SkPoint3::Make(0, 0, 0),
+                                                             make_point(), make_scalar(),
+                                                             make_scalar(), make_color(),
+                                                             make_scalar(), make_scalar(),
+                                                             make_image_filter())
+                 : SkLightingImageFilter::MakeSpotLitSpecular(SkPoint3::Make(0, 0, 0),
+                                                              make_point(), make_scalar(),
+                                                              make_scalar(), make_color(),
+                                                              make_scalar(), make_scalar(),
+                                                              SkIntToScalar(R(10)),
+                                                              make_image_filter());
         break;
-    }
     case NOISE: {
-        sk_sp<SkShader> shader((R(2) == 1) ?
-            SkPerlinNoiseShader::MakeFractalNoise(
-                make_scalar(true), make_scalar(true), R(10.0f), make_scalar()) :
-            SkPerlinNoiseShader::MakeTurbulence(
-                make_scalar(true), make_scalar(true), R(10.0f), make_scalar()));
+        sk_sp<SkShader> shader((R(2) == 1)
+                ? SkPerlinNoiseShader::MakeFractalNoise(make_scalar(true), make_scalar(true),
+                                                        R(10.0f), make_scalar())
+                : SkPerlinNoiseShader::MakeTurbulence(make_scalar(true), make_scalar(true),
+                                                      R(10.0f), make_scalar()));
         SkPaint paint;
         paint.setShader(shader);
         SkImageFilter::CropRect cropR(SkRect::MakeWH(SkIntToScalar(kBitmapSize),

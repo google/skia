@@ -20,11 +20,11 @@ public:
     LightingBaseBench(bool small) : fIsSmall(small) { }
 
 protected:
-    void draw(int loops, SkCanvas* canvas, SkImageFilter* imageFilter) const {
+    void draw(int loops, SkCanvas* canvas, sk_sp<SkImageFilter> imageFilter) const {
         SkRect r = fIsSmall ? SkRect::MakeWH(FILTER_WIDTH_SMALL, FILTER_HEIGHT_SMALL) :
                               SkRect::MakeWH(FILTER_WIDTH_LARGE, FILTER_HEIGHT_LARGE);
         SkPaint paint;
-        paint.setImageFilter(imageFilter)->unref();
+        paint.setImageFilter(std::move(imageFilter));
         for (int i = 0; i < loops; i++) {
             canvas->drawRect(r, paint);
         }
@@ -99,8 +99,7 @@ protected:
 
 class LightingPointLitDiffuseBench : public LightingBaseBench {
 public:
-    LightingPointLitDiffuseBench(bool small) : INHERITED(small) {
-    }
+    LightingPointLitDiffuseBench(bool small) : INHERITED(small) { }
 
 protected:
     const char* onGetName() override {
@@ -108,10 +107,11 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        draw(loops, canvas, SkLightingImageFilter::CreatePointLitDiffuse(GetPointLocation(),
-                                                                         GetWhite(),
-                                                                         GetSurfaceScale(),
-                                                                         GetKd()));
+        draw(loops, canvas, SkLightingImageFilter::MakePointLitDiffuse(GetPointLocation(),
+                                                                       GetWhite(),
+                                                                       GetSurfaceScale(),
+                                                                       GetKd(),
+                                                                       nullptr));
     }
 
 private:
@@ -120,8 +120,7 @@ private:
 
 class LightingDistantLitDiffuseBench : public LightingBaseBench {
 public:
-    LightingDistantLitDiffuseBench(bool small) : INHERITED(small) {
-    }
+    LightingDistantLitDiffuseBench(bool small) : INHERITED(small) { }
 
 protected:
     const char* onGetName() override {
@@ -129,10 +128,11 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        draw(loops, canvas, SkLightingImageFilter::CreateDistantLitDiffuse(GetDistantDirection(),
-                                                                           GetWhite(),
-                                                                           GetSurfaceScale(),
-                                                                           GetKd()));
+        draw(loops, canvas, SkLightingImageFilter::MakeDistantLitDiffuse(GetDistantDirection(),
+                                                                         GetWhite(),
+                                                                         GetSurfaceScale(),
+                                                                         GetKd(),
+                                                                         nullptr));
     }
 
 private:
@@ -141,8 +141,7 @@ private:
 
 class LightingSpotLitDiffuseBench : public LightingBaseBench {
 public:
-    LightingSpotLitDiffuseBench(bool small) : INHERITED(small) {
-    }
+    LightingSpotLitDiffuseBench(bool small) : INHERITED(small) { }
 
 protected:
     const char* onGetName() override {
@@ -150,13 +149,14 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        draw(loops, canvas, SkLightingImageFilter::CreateSpotLitDiffuse(GetSpotLocation(),
-                                                                        GetSpotTarget(),
-                                                                        GetSpotExponent(),
-                                                                        GetCutoffAngle(),
-                                                                        GetWhite(),
-                                                                        GetSurfaceScale(),
-                                                                        GetKd()));
+        draw(loops, canvas, SkLightingImageFilter::MakeSpotLitDiffuse(GetSpotLocation(),
+                                                                       GetSpotTarget(),
+                                                                       GetSpotExponent(),
+                                                                       GetCutoffAngle(),
+                                                                       GetWhite(),
+                                                                       GetSurfaceScale(),
+                                                                       GetKd(),
+                                                                       nullptr));
     }
 
 private:
@@ -165,8 +165,7 @@ private:
 
 class LightingPointLitSpecularBench : public LightingBaseBench {
 public:
-    LightingPointLitSpecularBench(bool small) : INHERITED(small) {
-    }
+    LightingPointLitSpecularBench(bool small) : INHERITED(small) { }
 
 protected:
     const char* onGetName() override {
@@ -174,11 +173,12 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        draw(loops, canvas, SkLightingImageFilter::CreatePointLitSpecular(GetPointLocation(),
-                                                                          GetWhite(),
-                                                                          GetSurfaceScale(),
-                                                                          GetKs(),
-                                                                          GetShininess()));
+        draw(loops, canvas, SkLightingImageFilter::MakePointLitSpecular(GetPointLocation(),
+                                                                        GetWhite(),
+                                                                        GetSurfaceScale(),
+                                                                        GetKs(),
+                                                                        GetShininess(),
+                                                                        nullptr));
     }
 
 private:
@@ -187,8 +187,7 @@ private:
 
 class LightingDistantLitSpecularBench : public LightingBaseBench {
 public:
-    LightingDistantLitSpecularBench(bool small) : INHERITED(small) {
-    }
+    LightingDistantLitSpecularBench(bool small) : INHERITED(small) { }
 
 protected:
     const char* onGetName() override {
@@ -196,11 +195,12 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        draw(loops, canvas, SkLightingImageFilter::CreateDistantLitSpecular(GetDistantDirection(),
-                                                                            GetWhite(),
-                                                                            GetSurfaceScale(),
-                                                                            GetKs(),
-                                                                            GetShininess()));
+        draw(loops, canvas, SkLightingImageFilter::MakeDistantLitSpecular(GetDistantDirection(),
+                                                                          GetWhite(),
+                                                                          GetSurfaceScale(),
+                                                                          GetKs(),
+                                                                          GetShininess(),
+                                                                          nullptr));
     }
 
 private:
@@ -209,8 +209,7 @@ private:
 
 class LightingSpotLitSpecularBench : public LightingBaseBench {
 public:
-    LightingSpotLitSpecularBench(bool small) : INHERITED(small) {
-    }
+    LightingSpotLitSpecularBench(bool small) : INHERITED(small) { }
 
 protected:
     const char* onGetName() override {
@@ -218,14 +217,15 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        draw(loops, canvas, SkLightingImageFilter::CreateSpotLitSpecular(GetSpotLocation(),
-                                                                         GetSpotTarget(),
-                                                                         GetSpotExponent(),
-                                                                         GetCutoffAngle(),
-                                                                         GetWhite(),
-                                                                         GetSurfaceScale(),
-                                                                         GetKs(),
-                                                                         GetShininess()));
+        draw(loops, canvas, SkLightingImageFilter::MakeSpotLitSpecular(GetSpotLocation(),
+                                                                       GetSpotTarget(),
+                                                                       GetSpotExponent(),
+                                                                       GetCutoffAngle(),
+                                                                       GetWhite(),
+                                                                       GetSurfaceScale(),
+                                                                       GetKs(),
+                                                                       GetShininess(),
+                                                                       nullptr));
     }
 
 private:

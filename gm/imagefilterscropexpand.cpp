@@ -55,7 +55,7 @@ protected:
                                 0, 1, 0, 0, sk255,
                                 0, 0, 1, 0, 0,
                                 0, 0, 0, 0, sk255 };
-        auto cfAlphaTrans(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+        sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
         SkScalar MARGIN = SkIntToScalar(12);
@@ -121,12 +121,12 @@ protected:
                                            &bigRect));
 
             Draw(canvas, checkerboard, rect,
-                 sk_sp<SkImageFilter>(SkLightingImageFilter::CreatePointLitDiffuse(pointLocation,
-                                                                                   SK_ColorWHITE,
-                                                                                   surfaceScale,
-                                                                                   kd,
-                                                                                   noopCropped.get(),
-                                                                                   &bigRect)));
+                 SkLightingImageFilter::MakePointLitDiffuse(pointLocation,
+                                                            SK_ColorWHITE,
+                                                            surfaceScale,
+                                                            kd,
+                                                            noopCropped,
+                                                            &bigRect));
 
             canvas->restore();
             canvas->translate(0, SkIntToScalar(80));

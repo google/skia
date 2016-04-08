@@ -93,64 +93,64 @@ protected:
         int y = 0;
         for (int i = 0; i < 3; i++) {
             const SkImageFilter::CropRect* cr = (i == 1) ? &cropRect : (i == 2) ? &fullSizeCropRect : nullptr;
-            SkImageFilter* input = (i == 2) ? noopCropped.get() : nullptr;
-            paint.setImageFilter(SkLightingImageFilter::CreatePointLitDiffuse(pointLocation,
+            sk_sp<SkImageFilter> input = (i == 2) ? noopCropped : nullptr;
+            paint.setImageFilter(SkLightingImageFilter::MakePointLitDiffuse(pointLocation,
+                                                                            white,
+                                                                            surfaceScale,
+                                                                            kd,
+                                                                            input,
+                                                                            cr));
+            drawClippedBitmap(canvas, paint, 0, y);
+
+            paint.setImageFilter(SkLightingImageFilter::MakeDistantLitDiffuse(distantDirection,
                                                                               white,
                                                                               surfaceScale,
                                                                               kd,
                                                                               input,
-                                                                              cr))->unref();
-            drawClippedBitmap(canvas, paint, 0, y);
-
-            paint.setImageFilter(SkLightingImageFilter::CreateDistantLitDiffuse(distantDirection,
-                                                                                white,
-                                                                                surfaceScale,
-                                                                                kd,
-                                                                                input,
-                                                                                cr))->unref();
+                                                                              cr));
             drawClippedBitmap(canvas, paint, 110, y);
 
-            paint.setImageFilter(SkLightingImageFilter::CreateSpotLitDiffuse(spotLocation,
-                                                                             spotTarget,
-                                                                             spotExponent,
-                                                                             cutoffAngle,
-                                                                             white,
-                                                                             surfaceScale,
-                                                                             kd,
-                                                                             input,
-                                                                             cr))->unref();
+            paint.setImageFilter(SkLightingImageFilter::MakeSpotLitDiffuse(spotLocation,
+                                                                           spotTarget,
+                                                                           spotExponent,
+                                                                           cutoffAngle,
+                                                                           white,
+                                                                           surfaceScale,
+                                                                           kd,
+                                                                           input,
+                                                                           cr));
             drawClippedBitmap(canvas, paint, 220, y);
 
             y += 110;
 
-            paint.setImageFilter(SkLightingImageFilter::CreatePointLitSpecular(pointLocation,
+            paint.setImageFilter(SkLightingImageFilter::MakePointLitSpecular(pointLocation,
+                                                                             white,
+                                                                             surfaceScale,
+                                                                             ks,
+                                                                             shininess,
+                                                                             input,
+                                                                             cr));
+            drawClippedBitmap(canvas, paint, 0, y);
+
+            paint.setImageFilter(SkLightingImageFilter::MakeDistantLitSpecular(distantDirection,
                                                                                white,
                                                                                surfaceScale,
                                                                                ks,
                                                                                shininess,
                                                                                input,
-                                                                               cr))->unref();
-            drawClippedBitmap(canvas, paint, 0, y);
-
-            paint.setImageFilter(SkLightingImageFilter::CreateDistantLitSpecular(distantDirection,
-                                                                                 white,
-                                                                                 surfaceScale,
-                                                                                 ks,
-                                                                                 shininess,
-                                                                                 input,
-                                                                                 cr))->unref();
+                                                                               cr));
             drawClippedBitmap(canvas, paint, 110, y);
 
-            paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(spotLocation,
-                                                                              spotTarget,
-                                                                              spotExponent,
-                                                                              cutoffAngle,
-                                                                              white,
-                                                                              surfaceScale,
-                                                                              ks,
-                                                                              shininess,
-                                                                              input,
-                                                                              cr))->unref();
+            paint.setImageFilter(SkLightingImageFilter::MakeSpotLitSpecular(spotLocation,
+                                                                            spotTarget,
+                                                                            spotExponent,
+                                                                            cutoffAngle,
+                                                                            white,
+                                                                            surfaceScale,
+                                                                            ks,
+                                                                            shininess,
+                                                                            input,
+                                                                            cr));
             drawClippedBitmap(canvas, paint, 220, y);
 
             y += 110;
