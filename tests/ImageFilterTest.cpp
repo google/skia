@@ -580,10 +580,10 @@ static void test_negative_blur_sigma(SkImageFilter::Proxy* proxy,
     SkBitmap positiveResultBM1, positiveResultBM2;
     SkBitmap negativeResultBM1, negativeResultBM2;
 
-    TestingSpecialImageAccess::GetROPixels(positiveResult1.get(), &positiveResultBM1);
-    TestingSpecialImageAccess::GetROPixels(positiveResult2.get(), &positiveResultBM2);
-    TestingSpecialImageAccess::GetROPixels(negativeResult1.get(), &negativeResultBM1);
-    TestingSpecialImageAccess::GetROPixels(negativeResult2.get(), &negativeResultBM2);
+    REPORTER_ASSERT(reporter, positiveResult1->getROPixels(&positiveResultBM1));
+    REPORTER_ASSERT(reporter, positiveResult2->getROPixels(&positiveResultBM2));
+    REPORTER_ASSERT(reporter, negativeResult1->getROPixels(&negativeResultBM1));
+    REPORTER_ASSERT(reporter, negativeResult2->getROPixels(&negativeResultBM2));
 
     SkAutoLockPixels lockP1(positiveResultBM1);
     SkAutoLockPixels lockP2(positiveResultBM2);
@@ -683,7 +683,7 @@ static void test_zero_blur_sigma(SkImageFilter::Proxy* proxy,
 
     SkBitmap resultBM;
 
-    TestingSpecialImageAccess::GetROPixels(result.get(), &resultBM);
+    REPORTER_ASSERT(reporter, result->getROPixels(&resultBM));
 
     SkAutoLockPixels lock(resultBM);
     for (int y = 0; y < resultBM.height(); y++) {
@@ -725,7 +725,7 @@ static void test_fail_affects_transparent_black(SkImageFilter::Proxy* proxy,
     REPORTER_ASSERT(reporter, nullptr != result.get());
     if (result.get()) {
         SkBitmap resultBM;
-        TestingSpecialImageAccess::GetROPixels(result.get(), &resultBM);
+        REPORTER_ASSERT(reporter, result->getROPixels(&resultBM));
         SkAutoLockPixels lock(resultBM);
         REPORTER_ASSERT(reporter, *resultBM.getAddr32(0, 0) == SK_ColorGREEN);
     }
@@ -1504,7 +1504,7 @@ static void test_composed_imagefilter_bounds(SkImageFilter::Proxy* proxy,
     REPORTER_ASSERT(reporter, result->subset().size() == SkISize::Make(100, 100));
 
     SkBitmap resultBM;
-    TestingSpecialImageAccess::GetROPixels(result.get(), &resultBM);
+    REPORTER_ASSERT(reporter, result->getROPixels(&resultBM));
     SkAutoLockPixels lock(resultBM);
     REPORTER_ASSERT(reporter, resultBM.getColor(50, 50) == SK_ColorGREEN);
 }

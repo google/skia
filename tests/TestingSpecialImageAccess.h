@@ -13,18 +13,6 @@ public:
     static const SkIRect& Subset(const SkSpecialImage* img) {
         return img->subset();
     }
-
-    static bool PeekPixels(const SkSpecialImage* img, SkPixmap* pixmap) {
-        return img->peekPixels(pixmap);
-    }
-
-    static GrTexture* PeekTexture(const SkSpecialImage* img) {
-        return img->peekTexture();
-    }
-
-    static bool GetROPixels(const SkSpecialImage* img, SkBitmap* result) {
-        return img->testingOnlyGetROPixels(result);
-    }
 };
 
 #endif

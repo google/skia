@@ -601,10 +601,10 @@ sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
     sk_sp<SkSpecialImage> result(input->filterImage(src, this->mapContext(ctx), offset));
 
 #if SK_SUPPORT_GPU
-    if (src->peekTexture() && result && !result->peekTexture()) {
+    if (src->isTextureBacked() && result && !result->isTextureBacked()) {
         // Keep the result on the GPU - this is still required for some
         // image filters that don't support GPU in all cases
-        GrContext* context = src->peekTexture()->getContext();
+        GrContext* context = src->getContext();
         return result->makeTextureImage(src->internal_getProxy(), context);
     }
 #endif

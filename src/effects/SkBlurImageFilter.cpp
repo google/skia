@@ -95,7 +95,11 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
     const SkVector sigma = map_sigma(fSigma, ctx.ctm());
 
 #if SK_SUPPORT_GPU
-    if (input->peekTexture() && input->peekTexture()->getContext()) {
+    if (source->isTextureBacked()) {
+        GrContext* context = source->getContext();
+        GrTexture* inputTexture = input->asTextureRef(context);
+        SkASSERT(inputTexture);
+
         if (0 == sigma.x() && 0 == sigma.y()) {
             offset->fX = inputBounds.x();
             offset->fY = inputBounds.y();
@@ -103,14 +107,12 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
                                                             -inputOffset.y()));
         }
 
-        GrTexture* inputTexture = input->peekTexture();
-
         offset->fX = dstBounds.fLeft;
         offset->fY = dstBounds.fTop;
         inputBounds.offset(-inputOffset);
         dstBounds.offset(-inputOffset);
         SkRect inputBoundsF(SkRect::Make(inputBounds));
-        SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(inputTexture->getContext(),
+        SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(context,
                                                                  inputTexture,
                                                                  false,
                                                                  source->props().allowSRGBInputs(),
@@ -145,39 +147,39 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
                                                         -inputOffset.y()));
     }
 
-    SkPixmap inputPixmap;
+    SkBitmap inputBM;
 
-    if (!input->peekPixels(&inputPixmap)) {
+    if (!input->getROPixels(&inputBM)) {
         return nullptr;
     }
 
-    if (inputPixmap.colorType() != kN32_SkColorType) {
+    if (inputBM.colorType() != kN32_SkColorType) {
         return nullptr;
     }
 
     SkImageInfo info = SkImageInfo::Make(dstBounds.width(), dstBounds.height(),
-                                         inputPixmap.colorType(), inputPixmap.alphaType());
+                                         inputBM.colorType(), inputBM.alphaType());
 
     SkBitmap tmp, dst;
     if (!tmp.tryAllocPixels(info) || !dst.tryAllocPixels(info)) {
         return nullptr;
     }
 
-    SkAutoLockPixels tmpLock(tmp), dstLock(dst);
+    SkAutoLockPixels inputLock(inputBM), tmpLock(tmp), dstLock(dst);
 
     offset->fX = dstBounds.fLeft;
     offset->fY = dstBounds.fTop;
     SkPMColor* t = tmp.getAddr32(0, 0);
     SkPMColor* d = dst.getAddr32(0, 0);
     int w = dstBounds.width(), h = dstBounds.height();
-    const SkPMColor* s = inputPixmap.addr32(inputBounds.x() - inputOffset.x(),
-                                            inputBounds.y() - inputOffset.y());
+    const SkPMColor* s = inputBM.getAddr32(inputBounds.x() - inputOffset.x(),
+                                           inputBounds.y() - inputOffset.y());
     inputBounds.offset(-dstBounds.x(), -dstBounds.y());
     dstBounds.offset(-dstBounds.x(), -dstBounds.y());
     SkIRect inputBoundsT = SkIRect::MakeLTRB(inputBounds.top(), inputBounds.left(),
                                              inputBounds.bottom(), inputBounds.right());
     SkIRect dstBoundsT = SkIRect::MakeWH(dstBounds.height(), dstBounds.width());
-    int sw = int(inputPixmap.rowBytes() >> 2);
+    int sw = int(inputBM.rowBytes() >> 2);
 
     /**
      *

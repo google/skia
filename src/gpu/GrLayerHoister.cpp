@@ -318,8 +318,9 @@ void GrLayerHoister::FilterLayer(GrContext* context,
         return;
     }
 
-    SkASSERT(result->peekTexture());
-    layer->setTexture(result->peekTexture(), result->subset(), false);
+    SkASSERT(result->isTextureBacked());
+    SkAutoTUnref<GrTexture> texture(result->asTextureRef(context));
+    layer->setTexture(texture, result->subset(), false);
     layer->setOffset(offset);
 }
 

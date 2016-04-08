@@ -43,9 +43,9 @@ void SkMorphologyImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 static void call_proc_X(SkMorphologyImageFilter::Proc procX,
-                        const SkPixmap& src, SkBitmap* dst,
+                        const SkBitmap& src, SkBitmap* dst,
                         int radiusX, const SkIRect& bounds) {
-    procX(src.addr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
+    procX(src.getAddr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
           radiusX, bounds.width(), bounds.height(),
           src.rowBytesAsPixels(), dst->rowBytesAsPixels());
 }
@@ -446,13 +446,13 @@ static void apply_morphology_pass(GrDrawContext* drawContext,
     }
 }
 
-static sk_sp<SkSpecialImage> apply_morphology(SkSpecialImage* input,
+static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
+                                              SkSpecialImage* input,
                                               const SkIRect& rect,
                                               GrMorphologyEffect::MorphologyType morphType,
                                               SkISize radius) {
-    SkAutoTUnref<GrTexture> srcTexture(SkRef(input->peekTexture()));
+    SkAutoTUnref<GrTexture> srcTexture(input->asTextureRef(context));
     SkASSERT(srcTexture);
-    GrContext* context = srcTexture->getContext();
 
     // setup new clip
     GrClip clip(SkRect::MakeWH(SkIntToScalar(srcTexture->width()),
@@ -552,10 +552,12 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
     }
 
 #if SK_SUPPORT_GPU
-    if (input->peekTexture() && input->peekTexture()->getContext()) {
+    if (source->isTextureBacked()) {
+        GrContext* context = source->getContext();
+
         auto type = (kDilate_Op == this->op()) ? GrMorphologyEffect::kDilate_MorphologyType
                                                : GrMorphologyEffect::kErode_MorphologyType;
-        sk_sp<SkSpecialImage> result(apply_morphology(input.get(), srcBounds, type,
+        sk_sp<SkSpecialImage> result(apply_morphology(context, input.get(), srcBounds, type,
                                                       SkISize::Make(width, height)));
         if (result) {
             offset->fX = bounds.left();
@@ -565,25 +567,25 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
     }
 #endif
 
-    SkPixmap inputPixmap;
+    SkBitmap inputBM;
 
-    if (!input->peekPixels(&inputPixmap)) {
+    if (!input->getROPixels(&inputBM)) {
         return nullptr;
     }
 
-    if (inputPixmap.colorType() != kN32_SkColorType) {
+    if (inputBM.colorType() != kN32_SkColorType) {
         return nullptr;
     }
 
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(),
-                                         inputPixmap.colorType(), inputPixmap.alphaType());
+                                         inputBM.colorType(), inputBM.alphaType());
 
     SkBitmap dst;
     if (!dst.tryAllocPixels(info)) {
         return nullptr;
     }
 
-    SkAutoLockPixels dstLock(dst);
+    SkAutoLockPixels inputLock(inputBM), dstLock(dst);
 
     SkMorphologyImageFilter::Proc procX, procY;
 
@@ -603,17 +605,17 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
 
         SkAutoLockPixels tmpLock(tmp);
 
-        call_proc_X(procX, inputPixmap, &tmp, width, srcBounds);
+        call_proc_X(procX, inputBM, &tmp, width, srcBounds);
         SkIRect tmpBounds = SkIRect::MakeWH(srcBounds.width(), srcBounds.height());
         call_proc_Y(procY,
                     tmp.getAddr32(tmpBounds.left(), tmpBounds.top()), tmp.rowBytesAsPixels(),
                     &dst, height, tmpBounds);
     } else if (width > 0) {
-        call_proc_X(procX, inputPixmap, &dst, width, srcBounds);
+        call_proc_X(procX, inputBM, &dst, width, srcBounds);
     } else if (height > 0) {
         call_proc_Y(procY,
-                    inputPixmap.addr32(srcBounds.left(), srcBounds.top()),
-                    inputPixmap.rowBytesAsPixels(),
+                    inputBM.getAddr32(srcBounds.left(), srcBounds.top()),
+                    inputBM.rowBytesAsPixels(),
                     &dst, height, srcBounds);
     }
     offset->fX = bounds.left();

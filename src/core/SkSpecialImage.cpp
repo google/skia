@@ -12,6 +12,7 @@
 #include "SkGr.h"
 #endif
 
+#include "SkBitmapCache.h"
 #include "SkCanvas.h"
 #include "SkImage_Base.h"
 #include "SkSpecialSurface.h"
@@ -28,11 +29,11 @@ public:
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
 
-    virtual bool onPeekPixels(SkPixmap*) const { return false; }
+    virtual bool onGetROPixels(SkBitmap*) const = 0;
 
     virtual GrTexture* onPeekTexture() const { return nullptr; }
 
-    virtual bool testingOnlyOnGetROPixels(SkBitmap*) const = 0;
+    virtual GrTexture* onAsTextureRef(GrContext* context) const = 0;
 
     // Delete this entry point ASAP (see skbug.com/4965)
     virtual bool getBitmapDeprecated(SkBitmap* result) const = 0;
@@ -70,7 +71,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(SkImageFilter::Proxy* pro
     if (!context) {
         return nullptr;
     }
-    if (GrTexture* peek = as_SIB(this)->peekTexture()) {
+    if (GrTexture* peek = as_SIB(this)->onPeekTexture()) {
         return peek->getContext() == context ? sk_sp<SkSpecialImage>(SkRef(this)) : nullptr;
     }
 
@@ -104,16 +105,32 @@ void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPain
     return as_SIB(this)->onDraw(canvas, x, y, paint);
 }
 
-bool SkSpecialImage::peekPixels(SkPixmap* pixmap) const {
-    return as_SIB(this)->onPeekPixels(pixmap);
+bool SkSpecialImage::getROPixels(SkBitmap* bm) const {
+    return as_SIB(this)->onGetROPixels(bm);
 }
 
-GrTexture* SkSpecialImage::peekTexture() const {
-    return as_SIB(this)->onPeekTexture();
+bool SkSpecialImage::isTextureBacked() const {
+#if SK_SUPPORT_GPU
+    return as_SIB(this)->onPeekTexture() && as_SIB(this)->onPeekTexture()->getContext();
+#else
+    return false;
+#endif
 }
 
-bool SkSpecialImage::testingOnlyGetROPixels(SkBitmap* result) const {
-    return as_SIB(this)->testingOnlyOnGetROPixels(result);
+GrContext* SkSpecialImage::getContext() const {
+#if SK_SUPPORT_GPU
+    GrTexture* texture = as_SIB(this)->onPeekTexture();
+    
+    if (texture) {
+        return texture->getContext();
+    }
+#endif
+    return nullptr;
+}
+
+
+GrTexture* SkSpecialImage::asTextureRef(GrContext* context) const {
+    return as_SIB(this)->onAsTextureRef(context);
 }
 
 sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(const SkImageInfo& info) const {
@@ -206,11 +223,19 @@ public:
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    bool onPeekPixels(SkPixmap* pixmap) const override {
-        return fImage->peekPixels(pixmap);
+    bool onGetROPixels(SkBitmap* bm) const override {
+        return as_IB(fImage)->getROPixels(bm);
     }
 
-    GrTexture* onPeekTexture() const override { return as_IB(fImage.get())->peekTexture(); }
+    GrTexture* onPeekTexture() const override { return as_IB(fImage)->peekTexture(); }
+
+    GrTexture* onAsTextureRef(GrContext* context) const override {
+#if SK_SUPPORT_GPU
+        return as_IB(fImage)->asTextureRef(context, GrTextureParams::ClampNoFilter());
+#else
+        return nullptr;
+#endif
+    }
 
     bool getBitmapDeprecated(SkBitmap* result) const override {
 #if SK_SUPPORT_GPU
@@ -228,10 +253,6 @@ public:
 #endif
 
         return as_IB(fImage.get())->asBitmapForImageFilters(result);
-    }
-
-    bool testingOnlyOnGetROPixels(SkBitmap* result) const override {
-        return fImage->asLegacyBitmap(result, SkImage::kRO_LegacyBitmapMode);
     }
 
     sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
@@ -346,26 +367,22 @@ public:
                                dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    bool onPeekPixels(SkPixmap* pixmap) const override {
-        const SkImageInfo info = fBitmap.info();
-
-        if (kUnknown_SkColorType == info.colorType()) {
-            return false;
-        }
-
-        if (!fBitmap.peekPixels(pixmap)) {
-            fBitmap.lockPixels();
-        }
-
-        return fBitmap.peekPixels(pixmap);
-    }
-
-    bool getBitmapDeprecated(SkBitmap* result) const override {
-        *result = fBitmap;
+    bool onGetROPixels(SkBitmap* bm) const override {
+        *bm = fBitmap;
         return true;
     }
 
-    bool testingOnlyOnGetROPixels(SkBitmap* result) const override {
+    GrTexture* onAsTextureRef(GrContext* context) const override {
+#if SK_SUPPORT_GPU
+        if (context) {
+            return GrRefCachedBitmapTexture(context, fBitmap, GrTextureParams::ClampNoFilter());
+        }
+#endif
+
+        return nullptr;
+    }
+
+    bool getBitmapDeprecated(SkBitmap* result) const override {
         *result = fBitmap;
         return true;
     }
@@ -443,10 +460,15 @@ public:
                        const SkSurfaceProps* props)
         : INHERITED(proxy, subset, uniqueID, props)
         , fTexture(SkRef(tex))
-        , fAlphaType(at) {
+        , fAlphaType(at)
+        , fAddedRasterVersionToCache(false) {
     }
 
-    ~SkSpecialImage_Gpu() override { }
+    ~SkSpecialImage_Gpu() override {
+        if (fAddedRasterVersionToCache.load()) {
+            SkNotifyBitmapGenIDIsStale(this->uniqueID());
+        }
+    }
 
     bool isOpaque() const override {
         return GrPixelConfigIsOpaque(fTexture->config()) || fAlphaType == kOpaque_SkAlphaType;
@@ -469,6 +491,35 @@ public:
 
     GrTexture* onPeekTexture() const override { return fTexture; }
 
+    GrTexture* onAsTextureRef(GrContext*) const override { return SkRef(fTexture.get()); }
+
+    bool onGetROPixels(SkBitmap* dst) const override {
+        if (SkBitmapCache::Find(this->uniqueID(), dst)) {
+            SkASSERT(dst->getGenerationID() == this->uniqueID());
+            SkASSERT(dst->isImmutable());
+            SkASSERT(dst->getPixels());
+            return true;
+        }
+
+        SkImageInfo info = SkImageInfo::MakeN32(this->width(), this->height(),
+                                                this->isOpaque() ? kOpaque_SkAlphaType
+                                                                 : kPremul_SkAlphaType);
+
+        if (!dst->tryAllocPixels(info)) {
+            return false;
+        }
+
+        if (!fTexture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
+                                  dst->getPixels(), dst->rowBytes())) {
+            return false;
+        }
+
+        dst->pixelRef()->setImmutableWithID(this->uniqueID());
+        SkBitmapCache::Add(this->uniqueID(), *dst);
+        fAddedRasterVersionToCache.store(true);
+        return true;
+    }
+
     bool getBitmapDeprecated(SkBitmap* result) const override {
         const SkImageInfo info = GrMakeInfoFromTexture(fTexture,
                                                        this->width(), this->height(),
@@ -481,25 +532,6 @@ public:
 
         SkAutoTUnref<SkGrPixelRef> pixelRef(new SkGrPixelRef(prInfo, fTexture));
         result->setPixelRef(pixelRef, this->subset().fLeft, this->subset().fTop);
-        return true;
-    }
-
-    bool testingOnlyOnGetROPixels(SkBitmap* result) const override {
-
-        const SkImageInfo info = SkImageInfo::MakeN32(this->width(),
-                                                      this->height(),
-                                                      this->isOpaque() ? kOpaque_SkAlphaType
-                                                                       : kPremul_SkAlphaType);
-        if (!result->tryAllocPixels(info)) {
-            return false;
-        }
-
-        if (!fTexture->readPixels(0, 0, result->width(), result->height(), kSkia8888_GrPixelConfig,
-                                  result->getPixels(), result->rowBytes())) {
-            return false;
-        }
-
-        result->pixelRef()->setImmutable();
         return true;
     }
 
@@ -555,6 +587,7 @@ public:
 private:
     SkAutoTUnref<GrTexture> fTexture;
     const SkAlphaType       fAlphaType;
+    mutable SkAtomic<bool>  fAddedRasterVersionToCache;
 
     typedef SkSpecialImage_Base INHERITED;
 };

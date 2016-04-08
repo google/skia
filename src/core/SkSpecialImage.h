@@ -123,24 +123,29 @@ public:
 
     // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)
     /**
-     *  If the SpecialImage is backed by a gpu texture, return that texture.
+     *  If the SpecialImage is backed by a gpu texture, return true.
+     */
+    bool isTextureBacked() const;
+
+    /**
+     * Return the GrContext if the SkSpecialImage is GrTexture-backed
+     */
+    GrContext* getContext() const;
+
+    /**
+     *  Regardless of the underlying backing store, return the contents as a GrTexture.
      *  The active portion of the texture can be retrieved via 'subset'.
      */
-    GrTexture* peekTexture() const;
+    GrTexture* asTextureRef(GrContext*) const;
 
     // TODO: hide this whe the imagefilter all have a consistent draw path (see skbug.com/5063)
     /**
-     *  If the SpecialImage is backed by cpu pixels, return the const address
-     *  of those pixels and, if not null, the ImageInfo, rowBytes, and, if present,
-     *  the color table. The returned address(es) is/are only valid while the image object
-     *  is in scope.
+     *  Regardless of the underlying backing store, return the contents as an SkBitmap
      *
      *  The returned ImageInfo represents the backing memory. Use 'subset'
      *  to get the active portion's dimensions.
-     *
-     *  On failure, return false and ignore the pixmap parameter.
      */
-    bool peekPixels(SkPixmap*) const;
+    bool getROPixels(SkBitmap*) const;
 
 protected:
     SkSpecialImage(SkImageFilter::Proxy*, const SkIRect& subset, uint32_t uniqueID,
@@ -149,10 +154,6 @@ protected:
     // The following 2 are for testing and shouldn't be used.
     friend class TestingSpecialImageAccess;
     friend class TestingSpecialSurfaceAccess;
-
-    // This entry point is for testing only. It does a readback from VRAM for
-    // GPU-backed special images.
-    bool testingOnlyGetROPixels(SkBitmap*) const;
 
     // TODO: remove this ASAP (see skbug.com/4965)
     SkImageFilter::Proxy* proxy() const { return fProxy; }
