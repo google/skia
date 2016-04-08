@@ -11,6 +11,7 @@
 #include "../Application.h"
 #include "../Window.h"
 #include "gm.h"
+#include "Slide.h"
 
 class SkCanvas;
 
@@ -25,6 +26,8 @@ public:
     void onIdle(double ms) override;
 
 private:
+    void initSlides();
+
     void drawStats(SkCanvas* canvas);
 
     Window*      fWindow;
@@ -33,7 +36,8 @@ private:
     double fMeasurements[kMeasurementCount];
     int fCurrentMeasurement;
 
-    const skiagm::GMRegistry* fGMs;
+    SkTArray<sk_sp<Slide>> fSlides;
+    int                    fCurrentSlide;
 };
 
 

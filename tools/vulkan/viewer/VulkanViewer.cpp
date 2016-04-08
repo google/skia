@@ -7,12 +7,14 @@
 
 #include "VulkanViewer.h"
 
-#include "SkCanvas.h"
-#include "SkRandom.h"
-#include "SkCommonFlags.h"
+#include "GMSlide.h"
+#include "SKPSlide.h"
 
-DEFINE_string(key, "",
-              "Space-separated key/value pairs to add to JSON identifying this builder.");
+#include "SkCanvas.h"
+#include "SkCommonFlags.h"
+#include "SkOSFile.h"
+#include "SkRandom.h"
+#include "SkStream.h"
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
     return new VulkanViewer(argc, argv, platformData);
@@ -31,10 +33,34 @@ static void on_paint_handler(SkCanvas* canvas, void* userData) {
     return vv->onPaint(canvas);
 }
 
-VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData)
-    : fGMs(skiagm::GMRegistry::Head())
-    , fCurrentMeasurement(0) {
+DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
+DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifying this builder.");
+DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of bench name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching bench to always be skipped\n"
+               "^ requires the start of the bench to match\n"
+               "$ requires the end of the bench to match\n"
+               "^ and $ requires an exact match\n"
+               "If a bench does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+DEFINE_string(skps, "skps", "Directory to read skps from.");
+
+
+
+
+
+
+VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData) : fCurrentMeasurement(0) {
     memset(fMeasurements, 0, sizeof(fMeasurements));
+
+    SkDebugf("Command line arguments: ");
+    for (int i = 1; i < argc; ++i) {
+        SkDebugf("%s ", argv[i]);
+    }
+    SkDebugf("\n");
+
+    SkCommandLineFlags::Parse(argc, argv);
 
     fWindow = Window::CreateNativeWindow(platformData);
     fWindow->attach(Window::kVulkan_BackendType, 0, nullptr);
@@ -43,12 +69,88 @@ VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData)
     fWindow->registerKeyFunc(on_key_handler, this);
     fWindow->registerPaintFunc(on_paint_handler, this);
 
-    SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(nullptr));
+    // set up slides
+    this->initSlides();
+
+    // set up first frame
     SkString title("VulkanViewer: ");
-    title.append(gm->getName());
+    title.append(fSlides[0]->getName());
+    fCurrentSlide = 0;
     fWindow->setTitle(title.c_str());
     fWindow->show();
 }
+
+static sk_sp<SkPicture> read_picture(const char path[]) {
+    if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path)) {
+        return nullptr;
+    }
+
+    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+    if (stream.get() == nullptr) {
+        SkDebugf("Could not read %s.\n", path);
+        return nullptr;
+    }
+
+    auto pic = SkPicture::MakeFromStream(stream.get());
+    if (!pic) {
+        SkDebugf("Could not read %s as an SkPicture.\n", path);
+    }
+    return pic;
+}
+
+
+static sk_sp<SKPSlide> loadSKP(const SkString& path) {
+    sk_sp<SkPicture> pic = read_picture(path.c_str());
+    if (!pic) {
+        return nullptr;
+    }
+
+    SkString name = SkOSPath::Basename(path.c_str());
+    return sk_sp<SKPSlide>(new SKPSlide(name.c_str(), pic));
+}
+
+void VulkanViewer::initSlides() {
+    const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
+    while (gms) {
+        SkAutoTDelete<skiagm::GM> gm(gms->factory()(nullptr));
+
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
+            sk_sp<Slide> slide(new GMSlide(gm.release()));
+            fSlides.push_back(slide);
+        }
+
+        gms = gms->next();
+    }
+
+    // reverse array
+    for (int i = 0; i < fSlides.count()/2; ++i) {
+        sk_sp<Slide> temp = fSlides[i];
+        fSlides[i] = fSlides[fSlides.count() - i - 1];
+        fSlides[fSlides.count() - i - 1] = temp;
+    }
+
+    // SKPs
+    for (int i = 0; i < FLAGS_skps.count(); i++) {
+        if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
+            SkString path(FLAGS_skps[i]);
+            sk_sp<SKPSlide> slide = loadSKP(path);
+            if (slide) {
+                fSlides.push_back(slide);
+            }
+        } else {
+            SkOSFile::Iter it(FLAGS_skps[i], ".skp");
+            SkString path;
+            while (it.next(&path)) {
+                SkString skpName = SkOSPath::Join(FLAGS_skps[i], path.c_str());
+                sk_sp<SKPSlide> slide = loadSKP(skpName);
+                if (slide) {
+                    fSlides.push_back(slide);
+                }
+            }
+        }
+    }
+}
+
 
 VulkanViewer::~VulkanViewer() {
     fWindow->detach();
@@ -56,23 +158,35 @@ VulkanViewer::~VulkanViewer() {
 }
 
 bool VulkanViewer::onKey(Window::Key key, Window::InputState state, uint32_t modifiers) {
-    if (Window::kDown_InputState == state && (modifiers & Window::kFirstPress_ModifierKey) &&
-        key == Window::kRight_Key) {
-        fGMs = fGMs->next();
-        SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(nullptr));
-        SkString title("VulkanViewer: ");
-        title.append(gm->getName());
-        fWindow->setTitle(title.c_str());
+    if (Window::kDown_InputState == state && (modifiers & Window::kFirstPress_ModifierKey)) {
+        if (key == Window::kRight_Key) {
+            fCurrentSlide++;
+            if (fCurrentSlide >= fSlides.count()) {
+                fCurrentSlide = 0;
+            }
+            SkString title("VulkanViewer: ");
+            title.append(fSlides[fCurrentSlide]->getName());
+            fWindow->setTitle(title.c_str());
+        } else if (key == Window::kLeft_Key) {
+            fCurrentSlide--;
+            if (fCurrentSlide < 0) {
+                fCurrentSlide = fSlides.count()-1;
+            }
+            SkString title("VulkanViewer: ");
+            title.append(fSlides[fCurrentSlide]->getName());
+            fWindow->setTitle(title.c_str());
+        }
     }
 
     return true;
 }
 
 void VulkanViewer::onPaint(SkCanvas* canvas) {
-    SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(nullptr));
+
+    canvas->clear(SK_ColorWHITE);
 
     canvas->save();
-    gm->draw(canvas);
+    fSlides[fCurrentSlide]->draw(canvas);
     canvas->restore();
 
     drawStats(canvas);
