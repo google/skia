@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkArithmeticMode.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -22,9 +23,8 @@ public:
         fName.printf("Xfermode_%s%s", SkXfermode::ModeName(mode), aa ? "_aa" : "");
     }
 
-    XfermodeBench(SkXfermode* xferMode, const char* name, bool aa) {
-        SkASSERT(xferMode);
-        fXfermode.reset(xferMode);
+    XfermodeBench(sk_sp<SkXfermode> xferMode, const char* name, bool aa) {
+        fXfermode = xferMode;
         fAA = aa;
         fName.printf("Xfermode_%s%s", name, aa ? "_aa" : "");
     }
@@ -134,5 +134,14 @@ BENCH(SkXfermode::kHue_Mode)
 BENCH(SkXfermode::kSaturation_Mode)
 BENCH(SkXfermode::kColor_Mode)
 BENCH(SkXfermode::kLuminosity_Mode)
+
+DEF_BENCH( return new XfermodeBench(SkArithmeticMode::Make(0.2f, -0.3f, 1.5f, -0.7f, false), \
+                                    "arithmetic", false); )
+DEF_BENCH( return new XfermodeBench(SkArithmeticMode::Make(0.2f, -0.3f, 1.5f, -0.7f, true), \
+                                    "arithmetic_enforce_pm", false); )
+DEF_BENCH( return new XfermodeBench(SkArithmeticMode::Make(0.2f, -0.3f, 1.5f, -0.7f, false), \
+                                    "arithmetic", true); )
+DEF_BENCH( return new XfermodeBench(SkArithmeticMode::Make(0.2f, -0.3f, 1.5f, -0.7f, true), \
+                                    "arithmetic_enforce_pm", true); )
 
 DEF_BENCH(return new XferCreateBench;)
