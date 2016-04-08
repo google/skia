@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapProcShader.h"
 #include "SkColor.h"
 #include "SkColorMatrixFilter.h"
 #include "SkGradientShader.h"
@@ -153,7 +154,7 @@ DEF_TEST(Color4f_shader, reporter) {
 
     SkPaint paint;
     for (const auto& rec : recs) {
-        uint32_t storage[400];
+        uint32_t storage[kSkBlitterContextSize];
         paint.setShader(rec.fFact());
         // Encourage 4f context selection. At some point we may need
         // to instantiate two separate contexts for optimal 4b/4f selection.

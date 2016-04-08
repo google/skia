@@ -15,6 +15,7 @@
 #include "SkXfermode.h"
 #include "SkPM4fPriv.h"
 #include "SkShader.h"
+#include "SkBitmapProcShader.h"
 
 static void fill_in_bits(SkBitmap& bm, SkIRect ir, SkColor c, bool premul) {
     bm.allocN32Pixels(ir.width(), ir.height());
@@ -59,7 +60,7 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
 
     sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, pmsrc.addr32(), pmsrc.rowBytes())));
     SkPaint paint;
-    int32_t storage[400];
+    int32_t storage[kSkBlitterContextSize];
 
     sk_sp<SkShader> shader = image->makeShader(SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
