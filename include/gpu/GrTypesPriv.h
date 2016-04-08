@@ -406,11 +406,22 @@ private:
 enum GrBufferType {
     kVertex_GrBufferType,
     kIndex_GrBufferType,
+    kTexel_GrBufferType,
+    kDrawIndirect_GrBufferType,
     kXferCpuToGpu_GrBufferType,
     kXferGpuToCpu_GrBufferType,
 
     kLast_GrBufferType = kXferGpuToCpu_GrBufferType
 };
+static const int kGrBufferTypeCount = kLast_GrBufferType + 1;
+
+static inline bool GrBufferTypeIsVertexOrIndex(GrBufferType type) {
+    SkASSERT(type >= 0 && type < kGrBufferTypeCount);
+    return type <= kIndex_GrBufferType;
+
+    GR_STATIC_ASSERT(0 == kVertex_GrBufferType);
+    GR_STATIC_ASSERT(1 == kIndex_GrBufferType);
+}
 
 /**
 * Provides a performance hint regarding the frequency at which a data store will be accessed.

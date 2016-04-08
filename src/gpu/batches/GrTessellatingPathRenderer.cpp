@@ -69,7 +69,7 @@ public:
     SkPoint* lock(int vertexCount) override {
         size_t size = vertexCount * sizeof(SkPoint);
         fVertexBuffer.reset(fResourceProvider->createBuffer(
-            kVertex_GrBufferType, size, kStatic_GrAccessPattern, 0));
+            size, kVertex_GrBufferType, kStatic_GrAccessPattern, 0));
         if (!fVertexBuffer.get()) {
             return nullptr;
         }
