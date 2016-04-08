@@ -8,9 +8,9 @@
 #ifndef SkRefCnt_DEFINED
 #define SkRefCnt_DEFINED
 
-#include "../private/SkAtomics.h"
 #include "../private/SkTLogic.h"
 #include "SkTypes.h"
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <utility>
@@ -37,21 +37,28 @@ public:
     */
     virtual ~SkRefCntBase() {
 #ifdef SK_DEBUG
-        SkASSERTF(fRefCnt == 1, "fRefCnt was %d", fRefCnt);
-        fRefCnt = 0;    // illegal value, to catch us if we reuse after delete
+        SkASSERTF(getRefCnt() == 1, "fRefCnt was %d", getRefCnt());
+        // illegal value, to catch us if we reuse after delete
+        fRefCnt.store(0, std::memory_order_relaxed);
 #endif
     }
 
 #ifdef SK_DEBUG
     /** Return the reference count. Use only for debugging. */
-    int32_t getRefCnt() const { return fRefCnt; }
+    int32_t getRefCnt() const {
+        return fRefCnt.load(std::memory_order_relaxed);
+    }
+
+    void validate() const {
+        SkASSERT(getRefCnt() > 0);
+    }
 #endif
 
     /** May return true if the caller is the only owner.
      *  Ensures that all previous owner's actions are complete.
      */
     bool unique() const {
-        if (1 == sk_atomic_load(&fRefCnt, sk_memory_order_acquire)) {
+        if (1 == fRefCnt.load(std::memory_order_acquire)) {
             // The acquire barrier is only really needed if we return true.  It
             // prevents code conditioned on the result of unique() from running
             // until previous owners are all totally done calling unref().
@@ -68,11 +75,12 @@ public:
         // go to zero, but not below, prior to reusing the object.  This breaks
         // the use of unique() on such objects and as such should be removed
         // once the Android code is fixed.
-        SkASSERT(fRefCnt >= 0);
+        SkASSERT(getRefCnt() >= 0);
 #else
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(getRefCnt() > 0);
 #endif
-        (void)sk_atomic_fetch_add(&fRefCnt, +1, sk_memory_order_relaxed);  // No barrier required.
+        // No barrier required.
+        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
     /** Decrement the reference count. If the reference count is 1 before the
@@ -80,20 +88,14 @@ public:
         the object needs to have been allocated via new, and not on the stack.
     */
     void unref() const {
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(getRefCnt() > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
+        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             // Like unique(), the acquire is only needed on success, to make sure
             // code in internal_dispose() doesn't happen before the decrement.
             this->internal_dispose();
         }
     }
-
-#ifdef SK_DEBUG
-    void validate() const {
-        SkASSERT(fRefCnt > 0);
-    }
-#endif
 
 protected:
     /**
@@ -104,8 +106,8 @@ protected:
      */
     void internal_dispose_restore_refcnt_to_1() const {
 #ifdef SK_DEBUG
-        SkASSERT(0 == fRefCnt);
-        fRefCnt = 1;
+        SkASSERT(0 == getRefCnt());
+        fRefCnt.store(1, std::memory_order_relaxed);
 #endif
     }
 
@@ -122,7 +124,7 @@ private:
     // and conditionally call SkRefCnt::internal_dispose().
     friend class SkWeakRefCnt;
 
-    mutable int32_t fRefCnt;
+    mutable std::atomic<int32_t> fRefCnt;
 
     typedef SkNoncopyable INHERITED;
 };
@@ -215,25 +217,29 @@ template <typename Derived>
 class SkNVRefCnt : SkNoncopyable {
 public:
     SkNVRefCnt() : fRefCnt(1) {}
-    ~SkNVRefCnt() { SkASSERTF(1 == fRefCnt, "NVRefCnt was %d", fRefCnt); }
+    ~SkNVRefCnt() { SkASSERTF(1 == getRefCnt(), "NVRefCnt was %d", getRefCnt()); }
 
     // Implementation is pretty much the same as SkRefCntBase. All required barriers are the same:
     //   - unique() needs acquire when it returns true, and no barrier if it returns false;
     //   - ref() doesn't need any barrier;
     //   - unref() needs a release barrier, and an acquire if it's going to call delete.
 
-    bool unique() const { return 1 == sk_atomic_load(&fRefCnt, sk_memory_order_acquire); }
-    void    ref() const { (void)sk_atomic_fetch_add(&fRefCnt, +1, sk_memory_order_relaxed); }
+    bool unique() const { return 1 == fRefCnt.load(std::memory_order_acquire); }
+    void ref() const { (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed); }
     void  unref() const {
-        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
-            SkDEBUGCODE(fRefCnt = 1;)  // restore the 1 for our destructor's assert
+        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+            // restore the 1 for our destructor's assert
+            SkDEBUGCODE(fRefCnt.store(1, std::memory_order_relaxed));
             delete (const Derived*)this;
         }
     }
     void  deref() const { this->unref(); }
 
 private:
-    mutable int32_t fRefCnt;
+    mutable std::atomic<int32_t> fRefCnt;
+    int32_t getRefCnt() const {
+        return fRefCnt.load(std::memory_order_relaxed);
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

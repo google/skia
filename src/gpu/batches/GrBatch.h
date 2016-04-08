@@ -8,11 +8,12 @@
 #ifndef GrBatch_DEFINED
 #define GrBatch_DEFINED
 
-#include <new>
+#include "../private/SkAtomics.h"
 #include "GrNonAtomicRef.h"
-
 #include "SkRect.h"
 #include "SkString.h"
+
+#include <new>
 
 class GrCaps;
 class GrBatchFlushState;

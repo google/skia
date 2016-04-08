@@ -9,7 +9,7 @@
 #define SkWeakRefCnt_DEFINED
 
 #include "SkRefCnt.h"
-#include "../private/SkAtomics.h"
+#include <atomic>
 
 /** \class SkWeakRefCnt
 
@@ -62,22 +62,39 @@ public:
     */
     virtual ~SkWeakRefCnt() {
 #ifdef SK_DEBUG
-        SkASSERT(fWeakCnt == 1);
-        fWeakCnt = 0;
+        SkASSERT(getWeakCnt() == 1);
+        fWeakCnt.store(0, std::memory_order_relaxed);
 #endif
     }
-
-    /** Return the weak reference count.
-    */
-    int32_t getWeakCnt() const { return fWeakCnt; }
 
 #ifdef SK_DEBUG
+    /** Return the weak reference count. */
+    int32_t getWeakCnt() const {
+        return fWeakCnt.load(std::memory_order_relaxed);
+    }
+
     void validate() const {
         this->INHERITED::validate();
-        SkASSERT(fWeakCnt > 0);
+        SkASSERT(getWeakCnt() > 0);
     }
 #endif
 
+private:
+    /** If fRefCnt is 0, returns 0.
+     *  Otherwise increments fRefCnt, acquires, and returns the old value.
+     */
+    int32_t atomic_conditional_acquire_strong_ref() const {
+        int32_t prev = fRefCnt.load(std::memory_order_relaxed);
+        do {
+            if (0 == prev) {
+                break;
+            }
+        } while(!fRefCnt.compare_exchange_weak(prev, prev+1, std::memory_order_acquire,
+                                                             std::memory_order_relaxed));
+        return prev;
+    }
+
+public:
     /** Creates a strong reference from a weak reference, if possible. The
         caller must already be an owner. If try_ref() returns true the owner
         is in posession of an additional strong reference. Both the original
@@ -86,10 +103,9 @@ public:
         reference is in the same state as before the call.
     */
     bool SK_WARN_UNUSED_RESULT try_ref() const {
-        if (sk_atomic_conditional_inc(&fRefCnt) != 0) {
+        if (atomic_conditional_acquire_strong_ref() != 0) {
             // Acquire barrier (L/SL), if not provided above.
             // Prevents subsequent code from happening before the increment.
-            sk_membar_acquire__after_atomic_conditional_inc();
             return true;
         }
         return false;
@@ -99,9 +115,10 @@ public:
         weak_unref().
     */
     void weak_ref() const {
-        SkASSERT(fRefCnt > 0);
-        SkASSERT(fWeakCnt > 0);
-        sk_atomic_inc(&fWeakCnt);  // No barrier required.
+        SkASSERT(getRefCnt() > 0);
+        SkASSERT(getWeakCnt() > 0);
+        // No barrier required.
+        (void)fWeakCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
     /** Decrement the weak reference count. If the weak reference count is 1
@@ -110,15 +127,14 @@ public:
         not on the stack.
     */
     void weak_unref() const {
-        SkASSERT(fWeakCnt > 0);
-        // Release barrier (SL/S), if not provided below.
-        if (sk_atomic_dec(&fWeakCnt) == 1) {
-            // Acquire barrier (L/SL), if not provided above.
-            // Prevents code in destructor from happening before the decrement.
-            sk_membar_acquire__after_atomic_dec();
+        SkASSERT(getWeakCnt() > 0);
+        // A release here acts in place of all releases we "should" have been doing in ref().
+        if (1 == fWeakCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+            // Like try_ref(), the acquire is only needed on success, to make sure
+            // code in internal_dispose() doesn't happen before the decrement.
 #ifdef SK_DEBUG
             // so our destructor won't complain
-            fWeakCnt = 1;
+            fWeakCnt.store(1, std::memory_order_relaxed);
 #endif
             this->INHERITED::internal_dispose();
         }
@@ -128,7 +144,7 @@ public:
         is the case all future calls to try_ref() will return false.
     */
     bool weak_expired() const {
-        return fRefCnt == 0;
+        return fRefCnt.load(std::memory_order_relaxed) == 0;
     }
 
 protected:
@@ -151,7 +167,7 @@ private:
     }
 
     /* Invariant: fWeakCnt = #weak + (fRefCnt > 0 ? 1 : 0) */
-    mutable int32_t fWeakCnt;
+    mutable std::atomic<int32_t> fWeakCnt;
 
     typedef SkRefCnt INHERITED;
 };

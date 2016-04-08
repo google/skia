@@ -71,7 +71,7 @@ static void test_weakRefCnt(skiatest::Reporter* reporter) {
     thing4.join();
 
     REPORTER_ASSERT(reporter, ref->unique());
-    REPORTER_ASSERT(reporter, ref->getWeakCnt() == 1);
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, ref->getWeakCnt() == 1));
     ref->unref();
 }
 

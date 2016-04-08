@@ -9,6 +9,7 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
+#include "../private/SkAtomics.h"
 #include "../private/SkTDArray.h"
 #include "SkMatrix.h"
 #include "SkPoint.h"

@@ -83,7 +83,7 @@ static void sk_once_slow(bool* done, Lock* lock, void (*f)(Arg), Arg arg) {
         //
         // We'll use this in the fast path to make sure f(arg)'s effects are
         // observable whenever we observe *done == true.
-        sk_release_store(done, true);
+        sk_atomic_store(done, true, sk_memory_order_release);
     }
     lock->release();
 }
