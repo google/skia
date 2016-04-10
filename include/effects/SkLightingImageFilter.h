@@ -37,6 +37,7 @@ public:
         const SkPoint3& target, SkScalar specularExponent, SkScalar cutoffAngle,
         SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
         SkScalar shininess, sk_sp<SkImageFilter> input, const CropRect* cropRect = nullptr);
+    ~SkLightingImageFilter() override;
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 

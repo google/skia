@@ -1110,6 +1110,8 @@ SkLightingImageFilter::SkLightingImageFilter(sk_sp<SkImageFilterLight> light,
     , fSurfaceScale(surfaceScale / 255) {
 }
 
+SkLightingImageFilter::~SkLightingImageFilter() {}
+
 sk_sp<SkImageFilter> SkLightingImageFilter::MakeDistantLitDiffuse(const SkPoint3& direction,
                                                                   SkColor lightColor,
                                                                   SkScalar surfaceScale,
