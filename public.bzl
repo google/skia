@@ -52,13 +52,25 @@ def skia_glob(srcs):
   return []
 
 ################################################################################
+## PRIVATE_HDRS
+################################################################################
+
+PRIVATE_HDRS_LIST = [
+    "include/private/**/*",
+    "src/utils/SkWhitelistChecksums.cpp",
+]
+
+PRIVATE_HDRS = struct(
+    include = PRIVATE_HDRS_LIST,
+)
+
+################################################################################
 ## BASE_SRCS
 ################################################################################
 
 # All platform-independent SRCS.
 BASE_SRCS_ALL = struct(
     include = [
-        "include/private/*.h",
         "src/**/*.h",
         "src/**/*.cpp",
 
@@ -68,7 +80,7 @@ BASE_SRCS_ALL = struct(
         "third_party/ktx/*.cpp",
         "third_party/ktx/*.h",
     ],
-    exclude = [
+    exclude = PRIVATE_HDRS_LIST + [
         # Exclude platform-dependent files.
         "src/android/*",
         "src/codec/*",
@@ -308,11 +320,8 @@ AVX2_SRCS = struct(
 BASE_HDRS = struct(
     include = [
         "include/**/*.h",
-        "src/utils/SkWhitelistChecksums.cpp",
     ],
-    exclude = [
-        "include/private/**/*",
-
+    exclude = PRIVATE_HDRS_LIST + [
         # Not used.
         "include/animator/**/*",
         "include/views/**/*",
