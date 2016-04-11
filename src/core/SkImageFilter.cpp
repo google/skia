@@ -251,6 +251,16 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
     }
 
     sk_sp<SkSpecialImage> result(this->onFilterImage(src, context, offset));
+
+#if SK_SUPPORT_GPU
+    if (src->isTextureBacked() && result && !result->isTextureBacked()) {
+        // Keep the result on the GPU - this is still required for some
+        // image filters that don't support GPU in all cases
+        GrContext* context = src->getContext();
+        result = result->makeTextureImage(src->internal_getProxy(), context);
+    }
+#endif
+
     if (result && context.cache()) {
         context.cache()->set(key, result.get(), *offset);
         SkAutoMutexAcquire mutex(fMutex);
@@ -602,14 +612,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
 
     sk_sp<SkSpecialImage> result(input->filterImage(src, this->mapContext(ctx), offset));
 
-#if SK_SUPPORT_GPU
-    if (src->isTextureBacked() && result && !result->isTextureBacked()) {
-        // Keep the result on the GPU - this is still required for some
-        // image filters that don't support GPU in all cases
-        GrContext* context = src->getContext();
-        return result->makeTextureImage(src->internal_getProxy(), context);
-    }
-#endif
+    SkASSERT(!result || src->isTextureBacked() == result->isTextureBacked());
 
     return result;
 }
