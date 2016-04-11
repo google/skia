@@ -661,12 +661,12 @@ static void run_gpu_test(skiatest::Reporter* reporter,
 }
 #endif
 
-DEF_TEST(TestNegativeBlurSigma, reporter) {
+DEF_TEST(ImageFilterNegativeBlurSigma, reporter) {
     run_raster_test(reporter, 100, test_negative_blur_sigma);
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TestNegativeBlurSigma_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_negative_blur_sigma);
 }
 #endif
@@ -707,12 +707,12 @@ static void test_zero_blur_sigma(SkImageFilter::Proxy* proxy,
     }
 }
 
-DEF_TEST(TestZeroBlurSigma, reporter) {
+DEF_TEST(ImageFilterZeroBlurSigma, reporter) {
     run_raster_test(reporter, 100, test_zero_blur_sigma);
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TestZeroBlurSigma_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterZeroBlurSigma_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_zero_blur_sigma);
 }
 #endif
@@ -1298,7 +1298,7 @@ DEF_TEST(HugeBlurImageFilter, reporter) {
     test_huge_blur(&canvas, reporter);
 }
 
-DEF_TEST(MatrixConvolutionSanityTest, reporter) {
+DEF_TEST(ImageFilterMatrixConvolutionSanityTest, reporter) {
     SkScalar kernel[1] = { 0 };
     SkScalar gain = SK_Scalar1, bias = 0;
     SkIPoint kernelOffset = SkIPoint::Make(1, 1);
@@ -1549,12 +1549,12 @@ static void test_partial_crop_rect(SkImageFilter::Proxy* proxy,
     REPORTER_ASSERT(reporter, resultImg->height() == 30);
 }
 
-DEF_TEST(PartialCropRect, reporter) {
+DEF_TEST(ImageFilterPartialCropRect, reporter) {
     run_raster_test(reporter, 100, test_partial_crop_rect);
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(PartialCropRect_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterPartialCropRect_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_partial_crop_rect);
 }
 #endif
@@ -1688,14 +1688,14 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
     canvas->drawRect(SkRect::MakeIWH(largeW, largeH), paint);
 }
 
-DEF_TEST(BlurLargeImage, reporter) {
+DEF_TEST(ImageFilterBlurLargeImage, reporter) {
     auto surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(100, 100)));
     test_large_blur_input(reporter, surface->getCanvas());
 }
 
 #if SK_SUPPORT_GPU
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(HugeBlurImageFilter_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     sk_sp<SkGpuDevice> device(SkGpuDevice::Create(ctxInfo.fGrContext,
@@ -1723,7 +1723,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, repor
     test_xfermode_cropped_input(&canvas, reporter);
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(BlurLargeImage_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo) {
     auto surface(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kYes,
                                              SkImageInfo::MakeN32Premul(100, 100)));
     test_large_blur_input(reporter, surface->getCanvas());
