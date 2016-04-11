@@ -12,7 +12,7 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GrDrawTargetPrint, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawTargetPrint, reporter, ctxInfo) {
     // This used to assert.
     SkString result = ctxInfo.fGrContext->caps()->dump();
     SkASSERT(!result.isEmpty());

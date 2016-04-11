@@ -1442,7 +1442,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
         GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
         ContextInfo ctxInfo = factory->getContextInfo(contextType);
-        if (!(*contextTypeFilter)(contextType)) {
+        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
             continue;
         }
         // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on,

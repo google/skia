@@ -32,7 +32,7 @@ static GrColor filterColor(const GrColor& color, uint32_t flags)  {
     return color & mask;
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GpuColorFilter, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, ctxInfo) {
     struct GetConstantComponentTestCase {
         // "Shape drawn with"
         uint32_t inputComponents; // "rgb of", "red of", "alpha of", ...

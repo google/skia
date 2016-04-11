@@ -252,7 +252,7 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
     tess.drawPath(args);
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 800;
