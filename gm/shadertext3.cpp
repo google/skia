@@ -57,7 +57,7 @@ protected:
         return SkString("shadertext3");
     }
 
-    SkISize onISize() override{ return SkISize::Make(800, 1000); }
+    SkISize onISize() override{ return SkISize::Make(820, 930); }
 
     void onOnceBeforeDraw() override {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);

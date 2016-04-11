@@ -64,7 +64,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(750, 750);
+        return SkISize::Make(730, 690);
     }
 
     void onOnceBeforeDraw() override {

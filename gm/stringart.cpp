@@ -12,8 +12,8 @@
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
-static const int kWidth = 640;
-static const int kHeight = 480;
+static const int kWidth = 440;
+static const int kHeight = 440;
 static const SkScalar kAngle = 0.305f;
 static const int kMaxNumSteps = 140;
 

@@ -190,7 +190,7 @@ public:
     ~SkTRefArray() { this->unrefAll(); }
 };
 
-DEF_SIMPLE_GM(colorfiltershader, canvas, 800, 800) {
+DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 450) {
     SkTArray<sk_sp<SkColorFilter>> filters;
     sk_gm_get_colorfilters(&filters);
 

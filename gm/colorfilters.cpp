@@ -45,7 +45,7 @@ protected:
     }
 
     virtual SkISize onISize() override {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(620, 430);
     }
 
     void onDraw(SkCanvas* canvas) override {

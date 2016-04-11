@@ -181,8 +181,8 @@ protected:
 private:
     SkAutoTUnref<const SkTextBlob> fBlob;
 
-    static const int kWidth = 2000;
-    static const int kHeight = 2000;
+    static const int kWidth = 2100;
+    static const int kHeight = 1900;
 
     bool fUseDFT;
 

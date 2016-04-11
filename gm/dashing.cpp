@@ -476,7 +476,7 @@ private:
     bool fDoAA;
 };
 
-DEF_SIMPLE_GM(longpathdash, canvas, 512, 512) {
+DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
     SkPath lines;
     for (int x = 32; x < 256; x += 16) {
         for (SkScalar a = 0; a < 3.141592f * 2; a += 0.03141592f) {
@@ -499,6 +499,8 @@ DEF_SIMPLE_GM(longpathdash, canvas, 512, 512) {
     p.setStrokeWidth(1);
     const SkScalar intervals[] = { 1, 1 };
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    
+    canvas->translate(50, 50);
     canvas->drawPath(lines, p);
 }
 

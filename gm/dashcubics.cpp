@@ -34,7 +34,7 @@ static void flower(SkCanvas* canvas, const SkPath& path, SkScalar intervals[2],
     canvas->drawPath(path, paint);
 }
 
-DEF_SIMPLE_GM(dashcubics, canvas, 860, 700) {
+DEF_SIMPLE_GM(dashcubics, canvas, 865, 750) {
         SkPath path;
         const char* d = "M 337,98 C 250,141 250,212 250,212 C 250,212 250,212 250,212"
         "C 250,212 250,212 250,212 C 250,212 250,141 163,98 C 156,195 217,231 217,231"
