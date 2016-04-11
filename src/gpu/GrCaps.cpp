@@ -15,6 +15,7 @@ GrShaderCaps::GrShaderCaps() {
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
     fIntegerSupport = false;
+    fTexelBufferSupport = false;
     fShaderPrecisionVaries = false;
 }
 
@@ -51,6 +52,7 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
     r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
     r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
+    r.appendf("Texel Buffer Support               : %s\n", gNY[fTexelBufferSupport]);
 
     r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 

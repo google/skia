@@ -207,6 +207,9 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     if (glVer >= GR_GL_VER(3,1)) {
         GET_PROC(TexBuffer);
     }
+    if (glVer >= GR_GL_VER(4,3)) {
+        GET_PROC(TexBufferRange);
+    }
     GET_PROC(TexImage2D);
     GET_PROC(TexParameteri);
     GET_PROC(TexParameteriv);
@@ -655,10 +658,13 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     if (version >= GR_GL_VER(3,2)) {
         GET_PROC(TexBuffer);
+        GET_PROC(TexBufferRange);
     } else if (extensions.has("GL_OES_texture_buffer")) {
         GET_PROC_SUFFIX(TexBuffer, OES);
+        GET_PROC_SUFFIX(TexBufferRange, OES);
     } else if (extensions.has("GL_EXT_texture_buffer")) {
         GET_PROC_SUFFIX(TexBuffer, EXT);
+        GET_PROC_SUFFIX(TexBufferRange, EXT);
     }
 
     GET_PROC(TexImage2D);

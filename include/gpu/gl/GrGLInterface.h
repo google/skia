@@ -251,6 +251,7 @@ public:
         GrGLFunction<GrGLStencilOpProc> fStencilOp;
         GrGLFunction<GrGLStencilOpSeparateProc> fStencilOpSeparate;
         GrGLFunction<GrGLTexBufferProc> fTexBuffer;
+        GrGLFunction<GrGLTexBufferRangeProc> fTexBufferRange;
         GrGLFunction<GrGLTexImage2DProc> fTexImage2D;
         GrGLFunction<GrGLTexParameteriProc> fTexParameteri;
         GrGLFunction<GrGLTexParameterivProc> fTexParameteriv;

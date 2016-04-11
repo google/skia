@@ -93,14 +93,7 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                      coordName);
     }
 
-    // This refers to any swizzling we may need to get from some backend internal format to the
-    // format used in GrPixelConfig. If this is implemented by the GrGpu object, then swizzle will
-    // be rgba. For shader prettiness we omit the swizzle rather than appending ".rgba".
-    const GrSwizzle& configSwizzle = glslCaps->configTextureSwizzle(sampler.config());
-
-    if (configSwizzle != GrSwizzle::RGBA()) {
-        out->appendf(".%s", configSwizzle.c_str());
-    }
+    this->appendTextureSwizzle(out, sampler.config());
 }
 
 void GrGLSLShaderBuilder::appendTextureLookup(const GrGLSLSampler& sampler,
@@ -116,6 +109,33 @@ void GrGLSLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
     SkString lookup;
     this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
     this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
+}
+
+void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,
+                                           const GrGLSLSampler& sampler,
+                                           const char* coordExpr) const {
+    const GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
+    SkASSERT(fProgramBuilder->glslCaps()->texelFetchSupport());
+    SkASSERT(GrSLTypeIsSamplerType(
+             uniformHandler->getUniformVariable(sampler.fSamplerUniform).getType()));
+
+    out->appendf("texelFetch(%s, %s)",
+                 uniformHandler->getUniformCStr(sampler.fSamplerUniform),
+                 coordExpr);
+
+    this->appendTextureSwizzle(out, sampler.config());
+}
+
+void GrGLSLShaderBuilder::appendTexelFetch(const GrGLSLSampler& sampler, const char* coordExpr) {
+    this->appendTexelFetch(&this->code(), sampler, coordExpr);
+}
+
+void GrGLSLShaderBuilder::appendTextureSwizzle(SkString* out, GrPixelConfig config) const {
+    const GrSwizzle& configSwizzle = fProgramBuilder->glslCaps()->configTextureSwizzle(config);
+
+    if (configSwizzle != GrSwizzle::RGBA()) {
+        out->appendf(".%s", configSwizzle.c_str());
+    }
 }
 
 bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {

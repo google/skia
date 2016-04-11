@@ -29,13 +29,13 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fSampleVariablesSupport = false;
     fSampleMaskOverrideCoverageSupport = false;
     fExternalTextureSupport = false;
-    fBufferTextureSupport = false;
+    fTexelFetchSupport = false;
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
     fFragCoordConventionsExtensionString = nullptr;
     fSecondaryOutputExtensionString = nullptr;
     fExternalTextureExtensionString = nullptr;
-    fBufferTextureExtensionString = nullptr;
+    fTexelBufferExtensionString = nullptr;
     fNoPerspectiveInterpolationExtensionString = nullptr;
     fMultisampleInterpolationExtensionString = nullptr;
     fSampleVariablesExtensionString = nullptr;
@@ -82,7 +82,7 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Sample mask override coverage support: %s\n", (fSampleMaskOverrideCoverageSupport ?
                                                               "YES" : "NO"));
     r.appendf("External texture support: %s\n", (fExternalTextureSupport ? "YES" : "NO"));
-    r.appendf("Buffer texture support: %s\n", (fBufferTextureSupport ? "YES" : "NO"));
+    r.appendf("texelFetch support: %s\n", (fTexelFetchSupport ? "YES" : "NO"));
     r.appendf("Max VS Samplers: %d\n", fMaxVertexSamplers);
     r.appendf("Max GS Samplers: %d\n", fMaxGeometrySamplers);
     r.appendf("Max FS Samplers: %d\n", fMaxFragmentSamplers);

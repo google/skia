@@ -34,7 +34,7 @@ public:
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
-    /** Version of above that appends the result to the fragment shader code instead.*/
+    /** Version of above that appends the result to the shader code instead.*/
     void appendTextureLookup(const GrGLSLSampler&,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType);
@@ -48,6 +48,14 @@ public:
                                         const GrGLSLSampler&,
                                         const char* coordName,
                                         GrSLType coordType = kVec2f_GrSLType);
+
+    /** Fetches an unfiltered texel from a sampler at integer coordinates. coordExpr must match the
+        dimensionality of the sampler and must be within the sampler's range. coordExpr is emitted
+        exactly once, so expressions like "idx++" are acceptable. */
+    void appendTexelFetch(SkString* out, const GrGLSLSampler&, const char* coordExpr) const;
+
+    /** Version of above that appends the result to the shader code instead.*/
+    void appendTexelFetch(const GrGLSLSampler&, const char* coordExpr);
 
     /**
     * Adds a #define directive to the top of the shader.
@@ -174,6 +182,12 @@ protected:
     void addLayoutQualifier(const char* param, InterfaceQualifier);
 
     void compileAndAppendLayoutQualifiers();
+
+    /* Appends any swizzling we may need to get from some backend internal format to the format used
+     * in GrPixelConfig. If this is implemented by the GrGpu object, then swizzle will be rgba. For
+     * shader prettiness we omit the swizzle rather than appending ".rgba".
+     */
+    void appendTextureSwizzle(SkString* out, GrPixelConfig) const;
 
     void nextStage() {
         fShaderStrings.push_back();

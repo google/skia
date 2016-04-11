@@ -414,10 +414,16 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE;
             }
         }
+        if (glVer >= GR_GL_VER(4,3)) {
+            if (nullptr == fFunctions.fTexBufferRange) {
+                RETURN_FALSE_INTERFACE;
+            }
+        }
     } else {
         if (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_OES_texture_buffer") ||
             fExtensions.has("GL_EXT_texture_buffer")) {
-            if (nullptr == fFunctions.fTexBuffer) {
+            if (nullptr == fFunctions.fTexBuffer ||
+                nullptr == fFunctions.fTexBufferRange) {
                 RETURN_FALSE_INTERFACE;
             }
         }

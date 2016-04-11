@@ -736,18 +736,27 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     }
 
     if (kGL_GrGLStandard == standard) {
-        glslCaps->fBufferTextureSupport = ctxInfo.version() > GR_GL_VER(3, 1) &&
-                                          ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
+        glslCaps->fTexelFetchSupport = ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
     } else {
-        if (ctxInfo.version() > GR_GL_VER(3, 2) &&
-            ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
-            glslCaps->fBufferTextureSupport = true;
-        } else if (ctxInfo.hasExtension("GL_OES_texture_buffer")) {
-            glslCaps->fBufferTextureSupport = true;
-            glslCaps->fBufferTextureExtensionString = "GL_OES_texture_buffer";
-        } else if (ctxInfo.hasExtension("GL_EXT_texture_buffer")) {
-            glslCaps->fBufferTextureSupport = true;
-            glslCaps->fBufferTextureExtensionString = "GL_EXT_texture_buffer";
+        glslCaps->fTexelFetchSupport =
+            ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
+    }
+
+    if (glslCaps->fTexelFetchSupport) {
+        if (kGL_GrGLStandard == standard) {
+            glslCaps->fTexelBufferSupport = ctxInfo.version() >= GR_GL_VER(4, 3) &&
+                                            ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
+        } else {
+            if (ctxInfo.version() >= GR_GL_VER(3, 2) &&
+                ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
+                glslCaps->fTexelBufferSupport = true;
+            } else if (ctxInfo.hasExtension("GL_OES_texture_buffer")) {
+                glslCaps->fTexelBufferSupport = true;
+                glslCaps->fTexelBufferExtensionString = "GL_OES_texture_buffer";
+            } else if (ctxInfo.hasExtension("GL_EXT_texture_buffer")) {
+                glslCaps->fTexelBufferSupport = true;
+                glslCaps->fTexelBufferExtensionString = "GL_EXT_texture_buffer";
+            }
         }
     }
 

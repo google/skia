@@ -66,7 +66,7 @@ public:
 
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
-    bool bufferTextureSupport() const { return fBufferTextureSupport; }
+    bool texelFetchSupport() const { return fTexelFetchSupport; }
 
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
@@ -120,9 +120,9 @@ public:
         return fExternalTextureExtensionString;
     }
 
-    const char* bufferTextureExtensionString() const {
-        SkASSERT(this->bufferTextureSupport());
-        return fBufferTextureExtensionString;
+    const char* texelBufferExtensionString() const {
+        SkASSERT(this->texelBufferSupport());
+        return fTexelBufferExtensionString;
     }
 
     const char* noperspectiveInterpolationExtensionString() const {
@@ -194,7 +194,7 @@ private:
     bool fSampleVariablesSupport : 1;
     bool fSampleMaskOverrideCoverageSupport : 1;
     bool fExternalTextureSupport : 1;
-    bool fBufferTextureSupport : 1;
+    bool fTexelFetchSupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
@@ -206,7 +206,7 @@ private:
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;
-    const char* fBufferTextureExtensionString;
+    const char* fTexelBufferExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
     const char* fMultisampleInterpolationExtensionString;
     const char* fSampleVariablesExtensionString;
