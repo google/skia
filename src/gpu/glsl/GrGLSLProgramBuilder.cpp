@@ -241,10 +241,12 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
                              1 << GrGLSLShaderBuilder::kExternalTexture_GLSLPrivateFeature,
                              externalFeatureString);
         }
+        GrSLPrecision precision = this->glslCaps()->samplerPrecision(access.getTexture()->config(),
+                                                                     visibility);
         name.printf("Sampler%d", t);
-        localSamplerUniforms[t] = this->uniformHandler()->addUniform(access.getVisibility(),
+        localSamplerUniforms[t] = this->uniformHandler()->addUniform(visibility,
                                                                      samplerType,
-                                                                     access.getPrecision(),
+                                                                     precision,
                                                                      name.c_str());
         outSamplers->emplace_back(localSamplerUniforms[t], access);
     }

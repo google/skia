@@ -154,6 +154,21 @@ void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,
 
     glslCaps->fIntegerSupport = true;
 
+    // Assume the minimum precisions mandated by the SPIR-V spec.
+    glslCaps->fShaderPrecisionVaries = true;
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        auto& highp = glslCaps->fFloatPrecisions[s][kHigh_GrSLPrecision];
+        highp.fLogRangeLow = highp.fLogRangeHigh = 127;
+        highp.fBits = 23;
+
+        auto& mediump = glslCaps->fFloatPrecisions[s][kMedium_GrSLPrecision];
+        mediump.fLogRangeLow = mediump.fLogRangeHigh = 14;
+        mediump.fBits = 10;
+
+        glslCaps->fFloatPrecisions[s][kLow_GrSLPrecision] = mediump;
+    }
+    glslCaps->initSamplerPrecisionTable();
+
     glslCaps->fMaxVertexSamplers =
     glslCaps->fMaxGeometrySamplers =
     glslCaps->fMaxFragmentSamplers = SkTMin(properties.limits.maxPerStageDescriptorSampledImages,

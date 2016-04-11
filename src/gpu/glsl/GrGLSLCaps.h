@@ -162,6 +162,11 @@ public:
         return fConfigOutputSwizzle[config];
     }
 
+    /** Precision qualifier that should be used with a sampler, given its config and visibility. */
+    GrSLPrecision samplerPrecision(GrPixelConfig config, GrShaderFlags visibility) const {
+        return static_cast<GrSLPrecision>(fSamplerPrecisions[visibility][config]);
+    }
+
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
     /**
@@ -170,6 +175,9 @@ public:
     SkString dump() const override;
 
 private:
+    /** GrCaps subclasses must call this after filling in the shader precision table. */
+    void initSamplerPrecisionTable();
+
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
     GrGLSLGeneration fGLSLGeneration;
@@ -215,6 +223,8 @@ private:
 
     GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
     GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
+
+    uint8_t fSamplerPrecisions[(1 << kGrShaderTypeCount)][kGrPixelConfigCnt];
 
     friend class GrGLCaps;  // For initialization.
     friend class GrVkCaps;

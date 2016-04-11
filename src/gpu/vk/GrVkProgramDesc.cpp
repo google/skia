@@ -22,7 +22,7 @@
 static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
                             const GrGLSLCaps& caps) {
     int numTextures = proc.numTextures();
-    // Need two bytes per key (swizzle and target).
+    // Need two bytes per key (swizzle, sampler type, and precision).
     int word32Count = (proc.numTextures() + 1) / 2;
     if (0 == word32Count) {
         return;
@@ -31,7 +31,8 @@ static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     for (int i = 0; i < numTextures; ++i) {
         const GrTextureAccess& access = proc.textureAccess(i);
         GrTexture* texture = access.getTexture();
-        k16[i] = SkToU16(caps.configTextureSwizzle(texture->config()).asKey());
+        k16[i] = SkToU16(caps.configTextureSwizzle(texture->config()).asKey() |
+                         (caps.samplerPrecision(texture->config(), access.getVisibility()) << 8));
     }
     // zero the last 16 bits if the number of textures is odd.
     if (numTextures & 0x1) {

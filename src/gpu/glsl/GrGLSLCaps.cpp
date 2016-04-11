@@ -92,5 +92,60 @@ SkString GrGLSLCaps::dump() const {
     return r;
 }
 
+void GrGLSLCaps::initSamplerPrecisionTable() {
+    // Determine the largest precision qualifiers that are effectively the same as lowp/mediump.
+    //   e.g. if lowp == mediump, then use mediump instead of lowp.
+    GrSLPrecision effectiveMediumP[kGrShaderTypeCount];
+    GrSLPrecision effectiveLowP[kGrShaderTypeCount];
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        const PrecisionInfo* info = fFloatPrecisions[s];
+        effectiveMediumP[s] = info[kHigh_GrSLPrecision] == info[kMedium_GrSLPrecision] ?
+                                  kHigh_GrSLPrecision : kMedium_GrSLPrecision;
+        effectiveLowP[s] = info[kMedium_GrSLPrecision] == info[kLow_GrSLPrecision] ?
+                               effectiveMediumP[s] : kLow_GrSLPrecision;
+    }
+
+    // Determine which precision qualifiers should be used with samplers.
+    for (int visibility = 0; visibility < (1 << kGrShaderTypeCount); ++visibility) {
+        GrSLPrecision mediump = kHigh_GrSLPrecision;
+        GrSLPrecision lowp = kHigh_GrSLPrecision;
+        for (int s = 0; s < kGrShaderTypeCount; ++s) {
+            if (visibility & (1 << s)) {
+                mediump = SkTMin(mediump, effectiveMediumP[s]);
+                lowp = SkTMin(lowp, effectiveLowP[s]);
+            }
+
+            GR_STATIC_ASSERT(0 == kLow_GrSLPrecision);
+            GR_STATIC_ASSERT(1 == kMedium_GrSLPrecision);
+            GR_STATIC_ASSERT(2 == kHigh_GrSLPrecision);
+
+            GR_STATIC_ASSERT((1 << kVertex_GrShaderType) == kVertex_GrShaderFlag);
+            GR_STATIC_ASSERT((1 << kGeometry_GrShaderType) == kGeometry_GrShaderFlag);
+            GR_STATIC_ASSERT((1 << kFragment_GrShaderType) == kFragment_GrShaderFlag);
+            GR_STATIC_ASSERT(3 == kGrShaderTypeCount);
+        }
+
+        uint8_t* table = fSamplerPrecisions[visibility];
+        table[kUnknown_GrPixelConfig]    = kDefault_GrSLPrecision;
+        table[kAlpha_8_GrPixelConfig]    = lowp;
+        table[kIndex_8_GrPixelConfig]    = lowp;
+        table[kRGB_565_GrPixelConfig]    = lowp;
+        table[kRGBA_4444_GrPixelConfig]  = lowp;
+        table[kRGBA_8888_GrPixelConfig]  = lowp;
+        table[kBGRA_8888_GrPixelConfig]  = lowp;
+        table[kSRGBA_8888_GrPixelConfig] = lowp;
+        table[kSBGRA_8888_GrPixelConfig] = lowp;
+        table[kETC1_GrPixelConfig]       = lowp;
+        table[kLATC_GrPixelConfig]       = lowp;
+        table[kR11_EAC_GrPixelConfig]    = lowp;
+        table[kASTC_12x12_GrPixelConfig] = lowp;
+        table[kRGBA_float_GrPixelConfig] = kHigh_GrSLPrecision;
+        table[kAlpha_half_GrPixelConfig] = mediump;
+        table[kRGBA_half_GrPixelConfig]  = mediump;
+
+        GR_STATIC_ASSERT(16 == kGrPixelConfigCnt);
+    }
+}
+
 void GrGLSLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
 }

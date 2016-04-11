@@ -17,24 +17,27 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 
-static uint8_t texture_target_key(GrGLenum target) {
-    switch (target) {
-        case GR_GL_TEXTURE_2D:
-            return 0;
-        case GR_GL_TEXTURE_EXTERNAL:
-            return 1;
-        case GR_GL_TEXTURE_RECTANGLE:
-            return 2;
-        default:
-            SkFAIL("Unexpected texture target.");
-            return 0;
-    }
+static uint16_t texture_key(GrSLType samplerType, GrPixelConfig config, GrShaderFlags visibility,
+                            const GrGLSLCaps& caps) {
+    enum {
+        kFirstSamplerType = kSampler2D_GrSLType,
+        kLastSamplerType = kSampler2DRect_GrSLType,
+        kSamplerTypeKeyBits = 4
+    };
+    GR_STATIC_ASSERT(kLastSamplerType - kFirstSamplerType < (1 << kSamplerTypeKeyBits));
+
+    SkASSERT((int)samplerType >= kFirstSamplerType && (int)samplerType <= kLastSamplerType);
+    int samplerTypeKey = samplerType - kFirstSamplerType;
+
+    return SkToU16(caps.configTextureSwizzle(config).asKey() |
+                   (samplerTypeKey << 8) |
+                   (caps.samplerPrecision(config, visibility) << (8 + kSamplerTypeKeyBits)));
 }
 
 static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
                             const GrGLSLCaps& caps) {
     int numTextures = proc.numTextures();
-    // Need two bytes per key (swizzle and target).
+    // Need two bytes per key (swizzle, sampler type, and precision).
     int word32Count = (proc.numTextures() + 1) / 2;
     if (0 == word32Count) {
         return;
@@ -42,9 +45,8 @@ static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     uint16_t* k16 = SkTCast<uint16_t*>(b->add32n(word32Count));
     for (int i = 0; i < numTextures; ++i) {
         const GrTextureAccess& access = proc.textureAccess(i);
-        GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
-        k16[i] = SkToU16(caps.configTextureSwizzle(texture->config()).asKey() |
-                         (texture_target_key(texture->target()) << 8));
+        const GrTexture* tex = access.getTexture();
+        k16[i] = texture_key(tex->samplerType(), tex->config(), access.getVisibility(), caps);
     }
     // zero the last 16 bits if the number of textures is odd.
     if (numTextures & 0x1) {

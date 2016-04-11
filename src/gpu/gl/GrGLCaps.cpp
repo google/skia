@@ -1197,6 +1197,7 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                                                glslCaps->fFloatPrecisions[kVertex_GrShaderType][p];
         }
     }
+    glslCaps->initSamplerPrecisionTable();
 }
 
 bool GrGLCaps::bgraIsInternalFormat() const {
