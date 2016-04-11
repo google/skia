@@ -160,6 +160,10 @@ def gyp_defines(builder_dict):
       builder_dict.get('role') == 'Perf'):
       gyp_defs['skia_dump_stats'] = '1'
 
+  # CommandBuffer.
+  if builder_dict.get('extra_config') == 'CommandBuffer':
+    gyp_defs['skia_command_buffer'] = '1'
+
   return gyp_defs
 
 
@@ -365,6 +369,7 @@ def self_test():
         'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
         'Test-ChromeOS-GCC-Link-CPU-AVX-x86_64-Debug',
         'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
+        'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
         'Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
         'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage',
         ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-'
