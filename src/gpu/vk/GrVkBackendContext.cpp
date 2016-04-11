@@ -238,6 +238,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
 }
 
 GrVkBackendContext::~GrVkBackendContext() {
+    vkDeviceWaitIdle(fDevice);
     vkDestroyDevice(fDevice, nullptr);
     fDevice = VK_NULL_HANDLE;
     vkDestroyInstance(fInstance, nullptr);
