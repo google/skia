@@ -79,17 +79,20 @@ protected:
      *  @param SkReadBuffer Serialized picture data.
      */
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
-                                 SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
 
 private:
     explicit SkPictureImageFilter(sk_sp<SkPicture> picture);
     SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cropRect,
                          PictureResolution, SkFilterQuality);
 
-    void drawPictureAtDeviceResolution(SkBaseDevice*, const SkIRect& deviceBounds,
+    void drawPictureAtDeviceResolution(SkCanvas* canvas,
+                                       const SkIRect& deviceBounds,
                                        const Context&) const;
-    void drawPictureAtLocalResolution(Proxy*, SkBaseDevice*, const SkIRect& deviceBounds,
+    void drawPictureAtLocalResolution(SkSpecialImage* source,
+                                      SkCanvas*,
+                                      const SkIRect& deviceBounds,
                                       const Context&) const;
 
     sk_sp<SkPicture>      fPicture;
