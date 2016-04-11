@@ -11,8 +11,6 @@
 #include "SkImageFilter.h"
 
 class SK_API SkTileImageFilter : public SkImageFilter {
-    typedef SkImageFilter INHERITED;
-
 public:
     /** Create a tile image filter
         @param src  Defines the pixels to tile
@@ -21,8 +19,6 @@ public:
     */
     static SkImageFilter* Create(const SkRect& src, const SkRect& dst, SkImageFilter* input);
 
-    bool onFilterImageDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                 SkBitmap* dst, SkIPoint* offset) const override;
     SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
     SkRect computeFastBounds(const SkRect& src) const override;
@@ -33,12 +29,17 @@ public:
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+
 private:
     SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, SkImageFilter* input)
         : INHERITED(1, &input, NULL), fSrcRect(srcRect), fDstRect(dstRect) {}
 
     SkRect fSrcRect;
     SkRect fDstRect;
+
+    typedef SkImageFilter INHERITED;
 };
 
 #endif
