@@ -55,6 +55,10 @@ DEFINE_string(skps, "skps", "Directory to read skps from.");
 VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
+    , fZoomCenterX(0.0f)
+    , fZoomCenterY(0.0f)
+    , fZoomLevel(0.0f)
+    , fZoomScale(SK_Scalar1)
 {
     memset(fMeasurements, 0, sizeof(fMeasurements));
 
@@ -221,11 +225,13 @@ bool VulkanViewer::onKey(Window::Key key, Window::InputState state, uint32_t mod
 
             case Window::kUp_Key: {
                 this->changeZoomLevel(1.f / 32.f);
+                fWindow->inval();
                 return true;
             }
 
             case Window::kDown_Key: {
                 this->changeZoomLevel(-1.f / 32.f);
+                fWindow->inval();
                 return true;
             }
 
