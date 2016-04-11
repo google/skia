@@ -14,8 +14,9 @@
 
 class GlyphGenerator : public GrPathRange::PathGenerator {
 public:
-    GlyphGenerator(const SkTypeface& typeface, const SkDescriptor& desc)
-        : fScalerContext(typeface.createScalerContext(&desc))
+    GlyphGenerator(const SkTypeface& typeface, const SkScalerContextEffects& effects,
+                   const SkDescriptor& desc)
+        : fScalerContext(typeface.createScalerContext(effects, &desc))
 #ifdef SK_DEBUG
         , fDesc(desc.copy())
 #endif
@@ -51,6 +52,7 @@ private:
 };
 
 GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
+                                           const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc,
                                            const GrStrokeInfo& stroke) {
     if (nullptr == typeface) {
@@ -59,7 +61,7 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     }
 
     if (desc) {
-        SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, *desc));
+        SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, effects, *desc));
         return this->createPathRange(generator, stroke);
     }
 
@@ -76,7 +78,10 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     genericDesc->init();
     genericDesc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     genericDesc->computeChecksum();
+    
+    // No effects, so we make a dummy struct
+    SkScalerContextEffects noEffects;
 
-    SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, *genericDesc));
+    SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, noEffects, *genericDesc));
     return this->createPathRange(generator, stroke);
 }

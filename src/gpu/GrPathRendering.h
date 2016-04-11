@@ -125,7 +125,8 @@ public:
      *
      * @return a new path range populated with glyphs.
      */
-    GrPathRange* createGlyphs(const SkTypeface*, const SkDescriptor*, const GrStrokeInfo&);
+    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
+                              const SkDescriptor*, const GrStrokeInfo&);
 
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {

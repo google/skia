@@ -260,10 +260,12 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
 
     SkPaint::GlyphCacheProc glyphCacheProc = skPaint.getGlyphCacheProc(true);
     SkAutoDescriptor desc;
+    SkScalerContextEffects effects;
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-    skPaint.getScalerContextDescriptor(&desc, props, SkPaint::kNone_ScalerContextFlags, nullptr);
-    SkGlyphCache* origPaintCache = SkGlyphCache::DetachCache(skPaint.getTypeface(),
+    skPaint.getScalerContextDescriptor(&effects, &desc, props, SkPaint::kNone_ScalerContextFlags,
+                                       nullptr);
+    SkGlyphCache* origPaintCache = SkGlyphCache::DetachCache(skPaint.getTypeface(), effects,
                                                              desc.getDesc());
 
     SkTArray<SkScalar> positions;

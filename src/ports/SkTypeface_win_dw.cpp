@@ -244,8 +244,9 @@ SkStreamAsset* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
     return new SkDWriteFontFileStream(fontFileStream.get());
 }
 
-SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    return new SkScalerContext_DW(const_cast<DWriteFontTypeface*>(this), desc);
+SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
+                                                           const SkDescriptor* desc) const {
+    return new SkScalerContext_DW(const_cast<DWriteFontTypeface*>(this), effects, desc);
 }
 
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {

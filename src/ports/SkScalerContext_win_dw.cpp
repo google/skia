@@ -204,8 +204,9 @@ static bool is_axis_aligned(const SkScalerContext::Rec& rec) {
 }
 
 SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
+                                       const SkScalerContextEffects& effects,
                                        const SkDescriptor* desc)
-        : SkScalerContext(typeface, desc)
+        : SkScalerContext(typeface, effects, desc)
         , fTypeface(SkRef(typeface))
         , fGlyphCount(-1) {
 

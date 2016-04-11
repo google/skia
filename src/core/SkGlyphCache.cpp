@@ -508,9 +508,10 @@ void SkGlyphCache_Globals::purgeAll() {
     - call a fontscaler (which might call into the cache)
 */
 SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
-                              const SkDescriptor* desc,
-                              bool (*proc)(const SkGlyphCache*, void*),
-                              void* context) {
+                                       const SkScalerContextEffects& effects,
+                                       const SkDescriptor* desc,
+                                       bool (*proc)(const SkGlyphCache*, void*),
+                                       void* context) {
     if (!typeface) {
         typeface = SkTypeface::GetDefaultTypeface();
     }
@@ -542,10 +543,10 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     {
         // pass true the first time, to notice if the scalercontext failed,
         // so we can try the purge.
-        SkScalerContext* ctx = typeface->createScalerContext(desc, true);
+        SkScalerContext* ctx = typeface->createScalerContext(effects, desc, true);
         if (!ctx) {
             get_globals().purgeAll();
-            ctx = typeface->createScalerContext(desc, false);
+            ctx = typeface->createScalerContext(effects, desc, false);
             SkASSERT(ctx);
         }
         cache = new SkGlyphCache(typeface, desc, ctx);

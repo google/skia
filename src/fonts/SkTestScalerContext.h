@@ -67,7 +67,8 @@ public:
     void getMetrics(SkGlyph* glyph);
     void getPath(const SkGlyph& glyph, SkPath* path);
 protected:
-    SkScalerContext* onCreateScalerContext(const SkDescriptor* desc) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor* desc) const override;
     void onFilterRec(SkScalerContextRec* rec) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
         PerGlyphInfo,

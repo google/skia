@@ -20,6 +20,16 @@ class SkMaskFilter;
 class SkPathEffect;
 class SkRasterizer;
 
+struct SkScalerContextEffects {
+    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr), fRasterizer(nullptr) {}
+    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf, SkRasterizer* ra)
+        : fPathEffect(pe), fMaskFilter(mf), fRasterizer(ra) {}
+
+    SkPathEffect*   fPathEffect;
+    SkMaskFilter*   fMaskFilter;
+    SkRasterizer*   fRasterizer;
+};
+
 enum SkAxisAlignment {
     kNone_SkAxisAlignment,
     kX_SkAxisAlignment,
@@ -200,8 +210,7 @@ public:
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
     };
 
-
-    SkScalerContext(SkTypeface*, const SkDescriptor*);
+    SkScalerContext(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*);
     virtual ~SkScalerContext();
 
     SkTypeface* getTypeface() const { return fTypeface.get(); }
@@ -260,12 +269,15 @@ public:
 
     const Rec& getRec() const { return fRec; }
 
+    SkScalerContextEffects getEffects() const {
+        return { fPathEffect.get(), fMaskFilter.get(), fRasterizer.get() };
+    }
+
     /**
     *  Return the axis (if any) that the baseline for horizontal text should land on.
     *  As an example, the identity matrix will return kX_SkAxisAlignment
     */
     SkAxisAlignment computeAxisAlignmentForHText();
-
 
 protected:
     Rec         fRec;
@@ -326,12 +338,12 @@ private:
     friend class SkRandomScalerContext; // For debug purposes
 
     // never null
-    SkAutoTUnref<SkTypeface> fTypeface;
+    sk_sp<SkTypeface> fTypeface;
 
-    // optional object, which may be null
-    SkPathEffect*   fPathEffect;
-    SkMaskFilter*   fMaskFilter;
-    SkRasterizer*   fRasterizer;
+    // optional objects, which may be null
+    sk_sp<SkPathEffect> fPathEffect;
+    sk_sp<SkMaskFilter> fMaskFilter;
+    sk_sp<SkRasterizer> fRasterizer;
 
     // if this is set, we draw the image from a path, rather than
     // calling generateImage.

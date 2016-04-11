@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
@@ -21,6 +19,7 @@ class SkFontData;
 class SkFontDescriptor;
 class SkScalerContext;
 struct SkScalerContextRec;
+struct SkScalerContextEffects;
 class SkStream;
 class SkStreamAsset;
 class SkAdvancedTypefaceMetrics;
@@ -295,7 +294,7 @@ public:
      *  if allowFailure is true, this returns NULL, else it returns a
      *  dummy scalercontext that will not crash, but will draw nothing.
      */
-    SkScalerContext* createScalerContext(const SkDescriptor*,
+    SkScalerContext* createScalerContext(const SkScalerContextEffects&, const SkDescriptor*,
                                          bool allowFailure = false) const;
 
     /**
@@ -336,7 +335,8 @@ protected:
     friend class SkScalerContext;
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
 
-    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const = 0;
+    virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                                   const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                         PerGlyphInfo,

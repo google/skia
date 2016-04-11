@@ -181,7 +181,7 @@ static void unref_ft_library() {
 
 class SkScalerContext_FreeType : public SkScalerContext_FreeType_Base {
 public:
-    SkScalerContext_FreeType(SkTypeface*, const SkDescriptor* desc);
+    SkScalerContext_FreeType(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor* desc);
     virtual ~SkScalerContext_FreeType();
 
     bool success() const {
@@ -663,10 +663,10 @@ static bool isAxisAligned(const SkScalerContext::Rec& rec) {
             bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
 }
 
-SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(
-                                               const SkDescriptor* desc) const {
+SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContextEffects& effects,
+                                                            const SkDescriptor* desc) const {
     SkScalerContext_FreeType* c =
-            new SkScalerContext_FreeType(const_cast<SkTypeface_FreeType*>(this), desc);
+            new SkScalerContext_FreeType(const_cast<SkTypeface_FreeType*>(this), effects, desc);
     if (!c->success()) {
         delete c;
         c = nullptr;
@@ -790,8 +790,10 @@ static FT_Int chooseBitmapStrike(FT_Face face, FT_F26Dot6 scaleY) {
     return chosenStrikeIndex;
 }
 
-SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface, const SkDescriptor* desc)
-    : SkScalerContext_FreeType_Base(typeface, desc)
+SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
+                                                   const SkScalerContextEffects& effects,
+                                                   const SkDescriptor* desc)
+    : SkScalerContext_FreeType_Base(typeface, effects, desc)
     , fFace(nullptr)
     , fFTSize(nullptr)
     , fStrikeIndex(-1)

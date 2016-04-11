@@ -81,11 +81,13 @@ GrPathRange* GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen
     return this->gpu()->pathRendering()->createPathRange(gen, stroke);
 }
 
-GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf, const SkDescriptor* desc,
+GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf,
+                                              const SkScalerContextEffects& effects,
+                                              const SkDescriptor* desc,
                                               const GrStrokeInfo& stroke) {
 
     SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createGlyphs(tf, desc, stroke);
+    return this->gpu()->pathRendering()->createGlyphs(tf, effects, desc, stroke);
 }
 
 GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedType,
