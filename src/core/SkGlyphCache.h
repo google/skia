@@ -129,7 +129,7 @@ public:
         If the proc() returns true, detach the cache and return it, otherwise leave it and return
         nullptr.
     */
-    static SkGlyphCache* VisitCache(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*,
+    static SkGlyphCache* VisitCache(SkTypeface*, const SkDescriptor* desc,
                                     bool (*proc)(const SkGlyphCache*, void*),
                                     void* context);
 
@@ -146,9 +146,8 @@ public:
         more than 1 strike for the same descriptor, but that will eventually get purged, and the
         win is that different thread will never block each other while a strike is being used.
     */
-    static SkGlyphCache* DetachCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                                     const SkDescriptor* desc) {
-        return VisitCache(typeface, effects, desc, DetachProc, nullptr);
+    static SkGlyphCache* DetachCache(SkTypeface* typeface, const SkDescriptor* desc) {
+        return VisitCache(typeface, desc, DetachProc, nullptr);
     }
 
     static void Dump();
@@ -279,9 +278,8 @@ public:
     SkGlyphCache* getCache() const { return this->get(); }
 
     SkAutoGlyphCache(SkGlyphCache* cache) : INHERITED(cache) {}
-    SkAutoGlyphCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                     const SkDescriptor* desc)
-        : INHERITED(SkGlyphCache::DetachCache(typeface, effects, desc))
+    SkAutoGlyphCache(SkTypeface* typeface, const SkDescriptor* desc)
+        : INHERITED(SkGlyphCache::DetachCache(typeface, desc))
     {}
     /** deprecated: always enables fake gamma */
     SkAutoGlyphCache(const SkPaint& paint,

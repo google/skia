@@ -30,7 +30,6 @@ class SkPath;
 class SkPathEffect;
 struct SkPoint;
 class SkRasterizer;
-struct SkScalerContextEffects;
 class SkShader;
 class SkSurfaceProps;
 class SkTypeface;
@@ -1100,8 +1099,7 @@ private:
      * Allocs an SkDescriptor on the heap and return it to the caller as a refcnted
      * SkData.  Caller is responsible for managing the lifetime of this object.
      */
-    void getScalerContextDescriptor(SkScalerContextEffects*, SkAutoDescriptor*,
-                                    const SkSurfaceProps& surfaceProps,
+    void getScalerContextDescriptor(SkAutoDescriptor*, const SkSurfaceProps& surfaceProps,
                                     uint32_t scalerContextFlags, const SkMatrix*) const;
 
     SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
@@ -1109,8 +1107,7 @@ private:
 
     void descriptorProc(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
                         const SkMatrix* deviceMatrix,
-                        void (*proc)(SkTypeface*, const SkScalerContextEffects&,
-                                     const SkDescriptor*, void*),
+                        void (*proc)(SkTypeface*, const SkDescriptor*, void*),
                         void* context) const;
 
     /*

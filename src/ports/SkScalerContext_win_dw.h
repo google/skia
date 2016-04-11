@@ -20,7 +20,7 @@ class SkDescriptor;
 
 class SkScalerContext_DW : public SkScalerContext {
 public:
-    SkScalerContext_DW(DWriteFontTypeface*, const SkScalerContextEffects&, const SkDescriptor*);
+    SkScalerContext_DW(DWriteFontTypeface*, const SkDescriptor* desc);
     virtual ~SkScalerContext_DW();
 
 protected:

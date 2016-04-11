@@ -539,13 +539,10 @@ GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(GrContext* ctx)
             ctx->resourceProvider()->findAndRefResourceByUniqueKey(fGlyphPathsKey));
     if (nullptr == glyphs) {
         if (fUsingRawGlyphPaths) {
-            SkScalerContextEffects noeffects;
-            glyphs = ctx->resourceProvider()->createGlyphs(fFont.getTypeface(), noeffects,
-                                                           nullptr, fStroke);
+            glyphs = ctx->resourceProvider()->createGlyphs(fFont.getTypeface(), nullptr, fStroke);
         } else {
             SkGlyphCache* cache = this->getGlyphCache();
             glyphs = ctx->resourceProvider()->createGlyphs(cache->getScalerContext()->getTypeface(),
-                                                           cache->getScalerContext()->getEffects(),
                                                            &cache->getDescriptor(),
                                                            fStroke);
         }

@@ -430,12 +430,13 @@ bool SkPaint::TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM) {
 #include "SkGlyphCache.h"
 #include "SkUtils.h"
 
-static void DetachDescProc(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                           const SkDescriptor* desc, void* context) {
-    *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(typeface, effects, desc);
+static void DetachDescProc(SkTypeface* typeface, const SkDescriptor* desc,
+                           void* context) {
+    *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(typeface, desc);
 }
 
-int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyphs[]) const {
+int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
+                          uint16_t glyphs[]) const {
     if (byteLength == 0) {
         return 0;
     }
@@ -937,9 +938,9 @@ static bool FontMetricsCacheProc(const SkGlyphCache* cache, void* context) {
     return false;   // don't detach the cache
 }
 
-static void FontMetricsDescProc(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                                const SkDescriptor* desc, void* context) {
-    SkGlyphCache::VisitCache(typeface, effects, desc, FontMetricsCacheProc, context);
+static void FontMetricsDescProc(SkTypeface* typeface, const SkDescriptor* desc,
+                                void* context) {
+    SkGlyphCache::VisitCache(typeface, desc, FontMetricsCacheProc, context);
 }
 
 SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
@@ -1647,8 +1648,7 @@ static void test_desc(const SkScalerContext::Rec& rec,
 #endif
 
 /* see the note on ignoreGamma on descriptorProc */
-void SkPaint::getScalerContextDescriptor(SkScalerContextEffects* effects,
-                                         SkAutoDescriptor* ad,
+void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
                                          const SkSurfaceProps& surfaceProps,
                                          uint32_t scalerContextFlags,
                                          const SkMatrix* deviceMatrix) const {
@@ -1674,10 +1674,6 @@ void SkPaint::getScalerContextDescriptor(SkScalerContextEffects* effects,
 #ifdef TEST_DESC
     test_desc(rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, desc, descSize);
 #endif
-
-    effects->fPathEffect = pe;
-    effects->fMaskFilter = mf;
-    effects->fRasterizer = ra;
 }
 
 /*
@@ -1688,8 +1684,7 @@ void SkPaint::getScalerContextDescriptor(SkScalerContextEffects* effects,
 void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
                              uint32_t scalerContextFlags,
                              const SkMatrix* deviceMatrix,
-                             void (*proc)(SkTypeface*, const SkScalerContextEffects&,
-                                          const SkDescriptor*, void*),
+                             void (*proc)(SkTypeface*, const SkDescriptor*, void*),
                              void* context) const {
     SkScalerContext::Rec    rec;
 
@@ -1714,7 +1709,7 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
     test_desc(rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, desc, descSize);
 #endif
 
-    proc(fTypeface.get(), { pe, mf, ra }, desc, context);
+    proc(fTypeface.get(), desc, context);
 }
 
 SkGlyphCache* SkPaint::detachCache(const SkSurfaceProps* surfaceProps,

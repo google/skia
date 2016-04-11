@@ -40,8 +40,7 @@ protected:
     SkEmptyTypeface() : SkTypeface(SkFontStyle(), 0, true) { }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
-    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
-                                           const SkDescriptor*) const override {
+    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override {
         return nullptr;
     }
     void onFilterRec(SkScalerContextRec*) const override { }
@@ -349,8 +348,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     desc->init();
     desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
 
-    SkScalerContextEffects noeffects;
-    SkAutoTDelete<SkScalerContext> ctx(this->createScalerContext(noeffects, desc, true));
+    SkAutoTDelete<SkScalerContext> ctx(this->createScalerContext(desc, true));
     if (ctx.get()) {
         SkPaint::FontMetrics fm;
         ctx->getFontMetrics(&fm);
