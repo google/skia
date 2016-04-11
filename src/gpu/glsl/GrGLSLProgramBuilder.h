@@ -146,7 +146,14 @@ private:
                                 const GrGLSLExpr4& coverageIn,
                                 bool ignoresCoverage,
                                 GrPixelLocalStorageState plsState);
-    void emitSamplers(const GrProcessor& processor, GrGLSLSampler::SamplerArray* outTexSamplers);
+    void emitSamplers(const GrProcessor& processor,
+                      GrGLSLSampler::SamplerArray* outTexSamplers,
+                      GrGLSLSampler::SamplerArray* outBufferSamplers);
+    void emitSampler(GrSLType samplerType,
+                     GrPixelConfig,
+                     const char* name,
+                     GrShaderFlags visibility,
+                     GrGLSLSampler::SamplerArray* outSamplers);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     bool checkSamplerCounts();
 

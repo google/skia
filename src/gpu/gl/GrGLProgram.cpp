@@ -11,6 +11,7 @@
 #include "GrProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrGLGpu.h"
+#include "GrGLBuffer.h"
 #include "GrGLPathRendering.h"
 #include "GrPathProcessor.h"
 #include "GrPipeline.h"
@@ -66,46 +67,34 @@ void GrGLProgram::abandon() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void append_texture_bindings(const GrProcessor& processor,
-                                    SkTArray<const GrTextureAccess*>* textureBindings) {
-    if (int numTextures = processor.numTextures()) {
-        const GrTextureAccess** bindings = textureBindings->push_back_n(numTextures);
-        int i = 0;
-        do {
-            bindings[i] = &processor.textureAccess(i);
-        } while (++i < numTextures);
-    }
-}
-
-void GrGLProgram::setData(const GrPrimitiveProcessor& primProc,
-                          const GrPipeline& pipeline,
-                          SkTArray<const GrTextureAccess*>* textureBindings) {
+void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline) {
     this->setRenderTargetState(primProc, pipeline);
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
+    int nextSamplerIdx = 0;
     fGeometryProcessor->setData(fProgramDataManager, primProc);
-    append_texture_bindings(primProc, textureBindings);
+    this->bindTextures(primProc, pipeline.getAllowSRGBInputs(), &nextSamplerIdx);
 
-    this->setFragmentData(primProc, pipeline, textureBindings);
+    this->setFragmentData(primProc, pipeline, &nextSamplerIdx);
 
     if (primProc.getPixelLocalStorageState() !=
         GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
         const GrXferProcessor& xp = pipeline.getXferProcessor();
         fXferProcessor->setData(fProgramDataManager, xp);
-        append_texture_bindings(xp, textureBindings);
+        this->bindTextures(xp, pipeline.getAllowSRGBInputs(), &nextSamplerIdx);
     }
 }
 
 void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
                                   const GrPipeline& pipeline,
-                                  SkTArray<const GrTextureAccess*>* textureBindings) {
+                                  int* nextSamplerIdx) {
     int numProcessors = fFragmentProcessors.count();
     for (int i = 0; i < numProcessors; ++i) {
         const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
         fFragmentProcessors[i]->setData(fProgramDataManager, processor);
         this->setTransformData(primProc, processor, i);
-        append_texture_bindings(processor, textureBindings);
+        this->bindTextures(processor, pipeline.getAllowSRGBInputs(), nextSamplerIdx);
     }
 }
 void GrGLProgram::setTransformData(const GrPrimitiveProcessor& primProc,
@@ -143,5 +132,20 @@ void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(),
                                                      size, rt->origin());
+    }
+}
+
+void GrGLProgram::bindTextures(const GrProcessor& processor,
+                               bool allowSRGBInputs,
+                               int* nextSamplerIdx) {
+    for (int i = 0; i < processor.numTextures(); ++i) {
+        const GrTextureAccess& access = processor.textureAccess(i);
+        fGpu->bindTexture((*nextSamplerIdx)++, access.getParams(),
+                          allowSRGBInputs, static_cast<GrGLTexture*>(access.getTexture()));
+    }
+    for (int i = 0; i < processor.numBuffers(); ++i) {
+        const GrBufferAccess& access = processor.bufferAccess(i);
+        fGpu->bindTexelBuffer((*nextSamplerIdx)++, access.offsetInBytes(), access.texelConfig(),
+                              static_cast<GrGLBuffer*>(access.buffer()));
     }
 }

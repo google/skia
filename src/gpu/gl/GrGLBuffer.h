@@ -27,6 +27,15 @@ public:
     GrGLuint bufferID() const { return fBufferID; }
     size_t baseOffset() const { return reinterpret_cast<size_t>(fCPUData); }
 
+    /**
+     * Returns the actual size of the underlying GL buffer object. In certain cases we may make this
+     * smaller than the size reported by GrBuffer.
+     */
+    size_t glSizeInBytes() const { return fGLSizeInBytes; }
+
+    void setHasAttachedToTexture() { fHasAttachedToTexture = true; }
+    bool hasAttachedToTexture() const { return fHasAttachedToTexture; }
+
 protected:
     GrGLBuffer(GrGLGpu*, size_t size, GrBufferType intendedType, GrAccessPattern, bool cpuBacked,
                const void* data);
@@ -53,8 +62,8 @@ private:
     GrGLuint       fBufferID;
     size_t         fSizeInBytes;
     GrGLenum       fUsage;
-    size_t         fGLSizeInBytes;     // In certain cases we make the size of the GL buffer object
-                                       // smaller or larger than the size in fDesc.
+    size_t         fGLSizeInBytes;
+    bool           fHasAttachedToTexture;
 
     typedef GrBuffer INHERITED;
 };

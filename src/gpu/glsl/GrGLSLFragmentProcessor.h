@@ -60,7 +60,8 @@ public:
                  const char* outputColor,
                  const char* inputColor,
                  const GrGLSLTransformedCoordsArray& coords,
-                 const SamplerArray& texSamplers)
+                 const SamplerArray& texSamplers,
+                 const SamplerArray& bufferSamplers)
             : fFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
             , fGLSLCaps(caps)
@@ -68,7 +69,8 @@ public:
             , fOutputColor(outputColor)
             , fInputColor(inputColor)
             , fCoords(coords)
-            , fTexSamplers(texSamplers) {}
+            , fTexSamplers(texSamplers)
+            , fBufferSamplers(bufferSamplers) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrGLSLCaps* fGLSLCaps;
@@ -77,6 +79,7 @@ public:
         const char* fInputColor;
         const GrGLSLTransformedCoordsArray& fCoords;
         const SamplerArray& fTexSamplers;
+        const SamplerArray& fBufferSamplers;
     };
 
     virtual void emitCode(EmitArgs&) = 0;

@@ -43,6 +43,7 @@ public:
                  const char* outputColor,
                  const char* outputCoverage,
                  const SamplerArray& texSamplers,
+                 const SamplerArray& bufferSamplers,
                  const TransformsIn& transformsIn,
                  TransformsOut* transformsOut)
             : fVertBuilder(vertBuilder)
@@ -54,6 +55,7 @@ public:
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
             , fTexSamplers(texSamplers)
+            , fBufferSamplers(bufferSamplers)
             , fTransformsIn(transformsIn)
             , fTransformsOut(transformsOut) {}
         GrGLSLVertexBuilder* fVertBuilder;
@@ -65,6 +67,7 @@ public:
         const char* fOutputColor;
         const char* fOutputCoverage;
         const SamplerArray& fTexSamplers;
+        const SamplerArray& fBufferSamplers;
         const TransformsIn& fTransformsIn;
         TransformsOut* fTransformsOut;
     };

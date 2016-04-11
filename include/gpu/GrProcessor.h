@@ -12,6 +12,7 @@
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
 #include "GrTextureAccess.h"
+#include "GrBufferAccess.h"
 #include "SkMath.h"
 #include "SkString.h"
 
@@ -79,6 +80,14 @@ public:
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
+    int numBuffers() const { return fBufferAccesses.count(); }
+
+    /** Returns the access pattern for the buffer at index. index must be valid according to
+        numBuffers(). */
+    const GrBufferAccess& bufferAccess(int index) const {
+        return *fBufferAccesses[index];
+    }
+
     /**
      * Platform specific built-in features that a processor can request for the fragment shader.
      */
@@ -113,14 +122,16 @@ protected:
     GrProcessor() : fClassID(kIllegalProcessorClassID), fRequiredFeatures(kNone_RequiredFeatures) {}
 
     /**
-     * Subclasses call this from their constructor to register GrTextureAccesses. The processor
-     * subclass manages the lifetime of the accesses (this function only stores a pointer). The
-     * GrTextureAccess is typically a member field of the GrProcessor subclass. This must only be
-     * called from the constructor because GrProcessors are immutable.
+     * Subclasses call these from their constructor to register sampler sources. The processor
+     * subclass manages the lifetime of the objects (these functions only store pointers). The
+     * GrTextureAccess and/or GrBufferAccess instances are typically member fields of the
+     * GrProcessor subclass. These must only be called from the constructor because GrProcessors
+     * are immutable.
      */
     virtual void addTextureAccess(const GrTextureAccess* textureAccess);
+    virtual void addBufferAccess(const GrBufferAccess* bufferAccess);
 
-    bool hasSameTextureAccesses(const GrProcessor&) const;
+    bool hasSameSamplers(const GrProcessor&) const;
 
     /**
      * If the prcoessor will generate code that uses platform specific built-in features, then it
@@ -141,6 +152,7 @@ protected:
 
     uint32_t fClassID;
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
+    SkSTArray<2, const GrBufferAccess*, true>    fBufferAccesses;
 
 private:
     static uint32_t GenClassID() {

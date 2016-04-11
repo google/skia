@@ -27,7 +27,7 @@ GrFragmentProcessor::~GrFragmentProcessor() {
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
                                   bool ignoreCoordTransforms) const {
     if (this->classID() != that.classID() ||
-        !this->hasSameTextureAccesses(that)) {
+        !this->hasSameSamplers(that)) {
         return false;
     }
     if (ignoreCoordTransforms) {
@@ -67,6 +67,15 @@ void GrFragmentProcessor::addTextureAccess(const GrTextureAccess* textureAccess)
 
     INHERITED::addTextureAccess(textureAccess);
     fNumTexturesExclChildren++;
+}
+
+void GrFragmentProcessor::addBufferAccess(const GrBufferAccess* bufferAccess) {
+    // Can't add buffer accesses after registering any children since their buffer accesses have
+    // already been bubbled up into our fBufferAccesses array
+    SkASSERT(fChildProcessors.empty());
+
+    INHERITED::addBufferAccess(bufferAccess);
+    fNumBuffersExclChildren++;
 }
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {

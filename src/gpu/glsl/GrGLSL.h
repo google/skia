@@ -58,7 +58,7 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration);
  */
 inline const char* GrGLSLTexture2DFunctionName(GrSLType coordType, GrSLType samplerType,
                                                GrGLSLGeneration glslGen) {
-    SkASSERT(GrSLTypeIsSamplerType(samplerType));
+    SkASSERT(GrSLTypeIs2DTextureType(samplerType));
     SkASSERT(kVec2f_GrSLType == coordType || kVec3f_GrSLType == coordType);
     // GL_TEXTURE_RECTANGLE_ARB is written against OpenGL 2.0/GLSL 1.10. At that time there were
     // separate texture*() functions. In OpenGL 3.0/GLSL 1.30 the different texture*() functions
@@ -127,6 +127,8 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "samplerExternalOES";
         case kSampler2DRect_GrSLType:
             return "sampler2DRect";
+        case kSamplerBuffer_GrSLType:
+            return "samplerBuffer";
         case kBool_GrSLType:
             return "bool";
         case kInt_GrSLType:

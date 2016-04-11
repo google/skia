@@ -153,6 +153,7 @@ protected:
         kBlendEquationAdvanced_GLSLPrivateFeature,
         kBlendFuncExtended_GLSLPrivateFeature,
         kExternalTexture_GLSLPrivateFeature,
+        kTexelBuffer_GLSLPrivateFeature,
         kFramebufferFetch_GLSLPrivateFeature,
         kNoPerspectiveInterpolation_GLSLPrivateFeature,
         kSampleVariables_GLSLPrivateFeature,

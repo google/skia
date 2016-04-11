@@ -194,6 +194,7 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     , fTempSrcFBOID(0)
     , fTempDstFBOID(0)
     , fStencilClearFBOID(0)
+    , fHWMaxUsedBufferTextureUnit(-1)
     , fHWPLSEnabled(false)
     , fPLSHasBeenUsed(false)
     , fHWMinSampleShading(0.0) {
@@ -222,6 +223,10 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
         fHWBufferState[kXferGpuToCpu_GrBufferType].fGLTarget = GR_GL_PIXEL_PACK_BUFFER;
     }
     GR_STATIC_ASSERT(6 == SK_ARRAY_COUNT(fHWBufferState));
+
+    if (this->caps()->shaderCaps()->texelBufferSupport()) {
+        fHWBufferTextures.reset(this->glCaps().glslCaps()->maxCombinedSamplers());
+    }
 
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         fPathRendering.reset(new GrGLPathRendering(this));
@@ -521,6 +526,10 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     if (resetBits & kTextureBinding_GrGLBackendState) {
         for (int s = 0; s < fHWBoundTextureUniqueIDs.count(); ++s) {
             fHWBoundTextureUniqueIDs[s] = SK_InvalidUniqueID;
+        }
+        for (int b = 0; b < fHWBufferTextures.count(); ++b) {
+            SkASSERT(this->caps()->shaderCaps()->texelBufferSupport());
+            fHWBufferTextures[b].fKnownBound = false;
         }
     }
 
@@ -2052,14 +2061,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
         this->flushBlend(blendInfo, swizzle);
     }
 
-    SkSTArray<8, const GrTextureAccess*> textureAccesses;
-    program->setData(primProc, pipeline, &textureAccesses);
-
-    int numTextureAccesses = textureAccesses.count();
-    for (int i = 0; i < numTextureAccesses; i++) {
-        this->bindTexture(i, textureAccesses[i]->getParams(), pipeline.getAllowSRGBInputs(),
-                          static_cast<GrGLTexture*>(textureAccesses[i]->getTexture()));
-    }
+    program->setData(primProc, pipeline);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());
@@ -2145,6 +2147,31 @@ GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrGLBuffer* buffer) {
     }
 
     return bufferState.fGLTarget;
+}
+
+void GrGLGpu::notifyBufferReleased(const GrGLBuffer* buffer) {
+    if (buffer->hasAttachedToTexture()) {
+        // Detach this buffer from any textures to ensure the underlying memory is freed.
+        uint32_t uniqueID = buffer->getUniqueID();
+        for (int i = fHWMaxUsedBufferTextureUnit; i >= 0; --i) {
+            auto& buffTex = fHWBufferTextures[i];
+            if (uniqueID != buffTex.fAttachedBufferUniqueID) {
+                continue;
+            }
+            if (i == fHWMaxUsedBufferTextureUnit) {
+                --fHWMaxUsedBufferTextureUnit;
+            }
+
+            this->setTextureUnit(i);
+            if (!buffTex.fKnownBound) {
+                SkASSERT(buffTex.fTextureID);
+                GL_CALL(BindTexture(GR_GL_TEXTURE_BUFFER, buffTex.fTextureID));
+                buffTex.fKnownBound = true;
+            }
+            GL_CALL(TexBuffer(GR_GL_TEXTURE_BUFFER,
+                              this->glCaps().configSizedInternalFormat(buffTex.fTexelConfig), 0));
+        }
+    }
 }
 
 void GrGLGpu::disableScissor() {
@@ -3264,21 +3291,78 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool dstCo
         (setAll || memcmp(newTexParams.fSwizzleRGBA,
                           oldTexParams.fSwizzleRGBA,
                           sizeof(newTexParams.fSwizzleRGBA)))) {
-        this->setTextureUnit(unitIdx);
-        if (this->glStandard() == kGLES_GrGLStandard) {
-            // ES3 added swizzle support but not GL_TEXTURE_SWIZZLE_RGBA.
-            const GrGLenum* swizzle = newTexParams.fSwizzleRGBA;
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_R, swizzle[0]));
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_G, swizzle[1]));
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_B, swizzle[2]));
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_A, swizzle[3]));
-        } else {
-            GR_STATIC_ASSERT(sizeof(newTexParams.fSwizzleRGBA[0]) == sizeof(GrGLint));
-            const GrGLint* swizzle = reinterpret_cast<const GrGLint*>(newTexParams.fSwizzleRGBA);
-            GL_CALL(TexParameteriv(target, GR_GL_TEXTURE_SWIZZLE_RGBA, swizzle));
-        }
+        this->setTextureSwizzle(unitIdx, target, newTexParams.fSwizzleRGBA);
     }
     texture->setCachedTexParams(newTexParams, this->getResetTimestamp());
+}
+
+void GrGLGpu::bindTexelBuffer(int unitIdx, intptr_t offsetInBytes, GrPixelConfig texelConfig,
+                              GrGLBuffer* buffer) {
+    SkASSERT(this->glCaps().canUseConfigWithTexelBuffer(texelConfig));
+    SkASSERT(unitIdx >= 0 && unitIdx < fHWBufferTextures.count());
+    SkASSERT(offsetInBytes >= 0 && offsetInBytes < (intptr_t) buffer->glSizeInBytes());
+
+    BufferTexture& buffTex = fHWBufferTextures[unitIdx];
+
+    if (!buffTex.fKnownBound) {
+        if (!buffTex.fTextureID) {
+            GL_CALL(GenTextures(1, &buffTex.fTextureID));
+            if (!buffTex.fTextureID) {
+                return;
+            }
+        }
+
+        this->setTextureUnit(unitIdx);
+        GL_CALL(BindTexture(GR_GL_TEXTURE_BUFFER, buffTex.fTextureID));
+
+        buffTex.fKnownBound = true;
+    }
+
+    if (buffer->getUniqueID() != buffTex.fAttachedBufferUniqueID ||
+        buffTex.fOffsetInBytes != offsetInBytes ||
+        buffTex.fTexelConfig != texelConfig ||
+        buffTex.fAttachedSizeInBytes != buffer->glSizeInBytes() - offsetInBytes) {
+
+        size_t attachmentSizeInBytes = buffer->glSizeInBytes() - offsetInBytes;
+
+        this->setTextureUnit(unitIdx);
+        GL_CALL(TexBufferRange(GR_GL_TEXTURE_BUFFER,
+                               this->glCaps().configSizedInternalFormat(texelConfig),
+                               buffer->bufferID(),
+                               offsetInBytes,
+                               attachmentSizeInBytes));
+
+        buffTex.fOffsetInBytes = offsetInBytes;
+        buffTex.fTexelConfig = texelConfig;
+        buffTex.fAttachedSizeInBytes = attachmentSizeInBytes;
+        buffTex.fAttachedBufferUniqueID = buffer->getUniqueID();
+
+        if (this->glCaps().textureSwizzleSupport() &&
+            this->glCaps().configSwizzle(texelConfig) != buffTex.fSwizzle) {
+            GrGLenum glSwizzle[4];
+            get_tex_param_swizzle(texelConfig, this->glCaps(), glSwizzle);
+            this->setTextureSwizzle(unitIdx, GR_GL_TEXTURE_BUFFER, glSwizzle);
+            buffTex.fSwizzle = this->glCaps().configSwizzle(texelConfig);
+        }
+
+        buffer->setHasAttachedToTexture();
+        fHWMaxUsedBufferTextureUnit = SkTMax(unitIdx, fHWMaxUsedBufferTextureUnit);
+    }
+}
+
+void GrGLGpu::setTextureSwizzle(int unitIdx, GrGLenum target, const GrGLenum swizzle[]) {
+    this->setTextureUnit(unitIdx);
+    if (this->glStandard() == kGLES_GrGLStandard) {
+        // ES3 added swizzle support but not GL_TEXTURE_SWIZZLE_RGBA.
+        GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_R, swizzle[0]));
+        GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_G, swizzle[1]));
+        GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_B, swizzle[2]));
+        GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_A, swizzle[3]));
+    } else {
+        GR_STATIC_ASSERT(sizeof(swizzle[0]) == sizeof(GrGLint));
+        GL_CALL(TexParameteriv(target, GR_GL_TEXTURE_SWIZZLE_RGBA,
+                               reinterpret_cast<const GrGLint*>(swizzle)));
+    }
 }
 
 void GrGLGpu::flushColorWrite(bool writeColor) {

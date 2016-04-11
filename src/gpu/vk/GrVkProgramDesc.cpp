@@ -22,6 +22,7 @@
 static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
                             const GrGLSLCaps& caps) {
     int numTextures = proc.numTextures();
+    SkASSERT(0 == proc.numBuffers());
     // Need two bytes per key (swizzle, sampler type, and precision).
     int word32Count = (proc.numTextures() + 1) / 2;
     if (0 == word32Count) {

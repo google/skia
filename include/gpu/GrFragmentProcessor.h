@@ -59,6 +59,7 @@ public:
         : INHERITED()
         , fUsesLocalCoords(false)
         , fNumTexturesExclChildren(0)
+        , fNumBuffersExclChildren(0)
         , fNumTransformsExclChildren(0) {}
 
     ~GrFragmentProcessor() override;
@@ -73,6 +74,8 @@ public:
     }
 
     int numTexturesExclChildren() const { return fNumTexturesExclChildren; }
+
+    int numBuffersExclChildren() const { return fNumBuffersExclChildren; }
 
     int numTransformsExclChildren() const { return fNumTransformsExclChildren; }
 
@@ -122,6 +125,7 @@ public:
 
 protected:
     void addTextureAccess(const GrTextureAccess* textureAccess) override;
+    void addBufferAccess(const GrBufferAccess*) override;
 
     /**
      * Fragment Processor subclasses call this from their constructor to register coordinate
@@ -210,6 +214,7 @@ private:
      */
     SkSTArray<4, const GrCoordTransform*, true>     fCoordTransforms;
     int                                             fNumTexturesExclChildren;
+    int                                             fNumBuffersExclChildren;
     int                                             fNumTransformsExclChildren;
     SkSTArray<1, const GrFragmentProcessor*, true>  fChildProcessors;
 

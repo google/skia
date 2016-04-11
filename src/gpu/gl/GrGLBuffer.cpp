@@ -96,7 +96,8 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
       fBufferID(0),
       fSizeInBytes(size),
       fUsage(gr_to_gl_access_pattern(intendedType, accessPattern)),
-      fGLSizeInBytes(0) {
+      fGLSizeInBytes(0),
+      fHasAttachedToTexture(false) {
     if (this->isCPUBacked()) {
         // Core profile uses vertex array objects, which disallow client side arrays.
         SkASSERT(!gpu->glCaps().isCoreProfile());
@@ -151,6 +152,7 @@ void GrGLBuffer::onRelease() {
             GL_CALL(DeleteBuffers(1, &fBufferID));
             fBufferID = 0;
             fGLSizeInBytes = 0;
+            this->glGpu()->notifyBufferReleased(this);
         }
         fMapPtr = nullptr;
         VALIDATE();

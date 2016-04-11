@@ -33,6 +33,7 @@ public:
                  const char* outputPrimary,
                  const char* outputSecondary,
                  const SamplerArray& texSamplers,
+                 const SamplerArray& bufferSamplers,
                  const bool usePLSDstRead)
             : fXPFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
@@ -43,6 +44,7 @@ public:
             , fOutputPrimary(outputPrimary)
             , fOutputSecondary(outputSecondary)
             , fTexSamplers(texSamplers)
+            , fBufferSamplers(bufferSamplers)
             , fUsePLSDstRead(usePLSDstRead) {}
 
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
@@ -54,6 +56,7 @@ public:
         const char* fOutputPrimary;
         const char* fOutputSecondary;
         const SamplerArray& fTexSamplers;
+        const SamplerArray& fBufferSamplers;
         bool fUsePLSDstRead;
     };
     /**

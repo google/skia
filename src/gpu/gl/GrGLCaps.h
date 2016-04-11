@@ -135,9 +135,17 @@ public:
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
     }
 
+    bool canUseConfigWithTexelBuffer(GrPixelConfig config) const {
+        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseWithTexelBuffer_Flag);
+    }
+
     /** Returns the mapping between GrPixelConfig components and GL internal format components. */
     const GrSwizzle& configSwizzle(GrPixelConfig config) const {
         return fConfigTable[config].fSwizzle;
+    }
+
+    GrGLenum configSizedInternalFormat(GrPixelConfig config) const {
+        return fConfigTable[config].fFormats.fSizedInternalFormat;
     }
 
     bool getTexImageFormats(GrPixelConfig surfaceConfig, GrPixelConfig externalConfig,
@@ -468,6 +476,7 @@ private:
             kRenderable_Flag              = 0x4,
             kRenderableWithMSAA_Flag      = 0x8,
             kCanUseTexStorage_Flag        = 0x10,
+            kCanUseWithTexelBuffer_Flag   = 0x20,
         };
         uint32_t fFlags;
 
