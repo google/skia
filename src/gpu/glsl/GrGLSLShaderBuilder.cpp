@@ -35,6 +35,12 @@ void GrGLSLShaderBuilder::declAppend(const GrGLSLShaderVar& var) {
     this->codeAppendf("%s;", tempDecl.c_str());
 }
 
+void GrGLSLShaderBuilder::appendPrecisionModifier(GrSLPrecision precision) {
+    if (fProgramBuilder->glslCaps()->usesPrecisionModifiers()) {
+        this->codeAppendf("%s ", GrGLSLPrecisionString(precision));
+    }
+}
+
 void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
                                        const char* name,
                                        int argCnt,

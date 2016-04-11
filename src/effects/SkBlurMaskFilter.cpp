@@ -723,7 +723,10 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     const char *rectName;
     const char *profileSizeName;
 
-    const char* precisionString = GrGLSLShaderVar::PrecisionString(args.fGLSLCaps, rbe.precision());
+    SkString precisionString;
+    if (args.fGLSLCaps->usesPrecisionModifiers()) {
+        precisionString.printf("%s ", GrGLSLPrecisionString(rbe.precision()));
+    }
     fProxyRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec4f_GrSLType,
                                                    rbe.precision(),
@@ -744,16 +747,19 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("vec4 src=vec4(1);");
     }
 
-    fragBuilder->codeAppendf("%s vec2 translatedPos = %s.xy - %s.xy;", precisionString, fragmentPos,
+    fragBuilder->codeAppendf("%s vec2 translatedPos = %s.xy - %s.xy;", precisionString.c_str(),
+                             fragmentPos, rectName);
+    fragBuilder->codeAppendf("%s float width = %s.z - %s.x;", precisionString.c_str(), rectName,
                              rectName);
-    fragBuilder->codeAppendf("%s float width = %s.z - %s.x;", precisionString, rectName, rectName);
-    fragBuilder->codeAppendf("%s float height = %s.w - %s.y;", precisionString, rectName, rectName);
+    fragBuilder->codeAppendf("%s float height = %s.w - %s.y;", precisionString.c_str(), rectName,
+                             rectName);
 
-    fragBuilder->codeAppendf("%s vec2 smallDims = vec2(width - %s, height - %s);", precisionString,
-                             profileSizeName, profileSizeName);
-    fragBuilder->codeAppendf("%s float center = 2.0 * floor(%s/2.0 + .25) - 1.0;", precisionString,
-                             profileSizeName);
-    fragBuilder->codeAppendf("%s vec2 wh = smallDims - vec2(center,center);", precisionString);
+    fragBuilder->codeAppendf("%s vec2 smallDims = vec2(width - %s, height - %s);",
+                             precisionString.c_str(), profileSizeName, profileSizeName);
+    fragBuilder->codeAppendf("%s float center = 2.0 * floor(%s/2.0 + .25) - 1.0;",
+                             precisionString.c_str(), profileSizeName);
+    fragBuilder->codeAppendf("%s vec2 wh = smallDims - vec2(center,center);",
+                             precisionString.c_str());
 
     OutputRectBlurProfileLookup(fragBuilder, args.fSamplers[0], "horiz_lookup", profileSizeName,
                                 "translatedPos.x", "width", "wh.x");

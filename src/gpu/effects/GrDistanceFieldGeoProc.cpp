@@ -97,8 +97,7 @@ public:
                                  dfTexEffect.inTextureCoords()->fName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
-                                                                 kHigh_GrSLPrecision));
+        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
         fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
 
         fragBuilder->codeAppend("\tfloat texColor = ");
@@ -335,8 +334,7 @@ public:
                                                      "TextureSize", &textureSizeUniName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
-                                                                 kHigh_GrSLPrecision));
+        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
         fragBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
 
         fragBuilder->codeAppend("float texColor = ");
@@ -347,8 +345,7 @@ public:
         fragBuilder->codeAppend("float distance = "
             SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
-                                                                 kHigh_GrSLPrecision));
+        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
         fragBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
         fragBuilder->codeAppend("float afwidth;");
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
@@ -579,11 +576,9 @@ public:
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
-                                                                 kHigh_GrSLPrecision));
+        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
         fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
-                                                                 kHigh_GrSLPrecision));
+        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
 
         SkScalar lcdDelta = 1.0f / (3.0f * atlas->width());
         if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {

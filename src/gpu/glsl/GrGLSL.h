@@ -84,6 +84,23 @@ void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision,
                                                   SkString* out);
 
 /**
+ * Converts a GrSLPrecision to its corresponding GLSL precision qualifier.
+ */
+static inline const char* GrGLSLPrecisionString(GrSLPrecision p) {
+    switch (p) {
+        case kLow_GrSLPrecision:
+            return "lowp";
+        case kMedium_GrSLPrecision:
+            return "mediump";
+        case kHigh_GrSLPrecision:
+            return "highp";
+        default:
+            SkFAIL("Unexpected precision type.");
+            return "";
+    }
+}
+
+/**
  * Converts a GrSLType to a string containing the name of the equivalent GLSL type.
  */
 static inline const char* GrGLSLTypeString(GrSLType t) {

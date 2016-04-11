@@ -93,6 +93,11 @@ public:
      */
     void declAppend(const GrGLSLShaderVar& var);
 
+    /**
+     * Appends a precision qualifier followed by a space, if relevant for the GLSL version.
+     */
+    void appendPrecisionModifier(GrSLPrecision);
+
     /** Emits a helper function outside of main() in the fragment shader. */
     void emitFunction(GrSLType returnType,
                       const char* name,
