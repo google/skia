@@ -86,7 +86,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
                                   domain,
                                   "c",
                                   coord,
-                                  args.fSamplers[0]);
+                                  args.fTexSamplers[0]);
             if (!mce.convolveAlpha()) {
                 fragBuilder->codeAppend("c.rgb /= c.a;");
                 fragBuilder->codeAppend("c.rgb = clamp(c.rgb, 0.0, 1.0);");
@@ -105,7 +105,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
                               domain,
                               "c",
                               coords2D,
-                              args.fSamplers[0]);
+                              args.fTexSamplers[0]);
         fragBuilder->codeAppendf("%s.a = c.a;", args.fOutputColor);
         fragBuilder->codeAppendf("%s.rgb = sum.rgb * %s + %s;", args.fOutputColor, gain, bias);
         fragBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor, args.fOutputColor);

@@ -99,7 +99,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                                   domain,
                                   sampleVar.c_str(),
                                   coord,
-                                  args.fSamplers[0]);
+                                  args.fTexSamplers[0]);
         }
         fragBuilder->codeAppendf(
             "\tvec4 s%d = %s(%s, f.x, rowColors[0], rowColors[1], rowColors[2], rowColors[3]);\n",

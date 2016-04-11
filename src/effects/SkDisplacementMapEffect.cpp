@@ -551,7 +551,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     fragBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
-    fragBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+    fragBuilder->appendTextureLookup(args.fTexSamplers[0], args.fCoords[0].c_str(),
                                    args.fCoords[0].getType());
     fragBuilder->codeAppend(";\n");
 
@@ -606,7 +606,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
                             domain,
                             args.fOutputColor,
                             SkString(cCoords),
-                            args.fSamplers[1]);
+                            args.fTexSamplers[1]);
     fragBuilder->codeAppend(";\n");
 }
 

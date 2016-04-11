@@ -9,7 +9,7 @@
 #include "glsl/GrGLSLShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLShaderVar.h"
-#include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
@@ -63,7 +63,7 @@ void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
 }
 
 void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
-                                              const GrGLSLTextureSampler& sampler,
+                                              const GrGLSLSampler& sampler,
                                               const char* coordName,
                                               GrSLType varyingType) const {
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
@@ -103,14 +103,14 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
     }
 }
 
-void GrGLSLShaderBuilder::appendTextureLookup(const GrGLSLTextureSampler& sampler,
+void GrGLSLShaderBuilder::appendTextureLookup(const GrGLSLSampler& sampler,
                                               const char* coordName,
                                               GrSLType varyingType) {
     this->appendTextureLookup(&this->code(), sampler, coordName, varyingType);
 }
 
 void GrGLSLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
-                                                         const GrGLSLTextureSampler& sampler,
+                                                         const GrGLSLSampler& sampler,
                                                          const char* coordName,
                                                          GrSLType varyingType) {
     SkString lookup;

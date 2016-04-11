@@ -181,10 +181,10 @@ void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     fragBuilder->codeAppendf("\t\tvec2 mask_coord = %s;\n", maskCoords2D.c_str());
     fragBuilder->codeAppend("\t\tvec4 input_color = ");
-    fragBuilder->appendTextureLookup(args.fSamplers[0], "coord");
+    fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord");
     fragBuilder->codeAppend(";\n");
     fragBuilder->codeAppend("\t\tvec4 mask_color = ");
-    fragBuilder->appendTextureLookup(args.fSamplers[1], "mask_coord");
+    fragBuilder->appendTextureLookup(args.fTexSamplers[1], "mask_coord");
     fragBuilder->codeAppend(";\n");
 
     fragBuilder->codeAppendf("\t\tfloat inner_thresh = %s;\n",

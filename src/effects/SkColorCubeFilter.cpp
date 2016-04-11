@@ -277,9 +277,9 @@ void GrColorCubeEffect::GLSLProcessor::emitCode(EmitArgs& args) {
 
     // Apply the cube.
     fragBuilder->codeAppendf("%s = vec4(mix(", args.fOutputColor);
-    fragBuilder->appendTextureLookup(args.fSamplers[0], cCoords1);
+    fragBuilder->appendTextureLookup(args.fTexSamplers[0], cCoords1);
     fragBuilder->codeAppend(".bgr, ");
-    fragBuilder->appendTextureLookup(args.fSamplers[0], cCoords2);
+    fragBuilder->appendTextureLookup(args.fTexSamplers[0], cCoords2);
 
     // Premultiply color by alpha. Note that the input alpha is not modified by this shader.
     fragBuilder->codeAppendf(".bgr, fract(%s.b)) * vec3(%s), %s.a);\n",

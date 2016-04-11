@@ -15,7 +15,7 @@
 class GrGLProgramBuilder;
 class GrGLSLShaderBuilder;
 class GrInvariantOutput;
-class GrGLSLTextureSampler;
+class GrGLSLSampler;
 class GrGLSLUniformHandler;
 struct SkRect;
 
@@ -120,7 +120,7 @@ public:
                            const GrTextureDomain& textureDomain,
                            const char* outColor,
                            const SkString& inCoords,
-                           const GrGLSLTextureSampler& sampler,
+                           const GrGLSLSampler& sampler,
                            const char* inModulateColor = nullptr);
 
         /**

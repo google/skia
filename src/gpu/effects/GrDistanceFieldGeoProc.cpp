@@ -101,7 +101,7 @@ public:
         fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
 
         fragBuilder->codeAppend("\tfloat texColor = ");
-        fragBuilder->appendTextureLookup(args.fSamplers[0],
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0],
                                          "uv",
                                          kVec2f_GrSLType);
         fragBuilder->codeAppend(".r;\n");
@@ -338,7 +338,7 @@ public:
         fragBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
 
         fragBuilder->codeAppend("float texColor = ");
-        fragBuilder->appendTextureLookup(args.fSamplers[0],
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0],
                                          "uv",
                                          kVec2f_GrSLType);
         fragBuilder->codeAppend(".r;");
@@ -607,20 +607,20 @@ public:
 
         // green is distance to uv center
         fragBuilder->codeAppend("\tvec4 texColor = ");
-        fragBuilder->appendTextureLookup(args.fSamplers[0], "uv", kVec2f_GrSLType);
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kVec2f_GrSLType);
         fragBuilder->codeAppend(";\n");
         fragBuilder->codeAppend("\tvec3 distance;\n");
         fragBuilder->codeAppend("\tdistance.y = texColor.r;\n");
         // red is distance to left offset
         fragBuilder->codeAppend("\tvec2 uv_adjusted = uv - offset;\n");
         fragBuilder->codeAppend("\ttexColor = ");
-        fragBuilder->appendTextureLookup(args.fSamplers[0], "uv_adjusted", kVec2f_GrSLType);
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv_adjusted", kVec2f_GrSLType);
         fragBuilder->codeAppend(";\n");
         fragBuilder->codeAppend("\tdistance.x = texColor.r;\n");
         // blue is distance to right offset
         fragBuilder->codeAppend("\tuv_adjusted = uv + offset;\n");
         fragBuilder->codeAppend("\ttexColor = ");
-        fragBuilder->appendTextureLookup(args.fSamplers[0], "uv_adjusted", kVec2f_GrSLType);
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv_adjusted", kVec2f_GrSLType);
         fragBuilder->codeAppend(";\n");
         fragBuilder->codeAppend("\tdistance.z = texColor.r;\n");
 

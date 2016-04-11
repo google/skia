@@ -57,7 +57,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         }
 
         fragBuilder->codeAppendf("vec4 %s = ", dstColor);
-        fragBuilder->appendTextureLookup(args.fSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
         fragBuilder->codeAppend(";");
     }
 

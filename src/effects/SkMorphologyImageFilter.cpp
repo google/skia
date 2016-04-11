@@ -239,7 +239,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     }
     fragBuilder->codeAppendf("\t\tfor (int i = 0; i < %d; i++) {\n", width);
     fragBuilder->codeAppendf("\t\t\t%s = %s(%s, ", args.fOutputColor, func, args.fOutputColor);
-    fragBuilder->appendTextureLookup(args.fSamplers[0], "coord");
+    fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord");
     fragBuilder->codeAppend(");\n");
     // coord.x += pixelSize;
     fragBuilder->codeAppendf("\t\t\tcoord.%s += %s;\n", dir, pixelSizeInc);

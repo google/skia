@@ -203,13 +203,13 @@ public:
                                                    "Xform", &xformUniName);
 
             fragBuilder->codeAppend("vec4 diffuseColor = ");
-            fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0],
+            fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fTexSamplers[0],
                                                 args.fCoords[0].c_str(),
                                                 args.fCoords[0].getType());
             fragBuilder->codeAppend(";");
 
             fragBuilder->codeAppend("vec4 normalColor = ");
-            fragBuilder->appendTextureLookup(args.fSamplers[1],
+            fragBuilder->appendTextureLookup(args.fTexSamplers[1],
                                      args.fCoords[1].c_str(),
                                      args.fCoords[1].getType());
             fragBuilder->codeAppend(";");

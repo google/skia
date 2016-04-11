@@ -65,7 +65,7 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
                              dataName, dataName);
 
     fragBuilder->codeAppendf("float intensity = ");
-    fragBuilder->appendTextureLookup(args.fSamplers[0], "vec2(dist, 0.5)");
+    fragBuilder->appendTextureLookup(args.fTexSamplers[0], "vec2(dist, 0.5)");
     fragBuilder->codeAppend(".a;");
 
     fragBuilder->codeAppendf("%s = src * intensity;\n", args.fOutputColor );

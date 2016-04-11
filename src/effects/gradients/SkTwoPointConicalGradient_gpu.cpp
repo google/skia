@@ -278,7 +278,7 @@ void GLEdge2PtConicalEffect::emitCode(EmitArgs& args) {
                     tName.c_str(),
                     args.fOutputColor,
                     args.fInputColor,
-                    args.fSamplers);
+                    args.fTexSamplers);
     fragBuilder->codeAppend("\t}\n");
 }
 
@@ -545,7 +545,7 @@ void GLFocalOutside2PtConicalEffect::emitCode(EmitArgs& args) {
                     tName.c_str(),
                     args.fOutputColor,
                     args.fInputColor,
-                    args.fSamplers);
+                    args.fTexSamplers);
     fragBuilder->codeAppend("\t}\n");
 }
 
@@ -729,7 +729,7 @@ void GLFocalInside2PtConicalEffect::emitCode(EmitArgs& args) {
                     tName.c_str(),
                     args.fOutputColor,
                     args.fInputColor,
-                    args.fSamplers);
+                    args.fTexSamplers);
 }
 
 void GLFocalInside2PtConicalEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -994,7 +994,7 @@ void GLCircleInside2PtConicalEffect::emitCode(EmitArgs& args) {
                     tName.c_str(),
                     args.fOutputColor,
                     args.fInputColor,
-                    args.fSamplers);
+                    args.fTexSamplers);
 }
 
 void GLCircleInside2PtConicalEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -1245,7 +1245,7 @@ void GLCircleOutside2PtConicalEffect::emitCode(EmitArgs& args) {
                     tName.c_str(),
                     args.fOutputColor,
                     args.fInputColor,
-                    args.fSamplers);
+                    args.fTexSamplers);
     fragBuilder->codeAppend("\t}\n");
 }
 

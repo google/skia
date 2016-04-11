@@ -28,7 +28,7 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #endif
 
@@ -691,7 +691,7 @@ private:
 };
 
 void OutputRectBlurProfileLookup(GrGLSLFPFragmentBuilder* fragBuilder,
-                                 const GrGLSLTextureSampler& sampler,
+                                 const GrGLSLSampler& sampler,
                                  const char *output,
                                  const char *profileSize, const char *loc,
                                  const char *blurred_width,
@@ -761,9 +761,9 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s vec2 wh = smallDims - vec2(center,center);",
                              precisionString.c_str());
 
-    OutputRectBlurProfileLookup(fragBuilder, args.fSamplers[0], "horiz_lookup", profileSizeName,
+    OutputRectBlurProfileLookup(fragBuilder, args.fTexSamplers[0], "horiz_lookup", profileSizeName,
                                 "translatedPos.x", "width", "wh.x");
-    OutputRectBlurProfileLookup(fragBuilder, args.fSamplers[0], "vert_lookup", profileSizeName,
+    OutputRectBlurProfileLookup(fragBuilder, args.fTexSamplers[0], "vert_lookup", profileSizeName,
                                 "translatedPos.y", "height", "wh.y");
 
     fragBuilder->codeAppendf("float final = horiz_lookup * vert_lookup;");
@@ -1120,7 +1120,7 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("vec2 texCoord = translatedFragPos / proxyDims;");
 
     fragBuilder->codeAppendf("%s = ", args.fOutputColor);
-    fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0], "texCoord");
+    fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fTexSamplers[0], "texCoord");
     fragBuilder->codeAppend(";");
 }
 

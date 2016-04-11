@@ -17,7 +17,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         fragBuilder->codeAppendf("%s = ", args.fOutputColor);
         fragBuilder->appendTextureLookupAndModulate(args.fInputColor,
-                                                  args.fSamplers[0],
+                                                  args.fTexSamplers[0],
                                                   args.fCoords[0].c_str(),
                                                   args.fCoords[0].getType());
         fragBuilder->codeAppend(";");

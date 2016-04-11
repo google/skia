@@ -11,7 +11,7 @@
 #include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLSampler.h"
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
@@ -27,7 +27,7 @@ public:
     virtual ~GrGLSLPrimitiveProcessor() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
+    typedef GrGLSLSampler::SamplerArray SamplerArray;
 
     typedef SkSTArray<2, const GrCoordTransform*, true> ProcCoords;
     typedef SkSTArray<8, ProcCoords> TransformsIn;
@@ -42,7 +42,7 @@ public:
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
-                 const TextureSamplerArray& samplers,
+                 const SamplerArray& texSamplers,
                  const TransformsIn& transformsIn,
                  TransformsOut* transformsOut)
             : fVertBuilder(vertBuilder)
@@ -53,7 +53,7 @@ public:
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
-            , fSamplers(samplers)
+            , fTexSamplers(texSamplers)
             , fTransformsIn(transformsIn)
             , fTransformsOut(transformsOut) {}
         GrGLSLVertexBuilder* fVertBuilder;
@@ -64,7 +64,7 @@ public:
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
-        const TextureSamplerArray& fSamplers;
+        const SamplerArray& fTexSamplers;
         const TransformsIn& fTransformsIn;
         TransformsOut* fTransformsOut;
     };

@@ -1,25 +1,25 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef GrGLSLTextureSampler_DEFINED
-#define GrGLSLTextureSampler_DEFINED
+#ifndef GrGLSLSampler_DEFINED
+#define GrGLSLSampler_DEFINED
 
-#include "GrShaderVar.h"
-#include "GrTextureAccess.h"
+#include "GrTypes.h"
+#include "SkTArray.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
-class GrGLSLTextureSampler {
+class GrGLSLSampler {
 public:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef SkTArray<GrGLSLTextureSampler> TextureSamplerArray;
+    typedef SkTArray<GrGLSLSampler> SamplerArray;
 
-    GrGLSLTextureSampler(UniformHandle uniform, const GrTextureAccess& access)
+    GrGLSLSampler(UniformHandle uniform, GrPixelConfig config)
         : fSamplerUniform(uniform)
-        , fConfig(access.getTexture()->config()) {
+        , fConfig(config) {
         SkASSERT(kUnknown_GrPixelConfig != fConfig);
     }
 

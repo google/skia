@@ -1824,7 +1824,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                                   le.domain(),
                                   temp.c_str(),
                                   texCoords,
-                                  args.fSamplers[0]);
+                                  args.fTexSamplers[0]);
             fragBuilder->codeAppendf("m[%d] = %s.a;", index, temp.c_str());
             index++;
         }

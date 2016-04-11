@@ -106,13 +106,13 @@ public:
                                                           kMat44f_GrSLType, kDefault_GrSLPrecision,
                                                           "ColorSpaceMatrix", &colorSpaceMatrix);
             fragBuilder->codeAppendf("%s = vec4(", args.fOutputColor);
-            fragBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+            fragBuilder->appendTextureLookup(args.fTexSamplers[0], args.fCoords[0].c_str(),
                                              args.fCoords[0].getType());
             fragBuilder->codeAppend(".r,");
-            fragBuilder->appendTextureLookup(args.fSamplers[1], args.fCoords[1].c_str(),
+            fragBuilder->appendTextureLookup(args.fTexSamplers[1], args.fCoords[1].c_str(),
                                              args.fCoords[1].getType());
             fragBuilder->codeAppend(".r,");
-            fragBuilder->appendTextureLookup(args.fSamplers[2], args.fCoords[2].c_str(),
+            fragBuilder->appendTextureLookup(args.fTexSamplers[2], args.fCoords[2].c_str(),
                                              args.fCoords[2].getType());
             fragBuilder->codeAppendf(".r, 1.0) * %s;", colorSpaceMatrix);
         }

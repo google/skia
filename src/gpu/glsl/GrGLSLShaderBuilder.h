@@ -15,7 +15,7 @@
 #include <stdarg.h>
 
 class GrGLSLProgramBuilder;
-class GrGLSLTextureSampler;
+class GrGLSLSampler;
 
 /**
   base class for all shaders builders
@@ -27,25 +27,25 @@ public:
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
-        order of the result depends on the GrTextureAccess associated with the GrGLSLTextureSampler.
+        order of the result depends on the GrTextureAccess associated with the GrGLSLSampler.
         */
     void appendTextureLookup(SkString* out,
-                             const GrGLSLTextureSampler&,
+                             const GrGLSLSampler&,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
     /** Version of above that appends the result to the fragment shader code instead.*/
-    void appendTextureLookup(const GrGLSLTextureSampler&,
+    void appendTextureLookup(const GrGLSLSampler&,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType);
 
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
-        always a vec4. modulation and the swizzle specified by GrGLSLTextureSampler must both be
+        always a vec4. modulation and the swizzle specified by GrGLSLSampler must both be
         vec4 or float. If modulation is "" or nullptr it this function acts as though
         appendTextureLookup were called. */
     void appendTextureLookupAndModulate(const char* modulation,
-                                        const GrGLSLTextureSampler&,
+                                        const GrGLSLSampler&,
                                         const char* coordName,
                                         GrSLType coordType = kVec2f_GrSLType);
 

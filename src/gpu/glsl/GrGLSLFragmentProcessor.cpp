@@ -81,12 +81,12 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
         firstSamplerAt += args.fFp.childProcessor(i).numTextures();
     }
     GrGLSLTransformedCoordsArray childCoords;
-    TextureSamplerArray childSamplers;
+    SamplerArray childTexSamplers;
     if (childProc.numTransforms() > 0) {
         childCoords.push_back_n(childProc.numTransforms(), &args.fCoords[firstCoordAt]);
     }
     if (childProc.numTextures() > 0) {
-        childSamplers.push_back_n(childProc.numTextures(), &args.fSamplers[firstSamplerAt]);
+        childTexSamplers.push_back_n(childProc.numTextures(), &args.fTexSamplers[firstSamplerAt]);
     }
 
     // emit the code for the child in its own scope
@@ -100,7 +100,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                        outputColor,
                        inputColor,
                        childCoords,
-                       childSamplers);
+                       childTexSamplers);
     this->childProcessor(childIndex)->emitCode(childArgs);
     fragBuilder->codeAppend("}\n");
 

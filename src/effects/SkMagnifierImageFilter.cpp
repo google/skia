@@ -155,7 +155,7 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
 
     fragBuilder->codeAppend("\t\tvec2 mix_coord = mix(coord, zoom_coord, weight);\n");
     fragBuilder->codeAppend("\t\tvec4 output_color = ");
-    fragBuilder->appendTextureLookup(args.fSamplers[0], "mix_coord");
+    fragBuilder->appendTextureLookup(args.fTexSamplers[0], "mix_coord");
     fragBuilder->codeAppend(";\n");
 
     fragBuilder->codeAppendf("\t\t%s = output_color;", args.fOutputColor);

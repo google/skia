@@ -82,7 +82,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                                      component, bounds, component, bounds);
         }
         fragBuilder->codeAppendf("\t\t%s += ", args.fOutputColor);
-        fragBuilder->appendTextureLookup(args.fSamplers[0], "coord");
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord");
         fragBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
         if (ce.useBounds()) {
             fragBuilder->codeAppend("}");

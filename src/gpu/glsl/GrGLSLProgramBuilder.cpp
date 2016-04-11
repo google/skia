@@ -97,8 +97,8 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor = proc.createGLSLInstance(*this->glslCaps());
 
-    SkSTArray<4, GrGLSLTextureSampler> samplers(proc.numTextures());
-    this->emitSamplers(proc, &samplers);
+    SkSTArray<4, GrGLSLSampler> texSamplers(proc.numTextures());
+    this->emitSamplers(proc, &texSamplers);
 
     GrGLSLGeometryProcessor::EmitArgs args(&fVS,
                                            &fFS,
@@ -108,7 +108,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            proc,
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
-                                           samplers,
+                                           texSamplers,
                                            fCoordTransforms,
                                            &fOutCoords);
     fGeometryProcessor->emitCode(args);
@@ -148,8 +148,8 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
 
     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
 
-    SkSTArray<4, GrGLSLTextureSampler> samplers(fp.numTextures());
-    this->emitSamplers(fp, &samplers);
+    SkSTArray<4, GrGLSLSampler> texSamplers(fp.numTextures());
+    this->emitSamplers(fp, &texSamplers);
 
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
@@ -158,7 +158,7 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
                                            output->c_str(),
                                            input.isOnes() ? nullptr : input.c_str(),
                                            fOutCoords[index],
-                                           samplers);
+                                           texSamplers);
     fragProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
@@ -193,8 +193,8 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     openBrace.printf("{ // Xfer Processor: %s\n", xp.name());
     fFS.codeAppend(openBrace.c_str());
 
-    SkSTArray<4, GrGLSLTextureSampler> samplers(xp.numTextures());
-    this->emitSamplers(xp, &samplers);
+    SkSTArray<4, GrGLSLSampler> texSamplers(xp.numTextures());
+    this->emitSamplers(xp, &texSamplers);
 
     bool usePLSDstRead = (plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState);
     GrGLSLXferProcessor::EmitArgs args(&fFS,
@@ -204,7 +204,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                        ignoresCoverage ? nullptr : coverageIn.c_str(),
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
-                                       samplers,
+                                       texSamplers,
                                        usePLSDstRead);
     fXferProcessor->emitCode(args);
 
@@ -215,7 +215,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
 }
 
 void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
-                                        GrGLSLTextureSampler::TextureSamplerArray* outSamplers) {
+                                        GrGLSLSampler::SamplerArray* outTexSamplers) {
     int numTextures = processor.numTextures();
     UniformHandle* localSamplerUniforms = fSamplerUniforms.push_back_n(numTextures);
     SkString name;
@@ -248,7 +248,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
                                                                      samplerType,
                                                                      precision,
                                                                      name.c_str());
-        outSamplers->emplace_back(localSamplerUniforms[t], access);
+        outTexSamplers->emplace_back(localSamplerUniforms[t], access.getTexture()->config());
     }
 }
 
