@@ -44,6 +44,9 @@ static const char configHelp[] =
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     " hwui"
 #endif
+#ifdef SK_VULKAN
+    " vk"
+#endif
     " or use extended form 'backend(option=value,...)'.\n";
 
 static const char configExtendedHelp[] =
@@ -71,6 +74,9 @@ static const char configExtendedHelp[] =
 #endif
 #if SK_MESA
     "\t\tmesa\t\t\tUse MESA.\n"
+#endif
+#ifdef SK_VULKAN
+    "\t\tvulkan\t\t\tUse Vulkan.\n"
 #endif
     "\tcolor\ttype: string\tdefault: 8888.\n"
     "\t    Select framebuffer color format.\n"
@@ -117,6 +123,9 @@ static const char configExtendedHelp[] =
 #if SK_MESA
     "\tmesa      \t= gpu(api=mesa)\n"
 #endif
+#ifdef SK_VULKAN
+     "\vk        \t= gpu(api=vulkan)\n"
+#endif
 #endif
     ;
 
@@ -159,6 +168,10 @@ static const struct {
 #if SK_MESA
     , { "mesa", "gpu", "api=mesa" }
 #endif
+#ifdef SK_VULKAN
+    , { "vk", "gpu", "api=vulkan" }
+#endif
+
 #else
     { "", "", "" }
 #endif
@@ -248,6 +261,12 @@ static bool parse_option_gpu_api(const SkString& value,
 #if SK_MESA
     if (value.equals("mesa")) {
         *outContextType = GrContextFactory::kMESA_ContextType;
+        return true;
+    }
+#endif
+#ifdef SK_VULKAN
+    if (value.equals("vulkan")) {
+        *outContextType = GrContextFactory::kVulkan_ContextType;
         return true;
     }
 #endif

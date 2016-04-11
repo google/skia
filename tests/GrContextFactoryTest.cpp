@@ -78,7 +78,9 @@ DEF_GPUTEST(GrContextFactory_abandon, reporter, /*factory*/) {
         if (!info1.fGrContext) {
             continue;
         }
-        REPORTER_ASSERT(reporter, info1.fGLContext);
+        if (GrContextFactory::ContextTypeBackend(ctxType) == kOpenGL_GrBackend) {
+            REPORTER_ASSERT(reporter, info1.fGLContext);
+        }
          // Ref for comparison. The API does not explicitly say that this stays alive.
         info1.fGrContext->ref();
         testFactory.abandonContexts();
@@ -86,7 +88,9 @@ DEF_GPUTEST(GrContextFactory_abandon, reporter, /*factory*/) {
         // Test that we get different context after abandon.
         ContextInfo info2 = testFactory.getContextInfo(ctxType);
         REPORTER_ASSERT(reporter, info2.fGrContext);
-        REPORTER_ASSERT(reporter, info2.fGLContext);
+        if (GrContextFactory::ContextTypeBackend(ctxType) == kOpenGL_GrBackend) {
+            REPORTER_ASSERT(reporter, info2.fGLContext);
+        }
         REPORTER_ASSERT(reporter, info1.fGrContext != info2.fGrContext);
         // fGLContext should also change, but it also could get the same address.
 

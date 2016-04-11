@@ -33,7 +33,6 @@ VulkanTestContext::VulkanTestContext(void* platformData, int msaaSampleCount)
 void VulkanTestContext::initializeContext(void* platformData) {
 
     fBackendContext.reset(GrVkBackendContext::Create());
-    fBackendContext->ref();
 
     fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext)fBackendContext.get());
 

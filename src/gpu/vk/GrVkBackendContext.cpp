@@ -109,7 +109,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     err = vkCreateInstance(&instance_create, nullptr, &inst);
     if (err < 0) {
         SkDebugf("vkCreateInstance failed: %d\n", err);
-        SkFAIL("failing");
+        return nullptr;
     }
 
     uint32_t gpuCount;
@@ -117,7 +117,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
         vkDestroyInstance(inst, nullptr);
-        SkFAIL("failing");
+        return nullptr;
     }
     SkASSERT(gpuCount > 0);
     // Just returning the first physical device instead of getting the whole array.
@@ -127,7 +127,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
         vkDestroyInstance(inst, nullptr);
-        SkFAIL("failing");
+        return nullptr;
     }
 
     // query to get the initial queue props size

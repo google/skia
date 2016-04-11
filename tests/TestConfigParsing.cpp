@@ -77,7 +77,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
         "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf",
         "skp", "svg", "xps", "angle", "angle-gl", "commandbuffer", "mesa", "hwui",
-        "gpuf16", "gpusrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4"
+        "gpuf16", "gpusrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk"
     });
 
     SkCommandLineConfigArray configs;
@@ -161,6 +161,9 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
                               kSRGB_SkColorProfileType);
     REPORTER_ASSERT(reporter, configs[31]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[31]->asConfigGpu()->getSamples() == 4);
+#ifdef SK_VULKAN
+    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu());
+#endif
 #endif
 }
 
@@ -173,7 +176,8 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
         "gpu(dit=true,api=commandbuffer)",
         "gpu()",
         "gpu(api=gles)",
-        "gpu(api=gl)"
+        "gpu(api=gl)",
+        "gpu(api=vulkan)",
     });
 
     SkCommandLineConfigArray configs;
@@ -229,6 +233,13 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getSamples() == 0);
+#ifdef SK_VULKAN
+    REPORTER_ASSERT(reporter, configs[8]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kVulkan_ContextType);
+    REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseNVPR());
+    REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getSamples() == 0);
+#endif
 #endif
 }
 

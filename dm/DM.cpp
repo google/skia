@@ -1347,7 +1347,6 @@ int dm_main() {
     }
     gather_sinks();
     gather_tests();
-
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
     info("%d srcs * %d sinks + %d tests == %d tasks",
          gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
@@ -1420,6 +1419,9 @@ namespace skiatest {
 bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return kOpenGL_GrBackend == GrContextFactory::ContextTypeBackend(type);
 }
+bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return kVulkan_GrBackend == GrContextFactory::ContextTypeBackend(type);
+}
 bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
 }
@@ -1428,6 +1430,7 @@ bool IsNullGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
 }
 #else
 bool IsGLContextType(int) { return false; }
+bool IsVulkanContextType(int) { return false; }
 bool IsRenderingGLContextType(int) { return false; }
 bool IsNullGLContextType(int) { return false; }
 #endif

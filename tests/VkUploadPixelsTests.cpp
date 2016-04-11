@@ -133,28 +133,15 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     }
 }
 
-DEF_GPUTEST(VkUploadPixelsTests, reporter, factory) {
-    GrContextOptions opts;
-    opts.fSuppressPrints = true;
-    GrContextFactory debugFactory(opts);
-    for (int type = 0; type < GrContextFactory::kContextTypeCnt; ++type) {
-        if (static_cast<GrContextFactory::ContextType>(type) !=
-            GrContextFactory::kNativeGL_ContextType) {
-            continue;
-        }
-        GrContext* context = debugFactory.get(static_cast<GrContextFactory::ContextType>(type));
-        if (context) {
-            basic_texture_test(reporter, context, kRGBA_8888_GrPixelConfig, false, false);
-            basic_texture_test(reporter, context, kRGBA_8888_GrPixelConfig, true, false);
-            basic_texture_test(reporter, context, kRGBA_8888_GrPixelConfig, false, true);
-            basic_texture_test(reporter, context, kRGBA_8888_GrPixelConfig, true, true);
-            basic_texture_test(reporter, context, kBGRA_8888_GrPixelConfig, false, false);
-            basic_texture_test(reporter, context, kBGRA_8888_GrPixelConfig, true, false);
-            basic_texture_test(reporter, context, kBGRA_8888_GrPixelConfig, false, true);
-            basic_texture_test(reporter, context, kBGRA_8888_GrPixelConfig, true, true);
-        }
-
-    }
+DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkUploadPixelsTests, reporter, ctxInfo) {
+    basic_texture_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig, false, false);
+    basic_texture_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig, true, false);
+    basic_texture_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig, false, true);
+    basic_texture_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig, true, true);
+    basic_texture_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig, false, false);
+    basic_texture_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig, true, false);
+    basic_texture_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig, false, true);
+    basic_texture_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig, true, true);
 }
 
 #endif

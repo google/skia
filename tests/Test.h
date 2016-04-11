@@ -88,6 +88,7 @@ typedef void GrContextTestFn(Reporter*, const sk_gpu_test::ContextInfo&);
 typedef bool GrContextTypeFilterFn(GrContextFactoryContextType);
 
 extern bool IsGLContextType(GrContextFactoryContextType);
+extern bool IsVulkanContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLContextType(GrContextFactoryContextType);
 extern bool IsNullGLContextType(GrContextFactoryContextType);
 
@@ -173,6 +174,8 @@ private:
         DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsRenderingGLContextType, reporter, context_info)
 #define DEF_GPUTEST_FOR_NULLGL_CONTEXT(name, reporter, context_info)                        \
         DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsNullGLContextType, reporter, context_info)
+#define DEF_GPUTEST_FOR_VULKAN_CONTEXT(name, reporter, context_info)                        \
+        DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsVulkanContextType, reporter, context_info)
 
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                             \
     do {                                                                      \

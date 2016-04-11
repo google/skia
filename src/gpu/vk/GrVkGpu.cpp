@@ -63,10 +63,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
 
 GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
                        GrContext* context) {
-    SkAutoTUnref<const GrVkBackendContext> vkBackendContext(
-                                       reinterpret_cast<const GrVkBackendContext*>(backendContext));
+    const GrVkBackendContext* vkBackendContext =
+        reinterpret_cast<const GrVkBackendContext*>(backendContext);
     if (!vkBackendContext) {
-        vkBackendContext.reset(GrVkBackendContext::Create());
+        vkBackendContext = GrVkBackendContext::Create();
         if (!vkBackendContext) {
             return nullptr;
         }

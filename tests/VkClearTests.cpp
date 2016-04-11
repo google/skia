@@ -59,7 +59,7 @@ void basic_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelC
     surfDesc.fHeight = 5;
     surfDesc.fConfig = config;
     surfDesc.fSampleCnt = 0;
-    GrTexture* tex = gpu->createTexture(surfDesc, SkBudgeted::kNo, nullptr, 0);
+    GrTexture* tex = gpu->createTexture(surfDesc, SkBudgeted::kNo);
     SkASSERT(tex);
     SkASSERT(tex->asRenderTarget());
     SkIRect rect = SkIRect::MakeWH(5, 5);
@@ -114,7 +114,7 @@ void sub_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelCon
     surfDesc.fHeight = height;
     surfDesc.fConfig = config;
     surfDesc.fSampleCnt = 0;
-    GrTexture* tex = gpu->createTexture(surfDesc, SkBudgeted::kNo, nullptr, 0);
+    GrTexture* tex = gpu->createTexture(surfDesc, SkBudgeted::kNo);
     SkASSERT(tex);
     SkASSERT(tex->asRenderTarget());
 
@@ -196,24 +196,11 @@ void sub_clear_test(skiatest::Reporter* reporter, GrContext* context, GrPixelCon
                                                                      subHeight));
 }
 
-DEF_GPUTEST(VkClearTests, reporter, factory) {
-    GrContextOptions opts;
-    opts.fSuppressPrints = true;
-    GrContextFactory debugFactory(opts);
-    for (int type = 0; type < GrContextFactory::kContextTypeCnt; ++type) {
-        if (static_cast<GrContextFactory::ContextType>(type) !=
-            GrContextFactory::kNativeGL_ContextType) {
-            continue;
-        }
-        GrContext* context = debugFactory.get(static_cast<GrContextFactory::ContextType>(type));
-        if (context) {
-            basic_clear_test(reporter, context, kRGBA_8888_GrPixelConfig);
-            basic_clear_test(reporter, context, kBGRA_8888_GrPixelConfig);
-            sub_clear_test(reporter, context, kRGBA_8888_GrPixelConfig);
-            sub_clear_test(reporter, context, kBGRA_8888_GrPixelConfig);
-        }
-
-    }
+DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkClearTests, reporter, ctxInfo) {
+    basic_clear_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig);
+    basic_clear_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig);
+    sub_clear_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig);
+    sub_clear_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig);
 }
 
 #endif
