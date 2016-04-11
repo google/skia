@@ -9,7 +9,6 @@
 #define SkDisplacementMapEffect_DEFINED
 
 #include "SkImageFilter.h"
-#include "SkBitmap.h"
 
 class SK_API SkDisplacementMapEffect : public SkImageFilter {
 public:
@@ -31,26 +30,18 @@ public:
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDisplacementMapEffect)
 
-    bool onFilterImageDeprecated(Proxy* proxy,
-                                 const SkBitmap& src,
-                                 const Context& ctx,
-                                 SkBitmap* dst,
-                                 SkIPoint* offset) const override;
     SkRect computeFastBounds(const SkRect& src) const override;
 
     virtual SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&,
                                    MapDirection) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
 
-#if SK_SUPPORT_GPU
-    bool canFilterImageGPU() const override { return true; }
-    bool filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                SkBitmap* result, SkIPoint* offset) const override;
-#endif
-
     SK_TO_STRING_OVERRIDE()
 
 protected:
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+
     SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
                             ChannelSelectorType yChannelSelector,
                             SkScalar scale, SkImageFilter* inputs[2],
