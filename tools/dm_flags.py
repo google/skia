@@ -164,7 +164,6 @@ def get_args(bot):
                'c_gms',
                'colortype',
                'colortype_xfermodes',
-               'colorwheelnative',
                'drawfilter',
                'fontmgr_bounds_0.75_0',
                'fontmgr_bounds_1_-0.25',
