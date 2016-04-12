@@ -1304,6 +1304,20 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
     return false;
 }
 
+bool GrVkGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const {
+    // Currently we don't support msaa
+    if (src->asRenderTarget() && src->asRenderTarget()->numColorSamples() > 1) {
+        return false;
+    }
+
+    // This will support copying the dst as CopyImage since all of our surfaces require transferSrc
+    // and transferDst usage flags in Vulkan.
+    desc->fOrigin = src->origin();
+    desc->fConfig = src->config();
+    desc->fFlags = kNone_GrSurfaceFlags;
+    return true;
+}
+
 void GrVkGpu::onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                     int* effectiveSampleCnt, SkAutoTDeleteArray<SkPoint>*) {
     // TODO: stub.

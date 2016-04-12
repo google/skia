@@ -75,9 +75,7 @@ public:
                                int* effectiveSampleCnt,
                                SkAutoTDeleteArray<SkPoint>*);
 
-    bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override {
-        return false;
-    }
+    bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override;
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
