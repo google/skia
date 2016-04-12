@@ -1,0 +1,6 @@
+build obj/alltargets.actions_depends.stamp: stamp $
+    obj/gyp/most.actions_depends.stamp obj/gyp/most.actions_depends.stamp
+
+build obj/alltargets.compile_depends.stamp: stamp $
+    obj/gyp/most.compile_depends.stamp obj/gyp/most.compile_depends.stamp
+

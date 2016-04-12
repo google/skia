@@ -1,0 +1,77 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
+    -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
+    -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DSK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400 -DSK_CAN_USE_DLOPEN=0 $
+    -DNDEBUG -DSK_DEVELOPER=1
+includes = -I../../../../include/effects -I../../../../include/images $
+    -I../../../../include/ports -I../../../../include/private $
+    -I../../../../include/utils -I../../../../include/utils/win $
+    -I../../../../src/core -I../../../../src/lazy -I../../../../src/ports $
+    -I../../../../src/sfnt -I../../../../src/utils -I../../../../include/c $
+    -I../../../../include/config -I../../../../include/core $
+    -I../../../../include/pathops -I../../../../include/pipe $
+    -I../../../../third_party/freetype/include_overrides $
+    -I../../../../third_party/externals/freetype/include $
+    -I../../../../platform_tools/android/third_party/externals/expat/lib
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
+    -fuse-ld=gold -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/src/fonts/ports.SkFontMgr_indirect.o: cxx $
+    ../../../../src/fonts/SkFontMgr_indirect.cpp
+build obj/src/fonts/ports.SkRemotableFontMgr.o: cxx $
+    ../../../../src/fonts/SkRemotableFontMgr.cpp
+build obj/src/ports/ports.SkFontMgr_android_factory.o: cxx $
+    ../../../../src/ports/SkFontMgr_android_factory.cpp
+build obj/src/ports/ports.SkGlobalInitialization_default.o: cxx $
+    ../../../../src/ports/SkGlobalInitialization_default.cpp
+build obj/src/ports/ports.SkMemory_malloc.o: cxx $
+    ../../../../src/ports/SkMemory_malloc.cpp
+build obj/src/ports/ports.SkOSFile_posix.o: cxx $
+    ../../../../src/ports/SkOSFile_posix.cpp
+build obj/src/ports/ports.SkOSFile_stdio.o: cxx $
+    ../../../../src/ports/SkOSFile_stdio.cpp
+build obj/src/ports/ports.SkOSLibrary_posix.o: cxx $
+    ../../../../src/ports/SkOSLibrary_posix.cpp
+build obj/src/ports/ports.SkDiscardableMemory_none.o: cxx $
+    ../../../../src/ports/SkDiscardableMemory_none.cpp
+build obj/src/ports/ports.SkTime_Unix.o: cxx $
+    ../../../../src/ports/SkTime_Unix.cpp
+build obj/src/ports/ports.SkTLS_pthread.o: cxx $
+    ../../../../src/ports/SkTLS_pthread.cpp
+build obj/src/ports/ports.SkFontHost_FreeType.o: cxx $
+    ../../../../src/ports/SkFontHost_FreeType.cpp
+build obj/src/ports/ports.SkFontHost_FreeType_common.o: cxx $
+    ../../../../src/ports/SkFontHost_FreeType_common.cpp
+build obj/src/ports/ports.SkFontMgr_android.o: cxx $
+    ../../../../src/ports/SkFontMgr_android.cpp
+build obj/src/ports/ports.SkFontMgr_android_parser.o: cxx $
+    ../../../../src/ports/SkFontMgr_android_parser.cpp
+build obj/src/ports/ports.SkFontMgr_custom.o: cxx $
+    ../../../../src/ports/SkFontMgr_custom.cpp
+build obj/src/ports/ports.SkDebug_android.o: cxx $
+    ../../../../src/ports/SkDebug_android.cpp
+
+build libskia_ports.a: alink obj/src/fonts/ports.SkFontMgr_indirect.o $
+    obj/src/fonts/ports.SkRemotableFontMgr.o $
+    obj/src/ports/ports.SkFontMgr_android_factory.o $
+    obj/src/ports/ports.SkGlobalInitialization_default.o $
+    obj/src/ports/ports.SkMemory_malloc.o $
+    obj/src/ports/ports.SkOSFile_posix.o $
+    obj/src/ports/ports.SkOSFile_stdio.o $
+    obj/src/ports/ports.SkOSLibrary_posix.o $
+    obj/src/ports/ports.SkDiscardableMemory_none.o $
+    obj/src/ports/ports.SkTime_Unix.o obj/src/ports/ports.SkTLS_pthread.o $
+    obj/src/ports/ports.SkFontHost_FreeType.o $
+    obj/src/ports/ports.SkFontHost_FreeType_common.o $
+    obj/src/ports/ports.SkFontMgr_android.o $
+    obj/src/ports/ports.SkFontMgr_android_parser.o $
+    obj/src/ports/ports.SkFontMgr_custom.o $
+    obj/src/ports/ports.SkDebug_android.o || libfreetype_static.a

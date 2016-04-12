@@ -1,0 +1,121 @@
+build obj/gyp/skiaserve.actions_depends.stamp: stamp $
+    obj/gyp/libandroid_output.a skia_launcher obj/gyp/libflags.a $
+    libskia_skgputest.a obj/gyp/libjsoncpp.a libpng_static.a $
+    obj/gyp/libmicrohttpd.a lib/libskia_android.so.TOC $
+    obj/gyp/libcrash_handler.a obj/gyp/libproc_stats.a $
+    obj/gyp/libresources.a obj/gyp/liburl_data_manager.a libpng_static.a $
+    obj/gyp/libzlib.a
+
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 -DQT_NO_KEYWORDS $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_FORCE_DISTANCE_FIELD_TEXT=0 -DSK_CODEC_DECODES_RAW $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DNDEBUG -DSK_DEVELOPER=1
+includes = -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/core $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/gpu $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/ports $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/tools/debugger $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/tools/json $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/tools/gpu $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/tools/flags $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/jsoncpp/include $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/libpng $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/libpng $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/zlib $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/microhttpd/src/include $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/c $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/config $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/core $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/pathops $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/codec $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/android $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/effects $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/client/android $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/images $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/ports $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/sfnt $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/utils $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/utils $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/gpu $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/tools $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/private
+cflags = -fPIC -msse2 -mfpmath=sse -g -fno-exceptions -fstrict-aliasing $
+    -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare $
+    -Wno-unused-parameter -m32 -Werror -fuse-ld=gold -mssse3 -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/tools/debugger/skiaserve.SkDrawCommand.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/debugger/SkDrawCommand.cpp
+build obj/tools/debugger/skiaserve.SkDebugCanvas.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/debugger/SkDebugCanvas.cpp
+build obj/tools/debugger/skiaserve.SkObjectParser.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/debugger/SkObjectParser.cpp
+build obj/tools/debugger/skiaserve.SkOverdrawMode.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/debugger/SkOverdrawMode.cpp
+build obj/tools/skiaserve/skiaserve.Request.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/Request.cpp
+build obj/tools/skiaserve/skiaserve.Response.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/Response.cpp
+build obj/tools/skiaserve/skiaserve.skiaserve.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/skiaserve.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.BatchBoundsHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/BatchBoundsHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.BatchesHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/BatchesHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.BreakHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/BreakHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.ClipAlphaHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/ClipAlphaHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.CmdHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/CmdHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.DataHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/DataHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.DownloadHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/DownloadHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.EnableGPUHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/EnableGPUHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.ImgHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/ImgHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.InfoHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/InfoHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.PostHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/PostHandler.cpp
+build obj/tools/skiaserve/urlhandlers/skiaserve.RootHandler.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/skiaserve/urlhandlers/RootHandler.cpp
+
+ldflags = -rdynamic -m32
+libs = -llog -lGLESv2 -lEGL
+build lib/libskiaserve.so lib/libskiaserve.so.TOC: solink $
+    obj/tools/debugger/skiaserve.SkDrawCommand.o $
+    obj/tools/debugger/skiaserve.SkDebugCanvas.o $
+    obj/tools/debugger/skiaserve.SkObjectParser.o $
+    obj/tools/debugger/skiaserve.SkOverdrawMode.o $
+    obj/tools/skiaserve/skiaserve.Request.o $
+    obj/tools/skiaserve/skiaserve.Response.o $
+    obj/tools/skiaserve/skiaserve.skiaserve.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.BatchBoundsHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.BatchesHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.BreakHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.ClipAlphaHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.CmdHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.DataHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.DownloadHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.EnableGPUHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.ImgHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.InfoHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.PostHandler.o $
+    obj/tools/skiaserve/urlhandlers/skiaserve.RootHandler.o $
+    obj/gyp/libandroid_output.a obj/gyp/libflags.a libskia_skgputest.a $
+    obj/gyp/libjsoncpp.a obj/gyp/libmicrohttpd.a obj/gyp/libcrash_handler.a $
+    obj/gyp/libproc_stats.a obj/gyp/libresources.a $
+    obj/gyp/liburl_data_manager.a libpng_static.a obj/gyp/libzlib.a | $
+    lib/libskia_android.so.TOC libpng_static.a skia_launcher || $
+    obj/gyp/skiaserve.actions_depends.stamp
+  ld = $ldxx
+  soname = libskiaserve.so
+  lib = lib/libskiaserve.so
+  link_file_list = lib/libskiaserve.so.rsp
+  solibs = lib/libskia_android.so

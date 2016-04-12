@@ -1,0 +1,48 @@
+build obj/gyp/pinspect.actions_depends.stamp: stamp $
+    obj/gyp/libandroid_output.a skia_launcher obj/gyp/libflags.a $
+    lib/libskia_android.so.TOC libskia_skgputest.a
+
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 -DQT_NO_KEYWORDS $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_FORCE_DISTANCE_FIELD_TEXT=0 -DSK_CODEC_DECODES_RAW $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DNDEBUG -DSK_DEVELOPER=1
+includes = $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/tools/gpu $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/tools/flags $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/c $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/config $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/core $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/pathops $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/codec $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/android $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/effects $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/client/android $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/images $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/ports $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/sfnt $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/utils $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/utils $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/gpu
+cflags = -fPIC -msse2 -mfpmath=sse -g -fno-exceptions -fstrict-aliasing $
+    -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare $
+    -Wno-unused-parameter -m32 -Werror -fuse-ld=gold -mssse3 -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/tools/pinspect.pinspect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/tools/pinspect.cpp
+
+ldflags = -rdynamic -m32
+libs = -llog -lGLESv2 -lEGL
+build lib/libpinspect.so lib/libpinspect.so.TOC: solink $
+    obj/tools/pinspect.pinspect.o obj/gyp/libandroid_output.a $
+    obj/gyp/libflags.a libskia_skgputest.a | lib/libskia_android.so.TOC $
+    skia_launcher || obj/gyp/pinspect.actions_depends.stamp
+  ld = $ldxx
+  soname = libpinspect.so
+  lib = lib/libpinspect.so
+  link_file_list = lib/libpinspect.so.rsp
+  solibs = lib/libskia_android.so
