@@ -16,7 +16,7 @@
 // aligned to 16 bytes (i.e. has mask of 0xF).
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
     SkASSERT(GrSLTypeIsFloatType(type));
-    static const uint32_t kAlignments[kGrSLTypeCount] = {
+    static const uint32_t kAlignmentMask[] = {
         0x0, // kVoid_GrSLType, should never return this
         0x3, // kFloat_GrSLType
         0x7, // kVec2f_GrSLType
@@ -27,6 +27,11 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         0xF, // kMat44f_GrSLType
         0x0, // Sampler2D_GrSLType, should never return this
         0x0, // SamplerExternal_GrSLType, should never return this
+        0x0, // Sampler2DRect_GrSLType, should never return this
+        0x0, // SamplerBuffer_GrSLType, should never return this
+        0x0, // kBool_GrSLType
+        0x7, // kInt_GrSLType
+        0x7, // kUint_GrSLType
     };
     GR_STATIC_ASSERT(0 == kVoid_GrSLType);
     GR_STATIC_ASSERT(1 == kFloat_GrSLType);
@@ -38,8 +43,13 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(8 == kSampler2D_GrSLType);
     GR_STATIC_ASSERT(9 == kSamplerExternal_GrSLType);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAlignments) == kGrSLTypeCount);
-    return kAlignments[type];
+    GR_STATIC_ASSERT(10 == kSampler2DRect_GrSLType);
+    GR_STATIC_ASSERT(11 == kSamplerBuffer_GrSLType);
+    GR_STATIC_ASSERT(12 == kBool_GrSLType);
+    GR_STATIC_ASSERT(13 == kInt_GrSLType);
+    GR_STATIC_ASSERT(14 == kUint_GrSLType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAlignmentMask) == kGrSLTypeCount);
+    return kAlignmentMask[type];
 }
 
 /** Returns the size in bytes taken up in vulkanbuffers for floating point GrSLTypes.
@@ -59,9 +69,10 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         0,                        // kSampler2D_GrSLType
         0,                        // kSamplerExternal_GrSLType
         0,                        // kSampler2DRect_GrSLType
-        0,                        // kBool_GrSLType
-        0,                        // kInt_GrSLType
-        0,                        // kUint_GrSLType
+        0,                        // kSamplerBuffer_GrSLType
+        1,                        // kBool_GrSLType
+        4,                        // kInt_GrSLType
+        4                         // kUint_GrSLType
     };
     return kSizes[type];
 
@@ -76,9 +87,10 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     GR_STATIC_ASSERT(8 == kSampler2D_GrSLType);
     GR_STATIC_ASSERT(9 == kSamplerExternal_GrSLType);
     GR_STATIC_ASSERT(10 == kSampler2DRect_GrSLType);
-    GR_STATIC_ASSERT(11 == kBool_GrSLType);
-    GR_STATIC_ASSERT(12 == kInt_GrSLType);
-    GR_STATIC_ASSERT(13 == kUint_GrSLType);
+    GR_STATIC_ASSERT(11 == kSamplerBuffer_GrSLType);
+    GR_STATIC_ASSERT(12 == kBool_GrSLType);
+    GR_STATIC_ASSERT(13 == kInt_GrSLType);
+    GR_STATIC_ASSERT(14 == kUint_GrSLType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kSizes) == kGrSLTypeCount);
 }
 
