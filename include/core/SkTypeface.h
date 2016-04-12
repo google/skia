@@ -14,8 +14,6 @@
 #include "SkRect.h"
 #include "SkString.h"
 
-#define SK_SUPPORT_NEW_ONCREATESCALERCONTEXT
-
 class SkDescriptor;
 class SkFontData;
 class SkFontDescriptor;
