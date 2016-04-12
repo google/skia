@@ -1,0 +1,194 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 -DQT_NO_KEYWORDS $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_FORCE_DISTANCE_FIELD_TEXT=0 -DSK_CODEC_DECODES_RAW $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DNDEBUG -DSK_DEVELOPER=1
+includes = $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/effects $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/client/android $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/private $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/opts $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/core $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/gpu $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/gpu $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/c $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/config $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/core $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/pathops $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/images $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/include/utils $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/src/utils
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter -m64 $
+    -Werror -fuse-ld=gold -mssse3 -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/src/effects/effects.GrCircleBlurFragmentProcessor.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/GrCircleBlurFragmentProcessor.cpp
+build obj/src/effects/effects.Sk1DPathEffect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/Sk1DPathEffect.cpp
+build obj/src/effects/effects.Sk2DPathEffect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/Sk2DPathEffect.cpp
+build obj/src/effects/effects.SkAlphaThresholdFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkAlphaThresholdFilter.cpp
+build obj/src/effects/effects.SkArcToPathEffect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkArcToPathEffect.cpp
+build obj/src/effects/effects.SkArithmeticMode.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkArithmeticMode.cpp
+build obj/src/effects/effects.SkArithmeticMode_gpu.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkArithmeticMode_gpu.cpp
+build obj/src/effects/effects.SkBlurDrawLooper.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkBlurDrawLooper.cpp
+build obj/src/effects/effects.SkBlurMask.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkBlurMask.cpp
+build obj/src/effects/effects.SkBlurImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkBlurImageFilter.cpp
+build obj/src/effects/effects.SkBlurMaskFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkBlurMaskFilter.cpp
+build obj/src/effects/effects.SkColorCubeFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkColorCubeFilter.cpp
+build obj/src/effects/effects.SkColorFilterImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkColorFilterImageFilter.cpp
+build obj/src/effects/effects.SkColorMatrix.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkColorMatrix.cpp
+build obj/src/effects/effects.SkColorMatrixFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkColorMatrixFilter.cpp
+build obj/src/effects/effects.SkComposeImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkComposeImageFilter.cpp
+build obj/src/effects/effects.SkCornerPathEffect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkCornerPathEffect.cpp
+build obj/src/effects/effects.SkDashPathEffect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkDashPathEffect.cpp
+build obj/src/effects/effects.SkDiscretePathEffect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkDiscretePathEffect.cpp
+build obj/src/effects/effects.SkDisplacementMapEffect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkDisplacementMapEffect.cpp
+build obj/src/effects/effects.SkDropShadowImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkDropShadowImageFilter.cpp
+build obj/src/effects/effects.SkEmbossMask.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkEmbossMask.cpp
+build obj/src/effects/effects.SkEmbossMaskFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkEmbossMaskFilter.cpp
+build obj/src/effects/effects.SkImageSource.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkImageSource.cpp
+build obj/src/effects/effects.SkGpuBlurUtils.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkGpuBlurUtils.cpp
+build obj/src/effects/effects.SkLayerDrawLooper.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkLayerDrawLooper.cpp
+build obj/src/effects/effects.SkLayerRasterizer.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkLayerRasterizer.cpp
+build obj/src/effects/effects.SkLightingImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkLightingImageFilter.cpp
+build obj/src/effects/effects.SkLumaColorFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkLumaColorFilter.cpp
+build obj/src/effects/effects.SkMagnifierImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkMagnifierImageFilter.cpp
+build obj/src/effects/effects.SkMatrixConvolutionImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkMatrixConvolutionImageFilter.cpp
+build obj/src/effects/effects.SkMergeImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkMergeImageFilter.cpp
+build obj/src/effects/effects.SkMorphologyImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkMorphologyImageFilter.cpp
+build obj/src/effects/effects.SkOffsetImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkOffsetImageFilter.cpp
+build obj/src/effects/effects.SkPackBits.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkPackBits.cpp
+build obj/src/effects/effects.SkPaintFlagsDrawFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkPaintFlagsDrawFilter.cpp
+build obj/src/effects/effects.SkPaintImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkPaintImageFilter.cpp
+build obj/src/effects/effects.SkPerlinNoiseShader.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkPerlinNoiseShader.cpp
+build obj/src/effects/effects.SkPictureImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkPictureImageFilter.cpp
+build obj/src/effects/effects.SkTableColorFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkTableColorFilter.cpp
+build obj/src/effects/effects.SkTableMaskFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkTableMaskFilter.cpp
+build obj/src/effects/effects.SkTestImageFilters.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkTestImageFilters.cpp
+build obj/src/effects/effects.SkTileImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkTileImageFilter.cpp
+build obj/src/effects/effects.SkXfermodeImageFilter.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/SkXfermodeImageFilter.cpp
+build obj/src/effects/gradients/effects.Sk4fGradientBase.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/Sk4fGradientBase.cpp
+build obj/src/effects/gradients/effects.Sk4fLinearGradient.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/Sk4fLinearGradient.cpp
+build obj/src/effects/gradients/effects.SkClampRange.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/SkClampRange.cpp
+build obj/src/effects/gradients/effects.SkGradientBitmapCache.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/SkGradientBitmapCache.cpp
+build obj/src/effects/gradients/effects.SkGradientShader.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/SkGradientShader.cpp
+build obj/src/effects/gradients/effects.SkLinearGradient.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/SkLinearGradient.cpp
+build obj/src/effects/gradients/effects.SkRadialGradient.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/SkRadialGradient.cpp
+build obj/src/effects/gradients/effects.SkTwoPointConicalGradient.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/SkTwoPointConicalGradient.cpp
+build obj/src/effects/gradients/effects.SkTwoPointConicalGradient_gpu.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp
+build obj/src/effects/gradients/effects.SkSweepGradient.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/src/effects/gradients/SkSweepGradient.cpp
+
+build libskia_effects.a: alink $
+    obj/src/effects/effects.GrCircleBlurFragmentProcessor.o $
+    obj/src/effects/effects.Sk1DPathEffect.o $
+    obj/src/effects/effects.Sk2DPathEffect.o $
+    obj/src/effects/effects.SkAlphaThresholdFilter.o $
+    obj/src/effects/effects.SkArcToPathEffect.o $
+    obj/src/effects/effects.SkArithmeticMode.o $
+    obj/src/effects/effects.SkArithmeticMode_gpu.o $
+    obj/src/effects/effects.SkBlurDrawLooper.o $
+    obj/src/effects/effects.SkBlurMask.o $
+    obj/src/effects/effects.SkBlurImageFilter.o $
+    obj/src/effects/effects.SkBlurMaskFilter.o $
+    obj/src/effects/effects.SkColorCubeFilter.o $
+    obj/src/effects/effects.SkColorFilterImageFilter.o $
+    obj/src/effects/effects.SkColorMatrix.o $
+    obj/src/effects/effects.SkColorMatrixFilter.o $
+    obj/src/effects/effects.SkComposeImageFilter.o $
+    obj/src/effects/effects.SkCornerPathEffect.o $
+    obj/src/effects/effects.SkDashPathEffect.o $
+    obj/src/effects/effects.SkDiscretePathEffect.o $
+    obj/src/effects/effects.SkDisplacementMapEffect.o $
+    obj/src/effects/effects.SkDropShadowImageFilter.o $
+    obj/src/effects/effects.SkEmbossMask.o $
+    obj/src/effects/effects.SkEmbossMaskFilter.o $
+    obj/src/effects/effects.SkImageSource.o $
+    obj/src/effects/effects.SkGpuBlurUtils.o $
+    obj/src/effects/effects.SkLayerDrawLooper.o $
+    obj/src/effects/effects.SkLayerRasterizer.o $
+    obj/src/effects/effects.SkLightingImageFilter.o $
+    obj/src/effects/effects.SkLumaColorFilter.o $
+    obj/src/effects/effects.SkMagnifierImageFilter.o $
+    obj/src/effects/effects.SkMatrixConvolutionImageFilter.o $
+    obj/src/effects/effects.SkMergeImageFilter.o $
+    obj/src/effects/effects.SkMorphologyImageFilter.o $
+    obj/src/effects/effects.SkOffsetImageFilter.o $
+    obj/src/effects/effects.SkPackBits.o $
+    obj/src/effects/effects.SkPaintFlagsDrawFilter.o $
+    obj/src/effects/effects.SkPaintImageFilter.o $
+    obj/src/effects/effects.SkPerlinNoiseShader.o $
+    obj/src/effects/effects.SkPictureImageFilter.o $
+    obj/src/effects/effects.SkTableColorFilter.o $
+    obj/src/effects/effects.SkTableMaskFilter.o $
+    obj/src/effects/effects.SkTestImageFilters.o $
+    obj/src/effects/effects.SkTileImageFilter.o $
+    obj/src/effects/effects.SkXfermodeImageFilter.o $
+    obj/src/effects/gradients/effects.Sk4fGradientBase.o $
+    obj/src/effects/gradients/effects.Sk4fLinearGradient.o $
+    obj/src/effects/gradients/effects.SkClampRange.o $
+    obj/src/effects/gradients/effects.SkGradientBitmapCache.o $
+    obj/src/effects/gradients/effects.SkGradientShader.o $
+    obj/src/effects/gradients/effects.SkLinearGradient.o $
+    obj/src/effects/gradients/effects.SkRadialGradient.o $
+    obj/src/effects/gradients/effects.SkTwoPointConicalGradient.o $
+    obj/src/effects/gradients/effects.SkTwoPointConicalGradient_gpu.o $
+    obj/src/effects/gradients/effects.SkSweepGradient.o

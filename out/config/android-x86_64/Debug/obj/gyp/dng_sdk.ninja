@@ -1,0 +1,255 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 -DQT_NO_KEYWORDS $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_FORCE_DISTANCE_FIELD_TEXT=0 -DSK_CODEC_DECODES_RAW $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DSK_DEVELOPER=1
+includes = $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/libjpeg-turbo $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/libjpeg-turbo $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/zlib
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter -m64 $
+    -Werror -fuse-ld=gold -mssse3 -DqDNGBigEndian=0 -DqDNGReportErrors=0 $
+    -DqDNGThreadSafe=1 -DqDNGUseLibJPEG=1 -DqDNGUseXMP=0 -DqDNGValidate=0 $
+    -DqDNGValidateTarget=1 -fexceptions -frtti -w -Wframe-larger-than=20000 $
+    -DUNIX_ENV=1 -g
+cflags_c = 
+cflags_cc = -std=c++11 -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_1d_function.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_1d_function.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_1d_table.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_1d_table.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_abort_sniffer.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_abort_sniffer.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_area_task.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_area_task.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_bad_pixels.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_bad_pixels.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_bottlenecks.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_bottlenecks.cpp
+build $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_camera_profile.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_camera_profile.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_color_space.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_color_space.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_color_spec.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_color_spec.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_date_time.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_date_time.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_exceptions.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_exceptions.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_exif.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_exif.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_file_stream.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_file_stream.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_filter_task.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_filter_task.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_fingerprint.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_fingerprint.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_gain_map.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_gain_map.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_globals.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_globals.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_host.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_host.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_hue_sat_map.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_hue_sat_map.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_ifd.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_ifd.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_image.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_image.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_image_writer.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_image_writer.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_info.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_info.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_iptc.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_iptc.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_jpeg_image.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_jpeg_image.cpp
+build $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_lens_correction.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_lens_correction.cpp
+build $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_linearization_info.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_linearization_info.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_lossless_jpeg.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_lossless_jpeg.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_matrix.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_matrix.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_memory.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_memory.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_memory_stream.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_memory_stream.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_misc_opcodes.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_misc_opcodes.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_mosaic_info.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_mosaic_info.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_mutex.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_mutex.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_negative.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_negative.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_opcode_list.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_opcode_list.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_opcodes.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_opcodes.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_orientation.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_orientation.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_parse_utils.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_parse_utils.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_pixel_buffer.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_pixel_buffer.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_point.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_point.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_preview.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_preview.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_pthread.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_pthread.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_rational.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_rational.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_read_image.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_read_image.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_rect.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_rect.cpp
+build $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_ref_counted_block.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_ref_counted_block.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_reference.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_reference.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_render.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_render.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_resample.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_resample.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_shared.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_shared.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_simple_image.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_simple_image.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_spline.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_spline.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_stream.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_stream.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_string.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_string.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_string_list.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_string_list.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_tag_types.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_tag_types.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_temperature.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_temperature.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_tile_iterator.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_tile_iterator.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_tone_curve.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_tone_curve.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_utils.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_utils.cpp
+build obj/third_party/externals/dng_sdk/source/dng_sdk.dng_xy_coord.o: cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_xy_coord.cpp
+build $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_jpeg_memory_source.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_jpeg_memory_source.cpp
+build $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_safe_arithmetic.o: $
+    cxx $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/dng_sdk/source/dng_safe_arithmetic.cpp
+
+build obj/gyp/libdng_sdk.a: alink_thin $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_1d_function.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_1d_table.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_abort_sniffer.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_area_task.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_bad_pixels.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_bottlenecks.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_camera_profile.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_color_space.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_color_spec.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_date_time.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_exceptions.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_exif.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_file_stream.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_filter_task.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_fingerprint.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_gain_map.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_globals.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_host.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_hue_sat_map.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_ifd.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_image.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_image_writer.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_info.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_iptc.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_jpeg_image.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_lens_correction.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_linearization_info.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_lossless_jpeg.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_matrix.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_memory.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_memory_stream.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_misc_opcodes.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_mosaic_info.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_mutex.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_negative.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_opcode_list.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_opcodes.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_orientation.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_parse_utils.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_pixel_buffer.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_point.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_preview.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_pthread.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_rational.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_read_image.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_rect.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_ref_counted_block.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_reference.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_render.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_resample.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_shared.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_simple_image.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_spline.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_stream.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_string.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_string_list.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_tag_types.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_temperature.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_tile_iterator.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_tone_curve.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_utils.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_xy_coord.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_jpeg_memory_source.o $
+    obj/third_party/externals/dng_sdk/source/dng_sdk.dng_safe_arithmetic.o $
+    || obj/gyp/libjpeg-turbo.a

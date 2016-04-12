@@ -1,0 +1,960 @@
+build obj/gyp/dm.actions_depends.stamp: stamp obj/gyp/libandroid_output.a $
+    skia_launcher obj/gyp/libetc1.a obj/gyp/libflags.a obj/gyp/libjsoncpp.a $
+    libpng_static.a lib/libskia_android.so.TOC libskia_svg.a $
+    obj/gyp/libbitmap_region_decoder.a obj/gyp/libcrash_handler.a $
+    obj/gyp/libproc_stats.a obj/gyp/libsk_tool_utils.a obj/gyp/libtimer.a $
+    libskia_xml.a libskia_xps.a obj/gyp/libresources.a $
+    obj/gyp/libexperimental.a obj/gyp/libflags_common.a libskia_pdf.a $
+    obj/gyp/libpicture_utils.a libskia_skgputest.a libpng_static.a $
+    obj/gyp/libpng_static_neon.a obj/gyp/libsfntly.a obj/gyp/libicuuc.a
+
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
+    -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
+    -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DSKIA_PNG_PREFIXED $
+    -DSK_SUPPORT_PDF=1 -DSK_DEVELOPER=1
+includes = -I../../../../dm -I../../../../gm -I../../../../include/private $
+    -I../../../../src/core -I../../../../src/effects $
+    -I../../../../src/images -I../../../../src/lazy $
+    -I../../../../src/pipe/utils -I../../../../src/utils $
+    -I../../../../src/utils/debugger -I../../../../tests $
+    -I../../../../tools -I../../../../src/pathops $
+    -I../../../../src/pipe/utils -I../../../../src/codec $
+    -I../../../../src/image -I../../../../src/pdf -I../../../../src/ports $
+    -I../../../../third_party/etc1 -I../../../../tools/flags $
+    -I../../../../third_party/externals/jsoncpp/include $
+    -I../../../../third_party/externals/libpng $
+    -I../../../../third_party/libpng -I../../../../include/c $
+    -I../../../../include/config -I../../../../include/core $
+    -I../../../../include/pathops -I../../../../include/pipe $
+    -I../../../../include/codec $
+    -I../../../../third_party/externals/libjpeg-turbo $
+    -I../../../../include/effects -I../../../../include/images $
+    -I../../../../platform_tools/android/third_party/externals/png $
+    -I../../../../platform_tools/android/third_party/externals/jpeg $
+    -I../../../../include/ports -I../../../../src/sfnt $
+    -I../../../../include/utils -I../../../../include/gpu $
+    -I../../../../include/svg -I../../../../tools/timer $
+    -I../../../../include/xml -I../../../../experimental $
+    -I../../../../tools -I../../../../src/gpu -I../../../../../src/gpu
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
+    -fuse-ld=gold -g
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/dm/dm.DM.o: cxx ../../../../dm/DM.cpp
+build obj/dm/dm.DMSrcSink.o: cxx ../../../../dm/DMSrcSink.cpp
+build obj/dm/dm.DMJsonWriter.o: cxx ../../../../dm/DMJsonWriter.cpp
+build obj/gm/dm.gm.o: cxx ../../../../gm/gm.cpp
+build obj/src/pipe/utils/dm.SamplePipeControllers.o: cxx $
+    ../../../../src/pipe/utils/SamplePipeControllers.cpp
+build obj/src/utils/debugger/dm.SkDebugCanvas.o: cxx $
+    ../../../../src/utils/debugger/SkDebugCanvas.cpp
+build obj/src/utils/debugger/dm.SkDrawCommand.o: cxx $
+    ../../../../src/utils/debugger/SkDrawCommand.cpp
+build obj/src/utils/debugger/dm.SkObjectParser.o: cxx $
+    ../../../../src/utils/debugger/SkObjectParser.cpp
+build obj/tests/dm.Test.o: cxx ../../../../tests/Test.cpp
+build obj/tests/dm.PathOpsAngleTest.o: cxx $
+    ../../../../tests/PathOpsAngleTest.cpp
+build obj/tests/dm.PathOpsBoundsTest.o: cxx $
+    ../../../../tests/PathOpsBoundsTest.cpp
+build obj/tests/dm.PathOpsBuilderTest.o: cxx $
+    ../../../../tests/PathOpsBuilderTest.cpp
+build obj/tests/dm.PathOpsBuildUseTest.o: cxx $
+    ../../../../tests/PathOpsBuildUseTest.cpp
+build obj/tests/dm.PathOpsConicIntersectionTest.o: cxx $
+    ../../../../tests/PathOpsConicIntersectionTest.cpp
+build obj/tests/dm.PathOpsConicLineIntersectionTest.o: cxx $
+    ../../../../tests/PathOpsConicLineIntersectionTest.cpp
+build obj/tests/dm.PathOpsCubicIntersectionTest.o: cxx $
+    ../../../../tests/PathOpsCubicIntersectionTest.cpp
+build obj/tests/dm.PathOpsCubicIntersectionTestData.o: cxx $
+    ../../../../tests/PathOpsCubicIntersectionTestData.cpp
+build obj/tests/dm.PathOpsCubicLineIntersectionTest.o: cxx $
+    ../../../../tests/PathOpsCubicLineIntersectionTest.cpp
+build obj/tests/dm.PathOpsCubicQuadIntersectionTest.o: cxx $
+    ../../../../tests/PathOpsCubicQuadIntersectionTest.cpp
+build obj/tests/dm.PathOpsCubicReduceOrderTest.o: cxx $
+    ../../../../tests/PathOpsCubicReduceOrderTest.cpp
+build obj/tests/dm.PathOpsDCubicTest.o: cxx $
+    ../../../../tests/PathOpsDCubicTest.cpp
+build obj/tests/dm.PathOpsDLineTest.o: cxx $
+    ../../../../tests/PathOpsDLineTest.cpp
+build obj/tests/dm.PathOpsDPointTest.o: cxx $
+    ../../../../tests/PathOpsDPointTest.cpp
+build obj/tests/dm.PathOpsDRectTest.o: cxx $
+    ../../../../tests/PathOpsDRectTest.cpp
+build obj/tests/dm.PathOpsDVectorTest.o: cxx $
+    ../../../../tests/PathOpsDVectorTest.cpp
+build obj/tests/dm.PathOpsExtendedTest.o: cxx $
+    ../../../../tests/PathOpsExtendedTest.cpp
+build obj/tests/dm.PathOpsFuzz763Test.o: cxx $
+    ../../../../tests/PathOpsFuzz763Test.cpp
+build obj/tests/dm.PathOpsInverseTest.o: cxx $
+    ../../../../tests/PathOpsInverseTest.cpp
+build obj/tests/dm.PathOpsIssue3651.o: cxx $
+    ../../../../tests/PathOpsIssue3651.cpp
+build obj/tests/dm.PathOpsLineIntersectionTest.o: cxx $
+    ../../../../tests/PathOpsLineIntersectionTest.cpp
+build obj/tests/dm.PathOpsLineParametetersTest.o: cxx $
+    ../../../../tests/PathOpsLineParametetersTest.cpp
+build obj/tests/dm.PathOpsOpCircleThreadedTest.o: cxx $
+    ../../../../tests/PathOpsOpCircleThreadedTest.cpp
+build obj/tests/dm.PathOpsOpCubicThreadedTest.o: cxx $
+    ../../../../tests/PathOpsOpCubicThreadedTest.cpp
+build obj/tests/dm.PathOpsOpRectThreadedTest.o: cxx $
+    ../../../../tests/PathOpsOpRectThreadedTest.cpp
+build obj/tests/dm.PathOpsOpTest.o: cxx ../../../../tests/PathOpsOpTest.cpp
+build obj/tests/dm.PathOpsQuadIntersectionTest.o: cxx $
+    ../../../../tests/PathOpsQuadIntersectionTest.cpp
+build obj/tests/dm.PathOpsQuadIntersectionTestData.o: cxx $
+    ../../../../tests/PathOpsQuadIntersectionTestData.cpp
+build obj/tests/dm.PathOpsQuadLineIntersectionTest.o: cxx $
+    ../../../../tests/PathOpsQuadLineIntersectionTest.cpp
+build obj/tests/dm.PathOpsQuadLineIntersectionThreadedTest.o: cxx $
+    ../../../../tests/PathOpsQuadLineIntersectionThreadedTest.cpp
+build obj/tests/dm.PathOpsQuadReduceOrderTest.o: cxx $
+    ../../../../tests/PathOpsQuadReduceOrderTest.cpp
+build obj/tests/dm.PathOpsSimplifyDegenerateThreadedTest.o: cxx $
+    ../../../../tests/PathOpsSimplifyDegenerateThreadedTest.cpp
+build obj/tests/dm.PathOpsSimplifyFailTest.o: cxx $
+    ../../../../tests/PathOpsSimplifyFailTest.cpp
+build obj/tests/dm.PathOpsSimplifyQuadralateralsThreadedTest.o: cxx $
+    ../../../../tests/PathOpsSimplifyQuadralateralsThreadedTest.cpp
+build obj/tests/dm.PathOpsSimplifyQuadThreadedTest.o: cxx $
+    ../../../../tests/PathOpsSimplifyQuadThreadedTest.cpp
+build obj/tests/dm.PathOpsSimplifyRectThreadedTest.o: cxx $
+    ../../../../tests/PathOpsSimplifyRectThreadedTest.cpp
+build obj/tests/dm.PathOpsSimplifyTest.o: cxx $
+    ../../../../tests/PathOpsSimplifyTest.cpp
+build obj/tests/dm.PathOpsSimplifyTrianglesThreadedTest.o: cxx $
+    ../../../../tests/PathOpsSimplifyTrianglesThreadedTest.cpp
+build obj/tests/dm.PathOpsSkpTest.o: cxx ../../../../tests/PathOpsSkpTest.cpp
+build obj/tests/dm.PathOpsTestCommon.o: cxx $
+    ../../../../tests/PathOpsTestCommon.cpp
+build obj/tests/dm.PathOpsThreadedCommon.o: cxx $
+    ../../../../tests/PathOpsThreadedCommon.cpp
+build obj/tests/dm.PathOpsThreeWayTest.o: cxx $
+    ../../../../tests/PathOpsThreeWayTest.cpp
+build obj/tests/dm.PathOpsTightBoundsTest.o: cxx $
+    ../../../../tests/PathOpsTightBoundsTest.cpp
+build obj/tests/dm.PathOpsTypesTest.o: cxx $
+    ../../../../tests/PathOpsTypesTest.cpp
+build obj/tests/dm.AAClipTest.o: cxx ../../../../tests/AAClipTest.cpp
+build obj/tests/dm.ARGBImageEncoderTest.o: cxx $
+    ../../../../tests/ARGBImageEncoderTest.cpp
+build obj/tests/dm.AnnotationTest.o: cxx ../../../../tests/AnnotationTest.cpp
+build obj/tests/dm.AsADashTest.o: cxx ../../../../tests/AsADashTest.cpp
+build obj/tests/dm.AtomicTest.o: cxx ../../../../tests/AtomicTest.cpp
+build obj/tests/dm.BadIcoTest.o: cxx ../../../../tests/BadIcoTest.cpp
+build obj/tests/dm.BitSetTest.o: cxx ../../../../tests/BitSetTest.cpp
+build obj/tests/dm.BitmapCopyTest.o: cxx ../../../../tests/BitmapCopyTest.cpp
+build obj/tests/dm.BitmapGetColorTest.o: cxx $
+    ../../../../tests/BitmapGetColorTest.cpp
+build obj/tests/dm.BitmapHasherTest.o: cxx $
+    ../../../../tests/BitmapHasherTest.cpp
+build obj/tests/dm.BitmapHeapTest.o: cxx ../../../../tests/BitmapHeapTest.cpp
+build obj/tests/dm.BitmapTest.o: cxx ../../../../tests/BitmapTest.cpp
+build obj/tests/dm.BlendTest.o: cxx ../../../../tests/BlendTest.cpp
+build obj/tests/dm.BlitRowTest.o: cxx ../../../../tests/BlitRowTest.cpp
+build obj/tests/dm.BlurTest.o: cxx ../../../../tests/BlurTest.cpp
+build obj/tests/dm.CPlusPlusEleven.o: cxx $
+    ../../../../tests/CPlusPlusEleven.cpp
+build obj/tests/dm.CTest.o: cxx ../../../../tests/CTest.cpp
+build obj/tests/dm.CachedDataTest.o: cxx ../../../../tests/CachedDataTest.cpp
+build obj/tests/dm.CachedDecodingPixelRefTest.o: cxx $
+    ../../../../tests/CachedDecodingPixelRefTest.cpp
+build obj/tests/dm.CanvasStateHelpers.o: cxx $
+    ../../../../tests/CanvasStateHelpers.cpp
+build obj/tests/dm.CanvasStateTest.o: cxx $
+    ../../../../tests/CanvasStateTest.cpp
+build obj/tests/dm.CanvasTest.o: cxx ../../../../tests/CanvasTest.cpp
+build obj/tests/dm.ChecksumTest.o: cxx ../../../../tests/ChecksumTest.cpp
+build obj/tests/dm.ClampRangeTest.o: cxx ../../../../tests/ClampRangeTest.cpp
+build obj/tests/dm.ClipBoundsTest.o: cxx ../../../../tests/ClipBoundsTest.cpp
+build obj/tests/dm.ClipCubicTest.o: cxx ../../../../tests/ClipCubicTest.cpp
+build obj/tests/dm.ClipStackTest.o: cxx ../../../../tests/ClipStackTest.cpp
+build obj/tests/dm.ClipperTest.o: cxx ../../../../tests/ClipperTest.cpp
+build obj/tests/dm.CodexTest.o: cxx ../../../../tests/CodexTest.cpp
+build obj/tests/dm.ColorFilterTest.o: cxx $
+    ../../../../tests/ColorFilterTest.cpp
+build obj/tests/dm.ColorMatrixTest.o: cxx $
+    ../../../../tests/ColorMatrixTest.cpp
+build obj/tests/dm.ColorPrivTest.o: cxx ../../../../tests/ColorPrivTest.cpp
+build obj/tests/dm.ColorTest.o: cxx ../../../../tests/ColorTest.cpp
+build obj/tests/dm.DashPathEffectTest.o: cxx $
+    ../../../../tests/DashPathEffectTest.cpp
+build obj/tests/dm.DataRefTest.o: cxx ../../../../tests/DataRefTest.cpp
+build obj/tests/dm.DequeTest.o: cxx ../../../../tests/DequeTest.cpp
+build obj/tests/dm.DeviceLooperTest.o: cxx $
+    ../../../../tests/DeviceLooperTest.cpp
+build obj/tests/dm.DiscardableMemoryPoolTest.o: cxx $
+    ../../../../tests/DiscardableMemoryPoolTest.cpp
+build obj/tests/dm.DiscardableMemoryTest.o: cxx $
+    ../../../../tests/DiscardableMemoryTest.cpp
+build obj/tests/dm.DrawBitmapRectTest.o: cxx $
+    ../../../../tests/DrawBitmapRectTest.cpp
+build obj/tests/dm.DrawFilterTest.o: cxx ../../../../tests/DrawFilterTest.cpp
+build obj/tests/dm.DrawPathTest.o: cxx ../../../../tests/DrawPathTest.cpp
+build obj/tests/dm.DrawTextTest.o: cxx ../../../../tests/DrawTextTest.cpp
+build obj/tests/dm.DynamicHashTest.o: cxx $
+    ../../../../tests/DynamicHashTest.cpp
+build obj/tests/dm.EmptyPathTest.o: cxx ../../../../tests/EmptyPathTest.cpp
+build obj/tests/dm.ErrorTest.o: cxx ../../../../tests/ErrorTest.cpp
+build obj/tests/dm.FillPathTest.o: cxx ../../../../tests/FillPathTest.cpp
+build obj/tests/dm.FitsInTest.o: cxx ../../../../tests/FitsInTest.cpp
+build obj/tests/dm.FloatingPointTextureTest.o: cxx $
+    ../../../../tests/FloatingPointTextureTest.cpp
+build obj/tests/dm.FontHostStreamTest.o: cxx $
+    ../../../../tests/FontHostStreamTest.cpp
+build obj/tests/dm.FontHostTest.o: cxx ../../../../tests/FontHostTest.cpp
+build obj/tests/dm.FontMgrAndroidParserTest.o: cxx $
+    ../../../../tests/FontMgrAndroidParserTest.cpp
+build obj/tests/dm.FontMgrTest.o: cxx ../../../../tests/FontMgrTest.cpp
+build obj/tests/dm.FontNamesTest.o: cxx ../../../../tests/FontNamesTest.cpp
+build obj/tests/dm.FontObjTest.o: cxx ../../../../tests/FontObjTest.cpp
+build obj/tests/dm.FrontBufferedStreamTest.o: cxx $
+    ../../../../tests/FrontBufferedStreamTest.cpp
+build obj/tests/dm.FunctionTest.o: cxx ../../../../tests/FunctionTest.cpp
+build obj/tests/dm.GLInterfaceValidationTest.o: cxx $
+    ../../../../tests/GLInterfaceValidationTest.cpp
+build obj/tests/dm.GLProgramsTest.o: cxx ../../../../tests/GLProgramsTest.cpp
+build obj/tests/dm.GeometryTest.o: cxx ../../../../tests/GeometryTest.cpp
+build obj/tests/dm.GifTest.o: cxx ../../../../tests/GifTest.cpp
+build obj/tests/dm.GpuColorFilterTest.o: cxx $
+    ../../../../tests/GpuColorFilterTest.cpp
+build obj/tests/dm.GpuDrawPathTest.o: cxx $
+    ../../../../tests/GpuDrawPathTest.cpp
+build obj/tests/dm.GpuLayerCacheTest.o: cxx $
+    ../../../../tests/GpuLayerCacheTest.cpp
+build obj/tests/dm.GpuRectanizerTest.o: cxx $
+    ../../../../tests/GpuRectanizerTest.cpp
+build obj/tests/dm.GrAllocatorTest.o: cxx $
+    ../../../../tests/GrAllocatorTest.cpp
+build obj/tests/dm.GrContextFactoryTest.o: cxx $
+    ../../../../tests/GrContextFactoryTest.cpp
+build obj/tests/dm.GrDrawTargetTest.o: cxx $
+    ../../../../tests/GrDrawTargetTest.cpp
+build obj/tests/dm.GrGLSLPrettyPrintTest.o: cxx $
+    ../../../../tests/GrGLSLPrettyPrintTest.cpp
+build obj/tests/dm.GrGetCoeffBlendKnownComponentsTest.o: cxx $
+    ../../../../tests/GrGetCoeffBlendKnownComponentsTest.cpp
+build obj/tests/dm.GrMemoryPoolTest.o: cxx $
+    ../../../../tests/GrMemoryPoolTest.cpp
+build obj/tests/dm.GrPorterDuffTest.o: cxx $
+    ../../../../tests/GrPorterDuffTest.cpp
+build obj/tests/dm.GrSurfaceTest.o: cxx ../../../../tests/GrSurfaceTest.cpp
+build obj/tests/dm.GrTRecorderTest.o: cxx $
+    ../../../../tests/GrTRecorderTest.cpp
+build obj/tests/dm.GrTextureMipMapInvalidationTest.o: cxx $
+    ../../../../tests/GrTextureMipMapInvalidationTest.cpp
+build obj/tests/dm.GradientTest.o: cxx ../../../../tests/GradientTest.cpp
+build obj/tests/dm.HashTest.o: cxx ../../../../tests/HashTest.cpp
+build obj/tests/dm.ImageCacheTest.o: cxx ../../../../tests/ImageCacheTest.cpp
+build obj/tests/dm.ImageDecodingTest.o: cxx $
+    ../../../../tests/ImageDecodingTest.cpp
+build obj/tests/dm.ImageFilterTest.o: cxx $
+    ../../../../tests/ImageFilterTest.cpp
+build obj/tests/dm.ImageGeneratorTest.o: cxx $
+    ../../../../tests/ImageGeneratorTest.cpp
+build obj/tests/dm.ImageIsOpaqueTest.o: cxx $
+    ../../../../tests/ImageIsOpaqueTest.cpp
+build obj/tests/dm.ImageNewShaderTest.o: cxx $
+    ../../../../tests/ImageNewShaderTest.cpp
+build obj/tests/dm.ImageTest.o: cxx ../../../../tests/ImageTest.cpp
+build obj/tests/dm.IndexedPngOverflowTest.o: cxx $
+    ../../../../tests/IndexedPngOverflowTest.cpp
+build obj/tests/dm.InfRectTest.o: cxx ../../../../tests/InfRectTest.cpp
+build obj/tests/dm.InterpolatorTest.o: cxx $
+    ../../../../tests/InterpolatorTest.cpp
+build obj/tests/dm.InvalidIndexedPngTest.o: cxx $
+    ../../../../tests/InvalidIndexedPngTest.cpp
+build obj/tests/dm.JpegTest.o: cxx ../../../../tests/JpegTest.cpp
+build obj/tests/dm.KtxTest.o: cxx ../../../../tests/KtxTest.cpp
+build obj/tests/dm.LListTest.o: cxx ../../../../tests/LListTest.cpp
+build obj/tests/dm.LayerDrawLooperTest.o: cxx $
+    ../../../../tests/LayerDrawLooperTest.cpp
+build obj/tests/dm.LayerRasterizerTest.o: cxx $
+    ../../../../tests/LayerRasterizerTest.cpp
+build obj/tests/dm.MD5Test.o: cxx ../../../../tests/MD5Test.cpp
+build obj/tests/dm.MallocPixelRefTest.o: cxx $
+    ../../../../tests/MallocPixelRefTest.cpp
+build obj/tests/dm.MaskCacheTest.o: cxx ../../../../tests/MaskCacheTest.cpp
+build obj/tests/dm.MathTest.o: cxx ../../../../tests/MathTest.cpp
+build obj/tests/dm.Matrix44Test.o: cxx ../../../../tests/Matrix44Test.cpp
+build obj/tests/dm.MatrixClipCollapseTest.o: cxx $
+    ../../../../tests/MatrixClipCollapseTest.cpp
+build obj/tests/dm.MatrixTest.o: cxx ../../../../tests/MatrixTest.cpp
+build obj/tests/dm.MemoryTest.o: cxx ../../../../tests/MemoryTest.cpp
+build obj/tests/dm.MemsetTest.o: cxx ../../../../tests/MemsetTest.cpp
+build obj/tests/dm.MessageBusTest.o: cxx ../../../../tests/MessageBusTest.cpp
+build obj/tests/dm.MetaDataTest.o: cxx ../../../../tests/MetaDataTest.cpp
+build obj/tests/dm.MipMapTest.o: cxx ../../../../tests/MipMapTest.cpp
+build obj/tests/dm.NameAllocatorTest.o: cxx $
+    ../../../../tests/NameAllocatorTest.cpp
+build obj/tests/dm.OSPathTest.o: cxx ../../../../tests/OSPathTest.cpp
+build obj/tests/dm.OncePtrTest.o: cxx ../../../../tests/OncePtrTest.cpp
+build obj/tests/dm.OnceTest.o: cxx ../../../../tests/OnceTest.cpp
+build obj/tests/dm.PDFDeflateWStreamTest.o: cxx $
+    ../../../../tests/PDFDeflateWStreamTest.cpp
+build obj/tests/dm.PDFDocumentTest.o: cxx $
+    ../../../../tests/PDFDocumentTest.cpp
+build obj/tests/dm.PDFGlyphsToUnicodeTest.o: cxx $
+    ../../../../tests/PDFGlyphsToUnicodeTest.cpp
+build obj/tests/dm.PDFInvalidBitmapTest.o: cxx $
+    ../../../../tests/PDFInvalidBitmapTest.cpp
+build obj/tests/dm.PDFJpegEmbedTest.o: cxx $
+    ../../../../tests/PDFJpegEmbedTest.cpp
+build obj/tests/dm.PDFMetadataAttributeTest.o: cxx $
+    ../../../../tests/PDFMetadataAttributeTest.cpp
+build obj/tests/dm.PDFOpaqueSrcModeToSrcOverTest.o: cxx $
+    ../../../../tests/PDFOpaqueSrcModeToSrcOverTest.cpp
+build obj/tests/dm.PDFPrimitivesTest.o: cxx $
+    ../../../../tests/PDFPrimitivesTest.cpp
+build obj/tests/dm.PackBitsTest.o: cxx ../../../../tests/PackBitsTest.cpp
+build obj/tests/dm.PaintTest.o: cxx ../../../../tests/PaintTest.cpp
+build obj/tests/dm.ParsePathTest.o: cxx ../../../../tests/ParsePathTest.cpp
+build obj/tests/dm.PathCoverageTest.o: cxx $
+    ../../../../tests/PathCoverageTest.cpp
+build obj/tests/dm.PathMeasureTest.o: cxx $
+    ../../../../tests/PathMeasureTest.cpp
+build obj/tests/dm.PathTest.o: cxx ../../../../tests/PathTest.cpp
+build obj/tests/dm.PictureBBHTest.o: cxx ../../../../tests/PictureBBHTest.cpp
+build obj/tests/dm.PictureShaderTest.o: cxx $
+    ../../../../tests/PictureShaderTest.cpp
+build obj/tests/dm.PictureTest.o: cxx ../../../../tests/PictureTest.cpp
+build obj/tests/dm.PipeTest.o: cxx ../../../../tests/PipeTest.cpp
+build obj/tests/dm.PixelRefTest.o: cxx ../../../../tests/PixelRefTest.cpp
+build obj/tests/dm.Point3Test.o: cxx ../../../../tests/Point3Test.cpp
+build obj/tests/dm.PointTest.o: cxx ../../../../tests/PointTest.cpp
+build obj/tests/dm.PremulAlphaRoundTripTest.o: cxx $
+    ../../../../tests/PremulAlphaRoundTripTest.cpp
+build obj/tests/dm.QuickRejectTest.o: cxx $
+    ../../../../tests/QuickRejectTest.cpp
+build obj/tests/dm.RTConfRegistryTest.o: cxx $
+    ../../../../tests/RTConfRegistryTest.cpp
+build obj/tests/dm.RTreeTest.o: cxx ../../../../tests/RTreeTest.cpp
+build obj/tests/dm.RandomTest.o: cxx ../../../../tests/RandomTest.cpp
+build obj/tests/dm.ReadPixelsTest.o: cxx ../../../../tests/ReadPixelsTest.cpp
+build obj/tests/dm.ReadWriteAlphaTest.o: cxx $
+    ../../../../tests/ReadWriteAlphaTest.cpp
+build obj/tests/dm.Reader32Test.o: cxx ../../../../tests/Reader32Test.cpp
+build obj/tests/dm.RecordDrawTest.o: cxx ../../../../tests/RecordDrawTest.cpp
+build obj/tests/dm.RecordOptsTest.o: cxx ../../../../tests/RecordOptsTest.cpp
+build obj/tests/dm.RecordPatternTest.o: cxx $
+    ../../../../tests/RecordPatternTest.cpp
+build obj/tests/dm.RecordReplaceDrawTest.o: cxx $
+    ../../../../tests/RecordReplaceDrawTest.cpp
+build obj/tests/dm.RecordTest.o: cxx ../../../../tests/RecordTest.cpp
+build obj/tests/dm.RecorderTest.o: cxx ../../../../tests/RecorderTest.cpp
+build obj/tests/dm.RecordingXfermodeTest.o: cxx $
+    ../../../../tests/RecordingXfermodeTest.cpp
+build obj/tests/dm.RectTest.o: cxx ../../../../tests/RectTest.cpp
+build obj/tests/dm.RefCntTest.o: cxx ../../../../tests/RefCntTest.cpp
+build obj/tests/dm.RefDictTest.o: cxx ../../../../tests/RefDictTest.cpp
+build obj/tests/dm.RegionTest.o: cxx ../../../../tests/RegionTest.cpp
+build obj/tests/dm.ResourceCacheTest.o: cxx $
+    ../../../../tests/ResourceCacheTest.cpp
+build obj/tests/dm.RoundRectTest.o: cxx ../../../../tests/RoundRectTest.cpp
+build obj/tests/dm.RuntimeConfigTest.o: cxx $
+    ../../../../tests/RuntimeConfigTest.cpp
+build obj/tests/dm.SHA1Test.o: cxx ../../../../tests/SHA1Test.cpp
+build obj/tests/dm.SRGBReadWritePixelsTest.o: cxx $
+    ../../../../tests/SRGBReadWritePixelsTest.cpp
+build obj/tests/dm.SVGDeviceTest.o: cxx ../../../../tests/SVGDeviceTest.cpp
+build obj/tests/dm.ScalarTest.o: cxx ../../../../tests/ScalarTest.cpp
+build obj/tests/dm.SerializationTest.o: cxx $
+    ../../../../tests/SerializationTest.cpp
+build obj/tests/dm.ShaderImageFilterTest.o: cxx $
+    ../../../../tests/ShaderImageFilterTest.cpp
+build obj/tests/dm.ShaderOpacityTest.o: cxx $
+    ../../../../tests/ShaderOpacityTest.cpp
+build obj/tests/dm.SizeTest.o: cxx ../../../../tests/SizeTest.cpp
+build obj/tests/dm.SkBase64Test.o: cxx ../../../../tests/SkBase64Test.cpp
+build obj/tests/dm.SkImageTest.o: cxx ../../../../tests/SkImageTest.cpp
+build obj/tests/dm.SkNxTest.o: cxx ../../../../tests/SkNxTest.cpp
+build obj/tests/dm.SkResourceCacheTest.o: cxx $
+    ../../../../tests/SkResourceCacheTest.cpp
+build obj/tests/dm.SkSharedMutexTest.o: cxx $
+    ../../../../tests/SkSharedMutexTest.cpp
+build obj/tests/dm.SmallAllocatorTest.o: cxx $
+    ../../../../tests/SmallAllocatorTest.cpp
+build obj/tests/dm.SortTest.o: cxx ../../../../tests/SortTest.cpp
+build obj/tests/dm.SrcOverTest.o: cxx ../../../../tests/SrcOverTest.cpp
+build obj/tests/dm.StreamTest.o: cxx ../../../../tests/StreamTest.cpp
+build obj/tests/dm.StringTest.o: cxx ../../../../tests/StringTest.cpp
+build obj/tests/dm.StrokeTest.o: cxx ../../../../tests/StrokeTest.cpp
+build obj/tests/dm.StrokerTest.o: cxx ../../../../tests/StrokerTest.cpp
+build obj/tests/dm.SurfaceTest.o: cxx ../../../../tests/SurfaceTest.cpp
+build obj/tests/dm.SwizzlerTest.o: cxx ../../../../tests/SwizzlerTest.cpp
+build obj/tests/dm.TArrayTest.o: cxx ../../../../tests/TArrayTest.cpp
+build obj/tests/dm.TDPQueueTest.o: cxx ../../../../tests/TDPQueueTest.cpp
+build obj/tests/dm.TLSTest.o: cxx ../../../../tests/TLSTest.cpp
+build obj/tests/dm.TemplatesTest.o: cxx ../../../../tests/TemplatesTest.cpp
+build obj/tests/dm.TessellatingPathRendererTests.o: cxx $
+    ../../../../tests/TessellatingPathRendererTests.cpp
+build obj/tests/dm.TextBlobCacheTest.o: cxx $
+    ../../../../tests/TextBlobCacheTest.cpp
+build obj/tests/dm.TextBlobTest.o: cxx ../../../../tests/TextBlobTest.cpp
+build obj/tests/dm.TextureCompressionTest.o: cxx $
+    ../../../../tests/TextureCompressionTest.cpp
+build obj/tests/dm.Time.o: cxx ../../../../tests/Time.cpp
+build obj/tests/dm.TraceMemoryDumpTest.o: cxx $
+    ../../../../tests/TraceMemoryDumpTest.cpp
+build obj/tests/dm.TracingTest.o: cxx ../../../../tests/TracingTest.cpp
+build obj/tests/dm.TypefaceTest.o: cxx ../../../../tests/TypefaceTest.cpp
+build obj/tests/dm.UnicodeTest.o: cxx ../../../../tests/UnicodeTest.cpp
+build obj/tests/dm.UtilsTest.o: cxx ../../../../tests/UtilsTest.cpp
+build obj/tests/dm.VarAllocTest.o: cxx ../../../../tests/VarAllocTest.cpp
+build obj/tests/dm.WArrayTest.o: cxx ../../../../tests/WArrayTest.cpp
+build obj/tests/dm.WritePixelsTest.o: cxx $
+    ../../../../tests/WritePixelsTest.cpp
+build obj/tests/dm.Writer32Test.o: cxx ../../../../tests/Writer32Test.cpp
+build obj/tests/dm.XfermodeTest.o: cxx ../../../../tests/XfermodeTest.cpp
+build obj/tests/dm.YUVCacheTest.o: cxx ../../../../tests/YUVCacheTest.cpp
+build obj/gm/dm.aaclip.o: cxx ../../../../gm/aaclip.cpp
+build obj/gm/dm.aarectmodes.o: cxx ../../../../gm/aarectmodes.cpp
+build obj/gm/dm.aaxfermodes.o: cxx ../../../../gm/aaxfermodes.cpp
+build obj/gm/dm.addarc.o: cxx ../../../../gm/addarc.cpp
+build obj/gm/dm.all_bitmap_configs.o: cxx $
+    ../../../../gm/all_bitmap_configs.cpp
+build obj/gm/dm.alphagradients.o: cxx ../../../../gm/alphagradients.cpp
+build obj/gm/dm.anisotropic.o: cxx ../../../../gm/anisotropic.cpp
+build obj/gm/dm.annotated_text.o: cxx ../../../../gm/annotated_text.cpp
+build obj/gm/dm.arcofzorro.o: cxx ../../../../gm/arcofzorro.cpp
+build obj/gm/dm.arithmode.o: cxx ../../../../gm/arithmode.cpp
+build obj/gm/dm.astcbitmap.o: cxx ../../../../gm/astcbitmap.cpp
+build obj/gm/dm.badpaint.o: cxx ../../../../gm/badpaint.cpp
+build obj/gm/dm.beziereffects.o: cxx ../../../../gm/beziereffects.cpp
+build obj/gm/dm.beziers.o: cxx ../../../../gm/beziers.cpp
+build obj/gm/dm.bigblurs.o: cxx ../../../../gm/bigblurs.cpp
+build obj/gm/dm.bigmatrix.o: cxx ../../../../gm/bigmatrix.cpp
+build obj/gm/dm.bigrrectaaeffect.o: cxx ../../../../gm/bigrrectaaeffect.cpp
+build obj/gm/dm.bigtext.o: cxx ../../../../gm/bigtext.cpp
+build obj/gm/dm.bigtileimagefilter.o: cxx $
+    ../../../../gm/bigtileimagefilter.cpp
+build obj/gm/dm.bitmapcopy.o: cxx ../../../../gm/bitmapcopy.cpp
+build obj/gm/dm.bitmapfilters.o: cxx ../../../../gm/bitmapfilters.cpp
+build obj/gm/dm.bitmappremul.o: cxx ../../../../gm/bitmappremul.cpp
+build obj/gm/dm.bitmaprect.o: cxx ../../../../gm/bitmaprect.cpp
+build obj/gm/dm.bitmaprecttest.o: cxx ../../../../gm/bitmaprecttest.cpp
+build obj/gm/dm.bitmapshader.o: cxx ../../../../gm/bitmapshader.cpp
+build obj/gm/dm.bleed.o: cxx ../../../../gm/bleed.cpp
+build obj/gm/dm.blend.o: cxx ../../../../gm/blend.cpp
+build obj/gm/dm.blurcircles.o: cxx ../../../../gm/blurcircles.cpp
+build obj/gm/dm.blurquickreject.o: cxx ../../../../gm/blurquickreject.cpp
+build obj/gm/dm.blurrect.o: cxx ../../../../gm/blurrect.cpp
+build obj/gm/dm.blurroundrect.o: cxx ../../../../gm/blurroundrect.cpp
+build obj/gm/dm.blurs.o: cxx ../../../../gm/blurs.cpp
+build obj/gm/dm.bmpfilterqualityrepeat.o: cxx $
+    ../../../../gm/bmpfilterqualityrepeat.cpp
+build obj/gm/dm.cgm.o: cc ../../../../gm/cgm.c
+build obj/gm/dm.cgms.o: cxx ../../../../gm/cgms.cpp
+build obj/gm/dm.circles.o: cxx ../../../../gm/circles.cpp
+build obj/gm/dm.circularclips.o: cxx ../../../../gm/circularclips.cpp
+build obj/gm/dm.clip_strokerect.o: cxx ../../../../gm/clip_strokerect.cpp
+build obj/gm/dm.clipdrawdraw.o: cxx ../../../../gm/clipdrawdraw.cpp
+build obj/gm/dm.clippedbitmapshaders.o: cxx $
+    ../../../../gm/clippedbitmapshaders.cpp
+build obj/gm/dm.cmykjpeg.o: cxx ../../../../gm/cmykjpeg.cpp
+build obj/gm/dm.colorcube.o: cxx ../../../../gm/colorcube.cpp
+build obj/gm/dm.coloremoji.o: cxx ../../../../gm/coloremoji.cpp
+build obj/gm/dm.colorfilterimagefilter.o: cxx $
+    ../../../../gm/colorfilterimagefilter.cpp
+build obj/gm/dm.colorfilters.o: cxx ../../../../gm/colorfilters.cpp
+build obj/gm/dm.colormatrix.o: cxx ../../../../gm/colormatrix.cpp
+build obj/gm/dm.colortype.o: cxx ../../../../gm/colortype.cpp
+build obj/gm/dm.colortypexfermode.o: cxx ../../../../gm/colortypexfermode.cpp
+build obj/gm/dm.colorwheel.o: cxx ../../../../gm/colorwheel.cpp
+build obj/gm/dm.complexclip.o: cxx ../../../../gm/complexclip.cpp
+build obj/gm/dm.complexclip2.o: cxx ../../../../gm/complexclip2.cpp
+build obj/gm/dm.complexclip3.o: cxx ../../../../gm/complexclip3.cpp
+build obj/gm/dm.composeshader.o: cxx ../../../../gm/composeshader.cpp
+build obj/gm/dm.concavepaths.o: cxx ../../../../gm/concavepaths.cpp
+build obj/gm/dm.conicpaths.o: cxx ../../../../gm/conicpaths.cpp
+build obj/gm/dm.constcolorprocessor.o: cxx $
+    ../../../../gm/constcolorprocessor.cpp
+build obj/gm/dm.convex_all_line_paths.o: cxx $
+    ../../../../gm/convex_all_line_paths.cpp
+build obj/gm/dm.convexpaths.o: cxx ../../../../gm/convexpaths.cpp
+build obj/gm/dm.convexpolyclip.o: cxx ../../../../gm/convexpolyclip.cpp
+build obj/gm/dm.convexpolyeffect.o: cxx ../../../../gm/convexpolyeffect.cpp
+build obj/gm/dm.copyTo4444.o: cxx ../../../../gm/copyTo4444.cpp
+build obj/gm/dm.cubicpaths.o: cxx ../../../../gm/cubicpaths.cpp
+build obj/gm/dm.dashcubics.o: cxx ../../../../gm/dashcubics.cpp
+build obj/gm/dm.dashing.o: cxx ../../../../gm/dashing.cpp
+build obj/gm/dm.dcshader.o: cxx ../../../../gm/dcshader.cpp
+build obj/gm/dm.degeneratesegments.o: cxx $
+    ../../../../gm/degeneratesegments.cpp
+build obj/gm/dm.dftext.o: cxx ../../../../gm/dftext.cpp
+build obj/gm/dm.discard.o: cxx ../../../../gm/discard.cpp
+build obj/gm/dm.displacement.o: cxx ../../../../gm/displacement.cpp
+build obj/gm/dm.distantclip.o: cxx ../../../../gm/distantclip.cpp
+build obj/gm/dm.downsamplebitmap.o: cxx ../../../../gm/downsamplebitmap.cpp
+build obj/gm/dm.draw_bitmap_rect_skbug4374.o: cxx $
+    ../../../../gm/draw_bitmap_rect_skbug4374.cpp
+build obj/gm/dm.drawable.o: cxx ../../../../gm/drawable.cpp
+build obj/gm/dm.drawatlas.o: cxx ../../../../gm/drawatlas.cpp
+build obj/gm/dm.drawatlascolor.o: cxx ../../../../gm/drawatlascolor.cpp
+build obj/gm/dm.drawbitmaprect.o: cxx ../../../../gm/drawbitmaprect.cpp
+build obj/gm/dm.drawfilter.o: cxx ../../../../gm/drawfilter.cpp
+build obj/gm/dm.drawlooper.o: cxx ../../../../gm/drawlooper.cpp
+build obj/gm/dm.drawminibitmaprect.o: cxx $
+    ../../../../gm/drawminibitmaprect.cpp
+build obj/gm/dm.dropshadowimagefilter.o: cxx $
+    ../../../../gm/dropshadowimagefilter.cpp
+build obj/gm/dm.drrect.o: cxx ../../../../gm/drrect.cpp
+build obj/gm/dm.dstreadshuffle.o: cxx ../../../../gm/dstreadshuffle.cpp
+build obj/gm/dm.emboss.o: cxx ../../../../gm/emboss.cpp
+build obj/gm/dm.emptypath.o: cxx ../../../../gm/emptypath.cpp
+build obj/gm/dm.etc1bitmap.o: cxx ../../../../gm/etc1bitmap.cpp
+build obj/gm/dm.extractbitmap.o: cxx ../../../../gm/extractbitmap.cpp
+build obj/gm/dm.factory.o: cxx ../../../../gm/factory.cpp
+build obj/gm/dm.fadefilter.o: cxx ../../../../gm/fadefilter.cpp
+build obj/gm/dm.fatpathfill.o: cxx ../../../../gm/fatpathfill.cpp
+build obj/gm/dm.filltypes.o: cxx ../../../../gm/filltypes.cpp
+build obj/gm/dm.filltypespersp.o: cxx ../../../../gm/filltypespersp.cpp
+build obj/gm/dm.filterbitmap.o: cxx ../../../../gm/filterbitmap.cpp
+build obj/gm/dm.filterfastbounds.o: cxx ../../../../gm/filterfastbounds.cpp
+build obj/gm/dm.filterindiabox.o: cxx ../../../../gm/filterindiabox.cpp
+build obj/gm/dm.fontcache.o: cxx ../../../../gm/fontcache.cpp
+build obj/gm/dm.fontmgr.o: cxx ../../../../gm/fontmgr.cpp
+build obj/gm/dm.fontscaler.o: cxx ../../../../gm/fontscaler.cpp
+build obj/gm/dm.fontscalerdistortable.o: cxx $
+    ../../../../gm/fontscalerdistortable.cpp
+build obj/gm/dm.gammatext.o: cxx ../../../../gm/gammatext.cpp
+build obj/gm/dm.getpostextpath.o: cxx ../../../../gm/getpostextpath.cpp
+build obj/gm/dm.giantbitmap.o: cxx ../../../../gm/giantbitmap.cpp
+build obj/gm/dm.glyph_pos.o: cxx ../../../../gm/glyph_pos.cpp
+build obj/gm/dm.glyph_pos_align.o: cxx ../../../../gm/glyph_pos_align.cpp
+build obj/gm/dm.gradientDirtyLaundry.o: cxx $
+    ../../../../gm/gradientDirtyLaundry.cpp
+build obj/gm/dm.gradient_matrix.o: cxx ../../../../gm/gradient_matrix.cpp
+build obj/gm/dm.gradients.o: cxx ../../../../gm/gradients.cpp
+build obj/gm/dm.gradients_2pt_conical.o: cxx $
+    ../../../../gm/gradients_2pt_conical.cpp
+build obj/gm/dm.gradients_no_texture.o: cxx $
+    ../../../../gm/gradients_no_texture.cpp
+build obj/gm/dm.gradtext.o: cxx ../../../../gm/gradtext.cpp
+build obj/gm/dm.grayscalejpg.o: cxx ../../../../gm/grayscalejpg.cpp
+build obj/gm/dm.hairlines.o: cxx ../../../../gm/hairlines.cpp
+build obj/gm/dm.hairmodes.o: cxx ../../../../gm/hairmodes.cpp
+build obj/gm/dm.hittestpath.o: cxx ../../../../gm/hittestpath.cpp
+build obj/gm/dm.image.o: cxx ../../../../gm/image.cpp
+build obj/gm/dm.image_pict.o: cxx ../../../../gm/image_pict.cpp
+build obj/gm/dm.image_shader.o: cxx ../../../../gm/image_shader.cpp
+build obj/gm/dm.imagealphathreshold.o: cxx $
+    ../../../../gm/imagealphathreshold.cpp
+build obj/gm/dm.imageblur.o: cxx ../../../../gm/imageblur.cpp
+build obj/gm/dm.imageblur2.o: cxx ../../../../gm/imageblur2.cpp
+build obj/gm/dm.imageblurtiled.o: cxx ../../../../gm/imageblurtiled.cpp
+build obj/gm/dm.imagefilters.o: cxx ../../../../gm/imagefilters.cpp
+build obj/gm/dm.imagefiltersbase.o: cxx ../../../../gm/imagefiltersbase.cpp
+build obj/gm/dm.imagefiltersclipped.o: cxx $
+    ../../../../gm/imagefiltersclipped.cpp
+build obj/gm/dm.imagefilterscropexpand.o: cxx $
+    ../../../../gm/imagefilterscropexpand.cpp
+build obj/gm/dm.imagefilterscropped.o: cxx $
+    ../../../../gm/imagefilterscropped.cpp
+build obj/gm/dm.imagefiltersgraph.o: cxx ../../../../gm/imagefiltersgraph.cpp
+build obj/gm/dm.imagefiltersscaled.o: cxx $
+    ../../../../gm/imagefiltersscaled.cpp
+build obj/gm/dm.imagefiltersstroked.o: cxx $
+    ../../../../gm/imagefiltersstroked.cpp
+build obj/gm/dm.imagefilterstransformed.o: cxx $
+    ../../../../gm/imagefilterstransformed.cpp
+build obj/gm/dm.imagefromyuvtextures.o: cxx $
+    ../../../../gm/imagefromyuvtextures.cpp
+build obj/gm/dm.imagemagnifier.o: cxx ../../../../gm/imagemagnifier.cpp
+build obj/gm/dm.imageresizetiled.o: cxx ../../../../gm/imageresizetiled.cpp
+build obj/gm/dm.imagesource.o: cxx ../../../../gm/imagesource.cpp
+build obj/gm/dm.imagesource2.o: cxx ../../../../gm/imagesource2.cpp
+build obj/gm/dm.internal_links.o: cxx ../../../../gm/internal_links.cpp
+build obj/gm/dm.inversepaths.o: cxx ../../../../gm/inversepaths.cpp
+build obj/gm/dm.largeglyphblur.o: cxx ../../../../gm/largeglyphblur.cpp
+build obj/gm/dm.lcdblendmodes.o: cxx ../../../../gm/lcdblendmodes.cpp
+build obj/gm/dm.lcdoverlap.o: cxx ../../../../gm/lcdoverlap.cpp
+build obj/gm/dm.lcdtext.o: cxx ../../../../gm/lcdtext.cpp
+build obj/gm/dm.lerpmode.o: cxx ../../../../gm/lerpmode.cpp
+build obj/gm/dm.lighting.o: cxx ../../../../gm/lighting.cpp
+build obj/gm/dm.lightingshader.o: cxx ../../../../gm/lightingshader.cpp
+build obj/gm/dm.linepaths.o: cxx ../../../../gm/linepaths.cpp
+build obj/gm/dm.lumafilter.o: cxx ../../../../gm/lumafilter.cpp
+build obj/gm/dm.matrixconvolution.o: cxx ../../../../gm/matrixconvolution.cpp
+build obj/gm/dm.matriximagefilter.o: cxx ../../../../gm/matriximagefilter.cpp
+build obj/gm/dm.megalooper.o: cxx ../../../../gm/megalooper.cpp
+build obj/gm/dm.mipmap.o: cxx ../../../../gm/mipmap.cpp
+build obj/gm/dm.mixedtextblobs.o: cxx ../../../../gm/mixedtextblobs.cpp
+build obj/gm/dm.modecolorfilters.o: cxx ../../../../gm/modecolorfilters.cpp
+build obj/gm/dm.morphology.o: cxx ../../../../gm/morphology.cpp
+build obj/gm/dm.multipicturedraw.o: cxx ../../../../gm/multipicturedraw.cpp
+build obj/gm/dm.nested.o: cxx ../../../../gm/nested.cpp
+build obj/gm/dm.ninepatchstretch.o: cxx ../../../../gm/ninepatchstretch.cpp
+build obj/gm/dm.nonclosedpaths.o: cxx ../../../../gm/nonclosedpaths.cpp
+build obj/gm/dm.offsetimagefilter.o: cxx ../../../../gm/offsetimagefilter.cpp
+build obj/gm/dm.ovals.o: cxx ../../../../gm/ovals.cpp
+build obj/gm/dm.patch.o: cxx ../../../../gm/patch.cpp
+build obj/gm/dm.patchgrid.o: cxx ../../../../gm/patchgrid.cpp
+build obj/gm/dm.path_stroke_with_zero_length.o: cxx $
+    ../../../../gm/path_stroke_with_zero_length.cpp
+build obj/gm/dm.patheffects.o: cxx ../../../../gm/patheffects.cpp
+build obj/gm/dm.pathfill.o: cxx ../../../../gm/pathfill.cpp
+build obj/gm/dm.pathinterior.o: cxx ../../../../gm/pathinterior.cpp
+build obj/gm/dm.pathopsinverse.o: cxx ../../../../gm/pathopsinverse.cpp
+build obj/gm/dm.pathopsskpclip.o: cxx ../../../../gm/pathopsskpclip.cpp
+build obj/gm/dm.pathreverse.o: cxx ../../../../gm/pathreverse.cpp
+build obj/gm/dm.peekpixels.o: cxx ../../../../gm/peekpixels.cpp
+build obj/gm/dm.perlinnoise.o: cxx ../../../../gm/perlinnoise.cpp
+build obj/gm/dm.perspshaders.o: cxx ../../../../gm/perspshaders.cpp
+build obj/gm/dm.picture.o: cxx ../../../../gm/picture.cpp
+build obj/gm/dm.pictureimagefilter.o: cxx $
+    ../../../../gm/pictureimagefilter.cpp
+build obj/gm/dm.pictureimagegenerator.o: cxx $
+    ../../../../gm/pictureimagegenerator.cpp
+build obj/gm/dm.pictureshader.o: cxx ../../../../gm/pictureshader.cpp
+build obj/gm/dm.pictureshadertile.o: cxx ../../../../gm/pictureshadertile.cpp
+build obj/gm/dm.pixelsnap.o: cxx ../../../../gm/pixelsnap.cpp
+build obj/gm/dm.plus.o: cxx ../../../../gm/plus.cpp
+build obj/gm/dm.points.o: cxx ../../../../gm/points.cpp
+build obj/gm/dm.poly2poly.o: cxx ../../../../gm/poly2poly.cpp
+build obj/gm/dm.polygons.o: cxx ../../../../gm/polygons.cpp
+build obj/gm/dm.quadpaths.o: cxx ../../../../gm/quadpaths.cpp
+build obj/gm/dm.recordopts.o: cxx ../../../../gm/recordopts.cpp
+build obj/gm/dm.rects.o: cxx ../../../../gm/rects.cpp
+build obj/gm/dm.repeated_bitmap.o: cxx ../../../../gm/repeated_bitmap.cpp
+build obj/gm/dm.resizeimagefilter.o: cxx ../../../../gm/resizeimagefilter.cpp
+build obj/gm/dm.roundrects.o: cxx ../../../../gm/roundrects.cpp
+build obj/gm/dm.rrect.o: cxx ../../../../gm/rrect.cpp
+build obj/gm/dm.rrects.o: cxx ../../../../gm/rrects.cpp
+build obj/gm/dm.samplerstress.o: cxx ../../../../gm/samplerstress.cpp
+build obj/gm/dm.scaledstrokes.o: cxx ../../../../gm/scaledstrokes.cpp
+build obj/gm/dm.selftest.o: cxx ../../../../gm/selftest.cpp
+build obj/gm/dm.shaderbounds.o: cxx ../../../../gm/shaderbounds.cpp
+build obj/gm/dm.shadertext.o: cxx ../../../../gm/shadertext.cpp
+build obj/gm/dm.shadertext2.o: cxx ../../../../gm/shadertext2.cpp
+build obj/gm/dm.shadertext3.o: cxx ../../../../gm/shadertext3.cpp
+build obj/gm/dm.shadows.o: cxx ../../../../gm/shadows.cpp
+build obj/gm/dm.shallowgradient.o: cxx ../../../../gm/shallowgradient.cpp
+build obj/gm/dm.simpleaaclip.o: cxx ../../../../gm/simpleaaclip.cpp
+build obj/gm/dm.skbug1719.o: cxx ../../../../gm/skbug1719.cpp
+build obj/gm/dm.smallarc.o: cxx ../../../../gm/smallarc.cpp
+build obj/gm/dm.smallimage.o: cxx ../../../../gm/smallimage.cpp
+build obj/gm/dm.spritebitmap.o: cxx ../../../../gm/spritebitmap.cpp
+build obj/gm/dm.srcmode.o: cxx ../../../../gm/srcmode.cpp
+build obj/gm/dm.stlouisarch.o: cxx ../../../../gm/stlouisarch.cpp
+build obj/gm/dm.stringart.o: cxx ../../../../gm/stringart.cpp
+build obj/gm/dm.strokefill.o: cxx ../../../../gm/strokefill.cpp
+build obj/gm/dm.strokerect.o: cxx ../../../../gm/strokerect.cpp
+build obj/gm/dm.strokerects.o: cxx ../../../../gm/strokerects.cpp
+build obj/gm/dm.strokes.o: cxx ../../../../gm/strokes.cpp
+build obj/gm/dm.stroketext.o: cxx ../../../../gm/stroketext.cpp
+build obj/gm/dm.surface.o: cxx ../../../../gm/surface.cpp
+build obj/gm/dm.tablecolorfilter.o: cxx ../../../../gm/tablecolorfilter.cpp
+build obj/gm/dm.tallstretchedbitmaps.o: cxx $
+    ../../../../gm/tallstretchedbitmaps.cpp
+build obj/gm/dm.testimagefilters.o: cxx ../../../../gm/testimagefilters.cpp
+build obj/gm/dm.texdata.o: cxx ../../../../gm/texdata.cpp
+build obj/gm/dm.textblob.o: cxx ../../../../gm/textblob.cpp
+build obj/gm/dm.textblobcolortrans.o: cxx $
+    ../../../../gm/textblobcolortrans.cpp
+build obj/gm/dm.textblobgeometrychange.o: cxx $
+    ../../../../gm/textblobgeometrychange.cpp
+build obj/gm/dm.textbloblooper.o: cxx ../../../../gm/textbloblooper.cpp
+build obj/gm/dm.textblobmixedsizes.o: cxx $
+    ../../../../gm/textblobmixedsizes.cpp
+build obj/gm/dm.textblobrandomfont.o: cxx $
+    ../../../../gm/textblobrandomfont.cpp
+build obj/gm/dm.textblobshader.o: cxx ../../../../gm/textblobshader.cpp
+build obj/gm/dm.textblobtransforms.o: cxx $
+    ../../../../gm/textblobtransforms.cpp
+build obj/gm/dm.textblobuseaftergpufree.o: cxx $
+    ../../../../gm/textblobuseaftergpufree.cpp
+build obj/gm/dm.texteffects.o: cxx ../../../../gm/texteffects.cpp
+build obj/gm/dm.texturedomaineffect.o: cxx $
+    ../../../../gm/texturedomaineffect.cpp
+build obj/gm/dm.thinrects.o: cxx ../../../../gm/thinrects.cpp
+build obj/gm/dm.thinstrokedrects.o: cxx ../../../../gm/thinstrokedrects.cpp
+build obj/gm/dm.tiledscaledbitmap.o: cxx ../../../../gm/tiledscaledbitmap.cpp
+build obj/gm/dm.tileimagefilter.o: cxx ../../../../gm/tileimagefilter.cpp
+build obj/gm/dm.tilemodes.o: cxx ../../../../gm/tilemodes.cpp
+build obj/gm/dm.tilemodes_scaled.o: cxx ../../../../gm/tilemodes_scaled.cpp
+build obj/gm/dm.tinybitmap.o: cxx ../../../../gm/tinybitmap.cpp
+build obj/gm/dm.transparency.o: cxx ../../../../gm/transparency.cpp
+build obj/gm/dm.typeface.o: cxx ../../../../gm/typeface.cpp
+build obj/gm/dm.variedtext.o: cxx ../../../../gm/variedtext.cpp
+build obj/gm/dm.vertices.o: cxx ../../../../gm/vertices.cpp
+build obj/gm/dm.verttext.o: cxx ../../../../gm/verttext.cpp
+build obj/gm/dm.verttext2.o: cxx ../../../../gm/verttext2.cpp
+build obj/gm/dm.verylargebitmap.o: cxx ../../../../gm/verylargebitmap.cpp
+build obj/gm/dm.xfermodeimagefilter.o: cxx $
+    ../../../../gm/xfermodeimagefilter.cpp
+build obj/gm/dm.xfermodes.o: cxx ../../../../gm/xfermodes.cpp
+build obj/gm/dm.xfermodes2.o: cxx ../../../../gm/xfermodes2.cpp
+build obj/gm/dm.xfermodes3.o: cxx ../../../../gm/xfermodes3.cpp
+build obj/gm/dm.yuvtorgbeffect.o: cxx ../../../../gm/yuvtorgbeffect.cpp
+
+ldflags = -march=armv7-a
+libs = -llog -lz
+build lib/libdm.so lib/libdm.so.TOC: solink obj/dm/dm.DM.o $
+    obj/dm/dm.DMSrcSink.o obj/dm/dm.DMJsonWriter.o obj/gm/dm.gm.o $
+    obj/src/pipe/utils/dm.SamplePipeControllers.o $
+    obj/src/utils/debugger/dm.SkDebugCanvas.o $
+    obj/src/utils/debugger/dm.SkDrawCommand.o $
+    obj/src/utils/debugger/dm.SkObjectParser.o obj/tests/dm.Test.o $
+    obj/tests/dm.PathOpsAngleTest.o obj/tests/dm.PathOpsBoundsTest.o $
+    obj/tests/dm.PathOpsBuilderTest.o obj/tests/dm.PathOpsBuildUseTest.o $
+    obj/tests/dm.PathOpsConicIntersectionTest.o $
+    obj/tests/dm.PathOpsConicLineIntersectionTest.o $
+    obj/tests/dm.PathOpsCubicIntersectionTest.o $
+    obj/tests/dm.PathOpsCubicIntersectionTestData.o $
+    obj/tests/dm.PathOpsCubicLineIntersectionTest.o $
+    obj/tests/dm.PathOpsCubicQuadIntersectionTest.o $
+    obj/tests/dm.PathOpsCubicReduceOrderTest.o $
+    obj/tests/dm.PathOpsDCubicTest.o obj/tests/dm.PathOpsDLineTest.o $
+    obj/tests/dm.PathOpsDPointTest.o obj/tests/dm.PathOpsDRectTest.o $
+    obj/tests/dm.PathOpsDVectorTest.o obj/tests/dm.PathOpsExtendedTest.o $
+    obj/tests/dm.PathOpsFuzz763Test.o obj/tests/dm.PathOpsInverseTest.o $
+    obj/tests/dm.PathOpsIssue3651.o $
+    obj/tests/dm.PathOpsLineIntersectionTest.o $
+    obj/tests/dm.PathOpsLineParametetersTest.o $
+    obj/tests/dm.PathOpsOpCircleThreadedTest.o $
+    obj/tests/dm.PathOpsOpCubicThreadedTest.o $
+    obj/tests/dm.PathOpsOpRectThreadedTest.o obj/tests/dm.PathOpsOpTest.o $
+    obj/tests/dm.PathOpsQuadIntersectionTest.o $
+    obj/tests/dm.PathOpsQuadIntersectionTestData.o $
+    obj/tests/dm.PathOpsQuadLineIntersectionTest.o $
+    obj/tests/dm.PathOpsQuadLineIntersectionThreadedTest.o $
+    obj/tests/dm.PathOpsQuadReduceOrderTest.o $
+    obj/tests/dm.PathOpsSimplifyDegenerateThreadedTest.o $
+    obj/tests/dm.PathOpsSimplifyFailTest.o $
+    obj/tests/dm.PathOpsSimplifyQuadralateralsThreadedTest.o $
+    obj/tests/dm.PathOpsSimplifyQuadThreadedTest.o $
+    obj/tests/dm.PathOpsSimplifyRectThreadedTest.o $
+    obj/tests/dm.PathOpsSimplifyTest.o $
+    obj/tests/dm.PathOpsSimplifyTrianglesThreadedTest.o $
+    obj/tests/dm.PathOpsSkpTest.o obj/tests/dm.PathOpsTestCommon.o $
+    obj/tests/dm.PathOpsThreadedCommon.o obj/tests/dm.PathOpsThreeWayTest.o $
+    obj/tests/dm.PathOpsTightBoundsTest.o obj/tests/dm.PathOpsTypesTest.o $
+    obj/tests/dm.AAClipTest.o obj/tests/dm.ARGBImageEncoderTest.o $
+    obj/tests/dm.AnnotationTest.o obj/tests/dm.AsADashTest.o $
+    obj/tests/dm.AtomicTest.o obj/tests/dm.BadIcoTest.o $
+    obj/tests/dm.BitSetTest.o obj/tests/dm.BitmapCopyTest.o $
+    obj/tests/dm.BitmapGetColorTest.o obj/tests/dm.BitmapHasherTest.o $
+    obj/tests/dm.BitmapHeapTest.o obj/tests/dm.BitmapTest.o $
+    obj/tests/dm.BlendTest.o obj/tests/dm.BlitRowTest.o $
+    obj/tests/dm.BlurTest.o obj/tests/dm.CPlusPlusEleven.o $
+    obj/tests/dm.CTest.o obj/tests/dm.CachedDataTest.o $
+    obj/tests/dm.CachedDecodingPixelRefTest.o $
+    obj/tests/dm.CanvasStateHelpers.o obj/tests/dm.CanvasStateTest.o $
+    obj/tests/dm.CanvasTest.o obj/tests/dm.ChecksumTest.o $
+    obj/tests/dm.ClampRangeTest.o obj/tests/dm.ClipBoundsTest.o $
+    obj/tests/dm.ClipCubicTest.o obj/tests/dm.ClipStackTest.o $
+    obj/tests/dm.ClipperTest.o obj/tests/dm.CodexTest.o $
+    obj/tests/dm.ColorFilterTest.o obj/tests/dm.ColorMatrixTest.o $
+    obj/tests/dm.ColorPrivTest.o obj/tests/dm.ColorTest.o $
+    obj/tests/dm.DashPathEffectTest.o obj/tests/dm.DataRefTest.o $
+    obj/tests/dm.DequeTest.o obj/tests/dm.DeviceLooperTest.o $
+    obj/tests/dm.DiscardableMemoryPoolTest.o $
+    obj/tests/dm.DiscardableMemoryTest.o obj/tests/dm.DrawBitmapRectTest.o $
+    obj/tests/dm.DrawFilterTest.o obj/tests/dm.DrawPathTest.o $
+    obj/tests/dm.DrawTextTest.o obj/tests/dm.DynamicHashTest.o $
+    obj/tests/dm.EmptyPathTest.o obj/tests/dm.ErrorTest.o $
+    obj/tests/dm.FillPathTest.o obj/tests/dm.FitsInTest.o $
+    obj/tests/dm.FloatingPointTextureTest.o $
+    obj/tests/dm.FontHostStreamTest.o obj/tests/dm.FontHostTest.o $
+    obj/tests/dm.FontMgrAndroidParserTest.o obj/tests/dm.FontMgrTest.o $
+    obj/tests/dm.FontNamesTest.o obj/tests/dm.FontObjTest.o $
+    obj/tests/dm.FrontBufferedStreamTest.o obj/tests/dm.FunctionTest.o $
+    obj/tests/dm.GLInterfaceValidationTest.o obj/tests/dm.GLProgramsTest.o $
+    obj/tests/dm.GeometryTest.o obj/tests/dm.GifTest.o $
+    obj/tests/dm.GpuColorFilterTest.o obj/tests/dm.GpuDrawPathTest.o $
+    obj/tests/dm.GpuLayerCacheTest.o obj/tests/dm.GpuRectanizerTest.o $
+    obj/tests/dm.GrAllocatorTest.o obj/tests/dm.GrContextFactoryTest.o $
+    obj/tests/dm.GrDrawTargetTest.o obj/tests/dm.GrGLSLPrettyPrintTest.o $
+    obj/tests/dm.GrGetCoeffBlendKnownComponentsTest.o $
+    obj/tests/dm.GrMemoryPoolTest.o obj/tests/dm.GrPorterDuffTest.o $
+    obj/tests/dm.GrSurfaceTest.o obj/tests/dm.GrTRecorderTest.o $
+    obj/tests/dm.GrTextureMipMapInvalidationTest.o $
+    obj/tests/dm.GradientTest.o obj/tests/dm.HashTest.o $
+    obj/tests/dm.ImageCacheTest.o obj/tests/dm.ImageDecodingTest.o $
+    obj/tests/dm.ImageFilterTest.o obj/tests/dm.ImageGeneratorTest.o $
+    obj/tests/dm.ImageIsOpaqueTest.o obj/tests/dm.ImageNewShaderTest.o $
+    obj/tests/dm.ImageTest.o obj/tests/dm.IndexedPngOverflowTest.o $
+    obj/tests/dm.InfRectTest.o obj/tests/dm.InterpolatorTest.o $
+    obj/tests/dm.InvalidIndexedPngTest.o obj/tests/dm.JpegTest.o $
+    obj/tests/dm.KtxTest.o obj/tests/dm.LListTest.o $
+    obj/tests/dm.LayerDrawLooperTest.o obj/tests/dm.LayerRasterizerTest.o $
+    obj/tests/dm.MD5Test.o obj/tests/dm.MallocPixelRefTest.o $
+    obj/tests/dm.MaskCacheTest.o obj/tests/dm.MathTest.o $
+    obj/tests/dm.Matrix44Test.o obj/tests/dm.MatrixClipCollapseTest.o $
+    obj/tests/dm.MatrixTest.o obj/tests/dm.MemoryTest.o $
+    obj/tests/dm.MemsetTest.o obj/tests/dm.MessageBusTest.o $
+    obj/tests/dm.MetaDataTest.o obj/tests/dm.MipMapTest.o $
+    obj/tests/dm.NameAllocatorTest.o obj/tests/dm.OSPathTest.o $
+    obj/tests/dm.OncePtrTest.o obj/tests/dm.OnceTest.o $
+    obj/tests/dm.PDFDeflateWStreamTest.o obj/tests/dm.PDFDocumentTest.o $
+    obj/tests/dm.PDFGlyphsToUnicodeTest.o $
+    obj/tests/dm.PDFInvalidBitmapTest.o obj/tests/dm.PDFJpegEmbedTest.o $
+    obj/tests/dm.PDFMetadataAttributeTest.o $
+    obj/tests/dm.PDFOpaqueSrcModeToSrcOverTest.o $
+    obj/tests/dm.PDFPrimitivesTest.o obj/tests/dm.PackBitsTest.o $
+    obj/tests/dm.PaintTest.o obj/tests/dm.ParsePathTest.o $
+    obj/tests/dm.PathCoverageTest.o obj/tests/dm.PathMeasureTest.o $
+    obj/tests/dm.PathTest.o obj/tests/dm.PictureBBHTest.o $
+    obj/tests/dm.PictureShaderTest.o obj/tests/dm.PictureTest.o $
+    obj/tests/dm.PipeTest.o obj/tests/dm.PixelRefTest.o $
+    obj/tests/dm.Point3Test.o obj/tests/dm.PointTest.o $
+    obj/tests/dm.PremulAlphaRoundTripTest.o obj/tests/dm.QuickRejectTest.o $
+    obj/tests/dm.RTConfRegistryTest.o obj/tests/dm.RTreeTest.o $
+    obj/tests/dm.RandomTest.o obj/tests/dm.ReadPixelsTest.o $
+    obj/tests/dm.ReadWriteAlphaTest.o obj/tests/dm.Reader32Test.o $
+    obj/tests/dm.RecordDrawTest.o obj/tests/dm.RecordOptsTest.o $
+    obj/tests/dm.RecordPatternTest.o obj/tests/dm.RecordReplaceDrawTest.o $
+    obj/tests/dm.RecordTest.o obj/tests/dm.RecorderTest.o $
+    obj/tests/dm.RecordingXfermodeTest.o obj/tests/dm.RectTest.o $
+    obj/tests/dm.RefCntTest.o obj/tests/dm.RefDictTest.o $
+    obj/tests/dm.RegionTest.o obj/tests/dm.ResourceCacheTest.o $
+    obj/tests/dm.RoundRectTest.o obj/tests/dm.RuntimeConfigTest.o $
+    obj/tests/dm.SHA1Test.o obj/tests/dm.SRGBReadWritePixelsTest.o $
+    obj/tests/dm.SVGDeviceTest.o obj/tests/dm.ScalarTest.o $
+    obj/tests/dm.SerializationTest.o obj/tests/dm.ShaderImageFilterTest.o $
+    obj/tests/dm.ShaderOpacityTest.o obj/tests/dm.SizeTest.o $
+    obj/tests/dm.SkBase64Test.o obj/tests/dm.SkImageTest.o $
+    obj/tests/dm.SkNxTest.o obj/tests/dm.SkResourceCacheTest.o $
+    obj/tests/dm.SkSharedMutexTest.o obj/tests/dm.SmallAllocatorTest.o $
+    obj/tests/dm.SortTest.o obj/tests/dm.SrcOverTest.o $
+    obj/tests/dm.StreamTest.o obj/tests/dm.StringTest.o $
+    obj/tests/dm.StrokeTest.o obj/tests/dm.StrokerTest.o $
+    obj/tests/dm.SurfaceTest.o obj/tests/dm.SwizzlerTest.o $
+    obj/tests/dm.TArrayTest.o obj/tests/dm.TDPQueueTest.o $
+    obj/tests/dm.TLSTest.o obj/tests/dm.TemplatesTest.o $
+    obj/tests/dm.TessellatingPathRendererTests.o $
+    obj/tests/dm.TextBlobCacheTest.o obj/tests/dm.TextBlobTest.o $
+    obj/tests/dm.TextureCompressionTest.o obj/tests/dm.Time.o $
+    obj/tests/dm.TraceMemoryDumpTest.o obj/tests/dm.TracingTest.o $
+    obj/tests/dm.TypefaceTest.o obj/tests/dm.UnicodeTest.o $
+    obj/tests/dm.UtilsTest.o obj/tests/dm.VarAllocTest.o $
+    obj/tests/dm.WArrayTest.o obj/tests/dm.WritePixelsTest.o $
+    obj/tests/dm.Writer32Test.o obj/tests/dm.XfermodeTest.o $
+    obj/tests/dm.YUVCacheTest.o obj/gm/dm.aaclip.o obj/gm/dm.aarectmodes.o $
+    obj/gm/dm.aaxfermodes.o obj/gm/dm.addarc.o $
+    obj/gm/dm.all_bitmap_configs.o obj/gm/dm.alphagradients.o $
+    obj/gm/dm.anisotropic.o obj/gm/dm.annotated_text.o $
+    obj/gm/dm.arcofzorro.o obj/gm/dm.arithmode.o obj/gm/dm.astcbitmap.o $
+    obj/gm/dm.badpaint.o obj/gm/dm.beziereffects.o obj/gm/dm.beziers.o $
+    obj/gm/dm.bigblurs.o obj/gm/dm.bigmatrix.o obj/gm/dm.bigrrectaaeffect.o $
+    obj/gm/dm.bigtext.o obj/gm/dm.bigtileimagefilter.o $
+    obj/gm/dm.bitmapcopy.o obj/gm/dm.bitmapfilters.o $
+    obj/gm/dm.bitmappremul.o obj/gm/dm.bitmaprect.o $
+    obj/gm/dm.bitmaprecttest.o obj/gm/dm.bitmapshader.o obj/gm/dm.bleed.o $
+    obj/gm/dm.blend.o obj/gm/dm.blurcircles.o obj/gm/dm.blurquickreject.o $
+    obj/gm/dm.blurrect.o obj/gm/dm.blurroundrect.o obj/gm/dm.blurs.o $
+    obj/gm/dm.bmpfilterqualityrepeat.o obj/gm/dm.cgm.o obj/gm/dm.cgms.o $
+    obj/gm/dm.circles.o obj/gm/dm.circularclips.o $
+    obj/gm/dm.clip_strokerect.o obj/gm/dm.clipdrawdraw.o $
+    obj/gm/dm.clippedbitmapshaders.o obj/gm/dm.cmykjpeg.o $
+    obj/gm/dm.colorcube.o obj/gm/dm.coloremoji.o $
+    obj/gm/dm.colorfilterimagefilter.o obj/gm/dm.colorfilters.o $
+    obj/gm/dm.colormatrix.o obj/gm/dm.colortype.o $
+    obj/gm/dm.colortypexfermode.o obj/gm/dm.colorwheel.o $
+    obj/gm/dm.complexclip.o obj/gm/dm.complexclip2.o $
+    obj/gm/dm.complexclip3.o obj/gm/dm.composeshader.o $
+    obj/gm/dm.concavepaths.o obj/gm/dm.conicpaths.o $
+    obj/gm/dm.constcolorprocessor.o obj/gm/dm.convex_all_line_paths.o $
+    obj/gm/dm.convexpaths.o obj/gm/dm.convexpolyclip.o $
+    obj/gm/dm.convexpolyeffect.o obj/gm/dm.copyTo4444.o $
+    obj/gm/dm.cubicpaths.o obj/gm/dm.dashcubics.o obj/gm/dm.dashing.o $
+    obj/gm/dm.dcshader.o obj/gm/dm.degeneratesegments.o obj/gm/dm.dftext.o $
+    obj/gm/dm.discard.o obj/gm/dm.displacement.o obj/gm/dm.distantclip.o $
+    obj/gm/dm.downsamplebitmap.o obj/gm/dm.draw_bitmap_rect_skbug4374.o $
+    obj/gm/dm.drawable.o obj/gm/dm.drawatlas.o obj/gm/dm.drawatlascolor.o $
+    obj/gm/dm.drawbitmaprect.o obj/gm/dm.drawfilter.o $
+    obj/gm/dm.drawlooper.o obj/gm/dm.drawminibitmaprect.o $
+    obj/gm/dm.dropshadowimagefilter.o obj/gm/dm.drrect.o $
+    obj/gm/dm.dstreadshuffle.o obj/gm/dm.emboss.o obj/gm/dm.emptypath.o $
+    obj/gm/dm.etc1bitmap.o obj/gm/dm.extractbitmap.o obj/gm/dm.factory.o $
+    obj/gm/dm.fadefilter.o obj/gm/dm.fatpathfill.o obj/gm/dm.filltypes.o $
+    obj/gm/dm.filltypespersp.o obj/gm/dm.filterbitmap.o $
+    obj/gm/dm.filterfastbounds.o obj/gm/dm.filterindiabox.o $
+    obj/gm/dm.fontcache.o obj/gm/dm.fontmgr.o obj/gm/dm.fontscaler.o $
+    obj/gm/dm.fontscalerdistortable.o obj/gm/dm.gammatext.o $
+    obj/gm/dm.getpostextpath.o obj/gm/dm.giantbitmap.o $
+    obj/gm/dm.glyph_pos.o obj/gm/dm.glyph_pos_align.o $
+    obj/gm/dm.gradientDirtyLaundry.o obj/gm/dm.gradient_matrix.o $
+    obj/gm/dm.gradients.o obj/gm/dm.gradients_2pt_conical.o $
+    obj/gm/dm.gradients_no_texture.o obj/gm/dm.gradtext.o $
+    obj/gm/dm.grayscalejpg.o obj/gm/dm.hairlines.o obj/gm/dm.hairmodes.o $
+    obj/gm/dm.hittestpath.o obj/gm/dm.image.o obj/gm/dm.image_pict.o $
+    obj/gm/dm.image_shader.o obj/gm/dm.imagealphathreshold.o $
+    obj/gm/dm.imageblur.o obj/gm/dm.imageblur2.o obj/gm/dm.imageblurtiled.o $
+    obj/gm/dm.imagefilters.o obj/gm/dm.imagefiltersbase.o $
+    obj/gm/dm.imagefiltersclipped.o obj/gm/dm.imagefilterscropexpand.o $
+    obj/gm/dm.imagefilterscropped.o obj/gm/dm.imagefiltersgraph.o $
+    obj/gm/dm.imagefiltersscaled.o obj/gm/dm.imagefiltersstroked.o $
+    obj/gm/dm.imagefilterstransformed.o obj/gm/dm.imagefromyuvtextures.o $
+    obj/gm/dm.imagemagnifier.o obj/gm/dm.imageresizetiled.o $
+    obj/gm/dm.imagesource.o obj/gm/dm.imagesource2.o $
+    obj/gm/dm.internal_links.o obj/gm/dm.inversepaths.o $
+    obj/gm/dm.largeglyphblur.o obj/gm/dm.lcdblendmodes.o $
+    obj/gm/dm.lcdoverlap.o obj/gm/dm.lcdtext.o obj/gm/dm.lerpmode.o $
+    obj/gm/dm.lighting.o obj/gm/dm.lightingshader.o obj/gm/dm.linepaths.o $
+    obj/gm/dm.lumafilter.o obj/gm/dm.matrixconvolution.o $
+    obj/gm/dm.matriximagefilter.o obj/gm/dm.megalooper.o obj/gm/dm.mipmap.o $
+    obj/gm/dm.mixedtextblobs.o obj/gm/dm.modecolorfilters.o $
+    obj/gm/dm.morphology.o obj/gm/dm.multipicturedraw.o obj/gm/dm.nested.o $
+    obj/gm/dm.ninepatchstretch.o obj/gm/dm.nonclosedpaths.o $
+    obj/gm/dm.offsetimagefilter.o obj/gm/dm.ovals.o obj/gm/dm.patch.o $
+    obj/gm/dm.patchgrid.o obj/gm/dm.path_stroke_with_zero_length.o $
+    obj/gm/dm.patheffects.o obj/gm/dm.pathfill.o obj/gm/dm.pathinterior.o $
+    obj/gm/dm.pathopsinverse.o obj/gm/dm.pathopsskpclip.o $
+    obj/gm/dm.pathreverse.o obj/gm/dm.peekpixels.o obj/gm/dm.perlinnoise.o $
+    obj/gm/dm.perspshaders.o obj/gm/dm.picture.o $
+    obj/gm/dm.pictureimagefilter.o obj/gm/dm.pictureimagegenerator.o $
+    obj/gm/dm.pictureshader.o obj/gm/dm.pictureshadertile.o $
+    obj/gm/dm.pixelsnap.o obj/gm/dm.plus.o obj/gm/dm.points.o $
+    obj/gm/dm.poly2poly.o obj/gm/dm.polygons.o obj/gm/dm.quadpaths.o $
+    obj/gm/dm.recordopts.o obj/gm/dm.rects.o obj/gm/dm.repeated_bitmap.o $
+    obj/gm/dm.resizeimagefilter.o obj/gm/dm.roundrects.o obj/gm/dm.rrect.o $
+    obj/gm/dm.rrects.o obj/gm/dm.samplerstress.o obj/gm/dm.scaledstrokes.o $
+    obj/gm/dm.selftest.o obj/gm/dm.shaderbounds.o obj/gm/dm.shadertext.o $
+    obj/gm/dm.shadertext2.o obj/gm/dm.shadertext3.o obj/gm/dm.shadows.o $
+    obj/gm/dm.shallowgradient.o obj/gm/dm.simpleaaclip.o $
+    obj/gm/dm.skbug1719.o obj/gm/dm.smallarc.o obj/gm/dm.smallimage.o $
+    obj/gm/dm.spritebitmap.o obj/gm/dm.srcmode.o obj/gm/dm.stlouisarch.o $
+    obj/gm/dm.stringart.o obj/gm/dm.strokefill.o obj/gm/dm.strokerect.o $
+    obj/gm/dm.strokerects.o obj/gm/dm.strokes.o obj/gm/dm.stroketext.o $
+    obj/gm/dm.surface.o obj/gm/dm.tablecolorfilter.o $
+    obj/gm/dm.tallstretchedbitmaps.o obj/gm/dm.testimagefilters.o $
+    obj/gm/dm.texdata.o obj/gm/dm.textblob.o obj/gm/dm.textblobcolortrans.o $
+    obj/gm/dm.textblobgeometrychange.o obj/gm/dm.textbloblooper.o $
+    obj/gm/dm.textblobmixedsizes.o obj/gm/dm.textblobrandomfont.o $
+    obj/gm/dm.textblobshader.o obj/gm/dm.textblobtransforms.o $
+    obj/gm/dm.textblobuseaftergpufree.o obj/gm/dm.texteffects.o $
+    obj/gm/dm.texturedomaineffect.o obj/gm/dm.thinrects.o $
+    obj/gm/dm.thinstrokedrects.o obj/gm/dm.tiledscaledbitmap.o $
+    obj/gm/dm.tileimagefilter.o obj/gm/dm.tilemodes.o $
+    obj/gm/dm.tilemodes_scaled.o obj/gm/dm.tinybitmap.o $
+    obj/gm/dm.transparency.o obj/gm/dm.typeface.o obj/gm/dm.variedtext.o $
+    obj/gm/dm.vertices.o obj/gm/dm.verttext.o obj/gm/dm.verttext2.o $
+    obj/gm/dm.verylargebitmap.o obj/gm/dm.xfermodeimagefilter.o $
+    obj/gm/dm.xfermodes.o obj/gm/dm.xfermodes2.o obj/gm/dm.xfermodes3.o $
+    obj/gm/dm.yuvtorgbeffect.o obj/gyp/libandroid_output.a $
+    obj/gyp/libetc1.a obj/gyp/libflags.a obj/gyp/libjsoncpp.a libskia_svg.a $
+    obj/gyp/libbitmap_region_decoder.a obj/gyp/libcrash_handler.a $
+    obj/gyp/libproc_stats.a obj/gyp/libsk_tool_utils.a obj/gyp/libtimer.a $
+    libskia_xml.a libskia_xps.a obj/gyp/libresources.a $
+    obj/gyp/libexperimental.a obj/gyp/libflags_common.a libskia_pdf.a $
+    obj/gyp/libpicture_utils.a libskia_skgputest.a libpng_static.a $
+    obj/gyp/libpng_static_neon.a obj/gyp/libsfntly.a obj/gyp/libicuuc.a | $
+    lib/libskia_android.so.TOC skia_launcher libpng_static.a
+  ld = $ldxx
+  soname = libdm.so
+  lib = lib/libdm.so
+  link_file_list = lib/libdm.so.rsp
+  solibs = lib/libskia_android.so

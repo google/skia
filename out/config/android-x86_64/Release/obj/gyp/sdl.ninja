@@ -1,0 +1,373 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 -DQT_NO_KEYWORDS $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_FORCE_DISTANCE_FIELD_TEXT=0 -DSK_CODEC_DECODES_RAW $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DGL_GLEXT_PROTOTYPES -DNDEBUG
+includes = $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/libsdl/android $
+    -I../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/include
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter -m64 $
+    -fuse-ld=gold -mssse3 -g -w -fPIC -O3 -fvisibility=hidden -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/third_party/externals/sdl/src/sdl.SDL.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/SDL.c
+build obj/third_party/externals/sdl/src/sdl.SDL_assert.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/SDL_assert.c
+build obj/third_party/externals/sdl/src/sdl.SDL_error.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/SDL_error.c
+build obj/third_party/externals/sdl/src/sdl.SDL_hints.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/SDL_hints.c
+build obj/third_party/externals/sdl/src/sdl.SDL_log.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/SDL_log.c
+build obj/third_party/externals/sdl/src/atomic/sdl.SDL_atomic.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/atomic/SDL_atomic.c
+build obj/third_party/externals/sdl/src/atomic/sdl.SDL_spinlock.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/atomic/SDL_spinlock.c
+build obj/third_party/externals/sdl/src/audio/sdl.SDL_audio.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/audio/SDL_audio.c
+build obj/third_party/externals/sdl/src/audio/sdl.SDL_audiocvt.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/audio/SDL_audiocvt.c
+build obj/third_party/externals/sdl/src/audio/sdl.SDL_audiodev.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/audio/SDL_audiodev.c
+build obj/third_party/externals/sdl/src/audio/sdl.SDL_audiotypecvt.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/audio/SDL_audiotypecvt.c
+build obj/third_party/externals/sdl/src/audio/sdl.SDL_mixer.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/audio/SDL_mixer.c
+build obj/third_party/externals/sdl/src/audio/sdl.SDL_wave.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/audio/SDL_wave.c
+build obj/third_party/externals/sdl/src/audio/dummy/sdl.SDL_dummyaudio.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/audio/dummy/SDL_dummyaudio.c
+build $
+    obj/third_party/externals/sdl/src/audio/android/sdl.SDL_androidaudio.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/audio/android/SDL_androidaudio.c
+build obj/third_party/externals/sdl/src/cpuinfo/sdl.SDL_cpuinfo.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/cpuinfo/SDL_cpuinfo.c
+build obj/third_party/externals/sdl/src/dynapi/sdl.SDL_dynapi.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/dynapi/SDL_dynapi.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_clipboardevents.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_clipboardevents.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_dropevents.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_dropevents.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_events.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_events.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_gesture.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_gesture.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_keyboard.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_keyboard.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_mouse.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_mouse.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_quit.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_quit.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_touch.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_touch.c
+build obj/third_party/externals/sdl/src/events/sdl.SDL_windowevents.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/events/SDL_windowevents.c
+build obj/third_party/externals/sdl/src/file/sdl.SDL_rwops.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/file/SDL_rwops.c
+build obj/third_party/externals/sdl/src/haptic/sdl.SDL_haptic.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/haptic/SDL_haptic.c
+build obj/third_party/externals/sdl/src/joystick/sdl.SDL_gamecontroller.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/joystick/SDL_gamecontroller.c
+build obj/third_party/externals/sdl/src/joystick/sdl.SDL_joystick.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/joystick/SDL_joystick.c
+build $
+    obj/third_party/externals/sdl/src/joystick/android/sdl.SDL_sysjoystick.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/joystick/android/SDL_sysjoystick.c
+build obj/third_party/externals/sdl/src/power/sdl.SDL_power.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/power/SDL_power.c
+build obj/third_party/externals/sdl/src/power/android/sdl.SDL_syspower.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/power/android/SDL_syspower.c
+build obj/third_party/externals/sdl/src/loadso/dlopen/sdl.SDL_sysloadso.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/loadso/dlopen/SDL_sysloadso.c
+build obj/third_party/externals/sdl/src/render/sdl.SDL_d3dmath.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/SDL_d3dmath.c
+build obj/third_party/externals/sdl/src/render/sdl.SDL_render.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/SDL_render.c
+build obj/third_party/externals/sdl/src/render/sdl.SDL_yuv_mmx.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/SDL_yuv_mmx.c
+build obj/third_party/externals/sdl/src/render/sdl.SDL_yuv_sw.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/SDL_yuv_sw.c
+build $
+    obj/third_party/externals/sdl/src/render/direct3d/sdl.SDL_render_d3d.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/direct3d/SDL_render_d3d.c
+build $
+    obj/third_party/externals/sdl/src/render/direct3d11/sdl.SDL_render_d3d11.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/direct3d11/SDL_render_d3d11.c
+build obj/third_party/externals/sdl/src/render/opengl/sdl.SDL_render_gl.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/opengl/SDL_render_gl.c
+build obj/third_party/externals/sdl/src/render/opengl/sdl.SDL_shaders_gl.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/opengl/SDL_shaders_gl.c
+build $
+    obj/third_party/externals/sdl/src/render/opengles/sdl.SDL_render_gles.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/opengles/SDL_render_gles.c
+build $
+    obj/third_party/externals/sdl/src/render/opengles2/sdl.SDL_render_gles2.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/opengles2/SDL_render_gles2.c
+build $
+    obj/third_party/externals/sdl/src/render/opengles2/sdl.SDL_shaders_gles2.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/opengles2/SDL_shaders_gles2.c
+build obj/third_party/externals/sdl/src/render/psp/sdl.SDL_render_psp.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/psp/SDL_render_psp.c
+build $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_blendfillrect.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/software/SDL_blendfillrect.c
+build $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_blendline.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/software/SDL_blendline.c
+build $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_blendpoint.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/software/SDL_blendpoint.c
+build obj/third_party/externals/sdl/src/render/software/sdl.SDL_drawline.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/software/SDL_drawline.c
+build $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_drawpoint.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/software/SDL_drawpoint.c
+build $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_render_sw.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/software/SDL_render_sw.c
+build obj/third_party/externals/sdl/src/render/software/sdl.SDL_rotate.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/render/software/SDL_rotate.c
+build obj/third_party/externals/sdl/src/stdlib/sdl.SDL_getenv.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/stdlib/SDL_getenv.c
+build obj/third_party/externals/sdl/src/stdlib/sdl.SDL_iconv.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/stdlib/SDL_iconv.c
+build obj/third_party/externals/sdl/src/stdlib/sdl.SDL_malloc.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/stdlib/SDL_malloc.c
+build obj/third_party/externals/sdl/src/stdlib/sdl.SDL_qsort.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/stdlib/SDL_qsort.c
+build obj/third_party/externals/sdl/src/stdlib/sdl.SDL_stdlib.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/stdlib/SDL_stdlib.c
+build obj/third_party/externals/sdl/src/stdlib/sdl.SDL_string.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/stdlib/SDL_string.c
+build obj/third_party/externals/sdl/src/thread/sdl.SDL_thread.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/thread/SDL_thread.c
+build obj/third_party/externals/sdl/src/timer/sdl.SDL_timer.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/timer/SDL_timer.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_RLEaccel.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_RLEaccel.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_blit.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_blit.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_blit_0.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_blit_0.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_blit_1.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_blit_1.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_blit_A.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_blit_A.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_blit_N.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_blit_N.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_blit_auto.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_blit_auto.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_blit_copy.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_blit_copy.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_blit_slow.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_blit_slow.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_bmp.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_bmp.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_clipboard.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_clipboard.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_egl.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_egl.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_fillrect.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_fillrect.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_pixels.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_pixels.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_rect.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_rect.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_shape.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_shape.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_stretch.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_stretch.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_surface.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_surface.c
+build obj/third_party/externals/sdl/src/video/sdl.SDL_video.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/SDL_video.c
+build obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidgl.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidgl.c
+build $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidkeyboard.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidkeyboard.c
+build $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidwindow.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidwindow.c
+build $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidmouse.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidmouse.c
+build $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidvideo.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidvideo.c
+build $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidclipboard.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidclipboard.c
+build $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidtouch.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidtouch.c
+build $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidevents.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidevents.c
+build $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidmessagebox.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/video/android/SDL_androidmessagebox.c
+build obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_systhread.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/thread/pthread/SDL_systhread.c
+build obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_syssem.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/thread/pthread/SDL_syssem.c
+build obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_sysmutex.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/thread/pthread/SDL_sysmutex.c
+build obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_syscond.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/thread/pthread/SDL_syscond.c
+build obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_systls.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/thread/pthread/SDL_systls.c
+build $
+    obj/third_party/externals/sdl/src/filesystem/android/sdl.SDL_sysfilesystem.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/filesystem/android/SDL_sysfilesystem.c
+build obj/third_party/externals/sdl/src/timer/unix/sdl.SDL_systimer.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/timer/unix/SDL_systimer.c
+build obj/third_party/externals/sdl/src/core/android/sdl.SDL_android.o: cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/core/android/SDL_android.c
+build obj/third_party/externals/sdl/src/haptic/dummy/sdl.SDL_syshaptic.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/haptic/dummy/SDL_syshaptic.c
+build $
+    obj/third_party/externals/sdl/src/main/android/sdl.SDL_android_main.o: $
+    cc $
+    ../../../../../../../../paintLib/skiaMaster/skia/skia/third_party/externals/sdl/src/main/android/SDL_android_main.c
+
+build obj/gyp/libsdl.a: alink_thin $
+    obj/third_party/externals/sdl/src/sdl.SDL.o $
+    obj/third_party/externals/sdl/src/sdl.SDL_assert.o $
+    obj/third_party/externals/sdl/src/sdl.SDL_error.o $
+    obj/third_party/externals/sdl/src/sdl.SDL_hints.o $
+    obj/third_party/externals/sdl/src/sdl.SDL_log.o $
+    obj/third_party/externals/sdl/src/atomic/sdl.SDL_atomic.o $
+    obj/third_party/externals/sdl/src/atomic/sdl.SDL_spinlock.o $
+    obj/third_party/externals/sdl/src/audio/sdl.SDL_audio.o $
+    obj/third_party/externals/sdl/src/audio/sdl.SDL_audiocvt.o $
+    obj/third_party/externals/sdl/src/audio/sdl.SDL_audiodev.o $
+    obj/third_party/externals/sdl/src/audio/sdl.SDL_audiotypecvt.o $
+    obj/third_party/externals/sdl/src/audio/sdl.SDL_mixer.o $
+    obj/third_party/externals/sdl/src/audio/sdl.SDL_wave.o $
+    obj/third_party/externals/sdl/src/audio/dummy/sdl.SDL_dummyaudio.o $
+    obj/third_party/externals/sdl/src/audio/android/sdl.SDL_androidaudio.o $
+    obj/third_party/externals/sdl/src/cpuinfo/sdl.SDL_cpuinfo.o $
+    obj/third_party/externals/sdl/src/dynapi/sdl.SDL_dynapi.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_clipboardevents.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_dropevents.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_events.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_gesture.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_keyboard.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_mouse.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_quit.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_touch.o $
+    obj/third_party/externals/sdl/src/events/sdl.SDL_windowevents.o $
+    obj/third_party/externals/sdl/src/file/sdl.SDL_rwops.o $
+    obj/third_party/externals/sdl/src/haptic/sdl.SDL_haptic.o $
+    obj/third_party/externals/sdl/src/joystick/sdl.SDL_gamecontroller.o $
+    obj/third_party/externals/sdl/src/joystick/sdl.SDL_joystick.o $
+    obj/third_party/externals/sdl/src/joystick/android/sdl.SDL_sysjoystick.o $
+    obj/third_party/externals/sdl/src/power/sdl.SDL_power.o $
+    obj/third_party/externals/sdl/src/power/android/sdl.SDL_syspower.o $
+    obj/third_party/externals/sdl/src/loadso/dlopen/sdl.SDL_sysloadso.o $
+    obj/third_party/externals/sdl/src/render/sdl.SDL_d3dmath.o $
+    obj/third_party/externals/sdl/src/render/sdl.SDL_render.o $
+    obj/third_party/externals/sdl/src/render/sdl.SDL_yuv_mmx.o $
+    obj/third_party/externals/sdl/src/render/sdl.SDL_yuv_sw.o $
+    obj/third_party/externals/sdl/src/render/direct3d/sdl.SDL_render_d3d.o $
+    obj/third_party/externals/sdl/src/render/direct3d11/sdl.SDL_render_d3d11.o $
+    obj/third_party/externals/sdl/src/render/opengl/sdl.SDL_render_gl.o $
+    obj/third_party/externals/sdl/src/render/opengl/sdl.SDL_shaders_gl.o $
+    obj/third_party/externals/sdl/src/render/opengles/sdl.SDL_render_gles.o $
+    obj/third_party/externals/sdl/src/render/opengles2/sdl.SDL_render_gles2.o $
+    obj/third_party/externals/sdl/src/render/opengles2/sdl.SDL_shaders_gles2.o $
+    obj/third_party/externals/sdl/src/render/psp/sdl.SDL_render_psp.o $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_blendfillrect.o $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_blendline.o $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_blendpoint.o $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_drawline.o $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_drawpoint.o $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_render_sw.o $
+    obj/third_party/externals/sdl/src/render/software/sdl.SDL_rotate.o $
+    obj/third_party/externals/sdl/src/stdlib/sdl.SDL_getenv.o $
+    obj/third_party/externals/sdl/src/stdlib/sdl.SDL_iconv.o $
+    obj/third_party/externals/sdl/src/stdlib/sdl.SDL_malloc.o $
+    obj/third_party/externals/sdl/src/stdlib/sdl.SDL_qsort.o $
+    obj/third_party/externals/sdl/src/stdlib/sdl.SDL_stdlib.o $
+    obj/third_party/externals/sdl/src/stdlib/sdl.SDL_string.o $
+    obj/third_party/externals/sdl/src/thread/sdl.SDL_thread.o $
+    obj/third_party/externals/sdl/src/timer/sdl.SDL_timer.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_RLEaccel.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_blit.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_blit_0.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_blit_1.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_blit_A.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_blit_N.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_blit_auto.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_blit_copy.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_blit_slow.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_bmp.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_clipboard.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_egl.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_fillrect.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_pixels.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_rect.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_shape.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_stretch.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_surface.o $
+    obj/third_party/externals/sdl/src/video/sdl.SDL_video.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidgl.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidkeyboard.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidwindow.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidmouse.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidvideo.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidclipboard.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidtouch.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidevents.o $
+    obj/third_party/externals/sdl/src/video/android/sdl.SDL_androidmessagebox.o $
+    obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_systhread.o $
+    obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_syssem.o $
+    obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_sysmutex.o $
+    obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_syscond.o $
+    obj/third_party/externals/sdl/src/thread/pthread/sdl.SDL_systls.o $
+    obj/third_party/externals/sdl/src/filesystem/android/sdl.SDL_sysfilesystem.o $
+    obj/third_party/externals/sdl/src/timer/unix/sdl.SDL_systimer.o $
+    obj/third_party/externals/sdl/src/core/android/sdl.SDL_android.o $
+    obj/third_party/externals/sdl/src/haptic/dummy/sdl.SDL_syshaptic.o $
+    obj/third_party/externals/sdl/src/main/android/sdl.SDL_android_main.o
