@@ -8,6 +8,9 @@
     'targets': [{
         'target_name': 'fuzz',
         'type': 'executable',
+        'defines': [
+          'SK_FUZZ_LOGGING',
+        ],
         'sources': [ '<!@(python find.py ../fuzz "*.cpp")' ],
         'dependencies': [
             'flags.gyp:flags',

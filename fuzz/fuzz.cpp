@@ -10,7 +10,6 @@
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkForceLinking.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
@@ -20,9 +19,6 @@
 #include <cmath>
 #include <signal.h>
 #include <stdlib.h>
-
-// TODO(kjlubick): Remove once http://crrev.com/1671193002 lands
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string2(bytes, b, "", "A path to a file.  This can be the fuzz bytes or a binary to parse.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
