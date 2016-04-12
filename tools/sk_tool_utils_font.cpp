@@ -47,7 +47,11 @@ SkTypeface* create_font(const char* name, SkTypeface::Style style) {
             // If we called SkTypeface::CreateFromName() here we'd recurse infinitely,
             // so we reimplement its core logic here inline without the recursive aspect.
             SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
             return fm->legacyCreateTypeface(name, style);
+#else
+            return fm->legacyCreateTypeface(name, SkFontStyle::FromOldStyle(style));
+#endif
         }
     } else {
         sub = &gSubFonts[gDefaultFontIndex];
@@ -65,7 +69,7 @@ SkTypeface* create_font(const char* name, SkTypeface::Style style) {
             fontData->fFontCache = SkSafeRef(font);
         }
     }
-    return new SkTestTypeface(font, SkFontStyle(style));
+    return new SkTestTypeface(font, SkFontStyle::FromOldStyle(style));
 }
 
 }

@@ -184,16 +184,14 @@ SkTypeface* SkFontMgr_Indirect::onCreateFromData(SkData* data, int ttcIndex) con
     return fImpl->createFromData(data, ttcIndex);
 }
 
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
 SkTypeface* SkFontMgr_Indirect::onLegacyCreateTypeface(const char familyName[],
                                                        unsigned styleBits) const {
-    bool bold = SkToBool(styleBits & SkTypeface::kBold);
-    bool italic = SkToBool(styleBits & SkTypeface::kItalic);
-    SkFontStyle style = SkFontStyle(bold ? SkFontStyle::kBold_Weight
-                                         : SkFontStyle::kNormal_Weight,
-                                    SkFontStyle::kNormal_Width,
-                                    italic ? SkFontStyle::kItalic_Slant
-                                           : SkFontStyle::kUpright_Slant);
-
+    SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
+#else
+SkTypeface* SkFontMgr_Indirect::onLegacyCreateTypeface(const char familyName[],
+                                                       SkFontStyle style) const {
+#endif
     SkAutoTUnref<SkTypeface> face(this->matchFamilyStyle(familyName, style));
 
     if (nullptr == face.get()) {

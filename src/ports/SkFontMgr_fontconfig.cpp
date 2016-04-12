@@ -264,10 +264,6 @@ static int map_range(SkFixed value,
     return new_min + SkMulDiv(value - old_min, new_max - new_min, old_max - old_min);
 }
 
-static int ave(SkFixed a, SkFixed b) {
-    return SkFixedAve(a, b);
-}
-
 struct MapRanges {
     SkFixed old_val;
     SkFixed new_val;
@@ -279,15 +275,11 @@ static SkFixed map_ranges_fixed(SkFixed val, MapRanges const ranges[], int range
         return ranges[0].new_val;
     }
 
-    // Linear from [i] to ave([i], [i+1]), then from ave([i], [i+1]) to [i+1]
+    // Linear from [i] to [i+1]
     for (int i = 0; i < rangesCount - 1; ++i) {
-        if (val < ave(ranges[i].old_val, ranges[i+1].old_val)) {
-            return map_range(val, ranges[i].old_val, ave(ranges[i].old_val, ranges[i+1].old_val),
-                                  ranges[i].new_val, ave(ranges[i].new_val, ranges[i+1].new_val));
-        }
         if (val < ranges[i+1].old_val) {
-            return map_range(val, ave(ranges[i].old_val, ranges[i+1].old_val), ranges[i+1].old_val,
-                                  ave(ranges[i].new_val, ranges[i+1].new_val), ranges[i+1].new_val);
+            return map_range(val, ranges[i].old_val, ranges[i+1].old_val,
+                                  ranges[i].new_val, ranges[i+1].new_val);
         }
     }
 
@@ -882,15 +874,12 @@ protected:
         return new SkTypeface_stream(fontData, style, isFixedWidth);
     }
 
-    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const override {
-        bool bold = styleBits & SkTypeface::kBold;
-        bool italic = styleBits & SkTypeface::kItalic;
-        SkFontStyle style = SkFontStyle(bold ? SkFontStyle::kBold_Weight
-                                             : SkFontStyle::kNormal_Weight,
-                                        SkFontStyle::kNormal_Width,
-                                        italic ? SkFontStyle::kItalic_Slant
-                                               : SkFontStyle::kUpright_Slant);
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override {
+        SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
+#else
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
+#endif
         SkAutoTUnref<SkTypeface> typeface(this->matchFamilyStyle(familyName, style));
         if (typeface.get()) {
             return typeface.release();

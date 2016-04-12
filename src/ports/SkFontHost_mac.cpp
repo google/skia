@@ -420,22 +420,6 @@ static SkFontStyle fontstyle_from_descriptor(CTFontDescriptorRef desc) {
                        : SkFontStyle::kUpright_Slant);
 }
 
-static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isFixedPitch) {
-    unsigned style = SkTypeface::kNormal;
-    CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(font);
-
-    if (traits & kCTFontBoldTrait) {
-        style |= SkTypeface::kBold;
-    }
-    if (traits & kCTFontItalicTrait) {
-        style |= SkTypeface::kItalic;
-    }
-    if (isFixedPitch) {
-        *isFixedPitch = (traits & kCTFontMonoSpaceTrait) != 0;
-    }
-    return (SkTypeface::Style)style;
-}
-
 #define WEIGHT_THRESHOLD    ((SkFontStyle::kNormal_Weight + SkFontStyle::kBold_Weight)/2)
 
 // kCTFontColorGlyphsTrait was added in the Mac 10.7 and iPhone 4.3 SDKs.
@@ -493,9 +477,12 @@ private:
 /** Creates a typeface without searching the cache. Takes ownership of the CTFontRef. */
 static SkTypeface* NewFromFontRef(CTFontRef fontRef, CFTypeRef resourceRef, bool isLocalStream) {
     SkASSERT(fontRef);
-    bool isFixedPitch;
-    SkFontStyle style = SkFontStyle(computeStyleBits(fontRef, &isFixedPitch));
 
+    AutoCFRelease<CTFontDescriptorRef> desc(CTFontCopyFontDescriptor(fontRef));
+    SkFontStyle style = fontstyle_from_descriptor(desc);
+
+    CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(fontRef);
+    bool isFixedPitch = SkToBool(traits & kCTFontMonoSpaceTrait);
     return new SkTypeface_Mac(fontRef, resourceRef, style, isFixedPitch, isLocalStream);
 }
 
@@ -2572,10 +2559,12 @@ protected:
         return create_from_dataProvider(pr);
     }
 
-    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const override {
-
-        SkFontStyle style = SkFontStyle((SkTypeface::Style)styleBits);
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override {
+        SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
+#else
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
+#endif
         if (familyName) {
             familyName = map_css_names(familyName);
         }

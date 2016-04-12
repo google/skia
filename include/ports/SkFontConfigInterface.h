@@ -80,11 +80,19 @@ public:
      *
      *  If a match is not found, return false, and ignore all out parameters.
      */
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
     virtual bool matchFamilyName(const char familyName[],
                                  SkTypeface::Style requested,
                                  FontIdentity* outFontIdentifier,
                                  SkString* outFamilyName,
                                  SkTypeface::Style* outStyle) = 0;
+#else
+    virtual bool matchFamilyName(const char familyName[],
+                                 SkFontStyle requested,
+                                 FontIdentity* outFontIdentifier,
+                                 SkString* outFamilyName,
+                                 SkFontStyle* outStyle) = 0;
+#endif
 
     /**
      *  Given a FontRef, open a stream to access its data, or return null

@@ -87,7 +87,11 @@ SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
         SkAutoMutexAcquire lock(&gCreateDefaultMutex);
 
         SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
         SkTypeface* t = fm->legacyCreateTypeface(nullptr, style);
+#else
+        SkTypeface* t = fm->legacyCreateTypeface(nullptr, SkFontStyle::FromOldStyle(style));
+#endif
         return t ? t : SkEmptyTypeface::Create();
     });
 }
@@ -120,7 +124,11 @@ SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
         return RefDefault(style);
     }
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
     return fm->legacyCreateTypeface(name, style);
+#else
+    return fm->legacyCreateTypeface(name, SkFontStyle::FromOldStyle(style));
+#endif
 }
 
 SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {

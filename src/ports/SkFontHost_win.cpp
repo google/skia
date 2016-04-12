@@ -2501,8 +2501,12 @@ protected:
         return this->createFromStream(SkStream::NewFromFile(path));
     }
 
-    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const override {
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override {
+        SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
+#else
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
+#endif
         LOGFONT lf;
         if (nullptr == familyName) {
             lf = get_default_font();
@@ -2510,9 +2514,8 @@ protected:
             logfont_for_name(familyName, &lf);
         }
 
-        SkTypeface::Style style = (SkTypeface::Style)styleBits;
-        lf.lfWeight = (style & SkTypeface::kBold) != 0 ? FW_BOLD : FW_NORMAL;
-        lf.lfItalic = ((style & SkTypeface::kItalic) != 0);
+        lf.lfWeight = style.weight();
+        lf.lfItalic = style.isItalic() ? TRUE : FALSE;
         return SkCreateTypefaceFromLOGFONT(lf);
     }
 

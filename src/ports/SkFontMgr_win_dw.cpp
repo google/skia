@@ -284,18 +284,21 @@ protected:
     void onGetFamilyName(int index, SkString* familyName) const override;
     SkFontStyleSet* onCreateStyleSet(int index) const override;
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override;
-    virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle& fontstyle) const override;
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                                    const char* bcp47[], int bcp47Count,
-                                                    SkUnichar character) const override;
-    virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                         const SkFontStyle& fontstyle) const override;
+    SkTypeface* onMatchFamilyStyle(const char familyName[],
+                                   const SkFontStyle& fontstyle) const override;
+    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                            const char* bcp47[], int bcp47Count,
+                                            SkUnichar character) const override;
+    SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
+                                 const SkFontStyle& fontstyle) const override;
     SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const override;
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override;
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override;
-    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const override;
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override;
+#else
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle) const override;
+#endif
 
 private:
     HRESULT getByFamilyName(const WCHAR familyName[], IDWriteFontFamily** fontFamily) const;
@@ -950,8 +953,14 @@ HRESULT SkFontMgr_DirectWrite::getDefaultFontFamily(IDWriteFontFamily** fontFami
     return S_OK;
 }
 
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
 SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[],
                                                           unsigned styleBits) const {
+    SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
+#else
+SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[],
+                                                          SkFontStyle style) const {
+#endif
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
     if (familyName) {
         SkSMallocWCHAR wideFamilyName;
@@ -972,13 +981,10 @@ SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[
     }
 
     SkTScopedComPtr<IDWriteFont> font;
-    DWRITE_FONT_WEIGHT weight = (styleBits & SkTypeface::kBold)
-                              ? DWRITE_FONT_WEIGHT_BOLD
-                              : DWRITE_FONT_WEIGHT_NORMAL;
-    DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_NORMAL;
-    DWRITE_FONT_STYLE italic = (styleBits & SkTypeface::kItalic)
-                             ? DWRITE_FONT_STYLE_ITALIC
-                             : DWRITE_FONT_STYLE_NORMAL;
+    DWRITE_FONT_WEIGHT weight = (DWRITE_FONT_WEIGHT)style.weight();
+    DWRITE_FONT_STRETCH stretch = (DWRITE_FONT_STRETCH)style.width();
+    DWRITE_FONT_STYLE italic = style.isItalic() ? DWRITE_FONT_STYLE_ITALIC
+                                                : DWRITE_FONT_STYLE_NORMAL;
     HRNM(fontFamily->GetFirstMatchingFont(weight, stretch, italic, &font),
          "Could not get matching font.");
 

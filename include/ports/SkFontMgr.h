@@ -164,8 +164,11 @@ public:
      */
     SkTypeface* createFromFile(const char path[], int ttcIndex = 0) const;
 
-    SkTypeface* legacyCreateTypeface(const char familyName[],
-                                     unsigned typefaceStyleBits) const;
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
+    SkTypeface* legacyCreateTypeface(const char familyName[], unsigned typefaceStyleBits) const;
+#else
+    SkTypeface* legacyCreateTypeface(const char familyName[], SkFontStyle style) const;
+#endif
 
     /**
      *  Return a ref to the default fontmgr. The caller must call unref() on
@@ -196,8 +199,13 @@ protected:
     virtual SkTypeface* onCreateFromFontData(SkFontData*) const;
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const = 0;
 
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
                                                unsigned styleBits) const = 0;
+#else
+    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle) const = 0;
+#endif
+
 private:
     static SkFontMgr* Factory();    // implemented by porting layer
     friend SkFontMgr* sk_fontmgr_create_default();

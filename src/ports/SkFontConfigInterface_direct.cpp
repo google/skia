@@ -9,6 +9,7 @@
 
 #include "SkBuffer.h"
 #include "SkDataTable.h"
+#include "SkFixed.h"
 #include "SkFontConfigInterface_direct.h"
 #include "SkFontStyle.h"
 #include "SkMutex.h"
@@ -304,6 +305,7 @@ bool IsFallbackFontAllowed(const SkString& family) {
 }
 
 // Retrieves |is_bold|, |is_italic| and |font_family| properties from |font|.
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
 SkTypeface::Style GetFontStyle(FcPattern* font) {
     int resulting_bold;
     if (FcPatternGetInteger(font, FC_WEIGHT, 0, &resulting_bold))
@@ -335,6 +337,136 @@ SkTypeface::Style GetFontStyle(FcPattern* font) {
 
     return (SkTypeface::Style)styleBits;
 }
+#else
+
+static int get_int(FcPattern* pattern, const char object[], int missing) {
+    int value;
+    if (FcPatternGetInteger(pattern, object, 0, &value) != FcResultMatch) {
+        return missing;
+    }
+    return value;
+}
+
+static int map_range(SkFixed value,
+                     SkFixed old_min, SkFixed old_max,
+                     SkFixed new_min, SkFixed new_max)
+{
+    SkASSERT(old_min < old_max);
+    SkASSERT(new_min <= new_max);
+    return new_min + SkMulDiv(value - old_min, new_max - new_min, old_max - old_min);
+}
+
+struct MapRanges {
+    SkFixed old_val;
+    SkFixed new_val;
+};
+
+static SkFixed map_ranges_fixed(SkFixed val, MapRanges const ranges[], int rangesCount) {
+    // -Inf to [0]
+    if (val < ranges[0].old_val) {
+        return ranges[0].new_val;
+    }
+
+    // Linear from [i] to [i+1]
+    for (int i = 0; i < rangesCount - 1; ++i) {
+        if (val < ranges[i+1].old_val) {
+            return map_range(val, ranges[i].old_val, ranges[i+1].old_val,
+                                  ranges[i].new_val, ranges[i+1].new_val);
+        }
+    }
+
+    // From [n] to +Inf
+    // if (fcweight < Inf)
+    return ranges[rangesCount-1].new_val;
+}
+
+static int map_ranges(int val, MapRanges const ranges[], int rangesCount) {
+    return SkFixedRoundToInt(map_ranges_fixed(SkIntToFixed(val), ranges, rangesCount));
+}
+
+template<int n> struct SkTFixed {
+    static_assert(-32768 <= n && n <= 32767, "SkTFixed_n_not_in_range");
+    static const SkFixed value = static_cast<SkFixed>(n << 16);
+};
+
+static SkFontStyle skfontstyle_from_fcpattern(FcPattern* pattern) {
+    typedef SkFontStyle SkFS;
+
+    static const MapRanges weightRanges[] = {
+        { SkTFixed<FC_WEIGHT_THIN>::value,       SkTFixed<SkFS::kThin_Weight>::value },
+        { SkTFixed<FC_WEIGHT_EXTRALIGHT>::value, SkTFixed<SkFS::kExtraLight_Weight>::value },
+        { SkTFixed<FC_WEIGHT_LIGHT>::value,      SkTFixed<SkFS::kLight_Weight>::value },
+        { SkTFixed<FC_WEIGHT_REGULAR>::value,    SkTFixed<SkFS::kNormal_Weight>::value },
+        { SkTFixed<FC_WEIGHT_MEDIUM>::value,     SkTFixed<SkFS::kMedium_Weight>::value },
+        { SkTFixed<FC_WEIGHT_DEMIBOLD>::value,   SkTFixed<SkFS::kSemiBold_Weight>::value },
+        { SkTFixed<FC_WEIGHT_BOLD>::value,       SkTFixed<SkFS::kBold_Weight>::value },
+        { SkTFixed<FC_WEIGHT_EXTRABOLD>::value,  SkTFixed<SkFS::kExtraBold_Weight>::value },
+        { SkTFixed<FC_WEIGHT_BLACK>::value,      SkTFixed<SkFS::kBlack_Weight>::value },
+        { SkTFixed<FC_WEIGHT_EXTRABLACK>::value, SkTFixed<1000>::value },
+    };
+    int weight = map_ranges(get_int(pattern, FC_WEIGHT, FC_WEIGHT_REGULAR),
+                            weightRanges, SK_ARRAY_COUNT(weightRanges));
+
+    static const MapRanges widthRanges[] = {
+        { SkTFixed<FC_WIDTH_ULTRACONDENSED>::value, SkTFixed<SkFS::kUltraCondensed_Width>::value },
+        { SkTFixed<FC_WIDTH_EXTRACONDENSED>::value, SkTFixed<SkFS::kExtraCondensed_Width>::value },
+        { SkTFixed<FC_WIDTH_CONDENSED>::value,      SkTFixed<SkFS::kCondensed_Width>::value },
+        { SkTFixed<FC_WIDTH_SEMICONDENSED>::value,  SkTFixed<SkFS::kSemiCondensed_Width>::value },
+        { SkTFixed<FC_WIDTH_NORMAL>::value,         SkTFixed<SkFS::kNormal_Width>::value },
+        { SkTFixed<FC_WIDTH_SEMIEXPANDED>::value,   SkTFixed<SkFS::kSemiExpanded_Width>::value },
+        { SkTFixed<FC_WIDTH_EXPANDED>::value,       SkTFixed<SkFS::kExpanded_Width>::value },
+        { SkTFixed<FC_WIDTH_EXTRAEXPANDED>::value,  SkTFixed<SkFS::kExtraExpanded_Width>::value },
+        { SkTFixed<FC_WIDTH_ULTRAEXPANDED>::value,  SkTFixed<SkFS::kUltaExpanded_Width>::value },
+    };
+    int width = map_ranges(get_int(pattern, FC_WIDTH, FC_WIDTH_NORMAL),
+                           widthRanges, SK_ARRAY_COUNT(widthRanges));
+
+    SkFS::Slant slant = get_int(pattern, FC_SLANT, FC_SLANT_ROMAN) > 0
+                             ? SkFS::kItalic_Slant
+                             : SkFS::kUpright_Slant;
+
+    return SkFontStyle(weight, width, slant);
+}
+
+static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
+    typedef SkFontStyle SkFS;
+
+    static const MapRanges weightRanges[] = {
+        { SkTFixed<SkFS::kThin_Weight>::value,       SkTFixed<FC_WEIGHT_THIN>::value },
+        { SkTFixed<SkFS::kExtraLight_Weight>::value, SkTFixed<FC_WEIGHT_EXTRALIGHT>::value },
+        { SkTFixed<SkFS::kLight_Weight>::value,      SkTFixed<FC_WEIGHT_LIGHT>::value },
+        { SkTFixed<SkFS::kNormal_Weight>::value,     SkTFixed<FC_WEIGHT_REGULAR>::value },
+        { SkTFixed<SkFS::kMedium_Weight>::value,     SkTFixed<FC_WEIGHT_MEDIUM>::value },
+        { SkTFixed<SkFS::kSemiBold_Weight>::value,   SkTFixed<FC_WEIGHT_DEMIBOLD>::value },
+        { SkTFixed<SkFS::kBold_Weight>::value,       SkTFixed<FC_WEIGHT_BOLD>::value },
+        { SkTFixed<SkFS::kExtraBold_Weight>::value,  SkTFixed<FC_WEIGHT_EXTRABOLD>::value },
+        { SkTFixed<SkFS::kBlack_Weight>::value,      SkTFixed<FC_WEIGHT_BLACK>::value },
+        { SkTFixed<1000>::value,                     SkTFixed<FC_WEIGHT_EXTRABLACK>::value },
+    };
+    int weight = map_ranges(style.weight(), weightRanges, SK_ARRAY_COUNT(weightRanges));
+
+    static const MapRanges widthRanges[] = {
+        { SkTFixed<SkFS::kUltraCondensed_Width>::value, SkTFixed<FC_WIDTH_ULTRACONDENSED>::value },
+        { SkTFixed<SkFS::kExtraCondensed_Width>::value, SkTFixed<FC_WIDTH_EXTRACONDENSED>::value },
+        { SkTFixed<SkFS::kCondensed_Width>::value,      SkTFixed<FC_WIDTH_CONDENSED>::value },
+        { SkTFixed<SkFS::kSemiCondensed_Width>::value,  SkTFixed<FC_WIDTH_SEMICONDENSED>::value },
+        { SkTFixed<SkFS::kNormal_Width>::value,         SkTFixed<FC_WIDTH_NORMAL>::value },
+        { SkTFixed<SkFS::kSemiExpanded_Width>::value,   SkTFixed<FC_WIDTH_SEMIEXPANDED>::value },
+        { SkTFixed<SkFS::kExpanded_Width>::value,       SkTFixed<FC_WIDTH_EXPANDED>::value },
+        { SkTFixed<SkFS::kExtraExpanded_Width>::value,  SkTFixed<FC_WIDTH_EXTRAEXPANDED>::value },
+        { SkTFixed<SkFS::kUltaExpanded_Width>::value,   SkTFixed<FC_WIDTH_ULTRAEXPANDED>::value },
+    };
+    int width = map_ranges(style.width(), widthRanges, SK_ARRAY_COUNT(widthRanges));
+
+    FcPatternAddInteger(pattern, FC_WEIGHT, weight);
+    FcPatternAddInteger(pattern, FC_WIDTH, width);
+    FcPatternAddInteger(pattern, FC_SLANT, style.isItalic() ? FC_SLANT_ITALIC : FC_SLANT_ROMAN);
+}
+
+SkFontStyle GetFontStyle(FcPattern* font) {
+    return skfontstyle_from_fcpattern(font);
+}
+#endif
 
 }  // anonymous namespace
 
@@ -417,11 +549,19 @@ FcPattern* SkFontConfigInterfaceDirect::MatchFont(FcFontSet* font_set,
   return match;
 }
 
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
 bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
                                                   SkTypeface::Style style,
                                                   FontIdentity* outIdentity,
                                                   SkString* outFamilyName,
                                                   SkTypeface::Style* outStyle) {
+#else
+bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
+                                                  SkFontStyle style,
+                                                  FontIdentity* outIdentity,
+                                                  SkString* outFamilyName,
+                                                  SkFontStyle* outStyle) {
+#endif
     SkString familyStr(familyName ? familyName : "");
     if (familyStr.size() > kMaxFontFamilyLength) {
         return false;
@@ -434,12 +574,17 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     if (familyName) {
         FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
     }
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
     FcPatternAddInteger(pattern, FC_WEIGHT,
                         (style & SkTypeface::kBold) ? FC_WEIGHT_BOLD
                                                     : FC_WEIGHT_NORMAL);
     FcPatternAddInteger(pattern, FC_SLANT,
                         (style & SkTypeface::kItalic) ? FC_SLANT_ITALIC
                                                       : FC_SLANT_ROMAN);
+#else
+    fcpattern_from_skfontstyle(style, pattern);
+#endif
+
     FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 
     FcConfigSubstitute(nullptr, pattern, FcMatchPattern);

@@ -318,10 +318,14 @@ protected:
         return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
     }
 
-    SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                       unsigned styleBits) const override {
+#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override {
+        SkTypeface::Style style = static_cast<SkTypeface::Style>(styleBits);
+#else
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
+#endif
         FCLocker lock;
-        return FontConfigTypeface::LegacyCreateTypeface(familyName, (SkTypeface::Style)styleBits);
+        return FontConfigTypeface::LegacyCreateTypeface(familyName, style);
     }
 };
 
