@@ -15,6 +15,7 @@
 #include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkMatrixConvolutionImageFilter.h"
+#include "SkOffsetImageFilter.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -23,94 +24,6 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkTestImageFilters.h"
 #include "SkXfermodeImageFilter.h"
-
-// More closely models how Blink's OffsetFilter works as of 10/23/13. SkOffsetImageFilter doesn't
-// perform a draw and this one does.
-class SimpleOffsetFilter : public SkImageFilter {
-public:
-    class Registrar {
-    public:
-        Registrar() {
-            SkFlattenable::Register("SimpleOffsetFilter",
-                                    SimpleOffsetFilter::CreateProc,
-                                    SimpleOffsetFilter::GetFlattenableType());
-        }
-    };
-    static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input) {
-        return sk_sp<SkImageFilter>(new SimpleOffsetFilter(dx, dy, std::move(input)));
-    }
-
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
-
-protected:
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context& ctx,
-                                        SkIPoint* offset) const override {
-        SkIPoint inputOffset = SkIPoint::Make(0, 0);
-        sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
-        if (!input) {
-            return nullptr;
-        }
-
-        SkIRect bounds;
-        input = this->applyCropRect(ctx, input.get(), &inputOffset, &bounds);
-        if (!input) {
-            return nullptr;
-        }
-
-        SkImageInfo info = SkImageInfo::MakeN32Premul(bounds.width(), bounds.height());
-
-        sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
-        if (!surf) {
-            return nullptr;
-        }
-
-        SkCanvas* canvas = surf->getCanvas();
-        SkASSERT(canvas);
-
-        SkPaint paint;
-        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-
-        input->draw(canvas, fDX - bounds.left(), fDY - bounds.top(), &paint);
-
-        offset->fX += bounds.left();
-        offset->fY += bounds.top();
-        return surf->makeImageSnapshot();
-    }
-
-    void flatten(SkWriteBuffer& buffer) const override {
-        this->INHERITED::flatten(buffer);
-        buffer.writeScalar(fDX);
-        buffer.writeScalar(fDY);
-    }
-
-private:
-    SimpleOffsetFilter(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input)
-        : SkImageFilter(&input, 1, nullptr)
-        , fDX(dx)
-        , fDY(dy) {
-    }
-
-    SkScalar fDX, fDY;
-
-    typedef SkImageFilter INHERITED;
-};
-
-static SimpleOffsetFilter::Registrar gReg;
-
-sk_sp<SkFlattenable> SimpleOffsetFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    SkScalar dx = buffer.readScalar();
-    SkScalar dy = buffer.readScalar();
-    return Make(dx, dy, common.getInput(0));
-}
-
-#ifndef SK_IGNORE_TO_STRING
-void SimpleOffsetFilter::toString(SkString* str) const {
-    str->appendf("SimpleOffsetFilter: (");
-    str->append(")");
-}
-#endif
 
 class ImageFiltersGraphGM : public skiagm::GM {
 public:
@@ -173,7 +86,8 @@ protected:
             sk_sp<SkColorFilter> matrixCF(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
             sk_sp<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Make(std::move(matrixCF),
                                                                              nullptr));
-            sk_sp<SkImageFilter> offsetFilter(SimpleOffsetFilter::Make(10.0f, 10.f, matrixFilter));
+            sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Make(10.0f, 10.f,
+                                                                        matrixFilter));
 
             SkPaint paint;
             paint.setImageFilter(
