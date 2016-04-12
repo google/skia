@@ -467,6 +467,9 @@ bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
             ct = kBGRA_8888_SkColorType;
             pt = kSRGB_SkColorProfileType;
             break;
+        case kRGBA_half_GrPixelConfig:
+            ct = kRGBA_F16_SkColorType;
+            break;
         default:
             return false;
     }
