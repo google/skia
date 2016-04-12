@@ -257,6 +257,7 @@ inline GrDrawBatch* GrAtlasTextBlob::createBatch(
                                               GrColor color,
                                               const SkPaint& skPaint, const SkSurfaceProps& props,
                                               const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                              bool useSRGBDistanceTable,
                                               GrBatchFontCache* cache) {
     GrMaskFormat format = info.maskFormat();
     GrColor subRunColor;
@@ -278,8 +279,8 @@ inline GrDrawBatch* GrAtlasTextBlob::createBatch(
         }
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         batch = GrAtlasTextBatch::CreateDistanceField(glyphCount, cache,
-                                                      distanceAdjustTable, filteredColor,
-                                                      info.hasUseLCDText(), useBGR);
+                                                      distanceAdjustTable, useSRGBDistanceTable,
+                                                      filteredColor, info.hasUseLCDText(), useBGR);
     } else {
         batch = GrAtlasTextBatch::CreateBitmap(format, glyphCount, cache);
     }
@@ -310,10 +311,14 @@ void GrAtlasTextBlob::flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBui
             continue;
         }
 
+        bool useSRGBDistanceTable = GrPixelConfigIsSRGB(dc->accessRenderTarget()->config()) &&
+                                    !pipelineBuilder->getDisableOutputConversionToSRGB();
+
         SkAutoTUnref<GrDrawBatch> batch(this->createBatch(info, glyphCount, run,
                                                           subRun, viewMatrix, x, y, color,
                                                           skPaint, props,
-                                                          distanceAdjustTable, cache));
+                                                          distanceAdjustTable, useSRGBDistanceTable,
+                                                          cache));
         dc->drawBatch(pipelineBuilder, batch);
     }
 }
@@ -463,7 +468,7 @@ GrDrawBatch* GrAtlasTextBlob::test_createBatch(
                                               GrBatchFontCache* cache) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
     return this->createBatch(info, glyphCount, run, subRun, viewMatrix, x, y, color, skPaint,
-                             props, distanceAdjustTable, cache);
+                             props, distanceAdjustTable, false, cache);
 }
 
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {

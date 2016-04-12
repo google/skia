@@ -261,6 +261,7 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
     // set up any flags
     uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     flags |= viewMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+    flags |= fUseSRGBDistanceTable ? kSRGB_DistanceFieldEffectFlag : 0;
 
     // see if we need to create a new effect
     if (isLCD) {
@@ -269,12 +270,12 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
 
         GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
 
-        float redCorrection =
-            (*fDistanceAdjustTable)[GrColorUnpackR(colorNoPreMul) >> kDistanceAdjustLumShift];
-        float greenCorrection =
-            (*fDistanceAdjustTable)[GrColorUnpackG(colorNoPreMul) >> kDistanceAdjustLumShift];
-        float blueCorrection =
-            (*fDistanceAdjustTable)[GrColorUnpackB(colorNoPreMul) >> kDistanceAdjustLumShift];
+        float redCorrection = fDistanceAdjustTable->getAdjustment(
+            GrColorUnpackR(colorNoPreMul) >> kDistanceAdjustLumShift, fUseSRGBDistanceTable);
+        float greenCorrection = fDistanceAdjustTable->getAdjustment(
+            GrColorUnpackG(colorNoPreMul) >> kDistanceAdjustLumShift, fUseSRGBDistanceTable);
+        float blueCorrection = fDistanceAdjustTable->getAdjustment(
+            GrColorUnpackB(colorNoPreMul) >> kDistanceAdjustLumShift, fUseSRGBDistanceTable);
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
             GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(redCorrection,
                                                                 greenCorrection,
@@ -290,7 +291,8 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, filteredColor);
-        float correction = (*fDistanceAdjustTable)[lum >> kDistanceAdjustLumShift];
+        float correction = fDistanceAdjustTable->getAdjustment(
+            lum >> kDistanceAdjustLumShift, fUseSRGBDistanceTable);
         return GrDistanceFieldA8TextGeoProc::Create(color,
                                                     viewMatrix,
                                                     texture,

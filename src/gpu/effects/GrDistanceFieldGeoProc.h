@@ -22,6 +22,7 @@ enum GrDistanceFieldEffectFlags {
     kUseLCD_DistanceFieldEffectFlag     = 0x04,   // use lcd text
     kBGR_DistanceFieldEffectFlag        = 0x08,   // lcd display has bgr order
     kPortrait_DistanceFieldEffectFlag   = 0x10,   // lcd display is in portrait mode (not used yet)
+    kSRGB_DistanceFieldEffectFlag       = 0x20,   // assume sRGB dest (use linstep, not smoothstep)
 
     kInvalid_DistanceFieldEffectFlag    = 0x80,   // invalid state (for initialization)
 
@@ -29,12 +30,14 @@ enum GrDistanceFieldEffectFlags {
                                             kScaleOnly_DistanceFieldEffectFlag,
     // The subset of the flags relevant to GrDistanceFieldA8TextGeoProc
     kNonLCD_DistanceFieldEffectMask       = kSimilarity_DistanceFieldEffectFlag |
-                                            kScaleOnly_DistanceFieldEffectFlag,
+                                            kScaleOnly_DistanceFieldEffectFlag |
+                                            kSRGB_DistanceFieldEffectFlag,
     // The subset of the flags relevant to GrDistanceFieldLCDTextGeoProc
     kLCD_DistanceFieldEffectMask          = kSimilarity_DistanceFieldEffectFlag |
                                             kScaleOnly_DistanceFieldEffectFlag |
                                             kUseLCD_DistanceFieldEffectFlag |
-                                            kBGR_DistanceFieldEffectFlag,
+                                            kBGR_DistanceFieldEffectFlag |
+                                            kSRGB_DistanceFieldEffectFlag,
 };
 
 /**
