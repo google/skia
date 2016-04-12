@@ -412,7 +412,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
     }
 
     SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
-                                            inputBM.alphaType());
+                                            kPremul_SkAlphaType);
 
     SkBitmap dst;
     if (!dst.tryAllocPixels(info)) {
