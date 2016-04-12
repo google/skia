@@ -41,11 +41,16 @@ if [[ -z "$SKIA_OUT" ]]; then
   SKIA_OUT="$SKIA_SRC_DIR/out"
 fi 
 
+# Location of XCode build products.
+if [[ -z "$XCODEBUILD" ]]; then
+  XCODEBUILD="${SKIA_SRC_DIR}/xcodebuild"
+fi
+
 # Name of the iOS app.
 IOS_APP=iOSShell.ipa
 
 # Location of the compiled iOS code.
-IOS_OUT=${SKIA_SRC_DIR}/xcodebuild/${BUILDTYPE}-iphoneos
+IOS_OUT=${XCODEBUILD}/${BUILDTYPE}-iphoneos
 
 # Location of the compiled iOS app.
 IOS_APP_PATH=${IOS_OUT}/${IOS_APP}
