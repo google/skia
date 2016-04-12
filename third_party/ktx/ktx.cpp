@@ -336,8 +336,9 @@ bool SkKTXFile::readKTXFile(const uint8_t* data, size_t dataLen) {
     return bytesLeft == 0;
 }
 
-bool SkKTXFile::is_ktx(const uint8_t *data) {
-    return 0 == memcmp(KTX_FILE_IDENTIFIER, data, KTX_FILE_IDENTIFIER_SIZE);
+bool SkKTXFile::is_ktx(const uint8_t data[], size_t size) {
+    return size >= KTX_FILE_IDENTIFIER_SIZE &&
+           0 == memcmp(KTX_FILE_IDENTIFIER, data, KTX_FILE_IDENTIFIER_SIZE);
 }
 
 bool SkKTXFile::is_ktx(SkStreamRewindable* stream) {
@@ -349,7 +350,7 @@ bool SkKTXFile::is_ktx(SkStreamRewindable* stream) {
     if (!largeEnough) {
         return false;
     }
-    return is_ktx(buf);
+    return is_ktx(buf, KTX_FILE_IDENTIFIER_SIZE);
 }
 
 SkKTXFile::KeyValue SkKTXFile::CreateKeyValue(const char *cstrKey, const char *cstrValue) {

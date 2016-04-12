@@ -56,7 +56,7 @@ bool SkKTXImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int)
         }
 
         // Is it a KTX file??
-        if (SkKTXFile::is_ktx(bytes)) {
+        if (SkKTXFile::is_ktx(bytes, data->size())) {
             return stream->write(bytes, data->size());
         }
 

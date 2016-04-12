@@ -87,7 +87,7 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
 
         *outStartOfDataToUpload = bytes + ETC_PKM_HEADER_SIZE;
         return kETC1_GrPixelConfig;
-    } else if (SkKTXFile::is_ktx(bytes)) {
+    } else if (SkKTXFile::is_ktx(bytes, data->size())) {
         SkKTXFile ktx(data);
 
         // Is it actually an ETC1 texture?
