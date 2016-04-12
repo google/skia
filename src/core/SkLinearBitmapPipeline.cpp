@@ -776,7 +776,68 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     fLastStage        = blenderStage;
 }
 
+bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
+    void* blitterStorage,
+    const SkLinearBitmapPipeline& pipeline,
+    SkMatrix::TypeMask matrixMask,
+    SkShader::TileMode xTileMode,
+    SkShader::TileMode yTileMode,
+    SkFilterQuality filterQuality,
+    const SkPixmap& srcPixmap,
+    float finalAlpha,
+    SkXfermode::Mode xferMode,
+    const SkImageInfo& dstInfo)
+{
+    if (matrixMask & ~SkMatrix::kTranslate_Mask ) { return false; }
+    if (filterQuality != SkFilterQuality::kNone_SkFilterQuality) { return false; }
+    if (finalAlpha != 1.0f) { return false; }
+    if (srcPixmap.info().colorType() != kRGBA_8888_SkColorType
+        || dstInfo.colorType() != kRGBA_8888_SkColorType) { return false; }
+
+    if (srcPixmap.info().profileType() != dstInfo.profileType()) { return false; }
+
+    if (xTileMode != SkShader::kRepeat_TileMode || yTileMode != SkShader::kRepeat_TileMode) {
+        return false;
+    }
+
+    if (xferMode == SkXfermode::kSrcOver_Mode
+        && srcPixmap.info().alphaType() == kOpaque_SkAlphaType) {
+        xferMode = SkXfermode::kSrc_Mode;
+    }
+
+    if (xferMode != SkXfermode::kSrc_Mode) { return false; }
+
+    new (blitterStorage) SkLinearBitmapPipeline(pipeline, srcPixmap, xferMode, dstInfo);
+
+    return true;
+}
+
+SkLinearBitmapPipeline::SkLinearBitmapPipeline(
+    const SkLinearBitmapPipeline& pipeline,
+    const SkPixmap& srcPixmap,
+    SkXfermode::Mode mode,
+    const SkImageInfo& dstInfo)
+{
+    SkASSERT(mode == SkXfermode::kSrc_Mode);
+    SkASSERT(srcPixmap.info().colorType() == dstInfo.colorType()
+             && srcPixmap.info().colorType() == kRGBA_8888_SkColorType);
+
+    fSampleStage.initSink<RGBA8888UnitRepeat>(srcPixmap.writable_addr32(0, 0), srcPixmap.width());
+    auto sampleStage = fSampleStage.get();
+    auto tilerStage = pipeline.fTileStage.cloneStageTo(sampleStage, &fTileStage);
+    tilerStage = (tilerStage != nullptr) ? tilerStage : sampleStage;
+    auto matrixStage = pipeline.fMatrixStage.cloneStageTo(tilerStage, &fMatrixStage);
+    matrixStage = (matrixStage != nullptr) ? matrixStage : tilerStage;
+    fFirstStage = matrixStage;
+    fLastStage = fSampleStage.getInterface<DestinationInterface, RGBA8888UnitRepeat>();
+}
+
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {
+    SkASSERT(count > 0);
+    this->blitSpan(x, y, dst, count);
+}
+
+void SkLinearBitmapPipeline::blitSpan(int x, int y, void* dst, int count) {
     SkASSERT(count > 0);
     fLastStage->setDestination(dst, count);
 
