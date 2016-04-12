@@ -13,7 +13,8 @@
 
 class SkRandomScalerContext : public SkScalerContext {
 public:
-    SkRandomScalerContext(SkRandomTypeface*, const SkDescriptor*, bool fFakeIt);
+    SkRandomScalerContext(SkRandomTypeface*, const SkScalerContextEffects&,
+                          const SkDescriptor*, bool fFakeIt);
     virtual ~SkRandomScalerContext();
 
 protected:
@@ -35,12 +36,14 @@ private:
 
 #include "SkDescriptor.h"
 
-SkRandomScalerContext::SkRandomScalerContext(SkRandomTypeface* face, const SkDescriptor* desc,
+SkRandomScalerContext::SkRandomScalerContext(SkRandomTypeface* face,
+                                             const SkScalerContextEffects& effects,
+                                             const SkDescriptor* desc,
                                              bool fakeIt)
-        : SkScalerContext(face, desc)
+        : SkScalerContext(face, effects, desc)
         , fFace(face)
         , fFakeIt(fakeIt) {
-    fProxy = face->proxy()->createScalerContext(desc);
+    fProxy = face->proxy()->createScalerContext(effects, desc);
 }
 
 SkRandomScalerContext::~SkRandomScalerContext() { delete fProxy; }
@@ -197,9 +200,9 @@ SkRandomTypeface::~SkRandomTypeface() {
     fProxy->unref();
 }
 
-SkScalerContext* SkRandomTypeface::onCreateScalerContext(
-                                            const SkDescriptor* desc) const {
-    return new SkRandomScalerContext(const_cast<SkRandomTypeface*>(this), desc, fFakeIt);
+SkScalerContext* SkRandomTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
+                                                         const SkDescriptor* desc) const {
+    return new SkRandomScalerContext(const_cast<SkRandomTypeface*>(this), effects, desc, fFakeIt);
 }
 
 void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {

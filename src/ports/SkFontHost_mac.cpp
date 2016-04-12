@@ -473,7 +473,8 @@ protected:
     int onGetTableTags(SkFontTableTag tags[]) const override;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const override;
-    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
@@ -629,7 +630,7 @@ struct GlyphRect {
 
 class SkScalerContext_Mac : public SkScalerContext {
 public:
-    SkScalerContext_Mac(SkTypeface_Mac*, const SkDescriptor*);
+    SkScalerContext_Mac(SkTypeface_Mac*, const SkScalerContextEffects&, const SkDescriptor*);
 
 protected:
     unsigned generateGlyphCount(void) override;
@@ -738,8 +739,9 @@ static CTFontRef ctfont_create_exact_copy(CTFontRef baseFont, CGFloat textSize,
 }
 
 SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
+                                         const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
-        : INHERITED(typeface, desc)
+        : INHERITED(typeface, effects, desc)
         , fFBoundingBoxes()
         , fFBoundingBoxesGlyphOffset(0)
         , fGeneratedFBoundingBoxes(false)
@@ -1937,8 +1939,9 @@ size_t SkTypeface_Mac::onGetTableData(SkFontTableTag tag, size_t offset,
     return length;
 }
 
-SkScalerContext* SkTypeface_Mac::onCreateScalerContext(const SkDescriptor* desc) const {
-    return new SkScalerContext_Mac(const_cast<SkTypeface_Mac*>(this), desc);
+SkScalerContext* SkTypeface_Mac::onCreateScalerContext(const SkScalerContextEffects& effects,
+                                                       const SkDescriptor* desc) const {
+    return new SkScalerContext_Mac(const_cast<SkTypeface_Mac*>(this), effects, desc);
 }
 
 void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {

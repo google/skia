@@ -96,7 +96,8 @@ protected:
     }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
-    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 PerGlyphInfo, const uint32_t*, uint32_t) const override;

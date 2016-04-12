@@ -26,8 +26,9 @@ protected:
     // This value was chosen by eyeballing the result in Firefox and trying to match it.
     static const FT_Pos kBitmapEmboldenStrength = 1 << 6;
 
-    SkScalerContext_FreeType_Base(SkTypeface* typeface, const SkDescriptor *desc)
-    : INHERITED(typeface, desc)
+    SkScalerContext_FreeType_Base(SkTypeface* typeface, const SkScalerContextEffects& effects,
+                                  const SkDescriptor *desc)
+        : INHERITED(typeface, effects, desc)
     {}
 
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph);
@@ -75,8 +76,8 @@ protected:
         , fGlyphCount(-1)
     {}
 
-    virtual SkScalerContext* onCreateScalerContext(
-                                        const SkDescriptor*) const override;
+    virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                                   const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                         PerGlyphInfo, const uint32_t*, uint32_t) const override;

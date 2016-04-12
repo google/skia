@@ -125,7 +125,8 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         TestTypeface(const SkFontStyle& fontStyle, SkFontID id) : SkTypeface(fontStyle, id, false){}
     protected:
         SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
-        SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override {
+        SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                               const SkDescriptor*) const override {
             return nullptr;
         }
         void onFilterRec(SkScalerContextRec*) const override { }

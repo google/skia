@@ -183,8 +183,9 @@ SkASSERT(0);  // incomplete
 
 class SkTestScalerContext : public SkScalerContext {
 public:
-    SkTestScalerContext(SkTestTypeface* face, const SkDescriptor* desc)
-        : SkScalerContext(face, desc)
+    SkTestScalerContext(SkTestTypeface* face, const SkScalerContextEffects& effects,
+                        const SkDescriptor* desc)
+        : SkScalerContext(face, effects, desc)
         , fFace(face)
     {
         fRec.getSingleMatrix(&fMatrix);
@@ -283,6 +284,7 @@ private:
     SkMatrix         fMatrix;
 };
 
-SkScalerContext* SkTestTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    return new SkTestScalerContext(const_cast<SkTestTypeface*>(this), desc);
+SkScalerContext* SkTestTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
+                                                       const SkDescriptor* desc) const {
+    return new SkTestScalerContext(const_cast<SkTestTypeface*>(this), effects, desc);
 }

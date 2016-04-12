@@ -85,7 +85,8 @@ public:
      */
     GrPath* createPath(const SkPath&, const GrStrokeInfo&);
     GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStrokeInfo&);
-    GrPathRange* createGlyphs(const SkTypeface*, const SkDescriptor*, const GrStrokeInfo&);
+    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
+                              const SkDescriptor*, const GrStrokeInfo&);
 
     using GrTextureProvider::assignUniqueKeyToResource;
     using GrTextureProvider::findAndRefResourceByUniqueKey;

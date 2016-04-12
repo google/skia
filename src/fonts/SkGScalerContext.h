@@ -20,7 +20,8 @@ public:
     const SkPaint& paint() const { return fPaint; }
 
 protected:
-    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
         PerGlyphInfo,
