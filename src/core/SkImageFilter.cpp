@@ -414,7 +414,7 @@ bool SkImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, 
     GrContext* context = srcTexture->getContext();
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag,
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = bounds.width();
     desc.fHeight = bounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -451,6 +451,44 @@ bool SkImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, 
 #endif
     return false;
 }
+
+#if SK_SUPPORT_GPU
+sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
+                                                sk_sp<GrFragmentProcessor> fp,
+                                                const SkIRect& bounds,
+                                                SkImageFilter::Proxy* proxy) {
+    GrPaint paint;
+    paint.addColorFragmentProcessor(fp.get());
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = bounds.width();
+    desc.fHeight = bounds.height();
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+    sk_sp<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
+    if (!dst) {
+        return nullptr;
+    }
+
+    sk_sp<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
+    if (!drawContext) {
+        return nullptr;
+    }
+
+    SkRect srcRect = SkRect::Make(bounds);
+    SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
+    GrClip clip(dstRect);
+    drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
+
+    return SkSpecialImage::MakeFromGpu(proxy,
+                                       SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                       kNeedNewImageUniqueID_SpecialImage,
+                                       dst.get());
+
+}
+#endif
 
 bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
     SkASSERT(nullptr != filterPtr);
@@ -530,8 +568,8 @@ sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
                                                    SkSpecialImage* src,
                                                    SkIPoint* srcOffset,
                                                    SkIRect* bounds) const {
-    SkIRect srcBounds;
-    srcBounds = SkIRect::MakeXYWH(srcOffset->fX, srcOffset->fY, src->width(), src->height());
+    const SkIRect srcBounds = SkIRect::MakeXYWH(srcOffset->x(), srcOffset->y(),
+                                                src->width(), src->height());
 
     SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
     fCropRect.applyTo(dstBounds, ctx.ctm(), this->affectsTransparentBlack(), bounds);

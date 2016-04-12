@@ -21,7 +21,8 @@ public:
      * source image.
      */
     static sk_sp<SkImageFilter> Make(const SkRegion& region, SkScalar innerMin,
-                                     SkScalar outerMax, sk_sp<SkImageFilter> input);
+                                     SkScalar outerMax, sk_sp<SkImageFilter> input,
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
 
 
 #ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR

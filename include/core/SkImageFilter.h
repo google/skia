@@ -17,6 +17,7 @@
 #include "SkRect.h"
 #include "SkSurfaceProps.h"
 
+class GrContext;
 class GrFragmentProcessor;
 class GrTexture;
 class SkBaseDevice;
@@ -195,6 +196,13 @@ public:
      */
     virtual bool filterImageGPUDeprecated(Proxy*, const SkBitmap& src, const Context&,
                                           SkBitmap* result, SkIPoint* offset) const;
+
+#if SK_SUPPORT_GPU
+    static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context, 
+                                            sk_sp<GrFragmentProcessor> fp,
+                                            const SkIRect& bounds,
+                                            SkImageFilter::Proxy* proxy);
+#endif
 
     /**
      *  Returns whether this image filter is a color filter and puts the color filter into the
@@ -418,13 +426,12 @@ protected:
         return false;
     }
 
-    /** Given a "srcBounds" rect, computes destination bounds for this
-     *  destination bounds for this filter. "dstBounds" are computed by
-     *  transforming the crop rect by the context's CTM, applying it to the
-     *  initial bounds, and intersecting the result with the context's clip
-     *  bounds.  "srcBounds" (if non-null) are computed by intersecting the
-     *  initial bounds with "dstBounds", to ensure that we never sample
-     *  outside of the crop rect (this restriction may be relaxed in the
+    /** Given a "srcBounds" rect, computes destination bounds for this filter.
+     *  "dstBounds" are computed by transforming the crop rect by the context's
+     *  CTM, applying it to the initial bounds, and intersecting the result with
+     *  the context's clip bounds.  "srcBounds" (if non-null) are computed by
+     *  intersecting the initial bounds with "dstBounds", to ensure that we never
+     *  sample outside of the crop rect (this restriction may be relaxed in the
      *  future).
      */
     bool applyCropRect(const Context&, const SkIRect& srcBounds, SkIRect* dstBounds) const;
