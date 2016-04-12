@@ -78,12 +78,6 @@ void SkWStream::flush()
 {
 }
 
-bool SkWStream::writeText(const char text[])
-{
-    SkASSERT(text);
-    return this->write(text, strlen(text));
-}
-
 bool SkWStream::writeDecAsText(int32_t dec)
 {
     char buffer[SkStrAppendS32_MaxSize];

@@ -17,6 +17,7 @@
 #include "SkPDFUtils.h"
 #include "SkPixmap.h"
 #include "SkRandom.h"
+#include "SkStream.h"
 
 namespace {
 struct NullWStream : public SkWStream {
@@ -190,9 +191,26 @@ struct PDFShaderBench : public Benchmark {
     }
 };
 
+struct WStreamWriteTextBenchmark : public Benchmark {
+    std::unique_ptr<SkWStream> fWStream;
+    WStreamWriteTextBenchmark() : fWStream(new NullWStream) {}
+    const char* onGetName() override { return "WStreamWriteText"; }
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+    void onDraw(int loops, SkCanvas*) override {
+        while (loops-- > 0) {
+            for (int i = 1000; i-- > 0;) {
+                fWStream->writeText("HELLO SKIA!\n");
+            }
+        }
+    }
+};
+
 }  // namespace
 DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
 DEF_BENCH(return new PDFCompressionBench;)
 DEF_BENCH(return new PDFScalarBench;)
 DEF_BENCH(return new PDFShaderBench;)
+DEF_BENCH(return new WStreamWriteTextBenchmark;)

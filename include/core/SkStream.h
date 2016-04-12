@@ -200,7 +200,10 @@ public:
     bool    write16(U16CPU);
     bool    write32(uint32_t);
 
-    bool    writeText(const char text[]);
+    bool    writeText(const char text[]) {
+        SkASSERT(text);
+        return this->write(text, strlen(text));
+    }
     bool    writeDecAsText(int32_t);
     bool    writeBigDecAsText(int64_t, int minDigits = 0);
     bool    writeHexAsText(uint32_t, int minDigits = 0);
