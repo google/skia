@@ -639,7 +639,7 @@ DEF_TEST(BitmapReadPixels, reporter) {
 #include "SkColorPriv.h"
 /** Tests calling copyTo on a texture backed bitmap. Tests that all BGRA_8888/RGBA_8888 combinations
     of src and dst work. This test should be removed when SkGrPixelRef is removed. */
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(BitmapCopy_Texture, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BitmapCopy_Texture, reporter, ctxInfo) {
     static const SkPMColor kData[] = {
         0xFF112233, 0xAF224499,
         0xEF004466, 0x80773311

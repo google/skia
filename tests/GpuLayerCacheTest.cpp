@@ -107,7 +107,7 @@ static void lock_layer(skiatest::Reporter* reporter,
 // In particular it checks its interaction with the resource cache (w.r.t.
 // locking & unlocking textures).
 // TODO: need to add checks on VRAM usage!
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(GpuLayerCache, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GpuLayerCache, reporter, ctxInfo) {
     // Add one more layer than can fit in the atlas
     static const int kInitialNumLayers = TestingAccess::NumPlots() + 1;
 

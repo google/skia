@@ -13,7 +13,7 @@
 
 // Ensure that the 'getConservativeBounds' calls are returning bounds clamped
 // to the render target
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     static const int kXSize = 100;
     static const int kYSize = 100;
 

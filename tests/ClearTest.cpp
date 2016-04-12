@@ -65,7 +65,7 @@ static bool reset_dc(SkAutoTUnref<GrDrawContext>* dc, SkAutoTUnref<GrSurface>* r
     return *dc != nullptr;
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
     GrContext* context = ctxInfo.fGrContext;
     static const int kW = 10;
     static const int kH = 10;

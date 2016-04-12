@@ -170,6 +170,9 @@ private:
 
 #define DEF_GPUTEST_FOR_ALL_CONTEXTS(name, reporter, context_info)                          \
         DEF_GPUTEST_FOR_CONTEXTS(name, nullptr, reporter, context_info)
+#define DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name, reporter, context_info)                    \
+        DEF_GPUTEST_FOR_CONTEXTS(name, sk_gpu_test::GrContextFactory::IsRenderingContext,   \
+                                 reporter, context_info)
 #define DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(name, reporter, context_info)                       \
         DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsGLContextType, reporter, context_info)
 #define DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(name, reporter, context_info)                 \

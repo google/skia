@@ -666,7 +666,7 @@ DEF_TEST(ImageFilterNegativeBlurSigma, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_negative_blur_sigma);
 }
 #endif
@@ -712,7 +712,7 @@ DEF_TEST(ImageFilterZeroBlurSigma, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterZeroBlurSigma_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterZeroBlurSigma_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_zero_blur_sigma);
 }
 #endif
@@ -746,7 +746,7 @@ DEF_TEST(ImageFilterFailAffectsTransparentBlack, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterFailAffectsTransparentBlack_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterFailAffectsTransparentBlack_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_fail_affects_transparent_black);
 }
 #endif
@@ -1098,7 +1098,7 @@ DEF_TEST(ImageFilterCropRect, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterCropRect_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCropRect_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_crop_rects);
 }
 #endif
@@ -1221,7 +1221,7 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterClippedPictureImageFilter_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterClippedPictureImageFilter_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 2, test_clipped_picture_imagefilter);
 }
 #endif
@@ -1480,7 +1480,7 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ComposedImageFilterOffset_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterOffset_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_composed_imagefilter_offset);
 }
 #endif
@@ -1554,7 +1554,7 @@ DEF_TEST(ImageFilterPartialCropRect, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterPartialCropRect_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterPartialCropRect_Gpu, reporter, ctxInfo) {
     run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_partial_crop_rect);
 }
 #endif
@@ -1695,7 +1695,7 @@ DEF_TEST(ImageFilterBlurLargeImage, reporter) {
 
 #if SK_SUPPORT_GPU
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     sk_sp<SkGpuDevice> device(SkGpuDevice::Create(ctxInfo.fGrContext,

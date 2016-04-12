@@ -300,7 +300,7 @@ DEF_TEST(SurfaceBackendHandleAccessCopyOnWrite, reporter) {
     }
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceBackendHandleAccessCopyOnWrite_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessCopyOnWrite_Gpu, reporter, ctxInfo) {
         const SkSurface::BackendHandleAccess accessModes[] = {
         SkSurface::kFlushRead_BackendHandleAccess,
         SkSurface::kFlushWrite_BackendHandleAccess,
@@ -398,7 +398,7 @@ DEF_TEST(UniqueImageSnapshot, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.fGrContext;
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface(surface_func(context, kOpaque_SkAlphaType, nullptr));
@@ -501,7 +501,7 @@ static void test_backend_handle_unique_id(
     REPORTER_ASSERT(reporter, image2->uniqueID() != image3->uniqueID());
 }
 // No CPU test.
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceBackendHandleAccessIDs_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessIDs_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         for (auto& test_func : { &test_backend_handle_unique_id, &test_backend_handle_gen_id }) {
             for (auto& handle_access_func :

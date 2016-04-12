@@ -105,7 +105,7 @@ DEF_TEST(PremulAlphaRoundTrip, reporter) {
     test_premul_alpha_roundtrip(reporter, device);
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkAutoTUnref<SkBaseDevice> device(

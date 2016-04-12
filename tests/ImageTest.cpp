@@ -176,7 +176,7 @@ DEF_TEST(ImageEncode, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
     test_encode(reporter, create_gpu_image(ctxInfo.fGrContext).get());
 }
 #endif
@@ -369,7 +369,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
  *  but we don't have that facility (at the moment) so we use a little internal knowledge
  *  of *how* the raster version is cached, and look for that.
  */
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.fGrContext));
     const uint32_t uniqueID = image->uniqueID();
@@ -640,7 +640,7 @@ DEF_TEST(ImageLegacyBitmap, reporter) {
     }
 }
 #if SK_SUPPORT_GPU
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
     const SkImage::LegacyBitmapMode modes[] = {
         SkImage::kRO_LegacyBitmapMode,
         SkImage::kRW_LegacyBitmapMode,

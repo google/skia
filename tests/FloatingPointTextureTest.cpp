@@ -60,7 +60,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
 static const int FP_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4/*RGBA*/;
 static const float kMaxIntegerRepresentableInSPFloatingPoint = 16777216;  // 2 ^ 24
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, ctxInfo) {
     runFPTest<float>(reporter, ctxInfo.fGrContext, FLT_MIN, FLT_MAX, FLT_EPSILON,
                      kMaxIntegerRepresentableInSPFloatingPoint,
                      FP_CONTROL_ARRAY_SIZE, kRGBA_float_GrPixelConfig);
@@ -69,7 +69,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, ctxInf
 static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*/;
 static const SkHalf kMaxIntegerRepresentableInHalfFloatingPoint = 0x6800;  // 2 ^ 11
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo) {
     runFPTest<SkHalf>(reporter, ctxInfo.fGrContext, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
         kMaxIntegerRepresentableInHalfFloatingPoint,
         HALF_ALPHA_CONTROL_ARRAY_SIZE, kAlpha_half_GrPixelConfig);
@@ -77,7 +77,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxIn
 
 static const int HALF_RGBA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4 /*RGBA*/;
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) {
     runFPTest<SkHalf>(reporter, ctxInfo.fGrContext, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
         kMaxIntegerRepresentableInHalfFloatingPoint,
         HALF_RGBA_CONTROL_ARRAY_SIZE, kRGBA_half_GrPixelConfig);
