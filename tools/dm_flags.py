@@ -92,11 +92,14 @@ def get_args(bot):
   if 'CommandBuffer' in bot:
     configs = ['command_buffer']
 
+  # Vulkan bot *only* runs the vk config.
+  if 'Vulkan' in bot:
+    configs = ['vk']
+
   args.append('--config')
   args.extend(configs)
 
   # Run tests, gms, and image decoding tests everywhere.
-  # TODO: remove skp from default --src list?
   args.extend('--src tests gm image'.split(' '))
 
   if 'GalaxyS' in bot:
@@ -267,6 +270,7 @@ def self_test():
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+    'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
   ]
 

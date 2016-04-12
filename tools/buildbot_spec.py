@@ -164,6 +164,10 @@ def gyp_defines(builder_dict):
   if builder_dict.get('extra_config') == 'CommandBuffer':
     gyp_defs['skia_command_buffer'] = '1'
 
+  # Vulkan.
+  if builder_dict.get('extra_config') == 'Vulkan':
+    gyp_defs['skia_vulkan'] = '1'
+
   return gyp_defs
 
 
@@ -378,6 +382,7 @@ def self_test():
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast',
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
         'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+        'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
         'Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86-Release-ANGLE',
         'Test-Win8-MSVC-ShuttleA-CPU-AVX-x86_64-Debug',
   ]
