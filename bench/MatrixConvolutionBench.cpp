@@ -11,10 +11,21 @@
 #include "SkRandom.h"
 #include "SkString.h"
 
+static const char* name(SkMatrixConvolutionImageFilter::TileMode mode) {
+    switch (mode) {
+        case SkMatrixConvolutionImageFilter::kClamp_TileMode:        return "clamp";
+        case SkMatrixConvolutionImageFilter::kRepeat_TileMode:       return "repeat";
+        case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode: return "clampToBlack";
+    }
+    return "oops";
+}
+
 class MatrixConvolutionBench : public Benchmark {
 public:
     MatrixConvolutionBench(SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha)
-        : fName("matrixconvolution") {
+        : fName(SkStringPrintf("matrixconvolution_%s%s",
+                               name(tileMode),
+                               convolveAlpha ? "" : "_noConvolveAlpha")) {
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar kernel[9] = {
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
@@ -23,7 +34,7 @@ public:
         };
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkIPoint kernelOffset = SkIPoint::Make(1, 1);
-        fFilter = SkMatrixConvolutionImageFilter::Make(kernelSize, kernel, gain, bias, 
+        fFilter = SkMatrixConvolutionImageFilter::Make(kernelSize, kernel, gain, bias,
                                                        kernelOffset, tileMode, convolveAlpha,
                                                        nullptr);
     }
