@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkMutex.h"
 #include "SkOnce.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
@@ -139,6 +140,41 @@ static const GrGLInterface* create_command_buffer_interface() {
     return GrGLAssembleGLESInterface(gLibrary, command_buffer_get_gl_proc);
 }
 
+// We use a poor man's garbage collector of EGLDisplays. They are only
+// terminated when there are no more EGLDisplays in use. See crbug.com/603223
+SK_DECLARE_STATIC_MUTEX(gDisplayMutex);
+static int gActiveDisplayCnt;
+SkTArray<EGLDisplay> gRetiredDisplays;
+
+static EGLDisplay get_and_init_display() {
+    SkAutoMutexAcquire am(gDisplayMutex);
+    EGLDisplay dsp = gfGetDisplay(EGL_DEFAULT_DISPLAY);
+    if (dsp == EGL_NO_DISPLAY) {
+        return EGL_NO_DISPLAY;
+    }
+    EGLint major, minor;
+    if (!gfInitialize(dsp, &major, &minor)) {
+        gRetiredDisplays.push_back(dsp);
+        return EGL_NO_DISPLAY;
+    }
+    ++gActiveDisplayCnt;
+    return dsp;
+}
+
+static void retire_display(EGLDisplay dsp) {
+    if (dsp == EGL_NO_DISPLAY) {
+        return;
+    }
+    SkAutoMutexAcquire am(gDisplayMutex);
+    gRetiredDisplays.push_back(dsp);
+    --gActiveDisplayCnt;
+    if (!gActiveDisplayCnt) {
+        for (EGLDisplay d : gRetiredDisplays) {
+            gfTerminate(d);
+        }
+        gRetiredDisplays.reset();
+    }
+}
 }  // anonymous namespace
 
 namespace sk_gpu_test {
@@ -196,17 +232,9 @@ void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const i
 
     // Make sure CHROMIUM_path_rendering is enabled for NVPR support.
     sk_setenv("CHROME_COMMAND_BUFFER_GLES2_ARGS", "--enable-gl-path-rendering");
-    fDisplay = gfGetDisplay(EGL_DEFAULT_DISPLAY);
+    fDisplay = get_and_init_display();
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Command Buffer: Could not create EGL display.\n");
-        return;
-    }
-
-    EGLint majorVersion;
-    EGLint minorVersion;
-    if (!gfInitialize(fDisplay, &majorVersion, &minorVersion)) {
-        SkDebugf("Command Buffer: Could not initialize EGL display.\n");
-        this->destroyGLContext();
         return;
     }
 
@@ -288,7 +316,7 @@ void CommandBufferGLTestContext::destroyGLContext() {
             fSurface = EGL_NO_SURFACE;
         }
 
-        gfTerminate(fDisplay);
+        retire_display(fDisplay);
         fDisplay = EGL_NO_DISPLAY;
     }
 }
