@@ -108,9 +108,9 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
 
     canvas->clear(0x0);
 
-    if (kDeviceSpace_PictureResolution == fPictureResolution || 
+    if (kDeviceSpace_PictureResolution == fPictureResolution ||
         0 == (ctx.ctm().getType() & ~SkMatrix::kTranslate_Mask)) {
-        this->drawPictureAtDeviceResolution(canvas, bounds, ctx);        
+        this->drawPictureAtDeviceResolution(canvas, bounds, ctx);
     } else {
         this->drawPictureAtLocalResolution(source, canvas, bounds, ctx);
     }

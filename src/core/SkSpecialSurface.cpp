@@ -44,7 +44,7 @@ static SkSpecialSurface_Base* as_SB(SkSpecialSurface* surface) {
 SkSpecialSurface::SkSpecialSurface(SkImageFilter::Proxy* proxy,
                                    const SkIRect& subset,
                                    const SkSurfaceProps* props)
-    : fProps(SkSurfacePropsCopyOrDefault(props))
+    : fProps(SkSurfacePropsCopyOrDefault(props).flags(), kUnknown_SkPixelGeometry)
     , fSubset(subset)
     , fProxy(proxy) {
     SkASSERT(fSubset.width() > 0);
@@ -76,7 +76,7 @@ public:
         fBitmap.setInfo(info, info.minRowBytes());
         fBitmap.setPixelRef(pr);
 
-        fCanvas.reset(new SkCanvas(fBitmap));
+        fCanvas.reset(new SkCanvas(fBitmap, this->props()));
     }
 
     ~SkSpecialSurface_Raster() override { }
