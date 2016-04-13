@@ -169,7 +169,7 @@ public:
     }
     static SkSurface* NewRenderTarget(GrContext* ctx, SkBudgeted b, const SkImageInfo& info,
                                       int sampleCount, const SkSurfaceProps* props = NULL) {
-        return MakeRenderTarget(ctx, b, info, sampleCount, props, a).release();
+        return MakeRenderTarget(ctx, b, info, sampleCount, props).release();
     }
     static SkSurface* NewRenderTarget(GrContext* gr, SkBudgeted b, const SkImageInfo& info) {
         return NewRenderTarget(gr, b, info, 0);
