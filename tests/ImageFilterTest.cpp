@@ -1093,6 +1093,51 @@ DEF_TEST(ImageFilterMatrixConvolutionBorder, reporter) {
     canvas.restore();
 }
 
+static void test_big_kernel(SkImageFilter::Proxy* proxy,
+                            skiatest::Reporter* reporter,
+                            GrContext* context) {
+    // Check that a kernel that is too big for the GPU still works
+    SkScalar identityKernel[49] = {
+        0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0
+    };
+    SkISize kernelSize = SkISize::Make(7, 7);
+    SkScalar gain = SK_Scalar1, bias = 0;
+    SkIPoint kernelOffset = SkIPoint::Make(0, 0);
+
+    sk_sp<SkImageFilter> filter(SkMatrixConvolutionImageFilter::Make(
+                                        kernelSize, identityKernel, gain, bias, kernelOffset,
+                                        SkMatrixConvolutionImageFilter::kClamp_TileMode,
+                                        true, nullptr));
+
+    sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, proxy, 100));
+    SkASSERT(srcImg);
+
+    SkIPoint offset;
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr);
+    sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
+    REPORTER_ASSERT(reporter, resultImg);
+    REPORTER_ASSERT(reporter, SkToBool(context) == resultImg->isTextureBacked());
+    REPORTER_ASSERT(reporter, resultImg->width() == 100 && resultImg->height() == 100);
+    REPORTER_ASSERT(reporter, offset.fX == 0 && offset.fY == 0);
+}
+
+DEF_TEST(ImageFilterMatrixConvolutionBigKernel, reporter) {
+    run_raster_test(reporter, 100, test_big_kernel);
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterMatrixConvolutionBigKernel_Gpu,
+                                      reporter, ctxInfo) {
+    run_gpu_test(reporter, ctxInfo.fGrContext, 100, test_big_kernel);
+}
+#endif
+
 DEF_TEST(ImageFilterCropRect, reporter) {
     run_raster_test(reporter, 100, test_crop_rects);
 }

@@ -29,7 +29,7 @@ public:
       kMax_TileMode = kClampToBlack_TileMode
     };
 
-    virtual ~SkMatrixConvolutionImageFilter();
+    ~SkMatrixConvolutionImageFilter() override;
 
     /** Construct a matrix convolution image filter.
         @param kernelSize     The kernel size in pixels, in each dimension (N by M).
@@ -92,15 +92,10 @@ protected:
                                    const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
 
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* loc) const override;
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
     bool affectsTransparentBlack() const override;
-
-#if SK_SUPPORT_GPU
-    bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
-                             const SkIRect& bounds) const override;
-#endif
 
 private:
     SkISize   fKernelSize;
