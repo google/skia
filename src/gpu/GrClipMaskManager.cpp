@@ -856,6 +856,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                             args.fPath = &clipPath;
                             args.fStroke = &stroke;
                             args.fAntiAlias = false;
+                            args.fGammaCorrect = false;
                             pr->drawPath(args);
                         } else {
                             GrPathRenderer::StencilPathArgs args;
@@ -891,6 +892,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                         args.fPath = &clipPath;
                         args.fStroke = &stroke;
                         args.fAntiAlias = false;
+                        args.fGammaCorrect = false;
                         pr->drawPath(args);
                     }
                 } else {

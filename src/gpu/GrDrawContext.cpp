@@ -922,6 +922,7 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
     args.fPath = &path;
     args.fStroke = &GrStrokeInfo::FillInfo();
     args.fAntiAlias = useCoverageAA;
+    args.fGammaCorrect = fDrawContext->isGammaCorrect();
     pr->drawPath(args);
     return true;
 }
@@ -1025,6 +1026,7 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     args.fPath = pathPtr;
     args.fStroke = strokeInfoPtr;
     args.fAntiAlias = useCoverageAA;
+    args.fGammaCorrect = this->isGammaCorrect();
     pr->drawPath(args);
 }
 

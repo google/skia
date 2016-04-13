@@ -64,7 +64,7 @@ public:
          *  It is recommended to enable this flag when rendering to an sRGB or floating point
          *  surface.
          */
-        kGammaCorrect_Flag           = 1 << 3,
+        kGammaCorrect_Flag              = 1 << 3,
     };
     /** Deprecated alias used by Chromium. Will be removed. */
     static const Flags kUseDistanceFieldFonts_Flag = kUseDeviceIndependentFonts_Flag;

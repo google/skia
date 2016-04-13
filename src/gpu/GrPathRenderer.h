@@ -119,6 +119,7 @@ public:
      * fPath                  the path to draw.
      * fStroke                the stroke information (width, join, cap)
      * fAntiAlias             true if anti-aliasing is required.
+     * fGammaCorrect          true if gamma-correct rendering is to be used.
      */
     struct DrawPathArgs {
         GrDrawTarget*               fTarget;
@@ -129,6 +130,7 @@ public:
         const SkPath*               fPath;
         const GrStrokeInfo*         fStroke;
         bool                        fAntiAlias;
+        bool                        fGammaCorrect;
 
         void validate() const {
             SkASSERT(fTarget);
@@ -281,6 +283,7 @@ private:
         drawArgs.fPath = args.fPath;
         drawArgs.fStroke = args.fStroke;
         drawArgs.fAntiAlias = false;
+        drawArgs.fGammaCorrect = false;
         this->drawPath(drawArgs);
     }
 

@@ -362,6 +362,8 @@ public:
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                                kUniformScale_DistanceFieldEffectMask;
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
+        bool isGammaCorrect =
+            SkToBool(dfTexEffect.getFlags() & kGammaCorrect_DistanceFieldEffectFlag);
         if (isUniformScale) {
             // For uniform scale, we adjust for the effect of the transformation on the distance
             // by using the length of the gradient of the t coordinate in the y direction.
@@ -402,7 +404,15 @@ public:
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
         }
-        fragBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
+        // The smoothstep falloff compensates for the non-linear sRGB response curve. If we are
+        // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want distance
+        // mapped linearly to coverage, so use a linear step:
+        if (isGammaCorrect) {
+            fragBuilder->codeAppend(
+                "float val = clamp(distance + afwidth / (2.0 * afwidth), 0.0, 1.0);");
+        } else {
+            fragBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
+        }
 
         fragBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }

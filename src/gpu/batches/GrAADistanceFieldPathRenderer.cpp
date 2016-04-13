@@ -148,8 +148,10 @@ public:
     };
 
     static GrDrawBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
-                               GrBatchAtlas* atlas, PathCache* pathCache, PathDataList* pathList) {
-        return new AADistanceFieldPathBatch(geometry, viewMatrix, atlas, pathCache, pathList);
+                               GrBatchAtlas* atlas, PathCache* pathCache, PathDataList* pathList,
+                               bool gammaCorrect) {
+        return new AADistanceFieldPathBatch(geometry, viewMatrix, atlas, pathCache, pathList,
+                                            gammaCorrect);
     }
 
     const char* name() const override { return "AADistanceFieldPathBatch"; }
@@ -196,6 +198,7 @@ private:
         uint32_t flags = 0;
         flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
         flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+        flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
 
@@ -296,7 +299,8 @@ private:
     AADistanceFieldPathBatch(const Geometry& geometry,
                              const SkMatrix& viewMatrix,
                              GrBatchAtlas* atlas,
-                             PathCache* pathCache, PathDataList* pathList)
+                             PathCache* pathCache, PathDataList* pathList,
+                             bool gammaCorrect)
         : INHERITED(ClassID()) {
         fBatch.fViewMatrix = viewMatrix;
         fGeoData.push_back(geometry);
@@ -304,6 +308,7 @@ private:
         fAtlas = atlas;
         fPathCache = pathCache;
         fPathList = pathList;
+        fGammaCorrect = gammaCorrect;
 
         // Compute bounds
         fBounds = geometry.fPath.getBounds();
@@ -524,6 +529,7 @@ private:
     GrBatchAtlas* fAtlas;
     PathCache* fPathCache;
     PathDataList* fPathList;
+    bool fGammaCorrect;
 
     typedef GrVertexBatch INHERITED;
 };
@@ -562,7 +568,8 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkAutoTUnref<GrDrawBatch> batch(AADistanceFieldPathBatch::Create(geometry,
                                                                      *args.fViewMatrix, fAtlas,
-                                                                     &fPathCache, &fPathList));
+                                                                     &fPathCache, &fPathList,
+                                                                     args.fGammaCorrect));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
@@ -630,6 +637,7 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
+    bool gammaCorrect = random->nextBool();
 
     AADistanceFieldPathBatch::Geometry geometry(GrTest::TestStrokeRec(random));
     geometry.fColor = color;
@@ -640,7 +648,8 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
     return AADistanceFieldPathBatch::Create(geometry, viewMatrix,
                                             gTestStruct.fAtlas,
                                             &gTestStruct.fPathCache,
-                                            &gTestStruct.fPathList);
+                                            &gTestStruct.fPathList,
+                                            gammaCorrect);
 }
 
 #endif

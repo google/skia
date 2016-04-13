@@ -71,8 +71,8 @@ public:
     bool getAllowSRGBInputs() const { return fAllowSRGBInputs; }
 
     /**
-     * Should rendering be gamma-correct. Causes sRGB inputs to perform conversion to linear,
-     * and outputs to be converted from linear to sRGB (if the destination is sRGB).
+     * Should rendering be gamma-correct, end-to-end. Causes sRGB render targets to behave
+     * as such (with linear blending), and sRGB inputs to be filtered and decoded correctly.
      */
     void setGammaCorrect(bool gammaCorrect) {
         setDisableOutputConversionToSRGB(!gammaCorrect);
