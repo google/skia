@@ -54,11 +54,7 @@ protected:
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override;
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override;
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override;
-#else
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle) const override;
-#endif
 
 private:
     SkTypeface* createTypefaceFromFontId(const SkFontIdentity& fontId) const;

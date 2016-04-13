@@ -2559,12 +2559,7 @@ protected:
         return create_from_dataProvider(pr);
     }
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override {
-        SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
-#else
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
-#endif
         if (familyName) {
             familyName = map_css_names(familyName);
         }

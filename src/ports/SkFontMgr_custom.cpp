@@ -308,12 +308,7 @@ protected:
         return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
     }
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override {
-        SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
-#else
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
-#endif
         SkTypeface* tf = nullptr;
 
         if (familyName) {

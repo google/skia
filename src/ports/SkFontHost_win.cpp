@@ -2501,12 +2501,7 @@ protected:
         return this->createFromStream(SkStream::NewFromFile(path));
     }
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override {
-        SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
-#else
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
-#endif
         LOGFONT lf;
         if (nullptr == familyName) {
             lf = get_default_font();

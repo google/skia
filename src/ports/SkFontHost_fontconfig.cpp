@@ -166,16 +166,9 @@ public:
     }
 };
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-SkTypeface* FontConfigTypeface::LegacyCreateTypeface(const char requestedFamilyName[],
-                                                     SkTypeface::Style requestedOldStyle)
-{
-    SkFontStyle requestedStyle = SkFontStyle::FromOldStyle(requestedOldStyle);
-#else
 SkTypeface* FontConfigTypeface::LegacyCreateTypeface(const char requestedFamilyName[],
                                                      SkFontStyle requestedStyle)
 {
-#endif
     SkAutoTUnref<SkFontConfigInterface> fci(RefFCI());
     if (nullptr == fci.get()) {
         return nullptr;
@@ -191,13 +184,8 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(const char requestedFamilyN
 
     SkFontConfigInterface::FontIdentity identity;
     SkString outFamilyName;
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    SkTypeface::Style outStyle;
-    if (!fci->matchFamilyName(requestedFamilyName, requestedOldStyle,
-#else
     SkFontStyle outStyle;
     if (!fci->matchFamilyName(requestedFamilyName, requestedStyle,
-#endif
                               &identity, &outFamilyName, &outStyle))
     {
         return nullptr;
@@ -206,15 +194,9 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(const char requestedFamilyN
     // Check if a typeface with this FontIdentity is already in the FontIdentity cache.
     face = SkTypefaceCache::FindByProcAndRef(find_by_FontIdentity, &identity);
     if (!face) {
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-        face = FontConfigTypeface::Create(SkFontStyle::FromOldStyle(outStyle), identity, outFamilyName);
-        // Add this FontIdentity to the FontIdentity cache.
-        SkTypefaceCache::Add(face, SkFontStyle::FromOldStyle(outStyle));
-#else
         face = FontConfigTypeface::Create(outStyle, identity, outFamilyName);
         // Add this FontIdentity to the FontIdentity cache.
         SkTypefaceCache::Add(face, outStyle);
-#endif
     }
     // Add this request to the request cache.
     SkFontHostRequestCache::Add(face, request.release());

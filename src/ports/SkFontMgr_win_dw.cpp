@@ -294,11 +294,7 @@ protected:
     SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const override;
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override;
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override;
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    SkTypeface* onLegacyCreateTypeface(const char familyName[], unsigned styleBits) const override;
-#else
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle) const override;
-#endif
 
 private:
     HRESULT getByFamilyName(const WCHAR familyName[], IDWriteFontFamily** fontFamily) const;
@@ -953,14 +949,8 @@ HRESULT SkFontMgr_DirectWrite::getDefaultFontFamily(IDWriteFontFamily** fontFami
     return S_OK;
 }
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[],
-                                                          unsigned styleBits) const {
-    SkFontStyle style = SkFontStyle::FromOldStyle(styleBits);
-#else
 SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[],
                                                           SkFontStyle style) const {
-#endif
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
     if (familyName) {
         SkSMallocWCHAR wideFamilyName;

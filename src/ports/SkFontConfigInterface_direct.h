@@ -17,20 +17,12 @@ public:
     SkFontConfigInterfaceDirect();
     ~SkFontConfigInterfaceDirect() override;
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    bool matchFamilyName(const char familyName[],
-                         SkTypeface::Style requested,
-                         FontIdentity* outFontIdentifier,
-                         SkString* outFamilyName,
-                         SkTypeface::Style* outStyle) override;
-#else
     bool matchFamilyName(const char familyName[],
                          SkFontStyle requested,
                          FontIdentity* outFontIdentifier,
                          SkString* outFamilyName,
                          SkFontStyle* outStyle) override;
 
-#endif
     SkStreamAsset* openStream(const FontIdentity&) override;
 
     // new APIs

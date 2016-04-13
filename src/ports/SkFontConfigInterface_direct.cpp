@@ -305,40 +305,6 @@ bool IsFallbackFontAllowed(const SkString& family) {
 }
 
 // Retrieves |is_bold|, |is_italic| and |font_family| properties from |font|.
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-SkTypeface::Style GetFontStyle(FcPattern* font) {
-    int resulting_bold;
-    if (FcPatternGetInteger(font, FC_WEIGHT, 0, &resulting_bold))
-        resulting_bold = FC_WEIGHT_NORMAL;
-
-    int resulting_italic;
-    if (FcPatternGetInteger(font, FC_SLANT, 0, &resulting_italic))
-        resulting_italic = FC_SLANT_ROMAN;
-
-    // If we ask for an italic font, fontconfig might take a roman font and set
-    // the undocumented property FC_MATRIX to a skew matrix. It'll then say
-    // that the font is italic or oblique. So, if we see a matrix, we don't
-    // believe that it's italic.
-    FcValue matrix;
-    const bool have_matrix = FcPatternGet(font, FC_MATRIX, 0, &matrix) == 0;
-
-    // If we ask for an italic font, fontconfig might take a roman font and set
-    // FC_EMBOLDEN.
-    FcValue embolden;
-    const bool have_embolden = FcPatternGet(font, FC_EMBOLDEN, 0, &embolden) == 0;
-
-    int styleBits = 0;
-    if (resulting_bold > FC_WEIGHT_MEDIUM && !have_embolden) {
-        styleBits |= SkTypeface::kBold;
-    }
-    if (resulting_italic > FC_SLANT_ROMAN && !have_matrix) {
-        styleBits |= SkTypeface::kItalic;
-    }
-
-    return (SkTypeface::Style)styleBits;
-}
-#else
-
 static int get_int(FcPattern* pattern, const char object[], int missing) {
     int value;
     if (FcPatternGetInteger(pattern, object, 0, &value) != FcResultMatch) {
@@ -463,11 +429,6 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
     FcPatternAddInteger(pattern, FC_SLANT, style.isItalic() ? FC_SLANT_ITALIC : FC_SLANT_ROMAN);
 }
 
-SkFontStyle GetFontStyle(FcPattern* font) {
-    return skfontstyle_from_fcpattern(font);
-}
-#endif
-
 }  // anonymous namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -549,19 +510,11 @@ FcPattern* SkFontConfigInterfaceDirect::MatchFont(FcFontSet* font_set,
   return match;
 }
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
-                                                  SkTypeface::Style style,
-                                                  FontIdentity* outIdentity,
-                                                  SkString* outFamilyName,
-                                                  SkTypeface::Style* outStyle) {
-#else
 bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
                                                   SkFontStyle style,
                                                   FontIdentity* outIdentity,
                                                   SkString* outFamilyName,
                                                   SkFontStyle* outStyle) {
-#endif
     SkString familyStr(familyName ? familyName : "");
     if (familyStr.size() > kMaxFontFamilyLength) {
         return false;
@@ -574,16 +527,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     if (familyName) {
         FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
     }
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    FcPatternAddInteger(pattern, FC_WEIGHT,
-                        (style & SkTypeface::kBold) ? FC_WEIGHT_BOLD
-                                                    : FC_WEIGHT_NORMAL);
-    FcPatternAddInteger(pattern, FC_SLANT,
-                        (style & SkTypeface::kItalic) ? FC_SLANT_ITALIC
-                                                      : FC_SLANT_ROMAN);
-#else
     fcpattern_from_skfontstyle(style, pattern);
-#endif
 
     FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 
@@ -671,7 +615,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
         outFamilyName->set(post_config_family);
     }
     if (outStyle) {
-        *outStyle = GetFontStyle(match);
+        *outStyle = skfontstyle_from_fcpattern(match);
     }
     return true;
 }

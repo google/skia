@@ -74,11 +74,7 @@ protected:
     SkTypeface* onCreateFromFile(const char[], int) const override {
         return nullptr;
     }
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-    SkTypeface* onLegacyCreateTypeface(const char [], unsigned) const override {
-#else
     SkTypeface* onLegacyCreateTypeface(const char [], SkFontStyle) const override {
-#endif
         return nullptr;
     }
 };
@@ -169,11 +165,7 @@ SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) const {
     return this->onCreateFromFile(path, ttcIndex);
 }
 
-#ifdef SK_VERY_LEGACY_CREATE_TYPEFACE
-SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[], unsigned style) const {
-#else
 SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[], SkFontStyle style) const {
-#endif
     return this->onLegacyCreateTypeface(familyName, style);
 }
 
