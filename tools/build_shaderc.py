@@ -36,9 +36,13 @@ def main():
 
   if not os.path.isdir(args.src_dir):
     sys.exit(args.src_dir + ' is not a directory.')
-    
-  if args.build_type != 'Debug' and args.build_type != 'Release':
-    sys.exit('Invalid build type: ' + args.build_type);
+
+  if 'Release' in args.build_type:
+    args.build_type = "Release"
+  elif 'Debug' in args.build_type:
+    args.build_type = "Debug"
+  else:
+    args.exit('Invalid build type: ' + args.build_type);
 
   if args.arch_type == 'x86':
     vs_arch = ''
@@ -56,11 +60,13 @@ def main():
   else:
     sys.exit('Invalid project type: ' + args.project_type);
 
-  if not os.path.isdir(args.output_dir):
-    try:
-      os.makedirs(args.output_dir)
-    except os.error:
-      sys.exit('Error creating output dir ' + args.output_dir)
+  if os.path.isdir(args.output_dir):
+    shutil.rmtree(args.output_dir)
+
+  try:
+    os.makedirs(args.output_dir)
+  except os.error:
+    sys.exit('Error creating output dir ' + args.output_dir)
 
   try:
     build_type_arg='-DCMAKE_BUILD_TYPE=' + args.build_type

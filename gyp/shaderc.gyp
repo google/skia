@@ -8,12 +8,8 @@
   'variables': {
     'variables': { # This is the dreaded nested variables dict so that we can
                    # have dependent variables
+      'shaderc_build_configuration': '<(CONFIGURATION_NAME)',
       'conditions': [
-        [ 'CONFIGURATION_NAME == "Release_Developer"', {
-          'shaderc_build_configuration' : 'Release',
-        }, {
-          'shaderc_build_configuration' : '<(CONFIGURATION_NAME)',
-        }],
         [ 'skia_os == "win"', {
           'shaderc_lib_name' : 'shaderc_combined.lib',
         }, {
