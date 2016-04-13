@@ -164,7 +164,10 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         if (this->usesDistanceFields()) {
             args.fViewMatrix.mapRect(&rect);
         }
-        SkASSERT(fBounds.contains(rect));
+        // Allow for small numerical error in the bounds.
+        SkRect bounds = fBounds;
+        bounds.outset(0.001f, 0.001f);
+        SkASSERT(bounds.contains(rect));
 #endif
 
         currVertex += byteCount;
