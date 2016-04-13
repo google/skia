@@ -227,7 +227,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget*, const SkSurf
 }
 
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&, int,
-                                             const SkSurfaceProps*, GrTextureStorageAllocator) {
+                                             const SkSurfaceProps*) {
     return nullptr;
 }
 

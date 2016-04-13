@@ -144,15 +144,13 @@ SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
 
 SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkBudgeted budgeted,
                                  const SkImageInfo& info, int sampleCount,
-                                 const SkSurfaceProps* props, InitContents init,
-                                 GrTextureStorageAllocator customAllocator) {
+                                 const SkSurfaceProps* props, InitContents init) {
     unsigned flags;
     if (!CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
         return nullptr;
     }
 
-    SkAutoTUnref<GrRenderTarget> rt(CreateRenderTarget(
-            context, budgeted, info, sampleCount, customAllocator));
+    SkAutoTUnref<GrRenderTarget> rt(CreateRenderTarget(context, budgeted, info, sampleCount));
     if (nullptr == rt) {
         return nullptr;
     }
@@ -179,9 +177,8 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     }
 }
 
-GrRenderTarget* SkGpuDevice::CreateRenderTarget(
-        GrContext* context, SkBudgeted budgeted, const SkImageInfo& origInfo,
-        int sampleCount, GrTextureStorageAllocator textureStorageAllocator) {
+GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                                const SkImageInfo& origInfo, int sampleCount) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
         return nullptr;
@@ -211,7 +208,6 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info, *context->caps());
     desc.fSampleCnt = sampleCount;
-    desc.fTextureStorageAllocator = textureStorageAllocator;
     desc.fIsMipMapped = false;
     GrTexture* texture = context->textureProvider()->createTexture(desc, budgeted, nullptr, 0);
     if (nullptr == texture) {
@@ -359,8 +355,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     SkBudgeted budgeted = fRenderTarget->resourcePriv().isBudgeted();
 
     SkAutoTUnref<GrRenderTarget> newRT(CreateRenderTarget(
-        this->context(), budgeted, this->imageInfo(), fRenderTarget->desc().fSampleCnt,
-        fRenderTarget->desc().fTextureStorageAllocator));
+        this->context(), budgeted, this->imageInfo(), fRenderTarget->desc().fSampleCnt));
 
     if (nullptr == newRT) {
         return;

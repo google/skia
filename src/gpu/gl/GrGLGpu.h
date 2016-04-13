@@ -141,8 +141,7 @@ private:
     // compatible stencil format, or negative if there is no compatible stencil format.
     int getCompatibleStencilIndex(GrPixelConfig config);
 
-    // If |desc.fTextureStorageAllocator| exists, use that to create the
-    // texture. Otherwise, create the texture directly.
+
     // Returns whether the texture is successfully created. On success, the
     // result is stored in |info|.
     // The texture is populated with |texels|, if it exists.
@@ -150,8 +149,6 @@ private:
     bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const SkTArray<GrMipLevel>& texels);
-    bool createTextureExternalAllocatorImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
-                                            const SkTArray<GrMipLevel>& texels);
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
 

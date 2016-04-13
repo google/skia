@@ -52,8 +52,7 @@ public:
      * the resource cache budget. On failure, returns nullptr.
      */
     static SkGpuDevice* Create(GrContext*, SkBudgeted, const SkImageInfo&,
-                               int sampleCount, const SkSurfaceProps*,
-                               InitContents, GrTextureStorageAllocator = GrTextureStorageAllocator());
+                               int sampleCount, const SkSurfaceProps*, InitContents);
 
     ~SkGpuDevice() override {}
 
@@ -259,7 +258,7 @@ private:
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 
     static GrRenderTarget* CreateRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
-                                              int sampleCount, GrTextureStorageAllocator);
+                                              int sampleCount);
 
     void drawSpriteWithFilter(const SkDraw&, const SkBitmap&, int x, int y,
                               const SkPaint&) override;

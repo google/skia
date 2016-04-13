@@ -50,8 +50,7 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
         !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
-    if (!GrPixelConfigIsCompressed(desc.fConfig) &&
-        !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
+    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         if (mipLevelCount < 2) {
             static const uint32_t kFlags = kExact_ScratchTextureFlag |
                                            kNoCreate_ScratchTextureFlag;

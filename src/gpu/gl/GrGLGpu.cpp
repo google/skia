@@ -1342,8 +1342,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     bool succeeded = true;
     if (kNewTexture_UploadType == uploadType &&
         0 == left && 0 == top &&
-        desc.fWidth == width && desc.fHeight == height &&
-        !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
+        desc.fWidth == width && desc.fHeight == height) {
         succeeded = allocate_and_populate_uncompressed_texture(desc, *interface, caps, target,
                                                                internalFormat, externalFormat,
                                                                externalType, texelsShallowCopy,
@@ -1863,10 +1862,6 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
 bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
                                 bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                                 const SkTArray<GrMipLevel>& texels) {
-    if (desc.fTextureStorageAllocator.fAllocateTextureStorage) {
-        return this->createTextureExternalAllocatorImpl(desc, info, texels);
-    }
-
     info->fID = 0;
     info->fTarget = GR_GL_TEXTURE_2D;
     GL_CALL(GenTextures(1, &(info->fID)));
@@ -1892,39 +1887,6 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
                              desc.fWidth, desc.fHeight,
                              desc.fConfig, texels)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));
-        return false;
-    }
-    return true;
-}
-
-bool GrGLGpu::createTextureExternalAllocatorImpl(const GrSurfaceDesc& desc,
-                                                 GrGLTextureInfo* info,
-                                                 const SkTArray<GrMipLevel>& texels) {
-    // We do not make SkTArray available outside of Skia,
-    // and so we do not want to allow mipmaps to external
-    // allocators just yet.
-    SkASSERT(texels.count() < 2);
-
-    const void* pixels = nullptr;
-    if (!texels.empty()) {
-        pixels = texels.begin()->fPixels;
-    }
-    switch (desc.fTextureStorageAllocator.fAllocateTextureStorage(
-                    desc.fTextureStorageAllocator.fCtx, reinterpret_cast<GrBackendObject>(info),
-                    desc.fWidth, desc.fHeight, desc.fConfig, pixels, desc.fOrigin)) {
-        case GrTextureStorageAllocator::Result::kSucceededAndUploaded:
-            return true;
-        case GrTextureStorageAllocator::Result::kFailed:
-            return false;
-        case GrTextureStorageAllocator::Result::kSucceededWithoutUpload:
-            break;
-    }
-
-    if (!this->uploadTexData(desc, info->fTarget, kNewTexture_UploadType, 0, 0,
-                             desc.fWidth, desc.fHeight,
-                             desc.fConfig, texels)) {
-        desc.fTextureStorageAllocator.fDeallocateTextureStorage(
-                desc.fTextureStorageAllocator.fCtx, reinterpret_cast<GrBackendObject>(info));
         return false;
     }
     return true;

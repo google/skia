@@ -90,8 +90,7 @@ GrTexture::GrTexture(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc,
                      GrSLType samplerType, bool wasMipMapDataProvided)
     : INHERITED(gpu, lifeCycle, desc)
     , fSamplerType(samplerType) {
-    if (!this->isExternal() && !GrPixelConfigIsCompressed(desc.fConfig) &&
-        !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
+    if (!this->isExternal() && !GrPixelConfigIsCompressed(desc.fConfig)) {
         GrScratchKey key;
         GrTexturePriv::ComputeScratchKey(desc, &key);
         this->setScratchKey(key);

@@ -112,13 +112,9 @@ public:
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
-     *
-     *  The GrTextureStorageAllocator will be reused if SkImage snapshots create
-     *  additional textures.
      */
     static sk_sp<SkSurface> MakeRenderTarget(
-            GrContext*, SkBudgeted, const SkImageInfo&, int sampleCount, const SkSurfaceProps*,
-            GrTextureStorageAllocator = GrTextureStorageAllocator());
+            GrContext*, SkBudgeted, const SkImageInfo&, int sampleCount, const SkSurfaceProps*);
 
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* gr, SkBudgeted b, const SkImageInfo& info) {
         return MakeRenderTarget(gr, b, info, 0, nullptr);
@@ -172,8 +168,7 @@ public:
         return MakeFromBackendTextureAsRenderTarget(ctx, desc, props).release();
     }
     static SkSurface* NewRenderTarget(GrContext* ctx, SkBudgeted b, const SkImageInfo& info,
-                                      int sampleCount, const SkSurfaceProps* props = NULL,
-                                      GrTextureStorageAllocator a = GrTextureStorageAllocator()) {
+                                      int sampleCount, const SkSurfaceProps* props = NULL) {
         return MakeRenderTarget(ctx, b, info, sampleCount, props, a).release();
     }
     static SkSurface* NewRenderTarget(GrContext* gr, SkBudgeted b, const SkImageInfo& info) {
