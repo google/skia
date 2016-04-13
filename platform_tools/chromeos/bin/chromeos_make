@@ -63,6 +63,12 @@ fi
 # thinks we're in a Chrome checkout.
 echo "Delete me!" > "${CHROMEOS_CHROOT}/.gclient"
 
+# We may also need a .git directory.
+GIT_DIR="${CHROMEOS_CHROOT}/src/third_party/chromite/.git"
+if ! [[ -d "${GIT_DIR}" ]]; then
+  mkdir -p ${GIT_DIR}
+fi
+
 # Where the Skia code will pretend to live inside the chroot.
 SKIA_TOP_DIR="${SCRIPT_DIR}/../../.."
 
