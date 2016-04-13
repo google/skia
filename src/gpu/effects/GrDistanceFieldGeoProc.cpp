@@ -82,7 +82,8 @@ public:
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                               kUniformScale_DistanceFieldEffectMask;
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
-        bool srgbOutput = SkToBool(dfTexEffect.getFlags() & kSRGB_DistanceFieldEffectFlag);
+        bool isGammaCorrect =
+            SkToBool(dfTexEffect.getFlags() & kGammaCorrect_DistanceFieldEffectFlag);
         varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s;", uv.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
@@ -158,7 +159,7 @@ public:
         // The smoothstep falloff compensates for the non-linear sRGB response curve. If we are
         // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want distance
         // mapped linearly to coverage, so use a linear step:
-        if (srgbOutput) {
+        if (isGammaCorrect) {
             fragBuilder->codeAppend(
                 "float val = clamp(distance + afwidth / (2.0 * afwidth), 0.0, 1.0);");
         } else {
@@ -563,7 +564,8 @@ public:
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                               kUniformScale_DistanceFieldEffectMask;
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
-        bool srgbOutput = SkToBool(dfTexEffect.getFlags() & kSRGB_DistanceFieldEffectFlag);
+        bool isGammaCorrect =
+            SkToBool(dfTexEffect.getFlags() & kGammaCorrect_DistanceFieldEffectFlag);
         GrGLSLVertToFrag recipScale(kFloat_GrSLType);
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
@@ -681,7 +683,7 @@ public:
         // The smoothstep falloff compensates for the non-linear sRGB response curve. If we are
         // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want distance
         // mapped linearly to coverage, so use a linear step:
-        if (srgbOutput) {
+        if (isGammaCorrect) {
             fragBuilder->codeAppend("vec4 val = "
                 "vec4(clamp(distance + vec3(afwidth) / vec3(2.0 * afwidth), 0.0, 1.0), 1.0f);");
         } else {

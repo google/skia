@@ -58,7 +58,7 @@ public:
     static GrAtlasTextBatch* CreateDistanceField(
                                               int glyphCount, GrBatchFontCache* fontCache,
                                               const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                              bool useSRGBDistanceTable,
+                                              bool useGammaCorrectDistanceTable,
                                               SkColor filteredColor, bool isLCD,
                                               bool useBGR) {
         GrAtlasTextBatch* batch = new GrAtlasTextBatch;
@@ -66,7 +66,7 @@ public:
         batch->fFontCache = fontCache;
         batch->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
         batch->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
-        batch->fUseSRGBDistanceTable = useSRGBDistanceTable;
+        batch->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
         batch->fFilteredColor = filteredColor;
         batch->fUseBGR = useBGR;
         batch->fBatch.fNumGlyphs = glyphCount;
@@ -184,7 +184,7 @@ private:
     // Distance field properties
     SkAutoTUnref<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fFilteredColor;
-    bool fUseSRGBDistanceTable;
+    bool fUseGammaCorrectDistanceTable;
 
     friend class GrBlobRegenHelper; // Needs to trigger flushes
 

@@ -276,7 +276,7 @@ public:
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
-    bool allowSRGBInputs() const { return fSurfaceProps.allowSRGBInputs(); }
+    bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
 
     GrRenderTarget* accessRenderTarget() { return fRenderTarget; }
 

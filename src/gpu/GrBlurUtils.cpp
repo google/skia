@@ -335,7 +335,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, paint, viewMatrix, drawContext->allowSRGBInputs(),
+    if (!SkPaintToGrPaint(context, paint, viewMatrix, drawContext->isGammaCorrect(),
                           &grPaint)) {
         return;
     }

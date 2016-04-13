@@ -502,7 +502,7 @@ private:
                                     GrColor color,
                                     const SkPaint& skPaint, const SkSurfaceProps& props,
                                     const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                    bool useSRGBDistanceTable,
+                                    bool useGammaCorrectDistanceTable,
                                     GrBatchFontCache* cache);
 
     struct BigGlyph {

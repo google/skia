@@ -44,9 +44,9 @@ protected:
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, canvas->imageInfo().profileType());
         SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
-        uint32_t allowSRGBInputs = canvas->getProps(&canvasProps)
-            ? canvasProps.flags() & SkSurfaceProps::kAllowSRGBInputs_Flag : 0;
-        SkSurfaceProps props(allowSRGBInputs, kUnknown_SkPixelGeometry);
+        uint32_t gammaCorrect = canvas->getProps(&canvasProps)
+            ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;
+        SkSurfaceProps props(gammaCorrect, kUnknown_SkPixelGeometry);
         auto surface = canvas->makeSurface(info, &props);
         if (!surface) {
             surface = SkSurface::MakeRaster(info, &props);

@@ -64,7 +64,7 @@ public:
          *  It is recommended to enable this flag when rendering to an sRGB or floating point
          *  surface.
          */
-        kAllowSRGBInputs_Flag           = 1 << 3,
+        kGammaCorrect_Flag           = 1 << 3,
     };
     /** Deprecated alias used by Chromium. Will be removed. */
     static const Flags kUseDistanceFieldFonts_Flag = kUseDeviceIndependentFonts_Flag;
@@ -86,7 +86,7 @@ public:
     bool isUseDeviceIndependentFonts() const {
         return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
     }
-    bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
+    bool isGammaCorrect() const { return SkToBool(fFlags & kGammaCorrect_Flag); }
 
 private:
     SkSurfaceProps();

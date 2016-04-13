@@ -56,7 +56,7 @@ static void convolve_gaussian_1d(GrDrawContext* drawContext,
                                  bool useBounds,
                                  float bounds[2]) {
     GrPaint paint;
-    paint.setAllowSRGBInputs(drawContext->allowSRGBInputs());
+    paint.setGammaCorrect(drawContext->isGammaCorrect());
     SkAutoTUnref<GrFragmentProcessor> conv(GrConvolutionEffect::CreateGaussian(
         texture, direction, radius, sigma, useBounds, bounds));
     paint.addColorFragmentProcessor(conv);
@@ -79,7 +79,7 @@ static void convolve_gaussian_2d(GrDrawContext* drawContext,
     SkISize size = SkISize::Make(2 * radiusX + 1,  2 * radiusY + 1);
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
-    paint.setAllowSRGBInputs(drawContext->allowSRGBInputs());
+    paint.setGammaCorrect(drawContext->isGammaCorrect());
     SkIRect bounds;
     if (srcBounds) {
         srcBounds->roundOut(&bounds);
@@ -166,7 +166,7 @@ static void convolve_gaussian(GrDrawContext* drawContext,
 GrTexture* GaussianBlur(GrContext* context,
                         GrTexture* srcTexture,
                         bool canClobberSrc,
-                        bool allowSRGBInputs,
+                        bool gammaCorrect,
                         const SkRect& dstBounds,
                         const SkRect* srcBounds,
                         float sigmaX,
@@ -232,7 +232,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         GrPaint paint;
-        paint.setAllowSRGBInputs(allowSRGBInputs);
+        paint.setGammaCorrect(gammaCorrect);
         SkMatrix matrix;
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         SkRect dstRect(srcRect);
@@ -272,7 +272,7 @@ GrTexture* GaussianBlur(GrContext* context,
         localSrcBounds = srcRect;
     }
 
-    SkSurfaceProps props(allowSRGBInputs ? SkSurfaceProps::kAllowSRGBInputs_Flag : 0,
+    SkSurfaceProps props(gammaCorrect ? SkSurfaceProps::kGammaCorrect_Flag : 0,
                          SkSurfaceProps::kLegacyFontHost_InitType);
 
     // For really small blurs (certainly no wider than 5x5 on desktop gpus) it is faster to just
@@ -382,7 +382,7 @@ GrTexture* GaussianBlur(GrContext* context,
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
 
         GrPaint paint;
-        paint.setAllowSRGBInputs(allowSRGBInputs);
+        paint.setGammaCorrect(gammaCorrect);
         // FIXME:  this should be mitchell, not bilinear.
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
         paint.addColorTextureProcessor(srcTexture, matrix, params);

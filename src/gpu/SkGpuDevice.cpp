@@ -397,7 +397,7 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -448,7 +448,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         GrStrokeInfo strokeInfo(paint, SkPaint::kStroke_Style);
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                              this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                              this->surfaceProps().isGammaCorrect(), &grPaint)) {
             return;
         }
         SkPath path;
@@ -469,7 +469,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -522,7 +522,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -541,7 +541,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -617,7 +617,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     if (stroke.isFillStyle() && !paint.getMaskFilter() && !paint.getPathEffect()) {
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                              this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                              this->surfaceProps().isGammaCorrect(), &grPaint)) {
             return;
         }
 
@@ -662,7 +662,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -1147,7 +1147,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), paint, viewMatrix, fp,
                                      kAlpha_8_SkColorType == bitmap.colorType(),
-                                     this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                                     this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -1242,7 +1242,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         fp.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
     }
     if (!SkPaintToGrPaintReplaceShader(this->context(), paint, fp,
-                                       this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                                       this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -1403,7 +1403,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     }
 
     if (!SkPaintToGrPaintReplaceShader(this->context(), paint, fp,
-                                       this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                                       this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -1543,7 +1543,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, fp,
                                      producer->isAlphaOnly(),
-                                     this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                                     this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -1611,7 +1611,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         GrPaint grPaint;
         // we ignore the shader if texs is null.
         if (!SkPaintToGrPaintNoShader(this->context(), copy,
-                                      this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                                      this->surfaceProps().isGammaCorrect(), &grPaint)) {
             return;
         }
 
@@ -1683,14 +1683,14 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                 colorMode = SkXfermode::kModulate_Mode;
             }
             if (!SkPaintToGrPaintWithXfermode(this->context(), paint, *draw.fMatrix, colorMode,
-                                              false, this->surfaceProps().allowSRGBInputs(),
+                                              false, this->surfaceProps().isGammaCorrect(),
                                               &grPaint)) {
                 return;
             }
         } else {
             // We have a shader, but no colors to blend it against.
             if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                                  this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                                  this->surfaceProps().isGammaCorrect(), &grPaint)) {
                 return;
             }
         }
@@ -1699,14 +1699,14 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
             // We have colors, but either have no shader or no texture coords (which implies that
             // we should ignore the shader).
             if (!SkPaintToGrPaintWithPrimitiveColor(this->context(), paint,
-                                                    this->surfaceProps().allowSRGBInputs(),
+                                                    this->surfaceProps().isGammaCorrect(),
                                                     &grPaint)) {
                 return;
             }
         } else {
             // No colors and no shaders. Just draw with the paint color.
             if (!SkPaintToGrPaintNoShader(this->context(), paint,
-                                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
                 return;
             }
         }
@@ -1744,12 +1744,12 @@ void SkGpuDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRS
     GrPaint grPaint;
     if (colors) {
         if (!SkPaintToGrPaintWithXfermode(this->context(), p, *draw.fMatrix, mode, true,
-                                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
             return;
         }
     } else {
         if (!SkPaintToGrPaint(this->context(), p, *draw.fMatrix,
-                              this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                              this->surfaceProps().isGammaCorrect(), &grPaint)) {
             return;
         }
     }
@@ -1769,7 +1769,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 
@@ -1788,7 +1788,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
-                          this->surfaceProps().allowSRGBInputs(), &grPaint)) {
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
 

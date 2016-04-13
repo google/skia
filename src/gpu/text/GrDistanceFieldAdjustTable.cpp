@@ -94,5 +94,5 @@ SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma)
 
 void GrDistanceFieldAdjustTable::buildDistanceAdjustTables() {
     fTable = build_distance_adjust_table(SK_GAMMA_EXPONENT, SK_GAMMA_EXPONENT);
-    fSRGBTable = build_distance_adjust_table(SK_Scalar1, SK_Scalar1);
+    fGammaCorrectTable = build_distance_adjust_table(SK_Scalar1, SK_Scalar1);
 }

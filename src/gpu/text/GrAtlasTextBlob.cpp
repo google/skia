@@ -257,7 +257,7 @@ inline GrDrawBatch* GrAtlasTextBlob::createBatch(
                                               GrColor color,
                                               const SkPaint& skPaint, const SkSurfaceProps& props,
                                               const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                              bool useSRGBDistanceTable,
+                                              bool useGammaCorrectDistanceTable,
                                               GrBatchFontCache* cache) {
     GrMaskFormat format = info.maskFormat();
     GrColor subRunColor;
@@ -279,7 +279,8 @@ inline GrDrawBatch* GrAtlasTextBlob::createBatch(
         }
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         batch = GrAtlasTextBatch::CreateDistanceField(glyphCount, cache,
-                                                      distanceAdjustTable, useSRGBDistanceTable,
+                                                      distanceAdjustTable,
+                                                      useGammaCorrectDistanceTable,
                                                       filteredColor, info.hasUseLCDText(), useBGR);
     } else {
         batch = GrAtlasTextBatch::CreateBitmap(format, glyphCount, cache);
@@ -311,13 +312,13 @@ void GrAtlasTextBlob::flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBui
             continue;
         }
 
-        bool useSRGBDistanceTable = GrPixelConfigIsSRGB(dc->accessRenderTarget()->config()) &&
+        bool useGammaCorrectTable = GrPixelConfigIsSRGB(dc->accessRenderTarget()->config()) &&
                                     !pipelineBuilder->getDisableOutputConversionToSRGB();
 
         SkAutoTUnref<GrDrawBatch> batch(this->createBatch(info, glyphCount, run,
                                                           subRun, viewMatrix, x, y, color,
                                                           skPaint, props,
-                                                          distanceAdjustTable, useSRGBDistanceTable,
+                                                          distanceAdjustTable, useGammaCorrectTable,
                                                           cache));
         dc->drawBatch(pipelineBuilder, batch);
     }
