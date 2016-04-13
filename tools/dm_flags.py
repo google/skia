@@ -90,7 +90,7 @@ def get_args(bot):
 
   # CommandBuffer bot *only* runs the command_buffer config.
   if 'CommandBuffer' in bot:
-    configs = ['command_buffer']
+    configs = ['commandbuffer']
 
   # Vulkan bot *only* runs the vk config.
   if 'Vulkan' in bot:
