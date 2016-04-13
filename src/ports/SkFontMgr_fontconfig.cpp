@@ -125,6 +125,14 @@ typedef SkAutoFc<FcLangSet, FcLangSetCreate, FcLangSetDestroy> SkAutoFcLangSet;
 typedef SkAutoFc<FcObjectSet, FcObjectSetCreate, FcObjectSetDestroy> SkAutoFcObjectSet;
 typedef SkAutoFc<FcPattern, FcPatternCreate, FcPatternDestroy> SkAutoFcPattern;
 
+static bool get_bool(FcPattern* pattern, const char object[], bool missing = false) {
+    FcBool value;
+    if (FcPatternGetBool(pattern, object, 0, &value) != FcResultMatch) {
+        return missing;
+    }
+    return value;
+}
+
 static int get_int(FcPattern* pattern, const char object[], int missing) {
     int value;
     if (FcPatternGetInteger(pattern, object, 0, &value) != FcResultMatch) {
@@ -139,6 +147,14 @@ static const char* get_string(FcPattern* pattern, const char object[], const cha
         return missing;
     }
     return (const char*)value;
+}
+
+static const FcMatrix* get_matrix(FcPattern* pattern, const char object[]) {
+    FcMatrix* matrix;
+    if (FcPatternGetMatrix(pattern, object, 0, &matrix) != FcResultMatch) {
+        return nullptr;
+    }
+    return matrix;
 }
 
 enum SkWeakReturn {
@@ -428,6 +444,31 @@ public:
         FCLocker lock;
         *ttcIndex = get_int(fPattern, FC_INDEX, 0);
         return SkStream::NewFromFile(get_string(fPattern, FC_FILE));
+    }
+
+    void onFilterRec(SkScalerContextRec* rec) const override {
+        const FcMatrix* fcMatrix = get_matrix(fPattern, FC_MATRIX);
+        if (fcMatrix) {
+            // fPost2x2 is column-major, left handed (y down).
+            // FcMatrix is column-major, right handed (y up).
+            SkMatrix fm;
+            fm.setAll(fcMatrix->xx,-fcMatrix->xy, 0,
+                     -fcMatrix->yx, fcMatrix->yy, 0,
+                      0           , 0           , 1);
+
+            SkMatrix sm;
+            rec->getMatrixFrom2x2(&sm);
+
+            sm.preConcat(fm);
+            rec->fPost2x2[0][0] = sm.getScaleX();
+            rec->fPost2x2[0][1] = sm.getSkewX();
+            rec->fPost2x2[1][0] = sm.getSkewY();
+            rec->fPost2x2[1][1] = sm.getScaleY();
+        }
+        if (get_bool(fPattern, FC_EMBOLDEN)) {
+            rec->fFlags |= SkScalerContext::kEmbolden_Flag;
+        }
+        this->INHERITED::onFilterRec(rec);
     }
 
     virtual ~SkTypeface_fontconfig() {
