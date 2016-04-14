@@ -549,6 +549,9 @@ private:
     GeneralSampler<SourceStrategy, Next> fSampler;
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Specialized Samplers
+
 // RGBA8888UnitRepeatSrc - A sampler that takes advantage of the fact the the src and destination
 // are the same format and do not need in transformations in pixel space. Therefore, there is no
 // need to convert them to HiFi pixel format.
@@ -651,6 +654,9 @@ static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_ba
                 sampleStage->initStage<Sampler<PixelIndex8LRGB, Blender>>(next, srcPixmap);
             }
             break;
+        case kRGBA_F16_SkColorType:
+            sampleStage->initStage<Sampler<PixelHalfLinear, Blender>>(next, srcPixmap);
+            break;
         default:
             SkFAIL("Not implemented. Unsupported src");
             break;
@@ -718,7 +724,7 @@ private:
     Sk4f fPostAlpha;
 };
 
-static SkLinearBitmapPipeline::BlendProcessorInterface* choose_blender(
+static SkLinearBitmapPipeline::BlendProcessorInterface* choose_blender_for_shading(
     SkAlphaType alphaType,
     float postAlpha,
     SkLinearBitmapPipeline::BlenderStage* blenderStage) {
@@ -730,6 +736,7 @@ static SkLinearBitmapPipeline::BlendProcessorInterface* choose_blender(
     }
     return blenderStage->get();
 }
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -768,7 +775,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
 
     // As the stages are built, the chooser function may skip a stage. For example, with the
     // identity matrix, the matrix stage is skipped, and the tilerStage is the first stage.
-    auto blenderStage = choose_blender(alphaType, postAlpha, &fBlenderStage);
+    auto blenderStage = choose_blender_for_shading(alphaType, postAlpha, &fBlenderStage);
     auto samplerStage = choose_pixel_sampler(blenderStage, filterQuality, srcPixmap, &fSampleStage);
     auto tilerStage   = choose_tiler(samplerStage, dimensions, xTile, yTile,
                                      filterQuality, dx, &fTileStage);

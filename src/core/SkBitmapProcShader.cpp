@@ -227,7 +227,8 @@ static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImag
     //
     if (srcInfo.colorType() != kRGBA_8888_SkColorType
         && srcInfo.colorType() != kBGRA_8888_SkColorType
-        && srcInfo.colorType() != kIndex_8_SkColorType) {
+        && srcInfo.colorType() != kIndex_8_SkColorType
+        && srcInfo.colorType() != kRGBA_F16_SkColorType) {
         return false;
     }
 
@@ -280,7 +281,8 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
         }
         if (info->fPixmap.colorType() != kRGBA_8888_SkColorType
             && info->fPixmap.colorType() != kBGRA_8888_SkColorType
-            && info->fPixmap.colorType() != kIndex_8_SkColorType) {
+            && info->fPixmap.colorType() != kIndex_8_SkColorType
+            && info->fPixmap.colorType() != kRGBA_F16_SkColorType) {
             return nullptr;
         }
         return new (storage) LinearPipelineContext(shader, rec, info);

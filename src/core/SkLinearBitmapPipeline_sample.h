@@ -9,6 +9,7 @@
 #define SkLinearBitmapPipeline_sampler_DEFINED
 
 #include "SkFixed.h"
+#include "SkHalf.h"
 #include "SkLinearBitmapPipeline_core.h"
 #include <array>
 #include <tuple>
@@ -733,6 +734,59 @@ private:
 
 using PixelIndex8SRGB = PixelIndex8<kSRGB_SkColorProfileType>;
 using PixelIndex8LRGB = PixelIndex8<kLinear_SkColorProfileType>;
+
+class PixelHalfLinear {
+public:
+    PixelHalfLinear(int width, const uint64_t* src) : fSrc{src}, fWidth{width}{ }
+    PixelHalfLinear(const SkPixmap& srcPixmap)
+        : fSrc{srcPixmap.addr64()}
+        , fWidth{static_cast<int>(srcPixmap.rowBytes() / 8)} { }
+
+    void VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
+        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
+        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
+        Sk4i bufferLoc = YIs * fWidth + XIs;
+        switch (n) {
+            case 3:
+                *px2 = this->getPixelAt(fSrc, bufferLoc[2]);
+            case 2:
+                *px1 = this->getPixelAt(fSrc, bufferLoc[1]);
+            case 1:
+                *px0 = this->getPixelAt(fSrc, bufferLoc[0]);
+            default:
+                break;
+        }
+    }
+
+    void VECTORCALL get4Pixels(Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
+        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
+        Sk4i bufferLoc = YIs * fWidth + XIs;
+        *px0 = this->getPixelAt(fSrc, bufferLoc[0]);
+        *px1 = this->getPixelAt(fSrc, bufferLoc[1]);
+        *px2 = this->getPixelAt(fSrc, bufferLoc[2]);
+        *px3 = this->getPixelAt(fSrc, bufferLoc[3]);
+    }
+
+    void get4Pixels(const void* vsrc, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+        const uint32_t* src = static_cast<const uint32_t*>(vsrc);
+        *px0 = this->getPixelAt(src, index + 0);
+        *px1 = this->getPixelAt(src, index + 1);
+        *px2 = this->getPixelAt(src, index + 2);
+        *px3 = this->getPixelAt(src, index + 3);
+    }
+
+    Sk4f getPixelAt(const void* vsrc, int index) {
+        const uint64_t* src = static_cast<const uint64_t*>(vsrc);
+        return SkHalfToFloat_01(*src);
+    }
+
+    const void* row(int y) { return fSrc + y * fWidth[0]; }
+
+private:
+    const uint64_t* const fSrc;
+    const Sk4i            fWidth;
+};
 
 }  // namespace
 
