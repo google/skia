@@ -27,6 +27,8 @@ DEF_TEST(Typeface, reporter) {
 #endif
 }
 
+namespace {
+
 class SkEmptyTypeface : public SkTypeface {
 public:
     static sk_sp<SkTypeface> Create(SkFontID id) { return sk_sp<SkTypeface>(new SkEmptyTypeface(id)); }
@@ -58,6 +60,8 @@ protected:
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override { return 0; }
 };
+
+}
 
 static bool count_proc(SkTypeface* face, void* ctx) {
     int* count = static_cast<int*>(ctx);

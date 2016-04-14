@@ -33,6 +33,8 @@ SkTypeface* (*gDeserializeTypefaceDelegate)(SkStream* ) = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
 class SkEmptyTypeface : public SkTypeface {
 public:
     static SkEmptyTypeface* Create() { return new SkEmptyTypeface; }
@@ -73,6 +75,8 @@ protected:
         return 0;
     }
 };
+
+}
 
 SK_DECLARE_STATIC_MUTEX(gCreateDefaultMutex);
 SK_DECLARE_STATIC_ONCE_PTR(SkTypeface, defaults[4]);
