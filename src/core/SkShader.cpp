@@ -375,16 +375,16 @@ static void D32_BlitAA(SkShader::Context::BlitState* state, int x, int y, const 
     proc(state->fXfer, dst.writable_addr32(x, y), src, count, aa);
 }
 
-static void D64_BlitBW(SkShader::Context::BlitState* state, int x, int y, const SkPixmap& dst,
+static void F16_BlitBW(SkShader::Context::BlitState* state, int x, int y, const SkPixmap& dst,
                        int count) {
-    SkXfermode::D64Proc proc = (SkXfermode::D64Proc)state->fStorage[0];
+    SkXfermode::F16Proc proc = (SkXfermode::F16Proc)state->fStorage[0];
     const SkPM4f* src = (const SkPM4f*)state->fStorage[1];
     proc(state->fXfer, dst.writable_addr64(x, y), src, count, nullptr);
 }
 
-static void D64_BlitAA(SkShader::Context::BlitState* state, int x, int y, const SkPixmap& dst,
+static void F16_BlitAA(SkShader::Context::BlitState* state, int x, int y, const SkPixmap& dst,
                        int count, const SkAlpha aa[]) {
-    SkXfermode::D64Proc proc = (SkXfermode::D64Proc)state->fStorage[0];
+    SkXfermode::F16Proc proc = (SkXfermode::F16Proc)state->fStorage[0];
     const SkPM4f* src = (const SkPM4f*)state->fStorage[1];
     proc(state->fXfer, dst.writable_addr64(x, y), src, count, aa);
 }
@@ -406,11 +406,10 @@ bool SkColorShader::ColorShaderContext::onChooseBlitProcs(const SkImageInfo& inf
             state->fBlitAA = D32_BlitAA;
             return true;
         case kRGBA_F16_SkColorType:
-            flags |= SkXfermode::kDstIsFloat16_D64Flag;
-            state->fStorage[0] = (void*)SkXfermode::GetD64Proc(state->fXfer, flags);
+            state->fStorage[0] = (void*)SkXfermode::GetF16Proc(state->fXfer, flags);
             state->fStorage[1] = &fPM4f;
-            state->fBlitBW = D64_BlitBW;
-            state->fBlitAA = D64_BlitAA;
+            state->fBlitBW = F16_BlitBW;
+            state->fBlitAA = F16_BlitAA;
             return true;
         default:
             return false;

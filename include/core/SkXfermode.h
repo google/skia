@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkXfermode_DEFINED
 #define SkXfermode_DEFINED
@@ -248,27 +246,26 @@ public:
         return GetD32Proc(xfer.get(), flags);
     }
 
-    enum D64Flags {
-        kSrcIsOpaque_D64Flag  = 1 << 0,
-        kSrcIsSingle_D64Flag  = 1 << 1,
-        kDstIsFloat16_D64Flag = 1 << 2, // else U16 bit components
+    enum F16Flags {
+        kSrcIsOpaque_F16Flag  = 1 << 0,
+        kSrcIsSingle_F16Flag  = 1 << 1,
     };
-    typedef void (*D64Proc)(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
+    typedef void (*F16Proc)(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
                             const SkAlpha coverage[]);
-    static D64Proc GetD64Proc(SkXfermode*, uint32_t flags);
-    static D64Proc GetD64Proc(const sk_sp<SkXfermode>& xfer, uint32_t flags) {
-        return GetD64Proc(xfer.get(), flags);
+    static F16Proc GetF16Proc(SkXfermode*, uint32_t flags);
+    static F16Proc GetF16Proc(const sk_sp<SkXfermode>& xfer, uint32_t flags) {
+        return GetF16Proc(xfer.get(), flags);
     }
 
     enum LCDFlags {
         kSrcIsOpaque_LCDFlag    = 1 << 0,   // else src(s) may have alpha < 1
         kSrcIsSingle_LCDFlag    = 1 << 1,   // else src[count]
-        kDstIsLinearInt_LCDFlag = 1 << 2,   // else srgb/half-float
+        kDstIsSRGB_LCDFlag      = 1 << 2,   // else l32 or f16
     };
     typedef void (*LCD32Proc)(uint32_t* dst, const SkPM4f* src, int count, const uint16_t lcd[]);
-    typedef void (*LCD64Proc)(uint64_t* dst, const SkPM4f* src, int count, const uint16_t lcd[]);
+    typedef void (*LCDF16Proc)(uint64_t* dst, const SkPM4f* src, int count, const uint16_t lcd[]);
     static LCD32Proc GetLCD32Proc(uint32_t flags);
-    static LCD64Proc GetLCD64Proc(uint32_t) { return nullptr; }
+    static LCDF16Proc GetLCDF16Proc(uint32_t) { return nullptr; }
 
 protected:
     SkXfermode() {}
@@ -283,7 +280,7 @@ protected:
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;
 
     virtual D32Proc onGetD32Proc(uint32_t flags) const;
-    virtual D64Proc onGetD64Proc(uint32_t flags) const;
+    virtual F16Proc onGetF16Proc(uint32_t flags) const;
 
 private:
     enum {

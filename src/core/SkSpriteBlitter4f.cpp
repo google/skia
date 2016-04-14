@@ -34,11 +34,11 @@ private:
 class Sprite_F16 : public Sprite_4f {
 public:
     Sprite_F16(const SkPixmap& src, const SkPaint& paint) : INHERITED(src, paint) {
-        uint32_t flags = SkXfermode::kDstIsFloat16_D64Flag;
+        uint32_t flags = 0;
         if (src.isOpaque()) {
-            flags |= SkXfermode::kSrcIsOpaque_D64Flag;
+            flags |= SkXfermode::kSrcIsOpaque_F16Flag;
         }
-        fWriter = SkXfermode::GetD64Proc(fXfer, flags);
+        fWriter = SkXfermode::GetF16Proc(fXfer, flags);
     }
 
     void blitRect(int x, int y, int width, int height) override {
@@ -55,7 +55,7 @@ public:
     }
 
 private:
-    SkXfermode::D64Proc fWriter;
+    SkXfermode::F16Proc fWriter;
 
     typedef Sprite_4f INHERITED;
 };

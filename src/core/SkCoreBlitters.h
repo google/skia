@@ -185,13 +185,11 @@ private:
     typedef SkShaderBlitter INHERITED;
 };
 
-SkBlitter* SkBlitter_ARGB32_Create(const SkPixmap& device, const SkPaint& paint,
-                                   SkShader::Context* shaderContext,
-                                   SkTBlitterAllocator* allocator);
+SkBlitter* SkBlitter_ARGB32_Create(const SkPixmap& device, const SkPaint&, SkShader::Context*,
+                                   SkTBlitterAllocator*);
 
-SkBlitter* SkBlitter_ARGB64_Create(const SkPixmap& device, const SkPaint& paint,
-                                   SkShader::Context* shaderContext,
-                                   SkTBlitterAllocator* allocator);
+SkBlitter* SkBlitter_F16_Create(const SkPixmap& device, const SkPaint&, SkShader::Context*,
+                                SkTBlitterAllocator*);
 
 ///////////////////////////////////////////////////////////////////////////////
 

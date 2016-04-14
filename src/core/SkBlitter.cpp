@@ -938,8 +938,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
             break;
 
         case kRGBA_F16_SkColorType:
-        // kU16_SkColorType:
-            blitter = SkBlitter_ARGB64_Create(device, *paint, shaderContext, allocator);
+            blitter = SkBlitter_F16_Create(device, *paint, shaderContext, allocator);
             break;
 
         default:
