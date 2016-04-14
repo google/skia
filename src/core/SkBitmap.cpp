@@ -747,8 +747,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         SkPixelRef* pixelRef = fPixelRef->deepCopy(this->colorType(), this->profileType(), &subset);
         if (pixelRef != nullptr) {
             SkBitmap dst;
-            dst.setInfo(SkImageInfo::Make(subset.width(), subset.height(),
-                                          this->colorType(), this->alphaType()));
+            dst.setInfo(this->info().makeWH(subset.width(), subset.height()));
             dst.setIsVolatile(this->isVolatile());
             dst.setPixelRef(pixelRef)->unref();
             SkDEBUGCODE(dst.validate());
@@ -763,8 +762,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
     SkBitmap dst;
-    dst.setInfo(SkImageInfo::Make(r.width(), r.height(), this->colorType(), this->alphaType()),
-                this->rowBytes());
+    dst.setInfo(this->info().makeWH(r.width(), r.height()), this->rowBytes());
     dst.setIsVolatile(this->isVolatile());
 
     if (fPixelRef) {
