@@ -65,7 +65,7 @@ void SkTime::GetDateTime(DateTime* dt) {
 }
 #endif // SK_BUILD_FOR_WIN32
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(_M_ARM) && !defined(_M_ARM64)
     // TODO: try std::chrono again with MSVC 2015?
     #include <intrin.h>
     SK_DECLARE_STATIC_ONCE_PTR(double, ns_per_tick);

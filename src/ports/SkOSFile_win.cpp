@@ -44,6 +44,25 @@ static bool sk_ino(FILE* f, SkFILEID* id) {
         return false;
     }
 
+#ifdef SK_BUILD_FOR_WINRT
+    FILE_ID_INFO info;
+    if (0 == GetFileInformationByHandleEx(file, FileIdInfo, &info, sizeof(info))) {
+        return false;
+    }
+    id->fVolume = info.VolumeSerialNumber;
+    //TODO (mattleibow): are these bits in the right places?
+    BYTE* fid = info.FileId.Identifier;
+    id->fLsbSize =
+        ((ULONGLONG)fid[8]  << 56) + ((ULONGLONG)fid[9]  << 48) +
+        ((ULONGLONG)fid[10] << 40) + ((ULONGLONG)fid[11] << 32) +
+        ((ULONGLONG)fid[12] << 24) + ((ULONGLONG)fid[13] << 16) +
+        ((ULONGLONG)fid[14] <<  8) + ((ULONGLONG)fid[15] <<  0);
+    id->fMsbSize =
+        ((ULONGLONG)fid[0] << 56) + ((ULONGLONG)fid[1] << 48) +
+        ((ULONGLONG)fid[2] << 40) + ((ULONGLONG)fid[3] << 32) +
+        ((ULONGLONG)fid[4] << 24) + ((ULONGLONG)fid[5] << 16) +
+        ((ULONGLONG)fid[6] <<  8) + ((ULONGLONG)fid[7] <<  0);
+#else // SK_BUILD_FOR_WINRT
     //TODO: call GetFileInformationByHandleEx on Vista and later with FileIdInfo.
     BY_HANDLE_FILE_INFORMATION info;
     if (0 == GetFileInformationByHandle(file, &info)) {
@@ -52,6 +71,7 @@ static bool sk_ino(FILE* f, SkFILEID* id) {
     id->fVolume = info.dwVolumeSerialNumber;
     id->fLsbSize = info.nFileIndexLow + (((ULONGLONG)info.nFileIndexHigh) << 32);
     id->fMsbSize = 0;
+#endif // SK_BUILD_FOR_WINRT
 
     return true;
 }
@@ -86,15 +106,28 @@ void* sk_fdmmap(int fileno, size_t* length) {
     }
 
     LARGE_INTEGER fileSize;
+#ifdef SK_BUILD_FOR_WINRT
+    FILE_STANDARD_INFO fsi;
+    if (0 == GetFileInformationByHandleEx(file, FileStandardInfo, &fsi, sizeof(fsi))) {
+        // TODO: use SK_TRACEHR(GetLastError(), "Could not get file size.") to report.
+        return nullptr;
+    }
+    fileSize = fsi.EndOfFile;
+#else // SK_BUILD_FOR_WINRT
     if (0 == GetFileSizeEx(file, &fileSize)) {
         //TODO: use SK_TRACEHR(GetLastError(), "Could not get file size.") to report.
         return nullptr;
     }
+#endif // SK_BUILD_FOR_WINRT
     if (!SkTFitsIn<size_t>(fileSize.QuadPart)) {
         return nullptr;
     }
 
+#ifdef SK_BUILD_FOR_WINRT
+    SkAutoWinMMap mmap(CreateFileMappingFromApp(file, nullptr, PAGE_READONLY, 0, nullptr));
+#else // SK_BUILD_FOR_WINRT
     SkAutoWinMMap mmap(CreateFileMapping(file, nullptr, PAGE_READONLY, 0, 0, nullptr));
+#endif // SK_BUILD_FOR_WINRT
     if (!mmap.isValid()) {
         //TODO: use SK_TRACEHR(GetLastError(), "Could not create file mapping.") to report.
         return nullptr;
@@ -236,7 +269,11 @@ bool SkOSFile::Iter::next(SkString* name, bool getDir) {
             return false;
         }
 
+#ifdef SK_BUILD_FOR_WINRT
+        self.fHandle = ::FindFirstFileExW((LPCWSTR)self.fPath16, FindExInfoStandard, &data, FindExSearchNameMatch, nullptr, 0);
+#else // SK_BUILD_FOR_WINRT
         self.fHandle = ::FindFirstFileW((LPCWSTR)self.fPath16, &data);
+#endif // SK_BUILD_FOR_WINRT
         if (self.fHandle != 0 && self.fHandle != (HANDLE)~0) {
             dataPtr = &data;
         }

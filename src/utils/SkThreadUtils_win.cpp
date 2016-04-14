@@ -68,8 +68,10 @@ SkThread::~SkThread() {
                     this->join();
                 }
             } else {
+#ifndef SK_BUILD_FOR_WINRT
                 //kill with prejudice
                 TerminateThread(winData->fHandle, -1);
+#endif // SK_BUILD_FOR_WINRT
             }
         }
         delete winData;
