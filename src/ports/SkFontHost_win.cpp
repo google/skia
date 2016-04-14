@@ -308,13 +308,11 @@ static const LOGFONT& get_default_font() {
     return gDefaultFont;
 }
 
-static bool FindByLogFont(SkTypeface* face, const SkFontStyle& requestedStyle, void* ctx) {
+static bool FindByLogFont(SkTypeface* face, void* ctx) {
     LogFontTypeface* lface = static_cast<LogFontTypeface*>(face);
     const LOGFONT* lf = reinterpret_cast<const LOGFONT*>(ctx);
 
-    return lface &&
-           get_style(lface->fLogFont) == requestedStyle &&
-           !memcmp(&lface->fLogFont, lf, sizeof(LOGFONT));
+    return !memcmp(&lface->fLogFont, lf, sizeof(LOGFONT));
 }
 
 /**
@@ -327,7 +325,7 @@ SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(FindByLogFont, &lf);
     if (nullptr == face) {
         face = LogFontTypeface::Create(lf);
-        SkTypefaceCache::Add(face, get_style(lf));
+        SkTypefaceCache::Add(face);
     }
     return face;
 }

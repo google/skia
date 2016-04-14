@@ -58,7 +58,7 @@ SkFontConfigInterface* SkFontHost_fontconfig_ref_global() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool find_by_FontIdentity(SkTypeface* cachedTypeface, const SkFontStyle&, void* ctx) {
+static bool find_by_FontIdentity(SkTypeface* cachedTypeface, void* ctx) {
     typedef SkFontConfigInterface::FontIdentity FontIdentity;
     FontConfigTypeface* cachedFCTypeface = static_cast<FontConfigTypeface*>(cachedTypeface);
     FontIdentity* identity = static_cast<FontIdentity*>(ctx);
@@ -196,7 +196,7 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(const char requestedFamilyN
     if (!face) {
         face = FontConfigTypeface::Create(outStyle, identity, outFamilyName);
         // Add this FontIdentity to the FontIdentity cache.
-        SkTypefaceCache::Add(face, outStyle);
+        SkTypefaceCache::Add(face);
     }
     // Add this request to the request cache.
     SkFontHostRequestCache::Add(face, request.release());

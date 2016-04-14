@@ -486,7 +486,7 @@ static SkTypeface* NewFromFontRef(CTFontRef fontRef, CFTypeRef resourceRef, bool
     return new SkTypeface_Mac(fontRef, resourceRef, style, isFixedPitch, isLocalStream);
 }
 
-static bool find_by_CTFontRef(SkTypeface* cached, const SkFontStyle&, void* context) {
+static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
     CTFontRef self = (CTFontRef)context;
     CTFontRef other = ((SkTypeface_Mac*)cached)->fFontRef;
 
@@ -546,7 +546,7 @@ static SkTypeface* NewFromName(const char familyName[], const SkFontStyle& theSt
         return face;
     }
     face = NewFromFontRef(ctFont.release(), nullptr, false);
-    SkTypefaceCache::Add(face, face->fontStyle());
+    SkTypefaceCache::Add(face);
     return face;
 }
 
@@ -583,7 +583,7 @@ SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef, CFTypeRef resourceRef)
         CFRetain(resourceRef);
     }
     face = NewFromFontRef(fontRef, resourceRef, false);
-    SkTypefaceCache::Add(face, face->fontStyle());
+    SkTypefaceCache::Add(face);
     return face;
 }
 
@@ -2166,7 +2166,7 @@ static SkTypeface* createFromDesc(CTFontDescriptorRef desc) {
     }
 
     face = NewFromFontRef(ctFont.release(), nullptr, false);
-    SkTypefaceCache::Add(face, face->fontStyle());
+    SkTypefaceCache::Add(face);
     return face;
 }
 

@@ -605,7 +605,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
                                           sizes.begin(), names.count());
     }
 
-    static bool FindByFcPattern(SkTypeface* cached, const SkFontStyle&, void* ctx) {
+    static bool FindByFcPattern(SkTypeface* cached, void* ctx) {
         SkTypeface_fontconfig* cshFace = static_cast<SkTypeface_fontconfig*>(cached);
         FcPattern* ctxPattern = static_cast<FcPattern*>(ctx);
         return FcTrue == FcPatternEqual(cshFace->fPattern, ctxPattern);
@@ -624,7 +624,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             FcPatternReference(pattern);
             face = SkTypeface_fontconfig::Create(pattern);
             if (face) {
-                fTFCache.add(face, SkFontStyle());
+                fTFCache.add(face);
             }
         }
         return face;
