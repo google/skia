@@ -8,6 +8,7 @@
 #ifndef SkUtilsArm_DEFINED
 #define SkUtilsArm_DEFINED
 
+#include "SkCpu.h"
 #include "SkUtils.h"
 
 // Define SK_ARM_NEON_MODE to one of the following values
@@ -37,18 +38,13 @@
 // is ARMv7-A and supports Neon instructions. In DYNAMIC mode, this actually
 // probes the CPU at runtime (and caches the result).
 
+static inline bool sk_cpu_arm_has_neon(void) {
 #if SK_ARM_NEON_IS_NONE
-static inline bool sk_cpu_arm_has_neon(void) {
     return false;
-}
-#elif SK_ARM_NEON_IS_ALWAYS
-static inline bool sk_cpu_arm_has_neon(void) {
-    return true;
-}
-#else // SK_ARM_NEON_IS_DYNAMIC
-
-extern bool sk_cpu_arm_has_neon(void) SK_PURE_FUNC;
+#else
+    return SkCpu::Supports(SkCpu::NEON);
 #endif
+}
 
 // Use SK_ARM_NEON_WRAP(symbol) to map 'symbol' to a NEON-specific symbol
 // when applicable. This will transform 'symbol' differently depending on
