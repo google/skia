@@ -34,6 +34,14 @@ and the patch is already in Rietveld, then add the following to
         ],
       },
 
+Modify the 'issue' and 'patchset' to the appropriate values.
+If this is for a project other than Skia, update the 'root_dir' and 'server'.
+Note that this can be used multiple times to apply multiple issues.
+
+To find the patchset number in Rietveld use the URL of the '[raw]' (old UI) or
+'Raw Patch' (new UI) link on the desired patch. The last segment of this URL
+has the form 'issue\<issue>_\<patchset>.diff'.
+
 An example of this being used can be seen at
 https://crrev.com/1877673002/#ps120001 .
 
