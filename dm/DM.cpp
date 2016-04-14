@@ -958,7 +958,12 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
             return false;
         }
         for (int i = 0; i < w*h; i++) {
-            Sk4f fs = SkHalfToFloat_01(px[i]);    // Convert up to linear floats.
+            // Convert up to linear floats.
+            Sk4f fs(SkHalfToFloat(static_cast<SkHalf>(px[i] >> (0 * 16))),
+                    SkHalfToFloat(static_cast<SkHalf>(px[i] >> (1 * 16))),
+                    SkHalfToFloat(static_cast<SkHalf>(px[i] >> (2 * 16))),
+                    SkHalfToFloat(static_cast<SkHalf>(px[i] >> (3 * 16))));
+            fs = Sk4f::Max(0.0f, Sk4f::Min(fs, 1.0f));  // Clamp
             float invA = 1.0f / fs[3];
             fs = fs * Sk4f(invA, invA, invA, 1);  // Unpremultiply.
             rgba[i] = Sk4f_toS32(fs);             // Pack down to sRGB bytes.

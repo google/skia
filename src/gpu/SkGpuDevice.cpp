@@ -191,15 +191,19 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkBudgeted b
     SkColorType ct = origInfo.colorType();
     SkAlphaType at = origInfo.alphaType();
     SkColorProfileType pt = origInfo.profileType();
-    if (kRGB_565_SkColorType == ct) {
+    if (kRGB_565_SkColorType == ct || kGray_8_SkColorType == ct) {
         at = kOpaque_SkAlphaType;  // force this setting
-    } else if (ct != kBGRA_8888_SkColorType && ct != kRGBA_8888_SkColorType) {
-        // Fall back from whatever ct was to default of kRGBA or kBGRA which is aliased as kN32
-        ct = kN32_SkColorType;
     }
     if (kOpaque_SkAlphaType != at) {
         at = kPremul_SkAlphaType;  // force this setting
     }
+
+    GrPixelConfig origConfig = SkImageInfo2GrPixelConfig(ct, at, pt, *context->caps());
+    if (!context->caps()->isConfigRenderable(origConfig, sampleCount > 0)) {
+        // Fall back from whatever ct was to default of kRGBA or kBGRA which is aliased as kN32
+        ct = kN32_SkColorType;
+    }
+
     const SkImageInfo info = SkImageInfo::Make(origInfo.width(), origInfo.height(), ct, at, pt);
 
     GrSurfaceDesc desc;

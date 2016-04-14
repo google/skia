@@ -294,7 +294,14 @@ public:
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
-            return SkSurface::MakeRenderTargetDirect(fCurRenderTarget, &props).release();
+            if (kRGBA_F16_SkColorType == win->info().colorType()) {
+                // Need to make an off-screen F16 surface - the current render target is
+                // (probably) the wrong format.
+                return SkSurface::MakeRenderTarget(fCurContext, SkBudgeted::kNo, win->info(),
+                                                   fMSAASampleCount, &props).release();
+            } else {
+                return SkSurface::MakeRenderTargetDirect(fCurRenderTarget, &props).release();
+            }
         }
 #endif
         return nullptr;
@@ -318,6 +325,16 @@ public:
                                              bm.getPixels(),
                                              bm.rowBytes(),
                                              GrContext::kFlushWrites_PixelOp);
+            } else if (kRGBA_F16_SkColorType == win->info().colorType()) {
+                SkBitmap bm;
+                bm.allocPixels(win->info());
+                canvas->readPixels(&bm, 0, 0);
+                fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
+                                              SkImageInfo2GrPixelConfig(bm.info(),
+                                                                        *fCurContext->caps()),
+                                              bm.getPixels(),
+                                              bm.rowBytes(),
+                                              GrContext::kFlushWrites_PixelOp);
             }
         }
 #endif
