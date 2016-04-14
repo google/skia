@@ -8,7 +8,6 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
-#include "SkMatrix.h"
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkXfermode.h"
@@ -49,8 +48,6 @@ namespace SkOpts {
                                           const SkScalar * [2],
                                           int,
                                           const SkColor*);
-
-    extern SkMatrix::MapPtsProc matrix_translate, matrix_scale_translate, matrix_affine;
 
     // Swizzle input into some sort of 8888 pixel, {premul,unpremul} x {rgba,bgra}.
     typedef void (*Swizzle_8888)(uint32_t*, const void*, int);

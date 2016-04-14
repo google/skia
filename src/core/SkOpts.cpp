@@ -15,7 +15,6 @@
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
-#include "SkMatrix_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
@@ -59,10 +58,6 @@ namespace SkOpts {
 
     decltype(blit_row_color32)     blit_row_color32     = sk_default::blit_row_color32;
     decltype(blit_row_s32a_opaque) blit_row_s32a_opaque = sk_default::blit_row_s32a_opaque;
-
-    decltype(matrix_translate)       matrix_translate       = sk_default::matrix_translate;
-    decltype(matrix_scale_translate) matrix_scale_translate = sk_default::matrix_scale_translate;
-    decltype(matrix_affine)          matrix_affine          = sk_default::matrix_affine;
 
     decltype(RGBA_to_BGRA)          RGBA_to_BGRA          = sk_default::RGBA_to_BGRA;
     decltype(RGBA_to_rgbA)          RGBA_to_rgbA          = sk_default::RGBA_to_rgbA;
