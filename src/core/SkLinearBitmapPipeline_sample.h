@@ -777,7 +777,7 @@ public:
     }
 
     Sk4f getPixelAt(const void* vsrc, int index) {
-        const uint64_t* src = static_cast<const uint64_t*>(vsrc);
+        const uint64_t* src = static_cast<const uint64_t*>(vsrc) + index;
         return SkHalfToFloat_01(*src);
     }
 
