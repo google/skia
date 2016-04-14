@@ -640,7 +640,11 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
     if (::piex::IsRaw(&piexStream)) {
         ::piex::Error error = ::piex::GetPreviewImageData(&piexStream, &imageData);
 
-        if (error == ::piex::Error::kOk && imageData.preview.length > 0) {
+        //  Theoretically PIEX can return JPEG compressed image or uncompressed RGB image. We only
+        //  handle the JPEG compressed preview image here.
+        if (error == ::piex::Error::kOk && imageData.preview.length > 0 &&
+            imageData.preview.format == ::piex::Image::kJpegCompressed)
+        {
             // transferBuffer() is destructive to the rawStream. Abandon the rawStream after this
             // function call.
             // FIXME: one may avoid the copy of memoryStream and use the buffered rawStream.
