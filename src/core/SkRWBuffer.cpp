@@ -42,6 +42,8 @@ struct SkBufferBlock {
         return amount;
     }
 
+    // Do not call in the reader thread, since the writer may be updating fUsed.
+    // (The assertion is still true, but TSAN still may complain about its raciness.)
     void validate() const {
 #ifdef SK_DEBUG
         SkASSERT(fCapacity > 0);
@@ -94,7 +96,7 @@ struct SkBufferHead {
         }
     }
 
-    void validate(size_t minUsed, SkBufferBlock* tail = nullptr) const {
+    void validate(size_t minUsed, const SkBufferBlock* tail = nullptr) const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt > 0);
         size_t totalUsed = 0;
@@ -132,7 +134,6 @@ SkROBuffer::SkROBuffer(const SkBufferHead* head, size_t available)
 
 SkROBuffer::~SkROBuffer() {
     if (fHead) {
-        fHead->validate(fAvailable);
         fHead->unref();
     }
 }
@@ -142,7 +143,7 @@ SkROBuffer::Iter::Iter(const SkROBuffer* buffer) {
 }
 
 void SkROBuffer::Iter::reset(const SkROBuffer* buffer) {
-    if (buffer) {
+    if (buffer && buffer->fHead) {
         fBlock = &buffer->fHead->fBlock;
         fRemaining = buffer->fAvailable;
     } else {

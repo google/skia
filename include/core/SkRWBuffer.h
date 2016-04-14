@@ -67,8 +67,9 @@ private:
 
 /**
  *  Accumulates bytes of memory that are "appended" to it, growing internal storage as needed.
- *  The growth is done such that at any time, a RBuffer or StreamAsset can be snapped off, which
- *  can see the previously stored bytes, but which will be unaware of any future writes.
+ *  The growth is done such that at any time in the writer's thread, an RBuffer or StreamAsset
+ *  can be snapped off (and safely passed to another thread). The RBuffer/StreamAsset snapshot
+ *  can see the previously stored bytes, but will be unaware of any future writes.
  */
 class SK_API SkRWBuffer {
 public:
