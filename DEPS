@@ -48,9 +48,6 @@ deps = {
   # microhttpd for skiaserve
   "third_party/externals/microhttpd" : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
 
-  # Mojo SDK for Mojo RPC experiments.
-  "third_party/externals/mojo/public" : "https://chromium.googlesource.com/external/github.com/domokit/mojo_sdk@172be18ea745ab29aea132e6cb952e726dc32543",
-
   # shaderc for the vulkan backend
   "third_party/externals/shaderc2" : "https://github.com/google/shaderc.git@d63c5e070fa966a33e1d352b2272bd57e1e9da00",
   "third_party/externals/shaderc2/third_party/googletest" : "https://github.com/google/googletest.git@d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0",

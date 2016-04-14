@@ -37,10 +37,6 @@
     #include "SkAutoCoInitialize.h"
 #endif
 
-#ifdef SK_MOJO
-    #include "SkMojo.mojom.h"
-#endif
-
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
 DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
@@ -1392,55 +1388,6 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         return check_against_reference(bitmap, src, fSink);
     });
 }
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-#ifdef SK_MOJO
-    Error ViaMojo::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-        SkPictureRecorder recorder;
-        SkRect size = SkRect::Make(SkIRect::MakeSize(src.size()));
-        Error err = src.draw(recorder.beginRecording(size));
-        if (!err.isEmpty()) {
-            return err;
-        }
-        sk_sp<SkPicture> skPicture(recorder.finishRecordingAsPicture());
-
-        SkASSERT(skPicture);
-        SkDynamicMemoryWStream buffer;
-        skPicture->serialize(&buffer);
-        skPicture.reset();
-        SkMojo::FlattenedPicturePtr mojoPicture = SkMojo::FlattenedPicture::New();
-        mojoPicture->data.resize(buffer.bytesWritten());
-        buffer.copyTo(mojoPicture->data.data());
-        buffer.reset();
-        SkASSERT(mojoPicture.get() && mojoPicture->data);
-
-        size_t flatSize = mojoPicture->GetSerializedSize();
-        SkAutoMalloc storage(flatSize);
-        if (!mojoPicture->Serialize(storage.get(), flatSize)) {
-            return "SkMojo::FlattenedPicture::Serialize failed";
-        }
-        mojoPicture = SkMojo::FlattenedPicture::New();
-        mojoPicture->Deserialize(storage.get());
-        storage.reset();
-        if (!mojoPicture) {
-            return "SkMojo::FlattenedPicture::Deserialize failed";
-        }
-        SkMemoryStream tmpStream(mojoPicture->data.data(),
-                                 mojoPicture->data.size());
-        skPicture = SkPicture::MakeFromStream(&tmpStream);
-        mojoPicture.reset();
-        auto fn = [&](SkCanvas* canvas) -> Error {
-            canvas->drawPicture(skPicture.get());
-            return check_against_reference(bitmap, src, fSink);
-        };
-        return draw_to_canvas(fSink, bitmap, stream, log, src.size(), fn);
-    }
-#else // not SK_MOJO
-    Error ViaMojo::draw(const Src&, SkBitmap*, SkWStream*, SkString*) const {
-        return "Mojo is missing!";
-    }
-#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

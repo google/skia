@@ -52,6 +52,5 @@
     [ 'skia_gpu == 1', {
       'dependencies': [ 'gputest.gyp:skgputest' ],
     }],
-    [ 'skia_mojo', { 'dependencies': [ 'skmojo.gyp:skmojo' ], } ],
   ],
 }
