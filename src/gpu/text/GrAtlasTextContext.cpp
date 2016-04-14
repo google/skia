@@ -53,12 +53,10 @@ GrColor GrAtlasTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd
     return canonicalColor;
 }
 
-uint32_t GrAtlasTextContext::ComputeScalerContextFlags(GrDrawContext* dc, const GrPaint& grPaint) {
-    // If we're rendering to an sRGB render target, and we aren't forcing sRGB blending off,
-    // then we can disable the gamma hacks. Otherwise, leave them on. In either case, we still
-    // want the contrast boost:
-    if (GrPixelConfigIsSRGB(dc->accessRenderTarget()->config()) &&
-        !grPaint.getDisableOutputConversionToSRGB()) {
+uint32_t GrAtlasTextContext::ComputeScalerContextFlags(GrDrawContext* dc) {
+    // If we're doing gamma-correct rendering, then we can disable the gamma hacks.
+    // Otherwise, leave them on. In either case, we still want the contrast boost:
+    if (dc->isGammaCorrect()) {
         return SkPaint::kBoostContrast_ScalerContextFlag;
     } else {
         return SkPaint::kFakeGammaAndBoostContrast_ScalerContextFlags;
@@ -128,7 +126,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
         return;
     }
 
-    uint32_t scalerContextFlags = ComputeScalerContextFlags(dc, grPaint);
+    uint32_t scalerContextFlags = ComputeScalerContextFlags(dc);
 
     if (cacheBlob) {
         if (cacheBlob->mustRegenerate(skPaint, grPaint.getColor(), blurRec, viewMatrix, x, y)) {
@@ -329,7 +327,7 @@ void GrAtlasTextContext::drawText(GrContext* context,
             CreateDrawTextBlob(context->getTextBlobCache(), context->getBatchFontCache(),
                                *context->caps()->shaderCaps(),
                                paint, skPaint,
-                               ComputeScalerContextFlags(dc, paint),
+                               ComputeScalerContextFlags(dc),
                                viewMatrix, props,
                                text, byteLength, x, y));
         blob->flushThrowaway(context, dc, props, fDistanceAdjustTable, skPaint, paint,
@@ -359,7 +357,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context,
                                   context->getBatchFontCache(),
                                   *context->caps()->shaderCaps(),
                                   paint, skPaint,
-                                  ComputeScalerContextFlags(dc, paint),
+                                  ComputeScalerContextFlags(dc),
                                   viewMatrix, props,
                                   text, byteLength,
                                   pos, scalarsPerPosition,

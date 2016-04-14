@@ -312,13 +312,10 @@ void GrAtlasTextBlob::flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBui
             continue;
         }
 
-        bool useGammaCorrectTable = GrPixelConfigIsSRGB(dc->accessRenderTarget()->config()) &&
-                                    !pipelineBuilder->getDisableOutputConversionToSRGB();
-
         SkAutoTUnref<GrDrawBatch> batch(this->createBatch(info, glyphCount, run,
                                                           subRun, viewMatrix, x, y, color,
                                                           skPaint, props,
-                                                          distanceAdjustTable, useGammaCorrectTable,
+                                                          distanceAdjustTable, dc->isGammaCorrect(),
                                                           cache));
         dc->drawBatch(pipelineBuilder, batch);
     }
