@@ -134,7 +134,13 @@ private:
 // This SkRefCnt should normally derive from SkRefCntBase.
 #include SK_REF_CNT_MIXIN_INCLUDE
 #else
-class SK_API SkRefCnt : public SkRefCntBase { };
+class SK_API SkRefCnt : public SkRefCntBase {
+    // "#include SK_REF_CNT_MIXIN_INCLUDE" doesn't work with this build system.
+    #if defined(GOOGLE3)
+    public:
+        void deref() const { this->unref(); }
+    #endif
+};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
