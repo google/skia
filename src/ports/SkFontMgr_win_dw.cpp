@@ -264,8 +264,11 @@ class SkFontMgr_DirectWrite : public SkFontMgr {
 public:
     /** localeNameLength must include the null terminator. */
     SkFontMgr_DirectWrite(IDWriteFactory* factory, IDWriteFontCollection* fontCollection,
-                          WCHAR* localeName, int localeNameLength)
+                          IDWriteFontFallback* fallback, WCHAR* localeName, int localeNameLength)
         : fFactory(SkRefComPtr(factory))
+#if SK_HAS_DWRITE_2_H
+        , fFontFallback(SkSafeRefComPtr(fallback))
+#endif
         , fFontCollection(SkRefComPtr(fontCollection))
         , fLocaleName(localeNameLength)
     {
@@ -274,6 +277,10 @@ public:
             // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
             SkASSERT_RELEASE(nullptr == fFactory2.get());
+        }
+        if (fFontFallback.get()) {
+            // factory must be provied if fallback is non-null, else the fallback will not be used.
+            SkASSERT(fFactory2.get());
         }
 #endif
         memcpy(fLocaleName.get(), localeName, localeNameLength * sizeof(WCHAR));
@@ -308,6 +315,7 @@ private:
     SkTScopedComPtr<IDWriteFactory> fFactory;
 #if SK_HAS_DWRITE_2_H
     SkTScopedComPtr<IDWriteFactory2> fFactory2;
+    SkTScopedComPtr<IDWriteFontFallback> fFontFallback;
 #endif
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
@@ -762,8 +770,13 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
 
 #if SK_HAS_DWRITE_2_H
     if (fFactory2.get()) {
-        SkTScopedComPtr<IDWriteFontFallback> fontFallback;
-        HRNM(fFactory2->GetSystemFontFallback(&fontFallback), "Could not get system fallback.");
+        SkTScopedComPtr<IDWriteFontFallback> systemFontFallback;
+        IDWriteFontFallback* fontFallback = fFontFallback.get();
+        if (!fontFallback) {
+            HRNM(fFactory2->GetSystemFontFallback(&systemFontFallback),
+                 "Could not get system fallback.");
+            fontFallback = systemFontFallback.get();
+        }
 
         SkTScopedComPtr<IDWriteNumberSubstitution> numberSubstitution;
         HRNM(fFactory2->CreateNumberSubstitution(DWRITE_NUMBER_SUBSTITUTION_METHOD_NONE, nullptr, TRUE,
@@ -1065,6 +1078,12 @@ SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
 
 SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
                                             IDWriteFontCollection* collection) {
+    return SkFontMgr_New_DirectWrite(factory, collection, nullptr);
+}
+
+SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+                                            IDWriteFontCollection* collection,
+                                            IDWriteFontFallback* fallback) {
     if (nullptr == factory) {
         factory = sk_get_dwrite_factory();
         if (nullptr == factory) {
@@ -1095,7 +1114,7 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         };
     }
 
-    return new SkFontMgr_DirectWrite(factory, collection, localeName, localeNameLen);
+    return new SkFontMgr_DirectWrite(factory, collection, fallback, localeName, localeNameLen);
 }
 
 #include "SkFontMgr_indirect.h"
