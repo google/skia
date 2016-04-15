@@ -239,6 +239,11 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         }
 
 #if SK_SUPPORT_GPU
+        // We need to flush any pending operations, or they might batch with commands below.
+        // Previous operations were not registered with the audit trail when they were
+        // created, so if we allow them to combine, the audit trail will fail to find them.
+        canvas->flush();
+
         GrAuditTrail::AutoCollectBatches* acb = nullptr;
         if (at) {
             acb = new GrAuditTrail::AutoCollectBatches(at, i);
