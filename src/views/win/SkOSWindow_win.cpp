@@ -424,7 +424,7 @@ static void* get_angle_egl_display(void* nativeDisplay) {
 struct ANGLEAssembleContext {
     ANGLEAssembleContext() {
         fEGL = GetModuleHandle("libEGL.dll");
-        fGL = GetModuleHandle("libEGLESv2.dll");
+        fGL = GetModuleHandle("libGLESv2.dll");
     }
 
     bool isValid() const { return SkToBool(fEGL) && SkToBool(fGL); }
@@ -567,19 +567,18 @@ bool SkOSWindow::attachANGLE(int msaaSampleCount, AttachmentInfo* info) {
         GL_CALL(fANGLEInterface, ClearStencil(0));
         GL_CALL(fANGLEInterface, ClearColor(0, 0, 0, 0));
         GL_CALL(fANGLEInterface, StencilMask(0xffffffff));
-        GL_CALL(fANGLEInterface, Clear(GL_STENCIL_BUFFER_BIT |GL_COLOR_BUFFER_BIT));
-        if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
-            this->detachANGLE();
-            return false;
-        }
-        eglGetConfigAttrib(fDisplay, fConfig, EGL_STENCIL_SIZE, &info->fStencilBits);
-        eglGetConfigAttrib(fDisplay, fConfig, EGL_SAMPLES, &info->fSampleCount);
-
-        GL_CALL(fANGLEInterface, Viewport(0, 0, SkScalarRoundToInt(this->width()),
-                                                SkScalarRoundToInt(this->height())));
-        return true;
+        GL_CALL(fANGLEInterface, Clear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
     }
-    return false;
+    if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+        this->detachANGLE();
+        return false;
+    }
+    eglGetConfigAttrib(fDisplay, fConfig, EGL_STENCIL_SIZE, &info->fStencilBits);
+    eglGetConfigAttrib(fDisplay, fConfig, EGL_SAMPLES, &info->fSampleCount);
+
+    GL_CALL(fANGLEInterface, Viewport(0, 0, SkScalarRoundToInt(this->width()),
+                                      SkScalarRoundToInt(this->height())));
+    return true;
 }
 
 void SkOSWindow::detachANGLE() {
