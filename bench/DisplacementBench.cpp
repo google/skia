@@ -18,7 +18,9 @@
 
 class DisplacementBaseBench : public Benchmark {
 public:
-    DisplacementBaseBench(bool small) : fInitialized(false), fIsSmall(small) { }
+    DisplacementBaseBench(bool small) :
+        fInitialized(false), fIsSmall(small) {
+    }
 
 protected:
     void onDelayedSetup() override {
@@ -90,7 +92,8 @@ private:
 
 class DisplacementZeroBench : public DisplacementBaseBench {
 public:
-    DisplacementZeroBench(bool small) : INHERITED(small) { }
+    DisplacementZeroBench(bool small) : INHERITED(small) {
+    }
 
 protected:
     const char* onGetName() override {
@@ -101,10 +104,9 @@ protected:
         SkPaint paint;
         sk_sp<SkImageFilter> displ(SkImageSource::Make(fCheckerboard));
         // No displacement effect
-        paint.setImageFilter(SkDisplacementMapEffect::Make(
-                                                SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                                SkDisplacementMapEffect::kG_ChannelSelectorType,
-                                                0.0f, std::move(displ), nullptr));
+        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kR_ChannelSelectorType,
+            SkDisplacementMapEffect::kG_ChannelSelectorType, 0.0f, displ.get()))->unref();
 
         for (int i = 0; i < loops; i++) {
             this->drawClippedBitmap(canvas, 0, 0, paint);
@@ -117,7 +119,8 @@ private:
 
 class DisplacementAlphaBench : public DisplacementBaseBench {
 public:
-    DisplacementAlphaBench(bool small) : INHERITED(small) { }
+    DisplacementAlphaBench(bool small) : INHERITED(small) {
+    }
 
 protected:
     const char* onGetName() override {
@@ -128,12 +131,11 @@ protected:
         SkPaint paint;
         sk_sp<SkImageFilter> displ(SkImageSource::Make(fCheckerboard));
         // Displacement, with 1 alpha component (which isn't pre-multiplied)
-        paint.setImageFilter(SkDisplacementMapEffect::Make(
-                                                SkDisplacementMapEffect::kB_ChannelSelectorType,
-                                                SkDisplacementMapEffect::kA_ChannelSelectorType,
-                                                16.0f, std::move(displ), nullptr));
+        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kB_ChannelSelectorType,
+            SkDisplacementMapEffect::kA_ChannelSelectorType, 16.0f, displ.get()))->unref();
         for (int i = 0; i < loops; i++) {
-            this->drawClippedBitmap(canvas, 100, 0, paint);
+            drawClippedBitmap(canvas, 100, 0, paint);
         }
     }
 
@@ -143,7 +145,8 @@ private:
 
 class DisplacementFullBench : public DisplacementBaseBench {
 public:
-    DisplacementFullBench(bool small) : INHERITED(small) { }
+    DisplacementFullBench(bool small) : INHERITED(small) {
+    }
 
 protected:
     const char* onGetName() override {
@@ -154,10 +157,9 @@ protected:
         SkPaint paint;
         sk_sp<SkImageFilter> displ(SkImageSource::Make(fCheckerboard));
         // Displacement, with 2 non-alpha components
-        paint.setImageFilter(SkDisplacementMapEffect::Make(
-                                                SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                                SkDisplacementMapEffect::kB_ChannelSelectorType,
-                                                32.0f, std::move(displ), nullptr));
+        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kR_ChannelSelectorType,
+            SkDisplacementMapEffect::kB_ChannelSelectorType, 32.0f, displ.get()))->unref();
         for (int i = 0; i < loops; ++i) {
             this->drawClippedBitmap(canvas, 200, 0, paint);
         }

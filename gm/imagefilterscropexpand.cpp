@@ -107,12 +107,13 @@ protected:
                                     &bigRect));
 
             Draw(canvas, checkerboard, rect,
-                 SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                               SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                               SkIntToScalar(12),
-                                               std::move(gradientCircleSource),
-                                               noopCropped,
-                                               &bigRect));
+                 sk_sp<SkImageFilter>(SkDisplacementMapEffect::Create(
+                                                SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                                SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                                SkIntToScalar(12),
+                                                gradientCircleSource.get(),
+                                                noopCropped.get(),
+                                                &bigRect)));
 
             Draw(canvas, checkerboard, rect,
                  SkOffsetImageFilter::Make(SkIntToScalar(-8), SkIntToScalar(16),

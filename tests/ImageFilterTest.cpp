@@ -160,10 +160,10 @@ public:
             sk_sp<SkImageFilter> gradientSource(SkImageSource::Make(std::move(gradientImage)));
 
             this->addFilter("displacement map", 
-                SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                              SkDisplacementMapEffect::kB_ChannelSelectorType,
-                                              20.0f,
-                                              std::move(gradientSource), input, cropRect));
+                sk_sp<SkImageFilter>(SkDisplacementMapEffect::Create(
+                                        SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                        SkDisplacementMapEffect::kB_ChannelSelectorType,
+                                        20.0f, gradientSource.get(), input.get(), cropRect)));
         }
 
         this->addFilter("blur", SkBlurImageFilter::Make(SK_Scalar1,

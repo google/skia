@@ -709,13 +709,17 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         }
         break;
     }
-    case DISPLACE:
-        filter = SkDisplacementMapEffect::Make(make_channel_selector_type(),
-                                               make_channel_selector_type(),
-                                               make_scalar(),
-                                               make_image_filter(false),
-                                               make_image_filter());
+    case DISPLACE: {
+        sk_sp<SkImageFilter> subFilter1(make_image_filter(false));
+        sk_sp<SkImageFilter> subFilter2(make_image_filter());
+
+        filter = sk_sp<SkImageFilter>(SkDisplacementMapEffect::Create(make_channel_selector_type(),
+                                                                      make_channel_selector_type(),
+                                                                      make_scalar(),
+                                                                      subFilter1.get(),
+                                                                      subFilter2.get()));
         break;
+    }
     case TILE: {
         sk_sp<SkImageFilter> subFilter(make_image_filter(false));
 

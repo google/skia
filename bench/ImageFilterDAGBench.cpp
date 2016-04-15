@@ -62,11 +62,10 @@ protected:
             auto xSelector = SkDisplacementMapEffect::kR_ChannelSelectorType;
             auto ySelector = SkDisplacementMapEffect::kB_ChannelSelectorType;
             SkScalar scale = 2;
-
+            sk_sp<SkImageFilter> displ(SkDisplacementMapEffect::Create(xSelector, ySelector, scale,
+                                                                       blur.get(), blur.get()));
             SkPaint paint;
-            paint.setImageFilter(SkDisplacementMapEffect::Make(xSelector, ySelector, scale,
-                                                               blur, blur));
-
+            paint.setImageFilter(std::move(displ));
             SkRect rect = SkRect::Make(SkIRect::MakeWH(400, 400));
             canvas->drawRect(rect, paint);
         }
