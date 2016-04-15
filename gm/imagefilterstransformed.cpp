@@ -69,12 +69,11 @@ protected:
             SkBlurImageFilter::Make(12, 0, nullptr),
             SkDropShadowImageFilter::Make(0, 15, 8, 0, SK_ColorGREEN,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-            sk_sp<SkImageFilter>(SkDisplacementMapEffect::Create(
-                                            SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                            SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                            12,
-                                            gradient.get(),
-                                            checkerboard.get())),
+            SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                          SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                          12,
+                                          std::move(gradient),
+                                          checkerboard),
             SkDilateImageFilter::Make(2, 2, checkerboard),
             SkErodeImageFilter::Make(2, 2, checkerboard),
         };

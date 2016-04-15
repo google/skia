@@ -20,13 +20,14 @@ public:
         kA_ChannelSelectorType
     };
 
-    ~SkDisplacementMapEffect();
+    ~SkDisplacementMapEffect() override;
 
-    static SkImageFilter* Create(ChannelSelectorType xChannelSelector,
-                                 ChannelSelectorType yChannelSelector,
-                                 SkScalar scale, SkImageFilter* displacement,
-                                 SkImageFilter* color = NULL,
-                                 const CropRect* cropRect = NULL);
+    static sk_sp<SkImageFilter> Make(ChannelSelectorType xChannelSelector,
+                                     ChannelSelectorType yChannelSelector,
+                                     SkScalar scale,
+                                     sk_sp<SkImageFilter> displacement,
+                                     sk_sp<SkImageFilter> color,
+                                     const CropRect* cropRect = nullptr);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDisplacementMapEffect)
 
@@ -38,13 +39,26 @@ public:
 
     SK_TO_STRING_OVERRIDE()
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(ChannelSelectorType xChannelSelector,
+                                 ChannelSelectorType yChannelSelector,
+                                 SkScalar scale, SkImageFilter* displacement,
+                                 SkImageFilter* color = nullptr,
+                                 const CropRect* cropRect = nullptr) {
+        return Make(xChannelSelector, yChannelSelector, scale, 
+                    sk_ref_sp<SkImageFilter>(displacement),
+                    sk_ref_sp<SkImageFilter>(color),
+                    cropRect).release();
+    }
+#endif
+
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
 
     SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
                             ChannelSelectorType yChannelSelector,
-                            SkScalar scale, SkImageFilter* inputs[2],
+                            SkScalar scale, sk_sp<SkImageFilter> inputs[2],
                             const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
 
