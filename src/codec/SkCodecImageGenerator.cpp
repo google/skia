@@ -6,6 +6,7 @@
  */
 
 #include "SkCodecImageGenerator.h"
+#include "SkPM4fPriv.h"
 
 SkImageGenerator* SkCodecImageGenerator::NewFromEncodedCodec(SkData* data) {
     SkCodec* codec = SkCodec::NewFromData(data);
@@ -25,9 +26,12 @@ static SkImageInfo fix_info(const SkCodec& codec) {
     SkAlphaType alphaType = (kUnpremul_SkAlphaType == info.alphaType()) ? kPremul_SkAlphaType :
             info.alphaType();
 
-    // Crudely guess that the presence of a color space means sRGB.
-    SkColorProfileType profileType = (codec.getColorSpace()) ? kSRGB_SkColorProfileType :
-            kLinear_SkColorProfileType;
+    SkColorProfileType profileType = kLinear_SkColorProfileType;
+    // Crudely guess that the presence of a color space means sRGB, or obey the global sRGB
+    // selector.
+    if (gTreatSkColorAsSRGB || codec.getColorSpace()) {
+        profileType = kSRGB_SkColorProfileType;
+    }
 
     return SkImageInfo::Make(info.width(), info.height(), info.colorType(), alphaType, profileType);
 }
