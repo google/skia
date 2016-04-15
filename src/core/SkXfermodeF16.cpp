@@ -134,15 +134,13 @@ static void srcover_1(const SkXfermode*, uint64_t dst[], const SkPM4f* src, int 
 static void srcover_n(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
                       const SkAlpha aa[]) {
     for (int i = 0; i < count; ++i) {
-        const Sk4f s4 = Sk4f::Load(src[i].fVec);
-        const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
-        const Sk4f d4 = SkHalfToFloat_01(dst[i]);
-        const Sk4f r4 = s4 + d4 * dst_scale;
+        Sk4f s = Sk4f::Load(src+i),
+             d = SkHalfToFloat_01(dst+i),
+             r = s + d*(1.0f - SkNx_shuffle<3,3,3,3>(s));
         if (aa) {
-            dst[i] = SkFloatToHalf_01(lerp_by_coverage(r4, d4, aa[i]));
-        } else {
-            dst[i] = SkFloatToHalf_01(r4);
+            r = lerp_by_coverage(r, d, aa[i]);
         }
+        SkFloatToHalf_01(r, dst+i);
     }
 }
 

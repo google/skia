@@ -8,6 +8,7 @@
 #ifndef SkHalf_DEFINED
 #define SkHalf_DEFINED
 
+#include "SkCpu.h"
 #include "SkNx.h"
 #include "SkTypes.h"
 
@@ -122,3 +123,32 @@ static inline uint64_t SkFloatToHalf_01(const Sk4f& fs) {
 }
 
 #endif
+
+static inline Sk4f SkHalfToFloat_01(const uint64_t* hs) {
+#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    if (SkCpu::Supports(SkCpu::F16C)) {
+        __m128 fs;
+    #if defined(__GNUC__) || defined(__clang__)
+        asm("vcvtph2ps %[hs], %[fs]" : [fs]"=x"(fs) : [hs]"m"(*hs));
+    #else
+        fs = _mm_cvtph_ps(_mm_loadl_epi64((const __m128i*)hs));
+    #endif
+        return fs;
+    }
+#endif
+    return SkHalfToFloat_01(*hs);
+}
+
+static inline void SkFloatToHalf_01(const Sk4f& fs, uint64_t* hs) {
+#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    if (SkCpu::Supports(SkCpu::F16C)) {
+    #if defined(__GNUC__) || defined(__clang__)
+        asm("vcvtps2ph $0, %[fs], %[hs]" : [hs]"=m"(*hs) : [fs]"x"(fs.fVec));
+    #else
+        _mm_storel_epi64((__m128i*)hs, _mm_cvtps_ph(fs.fVec, 0));
+    #endif
+        return;
+    }
+#endif
+    *hs = SkFloatToHalf_01(fs);
+}
