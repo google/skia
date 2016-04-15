@@ -58,142 +58,142 @@ protected:
         canvas->clear(SK_ColorBLACK);
         SkPaint paint;
         sk_sp<SkImageFilter> displ(SkImageSource::Make(fCheckerboard));
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
-            SkDisplacementMapEffect::kG_ChannelSelectorType, 0.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 0, 0, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kG_ChannelSelectorType, 0.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 0, 0, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
-            SkDisplacementMapEffect::kA_ChannelSelectorType, 16.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 100, 0, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kA_ChannelSelectorType, 16.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 100, 0, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
-            SkDisplacementMapEffect::kB_ChannelSelectorType, 32.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 200, 0, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kB_ChannelSelectorType, 32.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 200, 0, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kG_ChannelSelectorType,
-            SkDisplacementMapEffect::kA_ChannelSelectorType, 48.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 300, 0, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kA_ChannelSelectorType, 48.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 300, 0, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
-            SkDisplacementMapEffect::kA_ChannelSelectorType, 64.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 400, 0, paint);
+            SkDisplacementMapEffect::kA_ChannelSelectorType, 64.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 400, 0, paint);
 
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
-            SkDisplacementMapEffect::kG_ChannelSelectorType, 40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 0, 100, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kG_ChannelSelectorType, 40.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 0, 100, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
-            SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 100, 100, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 100, 100, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
-            SkDisplacementMapEffect::kB_ChannelSelectorType, 40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 200, 100, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kB_ChannelSelectorType, 40.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 200, 100, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kG_ChannelSelectorType,
-            SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 300, 100, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 300, 100, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
-            SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 400, 100, paint);
+            SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ, nullptr));
+        this->drawClippedBitmap(canvas, 400, 100, paint);
 
         SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(30, 30, 40, 40));
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kG_ChannelSelectorType,
-            0.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 0, 200, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            0.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 0, 200, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            16.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 100, 200, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            16.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 100, 200, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kB_ChannelSelectorType,
-            32.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 200, 200, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            32.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 200, 200, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kG_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            48.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 300, 200, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            48.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 300, 200, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            64.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 400, 200, paint);
+            64.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 400, 200, paint);
 
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kG_ChannelSelectorType,
-            40.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 0, 300, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            40.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 0, 300, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            40.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 100, 300, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            40.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 100, 300, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kB_ChannelSelectorType,
-            40.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 200, 300, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            40.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 200, 300, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kG_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            40.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 300, 300, paint);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            40.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 300, 300, paint);
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            40.0f, displ.get(), nullptr, &cropRect))->unref();
-        drawClippedBitmap(canvas, 400, 300, paint);
+            40.0f, displ, nullptr, &cropRect));
+        this->drawClippedBitmap(canvas, 400, 300, paint);
 
         // Test for negative scale.
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kG_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            -40.0f, displ.get()))->unref();
+            -40.0f, displ, nullptr));
         this->drawClippedBitmap(canvas, 500, 0, paint);
 
         // Tests for images of different sizes
         displ = SkImageSource::Make(fSmall);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kG_ChannelSelectorType,
-            40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 0, 400, paint);
+            40.0f, std::move(displ), nullptr));
+        this->drawClippedBitmap(canvas, 0, 400, paint);
         displ = SkImageSource::Make(fLarge);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 100, 400, paint);
+            40.0f, std::move(displ), nullptr));
+        this->drawClippedBitmap(canvas, 100, 400, paint);
         displ = SkImageSource::Make(fLargeW);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kB_ChannelSelectorType,
-            40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 200, 400, paint);
+            40.0f, std::move(displ), nullptr));
+        this->drawClippedBitmap(canvas, 200, 400, paint);
         displ = SkImageSource::Make(fLargeH);
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kG_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            40.0f, displ.get()))->unref();
-        drawClippedBitmap(canvas, 300, 400, paint);
+            40.0f, std::move(displ), nullptr));
+        this->drawClippedBitmap(canvas, 300, 400, paint);
 
         // Test for no given displacement input. In this case, both displacement
         // and color should use the same bitmap, given to SkCanvas::drawBitmap()
         // as an input argument.
-        paint.setImageFilter(SkDisplacementMapEffect::Create(
+        paint.setImageFilter(SkDisplacementMapEffect::Make(
             SkDisplacementMapEffect::kG_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
-            40.0f, nullptr))->unref();
-        drawClippedBitmap(canvas, 400, 400, paint);
+            40.0f, nullptr, nullptr));
+        this->drawClippedBitmap(canvas, 400, 400, paint);
     }
 
 private:

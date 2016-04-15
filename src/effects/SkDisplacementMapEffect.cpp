@@ -163,27 +163,29 @@ bool channel_selector_type_is_valid(SkDisplacementMapEffect::ChannelSelectorType
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImageFilter* SkDisplacementMapEffect::Create(ChannelSelectorType xChannelSelector,
-                                               ChannelSelectorType yChannelSelector,
-                                               SkScalar scale,
-                                               SkImageFilter* displacement,
-                                               SkImageFilter* color,
-                                               const CropRect* cropRect) {
+sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(ChannelSelectorType xChannelSelector,
+                                                   ChannelSelectorType yChannelSelector,
+                                                   SkScalar scale,
+                                                   sk_sp<SkImageFilter> displacement,
+                                                   sk_sp<SkImageFilter> color,
+                                                   const CropRect* cropRect) {
     if (!channel_selector_type_is_valid(xChannelSelector) ||
         !channel_selector_type_is_valid(yChannelSelector)) {
         return nullptr;
     }
 
-    SkImageFilter* inputs[2] = { displacement, color };
-    return new SkDisplacementMapEffect(xChannelSelector, yChannelSelector, scale, inputs, cropRect);
+    sk_sp<SkImageFilter> inputs[2] = { std::move(displacement), std::move(color) };
+    return sk_sp<SkImageFilter>(new SkDisplacementMapEffect(xChannelSelector,
+                                                            yChannelSelector,
+                                                            scale, inputs, cropRect));
 }
 
 SkDisplacementMapEffect::SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
                                                  ChannelSelectorType yChannelSelector,
                                                  SkScalar scale,
-                                                 SkImageFilter* inputs[2],
+                                                 sk_sp<SkImageFilter> inputs[2],
                                                  const CropRect* cropRect)
-    : INHERITED(2, inputs, cropRect)
+    : INHERITED(inputs, 2, cropRect)
     , fXChannelSelector(xChannelSelector)
     , fYChannelSelector(yChannelSelector)
     , fScale(scale) {
@@ -197,8 +199,9 @@ sk_sp<SkFlattenable> SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer) {
     ChannelSelectorType xsel = (ChannelSelectorType)buffer.readInt();
     ChannelSelectorType ysel = (ChannelSelectorType)buffer.readInt();
     SkScalar scale = buffer.readScalar();
-    return sk_sp<SkFlattenable>(Create(xsel, ysel, scale, common.getInput(0).get(),
-                                       common.getInput(1).get(), &common.cropRect()));
+    return Make(xsel, ysel, scale,
+                common.getInput(0), common.getInput(1),
+                &common.cropRect());
 }
 
 void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {
