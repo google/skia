@@ -827,7 +827,9 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
 static sk_sp<SkPDFDict> create_link_annotation(const SkRect& translatedRect) {
     auto annotation = sk_make_sp<SkPDFDict>("Annot");
     annotation->insertName("Subtype", "Link");
-    annotation->insertInt("F", 4);  // required by ISO 19005
+    #ifdef SK_PDF_GENERATE_PDFA
+        annotation->insertInt("F", 4);  // required by ISO 19005
+    #endif
 
     auto border = sk_make_sp<SkPDFArray>();
     border->reserve(3);

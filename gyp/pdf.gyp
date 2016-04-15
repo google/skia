@@ -22,16 +22,11 @@
         'skia_pdf_less_compression%': 0,  # enable for debugging only
       },
       'dependencies': [
-        'utils.gyp:utils',
         'skia_lib.gyp:skia_lib',
         'zlib.gyp:zlib',
       ],
       'includes': [
         'pdf.gypi',
-      ],
-      'sources!': [
-        '<(skia_src_path)/utils/SkMD5.cpp',
-        '<(skia_src_path)/utils/SkMD5.h',
       ],
       'include_dirs': [
         '../include/private',

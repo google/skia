@@ -20,12 +20,14 @@ struct SkPDFMetadata {
 
     SkPDFObject* createDocumentInformationDict() const;
 
+#ifdef SK_PDF_GENERATE_PDFA
     struct UUID {
         uint8_t fData[16];
     };
     UUID uuid() const;
     static SkPDFObject* CreatePdfId(const UUID& doc, const UUID& instance);
     SkPDFObject* createXMPObject(const UUID& doc, const UUID& instance) const;
+#endif  // SK_PDF_GENERATE_PDFA
 };
 
 #endif  // SkPDFMetadata_DEFINED

@@ -46,8 +46,5 @@
         '<(skia_src_path)/pdf/SkPDFUtils.cpp',
         '<(skia_src_path)/pdf/SkPDFUtils.h',
         '<(skia_src_path)/pdf/SkSinglyLinkedList.h',
-
-        '<(skia_src_path)/utils/SkMD5.cpp',
-        '<(skia_src_path)/utils/SkMD5.h',
     ],
 }
