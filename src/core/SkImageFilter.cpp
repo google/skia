@@ -393,65 +393,6 @@ sk_sp<SkSpecialImage> SkImageFilter::onFilterImage(SkSpecialImage* src, const Co
     return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM, &src->props());
 }
 
-bool SkImageFilter::canFilterImageGPU() const {
-    return this->asFragmentProcessor(nullptr, nullptr, SkMatrix::I(), SkIRect());
-}
-
-bool SkImageFilter::filterImageGPUDeprecated(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                             SkBitmap* result, SkIPoint* offset) const {
-#if SK_SUPPORT_GPU
-    SkBitmap input = src;
-    SkASSERT(fInputCount == 1);
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPUDeprecated(0, proxy, src, ctx, &input, &srcOffset)) {
-        return false;
-    }
-    GrTexture* srcTexture = input.getTexture();
-    SkIRect bounds;
-    if (!this->applyCropRectDeprecated(ctx, proxy, input, &srcOffset, &bounds, &input)) {
-        return false;
-    }
-    GrContext* context = srcTexture->getContext();
-
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = bounds.width();
-    desc.fHeight = bounds.height();
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
-    if (!dst) {
-        return false;
-    }
-
-    GrFragmentProcessor* fp;
-    offset->fX = bounds.left();
-    offset->fY = bounds.top();
-    bounds.offset(-srcOffset);
-    SkMatrix matrix(ctx.ctm());
-    matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    GrPaint paint;
-    // SRGBTODO: Don't handle sRGB here, in anticipation of this code path being deleted.
-    if (this->asFragmentProcessor(&fp, srcTexture, matrix, bounds)) {
-        SkASSERT(fp);
-        paint.addColorFragmentProcessor(fp)->unref();
-        paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
-
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
-        if (drawContext) {
-            SkRect srcRect = SkRect::Make(bounds);
-            SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
-            GrClip clip(dstRect);
-            drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
-
-            GrWrapTextureInBitmap(dst, bounds.width(), bounds.height(), false, result);
-            return true;
-        }
-    }
-#endif
-    return false;
-}
-
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
                                                 sk_sp<GrFragmentProcessor> fp,
@@ -618,11 +559,6 @@ SkImageFilter::Context SkImageFilter::mapContext(const Context& ctx) const {
     SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
                                                   MapDirection::kReverse_MapDirection);
     return Context(ctx.ctm(), clipBounds, ctx.cache());
-}
-
-bool SkImageFilter::asFragmentProcessor(GrFragmentProcessor**, GrTexture*,
-                                        const SkMatrix&, const SkIRect&) const {
-    return false;
 }
 
 sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkMatrix& matrix,

@@ -182,7 +182,7 @@ public:
      *  The default implementation returns asFragmentProcessor(NULL, NULL, SkMatrix::I(),
      *  SkIRect()).
      */
-    virtual bool canFilterImageGPU() const;
+    virtual bool canFilterImageGPU() const { return false; }
 
     /**
      *  Process this image filter on the GPU.  This is most often used for
@@ -194,8 +194,11 @@ public:
      *  relative to the src when it is drawn. The default implementation does
      *  single-pass processing using asFragmentProcessor().
      */
-    virtual bool filterImageGPUDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                          SkBitmap* result, SkIPoint* offset) const;
+    virtual bool filterImageGPUDeprecated(Proxy*, const SkBitmap&, const Context&,
+                                          SkBitmap*, SkIPoint*) const {
+        SkASSERT(false);
+        return false;
+    }
 
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context, 
@@ -450,24 +453,6 @@ protected:
 
     sk_sp<SkSpecialImage> applyCropRect(const Context&, SkSpecialImage* src, SkIPoint* srcOffset,
                                         SkIRect* bounds) const;
-
-    /**
-     *  Returns true if the filter can be expressed a single-pass
-     *  GrProcessor, used to process this filter on the GPU, or false if
-     *  not.
-     *
-     *  If effect is non-NULL, a new GrProcessor instance is stored
-     *  in it.  The caller assumes ownership of the stage, and it is up to the
-     *  caller to unref it.
-     *
-     *  The effect can assume its vertexCoords space maps 1-to-1 with texels
-     *  in the texture.  "matrix" is a transformation to apply to filter
-     *  parameters before they are used in the effect. Note that this function
-     *  will be called with (NULL, NULL, SkMatrix::I()) to query for support,
-     *  so returning "true" indicates support for all possible matrices.
-     */
-    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
-                                     const SkIRect& bounds) const;
 
     /**
      *  Creates a modified Context for use when recursing up the image filter DAG.
