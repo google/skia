@@ -80,7 +80,7 @@ int main(int, char**) {
     canvas->drawText(msg, strlen(msg), 90,120, paint);
 
     // Grab a snapshot of the surface as an immutable SkImage.
-    std::shared_ptr<SkImage> image = adopt(surface->newImageSnapshot());
+    sk_sp<SkImage> image = surface->makeImageSnapshot();
     // Encode that image as a .png into a blob in memory.
     std::shared_ptr<SkData> png = adopt(image->encode(SkImageEncoder::kPNG_Type, 100));
 

@@ -28,8 +28,6 @@ class GrContext;
 class GrContextThreadSafeProxy;
 class GrTexture;
 
-#define SK_SUPPORT_LEGACY_IMAGEFACTORY
-
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
  *  particular type of image could be actually storing its data on the GPU, or
