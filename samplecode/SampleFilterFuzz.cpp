@@ -716,14 +716,9 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                                make_image_filter(false),
                                                make_image_filter());
         break;
-    case TILE: {
-        sk_sp<SkImageFilter> subFilter(make_image_filter(false));
-
-        filter = sk_sp<SkImageFilter>(SkTileImageFilter::Create(make_rect(),
-                                                                make_rect(),
-                                                                subFilter.get()));
+    case TILE:
+        filter = SkTileImageFilter::Make(make_rect(), make_rect(), make_image_filter(false));
         break;
-    }
     case PICTURE: {
         SkRTreeFactory factory;
         SkPictureRecorder recorder;

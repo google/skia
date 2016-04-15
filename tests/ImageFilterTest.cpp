@@ -222,10 +222,10 @@ public:
                                                   cropRect));
         this->addFilter("dilate", SkDilateImageFilter::Make(3, 2, input, cropRect));
         this->addFilter("erode", SkErodeImageFilter::Make(2, 3, input, cropRect));
-        this->addFilter("tile", sk_sp<SkImageFilter>(SkTileImageFilter::Create(
-            SkRect::MakeXYWH(0, 0, 50, 50),
-            cropRect ? cropRect->rect() : SkRect::MakeXYWH(0, 0, 100, 100),
-            input.get())));
+        this->addFilter("tile", SkTileImageFilter::Make(
+                                    SkRect::MakeXYWH(0, 0, 50, 50),
+                                    cropRect ? cropRect->rect() : SkRect::MakeXYWH(0, 0, 100, 100),
+                                    input));
 
         if (!cropRect) {
             SkMatrix matrix;

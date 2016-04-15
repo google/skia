@@ -57,10 +57,10 @@ protected:
             const SkRect bound = SkRect::MakeIWH(kWidth, kHeight);
             sk_sp<SkImageFilter> imageSource(SkImageSource::Make(fRedImage));
 
-            sk_sp<SkImageFilter> tif(SkTileImageFilter::Create(
+            sk_sp<SkImageFilter> tif(SkTileImageFilter::Make(
                                                     SkRect::MakeIWH(kBitmapSize, kBitmapSize),
                                                     SkRect::MakeIWH(kWidth, kHeight),
-                                                    imageSource.get()));
+                                                    std::move(imageSource)));
 
             p.setImageFilter(std::move(tif));
 
@@ -73,7 +73,7 @@ protected:
 
             const SkRect bound2 = SkRect::MakeIWH(kBitmapSize, kBitmapSize);
 
-            sk_sp<SkImageFilter> tif(SkTileImageFilter::Create(
+            sk_sp<SkImageFilter> tif(SkTileImageFilter::Make(
                                                         SkRect::MakeIWH(kBitmapSize, kBitmapSize),
                                                         SkRect::MakeIWH(kBitmapSize, kBitmapSize),
                                                         nullptr));

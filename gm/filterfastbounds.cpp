@@ -113,7 +113,7 @@ static void create_paints(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> source
     {
         SkRect src = SkRect::MakeXYWH(20, 20, 10, 10);
         SkRect dst = SkRect::MakeXYWH(30, 30, 30, 30);
-        sk_sp<SkImageFilter> tileIF(SkTileImageFilter::Create(src, dst, nullptr));
+        sk_sp<SkImageFilter> tileIF(SkTileImageFilter::Make(src, dst, nullptr));
 
         add_paint(paints, std::move(tileIF));
     }

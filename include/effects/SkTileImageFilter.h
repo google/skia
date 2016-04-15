@@ -17,7 +17,9 @@ public:
         @param dst  Defines the pixels where tiles are drawn
         @param input    Input from which the subregion defined by srcRect will be tiled
     */
-    static SkImageFilter* Create(const SkRect& src, const SkRect& dst, SkImageFilter* input);
+    static sk_sp<SkImageFilter> Make(const SkRect& src,
+                                     const SkRect& dst,
+                                     sk_sp<SkImageFilter> input);
 
     SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
@@ -26,6 +28,12 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTileImageFilter)
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
+    static SkImageFilter* Create(const SkRect& src, const SkRect& dst, SkImageFilter* input) {
+        return Make(src, dst, sk_ref_sp<SkImageFilter>(input)).release();
+    }
+#endif
+
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
@@ -33,8 +41,8 @@ protected:
                                         SkIPoint* offset) const override;
 
 private:
-    SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, SkImageFilter* input)
-        : INHERITED(1, &input, NULL), fSrcRect(srcRect), fDstRect(dstRect) {}
+    SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, sk_sp<SkImageFilter> input)
+        : INHERITED(&input, 1, nullptr), fSrcRect(srcRect), fDstRect(dstRect) {}
 
     SkRect fSrcRect;
     SkRect fDstRect;

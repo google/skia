@@ -37,11 +37,9 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> tile(SkTileImageFilter::Create(
-            SkRect::MakeWH(50, 50),
-            SkRect::MakeWH(WIDTH, HEIGHT),
-            nullptr));
-        paint.setImageFilter(tile);
+        paint.setImageFilter(SkTileImageFilter::Make(SkRect::MakeWH(50, 50),
+                                                     SkRect::MakeWH(WIDTH, HEIGHT),
+                                                     nullptr));
 
         for (int i = 0; i < loops; i++) {
             if (fTileSize > 0) {

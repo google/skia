@@ -20,23 +20,23 @@
 #include "SkValidationUtils.h"
 #include "SkWriteBuffer.h"
 
-SkImageFilter* SkTileImageFilter::Create(const SkRect& srcRect, const SkRect& dstRect,
-                                         SkImageFilter* input) {
+sk_sp<SkImageFilter> SkTileImageFilter::Make(const SkRect& srcRect, const SkRect& dstRect,
+                                             sk_sp<SkImageFilter> input) {
     if (!SkIsValidRect(srcRect) || !SkIsValidRect(dstRect)) {
         return nullptr;
     }
     if (srcRect.width() == dstRect.width() && srcRect.height() == dstRect.height()) {
         SkRect ir = dstRect;
         if (!ir.intersect(srcRect)) {
-            return SkSafeRef(input);
+            return input;
         }
         CropRect cropRect(ir);
         return SkOffsetImageFilter::Make(dstRect.x() - srcRect.x(),
                                          dstRect.y() - srcRect.y(),
-                                         sk_ref_sp<SkImageFilter>(input),
-                                         &cropRect).release();
+                                         std::move(input),
+                                         &cropRect);
     }
-    return new SkTileImageFilter(srcRect, dstRect, input);
+    return sk_sp<SkImageFilter>(new SkTileImageFilter(srcRect, dstRect, std::move(input)));
 }
 
 sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
@@ -143,7 +143,7 @@ sk_sp<SkFlattenable> SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
-    return sk_sp<SkFlattenable>(Create(src, dst, common.getInput(0).get()));
+    return Make(src, dst, common.getInput(0));
 }
 
 void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
