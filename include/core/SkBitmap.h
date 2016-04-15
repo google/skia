@@ -105,7 +105,7 @@ public:
      *  Return the shift amount per pixel (i.e. 0 for 1-byte per pixel, 1 for 2-bytes per pixel
      *  colortypes, 2 for 4-bytes per pixel colortypes). Return 0 for kUnknown_SkColorType.
      */
-    int shiftPerPixel() const { return this->bytesPerPixel() >> 1; }
+    int shiftPerPixel() const { return this->fInfo.shiftPerPixel(); }
 
     ///////////////////////////////////////////////////////////////////////////
 
