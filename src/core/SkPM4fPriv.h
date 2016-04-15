@@ -11,6 +11,8 @@
 #include "SkColorPriv.h"
 #include "SkPM4f.h"
 
+extern bool gTreatSkColorAsSRGB;
+
 static inline float get_alpha(const Sk4f& f4) {
     return f4[SkPM4f::A];
 }
@@ -40,6 +42,14 @@ static inline Sk4f srgb_to_linear(const Sk4f& s4) {
 
 static inline Sk4f linear_to_srgb(const Sk4f& l4) {
     return set_alpha(l4.sqrt(), get_alpha(l4));
+}
+
+static inline float srgb_to_linear(float x) {
+    return x * x;
+}
+
+static inline float linear_to_srgb(float x) {
+    return sqrtf(x);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
