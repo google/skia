@@ -8,9 +8,9 @@
 #include "SkLightingImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-#include "SkDevice.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
 #include "SkTypes.h"
 #include "SkWriteBuffer.h"
 
@@ -355,9 +355,10 @@ protected:
     }
 
 #if SK_SUPPORT_GPU
-    bool canFilterImageGPU() const override { return true; }
-    bool filterImageGPUDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                  SkBitmap* result, SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source, 
+                                         SkSpecialImage* input,
+                                         const SkIRect& bounds,
+                                         const SkMatrix& matrix) const;
     virtual GrFragmentProcessor* getFragmentProcessor(GrTexture*,
                                                       const SkMatrix&,
                                                       const SkIRect* srcBounds,
@@ -395,47 +396,40 @@ void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 }
 
-bool SkLightingImageFilterInternal::filterImageGPUDeprecated(Proxy* proxy,
-                                                             const SkBitmap& src,
-                                                             const Context& ctx,
-                                                             SkBitmap* result,
-                                                             SkIPoint* offset) const {
-    SkBitmap input = src;
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputGPUDeprecated(0, proxy, src, ctx, &input, &srcOffset)) {
-        return false;
-    }
-    SkIRect srcBounds = input.bounds();
-    srcBounds.offset(srcOffset);
-    SkIRect bounds;
-    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
-        return false;
-    }
-    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(bounds.width()),
-                                    SkIntToScalar(bounds.height()));
-    GrTexture* srcTexture = input.getTexture();
-    GrContext* context = srcTexture->getContext();
+sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialImage* source,
+                                                                    SkSpecialImage* input,
+                                                                    const SkIRect& offsetBounds,
+                                                                    const SkMatrix& matrix) const {
+    SkASSERT(source->isTextureBacked());
+
+    GrContext* context = source->getContext();
+
+    sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
+    SkASSERT(inputTexture);
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag,
-    desc.fWidth = bounds.width();
-    desc.fHeight = bounds.height();
+    desc.fWidth = offsetBounds.width();
+    desc.fHeight = offsetBounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
+    sk_sp<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
     if (!dst) {
-        return false;
+        return nullptr;
     }
+
+    sk_sp<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
+    if (!drawContext) {
+        return nullptr;
+    }
+
+    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(offsetBounds.width()),
+                                    SkIntToScalar(offsetBounds.height()));
 
     // setup new clip
     GrClip clip(dstRect);
 
-    offset->fX = bounds.left();
-    offset->fY = bounds.top();
-    SkMatrix matrix(ctx.ctm());
-    matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    bounds.offset(-srcOffset);
-    srcBounds.offset(-srcOffset);
+    const SkIRect inputBounds = SkIRect::MakeWH(input->width(), input->height());
     SkRect topLeft = SkRect::MakeXYWH(0, 0, 1, 1);
     SkRect top = SkRect::MakeXYWH(1, 0, dstRect.width() - 2, 1);
     SkRect topRight = SkRect::MakeXYWH(dstRect.width() - 1, 0, 1, 1);
@@ -446,32 +440,30 @@ bool SkLightingImageFilterInternal::filterImageGPUDeprecated(Proxy* proxy,
     SkRect bottom = SkRect::MakeXYWH(1, dstRect.height() - 1, dstRect.width() - 2, 1);
     SkRect bottomRight = SkRect::MakeXYWH(dstRect.width() - 1, dstRect.height() - 1, 1, 1);
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
-    if (!drawContext) {
-        return false;
-    }
+    const SkIRect* pSrcBounds = inputBounds.contains(offsetBounds) ? nullptr : &inputBounds;
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, topLeft,
+                   kTopLeft_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, top, kTop_BoundaryMode,
+                   pSrcBounds, offsetBounds);
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, topRight,
+                   kTopRight_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, left, kLeft_BoundaryMode,
+                   pSrcBounds, offsetBounds);
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, interior,
+                   kInterior_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, right, kRight_BoundaryMode,
+                   pSrcBounds, offsetBounds);
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottomLeft,
+                   kBottomLeft_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottom,
+                   kBottom_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottomRight,
+                   kBottomRight_BoundaryMode, pSrcBounds, offsetBounds);
 
-    const SkIRect* pSrcBounds = srcBounds.contains(bounds) ? nullptr : &srcBounds;
-    this->drawRect(drawContext, srcTexture, matrix, clip, topLeft, kTopLeft_BoundaryMode,
-                   pSrcBounds, bounds);
-    this->drawRect(drawContext, srcTexture, matrix, clip, top, kTop_BoundaryMode,
-                   pSrcBounds, bounds);
-    this->drawRect(drawContext, srcTexture, matrix, clip, topRight, kTopRight_BoundaryMode,
-                   pSrcBounds, bounds);
-    this->drawRect(drawContext, srcTexture, matrix, clip, left, kLeft_BoundaryMode,
-                   pSrcBounds, bounds);
-    this->drawRect(drawContext, srcTexture, matrix, clip, interior, kInterior_BoundaryMode,
-                   pSrcBounds, bounds);
-    this->drawRect(drawContext, srcTexture, matrix, clip, right, kRight_BoundaryMode,
-                   pSrcBounds, bounds);
-    this->drawRect(drawContext, srcTexture, matrix, clip, bottomLeft, kBottomLeft_BoundaryMode,
-                   pSrcBounds, bounds);
-    this->drawRect(drawContext, srcTexture, matrix, clip, bottom, kBottom_BoundaryMode,
-                   pSrcBounds, bounds);
-    this->drawRect(drawContext, srcTexture, matrix, clip, bottomRight,
-                   kBottomRight_BoundaryMode, pSrcBounds, bounds);
-    GrWrapTextureInBitmap(dst, bounds.width(), bounds.height(), false, result);
-    return true;
+    return SkSpecialImage::MakeFromGpu(source->internal_getProxy(),
+                                       SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
+                                       kNeedNewImageUniqueID_SpecialImage,
+                                       dst.get());
 }
 #endif
 
@@ -492,8 +484,10 @@ protected:
                                  SkScalar kd,
                                  sk_sp<SkImageFilter> input, const CropRect* cropRect);
     void flatten(SkWriteBuffer& buffer) const override;
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* offset) const override;
+
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+
 #if SK_SUPPORT_GPU
     GrFragmentProcessor* getFragmentProcessor(GrTexture*, const SkMatrix&, const SkIRect* bounds,
                                               BoundaryMode) const override;
@@ -501,8 +495,9 @@ protected:
 
 private:
     friend class SkLightingImageFilter;
-    typedef SkLightingImageFilterInternal INHERITED;
     SkScalar fKD;
+
+    typedef SkLightingImageFilterInternal INHERITED;
 };
 
 class SkSpecularLightingImageFilter : public SkLightingImageFilterInternal {
@@ -524,8 +519,10 @@ protected:
                                   SkScalar shininess,
                                   sk_sp<SkImageFilter> input, const CropRect*);
     void flatten(SkWriteBuffer& buffer) const override;
-    bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                 SkBitmap* result, SkIPoint* offset) const override;
+
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
+                                        SkIPoint* offset) const override;
+
 #if SK_SUPPORT_GPU
     GrFragmentProcessor* getFragmentProcessor(GrTexture*, const SkMatrix&, const SkIRect* bounds,
                                               BoundaryMode) const override;
@@ -1239,79 +1236,99 @@ void SkDiffuseLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fKD);
 }
 
-bool SkDiffuseLightingImageFilter::onFilterImageDeprecated(Proxy* proxy,
-                                                           const SkBitmap& source,
-                                                           const Context& ctx,
-                                                           SkBitmap* dst,
-                                                           SkIPoint* offset) const {
-    SkBitmap src = source;
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
-        return false;
+sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(SkSpecialImage* source,
+                                                                  const Context& ctx,
+                                                                  SkIPoint* offset) const {
+    SkIPoint inputOffset = SkIPoint::Make(0, 0);
+    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    if (!input) {
+        return nullptr;
     }
 
-    if (src.colorType() != kN32_SkColorType) {
-        return false;
-    }
-    SkIRect srcBounds = src.bounds();
-    srcBounds.offset(srcOffset);
+    const SkIRect inputBounds = SkIRect::MakeXYWH(inputOffset.x(), inputOffset.y(),
+                                                  input->width(), input->height());
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
-        return false;
+    if (!this->applyCropRect(ctx, inputBounds, &bounds)) {
+        return nullptr;
     }
 
-    if (bounds.width() < 2 || bounds.height() < 2) {
-        return false;
-    }
-
-    SkAutoLockPixels alp(src);
-    if (!src.getPixels()) {
-        return false;
-    }
-
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-    if (!device) {
-        return false;
-    }
-    *dst = device->accessBitmap(false);
-    SkAutoLockPixels alp_dst(*dst);
-
-    SkMatrix matrix(ctx.ctm());
-    matrix.postTranslate(SkIntToScalar(-srcOffset.x()), SkIntToScalar(-srcOffset.y()));
-    SkAutoTUnref<SkImageFilterLight> transformedLight(light()->transform(matrix));
-
-    DiffuseLightingType lightingType(fKD);
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    bounds.offset(-srcOffset);
+    bounds.offset(-inputOffset);
+
+#if SK_SUPPORT_GPU
+    if (source->isTextureBacked()) {
+        SkMatrix matrix(ctx.ctm());
+        matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
+
+        return this->filterImageGPU(source, input.get(), bounds, matrix);
+    }
+#endif
+
+    if (bounds.width() < 2 || bounds.height() < 2) {
+        return nullptr;
+    }
+
+    SkBitmap inputBM;
+
+    if (!input->getROPixels(&inputBM)) {
+        return nullptr;
+    }
+
+    if (inputBM.colorType() != kN32_SkColorType) {
+        return nullptr;
+    }
+
+    SkAutoLockPixels alp(inputBM);
+    if (!inputBM.getPixels()) {
+        return nullptr;
+    }
+
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(bounds.width(), bounds.height());
+
+    SkBitmap dst;
+    if (!dst.tryAllocPixels(info)) {
+        return nullptr;
+    }
+
+    SkAutoLockPixels dstLock(dst);
+
+    SkMatrix matrix(ctx.ctm());
+    matrix.postTranslate(SkIntToScalar(-inputOffset.x()), SkIntToScalar(-inputOffset.y()));
+
+    sk_sp<SkImageFilterLight> transformedLight(light()->transform(matrix));
+
+    DiffuseLightingType lightingType(fKD);
     switch (transformedLight->type()) {
         case SkImageFilterLight::kDistant_LightType:
             lightBitmap<DiffuseLightingType, SkDistantLight>(lightingType,
-                                                             transformedLight,
-                                                             src,
-                                                             dst,
+                                                             transformedLight.get(),
+                                                             inputBM,
+                                                             &dst,
                                                              surfaceScale(),
                                                              bounds);
             break;
         case SkImageFilterLight::kPoint_LightType:
             lightBitmap<DiffuseLightingType, SkPointLight>(lightingType,
-                                                           transformedLight,
-                                                           src,
-                                                           dst,
+                                                           transformedLight.get(),
+                                                           inputBM,
+                                                           &dst,
                                                            surfaceScale(),
                                                            bounds);
             break;
         case SkImageFilterLight::kSpot_LightType:
             lightBitmap<DiffuseLightingType, SkSpotLight>(lightingType,
-                                                          transformedLight,
-                                                          src,
-                                                          dst,
+                                                          transformedLight.get(),
+                                                          inputBM,
+                                                          &dst,
                                                           surfaceScale(),
                                                           bounds);
             break;
     }
 
-    return true;
+    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
+                                          SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                          dst);
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -1385,78 +1402,100 @@ void SkSpecularLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fShininess);
 }
 
-bool SkSpecularLightingImageFilter::onFilterImageDeprecated(Proxy* proxy,
-                                                            const SkBitmap& source,
-                                                            const Context& ctx,
-                                                            SkBitmap* dst,
-                                                            SkIPoint* offset) const {
-    SkBitmap src = source;
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset)) {
-        return false;
+sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(SkSpecialImage* source,
+                                                                   const Context& ctx,
+                                                                   SkIPoint* offset) const {
+    SkIPoint inputOffset = SkIPoint::Make(0, 0);
+    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    if (!input) {
+        return nullptr;
     }
 
-    if (src.colorType() != kN32_SkColorType) {
-        return false;
-    }
-
-    SkIRect srcBounds = src.bounds();
-    srcBounds.offset(srcOffset);
+    const SkIRect inputBounds = SkIRect::MakeXYWH(inputOffset.x(), inputOffset.y(),
+                                                  input->width(), input->height());
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
-        return false;
+    if (!this->applyCropRect(ctx, inputBounds, &bounds)) {
+        return nullptr;
     }
 
-    if (bounds.width() < 2 || bounds.height() < 2) {
-        return false;
-    }
-
-    SkAutoLockPixels alp(src);
-    if (!src.getPixels()) {
-        return false;
-    }
-
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-    if (!device) {
-        return false;
-    }
-    *dst = device->accessBitmap(false);
-    SkAutoLockPixels alp_dst(*dst);
-
-    SpecularLightingType lightingType(fKS, fShininess);
     offset->fX = bounds.left();
     offset->fY = bounds.top();
+    bounds.offset(-inputOffset);
+
+#if SK_SUPPORT_GPU
+    if (source->isTextureBacked()) {
+        SkMatrix matrix(ctx.ctm());
+        matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
+
+        return this->filterImageGPU(source, input.get(), bounds, matrix);
+    }
+#endif
+
+    if (bounds.width() < 2 || bounds.height() < 2) {
+        return nullptr;
+    }
+
+    SkBitmap inputBM;
+
+    if (!input->getROPixels(&inputBM)) {
+        return nullptr;
+    }
+
+    if (inputBM.colorType() != kN32_SkColorType) {
+        return nullptr;
+    }
+
+    SkAutoLockPixels alp(inputBM);
+    if (!inputBM.getPixels()) {
+        return nullptr;
+    }
+
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(bounds.width(), bounds.height());
+
+    SkBitmap dst;
+    if (!dst.tryAllocPixels(info)) {
+        return nullptr;
+    }
+
+    SkAutoLockPixels dstLock(dst);
+
+    SpecularLightingType lightingType(fKS, fShininess);
+
     SkMatrix matrix(ctx.ctm());
-    matrix.postTranslate(SkIntToScalar(-srcOffset.x()), SkIntToScalar(-srcOffset.y()));
-    SkAutoTUnref<SkImageFilterLight> transformedLight(light()->transform(matrix));
-    bounds.offset(-srcOffset);
+    matrix.postTranslate(SkIntToScalar(-inputOffset.x()), SkIntToScalar(-inputOffset.y()));
+
+    sk_sp<SkImageFilterLight> transformedLight(light()->transform(matrix));
+
     switch (transformedLight->type()) {
         case SkImageFilterLight::kDistant_LightType:
             lightBitmap<SpecularLightingType, SkDistantLight>(lightingType,
-                                                              transformedLight,
-                                                              src,
-                                                              dst,
+                                                              transformedLight.get(),
+                                                              inputBM,
+                                                              &dst,
                                                               surfaceScale(),
                                                               bounds);
             break;
         case SkImageFilterLight::kPoint_LightType:
             lightBitmap<SpecularLightingType, SkPointLight>(lightingType,
-                                                            transformedLight,
-                                                            src,
-                                                            dst,
+                                                            transformedLight.get(),
+                                                            inputBM,
+                                                            &dst,
                                                             surfaceScale(),
                                                             bounds);
             break;
         case SkImageFilterLight::kSpot_LightType:
             lightBitmap<SpecularLightingType, SkSpotLight>(lightingType,
-                                                           transformedLight,
-                                                           src,
-                                                           dst,
+                                                           transformedLight.get(),
+                                                           inputBM,
+                                                           &dst,
                                                            surfaceScale(),
                                                            bounds);
             break;
     }
-    return true;
+
+    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
+                                          SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                          dst);
 }
 
 #ifndef SK_IGNORE_TO_STRING
