@@ -17,7 +17,7 @@
 
 
 SkImageSource::SkImageSource(sk_sp<SkImage> image)
-    : INHERITED(0, nullptr)
+    : INHERITED(nullptr, 0, nullptr)
     , fImage(std::move(image))
     , fSrcRect(SkRect::MakeIWH(fImage->width(), fImage->height()))
     , fDstRect(fSrcRect)
@@ -28,7 +28,7 @@ SkImageSource::SkImageSource(sk_sp<SkImage> image,
                              const SkRect& srcRect,
                              const SkRect& dstRect,
                              SkFilterQuality filterQuality)
-    : INHERITED(0, nullptr)
+    : INHERITED(nullptr, 0, nullptr)
     , fImage(std::move(image))
     , fSrcRect(srcRect)
     , fDstRect(dstRect)

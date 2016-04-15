@@ -234,15 +234,15 @@ public:
      *  Returns the number of inputs this filter will accept (some inputs can
      *  be NULL).
      */
-    int countInputs() const { return fInputCount; }
+    int countInputs() const { return fInputs.count(); }
 
     /**
      *  Returns the input filter at a given index, or NULL if no input is
      *  connected.  The indices used are filter-specific.
      */
     SkImageFilter* getInput(int i) const {
-        SkASSERT(i < fInputCount);
-        return fInputs[i];
+        SkASSERT(i < fInputs.count());
+        return fInputs[i].get();
     }
 
     /**
@@ -332,12 +332,6 @@ protected:
 
         sk_sp<SkImageFilter>  getInput(int index) const { return fInputs[index]; }
 
-        // If the caller wants a copy of the inputs, call this and it will transfer ownership
-        // of the unflattened input filters to the caller. This is just a short-cut for copying
-        // the inputs, calling ref() on each, and then waiting for Common's destructor to call
-        // unref() on each.
-        void detachInputs(SkImageFilter** inputs);
-
     private:
         CropRect fCropRect;
         // most filters accept at most 2 input-filters
@@ -345,8 +339,6 @@ protected:
 
         void allocInputs(int count);
     };
-
-    SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = nullptr);
 
     SkImageFilter(sk_sp<SkImageFilter>* inputs, int inputCount, const CropRect* cropRect);
 
@@ -466,20 +458,21 @@ private:
     friend class SkGraphics;
     static void PurgeCache();
 
+    void init(sk_sp<SkImageFilter>* inputs, int inputCount, const CropRect* cropRect);
     bool filterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const;
 
     bool usesSrcInput() const { return fUsesSrcInput; }
     virtual bool affectsTransparentBlack() const { return false; }
 
-    typedef SkFlattenable INHERITED;
-    int fInputCount;
-    SkImageFilter** fInputs;
+    SkAutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
+
     bool fUsesSrcInput;
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
     mutable SkTArray<Cache::Key> fCacheKeys;
     mutable SkMutex fMutex;
+    typedef SkFlattenable INHERITED;
 };
 
 /**

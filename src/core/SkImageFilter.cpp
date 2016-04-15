@@ -123,12 +123,6 @@ void SkImageFilter::Common::allocInputs(int count) {
     fInputs.reset(count);
 }
 
-void SkImageFilter::Common::detachInputs(SkImageFilter** inputs) {
-    for (int i = 0; i < fInputs.count(); ++i) {
-        inputs[i] = fInputs[i].release();
-    }
-}
-
 bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
     const int count = buffer.readInt();
     if (!buffer.validate(count >= 0)) {
@@ -165,67 +159,46 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+void SkImageFilter::init(sk_sp<SkImageFilter>* inputs,
+                         int inputCount,
+                         const CropRect* cropRect) {
+    fCropRect = cropRect ? *cropRect : CropRect(SkRect(), 0x0);
+
+    fInputs.reset(inputCount);
+
+    for (int i = 0; i < inputCount; ++i) {
+        if (!inputs[i] || inputs[i]->usesSrcInput()) {
+            fUsesSrcInput = true;
+        }
+        fInputs[i] = inputs[i];
+    }
+}
+
 SkImageFilter::SkImageFilter(sk_sp<SkImageFilter>* inputs,
                              int inputCount,
                              const CropRect* cropRect)
-    : fInputCount(inputCount),
-    fInputs(new SkImageFilter*[inputCount]),
-    fUsesSrcInput(false),
-    fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)),
-    fUniqueID(next_image_filter_unique_id()) {
-    for (int i = 0; i < inputCount; ++i) {
-        if (nullptr == inputs[i] || inputs[i]->usesSrcInput()) {
-            fUsesSrcInput = true;
-        }
-        fInputs[i] = SkSafeRef(inputs[i].get());
-    }
-}
-
-SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
-  : fInputCount(inputCount),
-    fInputs(new SkImageFilter*[inputCount]),
-    fUsesSrcInput(false),
-    fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)),
-    fUniqueID(next_image_filter_unique_id()) {
-    for (int i = 0; i < inputCount; ++i) {
-        if (nullptr == inputs[i] || inputs[i]->usesSrcInput()) {
-            fUsesSrcInput = true;
-        }
-        fInputs[i] = SkSafeRef(inputs[i]);
-    }
+    : fUsesSrcInput(false)
+    , fUniqueID(next_image_filter_unique_id()) {
+    this->init(inputs, inputCount, cropRect);
 }
 
 SkImageFilter::~SkImageFilter() {
-    for (int i = 0; i < fInputCount; i++) {
-        SkSafeUnref(fInputs[i]);
-    }
-    delete[] fInputs;
     Cache::Get()->purgeByKeys(fCacheKeys.begin(), fCacheKeys.count());
 }
 
 SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
-  : fUsesSrcInput(false)
-  , fUniqueID(next_image_filter_unique_id()) {
+    : fUsesSrcInput(false)
+    , fCropRect(SkRect(), 0x0)
+    , fUniqueID(next_image_filter_unique_id()) {
     Common common;
     if (common.unflatten(buffer, inputCount)) {
-        fCropRect = common.cropRect();
-        fInputCount = common.inputCount();
-        fInputs = new SkImageFilter* [fInputCount];
-        common.detachInputs(fInputs);
-        for (int i = 0; i < fInputCount; ++i) {
-            if (nullptr == fInputs[i] || fInputs[i]->usesSrcInput()) {
-                fUsesSrcInput = true;
-            }
-        }
-    } else {
-        fInputCount = 0;
-        fInputs = nullptr;
+        this->init(common.inputs(), common.inputCount(), &common.cropRect());
     }
 }
 
 void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeInt(fInputCount);
-    for (int i = 0; i < fInputCount; i++) {
+    buffer.writeInt(fInputs.count());
+    for (int i = 0; i < fInputs.count(); i++) {
         SkImageFilter* input = this->getInput(i);
         buffer.writeBool(input != nullptr);
         if (input != nullptr) {
@@ -338,11 +311,11 @@ SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
 }
 
 SkRect SkImageFilter::computeFastBounds(const SkRect& src) const {
-    if (0 == fInputCount) {
+    if (0 == this->countInputs()) {
         return src;
     }
     SkRect combinedBounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
-    for (int i = 1; i < fInputCount; i++) {
+    for (int i = 1; i < this->countInputs(); i++) {
         SkImageFilter* input = this->getInput(i);
         if (input) {
             combinedBounds.join(input->computeFastBounds(src));
@@ -357,7 +330,7 @@ bool SkImageFilter::canComputeFastBounds() const {
     if (this->affectsTransparentBlack()) {
         return false;
     }
-    for (int i = 0; i < fInputCount; i++) {
+    for (int i = 0; i < this->countInputs(); i++) {
         SkImageFilter* input = this->getInput(i);
         if (input && !input->canComputeFastBounds()) {
             return false;
@@ -532,12 +505,12 @@ sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
 
 SkIRect SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                       MapDirection direction) const {
-    if (fInputCount < 1) {
+    if (this->countInputs() < 1) {
         return src;
     }
 
     SkIRect totalBounds;
-    for (int i = 0; i < fInputCount; ++i) {
+    for (int i = 0; i < this->countInputs(); ++i) {
         SkImageFilter* filter = this->getInput(i);
         SkIRect rect = filter ? filter->filterBounds(src, ctm, direction) : src;
         if (0 == i) {

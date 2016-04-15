@@ -88,8 +88,7 @@ private:
 
 class FailImageFilter : public SkImageFilter {
 public:
-    FailImageFilter() : SkImageFilter(0, nullptr) {
-    }
+    FailImageFilter() : SkImageFilter(nullptr, 0, nullptr) { }
 
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source,
                                         const Context& ctx,
