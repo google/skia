@@ -86,18 +86,42 @@ enum SkColorType {
 #endif
 };
 
-extern const uint8_t gPrivate_SkColorTypeBytesPerPixel[];
-
 static int SkColorTypeBytesPerPixel(SkColorType ct) {
-    SkASSERT((unsigned)ct <= (unsigned)kLastEnum_SkColorType);
-    return gPrivate_SkColorTypeBytesPerPixel[ct];
+    static const uint8_t gSize[] = {
+        0,  // Unknown
+        1,  // Alpha_8
+        2,  // RGB_565
+        2,  // ARGB_4444
+        4,  // RGBA_8888
+        4,  // BGRA_8888
+        1,  // kIndex_8
+        1,  // kGray_8
+        8,  // kRGBA_F16
+    };
+    static_assert(SK_ARRAY_COUNT(gSize) == (size_t)(kLastEnum_SkColorType + 1),
+                  "size_mismatch_with_SkColorType_enum");
+
+    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gSize));
+    return gSize[ct];
 }
 
-extern const uint8_t gPrivate_SkColorTypeShiftPerPixel[];
-
 static int SkColorTypeShiftPerPixel(SkColorType ct) {
-    SkASSERT((unsigned)ct <= (unsigned)kLastEnum_SkColorType);
-    return gPrivate_SkColorTypeShiftPerPixel[ct];
+    static const uint8_t gShift[] = {
+        0,  // Unknown
+        0,  // Alpha_8
+        1,  // RGB_565
+        1,  // ARGB_4444
+        2,  // RGBA_8888
+        2,  // BGRA_8888
+        0,  // kIndex_8
+        0,  // kGray_8
+        3,  // kRGBA_F16
+    };
+    static_assert(SK_ARRAY_COUNT(gShift) == (size_t)(kLastEnum_SkColorType + 1),
+                  "size_mismatch_with_SkColorType_enum");
+    
+    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gShift));
+    return gShift[ct];
 }
 
 static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {

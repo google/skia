@@ -9,34 +9,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-const uint8_t gPrivate_SkColorTypeBytesPerPixel[] = {
-    0,  // Unknown
-    1,  // Alpha_8
-    2,  // RGB_565
-    2,  // ARGB_4444
-    4,  // RGBA_8888
-    4,  // BGRA_8888
-    1,  // kIndex_8
-    1,  // kGray_8
-    8,  // kRGBA_F16
-};
-static_assert(SK_ARRAY_COUNT(gPrivate_SkColorTypeBytesPerPixel) == (size_t)(kLastEnum_SkColorType + 1),
-              "size_mismatch_with_SkColorType_enum");
-
-const uint8_t gPrivate_SkColorTypeShiftPerPixel[] = {
-    0,  // Unknown
-    0,  // Alpha_8
-    1,  // RGB_565
-    1,  // ARGB_4444
-    2,  // RGBA_8888
-    2,  // BGRA_8888
-    0,  // kIndex_8
-    0,  // kGray_8
-    3,  // kRGBA_F16
-};
-static_assert(SK_ARRAY_COUNT(gPrivate_SkColorTypeShiftPerPixel) == (size_t)(kLastEnum_SkColorType + 1),
-              "size_mismatch_with_SkColorType_enum");
-
 static bool profile_type_is_valid(SkColorProfileType profileType) {
     return (profileType >= 0) && (profileType <= kLastEnum_SkColorProfileType);
 }
