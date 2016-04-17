@@ -256,7 +256,12 @@ bool SkImageFilter::filterImageDeprecated(Proxy* proxy, const SkBitmap& src,
             return true;
         }
     }
-    if (this->onFilterImageDeprecated(proxy, src, context, result, offset)) {
+    /*
+     *  Give the proxy first shot at the filter. If it returns false, ask
+     *  the filter to do it.
+     */
+    if ((proxy && proxy->filterImage(this, src, context, result, offset)) ||
+        this->onFilterImageDeprecated(proxy, src, context, result, offset)) {
         if (context.cache()) {
             context.cache()->set(key, *result, *offset);
             SkAutoMutexAcquire mutex(fMutex);
@@ -423,6 +428,35 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
     return dstBounds->intersect(ctx.clipBounds());
 }
 
+bool SkImageFilter::applyCropRectDeprecated(const Context& ctx, Proxy* proxy, const SkBitmap& src,
+                                            SkIPoint* srcOffset, SkIRect* bounds,
+                                            SkBitmap* dst) const {
+    SkIRect srcBounds;
+    src.getBounds(&srcBounds);
+    srcBounds.offset(*srcOffset);
+    SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
+    fCropRect.applyTo(dstBounds, ctx.ctm(), this->affectsTransparentBlack(), bounds);
+    if (!bounds->intersect(ctx.clipBounds())) {
+        return false;
+    }
+
+    if (srcBounds.contains(*bounds)) {
+        *dst = src;
+        return true;
+    } else {
+        SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds->width(), bounds->height()));
+        if (!device) {
+            return false;
+        }
+        SkCanvas canvas(device);
+        canvas.clear(0x00000000);
+        canvas.drawBitmap(src, srcOffset->x() - bounds->x(), srcOffset->y() - bounds->y());
+        *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
+        *dst = device->accessBitmap(false);
+        return true;
+    }
+}
+
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.
 static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
@@ -529,6 +563,52 @@ sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
 
     return result;
 }
+
+#if SK_SUPPORT_GPU
+
+bool SkImageFilter::filterInputGPUDeprecated(int index, SkImageFilter::Proxy* proxy,
+                                             const SkBitmap& src, const Context& ctx,
+                                             SkBitmap* result, SkIPoint* offset) const {
+    SkImageFilter* input = this->getInput(index);
+    if (!input) {
+        return true;
+    }
+
+    // SRGBTODO: Don't handle sRGB here, in anticipation of this code path being deleted.
+    sk_sp<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src, nullptr));
+    if (!specialSrc) {
+        return false;
+    }
+
+    sk_sp<SkSpecialImage> tmp(input->onFilterImage(specialSrc.get(),
+                                                   this->mapContext(ctx),
+                                                   offset));
+    if (!tmp) {
+        return false;
+    }
+
+    if (!tmp->internal_getBM(result)) {
+        return false;
+    }
+
+    if (!result->getTexture()) {
+        GrContext* context = src.getTexture()->getContext();
+
+        const SkImageInfo info = result->info();
+        if (kUnknown_SkColorType == info.colorType()) {
+            return false;
+        }
+        SkAutoTUnref<GrTexture> resultTex(
+            GrRefCachedBitmapTexture(context, *result, GrTextureParams::ClampNoFilter()));
+        if (!resultTex) {
+            return false;
+        }
+        result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
+    }
+
+    return true;
+}
+#endif
 
 namespace {
 
@@ -696,4 +776,10 @@ SkBaseDevice* SkImageFilter::DeviceProxy::createDevice(int w, int h, TileUsage u
         dev = SkBitmapDevice::Create(cinfo.fInfo, surfaceProps);
     }
     return dev;
+}
+
+bool SkImageFilter::DeviceProxy::filterImage(const SkImageFilter* filter, const SkBitmap& src,
+                                       const SkImageFilter::Context& ctx,
+                                       SkBitmap* result, SkIPoint* offset) {
+    return fDevice->filterImage(filter, src, ctx, result, offset);
 }

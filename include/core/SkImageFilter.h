@@ -116,6 +116,12 @@ public:
 
         virtual SkBaseDevice* createDevice(int width, int height,
                                            TileUsage usage = kNever_TileUsage) = 0;
+
+        // Returns true if the proxy handled the filter itself. If this returns
+        // false then the filter's code will be called.
+        virtual bool filterImage(const SkImageFilter*, const SkBitmap& src,
+                                 const SkImageFilter::Context&,
+                                 SkBitmap* result, SkIPoint* offset) = 0;
     };
 
     class DeviceProxy : public Proxy {
@@ -124,6 +130,11 @@ public:
 
         SkBaseDevice* createDevice(int width, int height,
                                    TileUsage usage = kNever_TileUsage) override;
+
+        // Returns true if the proxy handled the filter itself. If this returns
+        // false then the filter's code will be called.
+        bool filterImage(const SkImageFilter*, const SkBitmap& src, const SkImageFilter::Context&,
+                         SkBitmap* result, SkIPoint* offset) override;
 
     private:
         SkBaseDevice* fDevice;
@@ -163,6 +174,31 @@ public:
      */
     SkIRect filterBounds(const SkIRect& src, const SkMatrix& ctm,
                          MapDirection = kReverse_MapDirection) const;
+
+    /**
+     *  Returns true if the filter can be processed on the GPU.  This is most
+     *  often used for multi-pass effects, where intermediate results must be
+     *  rendered to textures.  For single-pass effects, use asFragmentProcessor().
+     *  The default implementation returns asFragmentProcessor(NULL, NULL, SkMatrix::I(),
+     *  SkIRect()).
+     */
+    virtual bool canFilterImageGPU() const { return false; }
+
+    /**
+     *  Process this image filter on the GPU.  This is most often used for
+     *  multi-pass effects, where intermediate results must be rendered to
+     *  textures.  For single-pass effects, use asFragmentProcessor().  src is the
+     *  source image for processing, as a texture-backed bitmap.  result is
+     *  the destination bitmap, which should contain a texture-backed pixelref
+     *  on success.  offset is the amount to translate the resulting image
+     *  relative to the src when it is drawn. The default implementation does
+     *  single-pass processing using asFragmentProcessor().
+     */
+    virtual bool filterImageGPUDeprecated(Proxy*, const SkBitmap&, const Context&,
+                                          SkBitmap*, SkIPoint*) const {
+        SkASSERT(false);
+        return false;
+    }
 
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context, 
@@ -261,6 +297,18 @@ public:
                                       SkSpecialImage* src,
                                       const Context&, 
                                       SkIPoint* offset) const;
+
+#if SK_SUPPORT_GPU
+    // Helper function which invokes GPU filter processing on the
+    // input at the specified "index". If the input is null, it leaves
+    // "result" and "offset" untouched, and returns true. If the input
+    // has a GPU implementation, it will be invoked directly.
+    // Otherwise, the filter will be processed in software and
+    // uploaded to the GPU.
+    bool filterInputGPUDeprecated(int index, SkImageFilter::Proxy* proxy,
+                                  const SkBitmap& src, const Context&,
+                                  SkBitmap* result, SkIPoint* offset) const;
+#endif
 
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
@@ -392,6 +440,9 @@ protected:
      *  which are not capable of processing a smaller source bitmap into a
      *  larger destination.
      */
+    bool applyCropRectDeprecated(const Context&, Proxy* proxy, const SkBitmap& src,
+                                 SkIPoint* srcOffset, SkIRect* bounds, SkBitmap* result) const;
+
     sk_sp<SkSpecialImage> applyCropRect(const Context&, SkSpecialImage* src, SkIPoint* srcOffset,
                                         SkIRect* bounds) const;
 

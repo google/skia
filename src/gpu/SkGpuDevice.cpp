@@ -1159,6 +1159,25 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     }
 }
 
+bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
+                                int width, int height,
+                                const SkImageFilter* filter,
+                                const SkImageFilter::Context& ctx,
+                                SkBitmap* result, SkIPoint* offset) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(filter);
+
+    SkImageFilter::DeviceProxy proxy(this);
+
+    if (filter->canFilterImageGPU()) {
+        SkBitmap bm;
+        GrWrapTextureInBitmap(texture, width, height, false, &bm);
+        return filter->filterImageGPUDeprecated(&proxy, bm, ctx, result, offset);
+    } else {
+        return false;
+    }
+}
+
 void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                              int left, int top, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -1184,7 +1203,34 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     bool alphaOnly = kAlpha_8_SkColorType == bitmap.colorType();
 
-    SkASSERT(!paint.getImageFilter());
+    SkImageFilter* filter = paint.getImageFilter();
+    // This bitmap will own the filtered result as a texture.
+    SkBitmap filteredBitmap;
+
+    if (filter) {
+        SkIPoint offset = SkIPoint::Make(0, 0);
+        SkMatrix matrix(*draw.fMatrix);
+        matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
+        SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-left, -top);
+        SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
+        // This cache is transient, and is freed (along with all its contained
+        // textures) when it goes out of scope.
+        SkImageFilter::Context ctx(matrix, clipBounds, cache);
+        if (this->filterTexture(fContext, texture, w, h, filter, ctx, &filteredBitmap,
+                                &offset)) {
+            texture = (GrTexture*) filteredBitmap.getTexture();
+            offX = filteredBitmap.pixelRefOrigin().fX;
+            offY = filteredBitmap.pixelRefOrigin().fY;
+            w = filteredBitmap.width();
+            h = filteredBitmap.height();
+            left += offset.x();
+            top += offset.y();
+        } else {
+            return;
+        }
+        SkASSERT(!GrPixelConfigIsAlphaOnly(texture->config()));
+        alphaOnly = false;
+    }
 
     GrPaint grPaint;
     SkAutoTUnref<const GrFragmentProcessor> fp(
@@ -1320,7 +1366,30 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     int w = ii.width();
     int h = ii.height();
 
-    SkASSERT(!paint.getImageFilter());
+    SkImageFilter* filter = paint.getImageFilter();
+    // This bitmap will own the filtered result as a texture.
+    SkBitmap filteredBitmap;
+
+    if (filter) {
+        SkIPoint offset = SkIPoint::Make(0, 0);
+        SkMatrix matrix(*draw.fMatrix);
+        matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+        SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-x, -y);
+        // This cache is transient, and is freed (along with all its contained
+        // textures) when it goes out of scope.
+        SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
+        SkImageFilter::Context ctx(matrix, clipBounds, cache);
+        if (this->filterTexture(fContext, devTex, device->width(), device->height(),
+                                filter, ctx, &filteredBitmap, &offset)) {
+            devTex = filteredBitmap.getTexture();
+            w = filteredBitmap.width();
+            h = filteredBitmap.height();
+            x += offset.fX;
+            y += offset.fY;
+        } else {
+            return;
+        }
+    }
 
     GrPaint grPaint;
     SkAutoTUnref<const GrFragmentProcessor> fp(
@@ -1348,6 +1417,37 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
                                     SK_Scalar1 * h / devTex->height());
 
     fDrawContext->fillRectToRect(fClip, grPaint, SkMatrix::I(), dstRect, srcRect);
+}
+
+bool SkGpuDevice::canHandleImageFilter(const SkImageFilter* filter) {
+    ASSERT_SINGLE_OWNER
+    return filter->canFilterImageGPU();
+}
+
+bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
+                              const SkImageFilter::Context& ctx,
+                              SkBitmap* result, SkIPoint* offset) {
+    ASSERT_SINGLE_OWNER
+    // want explicitly our impl, so guard against a subclass of us overriding it
+    if (!this->SkGpuDevice::canHandleImageFilter(filter)) {
+        return false;
+    }
+
+    SkAutoLockPixels alp(src, !src.getTexture());
+    if (!src.getTexture() && !src.readyToDraw()) {
+        return false;
+    }
+
+    GrTexture* texture;
+    // We assume here that the filter will not attempt to tile the src. Otherwise, this cache lookup
+    // must be pushed upstack.
+    AutoBitmapTexture abt(fContext, src, GrTextureParams::ClampNoFilter(), &texture);
+    if (!texture) {
+        return false;
+    }
+
+    return this->filterTexture(fContext, texture, src.width(), src.height(),
+                               filter, ctx, result, offset);
 }
 
 void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
@@ -1836,11 +1936,15 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 #endif
 }
 
+SkImageFilter::Cache* SkGpuDevice::NewImageFilterCache() {
+    return SkImageFilter::Cache::Create(kDefaultImageFilterCacheSize);
+}
+
 SkImageFilter::Cache* SkGpuDevice::getImageFilterCache() {
     ASSERT_SINGLE_OWNER
     // We always return a transient cache, so it is freed after each
     // filter traversal.
-    return SkImageFilter::Cache::Create(kDefaultImageFilterCacheSize);
+    return SkGpuDevice::NewImageFilterCache();
 }
 
 #endif
