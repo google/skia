@@ -15,6 +15,16 @@
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
+sk_sp<SkImageFilter> SkOffsetImageFilter::Make(SkScalar dx, SkScalar dy,
+                                               sk_sp<SkImageFilter> input,
+                                               const CropRect* cropRect) {
+    if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
+        return nullptr;
+    }
+
+    return sk_sp<SkImageFilter>(new SkOffsetImageFilter(dx, dy, std::move(input), cropRect));
+}
+
 sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
                                                          const Context& ctx,
                                                          SkIPoint* offset) const {

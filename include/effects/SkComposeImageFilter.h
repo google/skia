@@ -12,16 +12,8 @@
 
 class SK_API SkComposeImageFilter : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> outer, sk_sp<SkImageFilter> inner) {
-        if (!outer) {
-            return inner;
-        }
-        if (!inner) {
-            return outer;
-        }
-        sk_sp<SkImageFilter> inputs[2] = { std::move(outer), std::move(inner) };
-        return sk_sp<SkImageFilter>(new SkComposeImageFilter(inputs));
-    }
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> outer, sk_sp<SkImageFilter> inner);
+
     SkRect computeFastBounds(const SkRect& src) const override;
 
     SK_TO_STRING_OVERRIDE()

@@ -14,6 +14,17 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+sk_sp<SkImageFilter> SkDownSampleImageFilter::Make(SkScalar scale, sk_sp<SkImageFilter> input) {
+    if (!SkScalarIsFinite(scale)) {
+        return nullptr;
+    }
+    // we don't support scale in this range
+    if (scale > SK_Scalar1 || scale <= 0) {
+        return nullptr;
+    }
+    return sk_sp<SkImageFilter>(new SkDownSampleImageFilter(scale, std::move(input)));
+}
+
 sk_sp<SkSpecialImage> SkDownSampleImageFilter::onFilterImage(SkSpecialImage* source,
                                                              const Context& ctx,
                                                              SkIPoint* offset) const {

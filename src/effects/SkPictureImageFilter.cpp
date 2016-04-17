@@ -14,6 +14,27 @@
 #include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
+sk_sp<SkImageFilter> SkPictureImageFilter::Make(sk_sp<SkPicture> picture) {
+    return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture)));
+}
+
+sk_sp<SkImageFilter> SkPictureImageFilter::Make(sk_sp<SkPicture> picture,
+                                                const SkRect& cropRect) {
+    return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture), 
+                                                         cropRect,
+                                                         kDeviceSpace_PictureResolution,
+                                                         kLow_SkFilterQuality));
+}
+
+sk_sp<SkImageFilter> SkPictureImageFilter::MakeForLocalSpace(sk_sp<SkPicture> picture,
+                                                             const SkRect& cropRect,
+                                                             SkFilterQuality filterQuality) {
+    return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture),
+                                                         cropRect,
+                                                         kLocalSpace_PictureResolution,
+                                                         filterQuality));
+}
+
 SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
     : INHERITED(nullptr, 0, nullptr)
     , fPicture(std::move(picture))

@@ -11,6 +11,17 @@
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
 
+sk_sp<SkImageFilter> SkComposeImageFilter::Make(sk_sp<SkImageFilter> outer,
+                                                sk_sp<SkImageFilter> inner) {
+    if (!outer) {
+        return inner;
+    }
+    if (!inner) {
+        return outer;
+    }
+    sk_sp<SkImageFilter> inputs[2] = { std::move(outer), std::move(inner) };
+    return sk_sp<SkImageFilter>(new SkComposeImageFilter(inputs));
+}
 
 SkRect SkComposeImageFilter::computeFastBounds(const SkRect& src) const {
     SkImageFilter* outer = this->getInput(0);

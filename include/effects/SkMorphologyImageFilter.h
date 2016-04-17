@@ -57,14 +57,7 @@ class SK_API SkDilateImageFilter : public SkMorphologyImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(int radiusX, int radiusY,
                                      sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr) {
-        if (radiusX < 0 || radiusY < 0) {
-            return nullptr;
-        }
-        return sk_sp<SkImageFilter>(new SkDilateImageFilter(radiusX, radiusY,
-                                                            std::move(input),
-                                                            cropRect));
-    }
+                                     const CropRect* cropRect = nullptr);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
@@ -96,14 +89,7 @@ class SK_API SkErodeImageFilter : public SkMorphologyImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(int radiusX, int radiusY,
                                      sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr) {
-        if (radiusX < 0 || radiusY < 0) {
-            return nullptr;
-        }
-        return sk_sp<SkImageFilter>(new SkErodeImageFilter(radiusX, radiusY,
-                                                           std::move(input),
-                                                           cropRect));
-    }
+                                     const CropRect* cropRect = nullptr);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)

@@ -13,13 +13,9 @@
 
 class SK_API SkBlurImageFilter : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(SkScalar sigmaX, SkScalar sigmaY, sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr) {
-        if (0 == sigmaX && 0 == sigmaY && nullptr == cropRect) {
-            return input;
-        }
-        return sk_sp<SkImageFilter>(new SkBlurImageFilter(sigmaX, sigmaY, input, cropRect));
-    }
+    static sk_sp<SkImageFilter> Make(SkScalar sigmaX, SkScalar sigmaY,
+                                     sk_sp<SkImageFilter> input,
+                                     const CropRect* cropRect = nullptr);
 
     SkRect computeFastBounds(const SkRect&) const override;
 

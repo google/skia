@@ -15,13 +15,7 @@ class SK_API SkOffsetImageFilter : public SkImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy,
                                      sk_sp<SkImageFilter> input,
-                                     const CropRect* cropRect = nullptr) {
-        if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
-            return nullptr;
-        }
-
-        return sk_sp<SkImageFilter>(new SkOffsetImageFilter(dx, dy, std::move(input), cropRect));
-    }
+                                     const CropRect* cropRect = nullptr);
 
     SkRect computeFastBounds(const SkRect& src) const override;
 

@@ -10,6 +10,20 @@
 #include "SkSpecialImage.h"
 #include "SkString.h"
 
+sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localM,
+                                                    sk_sp<SkImageFilter> input) {
+    if (!input) {
+        return nullptr;
+    }
+    if (localM.getType() & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
+        return nullptr;
+    }
+    if (localM.isIdentity()) {
+        return input;
+    }
+    return sk_sp<SkImageFilter>(new SkLocalMatrixImageFilter(localM, input));
+}
+
 SkLocalMatrixImageFilter::SkLocalMatrixImageFilter(const SkMatrix& localM,
                                                    sk_sp<SkImageFilter> input)
     : INHERITED(&input, 1, nullptr)

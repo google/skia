@@ -28,6 +28,29 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #endif
 
+sk_sp<SkImageFilter> SkDilateImageFilter::Make(int radiusX, int radiusY,
+                                               sk_sp<SkImageFilter> input,
+                                               const CropRect* cropRect) {
+    if (radiusX < 0 || radiusY < 0) {
+        return nullptr;
+    }
+    return sk_sp<SkImageFilter>(new SkDilateImageFilter(radiusX, radiusY,
+                                                        std::move(input),
+                                                        cropRect));
+}
+
+
+sk_sp<SkImageFilter> SkErodeImageFilter::Make(int radiusX, int radiusY,
+                                              sk_sp<SkImageFilter> input,
+                                              const CropRect* cropRect) {
+    if (radiusX < 0 || radiusY < 0) {
+        return nullptr;
+    }
+    return sk_sp<SkImageFilter>(new SkErodeImageFilter(radiusX, radiusY,
+                                                       std::move(input),
+                                                       cropRect));
+}
+
 SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
                                                  int radiusY,
                                                  sk_sp<SkImageFilter> input,

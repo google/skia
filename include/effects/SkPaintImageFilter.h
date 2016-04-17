@@ -22,9 +22,7 @@ public:
      *                not specified, the source primitive's bounds are used
      *                instead.
      */
-    static sk_sp<SkImageFilter> Make(const SkPaint& paint, const CropRect* cropRect = nullptr) {
-        return sk_sp<SkImageFilter>(new SkPaintImageFilter(paint, cropRect));
-    }
+    static sk_sp<SkImageFilter> Make(const SkPaint& paint, const CropRect* cropRect = nullptr);
 
     bool affectsTransparentBlack() const override;
 

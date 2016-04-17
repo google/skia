@@ -14,6 +14,22 @@
 #include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
+sk_sp<SkImageFilter> SkMergeImageFilter::Make(sk_sp<SkImageFilter> first,
+                                              sk_sp<SkImageFilter> second,
+                                              SkXfermode::Mode mode,
+                                              const CropRect* cropRect) {
+    sk_sp<SkImageFilter> inputs[2] = { first, second };
+    SkXfermode::Mode modes[2] = { mode, mode };
+    return sk_sp<SkImageFilter>(new SkMergeImageFilter(inputs, 2, modes, cropRect));
+}
+
+sk_sp<SkImageFilter> SkMergeImageFilter::Make(sk_sp<SkImageFilter> filters[],
+                                              int count,
+                                              const SkXfermode::Mode modes[],
+                                              const CropRect* cropRect) {
+    return sk_sp<SkImageFilter>(new SkMergeImageFilter(filters, count, modes, cropRect));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMergeImageFilter::initAllocModes() {

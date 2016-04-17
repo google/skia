@@ -14,6 +14,17 @@
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
+sk_sp<SkImageFilter> SkDropShadowImageFilter::Make(SkScalar dx, SkScalar dy,
+                                                   SkScalar sigmaX, SkScalar sigmaY,
+                                                   SkColor color, ShadowMode shadowMode,
+                                                   sk_sp<SkImageFilter> input,
+                                                   const CropRect* cropRect) {
+    return sk_sp<SkImageFilter>(new SkDropShadowImageFilter(dx, dy, sigmaX, sigmaY, 
+                                                            color, shadowMode,
+                                                            std::move(input),
+                                                            cropRect));
+}
+
 SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy,
                                                  SkScalar sigmaX, SkScalar sigmaY, SkColor color,
                                                  ShadowMode shadowMode, sk_sp<SkImageFilter> input,

@@ -16,20 +16,13 @@ public:
     /**
      *  Refs the passed-in picture.
      */
-    static sk_sp<SkImageFilter> Make(sk_sp<SkPicture> picture) {
-        return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture)));
-    }
+    static sk_sp<SkImageFilter> Make(sk_sp<SkPicture> picture);
 
     /**
      *  Refs the passed-in picture. cropRect can be used to crop or expand the destination rect when
      *  the picture is drawn. (No scaling is implied by the dest rect; only the CTM is applied.)
      */
-    static sk_sp<SkImageFilter> Make(sk_sp<SkPicture> picture, const SkRect& cropRect) {
-        return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture), 
-                                                             cropRect,
-                                                             kDeviceSpace_PictureResolution,
-                                                             kLow_SkFilterQuality));
-    }
+    static sk_sp<SkImageFilter> Make(sk_sp<SkPicture> picture, const SkRect& cropRect);
 
     /**
      *  Refs the passed-in picture. The picture is rasterized at a resolution that matches the
@@ -40,12 +33,7 @@ public:
      */
     static sk_sp<SkImageFilter> MakeForLocalSpace(sk_sp<SkPicture> picture,
                                                   const SkRect& cropRect,
-                                                  SkFilterQuality filterQuality) {
-        return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture),
-                                                             cropRect,
-                                                             kLocalSpace_PictureResolution,
-                                                             filterQuality));
-    }
+                                                  SkFilterQuality filterQuality);
 
 #ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
     static SkImageFilter* Create(const SkPicture* picture) {

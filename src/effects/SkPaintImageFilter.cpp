@@ -12,6 +12,11 @@
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
+sk_sp<SkImageFilter> SkPaintImageFilter::Make(const SkPaint& paint,
+                                              const CropRect* cropRect) {
+    return sk_sp<SkImageFilter>(new SkPaintImageFilter(paint, cropRect));
+}
+
 SkPaintImageFilter::SkPaintImageFilter(const SkPaint& paint, const CropRect* cropRect)
     : INHERITED(nullptr, 0, cropRect)
     , fPaint(paint) {

@@ -20,6 +20,15 @@
 #include "SkGr.h"
 #endif
 
+sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY, 
+                                             sk_sp<SkImageFilter> input,
+                                             const CropRect* cropRect) {
+    if (0 == sigmaX && 0 == sigmaY && !cropRect) {
+        return input;
+    }
+    return sk_sp<SkImageFilter>(new SkBlurImageFilter(sigmaX, sigmaY, input, cropRect));
+}
+
 // This rather arbitrary-looking value results in a maximum box blur kernel size
 // of 1000 pixels on the raster path, which matches the WebKit and Firefox
 // implementations. Since the GPU path does not compute a box blur, putting

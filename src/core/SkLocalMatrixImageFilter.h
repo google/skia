@@ -16,18 +16,7 @@
  */
 class SkLocalMatrixImageFilter : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(const SkMatrix& localM, sk_sp<SkImageFilter> input) {
-        if (!input) {
-            return nullptr;
-        }
-        if (localM.getType() & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
-            return nullptr;
-        }
-        if (localM.isIdentity()) {
-            return input;
-        }
-        return sk_sp<SkImageFilter>(new SkLocalMatrixImageFilter(localM, input));
-    }
+    static sk_sp<SkImageFilter> Make(const SkMatrix& localM, sk_sp<SkImageFilter> input);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixImageFilter)
