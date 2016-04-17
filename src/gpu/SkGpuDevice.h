@@ -130,17 +130,6 @@ public:
     const SkBitmap& onAccessBitmap() override;
     bool onAccessPixels(SkPixmap*) override;
 
-    bool canHandleImageFilter(const SkImageFilter*) override;
-    virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
-                             const SkImageFilter::Context&,
-                             SkBitmap*, SkIPoint*) override;
-
-    bool filterTexture(GrContext*, GrTexture*, int width, int height, const SkImageFilter*,
-                       const SkImageFilter::Context&,
-                       SkBitmap* result, SkIPoint* offset);
-
-    static SkImageFilter::Cache* NewImageFilterCache();
-
     // for debugging purposes only
     void drawTexture(GrTexture*, const SkRect& dst, const SkPaint&);
 

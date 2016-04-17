@@ -1408,7 +1408,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
         paint = &looper.paint();
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
-        if (filter && !dstDev->canHandleImageFilter(filter)) {
+        if (filter) {
             SkImageFilter::DeviceProxy proxy(dstDev);
             SkIPoint offset = SkIPoint::Make(0, 0);
             const SkBitmap& srcBM = srcDev->accessBitmap(false);
