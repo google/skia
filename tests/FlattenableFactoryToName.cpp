@@ -7,6 +7,7 @@
 
 #include "SkAlphaThresholdFilter.h"
 #include "SkImage.h"
+#include "SkRegion.h"
 #include "Test.h"
 
 static void test_flattenable(skiatest::Reporter* r,

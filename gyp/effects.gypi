@@ -13,6 +13,8 @@
   'sources': [
     '<(skia_src_path)/effects/GrCircleBlurFragmentProcessor.cpp',
     '<(skia_src_path)/effects/GrCircleBlurFragmentProcessor.h',
+    '<(skia_src_path)/effects/GrAlphaThresholdFragmentProcessor.cpp',
+    '<(skia_src_path)/effects/GrAlphaThresholdFragmentProcessor.h',
 
     '<(skia_src_path)/effects/Sk1DPathEffect.cpp',
     '<(skia_src_path)/effects/Sk2DPathEffect.cpp',

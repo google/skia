@@ -9,7 +9,8 @@
 #define SkAlphaThresholdFilter_DEFINED
 
 #include "SkImageFilter.h"
-#include "SkRegion.h"
+
+class SkRegion;
 
 class SK_API SkAlphaThresholdFilter {
 public:
