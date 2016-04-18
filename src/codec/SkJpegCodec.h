@@ -86,13 +86,13 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      *
-     * @param srcInfo contains the source width and height
+     * @param info contains properties of the encoded data
      * @param stream the encoded image data
      * @param decoderMgr holds decompress struct, src manager, and error manager
      *                   takes ownership
      */
-    SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr,
-            sk_sp<SkColorSpace> colorSpace, Origin origin);
+    SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
 
     /*
      * Checks if the conversion between the input image and the requested output

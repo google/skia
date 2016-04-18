@@ -279,7 +279,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 //      png_structp on success.
 // @param info_ptrp Optional output variable. If non-NULL, will be set to a new
 //      png_infop on success;
-// @param imageInfo Optional output variable. If non-NULL, will be set to
+// @param info Optional output variable. If non-NULL, will be set to
 //      reflect the properties of the encoded image on success.
 // @param bitDepthPtr Optional output variable. If non-NULL, will be set to the
 //      bit depth of the encoded image on success.
@@ -290,7 +290,8 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 //      If it returns false, the passed in fields (except stream) are unchanged.
 static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
                         png_structp* png_ptrp, png_infop* info_ptrp,
-                        SkImageInfo* imageInfo, int* bitDepthPtr, int* numberPassesPtr) {
+                        int* width, int* height, SkEncodedInfo* info, int* bitDepthPtr,
+                        int* numberPassesPtr) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                                  sk_error_fn, sk_warning_fn);
@@ -348,8 +349,8 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
     // Now determine the default colorType and alphaType and set the required transforms.
     // Often, we depend on SkSwizzler to perform any transforms that we need.  However, we
     // still depend on libpng for many of the rare and PNG-specific cases.
-    SkColorType colorType = kUnknown_SkColorType;
-    SkAlphaType alphaType = kUnknown_SkAlphaType;
+    SkEncodedInfo::Color color;
+    SkEncodedInfo::Alpha alpha;
     switch (encodedColorType) {
         case PNG_COLOR_TYPE_PALETTE:
             // Extract multiple pixels with bit depths of 1, 2, and 4 from a single
@@ -359,20 +360,21 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
                 png_set_packing(png_ptr);
             }
 
-            colorType = kIndex_8_SkColorType;
-            // Set the alpha type depending on if a transparency chunk exists.
-            alphaType = png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ?
-                    kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
+            color = SkEncodedInfo::kPalette_Color;
+            // Set the alpha depending on if a transparency chunk exists.
+            alpha = png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ?
+                    SkEncodedInfo::kUnpremul_Alpha : SkEncodedInfo::kOpaque_Alpha;
             break;
         case PNG_COLOR_TYPE_RGB:
             if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
                 // Convert to RGBA if transparency chunk exists.
                 png_set_tRNS_to_alpha(png_ptr);
-                alphaType = kUnpremul_SkAlphaType;
+                color = SkEncodedInfo::kRGBA_Color;
+                alpha = SkEncodedInfo::kBinary_Alpha;
             } else {
-                alphaType = kOpaque_SkAlphaType;
+                color = SkEncodedInfo::kRGB_Color;
+                alpha = SkEncodedInfo::kOpaque_Alpha;
             }
-            colorType = kN32_SkColorType;
             break;
         case PNG_COLOR_TYPE_GRAY:
             // Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel.
@@ -383,29 +385,26 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
 
             if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
                 png_set_tRNS_to_alpha(png_ptr);
-
-                // We will recommend kN32 here since we do not support kGray
-                // with alpha.
-                colorType = kN32_SkColorType;
-                alphaType = kUnpremul_SkAlphaType;
+                color = SkEncodedInfo::kGrayAlpha_Color;
+                alpha = SkEncodedInfo::kBinary_Alpha;
             } else {
-                colorType = kGray_8_SkColorType;
-                alphaType = kOpaque_SkAlphaType;
+                color = SkEncodedInfo::kGray_Color;
+                alpha = SkEncodedInfo::kOpaque_Alpha;
             }
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-            // We will recommend kN32 here since we do not support anything
-            // similar to GRAY_ALPHA.
-            colorType = kN32_SkColorType;
-            alphaType = kUnpremul_SkAlphaType;
+            color = SkEncodedInfo::kGrayAlpha_Color;
+            alpha = SkEncodedInfo::kUnpremul_Alpha;
             break;
         case PNG_COLOR_TYPE_RGBA:
-            colorType = kN32_SkColorType;
-            alphaType = kUnpremul_SkAlphaType;
+            color = SkEncodedInfo::kRGBA_Color;
+            alpha = SkEncodedInfo::kUnpremul_Alpha;
             break;
         default:
             // All the color types have been covered above.
             SkASSERT(false);
+            color = SkEncodedInfo::kRGBA_Color;
+            alpha = SkEncodedInfo::kUnpremul_Alpha;
     }
 
     int numberPasses = png_set_interlace_handling(png_ptr);
@@ -413,13 +412,14 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
         *numberPassesPtr = numberPasses;
     }
 
-    SkColorProfileType profileType = kLinear_SkColorProfileType;
-    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_sRGB)) {
-        profileType = kSRGB_SkColorProfileType;
+    if (info) {
+        *info = SkEncodedInfo::Make(color, alpha, 8);
     }
-
-    if (imageInfo) {
-        *imageInfo = SkImageInfo::Make(origWidth, origHeight, colorType, alphaType, profileType);
+    if (width) {
+        *width = origWidth;
+    }
+    if (height) {
+        *height = origHeight;
     }
     autoClean.release();
     if (png_ptrp) {
@@ -432,10 +432,10 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
     return true;
 }
 
-SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream, SkPngChunkReader* chunkReader,
-                       png_structp png_ptr, png_infop info_ptr, int bitDepth, int numberPasses,
-                       sk_sp<SkColorSpace> colorSpace)
-    : INHERITED(info, stream, colorSpace)
+SkPngCodec::SkPngCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+                       SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
+                       int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
+    : INHERITED(width, height, info, stream, colorSpace)
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
@@ -538,7 +538,7 @@ bool SkPngCodec::onRewind() {
     png_structp png_ptr;
     png_infop info_ptr;
     if (!read_header(this->stream(), fPngChunkReader.get(), &png_ptr, &info_ptr,
-                     nullptr, nullptr, nullptr)) {
+                     nullptr, nullptr, nullptr, nullptr, nullptr)) {
         return false;
     }
 
@@ -644,10 +644,11 @@ uint32_t SkPngCodec::onGetFillValue(SkColorType colorType) const {
 // Subclass of SkPngCodec which supports scanline decoding
 class SkPngScanlineDecoder : public SkPngCodec {
 public:
-    SkPngScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
+    SkPngScanlineDecoder(int width, int height, const SkEncodedInfo& info, SkStream* stream,
             SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr, int bitDepth,
             sk_sp<SkColorSpace> colorSpace)
-        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1, colorSpace)
+        : INHERITED(width, height, info, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1,
+                    colorSpace)
         , fSrcRow(nullptr)
     {}
 
@@ -710,11 +711,11 @@ private:
 
 class SkPngInterlacedScanlineDecoder : public SkPngCodec {
 public:
-    SkPngInterlacedScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
-            SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
-        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, numberPasses,
-                    colorSpace)
+    SkPngInterlacedScanlineDecoder(int width, int height, const SkEncodedInfo& info,
+            SkStream* stream, SkPngChunkReader* chunkReader, png_structp png_ptr,
+            png_infop info_ptr, int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
+        : INHERITED(width, height, info, stream, chunkReader, png_ptr, info_ptr, bitDepth,
+                    numberPasses, colorSpace)
         , fHeight(-1)
         , fCanSkipRewind(false)
     {
@@ -836,23 +837,24 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkRead
     SkAutoTDelete<SkStream> streamDeleter(stream);
     png_structp png_ptr;
     png_infop info_ptr;
-    SkImageInfo imageInfo;
+    int width, height;
+    SkEncodedInfo imageInfo;
     int bitDepth;
     int numberPasses;
 
-    if (!read_header(stream, chunkReader, &png_ptr, &info_ptr, &imageInfo, &bitDepth,
-                     &numberPasses)) {
+    if (!read_header(stream, chunkReader, &png_ptr, &info_ptr, &width, &height, &imageInfo,
+                     &bitDepth, &numberPasses)) {
         return nullptr;
     }
 
     auto colorSpace = read_color_space(png_ptr, info_ptr);
 
     if (1 == numberPasses) {
-        return new SkPngScanlineDecoder(imageInfo, streamDeleter.release(), chunkReader,
-                                        png_ptr, info_ptr, bitDepth, colorSpace);
+        return new SkPngScanlineDecoder(width, height, imageInfo, streamDeleter.release(),
+                                        chunkReader, png_ptr, info_ptr, bitDepth, colorSpace);
     }
 
-    return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.release(), chunkReader,
-                                              png_ptr, info_ptr, bitDepth, numberPasses,
-                                              colorSpace);
+    return new SkPngInterlacedScanlineDecoder(width, height, imageInfo, streamDeleter.release(),
+                                              chunkReader, png_ptr, info_ptr, bitDepth,
+                                              numberPasses, colorSpace);
 }

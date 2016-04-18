@@ -44,7 +44,7 @@ private:
      */
     bool readRow(uint8_t* row);
 
-    SkWbmpCodec(const SkImageInfo&, SkStream*);
+    SkWbmpCodec(int width, int height, const SkEncodedInfo&, SkStream*);
 
     const size_t                 fSrcRowBytes;
 

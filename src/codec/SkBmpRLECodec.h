@@ -23,7 +23,7 @@ public:
      * Called only by SkBmpCodec::NewFromStream
      * There should be no other callers despite this being public
      *
-     * @param srcInfo contains the source width and height
+     * @param info contains properties of the encoded data
      * @param stream the stream of encoded image data
      * @param bitsPerPixel the number of bits used to store each pixel
      * @param numColors the number of colors in the color table
@@ -35,7 +35,7 @@ public:
      * @param RLEBytes indicates the amount of data left in the stream
      *                 after decoding the headers
      */
-    SkBmpRLECodec(const SkImageInfo& srcInfo, SkStream* stream,
+    SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
             uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
             uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
             size_t RLEBytes);
