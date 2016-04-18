@@ -47,8 +47,9 @@ public:
         virtual SkSpecialImage* get(const Key& key, SkIPoint* offset) const = 0;
         virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
         virtual void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) = 0;
-        virtual void purge() {}
-        virtual void purgeByKeys(const Key[], int) {}
+        virtual void purge() = 0;
+        virtual void purgeByKeys(const Key[], int) = 0;
+        SkDEBUGCODE(virtual int count() const = 0;)
     };
 
     class Context {

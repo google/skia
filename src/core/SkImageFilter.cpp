@@ -646,6 +646,7 @@ public:
         }
     }
 
+    SkDEBUGCODE(int count() const override { return fLookup.count(); })
 private:
     void removeInternal(Value* v) {
         if (v->fImage) {

@@ -113,6 +113,7 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
     SkIPoint offset = SkIPoint::Make(3, 4);
     cache->set(key1, image.get(), offset);
     cache->set(key2, image.get(), offset);
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->count());)
 
     SkIPoint foundOffset;
 
@@ -120,11 +121,13 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
 
     cache->purgeByKeys(&key1, 1);
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, 1 == cache->count());)
 
     REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
     REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
 
     cache->purge();
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, 0 == cache->count());)
 
     REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
     REPORTER_ASSERT(reporter, !cache->get(key2, &foundOffset));
