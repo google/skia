@@ -40,16 +40,6 @@ SK_API sk_image_t* sk_image_new_from_encoded(const sk_data_t* encoded, const sk_
 SK_API sk_data_t* sk_image_encode(const sk_image_t*);
 
 /**
- *  Encode the image's pixels using the specified format and quality
- *  and return the result as a new image in a
- *  sk_data_t, which the caller must manage: call sk_data_unref() when
- *  they are done.
- *
- *  If the image type cannot be encoded, this will return NULL.
- */
-SK_API sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_image_encoder_t encoder, int quality);
-
-/**
  *  Increment the reference count on the given sk_image_t. Must be
  *  balanced by a call to sk_image_unref().
 */
