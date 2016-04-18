@@ -34,7 +34,9 @@
         'whitelist_typefaces',
       ],
       'conditions': [
-        # ['skia_os == "linux"', { 'dependencies': [ 'fiddle_build_test' ] } ],
+        ['skia_mesa and skia_os in ["linux", "mac"]',
+          { 'dependencies': [ 'fiddle_build_test' ] }
+        ],
         ['skia_shared_lib',
           {
             'dependencies': [
