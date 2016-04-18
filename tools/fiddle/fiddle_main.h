@@ -7,7 +7,18 @@
 #ifndef fiddle_main_DEFINED
 #define fiddle_main_DEFINED
 
-#include "skia.h"
+#ifdef FIDDLE_BUILD_TEST
+    #include "GrContext.h"
+    #include "SkCanvas.h"
+    #include "SkDocument.h"
+    #include "SkPictureRecorder.h"
+    #include "SkStream.h"
+    #include "SkSurface.h"
+    #include "gl/GrGLAssembleInterface.h"
+    #include "gl/GrGLInterface.h"
+#else
+    #include "skia.h"
+#endif
 
 extern SkBitmap source;
 extern sk_sp<SkImage> image;

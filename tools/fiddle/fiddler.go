@@ -10,7 +10,7 @@ package main
 //   git clone https://skia.googlesource.com/skia.git
 //   cd skia
 //   SKIA=$PWD
-//   cd experimental/fiddle
+//   cd tools/fiddle
 //   go get github.com/skia-dev/glog
 //   go get go.skia.org/infra/go/util
 //   go build fiddler.go
@@ -35,6 +35,9 @@ import (
 	"go.skia.org/infra/go/util"
 )
 
+func fiddlePath() string {
+	return path.Join("tools", "fiddle")
+}
 func setResourceLimits() error {
 	const maximumTimeInSeconds = 5
 	limit := syscall.Rlimit{maximumTimeInSeconds, maximumTimeInSeconds}
@@ -76,7 +79,7 @@ func linkArgs(skiaSrc string) string {
 // @param tempDir: where to place the compiled executable
 func fiddler(skiaSrc string, inputReader io.Reader, output io.Writer, tempDir string) error {
 	binarypath := path.Join(tempDir, "fiddle")
-	fiddle_dir := path.Join(skiaSrc, "experimental", "fiddle")
+	fiddle_dir := path.Join(skiaSrc, fiddlePath())
 	if err := execCommand(inputReader, fiddle_dir,
 		"c++",
 		compileArgs(skiaSrc),
@@ -107,7 +110,7 @@ func fiddlerPrerequisites(skiaSrc string) error {
 	if err := execCommand(nil, cmakeDir, "ninja", "skia"); err != nil {
 		return err
 	}
-	fiddle_dir := path.Join(skiaSrc, "experimental", "fiddle")
+	fiddle_dir := path.Join(skiaSrc, fiddlePath())
 	if err := execCommand(nil, fiddle_dir, "c++", compileArgs(skiaSrc),
 		"fiddle_main.h"); err != nil {
 		return err

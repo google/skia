@@ -34,6 +34,7 @@
         'whitelist_typefaces',
       ],
       'conditions': [
+        ['skia_os == "linux"', { 'dependencies': [ 'fiddle_build_test' ] } ],
         ['skia_shared_lib',
           {
             'dependencies': [
@@ -584,6 +585,27 @@
               'skia_lib.gyp:skia_lib',
               'resources',
             ],
+          },
+        ],
+      },
+    ],
+    ['skia_os == "linux"',
+      {
+        'targets': [
+          {
+            'target_name': 'fiddle_build_test',
+            'type': 'executable',
+            'sources': [
+              '../tools/fiddle/draw.cpp',
+              '../tools/fiddle/fiddle_main.cpp',
+              '../tools/fiddle/fiddle_main.h',
+            ],
+            'dependencies': [
+              'skia_lib.gyp:skia_lib',
+              'pdf.gyp:pdf',
+            ],
+            'defines': [ 'FIDDLE_BUILD_TEST' ],
+            'link_settings': { 'libraries': [ '-lOSMesa' ], },
           },
         ],
       },
