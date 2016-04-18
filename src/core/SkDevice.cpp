@@ -409,33 +409,29 @@ void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitm
     SkImageFilter* filter = paint.getImageFilter();
     SkASSERT(filter);
 
-    if (!this->canHandleImageFilter(filter)) {
-        SkImageFilter::DeviceProxy proxy(this);
-        SkIPoint offset = SkIPoint::Make(0, 0);
-        SkMatrix matrix = *draw.fMatrix;
-        matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-        const SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-x, -y);
-        SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
-        SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+    SkImageFilter::DeviceProxy proxy(this);
+    SkIPoint offset = SkIPoint::Make(0, 0);
+    SkMatrix matrix = *draw.fMatrix;
+    matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+    const SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-x, -y);
+    SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
+    SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
-        sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, bitmap,
-                                                                     &this->surfaceProps()));
-        if (!srcImg) {
-            return; // something disastrous happened
-        }
+    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, bitmap,
+                                                                 &this->surfaceProps()));
+    if (!srcImg) {
+        return; // something disastrous happened
+    }
 
-        sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
-        if (resultImg) {
-            SkPaint tmpUnfiltered(paint);
-            tmpUnfiltered.setImageFilter(nullptr);
-            SkBitmap resultBM;
-            if (resultImg->internal_getBM(&resultBM)) {
-                // TODO: add drawSprite(SkSpecialImage) to SkDevice? (see skbug.com/5073)
-                this->drawSprite(draw, resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
-            }
+    sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
+    if (resultImg) {
+        SkPaint tmpUnfiltered(paint);
+        tmpUnfiltered.setImageFilter(nullptr);
+        SkBitmap resultBM;
+        if (resultImg->internal_getBM(&resultBM)) {
+            // TODO: add drawSprite(SkSpecialImage) to SkDevice? (see skbug.com/5073)
+            this->drawSprite(draw, resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
         }
-    } else {
-        this->drawSprite(draw, bitmap, x, y, paint);
     }
 }
 
