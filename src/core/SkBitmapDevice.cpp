@@ -237,6 +237,7 @@ void SkBitmapDevice::drawPath(const SkDraw& draw, const SkPath& path,
 
 void SkBitmapDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint& paint) {
+    LogDrawScaleFactor(SkMatrix::Concat(*draw.fMatrix, matrix), paint.getFilterQuality());
     draw.drawBitmap(bitmap, matrix, nullptr, paint);
 }
 
@@ -256,6 +257,8 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         tmpSrc = bitmapBounds;
     }
     matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
+
+    LogDrawScaleFactor(SkMatrix::Concat(*draw.fMatrix, matrix), paint.getFilterQuality());
 
     const SkRect* dstPtr = &dst;
     const SkBitmap* bitmapPtr = &bitmap;

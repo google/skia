@@ -137,6 +137,9 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
         }
     }
 
+    // Now that we have both the view and srcToDst matrices, log our scale factor.
+    LogDrawScaleFactor(SkMatrix::Concat(viewMatrix, srcToDstMatrix), paint.getFilterQuality());
+
     this->drawTextureProducerImpl(producer, clippedSrcRect, clippedDstRect, constraint, viewMatrix,
                                   srcToDstMatrix, clip, paint);
 }
