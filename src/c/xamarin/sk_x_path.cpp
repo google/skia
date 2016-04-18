@@ -59,3 +59,18 @@ sk_path_filltype_t sk_path_get_filltype(sk_path_t *cpath) {
     }
     return cfilltype;
 }
+
+void sk_path_transform(sk_path_t* cpath, const sk_matrix_t* cmatrix)
+{
+    SkMatrix matrix;
+    if (cmatrix) {
+        from_c(cmatrix, &matrix);
+    }
+    return as_path(cpath)->transform(matrix);
+}
+
+sk_path_t* sk_path_clone(const sk_path_t* cpath)
+{
+    return (sk_path_t*)new SkPath(AsPath(*cpath));
+}
+

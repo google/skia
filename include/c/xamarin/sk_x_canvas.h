@@ -104,6 +104,12 @@ SK_API void sk_canvas_draw_bitmap_rect(sk_canvas_t* ccanvas, const sk_bitmap_t* 
 SK_API void sk_canvas_reset_matrix(sk_canvas_t* ccanvas);
 SK_API void sk_canvas_set_matrix(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix);
 SK_API void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* cmatrix);
+/**
+    Draw the specified rounded rectangle using the specified paint. The
+    rectangle will be filled or stroked based on the style in the
+    paint.
+*/
+SK_API void sk_canvas_draw_round_rect(sk_canvas_t*, const sk_rect_t*, float rx, float ry, const sk_paint_t*);
 
 SK_C_PLUS_PLUS_END_GUARD
 

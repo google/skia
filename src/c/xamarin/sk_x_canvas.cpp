@@ -113,3 +113,7 @@ void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* cmatrix)
     SkMatrix matrix = AsCanvas(ccanvas)->getTotalMatrix();
     from_sk(&matrix, cmatrix);
 }
+
+void sk_canvas_draw_round_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, float rx, float ry, const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawRoundRect(AsRect(*crect), rx, ry, AsPaint(*cpaint));
+}
