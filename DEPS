@@ -49,10 +49,10 @@ deps = {
   "third_party/externals/microhttpd" : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
 
   # shaderc for the vulkan backend
-  "third_party/externals/shaderc2" : "https://github.com/google/shaderc.git@d63c5e070fa966a33e1d352b2272bd57e1e9da00",
+  "third_party/externals/shaderc2" : "https://github.com/google/shaderc.git@7308a2cacffce47cc944a59b411ab065c01c3f03",
   "third_party/externals/shaderc2/third_party/googletest" : "https://github.com/google/googletest.git@d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0",
-  "third_party/externals/shaderc2/third_party/glslang" : "https://github.com/google/glslang.git@c3869fee412a90c4eadea0bf936ab2530d2dff51",
-  "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@6836e17f243eebfc4a2950faee49ed3a0015b20b",
+  "third_party/externals/shaderc2/third_party/glslang" : "https://github.com/google/glslang.git@e1cd410d9c03a24c00c570c91a99cad88bb475d1",
+  "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@009c4358b5a1c93203166b3ed60a548f63522e81",
 }
 
 deps_os = {
