@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkDropShadowImageFilter_DEFINED
+#define SkDropShadowImageFilter_DEFINED
+
 #include "SkColor.h"
 #include "SkImageFilter.h"
 #include "SkScalar.h"
@@ -48,3 +51,5 @@ private:
 
     typedef SkImageFilter INHERITED;
 };
+
+#endif

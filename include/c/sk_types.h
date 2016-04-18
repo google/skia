@@ -45,6 +45,8 @@ typedef enum {
     RGBA_8888_SK_COLORTYPE,
     BGRA_8888_SK_COLORTYPE,
     ALPHA_8_SK_COLORTYPE,
+    RGB_565_SK_COLORTYPE,
+    N_32_SK_COLORTYPE,
 } sk_colortype_t;
 
 typedef enum {

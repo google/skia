@@ -20,191 +20,22 @@
 #include "sk_image.h"
 #include "sk_paint.h"
 #include "sk_path.h"
+#include "sk_picture.h"
 #include "sk_surface.h"
 #include "sk_types_priv.h"
+#include "xamarin/sk_x_types_priv.h"
 
-const struct {
-    sk_colortype_t  fC;
-    SkColorType     fSK;
-} gColorTypeMap[] = {
-    { UNKNOWN_SK_COLORTYPE,     kUnknown_SkColorType    },
-    { RGBA_8888_SK_COLORTYPE,   kRGBA_8888_SkColorType  },
-    { BGRA_8888_SK_COLORTYPE,   kBGRA_8888_SkColorType  },
-    { ALPHA_8_SK_COLORTYPE,     kAlpha_8_SkColorType    },
-};
-
-const struct {
-    sk_alphatype_t  fC;
-    SkAlphaType     fSK;
-} gAlphaTypeMap[] = {
-    { OPAQUE_SK_ALPHATYPE,      kOpaque_SkAlphaType     },
-    { PREMUL_SK_ALPHATYPE,      kPremul_SkAlphaType     },
-    { UNPREMUL_SK_ALPHATYPE,    kUnpremul_SkAlphaType   },
-};
-
-static bool from_c_colortype(sk_colortype_t cCT, SkColorType* skCT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypeMap); ++i) {
-        if (gColorTypeMap[i].fC == cCT) {
-            if (skCT) {
-                *skCT = gColorTypeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool to_c_colortype(SkColorType skCT, sk_colortype_t* cCT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypeMap); ++i) {
-        if (gColorTypeMap[i].fSK == skCT) {
-            if (cCT) {
-                *cCT = gColorTypeMap[i].fC;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool from_c_alphatype(sk_alphatype_t cAT, SkAlphaType* skAT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlphaTypeMap); ++i) {
-        if (gAlphaTypeMap[i].fC == cAT) {
-            if (skAT) {
-                *skAT = gAlphaTypeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
-    SkColorType ct;
-    SkAlphaType at;
-
-    if (!from_c_colortype(cinfo.colorType, &ct)) {
-        // optionally report error to client?
-        return false;
-    }
-    if (!from_c_alphatype(cinfo.alphaType, &at)) {
-        // optionally report error to client?
-        return false;
-    }
-    if (info) {
-        *info = SkImageInfo::Make(cinfo.width, cinfo.height, ct, at);
-    }
-    return true;
-}
-
-const struct {
-    sk_pixelgeometry_t fC;
-    SkPixelGeometry    fSK;
-} gPixelGeometryMap[] = {
-    { UNKNOWN_SK_PIXELGEOMETRY, kUnknown_SkPixelGeometry },
-    { RGB_H_SK_PIXELGEOMETRY,   kRGB_H_SkPixelGeometry   },
-    { BGR_H_SK_PIXELGEOMETRY,   kBGR_H_SkPixelGeometry   },
-    { RGB_V_SK_PIXELGEOMETRY,   kRGB_V_SkPixelGeometry   },
-    { BGR_V_SK_PIXELGEOMETRY,   kBGR_V_SkPixelGeometry   },
-};
-
-
-static bool from_c_pixelgeometry(sk_pixelgeometry_t cGeom, SkPixelGeometry* skGeom) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPixelGeometryMap); ++i) {
-        if (gPixelGeometryMap[i].fC == cGeom) {
-            if (skGeom) {
-                *skGeom = gPixelGeometryMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
-    matrix->setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
-                   cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
-                   cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
-}
-
-const struct {
-    sk_path_direction_t fC;
-    SkPath::Direction   fSk;
-} gPathDirMap[] = {
-    { CW_SK_PATH_DIRECTION,  SkPath::kCW_Direction },
-    { CCW_SK_PATH_DIRECTION, SkPath::kCCW_Direction },
-};
-
-static bool from_c_path_direction(sk_path_direction_t cdir, SkPath::Direction* dir) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPathDirMap); ++i) {
-        if (gPathDirMap[i].fC == cdir) {
-            if (dir) {
-                *dir = gPathDirMap[i].fSk;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static SkData* AsData(const sk_data_t* cdata) {
-    return reinterpret_cast<SkData*>(const_cast<sk_data_t*>(cdata));
-}
-
-static sk_data_t* ToData(SkData* data) {
-    return reinterpret_cast<sk_data_t*>(data);
-}
-
-static sk_rect_t ToRect(const SkRect& rect) {
-    return reinterpret_cast<const sk_rect_t&>(rect);
-}
-
-static const SkRect& AsRect(const sk_rect_t& crect) {
-    return reinterpret_cast<const SkRect&>(crect);
-}
-
-static const SkPath& AsPath(const sk_path_t& cpath) {
-    return reinterpret_cast<const SkPath&>(cpath);
-}
-
-static SkPath* as_path(sk_path_t* cpath) {
-    return reinterpret_cast<SkPath*>(cpath);
-}
-
-static const SkImage* AsImage(const sk_image_t* cimage) {
-    return reinterpret_cast<const SkImage*>(cimage);
-}
-
-static sk_image_t* ToImage(SkImage* cimage) {
-    return reinterpret_cast<sk_image_t*>(cimage);
-}
-
-static sk_canvas_t* ToCanvas(SkCanvas* canvas) {
-    return reinterpret_cast<sk_canvas_t*>(canvas);
-}
-
-static SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
-    return reinterpret_cast<SkCanvas*>(ccanvas);
-}
-
-static SkPictureRecorder* AsPictureRecorder(sk_picture_recorder_t* crec) {
-    return reinterpret_cast<SkPictureRecorder*>(crec);
-}
-
-static sk_picture_recorder_t* ToPictureRecorder(SkPictureRecorder* rec) {
-    return reinterpret_cast<sk_picture_recorder_t*>(rec);
-}
-
-static const SkPicture* AsPicture(const sk_picture_t* cpic) {
-    return reinterpret_cast<const SkPicture*>(cpic);
-}
-
-static SkPicture* AsPicture(sk_picture_t* cpic) {
-    return reinterpret_cast<SkPicture*>(cpic);
-}
-
-static sk_picture_t* ToPicture(SkPicture* pic) {
-    return reinterpret_cast<sk_picture_t*>(pic);
-}
+// Compat for the moved symbols
+#define from_c_colortype       find_sk
+#define to_c_colortype         find_c
+#define from_c_alphatype       find_sk
+#define to_c_alphatype         find_c
+#define from_c_info            find_sk
+#define from_c_pixelgeometry   find_sk
+#define from_c_path_direction  find_sk
+#define from_c_matrix          from_c
+#define from_c_tilemode        find_sk
+#define find_blurstyle         find_sk
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -325,7 +156,7 @@ void sk_canvas_save(sk_canvas_t* ccanvas) {
 }
 
 void sk_canvas_save_layer(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->drawRect(AsRect(*crect), AsPaint(*cpaint));
+    AsCanvas(ccanvas)->saveLayer(AsRect(crect), AsPaint(cpaint));
 }
 
 void sk_canvas_restore(sk_canvas_t* ccanvas) {
@@ -340,7 +171,7 @@ void sk_canvas_scale(sk_canvas_t* ccanvas, float sx, float sy) {
     AsCanvas(ccanvas)->scale(sx, sy);
 }
 
-void sk_canvas_rotate_degress(sk_canvas_t* ccanvas, float degrees) {
+void sk_canvas_rotate_degrees(sk_canvas_t* ccanvas, float degrees) {
     AsCanvas(ccanvas)->rotate(degrees);
 }
 
@@ -501,27 +332,6 @@ sk_rect_t sk_picture_get_bounds(sk_picture_t* cpic) {
 #include "../../include/effects/SkGradientShader.h"
 #include "sk_shader.h"
 
-const struct {
-    sk_shader_tilemode_t    fC;
-    SkShader::TileMode      fSK;
-} gTileModeMap[] = {
-    { CLAMP_SK_SHADER_TILEMODE,     SkShader::kClamp_TileMode },
-    { REPEAT_SK_SHADER_TILEMODE,    SkShader::kRepeat_TileMode },
-    { MIRROR_SK_SHADER_TILEMODE,    SkShader::kMirror_TileMode  },
-};
-
-static bool from_c_tilemode(sk_shader_tilemode_t cMode, SkShader::TileMode* skMode) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTileModeMap); ++i) {
-        if (cMode == gTileModeMap[i].fC) {
-            if (skMode) {
-                *skMode = gTileModeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
 void sk_shader_ref(sk_shader_t* cshader) {
     SkSafeRef(AsShader(cshader));
 }
@@ -637,28 +447,6 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
 #include "../../include/effects/SkBlurMaskFilter.h"
 #include "sk_maskfilter.h"
 
-const struct {
-    sk_blurstyle_t  fC;
-    SkBlurStyle     fSk;
-} gBlurStylePairs[] = {
-    { NORMAL_SK_BLUR_STYLE, kNormal_SkBlurStyle },
-    { SOLID_SK_BLUR_STYLE,  kSolid_SkBlurStyle },
-    { OUTER_SK_BLUR_STYLE,  kOuter_SkBlurStyle },
-    { INNER_SK_BLUR_STYLE,  kInner_SkBlurStyle },
-};
-
-static bool find_blurstyle(sk_blurstyle_t csrc, SkBlurStyle* dst) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gBlurStylePairs); ++i) {
-        if (gBlurStylePairs[i].fC == csrc) {
-            if (dst) {
-                *dst = gBlurStylePairs[i].fSk;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
 void sk_maskfilter_ref(sk_maskfilter_t* cfilter) {
     SkSafeRef(AsMaskFilter(cfilter));
 }
@@ -676,6 +464,10 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+
+sk_data_t* sk_data_new_empty() {
+    return ToData(SkData::NewEmpty());
+}
 
 sk_data_t* sk_data_new_with_copy(const void* src, size_t length) {
     return ToData(SkData::NewWithCopy(src, length));
