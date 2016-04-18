@@ -64,7 +64,7 @@
         }],
         [ 'skia_os == "android" and skia_use_sdl == 1', {
           'dependencies': [
-            'android_deps.gyp:Android_VisualBenchSDL',
+            'android_deps.gyp:Android_EntryPoint',
           ],
         }],
       ],
