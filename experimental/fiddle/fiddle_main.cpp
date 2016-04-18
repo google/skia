@@ -13,7 +13,7 @@
 
 // Globals externed in fiddle_main.h
 SkBitmap source;
-SkImage* image(nullptr);
+sk_sp<SkImage> image;
 
 static void encode_to_base64(const void* data, size_t size, FILE* out) {
     const uint8_t* input = reinterpret_cast<const uint8_t*>(data);
@@ -58,7 +58,7 @@ static void dump_output(const sk_sp<SkData>& data,
 }
 
 static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
-    sk_sp<SkImage> img(surface->newImageSnapshot());
+    sk_sp<SkImage> img(surface->makeImageSnapshot());
     return img ? img->encode() : nullptr;
 }
 
@@ -98,7 +98,7 @@ int main() {
             perror(options.source);
             return 1;
         } else {
-            image = SkImage::NewFromEncoded(data.get());
+            image = SkImage::MakeFromEncoded(std::move(data));
             if (!image) {
                 perror("Unable to decode the source image.");
                 return 1;
@@ -160,6 +160,5 @@ int main() {
     dump_output(skpData, "Skp");
     printf("}\n");
 
-    SkSafeSetNull(image);
     return 0;
 }

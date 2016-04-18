@@ -10,7 +10,7 @@
 #include "skia.h"
 
 extern SkBitmap source;
-extern SkImage* image;
+extern sk_sp<SkImage> image;
 
 struct DrawOptions {
     DrawOptions(int w, int h, bool r, bool g, bool p, bool k, const char* s)

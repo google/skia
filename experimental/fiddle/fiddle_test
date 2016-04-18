@@ -24,10 +24,10 @@ fi
 
 echo "Building Skia and Fiddle"
 cd "${skia_dir}/experimental/fiddle"
+git clean -fxd .
 go build fiddler.go
 ./fiddler "$skia_dir"
 ./fiddler "$skia_dir" draw.cpp > /dev/null
 
 echo "cleaning up"
-cd "$skia_dir"
-git clean -fxd cmake experimental/fiddle
+git clean -fxd .
