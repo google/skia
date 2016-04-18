@@ -142,8 +142,8 @@ public:
         const SkGradientShaderBase& fShader;
 
         // Make sure we only initialize the caches once.
-        bool    fCache16Inited, fCache32Inited;
-        SkMutex fCache16Mutex, fCache32Mutex;
+        SkOnce fCache16InitOnce,
+               fCache32InitOnce;
 
         static void initCache16(GradientShaderCache* cache);
         static void initCache32(GradientShaderCache* cache);

@@ -10,7 +10,7 @@
 
 #include "SkColorFilter.h"
 #include "SkData.h"
-#include "../private/SkMutex.h"
+#include "../private/SkOnce.h"
 #include "../private/SkTemplates.h"
 
 class SK_API SkColorCubeFilter : public SkColorFilter {
@@ -65,8 +65,7 @@ private:
         const int fCubeDimension;
 
         // Make sure we only initialize the caches once.
-        SkMutex fLutsMutex;
-        bool fLutsInited;
+        SkOnce fLutsInitOnce;
 
         static void initProcessingLuts(ColorCubeProcesingCache* cache);
     };

@@ -137,8 +137,10 @@ namespace SkOpts {
     #endif
     }
 
-    SK_DECLARE_STATIC_ONCE(gInitOnce);
-    void Init() { SkOnce(&gInitOnce, init); }
+    void Init() {
+        static SkOnce once;
+        once(init);
+    }
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
     static struct AutoInit {

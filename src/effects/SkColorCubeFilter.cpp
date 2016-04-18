@@ -67,8 +67,7 @@ uint32_t SkColorCubeFilter::getFlags() const {
 }
 
 SkColorCubeFilter::ColorCubeProcesingCache::ColorCubeProcesingCache(int cubeDimension)
-  : fCubeDimension(cubeDimension)
-  , fLutsInited(false) {
+  : fCubeDimension(cubeDimension) {
     fColorToIndex[0] = fColorToIndex[1] = nullptr;
     fColorToFactors[0] = fColorToFactors[1] = nullptr;
     fColorToScalar = nullptr;
@@ -77,8 +76,8 @@ SkColorCubeFilter::ColorCubeProcesingCache::ColorCubeProcesingCache(int cubeDime
 void SkColorCubeFilter::ColorCubeProcesingCache::getProcessingLuts(
     const int* (*colorToIndex)[2], const SkScalar* (*colorToFactors)[2],
     const SkScalar** colorToScalar) {
-    SkOnce(&fLutsInited, &fLutsMutex,
-           SkColorCubeFilter::ColorCubeProcesingCache::initProcessingLuts, this);
+    fLutsInitOnce(SkColorCubeFilter::ColorCubeProcesingCache::initProcessingLuts, this);
+
     SkASSERT((fColorToIndex[0] != nullptr) &&
              (fColorToIndex[1] != nullptr) &&
              (fColorToFactors[0] != nullptr) &&

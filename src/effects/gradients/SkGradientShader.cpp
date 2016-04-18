@@ -322,8 +322,6 @@ SkGradientShaderBase::GradientShaderCache::GradientShaderCache(
     : fCacheAlpha(alpha)
     , fCacheDither(dither)
     , fShader(shader)
-    , fCache16Inited(false)
-    , fCache32Inited(false)
 {
     // Only initialize the cache in getCache16/32.
     fCache16 = nullptr;
@@ -545,8 +543,7 @@ static inline int SkFixedToFFFF(SkFixed x) {
 }
 
 const uint16_t* SkGradientShaderBase::GradientShaderCache::getCache16() {
-    SkOnce(&fCache16Inited, &fCache16Mutex, SkGradientShaderBase::GradientShaderCache::initCache16,
-           this);
+    fCache16InitOnce(SkGradientShaderBase::GradientShaderCache::initCache16, this);
     SkASSERT(fCache16);
     return fCache16;
 }
@@ -579,8 +576,7 @@ void SkGradientShaderBase::GradientShaderCache::initCache16(GradientShaderCache*
 }
 
 const SkPMColor* SkGradientShaderBase::GradientShaderCache::getCache32() {
-    SkOnce(&fCache32Inited, &fCache32Mutex, SkGradientShaderBase::GradientShaderCache::initCache32,
-           this);
+    fCache32InitOnce(SkGradientShaderBase::GradientShaderCache::initCache32, this);
     SkASSERT(fCache32);
     return fCache32;
 }

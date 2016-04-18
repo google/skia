@@ -26,11 +26,11 @@
     }
 #endif
 
-// We cache sk_num_cores() so we only query the OS once.
-SK_DECLARE_STATIC_ONCE(g_query_num_cores_once);
 int sk_num_cores() {
+    // We cache sk_num_cores() so we only query the OS once.
     static int num_cores = 0;
-    SkOnce(&g_query_num_cores_once, query_num_cores, &num_cores);
+    static SkOnce once;
+    once(query_num_cores, &num_cores);
     SkASSERT(num_cores > 0);
     return num_cores;
 }

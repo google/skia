@@ -9,6 +9,7 @@
 #define SkFontMgr_indirect_DEFINED
 
 #include "../private/SkMutex.h"
+#include "../private/SkOnce.h"
 #include "../private/SkTArray.h"
 #include "SkDataTable.h"
 #include "SkFontMgr.h"
@@ -28,7 +29,7 @@ public:
     // In the future these calls should be broken out into their own interface
     // with a name like SkFontRenderer.
     SkFontMgr_Indirect(SkFontMgr* impl, SkRemotableFontMgr* proxy)
-        : fImpl(SkRef(impl)), fProxy(SkRef(proxy)), fFamilyNamesInited(false)
+        : fImpl(SkRef(impl)), fProxy(SkRef(proxy))
     { }
 
 protected:
@@ -95,8 +96,7 @@ private:
     mutable SkMutex fDataCacheMutex;
 
     mutable SkAutoTUnref<SkDataTable> fFamilyNames;
-    mutable bool fFamilyNamesInited;
-    mutable SkMutex fFamilyNamesMutex;
+    mutable SkOnce fFamilyNamesInitOnce;
     static void set_up_family_names(const SkFontMgr_Indirect* self);
 
     friend class SkStyleSet_Indirect;

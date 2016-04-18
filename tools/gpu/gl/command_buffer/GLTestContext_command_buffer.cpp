@@ -127,9 +127,9 @@ static GrGLFuncPtr command_buffer_get_gl_proc(void* ctx, const char name[]) {
     return gfGetProcAddress(name);
 }
 
-SK_DECLARE_STATIC_ONCE(loadCommandBufferOnce);
 static void load_command_buffer_once() {
-    SkOnce(&loadCommandBufferOnce, load_command_buffer_functions);
+    static SkOnce once;
+    once(load_command_buffer_functions);
 }
 
 static const GrGLInterface* create_command_buffer_interface() {

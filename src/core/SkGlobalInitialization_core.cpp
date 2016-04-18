@@ -53,7 +53,7 @@ void SkFlattenable::PrivateInitializer::InitCore() {
     InitEffects();
 };
 
-SK_DECLARE_STATIC_ONCE(once);
 void SkFlattenable::InitializeFlattenablesIfNeeded() {
-    SkOnce(&once, SkFlattenable::PrivateInitializer::InitCore);
+    static SkOnce once;
+    once(SkFlattenable::PrivateInitializer::InitCore);
 }
