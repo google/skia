@@ -24,6 +24,7 @@ import dm_flags
 import nanobench_flags
 
 
+CONFIG_COVERAGE = 'Coverage'
 CONFIG_DEBUG = 'Debug'
 CONFIG_RELEASE = 'Release'
 
@@ -174,7 +175,7 @@ def gyp_defines(builder_dict):
 cov_skip.extend([lineno(), lineno() + 1])
 def get_extra_env_vars(builder_dict):
   env = {}
-  if builder_dict.get('configuration') == 'Coverage':
+  if builder_dict.get('configuration') == CONFIG_COVERAGE:
     # We have to use Clang 3.6 because earlier versions do not support the
     # compile flags we use and 3.7 and 3.8 hit asserts during compilation.
     env['CC'] = '/usr/bin/clang-3.6'
@@ -311,6 +312,8 @@ def get_builder_spec(builder_name):
   if ('Win' in builder_dict.get('os', '') and arch == 'x86_64'):
     configuration += '_x64'
   rv['configuration'] = configuration
+  if configuration == CONFIG_COVERAGE:
+    rv['do_compile_steps'] = False
   rv['do_test_steps'] = role == builder_name_schema.BUILDER_ROLE_TEST
   rv['do_perf_steps'] = (role == builder_name_schema.BUILDER_ROLE_PERF or
                          (role == builder_name_schema.BUILDER_ROLE_TEST and
