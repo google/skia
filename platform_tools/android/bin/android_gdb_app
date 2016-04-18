@@ -35,7 +35,7 @@ adb_pull_if_needed /data/data/com.skia.sample_app/lib/libskia_android.so $GDB_TM
 adb_pull_if_needed /data/data/com.skia.sample_app/lib/libSampleApp.so $GDB_TMP_DIR
 
 echo "Pushing gdbserver..."
-adb_push_if_needed $ANDROID_TOOLCHAIN/../gdbserver /data/local/tmp
+adb_push_if_needed $ANDROID_TOOLCHAIN/gdbserver /data/local/tmp
 
 # Launch the app
 echo "Launching the app..."
@@ -61,7 +61,7 @@ echo "set solib-search-path $GDB_TMP_DIR" >> $GDBSETUP
 
 # Launch gdb client
 echo "Entering gdb client shell"
-GDB_COMMAND=$(command ls "$ANDROID_TOOLCHAIN"/*-gdb | head -n1)
+GDB_COMMAND=$(command ls "$ANDROID_TOOLCHAIN"/bin/*-gdb | head -n1)
 "$GDB_COMMAND" -x $GDBSETUP
 
 # Clean up:
