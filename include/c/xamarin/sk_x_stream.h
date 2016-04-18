@@ -12,7 +12,7 @@
 #define sk_x_stream_DEFINED
 
 #include "sk_types.h"
-#include "xamarin\sk_x_types.h"
+#include "xamarin/sk_x_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 

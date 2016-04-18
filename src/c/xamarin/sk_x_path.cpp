@@ -7,9 +7,9 @@
 
 #include "SkPath.h"
 
-#include "xamarin\sk_x_path.h"
+#include "xamarin/sk_x_path.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 void sk_path_rmove_to(sk_path_t* cpath, float dx, float dy) {

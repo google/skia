@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "..\..\include\effects\SkBlurMaskFilter.h"
-#include "..\..\include\effects\SkTableMaskFilter.h"
+#include "../../include/effects/SkBlurMaskFilter.h"
+#include "../../include/effects/SkTableMaskFilter.h"
 
-#include "xamarin\sk_x_maskfilter.h"
+#include "xamarin/sk_x_maskfilter.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 sk_maskfilter_t* sk_maskfilter_new_emboss(

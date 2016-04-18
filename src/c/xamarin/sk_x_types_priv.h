@@ -20,9 +20,9 @@
 #include "SkPictureRecorder.h"
 #include "SkPoint3.h"
 #include "SkStream.h"
-#include "..\..\include\effects\SkDisplacementMapEffect.h"
-#include "..\..\include\effects\SkDropShadowImageFilter.h"
-#include "..\..\include\effects\SkMatrixConvolutionImageFilter.h"
+#include "../../include/effects/SkDisplacementMapEffect.h"
+#include "../../include/effects/SkDropShadowImageFilter.h"
+#include "../../include/effects/SkMatrixConvolutionImageFilter.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"
@@ -30,9 +30,9 @@
 #include "sk_maskfilter.h"
 
 #include "sk_types.h"
-#include "xamarin\sk_x_types.h"
+#include "xamarin/sk_x_types.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 
 #define MAKE_FROM_TO_NAME(FROM)     g_ ## FROM ## _map
 
@@ -46,7 +46,7 @@ const struct {
 #define CType           sk_imagedecoder_mode_t
 #define SKType          SkImageDecoder::Mode
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_mode_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_imagedecoder_result_t  fC;
@@ -59,7 +59,7 @@ const struct {
 #define CType           sk_imagedecoder_result_t
 #define SKType          SkImageDecoder::Result
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_result_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_imagedecoder_format_t  fC;
@@ -80,7 +80,7 @@ const struct {
 #define CType           sk_imagedecoder_format_t
 #define SKType          SkImageDecoder::Format
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_format_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_path_direction_t fC;
@@ -92,7 +92,7 @@ const struct {
 #define CType           sk_path_direction_t
 #define SKType          SkPath::Direction
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_path_direction_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_path_filltype_t fC;
@@ -106,7 +106,7 @@ const struct {
 #define CType           sk_path_filltype_t
 #define SKType          SkPath::FillType
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_path_filltype_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_text_align_t fC;
@@ -119,7 +119,7 @@ const struct {
 #define CType           sk_text_align_t
 #define SKType          SkPaint::Align
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_align_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_text_encoding_t    fC;
@@ -133,7 +133,7 @@ const struct {
 #define CType           sk_text_encoding_t
 #define SKType          SkPaint::TextEncoding
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_encoding_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_filter_quality_t fC;
@@ -147,7 +147,7 @@ const struct {
 #define CType           sk_filter_quality_t
 #define SKType          SkFilterQuality
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_filter_quality_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_crop_rect_flags_t              fC;
@@ -162,7 +162,7 @@ const struct {
 #define CType           sk_crop_rect_flags_t
 #define SKType          SkImageFilter::CropRect::CropEdge
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_crop_rect_flags_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_drop_shadow_image_filter_shadow_mode_t fC;
@@ -174,7 +174,7 @@ const struct {
 #define CType           sk_drop_shadow_image_filter_shadow_mode_t
 #define SKType          SkDropShadowImageFilter::ShadowMode
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_drop_shadow_image_filter_shadow_mode_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_displacement_map_effect_channel_selector_type_t fC;
@@ -189,7 +189,7 @@ const struct {
 #define CType           sk_displacement_map_effect_channel_selector_type_t
 #define SKType          SkDisplacementMapEffect::ChannelSelectorType
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_displacement_map_effect_channel_selector_type_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_matrix_convolution_tilemode_t         fC;
@@ -202,7 +202,7 @@ const struct {
 #define CType           sk_matrix_convolution_tilemode_t
 #define SKType          SkMatrixConvolutionImageFilter::TileMode
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_matrix_convolution_tilemode_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_image_encoder_t fC;
@@ -221,7 +221,7 @@ const struct {
 #define CType           sk_image_encoder_t
 #define SKType          SkImageEncoder::Type
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_image_encoder_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_xfermode_mode_t  fC;
@@ -260,7 +260,7 @@ const struct {
 #define CType           sk_xfermode_mode_t
 #define SKType          SkXfermode::Mode
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_xfermode_mode_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_colortype_t  fC;
@@ -276,7 +276,7 @@ const struct {
 #define CType           sk_colortype_t
 #define SKType          SkColorType
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_colortype_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_alphatype_t  fC;
@@ -289,7 +289,7 @@ const struct {
 #define CType           sk_alphatype_t
 #define SKType          SkAlphaType
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_alphatype_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_pixelgeometry_t fC;
@@ -304,7 +304,7 @@ const struct {
 #define CType           sk_pixelgeometry_t
 #define SKType          SkPixelGeometry
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_pixelgeometry_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_shader_tilemode_t    fC;
@@ -317,7 +317,7 @@ const struct {
 #define CType           sk_shader_tilemode_t
 #define SKType          SkShader::TileMode
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_shader_tilemode_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_blurstyle_t  fC;
@@ -331,7 +331,7 @@ const struct {
 #define CType           sk_blurstyle_t
 #define SKType          SkBlurStyle
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_blurstyle_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_stroke_cap_t fC;
@@ -344,7 +344,7 @@ const struct {
 #define CType           sk_stroke_cap_t
 #define SKType          SkPaint::Cap
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_cap_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 const struct {
     sk_stroke_join_t fC;
@@ -357,7 +357,7 @@ const struct {
 #define CType           sk_stroke_join_t
 #define SKType          SkPaint::Join
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_join_t)
-#include "..\sk_c_from_to.h"
+#include "../sk_c_from_to.h"
 
 static inline SkRect* AsRect(sk_rect_t* crect) {
     return reinterpret_cast<SkRect*>(crect);

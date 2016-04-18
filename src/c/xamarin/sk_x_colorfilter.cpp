@@ -10,9 +10,9 @@
 #include "../../include/effects/SkLumaColorFilter.h"
 #include "../../include/effects/SkTableColorFilter.h"
 
-#include "xamarin\sk_x_colorfilter.h"
+#include "xamarin/sk_x_colorfilter.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 void sk_colorfilter_unref(sk_colorfilter_t* filter) {

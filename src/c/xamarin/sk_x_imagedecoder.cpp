@@ -7,9 +7,9 @@
 
 #include "SkImageDecoder.h"
 
-#include "xamarin\sk_x_imagedecoder.h"
+#include "xamarin/sk_x_imagedecoder.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 void sk_imagedecoder_destructor(sk_imagedecoder_t* cdecoder)

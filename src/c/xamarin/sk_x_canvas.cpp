@@ -7,9 +7,9 @@
 
 #include "SkCanvas.h"
 
-#include "xamarin\sk_x_canvas.h"
+#include "xamarin/sk_x_canvas.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 void sk_canvas_clear(sk_canvas_t* ccanvas, sk_color_t color) {

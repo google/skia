@@ -23,9 +23,9 @@
 #include "../../include/effects/SkTileImageFilter.h"
 #include "../../include/effects/SkXfermodeImageFilter.h"
 
-#include "xamarin\sk_x_imagefilter.h"
+#include "xamarin/sk_x_imagefilter.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 sk_imagefilter_croprect_t* sk_imagefilter_croprect_new() {

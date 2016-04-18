@@ -7,9 +7,9 @@
 
 #include "SkStream.h"
 
-#include "xamarin\sk_x_stream.h"
+#include "xamarin/sk_x_stream.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 sk_stream_filestream_t* sk_filestream_new (const char* path)

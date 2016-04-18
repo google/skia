@@ -7,9 +7,9 @@
 
 #include "SkData.h"
 
-#include "xamarin\sk_x_data.h"
+#include "xamarin/sk_x_data.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 sk_data_t* sk_data_new_from_file(const char* path) {

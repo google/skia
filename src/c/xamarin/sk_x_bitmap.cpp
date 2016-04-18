@@ -12,9 +12,9 @@
 #include "SkImageInfo.h"
 #include "SkUnPreMultiply.h"
 
-#include "xamarin\sk_x_bitmap.h"
+#include "xamarin/sk_x_bitmap.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 static inline void copyAlpha8ToColor(size_t size, const uint8_t* pixels, sk_color_t* colors)

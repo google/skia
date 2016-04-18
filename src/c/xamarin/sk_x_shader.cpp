@@ -7,11 +7,11 @@
 
 #include "SkShader.h"
 #include "SkComposeShader.h"
-#include "..\..\include\effects\SkPerlinNoiseShader.h"
+#include "../../include/effects/SkPerlinNoiseShader.h"
 
-#include "xamarin\sk_x_shader.h"
+#include "xamarin/sk_x_shader.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 sk_shader_t* sk_shader_new_empty() {

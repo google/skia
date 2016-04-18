@@ -7,9 +7,9 @@
 
 #include "SkTypeface.h"
 
-#include "xamarin\sk_x_typeface.h"
+#include "xamarin/sk_x_typeface.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 static inline SkTypeface::Style MapStyle(sk_typeface_style_t ostyle)

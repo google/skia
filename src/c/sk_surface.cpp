@@ -23,7 +23,7 @@
 #include "sk_picture.h"
 #include "sk_surface.h"
 #include "sk_types_priv.h"
-#include "xamarin\sk_x_types_priv.h"
+#include "xamarin/sk_x_types_priv.h"
 
 // Compat for the moved symbols
 #define from_c_colortype       find_sk

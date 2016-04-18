@@ -7,9 +7,9 @@
 
 #include "SkPaint.h"
 
-#include "xamarin\sk_x_paint.h"
+#include "xamarin/sk_x_paint.h"
 
-#include "..\sk_types_priv.h"
+#include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
 bool sk_paint_is_dither(const sk_paint_t* cpaint) {

@@ -14,7 +14,7 @@
 #include "sk_shader.h"
 
 #include "sk_types.h"
-#include "xamarin\sk_x_types.h"
+#include "xamarin/sk_x_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 

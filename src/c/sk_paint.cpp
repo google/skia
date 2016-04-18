@@ -9,7 +9,7 @@
 
 #include "sk_paint.h"
 #include "sk_types_priv.h"
-#include "xamarin\sk_x_types_priv.h"
+#include "xamarin/sk_x_types_priv.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
