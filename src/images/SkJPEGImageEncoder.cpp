@@ -28,156 +28,58 @@ extern "C" {
 // These enable timing code that report milliseconds for an encoding
 //#define TIME_ENCODE
 
-// this enables our rgb->yuv code, which is faster than libjpeg on ARM
-#define WE_CONVERT_TO_YUV
-
-///////////////////////////////////////////////////////////////////////////////
-
-#include "SkColorPriv.h"
-
-// taken from jcolor.c in libjpeg
-#if 0   // 16bit - precise but slow
-    #define CYR     19595   // 0.299
-    #define CYG     38470   // 0.587
-    #define CYB      7471   // 0.114
-
-    #define CUR    -11059   // -0.16874
-    #define CUG    -21709   // -0.33126
-    #define CUB     32768   // 0.5
-
-    #define CVR     32768   // 0.5
-    #define CVG    -27439   // -0.41869
-    #define CVB     -5329   // -0.08131
-
-    #define CSHIFT  16
-#else      // 8bit - fast, slightly less precise
-    #define CYR     77    // 0.299
-    #define CYG     150    // 0.587
-    #define CYB      29    // 0.114
-
-    #define CUR     -43    // -0.16874
-    #define CUG    -85    // -0.33126
-    #define CUB     128    // 0.5
-
-    #define CVR      128   // 0.5
-    #define CVG     -107   // -0.41869
-    #define CVB      -21   // -0.08131
-
-    #define CSHIFT  8
-#endif
-
-static void rgb2yuv_32(uint8_t dst[], SkPMColor c) {
-    int r = SkGetPackedR32(c);
-    int g = SkGetPackedG32(c);
-    int b = SkGetPackedB32(c);
-
-    int  y = ( CYR*r + CYG*g + CYB*b ) >> CSHIFT;
-    int  u = ( CUR*r + CUG*g + CUB*b ) >> CSHIFT;
-    int  v = ( CVR*r + CVG*g + CVB*b ) >> CSHIFT;
-
-    dst[0] = SkToU8(y);
-    dst[1] = SkToU8(u + 128);
-    dst[2] = SkToU8(v + 128);
-}
-
-static void rgb2yuv_4444(uint8_t dst[], U16CPU c) {
-    int r = SkGetPackedR4444(c);
-    int g = SkGetPackedG4444(c);
-    int b = SkGetPackedB4444(c);
-
-    int  y = ( CYR*r + CYG*g + CYB*b ) >> (CSHIFT - 4);
-    int  u = ( CUR*r + CUG*g + CUB*b ) >> (CSHIFT - 4);
-    int  v = ( CVR*r + CVG*g + CVB*b ) >> (CSHIFT - 4);
-
-    dst[0] = SkToU8(y);
-    dst[1] = SkToU8(u + 128);
-    dst[2] = SkToU8(v + 128);
-}
-
-static void rgb2yuv_16(uint8_t dst[], U16CPU c) {
-    int r = SkGetPackedR16(c);
-    int g = SkGetPackedG16(c);
-    int b = SkGetPackedB16(c);
-
-    int  y = ( 2*CYR*r + CYG*g + 2*CYB*b ) >> (CSHIFT - 2);
-    int  u = ( 2*CUR*r + CUG*g + 2*CUB*b ) >> (CSHIFT - 2);
-    int  v = ( 2*CVR*r + CVG*g + 2*CVB*b ) >> (CSHIFT - 2);
-
-    dst[0] = SkToU8(y);
-    dst[1] = SkToU8(u + 128);
-    dst[2] = SkToU8(v + 128);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 typedef void (*WriteScanline)(uint8_t* SK_RESTRICT dst,
                               const void* SK_RESTRICT src, int width,
                               const SkPMColor* SK_RESTRICT ctable);
 
-static void Write_32_YUV(uint8_t* SK_RESTRICT dst,
+static void Write_32_RGB(uint8_t* SK_RESTRICT dst,
                          const void* SK_RESTRICT srcRow, int width,
                          const SkPMColor*) {
     const uint32_t* SK_RESTRICT src = (const uint32_t*)srcRow;
     while (--width >= 0) {
-#ifdef WE_CONVERT_TO_YUV
-        rgb2yuv_32(dst, *src++);
-#else
         uint32_t c = *src++;
         dst[0] = SkGetPackedR32(c);
         dst[1] = SkGetPackedG32(c);
         dst[2] = SkGetPackedB32(c);
-#endif
         dst += 3;
     }
 }
 
-static void Write_4444_YUV(uint8_t* SK_RESTRICT dst,
+static void Write_4444_RGB(uint8_t* SK_RESTRICT dst,
                            const void* SK_RESTRICT srcRow, int width,
                            const SkPMColor*) {
     const SkPMColor16* SK_RESTRICT src = (const SkPMColor16*)srcRow;
     while (--width >= 0) {
-#ifdef WE_CONVERT_TO_YUV
-        rgb2yuv_4444(dst, *src++);
-#else
         SkPMColor16 c = *src++;
         dst[0] = SkPacked4444ToR32(c);
         dst[1] = SkPacked4444ToG32(c);
         dst[2] = SkPacked4444ToB32(c);
-#endif
         dst += 3;
     }
 }
 
-static void Write_16_YUV(uint8_t* SK_RESTRICT dst,
+static void Write_16_RGB(uint8_t* SK_RESTRICT dst,
                          const void* SK_RESTRICT srcRow, int width,
                          const SkPMColor*) {
     const uint16_t* SK_RESTRICT src = (const uint16_t*)srcRow;
     while (--width >= 0) {
-#ifdef WE_CONVERT_TO_YUV
-        rgb2yuv_16(dst, *src++);
-#else
         uint16_t c = *src++;
         dst[0] = SkPacked16ToR32(c);
         dst[1] = SkPacked16ToG32(c);
         dst[2] = SkPacked16ToB32(c);
-#endif
         dst += 3;
     }
 }
 
-static void Write_Index_YUV(uint8_t* SK_RESTRICT dst,
+static void Write_Index_RGB(uint8_t* SK_RESTRICT dst,
                             const void* SK_RESTRICT srcRow, int width,
                             const SkPMColor* SK_RESTRICT ctable) {
     const uint8_t* SK_RESTRICT src = (const uint8_t*)srcRow;
     while (--width >= 0) {
-#ifdef WE_CONVERT_TO_YUV
-        rgb2yuv_32(dst, ctable[*src++]);
-#else
         uint32_t c = ctable[*src++];
         dst[0] = SkGetPackedR32(c);
         dst[1] = SkGetPackedG32(c);
         dst[2] = SkGetPackedB32(c);
-#endif
         dst += 3;
     }
 }
@@ -185,13 +87,13 @@ static void Write_Index_YUV(uint8_t* SK_RESTRICT dst,
 static WriteScanline ChooseWriter(const SkBitmap& bm) {
     switch (bm.colorType()) {
         case kN32_SkColorType:
-            return Write_32_YUV;
+            return Write_32_RGB;
         case kRGB_565_SkColorType:
-            return Write_16_YUV;
+            return Write_16_RGB;
         case kARGB_4444_SkColorType:
-            return Write_4444_YUV;
+            return Write_4444_RGB;
         case kIndex_8_SkColorType:
-            return Write_Index_YUV;
+            return Write_Index_RGB;
         default:
             return nullptr;
     }
@@ -233,19 +135,20 @@ protected:
         cinfo.image_width = bm.width();
         cinfo.image_height = bm.height();
         cinfo.input_components = 3;
-#ifdef WE_CONVERT_TO_YUV
-        cinfo.in_color_space = JCS_YCbCr;
-#else
+        
+        // FIXME: Can we take advantage of other in_color_spaces in libjpeg-turbo?
         cinfo.in_color_space = JCS_RGB;
-#endif
+
+        // The gamma value is ignored by libjpeg-turbo.
         cinfo.input_gamma = 1;
 
         jpeg_set_defaults(&cinfo);
+        
+        // Tells libjpeg-turbo to compute optimal Huffman coding tables
+        // for the image.  This improves compression at the cost of
+        // slower encode performance.
         cinfo.optimize_coding = TRUE;
         jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
-#ifdef DCT_IFAST_SUPPORTED
-        cinfo.dct_method = JDCT_IFAST;
-#endif
 
         jpeg_start_compress(&cinfo, TRUE);
 
