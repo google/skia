@@ -8,20 +8,12 @@
 #ifndef SkNx_sse_DEFINED
 #define SkNx_sse_DEFINED
 
+#include "SkCpu.h"
+
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
 // If you do, make sure this is in a static inline function... anywhere else risks violating ODR.
 
 #define SKNX_IS_FAST
-
-// SSE 4.1 has _mm_floor_ps to floor 4 floats.  We emulate it:
-//   - roundtrip through integers via truncation
-//   - subtract 1 if that's too big (possible for negative values).
-// This restricts the domain of our inputs to a maximum somehwere around 2^31.  Seems plenty big.
-static inline __m128 sse2_mm_floor_ps(__m128 v) {
-    __m128 roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-    __m128 too_big = _mm_cmpgt_ps(roundtrip, v);
-    return _mm_sub_ps(roundtrip, _mm_and_ps(too_big, _mm_set1_ps(1.0f)));
-}
 
 template <>
 class SkNx<2, float> {
@@ -97,7 +89,25 @@ public:
     static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
     SkNx abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
-    SkNx floor() const { return sse2_mm_floor_ps(fVec); }
+    SkNx floor() const {
+        if (SkCpu::Supports(SkCpu::SSE41)) {
+            __m128 r;
+        #if defined(__GNUC__) || defined(__clang__)
+            asm("roundps $0x1, %[fVec], %[r]" : [r]"=x"(r) : [fVec]"x"(fVec));
+        #else
+            r = _mm_floor_ps(fVec);
+        #endif
+            return r;
+        }
+        // Emulate _mm_floor_ps() with SSE2:
+        //   - roundtrip through integers via truncation
+        //   - subtract 1 if that's too big (possible for negative values).
+        // This restricts the domain of our inputs to a maximum somehwere around 2^31.
+        // Seems plenty big.
+        __m128 roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(fVec));
+        __m128 too_big = _mm_cmpgt_ps(roundtrip, fVec);
+        return _mm_sub_ps(roundtrip, _mm_and_ps(too_big, _mm_set1_ps(1.0f)));
+    }
 
     SkNx   sqrt() const { return _mm_sqrt_ps (fVec);  }
     SkNx  rsqrt() const { return _mm_rsqrt_ps(fVec); }
