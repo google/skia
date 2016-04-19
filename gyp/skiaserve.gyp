@@ -40,6 +40,7 @@
         'microhttpd.gyp:microhttpd',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
+        'tools.gyp:picture_utils',
         'tools.gyp:proc_stats',
         'tools.gyp:resources',
         'tools.gyp:url_data_manager',

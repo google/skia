@@ -39,6 +39,7 @@ public:
         fHandlers.push_back(new BreakHandler);
         fHandlers.push_back(new BatchesHandler);
         fHandlers.push_back(new BatchBoundsHandler);
+        fHandlers.push_back(new ColorModeHandler);
     }
 
     ~UrlManager() {

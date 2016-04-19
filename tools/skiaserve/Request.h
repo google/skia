@@ -41,6 +41,7 @@ struct Request {
     SkCanvas* getCanvas();
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
     bool enableGPU(bool enable);
+    bool setColorMode(int mode);
     bool hasPicture() const { return SkToBool(fPicture.get()); }
     int getLastOp() const { return fDebugCanvas->getSize() - 1; }
 
@@ -74,6 +75,7 @@ private:
     sk_gpu_test::GrContextFactory* fContextFactory;
     SkAutoTUnref<SkSurface> fSurface;
     bool fGPUEnabled;
+    int fColorMode;
 };
 
 #endif

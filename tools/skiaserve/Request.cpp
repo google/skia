@@ -9,6 +9,7 @@
 
 #include "SkPictureRecorder.h"
 #include "SkPixelSerializer.h"
+#include "picture_utils.h"
 
 using namespace sk_gpu_test;
 
@@ -19,7 +20,8 @@ static int kDefaultHeight = 1080;
 Request::Request(SkString rootUrl)
     : fUploadContext(nullptr)
     , fUrlDataManager(rootUrl)
-    , fGPUEnabled(false) {
+    , fGPUEnabled(false)
+    , fColorMode(0) {
     // create surface
 #if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
@@ -39,10 +41,7 @@ Request::~Request() {
 
 SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
     SkBitmap* bmp = new SkBitmap();
-    SkIRect bounds = this->getBounds();
-    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(),
-                                         kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
-    bmp->setInfo(info);
+    bmp->setInfo(canvas->imageInfo());
     if (!canvas->readPixels(bmp, 0, 0)) {
         fprintf(stderr, "Can't read pixels\n");
         return nullptr;
@@ -55,9 +54,14 @@ SkData* Request::writeCanvasToPng(SkCanvas* canvas) {
     SkAutoTDelete<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
     SkASSERT(bmp);
 
+    // Convert to format suitable for PNG output
+    sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(*bmp);
+    SkASSERT(encodedBitmap.get());
+
     // write to png
     SkDynamicMemoryWStream buffer;
-    SkDrawCommand::WritePNG((const png_bytep) bmp->getPixels(), bmp->width(), bmp->height(),
+    SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->writable_data(),
+                            bmp->width(), bmp->height(),
                             buffer);
     return buffer.copyToData();
 }
@@ -138,23 +142,48 @@ SkIRect Request::getBounds() {
     return bounds;
 }
 
+namespace {
+
+struct ColorAndProfile {
+    SkColorType fColorType;
+    SkColorProfileType fProfileType;
+    bool fGammaCorrect;
+};
+
+ColorAndProfile ColorModes[] = {
+    { kN32_SkColorType, kLinear_SkColorProfileType, false },
+    { kN32_SkColorType, kSRGB_SkColorProfileType, true },
+    { kRGBA_F16_SkColorType, kLinear_SkColorProfileType, true },
+};
+
+}
+
 SkSurface* Request::createCPUSurface() {
     SkIRect bounds = this->getBounds();
-    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), kN32_SkColorType,
-                                         kPremul_SkAlphaType);
-    return SkSurface::MakeRaster(info).release();
+    ColorAndProfile cap = ColorModes[fColorMode];
+    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
+                                         kPremul_SkAlphaType, cap.fProfileType);
+    uint32_t flags = cap.fGammaCorrect ? SkSurfaceProps::kGammaCorrect_Flag : 0;
+    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+    return SkSurface::MakeRaster(info, &props).release();
 }
 
 SkSurface* Request::createGPUSurface() {
     GrContext* context = this->getContext();
     SkIRect bounds = this->getBounds();
-    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(),
-                                         kN32_SkColorType, kPremul_SkAlphaType);
-    uint32_t flags = 0;
+    ColorAndProfile cap = ColorModes[fColorMode];
+    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
+                                         kPremul_SkAlphaType, cap.fProfileType);
+    uint32_t flags = cap.fGammaCorrect ? SkSurfaceProps::kGammaCorrect_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
     SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
                                                      &props).release();
     return surface;
+}
+
+bool Request::setColorMode(int mode) {
+    fColorMode = mode;
+    return enableGPU(fGPUEnabled);
 }
 
 bool Request::enableGPU(bool enable) {
@@ -167,8 +196,10 @@ bool Request::enableGPU(bool enable) {
             // When we switch to GPU, there seems to be some mystery draws in the canvas.  So we
             // draw once to flush the pipe
             // TODO understand what is actually happening here
-            fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
-            this->getCanvas()->flush();
+            if (fDebugCanvas) {
+                fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
+                this->getCanvas()->flush();
+            }
 
             return true;
         }
@@ -206,6 +237,7 @@ SkData* Request::getJsonOps(int n) {
     Json::Value root = fDebugCanvas->toJSON(fUrlDataManager, n, canvas);
     root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
     root["drawGpuBatchBounds"] = Json::Value(fDebugCanvas->getDrawGpuBatchBounds());
+    root["colorMode"] = Json::Value(fColorMode);
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
 
@@ -250,9 +282,12 @@ SkColor Request::getPixel(int x, int y) {
     canvas->flush();
     SkAutoTDelete<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
     SkASSERT(bitmap);
-    bitmap->lockPixels();
-    uint8_t* start = ((uint8_t*) bitmap->getPixels()) + (y * bitmap->width() + x) * 4;
+
+    // Convert to format suitable for inspection
+    sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(*bitmap);
+    SkASSERT(encodedBitmap.get());
+
+    const uint8_t* start = encodedBitmap->bytes() + ((y * bitmap->width() + x) * 4);
     SkColor result = SkColorSetARGB(start[3], start[0], start[1], start[2]);
-    bitmap->unlockPixels();
     return result;
 }
