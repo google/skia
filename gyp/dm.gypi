@@ -24,6 +24,7 @@
     'skia_lib.gyp:skia_lib',
     'svg.gyp:svg',
     'tools.gyp:crash_handler',
+	'tools.gyp:picture_utils',
     'tools.gyp:proc_stats',
     'tools.gyp:sk_tool_utils',
     'tools.gyp:url_data_manager',

@@ -351,6 +351,9 @@
         '../tools/picture_utils.cpp',
         '../tools/picture_utils.h',
       ],
+	  'include_dirs': [
+          '../src/core/',
+      ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
       ],
