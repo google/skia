@@ -77,6 +77,7 @@ public:
         fBitmap.setPixelRef(pr);
 
         fCanvas.reset(new SkCanvas(fBitmap, this->props()));
+        fCanvas->clipRect(SkRect::Make(subset));
     }
 
     ~SkSpecialSurface_Raster() override { }
@@ -134,6 +135,7 @@ public:
         }
 
         fCanvas.reset(new SkCanvas(device));
+        fCanvas->clipRect(SkRect::Make(subset));
     }
 
     ~SkSpecialSurface_Gpu() override { }
