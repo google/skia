@@ -9,8 +9,9 @@
 
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkDevice.h"
 #include "SkReadBuffer.h"
+#include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
 sk_sp<SkImageFilter> SkColorFilterImageFilter::Make(sk_sp<SkColorFilter> cf,
@@ -56,55 +57,62 @@ void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fColorFilter.get());
 }
 
-bool SkColorFilterImageFilter::onFilterImageDeprecated(Proxy* proxy, const SkBitmap& source,
-                                                       const Context& ctx,
-                                                       SkBitmap* result,
-                                                       SkIPoint* offset) const {
-    SkBitmap src = source;
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    bool inputResult = this->filterInputDeprecated(0, proxy, source, ctx, &src, &srcOffset);
+sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* source,
+                                                              const Context& ctx,
+                                                              SkIPoint* offset) const {
+    SkIPoint inputOffset = SkIPoint::Make(0, 0);
+    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
 
-    SkIRect srcBounds;
-
+    SkIRect inputBounds;
     if (fColorFilter->affectsTransparentBlack()) {
         // If the color filter affects transparent black, the bounds are the entire clip.
-        srcBounds = ctx.clipBounds();
-    } else if (!inputResult) {
-        return false;
+        inputBounds = ctx.clipBounds();
+    } else if (!input) {
+        return nullptr;
     } else {
-        srcBounds = src.bounds();
-        srcBounds.offset(srcOffset);
+        inputBounds = SkIRect::MakeXYWH(inputOffset.x(), inputOffset.y(),
+                                        input->width(), input->height());
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
-        return false;
+    if (!this->applyCropRect(ctx, inputBounds, &bounds)) {
+        return nullptr;
     }
 
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-    if (nullptr == device.get()) {
-        return false;
+    SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(), kPremul_SkAlphaType);
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
+    if (!surf) {
+        return nullptr;
     }
-    SkCanvas canvas(device.get());
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
 
     SkPaint paint;
+
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setColorFilter(fColorFilter);
 
     // TODO: it may not be necessary to clear or drawPaint inside the input bounds
     // (see skbug.com/5075)
     if (fColorFilter->affectsTransparentBlack()) {
-        // The subsequent drawBitmap call may not fill the entire canvas. For filters which
+        // The subsequent input->draw() call may not fill the entire canvas. For filters which
         // affect transparent black, ensure that the filter is applied everywhere.
-        canvas.drawPaint(paint);
+        canvas->drawPaint(paint);
+    } else {
+        canvas->clear(0x0);
     }
 
-    canvas.drawBitmap(src, SkIntToScalar(srcOffset.fX - bounds.fLeft),
-                           SkIntToScalar(srcOffset.fY - bounds.fTop), &paint);
-    *result = device.get()->accessBitmap(false);
+    if (input) {
+        input->draw(canvas,
+                    SkIntToScalar(inputOffset.fX - bounds.fLeft),
+                    SkIntToScalar(inputOffset.fY - bounds.fTop),
+                    &paint);
+    }
+
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
-    return true;
+    return surf->makeImageSnapshot();
 }
 
 bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const {
