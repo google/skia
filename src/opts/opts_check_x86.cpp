@@ -12,6 +12,7 @@
 #include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
+#include "SkCpu.h"
 #include "SkOncePtr.h"
 #include "SkRTConf.h"
 
@@ -28,111 +29,16 @@
  */
 
 
-#if defined(_MSC_VER) && defined(_WIN64)
-#include <intrin.h>
-#endif
-
 /* This file must *not* be compiled with -msse or any other optional SIMD
    extension, otherwise gcc may generate SIMD instructions even for scalar ops
    (and thus give an invalid instruction on Pentium3 on the code below).
    For example, only files named *_SSE2.cpp in this directory should be
    compiled with -msse2 or higher. */
 
-
-/* Function to get the CPU SSE-level in runtime, for different compilers. */
-#ifdef _MSC_VER
-static inline void getcpuid(int info_type, int info[4]) {
-#if defined(_WIN64)
-    __cpuid(info, info_type);
-#else
-    __asm {
-        mov    eax, [info_type]
-        cpuid
-        mov    edi, [info]
-        mov    [edi], eax
-        mov    [edi+4], ebx
-        mov    [edi+8], ecx
-        mov    [edi+12], edx
-    }
-#endif
-}
-#elif defined(__x86_64__)
-static inline void getcpuid(int info_type, int info[4]) {
-    asm volatile (
-        "cpuid \n\t"
-        : "=a"(info[0]), "=b"(info[1]), "=c"(info[2]), "=d"(info[3])
-        : "a"(info_type)
-    );
-}
-#else
-static inline void getcpuid(int info_type, int info[4]) {
-    // We save and restore ebx, so this code can be compatible with -fPIC
-    asm volatile (
-        "pushl %%ebx      \n\t"
-        "cpuid            \n\t"
-        "movl %%ebx, %1   \n\t"
-        "popl %%ebx       \n\t"
-        : "=a"(info[0]), "=r"(info[1]), "=c"(info[2]), "=d"(info[3])
-        : "a"(info_type)
-    );
-}
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-
-/* Fetch the SIMD level directly from the CPU, at run-time.
- * Only checks the levels needed by the optimizations in this file.
- */
-static int* get_SIMD_level() {
-    int cpu_info[4] = { 0, 0, 0, 0 };
-    getcpuid(1, cpu_info);
-
-    int* level = new int;
-
-    if ((cpu_info[2] & (1<<20)) != 0) {
-        *level = SK_CPU_SSE_LEVEL_SSE42;
-    } else if ((cpu_info[2] & (1<<19)) != 0) {
-        *level = SK_CPU_SSE_LEVEL_SSE41;
-    } else if ((cpu_info[2] & (1<<9)) != 0) {
-        *level = SK_CPU_SSE_LEVEL_SSSE3;
-    } else if ((cpu_info[3] & (1<<26)) != 0) {
-        *level = SK_CPU_SSE_LEVEL_SSE2;
-    } else {
-        *level = 0;
-    }
-    return level;
-}
-
-SK_DECLARE_STATIC_ONCE_PTR(int, gSIMDLevel);
-
-/* Verify that the requested SIMD level is supported in the build.
- * If not, check if the platform supports it.
- */
-static inline bool supports_simd(int minLevel) {
-#if defined(SK_CPU_SSE_LEVEL)
-    if (minLevel <= SK_CPU_SSE_LEVEL) {
-        return true;
-    } else
-#endif
-    {
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-        /* For the Android framework we should always know at compile time if the device
-         * we are building for supports SSSE3.  The one exception to this rule is on the
-         * emulator where we are compiled without the -mssse3 option (so we have no
-         * SSSE3 procs) but can be run on a host machine that supports SSSE3
-         * instructions. So for that particular case we disable our SSSE3 options.
-         */
-        return false;
-#else
-        return minLevel <= *gSIMDLevel.get(get_SIMD_level);
-#endif
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs* procs) {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
+    if (SkCpu::Supports(SkCpu::SSE2)) {
         procs->fExtraHorizontalReads = 3;
         procs->fConvolveVertically = &convolveVertically_SSE2;
         procs->fConvolve4RowsHorizontally = &convolve4RowsHorizontally_SSE2;
@@ -145,10 +51,10 @@ void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs* procs) {
 
 void SkBitmapProcState::platformProcs() {
     /* Every optimization in the function requires at least SSE2 */
-    if (!supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
+    if (!SkCpu::Supports(SkCpu::SSE2)) {
         return;
     }
-    const bool ssse3 = supports_simd(SK_CPU_SSE_LEVEL_SSSE3);
+    const bool ssse3 = SkCpu::Supports(SkCpu::SSSE3);
 
     /* Check fSampleProc32 */
     if (fSampleProc32 == S32_opaque_D32_filter_DX) {
@@ -199,7 +105,7 @@ static const SkBlitRow::Proc16 platform_16_procs[] = {
 };
 
 SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
+    if (SkCpu::Supports(SkCpu::SSE2)) {
         return platform_16_procs[flags];
     } else {
         return nullptr;
@@ -217,7 +123,7 @@ SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
  * SSE2 version on Silvermont, and only marginally faster on a Core i7,
  * mainly due to the MULLD timings.
  */
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
+    if (SkCpu::Supports(SkCpu::SSE2)) {
         return platform_565_colorprocs_SSE2[flags];
     } else {
         return nullptr;
@@ -232,7 +138,7 @@ static const SkBlitRow::Proc32 platform_32_procs_SSE2[] = {
 };
 
 SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
+    if (SkCpu::Supports(SkCpu::SSE2)) {
         return platform_32_procs_SSE2[flags];
     } else {
         return nullptr;
@@ -242,7 +148,7 @@ SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
 ////////////////////////////////////////////////////////////////////////////////
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
+    if (SkCpu::Supports(SkCpu::SSE2)) {
         if (isOpaque) {
             return SkBlitLCD16OpaqueRow_SSE2;
         } else {

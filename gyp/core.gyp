@@ -87,13 +87,6 @@
             'android_deps.gyp:cpu_features',
           ],
         }],
-        [ 'skia_arch_type == "arm"', {
-          # The code in SkUtilsArm.cpp can be used on an ARM-based Linux system, not only Android.
-          'sources': [
-            '../src/core/SkUtilsArm.cpp',
-            '../src/core/SkUtilsArm.h',
-          ],
-        }],
         ['skia_gpu == 1', {
           'include_dirs': [
               '../include/gpu',
