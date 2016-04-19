@@ -20,7 +20,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
     balancing call to sk_canvas_restore() is made, the previous matrix
     and clip are restored.
 */
-SK_API void sk_canvas_save(sk_canvas_t*);
+SK_API int sk_canvas_save(sk_canvas_t*);
 /**
     This behaves the same as sk_canvas_save(), but in addition it
     allocates an offscreen surface. All drawing calls are directed
@@ -37,7 +37,7 @@ SK_API void sk_canvas_save(sk_canvas_t*);
                        to the offscreen when sk_canvas_restore() is
                        called.
 */
-SK_API void sk_canvas_save_layer(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
+SK_API int sk_canvas_save_layer(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
 /**
     This call balances a previous call to sk_canvas_save() or
     sk_canvas_save_layer(), and is used to remove all modifications to
