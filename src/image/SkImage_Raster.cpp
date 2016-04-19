@@ -74,6 +74,10 @@ public:
     SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*);
     virtual ~SkImage_Raster();
 
+    SkImageInfo onImageInfo() const override {
+        return fBitmap.info();
+    }
+
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     bool onPeekPixels(SkPixmap*) const override;
     SkData* onRefEncoded(GrContext*) const override;
@@ -178,7 +182,7 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& p
 
     return GrRefCachedBitmapTexture(ctx, fBitmap, params);
 #endif
-    
+
     return nullptr;
 }
 

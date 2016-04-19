@@ -21,6 +21,10 @@ public:
         , fCache(cache) // take ownership
     {}
 
+    virtual SkImageInfo onImageInfo() const override {
+        return fCache->info();
+    }
+
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     SkImageCacherator* peekCacherator() const override { return fCache; }
     SkData* onRefEncoded(GrContext*) const override;

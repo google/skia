@@ -12,6 +12,7 @@
 #include "GrTexture.h"
 #include "GrGpuResourcePriv.h"
 #include "SkBitmap.h"
+#include "SkGr.h"
 #include "SkImage_Base.h"
 #include "SkImagePriv.h"
 #include "SkSurface.h"
@@ -24,6 +25,10 @@ public:
      */
     SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, GrTexture*, SkBudgeted);
     ~SkImage_Gpu() override;
+
+    SkImageInfo onImageInfo() const override {
+        return GrMakeInfoFromTexture(fTexture, fTexture->width(), fTexture->height(), isOpaque());
+    }
 
     void applyBudgetDecision() const {
         if (SkBudgeted::kYes == fBudgeted) {
