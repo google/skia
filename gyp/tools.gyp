@@ -591,7 +591,7 @@
         ],
       },
     ],
-    ['skia_os == "linux"',
+    ['skia_os in ["linux", "mac"]',
       {
         'targets': [
           {
