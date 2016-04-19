@@ -36,6 +36,8 @@ static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, cons
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     unsigned char alphaData[X_SIZE * Y_SIZE];
 
+    static const int kClearValue = 0x2;
+
     bool match;
     static const size_t kRowBytes[] = {0, X_SIZE, X_SIZE + 1, 2 * X_SIZE - 1};
     for (int rt = 0; rt < 2; ++rt) {
@@ -68,21 +70,23 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
         for (auto rowBytes : kRowBytes) {
             // upload the texture (do per-rowbytes iteration because we may overwrite below).
-            texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                 alphaData, 0);
+            bool result = texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                               alphaData, 0);
+            REPORTER_ASSERT_MESSAGE(reporter, result, "Initial A8 writePixels failed");
 
             size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
             SkAutoTDeleteArray<uint8_t> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
             // clear readback to something non-zero so we can detect readback failures
-            memset(readback.get(), 0x1, nonZeroRowBytes * Y_SIZE);
+            memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 
             // read the texture back
-            texture->readPixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                readback.get(), rowBytes);
+            result = texture->readPixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                         readback.get(), rowBytes);
+            REPORTER_ASSERT_MESSAGE(reporter, result, "Initial A8 readPixels failed");
 
             // make sure the original & read back versions match
             SkString msg;
-            msg.printf("rt:%d, rb:%d", rt, SkToU32(rowBytes));
+            msg.printf("rt:%d, rb:%d A8", rt, SkToU32(rowBytes));
             validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
                                 alphaData, msg);
 
@@ -101,9 +105,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 canvas.drawRect(rect, paint);
 
-                memset(readback.get(), 0x1, nonZeroRowBytes * Y_SIZE);
-                texture->readPixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig, readback.get(),
-                                    rowBytes);
+                memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
+                result = texture->readPixels(0, 0, desc.fWidth, desc.fHeight, 
+                                             desc.fConfig, readback.get(), rowBytes);
+                REPORTER_ASSERT_MESSAGE(reporter, result, "A8 readPixels after clear failed");
 
                 match = true;
                 for (int y = 0; y < Y_SIZE && match; ++y) {
@@ -166,15 +171,17 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 SkAutoTDeleteArray<uint8_t> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
                 // Clear so we don't accidentally see values from previous iteration.
-                memset(readback.get(), 0x0, nonZeroRowBytes * Y_SIZE);
+                memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 
                 // read the texture back
-                texture->readPixels(0, 0, desc.fWidth, desc.fHeight, kAlpha_8_GrPixelConfig,
-                                    readback.get(), rowBytes);
+                bool result = texture->readPixels(0, 0, desc.fWidth, desc.fHeight,
+                                                  kAlpha_8_GrPixelConfig,
+                                                  readback.get(), rowBytes);
+                REPORTER_ASSERT_MESSAGE(reporter, result, "8888 readPixels failed");
 
                 // make sure the original & read back versions match
                 SkString msg;
-                msg.printf("rt:%d, rb:%d", rt, SkToU32(rowBytes));
+                msg.printf("rt:%d, rb:%d 8888", rt, SkToU32(rowBytes));
                 validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
                                     alphaData, msg);
             }
