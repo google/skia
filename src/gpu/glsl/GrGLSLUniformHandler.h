@@ -12,14 +12,12 @@
 #include "GrGLSLShaderVar.h"
 
 class GrGLSLProgramBuilder;
-class GrGLSLSampler;
 
 class GrGLSLUniformHandler {
 public:
     virtual ~GrGLSLUniformHandler() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of GrShaderFlag values indicating from which shaders the uniform
@@ -32,7 +30,6 @@ public:
                              GrSLPrecision precision,
                              const char* name,
                              const char** outName = nullptr) {
-        SkASSERT(!GrSLTypeIsSamplerType(type));
         return this->addUniformArray(visibility, type, precision, name, 0, outName);
     }
 
@@ -42,7 +39,6 @@ public:
                                   const char* name,
                                   int arrayCount,
                                   const char** outName = nullptr) {
-        SkASSERT(!GrSLTypeIsSamplerType(type));
         return this->internalAddUniformArray(visibility, type, precision, name, true, arrayCount,
                                              outName);
     }
@@ -53,7 +49,6 @@ public:
      * Shortcut for getUniformVariable(u).c_str()
      */
     virtual const char* getUniformCStr(UniformHandle u) const = 0;
-
 protected:
     explicit GrGLSLUniformHandler(GrGLSLProgramBuilder* program) : fProgramBuilder(program) {}
 
@@ -61,23 +56,6 @@ protected:
     GrGLSLProgramBuilder* fProgramBuilder;
 
 private:
-    virtual int numSamplers() const = 0;
-    virtual const GrGLSLSampler& getSampler(SamplerHandle handle) const = 0;
-
-    SamplerHandle addSampler(uint32_t visibility,
-                             GrPixelConfig config,
-                             GrSLType type,
-                             GrSLPrecision precision,
-                             const char* name) {
-        return this->internalAddSampler(visibility, config, type, precision, name);
-    }
-
-    virtual SamplerHandle internalAddSampler(uint32_t visibility,
-                                             GrPixelConfig config,
-                                             GrSLType type,
-                                             GrSLPrecision precision,
-                                             const char* name) = 0;
-
     virtual UniformHandle internalAddUniformArray(uint32_t visibility,
                                                   GrSLType type,
                                                   GrSLPrecision precision,

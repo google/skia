@@ -11,7 +11,6 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 #include "gl/GrGLProgramDataManager.h"
-#include "gl/GrGLSampler.h"
 
 class GrGLCaps;
 
@@ -39,17 +38,6 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle internalAddSampler(uint32_t visibility,
-                                     GrPixelConfig config,
-                                     GrSLType type,
-                                     GrSLPrecision precision,
-                                     const char* name) override;
-
-    int numSamplers() const override { return fSamplers.count(); }
-    const GrGLSLSampler& getSampler(SamplerHandle handle) const override {
-        return fSamplers[handle.toIndex()];
-    }
-
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
 
     // Manually set uniform locations for all our uniforms.
@@ -64,8 +52,6 @@ private:
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
     UniformInfoArray fUniforms;
-
-    SkTArray<GrGLSampler> fSamplers;
 
     friend class GrGLProgramBuilder;
 

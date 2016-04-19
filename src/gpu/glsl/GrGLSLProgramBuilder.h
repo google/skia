@@ -41,10 +41,6 @@ public:
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
-    typedef GrGLSLUniformHandler::SamplerHandle SamplerHandle;
-
-    const GrGLSLSampler& getSampler(SamplerHandle handle) const;
-
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {
         UniformHandle       fRTAdjustmentUni;
@@ -108,6 +104,8 @@ protected:
 
     void finalizeShaders();
 
+    SkTArray<UniformHandle> fSamplerUniforms;
+
 private:
     // reset is called by program creator between each processor's emit code.  It increments the
     // stage offset for variable name mangling, and also ensures verfication variables in the
@@ -148,15 +146,14 @@ private:
                                 const GrGLSLExpr4& coverageIn,
                                 bool ignoresCoverage,
                                 GrPixelLocalStorageState plsState);
-
     void emitSamplers(const GrProcessor& processor,
-                      SkTArray<SamplerHandle>* outTexSamplers,
-                      SkTArray<SamplerHandle>* outBufferSamplers);
+                      GrGLSLSampler::SamplerArray* outTexSamplers,
+                      GrGLSLSampler::SamplerArray* outBufferSamplers);
     void emitSampler(GrSLType samplerType,
                      GrPixelConfig,
                      const char* name,
                      GrShaderFlags visibility,
-                     SkTArray<SamplerHandle>* outSamplers);
+                     GrGLSLSampler::SamplerArray* outSamplers);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     bool checkSamplerCounts();
 

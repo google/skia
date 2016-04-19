@@ -11,7 +11,6 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 #include "GrAllocator.h"
-#include "GrVkGLSLSampler.h"
 #include "glsl/GrGLSLShaderVar.h"
 
 class GrVkUniformHandler : public GrGLSLUniformHandler {
@@ -31,6 +30,8 @@ public:
     struct UniformInfo {
         GrGLSLShaderVar fVariable;
         uint32_t        fVisibility;
+        uint32_t        fSetNumber;
+        uint32_t        fBinding;
         uint32_t        fUBOffset;
     };
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
@@ -60,17 +61,6 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle internalAddSampler(uint32_t visibility,
-                                     GrPixelConfig config,
-                                     GrSLType type,
-                                     GrSLPrecision precision,
-                                     const char* name) override;
-
-    int numSamplers() const override { return fSamplers.count(); }
-    const GrGLSLSampler& getSampler(SamplerHandle handle) const override {
-        return fSamplers[handle.toIndex()];
-    }
-
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
     bool hasVertexUniforms() const { return fCurrentVertexUBOOffset > 0; }
@@ -83,8 +73,6 @@ private:
 
 
     UniformInfoArray fUniforms;
-    SkTArray<GrVkGLSLSampler> fSamplers;
-
     uint32_t         fCurrentVertexUBOOffset;
     uint32_t         fCurrentFragmentUBOOffset;
     uint32_t         fCurrentSamplerBinding;

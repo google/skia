@@ -162,18 +162,20 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
 
-    uint32_t numSamplers = (uint32_t)fUniformHandler.numSamplers();
+    uint32_t numSamplers = fSamplerUniforms.count();
 
     SkAutoTDeleteArray<VkDescriptorSetLayoutBinding> dsSamplerBindings(
                                                      new VkDescriptorSetLayoutBinding[numSamplers]);
     for (uint32_t i = 0; i < numSamplers; ++i) {
-        const GrVkGLSLSampler& sampler =
-            static_cast<const GrVkGLSLSampler&>(fUniformHandler.getSampler(i));
-        SkASSERT(sampler.binding() == i);
-        dsSamplerBindings[i].binding = sampler.binding();
+        UniformHandle uniHandle = fSamplerUniforms[i];
+        GrVkUniformHandler::UniformInfo uniformInfo = fUniformHandler.getUniformInfo(uniHandle);
+        SkASSERT(kSampler2D_GrSLType == uniformInfo.fVariable.getType());
+        SkASSERT(GrVkUniformHandler::kSamplerDescSet == uniformInfo.fSetNumber);
+        SkASSERT(uniformInfo.fBinding == i);
+        dsSamplerBindings[i].binding = uniformInfo.fBinding;
         dsSamplerBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         dsSamplerBindings[i].descriptorCount = 1;
-        dsSamplerBindings[i].stageFlags = visibility_to_vk_stage_flags(sampler.visibility());
+        dsSamplerBindings[i].stageFlags = visibility_to_vk_stage_flags(uniformInfo.fVisibility);
         dsSamplerBindings[i].pImmutableSamplers = nullptr;
     }
 
@@ -182,10 +184,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
     dsSamplerLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     dsSamplerLayoutCreateInfo.pNext = nullptr;
     dsSamplerLayoutCreateInfo.flags = 0;
-    dsSamplerLayoutCreateInfo.bindingCount = numSamplers;
+    dsSamplerLayoutCreateInfo.bindingCount = fSamplerUniforms.count();
     // Setting to nullptr fixes an error in the param checker validation layer. Even though
     // bindingCount is 0 (which is valid), it still tries to validate pBindings unless it is null.
-    dsSamplerLayoutCreateInfo.pBindings = numSamplers ? dsSamplerBindings.get() : nullptr;
+    dsSamplerLayoutCreateInfo.pBindings = fSamplerUniforms.count() ? dsSamplerBindings.get() :
+                                                                     nullptr;
 
     GR_VK_CALL_ERRCHECK(fGpu->vkInterface(),
                         CreateDescriptorSetLayout(fGpu->device(),

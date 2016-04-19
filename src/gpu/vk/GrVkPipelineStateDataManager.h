@@ -59,6 +59,7 @@ private:
         SkDEBUGCODE(
             GrSLType    fType;
             int         fArrayCount;
+            uint32_t    fSetNumber;
         );
     };
 

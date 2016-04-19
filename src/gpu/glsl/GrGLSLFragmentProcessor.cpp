@@ -83,16 +83,17 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
         firstBufferAt += args.fFp.childProcessor(i).numBuffers();
     }
     GrGLSLTransformedCoordsArray childCoords;
-    const SamplerHandle* childTexSamplers = nullptr;
-    const SamplerHandle* childBufferSamplers =  nullptr;
+    SamplerArray childTexSamplers;
+    SamplerArray childBufferSamplers;
     if (childProc.numTransforms() > 0) {
         childCoords.push_back_n(childProc.numTransforms(), &args.fCoords[firstCoordAt]);
     }
     if (childProc.numTextures() > 0) {
-        childTexSamplers = &args.fTexSamplers[firstTextureAt];
+        childTexSamplers.push_back_n(childProc.numTextures(), &args.fTexSamplers[firstTextureAt]);
     }
     if (childProc.numBuffers() > 0) {
-        childBufferSamplers = &args.fBufferSamplers[firstBufferAt];
+        childBufferSamplers.push_back_n(childProc.numBuffers(),
+                                        &args.fBufferSamplers[firstBufferAt]);
     }
 
     // emit the code for the child in its own scope

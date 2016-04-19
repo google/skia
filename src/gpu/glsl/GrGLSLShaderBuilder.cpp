@@ -63,68 +63,71 @@ void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
 }
 
 void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
-                                              SamplerHandle samplerHandle,
+                                              const GrGLSLSampler& sampler,
                                               const char* coordName,
                                               GrSLType varyingType) const {
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
-    const GrGLSLSampler& sampler = fProgramBuilder->getSampler(samplerHandle);
-    GrSLType samplerType = sampler.type();
+    GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
+    GrSLType samplerType = uniformHandler->getUniformVariable(sampler.fSamplerUniform).getType();
     if (samplerType == kSampler2DRect_GrSLType) {
         if (varyingType == kVec2f_GrSLType) {
             out->appendf("%s(%s, textureSize(%s) * %s)",
                          GrGLSLTexture2DFunctionName(varyingType, samplerType,
                                                      glslCaps->generation()),
-                         sampler.getSamplerNameForTexture2D(),
-                         sampler.getSamplerNameForTexture2D(),
+                         uniformHandler->getUniformCStr(sampler.fSamplerUniform),
+                         uniformHandler->getUniformCStr(sampler.fSamplerUniform),
                          coordName);
         } else {
             out->appendf("%s(%s, vec3(textureSize(%s) * %s.xy, %s.z))",
                          GrGLSLTexture2DFunctionName(varyingType, samplerType,
                                                      glslCaps->generation()),
-                         sampler.getSamplerNameForTexture2D(),
-                         sampler.getSamplerNameForTexture2D(),
+                         uniformHandler->getUniformCStr(sampler.fSamplerUniform),
+                         uniformHandler->getUniformCStr(sampler.fSamplerUniform),
                          coordName,
                          coordName);
         }
     } else {
         out->appendf("%s(%s, %s)",
                      GrGLSLTexture2DFunctionName(varyingType, samplerType, glslCaps->generation()),
-                     sampler.getSamplerNameForTexture2D(),
+                     uniformHandler->getUniformCStr(sampler.fSamplerUniform),
                      coordName);
     }
 
     this->appendTextureSwizzle(out, sampler.config());
 }
 
-void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
+void GrGLSLShaderBuilder::appendTextureLookup(const GrGLSLSampler& sampler,
                                               const char* coordName,
                                               GrSLType varyingType) {
-    this->appendTextureLookup(&this->code(), samplerHandle, coordName, varyingType);
+    this->appendTextureLookup(&this->code(), sampler, coordName, varyingType);
 }
 
 void GrGLSLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
-                                                         SamplerHandle samplerHandle,
+                                                         const GrGLSLSampler& sampler,
                                                          const char* coordName,
                                                          GrSLType varyingType) {
     SkString lookup;
-    this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
+    this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
     this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
 }
 
 void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,
-                                           SamplerHandle samplerHandle,
+                                           const GrGLSLSampler& sampler,
                                            const char* coordExpr) const {
-    const GrGLSLSampler& sampler = fProgramBuilder->getSampler(samplerHandle);
+    const GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
     SkASSERT(fProgramBuilder->glslCaps()->texelFetchSupport());
-    SkASSERT(GrSLTypeIsSamplerType(sampler.type()));
+    SkASSERT(GrSLTypeIsSamplerType(
+             uniformHandler->getUniformVariable(sampler.fSamplerUniform).getType()));
 
-    out->appendf("texelFetch(%s, %s)", sampler.getSamplerNameForTexelFetch(), coordExpr);
+    out->appendf("texelFetch(%s, %s)",
+                 uniformHandler->getUniformCStr(sampler.fSamplerUniform),
+                 coordExpr);
 
     this->appendTextureSwizzle(out, sampler.config());
 }
 
-void GrGLSLShaderBuilder::appendTexelFetch(SamplerHandle samplerHandle, const char* coordExpr) {
-    this->appendTexelFetch(&this->code(), samplerHandle, coordExpr);
+void GrGLSLShaderBuilder::appendTexelFetch(const GrGLSLSampler& sampler, const char* coordExpr) {
+    this->appendTexelFetch(&this->code(), sampler, coordExpr);
 }
 
 void GrGLSLShaderBuilder::appendTextureSwizzle(SkString* out, GrPixelConfig config) const {

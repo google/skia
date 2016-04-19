@@ -27,7 +27,7 @@ public:
     virtual ~GrGLSLPrimitiveProcessor() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+    typedef GrGLSLSampler::SamplerArray SamplerArray;
 
     typedef SkSTArray<2, const GrCoordTransform*, true> ProcCoords;
     typedef SkSTArray<8, ProcCoords> TransformsIn;
@@ -42,8 +42,8 @@ public:
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
-                 const SamplerHandle* texSamplers,
-                 const SamplerHandle* bufferSamplers,
+                 const SamplerArray& texSamplers,
+                 const SamplerArray& bufferSamplers,
                  const TransformsIn& transformsIn,
                  TransformsOut* transformsOut)
             : fVertBuilder(vertBuilder)
@@ -66,8 +66,8 @@ public:
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
-        const SamplerHandle* fTexSamplers;
-        const SamplerHandle* fBufferSamplers;
+        const SamplerArray& fTexSamplers;
+        const SamplerArray& fBufferSamplers;
         const TransformsIn& fTransformsIn;
         TransformsOut* fTransformsOut;
     };

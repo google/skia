@@ -61,31 +61,19 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
     }
 }
 
-void GrGLProgramDataManager::setSamplers(const SkTArray<GrGLSampler>& samplers) const {
-    for (int i = 0; i < samplers.count(); ++i) {
-        GrGLint vsLocation;
-        GrGLint fsLocation;
-        const GrGLSampler& sampler = samplers[i];
-        if (kVertex_GrShaderFlag & sampler.visibility()) {
-            vsLocation = sampler.location();
-        } else {
-            vsLocation = kUnusedUniform;
-        }
-        if (kFragment_GrShaderFlag & sampler.visibility()) {
-            fsLocation = sampler.location();
-        } else {
-            fsLocation = kUnusedUniform;
-        }
-        // FIXME: We still insert a single sampler uniform for every stage. If the shader does not
-        // reference the sampler then the compiler may have optimized it out. Uncomment this assert
-        // once stages insert their own samplers.
-        // this->printUnused(uni);
-        if (kUnusedUniform != fsLocation) {
-            GR_GL_CALL(fGpu->glInterface(), Uniform1i(fsLocation, i));
-        }
-        if (kUnusedUniform != vsLocation && vsLocation != fsLocation) {
-            GR_GL_CALL(fGpu->glInterface(), Uniform1i(vsLocation, i));
-        }
+void GrGLProgramDataManager::setSampler(UniformHandle u, int texUnit) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(GrSLTypeIsSamplerType(uni.fType));
+    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
+    // FIXME: We still insert a single sampler uniform for every stage. If the shader does not
+    // reference the sampler then the compiler may have optimized it out. Uncomment this assert
+    // once stages insert their own samplers.
+    // this->printUnused(uni);
+    if (kUnusedUniform != uni.fFSLocation) {
+        GR_GL_CALL(fGpu->glInterface(), Uniform1i(uni.fFSLocation, texUnit));
+    }
+    if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
+        GR_GL_CALL(fGpu->glInterface(), Uniform1i(uni.fVSLocation, texUnit));
     }
 }
 

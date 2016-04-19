@@ -106,11 +106,11 @@ protected:
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray&,
-                const SkTArray<GrGLSampler>&,
                 const VaryingInfoArray&, // used for NVPR only currently
                 GrGLSLPrimitiveProcessor* geometryProcessor,
                 GrGLSLXferProcessor* xferProcessor,
-                const GrGLSLFragProcs& fragmentProcessors);
+                const GrGLSLFragProcs& fragmentProcessors,
+                SkTArray<UniformHandle>* passSamplerUniforms);
 
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
     void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextSamplerIdx);
@@ -135,6 +135,7 @@ protected:
     GrProgramDesc fDesc;
     GrGLGpu* fGpu;
     GrGLProgramDataManager fProgramDataManager;
+    SkTArray<UniformHandle> fSamplerUniforms;
 
     friend class GrGLProgramBuilder;
 

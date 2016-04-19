@@ -9,11 +9,13 @@
 #define GrGLSLShaderBuilder_DEFINED
 
 #include "GrAllocator.h"
-#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "SkTDArray.h"
 
 #include <stdarg.h>
+
+class GrGLSLProgramBuilder;
+class GrGLSLSampler;
 
 /**
   base class for all shaders builders
@@ -23,19 +25,17 @@ public:
     GrGLSLShaderBuilder(GrGLSLProgramBuilder* program);
     virtual ~GrGLSLShaderBuilder() {}
 
-    typedef GrGLSLUniformHandler::SamplerHandle SamplerHandle;
-
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
         order of the result depends on the GrTextureAccess associated with the GrGLSLSampler.
         */
     void appendTextureLookup(SkString* out,
-                             SamplerHandle,
+                             const GrGLSLSampler&,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
     /** Version of above that appends the result to the shader code instead.*/
-    void appendTextureLookup(SamplerHandle,
+    void appendTextureLookup(const GrGLSLSampler&,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType);
 
@@ -45,17 +45,17 @@ public:
         vec4 or float. If modulation is "" or nullptr it this function acts as though
         appendTextureLookup were called. */
     void appendTextureLookupAndModulate(const char* modulation,
-                                        SamplerHandle,
+                                        const GrGLSLSampler&,
                                         const char* coordName,
                                         GrSLType coordType = kVec2f_GrSLType);
 
     /** Fetches an unfiltered texel from a sampler at integer coordinates. coordExpr must match the
         dimensionality of the sampler and must be within the sampler's range. coordExpr is emitted
         exactly once, so expressions like "idx++" are acceptable. */
-    void appendTexelFetch(SkString* out, SamplerHandle, const char* coordExpr) const;
+    void appendTexelFetch(SkString* out, const GrGLSLSampler&, const char* coordExpr) const;
 
     /** Version of above that appends the result to the shader code instead.*/
-    void appendTexelFetch(SamplerHandle, const char* coordExpr);
+    void appendTexelFetch(const GrGLSLSampler&, const char* coordExpr);
 
     /**
     * Adds a #define directive to the top of the shader.
