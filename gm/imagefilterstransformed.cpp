@@ -113,9 +113,49 @@ private:
     sk_sp<SkImage> fGradientCircle;
     typedef GM INHERITED;
 };
+DEF_GM( return new ImageFiltersTransformedGM; )
+}
 
 //////////////////////////////////////////////////////////////////////////////
+#include "SkXfermodeImageFilter.h"
 
-DEF_GM( return new ImageFiltersTransformedGM; )
+DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
+    SkPaint paint;
 
+    const SkRect r = SkRect::MakeXYWH(50, 50, 100, 100);
+
+    sk_sp<SkImageFilter> filters[] = {
+        nullptr,
+        SkBlurImageFilter::Make(6, 0, nullptr),
+        SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcOver_Mode), nullptr),
+    };
+
+    for (auto& filter : filters) {
+        paint.setAntiAlias(false);
+        paint.setImageFilter(filter);
+
+        canvas->save();
+
+        canvas->drawRect(r, paint);
+
+        canvas->translate(150, 0);
+        canvas->save();
+            canvas->translate(100, 100);
+            canvas->rotate(30);
+            canvas->translate(-100, -100);
+            canvas->drawRect(r, paint);
+        canvas->restore();
+
+        paint.setAntiAlias(true);
+        canvas->translate(150, 0);
+        canvas->save();
+            canvas->translate(100, 100);
+            canvas->rotate(30);
+            canvas->translate(-100, -100);
+            canvas->drawRect(r, paint);
+        canvas->restore();
+
+        canvas->restore();
+        canvas->translate(0, 150);
+    }
 }
