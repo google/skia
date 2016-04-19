@@ -236,9 +236,9 @@ GrRenderTarget* GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDe
 }
 
 GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,
-                              GrAccessPattern accessPattern) {
+                              GrAccessPattern accessPattern, const void* data) {
     this->handleDirtyContext();
-    GrBuffer* buffer = this->onCreateBuffer(size, intendedType, accessPattern);
+    GrBuffer* buffer = this->onCreateBuffer(size, intendedType, accessPattern, data);
     if (!this->caps()->reuseScratchBuffers()) {
         buffer->resourcePriv().removeScratchKey();
     }

@@ -1949,8 +1949,8 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 #define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
 
 GrBuffer* GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
-                                  GrAccessPattern accessPattern) {
-    return GrGLBuffer::Create(this, size, intendedType, accessPattern);
+                                  GrAccessPattern accessPattern, const void* data) {
+    return GrGLBuffer::Create(this, size, intendedType, accessPattern, data);
 }
 
 void GrGLGpu::flushScissor(const GrScissorState& scissorState,

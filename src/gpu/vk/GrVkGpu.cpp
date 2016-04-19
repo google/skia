@@ -172,26 +172,32 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern accessPattern) {
+GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern accessPattern,
+                                  const void* data) {
+    GrBuffer* buff;
     switch (type) {
         case kVertex_GrBufferType:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStatic_GrAccessPattern == accessPattern);
-            return GrVkVertexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
+            buff = GrVkVertexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
         case kIndex_GrBufferType:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStatic_GrAccessPattern == accessPattern);
-            return GrVkIndexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
+            buff = GrVkIndexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
         case kXferCpuToGpu_GrBufferType:
             SkASSERT(kStream_GrAccessPattern == accessPattern);
-            return GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyRead_Type);
+            buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyRead_Type);
         case kXferGpuToCpu_GrBufferType:
             SkASSERT(kStream_GrAccessPattern == accessPattern);
-            return GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyWrite_Type);
+            buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyWrite_Type);
         default:
             SkFAIL("Unknown buffer type.");
             return nullptr;
     }
+    if (data && buff) {
+        buff->updateData(data, size);
+    }
+    return buff;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -129,7 +129,8 @@ private:
                                               GrWrapOwnership) override;
     GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override { return NULL; }
 
-    GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern) override;
+    GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
+                             const void* data) override;
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
 

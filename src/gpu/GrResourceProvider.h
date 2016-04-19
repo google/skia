@@ -110,10 +110,12 @@ public:
      * @param intendedType    hint to the graphics subsystem about what the buffer will be used for.
      * @param GrAccessPattern hint to the graphics subsystem about how the data will be accessed.
      * @param flags           see Flags enum.
+     * @param data            optional data with which to initialize the buffer.
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, uint32_t flags);
+    GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, uint32_t flags,
+                           const void* data = nullptr);
 
     GrTexture* createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
         SkASSERT(0 == flags || kNoPendingIO_Flag == flags);

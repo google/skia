@@ -91,7 +91,8 @@ GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf,
 }
 
 GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedType,
-                                           GrAccessPattern accessPattern, uint32_t flags) {
+                                           GrAccessPattern accessPattern, uint32_t flags,
+                                           const void* data) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -110,11 +111,14 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
         }
         GrGpuResource* resource = this->cache()->findAndRefScratchResource(key, size, scratchFlags);
-        if (resource) {
-            return static_cast<GrBuffer*>(resource);
+        if (GrBuffer* buffer = static_cast<GrBuffer*>(resource)) {
+            if (data) {
+                buffer->updateData(data, size);
+            }
+            return buffer;
         }
     }
-    return this->gpu()->createBuffer(size, intendedType, accessPattern);
+    return this->gpu()->createBuffer(size, intendedType, accessPattern, data);
 }
 
 GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,

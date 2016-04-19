@@ -138,10 +138,12 @@ public:
      * @param size            size of buffer to create.
      * @param intendedType    hint to the graphics subsystem about what the buffer will be used for.
      * @param accessPattern   hint to the graphics subsystem about how the data will be accessed.
+     * @param data            optional data with which to initialize the buffer.
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern accessPattern);
+    GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern accessPattern,
+                           const void* data = nullptr);
 
     /**
      * Resolves MSAA.
@@ -537,7 +539,8 @@ private:
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                                       GrWrapOwnership) = 0;
     virtual GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) = 0;
-    virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern) = 0;
+    virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
+                                     const void* data) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) = 0;

@@ -345,7 +345,9 @@ private:
         return nullptr;
     }
 
-    GrBuffer* onCreateBuffer(size_t, GrBufferType, GrAccessPattern) override { return nullptr; }
+    GrBuffer* onCreateBuffer(size_t, GrBufferType, GrAccessPattern, const void*) override {
+        return nullptr;
+    }
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override {}
 
