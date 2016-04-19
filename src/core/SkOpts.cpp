@@ -141,10 +141,4 @@ namespace SkOpts {
         static SkOnce once;
         once(init);
     }
-
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-    static struct AutoInit {
-        AutoInit() { Init(); }
-    } gAutoInit;
-#endif
-}
+}  // namespace SkOpts

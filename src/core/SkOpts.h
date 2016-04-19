@@ -17,7 +17,7 @@ struct ProcCoeff;
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
     // Thread-safe and idempotent.
-    // Called by SkGraphics::Init(), and automatically #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS.
+    // Called by SkGraphics::Init().
     void Init();
 
     // Declare function pointers here...
