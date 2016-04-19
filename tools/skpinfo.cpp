@@ -65,7 +65,26 @@ int tool_main(int argc, char** argv) {
                  info.fCullRect.fRight, info.fCullRect.fBottom);
     }
     if (FLAGS_flags && !FLAGS_quiet) {
-        SkDebugf("Flags: 0x%x\n", info.fFlags);
+        SkDebugf("Flags: ");
+        bool needsSeparator = false;
+        if (info.fFlags & SkPictInfo::kCrossProcess_Flag) {
+            SkDebugf("kCrossProcess");
+            needsSeparator = true;
+        }
+        if (info.fFlags & SkPictInfo::kScalarIsFloat_Flag) {
+            if (needsSeparator) {
+                SkDebugf("|");
+            }
+            SkDebugf("kScalarIsFloat");
+            needsSeparator = true;
+        }
+        if (info.fFlags & SkPictInfo::kPtrIs64Bit_Flag) {
+            if (needsSeparator) {
+                SkDebugf("|");
+            }
+            SkDebugf("kPtrIs64Bit");
+        }
+        SkDebugf("\n");
     }
 
     if (!stream.readBool()) {
