@@ -14,12 +14,12 @@
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
-SkBmpRLECodec::SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info, SkStream* stream,
                              uint16_t bitsPerPixel, uint32_t numColors,
                              uint32_t bytesPerColor, uint32_t offset,
                              SkCodec::SkScanlineOrder rowOrder,
                              size_t RLEBytes)
-    : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
+    : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
     , fNumColors(numColors)
     , fBytesPerColor(bytesPerColor)

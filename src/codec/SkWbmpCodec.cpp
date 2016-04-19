@@ -104,8 +104,8 @@ bool SkWbmpCodec::readRow(uint8_t* row) {
     return this->stream()->read(row, fSrcRowBytes) == fSrcRowBytes;
 }
 
-SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
-    : INHERITED(width, height, info, stream)
+SkWbmpCodec::SkWbmpCodec(const SkImageInfo& info, SkStream* stream)
+    : INHERITED(info, stream)
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
     , fSwizzler(nullptr)
     , fColorTable(nullptr)
@@ -166,9 +166,9 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     if (!read_header(stream, &size)) {
         return nullptr;
     }
-    SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kGray_Color,
-            SkEncodedInfo::kOpaque_Alpha, 1);
-    return new SkWbmpCodec(size.width(), size.height(), info, streamDeleter.release());
+    SkImageInfo info = SkImageInfo::Make(size.width(), size.height(),
+            kGray_8_SkColorType, kOpaque_SkAlphaType);
+    return new SkWbmpCodec(info, streamDeleter.release());
 }
 
 int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {

@@ -415,47 +415,33 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
 
     switch (inputFormat) {
         case kStandard_BmpInputFormat: {
-            // BMPs are generally opaque, however BMPs-in-ICOs may contain
-            // a transparency mask after the image.  Therefore, we mark the
-            // alpha as kBinary if the BMP is contained in an ICO.
-            // We use |isOpaque| to indicate if the BMP itself is opaque.
-            SkEncodedInfo::Alpha alpha = inIco ? SkEncodedInfo::kBinary_Alpha :
-                    SkEncodedInfo::kOpaque_Alpha;
+            // BMPs-in-ICOs often contain an alpha mask after the image, which
+            // means we cannot guarantee that an image is opaque, even if the
+            // embedded bmp is opaque.
+            // We use |isOpaque| to indicate if the BMP itself is opaque, but
+            // still need to recommend kUnpremul when it is contained in an ICO.
+            SkColorType colorType = kN32_SkColorType;
+            SkAlphaType alphaType = inIco ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
             bool isOpaque = true;
-
-            SkEncodedInfo::Color color;
-            uint8_t bitsPerComponent;
             switch (bitsPerPixel) {
                 // Palette formats
                 case 1:
                 case 2:
                 case 4:
                 case 8:
-                    // In the case of ICO, kBGRA is actually the closest match,
-                    // since we will need to apply a transparency mask.
-                    if (inIco) {
-                        color = SkEncodedInfo::kBGRA_Color;
-                        bitsPerComponent = 8;
-                    } else {
-                        color = SkEncodedInfo::kPalette_Color;
-                        bitsPerComponent = (uint8_t) bitsPerPixel;
+                    // We cannot recommend a palette color type for ICOs because they
+                    // may contain a transparency mask.
+                    if (!inIco) {
+                        colorType = kIndex_8_SkColorType;
                     }
                     break;
                 case 24:
-                    color = SkEncodedInfo::kBGR_Color;
-                    bitsPerComponent = 8;
-                    break;
                 case 32:
                     // 32-bit BMP-in-ICOs actually use the alpha channel in place of a
                     // transparency mask.
                     if (inIco) {
                         isOpaque = false;
-                        alpha = SkEncodedInfo::kUnpremul_Alpha;
-                        color = SkEncodedInfo::kBGRA_Color;
-                    } else {
-                        color = SkEncodedInfo::kBGRX_Color;
                     }
-                    bitsPerComponent = 8;
                     break;
                 default:
                     SkCodecPrintf("Error: invalid input value for bits per pixel.\n");
@@ -467,9 +453,11 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 SkASSERT(!inIco || nullptr != stream->getMemoryBase());
 
                 // Set the image info and create a codec.
-                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent);
-                *codecOut = new SkBmpStandardCodec(width, height, info, stream, bitsPerPixel,
-                        numColors, bytesPerColor, offset - bytesRead, rowOrder, isOpaque, inIco);
+                const SkImageInfo imageInfo = SkImageInfo::Make(width, height, colorType,
+                        alphaType);
+                *codecOut = new SkBmpStandardCodec(imageInfo, stream, bitsPerPixel, numColors,
+                        bytesPerColor, offset - bytesRead, rowOrder, isOpaque, inIco);
+
             }
             return true;
         }
@@ -507,22 +495,13 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     return false;
                 }
 
-                // Masked bmps are not a great fit for SkEncodedInfo, since they have
-                // arbitrary component orderings and bits per component.  Here we choose
-                // somewhat reasonable values - it's ok that we don't match exactly
-                // because SkBmpMaskCodec has its own mask swizzler anyway.
-                SkEncodedInfo::Color color;
-                SkEncodedInfo::Alpha alpha;
-                if (masks->getAlphaMask()) {
-                    color = SkEncodedInfo::kBGRA_Color;
-                    alpha = SkEncodedInfo::kUnpremul_Alpha;
-                } else {
-                    color = SkEncodedInfo::kBGR_Color;
-                    alpha = SkEncodedInfo::kOpaque_Alpha;
-                }
-                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-                *codecOut = new SkBmpMaskCodec(width, height, info, stream, bitsPerPixel,
-                        masks.release(), rowOrder);
+                // Set the image info
+                SkAlphaType alphaType = masks->getAlphaMask() ? kUnpremul_SkAlphaType :
+                        kOpaque_SkAlphaType;
+                const SkImageInfo imageInfo = SkImageInfo::Make(width, height, kN32_SkColorType,
+                        alphaType);
+                *codecOut = new SkBmpMaskCodec(imageInfo, stream, bitsPerPixel, masks.release(),
+                        rowOrder);
             }
             return true;
         }
@@ -547,11 +526,10 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
             if (codecOut) {
                 // RLE inputs may skip pixels, leaving them as transparent.  This
                 // is uncommon, but we cannot be certain that an RLE bmp will be
-                // opaque or that we will be able to represent it with a palette.
-                // For that reason, we always indicate that we are kBGRA.
-                const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
-                        SkEncodedInfo::kBinary_Alpha, 8);
-                *codecOut = new SkBmpRLECodec(width, height, info, stream, bitsPerPixel, numColors,
+                // opaque.
+                const SkImageInfo imageInfo = SkImageInfo::Make(width, height, kN32_SkColorType,
+                        kUnpremul_SkAlphaType);
+                *codecOut = new SkBmpRLECodec(imageInfo, stream, bitsPerPixel, numColors,
                         bytesPerColor, offset - bytesRead, rowOrder, RLEBytes);
             }
             return true;
@@ -579,12 +557,12 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
     return nullptr;
 }
 
-SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
         uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream)
+    : INHERITED(info, stream)
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
-    , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
+    , fSrcRowBytes(SkAlign4(compute_row_bytes(info.width(), fBitsPerPixel)))
 {}
 
 bool SkBmpCodec::onRewind() {

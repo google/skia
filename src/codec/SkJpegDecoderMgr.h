@@ -43,10 +43,9 @@ public:
     void  init();
 
     /*
-     * Returns the encoded color type of the jpeg, or kUnknown if the
-     * color type can't be determined
+     * Recommend a color type based on the encoded format
      */
-    SkEncodedInfo::Color getEncodedColor();
+    SkColorType getColorType();
 
     /*
      * Free memory used by the decode manager

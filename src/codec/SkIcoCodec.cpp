@@ -168,22 +168,20 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
             maxIndex = i;
         }
     }
-    int width = codecs->operator[](maxIndex)->getInfo().width();
-    int height = codecs->operator[](maxIndex)->getInfo().height();
-    SkEncodedInfo info = codecs->operator[](maxIndex)->getEncodedInfo();
+    SkImageInfo info = codecs->operator[](maxIndex)->getInfo();
 
     // Note that stream is owned by the embedded codec, the ico does not need
     // direct access to the stream.
-    return new SkIcoCodec(width, height, info, codecs.release());
+    return new SkIcoCodec(info, codecs.release());
 }
 
 /*
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
-SkIcoCodec::SkIcoCodec(int width, int height, const SkEncodedInfo& info,
+SkIcoCodec::SkIcoCodec(const SkImageInfo& info,
                        SkTArray<SkAutoTDelete<SkCodec>, true>* codecs)
-    : INHERITED(width, height, info, nullptr)
+    : INHERITED(info, nullptr)
     , fEmbeddedCodecs(codecs)
     , fCurrScanlineCodec(nullptr)
 {}

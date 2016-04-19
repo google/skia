@@ -11,7 +11,6 @@
 #include "../private/SkTemplates.h"
 #include "SkColor.h"
 #include "SkEncodedFormat.h"
-#include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
 #include "SkStream.h"
@@ -100,8 +99,6 @@ public:
      *  Return the ImageInfo associated with this codec.
      */
     const SkImageInfo& getInfo() const { return fSrcInfo; }
-
-    const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
     /**
      *  Returns the color space associated with the codec.
@@ -514,9 +511,7 @@ protected:
     /**
      *  Takes ownership of SkStream*
      */
-    SkCodec(int width,
-            int height,
-            const SkEncodedInfo&,
+    SkCodec(const SkImageInfo&,
             SkStream*,
             sk_sp<SkColorSpace> = nullptr,
             Origin = kTopLeft_Origin);
@@ -647,7 +642,6 @@ protected:
     virtual int onOutputScanline(int inputScanline) const;
 
 private:
-    const SkEncodedInfo         fEncodedInfo;
     const SkImageInfo           fSrcInfo;
     SkAutoTDelete<SkStream>     fStream;
     bool                        fNeedsRewind;

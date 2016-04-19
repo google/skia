@@ -31,7 +31,7 @@ bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
 // Parse headers of RIFF container, and check for valid Webp (VP8) content.
 // NOTE: This calls peek instead of read, since onGetPixels will need these
 // bytes again.
-static bool webp_parse_header(SkStream* stream, int* width, int* height, SkEncodedInfo* info) {
+static bool webp_parse_header(SkStream* stream, SkImageInfo* info) {
     unsigned char buffer[WEBP_VP8_HEADER_SIZE];
     SkASSERT(WEBP_VP8_HEADER_SIZE <= SkCodec::MinBufferedBytesNeeded());
 
@@ -62,55 +62,22 @@ static bool webp_parse_header(SkStream* stream, int* width, int* height, SkEncod
     }
 
     if (info) {
-        SkEncodedInfo::Color color;
-        SkEncodedInfo::Alpha alpha;
-        switch (features.format) {
-            case 0:
-                // This indicates a "mixed" format.  We would see this for
-                // animated webps or for webps encoded in multiple fragments.
-                // I believe that this is a rare case.
-                // We could also guess kYUV here, but I think it makes more
-                // sense to guess kBGRA which is likely closer to the final
-                // output.  Otherwise, we might end up converting
-                // BGRA->YUVA->BGRA.
-                color = SkEncodedInfo::kBGRA_Color;
-                alpha = SkEncodedInfo::kUnpremul_Alpha;
-                break;
-            case 1:
-                // This is the lossy format (YUV).
-                if (SkToBool(features.has_alpha)) {
-                    color = SkEncodedInfo::kYUVA_Color;
-                    alpha = SkEncodedInfo::kUnpremul_Alpha;
-                } else {
-                    color = SkEncodedInfo::kYUV_Color;
-                    alpha = SkEncodedInfo::kOpaque_Alpha;
-                }
-                break;
-            case 2:
-                // This is the lossless format (BGRA).
-                // FIXME: Should we check the has_alpha flag here?  It looks
-                //        like the image is encoded with an alpha channel
-                //        regardless of whether or not the alpha flag is set.
-                color = SkEncodedInfo::kBGRA_Color;
-                alpha = SkEncodedInfo::kUnpremul_Alpha;
-                break;
-            default:
-                return false;
-        }
-
-        *width = features.width;
-        *height = features.height;
-        *info = SkEncodedInfo::Make(color, alpha, 8);
+        // FIXME: Is N32 the right type?
+        // Is unpremul the right type? Clients of SkCodec may assume it's the
+        // best type, when Skia currently cannot draw unpremul (and raster is faster
+        // with premul).
+        *info = SkImageInfo::Make(features.width, features.height, kN32_SkColorType,
+                                  SkToBool(features.has_alpha) ? kUnpremul_SkAlphaType
+                                                              : kOpaque_SkAlphaType);
     }
     return true;
 }
 
 SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     SkAutoTDelete<SkStream> streamDeleter(stream);
-    int width, height;
-    SkEncodedInfo info;
-    if (webp_parse_header(stream, &width, &height, &info)) {
-        return new SkWebpCodec(width, height, info, streamDeleter.release());
+    SkImageInfo info;
+    if (webp_parse_header(stream, &info)) {
+        return new SkWebpCodec(info, streamDeleter.release());
     }
     return nullptr;
 }
@@ -285,7 +252,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     }
 }
 
-SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
+SkWebpCodec::SkWebpCodec(const SkImageInfo& info, SkStream* stream)
     // The spec says an unmarked image is sRGB, so we return that space here.
     // TODO: Add support for parsing ICC profiles from webps.
-    : INHERITED(width, height, info, stream, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)) {}
+    : INHERITED(info, stream, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)) {}

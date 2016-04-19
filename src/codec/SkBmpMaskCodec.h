@@ -22,13 +22,13 @@ public:
      * Called only by SkBmpCodec::NewFromStream
      * There should be no other callers despite this being public
      *
-     * @param info contains properties of the encoded data
+     * @param srcInfo contains the source width and height
      * @param stream the stream of encoded image data
      * @param bitsPerPixel the number of bits used to store each pixel
      * @param masks color masks for certain bmp formats
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
-    SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+    SkBmpMaskCodec(const SkImageInfo& srcInfo, SkStream* stream,
             uint16_t bitsPerPixel, SkMasks* masks,
             SkCodec::SkScanlineOrder rowOrder);
 

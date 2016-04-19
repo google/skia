@@ -71,8 +71,7 @@ private:
      * Constructor called by NewFromStream
      * @param embeddedCodecs codecs for the embedded images, takes ownership
      */
-    SkIcoCodec(int width, int height, const SkEncodedInfo& info,
-            SkTArray<SkAutoTDelete<SkCodec>, true>* embeddedCodecs);
+    SkIcoCodec(const SkImageInfo& srcInfo, SkTArray<SkAutoTDelete<SkCodec>, true>* embeddedCodecs);
 
     SkAutoTDelete<SkTArray<SkAutoTDelete<SkCodec>, true>> fEmbeddedCodecs; // owned
 
