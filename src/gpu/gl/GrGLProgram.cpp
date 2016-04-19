@@ -31,11 +31,11 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const BuiltinUniformHandles& builtinUniforms,
                          GrGLuint programID,
                          const UniformInfoArray& uniforms,
+                         const SkTArray<GrGLSampler>& samplers,
                          const VaryingInfoArray& pathProcVaryings,
                          GrGLSLPrimitiveProcessor* geometryProcessor,
                          GrGLSLXferProcessor* xferProcessor,
-                         const GrGLSLFragProcs& fragmentProcessors,
-                         SkTArray<UniformHandle>* passSamplerUniforms)
+                         const GrGLSLFragProcs& fragmentProcessors)
     : fBuiltinUniformHandles(builtinUniforms)
     , fProgramID(programID)
     , fGeometryProcessor(geometryProcessor)
@@ -44,12 +44,9 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
     , fDesc(desc)
     , fGpu(gpu)
     , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings) {
-    fSamplerUniforms.swap(passSamplerUniforms);
     // Assign texture units to sampler uniforms one time up front.
     GL_CALL(UseProgram(fProgramID));
-    for (int i = 0; i < fSamplerUniforms.count(); i++) {
-        fProgramDataManager.setSampler(fSamplerUniforms[i], i);
-    }
+    fProgramDataManager.setSamplers(samplers);
 }
 
 GrGLProgram::~GrGLProgram() {

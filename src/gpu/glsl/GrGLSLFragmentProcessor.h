@@ -31,7 +31,7 @@ public:
     }
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLSampler::SamplerArray SamplerArray;
+    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -60,8 +60,8 @@ public:
                  const char* outputColor,
                  const char* inputColor,
                  const GrGLSLTransformedCoordsArray& coords,
-                 const SamplerArray& texSamplers,
-                 const SamplerArray& bufferSamplers)
+                 const SamplerHandle* texSamplers,
+                 const SamplerHandle* bufferSamplers)
             : fFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
             , fGLSLCaps(caps)
@@ -78,8 +78,8 @@ public:
         const char* fOutputColor;
         const char* fInputColor;
         const GrGLSLTransformedCoordsArray& fCoords;
-        const SamplerArray& fTexSamplers;
-        const SamplerArray& fBufferSamplers;
+        const SamplerHandle* fTexSamplers;
+        const SamplerHandle* fBufferSamplers;
     };
 
     virtual void emitCode(EmitArgs&) = 0;

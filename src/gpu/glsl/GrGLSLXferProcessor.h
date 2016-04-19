@@ -22,7 +22,8 @@ public:
     GrGLSLXferProcessor() {}
     virtual ~GrGLSLXferProcessor() {}
 
-    typedef GrGLSLSampler::SamplerArray SamplerArray;
+    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
@@ -32,8 +33,8 @@ public:
                  const char* inputCoverage,
                  const char* outputPrimary,
                  const char* outputSecondary,
-                 const SamplerArray& texSamplers,
-                 const SamplerArray& bufferSamplers,
+                 const SamplerHandle* texSamplers,
+                 const SamplerHandle* bufferSamplers,
                  const bool usePLSDstRead)
             : fXPFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
@@ -55,8 +56,8 @@ public:
         const char* fInputCoverage;
         const char* fOutputPrimary;
         const char* fOutputSecondary;
-        const SamplerArray& fTexSamplers;
-        const SamplerArray& fBufferSamplers;
+        const SamplerHandle* fTexSamplers;
+        const SamplerHandle* fBufferSamplers;
         bool fUsePLSDstRead;
     };
     /**
