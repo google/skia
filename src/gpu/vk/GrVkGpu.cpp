@@ -180,16 +180,20 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStatic_GrAccessPattern == accessPattern);
             buff = GrVkVertexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
+            break;
         case kIndex_GrBufferType:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStatic_GrAccessPattern == accessPattern);
             buff = GrVkIndexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
+            break;
         case kXferCpuToGpu_GrBufferType:
             SkASSERT(kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyRead_Type);
+            break;
         case kXferGpuToCpu_GrBufferType:
             SkASSERT(kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyWrite_Type);
+            break;
         default:
             SkFAIL("Unknown buffer type.");
             return nullptr;
