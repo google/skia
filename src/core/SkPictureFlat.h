@@ -230,12 +230,6 @@ public:
     SkTypefacePlayback* getTypefacePlayback() { return fTypefacePlayback; }
 
     /**
-     * Optional factory recorder used during creation of SkFlatData objects. Set
-     * using the protected method setNamedFactorySet.
-     */
-    SkNamedFactorySet* getNamedFactorySet() { return fFactorySet; }
-
-    /**
      * Flags to use during creation of SkFlatData objects. Defaults to zero.
      */
     uint32_t getWriteBufferFlags() { return fWriteBufferFlags; }
@@ -259,18 +253,10 @@ protected:
      */
     void setTypefacePlayback(SkTypefacePlayback*);
 
-    /**
-     * Set an SkNamedFactorySet to be used to store Factorys and their
-     * corresponding names during flattening. Ref counted. Returns the same
-     * set as a convenience.
-     */
-    SkNamedFactorySet* setNamedFactorySet(SkNamedFactorySet*);
-
 private:
     SkBitmapHeap*       fBitmapHeap;
     SkRefCntSet*        fTypefaceSet;
     SkTypefacePlayback* fTypefacePlayback;
-    SkNamedFactorySet*  fFactorySet;
     const uint32_t      fWriteBufferFlags;
 
     typedef SkRefCnt INHERITED;
@@ -287,7 +273,6 @@ public:
 
         buffer.setBitmapHeap(controller->getBitmapHeap());
         buffer.setTypefaceRecorder(controller->getTypefaceSet());
-        buffer.setNamedFactoryRecorder(controller->getNamedFactorySet());
 
         Traits::Flatten(buffer, obj);
         size_t size = buffer.bytesWritten();
@@ -498,7 +483,6 @@ private:
         SkASSERT(fController->getBitmapHeap() != nullptr);
         fScratch.setBitmapHeap(fController->getBitmapHeap());
         fScratch.setTypefaceRecorder(fController->getTypefaceSet());
-        fScratch.setNamedFactoryRecorder(fController->getNamedFactorySet());
         fReady = true;
     }
 

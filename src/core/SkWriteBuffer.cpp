@@ -17,7 +17,6 @@
 SkWriteBuffer::SkWriteBuffer(uint32_t flags)
     : fFlags(flags)
     , fFactorySet(nullptr)
-    , fNamedFactorySet(nullptr)
     , fBitmapHeap(nullptr)
     , fTFSet(nullptr) {
 }
@@ -25,7 +24,6 @@ SkWriteBuffer::SkWriteBuffer(uint32_t flags)
 SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
     : fFlags(flags)
     , fFactorySet(nullptr)
-    , fNamedFactorySet(nullptr)
     , fWriter(storage, storageSize)
     , fBitmapHeap(nullptr)
     , fTFSet(nullptr) {
@@ -33,7 +31,6 @@ SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
 
 SkWriteBuffer::~SkWriteBuffer() {
     SkSafeUnref(fFactorySet);
-    SkSafeUnref(fNamedFactorySet);
     SkSafeUnref(fBitmapHeap);
     SkSafeUnref(fTFSet);
 }
@@ -233,19 +230,6 @@ void SkWriteBuffer::writeTypeface(SkTypeface* obj) {
 
 SkFactorySet* SkWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
     SkRefCnt_SafeAssign(fFactorySet, rec);
-    if (fNamedFactorySet != nullptr) {
-        fNamedFactorySet->unref();
-        fNamedFactorySet = nullptr;
-    }
-    return rec;
-}
-
-SkNamedFactorySet* SkWriteBuffer::setNamedFactoryRecorder(SkNamedFactorySet* rec) {
-    SkRefCnt_SafeAssign(fNamedFactorySet, rec);
-    if (fFactorySet != nullptr) {
-        fFactorySet->unref();
-        fFactorySet = nullptr;
-    }
     return rec;
 }
 
@@ -286,7 +270,7 @@ void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     if (nullptr == flattenable) {
         if (this->isValidating()) {
             this->writeString("");
-        } else if (fFactorySet != nullptr || fNamedFactorySet != nullptr) {
+        } else if (fFactorySet != nullptr) {
             this->write32(0);
         } else {
             this->writeFunctionPtr(nullptr);
@@ -313,12 +297,6 @@ void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
         this->writeString(flattenable->getTypeName());
     } else if (fFactorySet) {
         this->write32(fFactorySet->add(factory));
-    } else if (fNamedFactorySet) {
-        int32_t index = fNamedFactorySet->find(factory);
-        this->write32(index);
-        if (0 == index) {
-            return;
-        }
     } else {
         this->writeFunctionPtr((void*)factory);
     }

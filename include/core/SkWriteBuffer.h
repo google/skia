@@ -21,7 +21,6 @@ class SkBitmap;
 class SkBitmapHeap;
 class SkFactorySet;
 class SkFlattenable;
-class SkNamedFactorySet;
 class SkRefCntSet;
 
 class SkWriteBuffer {
@@ -81,7 +80,6 @@ public:
     void writeToMemory(void* dst) { fWriter.flatten(dst); }
 
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
-    SkNamedFactorySet* setNamedFactoryRecorder(SkNamedFactorySet*);
 
     SkRefCntSet* getTypefaceRecorder() const { return fTFSet; }
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
@@ -114,7 +112,6 @@ private:
 
     const uint32_t fFlags;
     SkFactorySet* fFactorySet;
-    SkNamedFactorySet* fNamedFactorySet;
     SkWriter32 fWriter;
 
     SkBitmapHeap* fBitmapHeap;
