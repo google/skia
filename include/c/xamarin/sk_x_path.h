@@ -67,7 +67,14 @@ SK_API sk_path_filltype_t sk_path_get_filltype(sk_path_t*);
     Set the fill type of the path.
 */
 SK_API void sk_path_set_filltype(sk_path_t*, sk_path_filltype_t);
-
+/**
+    Transform the points in this path by matrix, and write the answer back into the path
+*/
+SK_API void sk_path_transform(sk_path_t* cpath, const sk_matrix_t* cmatrix);
+/**
+    Creates a copy of the path
+*/
+SK_API sk_path_t* sk_path_clone(const sk_path_t* cpath);
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
