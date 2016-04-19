@@ -591,7 +591,7 @@
         ],
       },
     ],
-    ['skia_os in ["linux", "mac"]',
+    ['skia_mesa and skia_os in ["linux", "mac"]',
       {
         'targets': [
           {
@@ -607,7 +607,16 @@
               'pdf.gyp:pdf',
             ],
             'defines': [ 'FIDDLE_BUILD_TEST' ],
-            'link_settings': { 'libraries': [ '-lOSMesa' ], },
+            'conditions': [
+              [ 'skia_os == "mac"',
+                {
+                  'link_settings': { 'libraries': [ '/opt/X11/lib/libOSMesa.dylib', ], },
+                  'include_dirs': [ '/opt/X11/include/', ],
+                }, {
+                  'link_settings': { 'libraries': [ '-lOSMesa' ], },
+                }
+              ],
+            ],
           },
         ],
       },
