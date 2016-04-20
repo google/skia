@@ -16,8 +16,11 @@
 #include "urlhandlers/UrlHandler.h"
 
 #include <errno.h>
+
+#if !defined _WIN32
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#endif
 
 using namespace Response;
 

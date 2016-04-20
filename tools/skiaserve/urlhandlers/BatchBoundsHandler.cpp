@@ -32,6 +32,6 @@ int BatchBoundsHandler::handle(Request* request, MHD_Connection* connection,
     int enabled;
     sscanf(commands[1].c_str(), "%d", &enabled);
 
-    request->fDebugCanvas->setDrawGpuBatchBounds(enabled);
+    request->fDebugCanvas->setDrawGpuBatchBounds(SkToBool(enabled));
     return SendOK(connection);
 }

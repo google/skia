@@ -72,6 +72,10 @@
         ['skia_os == "mac" or skia_os == "linux"', {
           'dependencies': [ 
             'nanomsg.gyp:*' ,
+          ],
+        }],
+        ['skia_os in ["linux", "mac", "win"]', {
+          'dependencies': [
             'skiaserve.gyp:skiaserve',
           ],
         }],

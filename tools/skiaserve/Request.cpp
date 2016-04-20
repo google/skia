@@ -98,7 +98,8 @@ SkData* Request::writeOutSkp() {
     // Playback into picture recorder
     SkIRect bounds = this->getBounds();
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(bounds.width(), bounds.height());
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(bounds.width()),
+                                               SkIntToScalar(bounds.height()));
 
     fDebugCanvas->draw(canvas);
 

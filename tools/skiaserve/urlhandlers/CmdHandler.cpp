@@ -54,7 +54,7 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
         int n, toggle;
         sscanf(commands[1].c_str(), "%d", &n);
         sscanf(commands[2].c_str(), "%d", &toggle);
-        request->fDebugCanvas->toggleCommand(n, toggle);
+        request->fDebugCanvas->toggleCommand(n, SkToBool(toggle));
         return SendOK(connection);
     }
 

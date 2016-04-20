@@ -32,7 +32,7 @@ int EnableGPUHandler::handle(Request* request, MHD_Connection* connection,
     int enable;
     sscanf(commands[1].c_str(), "%d", &enable);
 
-    bool success = request->enableGPU(enable);
+    bool success = request->enableGPU(SkToBool(enable));
     if (!success) {
         return SendError(connection, "Unable to create GPU surface");
     }

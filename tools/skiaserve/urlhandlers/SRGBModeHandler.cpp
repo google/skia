@@ -34,7 +34,7 @@ int SRGBModeHandler::handle(Request* request, MHD_Connection* connection,
         return MHD_NO;
     }
 
-    bool success = request->setSRGBMode(enable);
+    bool success = request->setSRGBMode(SkToBool(enable));
     if (!success) {
         return SendError(connection, "Unable to set requested mode");
     }
