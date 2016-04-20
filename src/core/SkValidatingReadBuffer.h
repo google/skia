@@ -44,6 +44,7 @@ public:
     void readMatrix(SkMatrix* matrix) override;
     void readIRect(SkIRect* rect) override;
     void readRect(SkRect* rect) override;
+    void readRRect(SkRRect* rrect) override;
     void readRegion(SkRegion* region) override;
     void readPath(SkPath* path) override;
 

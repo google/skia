@@ -138,6 +138,10 @@ void SkReadBuffer::readRect(SkRect* rect) {
     memcpy(rect, fReader.skip(sizeof(SkRect)), sizeof(SkRect));
 }
 
+void SkReadBuffer::readRRect(SkRRect* rrect) {
+    fReader.readRRect(rrect);
+}
+
 void SkReadBuffer::readRegion(SkRegion* region) {
     fReader.readRegion(region);
 }

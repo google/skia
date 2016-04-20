@@ -38,13 +38,13 @@ protected:
     // The offset of the current operation when within the draw method
     size_t fCurOffset;
 
-    void handleOp(SkReader32* reader,
+    void handleOp(SkReadBuffer* reader,
                   DrawType op,
                   uint32_t size,
                   SkCanvas* canvas,
                   const SkMatrix& initialMatrix);
 
-    static DrawType ReadOpAndSize(SkReader32* reader, uint32_t* size);
+    static DrawType ReadOpAndSize(SkReadBuffer* reader, uint32_t* size);
 
     class AutoResetOpID {
     public:

@@ -145,6 +145,13 @@ void SkValidatingReadBuffer::readRect(SkRect* rect) {
     }
 }
 
+void SkValidatingReadBuffer::readRRect(SkRRect* rrect) {
+    const void* ptr = this->skip(sizeof(SkRRect));
+    if (!fError) {
+        memcpy(rrect, ptr, sizeof(SkRRect));
+    }
+}
+
 void SkValidatingReadBuffer::readRegion(SkRegion* region) {
     size_t size = 0;
     if (!fError) {

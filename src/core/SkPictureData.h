@@ -87,39 +87,34 @@ protected:
     bool parseBuffer(SkReadBuffer& buffer);
 
 public:
-    const SkBitmap& getBitmap(SkReader32* reader) const {
+    const SkBitmap& getBitmap(SkReadBuffer* reader) const {
         const int index = reader->readInt();
-        return fBitmaps[index];
+        return reader->validateIndex(index, fBitmaps.count()) ? fBitmaps[index] : fEmptyBitmap;
     }
 
-    const SkImage* getImage(SkReader32* reader) const {
+    const SkImage* getImage(SkReadBuffer* reader) const {
         const int index = reader->readInt();
-        return fImageRefs[index];
+        return reader->validateIndex(index, fImageCount) ? fImageRefs[index] : nullptr;
     }
 
-    const SkPath& getPath(SkReader32* reader) const {
-        int index = reader->readInt() - 1;
-        return fPaths[index];
+    const SkPath& getPath(SkReadBuffer* reader) const {
+        const int index = reader->readInt() - 1;
+        return reader->validateIndex(index, fPaths.count()) ? fPaths[index] : fEmptyPath;
     }
 
-    const SkPicture* getPicture(SkReader32* reader) const {
-        int index = reader->readInt();
-        SkASSERT(index > 0 && index <= fPictureCount);
-        return fPictureRefs[index - 1];
+    const SkPicture* getPicture(SkReadBuffer* reader) const {
+        const int index = reader->readInt() - 1;
+        return reader->validateIndex(index, fPictureCount) ? fPictureRefs[index] : nullptr;
     }
 
-    const SkPaint* getPaint(SkReader32* reader) const {
-        int index = reader->readInt();
-        if (index == 0) {
-            return nullptr;
-        }
-        return &fPaints[index - 1];
+    const SkPaint* getPaint(SkReadBuffer* reader) const {
+        const int index = reader->readInt() - 1;
+        return reader->validateIndex(index, fPaints.count()) ? &fPaints[index] : nullptr;
     }
 
-    const SkTextBlob* getTextBlob(SkReader32* reader) const {
-        int index = reader->readInt();
-        SkASSERT(index > 0 && index <= fTextBlobCount);
-        return fTextBlobRefs[index - 1];
+    const SkTextBlob* getTextBlob(SkReadBuffer* reader) const {
+        const int index = reader->readInt() - 1;
+        return reader->validateIndex(index, fTextBlobCount) ? fTextBlobRefs[index] : nullptr;
     }
 
 #if SK_SUPPORT_GPU
@@ -159,6 +154,9 @@ private:
     SkTArray<SkPath>   fPaths;
 
     sk_sp<SkData>   fOpData;    // opcodes and parameters
+
+    const SkPath    fEmptyPath;
+    const SkBitmap  fEmptyBitmap;
 
     const SkPicture** fPictureRefs;
     int fPictureCount;

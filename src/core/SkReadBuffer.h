@@ -101,6 +101,7 @@ public:
     size_t offset() { return fReader.offset(); }
     bool eof() { return fReader.eof(); }
     virtual const void* skip(size_t size) { return fReader.skip(size); }
+
     void* readFunctionPtr() { return fReader.readPtr(); }
 
     // primitives
@@ -121,6 +122,7 @@ public:
     virtual void readMatrix(SkMatrix* matrix);
     virtual void readIRect(SkIRect* rect);
     virtual void readRect(SkRect* rect);
+    virtual void readRRect(SkRRect* rrect);
     virtual void readRegion(SkRegion* region);
 
     virtual void readPath(SkPath* path);
@@ -203,9 +205,12 @@ public:
     }
 
     // Default impelementations don't check anything.
-    virtual bool validate(bool isValid) { return true; }
+    virtual bool validate(bool isValid) { return isValid; }
     virtual bool isValid() const { return true; }
     virtual bool validateAvailable(size_t size) { return true; }
+    bool validateIndex(int index, int count) {
+        return this->validate(index >= 0 && index < count);
+    }
 
 protected:
     SkReader32 fReader;
