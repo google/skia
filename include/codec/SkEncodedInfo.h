@@ -9,6 +9,7 @@
 #define SkEncodedInfo_DEFINED
 
 #include "SkImageInfo.h"
+#include "../private/SkImageInfoPriv.h"
 
 struct SkEncodedInfo {
 public:
@@ -124,18 +125,21 @@ public:
      * closest possible match to the encoded info.
      */
     SkImageInfo makeImageInfo(int width, int height) const {
+        SkColorProfileType profileType = SkDefaultColorProfile();
         switch (fColor) {
             case kGray_Color:
                 SkASSERT(kOpaque_Alpha == fAlpha);
-                return SkImageInfo::Make(width, height, kGray_8_SkColorType, kOpaque_SkAlphaType);
+                return SkImageInfo::Make(width, height, kGray_8_SkColorType,
+                                         kOpaque_SkAlphaType, profileType);
             case kGrayAlpha_Color:
                 SkASSERT(kOpaque_Alpha != fAlpha);
                 return SkImageInfo::Make(width, height, kN32_SkColorType,
-                        kUnpremul_SkAlphaType);
+                        kUnpremul_SkAlphaType, profileType);
             case kPalette_Color: {
                 SkAlphaType alphaType = (kOpaque_Alpha == fAlpha) ? kOpaque_SkAlphaType :
                         kUnpremul_SkAlphaType;
-                return SkImageInfo::Make(width, height, kIndex_8_SkColorType, alphaType);
+                return SkImageInfo::Make(width, height, kIndex_8_SkColorType,
+                                         alphaType, profileType);
             }
             case kRGB_Color:
             case kBGR_Color:
@@ -144,12 +148,14 @@ public:
             case kInvertedCMYK_Color:
             case kYCCK_Color:
                 SkASSERT(kOpaque_Alpha == fAlpha);
-                return SkImageInfo::Make(width, height, kN32_SkColorType, kOpaque_SkAlphaType);
+                return SkImageInfo::Make(width, height, kN32_SkColorType,
+                                         kOpaque_SkAlphaType, profileType);
             case kRGBA_Color:
             case kBGRA_Color:
             case kYUVA_Color:
                 SkASSERT(kOpaque_Alpha != fAlpha);
-                return SkImageInfo::Make(width, height, kN32_SkColorType, kUnpremul_SkAlphaType);
+                return SkImageInfo::Make(width, height, kN32_SkColorType,
+                                         kUnpremul_SkAlphaType, profileType);
             default:
                 SkASSERT(false);
                 return SkImageInfo::MakeUnknown();

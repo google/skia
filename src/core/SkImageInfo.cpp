@@ -9,6 +9,8 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+bool gDefaultProfileIsSRGB;
+
 static bool profile_type_is_valid(SkColorProfileType profileType) {
     return (profileType >= 0) && (profileType <= kLastEnum_SkColorProfileType);
 }
