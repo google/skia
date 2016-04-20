@@ -13,7 +13,6 @@
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
 #endif
-#include "SkDevice.h"
 #include "SkRRect.h"
 
 namespace skiagm {

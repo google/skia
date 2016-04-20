@@ -7,7 +7,6 @@
 
 #include "SampleCode.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkView.h"

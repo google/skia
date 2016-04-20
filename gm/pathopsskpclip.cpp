@@ -9,7 +9,6 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
-#include "SkDevice.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPicture.h"

@@ -15,7 +15,6 @@
 #include <QtOpenGL/QGLWidget>
 #include "SkDebugCanvas.h"
 #include "SkDebugger.h"
-#include "SkDevice.h"
 #include "SkGpuDevice.h"
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"

@@ -11,7 +11,6 @@
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
 #include "SkChecksum.h"
-#include "SkDevice.h"
 #include "SkFuzzLogging.h"
 #include "SkLocalMatrixImageFilter.h"
 #include "SkMatrixImageFilter.h"

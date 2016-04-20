@@ -8,7 +8,6 @@
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkGradientShader.h"

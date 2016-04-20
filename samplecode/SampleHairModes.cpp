@@ -8,7 +8,6 @@
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
 

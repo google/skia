@@ -9,7 +9,6 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"

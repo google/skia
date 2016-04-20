@@ -10,7 +10,6 @@
 #include "GrContext.h"
 #include "GrDrawContextPriv.h"
 #include "GrPipelineBuilder.h"
-#include "SkDevice.h"
 #include "SkRRect.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"

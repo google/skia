@@ -9,7 +9,6 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkShader.h"
 

@@ -13,7 +13,6 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
-#include "SkDevice.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"

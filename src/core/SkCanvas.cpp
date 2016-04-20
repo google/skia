@@ -10,7 +10,6 @@
 #include "SkCanvasPriv.h"
 #include "SkClipStack.h"
 #include "SkColorFilter.h"
-#include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"

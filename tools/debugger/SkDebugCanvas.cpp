@@ -9,7 +9,6 @@
 #include "SkClipStack.h"
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
-#include "SkDevice.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkOverdrawMode.h"
 

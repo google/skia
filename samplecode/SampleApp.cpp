@@ -14,7 +14,6 @@
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkDevice.h"
 #include "SkDocument.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"

@@ -6,7 +6,6 @@
  */
 
 #include "SkPictureRecord.h"
-#include "SkDevice.h"
 #include "SkImage_Base.h"
 #include "SkPatchUtils.h"
 #include "SkPixelRef.h"

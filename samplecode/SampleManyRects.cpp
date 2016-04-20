@@ -6,7 +6,6 @@
  */
 #include "SampleCode.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkShader.h"

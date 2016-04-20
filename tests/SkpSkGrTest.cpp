@@ -14,7 +14,6 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"

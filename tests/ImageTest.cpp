@@ -13,7 +13,6 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDevice.h"
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
 #include "SkImage_Base.h"
