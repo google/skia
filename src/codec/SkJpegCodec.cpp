@@ -211,17 +211,21 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
     }
 
     if (codecOut) {
-        // Recommend the color type to decode to
-        const SkColorType colorType = decoderMgr->getColorType();
+        // Get the encoded color type
+        SkEncodedInfo::Color color = decoderMgr->getEncodedColor();
+        if (SkEncodedInfo::kUnknown_Color == color) {
+            return false;
+        }
 
         // Create image info object and the codec
-        const SkImageInfo& imageInfo = SkImageInfo::Make(decoderMgr->dinfo()->image_width,
-                decoderMgr->dinfo()->image_height, colorType, kOpaque_SkAlphaType);
+        SkEncodedInfo info = SkEncodedInfo::Make(color, SkEncodedInfo::kOpaque_Alpha, 8);
 
         Origin orientation = get_exif_orientation(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = get_icc_profile(decoderMgr->dinfo());
 
-        *codecOut = new SkJpegCodec(imageInfo, stream, decoderMgr.release(), colorSpace,
+        const int width = decoderMgr->dinfo()->image_width;
+        const int height = decoderMgr->dinfo()->image_height;
+        *codecOut = new SkJpegCodec(width, height, info, stream, decoderMgr.release(), colorSpace,
                 orientation);
     } else {
         SkASSERT(nullptr != decoderMgrOut);
@@ -242,9 +246,9 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
     return nullptr;
 }
 
-SkJpegCodec::SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream,
+SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
-    : INHERITED(srcInfo, stream, colorSpace, origin)
+    : INHERITED(width, height, info, stream, colorSpace, origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzlerSubset(SkIRect::MakeEmpty())

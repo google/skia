@@ -182,15 +182,15 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      *
-     * @param srcInfo contains the source width and height
+     * @param info contains properties of the encoded data
      * @param stream the stream of image data
      * @param gif pointer to library type that manages gif decode
      *            takes ownership
      * @param transIndex  The transparent index.  An invalid value
      *            indicates that there is no transparent index.
      */
-    SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif, uint32_t transIndex,
-            const SkIRect& frameRect, bool frameIsSubset);
+    SkGifCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+            GifFileType* gif, uint32_t transIndex, const SkIRect& frameRect, bool frameIsSubset);
 
     SkAutoTCallVProc<GifFileType, CloseGif> fGif; // owned
     SkAutoTDeleteArray<uint8_t>             fSrcBuffer;

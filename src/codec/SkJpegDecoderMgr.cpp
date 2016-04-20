@@ -35,12 +35,20 @@ SkCodec::Result JpegDecoderMgr::returnFailure(const char caller[], SkCodec::Resu
     return result;
 }
 
-SkColorType JpegDecoderMgr::getColorType() {
+SkEncodedInfo::Color JpegDecoderMgr::getEncodedColor() {
     switch (fDInfo.jpeg_color_space) {
         case JCS_GRAYSCALE:
-            return kGray_8_SkColorType;
+            return SkEncodedInfo::kGray_Color;
+        case JCS_YCbCr:
+            return SkEncodedInfo::kYUV_Color;
+        case JCS_RGB:
+            return SkEncodedInfo::kRGB_Color;
+        case JCS_YCCK:
+            return SkEncodedInfo::kYCCK_Color;
+        case JCS_CMYK:
+            return SkEncodedInfo::kInvertedCMYK_Color;
         default:
-            return kN32_SkColorType;
+            return SkEncodedInfo::kUnknown_Color;
     }
 }
 

@@ -515,8 +515,16 @@ public:
         }
     }
 
-    const SkImageInfo& getImageInfo() const {
-        return fImageInfo;
+    const SkEncodedInfo& getEncodedInfo() const {
+        return fEncodedInfo;
+    }
+
+    int width() const {
+        return fWidth;
+    }
+
+    int height() const {
+        return fHeight;
     }
 
     bool isScalable() const {
@@ -545,8 +553,11 @@ private:
         return 0x2A == get_endian_short(header + 2, littleEndian);
     }
 
-    void init(const int width, const int height, const dng_point& cfaPatternSize) {
-        fImageInfo = SkImageInfo::Make(width, height, kN32_SkColorType, kOpaque_SkAlphaType);
+    void init(int width, int height, const dng_point& cfaPatternSize) {
+        fWidth = width;
+        fHeight = height;
+        fEncodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kRGB_Color,
+                SkEncodedInfo::kOpaque_Alpha, 8);
 
         // The DNG SDK scales only during demosaicing, so scaling is only possible when
         // a mosaic info is available.
@@ -616,7 +627,9 @@ private:
     SkAutoTDelete<dng_negative> fNegative;
     SkAutoTDelete<dng_stream> fDngStream;
 
-    SkImageInfo fImageInfo;
+    int fWidth;
+    int fHeight;
+    SkEncodedInfo fEncodedInfo;
     bool fIsScalable;
     bool fIsXtransImage;
 };
@@ -764,5 +777,5 @@ bool SkRawCodec::onDimensionsSupported(const SkISize& dim) {
 SkRawCodec::~SkRawCodec() {}
 
 SkRawCodec::SkRawCodec(SkDngImage* dngImage)
-    : INHERITED(dngImage->getImageInfo(), nullptr)
+    : INHERITED(dngImage->width(), dngImage->height(), dngImage->getEncodedInfo(), nullptr)
     , fDngImage(dngImage) {}
