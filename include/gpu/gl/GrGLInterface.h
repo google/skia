@@ -53,7 +53,7 @@ typedef intptr_t GrGLInterfaceCallbackData;
  * CPU overhead. TODO: We would like to move this to tools/gpu/gl/null but currently
  * Chromium is using it in its unit tests.
  */
-const SK_API GrGLInterface* GrGLCreateNullInterface();
+const SK_API GrGLInterface* GrGLCreateNullInterface(bool enableNVPR = false);
 
 /** Function that returns a new interface identical to "interface" but without support for
     GL_NV_path_rendering. */

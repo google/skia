@@ -141,7 +141,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                     break;
 #endif
                 case kNullGL_ContextType:
-                    glCtx.reset(CreateNullGLTestContext());
+                    glCtx.reset(CreateNullGLTestContext(kEnableNVPR_ContextOptions & options));
                     break;
                 case kDebugGL_ContextType:
                     glCtx.reset(CreateDebugGLTestContext());

@@ -112,7 +112,7 @@ private:
 /** Null interface implementation */
 class NullInterface : public GrGLTestInterface {
 public:
-    NullInterface()
+    NullInterface(bool enableNVPR)
         : fCurrArrayBuffer(0)
         , fCurrElementArrayBuffer(0)
         , fCurrPixelPackBuffer(0)
@@ -120,7 +120,20 @@ public:
         , fCurrProgramID(0)
         , fCurrShaderID(0)
         , fCurrGenericID(0)
-        , fCurrUniformLocation(0) {
+        , fCurrUniformLocation(0)
+        , fCurrPathID(0) {
+        fExtensions.push_back("GL_ARB_framebuffer_object");
+        fExtensions.push_back("GL_ARB_blend_func_extended");
+        fExtensions.push_back("GL_ARB_timer_query");
+        fExtensions.push_back("GL_ARB_draw_buffers");
+        fExtensions.push_back("GL_ARB_occlusion_query");
+        fExtensions.push_back("GL_EXT_stencil_wrap");
+        if (enableNVPR) {
+            fExtensions.push_back("GL_NV_path_rendering");
+            fExtensions.push_back("GL_ARB_program_interface_query");
+        }
+        fExtensions.push_back(nullptr);
+
         this->init(kGL_GrGLStandard);
     }
 
@@ -293,7 +306,7 @@ public:
                 break;
             case GR_GL_NUM_EXTENSIONS: {
                 GrGLint i = 0;
-                while (kExtensions[i++]);
+                while (fExtensions[i++]);
                 *params = i;
                 break;
             }
@@ -377,7 +390,7 @@ public:
                 GrGLint count;
                 this->getIntegerv(GR_GL_NUM_EXTENSIONS, &count);
                 if ((GrGLint)i <= count) {
-                    return (const GrGLubyte*) kExtensions[i];
+                    return (const GrGLubyte*) fExtensions[i];
                 } else {
                     return nullptr;
                 }
@@ -507,16 +520,24 @@ public:
         }
     };
 
+    // NV_path_rendering
+    GrGLuint genPaths(GrGLsizei range) override {
+        return ++fCurrPathID;
+    }
+
+
 private:
-    BufferManager   fBufferManager;
-    GrGLuint        fCurrArrayBuffer;
-    GrGLuint        fCurrElementArrayBuffer;
-    GrGLuint        fCurrPixelPackBuffer;
-    GrGLuint        fCurrPixelUnpackBuffer;
-    GrGLuint        fCurrProgramID;
-    GrGLuint        fCurrShaderID;
-    GrGLuint        fCurrGenericID;
-    GrGLuint        fCurrUniformLocation;
+    BufferManager          fBufferManager;
+    GrGLuint               fCurrArrayBuffer;
+    GrGLuint               fCurrElementArrayBuffer;
+    GrGLuint               fCurrPixelPackBuffer;
+    GrGLuint               fCurrPixelUnpackBuffer;
+    GrGLuint               fCurrProgramID;
+    GrGLuint               fCurrShaderID;
+    GrGLuint               fCurrGenericID;
+    GrGLuint               fCurrUniformLocation;
+    GrGLuint               fCurrPathID;
+    SkTArray<const char*>  fExtensions;
 
     // the OpenGLES 2.0 spec says this must be >= 128
     static const GrGLint kDefaultMaxVertexUniformVectors = 128;
@@ -530,19 +551,17 @@ private:
     // the OpenGLES 2.0 spec says this must be >= 8
     static const GrGLint kDefaultMaxVaryingVectors = 8;
 
-    static const char* kExtensions[];
-
-    static const GrGLubyte* CombinedExtensionString() {
+    const GrGLubyte* CombinedExtensionString() {
         static SkString gExtString;
         static SkMutex gMutex;
         gMutex.acquire();
         if (0 == gExtString.size()) {
             int i = 0;
-            while (kExtensions[i]) {
+            while (fExtensions[i]) {
                 if (i > 0) {
                     gExtString.append(" ");
                 }
-                gExtString.append(kExtensions[i]);
+                gExtString.append(fExtensions[i]);
                 ++i;
             }
         }
@@ -600,16 +619,6 @@ private:
     typedef GrGLTestInterface INHERITED;
 };
 
-const char* NullInterface::kExtensions[] = {
-    "GL_ARB_framebuffer_object",
-    "GL_ARB_blend_func_extended",
-    "GL_ARB_timer_query",
-    "GL_ARB_draw_buffers",
-    "GL_ARB_occlusion_query",
-    "GL_EXT_stencil_wrap",
-    nullptr, // signifies the end of the array.
-};
-
 }  // anonymous namespace
 
-const GrGLInterface* GrGLCreateNullInterface() { return new NullInterface; }
+const GrGLInterface* GrGLCreateNullInterface(bool enableNVPR) { return new NullInterface(enableNVPR); }
