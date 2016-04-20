@@ -445,12 +445,14 @@ static bool getWidthAdvance(FT_Face face, int gId, int16_t* data) {
 }
 
 static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyphToUnicode) {
-    glyphToUnicode->setCount(face->num_glyphs);
-    sk_bzero(glyphToUnicode->begin(), sizeof((*glyphToUnicode)[0]) * face->num_glyphs);
+    FT_Long numGlyphs = face->num_glyphs;
+    glyphToUnicode->setCount(SkToInt(numGlyphs));
+    sk_bzero(glyphToUnicode->begin(), sizeof((*glyphToUnicode)[0]) * numGlyphs);
 
     FT_UInt glyphIndex;
     SkUnichar charCode = FT_Get_First_Char(face, &glyphIndex);
     while (glyphIndex) {
+        SkASSERT(glyphIndex < SkToUInt(numGlyphs));
         (*glyphToUnicode)[glyphIndex] = charCode;
         charCode = FT_Get_Next_Char(face, charCode, &glyphIndex);
     }
