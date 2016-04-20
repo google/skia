@@ -86,6 +86,7 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
     canvas->concat(matrix);
 
     SkPaint paint;
+    paint.setAntiAlias(true);
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setFilterQuality(fFilterQuality);
 

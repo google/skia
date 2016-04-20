@@ -222,11 +222,12 @@ public:
 #endif
 
     /**
-     * Create an SkMatrixImageFilter, which transforms its input by the given matrix.
+     * Return an imagefilter which transforms its input by the given matrix.
      */
     static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
-                                                 SkFilterQuality,
+                                                 SkFilterQuality quality,
                                                  sk_sp<SkImageFilter> input);
+
 #ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
     static SkImageFilter* CreateMatrixFilter(const SkMatrix& matrix,
                                              SkFilterQuality filterQuality,
