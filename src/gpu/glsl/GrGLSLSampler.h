@@ -9,27 +9,37 @@
 #define GrGLSLSampler_DEFINED
 
 #include "GrTypes.h"
-#include "SkTArray.h"
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "GrTypesPriv.h"
+#include "SkString.h"
 
 class GrGLSLSampler {
 public:
-    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef SkTArray<GrGLSLSampler> SamplerArray;
+    virtual ~GrGLSLSampler() {}
 
-    GrGLSLSampler(UniformHandle uniform, GrPixelConfig config)
-        : fSamplerUniform(uniform)
+    explicit GrGLSLSampler(uint32_t visibility, GrPixelConfig config)
+        : fVisibility(visibility)
         , fConfig(config) {
         SkASSERT(kUnknown_GrPixelConfig != fConfig);
     }
 
+    uint32_t visibility() const { return fVisibility; }
     GrPixelConfig config() const { return fConfig; }
+    virtual GrSLType type() const = 0;
+
+    // Returns the string to be used for the sampler in glsl 2D texture functions (texture,
+    // texture2D, etc.)
+    const char* getSamplerNameForTexture2D() const {
+        SkASSERT(GrSLTypeIs2DTextureType(this->type()));
+        return this->onGetSamplerNameForTexture2D();
+    }
+
+    // Returns the string to be used for the sampler in glsl texelFetch.
+    virtual const char* getSamplerNameForTexelFetch() const = 0;
 
 private:
-    UniformHandle fSamplerUniform;
+    virtual const char* onGetSamplerNameForTexture2D() const = 0;
+    uint32_t      fVisibility;
     GrPixelConfig fConfig;
-
-    friend class GrGLSLShaderBuilder;
 };
 
 #endif

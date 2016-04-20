@@ -691,7 +691,7 @@ private:
 };
 
 void OutputRectBlurProfileLookup(GrGLSLFPFragmentBuilder* fragBuilder,
-                                 const GrGLSLSampler& sampler,
+                                 GrGLSLFragmentProcessor::SamplerHandle sampler,
                                  const char *output,
                                  const char *profileSize, const char *loc,
                                  const char *blurred_width,

@@ -120,7 +120,7 @@ public:
                            const GrTextureDomain& textureDomain,
                            const char* outColor,
                            const SkString& inCoords,
-                           const GrGLSLSampler& sampler,
+                           GrGLSLFragmentProcessor::SamplerHandle sampler,
                            const char* inModulateColor = nullptr);
 
         /**

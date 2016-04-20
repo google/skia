@@ -11,6 +11,7 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 
 #include "GrAllocator.h"
+#include "gl/GrGLSampler.h"
 #include "gl/GrGLTypes.h"
 #include "glsl/GrGLSLShaderVar.h"
 
@@ -46,11 +47,12 @@ public:
     GrGLProgramDataManager(GrGLGpu*, GrGLuint programID, const UniformInfoArray&,
                            const VaryingInfoArray&);
 
-    /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
-     *  array of uniforms. arrayCount must be <= the array count of the uniform.
-     */
-    void setSampler(UniformHandle, int texUnit) const;
 
+    void setSamplers(const SkTArray<GrGLSampler>& samplers) const;
+
+    /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
+    *  array of uniforms. arrayCount must be <= the array count of the uniform.
+    */
     void set1f(UniformHandle, float v0) const override;
     void set1fv(UniformHandle, int arrayCount, const float v[]) const override;
     void set2f(UniformHandle, float, float) const override;
