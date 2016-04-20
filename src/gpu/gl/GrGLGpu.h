@@ -184,7 +184,7 @@ private:
                        GrPixelConfig config,
                        const SkTArray<GrMipLevel>& texels) override;
 
-    bool onTransferPixels(GrTexture*,
+    bool onTransferPixels(GrSurface*,
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;

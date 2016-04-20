@@ -895,13 +895,13 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
     return success;
 }
 
-bool GrGLGpu::onTransferPixels(GrTexture* texture,
+bool GrGLGpu::onTransferPixels(GrSurface* surface,
                                int left, int top, int width, int height,
                                GrPixelConfig config, GrBuffer* transferBuffer,
                                size_t offset, size_t rowBytes) {
-    GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
+    GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
-    if (!check_write_and_transfer_input(glTex, texture, config)) {
+    if (!check_write_and_transfer_input(glTex, surface, config)) {
         return false;
     }
 
@@ -920,16 +920,15 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture,
 
     bool success = false;
     GrMipLevel mipLevel;
-    mipLevel.fPixels = (void*)offset;
+    mipLevel.fPixels = transferBuffer;
     mipLevel.fRowBytes = rowBytes;
     SkSTArray<1, GrMipLevel> texels;
     texels.push_back(mipLevel);
     success = this->uploadTexData(glTex->desc(), glTex->target(), kTransfer_UploadType,
                                   left, top, width, height, config, texels);
-
     if (success) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(texture, &rect);
+        this->didWriteToSurface(surface, &rect);
         return true;
     }
 
@@ -1196,14 +1195,6 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
     SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
-
-    // unbind any previous transfer buffer if not transferring
-    auto& xferBufferState = fHWBufferState[kXferCpuToGpu_GrBufferType];
-    if (kTransfer_UploadType != uploadType && 
-        SK_InvalidUniqueID != xferBufferState.fBoundBufferUniqueID) {
-        GL_CALL(BindBuffer(xferBufferState.fGLTarget, 0));
-        xferBufferState.invalidate();
-    }
 
     // texels is const.
     // But we may need to flip the texture vertically to prepare it.

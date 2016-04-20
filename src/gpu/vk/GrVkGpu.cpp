@@ -187,13 +187,11 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
             buff = GrVkIndexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
             break;
         case kXferCpuToGpu_GrBufferType:
-            SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
-                     kStream_GrAccessPattern == accessPattern);
+            SkASSERT(kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyRead_Type);
             break;
         case kXferGpuToCpu_GrBufferType:
-            SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
-                     kStream_GrAccessPattern == accessPattern);
+            SkASSERT(kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyWrite_Type);
             break;
         default:
@@ -276,95 +274,6 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
         }
         success = this->uploadTexData(vkTex, left, top, width, height, config,
                                       texels.begin()->fPixels, texels.begin()->fRowBytes);
-    }
-
-    if (success) {
-        vkTex->texturePriv().dirtyMipMaps(true);
-        return true;
-    }
-
-    return false;
-}
-
-
-bool GrVkGpu::onTransferPixels(GrTexture* texture,
-                               int left, int top, int width, int height,
-                               GrPixelConfig config, GrBuffer* transferBuffer,
-                               size_t bufferOffset, size_t rowBytes) {
-    GrVkTexture* vkTex = static_cast<GrVkTexture*>(texture);
-    if (!vkTex) {
-        return false;
-    }
-    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
-    if (!vkBuffer) {
-        return false;
-    }
-
-    // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(texture->config()) != GrPixelConfigIsSRGB(config)) {
-        return false;
-    }
-
-    // TODO: Handle y axis flip via copy to temp image, then blit to final
-    if (kBottomLeft_GrSurfaceOrigin == vkTex->origin()) {
-        return false;
-    }
-
-    bool success = false;
-    if (GrPixelConfigIsCompressed(vkTex->desc().fConfig)) {
-        // We check that config == desc.fConfig in GrGpu::getWritePixelsInfo()
-        SkASSERT(config == vkTex->desc().fConfig);
-        // TODO: add compressed texture support
-        // delete the following two lines and uncomment the two after that when ready
-        vkTex->unref();
-        return false;
-        //success = this->uploadCompressedTexData(vkTex->desc(), buffer, false, left, top, width,
-        //                                       height);
-    } else {
-        // make sure the unmap has finished
-        vkBuffer->addMemoryBarrier(this,
-                                   VK_ACCESS_HOST_WRITE_BIT,
-                                   VK_ACCESS_TRANSFER_READ_BIT,
-                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                   VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                   false);
-
-        // Set up copy region
-        size_t bpp = GrBytesPerPixel(config);
-
-        VkBufferImageCopy region;
-        memset(&region, 0, sizeof(VkBufferImageCopy));
-        region.bufferOffset = bufferOffset;
-        region.bufferRowLength = (uint32_t)(rowBytes/bpp);
-        region.bufferImageHeight = 0;
-        region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-        region.imageOffset = { left, top, 0 };
-        region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
-
-        // Change layout of our target so it can be copied to
-        VkImageLayout layout = vkTex->currentLayout();
-        VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
-        VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
-        VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        vkTex->setImageLayout(this,
-                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                              srcAccessMask,
-                              dstAccessMask,
-                              srcStageMask,
-                              dstStageMask,
-                              false);
-
-        // Copy the buffer to the image
-        fCurrentCmdBuffer->copyBufferToImage(this,
-                                             vkBuffer,
-                                             vkTex,
-                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                             1,
-                                             &region);
-
-        // Submit the current command buffer to the Queue
-        this->submitCommandBuffer(kSkip_SyncQueue);
     }
 
     if (success) {
