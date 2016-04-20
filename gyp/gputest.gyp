@@ -32,23 +32,7 @@
         '<!@(python find.py ../tools/gpu "*")'
       ],
       'conditions': [
-        [ 'skia_mesa and skia_os == "linux"', {
-          'link_settings': {
-            'libraries': [
-              '-lOSMesa',
-            ],
-          },
-        }],
-        [ 'skia_mesa and skia_os == "mac"', {
-          'link_settings': {
-            'libraries': [
-              '/opt/X11/lib/libOSMesa.dylib',
-            ],
-          },
-          'include_dirs': [
-             '/opt/X11/include/',
-          ],
-        }],
+        [ 'skia_mesa', { 'dependencies': [ 'osmesa' ] } ],
         [ 'skia_angle', {
           'dependencies': [
             'angle.gyp:*',
@@ -120,6 +104,19 @@
           'sources/': [ ['exclude', '_command_buffer\.(h|cpp)$'], ],
         }],
       ],
+    },
+    {
+      'target_name': 'osmesa',
+      'type': 'none',
+      'direct_dependent_settings': {
+        'link_settings': { 'libraries': [ '-lOSMesa', ], },
+        'conditions': [
+          [ 'skia_os == "mac"', {
+            'link_settings': { 'library_dirs' : [ '/opt/X11/lib' ], },
+            'include_dirs': [ '/opt/X11/include', ],
+          }],
+        ],
+      },
     },
   ],
 }
