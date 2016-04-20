@@ -67,6 +67,25 @@ static sk_sp<SkImage> create_image() {
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
+
+static SkData* create_image_data(SkImageInfo* info) {
+    *info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
+    const size_t rowBytes = info->minRowBytes();
+    SkAutoTUnref<SkData> data(SkData::NewUninitialized(rowBytes * info->height()));
+    {
+        SkBitmap bm;
+        bm.installPixels(*info, data->writable_data(), rowBytes);
+        SkCanvas canvas(bm);
+        draw_image_test_pattern(&canvas);
+    }
+    return data.release();
+}
+static sk_sp<SkImage> create_data_image() {
+    SkImageInfo info;
+    sk_sp<SkData> data(create_image_data(&info));
+    return SkImage::MakeRasterData(info, data, info.minRowBytes());
+}
+#if SK_SUPPORT_GPU // not gpu-specific but currently only used in GPU tests
 static sk_sp<SkImage> create_image_565() {
     const SkImageInfo info = SkImageInfo::Make(20, 20, kRGB_565_SkColorType, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
@@ -90,24 +109,6 @@ static sk_sp<SkImage> create_image_ct() {
     SkImageInfo info = SkImageInfo::Make(5, 5, kIndex_8_SkColorType, kPremul_SkAlphaType);
     return SkImage::MakeRasterCopy(SkPixmap(info, data, 5, colorTable));
 }
-static SkData* create_image_data(SkImageInfo* info) {
-    *info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    const size_t rowBytes = info->minRowBytes();
-    SkAutoTUnref<SkData> data(SkData::NewUninitialized(rowBytes * info->height()));
-    {
-        SkBitmap bm;
-        bm.installPixels(*info, data->writable_data(), rowBytes);
-        SkCanvas canvas(bm);
-        draw_image_test_pattern(&canvas);
-    }
-    return data.release();
-}
-static sk_sp<SkImage> create_data_image() {
-    SkImageInfo info;
-    sk_sp<SkData> data(create_image_data(&info));
-    return SkImage::MakeRasterData(info, data, info.minRowBytes());
-}
-#if SK_SUPPORT_GPU // not gpu-specific but currently only used in GPU tests
 static sk_sp<SkImage> create_picture_image() {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(10, 10);
