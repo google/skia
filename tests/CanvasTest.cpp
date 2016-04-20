@@ -46,7 +46,6 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
-#include "SkDevice.h"
 #include "SkDocument.h"
 #include "SkMatrix.h"
 #include "SkNWayCanvas.h"
@@ -498,6 +497,40 @@ static void NestedSaveRestoreWithFlushTestStep(SkCanvas* canvas, const TestData&
 }
 TEST_STEP(NestedSaveRestoreWithFlush, NestedSaveRestoreWithFlushTestStep);
 
+class CanvasTestingAccess {
+public:
+    static bool SameState(const SkCanvas* canvas1, const SkCanvas* canvas2) {
+        SkCanvas::LayerIter layerIter1(const_cast<SkCanvas*>(canvas1), false);
+        SkCanvas::LayerIter layerIter2(const_cast<SkCanvas*>(canvas2), false);
+        while (!layerIter1.done() && !layerIter2.done()) {
+            if (layerIter1.matrix() != layerIter2.matrix()) {
+                return false;    
+            }
+            if (layerIter1.clip() != layerIter2.clip()) {
+                return false;    
+            }
+            if (layerIter1.paint() != layerIter2.paint()) {
+                return false;   
+            }
+            if (layerIter1.x() != layerIter2.x()) {
+                return false;    
+            }
+            if (layerIter1.y() != layerIter2.y()) {
+                return false;
+            }
+            layerIter1.next();
+            layerIter2.next();
+        }
+        if (!layerIter1.done()) {
+            return false;
+        }
+        if (!layerIter2.done()) {
+            return false;
+        }
+        return true;
+    }
+};
+
 static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData& d,
                                     const SkCanvas* canvas1, const SkCanvas* canvas2,
                                     CanvasTestStep* testStep) {
@@ -528,27 +561,9 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
         canvas2->getTotalMatrix(), testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, equal_clips(*canvas1, *canvas2), testStep->assertMessage());
 
-    SkCanvas::LayerIter layerIter1(const_cast<SkCanvas*>(canvas1), false);
-    SkCanvas::LayerIter layerIter2(const_cast<SkCanvas*>(canvas2), false);
-    while (!layerIter1.done() && !layerIter2.done()) {
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.matrix() ==
-            layerIter2.matrix(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.clip() ==
-            layerIter2.clip(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.paint() ==
-            layerIter2.paint(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.x() ==
-            layerIter2.x(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, layerIter1.y() ==
-            layerIter2.y(), testStep->assertMessage());
-        layerIter1.next();
-        layerIter2.next();
-    }
-    REPORTER_ASSERT_MESSAGE(reporter, layerIter1.done(),
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, layerIter2.done(),
-        testStep->assertMessage());
-
+    REPORTER_ASSERT_MESSAGE(reporter, 
+                            CanvasTestingAccess::SameState(canvas1, canvas2),
+                            testStep->assertMessage());
 }
 
 static void TestPdfDevice(skiatest::Reporter* reporter,
