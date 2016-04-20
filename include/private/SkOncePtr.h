@@ -66,9 +66,8 @@ public:
             if (state == 0) {
                 // It looks like no one has tried to create our pointer yet.
                 // We try to claim that task by atomically swapping our state from '0' to '1'.
-                // See SkOnce.h for why we use an acquire memory order here rather than relaxed.
                 if (sk_atomic_compare_exchange(
-                    &fState, &state, (uintptr_t)1, sk_memory_order_acquire, sk_memory_order_acquire)) {
+                    &fState, &state, (uintptr_t)1, sk_memory_order_relaxed, sk_memory_order_relaxed)) {
                     // We've claimed it.  Create our pointer and store it into fState.
                     state = (uintptr_t)f();
                     SkASSERT(state > 1);
