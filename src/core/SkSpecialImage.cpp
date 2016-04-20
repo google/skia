@@ -21,11 +21,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 class SkSpecialImage_Base : public SkSpecialImage {
 public:
-    SkSpecialImage_Base(SkImageFilter::Proxy* proxy, const SkIRect& subset, uint32_t uniqueID,
-                        const SkSurfaceProps* props)
-        : INHERITED(proxy, subset, uniqueID, props) {
+    SkSpecialImage_Base(const SkIRect& subset, uint32_t uniqueID, const SkSurfaceProps* props)
+        : INHERITED(subset, uniqueID, props) {
     }
-    virtual ~SkSpecialImage_Base() { }
+    ~SkSpecialImage_Base() override { }
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
 
@@ -55,18 +54,15 @@ static inline const SkSpecialImage_Base* as_SIB(const SkSpecialImage* image) {
     return static_cast<const SkSpecialImage_Base*>(image);
 }
 
-SkSpecialImage::SkSpecialImage(SkImageFilter::Proxy* proxy,
-                               const SkIRect& subset,
+SkSpecialImage::SkSpecialImage(const SkIRect& subset,
                                uint32_t uniqueID,
                                const SkSurfaceProps* props)
     : fProps(SkSurfacePropsCopyOrDefault(props))
     , fSubset(subset)
-    , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID() : uniqueID)
-    , fProxy(proxy) {
+    , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID() : uniqueID) {
 }
 
-sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(SkImageFilter::Proxy* proxy,
-                                                       GrContext* context) {
+sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
 #if SK_SUPPORT_GPU
     if (!context) {
         return nullptr;
@@ -81,7 +77,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(SkImageFilter::Proxy* pro
     }
 
     if (bmp.empty()) {
-        return SkSpecialImage::MakeFromRaster(proxy, SkIRect::MakeEmpty(), bmp, &this->props());
+        return SkSpecialImage::MakeFromRaster(SkIRect::MakeEmpty(), bmp, &this->props());
     }
 
     SkAutoTUnref<GrTexture> resultTex(
@@ -92,8 +88,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(SkImageFilter::Proxy* pro
 
     SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
 
-    return SkSpecialImage::MakeFromGpu(proxy,
-                                       SkIRect::MakeWH(resultTex->width(), resultTex->height()),
+    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(resultTex->width(), resultTex->height()),
                                        this->uniqueID(),
                                        resultTex, &this->props(), at);
 #else
@@ -154,19 +149,17 @@ sk_sp<SkImage> SkSpecialImage::makeTightSubset(const SkIRect& subset) const {
 #include "SkGrPixelRef.h"
 #endif
 
-sk_sp<SkSpecialImage> SkSpecialImage::internal_fromBM(SkImageFilter::Proxy* proxy,
-                                                      const SkBitmap& src,
+sk_sp<SkSpecialImage> SkSpecialImage::internal_fromBM(const SkBitmap& src,
                                                       const SkSurfaceProps* props) {
     // Need to test offset case! (see skbug.com/4967)
     if (src.getTexture()) {
-        return SkSpecialImage::MakeFromGpu(proxy,
-                                           src.bounds(),
+        return SkSpecialImage::MakeFromGpu(src.bounds(),
                                            src.getGenerationID(),
                                            src.getTexture(),
                                            props);
     }
 
-    return SkSpecialImage::MakeFromRaster(proxy, src.bounds(), src, props);
+    return SkSpecialImage::MakeFromRaster(src.bounds(), src, props);
 }
 
 bool SkSpecialImage::internal_getBM(SkBitmap* result) {
@@ -174,10 +167,6 @@ bool SkSpecialImage::internal_getBM(SkBitmap* result) {
 
     // TODO: need to test offset case! (see skbug.com/4967)
     return ib->getBitmapDeprecated(result);
-}
-
-SkImageFilter::Proxy* SkSpecialImage::internal_getProxy() const {
-    return fProxy;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,11 +178,10 @@ SkImageFilter::Proxy* SkSpecialImage::internal_getProxy() const {
 
 class SkSpecialImage_Image : public SkSpecialImage_Base {
 public:
-    SkSpecialImage_Image(SkImageFilter::Proxy* proxy,
-                         const SkIRect& subset,
+    SkSpecialImage_Image(const SkIRect& subset,
                          sk_sp<SkImage> image,
                          const SkSurfaceProps* props)
-        : INHERITED(proxy, subset, image->uniqueID(), props)
+        : INHERITED(subset, image->uniqueID(), props)
         , fImage(image) {
     }
 
@@ -262,10 +250,10 @@ public:
             GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *texture->getContext()->caps());
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
-            return SkSpecialSurface::MakeRenderTarget(this->proxy(), texture->getContext(), desc);
+            return SkSpecialSurface::MakeRenderTarget(texture->getContext(), desc);
         }
 #endif
-        return SkSpecialSurface::MakeRaster(this->proxy(), info, nullptr);
+        return SkSpecialSurface::MakeRaster(info, nullptr);
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
@@ -274,8 +262,7 @@ public:
             return nullptr;
         }
 
-        return SkSpecialImage::MakeFromImage(this->internal_getProxy(),
-                                             SkIRect::MakeWH(subset.width(), subset.height()),
+        return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(subset.width(), subset.height()),
                                              subsetImg,
                                              &this->props());
     }
@@ -314,13 +301,12 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(SkImageFilter::Proxy* proxy,
-                                                    const SkIRect& subset,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
                                                     sk_sp<SkImage> image,
                                                     const SkSurfaceProps* props) {
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
-    return sk_make_sp<SkSpecialImage_Image>(proxy, subset, image, props);
+    return sk_make_sp<SkSpecialImage_Image>(subset, image, props);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -330,9 +316,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(SkImageFilter::Proxy* proxy,
 
 class SkSpecialImage_Raster : public SkSpecialImage_Base {
 public:
-    SkSpecialImage_Raster(SkImageFilter::Proxy* proxy, const SkIRect& subset, const SkBitmap& bm,
-                          const SkSurfaceProps* props)
-        : INHERITED(proxy, subset, bm.getGenerationID(), props)
+    SkSpecialImage_Raster(const SkIRect& subset, const SkBitmap& bm, const SkSurfaceProps* props)
+        : INHERITED(subset, bm.getGenerationID(), props)
         , fBitmap(bm) {
         if (bm.pixelRef() && bm.pixelRef()->isPreLocked()) {
             // we only preemptively lock if there is no chance of triggering something expensive
@@ -341,13 +326,12 @@ public:
         }
     }
 
-    SkSpecialImage_Raster(SkImageFilter::Proxy* proxy,
-                          const SkIRect& subset,
+    SkSpecialImage_Raster(const SkIRect& subset,
                           const SkPixmap& pixmap,
                           RasterReleaseProc releaseProc,
                           ReleaseContext context,
                           const SkSurfaceProps* props)
-        : INHERITED(proxy, subset, kNeedNewImageUniqueID_SpecialImage, props) {
+        : INHERITED(subset, kNeedNewImageUniqueID_SpecialImage, props) {
         fBitmap.installPixels(pixmap.info(), pixmap.writable_addr(),
                               pixmap.rowBytes(), pixmap.ctable(),
                               releaseProc, context);
@@ -388,7 +372,7 @@ public:
     }
 
     sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
-        return SkSpecialSurface::MakeRaster(this->proxy(), info, nullptr);
+        return SkSpecialSurface::MakeRaster(info, nullptr);
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
@@ -398,8 +382,7 @@ public:
             return nullptr;
         }
 
-        return SkSpecialImage::MakeFromRaster(this->internal_getProxy(),
-                                              SkIRect::MakeWH(subset.width(), subset.height()),
+        return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(subset.width(), subset.height()),
                                               subsetBM,
                                               &this->props());
     }
@@ -424,18 +407,16 @@ private:
     typedef SkSpecialImage_Base INHERITED;
 };
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(SkImageFilter::Proxy* proxy,
-                                                     const SkIRect& subset,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
                                                      const SkBitmap& bm,
                                                      const SkSurfaceProps* props) {
     SkASSERT(nullptr == bm.getTexture());
     SkASSERT(rect_fits(subset, bm.width(), bm.height()));
 
-    return sk_make_sp<SkSpecialImage_Raster>(proxy, subset, bm, props);
+    return sk_make_sp<SkSpecialImage_Raster>(subset, bm, props);
 }
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(SkImageFilter::Proxy* proxy,
-                                                     const SkIRect& subset,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(const SkIRect& subset,
                                                      const SkPixmap& src,
                                                      RasterReleaseProc releaseProc,
                                                      ReleaseContext context,
@@ -444,7 +425,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(SkImageFilter::Proxy* proxy
         return nullptr;
     }
 
-    return sk_make_sp<SkSpecialImage_Raster>(proxy, subset, src, releaseProc, context, props);
+    return sk_make_sp<SkSpecialImage_Raster>(subset, src, releaseProc, context, props);
 }
 
 
@@ -455,10 +436,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(SkImageFilter::Proxy* proxy
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
-    SkSpecialImage_Gpu(SkImageFilter::Proxy* proxy, const SkIRect& subset,
+    SkSpecialImage_Gpu(const SkIRect& subset,
                        uint32_t uniqueID, GrTexture* tex, SkAlphaType at,
                        const SkSurfaceProps* props)
-        : INHERITED(proxy, subset, uniqueID, props)
+        : INHERITED(subset, uniqueID, props)
         , fTexture(SkRef(tex))
         , fAlphaType(at)
         , fAddedRasterVersionToCache(false) {
@@ -543,12 +524,11 @@ public:
         GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *fTexture->getContext()->caps());
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
-        return SkSpecialSurface::MakeRenderTarget(this->proxy(), fTexture->getContext(), desc);
+        return SkSpecialSurface::MakeRenderTarget(fTexture->getContext(), desc);
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
-        return SkSpecialImage::MakeFromGpu(this->internal_getProxy(),
-                                           subset,
+        return SkSpecialImage::MakeFromGpu(subset,
                                            this->uniqueID(),
                                            fTexture,
                                            &this->props(),
@@ -592,20 +572,18 @@ private:
     typedef SkSpecialImage_Base INHERITED;
 };
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(SkImageFilter::Proxy* proxy,
-                                                  const SkIRect& subset,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
                                                   uint32_t uniqueID,
                                                   GrTexture* tex,
                                                   const SkSurfaceProps* props,
                                                   SkAlphaType at) {
     SkASSERT(rect_fits(subset, tex->width(), tex->height()));
-    return sk_make_sp<SkSpecialImage_Gpu>(proxy, subset, uniqueID, tex, at, props);
+    return sk_make_sp<SkSpecialImage_Gpu>(subset, uniqueID, tex, at, props);
 }
 
 #else
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(SkImageFilter::Proxy* proxy,
-                                                  const SkIRect& subset,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
                                                   uint32_t uniqueID,
                                                   GrTexture* tex,
                                                   const SkSurfaceProps* props,

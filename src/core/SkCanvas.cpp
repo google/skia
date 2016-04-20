@@ -1408,7 +1408,6 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter) {
-            SkImageFilter::DeviceProxy proxy(dstDev);
             SkIPoint offset = SkIPoint::Make(0, 0);
             const SkBitmap& srcBM = srcDev->accessBitmap(false);
             SkMatrix matrix = *iter.fMatrix;
@@ -1417,7 +1416,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
             SkAutoTUnref<SkImageFilter::Cache> cache(dstDev->getImageFilterCache());
             SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
-            sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, srcBM,
+            sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(srcBM,
                                                                          &dstDev->surfaceProps()));
             if (!srcImg) {
                 continue; // something disastrous happened

@@ -111,25 +111,6 @@ public:
         kNever_TileUsage,       //!< the created device will never be drawn tiled
     };
 
-    class Proxy {
-    public:
-        virtual ~Proxy() {}
-
-        virtual SkBaseDevice* createDevice(int width, int height,
-                                           TileUsage usage = kNever_TileUsage) = 0;
-    };
-
-    class DeviceProxy : public Proxy {
-    public:
-        DeviceProxy(SkBaseDevice* device) : fDevice(device) {}
-
-        SkBaseDevice* createDevice(int width, int height,
-                                   TileUsage usage = kNever_TileUsage) override;
-
-    private:
-        SkBaseDevice* fDevice;
-    };
-
     /**
      *  Request a new (result) image to be created from the src image.
      *
@@ -168,8 +149,7 @@ public:
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context, 
                                             sk_sp<GrFragmentProcessor> fp,
-                                            const SkIRect& bounds,
-                                            SkImageFilter::Proxy* proxy);
+                                            const SkIRect& bounds);
 #endif
 
     /**
@@ -217,9 +197,7 @@ public:
      *  The size of the crop rect should be
      *  used as the size of the destination image. The origin of this rect
      *  should be used to offset access to the input images, and should also
-     *  be added to the "offset" parameter in onFilterImage and
-     *  filterImageGPU(). (The latter ensures that the resulting buffer is
-     *  drawn in the correct location.)
+     *  be added to the "offset" parameter in onFilterImage.
      */
     bool cropRectIsSet() const { return fCropRect.flags() != 0x0; }
 
@@ -256,12 +234,6 @@ public:
         return MakeMatrixFilter(matrix, filterQuality, sk_ref_sp<SkImageFilter>(input)).release();
     }
 #endif
-
-
-    sk_sp<SkSpecialImage> filterInput(int index,
-                                      SkSpecialImage* src,
-                                      const Context&, 
-                                      SkIPoint* offset) const;
 
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
@@ -320,15 +292,15 @@ protected:
      *  Offset is the amount to translate the resulting image relative to the
      *  src when it is drawn. This is an out-param.
      *
-     *  If the result image cannot be created, this should false, in which
-     *  case both the result and offset parameters will be ignored by the
-     *  caller.
+     *  If the result image cannot be created (either because of error or if, say, the result
+     *  is entirely clipped out), this should return nullptr.
+     *  Callers that affect transparent black should explicitly handle nullptr
+     *  results and press on. In the error case this behavior will produce a better result
+     *  than nothing and is necessary for the clipped out case.
+     *  If the return value is nullptr then offset should be ignored.
      */
-    virtual bool onFilterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                                         SkBitmap* result, SkIPoint* offset) const;
-
     virtual sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* src, const Context&,
-                                                SkIPoint* offset) const;
+                                                SkIPoint* offset) const = 0;
 
     /**
      * This function recurses into its inputs with the given rect (first
@@ -359,12 +331,13 @@ protected:
     virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const;
 
     // Helper function which invokes filter processing on the input at the
-    // specified "index". If the input is null, it leaves "result" and
-    // "offset" untouched, and returns true. If the input is non-null, it
-    // calls filterImage() on that input, and returns true on success.
-    // i.e., return !getInput(index) || getInput(index)->filterImage(...);
-    bool filterInputDeprecated(int index, Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const;
+    // specified "index". If the input is null, it returns "src" and leaves
+    // "offset" untouched. If the input is non-null, it
+    // calls filterImage() on that input, and returns the result.
+    sk_sp<SkSpecialImage> filterInput(int index,
+                                      SkSpecialImage* src,
+                                      const Context&, 
+                                      SkIPoint* offset) const;
 
     /**
      *  Return true (and return a ref'd colorfilter) if this node in the DAG is just a
@@ -409,8 +382,6 @@ private:
     static void PurgeCache();
 
     void init(sk_sp<SkImageFilter>* inputs, int inputCount, const CropRect* cropRect);
-    bool filterImageDeprecated(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const;
 
     bool usesSrcInput() const { return fUsesSrcInput; }
     virtual bool affectsTransparentBlack() const { return false; }

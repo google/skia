@@ -409,7 +409,6 @@ void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitm
     SkImageFilter* filter = paint.getImageFilter();
     SkASSERT(filter);
 
-    SkImageFilter::DeviceProxy proxy(this);
     SkIPoint offset = SkIPoint::Make(0, 0);
     SkMatrix matrix = *draw.fMatrix;
     matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
@@ -417,8 +416,7 @@ void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitm
     SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
     SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
-    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(&proxy, bitmap,
-                                                                 &this->surfaceProps()));
+    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(bitmap, &this->surfaceProps()));
     if (!srcImg) {
         return; // something disastrous happened
     }

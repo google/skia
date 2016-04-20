@@ -14,7 +14,6 @@
 #include "SkSpecialSurface.h"
 #include "SkSurface.h"
 #include "Test.h"
-#include "TestingSpecialImageAccess.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -53,7 +52,7 @@ static SkBitmap create_bm() {
 static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* reporter,
                        GrContext* context, bool peekTextureSucceeds,
                        int offset, int size) {
-    const SkIRect subset = TestingSpecialImageAccess::Subset(img.get());
+    const SkIRect subset = img->subset();
     REPORTER_ASSERT(reporter, offset == subset.left());
     REPORTER_ASSERT(reporter, offset == subset.top());
     REPORTER_ASSERT(reporter, kSmallerSize == subset.width());
@@ -140,14 +139,13 @@ DEF_TEST(SpecialImage_Raster, reporter) {
     SkBitmap bm = create_bm();
 
     sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromRaster(
-                                                            nullptr,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             bm));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromRaster(nullptr, subset, bm));
+        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromRaster(subset, bm));
         test_image(subSImg1, reporter, nullptr, false, kPad, kFullSize);
     }
 
@@ -163,15 +161,13 @@ DEF_TEST(SpecialImage_Image, reporter) {
     sk_sp<SkImage> fullImage(SkImage::MakeFromBitmap(bm));
 
     sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromImage(
-                                                            nullptr,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             fullImage));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(nullptr, subset,
-                                                                     fullImage));
+        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(subset, fullImage));
         test_image(subSImg1, reporter, nullptr, false, kPad, kFullSize);
     }
 
@@ -193,7 +189,7 @@ DEF_TEST(SpecialImage_Pixmap, reporter) {
     pixmap.erase(SK_ColorRED, subset);
 
     {
-        sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromPixmap(nullptr, subset, pixmap,
+        sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromPixmap(subset, pixmap,
                                                                  nullptr, nullptr));
         test_image(img, reporter, nullptr, false, kPad, kFullSize);
     }
@@ -222,20 +218,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
     {
         // raster
         sk_sp<SkSpecialImage> rasterImage(SkSpecialImage::MakeFromRaster(
-                                                                        nullptr,
                                                                         SkIRect::MakeWH(kFullSize,
                                                                                         kFullSize),
                                                                         bm));
 
         {
-            sk_sp<SkSpecialImage> fromRaster(rasterImage->makeTextureImage(nullptr, context));
+            sk_sp<SkSpecialImage> fromRaster(rasterImage->makeTextureImage(context));
             test_texture_backed(reporter, rasterImage, fromRaster);
         }
 
         {
             sk_sp<SkSpecialImage> subRasterImage(rasterImage->makeSubset(subset));
 
-            sk_sp<SkSpecialImage> fromSubRaster(subRasterImage->makeTextureImage(nullptr, context));
+            sk_sp<SkSpecialImage> fromSubRaster(subRasterImage->makeTextureImage(context));
             test_texture_backed(reporter, subRasterImage, fromSubRaster);
         }
     }
@@ -257,21 +252,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
         }
 
         sk_sp<SkSpecialImage> gpuImage(SkSpecialImage::MakeFromGpu(
-                                                                nullptr,
                                                                 SkIRect::MakeWH(kFullSize,
                                                                                 kFullSize),
                                                                 kNeedNewImageUniqueID_SpecialImage,
                                                                 texture));
 
         {
-            sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(nullptr, context));
+            sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
             test_texture_backed(reporter, gpuImage, fromGPU);
         }
 
         {
             sk_sp<SkSpecialImage> subGPUImage(gpuImage->makeSubset(subset));
 
-            sk_sp<SkSpecialImage> fromSubGPU(subGPUImage->makeTextureImage(nullptr, context));
+            sk_sp<SkSpecialImage> fromSubGPU(subGPUImage->makeTextureImage(context));
             test_texture_backed(reporter, subGPUImage, fromSubGPU);
         }
     }
@@ -295,7 +289,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     }
 
     sk_sp<SkSpecialImage> fullSImg(SkSpecialImage::MakeFromGpu(
-                                                            nullptr,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
                                                             texture));
@@ -304,7 +297,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
 
     {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromGpu(
-                                                               nullptr, subset,
+                                                               subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
                                                                texture));
         test_image(subSImg1, reporter, context, true, kPad, kFullSize);

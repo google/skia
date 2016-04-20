@@ -460,8 +460,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
     this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottomRight,
                    kBottomRight_BoundaryMode, pSrcBounds, offsetBounds);
 
-    return SkSpecialImage::MakeFromGpu(source->internal_getProxy(),
-                                       SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
+    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
                                        dst.get());
 }
@@ -1326,8 +1325,7 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(SkSpecialImage
             break;
     }
 
-    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
-                                          SkIRect::MakeWH(bounds.width(), bounds.height()),
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst);
 }
 
@@ -1493,9 +1491,7 @@ sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(SkSpecialImag
             break;
     }
 
-    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
-                                          SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                          dst);
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()), dst);
 }
 
 #ifndef SK_IGNORE_TO_STRING

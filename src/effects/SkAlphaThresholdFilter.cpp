@@ -187,7 +187,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, source->internal_getProxy());
+        return DrawWithFP(context, std::move(fp), bounds);
     }
 #endif
 
@@ -262,8 +262,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
 
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
-                                          SkIRect::MakeWH(bounds.width(), bounds.height()),
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst);
 }
 

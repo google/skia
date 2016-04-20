@@ -229,7 +229,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
         // Keep the result on the GPU - this is still required for some
         // image filters that don't support GPU in all cases
         GrContext* context = src->getContext();
-        result = result->makeTextureImage(src->internal_getProxy(), context);
+        result = result->makeTextureImage(context);
     }
 #endif
 
@@ -240,54 +240,6 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
     }
 
     return result;
-}
-
-bool SkImageFilter::filterImageDeprecated(Proxy* proxy, const SkBitmap& src,
-                                          const Context& context,
-                                          SkBitmap* result, SkIPoint* offset) const {
-    SkASSERT(result);
-    SkASSERT(offset);
-    uint32_t srcGenID = fUsesSrcInput ? src.getGenerationID() : 0;
-    Cache::Key key(fUniqueID, context.ctm(), context.clipBounds(),
-                   srcGenID, SkIRect::MakeWH(0, 0));
-    if (context.cache()) {
-        if (context.cache()->get(key, result, offset)) {
-            return true;
-        }
-    }
-    if (this->onFilterImageDeprecated(proxy, src, context, result, offset)) {
-        if (context.cache()) {
-            context.cache()->set(key, *result, *offset);
-            SkAutoMutexAcquire mutex(fMutex);
-            fCacheKeys.push_back(key);
-        }
-        return true;
-    }
-    return false;
-}
-
-bool SkImageFilter::filterInputDeprecated(int index, Proxy* proxy, const SkBitmap& src,
-                                          const Context& ctx,
-                                          SkBitmap* result, SkIPoint* offset) const {
-    SkImageFilter* input = this->getInput(index);
-    if (!input) {
-        return true;
-    }
-
-    // SRGBTODO: Don't handle sRGB here, in anticipation of this code path being deleted.
-    sk_sp<SkSpecialImage> specialSrc(SkSpecialImage::internal_fromBM(proxy, src, nullptr));
-    if (!specialSrc) {
-        return false;
-    }
-
-    sk_sp<SkSpecialImage> tmp(input->onFilterImage(specialSrc.get(),
-                                                   this->mapContext(ctx),
-                                                   offset));
-    if (!tmp) {
-        return false;
-    }
-
-    return tmp->internal_getBM(result);
 }
 
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -333,38 +285,10 @@ bool SkImageFilter::canComputeFastBounds() const {
     return true;
 }
 
-bool SkImageFilter::onFilterImageDeprecated(Proxy*, const SkBitmap&, const Context&,
-                                            SkBitmap*, SkIPoint*) const {
-    // Only classes that now use the new SkSpecialImage-based path will not have
-    // onFilterImageDeprecated methods. For those classes we should never be
-    // calling this method.
-    SkASSERT(0);
-    return false;
-}
-
-// SkImageFilter-derived classes that do not yet have their own onFilterImage
-// implementation convert back to calling the deprecated filterImage method
-sk_sp<SkSpecialImage> SkImageFilter::onFilterImage(SkSpecialImage* src, const Context& ctx,
-                                                   SkIPoint* offset) const {
-    SkBitmap srcBM, resultBM;
-
-    if (!src->internal_getBM(&srcBM)) {
-        return nullptr;
-    }
-
-    // This is the only valid call to the old filterImage path
-    if (!this->filterImageDeprecated(src->internal_getProxy(), srcBM, ctx, &resultBM, offset)) {
-        return nullptr;
-    }
-
-    return SkSpecialImage::internal_fromBM(src->internal_getProxy(), resultBM, &src->props());
-}
-
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
                                                 sk_sp<GrFragmentProcessor> fp,
-                                                const SkIRect& bounds,
-                                                SkImageFilter::Proxy* proxy) {
+                                                const SkIRect& bounds) {
     GrPaint paint;
     paint.addColorFragmentProcessor(fp.get());
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
@@ -390,8 +314,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     GrClip clip(dstRect);
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
-    return SkSpecialImage::MakeFromGpu(proxy,
-                                       SkIRect::MakeWH(bounds.width(), bounds.height()),
+    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
                                        dst.get());
 
@@ -680,20 +603,3 @@ void SkImageFilter::PurgeCache() {
     Cache::Get()->purge();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkBaseDevice* SkImageFilter::DeviceProxy::createDevice(int w, int h, TileUsage usage) {
-    SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
-                                   kPossible_TileUsage == usage ? SkBaseDevice::kPossible_TileUsage
-                                                                : SkBaseDevice::kNever_TileUsage,
-                                   kUnknown_SkPixelGeometry,
-                                   false,   /* preserveLCDText */
-                                   true /*forImageFilter*/);
-    SkBaseDevice* dev = fDevice->onCreateDevice(cinfo, nullptr);
-    if (nullptr == dev) {
-        const SkSurfaceProps surfaceProps(fDevice->fSurfaceProps.flags(),
-                                          kUnknown_SkPixelGeometry);
-        dev = SkBitmapDevice::Create(cinfo.fInfo, surfaceProps);
-    }
-    return dev;
-}

@@ -355,8 +355,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
-        return SkSpecialImage::MakeFromGpu(source->internal_getProxy(),
-                                           SkIRect::MakeWH(bounds.width(), bounds.height()),
+        return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
                                            dst);
     }
@@ -393,8 +392,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
 
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
-                                          SkIRect::MakeWH(bounds.width(), bounds.height()),
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst);
 }
 

@@ -63,29 +63,25 @@ public:
      *  transformation is required, the returned image may be the same as this special image.
      *  If this special image is from a different GrContext, this will fail.
      */
-    sk_sp<SkSpecialImage> makeTextureImage(SkImageFilter::Proxy*, GrContext*);
+    sk_sp<SkSpecialImage> makeTextureImage(GrContext*);
 
     /**
      *  Draw this SpecialImage into the canvas.
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
-    static sk_sp<SkSpecialImage> MakeFromImage(SkImageFilter::Proxy*,
-                                               const SkIRect& subset,
+    static sk_sp<SkSpecialImage> MakeFromImage(const SkIRect& subset,
                                                sk_sp<SkImage>,
                                                const SkSurfaceProps* = nullptr);
-    static sk_sp<SkSpecialImage> MakeFromRaster(SkImageFilter::Proxy*,
-                                                const SkIRect& subset,
+    static sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,
                                                 const SkSurfaceProps* = nullptr);
-    static sk_sp<SkSpecialImage> MakeFromGpu(SkImageFilter::Proxy*,
-                                             const SkIRect& subset,
+    static sk_sp<SkSpecialImage> MakeFromGpu(const SkIRect& subset,
                                              uint32_t uniqueID,
                                              GrTexture*,
                                              const SkSurfaceProps* = nullptr,
                                              SkAlphaType at = kPremul_SkAlphaType);
-    static sk_sp<SkSpecialImage> MakeFromPixmap(SkImageFilter::Proxy*,
-                                                const SkIRect& subset,
+    static sk_sp<SkSpecialImage> MakeFromPixmap(const SkIRect& subset,
                                                 const SkPixmap&,
                                                 RasterReleaseProc,
                                                 ReleaseContext,
@@ -117,9 +113,7 @@ public:
 
     // These three internal methods will go away (see skbug.com/4965)
     bool internal_getBM(SkBitmap* result);
-    static sk_sp<SkSpecialImage> internal_fromBM(SkImageFilter::Proxy*, const SkBitmap&,
-                                                 const SkSurfaceProps*);
-    SkImageFilter::Proxy* internal_getProxy() const;
+    static sk_sp<SkSpecialImage> internal_fromBM(const SkBitmap&, const SkSurfaceProps*);
 
     // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)
     /**
@@ -148,23 +142,12 @@ public:
     bool getROPixels(SkBitmap*) const;
 
 protected:
-    SkSpecialImage(SkImageFilter::Proxy*, const SkIRect& subset, uint32_t uniqueID,
-                   const SkSurfaceProps*);
-
-    // The following 2 are for testing and shouldn't be used.
-    friend class TestingSpecialImageAccess;
-    friend class TestingSpecialSurfaceAccess;
-
-    // TODO: remove this ASAP (see skbug.com/4965)
-    SkImageFilter::Proxy* proxy() const { return fProxy; }
+    SkSpecialImage(const SkIRect& subset, uint32_t uniqueID, const SkSurfaceProps*);
 
 private:
     const SkSurfaceProps fProps;
     const SkIRect        fSubset;
     const uint32_t       fUniqueID;
-
-    // TODO: remove this ASAP (see skbug.com/4965)
-    SkImageFilter::Proxy* fProxy;
 
     typedef SkRefCnt INHERITED;
 };

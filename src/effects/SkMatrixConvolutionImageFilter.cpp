@@ -329,7 +329,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, source->internal_getProxy());
+        return DrawWithFP(context, std::move(fp), bounds);
     }
 #endif
 
@@ -381,8 +381,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
     this->filterInteriorPixels(inputBM, &dst, interior, bounds);
     this->filterBorderPixels(inputBM, &dst, right, bounds);
     this->filterBorderPixels(inputBM, &dst, bottom, bounds);
-    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
-                                          SkIRect::MakeWH(bounds.width(), bounds.height()),
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst);
 }
 

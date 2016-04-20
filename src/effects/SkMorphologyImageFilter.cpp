@@ -533,8 +533,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
         srcTexture.reset(scratch);
     }
 
-    return SkSpecialImage::MakeFromGpu(input->internal_getProxy(),
-                                       SkIRect::MakeWH(rect.width(), rect.height()),
+    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(rect.width(), rect.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
                                        srcTexture, &input->props());
 }
@@ -644,7 +643,6 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
     offset->fX = bounds.left();
     offset->fY = bounds.top();
 
-    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
-                                          SkIRect::MakeWH(bounds.width(), bounds.height()),
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst, &source->props());
 }

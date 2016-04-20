@@ -133,8 +133,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
             return nullptr;
         }
 
-        return SkSpecialImage::MakeFromGpu(source->internal_getProxy(),
-                                           SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
+        return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
                                            tex, &source->props());
     }
@@ -225,8 +224,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
         SkOpts::box_blur_xy(t,  h,  dstBoundsT,   d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
     }
 
-    return SkSpecialImage::MakeFromRaster(source->internal_getProxy(),
-                                          SkIRect::MakeWH(dstBounds.width(),
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
                                                           dstBounds.height()),
                                           dst, &source->props());
 }
