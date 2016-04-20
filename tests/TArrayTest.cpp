@@ -58,15 +58,10 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     // {0, 3, 2 }
 }
 
-static void test_swap(skiatest::Reporter* reporter) {
-    SkTArray<int> arr;
-    SkSTArray< 5, int> arr5;
-    SkSTArray<10, int> arr10;
-    SkSTArray<20, int> arr20;
-
-    SkTArray<int>* arrays[] = { &arr, &arr5, &arr10, &arr20 };
-    int sizes[] = {0, 1, 5, 10, 15, 20, 25};
-
+template <typename T> static void test_swap(skiatest::Reporter* reporter,
+                                            SkTArray<T>* (&arrays)[4],
+                                            int (&sizes)[7])
+{
     for (auto a : arrays) {
     for (auto b : arrays) {
         if (a == b) {
@@ -87,14 +82,39 @@ static void test_swap(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, a->count() == sizeB);
 
             curr = 0;
-            for (int x : *b) { REPORTER_ASSERT(reporter, x == curr++); }
-            for (int x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
+            for (auto&& x : *b) { REPORTER_ASSERT(reporter, x == curr++); }
+            for (auto&& x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
 
             a->swap(a);
             curr = sizeA;
-            for (int x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
+            for (auto&& x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
         }}
     }}
+}
+
+static void test_swap(skiatest::Reporter* reporter) {
+    int sizes[] = {0, 1, 5, 10, 15, 20, 25};
+
+    SkTArray<int> arr;
+    SkSTArray< 5, int> arr5;
+    SkSTArray<10, int> arr10;
+    SkSTArray<20, int> arr20;
+    SkTArray<int>* arrays[] = { &arr, &arr5, &arr10, &arr20 };
+    test_swap(reporter, arrays, sizes);
+
+    struct MoveOnlyInt {
+        MoveOnlyInt(int i) : fInt(i) {}
+        MoveOnlyInt(MoveOnlyInt&& that) : fInt(that.fInt) {}
+        bool operator==(int i) { return fInt == i; }
+        int fInt;
+    };
+
+    SkTArray<MoveOnlyInt> moi;
+    SkSTArray< 5, MoveOnlyInt> moi5;
+    SkSTArray<10, MoveOnlyInt> moi10;
+    SkSTArray<20, MoveOnlyInt> moi20;
+    SkTArray<MoveOnlyInt>* arraysMoi[] = { &moi, &moi5, &moi10, &moi20 };
+    test_swap(reporter, arraysMoi, sizes);
 }
 
 DEF_TEST(TArray, reporter) {
