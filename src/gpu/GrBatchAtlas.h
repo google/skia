@@ -16,6 +16,8 @@
 #include "batches/GrDrawBatch.h"
 
 class GrRectanizer;
+class GrResourceProvider;
+class GrBuffer;
 
 struct GrBatchAtlasConfig {
     int numPlotsX() const { return fWidth / fPlotWidth; }
@@ -41,7 +43,7 @@ public:
     // the eviction
     typedef void (*EvictionFunc)(GrBatchAtlas::AtlasID, void*);
 
-    GrBatchAtlas(GrTexture*, int numPlotsX, int numPlotsY);
+    GrBatchAtlas(GrResourceProvider*, GrTexture*, int numPlotsX, int numPlotsY);
     ~GrBatchAtlas();
 
     // Adds a width x height subimage to the atlas. Upon success it returns
@@ -172,19 +174,21 @@ private:
         void setLastUploadToken(GrBatchDrawToken batchToken) { fLastUpload = batchToken; }
         void setLastUseToken(GrBatchDrawToken batchToken) { fLastUse = batchToken; }
 
-        void uploadToTexture(GrDrawBatch::WritePixelsFn&, GrTexture* texture);
+        void uploadToTexture(GrDrawBatch::WritePixelsFn&, GrDrawBatch::TransferPixelsFn&, 
+                             GrTexture* texture);
         void resetRects();
 
     private:
         BatchPlot(int index, uint64_t genID, int offX, int offY, int width, int height,
-                  GrPixelConfig config);
+                  GrPixelConfig config, GrResourceProvider* rp);
 
         ~BatchPlot() override;
 
         // Create a clone of this plot. The cloned plot will take the place of the
         // current plot in the atlas.
         BatchPlot* clone() const {
-            return new BatchPlot(fIndex, fGenID+1, fX, fY, fWidth, fHeight, fConfig);
+            return new BatchPlot(fIndex, fGenID+1, fX, fY, fWidth, fHeight, fConfig,
+                                 fResourceProvider);
         }
 
         static GrBatchAtlas::AtlasID CreateId(uint32_t index, uint64_t generation) {
@@ -193,13 +197,16 @@ private:
             return generation << 16 | index;
         }
 
+        // used to create transfer buffers
+        GrResourceProvider*   fResourceProvider;
         GrBatchDrawToken      fLastUpload;
         GrBatchDrawToken      fLastUse;
 
         const uint32_t        fIndex;
         uint64_t              fGenID;
         GrBatchAtlas::AtlasID fID;
-        unsigned char*        fData;
+        unsigned char*        fDataPtr;
+        GrBuffer*             fTransferBuffer;
         const int             fWidth;
         const int             fHeight;
         const int             fX;

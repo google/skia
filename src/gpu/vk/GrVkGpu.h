@@ -151,10 +151,10 @@ private:
                        int left, int top, int width, int height,
                        GrPixelConfig config, const SkTArray<GrMipLevel>&) override;
 
-    bool onTransferPixels(GrSurface*,
+    bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrBuffer* transferBuffer,
-                          size_t offset, size_t rowBytes) override { return false; }
+                          size_t offset, size_t rowBytes) override;
 
     void onResolveRenderTarget(GrRenderTarget* target) override {}
 

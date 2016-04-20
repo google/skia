@@ -397,14 +397,14 @@ bool GrGpu::writePixels(GrSurface* surface,
     return this->writePixels(surface, left, top, width, height, config, texels);
 }
 
-bool GrGpu::transferPixels(GrSurface* surface,
+bool GrGpu::transferPixels(GrTexture* texture,
                            int left, int top, int width, int height,
                            GrPixelConfig config, GrBuffer* transferBuffer,
                            size_t offset, size_t rowBytes) {
     SkASSERT(transferBuffer);
 
     this->handleDirtyContext();
-    if (this->onTransferPixels(surface, left, top, width, height, config,
+    if (this->onTransferPixels(texture, left, top, width, height, config,
                                transferBuffer, offset, rowBytes)) {
         fStats.incTransfersToTexture();
         return true;

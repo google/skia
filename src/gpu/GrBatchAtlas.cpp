@@ -7,19 +7,23 @@
 
 #include "GrBatchAtlas.h"
 #include "GrBatchFlushState.h"
+#include "GrBuffer.h"
 #include "GrRectanizer.h"
+#include "GrResourceProvider.h"
 #include "GrTracing.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 GrBatchAtlas::BatchPlot::BatchPlot(int index, uint64_t genID, int offX, int offY, int width,
-                                   int height, GrPixelConfig config)
-    : fLastUpload(GrBatchDrawToken::AlreadyFlushedToken())
+                                   int height, GrPixelConfig config, GrResourceProvider* rp)
+    : fResourceProvider(rp)
+    , fLastUpload(GrBatchDrawToken::AlreadyFlushedToken())
     , fLastUse(GrBatchDrawToken::AlreadyFlushedToken())
     , fIndex(index)
     , fGenID(genID)
     , fID(CreateId(fIndex, fGenID))
-    , fData(nullptr)
+    , fDataPtr(nullptr)
+    , fTransferBuffer(nullptr)
     , fWidth(width)
     , fHeight(height)
     , fX(offX)
@@ -36,7 +40,11 @@ GrBatchAtlas::BatchPlot::BatchPlot(int index, uint64_t genID, int offX, int offY
 }
 
 GrBatchAtlas::BatchPlot::~BatchPlot() {
-    sk_free(fData);
+    if (fTransferBuffer) {
+        fTransferBuffer->unref();
+    } else {
+        sk_free(fDataPtr);
+    }
     delete fRects;
 }
 
@@ -52,14 +60,26 @@ bool GrBatchAtlas::BatchPlot::addSubImage(int width, int height, const void* ima
         return false;
     }
 
-    if (!fData) {
-        fData = reinterpret_cast<unsigned char*>(sk_calloc_throw(fBytesPerPixel * fWidth *
-                                                                 fHeight));
+    if (!fDataPtr) {
+        if (!fTransferBuffer) {
+            fTransferBuffer = 
+                fResourceProvider->createBuffer(fBytesPerPixel * fWidth * fHeight,
+                                                kXferCpuToGpu_GrBufferType,
+                                                kDynamic_GrAccessPattern,
+                                                GrResourceProvider::kNoPendingIO_Flag);
+        }
+        if (fTransferBuffer) {
+            fDataPtr = (unsigned char*)fTransferBuffer->map();
+        } else {
+            fDataPtr = reinterpret_cast<unsigned char*>(sk_calloc_throw(fBytesPerPixel * fWidth *
+                                                                        fHeight));
+        }
     }
+
     size_t rowBytes = width * fBytesPerPixel;
     const unsigned char* imagePtr = (const unsigned char*)image;
     // point ourselves at the right starting spot
-    unsigned char* dataPtr = fData;
+    unsigned char* dataPtr = fDataPtr;
     dataPtr += fBytesPerPixel * fWidth * loc->fY;
     dataPtr += fBytesPerPixel * loc->fX;
     // copy into the data buffer
@@ -79,16 +99,25 @@ bool GrBatchAtlas::BatchPlot::addSubImage(int width, int height, const void* ima
 }
 
 void GrBatchAtlas::BatchPlot::uploadToTexture(GrDrawBatch::WritePixelsFn& writePixels,
+                                              GrDrawBatch::TransferPixelsFn& xferPixels,
                                               GrTexture* texture) {
     // We should only be issuing uploads if we are in fact dirty
-    SkASSERT(fDirty && fData && texture);
+    SkASSERT(fDirty && fDataPtr && texture);
     TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrBatchPlot::uploadToTexture");
     size_t rowBytes = fBytesPerPixel * fWidth;
-    const unsigned char* dataPtr = fData;
-    dataPtr += rowBytes * fDirtyRect.fTop;
-    dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
-    writePixels(texture, fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
-                fDirtyRect.width(), fDirtyRect.height(), fConfig, dataPtr, rowBytes);
+    size_t dataOffset = rowBytes * fDirtyRect.fTop + fBytesPerPixel * fDirtyRect.fLeft;
+    if (fTransferBuffer) {
+        fTransferBuffer->unmap();
+        fDataPtr = nullptr;
+        xferPixels(texture, fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
+                   fDirtyRect.width(), fDirtyRect.height(), fConfig, fTransferBuffer, dataOffset, 
+                   rowBytes);
+    } else {
+        writePixels(texture, fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
+                    fDirtyRect.width(), fDirtyRect.height(), fConfig, fDataPtr + dataOffset, 
+                    rowBytes);
+    }
+
     fDirtyRect.setEmpty();
     SkDEBUGCODE(fDirty = false;)
 }
@@ -102,8 +131,8 @@ void GrBatchAtlas::BatchPlot::resetRects() {
     fID = CreateId(fIndex, fGenID);
 
     // zero out the plot
-    if (fData) {
-        sk_bzero(fData, fBytesPerPixel * fWidth * fHeight);
+    if (fDataPtr) {
+        sk_bzero(fDataPtr, fBytesPerPixel * fWidth * fHeight);
     }
 
     fDirtyRect.setEmpty();
@@ -112,7 +141,7 @@ void GrBatchAtlas::BatchPlot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
+GrBatchAtlas::GrBatchAtlas(GrResourceProvider* rp, GrTexture* texture, int numPlotsX, int numPlotsY)
     : fTexture(texture)
     , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
 
@@ -135,7 +164,7 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
         for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t index = r * numPlotsX + c;
             currPlot->reset(new BatchPlot(index, 1, x, y, plotWidth, plotHeight,
-                                          texture->desc().fConfig));
+                                          texture->desc().fConfig, rp));
 
             // build LRU list
             fPlotList.addToHead(currPlot->get());
@@ -162,12 +191,13 @@ inline void GrBatchAtlas::updatePlot(GrDrawBatch::Target* target, AtlasID* id, B
     // upload. Otherwise, we already have a scheduled upload that hasn't yet ocurred.
     // This new update will piggy back on that previously scheduled update.
     if (target->hasDrawBeenFlushed(plot->lastUploadToken())) {
-        // With c+14 we could move sk_sp into lamba to only ref once.
+        // With c+14 we could move sk_sp into lambda to only ref once.
         sk_sp<BatchPlot> plotsp(SkRef(plot));
         GrTexture* texture = fTexture;
         GrBatchDrawToken lastUploadToken = target->addAsapUpload(
-            [plotsp, texture] (GrDrawBatch::WritePixelsFn& writePixels) {
-               plotsp->uploadToTexture(writePixels, texture);
+            [plotsp, texture] (GrDrawBatch::WritePixelsFn& writePixels,
+                               GrDrawBatch::TransferPixelsFn& transferPixels) {
+                plotsp->uploadToTexture(writePixels, transferPixels, texture);
             }
         );
         plot->setLastUploadToken(lastUploadToken);
@@ -235,8 +265,9 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* target,
     sk_sp<BatchPlot> plotsp(SkRef(newPlot.get()));
     GrTexture* texture = fTexture;
     GrBatchDrawToken lastUploadToken = target->addInlineUpload(
-        [plotsp, texture] (GrDrawBatch::WritePixelsFn& writePixels) {
-            plotsp->uploadToTexture(writePixels, texture);
+        [plotsp, texture] (GrDrawBatch::WritePixelsFn& writePixels,
+                           GrDrawBatch::TransferPixelsFn& transferPixels) {
+            plotsp->uploadToTexture(writePixels, transferPixels, texture);
         }
     );
     newPlot->setLastUploadToken(lastUploadToken);

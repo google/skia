@@ -372,7 +372,7 @@ private:
         return false;
     }
 
-    bool onTransferPixels(GrSurface* surface,
+    bool onTransferPixels(GrTexture* texture,
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override {

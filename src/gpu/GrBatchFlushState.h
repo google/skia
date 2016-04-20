@@ -77,7 +77,14 @@ public:
             return this->fGpu->writePixels(surface, left, top, width, height, config, buffer,
                                            rowBytes);
         };
-        upload(wp);
+        GrDrawBatch::TransferPixelsFn tp = [this](GrTexture* texture,
+                                                int left, int top, int width, int height,
+                                                GrPixelConfig config, GrBuffer* buffer,
+                                                size_t offset, size_t rowBytes) -> bool {
+            return this->fGpu->transferPixels(texture, left, top, width, height, config, buffer,
+                                              offset, rowBytes);
+        };
+        upload(wp, tp);
     }
 
     void putBackIndices(size_t indices) { fIndexPool.putBack(indices * sizeof(uint16_t)); }

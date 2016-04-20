@@ -46,13 +46,17 @@ private:
  */
 class GrDrawBatch : public GrBatch {
 public:
-    /** Method that performs an upload on behalf of a DeferredUploadFn. */
+    /** Method that performs a texture write on behalf of a DeferredUploadFn. */
     using WritePixelsFn = std::function<bool(GrSurface* texture,
                                              int left, int top, int width, int height,
-                                             GrPixelConfig config, const void* buffer,
+                                             GrPixelConfig config, const void* buffer, 
                                              size_t rowBytes)>;
+    using TransferPixelsFn = std::function<bool(GrTexture* texture,
+                                                int left, int top, int width, int height,
+                                                GrPixelConfig config, GrBuffer* buffer,
+                                                size_t offset, size_t rowBytes)>;
     /** See comments before GrDrawBatch::Target definition on how deferred uploaders work. */
-    using DeferredUploadFn = std::function<void(WritePixelsFn&)>;
+    using DeferredUploadFn = std::function<void(WritePixelsFn&, TransferPixelsFn&)>;
 
     class Target;
 

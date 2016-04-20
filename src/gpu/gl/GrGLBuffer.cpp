@@ -30,6 +30,12 @@
 
 GrGLBuffer* GrGLBuffer::Create(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
                                GrAccessPattern accessPattern, const void* data) {
+    if (gpu->glCaps().transferBufferType() == GrGLCaps::kNone_TransferBufferType &&
+        (kXferCpuToGpu_GrBufferType == intendedType ||
+        kXferGpuToCpu_GrBufferType == intendedType)) {
+        return nullptr;
+    }
+
     bool cpuBacked = gpu->glCaps().useNonVBOVertexAndIndexDynamicData() &&
                      GrBufferTypeIsVertexOrIndex(intendedType) &&
                      kDynamic_GrAccessPattern == accessPattern;

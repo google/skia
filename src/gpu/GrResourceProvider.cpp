@@ -139,7 +139,8 @@ GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
     if (!texture) {
         return nullptr;
     }
-    GrBatchAtlas* atlas = new GrBatchAtlas(texture, numPlotsX, numPlotsY);
+    GrBatchAtlas* atlas = new GrBatchAtlas(this, texture, 
+                                           numPlotsX, numPlotsY);
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }
