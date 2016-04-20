@@ -22,6 +22,7 @@
 #include "SkPaintFilterCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkPM4fPriv.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
@@ -934,6 +935,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     itemID = fAppMenu->appendList("ColorType", "ColorType", sinkID, 0,
                                   gConfig[0].fName, gConfig[1].fName, gConfig[2].fName, nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'C');
+    itemID = fAppMenu->appendSwitch("sRGB SkColor", "sRGB SkColor", sinkID, gTreatSkColorAsSRGB);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'S');
 
     itemID = fAppMenu->appendList("Device Type", "Device Type", sinkID, 0,
                                   "Raster",
@@ -1649,7 +1652,8 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         SkOSMenu::FindListIndex(evt, "Hinting", &fHintingState) ||
         SkOSMenu::FindSwitchState(evt, "Clip", &fUseClip) ||
         SkOSMenu::FindSwitchState(evt, "Zoomer", &fShowZoomer) ||
-        SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify))
+        SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify) ||
+        SkOSMenu::FindSwitchState(evt, "sRGB SkColor", &gTreatSkColorAsSRGB))
     {
         this->inval(nullptr);
         this->updateTitle();
@@ -2157,6 +2161,10 @@ void SampleWindow::updateTitle() {
 #endif
 
     title.appendf(" %s", find_config_name(this->info()));
+
+    if (gTreatSkColorAsSRGB) {
+        title.append(" sRGB");
+    }
 
     this->setTitle(title.c_str());
 }
