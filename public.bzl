@@ -408,6 +408,7 @@ DM_SRCS_ALL = struct(
         "tools/flags/*.h",
         "tools/gpu/**/*.cpp",
         "tools/gpu/**/*.h",
+        "tools/picture_utils.cpp",
         "tools/random_parse_path.cpp",
         "tools/random_parse_path.h",
         "tools/sk_tool_utils.cpp",
