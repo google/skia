@@ -8,8 +8,7 @@
 #include "SkImageFilter.h"
 #include "SkImageFilterCacheKey.h"
 
-#include "SkBitmap.h"
-#include "SkBitmapDevice.h"
+#include "SkCanvas.h"
 #include "SkChecksum.h"
 #include "SkFuzzLogging.h"
 #include "SkLocalMatrixImageFilter.h"
@@ -26,8 +25,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
-#include "SkGrPixelRef.h"
-#include "SkGr.h"
 #endif
 
 #ifdef SK_BUILD_FOR_IOS
@@ -467,13 +464,10 @@ public:
         }
     }
     struct Value {
-        Value(const Key& key, const SkBitmap& bitmap, const SkIPoint& offset)
-            : fKey(key), fBitmap(bitmap), fOffset(offset) {}
         Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset)
             : fKey(key), fImage(SkRef(image)), fOffset(offset) {}
 
         Key fKey;
-        SkBitmap fBitmap;
         SkAutoTUnref<SkSpecialImage> fImage;
         SkIPoint fOffset;
         static const Key& GetKey(const Value& v) {
@@ -484,20 +478,6 @@ public:
         }
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
     };
-
-    bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const override {
-        SkAutoMutexAcquire mutex(fMutex);
-        if (Value* v = fLookup.find(key)) {
-            *result = v->fBitmap;
-            *offset = v->fOffset;
-            if (v != fLRU.head()) {
-                fLRU.remove(v);
-                fLRU.addToHead(v);
-            }
-            return true;
-        }
-        return false;
-    }
 
     SkSpecialImage* get(const Key& key, SkIPoint* offset) const override {
         SkAutoMutexAcquire mutex(fMutex);
@@ -510,25 +490,6 @@ public:
             return v->fImage;
         }
         return nullptr;
-    }
-
-    void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) override {
-        SkAutoMutexAcquire mutex(fMutex);
-        if (Value* v = fLookup.find(key)) {
-            this->removeInternal(v);
-        }
-        Value* v = new Value(key, result, offset);
-        fLookup.add(v);
-        fLRU.addToHead(v);
-        fCurrentBytes += result.getSize();
-        while (fCurrentBytes > fMaxBytes) {
-            Value* tail = fLRU.tail();
-            SkASSERT(tail);
-            if (tail == v) {
-                break;
-            }
-            this->removeInternal(tail);
-        }
     }
 
     void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) override {
@@ -571,11 +532,8 @@ public:
     SkDEBUGCODE(int count() const override { return fLookup.count(); })
 private:
     void removeInternal(Value* v) {
-        if (v->fImage) {
-            fCurrentBytes -= v->fImage->getSize();
-        } else {
-            fCurrentBytes -= v->fBitmap.getSize();
-        }
+        SkASSERT(v->fImage);
+        fCurrentBytes -= v->fImage->getSize();
         fLRU.remove(v);
         fLookup.remove(v->fKey);
         delete v;

@@ -13,6 +13,8 @@
 #include "SkSize.h"
 #include "SkPoint.h"
 
+class SkBitmap;
+
 /*! \class SkMatrixConvolutionImageFilter
     Matrix convolution image filter.  This filter applies an NxM image
     processing kernel to a given input image.  This can be used to produce

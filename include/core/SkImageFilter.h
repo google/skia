@@ -15,13 +15,10 @@
 #include "SkFlattenable.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
-#include "SkSurfaceProps.h"
 
 class GrContext;
 class GrFragmentProcessor;
-class GrTexture;
 class SkBaseDevice;
-class SkBitmap;
 class SkColorFilter;
 struct SkIPoint;
 class SkSpecialImage;
@@ -43,9 +40,7 @@ public:
         virtual ~Cache() {}
         static Cache* Create(size_t maxBytes);
         static Cache* Get();
-        virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const = 0;
         virtual SkSpecialImage* get(const Key& key, SkIPoint* offset) const = 0;
-        virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
         virtual void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) = 0;
         virtual void purge() = 0;
         virtual void purgeByKeys(const Key[], int) = 0;
