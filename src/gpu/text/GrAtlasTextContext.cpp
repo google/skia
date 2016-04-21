@@ -96,6 +96,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
     bool canCache = !(skPaint.getPathEffect() ||
                       (mf && !mf->asABlur(&blurRec)) ||
                       drawFilter);
+    uint32_t scalerContextFlags = ComputeScalerContextFlags(dc);
 
     GrTextBlobCache* cache = context->getTextBlobCache();
     if (canCache) {
@@ -116,6 +117,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
         key.fStyle = skPaint.getStyle();
         key.fHasBlur = SkToBool(mf);
         key.fCanonicalColor = canonicalColor;
+        key.fScalerContextFlags = scalerContextFlags;
         cacheBlob.reset(SkSafeRef(cache->find(key)));
     }
 
@@ -125,8 +127,6 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
     if (!SkPaintToGrPaint(context, skPaint, viewMatrix, props.isGammaCorrect(), &grPaint)) {
         return;
     }
-
-    uint32_t scalerContextFlags = ComputeScalerContextFlags(dc);
 
     if (cacheBlob) {
         if (cacheBlob->mustRegenerate(skPaint, grPaint.getColor(), blurRec, viewMatrix, x, y)) {
