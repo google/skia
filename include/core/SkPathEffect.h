@@ -153,7 +153,7 @@ private:
     including flattening them. It does nothing in filterPath, and is only useful
     for managing the lifetimes of its two arguments.
 */
-class SkPairPathEffect : public SkPathEffect {
+class SK_API SkPairPathEffect : public SkPathEffect {
 protected:
     SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1);
 
@@ -174,7 +174,7 @@ private:
     This subclass of SkPathEffect composes its two arguments, to create
     a compound pathEffect.
 */
-class SkComposePathEffect : public SkPairPathEffect {
+class SK_API SkComposePathEffect : public SkPairPathEffect {
 public:
     /** Construct a pathEffect whose effect is to apply first the inner pathEffect
         and the the outer pathEffect (e.g. outer(inner(path)))
@@ -224,7 +224,7 @@ private:
     This subclass of SkPathEffect applies two pathEffects, one after the other.
     Its filterPath() returns true if either of the effects succeeded.
 */
-class SkSumPathEffect : public SkPairPathEffect {
+class SK_API SkSumPathEffect : public SkPairPathEffect {
 public:
     /** Construct a pathEffect whose effect is to apply two effects, in sequence.
         (e.g. first(path) + second(path))
