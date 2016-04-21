@@ -12,6 +12,7 @@
 #include "SkCamera.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
+#include "SkDevice.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkInterpolator.h"
@@ -32,6 +33,22 @@ static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
                                                   SkShader::kClamp_TileMode, 0, &localMatrix));
     paint->setXfermodeMode(SkXfermode::kDstIn_Mode);
+}
+
+static void dump_layers(const char label[], SkCanvas* canvas) {
+    SkDebugf("Dump Layers(%s)\n", label);
+
+    SkCanvas::LayerIter iter(canvas, true);
+    int index = 0;
+    while (!iter.done()) {
+        SkImageInfo info = iter.device()->imageInfo();
+        const SkIRect& clip = iter.clip().getBounds();
+        SkDebugf("Layer[%d] bitmap [%d %d] X=%d Y=%d clip=[%d %d %d %d] alpha=%d\n", index++,
+                 info.width(), info.height(), iter.x(), iter.y(),
+                 clip.fLeft, clip.fTop, clip.fRight, clip.fBottom,
+                 iter.paint().getAlpha());
+        iter.next();
+    }
 }
 
 // test drawing with strips of fading gradient above and below
@@ -69,6 +86,8 @@ static void test_fade(SkCanvas* canvas) {
         p.setAntiAlias(true);
         canvas->drawOval(r, p);
 
+        dump_layers("inside layer alpha", canvas);
+
         canvas->restore();
     } else {
         r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
@@ -80,6 +99,8 @@ static void test_fade(SkCanvas* canvas) {
     }
 
 //    return;
+
+    dump_layers("outside layer alpha", canvas);
 
     // now apply an effect
     SkMatrix m;
