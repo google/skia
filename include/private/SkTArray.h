@@ -159,34 +159,31 @@ public:
      * elements.
      */
     T& push_back() {
-        T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
-        new (newT) T;
-        return *newT;
+        void* newT = this->push_back_raw(1);
+        return *new (newT) T;
     }
 
     /**
      * Version of above that uses a copy constructor to initialize the new item
      */
     T& push_back(const T& t) {
-        T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
-        new (newT) T(t);
-        return *newT;
+        void* newT = this->push_back_raw(1);
+        return *new (newT) T(t);
     }
 
     /**
      * Version of above that uses a move constructor to initialize the new item
      */
     T& push_back(T&& t) {
-        T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
-        new (newT) T(std::move(t));
-        return *newT;
+        void* newT = this->push_back_raw(1);
+        return *new (newT) T(std::move(t));
     }
 
     /**
      *  Construct a new T at the back of this array.
      */
     template<class... Args> T& emplace_back(Args&&... args) {
-        T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
+        void* newT = this->push_back_raw(1);
         return *new (newT) T(std::forward<Args>(args)...);
     }
 
@@ -197,11 +194,11 @@ public:
      */
     T* push_back_n(int n) {
         SkASSERT(n >= 0);
-        T* newTs = reinterpret_cast<T*>(this->push_back_raw(n));
+        char* newTs = static_cast<char*>(this->push_back_raw(n));
         for (int i = 0; i < n; ++i) {
-            new (newTs + i) T;
+          new (newTs + i * sizeof(T)) T;
         }
-        return newTs;
+        return reinterpret_cast<T*>(newTs);
     }
 
     /**
@@ -210,11 +207,11 @@ public:
      */
     T* push_back_n(int n, const T& t) {
         SkASSERT(n >= 0);
-        T* newTs = reinterpret_cast<T*>(this->push_back_raw(n));
+        char* newTs = static_cast<char*>(this->push_back_raw(n));
         for (int i = 0; i < n; ++i) {
-            new (newTs + i) T(t);
+          new (newTs + i * sizeof(T)) T(t);
         }
-        return newTs;
+        return reinterpret_cast<T*>(newTs);
     }
 
     /**
