@@ -28,13 +28,14 @@
           'shaderc_project_type' : 'ninja',
         }],
       ],
-      'shaderc_out_path': '../out/<(CONFIGURATION_NAME)/shaderc_out_<(skia_arch_type)',
+      'shaderc_out_path': '<(PRODUCT_DIR)/shaderc_out_<(skia_arch_type)',
     },
     # Export out of nested variables.
     'shaderc_build_configuration': '<(shaderc_build_configuration)',
     'shaderc_project_type': '<(shaderc_project_type)',
     'shaderc_out_path': '<(shaderc_out_path)',
     'shaderc_lib_name': '<(shaderc_lib_name)',
+    'android_toolchain%': '',
     
     # On Windows the library winds up inside a 'Debug' or 'Release' dir, not so
     # with ninja project build.
@@ -62,12 +63,12 @@
           'outputs': [
              '<(shaderc_lib_full_path)',
           ],
-          'action': ['python', '../tools/build_shaderc.py', '-s', '../third_party/externals/shaderc2', '-o', '<(shaderc_out_path)', '-a', '<(skia_arch_type)', '-t', '<(shaderc_build_configuration)', '-p', '<(shaderc_project_type)'],
+          'action': ['python', '../tools/build_shaderc.py', '-s', '../third_party/externals/shaderc2', '-o', '<(shaderc_out_path)', '-a', '<(skia_arch_type)', '-t', '<(shaderc_build_configuration)', '-p', '<(shaderc_project_type)', '-c', '<(android_toolchain)'],
         },
       ],     
       'copies': [
         {
-          'destination': '../out/<(CONFIGURATION_NAME)',
+          'destination': '<(PRODUCT_DIR)',
           'files': ['<(shaderc_lib_full_path)'],
         },
       ],

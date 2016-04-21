@@ -42,6 +42,27 @@
         'tools.gyp:timer',
         'tools.gyp:url_data_manager',
       ],
+      'conditions' : [
+        [ 'skia_os == "android"', {
+          'dependencies': [
+            'android_deps.gyp:Android_EntryPoint',
+            'android_deps.gyp:native_app_glue',
+          ],
+          'link_settings': {
+            'libraries': [
+              '-landroid',
+            ],
+          },
+        }],
+        ['skia_os != "android"', {
+          'sources/': [ ['exclude', '_android.(h|cpp)$'],
+          ],
+        }],
+        ['skia_os != "win"', {
+          'sources/': [ ['exclude', '_win.(h|cpp)$'],
+          ],
+        }],
+      ],
     },
   ],
 }

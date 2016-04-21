@@ -81,10 +81,12 @@ VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData)
     // set up slides
     this->initSlides();
 
+    fAnimTimer.run();
+
     // set up first frame
     fCurrentSlide = 0;
     setupCurrentSlide(-1);
-    fLocalMatrix.reset();
+    updateMatrix();
 
     fWindow->show();
 }
@@ -254,10 +256,24 @@ bool VulkanViewer::onChar(SkUnichar c, uint32_t modifiers) {
 
 void VulkanViewer::onPaint(SkCanvas* canvas) {
 
-    canvas->clear(SK_ColorWHITE);
-
     int count = canvas->save();
-    canvas->setMatrix(fLocalMatrix);
+
+    if (fWindow->supportsContentRect()) {
+        SkRect contentRect = fWindow->getContentRect();
+        canvas->clipRect(contentRect);
+        canvas->translate(contentRect.fLeft, contentRect.fTop);
+    }
+
+    canvas->clear(SK_ColorWHITE);
+    if (fWindow->supportsContentRect() && fWindow->scaleContentToFit()) {
+        const SkRect contentRect = fWindow->getContentRect();
+        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+        const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
+        SkMatrix matrix;
+        matrix.setRectToRect(slideBounds, contentRect, SkMatrix::kCenter_ScaleToFit);
+        canvas->concat(matrix);
+    }
+    canvas->concat(fLocalMatrix);
 
     fSlides[fCurrentSlide]->draw(canvas);
     canvas->restoreToCount(count);
@@ -281,6 +297,12 @@ void VulkanViewer::drawStats(SkCanvas* canvas) {
                                    SkIntToScalar(kDisplayWidth), SkIntToScalar(kDisplayHeight));
     SkPaint paint;
     canvas->save();
+
+    if (fWindow->supportsContentRect()) {
+        SkRect contentRect = fWindow->getContentRect();
+        canvas->clipRect(contentRect);
+        canvas->translate(contentRect.fLeft, contentRect.fTop);
+    }
 
     canvas->clipRect(rect);
     paint.setColor(SK_ColorBLACK);

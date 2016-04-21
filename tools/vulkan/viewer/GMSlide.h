@@ -16,6 +16,8 @@ public:
     GMSlide(skiagm::GM* gm);
     ~GMSlide() override;
 
+    SkISize getDimensions() const override { return fGM->getISize(); }
+
     void draw(SkCanvas* canvas) override;
     bool animate(const SkAnimTimer&) override;
 

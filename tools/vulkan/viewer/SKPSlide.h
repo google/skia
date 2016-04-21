@@ -16,6 +16,8 @@ public:
     SKPSlide(const SkString& name, const SkString& path);
     ~SKPSlide() override;
 
+    SkISize getDimensions() const override { return fCullRect.size(); }
+
     void draw(SkCanvas* canvas) override;
     void load() override;
     void unload() override;

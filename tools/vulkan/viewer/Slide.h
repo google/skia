@@ -9,6 +9,7 @@
 #define Slide_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkSize.h"
 #include "SkString.h"
 
 class SkCanvas;
@@ -17,6 +18,8 @@ class SkAnimTimer;
 class Slide : public SkRefCnt {
 public:
     virtual ~Slide() {}
+
+    virtual SkISize getDimensions() const = 0;
 
     virtual void draw(SkCanvas* canvas) = 0;
     virtual bool animate(const SkAnimTimer&) { return false;  }

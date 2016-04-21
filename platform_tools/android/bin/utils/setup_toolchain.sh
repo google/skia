@@ -42,6 +42,10 @@ function default_toolchain() {
   else
       API=14  # Android 4.0
   fi
+  
+  if [ "$SKIA_VULKAN" == "true" ]; then
+      API=24  # Android N Preview
+  fi
 
   TOOLCHAIN=$ANDROID_ARCH-$NDK-$API
   HOST=`uname | tr '[A-Z]' '[a-z]'`

@@ -9,6 +9,7 @@
 #define Window_DEFINED
 
 #include "SkTypes.h"
+#include "SkRect.h"
 
 class SkCanvas;
 class VulkanTestContext;
@@ -22,6 +23,10 @@ public:
     virtual void setTitle(const char*) = 0;
     virtual void show() = 0;
     virtual void inval() = 0;
+
+    virtual bool scaleContentToFit() const { return false; }
+    virtual bool supportsContentRect() const { return false; }
+    virtual SkRect getContentRect() { return SkRect::MakeEmpty(); }
 
     struct AttachmentInfo {
         int fSampleCount;

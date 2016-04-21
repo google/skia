@@ -59,6 +59,11 @@
                 'android_system.gyp:VisualBench_APK',
               ],
             }],
+            [ 'skia_vulkan == 1', {
+              'dependencies': [
+                'android_system.gyp:VulkanViewer_APK',
+              ],
+            }],
           ],
         }],
         ['skia_os == "ios"', {
@@ -79,7 +84,7 @@
             'skiaserve.gyp:skiaserve',
           ],
         }],
-        [ 'skia_vulkan == 0 or skia_os != "win"', {
+        [ 'skia_vulkan == 0 or skia_os != "win" or skia_os != "android"', {
           'dependencies!': [
             'vulkanviewer.gyp:vulkanviewer',
           ],

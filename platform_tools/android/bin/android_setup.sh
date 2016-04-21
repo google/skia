@@ -38,6 +38,8 @@ while (( "$#" )); do
     LOGCAT=1
   elif [[ "$1" == "--verbose" ]]; then
     VERBOSE="true"
+  elif [[ "$1" == "--vulkan" ]]; then
+    SKIA_VULKAN="true" 
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
@@ -46,6 +48,10 @@ done
 
 if [ "$USE_CLANG" == "true" ]; then
   export GYP_DEFINES="skia_clang_build=1 $GYP_DEFINES"
+fi
+
+if [ "$SKIA_VULKAN" == "true" ]; then
+  export GYP_DEFINES="skia_vulkan=1 $GYP_DEFINES"
 fi
 
 function verbose {
@@ -167,7 +173,7 @@ setup_device() {
     source $SCRIPT_DIR/utils/setup_toolchain.sh
   fi
 
-  DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
+  DEFINES="${DEFINES} android_toolchain=${ANDROID_TOOLCHAIN}"
   DEFINES="${DEFINES} android_buildtype=${BUILDTYPE}"
   exportVar GYP_DEFINES "$DEFINES $GYP_DEFINES"
 

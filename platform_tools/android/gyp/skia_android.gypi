@@ -45,7 +45,10 @@
       }],
     ],
   },
-  'includes' : [ 'canvasproof.gypi', ],
+  'includes' : [
+      'canvasproof.gypi',
+      'vulkanviewer.gypi',
+  ],
   'targets': [
     {
       'target_name': 'CopySampleAppDeps',
