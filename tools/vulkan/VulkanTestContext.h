@@ -21,8 +21,8 @@ public:
     ~VulkanTestContext();
 
     // each platform will have to implement these in its CPP file
-    VkSurfaceKHR createVkSurface(void* platformData);
-    bool canPresent(uint32_t queueFamilyIndex);
+    static VkSurfaceKHR createVkSurface(VkInstance, void* platformData);
+    static bool canPresent(VkInstance, VkPhysicalDevice, uint32_t queueFamilyIndex);
 
     static VulkanTestContext* Create(void* platformData, int msaaSampleCount) {
         VulkanTestContext* ctx = new VulkanTestContext(platformData, msaaSampleCount);
@@ -68,6 +68,30 @@ private:
     void destroyBuffers();
 
     SkAutoTUnref<const GrVkBackendContext> fBackendContext;
+
+    // simple wrapper class that exists only to initialize a pointer to NULL
+    template <typename FNPTR_TYPE> class VkPtr {
+    public:
+        VkPtr() : fPtr(NULL) {}
+        VkPtr operator=(FNPTR_TYPE ptr) { fPtr = ptr; return *this; }
+        operator FNPTR_TYPE() const { return fPtr; }
+    private:
+        FNPTR_TYPE fPtr;
+    };
+    
+    // WSI interface functions
+    VkPtr<PFN_vkDestroySurfaceKHR> fDestroySurfaceKHR;
+    VkPtr<PFN_vkGetPhysicalDeviceSurfaceSupportKHR> fGetPhysicalDeviceSurfaceSupportKHR;
+    VkPtr<PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR> fGetPhysicalDeviceSurfaceCapabilitiesKHR;
+    VkPtr<PFN_vkGetPhysicalDeviceSurfaceFormatsKHR> fGetPhysicalDeviceSurfaceFormatsKHR;
+    VkPtr<PFN_vkGetPhysicalDeviceSurfacePresentModesKHR> fGetPhysicalDeviceSurfacePresentModesKHR;
+
+    VkPtr<PFN_vkCreateSwapchainKHR> fCreateSwapchainKHR;
+    VkPtr<PFN_vkDestroySwapchainKHR> fDestroySwapchainKHR;
+    VkPtr<PFN_vkGetSwapchainImagesKHR> fGetSwapchainImagesKHR;
+    VkPtr<PFN_vkAcquireNextImageKHR> fAcquireNextImageKHR;
+    VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
+    VkPtr<PFN_vkCreateSharedSwapchainsKHR> fCreateSharedSwapchainsKHR;
 
     GrContext*        fContext;
     VkSurfaceKHR      fSurface;

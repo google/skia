@@ -195,33 +195,7 @@ public:
         VkPtr<PFN_vkCmdNextSubpass> fCmdNextSubpass;
         VkPtr<PFN_vkCmdEndRenderPass> fCmdEndRenderPass;
         VkPtr<PFN_vkCmdExecuteCommands> fCmdExecuteCommands;
-        VkPtr<PFN_vkDestroySurfaceKHR> fDestroySurfaceKHR;
-        VkPtr<PFN_vkGetPhysicalDeviceSurfaceSupportKHR> fGetPhysicalDeviceSurfaceSupportKHR;
-        VkPtr<PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR> fGetPhysicalDeviceSurfaceCapabilitiesKHR;
-        VkPtr<PFN_vkGetPhysicalDeviceSurfaceFormatsKHR> fGetPhysicalDeviceSurfaceFormatsKHR;
-        VkPtr<PFN_vkGetPhysicalDeviceSurfacePresentModesKHR> fGetPhysicalDeviceSurfacePresentModesKHR;
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-        VkPtr<PFN_vkCreateWin32SurfaceKHR> fCreateWin32SurfaceKHR;
-        VkPtr<PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR> fGetPhysicalDeviceWin32PresentationSupportKHR;
-#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
-        VkPtr<PFN_vkCreateAndroidSurfaceKHR> fCreateAndroidSurfaceKHR;
-#elif defined(VK_USE_PLATFORM_XLIB_KHR)
-        VkPtr<PFN_vkCreateXlibSurfaceKHR> fCreateXlibSurfaceKHR;
-        VkPtr<PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR> fGetPhysicalDeviceXlibPresentationSupportKHR;
-#endif
-        VkPtr<PFN_vkCreateSwapchainKHR> fCreateSwapchainKHR;
-        VkPtr<PFN_vkDestroySwapchainKHR> fDestroySwapchainKHR;
-        VkPtr<PFN_vkGetSwapchainImagesKHR> fGetSwapchainImagesKHR;
-        VkPtr<PFN_vkAcquireNextImageKHR> fAcquireNextImageKHR;
-        VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
-        VkPtr<PFN_vkGetPhysicalDeviceDisplayPropertiesKHR> fGetPhysicalDeviceDisplayPropertiesKHR;
-        VkPtr<PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR> fGetPhysicalDeviceDisplayPlanePropertiesKHR;
-        VkPtr<PFN_vkGetDisplayPlaneSupportedDisplaysKHR> fGetDisplayPlaneSupportedDisplaysKHR;
-        VkPtr<PFN_vkGetDisplayModePropertiesKHR> fGetDisplayModePropertiesKHR;
-        VkPtr<PFN_vkCreateDisplayModeKHR> fCreateDisplayModeKHR;
-        VkPtr<PFN_vkGetDisplayPlaneCapabilitiesKHR> fGetDisplayPlaneCapabilitiesKHR;
-        VkPtr<PFN_vkCreateDisplayPlaneSurfaceKHR> fCreateDisplayPlaneSurfaceKHR;
-        VkPtr<PFN_vkCreateSharedSwapchainsKHR> fCreateSharedSwapchainsKHR;
+
         VkPtr<PFN_vkCreateDebugReportCallbackEXT> fCreateDebugReportCallbackEXT;
         VkPtr<PFN_vkDebugReportMessageEXT> fDebugReportMessageEXT;
         VkPtr<PFN_vkDestroyDebugReportCallbackEXT> fDestroyDebugReportCallbackEXT;

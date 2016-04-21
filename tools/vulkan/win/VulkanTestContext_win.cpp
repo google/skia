@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -9,12 +9,19 @@
 #include "VulkanTestContext_win.h"
 
 #include "vk/GrVkInterface.h"
-#include "../../src/gpu/vk/GrVkUtil.h"
+#include "vk/GrVkUtil.h"
 
 // Platform dependant call
-VkSurfaceKHR VulkanTestContext::createVkSurface(void* platformData) {
-    // need better error handling here
-    SkASSERT(platformData);
+VkSurfaceKHR VulkanTestContext::createVkSurface(VkInstance instance, void* platformData) {
+    static PFN_vkCreateWin32SurfaceKHR createWin32SurfaceKHR = nullptr;
+    if (!createWin32SurfaceKHR) {
+        createWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)vkGetInstanceProcAddr(instance,
+                                                                         "vkCreateWin32SurfaceKHR");
+    }
+
+    if (!platformData) {
+        return VK_NULL_HANDLE;
+    }
     ContextPlatformData_win* winPlatformData = 
                                            reinterpret_cast<ContextPlatformData_win*>(platformData);
     VkSurfaceKHR surface;
@@ -27,9 +34,7 @@ VkSurfaceKHR VulkanTestContext::createVkSurface(void* platformData) {
     surfaceCreateInfo.hinstance = winPlatformData->fHInstance;
     surfaceCreateInfo.hwnd = winPlatformData->fHWnd;
 
-    VkResult res = GR_VK_CALL(fBackendContext->fInterface,
-                              CreateWin32SurfaceKHR(fBackendContext->fInstance, &surfaceCreateInfo,
-                              nullptr, &surface));
+    VkResult res = createWin32SurfaceKHR(instance, &surfaceCreateInfo, nullptr, &surface);
     if (VK_SUCCESS != res) {
         return VK_NULL_HANDLE;
     }
@@ -38,10 +43,16 @@ VkSurfaceKHR VulkanTestContext::createVkSurface(void* platformData) {
 }
 
 // Platform dependant call
-bool VulkanTestContext::canPresent(uint32_t queueFamilyIndex) {
-    VkBool32 check = GR_VK_CALL(fBackendContext->fInterface,
-                                GetPhysicalDeviceWin32PresentationSupportKHR(
-                                                                   fBackendContext->fPhysicalDevice,
-                                                                   queueFamilyIndex));
+bool VulkanTestContext::canPresent(VkInstance instance, VkPhysicalDevice physDev, 
+                                   uint32_t queueFamilyIndex) {
+    static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR 
+                                             getPhysicalDeviceWin32PresentationSupportKHR = nullptr;
+    if (!getPhysicalDeviceWin32PresentationSupportKHR) {
+        getPhysicalDeviceWin32PresentationSupportKHR = 
+            (PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR) vkGetInstanceProcAddr(instance,
+                                                  "vkGetPhysicalDeviceWin32PresentationSupportKHR");
+    }
+
+    VkBool32 check = getPhysicalDeviceWin32PresentationSupportKHR(physDev, queueFamilyIndex);
     return (VK_FALSE != check);
 }

@@ -45,14 +45,17 @@ struct GrVkBackendContext : public SkRefCnt {
     VkPhysicalDevice                  fPhysicalDevice;
     VkDevice                          fDevice;
     VkQueue                           fQueue;
-    uint32_t                          fQueueFamilyIndex;
+    uint32_t                          fGraphicsQueueIndex;
     uint32_t                          fMinAPIVersion;
     uint32_t                          fExtensions;
     uint32_t                          fFeatures;
     SkAutoTUnref<const GrVkInterface> fInterface;
 
     // Helper function to create the default Vulkan objects needed by the GrVkGpu object
-    static const GrVkBackendContext* Create();
+    // If presentQueueIndex is non-NULL, will try to set up presentQueue as part of device
+    // creation. canPresent() is a device-dependent function.
+    static const GrVkBackendContext* Create(uint32_t* presentQueueIndex = nullptr,
+                    bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex) = nullptr);
 
     ~GrVkBackendContext() override;
 };

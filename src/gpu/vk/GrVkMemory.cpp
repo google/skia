@@ -68,7 +68,6 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
     VkMemoryRequirements memReqs;
     GR_VK_CALL(iface, GetBufferMemoryRequirements(device, buffer, &memReqs));
 
-
     if (!alloc_device_memory(gpu, &memReqs, flags, memory)) {
         return false;
     }

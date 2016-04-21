@@ -35,7 +35,8 @@ const char* kDebugLayerNames[] = {
 const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 
 // Create the base Vulkan objects needed by the GrVkGpu object
-const GrVkBackendContext* GrVkBackendContext::Create() {
+const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,
+                             bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex)) {
     VkPhysicalDevice physDev;
     VkDevice device;
     VkInstance inst;
@@ -141,7 +142,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     vkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, queueProps);
 
     // iterate to find the graphics queue
-    uint32_t graphicsQueueIndex = -1;
+    uint32_t graphicsQueueIndex = queueCount;
     for (uint32_t i = 0; i < queueCount; i++) {
         if (queueProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             graphicsQueueIndex = i;
@@ -149,6 +150,19 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
         }
     }
     SkASSERT(graphicsQueueIndex < queueCount);
+
+    // iterate to find the present queue, if needed
+    uint32_t presentQueueIndex = graphicsQueueIndex;
+    if (presentQueueIndexPtr && canPresent) {
+        for (uint32_t i = 0; i < queueCount; i++) {
+            if (canPresent(inst, physDev, i)) {
+                presentQueueIndex = i;
+                break;
+            }
+        }
+        SkASSERT(presentQueueIndex < queueCount);
+        *presentQueueIndexPtr = presentQueueIndex;
+    }
 
     extensions.initDevice(kGrVkMinimumVersion, inst, physDev);
 
@@ -191,20 +205,32 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     float queuePriorities[1] = { 0.0 };
     // Here we assume no need for swapchain queue
     // If one is needed, the client will need its own setup code
-    const VkDeviceQueueCreateInfo queueInfo = {
-        VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
-        nullptr,                                    // pNext
-        0,                                          // VkDeviceQueueCreateFlags
-        graphicsQueueIndex,                         // queueFamilyIndex
-        1,                                          // queueCount
-        queuePriorities,                            // pQueuePriorities
+    const VkDeviceQueueCreateInfo queueInfo[2] = {
+        {
+            VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
+            nullptr,                                    // pNext
+            0,                                          // VkDeviceQueueCreateFlags
+            graphicsQueueIndex,                         // queueFamilyIndex
+            1,                                          // queueCount
+            queuePriorities,                            // pQueuePriorities
+        },
+        {
+            VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
+            nullptr,                                    // pNext
+            0,                                          // VkDeviceQueueCreateFlags
+            presentQueueIndex,                          // queueFamilyIndex
+            1,                                          // queueCount
+            queuePriorities,                            // pQueuePriorities
+        }
     };
+    uint32_t queueInfoCount = (presentQueueIndex != graphicsQueueIndex) ? 2 : 1;
+
     const VkDeviceCreateInfo deviceInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,    // sType
         nullptr,                                 // pNext
         0,                                       // VkDeviceCreateFlags
-        1,                                       // queueCreateInfoCount
-        &queueInfo,                              // pQueueCreateInfos
+        queueInfoCount,                          // queueCreateInfoCount
+        queueInfo,                               // pQueueCreateInfos
         (uint32_t) deviceLayerNames.count(),     // layerCount
         deviceLayerNames.begin(),                // ppEnabledLayerNames
         (uint32_t) deviceExtensionNames.count(), // extensionCount
@@ -227,7 +253,7 @@ const GrVkBackendContext* GrVkBackendContext::Create() {
     ctx->fPhysicalDevice = physDev;
     ctx->fDevice = device;
     ctx->fQueue = queue;
-    ctx->fQueueFamilyIndex = graphicsQueueIndex;
+    ctx->fGraphicsQueueIndex = graphicsQueueIndex;
     ctx->fMinAPIVersion = kGrVkMinimumVersion;
     ctx->fExtensions = extensionFlags;
     ctx->fFeatures = featureFlags;

@@ -84,7 +84,7 @@
             'skiaserve.gyp:skiaserve',
           ],
         }],
-        [ 'skia_vulkan == 0 or skia_os != "win" or skia_os != "android"', {
+        [ 'skia_vulkan == 0 or (skia_os != "win" and skia_os != "android")', {
           'dependencies!': [
             'vulkanviewer.gyp:vulkanviewer',
           ],

@@ -19,6 +19,9 @@
 #undef CreateSemaphore
 #endif
 
+#define GET_PROC(F) f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(instance, "vk" #F)
+#define GET_DEV_PROC(F) f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
+
 VulkanTestContext::VulkanTestContext(void* platformData, int msaaSampleCount) 
                                  : fSurface(VK_NULL_HANDLE)
                                  , fSwapchain(VK_NULL_HANDLE)
@@ -32,11 +35,29 @@ VulkanTestContext::VulkanTestContext(void* platformData, int msaaSampleCount)
 
 void VulkanTestContext::initializeContext(void* platformData) {
 
-    fBackendContext.reset(GrVkBackendContext::Create());
+    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
+    if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
+        !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
+        fBackendContext.reset(nullptr);
+        return;
+    }
+
+    VkInstance instance = fBackendContext->fInstance;
+    VkDevice device = fBackendContext->fDevice;
+    GET_PROC(DestroySurfaceKHR);
+    GET_PROC(GetPhysicalDeviceSurfaceSupportKHR);
+    GET_PROC(GetPhysicalDeviceSurfaceCapabilitiesKHR);
+    GET_PROC(GetPhysicalDeviceSurfaceFormatsKHR);
+    GET_PROC(GetPhysicalDeviceSurfacePresentModesKHR);
+    GET_DEV_PROC(CreateSwapchainKHR);
+    GET_DEV_PROC(DestroySwapchainKHR);
+    GET_DEV_PROC(GetSwapchainImagesKHR);
+    GET_DEV_PROC(AcquireNextImageKHR);
+    GET_DEV_PROC(QueuePresentKHR);
 
     fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext)fBackendContext.get());
 
-    fSurface = createVkSurface(platformData);
+    fSurface = createVkSurface(instance, platformData);
     if (VK_NULL_HANDLE == fSurface) {
         fBackendContext.reset(nullptr);
         return;
@@ -57,22 +78,10 @@ void VulkanTestContext::initializeContext(void* platformData) {
                GetPhysicalDeviceQueueFamilyProperties(fBackendContext->fPhysicalDevice, &queueCount,
                                                       queueProps));
 
-    // iterate to find the present queue
-    fPresentQueueIndex = -1;
-    for (uint32_t i = 0; i < queueCount; i++) {
-        if ((queueProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && canPresent(i)) {
-            fPresentQueueIndex = i;
-            break;
-        }
-    }
-    SkASSERT(fPresentQueueIndex < queueCount);
-
     VkBool32 supported;
-    VkResult res = GR_VK_CALL(fBackendContext->fInterface,
-                              GetPhysicalDeviceSurfaceSupportKHR(fBackendContext->fPhysicalDevice,
-                                                                 fPresentQueueIndex,
-                                                                 fSurface,
-                                                                 &supported));
+    VkResult res = fGetPhysicalDeviceSurfaceSupportKHR(fBackendContext->fPhysicalDevice,
+                                                       fPresentQueueIndex, fSurface,
+                                                       &supported);
     if (VK_SUCCESS != res) {
         this->destroyContext();
         return;
@@ -85,60 +94,44 @@ void VulkanTestContext::initializeContext(void* platformData) {
 
     // create presentQueue
     vkGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
-
-
 }
 
 bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
 {
     // check for capabilities
     VkSurfaceCapabilitiesKHR caps;
-    VkResult res = GR_VK_CALL(fBackendContext->fInterface,
-                           GetPhysicalDeviceSurfaceCapabilitiesKHR(fBackendContext->fPhysicalDevice,
-                                                                   fSurface,
-                                                                   &caps));
+    VkResult res = fGetPhysicalDeviceSurfaceCapabilitiesKHR(fBackendContext->fPhysicalDevice,
+                                                            fSurface, &caps);
     if (VK_SUCCESS != res) {
         return false;
     }
 
     uint32_t surfaceFormatCount;
-    res = GR_VK_CALL(fBackendContext->fInterface,
-                     GetPhysicalDeviceSurfaceFormatsKHR(fBackendContext->fPhysicalDevice,
-                                                        fSurface,
-                                                        &surfaceFormatCount,
-                                                        nullptr));
+    res = fGetPhysicalDeviceSurfaceFormatsKHR(fBackendContext->fPhysicalDevice, fSurface,
+                                              &surfaceFormatCount, nullptr);
     if (VK_SUCCESS != res) {
         return false;
     }
 
     SkAutoMalloc surfaceFormatAlloc(surfaceFormatCount * sizeof(VkSurfaceFormatKHR));
     VkSurfaceFormatKHR* surfaceFormats = (VkSurfaceFormatKHR*)surfaceFormatAlloc.get();
-    res = GR_VK_CALL(fBackendContext->fInterface,
-                     GetPhysicalDeviceSurfaceFormatsKHR(fBackendContext->fPhysicalDevice,
-                                                        fSurface,
-                                                        &surfaceFormatCount,
-                                                        surfaceFormats));
+    res = fGetPhysicalDeviceSurfaceFormatsKHR(fBackendContext->fPhysicalDevice, fSurface,
+                                              &surfaceFormatCount, surfaceFormats);
     if (VK_SUCCESS != res) {
         return false;
     }
 
     uint32_t presentModeCount;
-    res = GR_VK_CALL(fBackendContext->fInterface,
-                     GetPhysicalDeviceSurfacePresentModesKHR(fBackendContext->fPhysicalDevice,
-                                                             fSurface,
-                                                             &presentModeCount,
-                                                             nullptr));
+    res = fGetPhysicalDeviceSurfacePresentModesKHR(fBackendContext->fPhysicalDevice, fSurface,
+                                                   &presentModeCount, nullptr);
     if (VK_SUCCESS != res) {
         return false;
     }
 
     SkAutoMalloc presentModeAlloc(presentModeCount * sizeof(VkPresentModeKHR));
     VkPresentModeKHR* presentModes = (VkPresentModeKHR*)presentModeAlloc.get();
-    res = GR_VK_CALL(fBackendContext->fInterface,
-                     GetPhysicalDeviceSurfacePresentModesKHR(fBackendContext->fPhysicalDevice,
-                                                             fSurface,
-                                                             &presentModeCount,
-                                                             presentModes));
+    res = fGetPhysicalDeviceSurfacePresentModesKHR(fBackendContext->fPhysicalDevice, fSurface,
+                                                    &presentModeCount, presentModes);
     if (VK_SUCCESS != res) {
         return false;
     }
@@ -205,8 +198,8 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
     swapchainCreateInfo.imageArrayLayers = 1;
     swapchainCreateInfo.imageUsage = usageFlags;
 
-    uint32_t queueFamilies[] = { fBackendContext->fQueueFamilyIndex, fPresentQueueIndex };
-    if (fBackendContext->fQueueFamilyIndex != fPresentQueueIndex) {
+    uint32_t queueFamilies[] = { fBackendContext->fGraphicsQueueIndex, fPresentQueueIndex };
+    if (fBackendContext->fGraphicsQueueIndex != fPresentQueueIndex) {
         swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         swapchainCreateInfo.queueFamilyIndexCount = 2;
         swapchainCreateInfo.pQueueFamilyIndices = queueFamilies;
@@ -222,9 +215,7 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
     swapchainCreateInfo.clipped = true;
     swapchainCreateInfo.oldSwapchain = fSwapchain;
 
-    res = GR_VK_CALL(fBackendContext->fInterface,
-                     CreateSwapchainKHR(fBackendContext->fDevice,
-                                        &swapchainCreateInfo, nullptr, &fSwapchain));
+    res = fCreateSwapchainKHR(fBackendContext->fDevice, &swapchainCreateInfo, nullptr, &fSwapchain);
     if (VK_SUCCESS != res) {
         return false;
     }
@@ -235,9 +226,7 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
 
         this->destroyBuffers();
 
-        GR_VK_CALL(fBackendContext->fInterface, DestroySwapchainKHR(fBackendContext->fDevice,
-                                                                   swapchainCreateInfo.oldSwapchain,
-                                                                   nullptr));
+        fDestroySwapchainKHR(fBackendContext->fDevice, swapchainCreateInfo.oldSwapchain, nullptr);
     }
 
     this->createBuffers(swapchainCreateInfo.imageFormat);
@@ -248,16 +237,10 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
 void VulkanTestContext::createBuffers(VkFormat format) {
     GrVkFormatToPixelConfig(format, &fPixelConfig);
 
-    GR_VK_CALL_ERRCHECK(fBackendContext->fInterface, GetSwapchainImagesKHR(fBackendContext->fDevice,
-                                                                           fSwapchain,
-                                                                           &fImageCount,
-                                                                           nullptr));
+    fGetSwapchainImagesKHR(fBackendContext->fDevice, fSwapchain, &fImageCount, nullptr);
     SkASSERT(fImageCount);
     fImages = new VkImage[fImageCount];
-    GR_VK_CALL_ERRCHECK(fBackendContext->fInterface, GetSwapchainImagesKHR(fBackendContext->fDevice,
-                                                                           fSwapchain,
-                                                                           &fImageCount,
-                                                                           fImages));
+    fGetSwapchainImagesKHR(fBackendContext->fDevice, fSwapchain, &fImageCount, fImages);
 
     // set up initial image layouts and create surfaces
     fImageLayouts = new VkImageLayout[fImageCount];
@@ -289,7 +272,7 @@ void VulkanTestContext::createBuffers(VkFormat format) {
         memset(&commandPoolInfo, 0, sizeof(VkCommandPoolCreateInfo));
         commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         // this needs to be on the render queue
-        commandPoolInfo.queueFamilyIndex = fBackendContext->fQueueFamilyIndex;
+        commandPoolInfo.queueFamilyIndex = fBackendContext->fGraphicsQueueIndex;
         commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
                             CreateCommandPool(fBackendContext->fDevice, &commandPoolInfo,
@@ -397,14 +380,12 @@ void VulkanTestContext::destroyContext() {
     }
 
     if (VK_NULL_HANDLE != fSwapchain) {
-        GR_VK_CALL(fBackendContext->fInterface, DestroySwapchainKHR(fBackendContext->fDevice,
-                                                                    fSwapchain, nullptr));
+        fDestroySwapchainKHR(fBackendContext->fDevice, fSwapchain, nullptr);
         fSwapchain = VK_NULL_HANDLE;
     }
 
     if (VK_NULL_HANDLE != fSurface) {
-        GR_VK_CALL(fBackendContext->fInterface, DestroySurfaceKHR(fBackendContext->fInstance,
-                                                                  fSurface, nullptr));
+        fDestroySurfaceKHR(fBackendContext->fInstance, fSurface, nullptr);
         fSurface = VK_NULL_HANDLE;
     }
 
@@ -439,13 +420,9 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
     // semaphores should be in unsignaled state
 
     // acquire the image
-    VkResult res = GR_VK_CALL(fBackendContext->fInterface,
-                              AcquireNextImageKHR(fBackendContext->fDevice, 
-                                                  fSwapchain,
-                                                  UINT64_MAX,
-                                                  backbuffer->fAcquireSemaphore,
-                                                  VK_NULL_HANDLE,
-                                                  &backbuffer->fImageIndex));
+    VkResult res = fAcquireNextImageKHR(fBackendContext->fDevice, fSwapchain, UINT64_MAX,
+                                        backbuffer->fAcquireSemaphore, VK_NULL_HANDLE,
+                                        &backbuffer->fImageIndex);
     if (VK_ERROR_SURFACE_LOST_KHR == res) {
         // need to figure out how to create a new vkSurface without the platformData*
         // maybe use attach somehow? but need a Window
@@ -458,13 +435,9 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
         }
 
         // acquire the image
-        res = GR_VK_CALL(fBackendContext->fInterface,
-                         AcquireNextImageKHR(fBackendContext->fDevice,
-                                             fSwapchain,
-                                             UINT64_MAX,
-                                             backbuffer->fAcquireSemaphore,
-                                             VK_NULL_HANDLE,
-                                             &backbuffer->fImageIndex));
+        res = fAcquireNextImageKHR(fBackendContext->fDevice,  fSwapchain, UINT64_MAX,
+                                   backbuffer->fAcquireSemaphore, VK_NULL_HANDLE,
+                                   &backbuffer->fImageIndex);
 
         if (VK_SUCCESS != res) {
             return nullptr;
@@ -489,7 +462,7 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
         layout,                                   // oldLayout
         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // newLayout
         fPresentQueueIndex,                       // srcQueueFamilyIndex
-        fBackendContext->fQueueFamilyIndex,       // dstQueueFamilyIndex
+        fBackendContext->fGraphicsQueueIndex,     // dstQueueFamilyIndex
         fImages[backbuffer->fImageIndex],         // image
         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } // subresourceRange
     };
@@ -549,7 +522,7 @@ void VulkanTestContext::swapBuffers() {
         dstAccessMask,                            // inputMask
         layout,                                   // oldLayout
         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,          // newLayout
-        fBackendContext->fQueueFamilyIndex,       // srcQueueFamilyIndex
+        fBackendContext->fGraphicsQueueIndex,     // srcQueueFamilyIndex
         fPresentQueueIndex,                       // dstQueueFamilyIndex
         fImages[backbuffer->fImageIndex],         // image
         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } // subresourceRange
@@ -601,7 +574,6 @@ void VulkanTestContext::swapBuffers() {
         NULL // pResults
     };
 
-    GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
-                        QueuePresentKHR(fPresentQueue, &presentInfo));
+    fQueuePresentKHR(fPresentQueue, &presentInfo);
 
 }

@@ -120,7 +120,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, // sType
         nullptr,                                    // pNext
         VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,       // CmdPoolCreateFlags
-        backendCtx->fQueueFamilyIndex,              // queueFamilyIndex
+        backendCtx->fGraphicsQueueIndex,            // queueFamilyIndex
     };
     GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateCommandPool(fDevice, &cmdPoolInfo, nullptr,
                                                                &fCmdPool));
