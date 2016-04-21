@@ -29,54 +29,21 @@ struct SkCpu {
         VFP_FP16 = 1 << 2,
     };
 
+    static void CacheRuntimeFeatures();
     static bool Supports(uint32_t);
-
 private:
-    // Consider a loop like this that expands 16-bit floats out to 32-bit, does math, and repacks:
-    //    for (int i = 0; i < N; i++) {
-    //        if (SkCpu::Supports(SkCpu::F16C)) {
-    //            f32s = SkCpu::F16C_cvtph_ps(f16s);
-    //        } else {
-    //            f32s = some_slower_f16_to_f32_routine(f16s);
-    //        }
-    //
-    //        ... do some math with f32s ...
-    //
-    //        if (SkCpu::Supports(SkCpu::F16C)) {
-    //            f16s = SkCpu::F16C_cvtps_ph(f32s);
-    //        } else {
-    //            f16s = some_slower_f32_to_f16_routine(f32s);
-    //        }
-    //    }
-    //
-    // We would like SkCpu::Supports() to participate in common sub-expression elimination,
-    // so that it's called exactly 1 time, rather than N or 2N times.  This is especially
-    // important when the if-else blocks you see above are really inline functions.
-    //
-    // The key to this is to make sure to implement RuntimeCpuFeatures() with the same
-    // capacity for common sub-expression elimination.
-    //
-    // __attribute__((const)) works perfectly when available.
-    //
-    // When it's not (MSVC), we fall back to a static initializer.
-    // (Static intializers would work fine everywhere, but Chrome really dislikes them.)
-
-#if defined(__GNUC__) || defined(__clang__)  // i.e. GCC, Clang, or clang-cl
-    __attribute__((const))
-    static uint32_t RuntimeCpuFeatures();
+#if defined(_MSC_VER) || !defined(SkCpu_IMPL)
+    static const uint32_t gCachedFeatures;
 #else
-    static const uint32_t gCachedCpuFeatures;
-    static uint32_t RuntimeCpuFeatures() {
-        return gCachedCpuFeatures;
-    }
+    static       uint32_t gCachedFeatures;
 #endif
 };
 
 inline bool SkCpu::Supports(uint32_t mask) {
-    uint32_t features = RuntimeCpuFeatures();
+    uint32_t features = gCachedFeatures;
 
-    // If we mask in compile-time known lower limits, the compiler can completely
-    // drop many calls to RuntimeCpuFeatures().
+    // If we mask in compile-time known lower limits, the compiler can
+    // often compile away this entire function.
 #if SK_CPU_X86
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     features |= SSE1;

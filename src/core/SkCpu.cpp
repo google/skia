@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
+#define SkCpu_IMPL
 #include "SkCpu.h"
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 
 #if defined(SK_CPU_X86)
     #if defined(SK_BUILD_FOR_WIN32)
@@ -78,13 +79,17 @@
 
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
-    SK_DECLARE_STATIC_ONCE_PTR(uint32_t, gCachedCpuFeatures);
-    uint32_t SkCpu::RuntimeCpuFeatures() {
-        return *gCachedCpuFeatures.get([]{ return new uint32_t{read_cpu_features()}; });
-    }
+#if defined(_MSC_VER)
+    const uint32_t SkCpu::gCachedFeatures = read_cpu_features();
+
+    void SkCpu::CacheRuntimeFeatures() {}
 
 #else
-    const uint32_t SkCpu::gCachedCpuFeatures = read_cpu_features();
+    uint32_t SkCpu::gCachedFeatures = 0;
+
+    void SkCpu::CacheRuntimeFeatures() {
+        static SkOnce once;
+        once([] { gCachedFeatures = read_cpu_features(); });
+    }
 
 #endif
