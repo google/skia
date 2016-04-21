@@ -141,6 +141,7 @@ void GrVkCommandBuffer::submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu
     submitInfo.pNext = nullptr;
     submitInfo.waitSemaphoreCount = 0;
     submitInfo.pWaitSemaphores = nullptr;
+    submitInfo.pWaitDstStageMask = 0;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &fCmdBuffer;
     submitInfo.signalSemaphoreCount = 0;
@@ -195,6 +196,11 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
                                         BarrierType barrierType,
                                         void* barrier) const {
     SkASSERT(fIsActive);
+    // For images we can have barriers inside of render passes but they require us to add more
+    // support in subpasses which need self dependencies to have barriers inside them. Also, we can
+    // never have buffer barriers inside of a render pass. For now we will just assert that we are
+    // not in a render pass.
+    SkASSERT(!fActiveRenderPass);
     VkDependencyFlags dependencyFlags = byRegion ? VK_DEPENDENCY_BY_REGION_BIT : 0;
 
     switch (barrierType) {
@@ -390,7 +396,6 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
 
 void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline) {
     SkASSERT(fIsActive);
-    SkASSERT(fActiveRenderPass);
     GR_VK_CALL(gpu->vkInterface(), CmdBindPipeline(fCmdBuffer,
                                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
                                                    pipeline->pipeline()));

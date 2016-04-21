@@ -28,11 +28,17 @@ public:
         VkImage        fImage;
         VkDeviceMemory fAlloc;
         Flags          fFlags;
+        VkFormat       fFormat;
 
-        Resource() : INHERITED(), fImage(VK_NULL_HANDLE), fAlloc(VK_NULL_HANDLE), fFlags(kNo_Flags) {}
+        Resource()
+            : INHERITED()
+            , fImage(VK_NULL_HANDLE)
+            , fAlloc(VK_NULL_HANDLE)
+            , fFlags(kNo_Flags)
+            , fFormat(VK_FORMAT_UNDEFINED) {}
 
-        Resource(VkImage image, VkDeviceMemory alloc, Flags flags)
-            : fImage(image), fAlloc(alloc), fFlags(flags) {}
+        Resource(VkImage image, VkDeviceMemory alloc, Flags flags, VkFormat format)
+            : fImage(image), fAlloc(alloc), fFlags(flags), fFormat(format) {}
 
         ~Resource() override {}
     private:
@@ -44,8 +50,8 @@ public:
     // for wrapped textures
     class BorrowedResource : public Resource {
     public:
-        BorrowedResource(VkImage image, VkDeviceMemory alloc, Flags flags)
-            : Resource(image, alloc, flags) {}
+        BorrowedResource(VkImage image, VkDeviceMemory alloc, Flags flags, VkFormat format)
+            : Resource(image, alloc, flags, format) {}
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
     };
@@ -70,7 +76,8 @@ public:
 
     VkImageLayout currentLayout() const { return fCurrentLayout; }
 
-    void setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
+    void setImageLayout(const GrVkGpu* gpu,
+                        VkImageLayout newLayout,
                         VkAccessFlags srcAccessMask,
                         VkAccessFlags dstAccessMask,
                         VkPipelineStageFlags srcStageMask,

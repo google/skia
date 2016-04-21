@@ -12,6 +12,19 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
+VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
+    switch (format) {
+        case VK_FORMAT_S8_UINT:
+            return VK_IMAGE_ASPECT_STENCIL_BIT;
+        case VK_FORMAT_D24_UNORM_S8_UINT: // fallthrough
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        default:
+            SkASSERT(GrVkFormatToPixelConfig(format, nullptr));
+            return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+}
+
 void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
                                VkAccessFlags srcAccessMask,
                                VkAccessFlags dstAccessMask,
@@ -24,7 +37,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     if (newLayout == fCurrentLayout) {
         return;
     }
-
+    VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fResource->fFormat);
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // sType
         NULL,                                     // pNext
@@ -35,7 +48,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
         VK_QUEUE_FAMILY_IGNORED,                  // srcQueueFamilyIndex
         VK_QUEUE_FAMILY_IGNORED,                  // dstQueueFamilyIndex
         fResource->fImage,                        // image
-        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } // subresourceRange
+        { aspectFlags, 0, 1, 0, 1 }               // subresourceRange
     };
 
     // TODO: restrict to area of image we're interested in
@@ -91,7 +104,7 @@ const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
         (VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling) ? Resource::kLinearTiling_Flag
                                                            : Resource::kNo_Flags;
 
-    return (new GrVkImage::Resource(image, alloc, flags));
+    return (new GrVkImage::Resource(image, alloc, flags, imageDesc.fFormat));
 }
 
 GrVkImage::~GrVkImage() {

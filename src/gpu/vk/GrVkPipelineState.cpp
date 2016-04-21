@@ -408,30 +408,29 @@ void GrVkPipelineState::addUniformResources(GrVkCommandBuffer& commandBuffer) {
 void GrVkPipelineState::DescriptorPoolManager::getNewPool(GrVkGpu* gpu) {
     if (fPool) {
         fPool->unref(gpu);
-        SkASSERT(fMaxDescriptorSets < (SK_MaxU32 >> 1));
-        if (fMaxDescriptorSets < kMaxDescSetLimit >> 1) {
-            fMaxDescriptorSets = fMaxDescriptorSets << 1;
+        if (fMaxDescriptors < kMaxDescLimit >> 1) {
+            fMaxDescriptors = fMaxDescriptors << 1;
         } else {
-            fMaxDescriptorSets = kMaxDescSetLimit;
+            fMaxDescriptors = kMaxDescLimit;
         }
 
     }
-    if (fMaxDescriptorSets) {
+    if (fMaxDescriptors) {
         fPool = gpu->resourceProvider().findOrCreateCompatibleDescriptorPool(fDescType,
-                                                                             fMaxDescriptorSets);
+                                                                             fMaxDescriptors);
     }
-    SkASSERT(fPool || !fMaxDescriptorSets);
+    SkASSERT(fPool || !fMaxDescriptors);
 }
 
 void GrVkPipelineState::DescriptorPoolManager::getNewDescriptorSet(GrVkGpu* gpu, VkDescriptorSet* ds) {
-    if (!fMaxDescriptorSets) {
+    if (!fMaxDescriptors) {
         return;
     }
-    if (fCurrentDescriptorSet == fMaxDescriptorSets) {
+    if (fCurrentDescriptorCount == fMaxDescriptors) {
         this->getNewPool(gpu);
-        fCurrentDescriptorSet = 0;
+        fCurrentDescriptorCount = 0;
     }
-    fCurrentDescriptorSet++;
+    fCurrentDescriptorCount += fDescCountPerSet;
 
     VkDescriptorSetAllocateInfo dsAllocateInfo;
     memset(&dsAllocateInfo, 0, sizeof(VkDescriptorSetAllocateInfo));

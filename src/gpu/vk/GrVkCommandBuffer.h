@@ -82,6 +82,8 @@ public:
         }
     }
 
+    void bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline);
+
     void bindDescriptorSets(const GrVkGpu* gpu,
                             GrVkPipelineState*,
                             VkPipelineLayout layout,
@@ -153,9 +155,6 @@ public:
                           const VkClearAttachment* attachments,
                           int numRects,
                           const VkClearRect* clearRects) const;
-
-    void bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline);
-
 
     void drawIndexed(const GrVkGpu* gpu,
                      uint32_t indexCount,

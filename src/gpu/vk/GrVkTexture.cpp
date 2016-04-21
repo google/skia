@@ -87,9 +87,12 @@ GrVkTexture* GrVkTexture::CreateWrappedTexture(GrVkGpu* gpu, const GrSurfaceDesc
 
     const GrVkImage::Resource* imageResource;
     if (kBorrowed_LifeCycle == lifeCycle) {
-        imageResource = new GrVkImage::BorrowedResource(info->fImage, info->fAlloc, flags);
+        imageResource = new GrVkImage::BorrowedResource(info->fImage,
+                                                        info->fAlloc,
+                                                        flags,
+                                                        info->fFormat);
     } else {
-        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, flags);
+        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, flags, info->fFormat);
     }
     if (!imageResource) {
         return nullptr;

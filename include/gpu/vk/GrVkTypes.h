@@ -35,6 +35,7 @@ struct GrVkTextureInfo {
     VkDeviceMemory fAlloc;    // this may be null iff the texture is an RT and uses borrow semantics
     VkImageTiling  fImageTiling;
     VkImageLayout  fImageLayout;
+    VkFormat       fFormat;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkTextureInfo*));

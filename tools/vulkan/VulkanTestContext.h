@@ -64,7 +64,7 @@ private:
 
     BackbufferInfo* getAvailableBackbuffer();
     bool createSwapchain(uint32_t width, uint32_t height);
-    void createBuffers();
+    void createBuffers(VkFormat format);
     void destroyBuffers();
 
     SkAutoTUnref<const GrVkBackendContext> fBackendContext;

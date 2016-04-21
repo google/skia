@@ -16,15 +16,14 @@
 #ifdef ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
     // elements of VK_LAYER_LUNARG_standard_validation
-    "VK_LAYER_LUNARG_threading",
-    "VK_LAYER_LUNARG_param_checker",
+    "VK_LAYER_GOOGLE_threading",
+    "VK_LAYER_LUNARG_parameter_validation",
     "VK_LAYER_LUNARG_device_limits",
     "VK_LAYER_LUNARG_object_tracker",
     "VK_LAYER_LUNARG_image",
-    "VK_LAYER_LUNARG_mem_tracker",
-    "VK_LAYER_LUNARG_draw_state",
+    "VK_LAYER_LUNARG_core_validation",
     "VK_LAYER_LUNARG_swapchain",
-    //"VK_LAYER_GOOGLE_unique_objects",
+    "VK_LAYER_GOOGLE_unique_objects",
     // not included in standard_validation
     //"VK_LAYER_LUNARG_api_dump",
     //"VK_LAYER_LUNARG_vktrace",
@@ -33,7 +32,7 @@ const char* kDebugLayerNames[] = {
 #endif
 
 // the minimum version of Vulkan supported
-const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 3);
+const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 
 // Create the base Vulkan objects needed by the GrVkGpu object
 const GrVkBackendContext* GrVkBackendContext::Create() {

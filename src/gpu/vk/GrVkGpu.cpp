@@ -619,17 +619,14 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 
 void GrVkGpu::bindGeometry(const GrPrimitiveProcessor& primProc,
                            const GrNonInstancedMesh& mesh) {
+    // There is no need to put any memory barriers to make sure host writes have finished here.
+    // When a command buffer is submitted to a queue, there is an implicit memory barrier that
+    // occurs for all host writes. Additionally, BufferMemoryBarriers are not allowed inside of
+    // an active RenderPass.
     GrVkVertexBuffer* vbuf;
     vbuf = (GrVkVertexBuffer*)mesh.vertexBuffer();
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
-
-    vbuf->addMemoryBarrier(this,
-                           VK_ACCESS_HOST_WRITE_BIT,
-                           VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
-                           VK_PIPELINE_STAGE_HOST_BIT,
-                           VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-                           false);
 
     fCurrentCmdBuffer->bindVertexBuffer(this, vbuf);
 
@@ -637,13 +634,6 @@ void GrVkGpu::bindGeometry(const GrPrimitiveProcessor& primProc,
         GrVkIndexBuffer* ibuf = (GrVkIndexBuffer*)mesh.indexBuffer();
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
-
-        ibuf->addMemoryBarrier(this,
-                               VK_ACCESS_HOST_WRITE_BIT,
-                               VK_ACCESS_INDEX_READ_BIT,
-                               VK_PIPELINE_STAGE_HOST_BIT,
-                               VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-                               false);
 
         fCurrentCmdBuffer->bindIndexBuffer(this, ibuf);
     }
@@ -783,6 +773,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     info->fAlloc = alloc;
     info->fImageTiling = imageTiling;
     info->fImageLayout = initialLayout;
+    info->fFormat = pixelFormat;
 
     return (GrBackendObject)info;
 }
@@ -933,8 +924,7 @@ void GrVkGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bo
     VkImageLayout origDstLayout = vkStencil->currentLayout();
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
     VkAccessFlags dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    VkPipelineStageFlags srcStageMask =
-        GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
+    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     vkStencil->setImageLayout(this,
                               VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
@@ -943,6 +933,21 @@ void GrVkGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bo
                               srcStageMask,
                               dstStageMask,
                               false);
+
+    // Change layout of our render target so it can be used as the color attachment. This is what
+    // the render pass expects when it begins.
+    VkImageLayout layout = vkRT->currentLayout();
+    srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
+    dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
+    dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    vkRT->setImageLayout(this,
+                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                         srcAccessMask,
+                         dstAccessMask,
+                         srcStageMask,
+                         dstStageMask,
+                         false);
 
     VkClearRect clearRect;
     // Flip rect if necessary
@@ -990,8 +995,7 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
     if (rect.width() != target->width() || rect.height() != target->height()) {
         VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
         VkAccessFlags dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        VkPipelineStageFlags srcStageMask =
-            GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
+        VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
         VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         vkRT->setImageLayout(this,
                              VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
@@ -1000,6 +1004,25 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
                              srcStageMask,
                              dstStageMask,
                              false);
+
+        // If we are using a stencil attachment we also need to change its layout to what the render
+        // pass is expecting.
+        if (GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment()) {
+            GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+            origDstLayout = vkStencil->currentLayout();
+            srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
+            dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+            srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
+            dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            vkStencil->setImageLayout(this,
+                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                      srcAccessMask,
+                                      dstAccessMask,
+                                      srcStageMask,
+                                      dstStageMask,
+                                      false);
+        }
 
         VkClearRect clearRect;
         // Flip rect if necessary
@@ -1483,7 +1506,6 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
     const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
     SkASSERT(renderPass);
 
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
@@ -1496,8 +1518,6 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
 
     // Change layout of our render target so it can be used as the color attachment
     VkImageLayout layout = vkRT->currentLayout();
-    // Our color attachment is purely a destination and won't be read so don't need to flush or
-    // invalidate any caches
     VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
@@ -1511,8 +1531,7 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
                          false);
 
     // If we are using a stencil attachment we also need to update its layout
-    if (!pipeline.getStencil().isDisabled()) {
-        GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment();
+    if (GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment()) {
         GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
         VkImageLayout origDstLayout = vkStencil->currentLayout();
         VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
@@ -1530,12 +1549,9 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
                                   false);
     }
 
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
 
     for (int i = 0; i < meshCount; ++i) {
-        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
-            this->xferBarrier(pipeline.getRenderTarget(), barrierType);
-        }
-
         const GrMesh& mesh = meshes[i];
         GrMesh::Iterator iter;
         const GrNonInstancedMesh* nonIdxMesh = iter.init(mesh);
@@ -1547,6 +1563,10 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
                 pipelineState->freeTempResources(this);
                 SkDEBUGCODE(pipelineState = nullptr);
                 primitiveType = nonIdxMesh->primitiveType();
+                // It is illegal for us to have the necessary memory barriers for when we write and
+                // update the uniform buffers in prepareDrawState while in an active render pass.
+                // Thus we must end the current one and then start it up again.
+                fCurrentCmdBuffer->endRenderPass(this);
                 pipelineState = this->prepareDrawState(pipeline,
                                                        primProc,
                                                        primitiveType,
@@ -1554,6 +1574,7 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
                 if (!pipelineState) {
                     return;
                 }
+                fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
             }
             SkASSERT(pipelineState);
             this->bindGeometry(primProc, *nonIdxMesh);

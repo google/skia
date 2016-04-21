@@ -240,14 +240,14 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
                                                                    nullptr));
     }
 
-    GrVkFormatToPixelConfig(swapchainCreateInfo.imageFormat, &fPixelConfig);
-
-    this->createBuffers();
+    this->createBuffers(swapchainCreateInfo.imageFormat);
 
     return true;
 }
 
-void VulkanTestContext::createBuffers() {
+void VulkanTestContext::createBuffers(VkFormat format) {
+    GrVkFormatToPixelConfig(format, &fPixelConfig);
+
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface, GetSwapchainImagesKHR(fBackendContext->fDevice,
                                                                            fSwapchain,
                                                                            &fImageCount,
@@ -271,6 +271,7 @@ void VulkanTestContext::createBuffers() {
         info.fAlloc = nullptr;
         info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+        info.fFormat = format;
         desc.fWidth = fWidth;
         desc.fHeight = fHeight;
         desc.fConfig = fPixelConfig;
@@ -511,13 +512,14 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
                         EndCommandBuffer(backbuffer->fTransitionCmdBuffers[0]));  
 
+    VkPipelineStageFlags waitDstStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     // insert the layout transfer into the queue and wait on the acquire
     VkSubmitInfo submitInfo;
     memset(&submitInfo, 0, sizeof(VkSubmitInfo));
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = &backbuffer->fAcquireSemaphore;
-    submitInfo.pWaitDstStageMask = 0;
+    submitInfo.pWaitDstStageMask = &waitDstStageFlags;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &backbuffer->fTransitionCmdBuffers[0];
     submitInfo.signalSemaphoreCount = 0;
