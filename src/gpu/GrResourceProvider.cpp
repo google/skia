@@ -96,29 +96,34 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     if (this->isAbandoned()) {
         return nullptr;
     }
+    if (kDynamic_GrAccessPattern != accessPattern) {
+        return this->gpu()->createBuffer(size, intendedType, accessPattern, data);
+    }
 
-    if (kDynamic_GrAccessPattern == accessPattern) {
-        // bin by pow2 with a reasonable min
-        static const uint32_t MIN_SIZE = 1 << 12;
-        size = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
+    // bin by pow2 with a reasonable min
+    static const uint32_t MIN_SIZE = 1 << 12;
+    size_t allocSize = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
 
-        GrScratchKey key;
-        GrBuffer::ComputeScratchKeyForDynamicBuffer(size, intendedType, &key);
-        uint32_t scratchFlags = 0;
-        if (flags & kNoPendingIO_Flag) {
-            scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
-        } else {
-            scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
-        }
-        GrGpuResource* resource = this->cache()->findAndRefScratchResource(key, size, scratchFlags);
-        if (GrBuffer* buffer = static_cast<GrBuffer*>(resource)) {
-            if (data) {
-                buffer->updateData(data, size);
-            }
-            return buffer;
+    GrScratchKey key;
+    GrBuffer::ComputeScratchKeyForDynamicBuffer(allocSize, intendedType, &key);
+    uint32_t scratchFlags = 0;
+    if (flags & kNoPendingIO_Flag) {
+        scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
+    } else {
+        scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
+    }
+    GrBuffer* buffer = static_cast<GrBuffer*>(
+        this->cache()->findAndRefScratchResource(key, allocSize, scratchFlags));
+    if (!buffer) {
+        buffer = this->gpu()->createBuffer(allocSize, intendedType, kDynamic_GrAccessPattern);
+        if (!buffer) {
+            return nullptr;
         }
     }
-    return this->gpu()->createBuffer(size, intendedType, accessPattern, data);
+    if (data) {
+        buffer->updateData(data, size);
+    }
+    return buffer;
 }
 
 GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
