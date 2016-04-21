@@ -1220,7 +1220,9 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+#ifndef SK_SUPPORT_LEGACY_LAYERITER
 protected:
+#endif
     /** After calling saveLayer(), there can be any number of devices that make
         up the top-most drawing area. LayerIter can be used to iterate through
         those devices. Note that the iterator is only valid until the next API
