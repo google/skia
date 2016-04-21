@@ -1220,6 +1220,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+protected:
     /** After calling saveLayer(), there can be any number of devices that make
         up the top-most drawing area. LayerIter can be used to iterate through
         those devices. Note that the iterator is only valid until the next API
@@ -1258,6 +1259,7 @@ public:
         bool              fDone;
     };
 
+ public:
     // don't call
     GrRenderTarget* internal_private_accessTopLayerRenderTarget();
 
@@ -1432,6 +1434,7 @@ private:
     void checkForDeferredSave();
     void internalSetMatrix(const SkMatrix&);
 
+    friend class CanvasTestingAccess; // for testing
     friend class SkDrawIter;        // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
     friend class SkLua;             // needs top layer size and offset
