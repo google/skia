@@ -194,11 +194,11 @@ public:
      */
     T* push_back_n(int n) {
         SkASSERT(n >= 0);
-        char* newTs = static_cast<char*>(this->push_back_raw(n));
+        void* newTs = this->push_back_raw(n);
         for (int i = 0; i < n; ++i) {
-          new (newTs + i * sizeof(T)) T;
+            new (static_cast<char*>(newTs) + i * sizeof(T)) T;
         }
-        return reinterpret_cast<T*>(newTs);
+        return static_cast<T*>(newTs);
     }
 
     /**
@@ -207,11 +207,11 @@ public:
      */
     T* push_back_n(int n, const T& t) {
         SkASSERT(n >= 0);
-        char* newTs = static_cast<char*>(this->push_back_raw(n));
+        void* newTs = this->push_back_raw(n);
         for (int i = 0; i < n; ++i) {
-          new (newTs + i * sizeof(T)) T(t);
+            new (static_cast<char*>(newTs) + i * sizeof(T)) T(t);
         }
-        return reinterpret_cast<T*>(newTs);
+        return static_cast<T*>(newTs);
     }
 
     /**
