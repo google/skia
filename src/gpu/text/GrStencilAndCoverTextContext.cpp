@@ -7,6 +7,7 @@
 
 #include "GrStencilAndCoverTextContext.h"
 #include "GrAtlasTextContext.h"
+#include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
@@ -16,7 +17,6 @@
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
-#include "SkGpuDevice.h"
 #include "SkGrPriv.h"
 #include "SkDrawFilter.h"
 #include "SkPath.h"

@@ -13,7 +13,6 @@
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
-#include "SkGpuDevice.h"
 #include "SkGrPixelRef.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"

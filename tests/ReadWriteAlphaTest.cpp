@@ -11,7 +11,8 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "SkGpuDevice.h"
+#include "SkCanvas.h"
+#include "SkSurface.h"
 
 // This was made indivisible by 4 to ensure we test setting GL_PACK_ALIGNMENT properly.
 static const int X_SIZE = 13;
@@ -92,10 +93,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // Now try writing on the single channel texture (if we could create as a RT).
             if (texture->asRenderTarget()) {
-                SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-                SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(
-                    texture->asRenderTarget(), &props, SkGpuDevice::kUninit_InitContents));
-                SkCanvas canvas(device);
+                sk_sp<SkSurface> surf(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
+                SkCanvas* canvas = surf->getCanvas();
 
                 SkPaint paint;
 
@@ -103,7 +102,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 paint.setColor(SK_ColorWHITE);
 
-                canvas.drawRect(rect, paint);
+                canvas->drawRect(rect, paint);
 
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
                 result = texture->readPixels(0, 0, desc.fWidth, desc.fHeight, 

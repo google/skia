@@ -14,7 +14,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "SkGpuDevice.h"
 #endif
 
 namespace skiagm {

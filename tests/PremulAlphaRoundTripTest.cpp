@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkConfig8888.h"
+#include "SkSurface.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "SkGpuDevice.h"
 #endif
 
 static uint32_t pack_unpremul_rgba(SkColor c) {
@@ -46,7 +45,7 @@ const struct {
     { kBGRA_8888_SkColorType, pack_unpremul_bgra },
 };
 
-static void fillCanvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulProc proc) {
+static void fill_canvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulProc proc) {
     // Don't strictly need a bitmap, but its a handy way to allocate the pixels
     SkBitmap bmp;
     bmp.allocN32Pixels(256, 256);
@@ -63,10 +62,10 @@ static void fillCanvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulProc
     canvas->writePixels(info, bmp.getPixels(), bmp.rowBytes(), 0, 0);
 }
 
-static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkBaseDevice* device) {
-    SkCanvas canvas(device);
+static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface* surf) {
+    SkCanvas* canvas = surf->getCanvas();
     for (size_t upmaIdx = 0; upmaIdx < SK_ARRAY_COUNT(gUnpremul); ++upmaIdx) {
-        fillCanvas(&canvas, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
+        fill_canvas(canvas, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
 
         const SkImageInfo info = SkImageInfo::Make(256, 256, gUnpremul[upmaIdx].fColorType,
                                                    kUnpremul_SkAlphaType);
@@ -78,10 +77,10 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkBaseDevi
         readBmp1.eraseColor(0);
         readBmp2.eraseColor(0);
 
-        canvas.readPixels(&readBmp1, 0, 0);
-        sk_tool_utils::write_pixels(&canvas, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
+        canvas->readPixels(&readBmp1, 0, 0);
+        sk_tool_utils::write_pixels(canvas, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
                                     kUnpremul_SkAlphaType);
-        canvas.readPixels(&readBmp2, 0, 0);
+        canvas->readPixels(&readBmp2, 0, 0);
 
         bool success = true;
         for (int y = 0; y < 256 && success; ++y) {
@@ -100,17 +99,18 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkBaseDevi
 
 DEF_TEST(PremulAlphaRoundTrip, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-    SkAutoTUnref<SkBaseDevice> device(SkBitmapDevice::Create(info, props));
-    test_premul_alpha_roundtrip(reporter, device);
+
+    sk_sp<SkSurface> surf(SkSurface::MakeRaster(info));
+
+    test_premul_alpha_roundtrip(reporter, surf.get());
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-    SkAutoTUnref<SkBaseDevice> device(
-        SkGpuDevice::Create(ctxInfo.fGrContext, SkBudgeted::kNo, info, 0, &props,
-                            SkGpuDevice::kUninit_InitContents));
-    test_premul_alpha_roundtrip(reporter, device);
+
+    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.fGrContext,
+                                                      SkBudgeted::kNo,
+                                                      info));
+    test_premul_alpha_roundtrip(reporter, surf.get());
 }
 #endif

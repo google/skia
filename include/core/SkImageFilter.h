@@ -18,7 +18,6 @@
 
 class GrContext;
 class GrFragmentProcessor;
-class SkBaseDevice;
 class SkColorFilter;
 struct SkIPoint;
 class SkSpecialImage;

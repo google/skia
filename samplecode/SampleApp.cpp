@@ -37,7 +37,7 @@
 #   include "gl/GrGLUtil.h"
 #   include "GrRenderTarget.h"
 #   include "GrContext.h"
-#   include "SkGpuDevice.h"
+#   include "SkGr.h"
 #   if SK_ANGLE
 #       include "gl/angle/GLTestContext_angle.h"
 #   endif

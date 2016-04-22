@@ -5,18 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "GrContext.h"
 #include "GrLayerCache.h"
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
 
 #include "SkBigPicture.h"
 #include "SkCanvas.h"
-#include "SkGpuDevice.h"
 #include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
 #include "SkSpecialImage.h"
 #include "SkSurface.h"
-#include "SkSurface_Gpu.h"
 
 // Create the layer information for the hoisted layer and secure the
 // required texture/render target resources.
@@ -278,7 +277,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
 }
 
 void GrLayerHoister::FilterLayer(GrContext* context,
-                                 SkGpuDevice* device,
+                                 const SkSurfaceProps* props,
                                  const GrHoistedLayer& info) {
     GrCachedLayer* layer = info.fLayer;
 
@@ -305,7 +304,7 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromGpu(subset,
                                                           kNeedNewImageUniqueID_SpecialImage,
                                                           layer->texture(),
-                                                          &device->surfaceProps()));
+                                                          props));
 
     SkIPoint offset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> result(layer->filter()->filterImage(img.get(),
@@ -358,9 +357,7 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
         layerCanvas->flush();
 
         if (layer->filter()) {
-            SkSurface_Gpu* gpuSurf = static_cast<SkSurface_Gpu*>(surface.get());
-
-            FilterLayer(context, gpuSurf->getDevice(), layers[i]);
+            FilterLayer(context, &surface->props(), layers[i]);
         }
     }
 }

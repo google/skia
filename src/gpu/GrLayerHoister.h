@@ -114,10 +114,10 @@ public:
 private:
     /** Update the GrTexture in 'layer' with its filtered version
         @param context    Owner of the layer cache (and thus the layers)
-        @param device     Required by the filtering code
+        @param props      Surface properties
         @param info       Layer info for a layer needing filtering prior to being composited
      */
-    static void FilterLayer(GrContext* context, SkGpuDevice* device, const GrHoistedLayer& info);
+    static void FilterLayer(GrContext* context, const SkSurfaceProps*, const GrHoistedLayer& info);
 
 };
 

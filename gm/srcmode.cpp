@@ -11,10 +11,6 @@
 #include "SkPath.h"
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
-    #include "SkGpuDevice.h"
-#endif
-
 #define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
 
