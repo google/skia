@@ -53,7 +53,7 @@ of matrix and clip settings.
     }
 
 <a href='https://fiddle.skia.org/c/@skpaint_skia'><img
-  src='https://fiddle.skia.org/c/@skpaint_skia_raster.png'></a>
+  src='https://fiddle.skia.org/i/@skpaint_skia_raster.png'></a>
 
 This shows three different paints, each set up to draw in a different
 style. Now the caller can intermix these paints freely, either using
@@ -79,7 +79,7 @@ them as is, or modifying them as the drawing proceeds.
     canvas->drawText("SKIA", 4, 20, 220, paint3);
 
 <a href='https://fiddle.skia.org/c/@skpaint_mix'><img
-  src='https://fiddle.skia.org/c/@skpaint_mix_raster.png'></a>
+  src='https://fiddle.skia.org/i/@skpaint_mix_raster.png'></a>
 
 Beyond simple attributes such as color, strokes, and text values,
 paints support effects. These are subclasses of different aspects of
@@ -106,7 +106,7 @@ assign a SkShader to the paint.
     }
 
 <a href='https://fiddle.skia.org/c/@skpaint_shader'><img
-  src='https://fiddle.skia.org/c/@skpaint_shader_raster.png'></a>
+  src='https://fiddle.skia.org/i/@skpaint_shader_raster.png'></a>
 
 Now, anything drawn with that paint will be drawn with the gradient
 specified in the call to `MakeLinear()`. The shader object that is
@@ -234,7 +234,7 @@ with a vertical alpha gradient.
     }
 
 <a href='https://fiddle.skia.org/c/@skpaint_xfer'><img
-  src='https://fiddle.skia.org/c/@skpaint_xfer_raster.png'></a>
+  src='https://fiddle.skia.org/i/@skpaint_xfer_raster.png'></a>
 
 <span id="ShShader"></span>
 
@@ -259,7 +259,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
         canvas->drawPaint(paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_bitmap_shader'><img
-      src='https://fiddle.skia.org/c/@skpaint_bitmap_shader_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_bitmap_shader_raster.png'></a>
 
 *   Radial Gradient Shader
 
@@ -273,7 +273,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
         canvas->drawPaint(paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_radial'><img
-      src='https://fiddle.skia.org/c/@skpaint_radial_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_radial_raster.png'></a>
 
 *  Two-Point Conical Gradient Shader
 
@@ -288,7 +288,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
         canvas->drawPaint(paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_2pt'><img
-      src='https://fiddle.skia.org/c/@skpaint_2pt_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_2pt_raster.png'></a>
 
 
 *   Sweep Gradient Shader
@@ -303,7 +303,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
         canvas->drawPaint(paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_sweep'><img
-      src='https://fiddle.skia.org/c/@skpaint_sweep_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_sweep_raster.png'></a>
 
 *   Fractal Perlin Noise Shader
 
@@ -316,7 +316,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
         canvas->drawPaint(paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_perlin'><img
-    src='https://fiddle.skia.org/c/@skpaint_perlin_raster.png'></a>
+    src='https://fiddle.skia.org/i/@skpaint_perlin_raster.png'></a>
 
 *   Turbulence Perlin Noise Shader
 
@@ -329,7 +329,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
         canvas->drawPaint(paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_turb'><img
-      src='https://fiddle.skia.org/c/@skpaint_turb_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_turb_raster.png'></a>
 
 *   Compose Shader
 
@@ -348,7 +348,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
         canvas->drawPaint(paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_compose_shader'><img
-      src='https://fiddle.skia.org/c/@skpaint_compose_shader_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_compose_shader_raster.png'></a>
 
 
 <span id="SkMaskFilter"></span>
@@ -371,7 +371,7 @@ SkMaskFilter
         canvas->drawText(text, strlen(text), 0, 160, paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_blur_mask_filter'><img
-      src='https://fiddle.skia.org/c/@skpaint_blur_mask_filter_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_blur_mask_filter_raster.png'></a>
 
 *   Emboss Mask Filter
 
@@ -388,7 +388,7 @@ SkMaskFilter
         canvas->drawText(text, strlen(text), 0, 160, paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_emboss'><img
-      src='https://fiddle.skia.org/c/@skpaint_emboss_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_emboss_raster.png'></a>
 
 
 <span id="SkColorFilter"></span>
@@ -466,7 +466,7 @@ SkColorFilter
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_matrix_color_filter'><img
-    src='https://fiddle.skia.org/c/@skpaint_matrix_color_filter_raster.png'></a>
+    src='https://fiddle.skia.org/i/@skpaint_matrix_color_filter_raster.png'></a>
 
 *   Color Table Color Filter
 
@@ -485,7 +485,7 @@ SkColorFilter
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_color_table_filter'><img
-      src='https://fiddle.skia.org/c/@skpaint_color_table_filter_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_color_table_filter_raster.png'></a>
 
 
 <span id="SkPathEffect"></span>
@@ -520,7 +520,7 @@ SkPathEffect
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_path_2d_path_effect'><img
-      src='https://fiddle.skia.org/c/@skpaint_path_2d_path_effect_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_path_2d_path_effect_raster.png'></a>
 
 *   SkLine2DPathEffect: a special case of SkPath2DPathEffect where the
     path is a straight line to be stroked, not a path to be filled.
@@ -542,7 +542,7 @@ SkPathEffect
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_line_2d_path_effect'><img
-      src='https://fiddle.skia.org/c/@skpaint_line_2d_path_effect_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_line_2d_path_effect_raster.png'></a>
 
 *   SkPath1DPathEffect: create dash-like effects by replicating the specified path along the drawn path.
 
@@ -560,7 +560,7 @@ SkPathEffect
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_path_1d_path_effect'><img
-      src='https://fiddle.skia.org/c/@skpaint_path_1d_path_effect_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_path_1d_path_effect_raster.png'></a>
 
 *   SkArcToPathEffect
 
@@ -589,7 +589,7 @@ SkPathEffect
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_arc_to_path_effect'><img
-      src='https://fiddle.skia.org/c/@skpaint_arc_to_path_effect_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_arc_to_path_effect_raster.png'></a>
 
 
 *   SkCornerPathEffect: a path effect that can turn sharp corners into
@@ -608,7 +608,7 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href='https://fiddle.skia.org/c/@skpaint_corner_path_effects'><img src='https://fiddle.skia.org/c/@skpaint_corner_path_effects_raster.png'></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_corner_path_effects'><img src='https://fiddle.skia.org/i/@skpaint_corner_path_effects_raster.png'></a>
 
 *   SkDashPathEffect:  a path effect that implements dashing.
 
@@ -627,7 +627,7 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href='https://fiddle.skia.org/c/@skpaint_dash_path_effect'><img src='https://fiddle.skia.org/c/@skpaint_dash_path_effect_raster.png'></a>
+    <a href='https://fiddle.skia.org/c/@skpaint_dash_path_effect'><img src='https://fiddle.skia.org/i/@skpaint_dash_path_effect_raster.png'></a>
 
 *   SkDiscretePathEffect: This path effect chops a path into discrete
     segments, and randomly displaces them.
@@ -646,7 +646,7 @@ SkPathEffect
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_discrete_path_effect'><img
-      src='https://fiddle.skia.org/c/@skpaint_discrete_path_effect_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_discrete_path_effect_raster.png'></a>
 
 *   SkComposePathEffect: a pathEffect whose effect is to apply
     first the inner pathEffect and the the outer pathEffect (i.e.
@@ -671,7 +671,7 @@ SkPathEffect
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_compose_path_effect'><img
-      src='https://fiddle.skia.org/c/@skpaint_compose_path_effect_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_compose_path_effect_raster.png'></a>
 
 *    SkSumPathEffect: a pathEffect whose effect is to apply two effects,
      in sequence (i.e. first(path) + second(path)).
@@ -693,5 +693,5 @@ SkPathEffect
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_sum_path_effect'><img
-      src='https://fiddle.skia.org/c/@skpaint_sum_path_effect_raster.png'></a>
+      src='https://fiddle.skia.org/i/@skpaint_sum_path_effect_raster.png'></a>
 

@@ -33,7 +33,7 @@ heptagram.  This function can be cut and pasted into
     }
 
 <a href='https://fiddle.skia.org/c/@skcanvas_star'><img
-  src='https://fiddle.skia.org/c/@skcanvas_star_raster.png'></a>
+  src='https://fiddle.skia.org/i/@skcanvas_star_raster.png'></a>
 
 Details
 -------
@@ -60,7 +60,7 @@ SkPaint.
     }
 
 <a href='https://fiddle.skia.org/c/@skcanvas_square'><img
-  src='https://fiddle.skia.org/c/@skcanvas_square_raster.png'></a>
+  src='https://fiddle.skia.org/i/@skcanvas_square_raster.png'></a>
 
 The code above will draw a rectangle rotated by 45 degrees. Exactly
 what color and style the rect will be drawn in is described by the
@@ -141,7 +141,7 @@ parameter.
 
 
 <a href='https://fiddle.skia.org/c/@skcanvas_paint'><img
-  src='https://fiddle.skia.org/c/@skcanvas_paint_raster.png'></a>
+  src='https://fiddle.skia.org/i/@skcanvas_paint_raster.png'></a>
 
 In some of the calls, we pass a pointer, rather than a reference, to
 the paint. In those instances, the paint parameter may be null. In all
