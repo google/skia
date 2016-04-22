@@ -87,7 +87,8 @@ drawBitmapNine():
     bitmap.extractSubset(&subset, rect);
     canvas->drawBitmapNine(subset, ...);
 
-[An example](https://fiddle.skia.org/c/c91694020f0810994917b56c323e4559)
+[An example](https://fiddle.skia.org/c/@subset_example)
+
 
 * * *
 
