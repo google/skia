@@ -53,22 +53,25 @@ public:
     private:
         const SkBufferBlock* fBlock;
         size_t               fRemaining;
+        const SkROBuffer*    fBuffer;
     };
 
 private:
-    SkROBuffer(const SkBufferHead* head, size_t available);
+    SkROBuffer(const SkBufferHead* head, size_t available, const SkBufferBlock* fTail);
     virtual ~SkROBuffer();
 
-    const SkBufferHead* fHead;
-    const size_t        fAvailable;
+    const SkBufferHead*     fHead;
+    const size_t            fAvailable;
+    const SkBufferBlock*    fTail;
 
     friend class SkRWBuffer;
 };
 
 /**
  *  Accumulates bytes of memory that are "appended" to it, growing internal storage as needed.
- *  The growth is done such that at any time, a RBuffer or StreamAsset can be snapped off, which
- *  can see the previously stored bytes, but which will be unaware of any future writes.
+ *  The growth is done such that at any time in the writer's thread, an RBuffer or StreamAsset
+ *  can be snapped off (and safely passed to another thread). The RBuffer/StreamAsset snapshot
+ *  can see the previously stored bytes, but will be unaware of any future writes.
  */
 class SK_API SkRWBuffer {
 public:

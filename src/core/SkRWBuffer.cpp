@@ -42,6 +42,8 @@ struct SkBufferBlock {
         return amount;
     }
 
+    // Do not call in the reader thread, since the writer may be updating fUsed.
+    // (The assertion is still true, but TSAN still may complain about its raciness.)
     void validate() const {
 #ifdef SK_DEBUG
         SkASSERT(fCapacity > 0);
@@ -94,7 +96,7 @@ struct SkBufferHead {
         }
     }
 
-    void validate(size_t minUsed, SkBufferBlock* tail = nullptr) const {
+    void validate(size_t minUsed, const SkBufferBlock* tail = nullptr) const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt > 0);
         size_t totalUsed = 0;
@@ -118,21 +120,21 @@ struct SkBufferHead {
 // The reader can only access block.fCapacity (which never changes), and cannot access
 // block.fUsed, which may be updated by the writer.
 //
-SkROBuffer::SkROBuffer(const SkBufferHead* head, size_t available)
-    : fHead(head), fAvailable(available)
+SkROBuffer::SkROBuffer(const SkBufferHead* head, size_t available, const SkBufferBlock* tail)
+    : fHead(head), fAvailable(available), fTail(tail)
 {
     if (head) {
         fHead->ref();
         SkASSERT(available > 0);
-        head->validate(available);
+        head->validate(available, tail);
     } else {
         SkASSERT(0 == available);
+        SkASSERT(!tail);
     }
 }
 
 SkROBuffer::~SkROBuffer() {
     if (fHead) {
-        fHead->validate(fAvailable);
         fHead->unref();
     }
 }
@@ -142,7 +144,8 @@ SkROBuffer::Iter::Iter(const SkROBuffer* buffer) {
 }
 
 void SkROBuffer::Iter::reset(const SkROBuffer* buffer) {
-    if (buffer) {
+    fBuffer = buffer;
+    if (buffer && buffer->fHead) {
         fBlock = &buffer->fHead->fBlock;
         fRemaining = buffer->fAvailable;
     } else {
@@ -165,7 +168,13 @@ size_t SkROBuffer::Iter::size() const {
 bool SkROBuffer::Iter::next() {
     if (fRemaining) {
         fRemaining -= this->size();
-        fBlock = fBlock->fNext;
+        if (fBuffer->fTail == fBlock) {
+            // There are more blocks, but fBuffer does not know about them.
+            SkASSERT(0 == fRemaining);
+            fBlock = nullptr;
+        } else {
+            fBlock = fBlock->fNext;
+        }
     }
     return fRemaining != 0;
 }
@@ -224,7 +233,9 @@ void SkRWBuffer::validate() const {
 }
 #endif
 
-SkROBuffer* SkRWBuffer::newRBufferSnapshot() const { return new SkROBuffer(fHead, fTotalUsed); }
+SkROBuffer* SkRWBuffer::newRBufferSnapshot() const {
+    return new SkROBuffer(fHead, fTotalUsed, fTail);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
