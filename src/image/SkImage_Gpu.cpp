@@ -16,7 +16,6 @@
 #include "SkGpuDevice.h"
 #include "SkGrPixelRef.h"
 #include "SkGrPriv.h"
-#include "SkImageFilter.h"
 #include "SkImage_Gpu.h"
 #include "SkPixelRef.h"
 

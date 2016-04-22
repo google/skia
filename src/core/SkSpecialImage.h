@@ -12,9 +12,6 @@
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 
-// remove this when internal_getProxy goes away (see skbug.com/4965)
-#include "SkImageFilter.h"
-
 #include "SkImageInfo.h" // for SkAlphaType
 
 class GrContext;
