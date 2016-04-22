@@ -350,18 +350,23 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
 
     // Check for valid color types and set the output color space
     switch (dst.colorType()) {
-        case kN32_SkColorType:
+        case kRGBA_8888_SkColorType:
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else {
 #ifdef LIBJPEG_TURBO_VERSION
-            // Check the byte ordering of the RGBA color space for the
-            // current platform
-    #ifdef SK_PMCOLOR_IS_RGBA
             fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
-    #else
+#else
+            fDecoderMgr->dinfo()->out_color_space = JCS_RGB;
+#endif
+            }
+            return true;
+        case kBGRA_8888_SkColorType:
+            if (isCMYK) {
+                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
+            } else {
+#ifdef LIBJPEG_TURBO_VERSION
             fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
-    #endif
 #else
             fDecoderMgr->dinfo()->out_color_space = JCS_RGB;
 #endif

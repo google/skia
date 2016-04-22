@@ -60,7 +60,7 @@ private:
     const int                       fNumberPasses;
     int                             fBitDepth;
 
-    bool decodePalette(bool premultiply, int* ctableCount);
+    bool createColorTable(SkColorType dstColorType, bool premultiply, int* ctableCount);
     void destroyReadStruct();
 
     typedef SkCodec INHERITED;

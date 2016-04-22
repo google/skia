@@ -70,7 +70,7 @@ private:
      * Creates the color table
      * Sets colorCount to the new color count if it is non-nullptr
      */
-    bool createColorTable(SkAlphaType alphaType, int* colorCount);
+    bool createColorTable(SkColorType colorType, SkAlphaType alphaType, int* colorCount);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
 

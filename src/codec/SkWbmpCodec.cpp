@@ -32,7 +32,8 @@ static inline void setup_color_table(SkColorType colorType,
 
 static inline bool valid_color_type(SkColorType colorType, SkAlphaType alphaType) {
     switch (colorType) {
-        case kN32_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
         case kIndex_8_SkColorType:
             return true;
         case kGray_8_SkColorType:

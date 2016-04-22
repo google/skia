@@ -58,7 +58,7 @@ private:
      * Creates the color table
      * Sets colorCount to the new color count if it is non-nullptr
      */
-    bool createColorTable(int* colorCount);
+    bool createColorTable(SkColorType dstColorType, int* colorCount);
 
     bool initializeStreamBuffer();
 

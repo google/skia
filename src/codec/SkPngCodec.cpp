@@ -86,14 +86,10 @@ private:
 };
 #define AutoCleanPng(...) SK_REQUIRE_LOCAL_VAR(AutoCleanPng)
 
-// Method for coverting to either an SkPMColor or a similarly packed
-// unpremultiplied color.
-typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
-
 // Note: SkColorTable claims to store SkPMColors, which is not necessarily
 // the case here.
 // TODO: If we add support for non-native swizzles, we'll need to handle that here.
-bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
+bool SkPngCodec::createColorTable(SkColorType dstColorType, bool premultiply, int* ctableCount) {
 
     int numColors;
     png_color* palette;
@@ -109,12 +105,7 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
     if (png_get_tRNS(fPng_ptr, fInfo_ptr, &alphas, &numColorsWithAlpha, nullptr)) {
         // Choose which function to use to create the color table. If the final destination's
         // colortype is unpremultiplied, the color table will store unpremultiplied colors.
-        PackColorProc proc;
-        if (premultiply) {
-            proc = &SkPremultiplyARGBInline;
-        } else {
-            proc = &SkPackARGB32NoCheck;
-        }
+        PackColorProc proc = choose_pack_color_proc(premultiply, dstColorType);
 
         for (int i = 0; i < numColorsWithAlpha; i++) {
             // We don't have a function in SkOpts that combines a set of alphas with a set
@@ -134,11 +125,13 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
         SkASSERT(&palette->green < &palette->blue);
 #endif
 
-#ifdef SK_PMCOLOR_IS_RGBA
-        SkOpts::RGB_to_RGB1(colorPtr + numColorsWithAlpha, palette, numColors - numColorsWithAlpha);
-#else
-        SkOpts::RGB_to_BGR1(colorPtr + numColorsWithAlpha, palette, numColors - numColorsWithAlpha);
-#endif
+        if (is_rgba(dstColorType)) {
+            SkOpts::RGB_to_RGB1(colorPtr + numColorsWithAlpha, palette,
+                    numColors - numColorsWithAlpha);
+        } else {
+            SkOpts::RGB_to_BGR1(colorPtr + numColorsWithAlpha, palette,
+                    numColors - numColorsWithAlpha);
+        }
     }
 
     // Pad the color table with the last color in the table (or black) in the case that
@@ -474,7 +467,8 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
     if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
-        if (!this->decodePalette(kPremul_SkAlphaType == requestedInfo.alphaType(), ctableCount)) {
+        if (!this->createColorTable(requestedInfo.colorType(),
+                kPremul_SkAlphaType == requestedInfo.alphaType(), ctableCount)) {
             return kInvalidInput;
         }
     }

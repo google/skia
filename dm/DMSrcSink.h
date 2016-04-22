@@ -117,6 +117,7 @@ public:
         kGetFromCanvas_DstColorType,
         kIndex8_Always_DstColorType,
         kGrayscale_Always_DstColorType,
+        kNonNative8888_Always_DstColorType,
     };
     CodecSrc(Path, Mode, DstColorType, SkAlphaType, float);
 

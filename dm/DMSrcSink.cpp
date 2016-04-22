@@ -110,6 +110,9 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         case CodecSrc::kGrayscale_Always_DstColorType:
             colorType = kGray_8_SkColorType;
             break;
+        default:
+            SkASSERT(false);
+            break;
     }
 
     SkAutoTDelete<SkBitmapRegionDecoder> brd(create_brd(fPath, fStrategy));
@@ -271,6 +274,18 @@ bool CodecSrc::veto(SinkFlags flags) const {
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
+// Allows us to test decodes to non-native 8888.
+void swap_rb_if_necessary(SkBitmap& bitmap, CodecSrc::DstColorType dstColorType) {
+    if (CodecSrc::kNonNative8888_Always_DstColorType != dstColorType) {
+        return;
+    }
+
+    for (int y = 0; y < bitmap.height(); y++) {
+        uint32_t* row = (uint32_t*) bitmap.getAddr(0, y);
+        SkOpts::RGBA_to_BGRA(row, row, bitmap.width());
+    }
+}
+
 // FIXME: Currently we cannot draw unpremultiplied sources. skbug.com/3338 and skbug.com/3339.
 // This allows us to still test unpremultiplied decodes.
 void premultiply_if_necessary(SkBitmap& bitmap) {
@@ -316,6 +331,16 @@ bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
                 return false;
             }
             *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
+            break;
+        case CodecSrc::kNonNative8888_Always_DstColorType:
+            if (kRGB_565_SkColorType == canvasColorType) {
+                return false;
+            }
+#ifdef SK_PMCOLOR_IS_RGBA
+            *decodeInfo = decodeInfo->makeColorType(kBGRA_8888_SkColorType);
+#else
+            *decodeInfo = decodeInfo->makeColorType(kRGBA_8888_SkColorType);
+#endif
             break;
         default:
             if (kRGB_565_SkColorType == canvasColorType &&
@@ -378,7 +403,13 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         factory = &zeroFactory;
         options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
     }
-    if (!bitmap.tryAllocPixels(decodeInfo, factory, colorTable.get())) {
+
+    SkImageInfo bitmapInfo = decodeInfo;
+    if (kRGBA_8888_SkColorType == decodeInfo.colorType() ||
+            kBGRA_8888_SkColorType == decodeInfo.colorType()) {
+        bitmapInfo = bitmapInfo.makeColorType(kN32_SkColorType);
+    }
+    if (!bitmap.tryAllocPixels(bitmapInfo, factory, colorTable.get())) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
@@ -398,6 +429,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
             premultiply_if_necessary(bitmap);
+            swap_rb_if_necessary(bitmap, fDstColorType);
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
@@ -432,6 +464,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             premultiply_if_necessary(bitmap);
+            swap_rb_if_necessary(bitmap, fDstColorType);
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
@@ -487,6 +520,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 }
             }
             premultiply_if_necessary(bitmap);
+            swap_rb_if_necessary(bitmap, fDstColorType);
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
@@ -512,6 +546,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             premultiply_if_necessary(bitmap);
+            swap_rb_if_necessary(bitmap, fDstColorType);
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
@@ -571,6 +606,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                                   fPath.c_str(), W, H, result);
                     }
                     premultiply_if_necessary(subsetBm);
+                    swap_rb_if_necessary(bitmap, fDstColorType);
                     canvas->drawBitmap(subsetBm, SkIntToScalar(left), SkIntToScalar(top));
                     // translate by the scaled height.
                     top += decodeInfo.height();
@@ -659,7 +695,12 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     }
 
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
+    SkImageInfo bitmapInfo = decodeInfo;
+    if (kRGBA_8888_SkColorType == decodeInfo.colorType() ||
+            kBGRA_8888_SkColorType == decodeInfo.colorType()) {
+        bitmapInfo = bitmapInfo.makeColorType(kN32_SkColorType);
+    }
+    if (!bitmap.tryAllocPixels(bitmapInfo, nullptr, colorTable.get())) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
@@ -681,6 +722,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
             premultiply_if_necessary(bitmap);
+            swap_rb_if_necessary(bitmap, fDstColorType);
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
         }
@@ -739,6 +781,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
             SkRect rect = SkRect::MakeXYWH(0, 0, (SkScalar) finalScaledWidth,
                     (SkScalar) finalScaledHeight);
             premultiply_if_necessary(bitmap);
+            swap_rb_if_necessary(bitmap, fDstColorType);
             canvas->drawBitmapRect(bitmap, rect, rect, nullptr);
             return "";
         }

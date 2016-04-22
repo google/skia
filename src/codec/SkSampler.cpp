@@ -21,7 +21,8 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
 
     // Use the proper memset routine to fill the remaining bytes
     switch (info.colorType()) {
-        case kN32_SkColorType: {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: {
             // If memory is zero initialized, we may not need to fill
             uint32_t color = colorOrIndex;
             if (SkCodec::kYes_ZeroInitialized == zeroInit && 0 == color) {

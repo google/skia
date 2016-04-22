@@ -410,8 +410,9 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* inp
         // giflib guarantees these properties
         SkASSERT(colorCount == (unsigned) (1 << (colorMap->BitsPerPixel)));
         SkASSERT(colorCount <= 256);
+        PackColorProc proc = choose_pack_color_proc(false, dstInfo.colorType());
         for (uint32_t i = 0; i < colorCount; i++) {
-            colorPtr[i] = SkPackARGB32(0xFF, colorMap->Colors[i].Red,
+            colorPtr[i] = proc(0xFF, colorMap->Colors[i].Red,
                     colorMap->Colors[i].Green, colorMap->Colors[i].Blue);
         }
     }

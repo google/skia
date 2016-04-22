@@ -128,7 +128,8 @@ inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
 
     // Check for supported color types
     switch (dst.colorType()) {
-        case kN32_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             return true;
         case kRGB_565_SkColorType:
             return kOpaque_SkAlphaType == dst.alphaType();
@@ -156,7 +157,8 @@ inline uint32_t get_color_table_fill_value(SkColorType colorType, const SkPMColo
         uint8_t fillIndex) {
     SkASSERT(nullptr != colorPtr);
     switch (colorType) {
-        case kN32_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             return colorPtr[fillIndex];
         case kRGB_565_SkColorType:
             return SkPixel32ToPixel16(colorPtr[fillIndex]);
@@ -269,6 +271,54 @@ inline uint16_t get_endian_short(const uint8_t* data, bool littleEndian) {
     }
 
     return (data[0] << 8) | (data[1]);
+}
+
+inline SkPMColor premultiply_argb_as_rgba(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    if (a != 255) {
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
+    }
+
+    return SkPackARGB_as_RGBA(a, r, g, b);
+}
+
+inline SkPMColor premultiply_argb_as_bgra(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    if (a != 255) {
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
+    }
+
+    return SkPackARGB_as_BGRA(a, r, g, b);
+}
+
+inline bool is_rgba(SkColorType colorType) {
+#ifdef SK_PMCOLOR_IS_RGBA
+    return (kBGRA_8888_SkColorType != colorType);
+#else
+    return (kRGBA_8888_SkColorType == colorType);
+#endif
+}
+
+// Method for coverting to a 32 bit pixel.
+typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+
+inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType colorType) {
+    bool isRGBA = is_rgba(colorType);
+    if (isPremul) {
+        if (isRGBA) {
+            return &premultiply_argb_as_rgba;
+        } else {
+            return &premultiply_argb_as_bgra;
+        }
+    } else {
+        if (isRGBA) {
+            return &SkPackARGB_as_RGBA;
+        } else {
+            return &SkPackARGB_as_BGRA;
+        }
+    }
 }
 
 #endif // SkCodecPriv_DEFINED

@@ -68,7 +68,8 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 /*
  * Process the color table for the bmp input
  */
- bool SkBmpStandardCodec::createColorTable(SkAlphaType dstAlphaType, int* numColors) {
+ bool SkBmpStandardCodec::createColorTable(SkColorType dstColorType, SkAlphaType dstAlphaType,
+         int* numColors) {
     // Allocate memory for color table
     uint32_t colorBytes = 0;
     SkPMColor colorTable[256];
@@ -94,12 +95,8 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         // Choose the proper packing function
-        SkPMColor (*packARGB) (uint32_t, uint32_t, uint32_t, uint32_t);
-        if (fIsOpaque || kUnpremul_SkAlphaType == dstAlphaType) {
-            packARGB = &SkPackARGB32NoCheck;
-        } else {
-            packARGB = &SkPremultiplyARGBInline;
-        }
+        bool isPremul = (kPremul_SkAlphaType == dstAlphaType) && !fIsOpaque;
+        PackColorProc packARGB = choose_pack_color_proc(isPremul, dstColorType);
 
         // Fill in the color table
         uint32_t i = 0;
@@ -174,7 +171,7 @@ SkCodec::Result SkBmpStandardCodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
     // Create the color table if necessary and prepare the stream for decode
     // Note that if it is non-NULL, inputColorCount will be modified
-    if (!this->createColorTable(dstInfo.alphaType(), inputColorCount)) {
+    if (!this->createColorTable(dstInfo.colorType(), dstInfo.alphaType(), inputColorCount)) {
         SkCodecPrintf("Error: could not create color table.\n");
         return SkCodec::kInvalidInput;
     }
@@ -263,7 +260,8 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
     // BMP in ICO have transparency, so this cannot be 565, and this mask
     // prevents us from using kIndex8. The below code depends on the output
     // being an SkPMColor.
-    SkASSERT(dstInfo.colorType() == kN32_SkColorType);
+    SkASSERT(kRGBA_8888_SkColorType == dstInfo.colorType() ||
+            kBGRA_8888_SkColorType == dstInfo.colorType());
 
     // If we are sampling, make sure that we only mask the sampled pixels.
     // We do not need to worry about sampling in the y-dimension because that

@@ -365,6 +365,9 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kIndex8_Always_DstColorType:
             folder.append("_kIndex8");
             break;
+        case CodecSrc::kNonNative8888_Always_DstColorType:
+            folder.append("_kNonNative");
+            break;
         default:
             break;
     }
@@ -409,6 +412,9 @@ static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
             break;
         case CodecSrc::kIndex8_Always_DstColorType:
             folder.append("_kIndex8");
+            break;
+        case CodecSrc::kNonNative8888_Always_DstColorType:
+            folder.append("_kNonNative");
             break;
         default:
             break;
@@ -508,6 +514,7 @@ static void push_codec_srcs(Path path) {
 
     SkTArray<CodecSrc::DstColorType> colorTypes;
     colorTypes.push_back(CodecSrc::kGetFromCanvas_DstColorType);
+    colorTypes.push_back(CodecSrc::kNonNative8888_Always_DstColorType);
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
             colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
