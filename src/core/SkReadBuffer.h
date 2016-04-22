@@ -39,6 +39,10 @@ public:
     SkReadBuffer(SkStream* stream);
     virtual ~SkReadBuffer();
 
+    virtual SkReadBuffer* clone(const void* data, size_t size) const {
+        return new SkReadBuffer(data, size);
+    }
+
     enum Version {
         /*
         kFilterLevelIsEnum_Version         = 23,

@@ -129,13 +129,15 @@ bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo
     return false;
 }
 
-sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info, const SkPictureData* data) {
+sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
+                                        const SkPictureData* data,
+                                        const SkReadBuffer* buffer) {
     if (!data) {
         return nullptr;
     }
     SkPicturePlayback playback(data);
     SkPictureRecorder r;
-    playback.draw(r.beginRecording(info.fCullRect), nullptr/*no callback*/);
+    playback.draw(r.beginRecording(info.fCullRect), nullptr/*no callback*/, buffer);
     return r.finishRecordingAsPicture();
 }
 
@@ -161,7 +163,7 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, InstallPixelRefProc
     }
     SkAutoTDelete<SkPictureData> data(
             SkPictureData::CreateFromStream(stream, info, proc, typefaces));
-    return Forwardport(info, data);
+    return Forwardport(info, data, nullptr);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromBuffer(SkReadBuffer& buffer) {
@@ -170,7 +172,7 @@ sk_sp<SkPicture> SkPicture::MakeFromBuffer(SkReadBuffer& buffer) {
         return nullptr;
     }
     SkAutoTDelete<SkPictureData> data(SkPictureData::CreateFromBuffer(buffer, info));
-    return Forwardport(info, data);
+    return Forwardport(info, data, &buffer);
 }
 
 SkPictureData* SkPicture::backport() const {

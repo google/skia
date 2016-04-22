@@ -85,27 +85,36 @@ static SkBitmap shallow_copy(const SkBitmap& bitmap) {
     return bitmap;
 }
 
-void SkPicturePlayback::draw(SkCanvas* canvas, SkPicture::AbortCallback* callback) {
+void SkPicturePlayback::draw(SkCanvas* canvas,
+                             SkPicture::AbortCallback* callback,
+                             const SkReadBuffer* buffer) {
     AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
-    SkReadBuffer reader(fPictureData->opData()->bytes(), fPictureData->opData()->size());
+    SkAutoTDelete<SkReadBuffer> reader;
+    if (buffer) {
+        reader.reset(buffer->clone(fPictureData->opData()->bytes(),
+                                   fPictureData->opData()->size()));
+    } else {
+        reader.reset(new SkReadBuffer(fPictureData->opData()->bytes(),
+                                      fPictureData->opData()->size()));
+    }
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkMatrix initialMatrix = canvas->getTotalMatrix();
 
     SkAutoCanvasRestore acr(canvas, false);
 
-    while (!reader.eof()) {
+    while (!reader->eof()) {
         if (callback && callback->abort()) {
             return;
         }
 
-        fCurOffset = reader.offset();
+        fCurOffset = reader->offset();
         uint32_t size;
-        DrawType op = ReadOpAndSize(&reader, &size);
+        DrawType op = ReadOpAndSize(reader, &size);
 
-        this->handleOp(&reader, op, size, canvas, initialMatrix);
+        this->handleOp(reader, op, size, canvas, initialMatrix);
     }
 }
 

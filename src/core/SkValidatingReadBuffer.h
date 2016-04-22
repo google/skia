@@ -21,7 +21,11 @@ class SkBitmap;
 class SkValidatingReadBuffer : public SkReadBuffer {
 public:
     SkValidatingReadBuffer(const void* data, size_t size);
-    virtual ~SkValidatingReadBuffer();
+    ~SkValidatingReadBuffer() override;
+
+    SkReadBuffer* clone(const void* data, size_t size) const override {
+        return new SkValidatingReadBuffer(data, size);
+    }
 
     const void* skip(size_t size) override;
 

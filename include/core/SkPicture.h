@@ -222,7 +222,9 @@ private:
                   "Remove SkBitmapSourceDeserializer.");
     
     static bool IsValidPictInfo(const SkPictInfo& info);
-    static sk_sp<SkPicture> Forwardport(const SkPictInfo&, const SkPictureData*);
+    static sk_sp<SkPicture> Forwardport(const SkPictInfo&,
+                                        const SkPictureData*,
+                                        const SkReadBuffer* buffer);
 
     SkPictInfo createHeader() const;
     SkPictureData* backport() const;
