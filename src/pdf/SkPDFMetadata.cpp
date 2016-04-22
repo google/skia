@@ -5,14 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkMD5.h"
 #include "SkMilestone.h"
 #include "SkPDFMetadata.h"
 #include "SkPDFTypes.h"
 #include <utility>
-
-#ifdef SK_PDF_GENERATE_PDFA
-#include "SkMD5.h"
-#endif
 
 static SkString pdf_date(const SkTime::DateTime& dt) {
     int timeZoneMinutes = SkToInt(dt.fTimeZoneMinutes);
@@ -52,7 +49,6 @@ SkPDFObject* SkPDFMetadata::createDocumentInformationDict() const {
     return dict.release();
 }
 
-#ifdef SK_PDF_GENERATE_PDFA
 SkPDFMetadata::UUID SkPDFMetadata::uuid() const {
     // The main requirement is for the UUID to be unique; the exact
     // format of the data that will be hashed is not important.
@@ -349,8 +345,6 @@ SkPDFObject* SkPDFMetadata::createXMPObject(const UUID& doc,
             subject.c_str(), author.c_str(), keywords1.c_str(),
             documentID.c_str(), instanceID.c_str(), keywords2.c_str()));
 }
-
-#endif  // SK_PDF_GENERATE_PDFA
 
 #undef SKPDF_STRING
 #undef SKPDF_STRING_IMPL

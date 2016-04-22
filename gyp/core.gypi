@@ -166,6 +166,8 @@
         '<(skia_src_path)/core/SkLocalMatrixImageFilter.cpp',
         '<(skia_src_path)/core/SkLocalMatrixImageFilter.h',
         '<(skia_src_path)/core/SkLocalMatrixShader.cpp',
+        '<(skia_src_path)/core/SkMD5.cpp',
+        '<(skia_src_path)/core/SkMD5.h',
         '<(skia_src_path)/core/SkMallocPixelRef.cpp',
         '<(skia_src_path)/core/SkMask.cpp',
         '<(skia_src_path)/core/SkMaskCache.cpp',

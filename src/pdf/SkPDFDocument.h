@@ -18,7 +18,8 @@ sk_sp<SkDocument> SkPDFMakeDocument(
         SkWStream* stream,
         void (*doneProc)(SkWStream*, bool),
         SkScalar rasterDpi,
-        SkPixelSerializer* jpegEncoder);
+        SkPixelSerializer* jpegEncoder,
+        bool pdfa);
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
@@ -47,7 +48,8 @@ public:
     SkPDFDocument(SkWStream*,
                   void (*)(SkWStream*, bool),
                   SkScalar,
-                  SkPixelSerializer*);
+                  SkPixelSerializer*,
+                  bool);
     virtual ~SkPDFDocument();
     SkCanvas* onBeginPage(SkScalar, SkScalar, const SkRect&) override;
     void onEndPage() override;
@@ -79,12 +81,11 @@ private:
     sk_sp<SkPDFDict> fDests;
     sk_sp<SkPDFDevice> fPageDevice;
     sk_sp<SkCanvas> fCanvas;
-    #ifdef SK_PDF_GENERATE_PDFA
     sk_sp<SkPDFObject> fID;
     sk_sp<SkPDFObject> fXMP;
-    #endif
     SkScalar fRasterDpi;
     SkPDFMetadata fMetadata;
+    bool fPDFA;
 };
 
 #endif  // SkPDFDocument_DEFINED
