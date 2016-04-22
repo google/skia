@@ -106,6 +106,11 @@ int32_t SkReadBuffer::read32() {
     return fReader.readInt();
 }
 
+uint8_t SkReadBuffer::peekByte() {
+    SkASSERT(fReader.available() > 0);
+    return *((uint8_t*) fReader.peek());
+}
+
 void SkReadBuffer::readString(SkString* string) {
     size_t len;
     const char* strContents = fReader.readString(&len);
@@ -348,9 +353,32 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         }
         factory = fFactoryArray[index];
     } else {
-        factory = (SkFlattenable::Factory)readFunctionPtr();
-        if (nullptr == factory) {
-            return nullptr; // writer failed to give us the flattenable
+        SkString name;
+        if (this->peekByte()) {
+            // If the first byte is non-zero, the flattenable is specified by a string.
+            this->readString(&name);
+
+            // Add the string to the dictionary.
+            fFlattenableDict.set(fFlattenableDict.count() + 1, name);
+        } else {
+            // Read the index.  We are guaranteed that the first byte
+            // is zeroed, so we must shift down a byte.
+            uint32_t index = fReader.readU32() >> 8;
+            if (0 == index) {
+                return nullptr; // writer failed to give us the flattenable
+            }
+
+            SkString* namePtr = fFlattenableDict.find(index);
+            SkASSERT(namePtr);
+            name = *namePtr;
+        }
+
+        // Check if a custom Factory has been specified for this flattenable.
+        if (!(factory = this->getCustomFactory(name))) {
+            // If there is no custom Factory, check for a default.
+            if (!(factory = SkFlattenable::NameToFactory(name.c_str()))) {
+                return nullptr; // writer failed to give us the flattenable
+            }
         }
     }
 

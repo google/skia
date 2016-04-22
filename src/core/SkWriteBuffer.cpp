@@ -258,47 +258,53 @@ void SkWriteBuffer::setPixelSerializer(SkPixelSerializer* serializer) {
 
 void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     /*
-     *  If we have a factoryset, then the first 32bits tell us...
+     *  The first 32 bits tell us...
      *       0: failure to write the flattenable
-     *      >0: (1-based) index into the SkFactorySet or SkNamedFactorySet
-     *  If we don't have a factoryset, then the first "ptr" is either the
-     *  factory, or null for failure.
-     *
-     *  The distinction is important, since 0-index is 32bits (always), but a
-     *  0-functionptr might be 32 or 64 bits.
+     *      >0: index (1-based) into fFactorySet or fFlattenableDict or
+     *          the first character of a string
      */
     if (nullptr == flattenable) {
-        if (this->isValidating()) {
-            this->writeString("");
-        } else if (fFactorySet != nullptr) {
-            this->write32(0);
-        } else {
-            this->writeFunctionPtr(nullptr);
-        }
+        this->write32(0);
         return;
     }
 
-    SkFlattenable::Factory factory = flattenable->getFactory();
-    SkASSERT(factory != nullptr);
-
     /*
-     *  We can write 1 of 3 versions of the flattenable:
-     *  1.  function-ptr : this is the fastest for the reader, but assumes that
-     *      the writer and reader are in the same process.
-     *  2.  index into fFactorySet : This is assumes the writer will later
+     *  We can write 1 of 2 versions of the flattenable:
+     *  1.  index into fFactorySet : This assumes the writer will later
      *      resolve the function-ptrs into strings for its reader. SkPicture
      *      does exactly this, by writing a table of names (matching the indices)
      *      up front in its serialized form.
-     *  3.  index into fNamedFactorySet. fNamedFactorySet will also store the
-     *      name. SkGPipe uses this technique so it can write the name to its
-     *      stream before writing the flattenable.
+     *  2.  string name of the flattenable or index into fFlattenableDict:  We
+     *      store the string to allow the reader to specify its own factories
+     *      after write time.  In order to improve compression, if we have
+     *      already written the string, we write its index instead.
      */
-    if (this->isValidating()) {
-        this->writeString(flattenable->getTypeName());
-    } else if (fFactorySet) {
+    if (fFactorySet) {
+        SkFlattenable::Factory factory = flattenable->getFactory();
+        SkASSERT(factory);
         this->write32(fFactorySet->add(factory));
     } else {
-        this->writeFunctionPtr((void*)factory);
+        const char* name = flattenable->getTypeName();
+        SkASSERT(name);
+        SkString key(name);
+        if (uint32_t* indexPtr = fFlattenableDict.find(key)) {
+            // We will write the index as a 32-bit int.  We want the first byte
+            // that we send to be zero - this will act as a sentinel that we
+            // have an index (not a string).  This means that we will send the
+            // the index shifted left by 8.  The remaining 24-bits should be
+            // plenty to store the index.  Note that this strategy depends on
+            // being little endian.
+            SkASSERT(0 == *indexPtr >> 24);
+            this->write32(*indexPtr << 8);
+        } else {
+            // Otherwise write the string.  Clients should not use the empty
+            // string as a name, or we will have a problem.
+            SkASSERT(strcmp("", name));
+            this->writeString(name);
+
+            // Add key to dictionary.
+            fFlattenableDict.set(key, fFlattenableDict.count() + 1);
+        }
     }
 
     // make room for the size of the flattened object

@@ -86,6 +86,14 @@ int32_t SkValidatingReadBuffer::read32() {
     return this->readInt();
 }
 
+uint8_t SkValidatingReadBuffer::peekByte() {
+    if (fReader.available() <= 0) {
+        fError = true;
+        return 0;
+    }
+    return *((uint8_t*) fReader.peek());
+}
+
 void SkValidatingReadBuffer::readString(SkString* string) {
     const size_t len = this->readUInt();
     const void* ptr = fReader.peek();
@@ -226,10 +234,35 @@ bool SkValidatingReadBuffer::validateAvailable(size_t size) {
 }
 
 SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type) {
-    SkString name;
-    this->readString(&name);
+    // The validating read buffer always uses strings and string-indices for unflattening.
+    SkASSERT(0 == this->factoryCount());
+
+    uint8_t firstByte = this->peekByte();
     if (fError) {
         return nullptr;
+    }
+
+    SkString name;
+    if (firstByte) {
+        // If the first byte is non-zero, the flattenable is specified by a string.
+        this->readString(&name);
+        if (fError) {
+            return nullptr;
+        }
+
+        // Add the string to the dictionary.
+        fFlattenableDict.set(fFlattenableDict.count() + 1, name);
+    } else {
+        // Read the index.  We are guaranteed that the first byte
+        // is zeroed, so we must shift down a byte.
+        uint32_t index = fReader.readU32() >> 8;
+        if (0 == index) {
+            return nullptr; // writer failed to give us the flattenable
+        }
+
+        SkString* namePtr = fFlattenableDict.find(index);
+        SkASSERT(namePtr);
+        name = *namePtr;
     }
 
     // Is this the type we wanted ?
@@ -239,28 +272,25 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
         return nullptr;
     }
 
-    SkFlattenable::Factory factory = SkFlattenable::NameToFactory(cname);
-    if (nullptr == factory) {
-        return nullptr; // writer failed to give us the flattenable
+    // Get the factory for this flattenable.
+    SkFlattenable::Factory factory = this->getCustomFactory(name);
+    if (!factory) {
+        factory = SkFlattenable::NameToFactory(cname);
+        if (!factory) {
+            return nullptr; // writer failed to give us the flattenable
+        }
     }
 
-    // if we get here, factory may still be null, but if that is the case, the
-    // failure was ours, not the writer.
+    // If we get here, the factory is non-null.
     sk_sp<SkFlattenable> obj;
     uint32_t sizeRecorded = this->readUInt();
-    if (factory) {
-        size_t offset = fReader.offset();
-        obj = (*factory)(*this);
-        // check that we read the amount we expected
-        size_t sizeRead = fReader.offset() - offset;
-        this->validate(sizeRecorded == sizeRead);
-        if (fError) {
-            obj = nullptr;
-        }
-    } else {
-        // we must skip the remaining data
-        this->skip(sizeRecorded);
-        SkASSERT(false);
+    size_t offset = fReader.offset();
+    obj = (*factory)(*this);
+    // check that we read the amount we expected
+    size_t sizeRead = fReader.offset() - offset;
+    this->validate(sizeRecorded == sizeRead);
+    if (fError) {
+        obj = nullptr;
     }
     return obj.release();
 }

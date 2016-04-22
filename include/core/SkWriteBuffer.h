@@ -16,6 +16,7 @@
 #include "SkPixelSerializer.h"
 #include "SkRefCnt.h"
 #include "SkWriter32.h"
+#include "../private/SkTHash.h"
 
 class SkBitmap;
 class SkBitmapHeap;
@@ -27,7 +28,6 @@ class SkWriteBuffer {
 public:
     enum Flags {
         kCrossProcess_Flag  = 1 << 0,
-        kValidation_Flag    = 1 << 1,
     };
 
     SkWriteBuffer(uint32_t flags = 0);
@@ -35,7 +35,7 @@ public:
     ~SkWriteBuffer();
 
     bool isCrossProcess() const {
-        return this->isValidating() || SkToBool(fFlags & kCrossProcess_Flag);
+        return SkToBool(fFlags & kCrossProcess_Flag);
     }
 
     SkWriter32* getWriter32() { return &fWriter; }
@@ -108,8 +108,6 @@ public:
     SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer; }
 
 private:
-    bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }
-
     const uint32_t fFlags;
     SkFactorySet* fFactorySet;
     SkWriter32 fWriter;
@@ -118,6 +116,9 @@ private:
     SkRefCntSet* fTFSet;
 
     SkAutoTUnref<SkPixelSerializer> fPixelSerializer;
+
+    // Only used if we do not have an fFactorySet
+    SkTHashMap<SkString, uint32_t> fFlattenableDict;
 };
 
 #endif // SkWriteBuffer_DEFINED

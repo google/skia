@@ -92,9 +92,15 @@ public:
      */
     virtual Factory getFactory() const = 0;
 
-    /** Returns the name of the object's class
-      */
-    const char* getTypeName() const { return FactoryToName(getFactory()); }
+    /**
+     *  Returns the name of the object's class.
+     *
+     *  Subclasses should override this function if they intend to provide
+     *  support for flattening without using the global registry.
+     *
+     *  If the flattenable is registered, there is no need to override.
+     */
+    virtual const char* getTypeName() const { return FactoryToName(getFactory()); }
 
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);

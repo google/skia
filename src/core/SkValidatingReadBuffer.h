@@ -37,6 +37,9 @@ public:
     uint32_t readUInt() override;
     int32_t read32() override;
 
+    // peek
+    uint8_t peekByte() override;
+
     // strings -- the caller is responsible for freeing the string contents
     void readString(SkString* string) override;
     void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) override;

@@ -22,6 +22,7 @@
 #include "SkReader32.h"
 #include "SkRefCnt.h"
 #include "SkShader.h"
+#include "SkTHash.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermode.h"
 
@@ -116,6 +117,9 @@ public:
     virtual uint32_t readUInt();
     virtual int32_t read32();
 
+    // peek
+    virtual uint8_t peekByte();
+
     // strings -- the caller is responsible for freeing the string contents
     virtual void readString(SkString* string);
     virtual void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding);
@@ -200,6 +204,20 @@ public:
     }
 
     /**
+     *  For an input flattenable (specified by name), set a custom factory proc
+     *  to use when unflattening.  Will make a copy of |name|.
+     *
+     *  If the global registry already has a default factory for the flattenable,
+     *  this will override that factory.  If a custom factory has already been
+     *  set for the flattenable, this will override that factory.
+     *
+     *  Custom factories can be removed by calling setCustomFactory("...", nullptr).
+     */
+    void setCustomFactory(const SkString& name, SkFlattenable::Factory factory) {
+        fCustomFactory.set(name, factory);
+    }
+
+    /**
      *  Provide a function to decode an SkBitmap from encoded data. Only used if the writer
      *  encoded the SkBitmap. If the proper decoder cannot be used, a red bitmap with the
      *  appropriate size will be used.
@@ -217,7 +235,26 @@ public:
     }
 
 protected:
+    /**
+     *  Allows subclass to check if we are using factories for expansion
+     *  of flattenables.
+     */
+    int factoryCount() { return fFactoryCount; }
+
+
+    /**
+     *  Checks if a custom factory has been set for a given flattenable.
+     *  Returns the custom factory if it exists, or nullptr otherwise.
+     */
+    SkFlattenable::Factory getCustomFactory(const SkString& name) {
+        SkFlattenable::Factory* factoryPtr = fCustomFactory.find(name);
+        return factoryPtr ? *factoryPtr : nullptr;
+    }
+
     SkReader32 fReader;
+
+    // Only used if we do not have an fFactoryArray.
+    SkTHashMap<uint32_t, SkString> fFlattenableDict;
 
 private:
     bool readArray(void* value, size_t size, size_t elementSize);
@@ -233,6 +270,9 @@ private:
 
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
+
+    // Only used if we do not have an fFactoryArray.
+    SkTHashMap<SkString, SkFlattenable::Factory> fCustomFactory;
 
     SkPicture::InstallPixelRefProc fBitmapDecoder;
 

@@ -88,9 +88,7 @@ DEF_TEST(BitmapHeap, reporter) {
     index = dictionary.find(*bitmapShader);
     heap.endAddingOwnersDeferral(false);
 
-    // The dictionary should report the same index since the new entry is identical.
     // The bitmap heap should contain the bitmap, but with no references.
-    REPORTER_ASSERT(reporter, 1 == index);
     REPORTER_ASSERT(reporter, heap.count() == 1);
     REPORTER_ASSERT(reporter, SkBitmapHeapTester::GetRefCount(heap.getEntry(0)) == 0);
 }
