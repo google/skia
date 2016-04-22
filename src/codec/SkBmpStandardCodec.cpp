@@ -153,40 +153,20 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
-    // Get swizzler configuration
-    SkSwizzler::SrcConfig config = SkSwizzler::kUnknown;
-    switch (this->bitsPerPixel()) {
-        case 1:
-            config = SkSwizzler::kIndex1;
-            break;
-        case 2:
-            config = SkSwizzler::kIndex2;
-            break;
-        case 4:
-            config = SkSwizzler::kIndex4;
-            break;
-        case 8:
-            config = SkSwizzler::kIndex;
-            break;
-        case 24:
-            config = SkSwizzler::kBGR;
-            break;
-        case 32:
-            if (fIsOpaque) {
-                config = SkSwizzler::kBGRX;
-            } else {
-                config = SkSwizzler::kBGRA;
-            }
-            break;
-        default:
-            SkASSERT(false);
+    // In the case of paletted ico-in-bmps, we will report BGRA to the client,
+    // since we may be required to apply an alpha mask after the decode.  But
+    // the swizzler needs to know the actual format of the bmp.
+    SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
+    if (fInIco && this->bitsPerPixel() <= 8) {
+        swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color, swizzlerInfo.alpha(),
+                this->bitsPerPixel());
     }
 
     // Get a pointer to the color table if it exists
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
 
     // Create swizzler
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(config, colorPtr, dstInfo, opts));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, colorPtr, dstInfo, opts));
     SkASSERT(fSwizzler);
 }
 

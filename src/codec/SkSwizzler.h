@@ -16,78 +16,8 @@
 class SkSwizzler : public SkSampler {
 public:
     /**
-     *  Enum describing the config of the source data.
-     */
-    enum SrcConfig {
-        kUnknown,  // Invalid type.
-        kBit,      // A single bit to distinguish between white and black.
-        kGray,
-        kGrayAlpha,
-        kIndex1,
-        kIndex2,
-        kIndex4,
-        kIndex,
-        kRGB,
-        kBGR,
-        kBGRX,     // The alpha channel can be anything, but the image is opaque.
-        kRGBA,
-        kBGRA,
-        kCMYK,
-        kNoOp8,    // kNoOp modes are used exclusively for sampling, subsetting, and
-        kNoOp16,   // copying.  The pixels themselves do not need to be modified.
-        kNoOp32,
-    };
-
-    /*
-     *
-     * Returns bits per pixel for source config
-     *
-     */
-    static int BitsPerPixel(SrcConfig sc) {
-        switch (sc) {
-            case kBit:
-            case kIndex1:
-                return 1;
-            case kIndex2:
-                return 2;
-            case kIndex4:
-                return 4;
-            case kGray:
-            case kIndex:
-            case kNoOp8:
-                return 8;
-            case kGrayAlpha:
-            case kNoOp16:
-                return 16;
-            case kRGB:
-            case kBGR:
-                return 24;
-            case kRGBA:
-            case kBGRX:
-            case kBGRA:
-            case kCMYK:
-            case kNoOp32:
-                return 32;
-            default:
-                SkASSERT(false);
-                return 0;
-        }
-    }
-
-    /*
-     *
-     * Returns bytes per pixel for source config
-     * Raises an error if each pixel is not stored in an even number of bytes
-     *
-     */
-    static int BytesPerPixel(SrcConfig sc) {
-        SkASSERT(SkIsAlign8(BitsPerPixel(sc)));
-        return BitsPerPixel(sc) >> 3;
-    }
-
-    /**
      *  Create a new SkSwizzler.
-     *  @param SrcConfig Description of the format of the source.
+     *  @param encodedInfo Description of the format of the encoded data.
      *  @param ctable Unowned pointer to an array of up to 256 colors for an
      *                index source.
      *  @param dstInfo Describes the destination.
@@ -104,7 +34,7 @@ public:
      *
      *  @return A new SkSwizzler or nullptr on failure.
      */
-    static SkSwizzler* CreateSwizzler(SrcConfig, const SkPMColor* ctable,
+    static SkSwizzler* CreateSwizzler(const SkEncodedInfo& encodedInfo, const SkPMColor* ctable,
                                       const SkImageInfo& dstInfo, const SkCodec::Options&,
                                       const SkIRect* frame = nullptr);
 

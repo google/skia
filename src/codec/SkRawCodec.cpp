@@ -688,7 +688,7 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     }
 
     SkAutoTDelete<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(
-            SkSwizzler::kRGB, nullptr, requestedInfo, options));
+            this->getEncodedInfo(), nullptr, requestedInfo, options));
     SkASSERT(swizzler);
 
     const int width = requestedInfo.width();

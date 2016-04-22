@@ -464,7 +464,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
 void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     const SkIRect* frameRect = fFrameIsSubset ? &fFrameRect : nullptr;
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(SkSwizzler::kIndex, colorPtr, dstInfo, opts,
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colorPtr, dstInfo, opts,
             frameRect));
     SkASSERT(fSwizzler);
 }

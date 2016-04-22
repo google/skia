@@ -97,7 +97,7 @@ bool SkWbmpCodec::onRewind() {
 
 SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
         const Options& opts) {
-    return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info, opts);
+    return SkSwizzler::CreateSwizzler(this->getEncodedInfo(), ctable, info, opts);
 }
 
 bool SkWbmpCodec::readRow(uint8_t* row) {

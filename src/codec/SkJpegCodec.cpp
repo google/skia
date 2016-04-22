@@ -510,30 +510,19 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
-    SkSwizzler::SrcConfig srcConfig = SkSwizzler::kUnknown;
-    if (JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
-        srcConfig = SkSwizzler::kCMYK;
-    } else {
-        // If the out_color_space is not CMYK, the only reason we would need a swizzler is
-        // for sampling and/or subsetting.
-        switch (dstInfo.colorType()) {
-            case kGray_8_SkColorType:
-                srcConfig = SkSwizzler::kNoOp8;
-                break;
-            case kN32_SkColorType:
-                srcConfig = SkSwizzler::kNoOp32;
-                break;
-            case kRGB_565_SkColorType:
-                srcConfig = SkSwizzler::kNoOp16;
-                break;
-            default:
-                // This function should only be called if the colorType is supported by jpeg
-                SkASSERT(false);
-        }
-    }
-
-    if (JCS_RGB == fDecoderMgr->dinfo()->out_color_space) {
-        srcConfig = SkSwizzler::kRGB;
+    // libjpeg-turbo may have already performed color conversion.  We must indicate the
+    // appropriate format to the swizzler.
+    SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
+    switch (fDecoderMgr->dinfo()->out_color_space) {
+        case JCS_RGB:
+            swizzlerInfo.setColor(SkEncodedInfo::kRGB_Color);
+            break;
+        case JCS_CMYK:
+            swizzlerInfo.setColor(SkEncodedInfo::kInvertedCMYK_Color);
+            break;
+        default:
+            swizzlerInfo.setColor(SkEncodedInfo::kPreSwizzled_Color);
+            break;
     }
 
     Options swizzlerOptions = options;
@@ -545,7 +534,7 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
                 fSwizzlerSubset.width() == options.fSubset->width());
         swizzlerOptions.fSubset = &fSwizzlerSubset;
     }
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, dstInfo, swizzlerOptions));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, dstInfo, swizzlerOptions));
     SkASSERT(fSwizzler);
     fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
     fSrcRow = fStorage.get();

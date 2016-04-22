@@ -69,6 +69,10 @@ public:
         kInvertedCMYK_Color,
         kYCCK_Color,
 
+        // Used internally to indicate that the decoding library has
+        // pre-swizzled to the desired output format.
+        kPreSwizzled_Color,
+
         // Allows us to have a default constructor.  Should be treated as
         // invalid.
         kUnknown_Color,
@@ -162,6 +166,35 @@ public:
         }
     }
 
+    Color color() const { return fColor; }
+    Alpha alpha() const { return fAlpha; }
+    uint8_t bitsPerComponent() const { return fBitsPerComponent; }
+
+    uint8_t bitsPerPixel() const {
+        switch (fColor) {
+            case kGray_Color:
+                return fBitsPerComponent;
+            case kGrayAlpha_Color:
+                return 2 * fBitsPerComponent;
+            case kPalette_Color:
+                return fBitsPerComponent;
+            case kRGB_Color:
+            case kBGR_Color:
+            case kYUV_Color:
+                return 3 * fBitsPerComponent;
+            case kRGBA_Color:
+            case kBGRA_Color:
+            case kBGRX_Color:
+            case kYUVA_Color:
+            case kInvertedCMYK_Color:
+            case kYCCK_Color:
+                return 4 * fBitsPerComponent;
+            default:
+                SkASSERT(false);
+                return 0;
+        }
+    }
+
     SkEncodedInfo()
         : fColor(kUnknown_Color)
         , fAlpha(kUnknown_Alpha)
@@ -176,9 +209,15 @@ private:
         , fBitsPerComponent(bitsPerComponent)
     {}
 
+    void setColor(Color color) {
+        fColor = color;
+    }
+
     Color   fColor;
     Alpha   fAlpha;
     uint8_t fBitsPerComponent;
+
+    friend class SkJpegCodec;
 };
 
 #endif

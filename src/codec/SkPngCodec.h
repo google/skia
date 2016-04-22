@@ -46,7 +46,6 @@ protected:
 
     png_structp png_ptr() { return fPng_ptr; }
     SkSwizzler* swizzler() { return fSwizzler; }
-    SkSwizzler::SrcConfig srcConfig() const { return fSrcConfig; }
     int numberPasses() const { return fNumberPasses; }
 
 private:
@@ -58,7 +57,6 @@ private:
     SkAutoTUnref<SkColorTable>      fColorTable;    // May be unpremul.
     SkAutoTDelete<SkSwizzler>       fSwizzler;
 
-    SkSwizzler::SrcConfig           fSrcConfig;
     const int                       fNumberPasses;
     int                             fBitDepth;
 

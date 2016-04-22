@@ -439,7 +439,6 @@ SkPngCodec::SkPngCodec(int width, int height, const SkEncodedInfo& info, SkStrea
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
-    , fSrcConfig(SkSwizzler::kUnknown)
     , fNumberPasses(numberPasses)
     , fBitDepth(bitDepth)
 {}
@@ -474,45 +473,10 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     }
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
-    // suggestedColorType was determined in read_header() based on the encodedColorType
-    const SkColorType suggestedColorType = this->getInfo().colorType();
-
-    switch (suggestedColorType) {
-        case kIndex_8_SkColorType:
-            //decode palette to Skia format
-            fSrcConfig = SkSwizzler::kIndex;
-            if (!this->decodePalette(kPremul_SkAlphaType == requestedInfo.alphaType(),
-                    ctableCount)) {
-                return kInvalidInput;
-            }
-            break;
-        case kGray_8_SkColorType:
-            fSrcConfig = SkSwizzler::kGray;
-            break;
-        case kN32_SkColorType: {
-            const uint8_t encodedColorType = png_get_color_type(fPng_ptr, fInfo_ptr);
-            if (PNG_COLOR_TYPE_GRAY_ALPHA == encodedColorType ||
-                    PNG_COLOR_TYPE_GRAY == encodedColorType) {
-                // If encodedColorType is GRAY, there must be a transparent chunk.
-                // Otherwise, suggestedColorType would be kGray.  We have already
-                // instructed libpng to convert the transparent chunk to alpha,
-                // so we can treat both GRAY and GRAY_ALPHA as kGrayAlpha.
-                SkASSERT(encodedColorType == PNG_COLOR_TYPE_GRAY_ALPHA ||
-                        png_get_valid(fPng_ptr, fInfo_ptr, PNG_INFO_tRNS));
-
-                fSrcConfig = SkSwizzler::kGrayAlpha;
-            } else {
-                if (this->getInfo().alphaType() == kOpaque_SkAlphaType) {
-                    fSrcConfig = SkSwizzler::kRGB;
-                } else {
-                    fSrcConfig = SkSwizzler::kRGBA;
-                }
-            }
-            break;
+    if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
+        if (!this->decodePalette(kPremul_SkAlphaType == requestedInfo.alphaType(), ctableCount)) {
+            return kInvalidInput;
         }
-        default:
-            // We will always recommend one of the above colorTypes.
-            SkASSERT(false);
     }
 
     // Copy the color table to the client if they request kIndex8 mode
@@ -520,7 +484,8 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
 
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo, options));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, requestedInfo,
+            options));
     SkASSERT(fSwizzler);
 
     return kSuccess;
@@ -547,6 +512,12 @@ bool SkPngCodec::onRewind() {
     return true;
 }
 
+static int bytes_per_pixel(int bitsPerPixel) {
+    // Note that we will have to change this implementation if we start
+    // supporting outputs from libpng that are less than 8-bits per component.
+    return bitsPerPixel / 8;
+}
+
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
                                         size_t dstRowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount,
@@ -567,7 +538,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
 
     const int width = requestedInfo.width();
     const int height = requestedInfo.height();
-    const int bpp = SkSwizzler::BytesPerPixel(fSrcConfig);
+    const int bpp = bytes_per_pixel(this->getEncodedInfo().bitsPerPixel());
     const size_t srcRowBytes = width * bpp;
 
     // FIXME: Could we use the return value of setjmp to specify the type of
@@ -664,7 +635,8 @@ public:
             return result;
         }
 
-        fStorage.reset(this->getInfo().width() * SkSwizzler::BytesPerPixel(this->srcConfig()));
+        fStorage.reset(this->getInfo().width() *
+                (bytes_per_pixel(this->getEncodedInfo().bitsPerPixel())));
         fSrcRow = fStorage.get();
 
         return kSuccess;
@@ -736,7 +708,8 @@ public:
 
         fHeight = dstInfo.height();
         // FIXME: This need not be called on a second call to onStartScanlineDecode.
-        fSrcRowBytes = this->getInfo().width() * SkSwizzler::BytesPerPixel(this->srcConfig());
+        fSrcRowBytes = this->getInfo().width() *
+                (bytes_per_pixel(this->getEncodedInfo().bitsPerPixel()));
         fGarbageRow.reset(fSrcRowBytes);
         fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
         fCanSkipRewind = true;
