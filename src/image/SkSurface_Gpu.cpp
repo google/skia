@@ -85,7 +85,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyM
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
-    if (kYes_ForceCopyMode == forceCopyMode || !tex || rt->resourcePriv().isExternal()) {
+    if (kYes_ForceCopyMode == forceCopyMode || !tex || rt->resourcePriv().refsWrappedObjects()) {
         GrSurfaceDesc desc = fDevice->accessRenderTarget()->desc();
         GrContext* ctx = fDevice->context();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;

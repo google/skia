@@ -37,3 +37,16 @@ void GrGLTextureRenderTarget::dumpMemoryStatistics(
   traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_texture",
                                     texture_id.c_str());
 }
+
+bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
+    // The RT FBO of GrGLTextureRenderTarget is never created from a
+    // wrapped FBO.
+    return true;
+}
+
+GrGLTextureRenderTarget* GrGLTextureRenderTarget::CreateWrapped(GrGLGpu* gpu,
+                                                                const GrSurfaceDesc& desc,
+                                                                const GrGLTexture::IDDesc& texIDDesc,
+                                                                const GrGLRenderTarget::IDDesc& rtIDDesc) {
+    return new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc);
+}

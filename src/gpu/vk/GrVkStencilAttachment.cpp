@@ -14,22 +14,20 @@
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
 GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
-                                             GrGpuResource::LifeCycle lifeCycle,
                                              const Format& format,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImage::Resource* imageResource,
                                              const GrVkImageView* stencilView)
-    : GrStencilAttachment(gpu, lifeCycle, desc.fWidth, desc.fHeight,
+    : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight,
                           format.fStencilBits, desc.fSamples)
     , GrVkImage(imageResource)
     , fFormat(format)
     , fStencilView(stencilView) {
-    this->registerWithCache();
+    this->registerWithCache(SkBudgeted::kYes);
     stencilView->ref();
 }
 
 GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
-                                                     GrGpuResource::LifeCycle lifeCycle,
                                                      int width,
                                                      int height,
                                                      int sampleCnt,
@@ -59,7 +57,7 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
         return nullptr;
     }
 
-    GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, lifeCycle, format, imageDesc,
+    GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, format, imageDesc,
                                                                imageResource, imageView);
     imageResource->unref(gpu);
     imageView->unref(gpu);

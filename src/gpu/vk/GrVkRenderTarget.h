@@ -30,12 +30,11 @@ struct GrVkTextureInfo;
 
 class GrVkRenderTarget: public GrRenderTarget, public virtual GrVkImage {
 public:
-    static GrVkRenderTarget* CreateNewRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                   GrGpuResource::LifeCycle,
+    static GrVkRenderTarget* CreateNewRenderTarget(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
                                                    const GrVkImage::ImageDesc&);
 
     static GrVkRenderTarget* CreateWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                       GrGpuResource::LifeCycle,
+                                                       GrWrapOwnership,
                                                        const GrVkTextureInfo*);
 
     ~GrVkRenderTarget() override;
@@ -67,11 +66,9 @@ public:
     void addResources(GrVkCommandBuffer& commandBuffer) const;
 
 protected:
-    enum Derived { kDerived };
-
     GrVkRenderTarget(GrVkGpu* gpu,
+                     SkBudgeted,
                      const GrSurfaceDesc& desc,
-                     GrGpuResource::LifeCycle,
                      const GrVkImage::Resource* imageResource,
                      const GrVkImage::Resource* msaaImageResource,
                      const GrVkImageView* colorAttachmentView,
@@ -79,28 +76,23 @@ protected:
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      const GrSurfaceDesc& desc,
-                     GrGpuResource::LifeCycle,
                      const GrVkImage::Resource* imageResource,
                      const GrVkImage::Resource* msaaImageResource,
                      const GrVkImageView* colorAttachmentView,
-                     const GrVkImageView* resolveAttachmentView,
-                     Derived);
+                     const GrVkImageView* resolveAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
+                     SkBudgeted,
                      const GrSurfaceDesc& desc,
-                     GrGpuResource::LifeCycle,
                      const GrVkImage::Resource* imageResource,
                      const GrVkImageView* colorAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      const GrSurfaceDesc& desc,
-                     GrGpuResource::LifeCycle,
                      const GrVkImage::Resource* imageResource,
-                     const GrVkImageView* colorAttachmentView,
-                     Derived);
+                     const GrVkImageView* colorAttachmentView);
 
-    static GrVkRenderTarget* Create(GrVkGpu*, const GrSurfaceDesc&,
-                                    GrGpuResource::LifeCycle,
+    static GrVkRenderTarget* Create(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
                                     const GrVkImage::Resource* imageResource);
 
     GrVkGpu* getVkGpu() const;

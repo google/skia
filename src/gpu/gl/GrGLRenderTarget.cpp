@@ -7,29 +7,31 @@
 
 #include "GrGLRenderTarget.h"
 
-#include "GrRenderTargetPriv.h"
 #include "GrGLGpu.h"
 #include "GrGLUtil.h"
+#include "GrGpuResourcePriv.h"
+#include "GrRenderTargetPriv.h"
 #include "SkTraceMemoryDump.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
+// Constructor for wrapped render targets.
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    const GrSurfaceDesc& desc,
                                    const IDDesc& idDesc,
                                    GrGLStencilAttachment* stencil)
-    : GrSurface(gpu, idDesc.fLifeCycle, desc)
-    , INHERITED(gpu, idDesc.fLifeCycle, desc, idDesc.fSampleConfig, stencil) {
+    : GrSurface(gpu, desc)
+    , INHERITED(gpu, desc, idDesc.fSampleConfig, stencil) {
     this->init(desc, idDesc);
-    this->registerWithCache();
+    this->registerWithCacheWrapped();
 }
 
-GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
-                                   Derived)
-    : GrSurface(gpu, idDesc.fLifeCycle, desc)
-    , INHERITED(gpu, idDesc.fLifeCycle, desc, idDesc.fSampleConfig) {
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+                                   const IDDesc& idDesc)
+    : GrSurface(gpu, desc)
+    , INHERITED(gpu, desc, idDesc.fSampleConfig) {
     this->init(desc, idDesc);
 }
 
@@ -37,7 +39,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fRTFBOID                = idDesc.fRTFBOID;
     fTexFBOID               = idDesc.fTexFBOID;
     fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
-    fRTLifecycle            = idDesc.fLifeCycle;
+    fRTFBOOwnership         = idDesc.fRTFBOOwnership;
 
     fViewport.fLeft   = 0;
     fViewport.fBottom = 0;
@@ -127,7 +129,7 @@ bool GrGLRenderTarget::completeStencilAttachment() {
 }
 
 void GrGLRenderTarget::onRelease() {
-    if (kBorrowed_LifeCycle != fRTLifecycle) {
+    if (GrBackendObjectOwnership::kBorrowed != fRTFBOOwnership) {
         if (fTexFBOID) {
             GL_CALL(DeleteFramebuffers(1, &fTexFBOID));
         }
@@ -154,6 +156,13 @@ void GrGLRenderTarget::onAbandon() {
 GrGLGpu* GrGLRenderTarget::getGLGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrGLGpu*>(this->getGpu());
+}
+
+bool GrGLRenderTarget::canAttemptStencilAttachment() const {
+    // When we have not created the FBO ID we do not attempt to modify its attachments.
+    // Direct GrGLRenderTarget instances are always created with CreateWrapped.
+    SkASSERT(this->resourcePriv().refsWrappedObjects());
+    return false;
 }
 
 void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {

@@ -24,9 +24,9 @@ public:
 
     struct IDDesc {
         GrGLuint                     fRTFBOID;
+        GrBackendObjectOwnership     fRTFBOOwnership;
         GrGLuint                     fTexFBOID;
         GrGLuint                     fMSColorRenderbufferID;
-        GrGpuResource::LifeCycle     fLifeCycle;
         GrRenderTarget::SampleConfig fSampleConfig;
     };
 
@@ -61,21 +61,15 @@ public:
 
     GrBackendObject getRenderTargetHandle() const override { return fRTFBOID; }
 
-    /** When we don't own the FBO ID we don't attempt to modify its attachments. */
-    bool canAttemptStencilAttachment() const override {
-        return kCached_LifeCycle == fRTLifecycle || kUncached_LifeCycle == fRTLifecycle;
-    }
+    bool canAttemptStencilAttachment() const override;
 
     // GrGLRenderTarget overrides dumpMemoryStatistics so it can log its texture and renderbuffer
     // components seperately.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
 protected:
-    // The public constructor registers this object with the cache. However, only the most derived
-    // class should register with the cache. This constructor does not do the registration and
-    // rather moves that burden onto the derived class.
-    enum Derived { kDerived };
-    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, Derived);
+    // Constructor for subclasses.
+    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
 
     void init(const GrSurfaceDesc&, const IDDesc&);
 
@@ -86,8 +80,7 @@ protected:
     size_t onGpuMemorySize() const override;
 
 private:
-    // This ctor is used only for creating wrapped render targets and is only called for the static
-    // create function CreateWrapped(...).
+    // Constructor for instances wrapping backend objects.
     GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, GrGLStencilAttachment*);
 
     GrGLGpu* getGLGpu() const;
@@ -103,9 +96,7 @@ private:
     GrGLuint    fTexFBOID;
     GrGLuint    fMSColorRenderbufferID;
 
-    // We track this separately from GrGpuResource because this may be both a texture and a render
-    // target, and the texture may be wrapped while the render target is not.
-    LifeCycle   fRTLifecycle;
+    GrBackendObjectOwnership fRTFBOOwnership;
 
     // when we switch to this render target we want to set the viewport to
     // only render to content area (as opposed to the whole allocation) and

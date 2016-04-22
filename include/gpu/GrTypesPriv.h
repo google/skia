@@ -464,4 +464,14 @@ enum GrAccessPattern {
 #define GrCapsDebugf(caps, ...)
 #endif
 
+/**
+ * Specifies if the holder owns the backend, OpenGL or Vulkan, object.
+ */
+enum class GrBackendObjectOwnership : bool {
+    /** Holder does not destroy the backend object. */
+    kBorrowed = false,
+    /** Holder destroys the backend object. */
+    kOwned = true
+};
+
 #endif

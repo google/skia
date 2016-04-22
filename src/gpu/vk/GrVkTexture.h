@@ -18,12 +18,11 @@ struct GrVkTextureInfo;
 
 class GrVkTexture : public GrTexture, public virtual GrVkImage {
 public:
-    static GrVkTexture* CreateNewTexture(GrVkGpu*, const GrSurfaceDesc&,
-                                         GrGpuResource::LifeCycle,
+    static GrVkTexture* CreateNewTexture(GrVkGpu*, SkBudgeted budgeted, const GrSurfaceDesc&,
                                          const GrVkImage::ImageDesc&);
 
     static GrVkTexture* CreateWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
-                                             GrGpuResource::LifeCycle,
+                                             GrWrapOwnership,
                                              VkFormat, const GrVkTextureInfo*);
 
     ~GrVkTexture() override;
@@ -35,16 +34,11 @@ public:
     const GrVkImageView* textureView() const { return fTextureView; }
 
 protected:
-    enum Derived { kDerived };
-
-    GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, GrGpuResource::LifeCycle,
+    GrVkTexture(GrVkGpu*, const GrSurfaceDesc&,
                 const GrVkImage::Resource*, const GrVkImageView* imageView);
 
-    GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, GrGpuResource::LifeCycle,
-                const GrVkImage::Resource*, const GrVkImageView* imageView, Derived);
-
-    static GrVkTexture* Create(GrVkGpu*, const GrSurfaceDesc&,
-                               GrGpuResource::LifeCycle, VkFormat,
+    template<typename ResourceType>
+    static GrVkTexture* Create(GrVkGpu*, ResourceType, const GrSurfaceDesc&, VkFormat,
                                const GrVkImage::Resource* texImpl);
 
     GrVkGpu* getVkGpu() const;
@@ -53,6 +47,13 @@ protected:
     void onRelease() override;
 
 private:
+    enum Wrapped { kWrapped };
+    GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
+                const GrVkImage::Resource*, const GrVkImageView* imageView);
+    GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&,
+                const GrVkImage::Resource*, const GrVkImageView* imageView);
+
+
     const GrVkImageView* fTextureView;
 
     typedef GrTexture INHERITED;

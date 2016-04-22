@@ -188,9 +188,7 @@ public:
         int fNumNonPurgeable;
 
         int fScratch;
-        int fExternal;
-        int fBorrowed;
-        int fAdopted;
+        int fWrapped;
         size_t fUnbudgetedSize;
 
         Stats() { this->reset(); }
@@ -200,9 +198,7 @@ public:
             fNumPurgeable = 0;
             fNumNonPurgeable = 0;
             fScratch = 0;
-            fExternal = 0;
-            fBorrowed = 0;
-            fAdopted = 0;
+            fWrapped = 0;
             fUnbudgetedSize = 0;
         }
 
@@ -210,14 +206,8 @@ public:
             if (resource->cacheAccess().isScratch()) {
                 ++fScratch;
             }
-            if (resource->resourcePriv().isExternal()) {
-                ++fExternal;
-            }
-            if (resource->cacheAccess().isBorrowed()) {
-                ++fBorrowed;
-            }
-            if (resource->cacheAccess().isAdopted()) {
-                ++fAdopted;
+            if (resource->resourcePriv().refsWrappedObjects()) {
+                ++fWrapped;
             }
             if (SkBudgeted::kNo  == resource->resourcePriv().isBudgeted()) {
                 fUnbudgetedSize += resource->gpuMemorySize();

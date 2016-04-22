@@ -156,9 +156,9 @@ public:
     GrDrawTarget* getLastDrawTarget() { return fLastDrawTarget; }
 
 protected:
-    GrRenderTarget(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc,
+    GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
                    SampleConfig sampleConfig, GrStencilAttachment* stencil = nullptr)
-        : INHERITED(gpu, lifeCycle, desc)
+        : INHERITED(gpu, desc)
         , fStencilAttachment(stencil)
         , fSampleConfig(sampleConfig)
         , fLastDrawTarget(nullptr) {

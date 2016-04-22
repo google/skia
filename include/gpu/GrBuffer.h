@@ -110,22 +110,24 @@ public:
 protected:
     GrBuffer(GrGpu* gpu, size_t gpuMemorySize, GrBufferType intendedType,
              GrAccessPattern accessPattern, bool cpuBacked)
-        : INHERITED(gpu, kCached_LifeCycle),
+        : INHERITED(gpu),
           fMapPtr(nullptr),
           fGpuMemorySize(gpuMemorySize), // TODO: Zero for cpu backed buffers?
           fAccessPattern(accessPattern),
-          fCPUBacked(cpuBacked) {
+          fCPUBacked(cpuBacked),
+          fIntendedType(intendedType) {
+    }
+
+    void computeScratchKey(GrScratchKey* key) const override {
         if (!fCPUBacked && SkIsPow2(fGpuMemorySize) && kDynamic_GrAccessPattern == fAccessPattern) {
-            GrScratchKey key;
-            ComputeScratchKeyForDynamicBuffer(fGpuMemorySize, intendedType, &key);
-            this->setScratchKey(key);
+            ComputeScratchKeyForDynamicBuffer(fGpuMemorySize, fIntendedType, key);
         }
     }
 
     void* fMapPtr;
 
 private:
-    virtual size_t onGpuMemorySize() const { return fGpuMemorySize; }
+    size_t onGpuMemorySize() const override { return fGpuMemorySize; }
 
     virtual void onMap() = 0;
     virtual void onUnmap() = 0;
@@ -134,7 +136,7 @@ private:
     size_t            fGpuMemorySize;
     GrAccessPattern   fAccessPattern;
     bool              fCPUBacked;
-
+    GrBufferType      fIntendedType;
     typedef GrGpuResource INHERITED;
 };
 

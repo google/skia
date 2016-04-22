@@ -30,18 +30,6 @@ private:
     }
 
     /**
-     * Is the resource object wrapping an externally allocated GPU resource that Skia has not taken
-     * ownership of.
-     */
-    bool isBorrowed() const { return GrGpuResource::kBorrowed_LifeCycle == fResource->fLifeCycle; }
-
-    /**
-     * Is the resource object wrapping an externally allocated GPU resource that Skia has taken
-     * ownership of.
-     */
-    bool isAdopted() const { return GrGpuResource::kAdopted_LifeCycle == fResource->fLifeCycle; }
-
-    /**
      * Called by the cache to delete the resource under normal circumstances.
      */
     void release() {

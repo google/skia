@@ -20,7 +20,7 @@ public:
      * Initialize to a path with a fixed stroke. Stroke must not be hairline.
      */
     GrPath(GrGpu* gpu, const SkPath& skPath, const GrStrokeInfo& stroke)
-        : INHERITED(gpu, kCached_LifeCycle)
+        : INHERITED(gpu)
         , fBounds(SkRect::MakeEmpty())
         , fFillType(GrPathRendering::kWinding_FillType)
 #ifdef SK_DEBUG

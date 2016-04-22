@@ -16,13 +16,12 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-GrVkTextureRenderTarget*
-GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
-                                const GrSurfaceDesc& desc,
-                                GrGpuResource::LifeCycle lifeCycle,
-                                VkFormat format,
-                                const GrVkImage::Resource* imageResource) {
-
+template<typename ResourceType>
+GrVkTextureRenderTarget* GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
+                                                         ResourceType resourceType,
+                                                         const GrSurfaceDesc& desc,
+                                                         VkFormat format,
+                                                         const GrVkImage::Resource* imageResource) {
     VkImage image = imageResource->fImage;
     // Create the texture ImageView
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, image, format,
@@ -99,16 +98,15 @@ GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
             return nullptr;
         }
     }
-
     GrVkTextureRenderTarget* texRT;
     if (msaaImageResource) {
-        texRT = new GrVkTextureRenderTarget(gpu, desc, lifeCycle,
+        texRT = new GrVkTextureRenderTarget(gpu, resourceType, desc,
                                             imageResource, imageView, msaaImageResource,
                                             colorAttachmentView,
                                             resolveAttachmentView);
         msaaImageResource->unref(gpu);
     } else {
-        texRT = new GrVkTextureRenderTarget(gpu, desc, lifeCycle,
+        texRT = new GrVkTextureRenderTarget(gpu, resourceType, desc,
                                             imageResource, imageView,
                                             colorAttachmentView);
     }
@@ -117,9 +115,9 @@ GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
 
 GrVkTextureRenderTarget*
 GrVkTextureRenderTarget::CreateNewTextureRenderTarget(GrVkGpu* gpu,
-                                                     const GrSurfaceDesc& desc,
-                                                     GrGpuResource::LifeCycle lifeCycle,
-                                                     const GrVkImage::ImageDesc& imageDesc) {
+                                                      SkBudgeted budgeted,
+                                                      const GrSurfaceDesc& desc,
+                                                      const GrVkImage::ImageDesc& imageDesc) {
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT);
 
@@ -129,8 +127,8 @@ GrVkTextureRenderTarget::CreateNewTextureRenderTarget(GrVkGpu* gpu,
         return nullptr;
     }
 
-    GrVkTextureRenderTarget* trt = GrVkTextureRenderTarget::Create(gpu, desc, lifeCycle,
-                                                                   imageDesc.fFormat, imageRsrc);
+    GrVkTextureRenderTarget* trt = Create(gpu, budgeted, desc, imageDesc.fFormat,
+                                          imageRsrc);
     // Create() will increment the refCount of the image resource if it succeeds
     imageRsrc->unref(gpu);
 
@@ -140,7 +138,7 @@ GrVkTextureRenderTarget::CreateNewTextureRenderTarget(GrVkGpu* gpu,
 GrVkTextureRenderTarget*
 GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(GrVkGpu* gpu,
                                                           const GrSurfaceDesc& desc,
-                                                          GrGpuResource::LifeCycle lifeCycle,
+                                                          GrWrapOwnership ownership,
                                                           VkFormat format,
                                                           const GrVkTextureInfo* info) {
     SkASSERT(info);
@@ -151,7 +149,7 @@ GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(GrVkGpu* gpu,
                                      ? Resource::kLinearTiling_Flag : Resource::kNo_Flags;
 
     const GrVkImage::Resource* imageResource;
-    if (kBorrowed_LifeCycle == lifeCycle) {
+    if (kBorrow_GrWrapOwnership == ownership) {
         imageResource = new GrVkImage::BorrowedResource(info->fImage,
                                                         info->fAlloc,
                                                         flags,
@@ -162,9 +160,7 @@ GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(GrVkGpu* gpu,
     if (!imageResource) {
         return nullptr;
     }
-
-    GrVkTextureRenderTarget* trt = GrVkTextureRenderTarget::Create(gpu, desc, lifeCycle,
-                                                                   format, imageResource);
+    GrVkTextureRenderTarget* trt = Create(gpu, kWrapped, desc, format, imageResource);
     if (trt) {
         trt->fCurrentLayout = info->fImageLayout;
     }

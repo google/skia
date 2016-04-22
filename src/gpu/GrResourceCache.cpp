@@ -146,7 +146,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
 #endif
     }
     if (resource->resourcePriv().getScratchKey().isValid()) {
-        SkASSERT(!resource->resourcePriv().isExternal());
+        SkASSERT(!resource->resourcePriv().refsWrappedObjects());
         fScratchMap.insert(resource->resourcePriv().getScratchKey(), resource);
     }
 
@@ -376,7 +376,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
 
     if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
         // Check whether this resource could still be used as a scratch resource.
-        if (!resource->resourcePriv().isExternal() &&
+        if (!resource->resourcePriv().refsWrappedObjects() &&
             resource->resourcePriv().getScratchKey().isValid()) {
             // We won't purge an existing resource to make room for this one.
             if (fBudgetedCount < fMaxCount &&
@@ -661,19 +661,19 @@ void GrResourceCache::validate() const {
                 SkASSERT(!resource->getUniqueKey().isValid());
                 ++fScratch;
                 SkASSERT(fScratchMap->countForKey(resource->resourcePriv().getScratchKey()));
-                SkASSERT(!resource->resourcePriv().isExternal());
+                SkASSERT(!resource->resourcePriv().refsWrappedObjects());
             } else if (resource->resourcePriv().getScratchKey().isValid()) {
                 SkASSERT(SkBudgeted::kNo == resource->resourcePriv().isBudgeted() ||
                          resource->getUniqueKey().isValid());
                 ++fCouldBeScratch;
                 SkASSERT(fScratchMap->countForKey(resource->resourcePriv().getScratchKey()));
-                SkASSERT(!resource->resourcePriv().isExternal());
+                SkASSERT(!resource->resourcePriv().refsWrappedObjects());
             }
             const GrUniqueKey& uniqueKey = resource->getUniqueKey();
             if (uniqueKey.isValid()) {
                 ++fContent;
                 SkASSERT(fUniqueHash->find(uniqueKey) == resource);
-                SkASSERT(!resource->resourcePriv().isExternal());
+                SkASSERT(!resource->resourcePriv().refsWrappedObjects());
                 SkASSERT(SkBudgeted::kYes == resource->resourcePriv().isBudgeted());
             }
 

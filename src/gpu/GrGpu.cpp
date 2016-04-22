@@ -150,9 +150,6 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
     desc.fOrigin = resolve_origin(desc.fOrigin, isRT);
 
     GrTexture* tex = nullptr;
-    GrGpuResource::LifeCycle lifeCycle = SkBudgeted::kYes == budgeted ?
-                                            GrGpuResource::kCached_LifeCycle :
-                                            GrGpuResource::kUncached_LifeCycle;
 
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         // We shouldn't be rendering into this
@@ -165,10 +162,10 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
         }
 
         this->handleDirtyContext();
-        tex = this->onCreateCompressedTexture(desc, lifeCycle, texels);
+        tex = this->onCreateCompressedTexture(desc, budgeted, texels);
     } else {
         this->handleDirtyContext();
-        tex = this->onCreateTexture(desc, lifeCycle, texels);
+        tex = this->onCreateTexture(desc, budgeted, texels);
     }
     if (tex) {
         if (!caps->reuseScratchTextures() && !isRT) {

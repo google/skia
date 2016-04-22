@@ -126,10 +126,10 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
-    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
+    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                const SkTArray<GrMipLevel>& texels) override;
     GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
-                                         GrGpuResource::LifeCycle lifeCycle,
+                                         SkBudgeted budgeted,
                                          const SkTArray<GrMipLevel>& texels) override;
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
@@ -347,8 +347,8 @@ private:
                                  int left = 0, int top = 0,
                                  int width = -1, int height = -1);
 
-    bool createRenderTargetObjects(const GrSurfaceDesc&, GrGpuResource::LifeCycle lifeCycle,
-                                   const GrGLTextureInfo& texInfo, GrGLRenderTarget::IDDesc*);
+    bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
+                                   GrGLRenderTarget::IDDesc*);
 
     enum TempFBOTarget {
         kSrc_TempFBOTarget,

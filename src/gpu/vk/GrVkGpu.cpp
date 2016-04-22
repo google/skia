@@ -438,7 +438,7 @@ bool GrVkGpu::uploadTexData(GrVkTexture* tex,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
+GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                     const SkTArray<GrMipLevel>& texels) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
@@ -493,10 +493,10 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::Li
 
     GrVkTexture* tex;
     if (renderTarget) {
-        tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, desc, lifeCycle,
+        tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted, desc,
                                                                     imageDesc);
     } else {
-        tex = GrVkTexture::CreateNewTexture(this, desc, lifeCycle, imageDesc);
+        tex = GrVkTexture::CreateNewTexture(this, budgeted, desc, imageDesc);
     }
 
     if (!tex) {
@@ -548,10 +548,6 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         return nullptr;
     }
 
-    GrGpuResource::LifeCycle lifeCycle = (kAdopt_GrWrapOwnership == ownership)
-                                         ? GrGpuResource::kAdopted_LifeCycle
-                                         : GrGpuResource::kBorrowed_LifeCycle;
-
     GrSurfaceDesc surfDesc;
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     surfDesc.fFlags = (GrSurfaceFlags)desc.fFlags;
@@ -567,11 +563,10 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     GrVkTexture* texture = nullptr;
     if (renderTarget) {
         texture = GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(this, surfDesc,
-                                                                            lifeCycle, format,
+                                                                            ownership, format,
                                                                             info);
     } else {
-        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, lifeCycle, format,
-                                                    info);
+        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, ownership, format, info);
     }
     if (!texture) {
         return nullptr;
@@ -590,10 +585,6 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
         return nullptr;
     }
 
-    GrGpuResource::LifeCycle lifeCycle = (kAdopt_GrWrapOwnership == ownership)
-                                         ? GrGpuResource::kAdopted_LifeCycle
-                                         : GrGpuResource::kBorrowed_LifeCycle;
-
     GrSurfaceDesc desc;
     desc.fConfig = wrapDesc.fConfig;
     desc.fFlags = kCheckAllocation_GrSurfaceFlag;
@@ -604,7 +595,7 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin);
 
     GrVkRenderTarget* tgt = GrVkRenderTarget::CreateWrappedRenderTarget(this, desc,
-                                                                        lifeCycle,
+                                                                        ownership,
                                                                         info);
     if (tgt && wrapDesc.fStencilBits) {
         if (!createStencilAttachmentForRenderTarget(tgt, desc.fWidth, desc.fHeight)) {
@@ -652,7 +643,6 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
     const GrVkCaps::StencilFormat& sFmt = this->vkCaps().preferedStencilFormat();
 
     GrVkStencilAttachment* stencil(GrVkStencilAttachment::Create(this,
-                                                                 GrGpuResource::kCached_LifeCycle,
                                                                  width,
                                                                  height,
                                                                  samples,

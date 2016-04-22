@@ -24,13 +24,13 @@ struct GrVkTextureInfo;
 
 class GrVkTextureRenderTarget: public GrVkTexture, public GrVkRenderTarget {
 public:
-    static GrVkTextureRenderTarget* CreateNewTextureRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                                 GrGpuResource::LifeCycle,
+    static GrVkTextureRenderTarget* CreateNewTextureRenderTarget(GrVkGpu*, SkBudgeted,
+                                                                 const GrSurfaceDesc&,
                                                                  const GrVkImage::ImageDesc&);
 
     static GrVkTextureRenderTarget* CreateWrappedTextureRenderTarget(GrVkGpu*,
                                                                      const GrSurfaceDesc&,
-                                                                     GrGpuResource::LifeCycle,
+                                                                     GrWrapOwnership,
                                                                      VkFormat,
                                                                      const GrVkTextureInfo*);
 
@@ -47,38 +47,68 @@ protected:
 
 private:
     GrVkTextureRenderTarget(GrVkGpu* gpu,
+                            SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
-                            GrGpuResource::LifeCycle lifeCycle,
                             const GrVkImage::Resource* imageResource,
                             const GrVkImageView* texView,
                             const GrVkImage::Resource* msaaResource,
                             const GrVkImageView* colorAttachmentView,
                             const GrVkImageView* resolveAttachmentView)
-        : GrSurface(gpu, lifeCycle, desc)
+        : GrSurface(gpu, desc)
         , GrVkImage(imageResource)
-        , GrVkTexture(gpu, desc, lifeCycle, imageResource, texView, GrVkTexture::kDerived)
-        , GrVkRenderTarget(gpu, desc, lifeCycle, imageResource, msaaResource, colorAttachmentView,
-                           resolveAttachmentView, GrVkRenderTarget::kDerived) {
-        this->registerWithCache();
+        , GrVkTexture(gpu, desc, imageResource, texView)
+        , GrVkRenderTarget(gpu, desc, imageResource, msaaResource, colorAttachmentView,
+                           resolveAttachmentView) {
+        this->registerWithCache(budgeted);
     }
 
     GrVkTextureRenderTarget(GrVkGpu* gpu,
+                            SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
-                            GrGpuResource::LifeCycle lifeCycle,
                             const GrVkImage::Resource* imageResource,
                             const GrVkImageView* texView,
                             const GrVkImageView* colorAttachmentView)
-        : GrSurface(gpu, lifeCycle, desc)
+        : GrSurface(gpu, desc)
         , GrVkImage(imageResource)
-        , GrVkTexture(gpu, desc, lifeCycle, imageResource, texView, GrVkTexture::kDerived)
-        , GrVkRenderTarget(gpu, desc, lifeCycle, imageResource, colorAttachmentView,
-                           GrVkRenderTarget::kDerived) {
-        this->registerWithCache();
+        , GrVkTexture(gpu, desc, imageResource, texView)
+        , GrVkRenderTarget(gpu, desc, imageResource, colorAttachmentView) {
+        this->registerWithCache(budgeted);
+    }
+    enum Wrapped { kWrapped };
+    GrVkTextureRenderTarget(GrVkGpu* gpu,
+                            Wrapped,
+                            const GrSurfaceDesc& desc,
+                            const GrVkImage::Resource* imageResource,
+                            const GrVkImageView* texView,
+                            const GrVkImage::Resource* msaaResource,
+                            const GrVkImageView* colorAttachmentView,
+                            const GrVkImageView* resolveAttachmentView)
+        : GrSurface(gpu, desc)
+        , GrVkImage(imageResource)
+        , GrVkTexture(gpu, desc, imageResource, texView)
+        , GrVkRenderTarget(gpu, desc, imageResource, msaaResource, colorAttachmentView,
+                           resolveAttachmentView) {
+        this->registerWithCacheWrapped();
     }
 
-    static GrVkTextureRenderTarget* Create(GrVkGpu*, const GrSurfaceDesc&,
-                                           GrGpuResource::LifeCycle,
-                                           VkFormat format,
+    GrVkTextureRenderTarget(GrVkGpu* gpu,
+                            Wrapped,
+                            const GrSurfaceDesc& desc,
+                            const GrVkImage::Resource* imageResource,
+                            const GrVkImageView* texView,
+                            const GrVkImageView* colorAttachmentView)
+        : GrSurface(gpu, desc)
+        , GrVkImage(imageResource)
+        , GrVkTexture(gpu, desc, imageResource, texView)
+        , GrVkRenderTarget(gpu, desc, imageResource, colorAttachmentView) {
+        this->registerWithCacheWrapped();
+    }
+
+    template <typename ResourceType>
+    static GrVkTextureRenderTarget* Create(GrVkGpu*,
+                                           ResourceType,
+                                           const GrSurfaceDesc&,
+                                           VkFormat,
                                            const GrVkImage::Resource* imageResource);
 
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.

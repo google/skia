@@ -529,10 +529,10 @@ private:
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture/CompressedTexture are called.
     virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
-                                       GrGpuResource::LifeCycle lifeCycle,
+                                       SkBudgeted budgeted,
                                        const SkTArray<GrMipLevel>& texels) = 0;
     virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
-                                                 GrGpuResource::LifeCycle lifeCycle,
+                                                 SkBudgeted budgeted,
                                                  const SkTArray<GrMipLevel>& texels) = 0;
 
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;

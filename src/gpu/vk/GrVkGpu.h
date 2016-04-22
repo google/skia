@@ -117,10 +117,10 @@ private:
 
     void onResetContext(uint32_t resetBits) override {}
 
-    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
+    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                const SkTArray<GrMipLevel>&) override;
 
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
+    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted,
                                          const SkTArray<GrMipLevel>&) override { return NULL; }
 
     GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;

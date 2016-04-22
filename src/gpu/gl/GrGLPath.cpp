@@ -330,11 +330,11 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
         }
     }
 
-    this->registerWithCache();
+    this->registerWithCache(SkBudgeted::kYes);
 }
 
 void GrGLPath::onRelease() {
-    if (0 != fPathID && this->shouldFreeResources()) {
+    if (0 != fPathID) {
         static_cast<GrGLGpu*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);
         fPathID = 0;
     }

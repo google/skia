@@ -146,8 +146,8 @@ protected:
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
 
-    GrSurface(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
-        : INHERITED(gpu, lifeCycle)
+    GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc)
+        : INHERITED(gpu)
         , fDesc(desc)
         , fReleaseProc(NULL)
         , fReleaseCtx(NULL)

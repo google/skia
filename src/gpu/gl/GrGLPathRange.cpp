@@ -16,7 +16,7 @@ GrGLPathRange::GrGLPathRange(GrGLGpu* gpu, PathGenerator* pathGenerator, const G
       fBasePathID(gpu->glPathRendering()->genPaths(this->getNumPaths())),
       fGpuMemorySize(0) {
     this->init();
-    this->registerWithCache();
+    this->registerWithCache(SkBudgeted::kYes);
 }
 
 GrGLPathRange::GrGLPathRange(GrGLGpu* gpu,
@@ -29,7 +29,7 @@ GrGLPathRange::GrGLPathRange(GrGLGpu* gpu,
       fBasePathID(basePathID),
       fGpuMemorySize(gpuMemorySize) {
     this->init();
-    this->registerWithCache();
+    this->registerWithCache(SkBudgeted::kYes);
 }
 
 void GrGLPathRange::init() {
@@ -101,7 +101,7 @@ void GrGLPathRange::onInitPath(int index, const SkPath& origSkPath) const {
 void GrGLPathRange::onRelease() {
     SkASSERT(this->getGpu());
 
-    if (0 != fBasePathID && this->shouldFreeResources()) {
+    if (0 != fBasePathID) {
         static_cast<GrGLGpu*>(this->getGpu())->glPathRendering()->deletePaths(fBasePathID,
                                                                               this->getNumPaths());
         fBasePathID = 0;

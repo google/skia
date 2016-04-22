@@ -128,7 +128,7 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
         }
     }
     VALIDATE();
-    this->registerWithCache();
+    this->registerWithCache(SkBudgeted::kYes);
 }
 
 inline GrGLGpu* GrGLBuffer::glGpu() const {

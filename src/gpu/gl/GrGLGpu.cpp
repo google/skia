@@ -649,13 +649,10 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         return nullptr;
     }
 
-    switch (ownership) {
-        case kAdopt_GrWrapOwnership:
-            idDesc.fLifeCycle = GrGpuResource::kAdopted_LifeCycle;
-            break;
-        case kBorrow_GrWrapOwnership:
-            idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
-            break;
+    if (kAdopt_GrWrapOwnership == ownership) {
+        idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
+    } else {
+        idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     }
 
     surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
@@ -676,13 +673,12 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     GrGLTexture* texture = nullptr;
     if (renderTarget) {
         GrGLRenderTarget::IDDesc rtIDDesc;
-        if (!this->createRenderTargetObjects(surfDesc, GrGpuResource::kUncached_LifeCycle,
-                                             idDesc.fInfo, &rtIDDesc)) {
+        if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
             return nullptr;
         }
-        texture = new GrGLTextureRenderTarget(this, surfDesc, idDesc, rtIDDesc);
+        texture = GrGLTextureRenderTarget::CreateWrapped(this, surfDesc, idDesc, rtIDDesc);
     } else {
-        texture = new GrGLTexture(this, surfDesc, idDesc);
+        texture = GrGLTexture::CreateWrapped(this, surfDesc, idDesc);
     }
     if (nullptr == texture) {
         return nullptr;
@@ -697,13 +693,10 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     idDesc.fRTFBOID = static_cast<GrGLuint>(wrapDesc.fRenderTargetHandle);
     idDesc.fMSColorRenderbufferID = 0;
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
-    switch (ownership) {
-        case kAdopt_GrWrapOwnership:
-            idDesc.fLifeCycle = GrGpuResource::kAdopted_LifeCycle;
-            break;
-        case kBorrow_GrWrapOwnership:
-            idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
-            break;
+    if (kAdopt_GrWrapOwnership == ownership) {
+        idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
+    } else {
+        idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
     }
     idDesc.fSampleConfig = GrRenderTarget::kUnified_SampleConfig;
 
@@ -765,8 +758,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextu
     }
 
     GrGLRenderTarget::IDDesc rtIDDesc;
-    if (!this->createRenderTargetObjects(surfDesc, GrGpuResource::kUncached_LifeCycle,
-                                         texInfo, &rtIDDesc)) {
+    if (!this->createRenderTargetObjects(surfDesc, texInfo, &rtIDDesc)) {
         return nullptr;
     }
     return GrGLRenderTarget::CreateWrapped(this, surfDesc, rtIDDesc, 0);
@@ -1487,13 +1479,12 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
 }
 
 bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
-                                        GrGpuResource::LifeCycle lifeCycle,
                                         const GrGLTextureInfo& texInfo,
                                         GrGLRenderTarget::IDDesc* idDesc) {
     idDesc->fMSColorRenderbufferID = 0;
     idDesc->fRTFBOID = 0;
+    idDesc->fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
     idDesc->fTexFBOID = 0;
-    idDesc->fLifeCycle = lifeCycle;
     idDesc->fSampleConfig = (GrGLCaps::kMixedSamples_MSFBOType == this->glCaps().msFBOType() &&
                             desc.fSampleCnt > 0) ? GrRenderTarget::kStencil_SampleConfig :
                                                    GrRenderTarget::kUnified_SampleConfig;
@@ -1605,12 +1596,11 @@ static size_t as_size_t(int x) {
 }
 #endif
 
-static GrGLTexture::IDDesc generate_gl_texture(const GrGLInterface* interface,
-                                               GrGpuResource::LifeCycle lifeCycle) {
+static GrGLTexture::IDDesc generate_gl_texture(const GrGLInterface* interface) {
     GrGLTexture::IDDesc idDesc;
     idDesc.fInfo.fID = 0;
     GR_GL_CALL(interface, GenTextures(1, &idDesc.fInfo.fID));
-    idDesc.fLifeCycle = lifeCycle;
+    idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     // When we create the texture, we only
     // create GL_TEXTURE_2D at the moment.
     // External clients can do something different.
@@ -1645,7 +1635,7 @@ static void set_initial_texture_params(const GrGLInterface* interface,
 }
 
 GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
-                                    GrGpuResource::LifeCycle lifeCycle,
+                                    SkBudgeted budgeted,
                                     const SkTArray<GrMipLevel>& texels) {
     // We fail if the MSAA was requested and is not available.
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
@@ -1656,7 +1646,7 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     GrGLTexture::IDDesc idDesc;
-    idDesc.fLifeCycle = lifeCycle;
+    idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrGLTexture::TexParams initialTexParams;
     if (!this->createTextureImpl(desc, &idDesc.fInfo, renderTarget, &initialTexParams, texels)) {
         return return_null_texture();
@@ -1668,17 +1658,17 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
         GrGLRenderTarget::IDDesc rtIDDesc;
 
-        if (!this->createRenderTargetObjects(desc, lifeCycle, idDesc.fInfo, &rtIDDesc)) {
+        if (!this->createRenderTargetObjects(desc, idDesc.fInfo, &rtIDDesc)) {
             GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
             return return_null_texture();
         }
-        tex = new GrGLTextureRenderTarget(this, desc, idDesc, rtIDDesc);
+        tex = new GrGLTextureRenderTarget(this, budgeted, desc, idDesc, rtIDDesc);
     } else {
         bool wasMipMapDataProvided = false;
         if (texels.count() > 1) {
             wasMipMapDataProvided = true;
         }
-        tex = new GrGLTexture(this, desc, idDesc, wasMipMapDataProvided);
+        tex = new GrGLTexture(this, budgeted, desc, idDesc, wasMipMapDataProvided);
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
@@ -1689,14 +1679,14 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 }
 
 GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
-                                              GrGpuResource::LifeCycle lifeCycle,
+                                              SkBudgeted budgeted,
                                               const SkTArray<GrMipLevel>& texels) {
     // Make sure that we're not flipping Y.
     if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
         return return_null_texture();
     }
 
-    GrGLTexture::IDDesc idDesc = generate_gl_texture(this->glInterface(), lifeCycle);
+    GrGLTexture::IDDesc idDesc = generate_gl_texture(this->glInterface());
     if (!idDesc.fInfo.fID) {
         return return_null_texture();
     }
@@ -1713,7 +1703,7 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
     }
 
     GrGLTexture* tex;
-    tex = new GrGLTexture(this, desc, idDesc);
+    tex = new GrGLTexture(this, budgeted, desc, idDesc);
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
     SkDebugf("--- new compressed texture [%d] size=(%d %d) config=%d\n",
