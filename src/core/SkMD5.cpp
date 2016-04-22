@@ -8,7 +8,11 @@
  * http://www.ietf.org/rfc/rfc1321.txt
  */
 
-#include "SkTypes.h"
+//The following macros can be defined to affect the MD5 code generated.
+//SK_MD5_CLEAR_DATA causes all intermediate state to be overwritten with 0's.
+//SK_CPU_LENDIAN allows 32 bit <=> 8 bit conversions without copies (if alligned).
+//SK_CPU_FAST_UNALIGNED_ACCESS allows 32 bit <=> 8 bit conversions without copies if SK_CPU_LENDIAN.
+
 #include "SkMD5.h"
 #include <string.h>
 
@@ -32,7 +36,8 @@ SkMD5::SkMD5() : byteCount(0) {
     this->state[3] = 0x10325476;
 }
 
-void SkMD5::update(const uint8_t* input, size_t inputLength) {
+bool SkMD5::write(const void* buf, size_t inputLength) {
+    const uint8_t* input = reinterpret_cast<const uint8_t*>(buf);
     unsigned int bufferIndex = (unsigned int)(this->byteCount & 0x3F);
     unsigned int bufferAvailable = 64 - bufferIndex;
 
@@ -58,6 +63,7 @@ void SkMD5::update(const uint8_t* input, size_t inputLength) {
     memcpy(&this->buffer[bufferIndex], &input[inputIndex], inputLength - inputIndex);
 
     this->byteCount += inputLength;
+    return true;
 }
 
 void SkMD5::finish(Digest& digest) {
