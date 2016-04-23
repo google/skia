@@ -216,6 +216,13 @@ public:
 #endif
 
     /**
+     *  ImageFilters can natively handle scaling and translate components in the CTM. Only some of
+     *  them can handle affine (or more complex) matrices. This call returns true iff the filter
+     *  and all of its (non-null) inputs can handle these more complex matrices.
+     */
+    bool canHandleAffine() const { return this->onCanHandleAffine(); }
+
+    /**
      * Return an imagefilter which transforms its input by the given matrix.
      */
     static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
@@ -341,6 +348,8 @@ protected:
     virtual bool onIsColorFilterNode(SkColorFilter** /*filterPtr*/) const {
         return false;
     }
+
+    virtual bool onCanHandleAffine() const;
 
     /** Given a "srcBounds" rect, computes destination bounds for this filter.
      *  "dstBounds" are computed by transforming the crop rect by the context's

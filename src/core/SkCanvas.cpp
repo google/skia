@@ -1217,8 +1217,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
      *  Perhaps in the future we could augment #5 to apply REMAINDER as part of the draw (no longer
      *  a sprite operation) to avoid the extra buffer/overhead of MatrixImageFilter.
      */
-    if (imageFilter &&
-        !stashedMatrix.isScaleTranslate() &&
+    if (imageFilter && !stashedMatrix.isScaleTranslate() && !imageFilter->canHandleAffine() &&
         stashedMatrix.decomposeScale(&scale, &remainder))
     {
         // We will restore the matrix (which we are overwriting here) in restore via fStashedMatrix

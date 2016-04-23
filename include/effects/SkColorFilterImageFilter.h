@@ -36,6 +36,7 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
     bool onIsColorFilterNode(SkColorFilter**) const override;
+    bool onCanHandleAffine() const override;
     bool affectsTransparentBlack() const override;
 
 private:

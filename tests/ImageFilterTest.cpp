@@ -1706,3 +1706,31 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo
     test_large_blur_input(reporter, surface->getCanvas());
 }
 #endif
+
+/*
+ *  Test that colorfilterimagefilter does not require its CTM to be decomposed when it has more
+ *  than just scale/translate, but that other filters do.
+ */
+DEF_TEST(ImageFilterDecomposeCTM, reporter) {
+    // just need a colorfilter to exercise the corresponding imagefilter
+    sk_sp<SkColorFilter> cf = SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcATop_Mode);
+    sk_sp<SkImageFilter> cfif = SkColorFilterImageFilter::Make(cf, nullptr);
+    sk_sp<SkImageFilter> blif = SkBlurImageFilter::Make(3, 3, nullptr);
+
+    struct {
+        sk_sp<SkImageFilter> fFilter;
+        bool                 fExpectCanHandle;
+    } recs[] = {
+        { cfif,                                     true  },
+        { SkColorFilterImageFilter::Make(cf, cfif), true  },
+        { SkMergeImageFilter::Make(cfif, cfif),     true  },
+        { blif,                                     false },
+        { SkMergeImageFilter::Make(cfif, blif),     false },
+        { SkColorFilterImageFilter::Make(cf, blif), false },
+    };
+    
+    for (const auto& rec : recs) {
+        const bool canHandle = rec.fFilter->canHandleAffine();
+        REPORTER_ASSERT(reporter, canHandle == rec.fExpectCanHandle);
+    }
+}

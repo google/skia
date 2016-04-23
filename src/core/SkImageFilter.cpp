@@ -330,6 +330,24 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
     return true;
 }
 
+bool SkImageFilter::onCanHandleAffine() const {
+    bool hasInputs = false;
+
+    const int count = this->countInputs();
+    for (int i = 0; i < count; ++i) {
+        SkImageFilter* input = this->getInput(i);
+        if (input) {
+            if (!input->canHandleAffine()) {
+                return false;
+            }
+            hasInputs = true;
+        }
+    }
+    // We return true iff we had 1 or more inputs, and all of them can handle affine.
+    // If we have no inputs, or 1 or more of them do not handle affine, then we return false.
+    return hasInputs;
+}
+
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
                                   SkIRect* dstBounds) const {
     SkIRect temp = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
