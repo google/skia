@@ -1220,16 +1220,31 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-#ifndef SK_SUPPORT_LEGACY_LAYERITER
+    // don't call
+    GrRenderTarget* internal_private_accessTopLayerRenderTarget();
+
+    // don't call
+    static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
+    static bool Internal_Private_GetIgnoreSaveLayerBounds();
+    static void Internal_Private_SetTreatSpriteAsBitmap(bool);
+    static bool Internal_Private_GetTreatSpriteAsBitmap();
+
+    // TEMP helpers until we switch virtual over to const& for src-rect
+    void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                              const SkPaint* paint,
+                              SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                               const SkPaint* paint,
+                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
 protected:
-#endif
     /** After calling saveLayer(), there can be any number of devices that make
         up the top-most drawing area. LayerIter can be used to iterate through
         those devices. Note that the iterator is only valid until the next API
         call made on the canvas. Ownership of all pointers in the iterator stays
         with the canvas, so none of them should be modified or deleted.
     */
-    class SK_API LayerIter /*: SkNoncopyable*/ {
+    class LayerIter /*: SkNoncopyable*/ {
     public:
         /** Initialize iterator with canvas, and set values for 1st device */
         LayerIter(SkCanvas*, bool skipEmptyClips);
@@ -1261,25 +1276,6 @@ protected:
         bool              fDone;
     };
 
- public:
-    // don't call
-    GrRenderTarget* internal_private_accessTopLayerRenderTarget();
-
-    // don't call
-    static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
-    static bool Internal_Private_GetIgnoreSaveLayerBounds();
-    static void Internal_Private_SetTreatSpriteAsBitmap(bool);
-    static bool Internal_Private_GetTreatSpriteAsBitmap();
-
-    // TEMP helpers until we switch virtual over to const& for src-rect
-    void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                              const SkPaint* paint,
-                              SrcRectConstraint constraint = kStrict_SrcRectConstraint);
-    void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                               const SkPaint* paint,
-                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
-
-protected:
     // default impl defers to getDevice()->newSurface(info)
     virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
 
