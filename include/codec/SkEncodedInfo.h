@@ -64,10 +64,6 @@ public:
         // be treated as inverted CMYK.
         kInvertedCMYK_Color,
         kYCCK_Color,
-
-        // Used internally to indicate that the decoding library has
-        // pre-swizzled to the desired output format.
-        kPreSwizzled_Color,
     };
 
     static SkEncodedInfo Make(Color color, Alpha alpha, int bitsPerComponent) {

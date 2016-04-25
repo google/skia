@@ -518,15 +518,17 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     // libjpeg-turbo may have already performed color conversion.  We must indicate the
     // appropriate format to the swizzler.
     SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
+    bool preSwizzled = true;
     switch (fDecoderMgr->dinfo()->out_color_space) {
         case JCS_RGB:
+            preSwizzled = false;
             swizzlerInfo.setColor(SkEncodedInfo::kRGB_Color);
             break;
         case JCS_CMYK:
+            preSwizzled = false;
             swizzlerInfo.setColor(SkEncodedInfo::kInvertedCMYK_Color);
             break;
         default:
-            swizzlerInfo.setColor(SkEncodedInfo::kPreSwizzled_Color);
             break;
     }
 
@@ -539,7 +541,8 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
                 fSwizzlerSubset.width() == options.fSubset->width());
         swizzlerOptions.fSubset = &fSwizzlerSubset;
     }
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, dstInfo, swizzlerOptions));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, dstInfo, swizzlerOptions,
+                                               nullptr, preSwizzled));
     SkASSERT(fSwizzler);
     fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
     fSrcRow = fStorage.get();
