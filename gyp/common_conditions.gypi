@@ -620,11 +620,14 @@
           'SK_GAMMA_SRGB',
         ],
         'configurations': {
-          'Debug': {
-            'cflags': ['-g']
-          },
           'Release': {
             'cflags': ['-O2'],
+            'conditions': [
+              [ 'skia_clang_build', {
+                'cflags!': ['-g'],
+                'cflags': [ '-gline-tables-only' ],
+              }],
+            ],
           },
         },
         'libraries': [

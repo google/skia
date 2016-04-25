@@ -12,7 +12,7 @@
 set -e
 
 BUILDTYPE=${BUILDTYPE-Debug}
-USE_CLANG="false"
+USE_CLANG="true"
 
 while (( "$#" )); do
   if [[ "$1" == "-d" ]]; then

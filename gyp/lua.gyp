@@ -69,7 +69,7 @@
         ],
         [ 'skia_clang_build == 1', {
           'cflags':[
-            '-Wno-error',
+            '-w',
           ],
         }],
       ],
