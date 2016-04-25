@@ -102,6 +102,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
         draw->fY = head->fY;
         that->fDraws.popHead();
     }
+    this->joinBounds(that->fBounds);
     return true;
 }
 
