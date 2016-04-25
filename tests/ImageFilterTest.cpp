@@ -1711,11 +1711,11 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo
  *  Test that colorfilterimagefilter does not require its CTM to be decomposed when it has more
  *  than just scale/translate, but that other filters do.
  */
-DEF_TEST(ImageFilterDecomposeCTM, reporter) {
+DEF_TEST(ImageFilterComplexCTM, reporter) {
     // just need a colorfilter to exercise the corresponding imagefilter
     sk_sp<SkColorFilter> cf = SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcATop_Mode);
-    sk_sp<SkImageFilter> cfif = SkColorFilterImageFilter::Make(cf, nullptr);
-    sk_sp<SkImageFilter> blif = SkBlurImageFilter::Make(3, 3, nullptr);
+    sk_sp<SkImageFilter> cfif = SkColorFilterImageFilter::Make(cf, nullptr);    // can handle
+    sk_sp<SkImageFilter> blif = SkBlurImageFilter::Make(3, 3, nullptr);         // cannot handle
 
     struct {
         sk_sp<SkImageFilter> fFilter;
@@ -1724,13 +1724,17 @@ DEF_TEST(ImageFilterDecomposeCTM, reporter) {
         { cfif,                                     true  },
         { SkColorFilterImageFilter::Make(cf, cfif), true  },
         { SkMergeImageFilter::Make(cfif, cfif),     true  },
+        { SkComposeImageFilter::Make(cfif, cfif),   true  },
+
         { blif,                                     false },
-        { SkMergeImageFilter::Make(cfif, blif),     false },
+        { SkBlurImageFilter::Make(3, 3, cfif),      false },
         { SkColorFilterImageFilter::Make(cf, blif), false },
+        { SkMergeImageFilter::Make(cfif, blif),     false },
+        { SkComposeImageFilter::Make(blif, cfif),   false },
     };
     
     for (const auto& rec : recs) {
-        const bool canHandle = rec.fFilter->canHandleAffine();
+        const bool canHandle = rec.fFilter->canHandleComplexCTM();
         REPORTER_ASSERT(reporter, canHandle == rec.fExpectCanHandle);
     }
 }

@@ -126,12 +126,6 @@ bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const
     return false;
 }
 
-bool SkColorFilterImageFilter::onCanHandleAffine() const {
-    SkASSERT(1 == this->countInputs());
-    SkImageFilter* input = this->getInput(0);
-    return !input || input->canHandleAffine();
-}
-
 bool SkColorFilterImageFilter::affectsTransparentBlack() const {
     return fColorFilter->affectsTransparentBlack();
 }

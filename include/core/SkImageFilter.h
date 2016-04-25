@@ -220,7 +220,7 @@ public:
      *  them can handle affine (or more complex) matrices. This call returns true iff the filter
      *  and all of its (non-null) inputs can handle these more complex matrices.
      */
-    bool canHandleAffine() const { return this->onCanHandleAffine(); }
+    bool canHandleComplexCTM() const;
 
     /**
      * Return an imagefilter which transforms its input by the given matrix.
@@ -349,7 +349,11 @@ protected:
         return false;
     }
 
-    virtual bool onCanHandleAffine() const;
+    /**
+     *  Override this to describe the behavior of your subclass - as a leaf node. The caller will
+     *  take care of calling your inputs (and return false if any of them could not handle it).
+     */
+    virtual bool onCanHandleComplexCTM() const { return false; }
 
     /** Given a "srcBounds" rect, computes destination bounds for this filter.
      *  "dstBounds" are computed by transforming the crop rect by the context's
