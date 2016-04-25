@@ -95,54 +95,6 @@ SkPDFObject* SkPDFMetadata::CreatePdfId(const UUID& doc, const UUID& instance) {
     return array.release();
 }
 
-// Improvement on SkStringPrintf to allow for arbitrarily long output.
-// TODO: replace SkStringPrintf.
-static SkString sk_string_printf(const char* format, ...) {
-#ifdef SK_BUILD_FOR_WIN
-    va_list args;
-    va_start(args, format);
-    char buffer[1024];
-    int length = _vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, format, args);
-    va_end(args);
-    if (length >= 0 && length < (int)sizeof(buffer)) {
-        return SkString(buffer, length);
-    }
-    va_start(args, format);
-    length = _vscprintf(format, args);
-    va_end(args);
-
-    SkString string((size_t)length);
-    va_start(args, format);
-    SkDEBUGCODE(int check = ) _vsnprintf_s(string.writable_str(), length + 1,
-                                           _TRUNCATE, format, args);
-    va_end(args);
-    SkASSERT(check == length);
-    SkASSERT(string[length] == '\0');
-    return string;
-#else  // C99/C++11 standard vsnprintf
-    // TODO: When all compilers support this, remove windows-specific code.
-    va_list args;
-    va_start(args, format);
-    char buffer[1024];
-    int length = vsnprintf(buffer, sizeof(buffer), format, args);
-    va_end(args);
-    if (length < 0) {
-        return SkString();
-    }
-    if (length < (int)sizeof(buffer)) {
-        return SkString(buffer, length);
-    }
-    SkString string((size_t)length);
-    va_start(args, format);
-    SkDEBUGCODE(int check = )
-            vsnprintf(string.writable_str(), length + 1, format, args);
-    va_end(args);
-    SkASSERT(check == length);
-    SkASSERT(string[length] == '\0');
-    return string;
-#endif
-}
-
 static const SkString get(const SkTArray<SkDocument::Attribute>& info,
                           const char* key) {
     for (const auto& keyValue : info) {
@@ -303,14 +255,14 @@ SkPDFObject* SkPDFMetadata::createXMPObject(const UUID& doc,
         fCreation->toISO8601(&tmp);
         SkASSERT(0 == count_xml_escape_size(tmp));
         // YYYY-mm-ddTHH:MM:SS[+|-]ZZ:ZZ; no need to escape
-        creationDate = sk_string_printf("<xmp:CreateDate>%s</xmp:CreateDate>\n",
-                                        tmp.c_str());
+        creationDate = SkStringPrintf("<xmp:CreateDate>%s</xmp:CreateDate>\n",
+                                      tmp.c_str());
     }
     if (fModified) {
         SkString tmp;
         fModified->toISO8601(&tmp);
         SkASSERT(0 == count_xml_escape_size(tmp));
-        modificationDate = sk_string_printf(
+        modificationDate = SkStringPrintf(
                 "<xmp:ModifyDate>%s</xmp:ModifyDate>\n", tmp.c_str());
     }
     SkString title = escape_xml(
@@ -339,7 +291,7 @@ SkPDFObject* SkPDFMetadata::createXMPObject(const UUID& doc,
     SkASSERT(0 == count_xml_escape_size(documentID));
     SkString instanceID = uuid_to_string(instance);
     SkASSERT(0 == count_xml_escape_size(instanceID));
-    return new PDFXMLObject(sk_string_printf(
+    return new PDFXMLObject(SkStringPrintf(
             templateString, modificationDate.c_str(), creationDate.c_str(),
             creator.c_str(), title.c_str(),
             subject.c_str(), author.c_str(), keywords1.c_str(),

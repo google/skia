@@ -33,6 +33,58 @@ static const size_t kBufferSize = 1024;
         va_end(args);                                      \
     } while (0)
 
+#ifdef SK_BUILD_FOR_WIN
+#define V_SKSTRING_PRINTF(output, format)                               \
+    do {                                                                \
+        va_list args;                                                   \
+        va_start(args, format);                                         \
+        char buffer[kBufferSize];                                       \
+        int length = _vsnprintf_s(buffer, sizeof(buffer),               \
+                                  _TRUNCATE, format, args);             \
+        va_end(args);                                                   \
+        if (length >= 0 && length < (int)sizeof(buffer)) {              \
+            output.set(buffer, length);                                 \
+            break;                                                      \
+        }                                                               \
+        va_start(args, format);                                         \
+        length = _vscprintf(format, args);                              \
+        va_end(args);                                                   \
+        SkAutoTMalloc<char> autoTMalloc((size_t)length + 1);            \
+        va_start(args, format);                                         \
+        SkDEBUGCODE(int check = ) _vsnprintf_s(autoTMalloc.get(),       \
+                                               length + 1, _TRUNCATE,   \
+                                               format, args);           \
+        va_end(args);                                                   \
+        SkASSERT(check == length);                                      \
+        output.set(autoTMalloc.get(), length);                          \
+        SkASSERT(output[length] == '\0');                               \
+    } while (false)
+#else
+#define V_SKSTRING_PRINTF(output, format)                               \
+    do {                                                                \
+        va_list args;                                                   \
+        va_start(args, format);                                         \
+        char buffer[kBufferSize];                                       \
+        int length = vsnprintf(buffer, sizeof(buffer), format, args);   \
+        va_end(args);                                                   \
+        if (length < 0) {                                               \
+            break;                                                      \
+        }                                                               \
+        if (length < (int)sizeof(buffer)) {                             \
+            output.set(buffer, length);                                 \
+            break;                                                      \
+        }                                                               \
+        SkAutoTMalloc<char> autoTMalloc((size_t)length + 1);            \
+        va_start(args, format);                                         \
+        SkDEBUGCODE(int check = ) vsnprintf(autoTMalloc.get(),          \
+                                            length + 1, format, args);  \
+        va_end(args);                                                   \
+        SkASSERT(check == length);                                      \
+        output.set(autoTMalloc.get(), length);                          \
+        SkASSERT(output[length] == '\0');                               \
+    } while (false)
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkStrEndsWith(const char string[], const char suffixStr[]) {
@@ -513,11 +565,7 @@ void SkString::insertScalar(size_t offset, SkScalar value) {
 }
 
 void SkString::printf(const char format[], ...) {
-    char    buffer[kBufferSize];
-    int length;
-    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
-
-    this->set(buffer, length);
+    V_SKSTRING_PRINTF((*this), format);
 }
 
 void SkString::appendf(const char format[], ...) {
@@ -593,10 +641,7 @@ void SkString::swap(SkString& other) {
 
 SkString SkStringPrintf(const char* format, ...) {
     SkString formattedOutput;
-    char buffer[kBufferSize];
-    SK_UNUSED int length;
-    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
-    formattedOutput.set(buffer);
+    V_SKSTRING_PRINTF(formattedOutput, format);
     return formattedOutput;
 }
 
