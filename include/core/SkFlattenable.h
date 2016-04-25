@@ -71,6 +71,7 @@ class SK_API SkFlattenable : public SkRefCnt {
 public:
     enum Type {
         kSkColorFilter_Type,
+        kSkDrawable_Type,
         kSkDrawLooper_Type,
         kSkImageFilter_Type,
         kSkMaskFilter_Type,
