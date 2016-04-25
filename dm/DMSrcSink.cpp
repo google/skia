@@ -585,11 +585,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     // And scale
                     // FIXME: Should we have a version of getScaledDimensions that takes a subset
                     // into account?
-                    decodeInfo = decodeInfo.makeWH(
-                            SkTMax(1, SkScalarRoundToInt(preScaleW * fScale)),
-                            SkTMax(1, SkScalarRoundToInt(preScaleH * fScale)));
-                    size_t rowBytes = decodeInfo.minRowBytes();
-                    if (!subsetBm.installPixels(decodeInfo, pixels, rowBytes, colorTable.get(),
+                    const int scaledW = SkTMax(1, SkScalarRoundToInt(preScaleW * fScale));
+                    const int scaledH = SkTMax(1, SkScalarRoundToInt(preScaleH * fScale));
+                    decodeInfo = decodeInfo.makeWH(scaledW, scaledH);
+                    SkImageInfo subsetBitmapInfo = bitmapInfo.makeWH(scaledW, scaledH);
+                    size_t rowBytes = subsetBitmapInfo.minRowBytes();
+                    if (!subsetBm.installPixels(subsetBitmapInfo, pixels, rowBytes, colorTable.get(),
                                                 nullptr, nullptr)) {
                         return SkStringPrintf("could not install pixels for %s.", fPath.c_str());
                     }
@@ -606,7 +607,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                                   fPath.c_str(), W, H, result);
                     }
                     premultiply_if_necessary(subsetBm);
-                    swap_rb_if_necessary(bitmap, fDstColorType);
+                    swap_rb_if_necessary(subsetBm, fDstColorType);
                     canvas->drawBitmap(subsetBm, SkIntToScalar(left), SkIntToScalar(top));
                     // translate by the scaled height.
                     top += decodeInfo.height();
