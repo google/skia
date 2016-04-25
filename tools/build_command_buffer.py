@@ -114,14 +114,13 @@ def main():
       sys.exit('Error (ret code: %s) calling "%s" in %s' % (error.returncode,
           error.cmd, chrome_src_dir))
 
-  try:
-    subprocess.check_call(['git', 'checkout', args.chrome_revision],
-        cwd=chrome_src_dir)
-  except subprocess.CalledProcessError as error:
-    sys.exit('Error (ret code: %s) calling "%s" in %s' % (error.returncode,
-        error.cmd, chrome_src_dir))
+    try:
+      subprocess.check_call(['git', 'checkout', args.chrome_revision],
+          cwd=chrome_src_dir)
+    except subprocess.CalledProcessError as error:
+      sys.exit('Error (ret code: %s) calling "%s" in %s' % (error.returncode,
+          error.cmd, chrome_src_dir))
 
-  if not args.no_sync:
     try:
       os.environ['GYP_GENERATORS'] = 'ninja'
       subprocess.check_call([gclient, 'sync', '--reset', '--force'],
