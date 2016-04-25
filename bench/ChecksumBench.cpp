@@ -51,7 +51,7 @@ protected:
             case kMD5_ChecksumType: {
                 for (int i = 0; i < loops; i++) {
                     SkMD5 md5;
-                    md5.update(reinterpret_cast<uint8_t*>(fData), sizeof(fData));
+                    md5.write(fData, sizeof(fData));
                     SkMD5::Digest digest;
                     md5.finish(digest);
                 }

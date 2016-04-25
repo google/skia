@@ -874,7 +874,7 @@ static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
     SkMD5 md5;
     size_t rowLen = bm.info().bytesPerPixel() * bm.width();
     for (int y = 0; y < bm.height(); ++y) {
-        md5.update(static_cast<uint8_t*>(bm.getAddr(0, y)), rowLen);
+        md5.write(bm.getAddr(0, y), rowLen);
     }
     md5.finish(*digest);
 }

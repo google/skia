@@ -80,10 +80,10 @@ void SkMD5::finish(Digest& digest) {
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
-    this->update(PADDING, paddingLength);
+    (void)this->write(PADDING, paddingLength);
 
     // Append length (length before padding, will cause final update).
-    this->update(bits, 8);
+    (void)this->write(bits, 8);
 
     // Write out digest.
     encode(digest.data, this->state);

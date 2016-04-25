@@ -21,9 +21,6 @@ public:
 
     size_t bytesWritten() const final { return SkToSizeT(this->byteCount); }
 
-    /** Alias for write() */
-    void update(const uint8_t* b, size_t l) { (void)this->write(b, l); }
-
     struct Digest {
         uint8_t data[16];
         bool operator ==(Digest const& other) const {
