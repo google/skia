@@ -26,8 +26,8 @@ make -j $cores cmake
 popd
 
 echo "Building with bootstrapped CMake"
-mkdir -p $SKIA_OUT
-pushd $SKIA_OUT
+mkdir -p $SKIA_OUT/$BUILDTYPE
+pushd $SKIA_OUT/$BUILDTYPE
 $here/../third_party/externals/cmake/bin/cmake -DCMAKE_BUILD_TYPE=$BUILDTYPE $here -G Ninja
 ninja
 popd
