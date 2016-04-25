@@ -36,6 +36,18 @@ public:
     const SkRect& getBounds() const { return fBounds; }
 
     GrPathRendering::FillType getFillType() const { return fFillType; }
+
+    /**
+     * Returns true if a path can be drawn in the same draw paths operation as the other
+     * path. Should return true only when the condition holds transitively with all other paths in
+     * the same group.
+     * E.g.
+     * canCombineDrawPathBatchWith(a) AND canCombineDrawPathBatchWith(b)
+     * canCombineDrawPathBatchWith(a) AND canCombineDrawPathBatchWith(c)
+     *  implies
+     * canCombineDrawPathBatchWith(b) AND canCombineDrawPathBatchWith(c)
+     */
+    virtual bool canCombineDrawPathBatchWith(const GrPath& other) const = 0;
 #ifdef SK_DEBUG
     bool isEqualTo(const SkPath& path, const GrStrokeInfo& stroke) const;
 #endif

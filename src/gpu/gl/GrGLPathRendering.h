@@ -65,10 +65,6 @@ public:
 
 protected:
     void onStencilPath(const StencilPathArgs&, const GrPath*) override;
-    void onDrawPath(const GrPipeline&,
-                    const GrPrimitiveProcessor&,
-                    const GrStencilSettings&,
-                    const GrPath*) override;
     void onDrawPaths(const GrPipeline&,
                      const GrPrimitiveProcessor&,
                      const GrStencilSettings&,
@@ -77,6 +73,11 @@ protected:
                      PathIndexType,
                      const float transformValues[],
                      PathTransformType,
+                     int count) override;
+    void onDrawPaths(const GrPipeline&,
+                     const GrPrimitiveProcessor&,
+                     const GrStencilSettings&,
+                     const GrPath* const*,
                      int count) override;
 private:
     /**

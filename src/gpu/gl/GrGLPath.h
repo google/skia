@@ -37,6 +37,7 @@ public:
 
     bool shouldStroke() const { return fShouldStroke; }
     bool shouldFill() const { return fShouldFill; }
+    bool canCombineDrawPathBatchWith(const GrPath& other) const override;
 protected:
     void onRelease() override;
     void onAbandon() override;

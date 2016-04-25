@@ -145,37 +145,10 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     }
 }
 
-void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
-                                   const GrPrimitiveProcessor& primProc,
-                                   const GrStencilSettings& stencil,
-                                   const GrPath* path) {
-    if (!this->gpu()->flushGLState(pipeline, primProc)) {
-        return;
-    }
-    const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
-
-    this->flushPathStencilSettings(stencil);
-    SkASSERT(!fHWPathStencilSettings.isTwoSided());
-
-    GrGLenum fillMode = gr_stencil_op_to_gl_path_rendering_fill_mode(
-        fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
-    GrGLint writeMask = fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
-
-    if (glPath->shouldStroke()) {
-        if (glPath->shouldFill()) {
-            GL_CALL(StencilFillPath(glPath->pathID(), fillMode, writeMask));
-        }
-        GL_CALL(StencilThenCoverStrokePath(glPath->pathID(), 0xffff, writeMask,
-                                           GR_GL_BOUNDING_BOX));
-    } else {
-        GL_CALL(StencilThenCoverFillPath(glPath->pathID(), fillMode, writeMask,
-                                         GR_GL_BOUNDING_BOX));
-    }
-}
-
 void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
                                     const GrPrimitiveProcessor& primProc,
-                                    const GrStencilSettings& stencil, const GrPathRange* pathRange,
+                                    const GrStencilSettings& stencil,
+                                    const GrPathRange* pathRange,
                                     const void* indices, PathIndexType indexType,
                                     const float transformValues[], PathTransformType transformType,
                                     int count) {
@@ -212,6 +185,60 @@ void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
                             count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
                             fillMode, writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
                             gXformType2GLType[transformType], transformValues));
+    }
+}
+
+void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
+                                    const GrPrimitiveProcessor& primProc,
+                                    const GrStencilSettings& stencil,
+                                    const GrPath* const* paths,
+                                    int count) {
+    if (!count) {
+        return;
+    }
+    if (!this->gpu()->flushGLState(pipeline, primProc)) {
+        return;
+    }
+    this->flushPathStencilSettings(stencil);
+    SkASSERT(!fHWPathStencilSettings.isTwoSided());
+
+    GrGLenum fillMode =
+        gr_stencil_op_to_gl_path_rendering_fill_mode(
+            fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
+    GrGLint writeMask =
+        fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
+    const GrGLPath* path = static_cast<const GrGLPath*>(paths[0]);
+    if (count > 1) {
+        SkAutoSTMalloc<32, GrGLuint> indexStorage(count);
+        for (int i = 0; i < count; ++i) {
+            indexStorage[i] = static_cast<const GrGLPath*>(paths[i])->pathID();
+        }
+        if (path->shouldStroke()) {
+            if (path->shouldFill()) {
+                GL_CALL(StencilFillPathInstanced(
+                    count, GR_GL_UNSIGNED_INT, indexStorage, 0,
+                    fillMode, writeMask, GR_GL_NONE, nullptr));
+            }
+            GL_CALL(StencilThenCoverStrokePathInstanced(
+                count, GR_GL_UNSIGNED_INT, indexStorage, 0, 0xffff, writeMask,
+                GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES, GR_GL_NONE, nullptr));
+        } else {
+            GL_CALL(StencilThenCoverFillPathInstanced(
+                count, GR_GL_UNSIGNED_INT, indexStorage, 0,
+                fillMode, writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
+                GR_GL_NONE, nullptr));
+        }
+    } else {
+        if (path->shouldStroke()) {
+            if (path->shouldFill()) {
+                GL_CALL(StencilFillPath(path->pathID(), fillMode, writeMask));
+            }
+            GL_CALL(StencilThenCoverStrokePath(path->pathID(), 0xffff, writeMask,
+                                               GR_GL_BOUNDING_BOX));
+        } else {
+            GL_CALL(StencilThenCoverFillPath(path->pathID(), fillMode, writeMask,
+                                             GR_GL_BOUNDING_BOX));
+        }
     }
 }
 

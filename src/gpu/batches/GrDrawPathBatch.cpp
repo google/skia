@@ -13,18 +13,84 @@ static void pre_translate_transform_values(const float* xforms,
 
 SkString GrDrawPathBatch::dumpInfo() const {
     SkString string;
-    string.printf("PATH: 0x%p", fPath.get());
+    string.printf("Color: 0x%08x Fill: %x Path count: %d Paths: ", this->color(), this->fillType(),
+                  fTotalPathCount);
+    const GrDrawPathBatch* batch = this;
+    do {
+        string.appendf("0x%p", batch->fPath.get());
+        batch = batch->fNext.get();
+    } while (batch);
+    string.append("\n");
     return string;
 }
 
-void GrDrawPathBatch::onDraw(GrBatchFlushState* state) {
-    GrProgramDesc  desc;
+bool GrDrawPathBatch::ListBoundsIntersects(const GrDrawPathBatch* a, const GrDrawPathBatch* b) {
+    if (!SkRect::Intersects(a->fBounds, b->fBounds)) {
+        return false;
+    }
+    if (!a->fNext && !b->fNext) {
+        return true;
+    }
+    const GrDrawPathBatch* firstA = a;
+    do {
+        do {
+            if (SkRect::Intersects(a->fPathBounds, b->fPathBounds)) {
+                return true;
+            }
+            a = a->fNext.get();
+        } while (a);
+        a = firstA;
+        b = b->fNext.get();
+    } while (b);
+    return false;
+}
 
+bool GrDrawPathBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+    GrDrawPathBatch* that = t->cast<GrDrawPathBatch>();
+    if (this->color() != that->color() ||
+        !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        return false;
+    }
+    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline(), false)) {
+        return false;
+    }
+    if (that->fillType() != this->fillType() ||
+        this->stencilSettings() != that->stencilSettings()) {
+        return false;
+    }
+    if (ListBoundsIntersects(this, that)) {
+        return false;
+    }
+    if (!fPath.get()->canCombineDrawPathBatchWith(*that->fPath.get())) {
+        return false;
+    }
+    SkASSERT(!*fLastSlot);
+    fLastSlot->reset(SkRef(that));
+    fLastSlot = that->fLastSlot;
+    fTotalPathCount += that->fTotalPathCount;
+    this->joinBounds(that->fBounds);
+    return true;
+}
+
+void GrDrawPathBatch::onDraw(GrBatchFlushState* state) {
     SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                                    this->overrides(),
                                                                    this->viewMatrix()));
-    state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc, this->stencilSettings(),
-                                            fPath.get());
+    if (fTotalPathCount > 1) {
+        SkAutoSTMalloc<32, const GrPath*> paths(fTotalPathCount);
+        GrDrawPathBatch* batch = this;
+        int i = 0;
+        do {
+            paths[i++] = batch->fPath.get();
+            batch = batch->fNext.get();
+        } while (batch);
+        state->gpu()->pathRendering()->drawPaths(*this->pipeline(), *pathProc,
+                                                 this->stencilSettings(), paths, fTotalPathCount);
+    } else {
+        const GrPath* path = fPath.get();
+        state->gpu()->pathRendering()->drawPaths(*this->pipeline(), *pathProc,
+                                                 this->stencilSettings(), &path, 1);
+    }
 }
 
 SkString GrDrawPathRangeBatch::dumpInfo() const {
