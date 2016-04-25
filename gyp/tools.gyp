@@ -278,6 +278,7 @@
       ],
       'dependencies': [
         'flags.gyp:flags',
+        'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
       ],
     },
