@@ -9,11 +9,6 @@
 
 #include "SkImageInfo.h"
 
-// Indicate how images and gradients should interpret colors by default.
-extern bool gDefaultProfileIsSRGB;
-
-static SkColorProfileType SkDefaultColorProfile() {
-    return gDefaultProfileIsSRGB ? kSRGB_SkColorProfileType : kLinear_SkColorProfileType;
-}
+SK_API SkColorProfileType SkDefaultColorProfile();
 
 #endif  // SkImageInfoPriv_DEFINED

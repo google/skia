@@ -6,10 +6,17 @@
  */
 
 #include "SkImageInfo.h"
+#include "SkImageInfoPriv.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-SK_API bool gDefaultProfileIsSRGB;
+// Indicate how images and gradients should interpret colors by default.
+bool gDefaultProfileIsSRGB;
+
+SkColorProfileType SkDefaultColorProfile() {
+    return gDefaultProfileIsSRGB ? kSRGB_SkColorProfileType
+                                 : kLinear_SkColorProfileType;
+}
 
 static bool profile_type_is_valid(SkColorProfileType profileType) {
     return (profileType >= 0) && (profileType <= kLastEnum_SkColorProfileType);
