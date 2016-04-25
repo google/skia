@@ -21,10 +21,6 @@ public:
         // Each pixel is either fully opaque or fully transparent.
         // There is no difference between requesting kPremul or kUnpremul.
         kBinary_Alpha,
-
-        // Allows us to have a default constructor.  Should be treated as
-        // invalid.
-        kUnknown_Alpha,
     };
 
     /*
@@ -72,10 +68,6 @@ public:
         // Used internally to indicate that the decoding library has
         // pre-swizzled to the desired output format.
         kPreSwizzled_Color,
-
-        // Allows us to have a default constructor.  Should be treated as
-        // invalid.
-        kUnknown_Color,
     };
 
     static SkEncodedInfo Make(Color color, Alpha alpha, int bitsPerComponent) {
@@ -194,12 +186,6 @@ public:
                 return 0;
         }
     }
-
-    SkEncodedInfo()
-        : fColor(kUnknown_Color)
-        , fAlpha(kUnknown_Alpha)
-        , fBitsPerComponent(0)
-    {}
 
 private:
 

@@ -43,10 +43,10 @@ public:
     void  init();
 
     /*
-     * Returns the encoded color type of the jpeg, or kUnknown if the
-     * color type can't be determined
+     * Returns true if it successfully sets outColor to the encoded color,
+     * and false otherwise.
      */
-    SkEncodedInfo::Color getEncodedColor();
+    bool getEncodedColor(SkEncodedInfo::Color* outColor);
 
     /*
      * Free memory used by the decode manager

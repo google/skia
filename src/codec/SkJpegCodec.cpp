@@ -212,8 +212,8 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
 
     if (codecOut) {
         // Get the encoded color type
-        SkEncodedInfo::Color color = decoderMgr->getEncodedColor();
-        if (SkEncodedInfo::kUnknown_Color == color) {
+        SkEncodedInfo::Color color;
+        if (!decoderMgr->getEncodedColor(&color)) {
             return false;
         }
 

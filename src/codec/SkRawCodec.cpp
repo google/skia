@@ -556,8 +556,6 @@ private:
     void init(int width, int height, const dng_point& cfaPatternSize) {
         fWidth = width;
         fHeight = height;
-        fEncodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kRGB_Color,
-                SkEncodedInfo::kOpaque_Alpha, 8);
 
         // The DNG SDK scales only during demosaicing, so scaling is only possible when
         // a mosaic info is available.
@@ -618,7 +616,10 @@ private:
     }
 
     SkDngImage(SkRawStream* stream)
-        : fStream(stream) {}
+        : fStream(stream)
+        , fEncodedInfo(SkEncodedInfo::Make(SkEncodedInfo::kRGB_Color,
+                                           SkEncodedInfo::kOpaque_Alpha, 8))
+    {}
 
     SkDngMemoryAllocator fAllocator;
     SkAutoTDelete<SkRawStream> fStream;

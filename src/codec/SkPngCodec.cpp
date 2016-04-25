@@ -261,349 +261,10 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
     return nullptr;
 }
 
-// Reads the header and initializes the output fields, if not NULL.
-//
-// @param stream Input data. Will be read to get enough information to properly
-//      setup the codec.
-// @param chunkReader SkPngChunkReader, for reading unknown chunks. May be NULL.
-//      If not NULL, png_ptr will hold an *unowned* pointer to it. The caller is
-//      expected to continue to own it for the lifetime of the png_ptr.
-// @param png_ptrp Optional output variable. If non-NULL, will be set to a new
-//      png_structp on success.
-// @param info_ptrp Optional output variable. If non-NULL, will be set to a new
-//      png_infop on success;
-// @param info Optional output variable. If non-NULL, will be set to
-//      reflect the properties of the encoded image on success.
-// @param bitDepthPtr Optional output variable. If non-NULL, will be set to the
-//      bit depth of the encoded image on success.
-// @param numberPassesPtr Optional output variable. If non-NULL, will be set to
-//      the number_passes of the encoded image on success.
-// @return true on success, in which case the caller is responsible for calling
-//      png_destroy_read_struct(png_ptrp, info_ptrp).
-//      If it returns false, the passed in fields (except stream) are unchanged.
-static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
-                        png_structp* png_ptrp, png_infop* info_ptrp,
-                        int* width, int* height, SkEncodedInfo* info, int* bitDepthPtr,
-                        int* numberPassesPtr) {
-    // The image is known to be a PNG. Decode enough to know the SkImageInfo.
-    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
-                                                 sk_error_fn, sk_warning_fn);
-    if (!png_ptr) {
-        return false;
-    }
-
-    AutoCleanPng autoClean(png_ptr);
-
-    png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (info_ptr == nullptr) {
-        return false;
-    }
-
-    autoClean.setInfoPtr(info_ptr);
-
-    // FIXME: Could we use the return value of setjmp to specify the type of
-    // error?
-    if (setjmp(png_jmpbuf(png_ptr))) {
-        return false;
-    }
-
-    png_set_read_fn(png_ptr, static_cast<void*>(stream), sk_read_fn);
-
-#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
-    // Hookup our chunkReader so we can see any user-chunks the caller may be interested in.
-    // This needs to be installed before we read the png header.  Android may store ninepatch
-    // chunks in the header.
-    if (chunkReader) {
-        png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"", 0);
-        png_set_read_user_chunk_fn(png_ptr, (png_voidp) chunkReader, sk_read_user_chunk);
-    }
-#endif
-
-    // The call to png_read_info() gives us all of the information from the
-    // PNG file before the first IDAT (image data chunk).
-    png_read_info(png_ptr, info_ptr);
-    png_uint_32 origWidth, origHeight;
-    int bitDepth, encodedColorType;
-    png_get_IHDR(png_ptr, info_ptr, &origWidth, &origHeight, &bitDepth,
-                 &encodedColorType, nullptr, nullptr, nullptr);
-
-    if (bitDepthPtr) {
-        *bitDepthPtr = bitDepth;
-    }
-
-    // Tell libpng to strip 16 bit/color files down to 8 bits/color.
-    // TODO: Should we handle this in SkSwizzler?  Could this also benefit
-    //       RAW decodes?
-    if (bitDepth == 16) {
-        SkASSERT(PNG_COLOR_TYPE_PALETTE != encodedColorType);
-        png_set_strip_16(png_ptr);
-    }
-
-    // Now determine the default colorType and alphaType and set the required transforms.
-    // Often, we depend on SkSwizzler to perform any transforms that we need.  However, we
-    // still depend on libpng for many of the rare and PNG-specific cases.
-    SkEncodedInfo::Color color;
-    SkEncodedInfo::Alpha alpha;
-    switch (encodedColorType) {
-        case PNG_COLOR_TYPE_PALETTE:
-            // Extract multiple pixels with bit depths of 1, 2, and 4 from a single
-            // byte into separate bytes (useful for paletted and grayscale images).
-            if (bitDepth < 8) {
-                // TODO: Should we use SkSwizzler here?
-                png_set_packing(png_ptr);
-            }
-
-            color = SkEncodedInfo::kPalette_Color;
-            // Set the alpha depending on if a transparency chunk exists.
-            alpha = png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ?
-                    SkEncodedInfo::kUnpremul_Alpha : SkEncodedInfo::kOpaque_Alpha;
-            break;
-        case PNG_COLOR_TYPE_RGB:
-            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-                // Convert to RGBA if transparency chunk exists.
-                png_set_tRNS_to_alpha(png_ptr);
-                color = SkEncodedInfo::kRGBA_Color;
-                alpha = SkEncodedInfo::kBinary_Alpha;
-            } else {
-                color = SkEncodedInfo::kRGB_Color;
-                alpha = SkEncodedInfo::kOpaque_Alpha;
-            }
-            break;
-        case PNG_COLOR_TYPE_GRAY:
-            // Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel.
-            if (bitDepth < 8) {
-                // TODO: Should we use SkSwizzler here?
-                png_set_expand_gray_1_2_4_to_8(png_ptr);
-            }
-
-            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-                png_set_tRNS_to_alpha(png_ptr);
-                color = SkEncodedInfo::kGrayAlpha_Color;
-                alpha = SkEncodedInfo::kBinary_Alpha;
-            } else {
-                color = SkEncodedInfo::kGray_Color;
-                alpha = SkEncodedInfo::kOpaque_Alpha;
-            }
-            break;
-        case PNG_COLOR_TYPE_GRAY_ALPHA:
-            color = SkEncodedInfo::kGrayAlpha_Color;
-            alpha = SkEncodedInfo::kUnpremul_Alpha;
-            break;
-        case PNG_COLOR_TYPE_RGBA:
-            color = SkEncodedInfo::kRGBA_Color;
-            alpha = SkEncodedInfo::kUnpremul_Alpha;
-            break;
-        default:
-            // All the color types have been covered above.
-            SkASSERT(false);
-            color = SkEncodedInfo::kRGBA_Color;
-            alpha = SkEncodedInfo::kUnpremul_Alpha;
-    }
-
-    int numberPasses = png_set_interlace_handling(png_ptr);
-    if (numberPassesPtr) {
-        *numberPassesPtr = numberPasses;
-    }
-
-    if (info) {
-        *info = SkEncodedInfo::Make(color, alpha, 8);
-    }
-    if (width) {
-        *width = origWidth;
-    }
-    if (height) {
-        *height = origHeight;
-    }
-    autoClean.release();
-    if (png_ptrp) {
-        *png_ptrp = png_ptr;
-    }
-    if (info_ptrp) {
-        *info_ptrp = info_ptr;
-    }
-
-    return true;
-}
-
-SkPngCodec::SkPngCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-                       SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
-                       int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
-    : INHERITED(width, height, info, stream, colorSpace)
-    , fPngChunkReader(SkSafeRef(chunkReader))
-    , fPng_ptr(png_ptr)
-    , fInfo_ptr(info_ptr)
-    , fNumberPasses(numberPasses)
-    , fBitDepth(bitDepth)
-{}
-
-SkPngCodec::~SkPngCodec() {
-    this->destroyReadStruct();
-}
-
-void SkPngCodec::destroyReadStruct() {
-    if (fPng_ptr) {
-        // We will never have a nullptr fInfo_ptr with a non-nullptr fPng_ptr
-        SkASSERT(fInfo_ptr);
-        png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, nullptr);
-        fPng_ptr = nullptr;
-        fInfo_ptr = nullptr;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Getting the pixels
-///////////////////////////////////////////////////////////////////////////////
-
-SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
-                                               const Options& options,
-                                               SkPMColor ctable[],
-                                               int* ctableCount) {
-    // FIXME: Could we use the return value of setjmp to specify the type of
-    // error?
-    if (setjmp(png_jmpbuf(fPng_ptr))) {
-        SkCodecPrintf("setjmp long jump!\n");
-        return kInvalidInput;
-    }
-    png_read_update_info(fPng_ptr, fInfo_ptr);
-
-    if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
-        if (!this->createColorTable(requestedInfo.colorType(),
-                kPremul_SkAlphaType == requestedInfo.alphaType(), ctableCount)) {
-            return kInvalidInput;
-        }
-    }
-
-    // Copy the color table to the client if they request kIndex8 mode
-    copy_color_table(requestedInfo, fColorTable, ctable, ctableCount);
-
-    // Create the swizzler.  SkPngCodec retains ownership of the color table.
-    const SkPMColor* colors = get_color_ptr(fColorTable.get());
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, requestedInfo,
-            options));
-    SkASSERT(fSwizzler);
-
-    return kSuccess;
-}
-
-
-bool SkPngCodec::onRewind() {
-    // This sets fPng_ptr and fInfo_ptr to nullptr. If read_header
-    // succeeds, they will be repopulated, and if it fails, they will
-    // remain nullptr. Any future accesses to fPng_ptr and fInfo_ptr will
-    // come through this function which will rewind and again attempt
-    // to reinitialize them.
-    this->destroyReadStruct();
-
-    png_structp png_ptr;
-    png_infop info_ptr;
-    if (!read_header(this->stream(), fPngChunkReader.get(), &png_ptr, &info_ptr,
-                     nullptr, nullptr, nullptr, nullptr, nullptr)) {
-        return false;
-    }
-
-    fPng_ptr = png_ptr;
-    fInfo_ptr = info_ptr;
-    return true;
-}
-
 static int bytes_per_pixel(int bitsPerPixel) {
     // Note that we will have to change this implementation if we start
     // supporting outputs from libpng that are less than 8-bits per component.
     return bitsPerPixel / 8;
-}
-
-SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
-                                        size_t dstRowBytes, const Options& options,
-                                        SkPMColor ctable[], int* ctableCount,
-                                        int* rowsDecoded) {
-    if (!conversion_possible(requestedInfo, this->getInfo())) {
-        return kInvalidConversion;
-    }
-    if (options.fSubset) {
-        // Subsets are not supported.
-        return kUnimplemented;
-    }
-
-    // Note that ctable and ctableCount may be modified if there is a color table
-    const Result result = this->initializeSwizzler(requestedInfo, options, ctable, ctableCount);
-    if (result != kSuccess) {
-        return result;
-    }
-
-    const int width = requestedInfo.width();
-    const int height = requestedInfo.height();
-    const int bpp = bytes_per_pixel(this->getEncodedInfo().bitsPerPixel());
-    const size_t srcRowBytes = width * bpp;
-
-    // FIXME: Could we use the return value of setjmp to specify the type of
-    // error?
-    int row = 0;
-    // This must be declared above the call to setjmp to avoid memory leaks on incomplete images.
-    SkAutoTMalloc<uint8_t> storage;
-    if (setjmp(png_jmpbuf(fPng_ptr))) {
-        // Assume that any error that occurs while reading rows is caused by an incomplete input.
-        if (fNumberPasses > 1) {
-            // FIXME (msarett): Handle incomplete interlaced pngs.
-            return (row == height) ? kSuccess : kInvalidInput;
-        }
-        // FIXME: We do a poor job on incomplete pngs compared to other decoders (ex: Chromium,
-        // Ubuntu Image Viewer).  This is because we use the default buffer size in libpng (8192
-        // bytes), and if we can't fill the buffer, we immediately fail.
-        // For example, if we try to read 8192 bytes, and the image (incorrectly) only contains
-        // half that, which may have been enough to contain a non-zero number of lines, we fail
-        // when we could have decoded a few more lines and then failed.
-        // The read function that we provide for libpng has no way of indicating that we have
-        // made a partial read.
-        // Making our buffer size smaller improves our incomplete decodes, but what impact does
-        // it have on regular decode performance?  Should we investigate using a different API
-        // instead of png_read_row?  Chromium uses png_process_data.
-        *rowsDecoded = row;
-        return (row == height) ? kSuccess : kIncompleteInput;
-    }
-
-    // FIXME: We could split these out based on subclass.
-    void* dstRow = dst;
-    if (fNumberPasses > 1) {
-        storage.reset(height * srcRowBytes);
-        uint8_t* const base = storage.get();
-
-        for (int i = 0; i < fNumberPasses; i++) {
-            uint8_t* srcRow = base;
-            for (int y = 0; y < height; y++) {
-                png_read_row(fPng_ptr, srcRow, nullptr);
-                srcRow += srcRowBytes;
-            }
-        }
-
-        // Now swizzle it.
-        uint8_t* srcRow = base;
-        for (; row < height; row++) {
-            fSwizzler->swizzle(dstRow, srcRow);
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-            srcRow += srcRowBytes;
-        }
-    } else {
-        storage.reset(srcRowBytes);
-        uint8_t* srcRow = storage.get();
-        for (; row < height; row++) {
-            png_read_row(fPng_ptr, srcRow, nullptr);
-            fSwizzler->swizzle(dstRow, srcRow);
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-        }
-    }
-
-    // read rest of file, and get additional comment and time chunks in info_ptr
-    png_read_end(fPng_ptr, fInfo_ptr);
-
-    return kSuccess;
-}
-
-uint32_t SkPngCodec::onGetFillValue(SkColorType colorType) const {
-    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-    if (colorPtr) {
-        return get_color_table_fill_value(colorType, colorPtr, 0);
-    }
-    return INHERITED::onGetFillValue(colorType);
 }
 
 // Subclass of SkPngCodec which supports scanline decoding
@@ -800,28 +461,345 @@ private:
     typedef SkPngCodec INHERITED;
 };
 
-SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+// Reads the header and initializes the output fields, if not NULL.
+//
+// @param stream Input data. Will be read to get enough information to properly
+//      setup the codec.
+// @param chunkReader SkPngChunkReader, for reading unknown chunks. May be NULL.
+//      If not NULL, png_ptr will hold an *unowned* pointer to it. The caller is
+//      expected to continue to own it for the lifetime of the png_ptr.
+// @param outCodec Optional output variable.  If non-NULL, will be set to a new
+//      SkPngCodec on success.
+// @param png_ptrp Optional output variable. If non-NULL, will be set to a new
+//      png_structp on success.
+// @param info_ptrp Optional output variable. If non-NULL, will be set to a new
+//      png_infop on success;
+// @return true on success, in which case the caller is responsible for calling
+//      png_destroy_read_struct(png_ptrp, info_ptrp).
+//      If it returns false, the passed in fields (except stream) are unchanged.
+static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec** outCodec,
+                        png_structp* png_ptrp, png_infop* info_ptrp) {
+    // The image is known to be a PNG. Decode enough to know the SkImageInfo.
+    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
+                                                 sk_error_fn, sk_warning_fn);
+    if (!png_ptr) {
+        return false;
+    }
+
+    AutoCleanPng autoClean(png_ptr);
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == nullptr) {
+        return false;
+    }
+
+    autoClean.setInfoPtr(info_ptr);
+
+    // FIXME: Could we use the return value of setjmp to specify the type of
+    // error?
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        return false;
+    }
+
+    png_set_read_fn(png_ptr, static_cast<void*>(stream), sk_read_fn);
+
+#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
+    // Hookup our chunkReader so we can see any user-chunks the caller may be interested in.
+    // This needs to be installed before we read the png header.  Android may store ninepatch
+    // chunks in the header.
+    if (chunkReader) {
+        png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"", 0);
+        png_set_read_user_chunk_fn(png_ptr, (png_voidp) chunkReader, sk_read_user_chunk);
+    }
+#endif
+
+    // The call to png_read_info() gives us all of the information from the
+    // PNG file before the first IDAT (image data chunk).
+    png_read_info(png_ptr, info_ptr);
+    png_uint_32 origWidth, origHeight;
+    int bitDepth, encodedColorType;
+    png_get_IHDR(png_ptr, info_ptr, &origWidth, &origHeight, &bitDepth,
+                 &encodedColorType, nullptr, nullptr, nullptr);
+
+    // Tell libpng to strip 16 bit/color files down to 8 bits/color.
+    // TODO: Should we handle this in SkSwizzler?  Could this also benefit
+    //       RAW decodes?
+    if (bitDepth == 16) {
+        SkASSERT(PNG_COLOR_TYPE_PALETTE != encodedColorType);
+        png_set_strip_16(png_ptr);
+    }
+
+    // Now determine the default colorType and alphaType and set the required transforms.
+    // Often, we depend on SkSwizzler to perform any transforms that we need.  However, we
+    // still depend on libpng for many of the rare and PNG-specific cases.
+    SkEncodedInfo::Color color;
+    SkEncodedInfo::Alpha alpha;
+    switch (encodedColorType) {
+        case PNG_COLOR_TYPE_PALETTE:
+            // Extract multiple pixels with bit depths of 1, 2, and 4 from a single
+            // byte into separate bytes (useful for paletted and grayscale images).
+            if (bitDepth < 8) {
+                // TODO: Should we use SkSwizzler here?
+                png_set_packing(png_ptr);
+            }
+
+            color = SkEncodedInfo::kPalette_Color;
+            // Set the alpha depending on if a transparency chunk exists.
+            alpha = png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ?
+                    SkEncodedInfo::kUnpremul_Alpha : SkEncodedInfo::kOpaque_Alpha;
+            break;
+        case PNG_COLOR_TYPE_RGB:
+            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+                // Convert to RGBA if transparency chunk exists.
+                png_set_tRNS_to_alpha(png_ptr);
+                color = SkEncodedInfo::kRGBA_Color;
+                alpha = SkEncodedInfo::kBinary_Alpha;
+            } else {
+                color = SkEncodedInfo::kRGB_Color;
+                alpha = SkEncodedInfo::kOpaque_Alpha;
+            }
+            break;
+        case PNG_COLOR_TYPE_GRAY:
+            // Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel.
+            if (bitDepth < 8) {
+                // TODO: Should we use SkSwizzler here?
+                png_set_expand_gray_1_2_4_to_8(png_ptr);
+            }
+
+            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+                png_set_tRNS_to_alpha(png_ptr);
+                color = SkEncodedInfo::kGrayAlpha_Color;
+                alpha = SkEncodedInfo::kBinary_Alpha;
+            } else {
+                color = SkEncodedInfo::kGray_Color;
+                alpha = SkEncodedInfo::kOpaque_Alpha;
+            }
+            break;
+        case PNG_COLOR_TYPE_GRAY_ALPHA:
+            color = SkEncodedInfo::kGrayAlpha_Color;
+            alpha = SkEncodedInfo::kUnpremul_Alpha;
+            break;
+        case PNG_COLOR_TYPE_RGBA:
+            color = SkEncodedInfo::kRGBA_Color;
+            alpha = SkEncodedInfo::kUnpremul_Alpha;
+            break;
+        default:
+            // All the color types have been covered above.
+            SkASSERT(false);
+            color = SkEncodedInfo::kRGBA_Color;
+            alpha = SkEncodedInfo::kUnpremul_Alpha;
+    }
+
+    int numberPasses = png_set_interlace_handling(png_ptr);
+
+    autoClean.release();
+    if (png_ptrp) {
+        *png_ptrp = png_ptr;
+    }
+    if (info_ptrp) {
+        *info_ptrp = info_ptr;
+    }
+
+    if (outCodec) {
+        sk_sp<SkColorSpace> colorSpace = read_color_space(png_ptr, info_ptr);
+        SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
+
+        if (1 == numberPasses) {
+            *outCodec = new SkPngScanlineDecoder(origWidth, origHeight, info, stream,
+                    chunkReader, png_ptr, info_ptr, bitDepth, colorSpace);
+        } else {
+            *outCodec = new SkPngInterlacedScanlineDecoder(origWidth, origHeight, info, stream,
+                    chunkReader, png_ptr, info_ptr, bitDepth, numberPasses, colorSpace);
+        }
+    }
+
+    return true;
+}
+
+SkPngCodec::SkPngCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+                       SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
+                       int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
+    : INHERITED(width, height, info, stream, colorSpace)
+    , fPngChunkReader(SkSafeRef(chunkReader))
+    , fPng_ptr(png_ptr)
+    , fInfo_ptr(info_ptr)
+    , fNumberPasses(numberPasses)
+    , fBitDepth(bitDepth)
+{}
+
+SkPngCodec::~SkPngCodec() {
+    this->destroyReadStruct();
+}
+
+void SkPngCodec::destroyReadStruct() {
+    if (fPng_ptr) {
+        // We will never have a nullptr fInfo_ptr with a non-nullptr fPng_ptr
+        SkASSERT(fInfo_ptr);
+        png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, nullptr);
+        fPng_ptr = nullptr;
+        fInfo_ptr = nullptr;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Getting the pixels
+///////////////////////////////////////////////////////////////////////////////
+
+SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
+                                               const Options& options,
+                                               SkPMColor ctable[],
+                                               int* ctableCount) {
+    // FIXME: Could we use the return value of setjmp to specify the type of
+    // error?
+    if (setjmp(png_jmpbuf(fPng_ptr))) {
+        SkCodecPrintf("setjmp long jump!\n");
+        return kInvalidInput;
+    }
+    png_read_update_info(fPng_ptr, fInfo_ptr);
+
+    if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
+        if (!this->createColorTable(requestedInfo.colorType(),
+                kPremul_SkAlphaType == requestedInfo.alphaType(), ctableCount)) {
+            return kInvalidInput;
+        }
+    }
+
+    // Copy the color table to the client if they request kIndex8 mode
+    copy_color_table(requestedInfo, fColorTable, ctable, ctableCount);
+
+    // Create the swizzler.  SkPngCodec retains ownership of the color table.
+    const SkPMColor* colors = get_color_ptr(fColorTable.get());
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, requestedInfo,
+            options));
+    SkASSERT(fSwizzler);
+
+    return kSuccess;
+}
+
+
+bool SkPngCodec::onRewind() {
+    // This sets fPng_ptr and fInfo_ptr to nullptr. If read_header
+    // succeeds, they will be repopulated, and if it fails, they will
+    // remain nullptr. Any future accesses to fPng_ptr and fInfo_ptr will
+    // come through this function which will rewind and again attempt
+    // to reinitialize them.
+    this->destroyReadStruct();
+
     png_structp png_ptr;
     png_infop info_ptr;
-    int width, height;
-    SkEncodedInfo imageInfo;
-    int bitDepth;
-    int numberPasses;
-
-    if (!read_header(stream, chunkReader, &png_ptr, &info_ptr, &width, &height, &imageInfo,
-                     &bitDepth, &numberPasses)) {
-        return nullptr;
+    if (!read_header(this->stream(), fPngChunkReader.get(), nullptr, &png_ptr, &info_ptr)) {
+        return false;
     }
 
-    auto colorSpace = read_color_space(png_ptr, info_ptr);
+    fPng_ptr = png_ptr;
+    fInfo_ptr = info_ptr;
+    return true;
+}
 
-    if (1 == numberPasses) {
-        return new SkPngScanlineDecoder(width, height, imageInfo, streamDeleter.release(),
-                                        chunkReader, png_ptr, info_ptr, bitDepth, colorSpace);
+SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
+                                        size_t dstRowBytes, const Options& options,
+                                        SkPMColor ctable[], int* ctableCount,
+                                        int* rowsDecoded) {
+    if (!conversion_possible(requestedInfo, this->getInfo())) {
+        return kInvalidConversion;
+    }
+    if (options.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
     }
 
-    return new SkPngInterlacedScanlineDecoder(width, height, imageInfo, streamDeleter.release(),
-                                              chunkReader, png_ptr, info_ptr, bitDepth,
-                                              numberPasses, colorSpace);
+    // Note that ctable and ctableCount may be modified if there is a color table
+    const Result result = this->initializeSwizzler(requestedInfo, options, ctable, ctableCount);
+    if (result != kSuccess) {
+        return result;
+    }
+
+    const int width = requestedInfo.width();
+    const int height = requestedInfo.height();
+    const int bpp = bytes_per_pixel(this->getEncodedInfo().bitsPerPixel());
+    const size_t srcRowBytes = width * bpp;
+
+    // FIXME: Could we use the return value of setjmp to specify the type of
+    // error?
+    int row = 0;
+    // This must be declared above the call to setjmp to avoid memory leaks on incomplete images.
+    SkAutoTMalloc<uint8_t> storage;
+    if (setjmp(png_jmpbuf(fPng_ptr))) {
+        // Assume that any error that occurs while reading rows is caused by an incomplete input.
+        if (fNumberPasses > 1) {
+            // FIXME (msarett): Handle incomplete interlaced pngs.
+            return (row == height) ? kSuccess : kInvalidInput;
+        }
+        // FIXME: We do a poor job on incomplete pngs compared to other decoders (ex: Chromium,
+        // Ubuntu Image Viewer).  This is because we use the default buffer size in libpng (8192
+        // bytes), and if we can't fill the buffer, we immediately fail.
+        // For example, if we try to read 8192 bytes, and the image (incorrectly) only contains
+        // half that, which may have been enough to contain a non-zero number of lines, we fail
+        // when we could have decoded a few more lines and then failed.
+        // The read function that we provide for libpng has no way of indicating that we have
+        // made a partial read.
+        // Making our buffer size smaller improves our incomplete decodes, but what impact does
+        // it have on regular decode performance?  Should we investigate using a different API
+        // instead of png_read_row?  Chromium uses png_process_data.
+        *rowsDecoded = row;
+        return (row == height) ? kSuccess : kIncompleteInput;
+    }
+
+    // FIXME: We could split these out based on subclass.
+    void* dstRow = dst;
+    if (fNumberPasses > 1) {
+        storage.reset(height * srcRowBytes);
+        uint8_t* const base = storage.get();
+
+        for (int i = 0; i < fNumberPasses; i++) {
+            uint8_t* srcRow = base;
+            for (int y = 0; y < height; y++) {
+                png_read_row(fPng_ptr, srcRow, nullptr);
+                srcRow += srcRowBytes;
+            }
+        }
+
+        // Now swizzle it.
+        uint8_t* srcRow = base;
+        for (; row < height; row++) {
+            fSwizzler->swizzle(dstRow, srcRow);
+            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+            srcRow += srcRowBytes;
+        }
+    } else {
+        storage.reset(srcRowBytes);
+        uint8_t* srcRow = storage.get();
+        for (; row < height; row++) {
+            png_read_row(fPng_ptr, srcRow, nullptr);
+            fSwizzler->swizzle(dstRow, srcRow);
+            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+        }
+    }
+
+    // read rest of file, and get additional comment and time chunks in info_ptr
+    png_read_end(fPng_ptr, fInfo_ptr);
+
+    return kSuccess;
+}
+
+uint32_t SkPngCodec::onGetFillValue(SkColorType colorType) const {
+    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+    if (colorPtr) {
+        return get_color_table_fill_value(colorType, colorPtr, 0);
+    }
+    return INHERITED::onGetFillValue(colorType);
+}
+
+SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
+    SkAutoTDelete<SkStream> streamDeleter(stream);
+
+    SkCodec* outCodec;
+    if (read_header(stream, chunkReader, &outCodec, nullptr, nullptr)) {
+        // Codec has taken ownership of the stream.
+        SkASSERT(outCodec);
+        streamDeleter.release();
+        return outCodec;
+    }
+
+    return nullptr;
 }
