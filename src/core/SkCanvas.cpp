@@ -1450,31 +1450,8 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter) {
-            SkIPoint offset = SkIPoint::Make(0, 0);
             const SkBitmap& srcBM = srcDev->accessBitmap(false);
-            SkMatrix matrix = *iter.fMatrix;
-            matrix.postTranslate(SkIntToScalar(-pos.x()), SkIntToScalar(-pos.y()));
-            const SkIRect clipBounds = iter.fClip->getBounds().makeOffset(-pos.x(), -pos.y());
-            SkAutoTUnref<SkImageFilter::Cache> cache(dstDev->getImageFilterCache());
-            SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
-
-            sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(srcBM,
-                                                                         &dstDev->surfaceProps()));
-            if (!srcImg) {
-                continue; // something disastrous happened
-            }
-
-            sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
-            if (resultImg) {
-                SkPaint tmpUnfiltered(*paint);
-                tmpUnfiltered.setImageFilter(nullptr);
-                SkBitmap resultBM;
-                if (resultImg->internal_getBM(&resultBM)) {
-                    // TODO: add drawSprite(SkSpecialImage) to SkDevice? (see skbug.com/5073)
-                    dstDev->drawSprite(iter, resultBM, pos.x() + offset.x(), pos.y() + offset.y(),
-                                       tmpUnfiltered);
-                }
-            }
+            dstDev->drawSpriteWithFilter(iter, srcBM, pos.x(), pos.y(), *paint);
         } else if (deviceIsBitmapDevice) {
             const SkBitmap& src = static_cast<SkBitmapDevice*>(srcDev)->fBitmap;
             dstDev->drawSprite(iter, src, pos.x(), pos.y(), *paint);
