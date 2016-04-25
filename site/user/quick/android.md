@@ -42,6 +42,11 @@ KitKat) which will be used to build the Skia SampleApp.  You can download as
 many other Android add-ons or APIs as you want, but you only are required to
 have this one in order to complete the Skia build process.
 
+Also, please make sure that Android SDK Build-tools 22.0.1 is installed. You can
+do that using Android SDK Manager `$ANDROID_SDK_ROOT/tools/android`. In Android
+Studio, it can be opened by clicking the Launch Standalone SDK Manager link in
+Tools > Android > SDK Manger.
+
 Setup Environment for Android
 -----------------------------
 
