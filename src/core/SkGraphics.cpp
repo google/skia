@@ -120,8 +120,3 @@ void SkGraphics::SetFlags(const char* flags) {
         flags = nextSemi + 1;
     } while (nextSemi);
 }
-
-// Call SkGraphics::Init() automatically for Google3 processes.
-#if defined(GOOGLE3)
-    static SkAutoGraphics autoGraphics;
-#endif
