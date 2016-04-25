@@ -180,8 +180,8 @@ public:
             fMatrixTypeMask,
             fXMode, fYMode,
             fFilterQuality, fSrcPixmap,
-            fAlpha, mode, dstInfo)) {
-
+            fAlpha, mode, dstInfo))
+        {
             state->fStorage[0] = fBlitterPipeline;
             state->fBlitBW = &LinearPipelineContext::ForwardToPipeline;
 
@@ -232,17 +232,6 @@ static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImag
         return false;
     }
 
-#if 0   // later we may opt-in to the new code even if the client hasn't requested it...
-    // These src attributes are only supported in the new 4f context
-    //
-    if (srcInfo.isSRGB() ||
-        kUnpremul_SkAlphaType == srcInfo.alphaType() ||
-        (4 == srcInfo.bytesPerPixel() && kN32_SkColorType != srcInfo.colorType()))
-    {
-        return true;
-    }
-#endif
-
     // If we get here, we can reasonably use either context, respect the caller's preference
     //
     return SkShader::ContextRec::kPM4f_DstType == rec.fPreferredDstType;
@@ -266,11 +255,6 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
 
     // Decide if we can/want to use the new linear pipeline
     bool useLinearPipeline = choose_linear_pipeline(rec, provider.info());
-
-    //
-    // For now, only enable locally since we are hitting some crashers on the test bots
-    //
-    //useLinearPipeline = false;
 
     if (useLinearPipeline) {
         void* infoStorage = (char*)storage + sizeof(LinearPipelineContext);
