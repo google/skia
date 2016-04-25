@@ -128,7 +128,24 @@ for filename in sorted(listfiles('gyp', '*')):
   with open(filename, 'r') as f:
     hasher.update(f.read())
 
-for dir in ['bench', 'gm', 'tests']:
+find_dirs = [
+    'bench',
+    'fuzz',
+    'gm',
+    'tests',
+    'third_party/externals/icu/source/common',
+    'third_party/externals/nanomsg/src',
+    'third_party/externals/sfntly/sfntly',
+    'third_party/externals/shaderc2',
+    'tools/VisualBench',
+    'tools/gpu',
+    'tools/kilobench',
+    'tools/skiaserve',
+    'tools/skiaserve/urlhandlers',
+    'tools/vulkan',
+]
+
+for dir in find_dirs:
   for filename in sorted(listfiles(dir, '*.c*')):
     hasher.update(filename + '\n')
 
