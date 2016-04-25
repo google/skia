@@ -77,7 +77,7 @@ Create a src/DEPS file with the following:
 
   deps = {
     "src/third_party/skia/":
-        "http://skia.googlecode.com/skia.git@" + Var("skia_revision"),
+        "http://skia.googlesource.com/skia.git@" + Var("skia_revision"),
   }
 
 ~~~~
@@ -85,7 +85,7 @@ Create a src/DEPS file with the following:
 There are two sections to the `DEPS` file at the moment, `vars` and `deps`.
 The `vars` sections defines variables we can use later in the file with the
 `Var()` accessor. In this case, we define our root directory, a shorter name
-for any googlecode repositories and a specific revision of Skia that we're
+for any googlesource repositories and a specific revision of Skia that we're
 going to use. I've pinned to a specific version to insulate the application
 from changes in the Skia tree. This lets us know that when someone checks out
 the repo they'll be using the same version of Skia that we've built and tested
@@ -123,7 +123,7 @@ command above) to look as follows:
         "safesync_url": "",
       },
       { "name"        : "src/third_party/skia",
-        "url"         : "http://skia.googlecode.com/skia.git@a6a8f00a3977e71dbce9da50a32c5e9a51c49285",
+        "url"         : "http://skia.googlesource.com/skia.git@a6a8f00a3977e71dbce9da50a32c5e9a51c49285",
         "deps_file"   : "DEPS",
         "managed"     : True,
         "custom_deps" : {
@@ -153,7 +153,7 @@ First, we need to add GYP to our project. We'll do that by adding a new entry
 to the deps section of the `DEPS` file.
 
     "src/tools/gyp":
-        (Var("googlecode_url") % "gyp") + "/trunk@1700",
+        (Var("googlesource_url") % "gyp") + "/trunk@1700",
 
 As you can see, I'm going to put the library into `src/tools/gyp` and checkout
 revision 1700 (note, the revision used here, 1700, was the head revision at
@@ -280,7 +280,7 @@ a relative tools directory which doesn't exist. Luckily, that's easy to fix
 with another entry in our DEPS file.
 
     "src/tools/":
-        File((Var("googlecode_url") % "skia") + "/trunk/tools/find_mac_sdk.py@" +
+        File((Var("googlesource_url") % "skia") + "/trunk/tools/find_mac_sdk.py@" +
             Var("skia_revision")),
 
 Here we using the `File()` function of `gclient` to specify that we're checking
