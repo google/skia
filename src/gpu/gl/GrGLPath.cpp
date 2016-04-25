@@ -333,12 +333,6 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-bool GrGLPath::canCombineDrawPathBatchWith(const GrPath& o) const {
-    const GrGLPath* other = static_cast<const GrGLPath*>(&o);
-    return fShouldStroke == other->fShouldStroke &&
-            fShouldFill == other->fShouldFill;
-}
-
 void GrGLPath::onRelease() {
     if (0 != fPathID) {
         static_cast<GrGLGpu*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);

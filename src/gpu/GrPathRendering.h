@@ -153,6 +153,17 @@ public:
         this->onStencilPath(args, path);
     }
 
+    void drawPath(const GrPipeline& pipeline,
+                  const GrPrimitiveProcessor& primProc,
+                  const GrStencilSettings& stencil,
+                  const GrPath* path) {
+        fGpu->handleDirtyContext();
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
+            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        }
+        this->onDrawPath(pipeline, primProc, stencil, path);
+    }
+
     void drawPaths(const GrPipeline& pipeline,
                    const GrPrimitiveProcessor& primProc,
                    const GrStencilSettings& stencil,
@@ -173,23 +184,15 @@ public:
                           transformValues, transformType, count);
     }
 
-    void drawPaths(const GrPipeline& pipeline,
-                   const GrPrimitiveProcessor& primProc,
-                   const GrStencilSettings& stencil,
-                   const GrPath* const* paths,
-                   int count) {
-        fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
-        }
-        this->onDrawPaths(pipeline, primProc, stencil, paths, count);
-    }
-
 protected:
     GrPathRendering(GrGpu* gpu)
         : fGpu(gpu) {
     }
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
+    virtual void onDrawPath(const GrPipeline&,
+                            const GrPrimitiveProcessor&,
+                            const GrStencilSettings&,
+                            const GrPath*) = 0;
     virtual void onDrawPaths(const GrPipeline&,
                              const GrPrimitiveProcessor&,
                              const GrStencilSettings&,
@@ -198,11 +201,6 @@ protected:
                              PathIndexType,
                              const float transformValues[],
                              PathTransformType,
-                             int count) = 0;
-    virtual void onDrawPaths(const GrPipeline&,
-                             const GrPrimitiveProcessor&,
-                             const GrStencilSettings&,
-                             const GrPath* const*,
                              int count) = 0;
 
     GrGpu* fGpu;

@@ -76,26 +76,19 @@ private:
     GrDrawPathBatch(const SkMatrix& viewMatrix, GrColor color, GrPathRendering::FillType fill,
                     const GrPath* path)
         : INHERITED(ClassID(), viewMatrix, color, fill)
-        , fPath(path)
-        , fNext(nullptr)
-        , fLastSlot(&fNext)
-        , fTotalPathCount(1) {
+        , fPath(path) {
         fBounds = path->getBounds();
         viewMatrix.mapRect(&fBounds);
-        fPathBounds = fBounds;
     }
-    static bool ListBoundsIntersects(const GrDrawPathBatch* a, const GrDrawPathBatch* b);
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
+
+    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
 
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override;
 
     GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
-    SkRect fPathBounds;
-    sk_sp<GrDrawPathBatch> fNext;       // Batch union is made with a linked list of batch nodes.
-    sk_sp<GrDrawPathBatch>* fLastSlot;  // Points to the fNext of the last batch in the batch list.
-    int fTotalPathCount;
+
     typedef GrDrawPathBatchBase INHERITED;
 };
 

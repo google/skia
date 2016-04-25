@@ -28,8 +28,7 @@ class GrRenderTarget;
  * Batches are created when GrContext processes a draw call. Batches of the same  subclass may be
  * merged using combineIfPossible. When two batches merge, one takes on the union of the data
  * and the other is left empty. The merged batch becomes responsible for drawing the data from both
- * the original batches. The merged patch may ref the other batch, if this is more efficient than
- * moving the data from the other batch to the merged batch.
+ * the original batches.
  *
  * If there are any possible optimizations which might require knowing more about the full state of
  * the draw, ie whether or not the GrBatch is allowed to tweak alpha for coverage, then this
