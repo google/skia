@@ -73,11 +73,13 @@ public:
     static sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,
                                                 const SkSurfaceProps* = nullptr);
+#if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> MakeFromGpu(const SkIRect& subset,
                                              uint32_t uniqueID,
-                                             GrTexture*,
+                                             sk_sp<GrTexture>,
                                              const SkSurfaceProps* = nullptr,
                                              SkAlphaType at = kPremul_SkAlphaType);
+#endif
     static sk_sp<SkSpecialImage> MakeFromPixmap(const SkIRect& subset,
                                                 const SkPixmap&,
                                                 RasterReleaseProc,
@@ -123,11 +125,13 @@ public:
      */
     GrContext* getContext() const;
 
+#if SK_SUPPORT_GPU
     /**
      *  Regardless of the underlying backing store, return the contents as a GrTexture.
      *  The active portion of the texture can be retrieved via 'subset'.
      */
-    GrTexture* asTextureRef(GrContext*) const;
+    sk_sp<GrTexture> asTextureRef(GrContext*) const;
+#endif
 
     // TODO: hide this whe the imagefilter all have a consistent draw path (see skbug.com/5063)
     /**

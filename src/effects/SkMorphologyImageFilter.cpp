@@ -474,7 +474,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
                                               const SkIRect& rect,
                                               GrMorphologyEffect::MorphologyType morphType,
                                               SkISize radius) {
-    SkAutoTUnref<GrTexture> srcTexture(input->asTextureRef(context));
+    sk_sp<GrTexture> srcTexture(input->asTextureRef(context));
     SkASSERT(srcTexture);
 
     // setup new clip
@@ -502,7 +502,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
             return nullptr;
         }
 
-        apply_morphology_pass(dstDrawContext, clip, srcTexture,
+        apply_morphology_pass(dstDrawContext, clip, srcTexture.get(),
                               srcRect, dstRect, radius.fWidth, morphType,
                               Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
@@ -526,7 +526,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
             return nullptr;
         }
 
-        apply_morphology_pass(dstDrawContext, clip, srcTexture,
+        apply_morphology_pass(dstDrawContext, clip, srcTexture.get(),
                               srcRect, dstRect, radius.fHeight, morphType,
                               Gr1DKernelEffect::kY_Direction);
 
@@ -535,7 +535,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(rect.width(), rect.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       srcTexture, &input->props());
+                                       std::move(srcTexture), &input->props());
 }
 #endif
 

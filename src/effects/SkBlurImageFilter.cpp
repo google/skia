@@ -106,7 +106,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
         GrContext* context = source->getContext();
-        SkAutoTUnref<GrTexture> inputTexture(input->asTextureRef(context));
+        sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
         SkASSERT(inputTexture);
 
         if (0 == sigma.x() && 0 == sigma.y()) {
@@ -121,21 +121,21 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
         inputBounds.offset(-inputOffset);
         dstBounds.offset(-inputOffset);
         SkRect inputBoundsF(SkRect::Make(inputBounds));
-        SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(context,
-                                                                 inputTexture,
-                                                                 false,
-                                                                 source->props().isGammaCorrect(),
-                                                                 SkRect::Make(dstBounds),
-                                                                 &inputBoundsF,
-                                                                 sigma.x(),
-                                                                 sigma.y()));
+        sk_sp<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(context,
+                                                          inputTexture.get(),
+                                                          false,
+                                                          source->props().isGammaCorrect(),
+                                                          SkRect::Make(dstBounds),
+                                                          &inputBoundsF,
+                                                          sigma.x(),
+                                                          sigma.y()));
         if (!tex) {
             return nullptr;
         }
 
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           tex, &source->props());
+                                           std::move(tex), &source->props());
     }
 #endif
 

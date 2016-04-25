@@ -112,11 +112,11 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Gpu(GrTexture* texture,
+    SkSpecialSurface_Gpu(sk_sp<GrTexture> texture,
                          const SkIRect& subset,
                          const SkSurfaceProps* props)
         : INHERITED(subset, props)
-        , fTexture(SkRef(texture)) {
+        , fTexture(std::move(texture)) {
 
         SkASSERT(fTexture->asRenderTarget());
 
@@ -133,25 +133,27 @@ public:
     ~SkSpecialSurface_Gpu() override { }
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
+        // Note: we are intentionally zeroing out 'fTexture' here
         return SkSpecialImage::MakeFromGpu(this->subset(),
-                                           kNeedNewImageUniqueID_SpecialImage, fTexture,
+                                           kNeedNewImageUniqueID_SpecialImage,
+                                           std::move(fTexture),
                                            &this->props());
     }
 
 private:
-    SkAutoTUnref<GrTexture> fTexture;
+    sk_sp<GrTexture> fTexture;
 
     typedef SkSpecialSurface_Base INHERITED;
 };
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromTexture(const SkIRect& subset,
-                                                          GrTexture* texture,
+                                                          sk_sp<GrTexture> texture,
                                                           const SkSurfaceProps* props) {
     if (!texture->asRenderTarget()) {
         return nullptr;
     }
 
-    return sk_make_sp<SkSpecialSurface_Gpu>(texture, subset, props);
+    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(texture), subset, props);
 }
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
@@ -161,28 +163,14 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    SkAutoTUnref<GrTexture> temp(context->textureProvider()->createApproxTexture(desc));
+    sk_sp<GrTexture> temp(context->textureProvider()->createApproxTexture(desc));
     if (!temp) {
         return nullptr;
     }
 
     const SkIRect subset = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
 
-    return sk_make_sp<SkSpecialSurface_Gpu>(temp, subset, props);
-}
-
-#else
-
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromTexture(const SkIRect& subset,
-                                                          GrTexture*,
-                                                          const SkSurfaceProps*) {
-    return nullptr;
-}
-
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
-                                                           const GrSurfaceDesc& desc,
-                                                           const SkSurfaceProps* props) {
-    return nullptr;
+    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(temp), subset, props);
 }
 
 #endif

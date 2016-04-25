@@ -323,7 +323,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         desc.fHeight = bounds.height();
         desc.fConfig = kSkia8888_GrPixelConfig;
 
-        SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
+        sk_sp<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
         if (!dst) {
             return nullptr;
         }
@@ -357,7 +357,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         offset->fY = bounds.top();
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           dst);
+                                           std::move(dst));
     }
 #endif
 

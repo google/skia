@@ -50,10 +50,11 @@ public:
     */
     sk_sp<SkSpecialImage> makeImageSnapshot();
 
+#if SK_SUPPORT_GPU
     /**
      *  Use an existing (renderTarget-capable) GrTexture as the backing store.
      */
-    static sk_sp<SkSpecialSurface> MakeFromTexture(const SkIRect& subset, GrTexture*,
+    static sk_sp<SkSpecialSurface> MakeFromTexture(const SkIRect& subset, sk_sp<GrTexture>,
                                                    const SkSurfaceProps* = nullptr);
 
     /**
@@ -62,6 +63,7 @@ public:
      */
     static sk_sp<SkSpecialSurface> MakeRenderTarget(GrContext*, const GrSurfaceDesc&,
                                                     const SkSurfaceProps* = nullptr);
+#endif
 
     /**
      * Use and existing SkBitmap as the backing store.

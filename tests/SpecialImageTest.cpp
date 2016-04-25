@@ -243,10 +243,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
         desc.fWidth = kFullSize;
         desc.fHeight = kFullSize;
 
-        SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
-                                                                                  SkBudgeted::kNo,
-                                                                                  bm.getPixels(),
-                                                                                  0));
+        sk_sp<GrTexture> texture(context->textureProvider()->createTexture(desc,
+                                                                           SkBudgeted::kNo,
+                                                                           bm.getPixels(),
+                                                                           0));
         if (!texture) {
             return;
         }
@@ -255,7 +255,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
                                                                 SkIRect::MakeWH(kFullSize,
                                                                                 kFullSize),
                                                                 kNeedNewImageUniqueID_SpecialImage,
-                                                                texture));
+                                                                std::move(texture)));
 
         {
             sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
@@ -281,9 +281,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
-                                                                              SkBudgeted::kNo,
-                                                                              bm.getPixels(), 0));
+    sk_sp<GrTexture> texture(context->textureProvider()->createTexture(desc,
+                                                                       SkBudgeted::kNo,
+                                                                       bm.getPixels(), 0));
     if (!texture) {
         return;
     }

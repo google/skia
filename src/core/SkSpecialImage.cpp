@@ -32,7 +32,9 @@ public:
 
     virtual GrTexture* onPeekTexture() const { return nullptr; }
 
-    virtual GrTexture* onAsTextureRef(GrContext* context) const = 0;
+#if SK_SUPPORT_GPU
+    virtual sk_sp<GrTexture> onAsTextureRef(GrContext* context) const = 0;
+#endif
 
     // Delete this entry point ASAP (see skbug.com/4965)
     virtual bool getBitmapDeprecated(SkBitmap* result) const = 0;
@@ -80,8 +82,9 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
         return SkSpecialImage::MakeFromRaster(SkIRect::MakeEmpty(), bmp, &this->props());
     }
 
-    SkAutoTUnref<GrTexture> resultTex(
-        GrRefCachedBitmapTexture(context, bmp, GrTextureParams::ClampNoFilter()));
+    sk_sp<GrTexture> resultTex(GrRefCachedBitmapTexture(context,
+                                                        bmp,
+                                                        GrTextureParams::ClampNoFilter()));
     if (!resultTex) {
         return nullptr;
     }
@@ -123,10 +126,11 @@ GrContext* SkSpecialImage::getContext() const {
     return nullptr;
 }
 
-
-GrTexture* SkSpecialImage::asTextureRef(GrContext* context) const {
+#if SK_SUPPORT_GPU
+sk_sp<GrTexture> SkSpecialImage::asTextureRef(GrContext* context) const {
     return as_SIB(this)->onAsTextureRef(context);
 }
+#endif
 
 sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(const SkImageInfo& info) const {
     return as_SIB(this)->onMakeSurface(info);
@@ -151,13 +155,15 @@ sk_sp<SkImage> SkSpecialImage::makeTightSubset(const SkIRect& subset) const {
 
 sk_sp<SkSpecialImage> SkSpecialImage::internal_fromBM(const SkBitmap& src,
                                                       const SkSurfaceProps* props) {
+#if SK_SUPPORT_GPU
     // Need to test offset case! (see skbug.com/4967)
     if (src.getTexture()) {
         return SkSpecialImage::MakeFromGpu(src.bounds(),
                                            src.getGenerationID(),
-                                           src.getTexture(),
+                                           sk_ref_sp(src.getTexture()),
                                            props);
     }
+#endif
 
     return SkSpecialImage::MakeFromRaster(src.bounds(), src, props);
 }
@@ -217,13 +223,12 @@ public:
 
     GrTexture* onPeekTexture() const override { return as_IB(fImage)->peekTexture(); }
 
-    GrTexture* onAsTextureRef(GrContext* context) const override {
 #if SK_SUPPORT_GPU
-        return as_IB(fImage)->asTextureRef(context, GrTextureParams::ClampNoFilter());
-#else
-        return nullptr;
-#endif
+    sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
+        return sk_sp<GrTexture>(as_IB(fImage)->asTextureRef(context,
+                                                            GrTextureParams::ClampNoFilter()));
     }
+#endif
 
     bool getBitmapDeprecated(SkBitmap* result) const override {
 #if SK_SUPPORT_GPU
@@ -356,15 +361,17 @@ public:
         return true;
     }
 
-    GrTexture* onAsTextureRef(GrContext* context) const override {
 #if SK_SUPPORT_GPU
+    sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
         if (context) {
-            return GrRefCachedBitmapTexture(context, fBitmap, GrTextureParams::ClampNoFilter());
+            return sk_ref_sp(GrRefCachedBitmapTexture(context,
+                                                      fBitmap,
+                                                      GrTextureParams::ClampNoFilter()));
         }
-#endif
 
         return nullptr;
     }
+#endif
 
     bool getBitmapDeprecated(SkBitmap* result) const override {
         *result = fBitmap;
@@ -437,10 +444,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(const SkIRect& subset,
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
     SkSpecialImage_Gpu(const SkIRect& subset,
-                       uint32_t uniqueID, GrTexture* tex, SkAlphaType at,
+                       uint32_t uniqueID, sk_sp<GrTexture> tex, SkAlphaType at,
                        const SkSurfaceProps* props)
         : INHERITED(subset, uniqueID, props)
-        , fTexture(SkRef(tex))
+        , fTexture(std::move(tex))
         , fAlphaType(at)
         , fAddedRasterVersionToCache(false) {
     }
@@ -463,16 +470,16 @@ public:
 
         SkBitmap bm;
 
-        GrWrapTextureInBitmap(fTexture,
+        GrWrapTextureInBitmap(fTexture.get(),
                               fTexture->width(), fTexture->height(), this->isOpaque(), &bm);
 
         canvas->drawBitmapRect(bm, this->subset(),
                                dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    GrTexture* onPeekTexture() const override { return fTexture; }
+    GrTexture* onPeekTexture() const override { return fTexture.get(); }
 
-    GrTexture* onAsTextureRef(GrContext*) const override { return SkRef(fTexture.get()); }
+    sk_sp<GrTexture> onAsTextureRef(GrContext*) const override { return fTexture; }
 
     bool onGetROPixels(SkBitmap* dst) const override {
         if (SkBitmapCache::Find(this->uniqueID(), dst)) {
@@ -502,7 +509,7 @@ public:
     }
 
     bool getBitmapDeprecated(SkBitmap* result) const override {
-        const SkImageInfo info = GrMakeInfoFromTexture(fTexture,
+        const SkImageInfo info = GrMakeInfoFromTexture(fTexture.get(),
                                                        this->width(), this->height(),
                                                        this->isOpaque());
         if (!result->setInfo(info)) {
@@ -511,7 +518,7 @@ public:
 
         const SkImageInfo prInfo = info.makeWH(fTexture->width(), fTexture->height());
 
-        SkAutoTUnref<SkGrPixelRef> pixelRef(new SkGrPixelRef(prInfo, fTexture));
+        SkAutoTUnref<SkGrPixelRef> pixelRef(new SkGrPixelRef(prInfo, fTexture.get()));
         result->setPixelRef(pixelRef, this->subset().fLeft, this->subset().fTop);
         return true;
     }
@@ -542,7 +549,7 @@ public:
             // The existing GrTexture is already tight so reuse it in the SkImage
             return sk_make_sp<SkImage_Gpu>(fTexture->width(), fTexture->height(),
                                            kNeedNewImageUniqueID,
-                                           fAlphaType, fTexture, SkBudgeted::kYes);
+                                           fAlphaType, fTexture.get(), SkBudgeted::kYes);
         }
 
         GrContext* ctx = fTexture->getContext();
@@ -550,14 +557,13 @@ public:
         desc.fWidth = subset.width();
         desc.fHeight = subset.height();
 
-        SkAutoTUnref<GrTexture> subTx(ctx->textureProvider()->createTexture(desc,
-                                                                            SkBudgeted::kYes));
+        sk_sp<GrTexture> subTx(ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes));
         if (!subTx) {
             return nullptr;
         }
-        ctx->copySurface(subTx, fTexture, subset, SkIPoint::Make(0, 0));
+        ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
         return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                       fAlphaType, subTx, SkBudgeted::kYes);
+                                       fAlphaType, subTx.get(), SkBudgeted::kYes);
     }
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageInfo& info) const override {
@@ -565,7 +571,7 @@ public:
     }
 
 private:
-    SkAutoTUnref<GrTexture> fTexture;
+    sk_sp<GrTexture>        fTexture;
     const SkAlphaType       fAlphaType;
     mutable SkAtomic<bool>  fAddedRasterVersionToCache;
 
@@ -574,21 +580,11 @@ private:
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
                                                   uint32_t uniqueID,
-                                                  GrTexture* tex,
+                                                  sk_sp<GrTexture> tex,
                                                   const SkSurfaceProps* props,
                                                   SkAlphaType at) {
     SkASSERT(rect_fits(subset, tex->width(), tex->height()));
-    return sk_make_sp<SkSpecialImage_Gpu>(subset, uniqueID, tex, at, props);
-}
-
-#else
-
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
-                                                  uint32_t uniqueID,
-                                                  GrTexture* tex,
-                                                  const SkSurfaceProps* props,
-                                                  SkAlphaType at) {
-    return nullptr;
+    return sk_make_sp<SkSpecialImage_Gpu>(subset, uniqueID, std::move(tex), at, props);
 }
 
 #endif

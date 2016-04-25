@@ -368,6 +368,7 @@ static sk_sp<SkImageFilter> make_blue(sk_sp<SkImageFilter> input,
 }
 
 static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, int widthHeight) {
+#if SK_SUPPORT_GPU
     if (context) {
         GrSurfaceDesc desc;
         desc.fConfig = kSkia8888_GrPixelConfig;
@@ -375,7 +376,9 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, 
         desc.fWidth  = widthHeight;
         desc.fHeight = widthHeight;
         return SkSpecialSurface::MakeRenderTarget(context, desc);
-    } else {
+    } else
+#endif
+    {
         const SkImageInfo info = SkImageInfo::MakeN32(widthHeight, widthHeight,
                                                       kOpaque_SkAlphaType);
         return SkSpecialSurface::MakeRaster(info);

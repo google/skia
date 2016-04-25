@@ -303,7 +303,7 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     const SkIRect subset = SkIRect::MakeWH(layer->texture()->width(), layer->texture()->height());
     sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromGpu(subset,
                                                           kNeedNewImageUniqueID_SpecialImage,
-                                                          layer->texture(),
+                                                          sk_ref_sp(layer->texture()),
                                                           props));
 
     SkIPoint offset = SkIPoint::Make(0, 0);
@@ -316,8 +316,8 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     }
 
     SkASSERT(result->isTextureBacked());
-    SkAutoTUnref<GrTexture> texture(result->asTextureRef(context));
-    layer->setTexture(texture, result->subset(), false);
+    sk_sp<GrTexture> texture(result->asTextureRef(context));
+    layer->setTexture(texture.get(), result->subset(), false);
     layer->setOffset(offset);
 }
 

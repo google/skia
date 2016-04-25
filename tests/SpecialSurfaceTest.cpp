@@ -98,12 +98,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SpecialSurface_Gpu2, reporter, ctxInfo) {
     desc.fWidth = kFullSize;
     desc.fHeight = kFullSize;
 
-    SkAutoTUnref<GrTexture> temp(ctxInfo.fGrContext->textureProvider()->createApproxTexture(desc));
+    sk_sp<GrTexture> temp(ctxInfo.fGrContext->textureProvider()->createApproxTexture(desc));
     SkASSERT_RELEASE(temp);
 
     const SkIRect subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeFromTexture(subset, temp));
+    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeFromTexture(subset, std::move(temp)));
 
     test_surface(surf, reporter, kPad);
 

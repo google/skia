@@ -169,11 +169,11 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     sk_sp<GrTexture> backgroundTex, foregroundTex;
     
     if (background) {
-        backgroundTex.reset(background->asTextureRef(context));
+        backgroundTex = background->asTextureRef(context);
     }
 
     if (foreground) {
-        foregroundTex.reset(foreground->asTextureRef(context));
+        foregroundTex = foreground->asTextureRef(context);
     }
 
     GrSurfaceDesc desc;
@@ -181,7 +181,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
     desc.fWidth = bounds.width();
     desc.fHeight = bounds.height();
     desc.fConfig = kSkia8888_GrPixelConfig;
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
+    sk_sp<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
     if (!dst) {
         return nullptr;
     }
@@ -259,7 +259,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       dst.get());
+                                       std::move(dst));
 }
 
 #endif

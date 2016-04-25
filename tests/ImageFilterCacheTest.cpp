@@ -213,7 +213,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter,
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
 
-    SkAutoTUnref<GrTexture> srcTexture(create_texture(ctxInfo.fGrContext));
+    sk_sp<GrTexture> srcTexture(create_texture(ctxInfo.fGrContext));
     if (!srcTexture) {
         return;
     }
