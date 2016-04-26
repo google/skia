@@ -3197,6 +3197,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool dstCo
 
     if (GrTextureParams::kMipMap_FilterMode == filterMode) {
         if (texture->texturePriv().mipMapsAreDirty()) {
+            this->setTextureUnit(unitIdx);
             GL_CALL(GenerateMipmap(target));
             texture->texturePriv().dirtyMipMaps(false);
             texture->texturePriv().setMaxMipMapLevel(SkMipMap::ComputeLevelCount(
