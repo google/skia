@@ -584,18 +584,20 @@ public:
 
     void pointSpan(Span span) override {
         SkASSERT(fDest + span.count() <= fEnd);
-        int32_t x = (int32_t)span.startX();
-        int32_t y = (int32_t)span.startY();
-        const uint32_t* src = this->pixelAddress(x, y);
-        memmove(fDest, src, span.count() * sizeof(uint32_t));
-        fDest += span.count();
+        if (span.length() != 0.0f) {
+            int32_t x = SkScalarTruncToInt(span.startX());
+            int32_t y = SkScalarTruncToInt(span.startY());
+            const uint32_t* src = this->pixelAddress(x, y);
+            memmove(fDest, src, span.count() * sizeof(uint32_t));
+            fDest += span.count();
+        }
     }
 
     void repeatSpan(Span span, int32_t repeatCount) override {
         SkASSERT(fDest + span.count() * repeatCount <= fEnd);
 
-        int32_t x = (int32_t)span.startX();
-        int32_t y = (int32_t)span.startY();
+        int32_t x = SkScalarTruncToInt(span.startX());
+        int32_t y = SkScalarTruncToInt(span.startY());
         const uint32_t* src = this->pixelAddress(x, y);
         uint32_t* dest = fDest;
         while (repeatCount --> 0) {

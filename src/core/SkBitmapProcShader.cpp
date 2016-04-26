@@ -225,6 +225,7 @@ private:
 static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImageInfo& srcInfo) {
     // These src attributes are not supported in the new 4f context (yet)
     //
+    if (srcInfo.profileType() != kSRGB_SkColorProfileType) { return false; }
     if (srcInfo.colorType() != kRGBA_8888_SkColorType
         && srcInfo.colorType() != kBGRA_8888_SkColorType
         && srcInfo.colorType() != kIndex_8_SkColorType
