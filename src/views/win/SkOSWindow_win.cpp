@@ -31,6 +31,9 @@
 #include "gl/command_buffer/SkCommandBufferGLContext.h"
 #endif // SK_COMMAND_BUFFER
 
+const int kDefaultWindowWidth = 500;
+const int kDefaultWindowHeight = 500;
+
 #define GL_CALL(IFACE, X)                                 \
     SkASSERT(IFACE);                                      \
     do {                                                  \
@@ -50,7 +53,8 @@ SkOSWindow::SkOSWindow(const void* winInit) {
     fWinInit = *(const WindowInit*)winInit;
 
     fHWND = CreateWindow(fWinInit.fClass, NULL, WS_OVERLAPPEDWINDOW,
-                         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, fWinInit.fInstance, NULL);
+                         CW_USEDEFAULT, 0, kDefaultWindowWidth, kDefaultWindowHeight, NULL, NULL,
+                         fWinInit.fInstance, NULL);
     gHwndToOSWindowMap.set(fHWND, this);
 #if SK_SUPPORT_GPU
 #if SK_ANGLE
