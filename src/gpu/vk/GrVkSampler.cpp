@@ -23,7 +23,8 @@ static inline VkSamplerAddressMode tile_to_vk_sampler_address(SkShader::TileMode
     return gWrapModes[tm];
 }
 
-GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& params) {
+GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& params, 
+                                 uint32_t mipLevels) {
 
     static VkFilter vkMinFilterModes[] = {
         VK_FILTER_NEAREST,
@@ -58,7 +59,7 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& para
     // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
     // the minFilter on mip level 0.
     createInfo.minLod = 0.0f;
-    createInfo.maxLod = 0.0f;
+    createInfo.maxLod = (mipLevels == 1) ? 0.0f : (float)(mipLevels);
     createInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     createInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -68,7 +69,7 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& para
                                                           nullptr,
                                                           &sampler));
 
-    return new GrVkSampler(sampler, GenerateKey(params));
+    return new GrVkSampler(sampler, GenerateKey(params, mipLevels));
 }
 
 void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
@@ -76,15 +77,21 @@ void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroySampler(gpu->device(), fSampler, nullptr));
 }
 
-uint8_t GrVkSampler::GenerateKey(const GrTextureParams& params) {
+uint16_t GrVkSampler::GenerateKey(const GrTextureParams& params, uint32_t mipLevels) {
+    const int kTileModeXShift = 2;
+    const int kTileModeYShift = 4;
+    const int kMipLevelShift = 6;
 
-    uint8_t key = params.filterMode();
+    uint16_t key = params.filterMode();
 
     SkASSERT(params.filterMode() <= 3);
-    key |= (params.getTileModeX() << 2);
+    key |= (params.getTileModeX() << kTileModeXShift);
 
     GR_STATIC_ASSERT(SkShader::kTileModeCount <= 4);
-    key |= (params.getTileModeY() << 4);
+    key |= (params.getTileModeY() << kTileModeYShift);
+
+    SkASSERT(mipLevels < 1024);
+    key |= (mipLevels << kMipLevelShift);
 
     return key;
 }

@@ -111,6 +111,8 @@ public:
 
     void finishDrawTarget() override;
 
+    void generateMipmap(GrVkTexture* tex) const;
+
 private:
     GrVkGpu(GrContext* context, const GrContextOptions& options,
             const GrVkBackendContext* backendContext);

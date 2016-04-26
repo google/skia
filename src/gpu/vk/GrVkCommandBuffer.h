@@ -127,9 +127,9 @@ public:
                    const VkImageCopy* copyRegions);
 
     void blitImage(const GrVkGpu* gpu,
-                   GrVkImage* srcImage,
+                   const GrVkImage::Resource* srcImage,
                    VkImageLayout srcLayout,
-                   GrVkImage* dstImage,
+                   const GrVkImage::Resource* dstImage,
                    VkImageLayout dstLayout,
                    uint32_t blitRegionCount,
                    const VkImageBlit* blitRegions,

@@ -63,7 +63,7 @@ public:
 
     // Finds or creates a compatible GrVkSampler based on the GrTextureParams.
     // The refcount is incremented and a pointer returned.
-    GrVkSampler* findOrCreateCompatibleSampler(const GrTextureParams&);
+    GrVkSampler* findOrCreateCompatibleSampler(const GrTextureParams&, uint32_t mipLevels);
 
     sk_sp<GrVkPipelineState> findOrCreateCompatiblePipelineState(const GrPipeline&,
                                                                  const GrPrimitiveProcessor&,
@@ -136,7 +136,7 @@ private:
 
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates
-    SkTDynamicHash<GrVkSampler, uint8_t> fSamplers;
+    SkTDynamicHash<GrVkSampler, uint16_t> fSamplers;
 
     // Cache of GrVkPipelineStates
     PipelineStateCache* fPipelineStateCache;

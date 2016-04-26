@@ -260,21 +260,21 @@ void GrVkCommandBuffer::copyImage(const GrVkGpu* gpu,
 }
 
 void GrVkCommandBuffer::blitImage(const GrVkGpu* gpu,
-                                  GrVkImage* srcImage,
+                                  const GrVkImage::Resource* srcImage,
                                   VkImageLayout srcLayout,
-                                  GrVkImage* dstImage,
+                                  const GrVkImage::Resource*  dstImage,
                                   VkImageLayout dstLayout,
                                   uint32_t blitRegionCount,
                                   const VkImageBlit* blitRegions,
                                   VkFilter filter) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
-    this->addResource(srcImage->resource());
-    this->addResource(dstImage->resource());
+    this->addResource(srcImage);
+    this->addResource(dstImage);
     GR_VK_CALL(gpu->vkInterface(), CmdBlitImage(fCmdBuffer,
-                                                srcImage->textureImage(),
+                                                srcImage->fImage,
                                                 srcLayout,
-                                                dstImage->textureImage(),
+                                                dstImage->fImage,
                                                 dstLayout,
                                                 blitRegionCount,
                                                 blitRegions,

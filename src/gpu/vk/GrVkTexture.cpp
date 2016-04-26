@@ -8,7 +8,9 @@
 #include "GrVkTexture.h"
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"
+#include "GrTexturePriv.h"
 #include "GrVkUtil.h"
+#include "SkMipmap.h"
 
 #include "vk/GrVkTypes.h"
 
@@ -60,8 +62,14 @@ GrVkTexture* GrVkTexture::Create(GrVkGpu* gpu,
                                  VkFormat format,
                                  const GrVkImage::Resource* imageResource) {
     VkImage image = imageResource->fImage;
+
+    uint32_t mipLevels = 1;
+    // TODO: enable when mipLevel loading is implemented in GrVkGpu
+    //if (desc.fIsMipMapped) {
+    //    mipLevels = SkMipMap::ComputeLevelCount(this->width(), this->height());
+    //}
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, image, format,
-                                                           GrVkImageView::kColor_Type);
+                                                           GrVkImageView::kColor_Type, mipLevels);
     if (!imageView) {
         return nullptr;
     }
@@ -156,4 +164,57 @@ GrBackendObject GrVkTexture::getTextureHandle() const {
 GrVkGpu* GrVkTexture::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
+}
+
+bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu) {
+    const GrVkImage::Resource* oldResource = fResource;
+
+    // Does this even make sense for rendertargets?
+    bool renderTarget = SkToBool(fDesc.fFlags & kRenderTarget_GrSurfaceFlag);
+
+    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
+    if (renderTarget) {
+        usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    }
+    usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+    uint32_t mipLevels = SkMipMap::ComputeLevelCount(this->width(), this->height());
+    if (mipLevels == 1) {
+        // don't need to do anything for a 1x1 texture
+        return false;
+    }
+
+    GrVkImage::ImageDesc imageDesc;
+    imageDesc.fImageType = VK_IMAGE_TYPE_2D;
+    imageDesc.fFormat = oldResource->fFormat;
+    imageDesc.fWidth = fDesc.fWidth;
+    imageDesc.fHeight = fDesc.fHeight;
+    imageDesc.fLevels = mipLevels;
+    imageDesc.fSamples = 1;
+    imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    imageDesc.fUsageFlags = usageFlags;
+    imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    const GrVkImage::Resource* imageResource = GrVkImage::CreateResource(gpu, imageDesc);
+    if (!imageResource) {
+        return false;
+    }
+
+    // have to create a new image view for new resource
+    const GrVkImageView* oldView = fTextureView;
+    VkImage image = imageResource->fImage;
+    const GrVkImageView* textureView = GrVkImageView::Create(gpu, image, imageResource->fFormat,
+                                                             GrVkImageView::kColor_Type, mipLevels);
+    if (!textureView) {
+        imageResource->unref(gpu);
+        return false;
+    }
+
+    oldResource->unref(gpu);
+    oldView->unref(gpu);
+    fResource = imageResource;
+    fTextureView = textureView;
+    this->texturePriv().setMaxMipMapLevel(mipLevels);
+
+    return true;
 }

@@ -8,6 +8,7 @@
 #include "GrVkPipelineState.h"
 
 #include "GrPipeline.h"
+#include "GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkDescriptorPool.h"
 #include "GrVkGpu.h"
@@ -21,6 +22,7 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLXferProcessor.h"
+#include "SkMipmap.h"
 
 GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
                                      const GrVkPipelineState::Desc& desc,
@@ -290,9 +292,17 @@ void GrVkPipelineState::writeSamplers(GrVkGpu* gpu,
 
     for (int i = 0; i < textureBindings.count(); ++i) {
         const GrTextureParams& params = textureBindings[i]->getParams();
-        fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params));
 
         GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->getTexture());
+        if (GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
+            if (texture->texturePriv().mipMapsAreDirty()) {
+                gpu->generateMipmap(texture);
+                texture->texturePriv().dirtyMipMaps(false);
+            }
+        }
+
+        fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params,
+                                                          texture->texturePriv().maxMipMapLevel()));
 
         const GrVkImage::Resource* textureResource = texture->resource();
         textureResource->ref();

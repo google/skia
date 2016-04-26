@@ -469,7 +469,7 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
     // For now we will set the VK_IMAGE_USAGE_TRANSFER_DESTINATION_BIT and
     // VK_IMAGE_USAGE_TRANSFER_SOURCE_BIT on every texture since we do not know whether or not we
     // will be using this texture in some copy or not. Also this assumes, as is the current case,
-    // that all render targets in vulkan are also texutres. If we change this practice of setting
+    // that all render targets in vulkan are also textures. If we change this practice of setting
     // both bits, we must make sure to set the destination bit if we are uploading srcData to the
     // texture.
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
@@ -478,14 +478,14 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
                                                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
-    // requested, this ImageDesc describes the resolved texutre. Therefore we always have samples set
+    // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
     // to 1.
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = pixelFormat;
     imageDesc.fWidth = desc.fWidth;
     imageDesc.fHeight = desc.fHeight;
-    imageDesc.fLevels = 1;
+    imageDesc.fLevels = 1;  // TODO: support miplevels for optimal tiling
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
@@ -605,6 +605,112 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     }
     return tgt;
 }
+
+void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
+    // don't need to do anything for linearly tiled textures (can't have mipmaps)
+    if (tex->isLinearTiled()) {
+        return;
+    }
+
+    // We cannot generate mipmaps for images that are multisampled.
+    // TODO: does it even make sense for rendertargets in general?
+    if (tex->asRenderTarget() && tex->asRenderTarget()->numColorSamples() > 1) {
+        return;
+    }
+
+    // determine if we can blit to and from this format
+    const GrVkCaps& caps = this->vkCaps();
+    if (!caps.configCanBeDstofBlit(tex->config(), false) ||
+        !caps.configCanBeSrcofBlit(tex->config(), false)) {
+        return;
+    }
+
+    // change the original image's layout
+    VkImageLayout origSrcLayout = tex->currentLayout();
+    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origSrcLayout);
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origSrcLayout);
+    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+    tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        srcAccessMask, dstAccessMask, srcStageMask, dstStageMask, false);
+
+    // grab handle to the original image resource
+    const GrVkImage::Resource* oldResource = tex->resource();
+    oldResource->ref();
+
+    if (!tex->reallocForMipmap(this)) {
+        oldResource->unref(this);
+        return;
+    }
+
+    // change the new image's layout
+    VkImageLayout origDstLayout = tex->currentLayout();
+
+    srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
+    dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+    srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
+    dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+    tex->setImageLayout(this,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        srcAccessMask,
+                        dstAccessMask,
+                        srcStageMask,
+                        dstStageMask,
+                        false);
+
+    // Blit original image
+    int width = tex->width();
+    int height = tex->height();
+    uint32_t mipLevel = 0;
+
+    VkImageBlit blitRegion;
+    memset(&blitRegion, 0, sizeof(VkImageBlit));
+    blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    blitRegion.srcOffsets[0] = { 0, 0, 0 };
+    blitRegion.srcOffsets[1] = { width, height, 0 };
+    blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
+    blitRegion.dstOffsets[0] = { 0, 0, 0 };
+    blitRegion.dstOffsets[1] = { width, height, 0 };
+
+    fCurrentCmdBuffer->blitImage(this,
+                                 oldResource,
+                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                 tex->resource(),
+                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                 1,
+                                 &blitRegion,
+                                 VK_FILTER_LINEAR);
+    // Blit the miplevels
+    while (width/2 > 0 && height/2 > 0) {
+        blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
+        blitRegion.srcOffsets[0] = { 0, 0, 0 };
+        blitRegion.srcOffsets[1] = { width, height, 0 };
+        blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel+1, 0, 1 };
+        blitRegion.dstOffsets[0] = { 0, 0, 0 };
+        blitRegion.dstOffsets[1] = { width/2, height/2, 0 };
+
+        fCurrentCmdBuffer->blitImage(this,
+                                     tex->resource(),
+                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                     tex->resource(),
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                     1,
+                                     &blitRegion,
+                                     VK_FILTER_LINEAR);
+
+        width /= 2;
+        height /= 2;
+        mipLevel++;
+    }
+
+    oldResource->unref(this);
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1268,9 +1374,9 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
     blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 0 };
 
     fCurrentCmdBuffer->blitImage(this,
-                                 srcImage,
+                                 srcImage->resource(),
                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                 dstImage,
+                                 dstImage->resource(),
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  1,
                                  &blitRegion,

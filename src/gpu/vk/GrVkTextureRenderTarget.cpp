@@ -12,6 +12,8 @@
 #include "GrVkImageView.h"
 #include "GrVkUtil.h"
 
+#include "SkMipmap.h"
+
 #include "vk/GrVkTypes.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
@@ -24,8 +26,13 @@ GrVkTextureRenderTarget* GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
                                                          const GrVkImage::Resource* imageResource) {
     VkImage image = imageResource->fImage;
     // Create the texture ImageView
+    uint32_t mipLevels = 1;
+    //TODO: does a mipmapped textureRenderTarget make sense?
+    //if (desc.fIsMipMapped) {
+    //    mipLevels = SkMipMap::ComputeLevelCount(this->width(), this->height());
+    //}
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, image, format,
-                                                           GrVkImageView::kColor_Type);
+                                                           GrVkImageView::kColor_Type, mipLevels);
     if (!imageView) {
         return nullptr;
     }
@@ -67,7 +74,7 @@ GrVkTextureRenderTarget* GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
             resolveAttachmentView->ref();
         } else {
             resolveAttachmentView = GrVkImageView::Create(gpu, image, pixelFormat,
-                                                          GrVkImageView::kColor_Type);
+                                                          GrVkImageView::kColor_Type, 1);
             if (!resolveAttachmentView) {
                 msaaImageResource->unref(gpu);
                 imageView->unref(gpu);
@@ -88,7 +95,7 @@ GrVkTextureRenderTarget* GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
         colorAttachmentView->ref();
     } else {
         colorAttachmentView = GrVkImageView::Create(gpu, colorImage, pixelFormat,
-                                                    GrVkImageView::kColor_Type);
+                                                    GrVkImageView::kColor_Type, 1);
         if (!colorAttachmentView) {
             if (msaaImageResource) {
                 resolveAttachmentView->unref(gpu);

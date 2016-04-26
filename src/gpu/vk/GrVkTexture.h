@@ -33,6 +33,8 @@ public:
 
     const GrVkImageView* textureView() const { return fTextureView; }
 
+    bool reallocForMipmap(const GrVkGpu* gpu);
+
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&,
                 const GrVkImage::Resource*, const GrVkImageView* imageView);

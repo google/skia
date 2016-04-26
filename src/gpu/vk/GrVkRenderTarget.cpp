@@ -145,7 +145,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
 
         // Create Resolve attachment view
         resolveAttachmentView = GrVkImageView::Create(gpu, imageResource->fImage, pixelFormat,
-                                                      GrVkImageView::kColor_Type);
+                                                      GrVkImageView::kColor_Type, 1);
         if (!resolveAttachmentView) {
             msaaResource->unref(gpu);
             return nullptr;
@@ -157,7 +157,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
 
     // Get color attachment view
     const GrVkImageView* colorAttachmentView = GrVkImageView::Create(gpu, colorImage, pixelFormat,
-                                                                     GrVkImageView::kColor_Type);
+                                                                     GrVkImageView::kColor_Type, 1);
     if (!colorAttachmentView) {
         if (msaaResource) {
             resolveAttachmentView->unref(gpu);

@@ -85,10 +85,11 @@ GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
     return new GrVkDescriptorPool(fGpu, type, count);
 }
 
-GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrTextureParams& params) {
-    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params));
+GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrTextureParams& params,
+                                                                 uint32_t mipLevels) {
+    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params, mipLevels));
     if (!sampler) {
-        sampler = GrVkSampler::Create(fGpu, params);
+        sampler = GrVkSampler::Create(fGpu, params, mipLevels);
         fSamplers.add(sampler);
     }
     SkASSERT(sampler);
@@ -136,7 +137,7 @@ void GrVkResourceProvider::destroyResources() {
     fSimpleRenderPasses.reset();
 
     // Iterate through all store GrVkSamplers and unref them before resetting the hash.
-    SkTDynamicHash<GrVkSampler, uint8_t>::Iter iter(&fSamplers);
+    SkTDynamicHash<GrVkSampler, uint16_t>::Iter iter(&fSamplers);
     for (; !iter.done(); ++iter) {
         (*iter).unref(fGpu);
     }
@@ -166,7 +167,7 @@ void GrVkResourceProvider::abandonResources() {
     fSimpleRenderPasses.reset();
 
     // Iterate through all store GrVkSamplers and unrefAndAbandon them before resetting the hash.
-    SkTDynamicHash<GrVkSampler, uint8_t>::Iter iter(&fSamplers);
+    SkTDynamicHash<GrVkSampler, uint16_t>::Iter iter(&fSamplers);
     for (; !iter.done(); ++iter) {
         (*iter).unrefAndAbandon();
     }

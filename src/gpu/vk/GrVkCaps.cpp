@@ -20,7 +20,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     /**************************************************************************
     * GrDrawTargetCaps fields
     **************************************************************************/
-    fMipMapSupport = false; //TODO: figure this out
+    fMipMapSupport = true;   // always available in Vulkan
     fNPOTTextureTileSupport = false; //TODO: figure this out
     fTwoSidedStencilSupport = false; //TODO: figure this out
     fStencilWrapOpsSupport = false; //TODO: figure this out
