@@ -338,7 +338,7 @@ void VulkanViewer::onIdle(double ms) {
     SkASSERT(fCurrentMeasurement < kMeasurementCount);
 
     fAnimTimer.updateTime();
-    if (fDisplayStats || fSlides[fCurrentSlide]->animate(fAnimTimer)) {
+    if (fSlides[fCurrentSlide]->animate(fAnimTimer) || fDisplayStats) {
         fWindow->inval();
     }
 }
