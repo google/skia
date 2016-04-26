@@ -547,6 +547,13 @@ static void push_codec_srcs(Path path) {
                         continue;
                     }
 
+                    // Skip kNonNative on different native scales.  It won't be interestingly
+                    // different.
+                    if (CodecSrc::kNonNative8888_Always_DstColorType == colorType && 1.0f != scale)
+                    {
+                        continue;
+                    }
+
                     push_codec_src(path, mode, colorType, alphaType, scale);
                 }
             }
@@ -577,6 +584,12 @@ static void push_codec_srcs(Path path) {
     for (int sampleSize : sampleSizes) {
         for (CodecSrc::DstColorType colorType : colorTypes) {
             for (SkAlphaType alphaType : alphaModes) {
+                // We can exercise all of the kNonNative support code in the swizzler with just a
+                // few sample sizes.  Skip the rest.
+                if (CodecSrc::kNonNative8888_Always_DstColorType == colorType && sampleSize > 3) {
+                    continue;
+                }
+
                 push_android_codec_src(path, AndroidCodecSrc::kFullImage_Mode, colorType,
                         alphaType, sampleSize);
                 if (subset) {
