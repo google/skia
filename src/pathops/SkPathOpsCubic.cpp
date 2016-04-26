@@ -240,12 +240,12 @@ bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
         SkScalar lt = 2.f * d[0];
         SkScalar ms = d[1] + tempSqrt;
         SkScalar mt = 2.f * d[0];
-        if (between(0, ls, lt) || between(0, ms, mt)) {
+        if (roughly_between(0, ls, lt) && roughly_between(0, ms, mt)) {
             ls = ls / lt;
             ms = ms / mt;
-            SkScalar smaller = SkTMax(0.f, SkTMin(ls, ms));
-            SkScalar larger = SkTMin(1.f, SkTMax(ls, ms));
-            *t = (smaller + larger) / 2;
+            SkASSERT(roughly_between(0, ls, 1) && roughly_between(0, ms, 1));
+            *t = (ls + ms) / 2;
+            SkASSERT(roughly_between(0, *t, 1));
             return *t > 0 && *t < 1;
         }
     } else if (kSerpentine_SkCubicType == cubicType || kCusp_SkCubicType == cubicType) {
