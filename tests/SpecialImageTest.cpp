@@ -75,13 +75,8 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     // Test getROPixels - this should always succeed regardless of backing store
     SkBitmap bitmap;
     REPORTER_ASSERT(reporter, img->getROPixels(&bitmap));
-    if (context) {
-        REPORTER_ASSERT(reporter, kSmallerSize == bitmap.width());
-        REPORTER_ASSERT(reporter, kSmallerSize == bitmap.height());
-    } else {
-        REPORTER_ASSERT(reporter, size == bitmap.width());
-        REPORTER_ASSERT(reporter, size == bitmap.height());
-    }
+    REPORTER_ASSERT(reporter, size == bitmap.width());
+    REPORTER_ASSERT(reporter, size == bitmap.height());
 
     //--------------
     // Test that draw restricts itself to the subset
@@ -168,12 +163,12 @@ DEF_TEST(SpecialImage_Image, reporter) {
 
     {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(subset, fullImage));
-        test_image(subSImg1, reporter, nullptr, false, kPad, kFullSize);
+        test_image(subSImg1, reporter, nullptr, false, kPad, kSmallerSize);
     }
 
     {
         sk_sp<SkSpecialImage> subSImg2(fullSImage->makeSubset(subset));
-        test_image(subSImg2, reporter, nullptr, false, 0, kSmallerSize);
+        test_image(subSImg2, reporter, nullptr, false, kPad, kSmallerSize);
     }
 }
 
@@ -300,12 +295,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
                                                                subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
                                                                texture));
-        test_image(subSImg1, reporter, context, true, kPad, kFullSize);
+        test_image(subSImg1, reporter, context, true, kPad, kSmallerSize);
     }
 
     {
         sk_sp<SkSpecialImage> subSImg2(fullSImg->makeSubset(subset));
-        test_image(subSImg2, reporter, context, true, kPad, kFullSize);
+        test_image(subSImg2, reporter, context, true, kPad, kSmallerSize);
     }
 }
 

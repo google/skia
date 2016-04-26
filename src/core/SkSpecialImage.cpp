@@ -218,7 +218,18 @@ public:
     }
 
     bool onGetROPixels(SkBitmap* bm) const override {
-        return as_IB(fImage)->getROPixels(bm);
+        SkBitmap tmp;
+
+        if (!as_IB(fImage)->getROPixels(&tmp)) {
+            return false;
+        }
+
+        if (this->subset().contains(tmp.bounds())) {
+            *bm = tmp;
+            return true;
+        }
+
+        return tmp.extractSubset(bm, this->subset());
     }
 
     GrTexture* onPeekTexture() const override { return as_IB(fImage)->peekTexture(); }
@@ -262,14 +273,7 @@ public:
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
-        sk_sp<SkImage> subsetImg(fImage->makeSubset(subset));
-        if (!subsetImg) {
-            return nullptr;
-        }
-
-        return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(subset.width(), subset.height()),
-                                             subsetImg,
-                                             &this->props());
+        return SkSpecialImage::MakeFromImage(subset, fImage, &this->props());
     }
 
     sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
@@ -438,145 +442,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromPixmap(const SkIRect& subset,
 
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
-#include "GrTexture.h"
+
 #include "SkImage_Gpu.h"
-
-class SkSpecialImage_Gpu : public SkSpecialImage_Base {
-public:
-    SkSpecialImage_Gpu(const SkIRect& subset,
-                       uint32_t uniqueID, sk_sp<GrTexture> tex, SkAlphaType at,
-                       const SkSurfaceProps* props)
-        : INHERITED(subset, uniqueID, props)
-        , fTexture(std::move(tex))
-        , fAlphaType(at)
-        , fAddedRasterVersionToCache(false) {
-    }
-
-    ~SkSpecialImage_Gpu() override {
-        if (fAddedRasterVersionToCache.load()) {
-            SkNotifyBitmapGenIDIsStale(this->uniqueID());
-        }
-    }
-
-    bool isOpaque() const override {
-        return GrPixelConfigIsOpaque(fTexture->config()) || fAlphaType == kOpaque_SkAlphaType;
-    }
-
-    size_t getSize() const override { return fTexture->gpuMemorySize(); }
-
-    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
-        SkRect dst = SkRect::MakeXYWH(x, y,
-                                      this->subset().width(), this->subset().height());
-
-        SkBitmap bm;
-
-        GrWrapTextureInBitmap(fTexture.get(),
-                              fTexture->width(), fTexture->height(), this->isOpaque(), &bm);
-
-        canvas->drawBitmapRect(bm, this->subset(),
-                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
-    }
-
-    GrTexture* onPeekTexture() const override { return fTexture.get(); }
-
-    sk_sp<GrTexture> onAsTextureRef(GrContext*) const override { return fTexture; }
-
-    bool onGetROPixels(SkBitmap* dst) const override {
-        if (SkBitmapCache::Find(this->uniqueID(), dst)) {
-            SkASSERT(dst->getGenerationID() == this->uniqueID());
-            SkASSERT(dst->isImmutable());
-            SkASSERT(dst->getPixels());
-            return true;
-        }
-
-        SkImageInfo info = SkImageInfo::MakeN32(this->width(), this->height(),
-                                                this->isOpaque() ? kOpaque_SkAlphaType
-                                                                 : kPremul_SkAlphaType);
-
-        if (!dst->tryAllocPixels(info)) {
-            return false;
-        }
-
-        if (!fTexture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
-                                  dst->getPixels(), dst->rowBytes())) {
-            return false;
-        }
-
-        dst->pixelRef()->setImmutableWithID(this->uniqueID());
-        SkBitmapCache::Add(this->uniqueID(), *dst);
-        fAddedRasterVersionToCache.store(true);
-        return true;
-    }
-
-    bool getBitmapDeprecated(SkBitmap* result) const override {
-        const SkImageInfo info = GrMakeInfoFromTexture(fTexture.get(),
-                                                       this->width(), this->height(),
-                                                       this->isOpaque());
-        if (!result->setInfo(info)) {
-            return false;
-        }
-
-        const SkImageInfo prInfo = info.makeWH(fTexture->width(), fTexture->height());
-
-        SkAutoTUnref<SkGrPixelRef> pixelRef(new SkGrPixelRef(prInfo, fTexture.get()));
-        result->setPixelRef(pixelRef, this->subset().fLeft, this->subset().fTop);
-        return true;
-    }
-
-    sk_sp<SkSpecialSurface> onMakeSurface(const SkImageInfo& info) const override {
-        if (!fTexture->getContext()) {
-            return nullptr;
-        }
-
-        GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *fTexture->getContext()->caps());
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-
-        return SkSpecialSurface::MakeRenderTarget(fTexture->getContext(), desc);
-    }
-
-    sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
-        return SkSpecialImage::MakeFromGpu(subset,
-                                           this->uniqueID(),
-                                           fTexture,
-                                           &this->props(),
-                                           fAlphaType);
-    }
-
-    sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
-        if (0 == subset.fLeft && 0 == subset.fTop &&
-            fTexture->width() == subset.width() &&
-            fTexture->height() == subset.height()) {
-            // The existing GrTexture is already tight so reuse it in the SkImage
-            return sk_make_sp<SkImage_Gpu>(fTexture->width(), fTexture->height(),
-                                           kNeedNewImageUniqueID,
-                                           fAlphaType, fTexture.get(), SkBudgeted::kYes);
-        }
-
-        GrContext* ctx = fTexture->getContext();
-        GrSurfaceDesc desc = fTexture->desc();
-        desc.fWidth = subset.width();
-        desc.fHeight = subset.height();
-
-        sk_sp<GrTexture> subTx(ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes));
-        if (!subTx) {
-            return nullptr;
-        }
-        ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
-        return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                       fAlphaType, subTx.get(), SkBudgeted::kYes);
-    }
-
-    sk_sp<SkSurface> onMakeTightSurface(const SkImageInfo& info) const override {
-        return SkSurface::MakeRenderTarget(fTexture->getContext(), SkBudgeted::kYes, info);
-    }
-
-private:
-    sk_sp<GrTexture>        fTexture;
-    const SkAlphaType       fAlphaType;
-    mutable SkAtomic<bool>  fAddedRasterVersionToCache;
-
-    typedef SkSpecialImage_Base INHERITED;
-};
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
                                                   uint32_t uniqueID,
@@ -584,7 +451,11 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
                                                   const SkSurfaceProps* props,
                                                   SkAlphaType at) {
     SkASSERT(rect_fits(subset, tex->width(), tex->height()));
-    return sk_make_sp<SkSpecialImage_Gpu>(subset, uniqueID, std::move(tex), at, props);
+
+    sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
+                                         uniqueID, at,
+                                         tex.get(), SkBudgeted::kYes));
+    return sk_make_sp<SkSpecialImage_Image>(subset, std::move(image), props);
 }
 
 #endif
