@@ -246,34 +246,3 @@ DEF_TEST(FlattenDrawable, r) {
     REPORTER_ASSERT(r, 3 == integer->c());
     REPORTER_ASSERT(r, 4 == integer->d());
 }
-
-static sk_sp<SkFlattenable> custom_create_proc(SkReadBuffer& buffer) {
-    sk_sp<SkFlattenable> drawable = IntDrawable::CreateProc(buffer);
-    IntDrawable* intDrawable = (IntDrawable*) drawable.get();
-    return sk_sp<IntDrawable>(new IntDrawable(intDrawable->a() + 1, intDrawable->b() + 1,
-                                              intDrawable->c() + 1, intDrawable->d() + 1));
-}
-
-DEF_TEST(FlattenCustomDrawable, r) {
-    // Create and serialize the test drawable
-    SkAutoTUnref<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
-    SkWriteBuffer writeBuffer;
-    writeBuffer.writeFlattenable(drawable);
-
-    // Copy the contents of the write buffer into a read buffer
-    sk_sp<SkData> data = SkData::MakeUninitialized(writeBuffer.bytesWritten());
-    writeBuffer.writeToMemory(data->writable_data());
-    SkReadBuffer readBuffer(data->data(), data->size());
-
-    // Register a custom factory with the read buffer
-    readBuffer.setCustomFactory(SkString("IntDrawable"), &custom_create_proc);
-
-    // Deserialize and verify the drawable
-    SkAutoTUnref<IntDrawable> out((IntDrawable*)
-            readBuffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
-    REPORTER_ASSERT(r, out);
-    REPORTER_ASSERT(r, 2 == out->a());
-    REPORTER_ASSERT(r, 3 == out->b());
-    REPORTER_ASSERT(r, 4 == out->c());
-    REPORTER_ASSERT(r, 5 == out->d());
-}
