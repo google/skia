@@ -63,7 +63,7 @@ public:
         return static_cast<SkGpuDevice*>(dev);
     }
 
-    GrContext* context() const { return fContext; }
+    GrContext* context() const override { return fContext; }
 
     // set all pixels to 0
     void clearAll();

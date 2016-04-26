@@ -1863,18 +1863,8 @@ GrRenderTarget* SkCanvas::internal_private_accessTopLayerRenderTarget() {
 }
 
 GrContext* SkCanvas::getGrContext() {
-#if SK_SUPPORT_GPU
     SkBaseDevice* device = this->getTopDevice();
-    if (device) {
-        GrRenderTarget* renderTarget = device->accessRenderTarget();
-        if (renderTarget) {
-            return renderTarget->getContext();
-        }
-    }
-#endif
-
-    return nullptr;
-
+    return device ? device->context() : nullptr;
 }
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,

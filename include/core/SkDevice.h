@@ -280,6 +280,8 @@ protected:
     */
     virtual const SkBitmap& onAccessBitmap() = 0;
 
+    virtual GrContext* context() const { return nullptr; }
+
 protected:
     virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
     virtual bool onPeekPixels(SkPixmap*) { return false; }
