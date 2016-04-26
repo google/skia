@@ -1284,6 +1284,7 @@ extern SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style )
 
 int dm_main();
 int dm_main() {
+    setbuf(stdout, nullptr);
     setup_crash_handler();
 
     if (FLAGS_verbose) {
