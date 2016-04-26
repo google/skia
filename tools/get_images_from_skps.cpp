@@ -157,12 +157,14 @@ int main(int argc, char** argv) {
     SkDebugf("%d known, %d unknown\n", gKnown, totalUnknowns);
     fRoot["totalFailures"] = totalUnknowns;
     fRoot["totalSuccesses"] = gKnown;
-    if (totalUnknowns > 0 && !FLAGS_failuresJsonPath.isEmpty()) {
-        SkDebugf("Writing failures to %s\n", FLAGS_failuresJsonPath[0]);
-        SkFILEWStream stream(FLAGS_failuresJsonPath[0]);
-        stream.writeText(Json::StyledWriter().write(fRoot).c_str());
-        stream.flush();
+    if (totalUnknowns > 0) {
+        if (!FLAGS_failuresJsonPath.isEmpty()) {
+            SkDebugf("Writing failures to %s\n", FLAGS_failuresJsonPath[0]);
+            SkFILEWStream stream(FLAGS_failuresJsonPath[0]);
+            stream.writeText(Json::StyledWriter().write(fRoot).c_str());
+            stream.flush();
+        }
+        return -1;
     }
-
     return 0;
 }
