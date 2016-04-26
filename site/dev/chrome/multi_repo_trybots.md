@@ -45,6 +45,14 @@ has the form 'issue\<issue>_\<patchset>.diff'.
 An example of this being used can be seen at
 https://crrev.com/1877673002/#ps120001 .
 
+Finally, run the post-sync hooks again to update the Skia source code
+
+      $ gclient runhooks
+
+Note that if your local skia patch in `third_party/skia` isn't clean (e.g., you
+already applied some patch to it), then `gclient runhooks` won't successfully
+run. In that case, run `git reset --hard` inside `third_party/skia` before
+`gclient runhooks`.
 
 External changes not in rietveld
 --------------------------------
