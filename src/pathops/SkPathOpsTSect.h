@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkPathOpsTSect_DEFINED
+#define SkPathOpsTSect_DEFINED
 
 #include "SkChunkAlloc.h"
 #include "SkPathOpsBounds.h"
@@ -2241,3 +2243,5 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
     }
     SkASSERT(intersections->used() <= TCurve::kMaxIntersections);
 }
+
+#endif
