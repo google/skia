@@ -248,24 +248,12 @@ bool GrVkPipelineStateDataManager::uploadUniformBuffers(const GrVkGpu* gpu,
                                                         GrVkUniformBuffer* fragmentBuffer) const {
     bool updatedBuffer = false;
     if (vertexBuffer && fVertexUniformsDirty) {
-        vertexBuffer->addMemoryBarrier(gpu,
-                                       VK_ACCESS_UNIFORM_READ_BIT,
-                                       VK_ACCESS_HOST_WRITE_BIT,
-                                       VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-                                       VK_PIPELINE_STAGE_HOST_BIT,
-                                       false);
         SkAssertResult(vertexBuffer->updateData(gpu, fVertexUniformData.get(), fVertexUniformSize,
                                                 &updatedBuffer));
         fVertexUniformsDirty = false;
     }
 
     if (fragmentBuffer && fFragmentUniformsDirty) {
-        fragmentBuffer->addMemoryBarrier(gpu,
-                                         VK_ACCESS_UNIFORM_READ_BIT,
-                                         VK_ACCESS_HOST_WRITE_BIT,
-                                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                         VK_PIPELINE_STAGE_HOST_BIT,
-                                         false);
         SkAssertResult(fragmentBuffer->updateData(gpu, fFragmentUniformData.get(),
                                                   fFragmentUniformSize, &updatedBuffer));
         fFragmentUniformsDirty = false;

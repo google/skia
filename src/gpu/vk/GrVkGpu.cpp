@@ -1602,7 +1602,6 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
     const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
     SkASSERT(renderPass);
 
-
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
                                                                     primProc,
@@ -1659,10 +1658,6 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
                 pipelineState->freeTempResources(this);
                 SkDEBUGCODE(pipelineState = nullptr);
                 primitiveType = nonIdxMesh->primitiveType();
-                // It is illegal for us to have the necessary memory barriers for when we write and
-                // update the uniform buffers in prepareDrawState while in an active render pass.
-                // Thus we must end the current one and then start it up again.
-                fCurrentCmdBuffer->endRenderPass(this);
                 pipelineState = this->prepareDrawState(pipeline,
                                                        primProc,
                                                        primitiveType,
@@ -1670,7 +1665,6 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
                 if (!pipelineState) {
                     return;
                 }
-                fCurrentCmdBuffer->beginRenderPass(this, renderPass, *vkRT);
             }
             SkASSERT(pipelineState);
             this->bindGeometry(primProc, *nonIdxMesh);

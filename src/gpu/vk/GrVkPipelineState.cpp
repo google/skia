@@ -238,13 +238,6 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
         descriptorWrites[0].pImageInfo = nullptr;
         descriptorWrites[0].pBufferInfo = &vertBufferInfo;
         descriptorWrites[0].pTexelBufferView = nullptr;
-
-        fVertexUniformBuffer->addMemoryBarrier(gpu,
-                                               VK_ACCESS_HOST_WRITE_BIT,
-                                               VK_ACCESS_UNIFORM_READ_BIT,
-                                               VK_PIPELINE_STAGE_HOST_BIT,
-                                               VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-                                               false);
     }
 
     VkDescriptorBufferInfo fragBufferInfo;
@@ -269,13 +262,6 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
         descriptorWrites[1].pImageInfo = nullptr;
         descriptorWrites[1].pBufferInfo = &fragBufferInfo;
         descriptorWrites[1].pTexelBufferView = nullptr;
-
-        fFragmentUniformBuffer->addMemoryBarrier(gpu,
-                                                 VK_ACCESS_HOST_WRITE_BIT,
-                                                 VK_ACCESS_UNIFORM_READ_BIT,
-                                                 VK_PIPELINE_STAGE_HOST_BIT,
-                                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                                 false);
     }
 
     if (uniformBindingUpdateCount) {
@@ -436,11 +422,11 @@ void GrVkPipelineState::DescriptorPoolManager::getNewDescriptorSet(GrVkGpu* gpu,
     if (!fMaxDescriptors) {
         return;
     }
-    if (fCurrentDescriptorCount == fMaxDescriptors) {
-        this->getNewPool(gpu);
-        fCurrentDescriptorCount = 0;
-    }
     fCurrentDescriptorCount += fDescCountPerSet;
+    if (fCurrentDescriptorCount > fMaxDescriptors) {
+        this->getNewPool(gpu);
+        fCurrentDescriptorCount = fDescCountPerSet;
+    }
 
     VkDescriptorSetAllocateInfo dsAllocateInfo;
     memset(&dsAllocateInfo, 0, sizeof(VkDescriptorSetAllocateInfo));
