@@ -7,6 +7,7 @@ Tips & FAQ
 +   [How to add hardware acceleration in Skia](#hw-acceleration)
 +   [Does Skia support Font hinting?](#font-hinting)
 +   [Does Skia shape text (kerning)?](#kerning)
++   [How do I add drop shadow on text?](#text-shadow)
 
 * * *
 
@@ -165,5 +166,38 @@ No.  Skia provides interfaces to draw glyphs, but does not implement a
 text shaper. Skia's client's often use
 [HarfBuzz](http://www.freedesktop.org/wiki/Software/HarfBuzz/) to
 generate the glyphs and their positions, including kerning.
+
+* * *
+
+<span id="text-shadow"></span>
+
+How do I add drop shadow on text?
+---------------------------------
+
+<!--?prettify lang=cc?-->
+
+    void draw(SkCanvas* canvas) {
+        const char text[] = "Skia";
+        const SkScalar radius = 2.0f;
+        const SkScalar xDrop = 2.0f;
+        const SkScalar yDrop = 2.0f;
+        const SkScalar x = 8.0f;
+        const SkScalar y = 52.0f;
+        const SkScalar textSize = 48.0f;
+        const uint8_t blurAlpha = 127;
+        canvas->drawColor(SK_ColorWHITE);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setTextSize(textSize);
+        SkPaint blur(paint);
+        blur.setAlpha(blurAlpha);
+        blur.setMaskFilter(SkBlurMaskFilter::Make(
+            kNormal_SkBlurStyle,
+            SkBlurMaskFilter::ConvertRadiusToSigma(radius), 0));
+        canvas->drawText(text, strlen(text), x + xDrop, y + yDrop, blur);
+        canvas->drawText(text, strlen(text), x, y, paint);
+    }
+
+<a href='https://fiddle.skia.org/c/@text_shadow'><img src='https://fiddle.skia.org/i/@text_shadow_raster.png'></a>
 
 <div style="margin-bottom:99%"></div>
