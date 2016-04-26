@@ -54,6 +54,15 @@ The Android build needs to set up some specific variables needed by both GYP
 and Make. We make this setup easy for developers by encapsulating all the
 details into a custom script that acts as a replacement for make.
 
+Syncing the Source
+-----------------------------
+We provide a utility to sync both our git repository as well as any third-party
+dependencies.  Simply run the command below:
+
+<!--?prettify lang=sh?-->
+    # Sync the source
+    ./bin/sync
+
 Custom Android Build Script
 ---------------------------
 
@@ -74,15 +83,6 @@ The -d option enables the build system to target the build to a specific
 architecture such as MIPS (generic), x86 (generic) and ARM (generic and device
 specific flavors for Nexus devices). This in turn allows Skia to take
 advantage of specific device optimizations (e.g. NEON instructions).
-
-Generate build file from GYP
-----------------------------
-
-We use the open-source gyp tool to generate build files from our
-multi-platform "gyp" files. While most other platforms enable you to
-regenerate these files using `./gyp_skia` or `bin/sync-and-gyp` it is
-recommended that you do NOT do this for Android.  Instead you can rely
-on it being run automatically by android_ninja.
 
 Faster rebuilds
 ---------------
