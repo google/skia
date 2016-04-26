@@ -79,6 +79,8 @@ public:
 
     const SkPaint& paint() const { return fPaint; }
 
+    const char* getTypeName() const override { return "PaintDrawable"; }
+
 protected:
     SkRect onGetBounds() override { return SkRect::MakeEmpty(); }
     void onDraw(SkCanvas*) override {}
@@ -123,6 +125,8 @@ public:
 
     IntDrawable* intDrawable() const { return fIntDrawable; }
     PaintDrawable* paintDrawable() const { return fPaintDrawable; }
+
+    const char* getTypeName() const override { return "CompoundDrawable"; }
 
 protected:
     SkRect onGetBounds() override { return SkRect::MakeEmpty(); }
@@ -181,6 +185,8 @@ public:
     IntDrawable* intDrawable() const { return fIntDrawable; }
     SkDrawable* drawable() const { return fDrawable; }
 
+    const char* getTypeName() const override { return "RootDrawable"; }
+
 protected:
     SkRect onGetBounds() override { return SkRect::MakeEmpty(); }
     void onDraw(SkCanvas*) override {}
@@ -191,21 +197,14 @@ private:
     SkAutoTUnref<SkDrawable>       fDrawable;
 };
 
-static void register_test_drawables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(IntDrawable)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(PaintDrawable)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(CompoundDrawable)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(RootDrawable)
-}
-
-static void register_test_drawables_once() {
-    static SkOnce once;
-    once(register_test_drawables);
+static void register_test_drawables(SkReadBuffer& buffer) {
+    buffer.setCustomFactory(SkString("IntDrawable"), IntDrawable::CreateProc);
+    buffer.setCustomFactory(SkString("PaintDrawable"), PaintDrawable::CreateProc);
+    buffer.setCustomFactory(SkString("CompoundDrawable"), CompoundDrawable::CreateProc);
+    buffer.setCustomFactory(SkString("RootDrawable"), RootDrawable::CreateProc);
 }
 
 DEF_TEST(FlattenDrawable, r) {
-    register_test_drawables_once();
-
     // Create and serialize the test drawable
     SkAutoTUnref<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
     SkPaint paint;
@@ -218,6 +217,7 @@ DEF_TEST(FlattenDrawable, r) {
     sk_sp<SkData> data = SkData::MakeUninitialized(writeBuffer.bytesWritten());
     writeBuffer.writeToMemory(data->writable_data());
     SkReadBuffer readBuffer(data->data(), data->size());
+    register_test_drawables(readBuffer);
 
     // Deserialize and verify the drawable
     SkAutoTUnref<SkDrawable> out((SkDrawable*)
@@ -255,8 +255,6 @@ static sk_sp<SkFlattenable> custom_create_proc(SkReadBuffer& buffer) {
 }
 
 DEF_TEST(FlattenCustomDrawable, r) {
-    // No need to register the drawables since we will be using a custom proc.
-
     // Create and serialize the test drawable
     SkAutoTUnref<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
     SkWriteBuffer writeBuffer;
