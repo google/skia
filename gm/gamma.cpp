@@ -163,6 +163,4 @@ DEF_SIMPLE_GM(gamma, canvas, 500, 200) {
     nextXferRect(sqrtHalfWhite, SkXfermode::kModulate_Mode, sqrtHalfWhite);
 
     canvas->restore();
-
-    canvas->restore();
 }
