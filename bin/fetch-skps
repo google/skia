@@ -1,16 +1,4 @@
 #!/bin/sh
-# Instructions for authenticating.
-#
-# Install the utilities you need:
-#   curl https://sdk.cloud.google.com | bash
-#
-# Authenticate
-#   gcloud auth login
-#
-# Follow instructions on web page.
-#
-# Set Project
-#   gcloud config set project google.com:skia-buildbots
 
 # Copies the latest bot-generated SKP set to ./skps.
 
@@ -18,4 +6,22 @@ set -x
 set -e
 
 VERSION=`cat $(dirname $0)/../SKP_VERSION`
-gsutil -m cp -r gs://chromium-skia-gm/playback_$VERSION/skps .
+if ! gsutil -m cp -r gs://chromium-skia-gm/playback_$VERSION/skps . ; then
+    cat >&2 <<EOF
+
+    Instructions for authenticating.
+
+    Install the utilities you need:
+      curl https://sdk.cloud.google.com | bash
+
+    Authenticate
+      gcloud auth login
+
+    Follow instructions on web page.
+
+    Set Project
+      gcloud config set project google.com:skia-buildbots
+
+EOF
+exit 1
+fi
