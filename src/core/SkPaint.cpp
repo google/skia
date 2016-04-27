@@ -1567,14 +1567,14 @@ static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
     size_t descSize = sizeof(*rec);
 
     if (pe) {
-        peBuffer->writeFlattenable(pe);
+        pe->flatten(*peBuffer);
         descSize += peBuffer->bytesWritten();
         entryCount += 1;
         rec->fMaskFormat = SkMask::kA8_Format;  // force antialiasing when we do the scan conversion
         // seems like we could support kLCD as well at this point...
     }
     if (mf) {
-        mfBuffer->writeFlattenable(mf);
+        mf->flatten(*mfBuffer);
         descSize += mfBuffer->bytesWritten();
         entryCount += 1;
         rec->fMaskFormat = SkMask::kA8_Format;   // force antialiasing with maskfilters
@@ -1585,7 +1585,7 @@ static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
         rec->ignorePreBlend();
     }
     if (ra) {
-        raBuffer->writeFlattenable(ra);
+        ra->flatten(*raBuffer);
         descSize += raBuffer->bytesWritten();
         entryCount += 1;
         rec->fMaskFormat = SkMask::kA8_Format;  // force antialiasing when we do the scan conversion
