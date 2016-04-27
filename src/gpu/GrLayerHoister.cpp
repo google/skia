@@ -12,6 +12,7 @@
 
 #include "SkBigPicture.h"
 #include "SkCanvas.h"
+#include "SkImageFilterCache.h"
 #include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
 #include "SkSpecialImage.h"
@@ -296,7 +297,7 @@ void GrLayerHoister::FilterLayer(GrContext* context,
 
     // This cache is transient, and is freed (along with all its contained
     // textures) when it goes out of scope.
-    SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(kDefaultCacheSize));
+    SkAutoTUnref<SkImageFilterCache> cache(SkImageFilterCache::Create(kDefaultCacheSize));
     SkImageFilter::Context filterContext(totMat, clipBounds, cache);
 
     // TODO: should the layer hoister store stand alone layers as SkSpecialImages internally?

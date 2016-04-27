@@ -26,6 +26,7 @@
 #include "SkImage_Base.h"
 #include "SkImageCacherator.h"
 #include "SkImageFilter.h"
+#include "SkImageFilterCache.h"
 #include "SkLayerInfo.h"
 #include "SkMaskFilter.h"
 #include "SkNinePatchIter.h"
@@ -1839,11 +1840,11 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 #endif
 }
 
-SkImageFilter::Cache* SkGpuDevice::getImageFilterCache() {
+SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
     ASSERT_SINGLE_OWNER
     // We always return a transient cache, so it is freed after each
     // filter traversal.
-    return SkImageFilter::Cache::Create(kDefaultImageFilterCacheSize);
+    return SkImageFilterCache::Create(kDefaultImageFilterCacheSize);
 }
 
 #endif

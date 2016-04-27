@@ -9,6 +9,7 @@
 #define SkSVGDevice_DEFINED
 
 #include "SkDevice.h"
+#include "SkTemplates.h"
 
 class SkXMLWriter;
 

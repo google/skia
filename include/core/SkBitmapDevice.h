@@ -13,7 +13,6 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkDevice.h"
-#include "SkImageFilter.h"
 #include "SkImageInfo.h"
 #include "SkRect.h"
 #include "SkScalar.h"
@@ -22,6 +21,7 @@
 #include "SkTypes.h"
 
 class SkDraw;
+class SkImageFilterCache;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -162,7 +162,7 @@ private:
 
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
-    SkImageFilter::Cache* getImageFilterCache() override;
+    SkImageFilterCache* getImageFilterCache() override;
 
     SkBitmap    fBitmap;
 

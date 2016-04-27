@@ -21,6 +21,8 @@ class GrFragmentProcessor;
 class SkColorFilter;
 struct SkIPoint;
 class SkSpecialImage;
+class SkImageFilterCache;
+struct SkImageFilterCacheKey;
 
 /**
  *  Base class for image filters. If one is installed in the paint, then
@@ -31,24 +33,9 @@ class SkSpecialImage;
  */
 class SK_API SkImageFilter : public SkFlattenable {
 public:
-    // This cache maps from (filter's unique ID + CTM + clipBounds + src bitmap generation ID) to
-    // (result, offset).
-    class Cache : public SkRefCnt {
-    public:
-        struct Key;
-        virtual ~Cache() {}
-        static Cache* Create(size_t maxBytes);
-        static Cache* Get();
-        virtual SkSpecialImage* get(const Key& key, SkIPoint* offset) const = 0;
-        virtual void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) = 0;
-        virtual void purge() = 0;
-        virtual void purgeByKeys(const Key[], int) = 0;
-        SkDEBUGCODE(virtual int count() const = 0;)
-    };
-
     class Context {
     public:
-        Context(const SkMatrix& ctm, const SkIRect& clipBounds, Cache* cache)
+        Context(const SkMatrix& ctm, const SkIRect& clipBounds, SkImageFilterCache* cache)
             : fCTM(ctm)
             , fClipBounds(clipBounds)
             , fCache(cache)
@@ -56,12 +43,12 @@ public:
 
         const SkMatrix& ctm() const { return fCTM; }
         const SkIRect& clipBounds() const { return fClipBounds; }
-        Cache* cache() const { return fCache; }
+        SkImageFilterCache* cache() const { return fCache; }
 
     private:
-        SkMatrix        fCTM;
-        SkIRect         fClipBounds;
-        Cache*          fCache;
+        SkMatrix               fCTM;
+        SkIRect                fClipBounds;
+        SkImageFilterCache*    fCache;
     };
 
     class CropRect {
@@ -399,7 +386,7 @@ private:
     bool fUsesSrcInput;
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
-    mutable SkTArray<Cache::Key> fCacheKeys;
+    mutable SkTArray<SkImageFilterCacheKey> fCacheKeys;
     mutable SkMutex fMutex;
     typedef SkFlattenable INHERITED;
 };

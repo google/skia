@@ -11,13 +11,13 @@
 #include "SkRefCnt.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkImageFilter.h"
 #include "SkSurfaceProps.h"
 
 class SkBitmap;
 class SkClipStack;
 class SkDraw;
 class SkDrawFilter;
+class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
 class SkMetaData;
@@ -394,7 +394,7 @@ private:
      */
     virtual void flush() {}
 
-    virtual SkImageFilter::Cache* getImageFilterCache() { return NULL; }
+    virtual SkImageFilterCache* getImageFilterCache() { return NULL; }
 
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;

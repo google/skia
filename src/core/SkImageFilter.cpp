@@ -6,31 +6,21 @@
  */
 
 #include "SkImageFilter.h"
-#include "SkImageFilterCacheKey.h"
 
 #include "SkCanvas.h"
-#include "SkChecksum.h"
 #include "SkFuzzLogging.h"
+#include "SkImageFilterCache.h"
 #include "SkLocalMatrixImageFilter.h"
 #include "SkMatrixImageFilter.h"
-#include "SkOncePtr.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
-#include "SkTDynamicHash.h"
-#include "SkTInternalLList.h"
 #include "SkValidationUtils.h"
 #include "SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
-#endif
-
-#ifdef SK_BUILD_FOR_IOS
-  enum { kDefaultCacheSize = 2 * 1024 * 1024 };
-#else
-  enum { kDefaultCacheSize = 128 * 1024 * 1024 };
 #endif
 
 #ifndef SK_IGNORE_TO_STRING
@@ -179,7 +169,7 @@ SkImageFilter::SkImageFilter(sk_sp<SkImageFilter>* inputs,
 }
 
 SkImageFilter::~SkImageFilter() {
-    Cache::Get()->purgeByKeys(fCacheKeys.begin(), fCacheKeys.count());
+    SkImageFilterCache::Get()->purgeByKeys(fCacheKeys.begin(), fCacheKeys.count());
 }
 
 SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
@@ -211,7 +201,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 
     uint32_t srcGenID = fUsesSrcInput ? src->uniqueID() : 0;
     const SkIRect srcSubset = fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);
-    Cache::Key key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID, srcSubset);
+    SkImageFilterCacheKey key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID, srcSubset);
     if (context.cache()) {
         SkSpecialImage* result = context.cache()->get(key, offset);
         if (result) {
@@ -462,115 +452,6 @@ sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
     return result;
 }
 
-namespace {
-
-class CacheImpl : public SkImageFilter::Cache {
-public:
-    CacheImpl(size_t maxBytes) : fMaxBytes(maxBytes), fCurrentBytes(0) { }
-    ~CacheImpl() override {
-        SkTDynamicHash<Value, Key>::Iter iter(&fLookup);
-
-        while (!iter.done()) {
-            Value* v = &*iter;
-            ++iter;
-            delete v;
-        }
-    }
-    struct Value {
-        Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset)
-            : fKey(key), fImage(SkRef(image)), fOffset(offset) {}
-
-        Key fKey;
-        SkAutoTUnref<SkSpecialImage> fImage;
-        SkIPoint fOffset;
-        static const Key& GetKey(const Value& v) {
-            return v.fKey;
-        }
-        static uint32_t Hash(const Key& key) {
-            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
-        }
-        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
-    };
-
-    SkSpecialImage* get(const Key& key, SkIPoint* offset) const override {
-        SkAutoMutexAcquire mutex(fMutex);
-        if (Value* v = fLookup.find(key)) {
-            *offset = v->fOffset;
-            if (v != fLRU.head()) {
-                fLRU.remove(v);
-                fLRU.addToHead(v);
-            }
-            return v->fImage;
-        }
-        return nullptr;
-    }
-
-    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) override {
-        SkAutoMutexAcquire mutex(fMutex);
-        if (Value* v = fLookup.find(key)) {
-            this->removeInternal(v);
-        }
-        Value* v = new Value(key, image, offset);
-        fLookup.add(v);
-        fLRU.addToHead(v);
-        fCurrentBytes += image->getSize();
-        while (fCurrentBytes > fMaxBytes) {
-            Value* tail = fLRU.tail();
-            SkASSERT(tail);
-            if (tail == v) {
-                break;
-            }
-            this->removeInternal(tail);
-        }
-    }
-
-    void purge() override {
-        SkAutoMutexAcquire mutex(fMutex);
-        while (fCurrentBytes > 0) {
-            Value* tail = fLRU.tail();
-            SkASSERT(tail);
-            this->removeInternal(tail);
-        }
-    }
-
-    void purgeByKeys(const Key keys[], int count) override {
-        SkAutoMutexAcquire mutex(fMutex);
-        for (int i = 0; i < count; i++) {
-            if (Value* v = fLookup.find(keys[i])) {
-                this->removeInternal(v);
-            }
-        }
-    }
-
-    SkDEBUGCODE(int count() const override { return fLookup.count(); })
-private:
-    void removeInternal(Value* v) {
-        SkASSERT(v->fImage);
-        fCurrentBytes -= v->fImage->getSize();
-        fLRU.remove(v);
-        fLookup.remove(v->fKey);
-        delete v;
-    }
-private:
-    SkTDynamicHash<Value, Key>            fLookup;
-    mutable SkTInternalLList<Value>       fLRU;
-    size_t                                fMaxBytes;
-    size_t                                fCurrentBytes;
-    mutable SkMutex                       fMutex;
-};
-
-} // namespace
-
-SkImageFilter::Cache* SkImageFilter::Cache::Create(size_t maxBytes) {
-    return new CacheImpl(maxBytes);
-}
-
-SK_DECLARE_STATIC_ONCE_PTR(SkImageFilter::Cache, cache);
-SkImageFilter::Cache* SkImageFilter::Cache::Get() {
-    return cache.get([]{ return SkImageFilter::Cache::Create(kDefaultCacheSize); });
-}
-
 void SkImageFilter::PurgeCache() {
-    Cache::Get()->purge();
+    SkImageFilterCache::Get()->purge();
 }
-

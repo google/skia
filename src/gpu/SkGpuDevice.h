@@ -169,7 +169,7 @@ private:
 
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
-    SkImageFilter::Cache* getImageFilterCache() override;
+    SkImageFilterCache* getImageFilterCache() override;
 
     bool forceConservativeRasterClip() const override { return true; }
 

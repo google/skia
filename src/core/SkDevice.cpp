@@ -10,6 +10,8 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkImage_Base.h"
+#include "SkImageFilter.h"
+#include "SkImageFilterCache.h"
 #include "SkMetaData.h"
 #include "SkNinePatchIter.h"
 #include "SkPatchUtils.h"
@@ -413,7 +415,7 @@ void SkBaseDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitm
     SkMatrix matrix = *draw.fMatrix;
     matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
     const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
-    SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
+    SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
     SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
 
     sk_sp<SkSpecialImage> srcImg(SkSpecialImage::internal_fromBM(bitmap, &this->surfaceProps()));
