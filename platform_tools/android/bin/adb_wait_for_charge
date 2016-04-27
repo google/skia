@@ -3,6 +3,7 @@
 # Wait for the device to be charged enough for testing.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SKIP_TOOLCHAIN_SETUP="true"
 source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
