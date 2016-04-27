@@ -33,10 +33,23 @@
  */
 class GrShape {
 public:
+    GrShape(const SkPath& path)
+            : fType(Type::kPath)
+            , fPath(&path) {
+        this->attemptToReduceFromPath();
+    }
+
     GrShape() : fType(Type::kEmpty) {}
 
     explicit GrShape(const SkRRect& rrect) : fType(Type::kRRect), fRRect(rrect) {}
     explicit GrShape(const SkRect& rect) : fType(Type::kRRect), fRRect(SkRRect::MakeRect(rect)) {}
+
+    GrShape(const SkPath& path, const GrStyle& style)
+        : fType(Type::kPath)
+        , fPath(&path)
+        , fStyle(style) {
+        this->attemptToReduceFromPath();
+    }
 
     GrShape(const SkRRect& rrect, const GrStyle& style)
         : fType(Type::kRRect)
@@ -47,6 +60,13 @@ public:
         : fType(Type::kRRect)
         , fRRect(SkRRect::MakeRect(rect))
         , fStyle(style) {}
+
+    GrShape(const SkPath& path, const SkPaint& paint)
+        : fType(Type::kPath)
+        , fPath(&path)
+        , fStyle(paint) {
+        this->attemptToReduceFromPath();
+    }
 
     GrShape(const SkRRect& rrect, const SkPaint& paint)
         : fType(Type::kRRect)
@@ -122,6 +142,12 @@ public:
     void writeUnstyledKey(uint32_t* key) const;
 
 private:
+    enum class Type {
+        kEmpty,
+        kRRect,
+        kPath,
+    };
+
     /**
      * Computes the key length for a GrStyle. The return will be negative if it cannot be turned
      * into a key.
@@ -146,12 +172,40 @@ private:
      */
     void setInheritedKey(const GrShape& parentShape, bool stopAfterPE);
 
-    enum class Type {
-        kEmpty,
-        kRRect,
-        kPath,
-    } fType;
+    void attemptToReduceFromPath() {
+        SkASSERT(Type::kPath == fType);
+        fType = AttemptToReduceFromPathImpl(*fPath.get(), &fRRect, fStyle.pathEffect(),
+                                            fStyle.strokeRec());
+        if (Type::kPath != fType) {
+            fPath.reset();
+            fInheritedKey.reset(0);
+        }
+    }
 
+    static Type AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* rrect,
+                                            const SkPathEffect* pe, const SkStrokeRec& strokeRec) {
+        if (path.isEmpty()) {
+            return Type::kEmpty;
+        }
+        if (path.isRRect(rrect)) {
+            return Type::kRRect;
+        }
+        SkRect rect;
+        if (path.isOval(&rect)) {
+            rrect->setOval(rect);
+            return Type::kRRect;
+        }
+        bool closed;
+        if (path.isRect(&rect, &closed, nullptr)) {
+            if (closed || (!pe && strokeRec.isFillStyle())) {
+                rrect->setRect(rect);
+                return Type::kRRect;
+            }
+        }
+        return Type::kPath;
+    }
+
+    Type                        fType;
     SkRRect                     fRRect;
     SkTLazy<SkPath>             fPath;
     GrStyle                     fStyle;

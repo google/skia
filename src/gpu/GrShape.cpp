@@ -156,7 +156,7 @@ void GrShape::StyleKey(uint32_t* key, const GrStyle& style, bool stopAfterPE) {
     SkASSERT(StyleKeySize(style, stopAfterPE) == i);
 }
 
-void GrShape::setInheritedKey(const GrShape &parent, bool stopAfterPE){
+void GrShape::setInheritedKey(const GrShape &parent, bool stopAfterPE) {
     SkASSERT(!fInheritedKey.count());
     // If the output shape turns out to be simple, then we will just use its geometric key
     if (Type::kPath == fType) {
@@ -170,25 +170,30 @@ void GrShape::setInheritedKey(const GrShape &parent, bool stopAfterPE){
         bool useParentGeoKey = !parentCnt;
         if (useParentGeoKey) {
             parentCnt = parent.unstyledKeySize();
+            if (parentCnt < 0) {
+                // The parent's geometry has no key so we will have no key.
+                fPath.get()->setIsVolatile(true);
+                return;
+            }
         }
         int styleCnt = StyleKeySize(parent.fStyle, stopAfterPE);
         if (styleCnt < 0) {
             // The style doesn't allow a key, set the path to volatile so that we fail when
             // we try to get a key for the shape.
             fPath.get()->setIsVolatile(true);
-        } else {
-            fInheritedKey.reset(parentCnt + styleCnt);
-            if (useParentGeoKey) {
-                // This will be the geo key.
-                parent.writeUnstyledKey(fInheritedKey.get());
-            } else {
-                // This should be geo,path_effect
-                memcpy(fInheritedKey.get(), parent.fInheritedKey.get(),
-                       parentCnt * sizeof(uint32_t));
-            }
-            // Now turn (geo,path_effect) or (geo) into (geo,path_effect,stroke)
-            StyleKey(fInheritedKey.get() + parentCnt, parent.fStyle, stopAfterPE);
+            return;
         }
+        fInheritedKey.reset(parentCnt + styleCnt);
+        if (useParentGeoKey) {
+            // This will be the geo key.
+            parent.writeUnstyledKey(fInheritedKey.get());
+        } else {
+            // This should be (geo,path_effect).
+            memcpy(fInheritedKey.get(), parent.fInheritedKey.get(),
+                   parentCnt * sizeof(uint32_t));
+        }
+        // Now turn (geo,path_effect) or (geo) into (geo,path_effect,stroke)
+        StyleKey(fInheritedKey.get() + parentCnt, parent.fStyle, stopAfterPE);
     }
 }
 
@@ -213,6 +218,7 @@ GrShape::GrShape(const GrShape& parent, bool stopAfterPE) {
     SkPathEffect* pe = parent.fStyle.pathEffect();
     const SkPath* inPath;
     SkStrokeRec strokeRec = parent.fStyle.strokeRec();
+    bool appliedPE = false;
     if (pe) {
         fType = Type::kPath;
         fPath.init();
@@ -231,6 +237,7 @@ GrShape::GrShape(const GrShape& parent, bool stopAfterPE) {
             fPath.reset();
             return;
         }
+        appliedPE = true;
         inPath = fPath.get();
     } else if (stopAfterPE || !strokeRec.needToApply()) {
         *this = parent;
@@ -245,10 +252,30 @@ GrShape::GrShape(const GrShape& parent, bool stopAfterPE) {
             parent.asPath(fPath.get());
         }
     }
+    const GrShape* effectiveParent = &parent;
+    SkTLazy<GrShape> tmpParent;
     if (!stopAfterPE) {
+        if (appliedPE) {
+            // If the intermediate shape from just the PE is not a path then we capture that here
+            // so that we can pass the non-path parent to setInheritedKey.
+            SkRRect rrect;
+            Type parentType = AttemptToReduceFromPathImpl(*fPath.get(), &rrect, nullptr, strokeRec);
+            switch (parentType) {
+                case Type::kEmpty:
+                    tmpParent.init();
+                    effectiveParent = tmpParent.get();
+                    break;
+                case Type::kRRect:
+                    tmpParent.init(rrect, GrStyle(strokeRec, nullptr));
+                    effectiveParent = tmpParent.get();
+                case Type::kPath:
+                    break;
+            }
+        }
         strokeRec.applyToPath(fPath.get(), *inPath);
     } else {
         fStyle = GrStyle(strokeRec, nullptr);
     }
-    this->setInheritedKey(parent, stopAfterPE);
+    this->attemptToReduceFromPath();
+    this->setInheritedKey(*effectiveParent, stopAfterPE);
 }
