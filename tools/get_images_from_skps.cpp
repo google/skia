@@ -82,7 +82,9 @@ struct Sniffer : public SkPixelSerializer {
             SkBitmap bitmap;
             SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
             bitmap.allocPixels(info);
-            if (SkCodec::kSuccess != codec->getPixels(info, bitmap.getPixels(),  bitmap.rowBytes()))
+            const SkCodec::Result result = codec->getPixels(
+                info, bitmap.getPixels(),  bitmap.rowBytes());
+            if (SkCodec::kIncompleteInput != result && SkCodec::kSuccess != result)
             {
                 SkDebugf("Decoding failed for %s\n", skpName.c_str());
                 gSkpToUnknownCount[skpName]++;
