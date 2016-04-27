@@ -13,12 +13,29 @@
 
 class SkRRect;
 
+/**
+ *  Wraps a SkRegion and SkAAClip, so we have a single object that can represent either our
+ *  BW or antialiased clips.
+ *
+ *  This class is optimized for the raster backend of canvas, but can be expense to keep up2date,
+ *  so it supports a runtime option (force-conservative-rects) to turn it into a super-fast
+ *  rect-only tracker. The gpu backend uses this since it does not need the result (it uses
+ *  SkClipStack instead).
+ */
 class SkRasterClip {
 public:
     SkRasterClip(bool forceConservativeRects = false);
     SkRasterClip(const SkIRect&, bool forceConservativeRects = false);
+    SkRasterClip(const SkRegion&);
     SkRasterClip(const SkRasterClip&);
     ~SkRasterClip();
+
+    // Only compares the current state. Does not compare isForceConservativeRects(), so that field
+    // could be different but this could still return true.
+    bool operator==(const SkRasterClip&) const;
+    bool operator!=(const SkRasterClip& other) const {
+        return !(*this == other);
+    }
 
     bool isForceConservativeRects() const { return fForceConservativeRects; }
 

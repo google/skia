@@ -17,6 +17,10 @@ public:
     ~SkPDFCanvas();
 
 protected:
+    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
+    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) override;
+
     void onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&,
                           const SkPaint*) override;
 
@@ -34,6 +38,9 @@ protected:
                           const SkRect&,
                           const SkPaint*,
                           SkCanvas::SrcRectConstraint) override;
+
+private:
+    typedef SkCanvas INHERITED;
 };
 
 #endif  // SkPDFCanvas_DEFINED

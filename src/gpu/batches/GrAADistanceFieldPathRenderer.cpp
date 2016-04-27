@@ -379,7 +379,6 @@ private:
         SkRasterClip rasterClip;
         rasterClip.setRect(devPathBounds);
         draw.fRC = &rasterClip;
-        draw.fClip = &rasterClip.bwRgn();
         draw.fMatrix = &drawMatrix;
         draw.fDst = dst;
 

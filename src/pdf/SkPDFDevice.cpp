@@ -567,7 +567,7 @@ public:
           fContentEntry(nullptr),
           fXfermode(SkXfermode::kSrcOver_Mode),
           fDstFormXObject(nullptr) {
-        init(draw.fClipStack, *draw.fClip, *draw.fMatrix, paint, hasText);
+        init(draw.fClipStack, draw.fRC->bwRgn(), *draw.fMatrix, paint, hasText);
     }
     ScopedContentEntry(SkPDFDevice* device, const SkClipStack* clipStack,
                        const SkRegion& clipRegion, const SkMatrix& matrix,
@@ -752,7 +752,7 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
     // We only use this when there's a path effect because of the overhead
     // of multiple calls to setUpContentEntry it causes.
     if (passedPaint.getPathEffect()) {
-        if (d.fClip->isEmpty()) {
+        if (d.fRC->isEmpty()) {
             return;
         }
         SkDraw pointDraw(d);
@@ -876,7 +876,7 @@ void SkPDFDevice::drawRect(const SkDraw& d,
     r.sort();
 
     if (paint.getPathEffect()) {
-        if (d.fClip->isEmpty()) {
+        if (d.fRC->isEmpty()) {
             return;
         }
         SkPath path;
@@ -938,7 +938,7 @@ void SkPDFDevice::drawPath(const SkDraw& d,
     }
 
     if (paint.getPathEffect()) {
-        if (d.fClip->isEmpty()) {
+        if (d.fRC->isEmpty()) {
             return;
         }
         if (!pathIsMutable) {
@@ -963,7 +963,7 @@ void SkPDFDevice::drawPath(const SkDraw& d,
         return;
     }
 
-    ScopedContentEntry content(this, d.fClipStack, *d.fClip, matrix, paint);
+    ScopedContentEntry content(this, d.fClipStack, d.fRC->bwRgn(), matrix, paint);
     if (!content.entry()) {
         return;
     }
@@ -996,7 +996,7 @@ void SkPDFDevice::drawBitmap(const SkDraw& d,
         replace_srcmode_on_opaque_paint(&paint);
     }
 
-    if (d.fClip->isEmpty()) {
+    if (d.fRC->isEmpty()) {
         return;
     }
 
@@ -1004,7 +1004,7 @@ void SkPDFDevice::drawBitmap(const SkDraw& d,
     transform.postConcat(*d.fMatrix);
     SkImageBitmap imageBitmap(bitmap);
     this->internalDrawImage(
-            transform, d.fClipStack, *d.fClip, imageBitmap, paint);
+            transform, d.fClipStack, d.fRC->bwRgn(), imageBitmap, paint);
 }
 
 void SkPDFDevice::drawSprite(const SkDraw& d,
@@ -1017,7 +1017,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d,
         replace_srcmode_on_opaque_paint(&paint);
     }
 
-    if (d.fClip->isEmpty()) {
+    if (d.fRC->isEmpty()) {
         return;
     }
 
@@ -1025,7 +1025,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d,
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
     SkImageBitmap imageBitmap(bitmap);
     this->internalDrawImage(
-            matrix, d.fClipStack, *d.fClip, imageBitmap, paint);
+            matrix, d.fClipStack, d.fRC->bwRgn(), imageBitmap, paint);
 }
 
 void SkPDFDevice::drawImage(const SkDraw& draw,
@@ -1040,14 +1040,14 @@ void SkPDFDevice::drawImage(const SkDraw& draw,
     if (image->isOpaque()) {
         replace_srcmode_on_opaque_paint(&paint);
     }
-    if (draw.fClip->isEmpty()) {
+    if (draw.fRC->isEmpty()) {
         return;
     }
     SkMatrix transform = SkMatrix::MakeTrans(x, y);
     transform.postConcat(*draw.fMatrix);
     SkImageBitmap imageBitmap(const_cast<SkImage*>(image));
     this->internalDrawImage(
-            transform, draw.fClipStack, *draw.fClip, imageBitmap, paint);
+            transform, draw.fClipStack, draw.fRC->bwRgn(), imageBitmap, paint);
 }
 
 void SkPDFDevice::drawImageRect(const SkDraw& draw,
@@ -1277,7 +1277,7 @@ void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
                                const SkPoint texs[], const SkColor colors[],
                                SkXfermode* xmode, const uint16_t indices[],
                                int indexCount, const SkPaint& paint) {
-    if (d.fClip->isEmpty()) {
+    if (d.fRC->isEmpty()) {
         return;
     }
     // TODO: implement drawVertices
@@ -1309,7 +1309,7 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    ScopedContentEntry content(this, d.fClipStack, *d.fClip, matrix, paint);
+    ScopedContentEntry content(this, d.fClipStack, d.fRC->bwRgn(), matrix, paint);
     if (!content.entry()) {
         return;
     }
@@ -1434,7 +1434,7 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
         return false;
     }
 
-    if (d.fClip->isEmpty()) {
+    if (d.fRC->isEmpty()) {
         return false;
     }
 
@@ -1470,7 +1470,7 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
     if (!totalMatrix.invert(&transformInverse)) {
         return false;
     }
-    bounds.set(d.fClip->getBounds());
+    bounds.set(d.fRC->getBounds());
     transformInverse.mapRect(&bounds);
 
     // Extend the bounds by the line width (plus some padding)
@@ -1758,9 +1758,10 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
         SkPDFFormXObject* dstMask = srcFormXObject.get();
         if (shape != nullptr) {
             // Draw shape into a form-xobject.
+            SkRasterClip rc(clipRegion);
             SkDraw d;
             d.fMatrix = &identity;
-            d.fClip = &clipRegion;
+            d.fRC = &rc;
             d.fClipStack = &clipStack;
             SkPaint filledPaint;
             filledPaint.setColor(SK_ColorBLACK);

@@ -215,7 +215,6 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
     fDraw.fDst      = fPixels;
     fRasterClip.setRect(bounds);
     fDraw.fRC       = &fRasterClip;
-    fDraw.fClip     = &fRasterClip.bwRgn();
     fDraw.fMatrix   = &fMatrix;
     return true;
 }

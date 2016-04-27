@@ -32,6 +32,7 @@
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
+#include "SkRasterClip.h"
 #include "SkRRect.h"
 #include "SkRecord.h"
 #include "SkStroke.h"
@@ -515,7 +516,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
         GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
-                                            draw.fClip->getBounds(), true);
+                                            draw.fRC->getBounds(), true);
         return;
     }
 
@@ -553,12 +554,12 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
             if (devRRect.allCornersCircular()) {
                 SkRect maskRect;
                 if (paint.getMaskFilter()->canFilterMaskGPU(devRRect,
-                                                            draw.fClip->getBounds(),
+                                                            draw.fRC->getBounds(),
                                                             *draw.fMatrix,
                                                             &maskRect)) {
                     SkIRect finalIRect;
                     maskRect.roundOut(&finalIRect);
-                    if (draw.fClip->quickReject(finalIRect)) {
+                    if (draw.fRC->quickReject(finalIRect)) {
                         // clipped out
                         return;
                     }
@@ -587,7 +588,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
-                                            draw.fClip->getBounds(), true);
+                                            draw.fRC->getBounds(), true);
         return;
     }
 
@@ -633,7 +634,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
                                         fClip, path, paint,
                                         *draw.fMatrix, nullptr,
-                                        draw.fClip->getBounds(), true);
+                                        draw.fRC->getBounds(), true);
 }
 
 
@@ -703,7 +704,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
                                         fClip, origSrcPath, paint,
                                         *draw.fMatrix, prePathMatrix,
-                                        draw.fClip->getBounds(), pathIsMutable);
+                                        draw.fRC->getBounds(), pathIsMutable);
 }
 
 static const int kBmpSmallTileSize = 1 << 10;
@@ -1676,7 +1677,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
     SkDEBUGCODE(this->validate();)
 
     fDrawContext->drawText(fClip, grPaint, paint, *draw.fMatrix,
-                           (const char *)text, byteLength, x, y, draw.fClip->getBounds());
+                           (const char *)text, byteLength, x, y, draw.fRC->getBounds());
 }
 
 void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteLength,
@@ -1696,7 +1697,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
 
     fDrawContext->drawPosText(fClip, grPaint, paint, *draw.fMatrix,
                               (const char *)text, byteLength, pos, scalarsPerPos, offset,
-                              draw.fClip->getBounds());
+                              draw.fRC->getBounds());
 }
 
 void SkGpuDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkScalar x, SkScalar y,
@@ -1708,7 +1709,7 @@ void SkGpuDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSca
     SkDEBUGCODE(this->validate();)
 
     fDrawContext->drawTextBlob(fClip, paint, *draw.fMatrix,
-                               blob, x, y, drawFilter, draw.fClip->getBounds());
+                               blob, x, y, drawFilter, draw.fRC->getBounds());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

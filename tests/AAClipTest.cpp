@@ -10,6 +10,7 @@
 #include "SkMask.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkRasterClip.h"
 #include "SkRRect.h"
 #include "Test.h"
 
@@ -340,33 +341,6 @@ static void test_really_a_rect(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, clip.getBounds() == SkIRect::MakeLTRB(10, 0, 50, 90));
     // the clip recognized that that it is just a rect!
     REPORTER_ASSERT(reporter, clip.isRect());
-}
-
-#include "SkRasterClip.h"
-
-static void copyToMask(const SkRasterClip& rc, SkMask* mask) {
-    if (rc.isAA()) {
-        rc.aaRgn().copyToMask(mask);
-    } else {
-        copyToMask(rc.bwRgn(), mask);
-    }
-}
-
-static bool operator==(const SkRasterClip& a, const SkRasterClip& b) {
-    if (a.isEmpty()) {
-        return b.isEmpty();
-    }
-    if (b.isEmpty()) {
-        return false;
-    }
-
-    SkMask ma, mb;
-    copyToMask(a, &ma);
-    copyToMask(b, &mb);
-    SkAutoMaskFreeImage aCleanUp(ma.fImage);
-    SkAutoMaskFreeImage bCleanUp(mb.fImage);
-
-    return ma == mb;
 }
 
 static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],

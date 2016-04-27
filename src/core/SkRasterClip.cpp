@@ -24,6 +24,14 @@ SkRasterClip::SkRasterClip(const SkRasterClip& src) {
     SkDEBUGCODE(this->validate();)
 }
 
+SkRasterClip::SkRasterClip(const SkRegion& rgn) : fBW(rgn) {
+    fForceConservativeRects = false;
+    fIsBW = true;
+    fIsEmpty = this->computeIsEmpty();  // bounds might be empty, so compute
+    fIsRect = !fIsEmpty;
+    SkDEBUGCODE(this->validate();)
+}
+
 SkRasterClip::SkRasterClip(const SkIRect& bounds, bool forceConservativeRects) : fBW(bounds) {
     fForceConservativeRects = forceConservativeRects;
     fIsBW = true;
@@ -42,6 +50,22 @@ SkRasterClip::SkRasterClip(bool forceConservativeRects) {
 
 SkRasterClip::~SkRasterClip() {
     SkDEBUGCODE(this->validate();)
+}
+
+bool SkRasterClip::operator==(const SkRasterClip& other) const {
+    // This impl doesn't care if fForceConservativeRects is the same in both, only the current state
+
+    if (fIsBW != other.fIsBW) {
+        return false;
+    }
+    bool isEqual = fIsBW ? fBW == other.fBW : fAA == other.fAA;
+#ifdef SK_DEBUG
+    if (isEqual) {
+        SkASSERT(fIsEmpty == other.fIsEmpty);
+        SkASSERT(fIsRect == other.fIsRect);
+    }
+#endif
+    return isEqual;
 }
 
 bool SkRasterClip::isComplex() const {

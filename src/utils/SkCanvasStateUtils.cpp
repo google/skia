@@ -11,6 +11,7 @@
 #include "SkCanvasStack.h"
 #include "SkDevice.h"
 #include "SkErrorInternals.h"
+#include "SkRasterClip.h"
 #include "SkWriter32.h"
 
 /*
@@ -250,7 +251,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         layerState->raster.rowBytes = pmap.rowBytes();
         layerState->raster.pixels = pmap.writable_addr();
 
-        setup_MC_state(&layerState->mcState, layer.matrix(), layer.clip());
+        setup_MC_state(&layerState->mcState, layer.matrix(), layer.clip().bwRgn());
         layerCount++;
     }
 

@@ -40,7 +40,6 @@ public:
 
         fDraw.fDst      = fPixmap;
         fDraw.fMatrix   = &fIdentity;
-        fDraw.fClip     = &fRC.bwRgn();
         fDraw.fRC       = &fRC;
     }
 

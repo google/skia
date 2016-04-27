@@ -349,7 +349,6 @@ public:
         if (rec && rec->fDevice) {
 
             fMatrix = rec->fMatrix;
-            fClip   = &((SkRasterClip*)&rec->fClip)->forceGetBW();
             fRC     = &rec->fClip;
             fDevice = rec->fDevice;
             if (!fDevice->accessPixels(&fDst)) {
@@ -367,10 +366,10 @@ public:
     }
 
     SkBaseDevice* getDevice() const { return fDevice; }
+    const SkRasterClip& getClip() const { return *fRC; }
     int getX() const { return fDevice->getOrigin().x(); }
     int getY() const { return fDevice->getOrigin().y(); }
     const SkMatrix& getMatrix() const { return *fMatrix; }
-    const SkRegion& getClip() const { return *fClip; }
     const SkPaint* getPaint() const { return fPaint; }
 
 private:
@@ -2503,7 +2502,7 @@ void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
 
     // nothing to draw
     if (text == nullptr || byteLength == 0 ||
-        draw.fClip->isEmpty() ||
+        draw.fRC->isEmpty() ||
         (paint.getAlpha() == 0 && paint.getXfermode() == nullptr)) {
         return;
     }
@@ -2994,7 +2993,7 @@ const SkPaint& SkCanvas::LayerIter::paint() const {
     return *paint;
 }
 
-const SkRegion& SkCanvas::LayerIter::clip() const { return fImpl->getClip(); }
+const SkRasterClip& SkCanvas::LayerIter::clip() const { return fImpl->getClip(); }
 int SkCanvas::LayerIter::x() const { return fImpl->getX(); }
 int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 

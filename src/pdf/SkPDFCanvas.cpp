@@ -14,6 +14,23 @@ SkPDFCanvas::SkPDFCanvas(const sk_sp<SkPDFDevice>& dev)
 
 SkPDFCanvas::~SkPDFCanvas() {}
 
+/*
+ *  PDF's impl sometimes wants to access the raster clip as a SkRegion. To keep this valid,
+ *  we intercept all clip calls to ensure that the clip stays BW (i.e. never antialiased), since
+ *  an antialiased clip won't build a SkRegion (it builds SkAAClip).
+ */
+void SkPDFCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+    this->INHERITED::onClipRect(rect, op, kHard_ClipEdgeStyle);
+}
+
+void SkPDFCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+    this->INHERITED::onClipRRect(rrect, op, kHard_ClipEdgeStyle);
+}
+
+void SkPDFCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+    this->INHERITED::onClipPath(path, op, kHard_ClipEdgeStyle);
+}
+
 void SkPDFCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
                                    const SkIRect& center,
                                    const SkRect& dst,

@@ -32,6 +32,7 @@ class SkMetaData;
 class SkPath;
 class SkPicture;
 class SkPixmap;
+class SkRasterClip;
 class SkRRect;
 struct SkRSXform;
 class SkSurface;
@@ -1259,7 +1260,7 @@ protected:
 
         SkBaseDevice*   device() const;
         const SkMatrix& matrix() const;
-        const SkRegion& clip() const;
+        const SkRasterClip& clip() const;
         const SkPaint&  paint() const;
         int             x() const;
         int             y() const;

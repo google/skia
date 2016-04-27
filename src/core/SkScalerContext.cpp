@@ -402,7 +402,6 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     SkDraw  draw;
     draw.fDst   = dst;
     draw.fRC    = &clip;
-    draw.fClip  = &clip.bwRgn();
     draw.fMatrix = &matrix;
     draw.drawPath(path, paint);
 

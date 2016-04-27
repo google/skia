@@ -55,6 +55,7 @@
 #include "SkPicture.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
+#include "SkRasterClip.h"
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -507,7 +508,7 @@ public:
                 return false;    
             }
             if (layerIter1.clip() != layerIter2.clip()) {
-                return false;    
+                return false;
             }
             if (layerIter1.paint() != layerIter2.paint()) {
                 return false;   
