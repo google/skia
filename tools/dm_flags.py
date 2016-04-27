@@ -234,6 +234,9 @@ def get_args(bot):
   if 'MSAN' in bot:
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
+  if 'TSAN' in bot:
+    match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots. 
+
   if blacklist:
     args.append('--blacklist')
     args.extend(blacklist)

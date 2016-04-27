@@ -2875,7 +2875,9 @@
     "serialize-8888", 
     "gm", 
     "_", 
-    "image-cacherator-from-ctable"
+    "image-cacherator-from-ctable", 
+    "--match", 
+    "~ReadWriteAlpha"
   ], 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind": [
     "--config", 
