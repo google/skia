@@ -984,11 +984,8 @@ SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[
     }
 
     SkTScopedComPtr<IDWriteFont> font;
-    DWRITE_FONT_WEIGHT weight = (DWRITE_FONT_WEIGHT)style.weight();
-    DWRITE_FONT_STRETCH stretch = (DWRITE_FONT_STRETCH)style.width();
-    DWRITE_FONT_STYLE italic = style.isItalic() ? DWRITE_FONT_STYLE_ITALIC
-                                                : DWRITE_FONT_STYLE_NORMAL;
-    HRNM(fontFamily->GetFirstMatchingFont(weight, stretch, italic, &font),
+    DWriteStyle dwStyle(style);
+    HRNM(fontFamily->GetFirstMatchingFont(dwStyle.fWeight, dwStyle.fWidth, dwStyle.fSlant, &font),
          "Could not get matching font.");
 
     SkTScopedComPtr<IDWriteFontFace> fontFace;
@@ -1018,23 +1015,7 @@ void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* 
     HRVM(fFontFamily->GetFont(index, &font), "Could not get font.");
 
     if (fs) {
-        SkFontStyle::Slant slant;
-        switch (font->GetStyle()) {
-        case DWRITE_FONT_STYLE_NORMAL:
-            slant = SkFontStyle::kUpright_Slant;
-            break;
-        case DWRITE_FONT_STYLE_OBLIQUE:
-        case DWRITE_FONT_STYLE_ITALIC:
-            slant = SkFontStyle::kItalic_Slant;
-            break;
-        default:
-            SkASSERT(false);
-        }
-
-        int weight = font->GetWeight();
-        int width = font->GetStretch();
-
-        *fs = SkFontStyle(weight, width, slant);
+        *fs = get_style(font.get());
     }
 
     if (styleName) {
@@ -1046,24 +1027,10 @@ void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* 
 }
 
 SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
-    DWRITE_FONT_STYLE slant;
-    switch (pattern.slant()) {
-    case SkFontStyle::kUpright_Slant:
-        slant = DWRITE_FONT_STYLE_NORMAL;
-        break;
-    case SkFontStyle::kItalic_Slant:
-        slant = DWRITE_FONT_STYLE_ITALIC;
-        break;
-    default:
-        SkASSERT(false);
-    }
-
-    DWRITE_FONT_WEIGHT weight = (DWRITE_FONT_WEIGHT)pattern.weight();
-    DWRITE_FONT_STRETCH width = (DWRITE_FONT_STRETCH)pattern.width();
-
     SkTScopedComPtr<IDWriteFont> font;
+    DWriteStyle dwStyle(pattern);
     // TODO: perhaps use GetMatchingFonts and get the least simulated?
-    HRNM(fFontFamily->GetFirstMatchingFont(weight, width, slant, &font),
+    HRNM(fFontFamily->GetFirstMatchingFont(dwStyle.fWeight, dwStyle.fWidth, dwStyle.fSlant, &font),
          "Could not match font in family.");
 
     SkTScopedComPtr<IDWriteFontFace> fontFace;

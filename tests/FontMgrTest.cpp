@@ -110,7 +110,7 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
 
             if (verbose) {
                 SkDebugf("\t[%d] %s [%3d %d %d]\n", j, sname.c_str(),
-                         fs.weight(), fs.width(), fs.isItalic());
+                         fs.weight(), fs.width(), fs.slant());
             }
         }
     }
@@ -185,10 +185,14 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
     SkFontStyle condensed_normal_900(SkFontStyle::kBlack_Weight, SkFontStyle::kCondensed_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle condensed_italic_100(SkFontStyle::kThin_Weight,  SkFontStyle::kCondensed_Width, SkFontStyle::kItalic_Slant);
     SkFontStyle condensed_italic_900(SkFontStyle::kBlack_Weight, SkFontStyle::kCondensed_Width, SkFontStyle::kItalic_Slant);
+    SkFontStyle condensed_obliqu_100(SkFontStyle::kThin_Weight,  SkFontStyle::kCondensed_Width, SkFontStyle::kOblique_Slant);
+    SkFontStyle condensed_obliqu_900(SkFontStyle::kBlack_Weight, SkFontStyle::kCondensed_Width, SkFontStyle::kOblique_Slant);
     SkFontStyle  expanded_normal_100(SkFontStyle::kThin_Weight,  SkFontStyle::kExpanded_Width,  SkFontStyle::kUpright_Slant);
     SkFontStyle  expanded_normal_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kUpright_Slant);
     SkFontStyle  expanded_italic_100(SkFontStyle::kThin_Weight,  SkFontStyle::kExpanded_Width,  SkFontStyle::kItalic_Slant);
     SkFontStyle  expanded_italic_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kItalic_Slant);
+    SkFontStyle  expanded_obliqu_100(SkFontStyle::kThin_Weight,  SkFontStyle::kExpanded_Width,  SkFontStyle::kOblique_Slant);
+    SkFontStyle  expanded_obliqu_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kOblique_Slant);
 
     SkFontStyle normal_normal_100(SkFontStyle::kThin_Weight,       SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle normal_normal_200(SkFontStyle::kExtraLight_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
@@ -462,16 +466,21 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         },
 
         {
-            { expanded_normal_100,expanded_normal_900,expanded_italic_100,expanded_italic_900 },
+            { expanded_normal_100,expanded_normal_900,
+              expanded_italic_100,expanded_italic_900 },
             {
                 { condensed_normal_100, expanded_normal_100 },
                 { condensed_normal_900, expanded_normal_900 },
                 { condensed_italic_100, expanded_italic_100 },
                 { condensed_italic_900, expanded_italic_900 },
+                { condensed_obliqu_100, expanded_italic_100 },
+                { condensed_obliqu_900, expanded_italic_900 },
                 { expanded_normal_100, expanded_normal_100 },
                 { expanded_normal_900, expanded_normal_900 },
                 { expanded_italic_100, expanded_italic_100 },
                 { expanded_italic_900, expanded_italic_900 },
+                { expanded_obliqu_100, expanded_italic_100 },
+                { expanded_obliqu_900, expanded_italic_900 },
             },
         },
 
@@ -624,6 +633,61 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
                 { normal_normal_400, invalidFontStyle },
                 { normal_normal_500, invalidFontStyle },
                 { normal_normal_600, invalidFontStyle },
+            },
+        },
+        {
+            { expanded_normal_100,expanded_normal_900,
+              expanded_italic_100,expanded_italic_900,
+              expanded_obliqu_100,expanded_obliqu_900, },
+            {
+                { condensed_normal_100, expanded_normal_100 },
+                { condensed_normal_900, expanded_normal_900 },
+                { condensed_italic_100, expanded_italic_100 },
+                { condensed_italic_900, expanded_italic_900 },
+                { condensed_obliqu_100, expanded_obliqu_100 },
+                { condensed_obliqu_900, expanded_obliqu_900 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_900 },
+                { expanded_obliqu_100, expanded_obliqu_100 },
+                { expanded_obliqu_900, expanded_obliqu_900 },
+            },
+        },
+        {
+            { expanded_normal_100,expanded_normal_900,
+              expanded_obliqu_100,expanded_obliqu_900, },
+            {
+                { condensed_normal_100, expanded_normal_100 },
+                { condensed_normal_900, expanded_normal_900 },
+                { condensed_italic_100, expanded_obliqu_100 },
+                { condensed_italic_900, expanded_obliqu_900 },
+                { condensed_obliqu_100, expanded_obliqu_100 },
+                { condensed_obliqu_900, expanded_obliqu_900 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_obliqu_100 },
+                { expanded_italic_900, expanded_obliqu_900 },
+                { expanded_obliqu_100, expanded_obliqu_100 },
+                { expanded_obliqu_900, expanded_obliqu_900 },
+            },
+        },
+        {
+            { expanded_italic_100,expanded_italic_900,
+              expanded_obliqu_100,expanded_obliqu_900, },
+            {
+                { condensed_normal_100, expanded_obliqu_100 },
+                { condensed_normal_900, expanded_obliqu_900 },
+                { condensed_italic_100, expanded_italic_100 },
+                { condensed_italic_900, expanded_italic_900 },
+                { condensed_obliqu_100, expanded_obliqu_100 },
+                { condensed_obliqu_900, expanded_obliqu_900 },
+                { expanded_normal_100, expanded_obliqu_100 },
+                { expanded_normal_900, expanded_obliqu_900 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_900 },
+                { expanded_obliqu_100, expanded_obliqu_100 },
+                { expanded_obliqu_900, expanded_obliqu_900 },
             },
         },
     };

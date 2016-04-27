@@ -25,13 +25,16 @@ class SkFontDescriptor;
 struct SkScalerContextRec;
 
 static SkFontStyle get_style(IDWriteFont* font) {
-    DWRITE_FONT_STYLE dwStyle = font->GetStyle();
-    return SkFontStyle(font->GetWeight(),
-                       font->GetStretch(),
-                       (DWRITE_FONT_STYLE_OBLIQUE == dwStyle ||
-                        DWRITE_FONT_STYLE_ITALIC  == dwStyle)
-                                                   ? SkFontStyle::kItalic_Slant
-                                                   : SkFontStyle::kUpright_Slant);
+    int weight = font->GetWeight();
+    int width = font->GetStretch();
+    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
+    switch (font->GetStyle()) {
+        case DWRITE_FONT_STYLE_NORMAL: slant = SkFontStyle::kUpright_Slant; break;
+        case DWRITE_FONT_STYLE_OBLIQUE: slant = SkFontStyle::kOblique_Slant; break;
+        case DWRITE_FONT_STYLE_ITALIC: slant = SkFontStyle::kItalic_Slant; break;
+        default: SkASSERT(false); break;
+    }
+    return SkFontStyle(weight, width, slant);
 }
 
 class DWriteFontTypeface : public SkTypeface {

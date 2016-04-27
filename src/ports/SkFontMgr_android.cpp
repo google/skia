@@ -257,7 +257,7 @@ private:
     static int match_score(const SkFontStyle& pattern, const SkFontStyle& candidate) {
         int score = 0;
         score += SkTAbs((pattern.width() - candidate.width()) * 100);
-        score += SkTAbs((pattern.isItalic() == candidate.isItalic()) ? 0 : 1000);
+        score += SkTAbs((pattern.slant() == candidate.slant()) ? 0 : 1000);
         score += SkTAbs(pattern.weight() - candidate.weight());
         return score;
     }

@@ -20,7 +20,7 @@ SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
     fUnion.fU32 = 0;
     fUnion.fR.fWeight = SkTPin<int>(weight, kThin_Weight, kBlack_Weight);
     fUnion.fR.fWidth = SkTPin<int>(width, kUltraCondensed_Width, kUltaExpanded_Width);
-    fUnion.fR.fSlant = SkTPin<int>(slant, kUpright_Slant, kItalic_Slant);
+    fUnion.fR.fSlant = SkTPin<int>(slant, kUpright_Slant, kOblique_Slant);
 }
 
 /*static*/SkFontStyle SkFontStyle::FromOldStyle(unsigned oldStyle) {

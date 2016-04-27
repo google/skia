@@ -138,14 +138,7 @@ SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
     }
 
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    bool bold = s & SkTypeface::kBold;
-    bool italic = s & SkTypeface::kItalic;
-    SkFontStyle newStyle = SkFontStyle(bold ? SkFontStyle::kBold_Weight
-                                            : SkFontStyle::kNormal_Weight,
-                                       SkFontStyle::kNormal_Width,
-                                       italic ? SkFontStyle::kItalic_Slant
-                                              : SkFontStyle::kUpright_Slant);
-    return fm->matchFaceStyle(family, newStyle);
+    return fm->matchFaceStyle(family, SkFontStyle::FromOldStyle(s));
 }
 
 SkTypeface* SkTypeface::CreateFromStream(SkStreamAsset* stream, int index) {

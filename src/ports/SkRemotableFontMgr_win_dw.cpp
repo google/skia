@@ -17,7 +17,7 @@
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTScopedComPtr.h"
-#include "SkTypeface_win.h"
+#include "SkTypeface_win_dw.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 
@@ -137,23 +137,7 @@ public:
         fontId->fTtcIndex = fontFace->GetIndex();
 
         // style
-        SkFontStyle::Slant slant;
-        switch (font->GetStyle()) {
-        case DWRITE_FONT_STYLE_NORMAL:
-            slant = SkFontStyle::kUpright_Slant;
-            break;
-        case DWRITE_FONT_STYLE_OBLIQUE:
-        case DWRITE_FONT_STYLE_ITALIC:
-            slant = SkFontStyle::kItalic_Slant;
-            break;
-        default:
-            SkASSERT(false);
-        }
-
-        int weight = font->GetWeight();
-        int width = font->GetStretch();
-
-        fontId->fFontStyle = SkFontStyle(weight, width, slant);
+        fontId->fFontStyle = get_style(font);
         return S_OK;
     }
 

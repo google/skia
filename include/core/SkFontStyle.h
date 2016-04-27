@@ -39,6 +39,7 @@ public:
     enum Slant {
         kUpright_Slant,
         kItalic_Slant,
+        kOblique_Slant,
     };
 
     SkFontStyle();
@@ -53,10 +54,6 @@ public:
     int weight() const { return fUnion.fR.fWeight; }
     int width() const { return fUnion.fR.fWidth; }
     Slant slant() const { return (Slant)fUnion.fR.fSlant; }
-
-    bool isItalic() const {
-        return kItalic_Slant == fUnion.fR.fSlant;
-    }
 
 private:
     union {

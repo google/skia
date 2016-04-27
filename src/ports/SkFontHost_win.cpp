@@ -2508,7 +2508,7 @@ protected:
         }
 
         lf.lfWeight = style.weight();
-        lf.lfItalic = style.isItalic() ? TRUE : FALSE;
+        lf.lfItalic = style.slant() == SkFontStyle::kUpright_Slant ? FALSE : TRUE;
         return SkCreateTypefaceFromLOGFONT(lf);
     }
 

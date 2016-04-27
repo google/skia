@@ -168,14 +168,19 @@ static int map_range(int value,
 static SkFontStyle make_fontconfig_style(FcPattern* match) {
     int weight = get_int(match, FC_WEIGHT);
     int width = get_int(match, FC_WIDTH);
-    int slant = get_int(match, FC_SLANT);
-//    SkDebugf("old weight %d new weight %d\n", weight, map_range(weight, 0, 80, 0, 400));
+    int fcSlant = get_int(match, FC_SLANT);
 
     // fontconfig weight seems to be 0..200 or so, so we remap it here
     weight = map_range(weight, 0, 80, 0, 400);
     width = map_range(width, 0, 200, 0, 9);
-    return SkFontStyle(weight, width, slant > 0 ? SkFontStyle::kItalic_Slant
-                                                : SkFontStyle::kUpright_Slant);
+    SkFontStyle::Slant skSlant = SkFontStyle::kUpright_Slant;
+    switch (fcSlant) {
+        case FC_SLANT_ROMAN:   skSlant = SkFontStyle::kUpright_Slant; break;
+        case FC_SLANT_ITALIC : skSlant = SkFontStyle::kItalic_Slant ; break;
+        case FC_SLANT_OBLIQUE: skSlant = SkFontStyle::kOblique_Slant; break;
+        default: SkASSERT(false); break;
+    }
+    return SkFontStyle(weight, width, skSlant);
 }
 
 SkFontStyleSet_FC::SkFontStyleSet_FC(FcPattern** matches, int count) {

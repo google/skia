@@ -417,7 +417,7 @@ static SkFontStyle fontstyle_from_descriptor(CTFontDescriptorRef desc) {
     return SkFontStyle(unit_weight_to_fontstyle(weight),
                        unit_width_to_fontstyle(width),
                        slant ? SkFontStyle::kItalic_Slant
-                       : SkFontStyle::kUpright_Slant);
+                             : SkFontStyle::kUpright_Slant);
 }
 
 #define WEIGHT_THRESHOLD    ((SkFontStyle::kNormal_Weight + SkFontStyle::kBold_Weight)/2)
@@ -2151,7 +2151,7 @@ static inline int sqr(int value) {
 static int compute_metric(const SkFontStyle& a, const SkFontStyle& b) {
     return sqr(a.weight() - b.weight()) +
            sqr((a.width() - b.width()) * 100) +
-           sqr((a.isItalic() != b.isItalic()) * 900);
+           sqr((a.slant() != b.slant()) * 900);
 }
 
 static SkTypeface* createFromDesc(CTFontDescriptorRef desc) {
