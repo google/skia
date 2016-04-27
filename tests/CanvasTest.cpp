@@ -570,7 +570,7 @@ static void TestPdfDevice(skiatest::Reporter* reporter,
                           const TestData& d,
                           CanvasTestStep* testStep) {
     SkDynamicMemoryWStream outStream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
 #if SK_SUPPORT_PDF
     REPORTER_ASSERT(reporter, doc);
 #else

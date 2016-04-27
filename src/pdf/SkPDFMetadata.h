@@ -13,19 +13,25 @@
 
 class SkPDFObject;
 
-struct SkPDFMetadata {
-    SkTArray<SkDocument::Attribute> fInfo;
-    std::unique_ptr<const SkTime::DateTime> fCreation;
-    std::unique_ptr<const SkTime::DateTime> fModified;
+namespace SkPDFMetadata {
+sk_sp<SkPDFObject> MakeDocumentInformationDict(const SkDocument::PDFMetadata&);
 
-    SkPDFObject* createDocumentInformationDict() const;
-
-    struct UUID {
-        uint8_t fData[16];
-    };
-    UUID uuid() const;
-    static SkPDFObject* CreatePdfId(const UUID& doc, const UUID& instance);
-    SkPDFObject* createXMPObject(const UUID& doc, const UUID& instance) const;
+struct UUID {
+    uint8_t fData[16];
 };
 
+UUID CreateUUID(const SkDocument::PDFMetadata&);
+
+sk_sp<SkPDFObject> MakePdfId(const UUID& doc, const UUID& instance);
+
+sk_sp<SkPDFObject> MakeXMPObject(const SkDocument::PDFMetadata&,
+                                 const UUID& doc,
+                                 const UUID& instance);
+
+#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
+void SetMetadataByKey(const SkString& key,
+                      const SkString& value,
+                      SkDocument::PDFMetadata*);
+#endif
+}
 #endif  // SkPDFMetadata_DEFINED

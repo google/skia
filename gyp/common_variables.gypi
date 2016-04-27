@@ -230,7 +230,6 @@
     'skia_win_ltcg%': '<(skia_is_bot)',
     'skia_osx_deployment_target%': '<(skia_osx_deployment_target)',
     'skia_pdf%': '<(skia_pdf)',
-    'skia_pdf_generate_pdfa%': 0,  # emit larger PDF/A-2b file
     'skia_profile_enabled%': '<(skia_profile_enabled)',
     'skia_shared_lib%': '<(skia_shared_lib)',
     'skia_force_distance_field_text%': '<(skia_force_distance_field_text)',

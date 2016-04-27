@@ -878,6 +878,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
         SINK("svg",  SVGSink);
         SINK("null", NullSink);
         SINK("xps",  XPSSink);
+        SINK("pdfa", PDFSink, true);
     }
 #undef SINK
     return nullptr;

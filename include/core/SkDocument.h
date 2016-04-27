@@ -10,14 +10,16 @@
 
 #include "SkBitmap.h"
 #include "SkPicture.h"
+#include "SkPixelSerializer.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkTime.h"
 
 class SkCanvas;
-class SkPixelSerializer;
 class SkWStream;
+
+#define SK_SUPPORT_LEGACY_DOCUMENT_API
 
 /** SK_ScalarDefaultDPI is 72 DPI.
 */
@@ -35,6 +37,98 @@ class SkWStream;
  */
 class SK_API SkDocument : public SkRefCnt {
 public:
+    struct OptionalTimestamp {
+        SkTime::DateTime fDateTime;
+        bool fEnabled;
+        OptionalTimestamp() : fEnabled(false) {}
+    };
+
+    /**
+     *  Optional metadata to be passed into the PDF factory function.
+     */
+    struct PDFMetadata {
+        SkString fTitle;
+        SkString fAuthor;
+        SkString fSubject;
+        SkString fKeywords;
+        SkString fCreator;
+        OptionalTimestamp fCreation;
+        OptionalTimestamp fModified;
+    };
+
+    /**
+     *  Create a PDF-backed document, writing the results into a
+     *  SkWStream.
+     *
+     *  PDF pages are sized in point units. 1 pt == 1/72 inch ==
+     *  127/360 mm.
+     *
+     *  @param stream A PDF document will be written to this
+     *         stream.  The document may write to the stream at
+     *         anytime during its lifetime, until either close() is
+     *         called or the document is deleted.
+     *  @param dpi The DPI (pixels-per-inch) at which features without
+     *         native PDF support will be rasterized (e.g. draw image
+     *         with perspective, draw text with perspective, ...)  A
+     *         larger DPI would create a PDF that reflects the
+     *         original intent with better fidelity, but it can make
+     *         for larger PDF files too, which would use more memory
+     *         while rendering, and it would be slower to be processed
+     *         or sent online or to printer.
+     *  @param metadata a PDFmetadata object.  Any fields may be left
+     *         empty.
+     *  @param jpegEncoder For PDF documents, if a jpegEncoder is set,
+     *         use it to encode SkImages and SkBitmaps as [JFIF]JPEGs.
+     *         This feature is deprecated and is only supplied for
+     *         backwards compatability.
+     *         The prefered method to create PDFs with JPEG images is
+     *         to use SkImage::NewFromEncoded() and not jpegEncoder.
+     *         Chromium uses NewFromEncoded.
+     *         If the encoder is unset, or if jpegEncoder->onEncode()
+     *         returns NULL, fall back on encoding images losslessly
+     *         with Deflate.
+     *  @param pdfa Iff true, include XMP metadata, a document UUID,
+     *         and sRGB output intent information.  This adds length
+     *         to the document and makes it non-reproducable, but are
+     *         necessary features for PDF/A-2b conformance
+     *
+     *  @returns NULL if there is an error, otherwise a newly created
+     *           PDF-backed SkDocument.
+     */
+    static sk_sp<SkDocument> MakePDF(SkWStream* stream,
+                                     SkScalar dpi,
+                                     const SkDocument::PDFMetadata& metadata,
+                                     sk_sp<SkPixelSerializer> jpegEncoder,
+                                     bool pdfa);
+
+    static sk_sp<SkDocument> MakePDF(SkWStream* stream,
+                                     SkScalar dpi = SK_ScalarDefaultRasterDPI) {
+        return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(),
+                                   nullptr, false);
+    }
+
+    /**
+     *  Create a PDF-backed document, writing the results into a file.
+     */
+    static sk_sp<SkDocument> MakePDF(const char outputFilePath[],
+                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
+
+    /**
+     *  Create a XPS-backed document, writing the results into the stream.
+     *  Returns NULL if XPS is not supported.
+     */
+    static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
+                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
+
+    /**
+     *  Create a XPS-backed document, writing the results into a file.
+     *  Returns NULL if XPS is not supported.
+     */
+    static sk_sp<SkDocument> MakeXPS(const char path[],
+                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
+
+#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
+
     /**
      *  Create a PDF-backed document, writing the results into a SkWStream.
      *
@@ -55,8 +149,11 @@ public:
      *  @returns NULL if there is an error, otherwise a newly created
      *           PDF-backed SkDocument.
      */
-    static SkDocument* CreatePDF(SkWStream*,
-                                 SkScalar dpi = SK_ScalarDefaultRasterDPI);
+    static SkDocument* CreatePDF(SkWStream* stream,
+                                 SkScalar dpi = SK_ScalarDefaultRasterDPI) {
+        return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(),
+                                   nullptr, false).release();
+    }
 
     /**
      *  @param jpegEncoder For PDF documents, if a jpegEncoder is set,
@@ -72,29 +169,40 @@ public:
      *         returns NULL, fall back on encoding images losslessly
      *         with Deflate.
      */
-    static SkDocument* CreatePDF(SkWStream*,
+    static SkDocument* CreatePDF(SkWStream* stream,
                                  SkScalar dpi,
-                                 SkPixelSerializer* jpegEncoder);
+                                 SkPixelSerializer* jpegEncoder) {
+        return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(),
+                                   sk_ref_sp(jpegEncoder), false).release();
+    }
 
     /**
      *  Create a PDF-backed document, writing the results into a file.
      */
     static SkDocument* CreatePDF(const char outputFilePath[],
-                                 SkScalar dpi = SK_ScalarDefaultRasterDPI);
+                                 SkScalar dpi = SK_ScalarDefaultRasterDPI) {
+        return SkDocument::MakePDF(outputFilePath, dpi).release();
+    }
 
     /**
      *  Create a XPS-backed document, writing the results into the stream.
      *  Returns NULL if XPS is not supported.
      */
     static SkDocument* CreateXPS(SkWStream* stream,
-                                 SkScalar dpi = SK_ScalarDefaultRasterDPI);
+                                 SkScalar dpi = SK_ScalarDefaultRasterDPI) {
+        return SkDocument::MakeXPS(stream, dpi).release();
+    }
 
     /**
      *  Create a XPS-backed document, writing the results into a file.
      *  Returns NULL if XPS is not supported.
      */
     static SkDocument* CreateXPS(const char path[],
-                                 SkScalar dpi = SK_ScalarDefaultRasterDPI);
+                                 SkScalar dpi = SK_ScalarDefaultRasterDPI) {
+        return SkDocument::MakeXPS(path, dpi).release();
+    }
+#endif  // SK_SUPPORT_LEGACY_DOCUMENT_API
+
     /**
      *  Begin a new page for the document, returning the canvas that will draw
      *  into the page. The document owns this canvas, and it will go out of
@@ -125,6 +233,7 @@ public:
      */
     void abort();
 
+#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
     /**
      *  Set the document's metadata, if supported by the document
      *  type.  The creationDate and modifiedDate parameters can be
@@ -152,6 +261,7 @@ public:
                              int /* attributeCount */,
                              const SkTime::DateTime* /* creationDate */,
                              const SkTime::DateTime* /* modifiedDate */) {}
+#endif  // SK_SUPPORT_LEGACY_DOCUMENT_API
 
 protected:
     SkDocument(SkWStream*, void (*)(SkWStream*, bool aborted));

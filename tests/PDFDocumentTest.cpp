@@ -16,7 +16,7 @@
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
 
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&stream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
 
     doc->close();
 
@@ -25,7 +25,7 @@ static void test_empty(skiatest::Reporter* reporter) {
 
 static void test_abort(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&stream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
 
     SkCanvas* canvas = doc->beginPage(100, 100);
     canvas->drawColor(SK_ColorRED);
@@ -50,7 +50,7 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
 
     // Make sure doc's destructor is called to flush.
     {
-        SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(path.c_str()));
+        sk_sp<SkDocument> doc(SkDocument::MakePDF(path.c_str()));
 
         SkCanvas* canvas = doc->beginPage(100, 100);
         canvas->drawColor(SK_ColorRED);
@@ -76,7 +76,7 @@ static void test_file(skiatest::Reporter* reporter) {
 
     SkString path = SkOSPath::Join(tmpDir.c_str(), "file.pdf");
 
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(path.c_str()));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(path.c_str()));
 
     SkCanvas* canvas = doc->beginPage(100, 100);
 
@@ -94,7 +94,7 @@ static void test_file(skiatest::Reporter* reporter) {
 
 static void test_close(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&stream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
 
     SkCanvas* canvas = doc->beginPage(100, 100);
     canvas->drawColor(SK_ColorRED);
@@ -132,13 +132,13 @@ class JPEGSerializer final : public SkPixelSerializer {
 
 size_t count_bytes(const SkBitmap& bm, bool useDCT) {
     SkDynamicMemoryWStream stream;
-    SkAutoTUnref<SkDocument> doc;
+    sk_sp<SkDocument> doc;
     if (useDCT) {
-        SkAutoTUnref<SkPixelSerializer> serializer(new JPEGSerializer);
-        doc.reset(SkDocument::CreatePDF(
-                          &stream, SK_ScalarDefaultRasterDPI, serializer));
+        doc = SkDocument::MakePDF(&stream, SK_ScalarDefaultRasterDPI,
+                                  SkDocument::PDFMetadata(),
+                                  sk_make_sp<JPEGSerializer>(), false);
     } else {
-        doc.reset(SkDocument::CreatePDF(&stream));
+        doc = SkDocument::MakePDF(&stream);
     }
     SkCanvas* canvas = doc->beginPage(64, 64);
     canvas->drawBitmap(bm, 0, 0);
@@ -159,7 +159,7 @@ DEF_TEST(document_dct_encoder, r) {
 DEF_TEST(document_skbug_4734, r) {
     REQUIRE_PDF_DOCUMENT(document_skbug_4734, r);
     SkDynamicMemoryWStream stream;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&stream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
     SkCanvas* canvas = doc->beginPage(64, 64);
     canvas->scale(10000.0f, 10000.0f);
     canvas->translate(20.0f, 10.0f);

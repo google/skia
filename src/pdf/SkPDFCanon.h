@@ -68,7 +68,9 @@ public:
     SkTHashMap<uint32_t, bool> fCanEmbedTypeface;
 
     SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer.get(); }
-    void setPixelSerializer(SkPixelSerializer* ps)  { fPixelSerializer.reset(ps); }
+    void setPixelSerializer(sk_sp<SkPixelSerializer> ps) {
+        fPixelSerializer = std::move(ps);
+    }
 
     sk_sp<SkPDFStream> makeInvertFunction();
     sk_sp<SkPDFDict> makeNoSmaskGraphicState();

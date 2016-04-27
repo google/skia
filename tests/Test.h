@@ -182,14 +182,14 @@ private:
 #define DEF_GPUTEST_FOR_VULKAN_CONTEXT(name, reporter, context_info)                        \
         DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsVulkanContextType, reporter, context_info)
 
-#define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                             \
-    do {                                                                      \
-        SkDynamicMemoryWStream testStream;                                    \
-        SkAutoTUnref<SkDocument> testDoc(SkDocument::CreatePDF(&testStream)); \
-        if (!testDoc) {                                                       \
-            INFOF(REPORTER, "PDF disabled; %s test skipped.", #TEST_NAME);    \
-            return;                                                           \
-        }                                                                     \
+#define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                          \
+    do {                                                                   \
+        SkDynamicMemoryWStream testStream;                                 \
+        sk_sp<SkDocument> testDoc(SkDocument::MakePDF(&testStream));       \
+        if (!testDoc) {                                                    \
+            INFOF(REPORTER, "PDF disabled; %s test skipped.", #TEST_NAME); \
+            return;                                                        \
+        }                                                                  \
     } while (false)
 
 #endif

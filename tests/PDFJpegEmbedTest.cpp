@@ -63,7 +63,7 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     }
     ////////////////////////////////////////////////////////////////////////////
     SkDynamicMemoryWStream pdf;
-    SkAutoTUnref<SkDocument> document(SkDocument::CreatePDF(&pdf));
+    sk_sp<SkDocument> document(SkDocument::MakePDF(&pdf));
     SkCanvas* canvas = document->beginPage(642, 1028);
 
     canvas->clear(SK_ColorLTGRAY);
@@ -87,7 +87,7 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     REPORTER_ASSERT(r, !is_subset_of(cmykData.get(), pdfData.get()));
     ////////////////////////////////////////////////////////////////////////////
     pdf.reset();
-    document.reset(SkDocument::CreatePDF(&pdf));
+    document = SkDocument::MakePDF(&pdf);
     canvas = document->beginPage(642, 1028);
 
     canvas->clear(SK_ColorLTGRAY);

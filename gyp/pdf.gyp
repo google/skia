@@ -42,7 +42,6 @@
            skia_os in ["win", "android", "linux", "chromeos", "mac"]',
           { 'dependencies': [ 'sfntly.gyp:sfntly' ] }
         ],
-        [ 'skia_pdf_generate_pdfa', { 'defines': ['SK_PDF_GENERATE_PDFA'] } ],
         [ 'skia_pdf_less_compression',
           {'defines': ['SK_PDF_LESS_COMPRESSION'] }
         ],

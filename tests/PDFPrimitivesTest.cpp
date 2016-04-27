@@ -179,7 +179,7 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 // and there is no assert on input data in Debug mode.
 static void test_issue1083() {
     SkDynamicMemoryWStream outStream;
-    sk_sp<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
     SkPaint paint;
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
@@ -408,7 +408,7 @@ void DummyImageFilter::toString(SkString* str) const {
 // CPU rasterization.
 DEF_TEST(PDFImageFilter, reporter) {
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkDocument::CreatePDF(&stream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     sk_sp<DummyImageFilter> filter(DummyImageFilter::Make());

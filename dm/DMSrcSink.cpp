@@ -1115,16 +1115,15 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
 }
 
 Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(dst));
+    SkDocument::PDFMetadata metadata;
+    metadata.fTitle = src.name();
+    metadata.fSubject = "rendering correctness test";
+    metadata.fCreator = "Skia/DM";
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(dst, SK_ScalarDefaultRasterDPI,
+                                                metadata, nullptr, fPDFA);
     if (!doc) {
-        return "SkDocument::CreatePDF() returned nullptr";
+        return "SkDocument::MakePDF() returned nullptr";
     }
-    SkTArray<SkDocument::Attribute> info;
-    info.emplace_back(SkString("Title"), src.name());
-    info.emplace_back(SkString("Subject"),
-                      SkString("rendering correctness test"));
-    info.emplace_back(SkString("Creator"), SkString("Skia/DM"));
-    doc->setMetadata(&info[0], info.count(), nullptr, nullptr);
     return draw_skdocument(src, doc.get(), dst);
 }
 
@@ -1133,9 +1132,9 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 XPSSink::XPSSink() {}
 
 Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreateXPS(dst));
+    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst));
     if (!doc) {
-        return "SkDocument::CreateXPS() returned nullptr";
+        return "SkDocument::MakeXPS() returned nullptr";
     }
     return draw_skdocument(src, doc.get(), dst);
 }

@@ -45,7 +45,7 @@ SkBitmap make_invalid_bitmap(SkColorType colorType) {
 
 DEF_TEST(PDFInvalidBitmap, reporter) {
     SkDynamicMemoryWStream stream;
-    SkAutoTUnref<SkDocument> document(SkDocument::CreatePDF(&stream));
+    sk_sp<SkDocument> document(SkDocument::MakePDF(&stream));
     SkCanvas* canvas = document->beginPage(100, 100);
 
     canvas->drawBitmap(SkBitmap(), 0, 0);

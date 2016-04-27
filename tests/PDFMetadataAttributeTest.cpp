@@ -9,22 +9,24 @@
 #include "SkData.h"
 #include "Test.h"
 
-DEF_TEST(SkPDF_MetadataAttribute, r) {
-    REQUIRE_PDF_DOCUMENT(SkPDF_MetadataAttribute, r);
-    SkDynamicMemoryWStream pdf;
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&pdf));
-    typedef SkDocument::Attribute Attr;
-    Attr info[] = {
-        Attr(SkString("Title"),    SkString("A1")),
-        Attr(SkString("Author"),   SkString("A2")),
-        Attr(SkString("Subject"),  SkString("A3")),
-        Attr(SkString("Keywords"), SkString("A4")),
-        Attr(SkString("Creator"),  SkString("A5")),
-    };
-    int infoCount = sizeof(info) / sizeof(info[0]);
+DEF_TEST(SkPDF_Metadata, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_Metadata, r);
     SkTime::DateTime now;
     SkTime::GetDateTime(&now);
-    doc->setMetadata(&info[0], infoCount, &now, &now);
+    SkDocument::PDFMetadata metadata;
+    metadata.fTitle = "A1";
+    metadata.fAuthor = "A2";
+    metadata.fSubject = "A3";
+    metadata.fKeywords = "A4";
+    metadata.fCreator = "A5";
+    metadata.fCreation.fEnabled = true;
+    metadata.fCreation.fDateTime = now;
+    metadata.fModified.fEnabled = true;
+    metadata.fModified.fDateTime = now;
+
+    SkDynamicMemoryWStream pdf;
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(&pdf, SK_ScalarDefaultRasterDPI,
+                                                metadata, nullptr, false);
     doc->beginPage(612.0f, 792.0f);
     doc->close();
     SkAutoTUnref<SkData> data(pdf.copyToData());
@@ -38,12 +40,13 @@ DEF_TEST(SkPDF_MetadataAttribute, r) {
         "/CreationDate (D:",
         "/ModDate (D:"
     };
+    const uint8_t* bytes = data->bytes();
     for (const char* expectation : expectations) {
+        size_t len = strlen(expectation);
         bool found = false;
-        size_t N = 1 + data->size() - strlen(expectation);
+        size_t N = 1 + data->size() - len;
         for (size_t i = 0; i < N; ++i) {
-            if (0 == memcmp(data->bytes() + i,
-                             expectation, strlen(expectation))) {
+            if (0 == memcmp(bytes + i, expectation, len)) {
                 found = true;
                 break;
             }

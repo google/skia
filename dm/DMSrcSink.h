@@ -254,9 +254,11 @@ private:
 
 class PDFSink : public Sink {
 public:
+    PDFSink(bool pdfa = false) : fPDFA(pdfa) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "pdf"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
+    bool fPDFA;
 };
 
 class XPSSink : public Sink {
