@@ -1262,7 +1262,10 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
     copyRegion.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
     copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     copyRegion.dstOffset = { dstPoint.fX, dstY, 0 };
-    copyRegion.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 0 };
+    // The depth value of the extent is ignored according the vulkan spec for 2D images. However, on
+    // at least the nexus 5X it seems to be checking it. Thus as a working around we must have the
+    // depth value be 1.
+    copyRegion.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
 
     fCurrentCmdBuffer->copyImage(this,
                                  srcImage,
