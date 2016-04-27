@@ -182,8 +182,16 @@ static uint16_t read_big_endian_short(const uint8_t* ptr) {
     return ptr[0] << 8 | ptr[1];
 }
 
-static uint32_t read_big_endian_int(const uint8_t* ptr) {
+static uint32_t read_big_endian_uint(const uint8_t* ptr) {
     return ptr[0] << 24 | ptr[1] << 16 | ptr[2] << 8 | ptr[3];
+}
+
+static int32_t read_big_endian_int(const uint8_t* ptr) {
+    return (int32_t) read_big_endian_uint(ptr);
+}
+
+static bool color_space_almost_equal(float a, float b) {
+    return SkTAbs(a - b) < 0.01f;
 }
 
 // This is equal to the header size according to the ICC specification (128)
@@ -195,29 +203,51 @@ static const size_t kICCHeaderSize = 132;
 static const size_t kICCTagTableEntrySize = 12;
 
 static const uint32_t kRGB_ColorSpace  = SkSetFourByteTag('R', 'G', 'B', ' ');
-static const uint32_t kGray_ColorSpace = SkSetFourByteTag('G', 'R', 'A', 'Y');
 
 struct ICCProfileHeader {
-    // TODO (msarett):
-    // Can we ignore less of these fields?
     uint32_t fSize;
+
+    // No reason to care about the preferred color management module (ex: Adobe, Apple, etc.).
+    // We're always going to use this one.
     uint32_t fCMMType_ignored;
+
     uint32_t fVersion;
-    uint32_t fClassProfile;
-    uint32_t fColorSpace;
+    uint32_t fProfileClass;
+    uint32_t fInputColorSpace;
     uint32_t fPCS;
     uint32_t fDateTime_ignored[3];
     uint32_t fSignature;
+
+    // Indicates the platform that this profile was created for (ex: Apple, Microsoft).  This
+    // doesn't really matter to us.
     uint32_t fPlatformTarget_ignored;
+
+    // Flags can indicate:
+    // (1) Whether this profile was embedded in a file.  This flag is consistently wrong.
+    //     Ex: The profile came from a file but indicates that it did not.
+    // (2) Whether we are allowed to use the profile independently of the color data.  If set,
+    //     this may allow us to use the embedded profile for testing separate from the original
+    //     image.
     uint32_t fFlags_ignored;
-    uint32_t fManufacturer_ignored;
+
+    // We support many output devices.  It doesn't make sense to think about the attributes of
+    // the device in the context of the image profile.
+    uint32_t fDeviceManufacturer_ignored;
     uint32_t fDeviceModel_ignored;
     uint32_t fDeviceAttributes_ignored[2];
+
     uint32_t fRenderingIntent;
-    uint32_t fIlluminantXYZ_ignored[3];
+    int32_t  fIlluminantXYZ[3];
+
+    // We don't care who created the profile.
     uint32_t fCreator_ignored;
+
+    // This is an MD5 checksum.  Could be useful for checking if profiles are equal.
     uint32_t fProfileId_ignored[4];
+
+    // Reserved for future use.
     uint32_t fReserved_ignored[7];
+
     uint32_t fTagCount;
 
     void init(const uint8_t* src, size_t len) {
@@ -225,38 +255,34 @@ struct ICCProfileHeader {
 
         uint32_t* dst = (uint32_t*) this;
         for (uint32_t i = 0; i < kICCHeaderSize / 4; i++, src+=4) {
-            dst[i] = read_big_endian_int(src);
+            dst[i] = read_big_endian_uint(src);
         }
     }
 
     bool valid() const {
-        // TODO (msarett):
-        // For now it's nice to fail loudly on invalid inputs.  But, can we
-        // recover from some of these errors?
-
         return_if_false(fSize >= kICCHeaderSize, "Size is too small");
 
         uint8_t majorVersion = fVersion >> 24;
         return_if_false(majorVersion <= 4, "Unsupported version");
 
+        // These are the three basic classes of profiles that we might expect to see embedded
+        // in images.  Four additional classes exist, but they generally are used as a convenient
+        // way for CMMs to store calculated transforms.
         const uint32_t kDisplay_Profile = SkSetFourByteTag('m', 'n', 't', 'r');
         const uint32_t kInput_Profile   = SkSetFourByteTag('s', 'c', 'n', 'r');
         const uint32_t kOutput_Profile  = SkSetFourByteTag('p', 'r', 't', 'r');
-        // TODO (msarett):
-        // Should we also support DeviceLink, ColorSpace, Abstract, or NamedColor?
-        return_if_false(fClassProfile == kDisplay_Profile ||
-                        fClassProfile == kInput_Profile ||
-                        fClassProfile == kOutput_Profile,
-                        "Unsupported class profile");
+        return_if_false(fProfileClass == kDisplay_Profile ||
+                        fProfileClass == kInput_Profile ||
+                        fProfileClass == kOutput_Profile,
+                        "Unsupported profile");
 
         // TODO (msarett):
-        // There are many more color spaces that we could try to support.
-        return_if_false(fColorSpace == kRGB_ColorSpace || fColorSpace == kGray_ColorSpace,
-                        "Unsupported color space");
+        // All the profiles we've tested so far use RGB as the input color space.
+        return_if_false(fInputColorSpace == kRGB_ColorSpace, "Unsupported color space");
 
+        // TODO (msarett):
+        // All the profiles we've tested so far use XYZ as the profile connection space.
         const uint32_t kXYZ_PCSSpace = SkSetFourByteTag('X', 'Y', 'Z', ' ');
-        // TODO (msarett):
-        // Can we support PCS LAB as well?
         return_if_false(fPCS == kXYZ_PCSSpace, "Unsupported PCS space");
 
         return_if_false(fSignature == SkSetFourByteTag('a', 'c', 's', 'p'), "Bad signature");
@@ -266,6 +292,11 @@ struct ICCProfileHeader {
         // Valid rendering intents include kPerceptual (0), kRelative (1),
         // kSaturation (2), and kAbsolute (3).
         return_if_false(fRenderingIntent <= 3, "Bad rendering intent");
+
+        return_if_false(color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[0]), 0.96420f) &&
+                        color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[1]), 1.00000f) &&
+                        color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[2]), 0.82491f),
+                        "Illuminant must be D50");
 
         return_if_false(fTagCount <= 100, "Too many tags");
 
@@ -279,9 +310,9 @@ struct ICCTag {
     uint32_t fLength;
 
     const uint8_t* init(const uint8_t* src) {
-        fSignature = read_big_endian_int(src);
-        fOffset = read_big_endian_int(src + 4);
-        fLength = read_big_endian_int(src + 8);
+        fSignature = read_big_endian_uint(src);
+        fOffset = read_big_endian_uint(src + 4);
+        fLength = read_big_endian_uint(src + 8);
         return src + 12;
     }
 
@@ -335,7 +366,7 @@ static bool load_gamma(float* gamma, const uint8_t* src, size_t len) {
         return false;
     }
 
-    uint32_t type = read_big_endian_int(src);
+    uint32_t type = read_big_endian_uint(src);
     switch (type) {
         case kTAG_CurveType: {
             uint32_t count = read_big_endian_int(src + 8);
@@ -424,7 +455,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
     // Load our XYZ and gamma matrices.
     SkFloat3x3 toXYZ;
     SkFloat3 gamma {{ 1.0f, 1.0f, 1.0f }};
-    switch (header.fColorSpace) {
+    switch (header.fInputColorSpace) {
         case kRGB_ColorSpace: {
             const ICCTag* r = ICCTag::Find(tags.get(), tagCount, kTAG_rXYZ);
             const ICCTag* g = ICCTag::Find(tags.get(), tagCount, kTAG_gXYZ);
