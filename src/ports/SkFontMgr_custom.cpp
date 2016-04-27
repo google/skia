@@ -133,12 +133,12 @@ public:
 
     void getStyle(int index, SkFontStyle* style, SkString* name) override {
         SkASSERT(index < fStyles.count());
-        bool bold = fStyles[index]->isBold();
-        bool italic = fStyles[index]->isItalic();
-        *style = SkFontStyle(bold ? SkFontStyle::kBold_Weight : SkFontStyle::kNormal_Weight,
-                             SkFontStyle::kNormal_Width,
-                             italic ? SkFontStyle::kItalic_Slant : SkFontStyle::kUpright_Slant);
-        name->reset();
+        if (style) {
+            *style = fStyles[index]->fontStyle();
+        }
+        if (name) {
+            name->reset();
+        }
     }
 
     SkTypeface* createTypeface(int index) override {
@@ -146,37 +146,8 @@ public:
         return SkRef(fStyles[index].get());
     }
 
-    static int match_score(const SkFontStyle& pattern, const SkFontStyle& candidate) {
-        int score = 0;
-        score += (pattern.width() - candidate.width()) * 100;
-        score += (pattern.slant() == candidate.slant()) ? 0 : 1000;
-        score += pattern.weight() - candidate.weight();
-        return score;
-    }
-
     SkTypeface* matchStyle(const SkFontStyle& pattern) override {
-        if (0 == fStyles.count()) {
-            return nullptr;
-        }
-
-        SkTypeface_Custom* closest = fStyles[0];
-        int minScore = std::numeric_limits<int>::max();
-        for (int i = 0; i < fStyles.count(); ++i) {
-            bool bold = fStyles[i]->isBold();
-            bool italic = fStyles[i]->isItalic();
-            SkFontStyle style = SkFontStyle(bold ? SkFontStyle::kBold_Weight
-                                                 : SkFontStyle::kNormal_Weight,
-                                            SkFontStyle::kNormal_Width,
-                                            italic ? SkFontStyle::kItalic_Slant
-                                                   : SkFontStyle::kUpright_Slant);
-
-            int score = match_score(pattern, style);
-            if (score < minScore) {
-                closest = fStyles[i];
-                minScore = score;
-            }
-        }
-        return SkRef(closest);
+        return this->matchStyleCSS3(pattern);
     }
 
     SkString getFamilyName() { return fFamilyName; }
