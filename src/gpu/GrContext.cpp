@@ -362,7 +362,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             }
             SkMatrix matrix;
             matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-            SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(renderTarget));
+            sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(renderTarget)));
             if (!drawContext) {
                 return false;
             }
@@ -484,7 +484,8 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 paint.addColorFragmentProcessor(fp);
                 paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(temp->asRenderTarget()));
+                sk_sp<GrDrawContext> drawContext(
+                                            this->drawContext(sk_ref_sp(temp->asRenderTarget())));
                 drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect, nullptr);
                 surfaceToRead.reset(SkRef(temp.get()));
                 left = 0;
@@ -569,7 +570,7 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         src->flushWrites();
         return fGpu->copySurface(dst, src, clippedSrcRect, clippedDstPoint);
     }
-    SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(dst->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst->asRenderTarget())));
     if (!drawContext) {
         return false;
     }
@@ -608,9 +609,10 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
 }
 
 
-GrDrawContext* GrContext::drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps) {
+sk_sp<GrDrawContext> GrContext::drawContext(sk_sp<GrRenderTarget> rt,
+                                            const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER
-    return fDrawingManager->drawContext(rt, surfaceProps);
+    return fDrawingManager->drawContext(std::move(rt), surfaceProps);
 }
 
 bool GrContext::abandoned() const {

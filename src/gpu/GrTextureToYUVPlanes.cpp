@@ -117,49 +117,49 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
 
         // Do all the draws before any readback.
         if (yuvTex) {
-            SkAutoTUnref<GrDrawContext> dc(context->drawContext(yuvTex->asRenderTarget()));
+            sk_sp<GrDrawContext> dc(context->drawContext(sk_ref_sp(yuvTex->asRenderTarget())));
             if (!dc) {
                 return false;
             }
-            if (!convert_texture(texture, dc, sizes[0].fWidth, sizes[0].fHeight, colorSpace,
+            if (!convert_texture(texture, dc.get(), sizes[0].fWidth, sizes[0].fHeight, colorSpace,
                                  GrYUVEffect::CreateRGBToYUV)) {
                 return false;
             }
 
         } else {
             SkASSERT(yTex);
-            SkAutoTUnref<GrDrawContext> dc(context->drawContext(yTex->asRenderTarget()));
+            sk_sp<GrDrawContext> dc(context->drawContext(sk_ref_sp(yTex->asRenderTarget())));
             if (!dc) {
                 return false;
             }
-            if (!convert_texture(texture, dc, sizes[0].fWidth, sizes[0].fHeight, colorSpace,
+            if (!convert_texture(texture, dc.get(), sizes[0].fWidth, sizes[0].fHeight, colorSpace,
                                  GrYUVEffect::CreateRGBToY)) {
                 return false;
             }
             if (uvTex) {
-                dc.reset(context->drawContext(uvTex->asRenderTarget()));
+                dc = context->drawContext(sk_ref_sp(uvTex->asRenderTarget()));
                 if (!dc) {
                     return false;
                 }
-                if (!convert_texture(texture, dc, sizes[1].fWidth, sizes[1].fHeight,
+                if (!convert_texture(texture, dc.get(), sizes[1].fWidth, sizes[1].fHeight,
                                      colorSpace,  GrYUVEffect::CreateRGBToUV)) {
                     return false;
                 }
             } else {
                 SkASSERT(uTex && vTex);
-                dc.reset(context->drawContext(uTex->asRenderTarget()));
+                dc = context->drawContext(sk_ref_sp(uTex->asRenderTarget()));
                 if (!dc) {
                     return false;
                 }
-                if (!convert_texture(texture, dc, sizes[1].fWidth, sizes[1].fHeight,
+                if (!convert_texture(texture, dc.get(), sizes[1].fWidth, sizes[1].fHeight,
                                      colorSpace, GrYUVEffect::CreateRGBToU)) {
                     return false;
                 }
-                dc.reset(context->drawContext(vTex->asRenderTarget()));
+                dc = context->drawContext(sk_ref_sp(vTex->asRenderTarget()));
                 if (!dc) {
                     return false;
                 }
-                if (!convert_texture(texture, dc, sizes[2].fWidth, sizes[2].fHeight,
+                if (!convert_texture(texture, dc.get(), sizes[2].fWidth, sizes[2].fHeight,
                                      colorSpace, GrYUVEffect::CreateRGBToV)) {
                     return false;
                 }

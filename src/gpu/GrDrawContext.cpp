@@ -57,13 +57,13 @@ private:
 // when the drawContext attempts to use it (via getDrawTarget).
 GrDrawContext::GrDrawContext(GrContext* context,
                              GrDrawingManager* drawingMgr,
-                             GrRenderTarget* rt,
+                             sk_sp<GrRenderTarget> rt,
                              const SkSurfaceProps* surfaceProps,
                              GrAuditTrail* auditTrail,
                              GrSingleOwner* singleOwner)
     : fDrawingManager(drawingMgr)
-    , fRenderTarget(rt)
-    , fDrawTarget(SkSafeRef(rt->getLastDrawTarget()))
+    , fRenderTarget(std::move(rt))
+    , fDrawTarget(SkSafeRef(fRenderTarget->getLastDrawTarget()))
     , fContext(context)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
     , fAuditTrail(auditTrail)
@@ -95,7 +95,7 @@ GrDrawTarget* GrDrawContext::getDrawTarget() {
     SkDEBUGCODE(this->validate();)
 
     if (!fDrawTarget || fDrawTarget->isClosed()) {
-        fDrawTarget = fDrawingManager->newDrawTarget(fRenderTarget);
+        fDrawTarget = fDrawingManager->newDrawTarget(fRenderTarget.get());
     }
 
     return fDrawTarget;
@@ -107,7 +107,7 @@ bool GrDrawContext::copySurface(GrSurface* src, const SkIRect& srcRect, const Sk
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::copySurface");
 
-    return this->getDrawTarget()->copySurface(fRenderTarget, src, srcRect, dstPoint);
+    return this->getDrawTarget()->copySurface(fRenderTarget.get(), src, srcRect, dstPoint);
 }
 
 void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
@@ -173,7 +173,7 @@ void GrDrawContext::discard() {
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::discard");
 
     AutoCheckFlush acf(fDrawingManager);
-    this->getDrawTarget()->discard(fRenderTarget);
+    this->getDrawTarget()->discard(fRenderTarget.get());
 }
 
 void GrDrawContext::clear(const SkIRect* rect,
@@ -185,7 +185,7 @@ void GrDrawContext::clear(const SkIRect* rect,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::clear");
 
     AutoCheckFlush acf(fDrawingManager);
-    this->getDrawTarget()->clear(rect, color, canIgnoreRect, fRenderTarget);
+    this->getDrawTarget()->clear(rect, color, canIgnoreRect, fRenderTarget.get());
 }
 
 
@@ -235,7 +235,7 @@ void GrDrawContext::drawPaint(const GrClip& clip,
         SkAutoTUnref<GrDrawBatch> batch(
                 GrRectBatchFactory::CreateNonAAFill(paint->getColor(), SkMatrix::I(), r, nullptr,
                                                     &localMatrix));
-        GrPipelineBuilder pipelineBuilder(*paint, fRenderTarget, clip);
+        GrPipelineBuilder pipelineBuilder(*paint, fRenderTarget.get(), clip);
         this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
     }
 }
@@ -258,7 +258,7 @@ GrDrawBatch* GrDrawContext::getFillRectBatch(const GrPaint& paint,
                                              const SkRect& rect) {
 
     GrDrawBatch* batch = nullptr;
-    if (should_apply_coverage_aa(paint, fRenderTarget)) {
+    if (should_apply_coverage_aa(paint, fRenderTarget.get())) {
         // The fill path can handle rotation but not skew.
         if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
             SkRect devBoundRect;
@@ -319,7 +319,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isConstantBlendedColor(&clearColor)) {
-                    this->getDrawTarget()->clear(nullptr, clearColor, true, fRenderTarget);
+                    this->getDrawTarget()->clear(nullptr, clearColor, true, fRenderTarget.get());
                     return;
                 }
             }
@@ -333,7 +333,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
     } else {
         GrColor color = paint.getColor();
 
-        if (should_apply_coverage_aa(paint, fRenderTarget)) {
+        if (should_apply_coverage_aa(paint, fRenderTarget.get())) {
             // The stroke path needs the rect to remain axis aligned (no rotation or skew).
             if (viewMatrix.rectStaysRect()) {
                 batch.reset(GrRectBatchFactory::CreateAAStroke(color, viewMatrix, rect,
@@ -353,7 +353,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
     }
 
     if (batch) {
-        GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+        GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
 
         if (snapToPixelCenters) {
             pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
@@ -391,7 +391,9 @@ bool GrDrawContextPriv::drawAndStencilRect(const SkIRect* scissorRect,
 
     SkAutoTUnref<GrDrawBatch> batch(fDrawContext->getFillRectBatch(paint, viewMatrix, rect));
     if (batch) {
-        GrPipelineBuilder pipelineBuilder(paint, fDrawContext->fRenderTarget, GrClip::WideOpen());
+        GrPipelineBuilder pipelineBuilder(paint,
+                                          fDrawContext->accessRenderTarget(),
+                                          GrClip::WideOpen());
         pipelineBuilder.setStencil(ss);
 
         fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, batch, scissorRect);
@@ -417,7 +419,7 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     SkAutoTUnref<GrDrawBatch> batch;
-    if (should_apply_coverage_aa(paint, fRenderTarget) &&
+    if (should_apply_coverage_aa(paint, fRenderTarget.get()) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         batch.reset(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix, rectToDraw,
                                                            localRect));
@@ -427,7 +429,7 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     }
 
     if (batch) {
-        GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+        GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
         this->drawBatch(&pipelineBuilder, batch);
     }
 }
@@ -445,7 +447,7 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     SkAutoTUnref<GrDrawBatch> batch;
-    if (should_apply_coverage_aa(paint, fRenderTarget) &&
+    if (should_apply_coverage_aa(paint, fRenderTarget.get()) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         batch.reset(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, localMatrix,
                                               rectToDraw));
@@ -454,7 +456,7 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
                                                         nullptr, &localMatrix));
     }
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
@@ -499,7 +501,7 @@ void GrDrawContext::drawVertices(const GrClip& clip,
                                                                 indexCount, colors, texCoords,
                                                                 bounds));
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
@@ -524,7 +526,7 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
     SkAutoTUnref<GrDrawBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount,
                                                              xform, texRect, colors));
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
@@ -548,7 +550,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    if (should_apply_coverage_aa(paint, fRenderTarget)) {
+    if (should_apply_coverage_aa(paint, fRenderTarget.get())) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
 
         SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(paint.getColor(),
@@ -557,7 +559,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
                                                                          strokeInfo,
                                                                          shaderCaps));
         if (batch) {
-            GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+            GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
             this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
             return;
         }
@@ -651,7 +653,7 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
     path.addRRect(outer);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
     this->internalDrawPath(clip, paint, viewMatrix, path, GrStrokeInfo::FillInfo());
 }
 
@@ -675,7 +677,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    if (should_apply_coverage_aa(paint, fRenderTarget)) {
+    if (should_apply_coverage_aa(paint, fRenderTarget.get())) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
         SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
                                                                         viewMatrix,
@@ -683,7 +685,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
                                                                         strokeInfo,
                                                                         shaderCaps));
         if (batch) {
-            GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+            GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
             this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
             return;
         }
@@ -713,7 +715,7 @@ void GrDrawContext::drawImageNine(const GrClip& clip,
                                                              imageWidth, imageHeight,
                                                              center, dst));
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
@@ -777,7 +779,7 @@ void GrDrawContext::drawBatch(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
@@ -812,7 +814,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    if (should_apply_coverage_aa(paint, fRenderTarget) && !strokeInfo.isDashed()) {
+    if (should_apply_coverage_aa(paint, fRenderTarget.get()) && !strokeInfo.isDashed()) {
         if (strokeInfo.getWidth() < 0 && !path.isConvex()) {
             // Concave AA paths are expensive - try to avoid them for special cases
             SkRect rects[2];
@@ -821,7 +823,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
                 SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateAAFillNestedRects(
                     paint.getColor(), viewMatrix, rects));
 
-                GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+                GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
                 this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
                 return;
             }
@@ -837,7 +839,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
                                                                             strokeInfo,
                                                                             shaderCaps));
             if (batch) {
-                GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+                GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
                 this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
                 return;
             }
@@ -866,8 +868,8 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
 
     if (path.isEmpty() && path.isInverseFillType()) {
         this->drawAndStencilRect(scissorRect, ss, op, invert, false, SkMatrix::I(),
-                                 SkRect::MakeIWH(fDrawContext->fRenderTarget->width(),
-                                                 fDrawContext->fRenderTarget->height()));
+                                 SkRect::MakeIWH(fDrawContext->width(),
+                                                 fDrawContext->height()));
         return true;
     }
 
@@ -910,7 +912,7 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
         clip.setIRect(*scissorRect);
     }
 
-    GrPipelineBuilder pipelineBuilder(paint, fDrawContext->fRenderTarget, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fDrawContext->accessRenderTarget(), clip);
     pipelineBuilder.setStencil(ss);
 
     GrPathRenderer::DrawPathArgs args;
@@ -940,7 +942,7 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     // the src color (either the input alpha or in the frag shader) to implement
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
-    bool useCoverageAA = should_apply_coverage_aa(paint, fRenderTarget);
+    bool useCoverageAA = should_apply_coverage_aa(paint, fRenderTarget.get());
     const bool isStencilDisabled = true;
     bool isStencilBufferMSAA = fRenderTarget->isStencilBufferMultisampled();
 
@@ -1015,7 +1017,7 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
         return;
     }
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
 
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = this->getDrawTarget();

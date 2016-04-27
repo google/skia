@@ -112,7 +112,7 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         localRect = SkRect::MakeWH(1.f, 1.f);
     }
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(copy->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(copy->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }

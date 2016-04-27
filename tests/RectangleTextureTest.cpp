@@ -89,7 +89,8 @@ static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* conte
 static void test_clear(skiatest::Reporter* reporter, GrContext* context,
                        GrTexture* rectangleTexture) {
     if (rectangleTexture->asRenderTarget()) {
-        SkAutoTUnref<GrDrawContext> dc(context->drawContext(rectangleTexture->asRenderTarget()));
+        sk_sp<GrDrawContext> dc(
+                            context->drawContext(sk_ref_sp(rectangleTexture->asRenderTarget())));
         if (!dc) {
             ERRORF(reporter, "Could not get GrDrawContext for rectangle texture.");
             return;

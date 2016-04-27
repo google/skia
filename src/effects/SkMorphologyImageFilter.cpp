@@ -496,13 +496,13 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
         if (!scratch) {
             return nullptr;
         }
-        SkAutoTUnref<GrDrawContext> dstDrawContext(
-                                                context->drawContext(scratch->asRenderTarget()));
+        sk_sp<GrDrawContext> dstDrawContext(
+                                      context->drawContext(sk_ref_sp(scratch->asRenderTarget())));
         if (!dstDrawContext) {
             return nullptr;
         }
 
-        apply_morphology_pass(dstDrawContext, clip, srcTexture.get(),
+        apply_morphology_pass(dstDrawContext.get(), clip, srcTexture.get(),
                               srcRect, dstRect, radius.fWidth, morphType,
                               Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
@@ -520,13 +520,13 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
         if (!scratch) {
             return nullptr;
         }
-        SkAutoTUnref<GrDrawContext> dstDrawContext(
-                                                context->drawContext(scratch->asRenderTarget()));
+        sk_sp<GrDrawContext> dstDrawContext(
+                                      context->drawContext(sk_ref_sp(scratch->asRenderTarget())));
         if (!dstDrawContext) {
             return nullptr;
         }
 
-        apply_morphology_pass(dstDrawContext, clip, srcTexture.get(),
+        apply_morphology_pass(dstDrawContext.get(), clip, srcTexture.get(),
                               srcRect, dstRect, radius.fHeight, morphType,
                               Gr1DKernelEffect::kY_Direction);
 

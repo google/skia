@@ -159,8 +159,8 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
-GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt,
-                                             const SkSurfaceProps* surfaceProps) {
+sk_sp<GrDrawContext> GrDrawingManager::drawContext(sk_sp<GrRenderTarget> rt,
+                                                   const SkSurfaceProps* surfaceProps) {
     if (this->abandoned()) {
         return nullptr;
     }
@@ -173,13 +173,16 @@ GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt,
 
     if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
         rt->isStencilBufferMultisampled()) {
-        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
+        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
         if (sb) {
-            return new GrPathRenderingDrawContext(fContext, this, rt, surfaceProps,
-                                                  fContext->getAuditTrail(), fSingleOwner);
+            return sk_sp<GrDrawContext>(new GrPathRenderingDrawContext(
+                                                        fContext, this, std::move(rt), 
+                                                        surfaceProps,
+                                                        fContext->getAuditTrail(), fSingleOwner));
         }
     }
 
-    return new GrDrawContext(fContext, this, rt, surfaceProps, fContext->getAuditTrail(),
-                             fSingleOwner);
+    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rt), surfaceProps,
+                                                  fContext->getAuditTrail(),
+                                                  fSingleOwner));
 }

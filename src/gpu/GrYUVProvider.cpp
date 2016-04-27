@@ -137,7 +137,7 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
             yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
-    SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext(renderTarget));
+    sk_sp<GrDrawContext> drawContext(ctx->drawContext(sk_ref_sp(renderTarget)));
     if (!drawContext) {
         return nullptr;
     }

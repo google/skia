@@ -114,7 +114,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
         ERRORF(reporter, "Could not create render target.");
         return;
     }
-    SkAutoTUnref<GrDrawContext> dc(context->drawContext(target->asRenderTarget()));
+    sk_sp<GrDrawContext> dc(context->drawContext(sk_ref_sp(target->asRenderTarget())));
     if (!dc) {
         ERRORF(reporter, "Could not create draw context.");
         return;

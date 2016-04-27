@@ -172,7 +172,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext.reset(this->context()->drawContext(rt, &this->surfaceProps()));
+    fDrawContext = this->context()->drawContext(sk_ref_sp(rt), &this->surfaceProps());
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
@@ -385,7 +385,8 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     SkPixelRef* pr = new SkGrPixelRef(fLegacyBitmap.info(), fRenderTarget);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext.reset(this->context()->drawContext(fRenderTarget, &this->surfaceProps()));
+    fDrawContext = this->context()->drawContext(sk_ref_sp(fRenderTarget.get()),
+                                                &this->surfaceProps());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -513,7 +514,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
         SkPath path;
         path.setIsVolatile(true);
         path.addRect(rect);
-        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
+        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext.get(),
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
                                             draw.fRC->getBounds(), true);
@@ -564,7 +565,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
                         return;
                     }
                     if (paint.getMaskFilter()->directFilterRRectMaskGPU(fContext->textureProvider(),
-                                                                        fDrawContext,
+                                                                        fDrawContext.get(),
                                                                         &grPaint,
                                                                         fClip,
                                                                         *draw.fMatrix,
@@ -585,7 +586,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rect);
-        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
+        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext.get(),
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
                                             draw.fRC->getBounds(), true);
@@ -631,7 +632,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
+    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext.get(),
                                         fClip, path, paint,
                                         *draw.fMatrix, nullptr,
                                         draw.fRC->getBounds(), true);
@@ -701,7 +702,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     CHECK_SHOULD_DRAW(draw);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext);
 
-    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
+    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext.get(),
                                         fClip, origSrcPath, paint,
                                         *draw.fMatrix, prePathMatrix,
                                         draw.fRC->getBounds(), pathIsMutable);

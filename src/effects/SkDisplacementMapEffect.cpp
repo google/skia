@@ -346,7 +346,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
+        sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(dst->asRenderTarget())));
         if (!drawContext) {
             return nullptr;
         }

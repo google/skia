@@ -632,7 +632,7 @@ GrTexture* GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
 
     texture->resourcePriv().setUniqueKey(key);
 
-    SkAutoTUnref<GrDrawContext> dc(context->drawContext(texture->asRenderTarget()));
+    sk_sp<GrDrawContext> dc(context->drawContext(sk_ref_sp(texture->asRenderTarget())));
     if (!dc) {
         return nullptr;
     }
@@ -682,7 +682,7 @@ GrTexture* GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
                                          0xffff,
                                          0xffff,
                                          0xffff)
-            if (!stencil_element(dc, &maskSpaceIBounds, kStencilInElement,
+            if (!stencil_element(dc.get(), &maskSpaceIBounds, kStencilInElement,
                                  translate, element)) {
                 texture->resourcePriv().removeUniqueKey();
                 return nullptr;
@@ -709,7 +709,7 @@ GrTexture* GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
             paint.setAntiAlias(element->isAA());
             paint.setCoverageSetOpXPFactory(op, false);
 
-            draw_element(dc, GrClip::WideOpen(), paint, translate, element);
+            draw_element(dc.get(), GrClip::WideOpen(), paint, translate, element);
         }
     }
 

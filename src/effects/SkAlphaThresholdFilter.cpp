@@ -111,7 +111,8 @@ sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* contex
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->drawContext(maskTexture->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(
+                                context->drawContext(sk_ref_sp(maskTexture->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }

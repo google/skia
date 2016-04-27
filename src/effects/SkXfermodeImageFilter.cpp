@@ -248,7 +248,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(dst->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }

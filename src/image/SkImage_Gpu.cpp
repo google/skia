@@ -270,7 +270,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(dstDesc.fWidth),
                                        SkIntToScalar(dstDesc.fHeight));
-    SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext(dst->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(ctx->drawContext(sk_ref_sp(dst->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }

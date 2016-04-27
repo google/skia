@@ -57,7 +57,7 @@ protected:
             return;
         }
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(rt)));
         if (!drawContext) {
             return;
         }

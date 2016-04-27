@@ -29,7 +29,7 @@ void GrRenderTarget::discard() {
         return;
     }
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(this));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(this)));
     if (!drawContext) {
         return;
     }

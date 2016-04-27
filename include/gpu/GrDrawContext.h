@@ -278,14 +278,18 @@ public:
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
     bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
 
-    GrRenderTarget* accessRenderTarget() { return fRenderTarget; }
+    GrRenderTarget* accessRenderTarget() { return fRenderTarget.get(); }
+
+    sk_sp<GrRenderTarget> renderTarget() { return fRenderTarget; }
+
+    sk_sp<GrTexture> asTexture() { return sk_ref_sp(fRenderTarget->asTexture()); }
 
     // Provides access to functions that aren't part of the public API.
     GrDrawContextPriv drawContextPriv();
     const GrDrawContextPriv drawContextPriv() const;
 
 protected:
-    GrDrawContext(GrContext*, GrDrawingManager*, GrRenderTarget*,
+    GrDrawContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTarget>,
                   const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
@@ -323,7 +327,7 @@ private:
     GrDrawTarget* getDrawTarget();
 
     GrDrawingManager*                 fDrawingManager;
-    GrRenderTarget*                   fRenderTarget;
+    sk_sp<GrRenderTarget>             fRenderTarget;
 
     // In MDB-mode the drawTarget can be closed by some other drawContext that has picked
     // it up. For this reason, the drawTarget should only ever be accessed via 'getDrawTarget'.

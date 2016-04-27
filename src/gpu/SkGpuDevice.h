@@ -146,7 +146,7 @@ private:
     // We want these unreffed in DrawContext, RenderTarget, GrContext order.
     SkAutoTUnref<GrContext>         fContext;
     SkAutoTUnref<GrRenderTarget>    fRenderTarget;
-    SkAutoTUnref<GrDrawContext>     fDrawContext;
+    sk_sp<GrDrawContext>            fDrawContext;
 
     SkAutoTUnref<const SkClipStack> fClipStack;
     SkIPoint                        fClipOrigin;

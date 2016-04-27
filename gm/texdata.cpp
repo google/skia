@@ -21,7 +21,7 @@ static const int S = 200;
 DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         GrRenderTarget* target = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* ctx = canvas->getGrContext();
-        SkAutoTUnref<GrDrawContext> drawContext(ctx ? ctx->drawContext(target) : nullptr);
+        sk_sp<GrDrawContext> drawContext(ctx ? ctx->drawContext(sk_ref_sp(target)) : nullptr);
         if (drawContext && target) {
             SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
             static const int stride = 2 * S;

@@ -301,7 +301,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(dst->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }

@@ -334,7 +334,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        SkAutoTUnref<GrRenderTarget> rt(random_render_target(
+        sk_sp<GrRenderTarget> rt(random_render_target(
             context->textureProvider(), &random, context->caps()));
         if (!rt.get()) {
             SkDebugf("Could not allocate render target");
@@ -348,13 +348,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
 
-        GrProcessorTestData ptd(&random, context, context->caps(), rt, dummyTextures);
+        GrProcessorTestData ptd(&random, context, context->caps(), rt.get(), dummyTextures);
         set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
         set_random_xpf(&pipelineBuilder, &ptd);
         set_random_state(&pipelineBuilder, &random);
         set_random_stencil(&pipelineBuilder, &random);
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        sk_sp<GrDrawContext> drawContext(context->drawContext(rt));
         if (!drawContext) {
             SkDebugf("Could not allocate drawContext");
             return false;
@@ -371,7 +371,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     rtDesc.fHeight = kRenderTargetHeight;
     rtDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     rtDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    SkAutoTUnref<GrRenderTarget> rt(
+    sk_sp<GrRenderTarget> rt(
         context->textureProvider()->createTexture(rtDesc, SkBudgeted::kNo)->asRenderTarget());
     int fpFactoryCnt = GrProcessorTestFactory<GrFragmentProcessor>::Count();
     for (int i = 0; i < fpFactoryCnt; ++i) {
@@ -379,10 +379,10 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         for (int j = 0; j < 10; ++j) {
             SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
-            GrProcessorTestData ptd(&random, context, context->caps(), rt, dummyTextures);
+            GrProcessorTestData ptd(&random, context, context->caps(), rt.get(), dummyTextures);
             GrPipelineBuilder builder;
             builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-            builder.setRenderTarget(rt);
+            builder.setRenderTarget(rt.get());
             builder.setClip(clip);
 
             SkAutoTUnref<const GrFragmentProcessor> fp(
@@ -391,7 +391,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Create(fp));
             builder.addColorFragmentProcessor(blockFP);
 
-            SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+            sk_sp<GrDrawContext> drawContext(context->drawContext(rt));
             if (!drawContext) {
                 SkDebugf("Could not allocate a drawcontext");
                 return false;

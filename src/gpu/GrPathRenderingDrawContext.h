@@ -26,10 +26,10 @@ public:
                       SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 protected:
-    GrPathRenderingDrawContext(GrContext* ctx, GrDrawingManager* mgr, GrRenderTarget* rt,
+    GrPathRenderingDrawContext(GrContext* ctx, GrDrawingManager* mgr, sk_sp<GrRenderTarget> rt,
                                const SkSurfaceProps* surfaceProps, GrAuditTrail* at,
                                GrSingleOwner* so)
-        : INHERITED(ctx, mgr, rt, surfaceProps, at, so) {}
+        : INHERITED(ctx, mgr, std::move(rt), surfaceProps, at, so) {}
 
 private:
     SkAutoTDelete<GrStencilAndCoverTextContext> fStencilAndCoverTextContext;

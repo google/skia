@@ -124,7 +124,7 @@ static GrTexture* create_mask_GPU(GrContext* context,
 
     SkRect clipRect = SkRect::MakeWH(maskRect->width(), maskRect->height());
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(mask->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(mask->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }

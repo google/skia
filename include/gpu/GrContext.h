@@ -192,7 +192,7 @@ public:
      *
      * @return a draw context
      */
-    GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps = NULL);
+    sk_sp<GrDrawContext> drawContext(sk_sp<GrRenderTarget> rt, const SkSurfaceProps* = nullptr);
 
     ///////////////////////////////////////////////////////////////////////////
     // Misc.

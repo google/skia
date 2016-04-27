@@ -418,7 +418,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(dst->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }

@@ -1276,7 +1276,8 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
             paint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
         }
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext((*result)->asRenderTarget()));
+        sk_sp<GrDrawContext> drawContext(
+                                    context->drawContext(sk_ref_sp((*result)->asRenderTarget())));
         if (!drawContext) {
             return false;
         }
