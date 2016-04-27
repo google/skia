@@ -9,7 +9,6 @@
 #define SkPictureData_DEFINED
 
 #include "SkBitmap.h"
-#include "SkDrawable.h"
 #include "SkPicture.h"
 #include "SkPictureContentInfo.h"
 #include "SkPictureFlat.h"
@@ -44,7 +43,6 @@ struct SkPictInfo {
 #define SK_PICT_FACTORY_TAG    SkSetFourByteTag('f', 'a', 'c', 't')
 #define SK_PICT_TYPEFACE_TAG   SkSetFourByteTag('t', 'p', 'f', 'c')
 #define SK_PICT_PICTURE_TAG    SkSetFourByteTag('p', 'c', 't', 'r')
-#define SK_PICT_DRAWABLE_TAG   SkSetFourByteTag('d', 'r', 'a', 'w')
 
 // This tag specifies the size of the ReadBuffer, needed for the following tags
 #define SK_PICT_BUFFER_SIZE_TAG     SkSetFourByteTag('a', 'r', 'a', 'y')
@@ -109,12 +107,6 @@ public:
         return reader->validateIndex(index, fPictureCount) ? fPictureRefs[index] : nullptr;
     }
 
-    SkDrawable* getDrawable(SkReadBuffer* reader) const {
-        int index = reader->readInt();
-        SkASSERT(index > 0 && index <= fDrawableCount);
-        return fDrawableRefs[index - 1];
-    }
-
     const SkPaint* getPaint(SkReadBuffer* reader) const {
         const int index = reader->readInt() - 1;
         return reader->validateIndex(index, fPaints.count()) ? &fPaints[index] : nullptr;
@@ -168,8 +160,6 @@ private:
 
     const SkPicture** fPictureRefs;
     int fPictureCount;
-    SkDrawable** fDrawableRefs;
-    int fDrawableCount;
     const SkTextBlob** fTextBlobRefs;
     int fTextBlobCount;
     const SkImage** fImageRefs;

@@ -35,10 +35,6 @@ public:
         return fPictureRefs;
     }
 
-    const SkTDArray<SkDrawable* >& getDrawableRefs() const {
-        return fDrawableRefs;
-    }
-
     const SkTDArray<const SkTextBlob* >& getTextBlobRefs() const {
         return fTextBlobRefs;
     }
@@ -135,7 +131,6 @@ private:
     void addPatch(const SkPoint cubics[12]);
     void addPath(const SkPath& path);
     void addPicture(const SkPicture* picture);
-    void addDrawable(SkDrawable* picture);
     void addPoint(const SkPoint& point);
     void addPoints(const SkPoint pts[], int count);
     void addRect(const SkRect& rect);
@@ -209,7 +204,6 @@ protected:
     void onClipRegion(const SkRegion&, SkRegion::Op) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
-    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
     int addPathToHeap(const SkPath& path);  // does not write to ops stream
@@ -244,7 +238,6 @@ private:
     // we ref each item in these arrays
     SkTDArray<const SkImage*>    fImageRefs;
     SkTDArray<const SkPicture*>  fPictureRefs;
-    SkTDArray<SkDrawable*>       fDrawableRefs;
     SkTDArray<const SkTextBlob*> fTextBlobRefs;
 
     uint32_t fRecordFlags;
