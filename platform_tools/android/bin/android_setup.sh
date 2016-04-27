@@ -11,7 +11,7 @@
 # Fail-fast if anything in the script fails.
 set -e
 
-BUILDTYPE=${BUILDTYPE-Debug}
+BUILDTYPE=${BUILDTYPE-Release_Developer}
 USE_CLANG="true"
 
 while (( "$#" )); do
@@ -28,6 +28,8 @@ while (( "$#" )); do
   elif [[ "$1" == "-t" ]]; then
     BUILDTYPE=$2
     shift
+  elif [[ "$1" == "--debug" ]]; then
+    BUILDTYPE=Debug
   elif [[ "$1" == "--release" ]]; then
     BUILDTYPE=Release
   elif [[ "$1" == "--gcc" ]]; then
