@@ -449,6 +449,36 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const GEO& geo) {
     geoPEStrokeCase.testExpectations(reporter, expectations);
 }
 
+/**
+ * isNonPath indicates whether the initial shape made from the path is expected to be recognized
+ * as a simpler shape type (e.g. rrect)
+ */
+void test_volatile_path(skiatest::Reporter* reporter, const SkPath& path,
+                        bool isNonPath) {
+    SkPath vPath(path);
+    vPath.setIsVolatile(true);
+
+    SkPaint dashAndStroke;
+    dashAndStroke.setPathEffect(make_dash());
+    dashAndStroke.setStrokeWidth(2.f);
+    dashAndStroke.setStyle(SkPaint::kStroke_Style);
+    TestCase volatileCase(vPath, dashAndStroke);
+    // We expect a shape made from a volatile path to have a key iff the shape is recognized
+    // as a specialized geometry.
+    if (isNonPath) {
+        REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().count()));
+        // In this case all the keys should be identical to the non-volatile case.
+        TestCase nonVolatileCase(path, dashAndStroke);
+        volatileCase.compare(reporter, nonVolatileCase, TestCase::kAllSame_ComparisonExpecation);
+    } else {
+        // None of the keys should be valid.
+        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.baseKey().count()));
+        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedPathEffectKey().count()));
+        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedFullStyleKey().count()));
+        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedPathEffectThenStrokeKey().count()));
+    }
+}
+
 template <typename GEO>
 void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const GEO& geo) {
     /**
@@ -594,6 +624,8 @@ DEF_TEST(GrShape, reporter) {
             test_null_dash(reporter, path);
             test_path_effect_makes_rrect(reporter, path);
         }
+        // This test uses a stroking paint, hence use of fIsRRectForStroke
+        test_volatile_path(reporter, path, testPath.fIsRRectForStroke);
         test_dash_fill(reporter, path);
         // Test modifying various stroke params.
         test_stroke_param<SkPath, SkScalar>(
@@ -636,6 +668,9 @@ DEF_TEST(GrShape, reporter) {
                                  TestCase::kAllSame_ComparisonExpecation);
         }
     }
+
+    // Test a volatile empty path.
+    test_volatile_path(reporter, SkPath(), true);
 
     test_empty_shape(reporter);
 }
