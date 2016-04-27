@@ -1,11 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:2.1.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -15,6 +16,24 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+    }
+}
+
+def setupSkiaLibraryBuild(project, appVariants, buildCmd) {
+    appVariants.all{ variant ->
+        def buildNativeLib = project.task("${variant.name}_SkiaNativeLib", type:Exec) {
+            workingDir '../../../..' // top-level skia directory
+            commandLine constructBuildCommand(variant, buildCmd).split()
+            environment PATH: getPathWithDepotTools()
+            environment ANDROID_SDK_ROOT: getSDKPath()
+        }
+        buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
+        TaskCollection<Task> compileTask = project.tasks.matching {
+            //  println(it.name)
+            it.name.toLowerCase().contains("compile" + variant.name.toLowerCase()) &&
+                    it.name.toLowerCase().endsWith("ndk")
+        }
+        compileTask.getAt(0).dependsOn buildNativeLib
     }
 }
 

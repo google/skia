@@ -38,10 +38,12 @@
         'android_arch%': "mips64",
         'android_variant%': "mips64",
       }],
-      [ 'android_buildtype == "Release"', {
-        'android_apk_suffix': "release.apk",
-      }, {
+      [ 'android_buildtype == "Debug"', {
         'android_apk_suffix': "debug.apk",
+      }, {
+        # This also accounts for Release_Developer BUILDTYPE
+        'android_buildtype': "Release", 
+        'android_apk_suffix': "release.apk",
       }],
     ],
   },

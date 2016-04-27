@@ -53,7 +53,7 @@
           ],
           'action': [
             '<(android_base)/apps/gradlew',
-            ':vulkanviewer:assemble<(android_variant)Debug',
+            ':vulkanviewer:assemble<(android_variant)<(android_buildtype)',
             '-p<(android_base)/apps/vulkanviewer',
             '-PsuppressNativeBuild',
             '--daemon',
