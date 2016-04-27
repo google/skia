@@ -33,6 +33,7 @@ SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
 SkPictureRecord::~SkPictureRecord() {
     fImageRefs.unrefAll();
     fPictureRefs.unrefAll();
+    fDrawableRefs.unrefAll();
     fTextBlobRefs.unrefAll();
 }
 
@@ -637,6 +638,23 @@ void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* ma
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    // op + drawable index
+    size_t size = 2 * kUInt32Size;
+    size_t initialOffset;
+
+    if (nullptr == matrix) {
+        initialOffset = this->addDraw(DRAW_DRAWABLE, &size);
+        this->addDrawable(drawable);
+    } else {
+        size += matrix->writeToMemory(nullptr);    // matrix
+        initialOffset = this->addDraw(DRAW_DRAWABLE_MATRIX, &size);
+        this->addMatrix(*matrix);
+        this->addDrawable(drawable);
+    }
+    this->validate(initialOffset, size);
+}
+
 void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
                                      const SkPoint vertices[], const SkPoint texs[],
                                      const SkColor colors[], SkXfermode* xfer,
@@ -913,6 +931,17 @@ void SkPictureRecord::addPicture(const SkPicture* picture) {
         index = fPictureRefs.count();
         *fPictureRefs.append() = picture;
         picture->ref();
+    }
+    // follow the convention of recording a 1-based index
+    this->addInt(index + 1);
+}
+
+void SkPictureRecord::addDrawable(SkDrawable* drawable) {
+    int index = fDrawableRefs.find(drawable);
+    if (index < 0) {    // not found
+        index = fDrawableRefs.count();
+        *fDrawableRefs.append() = drawable;
+        drawable->ref();
     }
     // follow the convention of recording a 1-based index
     this->addInt(index + 1);

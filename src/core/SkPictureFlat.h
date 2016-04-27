@@ -78,8 +78,10 @@ enum DrawType {
     SAVE_LAYER_SAVELAYERREC,
 
     DRAW_ANNOTATION,
+    DRAW_DRAWABLE,
+    DRAW_DRAWABLE_MATRIX,
 
-    LAST_DRAWTYPE_ENUM = DRAW_ANNOTATION,
+    LAST_DRAWTYPE_ENUM = DRAW_DRAWABLE_MATRIX,
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

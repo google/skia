@@ -14,10 +14,11 @@
 #include "SkFlattenable.h"
 #include "SkImageShader.h"
 #include "SkLocalMatrixShader.h"
+#include "SkMatrixImageFilter.h"
 #include "SkOnce.h"
 #include "SkPathEffect.h"
 #include "SkPictureShader.h"
-#include "SkMatrixImageFilter.h"
+#include "SkRecordedDrawable.h"
 #include "SkXfermode.h"
 
 /*
@@ -48,6 +49,9 @@ void SkFlattenable::PrivateInitializer::InitCore() {
 
     // Xfermode
     SkXfermode::InitializeFlattenables();
+
+    // Drawable
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRecordedDrawable)
 
     // Now initialize any optional/additional effects (implemented in src/ports)
     InitEffects();

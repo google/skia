@@ -14,6 +14,7 @@
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
 #include "SkRecordOpts.h"
+#include "SkRecordedDrawable.h"
 #include "SkRecorder.h"
 #include "SkTypes.h"
 
@@ -116,66 +117,6 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     }
     SkRecordDraw(*fRecord, canvas, nullptr, drawables, drawableCount, nullptr/*bbh*/, nullptr/*callback*/);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-class SkRecordedDrawable : public SkDrawable {
-    SkAutoTUnref<SkRecord>          fRecord;
-    SkAutoTUnref<SkBBoxHierarchy>   fBBH;
-    SkAutoTDelete<SkDrawableList>   fDrawableList;
-    const SkRect                    fBounds;
-    const bool                      fDoSaveLayerInfo;
-
-public:
-    SkRecordedDrawable(SkRecord* record, SkBBoxHierarchy* bbh, SkDrawableList* drawableList,
-                       const SkRect& bounds, bool doSaveLayerInfo)
-        : fRecord(SkRef(record))
-        , fBBH(SkSafeRef(bbh))
-        , fDrawableList(drawableList)   // we take ownership
-        , fBounds(bounds)
-        , fDoSaveLayerInfo(doSaveLayerInfo)
-    {}
-
-protected:
-    SkRect onGetBounds() override { return fBounds; }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkDrawable* const* drawables = nullptr;
-        int drawableCount = 0;
-        if (fDrawableList) {
-            drawables = fDrawableList->begin();
-            drawableCount = fDrawableList->count();
-        }
-        SkRecordDraw(*fRecord, canvas, nullptr, drawables, drawableCount, fBBH, nullptr/*callback*/);
-    }
-
-    SkPicture* onNewPictureSnapshot() override {
-        SkBigPicture::SnapshotArray* pictList = nullptr;
-        if (fDrawableList) {
-            // TODO: should we plumb-down the BBHFactory and recordFlags from our host
-            //       PictureRecorder?
-            pictList = fDrawableList->newDrawableSnapshot();
-        }
-
-        SkAutoTUnref<SkLayerInfo> saveLayerData;
-        if (fBBH && fDoSaveLayerInfo) {
-            // TODO: can we avoid work by not allocating / filling these bounds?
-            SkAutoTMalloc<SkRect> scratchBounds(fRecord->count());
-            saveLayerData.reset(new SkLayerInfo);
-
-            SkRecordComputeLayers(fBounds, *fRecord, scratchBounds, pictList, saveLayerData);
-        }
-
-        size_t subPictureBytes = 0;
-        for (int i = 0; pictList && i < pictList->count(); i++) {
-            subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
-        }
-        // SkBigPicture will take ownership of a ref on both fRecord and fBBH.
-        // We're not willing to give up our ownership, so we must ref them for SkPicture.
-        return new SkBigPicture(fBounds, SkRef(fRecord.get()), pictList, SkSafeRef(fBBH.get()),
-                                saveLayerData.release(), subPictureBytes);
-    }
-};
 
 sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable() {
     fActivelyRecording = false;

@@ -239,6 +239,7 @@
         '<(skia_src_path)/core/SkRecordOpts.cpp',
         '<(skia_src_path)/core/SkRecordOpts.h',
         '<(skia_src_path)/core/SkRecordPattern.h',
+        '<(skia_src_path)/core/SkRecordedDrawable.cpp',
         '<(skia_src_path)/core/SkRecorder.cpp',
         '<(skia_src_path)/core/SkRect.cpp',
         '<(skia_src_path)/core/SkRefDict.cpp',
