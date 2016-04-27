@@ -8,7 +8,7 @@
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream*,
                                       SkScalar,
                                       const SkDocument::PDFMetadata&,
-                                      SkPixelSerializer*,
+                                      sk_sp<SkPixelSerializer>,
                                       bool) {
     return nullptr;
 }
