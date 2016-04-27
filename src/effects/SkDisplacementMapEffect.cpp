@@ -317,17 +317,6 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
             return nullptr;
         }
 
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = bounds.width();
-        desc.fHeight = bounds.height();
-        desc.fConfig = kSkia8888_GrPixelConfig;
-
-        sk_sp<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
-        if (!dst) {
-            return nullptr;
-        }
-
         GrPaint paint;
         SkMatrix offsetMatrix = GrCoordTransform::MakeDivByTextureWHMatrix(displTexture.get());
         offsetMatrix.preTranslate(SkIntToScalar(colorOffset.fX - displOffset.fX),
@@ -346,7 +335,9 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 
-        sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(dst->asRenderTarget())));
+        sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
+                                                                 bounds.width(), bounds.height(),
+                                                                 kSkia8888_GrPixelConfig));
         if (!drawContext) {
             return nullptr;
         }
@@ -357,7 +348,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         offset->fY = bounds.top();
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           std::move(dst));
+                                           drawContext->asTexture());
     }
 #endif
 

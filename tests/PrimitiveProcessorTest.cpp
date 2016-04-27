@@ -103,18 +103,9 @@ private:
 
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrContext* context = ctxInfo.fGrContext;
-    GrTextureDesc desc;
-    desc.fHeight = 1;
-    desc.fWidth = 1;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-    SkAutoTUnref<GrTexture> target(context->textureProvider()->createTexture(desc,
-                                                                             SkBudgeted::kYes));
-    if (!target) {
-        ERRORF(reporter, "Could not create render target.");
-        return;
-    }
-    sk_sp<GrDrawContext> dc(context->drawContext(sk_ref_sp(target->asRenderTarget())));
+
+    sk_sp<GrDrawContext> dc(context->newDrawContext(GrContext::kLoose_BackingFit,
+                                                    1, 1, kRGBA_8888_GrPixelConfig));
     if (!dc) {
         ERRORF(reporter, "Could not create draw context.");
         return;
@@ -132,7 +123,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
 #endif
     SkAutoTUnref<GrDrawBatch> batch;
     GrPipelineBuilder pb;
-    pb.setRenderTarget(target->asRenderTarget());
+    pb.setRenderTarget(dc->accessRenderTarget());
     // This one should succeed.
     batch.reset(new Batch(attribCnt));
     dc->drawContextPriv().testingOnly_drawBatch(pb, batch);
