@@ -184,23 +184,6 @@ public:
         return SkDocument::MakePDF(outputFilePath, dpi).release();
     }
 
-    /**
-     *  Create a XPS-backed document, writing the results into the stream.
-     *  Returns NULL if XPS is not supported.
-     */
-    static SkDocument* CreateXPS(SkWStream* stream,
-                                 SkScalar dpi = SK_ScalarDefaultRasterDPI) {
-        return SkDocument::MakeXPS(stream, dpi).release();
-    }
-
-    /**
-     *  Create a XPS-backed document, writing the results into a file.
-     *  Returns NULL if XPS is not supported.
-     */
-    static SkDocument* CreateXPS(const char path[],
-                                 SkScalar dpi = SK_ScalarDefaultRasterDPI) {
-        return SkDocument::MakeXPS(path, dpi).release();
-    }
 #endif  // SK_SUPPORT_LEGACY_DOCUMENT_API
 
     /**
