@@ -19,7 +19,7 @@ if ! [ "$1" ] || ! [ "$2" ]; then
 fi
 
 BAD=''
-for CMD in 'python' 'ninja' 'pdfium_test' 'timeout' 'skdiff'; do
+for CMD in 'python' 'ninja' 'pdfium_test' 'skdiff'; do
     if ! command -v "$CMD" > /dev/null ; then
         echo "could not find $CMD command in PATH." >&2
         BAD=1
@@ -69,10 +69,25 @@ if [ -z "$DIFFS" ]; then
     exit 0;
 fi
 
+# Portable version of timeout from GNU coreutils.
+timeout_py() { python -c "$(cat <<EOF
+import sys, subprocess, threading
+proc = subprocess.Popen(sys.argv[2:])
+timer = threading.Timer(float(sys.argv[1]), proc.terminate)
+timer.start()
+proc.wait()
+timer.cancel()
+exit(proc.returncode)
+EOF
+)" "$@"; }
+
 # rasterize the remaining PDFs
 for pdf in "$CON_DIR"/*pdf "$EXP_DIR"/*pdf ; do
-    # timeout is from GNU coreutils
-    if timeout 10 pdfium_test --png "$pdf"; then
+    if timeout_py 10 pdfium_test --png "$pdf"; then
+        if ! [ -f "$pdf".*.png ] ; then
+            echo "Missing pdfium_test output: '$pdf.*.png'" >&2
+            exit 1
+        fi
         rm "$pdf"
     else
         echo "pdfium_test '$pdf' failed."
