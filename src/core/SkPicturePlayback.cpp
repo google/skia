@@ -257,6 +257,15 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             (void)reader->skip(length);
             // skip handles padding the read out to a multiple of 4
         } break;
+        case DRAW_DRAWABLE:
+            canvas->drawDrawable(fPictureData->getDrawable(reader));
+            break;
+        case DRAW_DRAWABLE_MATRIX: {
+            SkMatrix matrix;
+            reader->readMatrix(&matrix);
+            SkDrawable* drawable = fPictureData->getDrawable(reader);
+            canvas->drawDrawable(drawable, &matrix);
+        } break;
         case DRAW_DRRECT: {
             const SkPaint& paint = *fPictureData->getPaint(reader);
             SkRRect outer, inner;

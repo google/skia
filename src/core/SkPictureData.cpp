@@ -66,6 +66,16 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
         }
     }
 
+    const SkTDArray<SkDrawable* >& drawables = record.getDrawableRefs();
+    fDrawableCount = drawables.count();
+    if (fDrawableCount > 0) {
+        fDrawableRefs = new SkDrawable* [fDrawableCount];
+        for (int i = 0; i < fDrawableCount; i++) {
+            fDrawableRefs[i] = drawables[i];
+            fDrawableRefs[i]->ref();
+        }
+    }
+
     // templatize to consolidate with similar picture logic?
     const SkTDArray<const SkTextBlob*>& blobs = record.getTextBlobRefs();
     fTextBlobCount = blobs.count();
@@ -89,6 +99,8 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 void SkPictureData::init() {
     fPictureRefs = nullptr;
     fPictureCount = 0;
+    fDrawableRefs = nullptr;
+    fDrawableCount = 0;
     fTextBlobRefs = nullptr;
     fTextBlobCount = 0;
     fImageRefs = nullptr;
@@ -101,6 +113,14 @@ SkPictureData::~SkPictureData() {
         fPictureRefs[i]->unref();
     }
     delete[] fPictureRefs;
+
+    for (int i = 0; i < fDrawableCount; i++) {
+        fDrawableRefs[i]->unref();
+    }
+    if (fDrawableCount > 0) {
+        SkASSERT(fDrawableRefs);
+        delete[] fDrawableRefs;
+    }
 
     for (int i = 0; i < fTextBlobCount; i++) {
         fTextBlobRefs[i]->unref();
@@ -306,6 +326,13 @@ void SkPictureData::flatten(SkWriteBuffer& buffer) const {
         }
     }
 
+    if (fDrawableCount > 0) {
+        write_tag_size(buffer, SK_PICT_DRAWABLE_TAG, fDrawableCount);
+        for (int i = 0; i < fDrawableCount; i++) {
+            buffer.writeFlattenable(fDrawableRefs[i]);
+        }
+    }
+
     // Write this picture playback's data into a writebuffer
     this->flattenToBuffer(buffer);
     buffer.write32(SK_PICT_EOF_TAG);
@@ -450,6 +477,10 @@ static const SkPicture* create_picture_from_buffer(SkReadBuffer& buffer) {
     return SkPicture::MakeFromBuffer(buffer).release();
 }
 
+static const SkDrawable* create_drawable_from_buffer(SkReadBuffer& buffer) {
+    return (SkDrawable*) buffer.readFlattenable(SkFlattenable::kSkDrawable_Type);
+}
+
 template <typename T>
 bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
                            const T*** array, int* outCount, const T* (*factory)(SkReadBuffer&)) {
@@ -537,6 +568,12 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
         case SK_PICT_PICTURE_TAG:
             if (!new_array_from_buffer(buffer, size, &fPictureRefs, &fPictureCount,
                                        create_picture_from_buffer)) {
+                return false;
+            }
+            break;
+        case SK_PICT_DRAWABLE_TAG:
+            if (!new_array_from_buffer(buffer, size, (const SkDrawable***)&fDrawableRefs,
+                                       &fDrawableCount, create_drawable_from_buffer)) {
                 return false;
             }
             break;
