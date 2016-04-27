@@ -83,7 +83,7 @@ public:
 
 private:
 
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
 #define GR_PIPELINE_STATE_CACHE_STATS
 #endif
 

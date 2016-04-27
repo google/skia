@@ -50,7 +50,7 @@ void SkGraphics::Init() {
     SkCpu::CacheRuntimeFeatures();
     SkOpts::Init();
 
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
     skRTConfRegistry().possiblyDumpFile();
     skRTConfRegistry().validate();
     if (skRTConfRegistry().hasNonDefault()) {

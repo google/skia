@@ -10,7 +10,7 @@
 
 #include "SkCanvas.h"
 
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
 
 /** This class overrides all the draw methods on SkCanvas, and formats them
     as text, and then sends that to a Dumper helper object.
