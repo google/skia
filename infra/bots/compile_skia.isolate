@@ -1,5 +1,7 @@
 {
-  'includes': [
-    'skia_repo.isolate',
-  ],
+  'variables': {
+    'files': [
+      '../../../.gclient',
+    ],
+  },
 }
