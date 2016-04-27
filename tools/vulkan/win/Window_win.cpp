@@ -262,7 +262,7 @@ void Window_win::show() {
 }
 
 
-bool Window_win::attach(BackEndType attachType, int msaaSampleCount, AttachmentInfo*) {
+bool Window_win::attach(BackEndType attachType, int msaaSampleCount) {
     if (kVulkan_BackendType != attachType) {
         return false;
     }

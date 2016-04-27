@@ -71,7 +71,7 @@ VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData)
     SkCommandLineFlags::Parse(argc, argv);
 
     fWindow = Window::CreateNativeWindow(platformData);
-    fWindow->attach(Window::kVulkan_BackendType, 0, nullptr);
+    fWindow->attach(Window::kVulkan_BackendType, 0);
 
     // register callbacks
     fWindow->registerKeyFunc(on_key_handler, this);

@@ -63,21 +63,6 @@ void VulkanTestContext::initializeContext(void* platformData) {
         return;
     }
 
-    // query to get the initial queue props size
-    uint32_t queueCount;
-    GR_VK_CALL(fBackendContext->fInterface, 
-               GetPhysicalDeviceQueueFamilyProperties(fBackendContext->fPhysicalDevice, &queueCount,
-                                                      nullptr));
-    SkASSERT(queueCount >= 1);
-
-    SkAutoMalloc queuePropsAlloc(queueCount * sizeof(VkQueueFamilyProperties));
-    // now get the actual queue props
-    VkQueueFamilyProperties* queueProps = (VkQueueFamilyProperties*)queuePropsAlloc.get();
-
-    GR_VK_CALL(fBackendContext->fInterface,
-               GetPhysicalDeviceQueueFamilyProperties(fBackendContext->fPhysicalDevice, &queueCount,
-                                                      queueProps));
-
     VkBool32 supported;
     VkResult res = fGetPhysicalDeviceSurfaceSupportKHR(fBackendContext->fPhysicalDevice,
                                                        fPresentQueueIndex, fSurface,
@@ -176,6 +161,10 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
                                         VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR :
                                         VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
+    // Pick our surface format -- for now, the first one
+    VkFormat surfaceFormat = surfaceFormats[0].format;
+    VkColorSpaceKHR colorSpace = surfaceFormats[0].colorSpace;
+
     // If mailbox mode is available, use it, as it is the lowest-latency non-
     // tearing mode. If not, fall back to FIFO which is always available.
     VkPresentModeKHR mode = VK_PRESENT_MODE_FIFO_KHR;
@@ -192,8 +181,8 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
     swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     swapchainCreateInfo.surface = fSurface;
     swapchainCreateInfo.minImageCount = imageCount;
-    swapchainCreateInfo.imageFormat = surfaceFormats[0].format;       // for now, use the first one
-    swapchainCreateInfo.imageColorSpace = surfaceFormats[0].colorSpace;
+    swapchainCreateInfo.imageFormat = surfaceFormat;
+    swapchainCreateInfo.imageColorSpace = colorSpace;
     swapchainCreateInfo.imageExtent = extent;
     swapchainCreateInfo.imageArrayLayers = 1;
     swapchainCreateInfo.imageUsage = usageFlags;

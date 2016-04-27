@@ -189,7 +189,7 @@ bool stencil_format_supported(const GrVkInterface* interface,
 void GrVkCaps::initStencilFormat(const GrVkInterface* interface, VkPhysicalDevice physDev) {
     // List of legal stencil formats (though perhaps not supported on
     // the particular gpu/driver) from most preferred to least. We are guaranteed to have either
-    // VK_FORMAT_D24_UNORM_S8_UINT or VK_FORMAT_D24_SFLOAT_S8_UINT. VK_FORMAT_D32_SFLOAT_S8_UINT
+    // VK_FORMAT_D24_UNORM_S8_UINT or VK_FORMAT_D32_SFLOAT_S8_UINT. VK_FORMAT_D32_SFLOAT_S8_UINT
     // can optionally have 24 unused bits at the end so we assume the total bits is 64.
     static const StencilFormat
                   // internal Format             stencil bits      total bits        packed?

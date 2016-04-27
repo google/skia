@@ -37,8 +37,6 @@ public:
     void swapBuffers();
 
     bool makeCurrent() { return true; }
-    int getStencilBits() { return 0;  }
-    int getSampleCount() { return 0; }
 
     bool isValid() { return SkToBool(fBackendContext.get()); }
 

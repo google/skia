@@ -28,17 +28,12 @@ public:
     virtual bool supportsContentRect() const { return false; }
     virtual SkRect getContentRect() { return SkRect::MakeEmpty(); }
 
-    struct AttachmentInfo {
-        int fSampleCount;
-        int fStencilBits;
-    };
-
     enum BackEndType {
         kNativeGL_BackendType,
         kVulkan_BackendType
     };
 
-    virtual bool attach(BackEndType attachType, int msaaSampleCount, AttachmentInfo*) = 0;
+    virtual bool attach(BackEndType attachType, int msaaSampleCount) = 0;
     void detach();
 
     // input handling
