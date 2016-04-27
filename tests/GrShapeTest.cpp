@@ -61,6 +61,7 @@ public:
     const Key& baseKey() const { return fBaseKey; }
     const Key& appliedPathEffectKey() const { return fAppliedPEKey; }
     const Key& appliedFullStyleKey() const { return fAppliedFullKey; }
+    const Key& appliedPathEffectThenStrokeKey() const { return fAppliedPEThenStrokeKey; }
 
 private:
     void init() {
@@ -448,6 +449,82 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const GEO& geo) {
     geoPEStrokeCase.testExpectations(reporter, expectations);
 }
 
+template <typename GEO>
+void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const GEO& geo) {
+    /**
+     * This path effect returns an empty path.
+     */
+    class EmptyPathEffect : SkPathEffect {
+    public:
+        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                        const SkRect* cullR) const override {
+            dst->reset();
+            return true;
+        }
+        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
+            dst->setEmpty();
+        }
+        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new EmptyPathEffect); }
+        Factory getFactory() const override { return nullptr; }
+        void toString(SkString*) const override {}
+    private:
+        EmptyPathEffect() {}
+    };
+
+    SkPath emptyPath;
+    GrShape emptyShape(emptyPath);
+    Key emptyKey;
+    make_key(&emptyKey, emptyShape);
+
+    SkPaint pe;
+    pe.setPathEffect(EmptyPathEffect::Make());
+    TestCase geoCase(geo, pe);
+    REPORTER_ASSERT(reporter, geoCase.appliedFullStyleKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoCase.appliedPathEffectKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoCase.appliedPathEffectThenStrokeKey() == emptyKey);
+
+    SkPaint peStroke;
+    peStroke.setPathEffect(EmptyPathEffect::Make());
+    peStroke.setStrokeWidth(2.f);
+    peStroke.setStyle(SkPaint::kStroke_Style);
+    TestCase geoPEStrokeCase(geo, peStroke);
+    REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedFullStyleKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectThenStrokeKey() == emptyKey);
+}
+
+void test_empty_shape(skiatest::Reporter* reporter) {
+    SkPath emptyPath;
+    SkPaint fill;
+    TestCase fillEmptyCase(emptyPath, fill);
+
+    Key emptyKey(fillEmptyCase.baseKey());
+    REPORTER_ASSERT(reporter, emptyKey.count());
+    TestCase::SelfExpectations expectations;
+    expectations.fStrokeApplies = false;
+    expectations.fPEHasEffect = false;
+    // This will test whether applying style preserves emptiness
+    fillEmptyCase.testExpectations(reporter, expectations);
+
+    // Stroking an empty path should have no effect
+    SkPath emptyPath2;
+    SkPaint stroke;
+    stroke.setStrokeWidth(2.f);
+    stroke.setStyle(SkPaint::kStroke_Style);
+    TestCase strokeEmptyCase(emptyPath2, stroke);
+    strokeEmptyCase.compare(reporter, fillEmptyCase, TestCase::kAllSame_ComparisonExpecation);
+
+    // Dashing and stroking an empty path should have no effect
+    SkPath emptyPath3;
+    SkPaint dashAndStroke;
+    dashAndStroke.setPathEffect(make_dash());
+    dashAndStroke.setStrokeWidth(2.f);
+    dashAndStroke.setStyle(SkPaint::kStroke_Style);
+    TestCase dashAndStrokeEmptyCase(emptyPath3, stroke);
+    dashAndStrokeEmptyCase.compare(reporter, fillEmptyCase,
+                                   TestCase::kAllSame_ComparisonExpecation);
+}
+
 DEF_TEST(GrShape, reporter) {
     sk_sp<SkPathEffect> dashPE = make_dash();
 
@@ -472,6 +549,7 @@ DEF_TEST(GrShape, reporter) {
         test_miter_limit(reporter, rr);
         test_path_effect_makes_rrect(reporter, rr);
         test_unknown_path_effect(reporter, rr);
+        test_path_effect_makes_empty_shape(reporter, rr);
     }
 
     struct TestPath {
@@ -532,6 +610,7 @@ DEF_TEST(GrShape, reporter) {
             SkPaint::kMiter_Join, SkPaint::kRound_Join);
         test_miter_limit(reporter, path);
         test_unknown_path_effect(reporter, path);
+        test_path_effect_makes_empty_shape(reporter, path);
 
         SkPaint fillPaint;
         TestCase fillPathCase(path, fillPaint);
@@ -557,6 +636,8 @@ DEF_TEST(GrShape, reporter) {
                                  TestCase::kAllSame_ComparisonExpecation);
         }
     }
+
+    test_empty_shape(reporter);
 }
 
 #endif
