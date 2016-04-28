@@ -56,14 +56,10 @@ struct SkColorLookUpTable {
     }
 };
 
-struct SkPM4f;
-void SkApply3x3ToPM4f(const SkFloat3x3&, const SkPM4f src[], SkPM4f dst[], int count);
-
 class SkColorSpace : public SkRefCnt {
 public:
     enum Named {
         kUnknown_Named,
-        kDevice_Named,
         kSRGB_Named,
     };
 
@@ -81,21 +77,6 @@ public:
     SkFloat3 xyzOffset() const { return fToXYZOffset; }
     Named named() const { return fNamed; }
     uint32_t uniqueID() const { return fUniqueID; }
-
-    enum Result {
-        kFailure_Result,
-        kIdentity_Result,
-        kNormal_Result,
-    };
-
-    /**
-     *  Given a src and dst colorspace, return the 3x3 matrix that will convert src_linear_RGB
-     *  values into dst_linear_RGB values.
-     */
-    static Result Concat(const SkColorSpace* src, const SkColorSpace* dst, SkFloat3x3* result);
-
-    static void Test();
-    void dump() const;
 
 private:
     SkColorSpace(const SkFloat3& gamma, const SkFloat3x3& toXYZ, Named);
