@@ -19,7 +19,7 @@
 #include "SkXfermode.h"
 
 class GrContext;
-class GrRenderTarget;
+class GrDrawContext;
 class SkBaseDevice;
 class SkCanvasClipVisitor;
 class SkClipStack;
@@ -1222,7 +1222,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call
-    GrRenderTarget* internal_private_accessTopLayerRenderTarget();
+    GrDrawContext* internal_private_accessTopLayerDrawContext();
 
     // don't call
     static void Internal_Private_SetIgnoreSaveLayerBounds(bool);

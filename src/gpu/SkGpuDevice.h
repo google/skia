@@ -71,6 +71,7 @@ public:
     void replaceRenderTarget(bool shouldRetainContent);
 
     GrRenderTarget* accessRenderTarget() override;
+    GrDrawContext* accessDrawContext() override;
 
     SkImageInfo imageInfo() const override {
         return fLegacyBitmap.info();

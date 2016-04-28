@@ -347,6 +347,11 @@ GrRenderTarget* SkGpuDevice::accessRenderTarget() {
     return fRenderTarget;
 }
 
+GrDrawContext* SkGpuDevice::accessDrawContext() {
+    ASSERT_SINGLE_OWNER
+    return fDrawContext.get();
+}
+
 void SkGpuDevice::clearAll() {
     ASSERT_SINGLE_OWNER
     GrColor color = 0;

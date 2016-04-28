@@ -99,18 +99,14 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (!drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
-            return;
-        }
 
-        sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(rt)));
-        if (!drawContext) {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             return;
         }
 
@@ -125,8 +121,8 @@ protected:
         // Mult by 3 for each edge effect type
         int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumCubics*3)));
         int numRows = SkScalarCeilToInt(SkIntToScalar(kNumCubics*3) / numCols);
-        SkScalar w = SkIntToScalar(rt->width()) / numCols;
-        SkScalar h = SkIntToScalar(rt->height()) / numRows;
+        SkScalar w = SkIntToScalar(drawContext->width()) / numCols;
+        SkScalar h = SkIntToScalar(drawContext->height()) / numRows;
         int row = 0;
         int col = 0;
         static const GrColor color = 0xff000000;
@@ -196,7 +192,7 @@ protected:
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
                         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    pipelineBuilder.setRenderTarget(rt);
+                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, klmSigns[c]));
@@ -238,18 +234,14 @@ protected:
 
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (!drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
-            return;
-        }
 
-        sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(rt)));
-        if (!drawContext) {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             return;
         }
 
@@ -264,8 +256,8 @@ protected:
         // Mult by 3 for each edge effect type
         int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumConics*3)));
         int numRows = SkScalarCeilToInt(SkIntToScalar(kNumConics*3) / numCols);
-        SkScalar w = SkIntToScalar(rt->width()) / numCols;
-        SkScalar h = SkIntToScalar(rt->height()) / numRows;
+        SkScalar w = SkIntToScalar(drawContext->width()) / numCols;
+        SkScalar h = SkIntToScalar(drawContext->height()) / numRows;
         int row = 0;
         int col = 0;
         static const GrColor color = 0xff000000;
@@ -333,7 +325,7 @@ protected:
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
                         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    pipelineBuilder.setRenderTarget(rt);
+                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
@@ -455,18 +447,14 @@ protected:
 
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (!drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
-            return;
-        }
 
-        sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(rt)));
-        if (!drawContext) {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             return;
         }
 
@@ -480,8 +468,8 @@ protected:
 
         int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumQuads*3)));
         int numRows = SkScalarCeilToInt(SkIntToScalar(kNumQuads*3) / numCols);
-        SkScalar w = SkIntToScalar(rt->width()) / numCols;
-        SkScalar h = SkIntToScalar(rt->height()) / numRows;
+        SkScalar w = SkIntToScalar(drawContext->width()) / numCols;
+        SkScalar h = SkIntToScalar(drawContext->height()) / numRows;
         int row = 0;
         int col = 0;
         static const GrColor color = 0xff000000;
@@ -545,7 +533,7 @@ protected:
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
                         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    pipelineBuilder.setRenderTarget(rt);
+                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 

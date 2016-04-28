@@ -418,12 +418,9 @@ SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
 GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at = nullptr;
 #if SK_SUPPORT_GPU
-    GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-    if (rt) {
-        GrContext* ctx = rt->getContext();
-        if (ctx) {
-            at = ctx->getAuditTrail();
-        }
+    GrContext* ctx = canvas->getGrContext();
+    if (ctx) {
+        at = ctx->getAuditTrail();
     }
 #endif
     return at;

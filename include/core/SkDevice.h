@@ -106,8 +106,12 @@ public:
     /**
      * Return the device's associated gpu render target, or NULL.
      */
-    virtual GrRenderTarget* accessRenderTarget() { return NULL; }
+    virtual GrRenderTarget* accessRenderTarget() { return nullptr; }
 
+    /**
+     * Don't call this!
+     */
+    virtual GrDrawContext* accessDrawContext() { return nullptr; }
 
     /**
      *  Return the device's origin: its offset in device coordinates from

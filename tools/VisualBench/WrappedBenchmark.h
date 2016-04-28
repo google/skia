@@ -11,6 +11,7 @@
 #include "Benchmark.h"
 #include "SkSurface.h"
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrRenderTarget.h"
 
 // Wrap some other benchmark to allow specialization to either
@@ -112,15 +113,18 @@ private:
 
     void onBlitToScreen(SkCanvas* canvas, int w, int h) override {
         // We call copySurface directly on the underlying GPU surfaces for a more efficient blit.
-        GrRenderTarget* dst = canvas->internal_private_accessTopLayerRenderTarget();
-        SkASSERT(dst);
+        GrDrawContext* dstDC = canvas->internal_private_accessTopLayerDrawContext();
+        SkASSERT(dstDC);
 
-        GrRenderTarget* src = fOffScreen->getCanvas()->internal_private_accessTopLayerRenderTarget();
+        GrDrawContext* srcDC = 
+                            fOffScreen->getCanvas()->internal_private_accessTopLayerDrawContext();
+        SkASSERT(srcDC);
+        GrRenderTarget* src = srcDC->accessRenderTarget();
         SkASSERT(src);
 
-        SkASSERT(dst->getContext() == src->getContext());
+        SkASSERT(canvas->getGrContext() == fOffScreen->getCanvas()->getGrContext());
 
-        dst->getContext()->copySurface(dst, src, SkIRect::MakeWH(w, h), SkIPoint::Make(0, 0));
+        dstDC->copySurface(src, SkIRect::MakeWH(w, h), SkIPoint::Make(0, 0));
     }
 
     int fNumSamples;

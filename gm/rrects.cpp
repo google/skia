@@ -62,24 +62,8 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = nullptr;
-#if SK_SUPPORT_GPU
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        context = rt ? rt->getContext() : nullptr;
-        sk_sp<GrDrawContext> drawContext;
-        if (kEffect_Type == fType) {
-            if (!context) {
-                skiagm::GM::DrawGpuOnlyMessage(canvas);
-                return;
-            }
-
-            drawContext = context->drawContext(sk_ref_sp(rt));
-            if (!drawContext) {
-                return;
-            }
-        }
-#endif
-        if (kEffect_Type == fType && nullptr == context) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (kEffect_Type == fType && !drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -128,7 +112,7 @@ protected:
                                                                                    rrect));
                         if (fp) {
                             pipelineBuilder.addCoverageFragmentProcessor(fp);
-                            pipelineBuilder.setRenderTarget(rt);
+                            pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);

@@ -18,6 +18,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrGpu.h"
 #endif
 
@@ -413,8 +414,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
         };
 
         auto surfaceBackingStore = [reporter](SkSurface* surface) {
-            GrRenderTarget* rt =
-                surface->getCanvas()->internal_private_accessTopLayerRenderTarget();
+            GrDrawContext* dc = surface->getCanvas()->internal_private_accessTopLayerDrawContext();
+            GrRenderTarget* rt = dc->accessRenderTarget();
             if (!rt) {
                 ERRORF(reporter, "Not render target backed.");
                 return static_cast<intptr_t>(0);
@@ -861,7 +862,9 @@ void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> surface,
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.fGrContext;
     std::function<GrSurface*(SkSurface*)> grSurfaceGetters[] = {
-        [] (SkSurface* s){ return s->getCanvas()->internal_private_accessTopLayerRenderTarget(); },
+        [] (SkSurface* s){ 
+            GrDrawContext* dc = s->getCanvas()->internal_private_accessTopLayerDrawContext();
+            return dc->accessRenderTarget(); },
         [] (SkSurface* s){
             SkBaseDevice* d =
                 s->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();

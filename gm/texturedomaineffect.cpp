@@ -70,18 +70,14 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (nullptr == rt) {
-            return;
-        }
-        GrContext* context = rt->getContext();
-        if (nullptr == context) {
+        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
+        if (!drawContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 
-        sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(rt)));
-        if (!drawContext) {
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
             return;
         }
 
@@ -128,7 +124,7 @@ protected:
                         continue;
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    pipelineBuilder.setRenderTarget(rt);
+                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
                     pipelineBuilder.addColorFragmentProcessor(fp);
 
                     SkAutoTUnref<GrDrawBatch> batch(

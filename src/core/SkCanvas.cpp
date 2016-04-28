@@ -1143,6 +1143,8 @@ static void draw_filter_into_device(SkBaseDevice* src, const SkImageFilter* filt
     SkBitmap srcBM;
 
 #if SK_SUPPORT_GPU
+    // TODO: remove this virtual usage of accessRenderTarget! It is preventing
+    // removal of the virtual on SkBaseDevice.
     GrRenderTarget* srcRT = src->accessRenderTarget();
     if (srcRT && !srcRT->asTexture() && dst->accessRenderTarget()) {
         // When both the src & the dst are on the gpu but the src doesn't have a texture,
@@ -1858,9 +1860,9 @@ const SkRegion& SkCanvas::internal_private_getTotalClip() const {
     return fMCRec->fRasterClip.forceGetBW();
 }
 
-GrRenderTarget* SkCanvas::internal_private_accessTopLayerRenderTarget() {
+GrDrawContext* SkCanvas::internal_private_accessTopLayerDrawContext() {
     SkBaseDevice* dev = this->getTopDevice();
-    return dev ? dev->accessRenderTarget() : nullptr;
+    return dev ? dev->accessDrawContext() : nullptr;
 }
 
 GrContext* SkCanvas::getGrContext() {
