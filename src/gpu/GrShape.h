@@ -33,16 +33,25 @@
  */
 class GrShape {
 public:
-    GrShape(const SkPath& path)
+    GrShape() : fType(Type::kEmpty) {}
+
+    explicit GrShape(const SkPath& path)
             : fType(Type::kPath)
             , fPath(&path) {
         this->attemptToReduceFromPath();
     }
 
-    GrShape() : fType(Type::kEmpty) {}
+    explicit GrShape(const SkRRect& rrect)
+        : fType(Type::kRRect)
+        , fRRect(rrect) {
+        this->attemptToReduceFromRRect();
+    }
 
-    explicit GrShape(const SkRRect& rrect) : fType(Type::kRRect), fRRect(rrect) {}
-    explicit GrShape(const SkRect& rect) : fType(Type::kRRect), fRRect(SkRRect::MakeRect(rect)) {}
+    explicit GrShape(const SkRect& rect)
+        : fType(Type::kRRect)
+        , fRRect(SkRRect::MakeRect(rect)) {
+        this->attemptToReduceFromRRect();
+    }
 
     GrShape(const SkPath& path, const GrStyle& style)
         : fType(Type::kPath)
@@ -54,12 +63,16 @@ public:
     GrShape(const SkRRect& rrect, const GrStyle& style)
         : fType(Type::kRRect)
         , fRRect(rrect)
-        , fStyle(style) {}
+        , fStyle(style) {
+        this->attemptToReduceFromRRect();
+    }
 
     GrShape(const SkRect& rect, const GrStyle& style)
         : fType(Type::kRRect)
         , fRRect(SkRRect::MakeRect(rect))
-        , fStyle(style) {}
+        , fStyle(style) {
+        this->attemptToReduceFromRRect();
+    }
 
     GrShape(const SkPath& path, const SkPaint& paint)
         : fType(Type::kPath)
@@ -71,12 +84,16 @@ public:
     GrShape(const SkRRect& rrect, const SkPaint& paint)
         : fType(Type::kRRect)
         , fRRect(rrect)
-        , fStyle(paint) {}
+        , fStyle(paint) {
+        this->attemptToReduceFromRRect();
+    }
 
     GrShape(const SkRect& rect, const SkPaint& paint)
         : fType(Type::kRRect)
         , fRRect(SkRRect::MakeRect(rect))
-        , fStyle(paint) {}
+        , fStyle(paint) {
+        this->attemptToReduceFromRRect();
+    }
 
     GrShape(const GrShape&);
     GrShape& operator=(const GrShape& that);
@@ -182,12 +199,21 @@ private:
         }
     }
 
+    void attemptToReduceFromRRect() {
+        SkASSERT(Type::kRRect == fType);
+        SkASSERT(!fInheritedKey.count());
+        if (fRRect.isEmpty()) {
+            fType = Type::kEmpty;
+        }
+    }
+
     static Type AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* rrect,
                                             const SkPathEffect* pe, const SkStrokeRec& strokeRec) {
         if (path.isEmpty()) {
             return Type::kEmpty;
         }
         if (path.isRRect(rrect)) {
+            SkASSERT(!rrect->isEmpty());
             return Type::kRRect;
         }
         SkRect rect;

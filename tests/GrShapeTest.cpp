@@ -550,9 +550,22 @@ void test_empty_shape(skiatest::Reporter* reporter) {
     dashAndStroke.setPathEffect(make_dash());
     dashAndStroke.setStrokeWidth(2.f);
     dashAndStroke.setStyle(SkPaint::kStroke_Style);
-    TestCase dashAndStrokeEmptyCase(emptyPath3, stroke);
+    TestCase dashAndStrokeEmptyCase(emptyPath3, dashAndStroke);
     dashAndStrokeEmptyCase.compare(reporter, fillEmptyCase,
                                    TestCase::kAllSame_ComparisonExpecation);
+
+    // A shape made from an empty rrect should behave the same as an empty path.
+    SkRRect emptyRRect = SkRRect::MakeRect(SkRect::MakeEmpty());
+    REPORTER_ASSERT(reporter, emptyRRect.getType() == SkRRect::kEmpty_Type);
+    TestCase dashAndStrokeEmptyRRectCase(emptyRRect, dashAndStroke);
+    dashAndStrokeEmptyRRectCase.compare(reporter, fillEmptyCase,
+                                        TestCase::kAllSame_ComparisonExpecation);
+
+    // Same for a rect.
+    SkRect emptyRect = SkRect::MakeEmpty();
+    TestCase dashAndStrokeEmptyRectCase(emptyRect, dashAndStroke);
+    dashAndStrokeEmptyRectCase.compare(reporter, fillEmptyCase,
+                                       TestCase::kAllSame_ComparisonExpecation);
 }
 
 DEF_TEST(GrShape, reporter) {
