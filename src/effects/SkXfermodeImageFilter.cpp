@@ -176,6 +176,16 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
         foregroundTex = foreground->asTextureRef(context);
     }
 
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = bounds.width();
+    desc.fHeight = bounds.height();
+    desc.fConfig = kSkia8888_GrPixelConfig;
+    sk_sp<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
+    if (!dst) {
+        return nullptr;
+    }
+
     GrPaint paint;
     // SRGBTODO: AllowSRGBInputs?
     SkAutoTUnref<const GrFragmentProcessor> bgFP;
@@ -226,11 +236,11 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
             mode.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
         }
 
-        sk_sp<const GrFragmentProcessor> xferFP(mode->getFragmentProcessorForImageFilter(bgFP));
+        SkAutoTUnref<const GrFragmentProcessor> xferFP(mode->getFragmentProcessorForImageFilter(bgFP));
 
         // A null 'xferFP' here means kSrc_Mode was used in which case we can just proceed
         if (xferFP) {
-            paint.addColorFragmentProcessor(xferFP.get());
+            paint.addColorFragmentProcessor(xferFP);
         }
     } else {
         paint.addColorFragmentProcessor(bgFP);
@@ -238,9 +248,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
-                                                             bounds.width(), bounds.height(),
-                                                             kSkia8888_GrPixelConfig));
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(dst->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }
@@ -251,7 +259,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture());
+                                       std::move(dst));
 }
 
 #endif

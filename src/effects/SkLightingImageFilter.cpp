@@ -407,10 +407,18 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
     sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
     SkASSERT(inputTexture);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
-                                                             offsetBounds.width(),
-                                                             offsetBounds.height(),
-                                                             kRGBA_8888_GrPixelConfig));
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag,
+    desc.fWidth = offsetBounds.width();
+    desc.fHeight = offsetBounds.height();
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+    sk_sp<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
+    if (!dst) {
+        return nullptr;
+    }
+
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(dst->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }
@@ -454,7 +462,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture());
+                                       std::move(dst));
 }
 #endif
 

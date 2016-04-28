@@ -615,37 +615,6 @@ sk_sp<GrDrawContext> GrContext::drawContext(sk_sp<GrRenderTarget> rt,
     return fDrawingManager->drawContext(std::move(rt), surfaceProps);
 }
 
-sk_sp<GrDrawContext> GrContext::newDrawContext(BackingFit fit,
-                                               int width, int height,
-                                               GrPixelConfig config,
-                                               int sampleCnt,
-                                               GrSurfaceOrigin origin) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = origin;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-    desc.fSampleCnt = sampleCnt;
-
-    sk_sp<GrTexture> tex;
-    if (kTight_BackingFit == fit) {
-        tex.reset(this->textureProvider()->createTexture(desc, SkBudgeted::kYes));
-    } else {
-        tex.reset(this->textureProvider()->createApproxTexture(desc));
-    }
-    if (!tex) {
-        return nullptr;
-    }
-
-    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(tex->asRenderTarget())));
-    if (!drawContext) {
-        return nullptr;
-    }
-
-    return drawContext;
-}
-
 bool GrContext::abandoned() const {
     ASSERT_SINGLE_OWNER
     return fDrawingManager->abandoned();

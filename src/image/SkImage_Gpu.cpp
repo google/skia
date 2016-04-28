@@ -249,16 +249,17 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
         return nullptr;
     }
 
-    const int width = yuvSizes[0].fWidth;
-    const int height = yuvSizes[0].fHeight;
-
+    GrSurfaceDesc dstDesc;
     // Needs to be a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrDrawContext> drawContext(ctx->newDrawContext(GrContext::kTight_BackingFit,
-                                                         width, height,
-                                                         kRGBA_8888_GrPixelConfig,
-                                                         0,
-                                                         origin));
-    if (!drawContext) {
+    dstDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    dstDesc.fOrigin = origin;
+    dstDesc.fWidth = yuvSizes[0].fWidth;
+    dstDesc.fHeight = yuvSizes[0].fHeight;
+    dstDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    dstDesc.fSampleCnt = 0;
+
+    SkAutoTUnref<GrTexture> dst(ctx->textureProvider()->createTexture(dstDesc, SkBudgeted::kYes));
+    if (!dst) {
         return nullptr;
     }
 
@@ -267,13 +268,17 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
     paint.addColorFragmentProcessor(GrYUVEffect::CreateYUVToRGB(yTex, uTex, vTex, yuvSizes,
                                                                 colorSpace))->unref();
 
-    const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
+    const SkRect rect = SkRect::MakeWH(SkIntToScalar(dstDesc.fWidth),
+                                       SkIntToScalar(dstDesc.fHeight));
+    sk_sp<GrDrawContext> drawContext(ctx->drawContext(sk_ref_sp(dst->asRenderTarget())));
+    if (!drawContext) {
+        return nullptr;
+    }
 
     drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect);
-    ctx->flushSurfaceWrites(drawContext->accessRenderTarget());
-    return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
-                                   kOpaque_SkAlphaType,
-                                   drawContext->asTexture().get(), budgeted);
+    ctx->flushSurfaceWrites(dst);
+    return sk_make_sp<SkImage_Gpu>(dstDesc.fWidth, dstDesc.fHeight, kNeedNewImageUniqueID,
+                                   kOpaque_SkAlphaType, dst, budgeted);
 }
 
 static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {

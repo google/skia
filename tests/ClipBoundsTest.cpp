@@ -17,8 +17,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     static const int kXSize = 100;
     static const int kYSize = 100;
 
-    const SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
-    const SkRect screen = SkRect::Make(intScreen);
+    GrSurfaceDesc desc;
+    desc.fFlags     = kRenderTarget_GrSurfaceFlag;
+    desc.fConfig    = kAlpha_8_GrPixelConfig;
+    desc.fWidth     = kXSize;
+    desc.fHeight    = kYSize;
+
+    SkAutoTUnref<GrTexture> texture(
+        ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kYes, nullptr, 0));
+    if (!texture) {
+        return;
+    }
+
+    SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
+    SkRect screen = SkRect::Make(intScreen);
 
     SkRect clipRect(screen);
     clipRect.outset(10, 10);
@@ -44,7 +56,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     clipData.setClipStack(&stack);
 
     SkIRect devGrClipBound;
-    clipData.getConservativeBounds(kXSize, kYSize,
+    clipData.getConservativeBounds(texture->width(), texture->height(),
                                    &devGrClipBound,
                                    &isIntersectionOfRects);
 

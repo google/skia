@@ -93,34 +93,38 @@ static bool sw_draw_with_mask_filter(GrDrawContext* drawContext,
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.
-static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
-                                        SkRect* maskRect,
-                                        const SkPath& devPath,
-                                        const GrStrokeInfo& strokeInfo,
-                                        bool doAA,
-                                        int sampleCnt) {
+static GrTexture* create_mask_GPU(GrContext* context,
+                                  SkRect* maskRect,
+                                  const SkPath& devPath,
+                                  const GrStrokeInfo& strokeInfo,
+                                  bool doAA,
+                                  int sampleCnt) {
     // This mask will ultimately be drawn as a non-AA rect (see draw_mask).
     // Non-AA rects have a bad habit of snapping arbitrarily. Integerize here
     // so the mask draws in a reproducible manner.
     *maskRect = SkRect::Make(maskRect->roundOut());
 
-    if (!doAA) {
-        // Don't need MSAA if mask isn't AA
-        sampleCnt = 0;
-    }
-
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = SkScalarCeilToInt(maskRect->width());
+    desc.fHeight = SkScalarCeilToInt(maskRect->height());
+    desc.fSampleCnt = doAA ? sampleCnt : 0;
     // We actually only need A8, but it often isn't supported as a
     // render target so default to RGBA_8888
-    GrPixelConfig config = kRGBA_8888_GrPixelConfig;
-    if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, sampleCnt > 0)) {
-        config = kAlpha_8_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+    if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, desc.fSampleCnt > 0)) {
+        desc.fConfig = kAlpha_8_GrPixelConfig;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
-                                                             SkScalarCeilToInt(maskRect->width()), 
-                                                             SkScalarCeilToInt(maskRect->height()),
-                                                             config,
-                                                             sampleCnt));
+    GrTexture* mask = context->textureProvider()->createApproxTexture(desc);
+    if (nullptr == mask) {
+        return nullptr;
+    }
+
+    SkRect clipRect = SkRect::MakeWH(maskRect->width(), maskRect->height());
+
+    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(mask->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }
@@ -132,7 +136,6 @@ static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
     tempPaint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
 
     // setup new clip
-    const SkRect clipRect = SkRect::MakeWH(maskRect->width(), maskRect->height());
     GrClip clip(clipRect);
 
     // Draw the mask into maskTexture with the path's integerized top-left at
@@ -140,7 +143,7 @@ static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
     SkMatrix translate;
     translate.setTranslate(-maskRect->fLeft, -maskRect->fTop);
     drawContext->drawPath(clip, tempPaint, translate, devPath, strokeInfo);
-    return drawContext->asTexture();;
+    return mask;
 }
 
 static void draw_path_with_mask_filter(GrContext* context,
@@ -216,16 +219,16 @@ static void draw_path_with_mask_filter(GrContext* context,
             return;
         }
 
-        sk_sp<GrTexture> mask(create_mask_GPU(context,
-                                              &maskRect,
-                                              *devPathPtr,
-                                              strokeInfo,
-                                              paint->isAntiAlias(),
-                                              drawContext->numColorSamples()));
+        SkAutoTUnref<GrTexture> mask(create_mask_GPU(context,
+                                                     &maskRect,
+                                                     *devPathPtr,
+                                                     strokeInfo,
+                                                     paint->isAntiAlias(),
+                                                     drawContext->numColorSamples()));
         if (mask) {
             GrTexture* filtered;
 
-            if (maskFilter->filterMaskGPU(mask.get(), viewMatrix, maskRect, &filtered, true)) {
+            if (maskFilter->filterMaskGPU(mask, viewMatrix, maskRect, &filtered, true)) {
                 // filterMaskGPU gives us ownership of a ref to the result
                 SkAutoTUnref<GrTexture> atu(filtered);
                 if (draw_mask(drawContext, clip, viewMatrix, maskRect, paint, filtered)) {
