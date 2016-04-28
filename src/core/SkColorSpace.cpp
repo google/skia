@@ -88,9 +88,10 @@ void SkFloat3x3::dump() const {
 
 static int32_t gUniqueColorSpaceID;
 
-SkColorSpace::SkColorSpace(const SkFloat3x3& toXYZD50, const SkFloat3& gamma, Named named)
-    : fToXYZD50(toXYZD50)
-    , fGamma(gamma)
+SkColorSpace::SkColorSpace(const SkFloat3& gamma, const SkFloat3x3& toXYZD50, Named named)
+    : fGamma(gamma)
+    , fToXYZD50(toXYZD50)
+    , fToXYZOffset({{ 0.0f, 0.0f, 0.0f }})
     , fUniqueID(sk_atomic_inc(&gUniqueColorSpaceID))
     , fNamed(named)
 {
@@ -101,6 +102,16 @@ SkColorSpace::SkColorSpace(const SkFloat3x3& toXYZD50, const SkFloat3& gamma, Na
         }
     }
 }
+
+SkColorSpace::SkColorSpace(SkColorLookUpTable colorLUT, const SkFloat3& gamma,
+                           const SkFloat3x3& toXYZD50, const SkFloat3& toXYZOffset)
+    : fColorLUT(std::move(colorLUT))
+    , fGamma(gamma)
+    , fToXYZD50(toXYZD50)
+    , fToXYZOffset(toXYZOffset)
+    , fUniqueID(sk_atomic_inc(&gUniqueColorSpaceID))
+    , fNamed(kUnknown_Named)
+{}
 
 sk_sp<SkColorSpace> SkColorSpace::NewRGB(const SkFloat3x3& toXYZD50, const SkFloat3& gamma) {
     for (int i = 0; i < 3; ++i) {
@@ -120,7 +131,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewRGB(const SkFloat3x3& toXYZD50, const SkFlo
         return nullptr;
     }
 
-    return sk_sp<SkColorSpace>(new SkColorSpace(toXYZD50, gamma, kUnknown_Named));
+    return sk_sp<SkColorSpace>(new SkColorSpace(gamma, toXYZD50, kUnknown_Named));
 }
 
 void SkColorSpace::dump() const {
@@ -147,10 +158,10 @@ const SkFloat3x3 gSRGB_toXYZD50 {{
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
     switch (named) {
         case kDevice_Named:
-            return sk_sp<SkColorSpace>(new SkColorSpace(gDevice_toXYZD50, gDevice_gamma,
+            return sk_sp<SkColorSpace>(new SkColorSpace(gDevice_gamma, gDevice_toXYZD50,
                                                         kDevice_Named));
         case kSRGB_Named:
-            return sk_sp<SkColorSpace>(new SkColorSpace(gSRGB_toXYZD50, gSRGB_gamma, kSRGB_Named));
+            return sk_sp<SkColorSpace>(new SkColorSpace(gSRGB_gamma, gSRGB_toXYZD50, kSRGB_Named));
         default:
             break;
     }
@@ -335,14 +346,13 @@ struct ICCTag {
     }
 };
 
-// TODO (msarett):
-// Should we recognize more tags?
 static const uint32_t kTAG_rXYZ = SkSetFourByteTag('r', 'X', 'Y', 'Z');
 static const uint32_t kTAG_gXYZ = SkSetFourByteTag('g', 'X', 'Y', 'Z');
 static const uint32_t kTAG_bXYZ = SkSetFourByteTag('b', 'X', 'Y', 'Z');
 static const uint32_t kTAG_rTRC = SkSetFourByteTag('r', 'T', 'R', 'C');
 static const uint32_t kTAG_gTRC = SkSetFourByteTag('g', 'T', 'R', 'C');
 static const uint32_t kTAG_bTRC = SkSetFourByteTag('b', 'T', 'R', 'C');
+static const uint32_t kTAG_A2B0 = SkSetFourByteTag('A', '2', 'B', '0');
 
 bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
     if (len < 20) {
@@ -360,53 +370,247 @@ bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
 static const uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
 static const uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', 'a');
 
-static bool load_gamma(float* gamma, const uint8_t* src, size_t len) {
-    if (len < 14) {
-        SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+// FIXME (msarett):
+// We need to handle the possibility that the gamma curve does not correspond to 2.2f.
+static bool load_gammas(float* gammas, uint32_t numGammas, const uint8_t* src, size_t len) {
+    for (uint32_t i = 0; i < numGammas; i++) {
+        if (len < 12) {
+            // FIXME (msarett):
+            // We could potentially return false here after correctly parsing *some* of the
+            // gammas correctly.  Should we somehow try to indicate a partial success?
+            SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+            return false;
+        }
+
+        // We need to count the number of bytes in the tag, so we are able to move to the
+        // next tag on the next loop iteration.
+        size_t tagBytes;
+
+        uint32_t type = read_big_endian_uint(src);
+        switch (type) {
+            case kTAG_CurveType: {
+                uint32_t count = read_big_endian_uint(src + 8);
+                tagBytes = 12 + count * 2;
+                if (0 == count) {
+                    // Some tags require a gamma curve, but the author doesn't actually want
+                    // to transform the data.  In this case, it is common to see a curve with
+                    // a count of 0.
+                    gammas[i] = 1.0f;
+                    break;
+                } else if (len < 12 + 2 * count) {
+                    SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+                    return false;
+                }
+
+                const uint16_t* table = (const uint16_t*) (src + 12);
+                if (1 == count) {
+                    // Table entry is the exponent (bias 256).
+                    uint16_t value = read_big_endian_short((const uint8_t*) table);
+                    gammas[i] = value / 256.0f;
+                    SkColorSpacePrintf("gamma %d %g\n", value, *gamma);
+                    break;
+                }
+
+                // Print the interpolation table.  For now, we ignore this and guess 2.2f.
+                for (uint32_t j = 0; j < count; j++) {
+                    SkColorSpacePrintf("curve[%d] %d\n", j,
+                            read_big_endian_short((const uint8_t*) &table[j]));
+                }
+
+                gammas[i] = 2.2f;
+                break;
+            }
+            case kTAG_ParaCurveType:
+                // Guess 2.2f.
+                SkColorSpacePrintf("parametric curve\n");
+                gammas[i] = 2.2f;
+
+                switch(read_big_endian_short(src + 8)) {
+                    case 0:
+                        tagBytes = 12 + 4;
+                        break;
+                    case 1:
+                        tagBytes = 12 + 12;
+                        break;
+                    case 2:
+                        tagBytes = 12 + 16;
+                        break;
+                    case 3:
+                        tagBytes = 12 + 20;
+                        break;
+                    case 4:
+                        tagBytes = 12 + 28;
+                        break;
+                    default:
+                        SkColorSpacePrintf("Invalid parametric curve type\n");
+                        return false;
+                }
+                break;
+            default:
+                SkColorSpacePrintf("Unsupported gamma tag type %d\n", type);
+                return false;
+        }
+
+        // Adjust src and len if there is another gamma curve to load.
+        if (0 != numGammas) {
+            // Each curve is padded to 4-byte alignment.
+            tagBytes = SkAlign4(tagBytes);
+            if (len < tagBytes) {
+                return false;
+            }
+
+            src += tagBytes;
+            len -= tagBytes;
+        }
+    }
+
+    // If all of the gammas we encounter are 1.0f, indicate that we failed to load gammas.
+    // There is no need to apply a gamma of 1.0f.
+    for (uint32_t i = 0; i < numGammas; i++) {
+        if (1.0f != gammas[i]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static const uint32_t kTAG_AtoBType = SkSetFourByteTag('m', 'A', 'B', ' ');
+
+bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels, uint32_t outputChannels,
+        const uint8_t* src, size_t len) {
+    if (len < 20) {
+        SkColorSpacePrintf("Color LUT tag is too small (%d bytes).", len);
+        return false;
+    }
+
+    SkASSERT(inputChannels <= SkColorLookUpTable::kMaxChannels &&
+             outputChannels <= SkColorLookUpTable::kMaxChannels);
+    colorLUT->fInputChannels = inputChannels;
+    colorLUT->fOutputChannels = outputChannels;
+    uint32_t numEntries = 1;
+    for (uint32_t i = 0; i < inputChannels; i++) {
+        colorLUT->fGridPoints[i] = src[i];
+        numEntries *= src[i];
+    }
+    numEntries *= outputChannels;
+
+    // Space is provided for a maximum of the 16 input channels.  Now we determine the precision
+    // of the table values.
+    uint8_t precision = src[16];
+    switch (precision) {
+        case 1: // 8-bit data
+        case 2: // 16-bit data
+            break;
+        default:
+            SkColorSpacePrintf("Color LUT precision must be 8-bit or 16-bit.\n", len);
+            return false;
+    }
+
+    if (len < 20 + numEntries * precision) {
+        SkColorSpacePrintf("Color LUT tag is too small (%d bytes).", len);
+        return false;
+    }
+
+    // Movable struct colorLUT has ownership of fTable.
+    colorLUT->fTable = std::unique_ptr<float[]>(new float[numEntries]);
+    const uint8_t* ptr = src + 20;
+    for (uint32_t i = 0; i < numEntries; i++, ptr += precision) {
+        if (1 == precision) {
+            colorLUT->fTable[i] = ((float) ptr[i]) / 255.0f;
+        } else {
+            colorLUT->fTable[i] = ((float) read_big_endian_short(ptr)) / 65535.0f;
+        }
+    }
+
+    return true;
+}
+
+bool load_matrix(SkFloat3x3* toXYZ, SkFloat3* toXYZOffset, const uint8_t* src, size_t len) {
+    if (len < 48) {
+        SkColorSpacePrintf("Matrix tag is too small (%d bytes).", len);
+        return false;
+    }
+
+    toXYZ->fMat[0] = SkFixedToFloat(read_big_endian_int(src));
+    toXYZ->fMat[3] = SkFixedToFloat(read_big_endian_int(src + 4));
+    toXYZ->fMat[6] = SkFixedToFloat(read_big_endian_int(src + 8));
+    toXYZ->fMat[1] = SkFixedToFloat(read_big_endian_int(src + 12));
+    toXYZ->fMat[4] = SkFixedToFloat(read_big_endian_int(src + 16));
+    toXYZ->fMat[7] = SkFixedToFloat(read_big_endian_int(src + 20));
+    toXYZ->fMat[2] = SkFixedToFloat(read_big_endian_int(src + 24));
+    toXYZ->fMat[5] = SkFixedToFloat(read_big_endian_int(src + 28));
+    toXYZ->fMat[8] = SkFixedToFloat(read_big_endian_int(src + 32));
+    toXYZOffset->fVec[0] = SkFixedToFloat(read_big_endian_int(src + 36));
+    toXYZOffset->fVec[1] = SkFixedToFloat(read_big_endian_int(src + 40));
+    toXYZOffset->fVec[2] = SkFixedToFloat(read_big_endian_int(src + 44));
+    return true;
+}
+
+bool load_a2b0(SkColorLookUpTable* colorLUT, SkFloat3* gamma, SkFloat3x3* toXYZ,
+        SkFloat3* toXYZOffset, const uint8_t* src, size_t len) {
+    if (len < 32) {
+        SkColorSpacePrintf("A to B tag is too small (%d bytes).", len);
         return false;
     }
 
     uint32_t type = read_big_endian_uint(src);
-    switch (type) {
-        case kTAG_CurveType: {
-            uint32_t count = read_big_endian_int(src + 8);
-            if (0 == count) {
-                return false;
-            }
-
-            const uint16_t* table = (const uint16_t*) (src + 12);
-            if (1 == count) {
-                // Table entry is the exponent (bias 256).
-                uint16_t value = read_big_endian_short((const uint8_t*) table);
-                *gamma = value / 256.0f;
-                SkColorSpacePrintf("gamma %d %g\n", value, *gamma);
-                return true;
-            }
-
-            // Check length again if we have a table.
-            if (len < 12 + 2 * count) {
-                SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
-                return false;
-            }
-
-            // Print the interpolation table.  For now, we ignore this and guess 2.2f.
-            for (uint32_t i = 0; i < count; i++) {
-                SkColorSpacePrintf("curve[%d] %d\n", i,
-                        read_big_endian_short((const uint8_t*) &table[i]));
-            }
-
-            *gamma = 2.2f;
-            return true;
-        }
-        case kTAG_ParaCurveType:
-            // Guess 2.2f.
-            SkColorSpacePrintf("parametric curve\n");
-            *gamma = 2.2f;
-            return true;
-        default:
-            SkColorSpacePrintf("Unsupported gamma tag type %d\n", type);
-            return false;
+    if (kTAG_AtoBType != type) {
+        // FIXME (msarett): Need to support lut8Type and lut16Type.
+        SkColorSpacePrintf("Unsupported A to B tag type.\n");
+        return false;
     }
+
+    // Read the number of channels.  The four bytes that we skipped are reserved and
+    // must be zero.
+    uint8_t inputChannels = src[8];
+    uint8_t outputChannels = src[9];
+    if (0 == inputChannels || inputChannels > SkColorLookUpTable::kMaxChannels ||
+            0 < outputChannels || outputChannels > SkColorLookUpTable::kMaxChannels) {
+        // The color LUT assumes that there are at most 16 input channels.  For RGB
+        // profiles, output channels should be 3.
+        SkColorSpacePrintf("Too many input or output channels in A to B tag.\n");
+        return false;
+    }
+
+    // Read the offsets of each element in the A to B tag.  With the exception of A curves and
+    // B curves (which we do not yet support), we will handle these elements in the order in
+    // which they should be applied (rather than the order in which they occur in the tag).
+    // If the offset is non-zero it indicates that the element is present.
+    uint32_t offsetToACurves = read_big_endian_int(src + 28);
+    uint32_t offsetToBCurves = read_big_endian_int(src + 12);
+    if ((0 != offsetToACurves) || (0 != offsetToBCurves)) {
+        // FIXME (msarett): Handle A and B curves.
+        // Note that the A curve is technically required in order to have a color LUT.
+        // However, all the A curves I have seen so far have are just placeholders that
+        // don't actually transform the data.
+        SkColorSpacePrintf("Ignoring A and/or B curve.  Output may be wrong.\n");
+    }
+
+    uint32_t offsetToColorLUT = read_big_endian_int(src + 24);
+    if (0 != offsetToColorLUT && offsetToColorLUT < len) {
+        if (!load_color_lut(colorLUT, inputChannels, outputChannels, src + offsetToColorLUT,
+                len - offsetToColorLUT)) {
+            SkColorSpacePrintf("Failed to read color LUT from A to B tag.\n");
+        }
+    }
+
+    uint32_t offsetToMCurves = read_big_endian_int(src + 20);
+    if (0 != offsetToMCurves && offsetToMCurves < len) {
+        if (!load_gammas(gamma->fVec, outputChannels, src + offsetToMCurves, len - offsetToMCurves))
+        {
+            SkColorSpacePrintf("Failed to read M curves from A to B tag.\n");
+        }
+    }
+
+    uint32_t offsetToMatrix = read_big_endian_int(src + 16);
+    if (0 != offsetToMatrix && offsetToMatrix < len) {
+        if (!load_matrix(toXYZ, toXYZOffset, src + offsetToMatrix, len - offsetToMatrix)) {
+            SkColorSpacePrintf("Failed to read matrix from A to B tag.\n");
+        }
+    }
+
+    return true;
 }
 
 sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
@@ -452,38 +656,61 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
         }
     }
 
-    // Load our XYZ and gamma matrices.
-    SkFloat3x3 toXYZ;
-    SkFloat3 gamma {{ 1.0f, 1.0f, 1.0f }};
     switch (header.fInputColorSpace) {
         case kRGB_ColorSpace: {
+            // Recognize the rXYZ, gXYZ, and bXYZ tags.
             const ICCTag* r = ICCTag::Find(tags.get(), tagCount, kTAG_rXYZ);
             const ICCTag* g = ICCTag::Find(tags.get(), tagCount, kTAG_gXYZ);
             const ICCTag* b = ICCTag::Find(tags.get(), tagCount, kTAG_bXYZ);
-            if (!r || !g || !b) {
-                return_null("Need rgb tags for XYZ space");
+            if (r && g && b) {
+                SkFloat3x3 toXYZ;
+                if (!load_xyz(&toXYZ.fMat[0], r->addr((const uint8_t*) base), r->fLength) ||
+                    !load_xyz(&toXYZ.fMat[3], g->addr((const uint8_t*) base), g->fLength) ||
+                    !load_xyz(&toXYZ.fMat[6], b->addr((const uint8_t*) base), b->fLength))
+                {
+                    return_null("Need valid rgb tags for XYZ space");
+                }
+
+                // It is not uncommon to see missing or empty gamma tags.  This indicates
+                // that we should use unit gamma.
+                SkFloat3 gamma {{ 1.0f, 1.0f, 1.0f }};
+                r = ICCTag::Find(tags.get(), tagCount, kTAG_rTRC);
+                g = ICCTag::Find(tags.get(), tagCount, kTAG_gTRC);
+                b = ICCTag::Find(tags.get(), tagCount, kTAG_bTRC);
+                if (!r ||
+                    !load_gammas(&gamma.fVec[0], 1, r->addr((const uint8_t*) base), r->fLength))
+                {
+                    SkColorSpacePrintf("Failed to read R gamma tag.\n");
+                }
+                if (!g ||
+                    !load_gammas(&gamma.fVec[1], 1, g->addr((const uint8_t*) base), g->fLength))
+                {
+                    SkColorSpacePrintf("Failed to read G gamma tag.\n");
+                }
+                if (!b ||
+                    !load_gammas(&gamma.fVec[2], 1, b->addr((const uint8_t*) base), b->fLength))
+                {
+                    SkColorSpacePrintf("Failed to read B gamma tag.\n");
+                }
+                return SkColorSpace::NewRGB(toXYZ, gamma);
             }
 
-            if (!load_xyz(&toXYZ.fMat[0], r->addr((const uint8_t*) base), r->fLength) ||
-                !load_xyz(&toXYZ.fMat[3], g->addr((const uint8_t*) base), g->fLength) ||
-                !load_xyz(&toXYZ.fMat[6], b->addr((const uint8_t*) base), b->fLength))
-            {
-                return_null("Need valid rgb tags for XYZ space");
+            // Recognize color profile specified by A2B0 tag.
+            const ICCTag* a2b0 = ICCTag::Find(tags.get(), tagCount, kTAG_A2B0);
+            if (a2b0) {
+                SkColorLookUpTable colorLUT;
+                SkFloat3 gamma;
+                SkFloat3x3 toXYZ;
+                SkFloat3 toXYZOffset;
+                if (!load_a2b0(&colorLUT, &gamma, &toXYZ, &toXYZOffset,
+                        a2b0->addr((const uint8_t*) base), a2b0->fLength)) {
+                    return_null("Failed to parse A2B0 tag");
+                }
+
+                return sk_sp<SkColorSpace>(new SkColorSpace(std::move(colorLUT), gamma, toXYZ,
+                                                            toXYZOffset));
             }
 
-            r = ICCTag::Find(tags.get(), tagCount, kTAG_rTRC);
-            g = ICCTag::Find(tags.get(), tagCount, kTAG_gTRC);
-            b = ICCTag::Find(tags.get(), tagCount, kTAG_bTRC);
-            if (!r || !load_gamma(&gamma.fVec[0], r->addr((const uint8_t*) base), r->fLength)) {
-                SkColorSpacePrintf("Failed to read R gamma tag.\n");
-            }
-            if (!g || !load_gamma(&gamma.fVec[1], g->addr((const uint8_t*) base), g->fLength)) {
-                SkColorSpacePrintf("Failed to read G gamma tag.\n");
-            }
-            if (!b || !load_gamma(&gamma.fVec[2], b->addr((const uint8_t*) base), b->fLength)) {
-                SkColorSpacePrintf("Failed to read B gamma tag.\n");
-            }
-            return SkColorSpace::NewRGB(toXYZ, gamma);
         }
         default:
             break;

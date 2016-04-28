@@ -35,6 +35,27 @@ struct SkFloat3x3 {
     void dump() const;
 };
 
+struct SkColorLookUpTable {
+    static const uint8_t kMaxChannels = 16;
+
+    uint8_t                  fInputChannels;
+    uint8_t                  fOutputChannels;
+    uint8_t                  fGridPoints[kMaxChannels];
+    std::unique_ptr<float[]> fTable;
+
+    SkColorLookUpTable() {
+        memset(this, 0, sizeof(struct SkColorLookUpTable));
+    }
+
+    SkColorLookUpTable(SkColorLookUpTable&& that)
+        : fInputChannels(that.fInputChannels)
+        , fOutputChannels(that.fOutputChannels)
+        , fTable(std::move(that.fTable))
+    {
+        memcpy(fGridPoints, that.fGridPoints, kMaxChannels);
+    }
+};
+
 struct SkPM4f;
 void SkApply3x3ToPM4f(const SkFloat3x3&, const SkPM4f src[], SkPM4f dst[], int count);
 
@@ -57,6 +78,7 @@ public:
 
     SkFloat3 gamma() const { return fGamma; }
     SkFloat3x3 xyz() const { return fToXYZD50; }
+    SkFloat3 xyzOffset() const { return fToXYZOffset; }
     Named named() const { return fNamed; }
     uint32_t uniqueID() const { return fUniqueID; }
 
@@ -75,14 +97,19 @@ public:
     static void Test();
     void dump() const;
 
-protected:
-    SkColorSpace(const SkFloat3x3& toXYZ, const SkFloat3& gamma, Named);
-
 private:
-    const SkFloat3x3 fToXYZD50;
-    const SkFloat3   fGamma;
-    const uint32_t   fUniqueID;
-    const Named      fNamed;
+    SkColorSpace(const SkFloat3& gamma, const SkFloat3x3& toXYZ, Named);
+
+    SkColorSpace(SkColorLookUpTable colorLUT, const SkFloat3& gamma, const SkFloat3x3& toXYZ,
+                 const SkFloat3& toXYZOffset);
+
+    const SkColorLookUpTable fColorLUT;
+    const SkFloat3           fGamma;
+    const SkFloat3x3         fToXYZD50;
+    const SkFloat3           fToXYZOffset;
+
+    const uint32_t           fUniqueID;
+    const Named              fNamed;
 };
 
 #endif
