@@ -49,7 +49,7 @@ protected:
     SkString fDescription;
 };
 
-#ifdef SK_DEBUG
+#ifdef SK_DEVELOPER
 #define SK_CONF_DECLARE(confType, varName, confName, defaultValue, description) static SkRTConf<confType> varName(confName, defaultValue, description)
 #define SK_CONF_SET(confname, value) \
     skRTConfRegistry().set(confname, value, true)

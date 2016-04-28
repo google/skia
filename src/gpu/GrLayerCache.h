@@ -352,7 +352,7 @@ public:
 
     SkDEBUGCODE(void validate() const;)
 
-#ifdef SK_DEBUG
+#ifdef SK_DEVELOPER
     void writeLayersToDisk(const SkString& dirName);
 #endif
 

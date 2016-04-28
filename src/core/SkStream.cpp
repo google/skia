@@ -817,7 +817,7 @@ SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
 
 void SkDebugWStream::newline()
 {
-#if defined(SK_DEBUG)
+#if defined(SK_DEBUG) || defined(SK_DEVELOPER)
     SkDebugf("\n");
     fBytesWritten++;
 #endif
@@ -825,7 +825,7 @@ void SkDebugWStream::newline()
 
 bool SkDebugWStream::write(const void* buffer, size_t size)
 {
-#if defined(SK_DEBUG)
+#if defined(SK_DEBUG) || defined(SK_DEVELOPER)
     char* s = new char[size+1];
     memcpy(s, buffer, size);
     s[size] = 0;

@@ -28,7 +28,7 @@ class GrPipeline;
 class GrNonInstancedMesh;
 class GrSwizzle;
 
-#ifdef SK_DEBUG
+#ifdef SK_DEVELOPER
 #define PROGRAM_CACHE_STATS
 #endif
 

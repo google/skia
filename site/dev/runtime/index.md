@@ -152,10 +152,11 @@ options.
 
 ## Are these things enabled all the time?
 
-No, they are only enabled in builds where SK_DEBUG is defined. This includes both
-`Debug` and `Release_Developer` gyp BUILDTYPES. The `Release_Developer` build type
-has exactly the same build flags as `Release`, except it re-enables SK_DEBUG, which
-in turn enables runtime configuration behavior.
+In `Debug` builds, yes. `Release` builds disable runtime configuration by
+default, but it is still useful to be able to tweak certain algorithm parameters
+at runtime to do scripted performance studies. Therefore, a third build type,
+`Release_Developer` has been added. This build type has exactly the same build
+flags as `Release`, except it re-enables all runtime configuration behavior.
 Specifically:
 
 <!--?prettify?-->
@@ -179,3 +180,7 @@ Runtime configuration variables of type `char \* ` cannot currently have spaces
 in them.
 Runtime variables are only fully supported for `int`, `unsigned int`, `float`,
 `double`, `bool`, and `char \*`.
+
+## Questions?  Bugs?  Improvements?
+
+Feel free to send feedback on this system to Greg Humphreys \(humper@google\.com\)

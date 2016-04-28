@@ -7,7 +7,7 @@
 
 #include "SkDumpCanvas.h"
 
-#ifdef SK_DEBUG
+#ifdef SK_DEVELOPER
 #include "SkData.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
