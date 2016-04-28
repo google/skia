@@ -95,24 +95,16 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
 sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* context,
                                                                const SkMatrix& inMatrix,
                                                                const SkIRect& bounds) const {
-    GrSurfaceDesc maskDesc;
+    GrPixelConfig config;
     if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-        maskDesc.fConfig = kAlpha_8_GrPixelConfig;
+        config = kAlpha_8_GrPixelConfig;
     } else {
-        maskDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    }
-    maskDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    // Add one pixel of border to ensure that clamp mode will be all zeros
-    // the outside.
-    maskDesc.fWidth = bounds.width();
-    maskDesc.fHeight = bounds.height();
-    sk_sp<GrTexture> maskTexture(context->textureProvider()->createApproxTexture(maskDesc));
-    if (!maskTexture) {
-        return nullptr;
+        config = kRGBA_8888_GrPixelConfig;
     }
 
-    sk_sp<GrDrawContext> drawContext(
-                                context->drawContext(sk_ref_sp(maskTexture->asRenderTarget())));
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
+                                                             bounds.width(), bounds.height(),
+                                                             config));
     if (!drawContext) {
         return nullptr;
     }
@@ -129,7 +121,7 @@ sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* contex
         iter.next();
     }
 
-    return maskTexture;
+    return drawContext->asTexture();
 }
 #endif
 

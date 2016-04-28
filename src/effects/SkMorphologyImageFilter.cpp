@@ -478,26 +478,18 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     SkASSERT(srcTexture);
 
     // setup new clip
-    GrClip clip(SkRect::MakeWH(SkIntToScalar(srcTexture->width()),
-                               SkIntToScalar(srcTexture->height())));
+    const GrClip clip(SkRect::MakeWH(SkIntToScalar(srcTexture->width()),
+                                     SkIntToScalar(srcTexture->height())));
 
-    SkIRect dstRect = SkIRect::MakeWH(rect.width(), rect.height());
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = rect.width();
-    desc.fHeight = rect.height();
-    desc.fConfig = kSkia8888_GrPixelConfig;
+    const SkIRect dstRect = SkIRect::MakeWH(rect.width(), rect.height());
     SkIRect srcRect = rect;
 
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        GrTexture* scratch = context->textureProvider()->createApproxTexture(desc);
-        if (!scratch) {
-            return nullptr;
-        }
-        sk_sp<GrDrawContext> dstDrawContext(
-                                      context->drawContext(sk_ref_sp(scratch->asRenderTarget())));
+        sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
+                                                                    rect.width(), rect.height(),
+                                                                    kSkia8888_GrPixelConfig));
         if (!dstDrawContext) {
             return nullptr;
         }
@@ -507,21 +499,18 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
                               Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
                                               dstRect.width(), radius.fHeight);
-        GrColor clearColor = GrMorphologyEffect::kErode_MorphologyType == morphType ?
-                                SK_ColorWHITE :
-                                SK_ColorTRANSPARENT;
+        GrColor clearColor = GrMorphologyEffect::kErode_MorphologyType == morphType
+                                ? SK_ColorWHITE
+                                : SK_ColorTRANSPARENT;
         dstDrawContext->clear(&clearRect, clearColor, false);
 
-        srcTexture.reset(scratch);
+        srcTexture = dstDrawContext->asTexture();
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        GrTexture* scratch = context->textureProvider()->createApproxTexture(desc);
-        if (!scratch) {
-            return nullptr;
-        }
-        sk_sp<GrDrawContext> dstDrawContext(
-                                      context->drawContext(sk_ref_sp(scratch->asRenderTarget())));
+        sk_sp<GrDrawContext> dstDrawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
+                                                                    rect.width(), rect.height(),
+                                                                    kSkia8888_GrPixelConfig));
         if (!dstDrawContext) {
             return nullptr;
         }
@@ -530,7 +519,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
                               srcRect, dstRect, radius.fHeight, morphType,
                               Gr1DKernelEffect::kY_Direction);
 
-        srcTexture.reset(scratch);
+        srcTexture = dstDrawContext->asTexture();
     }
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(rect.width(), rect.height()),

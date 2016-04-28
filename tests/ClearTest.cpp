@@ -37,31 +37,18 @@ static bool check_rect(GrDrawContext* dc, const SkIRect& rect, uint32_t expected
     return true;
 }
 
-// We only really need the DC, but currently the DC doesn't own the RT so we also ref it, but that
-// could be dropped when DC is a proper owner of its RT.
-static bool reset_dc(sk_sp<GrDrawContext>* dc, SkAutoTUnref<GrSurface>* rtKeepAlive,
-                     GrContext* context, int w, int h) {
+static bool reset_dc(sk_sp<GrDrawContext>* dc, GrContext* context, int w, int h) {
     SkDEBUGCODE(uint32_t oldID = 0;)
     if (*dc) {
         SkDEBUGCODE(oldID = (*dc)->accessRenderTarget()->getUniqueID();)
-        rtKeepAlive->reset(nullptr);
         dc->reset(nullptr);
     }
     context->freeGpuResources();
 
-    GrTextureDesc desc;
-    desc.fWidth = w;
-    desc.fHeight = h;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    *dc = context->newDrawContext(GrContext::kTight_BackingFit, w, h, kRGBA_8888_GrPixelConfig);
 
-    rtKeepAlive->reset(context->textureProvider()->createTexture(desc, SkBudgeted::kYes));
-    if (!(*rtKeepAlive)) {
-        return false;
-    }
-    GrRenderTarget* rt = (*rtKeepAlive)->asRenderTarget();
-    SkASSERT(rt->getUniqueID() != oldID);
-    *dc = context->drawContext(sk_ref_sp(rt));
+    SkASSERT((*dc)->accessRenderTarget()->getUniqueID() != oldID);
+
     return *dc != nullptr;
 }
 
@@ -72,7 +59,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
 
     SkIRect fullRect = SkIRect::MakeWH(kW, kH);
     sk_sp<GrDrawContext> drawContext;
-    SkAutoTUnref<GrSurface> rtKeepAlive;
 
     // A rectangle that is inset by one on all sides and the 1-pixel wide rectangles that surround
     // it.
@@ -96,7 +82,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
     static const GrColor kColor1 = 0xABCDEF01;
     static const GrColor kColor2 = ~kColor1;
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -107,7 +93,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
                failX, failY);
     }
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -119,7 +105,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
                failX, failY);
     }
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -131,7 +117,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
                failX, failY);
     }
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -143,7 +129,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
                failX, failY);
     }
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -155,7 +141,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
                failX, failY);
     }
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -174,7 +160,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
                failX, failY);
     }
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -186,7 +172,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
                failX, failY);
     }
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -214,7 +200,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
                failX, failY);
     }
 
-    if (!reset_dc(&drawContext, &rtKeepAlive, context, kW, kH)) {
+    if (!reset_dc(&drawContext, context, kW, kH)) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }

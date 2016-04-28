@@ -280,18 +280,9 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     paint.addColorFragmentProcessor(fp.get());
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = bounds.width();
-    desc.fHeight = bounds.height();
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-
-    sk_sp<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
-    if (!dst) {
-        return nullptr;
-    }
-
-    sk_sp<GrDrawContext> drawContext(context->drawContext(sk_ref_sp(dst->asRenderTarget())));
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
+                                                             bounds.width(), bounds.height(),
+                                                             kRGBA_8888_GrPixelConfig));
     if (!drawContext) {
         return nullptr;
     }
@@ -303,7 +294,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       std::move(dst));
+                                       drawContext->asTexture());
 }
 #endif
 

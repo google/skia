@@ -194,6 +194,21 @@ public:
      */
     sk_sp<GrDrawContext> drawContext(sk_sp<GrRenderTarget> rt, const SkSurfaceProps* = nullptr);
 
+    enum BackingFit {
+        kTight_BackingFit,
+        kLoose_BackingFit
+    };
+
+    /**
+     * Create both a GrRenderTarget and a matching GrDrawContext to wrap it.
+     * The created GrRenderTarget will always be budgeted.
+     */
+    sk_sp<GrDrawContext> newDrawContext(BackingFit fit, 
+                                        int width, int height,
+                                        GrPixelConfig config,
+                                        int sampleCnt = 0,
+                                        GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin);
+
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
