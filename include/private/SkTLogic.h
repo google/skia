@@ -83,29 +83,6 @@ template <typename T> using underlying_type = std::underlying_type<T>;
 #endif
 template <typename T> using underlying_type_t = typename skstd::underlying_type<T>::type;
 
-template <typename S, typename D,
-          bool=std::is_void<S>::value || is_function<D>::value || std::is_array<D>::value>
-struct is_convertible_detector {
-    static const/*expr*/ bool value = std::is_void<D>::value;
-};
-template <typename S, typename D> struct is_convertible_detector<S, D, false> {
-    using yes_type = uint8_t;
-    using no_type = uint16_t;
-
-    template <typename To> static void param_convertable_to(To);
-
-    template <typename From, typename To>
-    static decltype(param_convertable_to<To>(std::declval<From>()), yes_type()) convertible(int);
-
-    template <typename, typename> static no_type convertible(...);
-
-    static const/*expr*/ bool value = sizeof(convertible<S, D>(0)) == sizeof(yes_type);
-};
-// std::is_convertable is known to be broken (not work with incomplete types) in Android clang NDK.
-// This is currently what prevents us from using std::unique_ptr.
-template<typename S, typename D> struct is_convertible
-    : bool_constant<is_convertible_detector<S, D>::value> {};
-
 }  // namespace skstd
 
 // The sknonstd namespace contains things we would like to be proposed and feel std-ish.

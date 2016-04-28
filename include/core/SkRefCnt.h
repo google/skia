@@ -13,6 +13,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 #define SK_SUPPORT_TRANSITION_TO_SP_INTERFACES
@@ -271,7 +272,7 @@ public:
      *  created sk_sp both have a reference to it.
      */
     sk_sp(const sk_sp<T>& that) : fPtr(SkSafeRef(that.get())) {}
-    template <typename U, typename = skstd::enable_if_t<skstd::is_convertible<U*, T*>::value>>
+    template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
     sk_sp(const sk_sp<U>& that) : fPtr(SkSafeRef(that.get())) {}
 
     /**
@@ -280,7 +281,7 @@ public:
      *  No call to ref() or unref() will be made.
      */
     sk_sp(sk_sp<T>&& that) : fPtr(that.release()) {}
-    template <typename U, typename = skstd::enable_if_t<skstd::is_convertible<U*, T*>::value>>
+    template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
     sk_sp(sk_sp<U>&& that) : fPtr(that.release()) {}
 
     /**
@@ -308,7 +309,7 @@ public:
         this->reset(SkSafeRef(that.get()));
         return *this;
     }
-    template <typename U, typename = skstd::enable_if_t<skstd::is_convertible<U*, T*>::value>>
+    template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
     sk_sp<T>& operator=(const sk_sp<U>& that) {
         this->reset(SkSafeRef(that.get()));
         return *this;
@@ -323,7 +324,7 @@ public:
         this->reset(that.release());
         return *this;
     }
-    template <typename U, typename = skstd::enable_if_t<skstd::is_convertible<U*, T*>::value>>
+    template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
     sk_sp<T>& operator=(sk_sp<U>&& that) {
         this->reset(that.release());
         return *this;
