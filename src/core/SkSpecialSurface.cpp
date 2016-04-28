@@ -113,6 +113,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
     SkSpecialSurface_Gpu(sk_sp<GrTexture> texture,
+                         int width, int height,
                          const SkIRect& subset,
                          const SkSurfaceProps* props)
         : INHERITED(subset, props)
@@ -120,13 +121,14 @@ public:
 
         SkASSERT(fTexture->asRenderTarget());
 
-        SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(fTexture->asRenderTarget(), props,
-                                                             SkGpuDevice::kUninit_InitContents));
+        sk_sp<SkGpuDevice> device(SkGpuDevice::Create(fTexture->asRenderTarget(), width, height,
+                                                      props,
+                                                      SkGpuDevice::kUninit_InitContents));
         if (!device) {
             return;
         }
 
-        fCanvas.reset(new SkCanvas(device));
+        fCanvas.reset(new SkCanvas(device.get()));
         fCanvas->clipRect(SkRect::Make(subset));
     }
 
@@ -146,31 +148,27 @@ private:
     typedef SkSpecialSurface_Base INHERITED;
 };
 
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromTexture(const SkIRect& subset,
-                                                          sk_sp<GrTexture> texture,
-                                                          const SkSurfaceProps* props) {
-    if (!texture->asRenderTarget()) {
-        return nullptr;
-    }
-
-    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(texture), subset, props);
-}
-
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
-                                                           const GrSurfaceDesc& desc,
-                                                           const SkSurfaceProps* props) {
-    if (!context || !SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
+                                                           int width, int height,
+                                                           GrPixelConfig config) {
+    if (!context) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> temp(context->textureProvider()->createApproxTexture(desc));
-    if (!temp) {
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = config;
+
+    sk_sp<GrTexture> tex(context->textureProvider()->createApproxTexture(desc));
+    if (!tex) {
         return nullptr;
     }
 
-    const SkIRect subset = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
+    const SkIRect subset = SkIRect::MakeWH(width, height);
 
-    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(temp), subset, props);
+    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(tex), width, height, subset, nullptr);
 }
 
 #endif

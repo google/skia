@@ -79,35 +79,11 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 #if SK_SUPPORT_GPU
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
-    GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fFlags  = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth  = kSmallerSize;
-    desc.fHeight = kSmallerSize;
-
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.fGrContext, desc));
+    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.fGrContext,
+                                                                    kSmallerSize, kSmallerSize,
+                                                                    kSkia8888_GrPixelConfig));
 
     test_surface(surf, reporter, 0);
-}
-
-// test the more flexible factory
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SpecialSurface_Gpu2, reporter, ctxInfo) {
-    GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = kFullSize;
-    desc.fHeight = kFullSize;
-
-    sk_sp<GrTexture> temp(ctxInfo.fGrContext->textureProvider()->createApproxTexture(desc));
-    SkASSERT_RELEASE(temp);
-
-    const SkIRect subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
-
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeFromTexture(subset, std::move(temp)));
-
-    test_surface(surf, reporter, kPad);
-
-    // TODO: check that the clear didn't escape the active region
 }
 
 #endif

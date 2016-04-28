@@ -52,17 +52,12 @@ public:
 
 #if SK_SUPPORT_GPU
     /**
-     *  Use an existing (renderTarget-capable) GrTexture as the backing store.
-     */
-    static sk_sp<SkSpecialSurface> MakeFromTexture(const SkIRect& subset, sk_sp<GrTexture>,
-                                                   const SkSurfaceProps* = nullptr);
-
-    /**
      *  Allocate a new GPU-backed SkSpecialSurface. If the requested surface cannot
      *  be created, nullptr will be returned.
      */
-    static sk_sp<SkSpecialSurface> MakeRenderTarget(GrContext*, const GrSurfaceDesc&,
-                                                    const SkSurfaceProps* = nullptr);
+    static sk_sp<SkSpecialSurface> MakeRenderTarget(GrContext*,
+                                                    int width, int height,
+                                                    GrPixelConfig config);
 #endif
 
     /**

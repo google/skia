@@ -252,10 +252,12 @@ public:
 #if SK_SUPPORT_GPU
         GrTexture* texture = as_IB(fImage.get())->peekTexture();
         if (texture) {
-            GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *texture->getContext()->caps());
-            desc.fFlags = kRenderTarget_GrSurfaceFlag;
+            GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *texture->getContext()->caps());
 
-            return SkSpecialSurface::MakeRenderTarget(texture->getContext(), desc);
+            return SkSpecialSurface::MakeRenderTarget(texture->getContext(),
+                                                      info.width(),
+                                                      info.height(),
+                                                      config);
         }
 #endif
         return SkSpecialSurface::MakeRaster(info, nullptr);
@@ -528,10 +530,11 @@ public:
             return nullptr;
         }
 
-        GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(info, *fTexture->getContext()->caps());
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fTexture->getContext()->caps());
 
-        return SkSpecialSurface::MakeRenderTarget(fTexture->getContext(), desc);
+        return SkSpecialSurface::MakeRenderTarget(fTexture->getContext(),
+                                                  info.width(), info.height(),
+                                                  config);
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
