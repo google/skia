@@ -549,7 +549,7 @@ static void cleanup_gResourceCache() {
     // Chrome seems to have funky multi-process things going on in unit tests that
     // makes this unsafe to delete when the main process atexit()s.
     // SkLazyPtr does the same sort of thing.
-#ifdef SK_DEBUG
+#if SK_DEBUG
     delete gResourceCache;
 #endif
 }
