@@ -32,7 +32,7 @@ VkSurfaceKHR VulkanTestContext::createVkSurface(VkInstance instance, void* platf
     surfaceCreateInfo.flags = 0;
     surfaceCreateInfo.window = androidPlatformData->fNativeWindow;
 
-    VkResult res = createAndroidSurfaceKHR(fBackendContext->fInstance, &surfaceCreateInfo,
+    VkResult res = createAndroidSurfaceKHR(instance, &surfaceCreateInfo,
                                            nullptr, &surface);
     return (VK_SUCCESS == res) ? surface : VK_NULL_HANDLE;
 }

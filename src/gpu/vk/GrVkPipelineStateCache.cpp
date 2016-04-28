@@ -104,7 +104,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
                                        pipeline,
                                        *fGpu->vkCaps().glslCaps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
-        return false;
+        return nullptr;
     }
 
     // Get vulkan specific descriptor key

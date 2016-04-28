@@ -73,7 +73,7 @@ public:
     void onGetMultisampleSpecs(GrRenderTarget* rt,
                                const GrStencilSettings&,
                                int* effectiveSampleCnt,
-                               SkAutoTDeleteArray<SkPoint>*);
+                               SkAutoTDeleteArray<SkPoint>*) override;
 
     bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override;
 

@@ -10,7 +10,7 @@
 #include "GrVkImageView.h"
 #include "GrTexturePriv.h"
 #include "GrVkUtil.h"
-#include "SkMipmap.h"
+#include "SkMipMap.h"
 
 #include "vk/GrVkTypes.h"
 

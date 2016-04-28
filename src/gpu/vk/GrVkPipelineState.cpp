@@ -22,7 +22,7 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLXferProcessor.h"
-#include "SkMipmap.h"
+#include "SkMipMap.h"
 
 GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
                                      const GrVkPipelineState::Desc& desc,
