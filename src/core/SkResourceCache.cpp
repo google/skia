@@ -544,15 +544,6 @@ void SkResourceCache::checkMessages() {
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
 static SkResourceCache* gResourceCache = nullptr;
-static void cleanup_gResourceCache() {
-    // We'll clean this up in our own tests, but disable for clients.
-    // Chrome seems to have funky multi-process things going on in unit tests that
-    // makes this unsafe to delete when the main process atexit()s.
-    // SkLazyPtr does the same sort of thing.
-#if SK_DEVELOPER
-    delete gResourceCache;
-#endif
-}
 
 /** Must hold gMutex when calling. */
 static SkResourceCache* get_cache() {
@@ -564,7 +555,6 @@ static SkResourceCache* get_cache() {
 #else
         gResourceCache = new SkResourceCache(SK_DEFAULT_IMAGE_CACHE_LIMIT);
 #endif
-        atexit(cleanup_gResourceCache);
     }
     return gResourceCache;
 }

@@ -33,7 +33,7 @@
  */
 
 #if !defined(GR_CACHE_STATS)
-  #if defined(SK_DEVELOPER) || defined(SK_DEBUG) || defined(SK_DUMP_STATS)
+  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS)
       #define GR_CACHE_STATS  1
   #else
       #define GR_CACHE_STATS  0
@@ -41,7 +41,7 @@
 #endif
 
 #if !defined(GR_GPU_STATS)
-  #if defined(SK_DEVELOPER) || defined(SK_DEBUG) || defined(SK_DUMP_STATS)
+  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS)
       #define GR_GPU_STATS    1
   #else
       #define GR_GPU_STATS    0

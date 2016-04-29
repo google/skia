@@ -161,12 +161,6 @@ inline void operator delete(void* p) {
 // and if it's true the assert passes; if it's false, we'll print the message and the assert fails.
 #define SkASSERTF(cond, fmt, ...)       SkASSERT((cond) || (SkDebugf(fmt"\n", __VA_ARGS__), false))
 
-#ifdef SK_DEVELOPER
-    #define SkDEVCODE(code)             code
-#else
-    #define SkDEVCODE(code)
-#endif
-
 #ifdef SK_IGNORE_TO_STRING
     #define SK_TO_STRING_NONVIRT()
     #define SK_TO_STRING_VIRT()

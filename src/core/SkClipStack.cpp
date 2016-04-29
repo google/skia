@@ -859,7 +859,7 @@ int32_t SkClipStack::getTopmostGenID() const {
     return back->getGenID();
 }
 
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
 void SkClipStack::Element::dump() const {
     static const char* kTypeStrings[] = {
         "empty",

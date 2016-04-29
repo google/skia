@@ -523,7 +523,7 @@ void GrLayerCache::processDeletedPictures() {
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifdef SK_DEBUG
 void GrLayerCache::writeLayersToDisk(const SkString& dirName) {
 
     if (fAtlas) {
