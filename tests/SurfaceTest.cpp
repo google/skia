@@ -900,3 +900,74 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     }
 }
 #endif
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceWrappedTextureAsRenderTarget, reporter, ctxInfo) {
+    GrGpu* gpu = ctxInfo.fGrContext->getGpu();
+    if (!gpu) {
+        return;
+    }
+    // Validate that we can draw paths to a canvas of a surface created with
+    // SkSurface::MakeFromBackendTextureAsRenderTarget. The code intends to enforce the use of
+    // stencil buffer. The original bug prevented the creation of stencil buffer, causing an assert
+    // while drawing paths.
+
+    static const int kW = 100;
+    static const int kH = 100;
+    static const uint32_t kOrigColor = SK_ColorRED;
+    const SkColor kShapeColor = SK_ColorGREEN;
+
+    SkPath clipPath;
+    clipPath.quadTo(SkIntToScalar(kW), SkIntToScalar(0), SkIntToScalar(kW), SkIntToScalar(kH));
+    clipPath.lineTo(SkIntToScalar(0), SkIntToScalar(kH));
+    clipPath.lineTo(SkIntToScalar(0), SkIntToScalar(0));
+    clipPath.close();
+    SkPath path;
+    path.quadTo(SkIntToScalar(0), SkIntToScalar(kH), SkIntToScalar(kW), SkIntToScalar(kH));
+    path.lineTo(SkIntToScalar(kW), SkIntToScalar(0));
+    path.lineTo(SkIntToScalar(0), SkIntToScalar(0));
+    path.close();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(kShapeColor);
+
+    SkImageInfo bitmapInfo = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    for (int sampleCnt : {0, 4, 8}) {
+        SkBitmap bitmap;
+        bitmap.allocPixels(bitmapInfo);
+        bitmap.eraseColor(kOrigColor);
+        GrBackendObject texHandle = gpu->createTestingOnlyBackendTexture(bitmap.getPixels(), kW, kH,
+                                                                         kRGBA_8888_GrPixelConfig);
+
+        GrBackendTextureDesc wrappedDesc;
+        wrappedDesc.fConfig = kRGBA_8888_GrPixelConfig;
+        wrappedDesc.fWidth = kW;
+        wrappedDesc.fHeight = kH;
+        wrappedDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+        wrappedDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
+        wrappedDesc.fTextureHandle = texHandle;
+        wrappedDesc.fSampleCnt = sampleCnt;
+
+        sk_sp<SkSurface> surface(
+            SkSurface::MakeFromBackendTextureAsRenderTarget(ctxInfo.fGrContext, wrappedDesc,
+                                                            nullptr));
+        if (!surface) {
+            continue;
+        }
+
+        surface->getCanvas()->clipPath(clipPath, SkRegion::kIntersect_Op, true);
+        surface->getCanvas()->drawPath(path, paint);
+        SkAssertResult(surface->readPixels(bitmapInfo, bitmap.getPixels(),
+                                           bitmap.rowBytes(), 0, 0));
+        // Ensure that the shape color ends up to the surface.
+        REPORTER_ASSERT(reporter, kShapeColor == bitmap.getColor(kW / 2, kH / 2));
+        SkColor backgroundColor = bitmap.getColor(kW - 1, 0);
+        if (!sampleCnt) {
+            // Ensure that the original texture color is preserved in pixels that aren't rendered to
+            // via the surface.
+            REPORTER_ASSERT(reporter, kOrigColor == backgroundColor);
+        }
+        gpu->deleteTestingOnlyBackendTexture(texHandle);
+    }
+}
+#endif
