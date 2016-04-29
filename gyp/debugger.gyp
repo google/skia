@@ -6,7 +6,7 @@
   'variables': {
     'skia_warnings_as_errors': 0,
     'conditions': [
-      [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
+      [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
         # Use the systemwide Qt libs by default
         'variables': {
           'qt_sdk%': '/usr',

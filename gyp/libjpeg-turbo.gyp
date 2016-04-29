@@ -293,7 +293,7 @@
           },
         }],
         [ '(skia_os == "linux" or skia_os == "freebsd" or skia_os == "openbsd" or \
-            skia_os == "solaris" or skia_os == "chromeos")', {
+            skia_os == "solaris")', {
           'dependencies': [
             'yasm.gyp:yasm#host',
           ],

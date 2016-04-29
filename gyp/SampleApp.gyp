@@ -254,14 +254,6 @@
             'android_deps.gyp:Android_SampleApp',
           ],
         }],
-        [ 'skia_os == "chromeos"', {
-          'sources!': [
-            '../samplecode/SampleLighting.cpp',  #doesn't compile due to gpu dependencies
-          ],
-          'include_dirs' : [
-            '../include/gpu',
-          ],
-        }],
         [ 'skia_gpu == 1', {
           'dependencies': [
             'gputest.gyp:skgputest',

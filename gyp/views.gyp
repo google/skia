@@ -98,7 +98,7 @@
           '../src/views/mac/skia_mac.mm',
           ],
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"] and skia_use_sdl == 0', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"] and skia_use_sdl == 0', {
           'link_settings': {
             'libraries': [
               '-lGL',

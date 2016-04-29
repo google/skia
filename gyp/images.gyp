@@ -107,11 +107,6 @@
             }],
           ],
         }],
-        [ 'skia_os == "chromeos"', {
-          'dependencies': [
-            'libpng.gyp:libpng',
-          ],
-        }],
         [ 'skia_os == "ios"', {
            'include_dirs': [
              '../include/utils/mac',

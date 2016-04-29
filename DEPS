@@ -31,8 +31,6 @@ deps = {
 
   "third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git@android-5.1.0_r3",
 
-  "platform_tools/chromeos/toolchain/src/third_party/chromite": "https://chromium.googlesource.com/chromiumos/chromite.git@d6a4c7e0ee4d53ddc5238dbddfc0417796a70e54",
-  "platform_tools/chromeos/toolchain/src/third_party/pyelftools": "https://chromium.googlesource.com/chromiumos/third_party/pyelftools.git@bdc1d380acd88d4bfaf47265008091483b0d614e",
 
   # The line below is needed for compiling SkV8Example. Do not delete.
   #"third_party/externals/v8": "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",

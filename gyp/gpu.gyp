@@ -14,7 +14,7 @@
         'sources/': [ ['exclude', '_mac.(h|cpp|m|mm)$'],
         ],
       }],
-      ['skia_os != "linux" and skia_os != "chromeos"', {
+      ['skia_os != "linux"', {
         'sources/': [ ['exclude', '_glx.(h|cpp)$'],
         ],
       }],
@@ -123,13 +123,13 @@
             'GR_CHROME_UTILS=1',
           ],
         }],
-        [ 'skia_os == "linux" or skia_os == "chromeos"', {
+        [ 'skia_os == "linux"', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
           ],
         }],
-        [ '(skia_os == "linux" or skia_os == "chromeos") and skia_egl == 1', {
+        [ 'skia_os == "linux" and skia_egl == 1', {
           'link_settings': {
             'libraries': [
               '-lEGL',
@@ -137,7 +137,7 @@
             ],
           },
         }],
-        [ '(skia_os == "linux" or skia_os == "chromeos") and skia_egl == 0', {
+        [ 'skia_os == "linux" and skia_egl == 0', {
           'link_settings': {
             'libraries': [
               '-lGL',

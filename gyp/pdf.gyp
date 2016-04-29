@@ -39,7 +39,7 @@
       ],
       'conditions': [
         [ 'skia_pdf_use_sfntly and not skia_android_framework and \
-           skia_os in ["win", "android", "linux", "chromeos", "mac"]',
+           skia_os in ["win", "android", "linux", "mac"]',
           { 'dependencies': [ 'sfntly.gyp:sfntly' ] }
         ],
         [ 'skia_pdf_less_compression',

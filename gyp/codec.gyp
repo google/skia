@@ -135,11 +135,6 @@
             'OTHER_CPLUSPLUSFLAGS': ['-fexceptions'],
           },
         }],
-        ['skia_os == "chromeos"', {
-          'link_settings': {
-            'libraries': ['-lrt', ],
-          },
-        }],
       ],
     },
   ],

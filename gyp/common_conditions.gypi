@@ -218,7 +218,7 @@
     ],
 
     # The following section is common to linux + derivatives and android
-    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]',
+    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android"]',
       {
         'cflags': [
           '-g',
@@ -242,24 +242,20 @@
         'ldflags': [ '-rdynamic' ],
         'conditions': [
           [ 'skia_fast', { 'cflags': [ '<@(skia_fast_flags)' ] }],
-          [ 'skia_os != "chromeos"', {
-            'conditions': [
-              [ 'skia_arch_type == "x86_64" and not skia_android_framework', {
-                'cflags': [
-                  '-m64',
-                ],
-                'ldflags': [
-                  '-m64',
-                ],
-              }],
-              [ 'skia_arch_type == "x86" and not skia_android_framework', {
-                'cflags': [
-                  '-m32',
-                ],
-                'ldflags': [
-                  '-m32',
-                ],
-              }],
+          [ 'skia_arch_type == "x86_64" and not skia_android_framework', {
+            'cflags': [
+              '-m64',
+            ],
+            'ldflags': [
+              '-m64',
+            ],
+          }],
+          [ 'skia_arch_type == "x86" and not skia_android_framework', {
+            'cflags': [
+              '-m32',
+            ],
+            'ldflags': [
+              '-m32',
             ],
           }],
           [ 'skia_warnings_as_errors', {
@@ -298,7 +294,7 @@
                   'SK_ARM_HAS_OPTIONAL_NEON',
                 ],
               }],
-              [ 'skia_os != "chromeos" and skia_os != "linux"', {
+              [ 'skia_os != "linux"', {
                 'cflags': [
                   '-mfloat-abi=softfp',
                 ],
@@ -409,7 +405,7 @@
         'defines': [ 'SK_DUMP_STATS'],
     }],
 
-    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]',
+    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]',
       {
         'defines': [
           'SK_SAMPLES_FOR_X',

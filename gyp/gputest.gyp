@@ -41,7 +41,7 @@
             'angle.gyp:*',
           ],
         }],
-        [ '(skia_os == "linux" or skia_os == "chromeos") and skia_egl == 1', {
+        [ 'skia_os == "linux" and skia_egl == 1', {
           'link_settings': {
             'libraries': [
               '-lEGL',
@@ -49,7 +49,7 @@
             ],
           },
         }],
-        [ '(skia_os == "linux" or skia_os == "chromeos") and skia_egl == 0', {
+        [ 'skia_os == "linux" and skia_egl == 0', {
           'link_settings': {
             'libraries': [
               '-lGL',
@@ -69,7 +69,7 @@
             ],
           },
         }],
-        ['skia_os in ["linux", "win", "mac", "chromeos", "android", "ios"]', {
+        ['skia_os in ["linux", "win", "mac", "android", "ios"]', {
           'sources/': [ ['exclude', '_none\.(h|cpp)$'],],
         }],
         ['skia_os != "win"', {
@@ -78,7 +78,7 @@
         ['skia_os != "mac"', {
           'sources/': [ ['exclude', '_mac\.(h|cpp|m|mm)$'],],
         }],
-        ['skia_os != "linux" and skia_os != "chromeos"', {
+        ['skia_os != "linux"', {
           'sources/': [ ['exclude', '_glx\.(h|cpp)$'],],
         }],
         ['skia_os != "ios"', {

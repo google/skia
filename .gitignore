@@ -20,8 +20,6 @@ platform_tools/android/apps/build
 platform_tools/android/apps/*.properties
 platform_tools/android/apps/*/build
 platform_tools/android/apps/*/src/main/libs
-platform_tools/chromeos/third_party/externals
-platform_tools/chromeos/toolchain
 sampleapp_prefs.txt
 /skps
 skia.conf

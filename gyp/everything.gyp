@@ -21,7 +21,7 @@
         'skiaserve.gyp:skiaserve',
       ],
       'conditions': [
-        ['skia_os in ("ios", "android", "chromeos")', {
+        ['skia_os in ("ios", "android")', {
           # debugger is not supported on this platform
         }, {
           'dependencies': [

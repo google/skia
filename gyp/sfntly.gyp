@@ -44,7 +44,7 @@
             },
           }
         ],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]',
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]',
           { 'link_settings': { 'libraries': [ '-lpthread', ], }, },
         ],
       ],

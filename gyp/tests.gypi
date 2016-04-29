@@ -29,7 +29,7 @@
     'zlib.gyp:zlib',
   ],
   'conditions': [
-    [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]', {
+    [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "android"]', {
         'sources!': [ '../tests/FontMgrAndroidParserTest.cpp', ],
     }],
     [ 'not skia_pdf', {

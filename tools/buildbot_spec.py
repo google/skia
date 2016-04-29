@@ -241,18 +241,6 @@ def device_cfg(builder_dict):
       'NexusPlayer':   'x86',
     }[builder_dict['model']]
 
-  # ChromeOS.
-  if 'CrOS' in builder_dict.get('extra_config', ''):
-    if 'Link' in builder_dict['extra_config']:
-      return 'link'
-    if 'Daisy' in builder_dict['extra_config']:
-      return 'daisy'
-  elif builder_dict.get('os') == 'ChromeOS':
-    return {
-      'Link': 'link',
-      'Daisy': 'daisy',
-    }[builder_dict['model']]
-
   # iOS.
   if 'iOS' in builder_dict.get('os', ''):
     return {
@@ -364,8 +352,6 @@ def self_test():
         'Build-Win-MSVC-x86-Debug-Exceptions',
         'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',
         'Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon',
-        'Build-Ubuntu-GCC-Arm7-Debug-CrOS_Daisy',
-        'Build-Ubuntu-GCC-x86_64-Debug-CrOS_Link',
         'Build-Ubuntu-GCC-x86_64-Release-Mesa',
         'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
         'Housekeeper-PerCommit',
@@ -374,7 +360,6 @@ def self_test():
         'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Debug',
         'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Release-Appurify',
         'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
-        'Test-ChromeOS-GCC-Link-CPU-AVX-x86_64-Debug',
         'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
         'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
         'Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',

@@ -26,8 +26,7 @@
     # situations, like building for iOS on a Mac.
     'variables': {
       'conditions': [
-        [ 'skia_os != OS and not ((skia_os == "ios" and OS == "mac") or \
-                                  (skia_os == "chromeos" and OS == "linux"))', {
+        [ 'skia_os != OS and not (skia_os == "ios" and OS == "mac")', {
           'error': '<!(Cannot build with skia_os=<(skia_os) on OS=<(OS))',
         }],
         [ 'skia_mesa and skia_os not in ["mac", "linux"]', {
@@ -35,9 +34,6 @@
         }],
         [ 'skia_angle and not (skia_os == "win" or skia_os == "linux" or skia_os == "mac")', {
           'error': '<!(skia_angle=1 only supported with skia_os="win" or skia_os="linux" or skia_os="mac".)',
-        }],
-        [ 'skia_os == "chromeos" and OS != "linux"', {
-          'error': '<!(Skia ChromeOS build is only supported on Linux.)',
         }],
       ],
     },
