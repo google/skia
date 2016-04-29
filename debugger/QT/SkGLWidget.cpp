@@ -60,11 +60,11 @@ void SkGLWidget::createRenderTarget() {
 
     GrBackendRenderTargetDesc desc = this->getDesc(this->width(), this->height());
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    SkAutoTUnref<GrRenderTarget> curRenderTarget(
+    sk_sp<GrRenderTarget> curRenderTarget(
             fCurContext->textureProvider()->wrapBackendRenderTarget(desc));
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    fGpuDevice.reset(SkGpuDevice::Create(curRenderTarget, &props,
-                                         SkGpuDevice::kUninit_InitContents));
+    fGpuDevice.reset(SkGpuDevice::Make(std::move(curRenderTarget), &props,
+                                       SkGpuDevice::kUninit_InitContents).release());
     fCanvas.reset(new SkCanvas(fGpuDevice));
 }
 
