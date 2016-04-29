@@ -102,6 +102,16 @@
           'Release_Developer': {
             'inherit_from': ['Release'],
             'defines': [ 'SK_DEBUG=1' ],
+            'conditions': [
+              [ 'skia_clang_build == 0', {
+                # gcc has problems providing useful warnings of these types for
+                # optimized builds.
+                'cflags': [
+                  '-Wno-maybe-uninitialized',
+                  '-Wno-strict-overflow',
+                ],
+              }],
+            ],
           },
         },
       }],

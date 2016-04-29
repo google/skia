@@ -73,7 +73,7 @@ void SkDrawBitmap::dump(SkAnimateMaker* maker) {
             SkColorGetG(fColor), SkColorGetB(fColor));
     if (rowBytes > 0)
         SkDebugf("rowBytes=\"%d\" ", rowBytes);
-    const char* formatName;
+    const char* formatName SK_INIT_TO_AVOID_WARNING;
     switch (format) {
         case 0: formatName = "none"; break;
         case 1: formatName = "A8"; break;

@@ -2250,6 +2250,7 @@ struct Convexicator {
     , fIsCurve(false) {
         fExpectedDir = kInvalid_DirChange;
         // warnings
+        fPriorPt.set(0,0);
         fLastPt.set(0, 0);
         fCurrPt.set(0, 0);
         fLastVec.set(0, 0);

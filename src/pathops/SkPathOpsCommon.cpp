@@ -113,7 +113,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
             segment = angle->segment();
             SkOpSpanBase* start = angle->start();
             SkOpSpanBase* end = angle->end();
-            int maxWinding;
+            int maxWinding SK_INIT_TO_AVOID_WARNING;
             if (sortable) {
                 segment->setUpWinding(start, end, &maxWinding, &sumWinding);
             }
