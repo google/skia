@@ -932,6 +932,71 @@ Name ImageGenSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+ColorCodecSrc::ColorCodecSrc(Path path, Mode mode)
+    : fPath(path)
+    , fMode(mode)
+{}
+
+bool ColorCodecSrc::veto(SinkFlags flags) const {
+    // Test to direct raster backends (8888 and 565).
+    return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
+}
+
+Error ColorCodecSrc::draw(SkCanvas* canvas) const {
+    if (kRGB_565_SkColorType == canvas->imageInfo().colorType()) {
+        return Error::Nonfatal("No need to test color correction to 565 backend.");
+    }
+
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    if (!encoded) {
+        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+    }
+
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    if (nullptr == codec.get()) {
+        return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
+    }
+
+    SkImageInfo decodeInfo = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(decodeInfo)) {
+        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
+                              decodeInfo.width(), decodeInfo.height());
+    }
+
+    switch (fMode) {
+        case kBaseline_Mode:
+            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes())) {
+                case SkCodec::kSuccess:
+                    break;
+                default:
+                    // Everything else is considered a failure.
+                    return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
+            }
+            canvas->drawBitmap(bitmap, 0, 0);
+            break;
+        default:
+            SkASSERT(false);
+            return "Invalid fMode";
+    }
+    return "";
+}
+
+SkISize ColorCodecSrc::size() const {
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    if (nullptr == codec) {
+        return SkISize::Make(0, 0);
+    }
+    return SkISize::Make(codec->getInfo().width(), codec->getInfo().height());
+}
+
+Name ColorCodecSrc::name() const {
+    return SkOSPath::Basename(fPath.c_str());
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 static const SkRect kSKPViewport = {0,0, 1000,1000};
 
 SKPSrc::SKPSrc(Path path) : fPath(path) {}

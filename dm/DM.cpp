@@ -779,7 +779,7 @@ static bool gather_srcs() {
     }
 
     SkTArray<SkString> images;
-    if (!CollectImages(&images)) {
+    if (!CollectImages(FLAGS_images, &images)) {
         return false;
     }
 
@@ -793,6 +793,16 @@ static bool gather_srcs() {
         if (ext && brd_supported(ext+1)) {
             push_brd_srcs(image);
         }
+    }
+
+    SkTArray<SkString> colorImages;
+    if (!CollectImages(FLAGS_colorImages, &colorImages)) {
+        return false;
+    }
+
+    for (auto colorImage : colorImages) {
+        ColorCodecSrc* src = new ColorCodecSrc(colorImage, ColorCodecSrc::kBaseline_Mode);
+        push_src("image", "color_codec_baseline", src);
     }
 
     return true;

@@ -606,7 +606,7 @@ public:
         fUseMPDs.push_back() = false;
 
         // Prepare the images for decoding
-        if (!CollectImages(&fImages)) {
+        if (!CollectImages(FLAGS_images, &fImages)) {
             exit(1);
         }
 

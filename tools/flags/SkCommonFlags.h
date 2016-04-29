@@ -16,6 +16,7 @@ DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
 DECLARE_bool(gpu);
 DECLARE_string(images);
+DECLARE_string(colorImages);
 DECLARE_string(match);
 DECLARE_bool(quiet);
 DECLARE_bool(resetGpuContext);
@@ -34,17 +35,16 @@ DECLARE_string(key);
 DECLARE_string(properties);
 
 /**
- *  Helper to assist in collecting image paths from --images.
+ *  Helper to assist in collecting image paths from |dir| specified through a command line flag.
  *
- *  Populates an array of strings with paths to images to test.
+ *  Populates |output|, an array of strings with paths to images to test.
  *
- *  Returns true if each argument to --images is meaningful:
+ *  Returns true if each argument to the images flag is meaningful:
  *  - If the file/directory does not exist, return false.
- *  - If a directory passed to --images does not have any supported images (based on file
- *  type), return false.
- *  - If a file is passed to --images, assume the user is deliberately testing this image,
- *  regardless of file type.
+ *  - If |dir| does not have any supported images (based on file type), return false.
+ *  - If |dir| is a single file, assume the user is deliberately testing this image,
+ *    regardless of file type.
  */
-bool CollectImages(SkTArray<SkString>*);
+bool CollectImages(SkCommandLineFlags::StringArray dir, SkTArray<SkString>* output);
 
 #endif

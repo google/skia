@@ -18,6 +18,9 @@ DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
 DEFINE_string(images, "", "List of images and/or directories to decode. A directory with no images"
                           " is treated as a fatal error.");
 
+DEFINE_string(colorImages, "", "List of images and/or directories to decode with color correction. "
+                               "A directory with no images is treated as a fatal error.");
+
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of GM name to run.\n"
                "Multiple matches may be separated by spaces.\n"
@@ -55,7 +58,7 @@ DEFINE_string(properties, "",
               "Space-separated key/value pairs to add to JSON identifying this run.");
 DEFINE_bool2(pre_log, p, false, "Log before running each test. May be incomprehensible when threading");
 
-bool CollectImages(SkTArray<SkString>* output) {
+bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
 
     static const char* const exts[] = {
@@ -67,8 +70,8 @@ bool CollectImages(SkTArray<SkString>* output) {
 #endif
     };
 
-    for (int i = 0; i < FLAGS_images.count(); ++i) {
-        const char* flag = FLAGS_images[i];
+    for (int i = 0; i < images.count(); ++i) {
+        const char* flag = images[i];
         if (!sk_exists(flag)) {
             SkDebugf("%s does not exist!\n", flag);
             return false;

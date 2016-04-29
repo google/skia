@@ -208,6 +208,24 @@ private:
     bool        fRunSerially;
 };
 
+class ColorCodecSrc : public Src {
+public:
+    enum Mode {
+        // Mimic legacy behavior and apply no color correction.
+        kBaseline_Mode,
+    };
+
+    ColorCodecSrc(Path, Mode);
+
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
+    bool veto(SinkFlags) const override;
+private:
+    Path                    fPath;
+    Mode                    fMode;
+};
+
 class SKPSrc : public Src {
 public:
     explicit SKPSrc(Path path);
