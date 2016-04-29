@@ -35,12 +35,14 @@ DEF_TEST(ColorSpaceParsePngICCProfile, r) {
     SkColorSpace* colorSpace = codec->getColorSpace();
     REPORTER_ASSERT(r, nullptr != colorSpace);
 
-    // No need to use almost equal here.  The color profile that we have extracted
-    // actually has a table of gammas.  And our current implementation guesses 2.2f.
-    SkFloat3 gammas = colorSpace->gamma();
-    REPORTER_ASSERT(r, 2.2f == gammas.fVec[0]);
-    REPORTER_ASSERT(r, 2.2f == gammas.fVec[1]);
-    REPORTER_ASSERT(r, 2.2f == gammas.fVec[2]);
+    // The color profile that we have extracted has represents gamma with a lookup table.
+    // So we expect the gamma value to be zero.
+#ifdef SK_DEBUG
+    const SkColorSpace::SkGammas& gammas = colorSpace->gammas();
+    REPORTER_ASSERT(r, 0.0f == gammas.red());
+    REPORTER_ASSERT(r, 0.0f == gammas.green());
+    REPORTER_ASSERT(r, 0.0f == gammas.blue());
+#endif
 
     // These nine values were extracted from the color profile in isolation (before
     // we embedded it in the png).  Here we check that we still extract the same values.
@@ -75,10 +77,12 @@ DEF_TEST(ColorSpaceParseJpegICCProfile, r) {
 
     // It's important to use almost equal here.  This profile sets gamma as
     // 563 / 256, which actually comes out to about 2.19922.
-    SkFloat3 gammas = colorSpace->gamma();
-    REPORTER_ASSERT(r, almost_equal(2.2f, gammas.fVec[0]));
-    REPORTER_ASSERT(r, almost_equal(2.2f, gammas.fVec[1]));
-    REPORTER_ASSERT(r, almost_equal(2.2f, gammas.fVec[2]));
+#ifdef SK_DEBUG
+    const SkColorSpace::SkGammas& gammas = colorSpace->gammas();
+    REPORTER_ASSERT(r, almost_equal(2.2f, gammas.red()));
+    REPORTER_ASSERT(r, almost_equal(2.2f, gammas.green()));
+    REPORTER_ASSERT(r, almost_equal(2.2f, gammas.blue()));
+#endif
 
     // These nine values were extracted from the color profile.  Until we know any
     // better, we'll assume these are the right values and test that we continue
