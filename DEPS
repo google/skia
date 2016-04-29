@@ -53,7 +53,6 @@ deps = {
   "third_party/externals/shaderc2/third_party/googletest" : "https://github.com/google/googletest.git@d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0",
   "third_party/externals/shaderc2/third_party/glslang" : "https://github.com/google/glslang.git@e1cd410d9c03a24c00c570c91a99cad88bb475d1",
   "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@009c4358b5a1c93203166b3ed60a548f63522e81",
-  "third_party/externals/shaderc2/third_party/android-cmake" : "https://github.com/taka-no-me/android-cmake.git@556cc14296c226f753a3778d99d8b60778b7df4f",
 }
 
 deps_os = {

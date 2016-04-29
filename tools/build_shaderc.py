@@ -73,8 +73,9 @@ def main():
                  '-DSPIRV_SKIP_EXECUTABLES=ON',
                  '-DSHADERC_ENABLE_SHARED_CRT=ON']
     if args.android_toolchain and args.android_toolchain.strip() :
-      cmake_cmd.append('-DCMAKE_TOOLCHAIN_FILE=' + args.src_dir +\
-                       '/third_party/android-cmake/android.toolchain.cmake')
+      cmake_cmd.append('-DCMAKE_TOOLCHAIN_FILE=' +\
+                       os.environ['ANDROID_SDK_ROOT'] +\
+                       '/cmake/android.toolchain.cmake')
       cmake_cmd.append('-DANDROID_TOOLCHAIN_NAME=standalone-clang')
       cmake_cmd.append('-DANDROID_STANDALONE_TOOLCHAIN=' +\
                        os.path.abspath(args.android_toolchain))

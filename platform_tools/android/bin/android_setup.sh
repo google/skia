@@ -52,10 +52,6 @@ if [ "$USE_CLANG" == "true" ]; then
   export GYP_DEFINES="skia_clang_build=1 $GYP_DEFINES"
 fi
 
-if [ "$SKIA_VULKAN" == "true" ]; then
-  export GYP_DEFINES="skia_vulkan=1 $GYP_DEFINES"
-fi
-
 function verbose {
   if [[ -n $VERBOSE ]]; then
     echo $@
@@ -87,6 +83,17 @@ fi
 if [ -z "$ANDROID_HOME" ]; then
   echo "ANDROID_HOME not set so we are setting it to a default value of ANDROID_SDK_ROOT"
   exportVar ANDROID_HOME $ANDROID_SDK_ROOT
+fi
+
+if [ "$SKIA_VULKAN" == "true" ]; then
+  export GYP_DEFINES="skia_vulkan=1 $GYP_DEFINES"
+  # add cmake from the SDK to your path if it doesn't exist
+  if [ ! -d "${ANDROID_SDK_ROOT}/cmake" ]; then
+     echo "The Android SDK Tools version of CMake is required to build Vulkan. ${ANDROID_SDK_ROOT}/cmake"
+     exit 1
+  else
+    export PATH=${ANDROID_SDK_ROOT}/cmake/bin:$PATH
+  fi
 fi
 
 # Helper function to configure the GYP defines to the appropriate values
