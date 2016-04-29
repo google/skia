@@ -1772,26 +1772,6 @@ static uintptr_t asint(const void* p) {
     return reinterpret_cast<uintptr_t>(p);
 }
 
-union Scalar32 {
-    SkScalar    fScalar;
-    uint32_t    f32;
-};
-
-static uint32_t* write_scalar(uint32_t* ptr, SkScalar value) {
-    SkASSERT(sizeof(SkScalar) == sizeof(uint32_t));
-    Scalar32 tmp;
-    tmp.fScalar = value;
-    *ptr = tmp.f32;
-    return ptr + 1;
-}
-
-static SkScalar read_scalar(const uint32_t*& ptr) {
-    SkASSERT(sizeof(SkScalar) == sizeof(uint32_t));
-    Scalar32 tmp;
-    tmp.f32 = *ptr++;
-    return tmp.fScalar;
-}
-
 static uint32_t pack_4(unsigned a, unsigned b, unsigned c, unsigned d) {
     SkASSERT(a == (uint8_t)a);
     SkASSERT(b == (uint8_t)b);
@@ -1851,12 +1831,6 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
     return (FlatFlags)(packed & kFlatFlagMask);
 }
 
-// The size of a flat paint's POD fields
-static const uint32_t kPODPaintSize =   5 * sizeof(SkScalar) +
-                                        1 * sizeof(SkColor) +
-                                        1 * sizeof(uint16_t) +
-                                        6 * sizeof(uint8_t);
-
 /*  To save space/time, we analyze the paint, and write a truncated version of
     it if there are not tricky elements like shaders, etc.
  */
@@ -1876,20 +1850,17 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
-    SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
-    uint32_t* ptr = buffer.reserve(kPODPaintSize);
+    buffer.writeScalar(this->getTextSize());
+    buffer.writeScalar(this->getTextScaleX());
+    buffer.writeScalar(this->getTextSkewX());
+    buffer.writeScalar(this->getStrokeWidth());
+    buffer.writeScalar(this->getStrokeMiter());
+    buffer.writeColor(this->getColor());
 
-    ptr = write_scalar(ptr, this->getTextSize());
-    ptr = write_scalar(ptr, this->getTextScaleX());
-    ptr = write_scalar(ptr, this->getTextSkewX());
-    ptr = write_scalar(ptr, this->getStrokeWidth());
-    ptr = write_scalar(ptr, this->getStrokeMiter());
-    *ptr++ = this->getColor();
-
-    *ptr++ = pack_paint_flags(this->getFlags(), this->getHinting(), this->getTextAlign(),
-                              this->getFilterQuality(), flatFlags);
-    *ptr++ = pack_4(this->getStrokeCap(), this->getStrokeJoin(),
-                    this->getStyle(), this->getTextEncoding());
+    buffer.writeUInt(pack_paint_flags(this->getFlags(), this->getHinting(), this->getTextAlign(),
+                                      this->getFilterQuality(), flatFlags));
+    buffer.writeUInt(pack_4(this->getStrokeCap(), this->getStrokeJoin(),
+                            this->getStyle(), this->getTextEncoding()));
 
     // now we're done with ptr and the (pre)reserved space. If we need to write
     // additional fields, use the buffer directly
@@ -1909,24 +1880,16 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
 }
 
 void SkPaint::unflatten(SkReadBuffer& buffer) {
-    SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
-    if (!buffer.validateAvailable(kPODPaintSize)) {
-        return;
-    }
-    const void* podData = buffer.skip(kPODPaintSize);
-    const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
+    this->setTextSize(buffer.readScalar());
+    this->setTextScaleX(buffer.readScalar());
+    this->setTextSkewX(buffer.readScalar());
+    this->setStrokeWidth(buffer.readScalar());
+    this->setStrokeMiter(buffer.readScalar());
+    this->setColor(buffer.readColor());
 
-    // the order we read must match the order we wrote in flatten()
-    this->setTextSize(read_scalar(pod));
-    this->setTextScaleX(read_scalar(pod));
-    this->setTextSkewX(read_scalar(pod));
-    this->setStrokeWidth(read_scalar(pod));
-    this->setStrokeMiter(read_scalar(pod));
-    this->setColor(*pod++);
+    unsigned flatFlags = unpack_paint_flags(this, buffer.readUInt());
 
-    unsigned flatFlags = unpack_paint_flags(this, *pod++);
-
-    uint32_t tmp = *pod++;
+    uint32_t tmp = buffer.readUInt();
     this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
     this->setStrokeJoin(static_cast<Join>((tmp >> 16) & 0xFF));
     this->setStyle(static_cast<Style>((tmp >> 8) & 0xFF));

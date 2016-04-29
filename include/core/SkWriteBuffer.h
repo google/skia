@@ -43,8 +43,6 @@ public:
         fWriter.reset(storage, storageSize);
     }
 
-    uint32_t* reserve(size_t size) { return fWriter.reserve(size); }
-
     size_t bytesWritten() const { return fWriter.bytesWritten(); }
 
     void writeByteArray(const void* data, size_t size);
