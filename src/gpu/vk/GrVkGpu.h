@@ -192,12 +192,16 @@ private:
                            const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
-    // helper for onCreateTexture and writeTexturePixels
-    bool uploadTexData(GrVkTexture* tex,
-                       int left, int top, int width, int height,
-                       GrPixelConfig dataConfig,
-                       const void* data,
-                       size_t rowBytes);
+    // helpers for onCreateTexture and writeTexturePixels
+    bool uploadTexDataLinear(GrVkTexture* tex,
+                             int left, int top, int width, int height,
+                             GrPixelConfig dataConfig,
+                             const void* data,
+                             size_t rowBytes);
+    bool uploadTexDataOptimal(GrVkTexture* tex,
+                              int left, int top, int width, int height,
+                              GrPixelConfig dataConfig,
+                              const SkTArray<GrMipLevel>&);
 
     SkAutoTUnref<const GrVkBackendContext> fBackendContext;
     SkAutoTUnref<GrVkCaps>                 fVkCaps;

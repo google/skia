@@ -879,11 +879,6 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
                                       left, top, width, height, config, texels);
     }
 
-    if (success) {
-        SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(surface, &rect, texels.count());
-    }
-
     return success;
 }
 
@@ -918,13 +913,7 @@ bool GrGLGpu::onTransferPixels(GrSurface* surface,
     texels.push_back(mipLevel);
     success = this->uploadTexData(glTex->desc(), glTex->target(), kTransfer_UploadType,
                                   left, top, width, height, config, texels);
-    if (success) {
-        SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(surface, &rect);
-        return true;
-    }
-
-    return false;
+    return success;
 }
 
 // For GL_[UN]PACK_ALIGNMENT.
@@ -2668,20 +2657,6 @@ void GrGLGpu::flushViewport(const GrGLIRect& viewport) {
     if (fHWViewport != viewport) {
         viewport.pushToGLViewport(this->glInterface());
         fHWViewport = viewport;
-    }
-}
-
-void GrGLGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, int mipLevels) const {
-    SkASSERT(surface);
-    // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
-    if (nullptr == bounds || !bounds->isEmpty()) {
-        if (GrRenderTarget* target = surface->asRenderTarget()) {
-            target->flagAsNeedingResolve(bounds);
-        }
-        GrTexture* texture = surface->asTexture();
-        if (texture && 1 == mipLevels) {
-            texture->texturePriv().dirtyMipMaps(true);
-        }
     }
 }
 

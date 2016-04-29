@@ -10,7 +10,6 @@
 #include "GrVkImageView.h"
 #include "GrTexturePriv.h"
 #include "GrVkUtil.h"
-#include "SkMipMap.h"
 
 #include "vk/GrVkTypes.h"
 
@@ -24,8 +23,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view)
     : GrSurface(gpu, desc)
     , GrVkImage(imageResource)
-    , INHERITED(gpu, desc, kSampler2D_GrSLType,
-                false) // false because we don't upload MIP data in Vk yet
+    , INHERITED(gpu, desc, kSampler2D_GrSLType, desc.fIsMipMapped) 
     , fTextureView(view) {
     this->registerWithCache(budgeted);
 }
@@ -37,8 +35,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view)
     : GrSurface(gpu, desc)
     , GrVkImage(imageResource)
-    , INHERITED(gpu, desc, kSampler2D_GrSLType,
-                false) // false because we don't upload MIP data in Vk yet
+    , INHERITED(gpu, desc, kSampler2D_GrSLType, desc.fIsMipMapped)
     , fTextureView(view) {
     this->registerWithCacheWrapped();
 }
@@ -50,8 +47,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view)
     : GrSurface(gpu, desc)
     , GrVkImage(imageResource)
-    , INHERITED(gpu, desc, kSampler2D_GrSLType,
-                false) // false because we don't upload MIP data in Vk yet
+    , INHERITED(gpu, desc, kSampler2D_GrSLType, desc.fIsMipMapped)
     , fTextureView(view) {}
 
 
@@ -59,17 +55,13 @@ template<typename ResourceType>
 GrVkTexture* GrVkTexture::Create(GrVkGpu* gpu,
                                  ResourceType type,
                                  const GrSurfaceDesc& desc,
-                                 VkFormat format,
+                                 VkFormat format, uint32_t levels, 
                                  const GrVkImage::Resource* imageResource) {
     VkImage image = imageResource->fImage;
 
-    uint32_t mipLevels = 1;
-    // TODO: enable when mipLevel loading is implemented in GrVkGpu
-    //if (desc.fIsMipMapped) {
-    //    mipLevels = SkMipMap::ComputeLevelCount(this->width(), this->height());
-    //}
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, image, format,
-                                                           GrVkImageView::kColor_Type, mipLevels);
+                                                           GrVkImageView::kColor_Type, 
+                                                           levels);
     if (!imageView) {
         return nullptr;
     }
@@ -87,7 +79,8 @@ GrVkTexture* GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
         return nullptr;
     }
 
-    GrVkTexture* texture = Create(gpu, budgeted, desc, imageDesc.fFormat, imageResource);
+    GrVkTexture* texture = Create(gpu, budgeted, desc, imageDesc.fFormat, imageDesc.fLevels,
+                                  imageResource);
     // Create() will increment the refCount of the image resource if it succeeds
     imageResource->unref(gpu);
 
@@ -119,7 +112,8 @@ GrVkTexture* GrVkTexture::CreateWrappedTexture(GrVkGpu* gpu,
         return nullptr;
     }
 
-    GrVkTexture* texture = Create(gpu, kWrapped, desc, format, imageResource);
+    // We have no other information so we have to assume that wrapped textures have only one level
+    GrVkTexture* texture = Create(gpu, kWrapped, desc, format, 1, imageResource);
     if (texture) {
         texture->fCurrentLayout = info->fImageLayout;
     }
@@ -166,8 +160,18 @@ GrVkGpu* GrVkTexture::getVkGpu() const {
     return static_cast<GrVkGpu*>(this->getGpu());
 }
 
-bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu) {
+bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels) {
+    if (mipLevels == 1) {
+        // don't need to do anything for a 1x1 texture
+        return false;
+    }
+
     const GrVkImage::Resource* oldResource = fResource;
+
+    // We shouldn't realloc something that doesn't belong to us
+    if (GrVkImage::Resource::kBorrowed_Flag & oldResource->fFlags) {
+        return false;
+    }
 
     // Does this even make sense for rendertargets?
     bool renderTarget = SkToBool(fDesc.fFlags & kRenderTarget_GrSurfaceFlag);
@@ -177,12 +181,6 @@ bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu) {
         usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     }
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-    uint32_t mipLevels = SkMipMap::ComputeLevelCount(this->width(), this->height());
-    if (mipLevels == 1) {
-        // don't need to do anything for a 1x1 texture
-        return false;
-    }
 
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;

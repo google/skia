@@ -20,6 +20,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
+#include "GrTexturePriv.h"
 #include "SkTypes.h"
 
 GrMesh& GrMesh::operator =(const GrMesh& di) {
@@ -375,6 +376,8 @@ bool GrGpu::writePixels(GrSurface* surface,
 
     this->handleDirtyContext();
     if (this->onWritePixels(surface, left, top, width, height, config, texels)) {
+        SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
+        this->didWriteToSurface(surface, &rect, texels.count());
         fStats.incTextureUploads();
         return true;
     }
@@ -403,6 +406,8 @@ bool GrGpu::transferPixels(GrSurface* surface,
     this->handleDirtyContext();
     if (this->onTransferPixels(surface, left, top, width, height, config,
                                transferBuffer, offset, rowBytes)) {
+        SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
+        this->didWriteToSurface(surface, &rect);
         fStats.incTransfersToTexture();
         return true;
     }
@@ -413,6 +418,20 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();
     this->onResolveRenderTarget(target);
+}
+
+void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_t mipLevels) const {
+    SkASSERT(surface);
+    // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
+    if (nullptr == bounds || !bounds->isEmpty()) {
+        if (GrRenderTarget* target = surface->asRenderTarget()) {
+            target->flagAsNeedingResolve(bounds);
+        }
+        GrTexture* texture = surface->asTexture();
+        if (texture && 1 == mipLevels) {
+            texture->texturePriv().dirtyMipMaps(true);
+        }
+    }
 }
 
 inline static uint8_t multisample_specs_id(uint8_t numSamples, GrSurfaceOrigin origin,

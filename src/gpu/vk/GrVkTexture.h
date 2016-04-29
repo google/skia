@@ -33,7 +33,7 @@ public:
 
     const GrVkImageView* textureView() const { return fTextureView; }
 
-    bool reallocForMipmap(const GrVkGpu* gpu);
+    bool reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels);
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&,
@@ -41,7 +41,7 @@ protected:
 
     template<typename ResourceType>
     static GrVkTexture* Create(GrVkGpu*, ResourceType, const GrSurfaceDesc&, VkFormat,
-                               const GrVkImage::Resource* texImpl);
+                               uint32_t levels, const GrVkImage::Resource* texImpl);
 
     GrVkGpu* getVkGpu() const;
 
@@ -55,8 +55,7 @@ private:
     GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&,
                 const GrVkImage::Resource*, const GrVkImageView* imageView);
 
-
-    const GrVkImageView* fTextureView;
+    const GrVkImageView*     fTextureView;
 
     typedef GrTexture INHERITED;
 };

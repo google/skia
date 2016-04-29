@@ -9,6 +9,8 @@
 #define GrVkImage_DEFINED
 
 #include "GrVkResource.h"
+
+#include "GrTypesPriv.h"
 #include "SkTypes.h"
 
 #include "vk/GrVkDefines.h"
@@ -22,13 +24,14 @@ public:
     public:
         enum Flags {
             kNo_Flags = 0,
-            kLinearTiling_Flag = 0x01
+            kLinearTiling_Flag = 0x01,
+            kBorrowed_Flag = 0x02
         };
 
-        VkImage        fImage;
-        VkDeviceMemory fAlloc;
-        Flags          fFlags;
-        VkFormat       fFormat;
+        VkImage                  fImage;
+        VkDeviceMemory           fAlloc;
+        VkFormat                 fFormat;
+        uint32_t                 fFlags;
 
         Resource()
             : INHERITED()
@@ -37,10 +40,11 @@ public:
             , fFlags(kNo_Flags)
             , fFormat(VK_FORMAT_UNDEFINED) {}
 
-        Resource(VkImage image, VkDeviceMemory alloc, Flags flags, VkFormat format)
+        Resource(VkImage image, VkDeviceMemory alloc, uint32_t flags, VkFormat format)
             : fImage(image), fAlloc(alloc), fFlags(flags), fFormat(format) {}
 
         ~Resource() override {}
+
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
 
@@ -50,8 +54,9 @@ public:
     // for wrapped textures
     class BorrowedResource : public Resource {
     public:
-        BorrowedResource(VkImage image, VkDeviceMemory alloc, Flags flags, VkFormat format)
-            : Resource(image, alloc, flags, format) {}
+        BorrowedResource(VkImage image, VkDeviceMemory alloc, uint32_t flags, VkFormat format)
+            : Resource(image, alloc, (flags | kBorrowed_Flag), format) {
+        }
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
     };
