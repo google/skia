@@ -32,7 +32,11 @@ const char* kDebugLayerNames[] = {
 #endif
 
 // the minimum version of Vulkan supported
+#ifdef SK_BUILD_FOR_ANDROID
+const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 3);
+#else
 const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
+#endif
 
 // Create the base Vulkan objects needed by the GrVkGpu object
 const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,

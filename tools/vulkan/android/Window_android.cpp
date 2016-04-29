@@ -35,7 +35,7 @@ void Window_android::setTitle(const char* title) {
     SkDebugf("Title: %s", title);
 }
 
-bool Window_android::attach(BackEndType attachType, int msaaSampleCount, AttachmentInfo*) {
+bool Window_android::attach(BackEndType attachType, int msaaSampleCount) {
     if (kVulkan_BackendType != attachType) {
         return false;
     }

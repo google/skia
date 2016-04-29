@@ -204,7 +204,9 @@ private:
 
     // These Vulkan objects are provided by the client, and also stored in fBackendContext.
     // They're copied here for convenient access.
+#ifdef ENABLE_VK_LAYERS
     VkInstance                             fVkInstance;
+#endif
     VkDevice                               fDevice;
     VkQueue                                fQueue;    // Must be Graphics queue
 

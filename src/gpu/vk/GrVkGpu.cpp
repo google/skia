@@ -82,7 +82,9 @@ GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
 GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
                  const GrVkBackendContext* backendCtx)
     : INHERITED(context)
+#ifdef ENABLE_VK_LAYERS
     , fVkInstance(backendCtx->fInstance)
+#endif
     , fDevice(backendCtx->fDevice)
     , fQueue(backendCtx->fQueue)
     , fResourceProvider(this) {
