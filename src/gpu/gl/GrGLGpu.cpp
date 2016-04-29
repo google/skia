@@ -882,7 +882,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
 
     if (success) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(surface, &rect);
+        this->didWriteToSurface(surface, &rect, texels.count());
     }
 
     return success;
@@ -2672,14 +2672,15 @@ void GrGLGpu::flushViewport(const GrGLIRect& viewport) {
     }
 }
 
-void GrGLGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds) const {
+void GrGLGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, int mipLevels) const {
     SkASSERT(surface);
     // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
     if (nullptr == bounds || !bounds->isEmpty()) {
         if (GrRenderTarget* target = surface->asRenderTarget()) {
             target->flagAsNeedingResolve(bounds);
         }
-        if (GrTexture* texture = surface->asTexture()) {
+        GrTexture* texture = surface->asTexture();
+        if (texture && 1 == mipLevels) {
             texture->texturePriv().dirtyMipMaps(true);
         }
     }
