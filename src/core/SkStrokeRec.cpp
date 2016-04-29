@@ -134,3 +134,31 @@ void SkStrokeRec::applyToPaint(SkPaint* paint) const {
     paint->setStrokeCap((SkPaint::Cap)fCap);
     paint->setStrokeJoin((SkPaint::Join)fJoin);
 }
+
+static inline SkScalar get_inflation_bounds(SkPaint::Join join,
+                                            SkScalar strokeWidth,
+                                            SkScalar miterLimit) {
+    if (strokeWidth < 0) {  // fill
+        return 0;
+    } else if (0 == strokeWidth) {
+        return SK_Scalar1;
+    }
+    // since we're stroked, outset the rect by the radius (and join type)
+    SkScalar radius = SkScalarHalf(strokeWidth);
+    if (SkPaint::kMiter_Join == join) {
+        if (miterLimit > SK_Scalar1) {
+            radius = SkScalarMul(miterLimit, radius);
+        }
+    }
+    return radius;
+}
+
+SkScalar SkStrokeRec::getInflationRadius() const {
+    return get_inflation_bounds((SkPaint::Join)fJoin, fWidth, fMiterLimit);
+}
+
+SkScalar SkStrokeRec::GetInflationRadius(const SkPaint& paint, SkPaint::Style style) {
+    SkScalar width = SkPaint::kFill_Style == style ? -SK_Scalar1 : paint.getStrokeWidth();
+    return get_inflation_bounds(paint.getStrokeJoin(), width, paint.getStrokeMiter());
+
+}

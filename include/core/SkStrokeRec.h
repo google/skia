@@ -99,6 +99,22 @@ public:
     void applyToPaint(SkPaint* paint) const;
 
     /**
+     * Gives a conservative value for the outset that should applied to a
+     * geometries bounds to account for any inflation due to applying this
+     * strokeRec to the geometry.
+     */
+    SkScalar getInflationRadius() const;
+
+    /**
+     * Equivalent to:
+     *   SkStrokeRec rec(paint, style);
+     *   rec.getInflationRadius();
+     * This does not account for other effects on the paint (i.e. path
+     * effect).
+     */
+    static SkScalar GetInflationRadius(const SkPaint&, SkPaint::Style);
+
+    /**
      * Compare if two SkStrokeRecs have an equal effect on a path.
      * Equal SkStrokeRecs produce equal paths. Equality of produced
      * paths does not take the ResScale parameter into account.

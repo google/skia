@@ -258,16 +258,8 @@ private:
         } else {
             fBounds = path.getBounds();
         }
-        if (!stroke.isFillStyle()) {
-            SkScalar radius = SkScalarHalf(stroke.getWidth());
-            if (stroke.getJoin() == SkPaint::kMiter_Join) {
-                SkScalar scale = stroke.getMiter();
-                if (scale > SK_Scalar1) {
-                    radius = SkScalarMul(radius, scale);
-                }
-            }
-            fBounds.outset(radius, radius);
-        }
+        SkScalar radius = stroke.getInflationRadius();
+        fBounds.outset(radius, radius);
         viewMatrix.mapRect(&fBounds);
     }
 

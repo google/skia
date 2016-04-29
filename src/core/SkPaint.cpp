@@ -2025,22 +2025,8 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
         src = &tmpSrc;
     }
 
-    if (kFill_Style != style) {
-        // since we're stroked, outset the rect by the radius (and join type)
-        SkScalar radius = SkScalarHalf(this->getStrokeWidth());
-        if (0 == radius) {  // hairline
-            radius = SK_Scalar1;
-        } else if (this->getStrokeJoin() == SkPaint::kMiter_Join) {
-            SkScalar scale = this->getStrokeMiter();
-            if (scale > SK_Scalar1) {
-                radius = SkScalarMul(radius, scale);
-            }
-        }
-        storage->set(src->fLeft - radius, src->fTop - radius,
-                     src->fRight + radius, src->fBottom + radius);
-    } else {
-        *storage = *src;
-    }
+    SkScalar radius = SkStrokeRec::GetInflationRadius(*this, style);
+    *storage = src->makeOutset(radius, radius);
 
     if (this->getMaskFilter()) {
         this->getMaskFilter()->computeFastBounds(*storage, storage);
