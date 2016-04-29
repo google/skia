@@ -13,6 +13,8 @@
 
 class SkSpinlock {
 public:
+    constexpr SkSpinlock() = default;
+
     void acquire() {
         // To act as a mutex, we need an acquire barrier when we acquire the lock.
         if (fLocked.exchange(true, std::memory_order_acquire)) {

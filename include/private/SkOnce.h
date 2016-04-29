@@ -19,6 +19,8 @@
 
 class SkOnce {
 public:
+    constexpr SkOnce() = default;
+
     template <typename Fn, typename... Args>
     void operator()(Fn&& fn, Args&&... args) {
         auto state = fState.load(std::memory_order_acquire);
