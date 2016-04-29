@@ -127,13 +127,15 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
     return true;
 }
 
-SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, const SkSurfaceProps* props,
-                                 InitContents init) {
-    return SkGpuDevice::Create(rt, rt->width(), rt->height(), props, init);
+sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, const SkSurfaceProps* props,
+                                     InitContents init) {
+    const int width = rt->width();
+    const int height = rt->height();
+    return SkGpuDevice::Make(std::move(rt), width, height, props, init);
 }
 
-SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
-                                 const SkSurfaceProps* props, InitContents init) {
+sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, int width, int height,
+                                     const SkSurfaceProps* props, InitContents init) {
     if (!rt || rt->wasDestroyed()) {
         return nullptr;
     }
@@ -141,23 +143,23 @@ SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
     if (!CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
         return nullptr;
     }
-    return new SkGpuDevice(rt, width, height, props, flags);
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(rt.get(), width, height, props, flags));
 }
 
-SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkBudgeted budgeted,
-                                 const SkImageInfo& info, int sampleCount,
-                                 const SkSurfaceProps* props, InitContents init) {
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
+                                     const SkImageInfo& info, int sampleCount,
+                                     const SkSurfaceProps* props, InitContents init) {
     unsigned flags;
     if (!CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
         return nullptr;
     }
 
     SkAutoTUnref<GrRenderTarget> rt(CreateRenderTarget(context, budgeted, info, sampleCount));
-    if (nullptr == rt) {
+    if (!rt) {
         return nullptr;
     }
 
-    return new SkGpuDevice(rt, info.width(), info.height(), props, flags);
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(rt, info.width(), info.height(), props, flags));
 }
 
 SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
@@ -1756,8 +1758,9 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     if (texture) {
         SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return SkGpuDevice::Create(
-            texture->asRenderTarget(), cinfo.fInfo.width(), cinfo.fInfo.height(), &props, init);
+        return SkGpuDevice::Make(sk_ref_sp(texture->asRenderTarget()),
+                                 cinfo.fInfo.width(), cinfo.fInfo.height(),
+                                 &props, init).release();
     } else {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "---- failed to create gpu device texture [%d %d]\n",

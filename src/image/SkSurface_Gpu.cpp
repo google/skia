@@ -17,13 +17,12 @@
 
 #if SK_SUPPORT_GPU
 
-SkSurface_Gpu::SkSurface_Gpu(SkGpuDevice* device)
+SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
-    , fDevice(SkRef(device)) {
+    , fDevice(std::move(device)) {
 }
 
 SkSurface_Gpu::~SkSurface_Gpu() {
-    fDevice->unref();
 }
 
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
@@ -65,7 +64,7 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
     SkCanvas::InitFlags flags = SkCanvas::kDefault_InitFlags;
     flags = static_cast<SkCanvas::InitFlags>(flags | SkCanvas::kConservativeRasterClip_InitFlag);
 
-    return new SkCanvas(fDevice, flags);
+    return new SkCanvas(fDevice.get(), flags);
 }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
@@ -136,23 +135,23 @@ void SkSurface_Gpu::onPrepareForExternalIO() {
 
 sk_sp<SkSurface> SkSurface::MakeRenderTargetDirect(GrRenderTarget* target,
                                                    const SkSurfaceProps* props) {
-    SkAutoTUnref<SkGpuDevice> device(
-        SkGpuDevice::Create(target, props, SkGpuDevice::kUninit_InitContents));
+    sk_sp<SkGpuDevice> device(
+        SkGpuDevice::Make(sk_ref_sp(target), props, SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
-    return sk_make_sp<SkSurface_Gpu>(device);
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
                                              const SkSurfaceProps* props) {
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
             ctx, budgeted, info, sampleCount, props, SkGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
     }
-    return sk_make_sp<SkSurface_Gpu>(device);
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
@@ -169,49 +168,48 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     if (!surface) {
         return nullptr;
     }
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props,
-                                                         SkGpuDevice::kUninit_InitContents));
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(sk_ref_sp(surface->asRenderTarget()), props,
+                                                SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
-    return sk_make_sp<SkSurface_Gpu>(device);
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                         const GrBackendRenderTargetDesc& desc,
                                                         const SkSurfaceProps* props) {
-    if (nullptr == context) {
+    if (!context) {
         return nullptr;
     }
-    SkAutoTUnref<GrRenderTarget> rt(context->textureProvider()->wrapBackendRenderTarget(desc));
+    sk_sp<GrRenderTarget> rt(context->textureProvider()->wrapBackendRenderTarget(desc));
     if (!rt) {
         return nullptr;
     }
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(rt, props,
-                                                         SkGpuDevice::kUninit_InitContents));
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rt), props,
+                                                SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
-    return sk_make_sp<SkSurface_Gpu>(device);
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                                  const GrBackendTextureDesc& desc,
                                                                  const SkSurfaceProps* props) {
-    if (nullptr == context) {
+    if (!context) {
         return nullptr;
     }
-    SkAutoTUnref<GrRenderTarget> rt(
-            context->resourceProvider()->wrapBackendTextureAsRenderTarget(desc));
+    sk_sp<GrRenderTarget> rt(context->resourceProvider()->wrapBackendTextureAsRenderTarget(desc));
     if (!rt) {
         return nullptr;
     }
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(rt, props,
-                                                         SkGpuDevice::kUninit_InitContents));
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rt), props,
+                                                SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
-    return sk_make_sp<SkSurface_Gpu>(device);
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 #endif

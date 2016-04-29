@@ -37,22 +37,24 @@ public:
     /**
      * Creates an SkGpuDevice from a GrRenderTarget.
      */
-    static SkGpuDevice* Create(GrRenderTarget* target, const SkSurfaceProps*, InitContents);
+    static sk_sp<SkGpuDevice> Make(sk_sp<GrRenderTarget> target, 
+                                   const SkSurfaceProps*,
+                                   InitContents);
 
     /**
      * Creates an SkGpuDevice from a GrRenderTarget whose texture width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
-    static SkGpuDevice* Create(GrRenderTarget* target, int width, int height,
-                               const SkSurfaceProps*, InitContents);
+    static sk_sp<SkGpuDevice> Make(sk_sp<GrRenderTarget> target, int width, int height,
+                                   const SkSurfaceProps*, InitContents);
 
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
      * sampleCount. The Budgeted param controls whether the device's backing store counts against
      * the resource cache budget. On failure, returns nullptr.
      */
-    static SkGpuDevice* Create(GrContext*, SkBudgeted, const SkImageInfo&,
-                               int sampleCount, const SkSurfaceProps*, InitContents);
+    static sk_sp<SkGpuDevice> Make(GrContext*, SkBudgeted, const SkImageInfo&,
+                                   int sampleCount, const SkSurfaceProps*, InitContents);
 
     ~SkGpuDevice() override {}
 

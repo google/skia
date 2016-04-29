@@ -16,7 +16,7 @@ class SkGpuDevice;
 
 class SkSurface_Gpu : public SkSurface_Base {
 public:
-    SkSurface_Gpu(SkGpuDevice*);
+    SkSurface_Gpu(sk_sp<SkGpuDevice>);
     virtual ~SkSurface_Gpu();
 
     GrBackendObject onGetTextureHandle(BackendHandleAccess) override;
@@ -28,10 +28,10 @@ public:
     void onDiscard() override;
     void onPrepareForExternalIO() override;
 
-    SkGpuDevice* getDevice() { return fDevice; }
+    SkGpuDevice* getDevice() { return fDevice.get(); }
 
 private:
-    SkGpuDevice* fDevice;
+    sk_sp<SkGpuDevice> fDevice;
 
     typedef SkSurface_Base INHERITED;
 };

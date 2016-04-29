@@ -121,9 +121,9 @@ public:
 
         SkASSERT(fTexture->asRenderTarget());
 
-        sk_sp<SkGpuDevice> device(SkGpuDevice::Create(fTexture->asRenderTarget(), width, height,
-                                                      props,
-                                                      SkGpuDevice::kUninit_InitContents));
+        sk_sp<SkGpuDevice> device(SkGpuDevice::Make(sk_ref_sp(fTexture->asRenderTarget()),
+                                                    width, height, props,
+                                                    SkGpuDevice::kUninit_InitContents));
         if (!device) {
             return;
         }
