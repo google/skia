@@ -7,14 +7,16 @@ proposed Skia change. This often happens with Skia API changes and changes
 which affect Blink layout tests. While simple to do locally, this explains how
 to do so on the Chromium trybots.
 
-The basic idea is to make your Chromium and Blink change in the usual way, but
-then pull in other changes by modifying the \<chromium>/src/DEPS file.
+Skia only changes
+-----------------
+If the Skia patch is already in Rietveld and there are no associated Chromium
+changes, then it is possible to just run the Chromium trybots. This will apply
+the Skia patch and run the bot.
 
-
-Rietveld
---------
-If the the patch to be applied is to a project already in Chromium (like Skia)
-and the patch is already in Rietveld, then add the following to
+Skia and Chromium changes
+-------------------------
+If the Skia patch is already in Rietveld and there are associated Chromium
+changes, then in the Chromium CL add the following to
 \<chromium>/src/DEPS in the 'hooks' array just before the 'gyp' hook.
 
       {
@@ -45,17 +47,14 @@ has the form 'issue\<issue>_\<patchset>.diff'.
 An example of this being used can be seen at
 https://crrev.com/1877673002/#ps120001 .
 
-Finally, run the post-sync hooks again to update the Skia source code
-
-      $ gclient runhooks
-
+To test locally, run `gclient runhooks` to update the Skia source code.
 Note that if your local skia patch in `third_party/skia` isn't clean (e.g., you
 already applied some patch to it), then `gclient runhooks` won't successfully
 run. In that case, run `git reset --hard` inside `third_party/skia` before
 `gclient runhooks`.
 
-External changes not in rietveld
---------------------------------
+Arbitrary changes
+-----------------
 If the patch is to files where the above is not possible, then it is still
 possible to patch the files manually by adding the following to
 \<chromium>/src/DEPS in the 'hooks' array just before the 'gyp' hook.
@@ -81,6 +80,6 @@ https://crrev.com/1866773002/#ps20001 .
 
 Try the patch
 -------------
-After committing these \<chromium>/src/DEPS and \<chromium>/src/patch/ changes
+After committing a \<chromium>/src/DEPS or \<chromium>/src/patch/ change
 locally, 'git cl upload' can be used in the usual way. Be sure to add
 'COMMIT=false' to the issue description to avoid accidentally checking it in.
