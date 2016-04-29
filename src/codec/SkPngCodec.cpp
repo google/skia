@@ -210,7 +210,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
     png_fixed_point XYZ[9];
     SkFloat3x3 toXYZD50;
     png_fixed_point gamma;
-    SkColorSpace::SkGammas gammas;
+    SkFloat3 gammas;
     if (png_get_cHRM_XYZ_fixed(png_ptr, info_ptr, &XYZ[0], &XYZ[1], &XYZ[2], &XYZ[3], &XYZ[4],
             &XYZ[5], &XYZ[6], &XYZ[7], &XYZ[8])) {
 
@@ -225,17 +225,16 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         }
 
         if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
-            float value = png_inverted_fixed_point_to_float(gamma);
-            gammas = SkColorSpace::SkGammas(value, value, value);
-
+            gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] =
+                    png_inverted_fixed_point_to_float(gamma);
         } else {
-            // Default to sRGB (gamma = 2.2f) if the image has color space information,
-            // but does not specify gamma.
-            gammas = SkColorSpace::SkGammas(2.2f, 2.2f, 2.2f);
+            // If the image does not specify gamma, let's choose linear.  Should we default
+            // to sRGB?  Most images are intended to be sRGB (gamma = 2.2f).
+            gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] = 1.0f;
         }
 
 
-        return SkColorSpace::NewRGB(toXYZD50, std::move(gammas));
+        return SkColorSpace::NewRGB(toXYZD50, gammas);
     }
 
     // Last, check for gamma.
@@ -248,10 +247,9 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         toXYZD50.fMat[0] = toXYZD50.fMat[4] = toXYZD50.fMat[8] = 1.0f;
 
         // Set the gammas.
-        float value = png_inverted_fixed_point_to_float(gamma);
-        gammas = SkColorSpace::SkGammas(value, value, value);
+        gammas.fVec[0] = gammas.fVec[1] = gammas.fVec[2] = png_inverted_fixed_point_to_float(gamma);
 
-        return SkColorSpace::NewRGB(toXYZD50, std::move(gammas));
+        return SkColorSpace::NewRGB(toXYZD50, gammas);
     }
 
 #endif // LIBPNG >= 1.6
