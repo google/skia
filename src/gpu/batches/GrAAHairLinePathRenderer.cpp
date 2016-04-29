@@ -170,7 +170,7 @@ static int chop_conic(const SkPoint src[3], SkConic dst[4], const SkScalar weigh
 // in this case approx the path with lines
 // otherwise returns 1
 static int is_degen_quad_or_conic(const SkPoint p[3], SkScalar* dsqd) {
-    static const SkScalar gDegenerateToLineTol = GrPathUtils::kDefaultTolerance;
+    static const SkScalar gDegenerateToLineTol = SK_ScalarRoot2Over2;
     static const SkScalar gDegenerateToLineTolSqd =
         SkScalarMul(gDegenerateToLineTol, gDegenerateToLineTol);
 
