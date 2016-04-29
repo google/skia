@@ -73,7 +73,6 @@ public:
 protected:
     SkTypeface_FreeType(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch)
         : INHERITED(style, uniqueID, isFixedPitch)
-        , fGlyphCount(-1)
     {}
 
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
@@ -95,8 +94,6 @@ protected:
                                   size_t length, void* data) const override;
 
 private:
-    mutable int fGlyphCount;
-
     typedef SkTypeface INHERITED;
 };
 
