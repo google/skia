@@ -88,7 +88,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, *args.fStroke));
 
     if (path.isInverseFillType()) {
-        GR_STATIC_CONST_SAME_STENCIL(kInvertedStencilPass,
+        static constexpr GrStencilSettings kInvertedStencilPass(
             kKeep_StencilOp,
             kZero_StencilOp,
             // We know our rect will hit pixels outside the clip and the user bits will be 0
@@ -131,7 +131,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                     &invert));
         args.fTarget->drawBatch(*pipelineBuilder, batch);
     } else {
-        GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
+        static constexpr GrStencilSettings kStencilPass(
             kZero_StencilOp,
             kKeep_StencilOp,
             kNotEqual_StencilFunc,

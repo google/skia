@@ -265,13 +265,13 @@ private:
      * kStencilOnly in onGetStencilSupport().
      */
     virtual void onStencilPath(const StencilPathArgs& args) {
-        GR_STATIC_CONST_SAME_STENCIL(kIncrementStencil,
-                                     kReplace_StencilOp,
-                                     kReplace_StencilOp,
-                                     kAlways_StencilFunc,
-                                     0xffff,
-                                     0xffff,
-                                     0xffff);
+        static constexpr GrStencilSettings kIncrementStencil(
+             kReplace_StencilOp,
+             kReplace_StencilOp,
+             kAlways_StencilFunc,
+             0xffff,
+             0xffff,
+             0xffff);
         args.fPipelineBuilder->setStencil(kIncrementStencil);
         args.fPipelineBuilder->setDisableColorXPFactory();
         DrawPathArgs drawArgs;

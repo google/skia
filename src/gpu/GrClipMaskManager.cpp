@@ -675,13 +675,13 @@ GrTexture* GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
 
             // draw directly into the result with the stencil set to make the pixels affected
             // by the clip shape be non-zero.
-            GR_STATIC_CONST_SAME_STENCIL(kStencilInElement,
-                                         kReplace_StencilOp,
-                                         kReplace_StencilOp,
-                                         kAlways_StencilFunc,
-                                         0xffff,
-                                         0xffff,
-                                         0xffff)
+            static constexpr GrStencilSettings kStencilInElement(
+                 kReplace_StencilOp,
+                 kReplace_StencilOp,
+                 kAlways_StencilFunc,
+                 0xffff,
+                 0xffff,
+                 0xffff);
             if (!stencil_element(dc.get(), &maskSpaceIBounds, kStencilInElement,
                                  translate, element)) {
                 texture->resourcePriv().removeUniqueKey();
@@ -689,13 +689,13 @@ GrTexture* GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
             }
 
             // Draw to the exterior pixels (those with a zero stencil value).
-            GR_STATIC_CONST_SAME_STENCIL(kDrawOutsideElement,
-                                         kZero_StencilOp,
-                                         kZero_StencilOp,
-                                         kEqual_StencilFunc,
-                                         0xffff,
-                                         0x0000,
-                                         0xffff);
+            static constexpr GrStencilSettings kDrawOutsideElement(
+                 kZero_StencilOp,
+                 kZero_StencilOp,
+                 kEqual_StencilFunc,
+                 0xffff,
+                 0x0000,
+                 0xffff);
             if (!dc->drawContextPriv().drawAndStencilRect(&maskSpaceIBounds, kDrawOutsideElement,
                                                           op, !invert, false,
                                                           translate,
@@ -830,22 +830,22 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 
             // draw the element to the client stencil bits if necessary
             if (!canDrawDirectToClip) {
-                GR_STATIC_CONST_SAME_STENCIL(gDrawToStencil,
-                                             kIncClamp_StencilOp,
-                                             kIncClamp_StencilOp,
-                                             kAlways_StencilFunc,
-                                             0xffff,
-                                             0x0000,
-                                             0xffff);
+                static constexpr GrStencilSettings kDrawToStencil(
+                     kIncClamp_StencilOp,
+                     kIncClamp_StencilOp,
+                     kAlways_StencilFunc,
+                     0xffff,
+                     0x0000,
+                     0xffff);
                 if (Element::kRect_Type == element->getType()) {
-                    *pipelineBuilder.stencil() = gDrawToStencil;
+                    *pipelineBuilder.stencil() = kDrawToStencil;
 
                     draw_non_aa_rect(fDrawTarget, pipelineBuilder, GrColor_WHITE, viewMatrix,
                                      element->getRect());
                 } else {
                     if (!clipPath.isEmpty()) {
                         if (canRenderDirectToStencil) {
-                            *pipelineBuilder.stencil() = gDrawToStencil;
+                            *pipelineBuilder.stencil() = kDrawToStencil;
 
                             GrPathRenderer::DrawPathArgs args;
                             args.fTarget = fDrawTarget;
@@ -911,7 +911,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 // mapping of clip-respecting stencil funcs to normal stencil funcs
 // mapping depends on whether stencil-clipping is in effect.
 static const GrStencilFunc
-    gSpecialToBasicStencilFunc[2][kClipStencilFuncCount] = {
+    gSpecialToBasicStencilFunc[2][kClipStencilFuncCnt] = {
     {// Stencil-Clipping is DISABLED,  we are effectively always inside the clip
         // In the Clip Funcs
         kAlways_StencilFunc,          // kAlwaysIfInClip_StencilFunc
@@ -944,22 +944,6 @@ static const GrStencilFunc
     }
 };
 
-namespace {
-// Sets the settings to clip against the stencil buffer clip while ignoring the
-// client bits.
-const GrStencilSettings& basic_apply_stencil_clip_settings() {
-    // stencil settings to use when clip is in stencil
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kKeep_StencilOp,
-        kKeep_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0x0000,
-        0x0000,
-        0x0000);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-}
-
 void GrClipMaskManager::setPipelineBuilderStencil(const GrPipelineBuilder& pipelineBuilder,
                                                   GrPipelineBuilder::AutoRestoreStencil* ars) {
     // We make two copies of the StencilSettings here (except in the early
@@ -975,7 +959,14 @@ void GrClipMaskManager::setPipelineBuilderStencil(const GrPipelineBuilder& pipel
     // enable it in order to respect a stencil clip.
     if (pipelineBuilder.getStencil().isDisabled()) {
         if (GrClipMaskManager::kRespectClip_StencilClipMode == fClipMode) {
-            settings = basic_apply_stencil_clip_settings();
+            static constexpr GrStencilSettings kBasicApplyClipSettings(
+                kKeep_StencilOp,
+                kKeep_StencilOp,
+                kAlwaysIfInClip_StencilFunc,
+                0x0000,
+                0x0000,
+                0x0000);
+            settings = kBasicApplyClipSettings;
         } else {
             return;
         }
@@ -1021,11 +1012,11 @@ void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
         uint16_t funcMask = settings->funcMask(face);
         uint16_t funcRef = settings->funcRef(face);
 
-        SkASSERT((unsigned) func < kStencilFuncCount);
+        SkASSERT((unsigned) func < kStencilFuncCnt);
 
         writeMask &= userBits;
 
-        if (func >= kBasicStencilFuncCount) {
+        if (func >= kBasicStencilFuncCnt) {
             int respectClip = kRespectClip_StencilClipMode == mode;
             if (respectClip) {
                 switch (func) {
@@ -1052,8 +1043,8 @@ void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
             }
             const GrStencilFunc* table =
                 gSpecialToBasicStencilFunc[respectClip];
-            func = table[func - kBasicStencilFuncCount];
-            SkASSERT(func >= 0 && func < kBasicStencilFuncCount);
+            func = table[func - kBasicStencilFuncCnt];
+            SkASSERT(func >= 0 && func < kBasicStencilFuncCnt);
         } else {
             funcMask &= userBits;
             funcRef &= userBits;

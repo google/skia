@@ -269,36 +269,31 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     this->recordBatch(batch);
 }
 
-static const GrStencilSettings& winding_path_stencil_settings() {
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kIncClamp_StencilOp,
-        kIncClamp_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0xFFFF, 0xFFFF, 0xFFFF);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-
-static const GrStencilSettings& even_odd_path_stencil_settings() {
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kInvert_StencilOp,
-        kInvert_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0xFFFF, 0xFFFF, 0xFFFF);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-
 void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType fill,
                                                      const GrStencilAttachment* sb,
                                                      GrStencilSettings* outStencilSettings) {
+    static constexpr GrStencilSettings kWindingStencilSettings(
+        kIncClamp_StencilOp,
+        kIncClamp_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0xFFFF, 0xFFFF, 0xFFFF
+    );
+
+    static constexpr GrStencilSettings kEvenODdStencilSettings(
+        kInvert_StencilOp,
+        kInvert_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0xFFFF, 0xFFFF, 0xFFFF
+    );
 
     switch (fill) {
         default:
             SkFAIL("Unexpected path fill.");
         case GrPathRendering::kWinding_FillType:
-            *outStencilSettings = winding_path_stencil_settings();
+            *outStencilSettings = kWindingStencilSettings;
             break;
         case GrPathRendering::kEvenOdd_FillType:
-            *outStencilSettings = even_odd_path_stencil_settings();
+            *outStencilSettings = kEvenODdStencilSettings;
             break;
     }
     fClipMaskManager->adjustPathStencilParams(sb, outStencilSettings);

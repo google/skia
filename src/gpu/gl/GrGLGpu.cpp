@@ -2904,7 +2904,7 @@ GrGLenum gr_to_gl_stencil_op(GrStencilOp op) {
         GR_GL_ZERO,        // kZero_StencilOp
         GR_GL_INVERT,      // kInvert_StencilOp
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kStencilOpCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kStencilOpCnt);
     GR_STATIC_ASSERT(0 == kKeep_StencilOp);
     GR_STATIC_ASSERT(1 == kReplace_StencilOp);
     GR_STATIC_ASSERT(2 == kIncWrap_StencilOp);
@@ -2913,7 +2913,7 @@ GrGLenum gr_to_gl_stencil_op(GrStencilOp op) {
     GR_STATIC_ASSERT(5 == kDecClamp_StencilOp);
     GR_STATIC_ASSERT(6 == kZero_StencilOp);
     GR_STATIC_ASSERT(7 == kInvert_StencilOp);
-    SkASSERT((unsigned) op < kStencilOpCount);
+    SkASSERT((unsigned) op < kStencilOpCnt);
     return gTable[op];
 }
 

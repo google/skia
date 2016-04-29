@@ -35,7 +35,7 @@ GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
 
 ////// Even/Odd
 
-GR_STATIC_CONST_SAME_STENCIL(gEOStencilPass,
+static constexpr GrStencilSettings gEOStencilPass(
     kInvert_StencilOp,
     kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc,
@@ -44,7 +44,7 @@ GR_STATIC_CONST_SAME_STENCIL(gEOStencilPass,
     0xffff);
 
 // ok not to check clip b/c stencil pass only wrote inside clip
-GR_STATIC_CONST_SAME_STENCIL(gEOColorPass,
+static constexpr GrStencilSettings gEOColorPass(
     kZero_StencilOp,
     kZero_StencilOp,
     kNotEqual_StencilFunc,
@@ -53,7 +53,7 @@ GR_STATIC_CONST_SAME_STENCIL(gEOColorPass,
     0xffff);
 
 // have to check clip b/c outside clip will always be zero.
-GR_STATIC_CONST_SAME_STENCIL(gInvEOColorPass,
+static constexpr GrStencilSettings gInvEOColorPass(
     kZero_StencilOp,
     kZero_StencilOp,
     kEqualIfInClip_StencilFunc,
@@ -67,7 +67,7 @@ GR_STATIC_CONST_SAME_STENCIL(gInvEOColorPass,
 // when we don't have wrap incr and decr we use the stencil test to simulate
 // them.
 
-GR_STATIC_CONST_STENCIL(gWindStencilSeparateWithWrap,
+static constexpr GrStencilSettings gWindStencilSeparateWithWrap(
     kIncWrap_StencilOp,             kDecWrap_StencilOp,
     kKeep_StencilOp,                kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
@@ -79,7 +79,7 @@ GR_STATIC_CONST_STENCIL(gWindStencilSeparateWithWrap,
 // if dec'ing zero invert to make all ones.
 // we can't avoid touching the stencil on both passing and
 // failing, so we can't resctrict ourselves to the clip.
-GR_STATIC_CONST_STENCIL(gWindStencilSeparateNoWrap,
+static constexpr GrStencilSettings gWindStencilSeparateNoWrap(
     kInvert_StencilOp,              kInvert_StencilOp,
     kIncClamp_StencilOp,            kDecClamp_StencilOp,
     kEqual_StencilFunc,             kEqual_StencilFunc,
@@ -91,7 +91,7 @@ GR_STATIC_CONST_STENCIL(gWindStencilSeparateNoWrap,
 // stencil. First we draw the front faces and inc, then we draw the back faces
 // and dec. These are same as the above two split into the incrementing and
 // decrementing passes.
-GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilWithWrapInc,
+static constexpr GrStencilSettings gWindSingleStencilWithWrapInc(
     kIncWrap_StencilOp,
     kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc,
@@ -99,7 +99,7 @@ GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilWithWrapInc,
     0xffff,
     0xffff);
 
-GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilWithWrapDec,
+static constexpr GrStencilSettings gWindSingleStencilWithWrapDec(
     kDecWrap_StencilOp,
     kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc,
@@ -107,7 +107,7 @@ GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilWithWrapDec,
     0xffff,
     0xffff);
 
-GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilNoWrapInc,
+static constexpr GrStencilSettings gWindSingleStencilNoWrapInc(
     kInvert_StencilOp,
     kIncClamp_StencilOp,
     kEqual_StencilFunc,
@@ -115,7 +115,7 @@ GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilNoWrapInc,
     0xffff,
     0xffff);
 
-GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilNoWrapDec,
+static constexpr GrStencilSettings gWindSingleStencilNoWrapDec(
     kInvert_StencilOp,
     kDecClamp_StencilOp,
     kEqual_StencilFunc,
@@ -125,7 +125,7 @@ GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilNoWrapDec,
 
 // Color passes are the same whether we use the two-sided stencil or two passes
 
-GR_STATIC_CONST_SAME_STENCIL(gWindColorPass,
+static constexpr GrStencilSettings gWindColorPass(
     kZero_StencilOp,
     kZero_StencilOp,
     kNonZeroIfInClip_StencilFunc,
@@ -133,7 +133,7 @@ GR_STATIC_CONST_SAME_STENCIL(gWindColorPass,
     0x0000,
     0xffff);
 
-GR_STATIC_CONST_SAME_STENCIL(gInvWindColorPass,
+static constexpr GrStencilSettings gInvWindColorPass(
     kZero_StencilOp,
     kZero_StencilOp,
     kEqualIfInClip_StencilFunc,
@@ -145,7 +145,7 @@ GR_STATIC_CONST_SAME_STENCIL(gInvWindColorPass,
 
 // Sometimes the default path renderer can draw a path directly to the stencil
 // buffer without having to first resolve the interior / exterior.
-GR_STATIC_CONST_SAME_STENCIL(gDirectToStencil,
+static constexpr GrStencilSettings gDirectToStencil(
     kZero_StencilOp,
     kIncClamp_StencilOp,
     kAlwaysIfInClip_StencilFunc,

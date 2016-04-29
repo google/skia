@@ -585,13 +585,13 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
     if (fInstanceData->count()) {
         pipelineBuilder->setState(GrPipelineBuilder::kHWAntialias_Flag, fFont.isAntiAlias());
 
-        GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
-                                     kZero_StencilOp,
-                                     kKeep_StencilOp,
-                                     kNotEqual_StencilFunc,
-                                     0xffff,
-                                     0x0000,
-                                     0xffff);
+        static constexpr GrStencilSettings kStencilPass(
+             kZero_StencilOp,
+             kKeep_StencilOp,
+             kNotEqual_StencilFunc,
+             0xffff,
+             0x0000,
+             0xffff);
 
         *pipelineBuilder->stencil() = kStencilPass;
 

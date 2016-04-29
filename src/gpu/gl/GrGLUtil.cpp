@@ -343,7 +343,7 @@ GrGLenum GrToGLStencilFunc(GrStencilFunc basicFunc) {
         GR_GL_EQUAL,            // kEqual_StencilFunc,
         GR_GL_NOTEQUAL,         // kNotEqual_StencilFunc,
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kBasicStencilFuncCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kBasicStencilFuncCnt);
     GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
     GR_STATIC_ASSERT(1 == kNever_StencilFunc);
     GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
@@ -352,7 +352,7 @@ GrGLenum GrToGLStencilFunc(GrStencilFunc basicFunc) {
     GR_STATIC_ASSERT(5 == kLEqual_StencilFunc);
     GR_STATIC_ASSERT(6 == kEqual_StencilFunc);
     GR_STATIC_ASSERT(7 == kNotEqual_StencilFunc);
-    SkASSERT((unsigned) basicFunc < kBasicStencilFuncCount);
+    SkASSERT((unsigned) basicFunc < kBasicStencilFuncCnt);
 
     return gTable[basicFunc];
 }
