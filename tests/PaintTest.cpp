@@ -258,8 +258,9 @@ DEF_TEST(Paint_flattening, reporter) {
     SkWriteBuffer writer;
     paint.flatten(writer);
 
-    const uint32_t* written = writer.getWriter32()->contiguousArray();
-    SkReadBuffer reader(written, writer.bytesWritten());
+    SkAutoMalloc buf(writer.bytesWritten());
+    writer.writeToMemory(buf.get());
+    SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
     SkPaint paint2;
     paint2.unflatten(reader);
@@ -297,7 +298,10 @@ DEF_TEST(Paint_MoreFlattening, r) {
     SkWriteBuffer writer;
     paint.flatten(writer);
 
-    SkReadBuffer reader(writer.getWriter32()->contiguousArray(), writer.bytesWritten());
+    SkAutoMalloc buf(writer.bytesWritten());
+    writer.writeToMemory(buf.get());
+    SkReadBuffer reader(buf.get(), writer.bytesWritten());
+
     SkPaint other;
     other.unflatten(reader);
     ASSERT(reader.offset() == writer.bytesWritten());

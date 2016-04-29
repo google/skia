@@ -38,7 +38,6 @@ public:
         return SkToBool(fFlags & kCrossProcess_Flag);
     }
 
-    SkWriter32* getWriter32() { return &fWriter; }
     void reset(void* storage = NULL, size_t storageSize = 0) {
         fWriter.reset(storage, storageSize);
     }

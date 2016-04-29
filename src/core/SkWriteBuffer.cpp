@@ -136,8 +136,7 @@ bool SkWriteBuffer::writeToStream(SkWStream* stream) {
 
 static void write_encoded_bitmap(SkWriteBuffer* buffer, SkData* data,
                                  const SkIPoint& origin) {
-    buffer->writeUInt(SkToU32(data->size()));
-    buffer->getWriter32()->writePad(data->data(), data->size());
+    buffer->writeDataAsByteArray(data);
     buffer->write32(origin.fX);
     buffer->write32(origin.fY);
 }
