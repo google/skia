@@ -109,7 +109,7 @@ VkStencilOp stencil_op_to_vk_stencil_op(GrStencilOp op) {
         VK_STENCIL_OP_ZERO,                 // kZero_StencilOp
         VK_STENCIL_OP_INVERT,               // kInvert_StencilOp
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kStencilOpCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kStencilOpCnt);
     GR_STATIC_ASSERT(0 == kKeep_StencilOp);
     GR_STATIC_ASSERT(1 == kReplace_StencilOp);
     GR_STATIC_ASSERT(2 == kIncWrap_StencilOp);
@@ -118,7 +118,7 @@ VkStencilOp stencil_op_to_vk_stencil_op(GrStencilOp op) {
     GR_STATIC_ASSERT(5 == kDecClamp_StencilOp);
     GR_STATIC_ASSERT(6 == kZero_StencilOp);
     GR_STATIC_ASSERT(7 == kInvert_StencilOp);
-    SkASSERT((unsigned)op < kStencilOpCount);
+    SkASSERT((unsigned)op < kStencilOpCnt);
     return gTable[op];
 }
 
@@ -133,7 +133,7 @@ VkCompareOp stencil_func_to_vk_compare_op(GrStencilFunc basicFunc) {
         VK_COMPARE_OP_EQUAL,               // kEqual_StencilFunc,
         VK_COMPARE_OP_NOT_EQUAL,           // kNotEqual_StencilFunc,
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kBasicStencilFuncCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kBasicStencilFuncCnt);
     GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
     GR_STATIC_ASSERT(1 == kNever_StencilFunc);
     GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
@@ -142,7 +142,7 @@ VkCompareOp stencil_func_to_vk_compare_op(GrStencilFunc basicFunc) {
     GR_STATIC_ASSERT(5 == kLEqual_StencilFunc);
     GR_STATIC_ASSERT(6 == kEqual_StencilFunc);
     GR_STATIC_ASSERT(7 == kNotEqual_StencilFunc);
-    SkASSERT((unsigned)basicFunc < kBasicStencilFuncCount);
+    SkASSERT((unsigned)basicFunc < kBasicStencilFuncCnt);
 
     return gTable[basicFunc];
 }
