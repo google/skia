@@ -33,27 +33,6 @@ template <typename T> using remove_pointer_t = typename std::remove_pointer<T>::
 template <typename T> using remove_reference_t = typename std::remove_reference<T>::type;
 template <typename T> using remove_extent_t = typename std::remove_extent<T>::type;
 
-// template<typename R, typename... Args> struct is_function<
-//     R [calling-convention] (Args...[, ...]) [const] [volatile] [&|&&]> : std::true_type {};
-// The cv and ref-qualified versions are strange types we're currently avoiding, so not supported.
-// These aren't supported in msvc either until vs2015u2.
-// On all platforms, variadic functions only exist in the c calling convention.
-// mcvc 2013 introduced __vectorcall, but it wan't until 2015 that it was added to is_function.
-template <typename> struct is_function : std::false_type {};
-#if !defined(WIN32)
-template <typename R, typename... Args> struct is_function<R(Args...)> : std::true_type {};
-#else
-template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> : std::true_type {};
-#if defined(_M_IX86)
-template <typename R, typename... Args> struct is_function<R __stdcall (Args...)> : std::true_type {};
-template <typename R, typename... Args> struct is_function<R __fastcall (Args...)> : std::true_type {};
-#endif
-#if defined(_MSC_VER) && (_M_IX86_FP >= 2 || defined(_M_AMD64) || defined(_M_X64))
-template <typename R, typename... Args> struct is_function<R __vectorcall (Args...)> : std::true_type {};
-#endif
-#endif
-template <typename R, typename... Args> struct is_function<R(Args..., ...)> : std::true_type {};
-
 template <typename T> using add_const_t = typename std::add_const<T>::type;
 template <typename T> using add_volatile_t = typename std::add_volatile<T>::type;
 template <typename T> using add_cv_t = typename std::add_cv<T>::type;
