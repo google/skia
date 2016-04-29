@@ -77,7 +77,7 @@ void SkRecordedDrawable::flatten(SkWriteBuffer& buffer) const {
     pictureRecord.endRecording();
 
     // Flatten the recorded commands and drawables.
-    SkPictureData pictureData(pictureRecord, info, false);
+    SkPictureData pictureData(pictureRecord, info);
     pictureData.flatten(buffer);
 }
 

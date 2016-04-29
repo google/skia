@@ -232,19 +232,6 @@ DEF_TEST(Writer32_dynamic, reporter) {
     testOverwriteT(reporter, &writer);
 }
 
-DEF_TEST(Writer32_contiguous, reporter) {
-    uint32_t storage[256];
-    SkWriter32 writer;
-    writer.reset(storage, sizeof(storage));
-    // This write is small enough to fit in storage, so it's contiguous.
-    test1(reporter, &writer);
-    REPORTER_ASSERT(reporter, writer.contiguousArray() != nullptr);
-
-    // Everything other aspect of contiguous/non-contiguous is an
-    // implementation detail, not part of the public contract for
-    // SkWriter32, and so not tested here.
-}
-
 DEF_TEST(Writer32_small, reporter) {
     SkSWriter32<8 * sizeof(intptr_t)> writer;
     test1(reporter, &writer);

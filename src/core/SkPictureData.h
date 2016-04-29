@@ -60,7 +60,7 @@ struct SkPictInfo {
 
 class SkPictureData {
 public:
-    SkPictureData(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
+    SkPictureData(const SkPictureRecord& record, const SkPictInfo&);
     // Does not affect ownership of SkStream.
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,

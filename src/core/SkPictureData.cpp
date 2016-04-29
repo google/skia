@@ -34,13 +34,12 @@ void SkPictureData::initForPlayback() const {
 }
 
 SkPictureData::SkPictureData(const SkPictureRecord& record,
-                             const SkPictInfo& info,
-                             bool deepCopyOps)
+                             const SkPictInfo& info)
     : fInfo(info) {
 
     this->init();
 
-    fOpData = record.opData(deepCopyOps);
+    fOpData = record.opData();
 
     fContentInfo.set(record.fContentInfo);
 

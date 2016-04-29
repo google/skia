@@ -51,12 +51,6 @@ public:
         fExternal = external;
     }
 
-    // Returns the current buffer.
-    // The pointer may be invalidated by any future write calls.
-    const uint32_t* contiguousArray() const {
-        return (uint32_t*)fData;
-    }
-
     // size MUST be multiple of 4
     uint32_t* reserve(size_t size) {
         SkASSERT(SkAlign4(size) == size);
