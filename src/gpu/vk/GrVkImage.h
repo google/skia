@@ -37,11 +37,11 @@ public:
             : INHERITED()
             , fImage(VK_NULL_HANDLE)
             , fAlloc(VK_NULL_HANDLE)
-            , fFlags(kNo_Flags)
-            , fFormat(VK_FORMAT_UNDEFINED) {}
+            , fFormat(VK_FORMAT_UNDEFINED)
+            , fFlags(kNo_Flags) {}
 
         Resource(VkImage image, VkDeviceMemory alloc, uint32_t flags, VkFormat format)
-            : fImage(image), fAlloc(alloc), fFlags(flags), fFormat(format) {}
+            : fImage(image), fAlloc(alloc), fFormat(format), fFlags(flags) {}
 
         ~Resource() override {}
 

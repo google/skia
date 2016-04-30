@@ -283,7 +283,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
             success = this->uploadTexDataLinear(vkTex, left, top, width, height, config,
                                                 texels.begin()->fPixels, texels.begin()->fRowBytes);
         } else {
-            uint32_t mipLevels = texels.count();
+            int mipLevels = texels.count();
             if (vkTex->texturePriv().maxMipMapLevel() != mipLevels) {
                 if (!vkTex->reallocForMipmap(this, mipLevels)) {
                     return false;
@@ -459,7 +459,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         region.bufferOffset = individualMipOffsets[currentMipLevel];
         region.bufferRowLength = currentWidth;
         region.bufferImageHeight = currentHeight;
-        region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, currentMipLevel, 0, 1 };
+        region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
         region.imageOffset = { left, top, 0 };
         region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
     }
