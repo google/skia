@@ -1201,7 +1201,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkLazyPaint lazyP;
     SkImageFilter* imageFilter = paint ? paint->getImageFilter() : NULL;
     SkMatrix stashedMatrix = fMCRec->fMatrix;
-#ifndef SK_SUPPORT_LEGACY_IMAGEFILTER_CTM
     SkMatrix remainder;
     SkSize scale;
     /*
@@ -1232,7 +1231,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         imageFilter = p->getImageFilter();
         paint = p;
     }
-#endif
 
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
