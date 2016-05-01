@@ -58,6 +58,11 @@ typedef struct {
 #define FONTMETRICS_FLAGS_UNDERLINE_POSITION_IS_VALID (1U << 1)
 
 /**
+    A lightweight managed string.
+*/
+typedef struct sk_string_t sk_string_t;
+/**
+
     A sk_bitmap_t is an abstraction that specifies a raster bitmap.
 */
 typedef struct sk_bitmap_t sk_bitmap_t;
@@ -77,6 +82,8 @@ typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
     Typeface objects are immutable, and so they can be shared between threads.
 */
 typedef struct sk_typeface_t sk_typeface_t;
+typedef uint32_t sk_font_table_tag_t;
+
 /**
    Various stream types
 */
