@@ -484,15 +484,48 @@ DM_INCLUDES = [
 ## DM_ARGS
 ################################################################################
 
-def DM_ARGS(base_dir):
-    return [
-        "--nogpu",
-        "--verbose",
-        # TODO(mtklein): maybe investigate why these fail?
-        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps ~RecordDraw_TextBounds ~PaintBreakText",
-        "--resourcePath %s/resources" % base_dir,
-        "--images %s/resources" % base_dir,
+def DM_ARGS(base_dir, asan):
+  source = ["tests", "gm", "image"]
+  # TODO(benjaminwagner): f16 and serialize-8888 fail.
+  config = ["565", "8888", "pdf", "srgb", "tiles_rt", "pic"]
+  # TODO(mtklein): maybe investigate why these fail?
+  match = [
+      "~Canvas",
+      "~Codec",
+      "~Codec_Dimensions",
+      "~Codec_stripes",
+      "~FontMgr",
+      "~PaintBreakText",
+      "~RecordDraw_TextBounds",
+      "~Scalar",
+      "~skps",
+      "~Stream",
+  ]
+  if asan:
+    # Running all sources and configs under ASAN causes the test to exceed
+    # "large" size and time out.
+    source = ["tests", "gm"]
+    config = ["8888"]
+    match += [
+        "~clippedcubic2",
+        "~conicpaths",
+        "~gradients_2pt_conical",
+        "~Math",
+        "~Matrix",
+        "~PathOpsCubic",
+        "~PathOpsOpLoopsThreaded",
+        "~PathOpsSimplify",
+        "~PathOpsTightBoundsQuads",
+        "~Point",
     ]
+  return [
+      "--src %s" % " ".join(source),
+      "--config %s" % " ".join(config),
+      "--verbose",
+      "--match %s" % " ".join(match),
+      "--resourcePath %s/resources" % base_dir,
+      "--images %s/resources" % base_dir,
+  ]
 
 ################################################################################
 ## COPTS
