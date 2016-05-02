@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-package com.skia.vulkanviewer;
+package org.skia.vulkanviewer;
 
 import android.app.ActionBar;
 import android.os.Bundle;
