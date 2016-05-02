@@ -5,23 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDefaultPathRenderer_DEFINED
-#define GrDefaultPathRenderer_DEFINED
+#ifndef GrMSAAPathRenderer_DEFINED
+#define GrMSAAPathRenderer_DEFINED
 
 #include "GrPathRenderer.h"
-#include "GrPathStencilSettings.h"
 #include "SkTypes.h"
 
-/**
- *  Subclass that renders the path using the stencil buffer to resolve fill rules
- * (e.g. winding, even-odd)
- */
-class SK_API GrDefaultPathRenderer : public GrPathRenderer {
-public:
-    GrDefaultPathRenderer(bool separateStencilSupport, bool stencilWrapOpsSupport);
-
+class SK_API GrMSAAPathRenderer : public GrPathRenderer {
 private:
-
     StencilSupport onGetStencilSupport(const SkPath&, const GrStrokeInfo&) const override;
 
     bool onCanDrawPath(const CanDrawPathArgs&) const override;
@@ -37,9 +28,6 @@ private:
                           const SkPath&,
                           const GrStrokeInfo&,
                           bool stencilOnly);
-
-    bool    fSeparateStencil;
-    bool    fStencilWrapOps;
 
     typedef GrPathRenderer INHERITED;
 };

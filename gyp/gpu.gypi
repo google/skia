@@ -234,6 +234,8 @@
       '<(skia_src_path)/gpu/batches/GrDrawPathBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawVerticesBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrDrawVerticesBatch.h',
+      '<(skia_src_path)/gpu/batches/GrMSAAPathRenderer.cpp',
+      '<(skia_src_path)/gpu/batches/GrMSAAPathRenderer.h',
       '<(skia_src_path)/gpu/batches/GrNonAAFillRectBatch.h',
       '<(skia_src_path)/gpu/batches/GrNonAAFillRectBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrNonAAStrokeRectBatch.cpp',
