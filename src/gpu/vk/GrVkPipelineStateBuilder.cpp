@@ -193,35 +193,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
                                                   nullptr,
                                                   &dsLayout[GrVkUniformHandler::kSamplerDescSet]));
 
-    // Create Uniform Buffer Descriptor
-    // We always attach uniform buffers to descriptor set 1. The vertex uniform buffer will have
-    // binding 0 and the fragment binding 1.
-    VkDescriptorSetLayoutBinding dsUniBindings[2];
-    memset(&dsUniBindings, 0, 2 * sizeof(VkDescriptorSetLayoutBinding));
-    dsUniBindings[0].binding = GrVkUniformHandler::kVertexBinding;
-    dsUniBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    dsUniBindings[0].descriptorCount = 1;
-    dsUniBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    dsUniBindings[0].pImmutableSamplers = nullptr;
-    dsUniBindings[1].binding = GrVkUniformHandler::kFragBinding;
-    dsUniBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    dsUniBindings[1].descriptorCount = 1;
-    dsUniBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    dsUniBindings[1].pImmutableSamplers = nullptr;
-
-    VkDescriptorSetLayoutCreateInfo dsUniformLayoutCreateInfo;
-    memset(&dsUniformLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
-    dsUniformLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    dsUniformLayoutCreateInfo.pNext = nullptr;
-    dsUniformLayoutCreateInfo.flags = 0;
-    dsUniformLayoutCreateInfo.bindingCount = 2;
-    dsUniformLayoutCreateInfo.pBindings = dsUniBindings;
-
-    GR_VK_CALL_ERRCHECK(fGpu->vkInterface(), CreateDescriptorSetLayout(
-                                             fGpu->device(),
-                                             &dsUniformLayoutCreateInfo,
-                                             nullptr,
-                                             &dsLayout[GrVkUniformHandler::kUniformBufferDescSet]));
+    // This layout is not owned by the PipelineStateBuilder and thus should no be destroyed
+    dsLayout[GrVkUniformHandler::kUniformBufferDescSet] = fGpu->resourceProvider().getUniDSLayout();
 
     // Create the VkPipelineLayout
     VkPipelineLayoutCreateInfo layoutCreateInfo;
@@ -277,10 +250,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
     if (!pipeline) {
         GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(), pipelineLayout,
                                                               nullptr));
-        GR_VK_CALL(fGpu->vkInterface(), DestroyDescriptorSetLayout(fGpu->device(), dsLayout[0],
-                                                                   nullptr));
-        GR_VK_CALL(fGpu->vkInterface(), DestroyDescriptorSetLayout(fGpu->device(), dsLayout[1],
-                                                                   nullptr));
+        GR_VK_CALL(fGpu->vkInterface(),
+                   DestroyDescriptorSetLayout(fGpu->device(),
+                                              dsLayout[GrVkUniformHandler::kSamplerDescSet],
+                                              nullptr));
+
         this->cleanupFragmentProcessors();
         return nullptr;
     }
@@ -289,7 +263,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
                                  desc,
                                  pipeline,
                                  pipelineLayout,
-                                 dsLayout,
+                                 dsLayout[GrVkUniformHandler::kSamplerDescSet],
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
                                  fUniformHandler.fCurrentVertexUBOOffset,

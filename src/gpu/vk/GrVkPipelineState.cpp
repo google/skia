@@ -28,7 +28,7 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
                                      const GrVkPipelineState::Desc& desc,
                                      GrVkPipeline* pipeline,
                                      VkPipelineLayout layout,
-                                     VkDescriptorSetLayout dsLayout[2],
+                                     VkDescriptorSetLayout dsSamplerLayout,
                                      const BuiltinUniformHandles& builtinUniformHandles,
                                      const UniformInfoArray& uniforms,
                                      uint32_t vertexUniformSize,
@@ -47,11 +47,9 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
     , fFragmentProcessors(fragmentProcessors)
     , fDesc(desc)
     , fDataManager(uniforms, vertexUniformSize, fragmentUniformSize)
-    , fSamplerPoolManager(dsLayout[GrVkUniformHandler::kSamplerDescSet],
-                          VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, numSamplers, gpu)
-    , fUniformPoolManager(dsLayout[GrVkUniformHandler::kUniformBufferDescSet],
-                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                          (vertexUniformSize || fragmentUniformSize) ? 2 : 0, gpu) {
+    , fSamplerPoolManager(dsSamplerLayout, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                          numSamplers, gpu)
+    , fCurrentUniformDescPool(nullptr) {
     fSamplers.setReserve(numSamplers);
     fTextureViews.setReserve(numSamplers);
     fTextures.setReserve(numSamplers);
@@ -126,7 +124,10 @@ void GrVkPipelineState::freeGPUResources(const GrVkGpu* gpu) {
     }
 
     fSamplerPoolManager.freeGPUResources(gpu);
-    fUniformPoolManager.freeGPUResources(gpu);
+    if (fCurrentUniformDescPool) {
+        fCurrentUniformDescPool->unref(gpu);
+        fCurrentUniformDescPool = nullptr;
+    }
 
     this->freeTempResources(gpu);
 }
@@ -156,7 +157,10 @@ void GrVkPipelineState::abandonGPUResources() {
     fTextures.rewind();
 
     fSamplerPoolManager.abandonGPUResources();
-    fUniformPoolManager.abandonGPUResources();
+    if (fCurrentUniformDescPool) {
+        fCurrentUniformDescPool->unrefAndAbandon();
+        fCurrentUniformDescPool = nullptr;
+    }
 }
 
 static void append_texture_bindings(const GrProcessor& processor,
@@ -205,8 +209,17 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     if (fVertexUniformBuffer.get() || fFragmentUniformBuffer.get()) {
         if (fDataManager.uploadUniformBuffers(gpu, fVertexUniformBuffer, fFragmentUniformBuffer) ||
             VK_NULL_HANDLE == fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet]) {
-            fUniformPoolManager.getNewDescriptorSet(gpu,
-                                       &fDescriptorSets[GrVkUniformHandler::kUniformBufferDescSet]);
+            const GrVkDescriptorPool* pool;
+            int uniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
+            gpu->resourceProvider().getUniformDescriptorSet(&fDescriptorSets[uniformDSIdx],
+                                                            &pool);
+            if (pool != fCurrentUniformDescPool) {
+                if (fCurrentUniformDescPool) {
+                    fCurrentUniformDescPool->unref(gpu);
+                }
+                fCurrentUniformDescPool = pool;
+                fCurrentUniformDescPool->ref();
+            }
             this->writeUniformBuffers(gpu);
         }
     }
@@ -376,8 +389,8 @@ void GrVkPipelineState::addUniformResources(GrVkCommandBuffer& commandBuffer) {
     if (fSamplerPoolManager.fPool) {
         commandBuffer.addResource(fSamplerPoolManager.fPool);
     }
-    if (fUniformPoolManager.fPool) {
-        commandBuffer.addResource(fUniformPoolManager.fPool);
+    if (fCurrentUniformDescPool) {
+        commandBuffer.addResource(fCurrentUniformDescPool);
     }
 
     if (fVertexUniformBuffer.get()) {
@@ -418,7 +431,8 @@ void GrVkPipelineState::DescriptorPoolManager::getNewPool(GrVkGpu* gpu) {
     SkASSERT(fPool || !fMaxDescriptors);
 }
 
-void GrVkPipelineState::DescriptorPoolManager::getNewDescriptorSet(GrVkGpu* gpu, VkDescriptorSet* ds) {
+void GrVkPipelineState::DescriptorPoolManager::getNewDescriptorSet(GrVkGpu* gpu,
+                                                                   VkDescriptorSet* ds) {
     if (!fMaxDescriptors) {
         return;
     }

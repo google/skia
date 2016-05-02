@@ -149,7 +149,7 @@ private:
                       const GrVkPipelineState::Desc&,
                       GrVkPipeline* pipeline,
                       VkPipelineLayout layout,
-                      VkDescriptorSetLayout dsLayout[2],
+                      VkDescriptorSetLayout dsSamplerLayout,
                       const BuiltinUniformHandles& builtinUniformHandles,
                       const UniformInfoArray& uniforms,
                       uint32_t vertexUniformSize,
@@ -280,7 +280,7 @@ private:
     GrVkPipelineStateDataManager fDataManager;
 
     DescriptorPoolManager fSamplerPoolManager;
-    DescriptorPoolManager fUniformPoolManager;
+    const GrVkDescriptorPool*   fCurrentUniformDescPool;
 
     int fNumSamplers;
 

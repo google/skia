@@ -21,7 +21,7 @@ class GrVkGpu;
  */
 class GrVkDescriptorPool : public GrVkResource {
 public:
-    explicit GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type, uint32_t count);
+    GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type, uint32_t count);
 
     VkDescriptorPool descPool() const { return fDescPool; }
 

@@ -19,8 +19,11 @@ SkTDynamicHash<GrVkResource, uint32_t> GrVkResource::fTrace;
 SkRandom GrVkResource::fRandom;
 #endif
 
-GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu) : fGpu(gpu)
-                                                         , fPipelineCache(VK_NULL_HANDLE) {
+GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
+    : fGpu(gpu)
+    , fPipelineCache(VK_NULL_HANDLE)
+    , fUniformDescPool(nullptr)
+    , fCurrentUniformDescCount(0) {
     fPipelineStateCache = new PipelineStateCache(gpu);
 }
 
@@ -28,6 +31,39 @@ GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fSimpleRenderPasses.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
     delete fPipelineStateCache;
+}
+
+void GrVkResourceProvider::initUniformDescObjects() {
+    // Create Uniform Buffer Descriptor
+    // The vertex uniform buffer will have binding 0 and the fragment binding 1.
+    VkDescriptorSetLayoutBinding dsUniBindings[2];
+    memset(&dsUniBindings, 0, 2 * sizeof(VkDescriptorSetLayoutBinding));
+    dsUniBindings[0].binding = GrVkUniformHandler::kVertexBinding;
+    dsUniBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    dsUniBindings[0].descriptorCount = 1;
+    dsUniBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    dsUniBindings[0].pImmutableSamplers = nullptr;
+    dsUniBindings[1].binding = GrVkUniformHandler::kFragBinding;
+    dsUniBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    dsUniBindings[1].descriptorCount = 1;
+    dsUniBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    dsUniBindings[1].pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutCreateInfo dsUniformLayoutCreateInfo;
+    memset(&dsUniformLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
+    dsUniformLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    dsUniformLayoutCreateInfo.pNext = nullptr;
+    dsUniformLayoutCreateInfo.flags = 0;
+    dsUniformLayoutCreateInfo.bindingCount = 2;
+    dsUniformLayoutCreateInfo.pBindings = dsUniBindings;
+
+    GR_VK_CALL_ERRCHECK(fGpu->vkInterface(), CreateDescriptorSetLayout(fGpu->device(),
+                                                                       &dsUniformLayoutCreateInfo,
+                                                                       nullptr,
+                                                                       &fUniformDescLayout));
+    fCurrMaxUniDescriptors = kStartNumUniformDescriptors;
+    fUniformDescPool = this->findOrCreateCompatibleDescriptorPool(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                                                  fCurrMaxUniDescriptors);
 }
 
 void GrVkResourceProvider::init() {
@@ -45,6 +81,8 @@ void GrVkResourceProvider::init() {
     if (VK_SUCCESS != result) {
         fPipelineCache = VK_NULL_HANDLE;
     }
+
+    this->initUniformDescObjects();
 }
 
 GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
@@ -105,6 +143,36 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::findOrCreateCompatiblePipelineSta
     return fPipelineStateCache->refPipelineState(pipeline, proc, primitiveType, renderPass);
 }
 
+void GrVkResourceProvider::getUniformDescriptorSet(VkDescriptorSet* ds,
+                                                   const GrVkDescriptorPool** outPool) {
+    fCurrentUniformDescCount += kNumUniformDescPerSet;
+    if (fCurrentUniformDescCount > fCurrMaxUniDescriptors) {
+        fUniformDescPool->unref(fGpu);
+        if (fCurrMaxUniDescriptors < kMaxUniformDescriptors >> 1) {
+            fCurrMaxUniDescriptors = fCurrMaxUniDescriptors << 1;
+        } else {
+            fCurrMaxUniDescriptors = kMaxUniformDescriptors;
+        }
+        fUniformDescPool =
+            this->findOrCreateCompatibleDescriptorPool(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                                       fCurrMaxUniDescriptors);
+        fCurrentUniformDescCount = kNumUniformDescPerSet;
+    }
+    SkASSERT(fUniformDescPool);
+
+    VkDescriptorSetAllocateInfo dsAllocateInfo;
+    memset(&dsAllocateInfo, 0, sizeof(VkDescriptorSetAllocateInfo));
+    dsAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    dsAllocateInfo.pNext = nullptr;
+    dsAllocateInfo.descriptorPool = fUniformDescPool->descPool();
+    dsAllocateInfo.descriptorSetCount = 1;
+    dsAllocateInfo.pSetLayouts = &fUniformDescLayout;
+    GR_VK_CALL_ERRCHECK(fGpu->vkInterface(), AllocateDescriptorSets(fGpu->device(),
+                                                                    &dsAllocateInfo,
+                                                                    ds));
+    *outPool = fUniformDescPool;
+}
+
 GrVkCommandBuffer* GrVkResourceProvider::createCommandBuffer() {
     GrVkCommandBuffer* cmdBuffer = GrVkCommandBuffer::Create(fGpu, fGpu->cmdPool());
     fActiveCommandBuffers.push_back(cmdBuffer);
@@ -151,6 +219,14 @@ void GrVkResourceProvider::destroyResources() {
 
     GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineCache(fGpu->device(), fPipelineCache, nullptr));
     fPipelineCache = VK_NULL_HANDLE;
+
+    if (fUniformDescLayout) {
+        GR_VK_CALL(fGpu->vkInterface(), DestroyDescriptorSetLayout(fGpu->device(),
+                                                                   fUniformDescLayout,
+                                                                   nullptr));
+        fUniformDescLayout = VK_NULL_HANDLE;
+    }
+    fUniformDescPool->unref(fGpu);
 }
 
 void GrVkResourceProvider::abandonResources() {
@@ -179,4 +255,7 @@ void GrVkResourceProvider::abandonResources() {
     SkASSERT(0 == GrVkResource::fTrace.count());
 #endif
     fPipelineCache = VK_NULL_HANDLE;
+
+    fUniformDescLayout = VK_NULL_HANDLE;
+    fUniformDescPool->unrefAndAbandon();
 }
