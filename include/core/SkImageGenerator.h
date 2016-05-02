@@ -251,7 +251,11 @@ public:
     }
 
 protected:
-    SkImageGenerator(const SkImageInfo& info);
+    enum {
+        kNeedNewImageUniqueID = 0
+    };
+
+    SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 
     virtual SkData* onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM);
 

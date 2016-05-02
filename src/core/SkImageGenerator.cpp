@@ -8,9 +8,9 @@
 #include "SkImageGenerator.h"
 #include "SkNextID.h"
 
-SkImageGenerator::SkImageGenerator(const SkImageInfo& info)
+SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     : fInfo(info)
-    , fUniqueID(SkNextID::ImageID())
+    , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID)
 {}
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
