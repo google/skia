@@ -45,7 +45,6 @@ public:
 
     // common data structures
     SkFlattenable* readFlattenable(SkFlattenable::Type type) override;
-    void skipFlattenable() override;
     void readPoint(SkPoint* point) override;
     void readMatrix(SkMatrix* matrix) override;
     void readIRect(SkIRect* rect) override;

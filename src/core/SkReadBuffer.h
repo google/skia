@@ -107,8 +107,6 @@ public:
     bool eof() { return fReader.eof(); }
     virtual const void* skip(size_t size) { return fReader.skip(size); }
 
-    void* readFunctionPtr() { return fReader.readPtr(); }
-
     // primitives
     virtual bool readBool();
     virtual SkColor readColor();
@@ -147,12 +145,6 @@ public:
     sk_sp<SkRasterizer> readRasterizer() { return this->readFlattenable<SkRasterizer>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShader>(); }
     sk_sp<SkXfermode> readXfermode() { return this->readFlattenable<SkXfermode>(); }
-
-    /**
-     *  Like readFlattenable() but explicitly just skips the data that was written for the
-     *  flattenable (or the sentinel that there wasn't one).
-     */
-    virtual void skipFlattenable();
 
     // binary data and arrays
     virtual bool readByteArray(void* value, size_t size);

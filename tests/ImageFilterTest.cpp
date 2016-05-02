@@ -65,9 +65,7 @@ protected:
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
-        this->INHERITED::flatten(buffer);
-        buffer.writeFunctionPtr(fReporter);
-        buffer.writeMatrix(fExpectedMatrix);
+        SkDEBUGFAIL("Should never get here");
     }
 
 private:
@@ -289,11 +287,8 @@ private:
 }
 
 sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    skiatest::Reporter* reporter = (skiatest::Reporter*)buffer.readFunctionPtr();
-    SkMatrix matrix;
-    buffer.readMatrix(&matrix);
-    return MatrixTestImageFilter::Make(reporter, matrix);
+    SkDEBUGFAIL("Should never get here");
+    return nullptr;
 }
 
 #ifndef SK_IGNORE_TO_STRING

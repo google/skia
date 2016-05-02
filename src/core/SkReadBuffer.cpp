@@ -392,21 +392,3 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     }
     return obj.release();
 }
-
-/**
- *  Needs to follow the same pattern as readFlattenable(), but explicitly skip whatever data
- *  has been written.
- */
-void SkReadBuffer::skipFlattenable() {
-    if (fFactoryCount > 0) {
-        if (0 == fReader.readU32()) {
-            return;
-        }
-    } else {
-        if (nullptr == this->readFunctionPtr()) {
-            return;
-        }
-    }
-    uint32_t sizeRecorded = fReader.readU32();
-    fReader.skip(sizeRecorded);
-}
