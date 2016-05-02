@@ -14,6 +14,7 @@
 #include "SkTypeface.h"
 
 struct SkBaseMutex;
+class SkFontMgr;
 
 /**
  *  \class SkFontConfigInterface
@@ -23,7 +24,6 @@ struct SkBaseMutex;
  */
 class SK_API SkFontConfigInterface : public SkRefCnt {
 public:
-    
 
     /**
      *  Returns the global SkFontConfigInterface instance, and if it is not
@@ -110,12 +110,15 @@ public:
      *  libfontconfig. This does not affect the refcnt of the returned instance.
      *  The mutex may be used to guarantee the singleton is only constructed once.
      */
-    static SkFontConfigInterface* GetSingletonDirectInterface(SkBaseMutex* mutex = NULL);
+    static SkFontConfigInterface* GetSingletonDirectInterface();
 
     // New APIS, which have default impls for now (which do nothing)
 
     virtual SkDataTable* getFamilyNames() { return SkDataTable::NewEmpty(); }
     typedef SkRefCnt INHERITED;
 };
+
+/** Creates a SkFontMgr which wraps a SkFontConfigInterface. */
+SK_API SkFontMgr* SkFontMgr_New_FCI(SkFontConfigInterface* fci);
 
 #endif

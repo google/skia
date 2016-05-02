@@ -24,6 +24,56 @@
 #include <fontconfig/fontconfig.h>
 #include <unistd.h>
 
+#ifdef SK_DEBUG
+#    include "SkTLS.h"
+#endif
+
+namespace {
+
+// Fontconfig is not threadsafe before 2.10.91. Before that, we lock with a global mutex.
+// See https://bug.skia.org/1497 for background.
+SK_DECLARE_STATIC_MUTEX(gFCMutex);
+
+#ifdef SK_DEBUG
+void* CreateThreadFcLocked() { return new bool(false); }
+void DeleteThreadFcLocked(void* v) { delete static_cast<bool*>(v); }
+#   define THREAD_FC_LOCKED \
+        static_cast<bool*>(SkTLS::Get(CreateThreadFcLocked, DeleteThreadFcLocked))
+#endif
+
+struct FCLocker {
+    // Assume FcGetVersion() has always been thread safe.
+
+    FCLocker() {
+        if (FcGetVersion() < 21091) {
+            gFCMutex.acquire();
+        } else {
+            SkDEBUGCODE(bool* threadLocked = THREAD_FC_LOCKED);
+            SkASSERT(false == *threadLocked);
+            SkDEBUGCODE(*threadLocked = true);
+        }
+    }
+
+    ~FCLocker() {
+        AssertHeld();
+        if (FcGetVersion() < 21091) {
+            gFCMutex.release();
+        } else {
+            SkDEBUGCODE(*THREAD_FC_LOCKED = false);
+        }
+    }
+
+    static void AssertHeld() { SkDEBUGCODE(
+        if (FcGetVersion() < 21091) {
+            gFCMutex.assertHeld();
+        } else {
+            SkASSERT(true == *THREAD_FC_LOCKED);
+        }
+    ) }
+};
+
+} // namespace
+
 size_t SkFontConfigInterface::FontIdentity::writeToMemory(void* addr) const {
     size_t size = sizeof(fID) + sizeof(fTTCIndex);
     size += sizeof(int32_t) + sizeof(int32_t) + sizeof(uint8_t); // weight, width, italic
@@ -448,7 +498,7 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 #define kMaxFontFamilyLength    2048
 
 SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect() {
-    SkAutoMutexAcquire ac(mutex_);
+    FCLocker lock;
 
     FcInit();
 
@@ -532,7 +582,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
         return false;
     }
 
-    SkAutoMutexAcquire ac(mutex_);
+    FCLocker lock;
 
     FcPattern* pattern = FcPatternCreate();
 
@@ -649,7 +699,7 @@ static bool find_name(const SkTDArray<const char*>& list, const char* str) {
 }
 
 SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
-    SkAutoMutexAcquire ac(mutex_);
+    FCLocker lock;
 
     FcPattern* pat = FcPatternCreate();
     SkAutoTCallVProc<FcPattern, FcPatternDestroy> autoDestroyPat(pat);

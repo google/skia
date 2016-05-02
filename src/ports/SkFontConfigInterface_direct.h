@@ -8,7 +8,6 @@
 /* migrated from chrome/src/skia/ext/SkFontHost_fontconfig_direct.cpp */
 
 #include "SkFontConfigInterface.h"
-#include "SkMutex.h"
 
 #include <fontconfig/fontconfig.h>
 
@@ -32,8 +31,6 @@ protected:
     virtual bool isAccessible(const char* filename);
 
 private:
-    SkMutex mutex_;
-
     bool isValidPattern(FcPattern* pattern);
     FcPattern* MatchFont(FcFontSet* font_set, const char* post_config_family,
                          const SkString& family);

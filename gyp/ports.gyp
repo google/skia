@@ -133,7 +133,6 @@
               },
               'sources': [
                 '../src/ports/SkFontMgr_fontconfig.cpp',
-                '../src/ports/SkFontHost_fontconfig.cpp',
                 '../src/ports/SkFontConfigInterface_direct.cpp',
                 '../src/ports/SkFontConfigInterface_direct_factory.cpp',
               ],
