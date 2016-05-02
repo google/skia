@@ -42,7 +42,6 @@ public:
 
     // strings -- the caller is responsible for freeing the string contents
     void readString(SkString* string) override;
-    void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) override;
 
     // common data structures
     SkFlattenable* readFlattenable(SkFlattenable::Type type) override;

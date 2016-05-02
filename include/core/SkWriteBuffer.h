@@ -54,7 +54,6 @@ public:
     void writeUInt(uint32_t value);
     void write32(int32_t value);
     void writeString(const char* value);
-    void writeEncodedString(const void* value, size_t byteLength, SkPaint::TextEncoding encoding);
     void writeFunctionPtr(void* ptr) { fWriter.writePtr(ptr); }
 
     void writeFlattenable(const SkFlattenable* flattenable);

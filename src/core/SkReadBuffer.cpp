@@ -117,15 +117,6 @@ void SkReadBuffer::readString(SkString* string) {
     string->set(strContents, len);
 }
 
-void* SkReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncoding encoding) {
-    SkDEBUGCODE(int32_t encodingType = ) fReader.readInt();
-    SkASSERT(encodingType == encoding);
-    *length =  fReader.readInt();
-    void* data = sk_malloc_throw(*length);
-    memcpy(data, fReader.skip(SkAlign4(*length)), *length);
-    return data;
-}
-
 void SkReadBuffer::readPoint(SkPoint* point) {
     point->fX = fReader.readScalar();
     point->fY = fReader.readScalar();

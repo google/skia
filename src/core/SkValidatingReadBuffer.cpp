@@ -110,19 +110,6 @@ void SkValidatingReadBuffer::readString(SkString* string) {
     }
 }
 
-void* SkValidatingReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncoding encoding) {
-    const int32_t encodingType = this->readInt();
-    this->validate(encodingType == encoding);
-    *length = this->readInt();
-    const void* ptr = this->skip(SkAlign4(*length));
-    void* data = nullptr;
-    if (!fError) {
-        data = sk_malloc_throw(*length);
-        memcpy(data, ptr, *length);
-    }
-    return data;
-}
-
 void SkValidatingReadBuffer::readPoint(SkPoint* point) {
     point->fX = this->readScalar();
     point->fY = this->readScalar();

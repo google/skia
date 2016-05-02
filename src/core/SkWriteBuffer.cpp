@@ -74,14 +74,6 @@ void SkWriteBuffer::writeString(const char* value) {
     fWriter.writeString(value);
 }
 
-void SkWriteBuffer::writeEncodedString(const void* value, size_t byteLength,
-                                              SkPaint::TextEncoding encoding) {
-    fWriter.writeInt(encoding);
-    fWriter.writeInt(SkToU32(byteLength));
-    fWriter.write(value, byteLength);
-}
-
-
 void SkWriteBuffer::writeColor(const SkColor& color) {
     fWriter.write32(color);
 }

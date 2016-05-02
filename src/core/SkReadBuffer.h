@@ -122,7 +122,6 @@ public:
 
     // strings -- the caller is responsible for freeing the string contents
     virtual void readString(SkString* string);
-    virtual void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding);
 
     // common data structures
     virtual void readPoint(SkPoint* point);
