@@ -64,6 +64,10 @@ namespace SkOpts {
 
     extern void (*half_to_float)(float[], const uint16_t[], int);
     extern void (*float_to_half)(uint16_t[], const float[], int);
+
+    // Blend ndst src pixels over dst, where both src and dst point to sRGB pixels (RGBA or BGRA).
+    // If nsrc < ndst, we loop over src to create a pattern.
+    extern void (*srcover_srgb_srgb)(uint32_t* dst, const uint32_t* src, int ndst, int nsrc);
 }
 
 #endif//SkOpts_DEFINED

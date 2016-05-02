@@ -11,6 +11,7 @@
 #include "SkOpts.h"
 
 #define SK_OPTS_NS sk_default
+#include "SkBlend_opts.h"
 #include "SkBlitMask_opts.h"
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
@@ -72,6 +73,8 @@ namespace SkOpts {
 
     decltype(half_to_float) half_to_float = sk_default::half_to_float;
     decltype(float_to_half) float_to_half = sk_default::float_to_half;
+
+    decltype(srcover_srgb_srgb) srcover_srgb_srgb = sk_default::srcover_srgb_srgb;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
