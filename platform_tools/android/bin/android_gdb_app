@@ -28,11 +28,6 @@ fi
 # We need the debug symbols from these files
 GDB_TMP_DIR=$SKIA_OUT/android_gdb_tmp
 mkdir -p $GDB_TMP_DIR
-echo "Copying symbol files"
-adb_pull_if_needed /system/bin/app_process $GDB_TMP_DIR
-adb_pull_if_needed /system/lib/libc.so $GDB_TMP_DIR
-adb_pull_if_needed /data/data/com.skia.sample_app/lib/libskia_android.so $GDB_TMP_DIR
-adb_pull_if_needed /data/data/com.skia.sample_app/lib/libSampleApp.so $GDB_TMP_DIR
 
 echo "Pushing gdbserver..."
 adb_push_if_needed $ANDROID_TOOLCHAIN/gdbserver /data/local/tmp
@@ -54,15 +49,12 @@ sleep 2
 
 # Set up gdb commands
 GDBSETUP=$GDB_TMP_DIR/gdb.setup
-echo "file $GDB_TMP_DIR/app_process" >> $GDBSETUP
 echo "target remote :$PORT" >> $GDBSETUP
-echo "set solib-absolute-prefix $GDB_TMP_DIR" >> $GDBSETUP
-echo "set solib-search-path $GDB_TMP_DIR" >> $GDBSETUP
+
 
 # Launch gdb client
 echo "Entering gdb client shell"
-GDB_COMMAND=$(command ls "$ANDROID_TOOLCHAIN"/bin/*-gdb | head -n1)
-"$GDB_COMMAND" -x $GDBSETUP
+${ANDROID_TOOLCHAIN}/host_prebuilt/bin/gdb-orig -x $GDBSETUP
 
 # Clean up:
 # We could 'rm -rf $GDB_TMP_DIR', but doing so would cause subsequent debugging
