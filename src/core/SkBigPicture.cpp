@@ -58,7 +58,8 @@ void SkBigPicture::partialPlayback(SkCanvas* canvas,
 }
 
 const SkBigPicture::Analysis& SkBigPicture::analysis() const {
-    return *fAnalysis.get([&]{ return new Analysis(*fRecord); });
+    fAnalysisOnce([this] { fAnalysis.init(*fRecord); });
+    return fAnalysis;
 }
 
 SkRect SkBigPicture::cullRect()            const { return fCullRect; }
@@ -80,8 +81,8 @@ SkPicture const* const* SkBigPicture::drawablePicts() const {
     return fDrawablePicts ? fDrawablePicts->begin() : nullptr;
 }
 
-SkBigPicture::Analysis::Analysis(const SkRecord& record) {
-    TRACE_EVENT0("disabled-by-default-skia", "SkBigPicture::Analysis::Analysis()");
+void SkBigPicture::Analysis::init(const SkRecord& record) {
+    TRACE_EVENT0("disabled-by-default-skia", "SkBigPicture::Analysis::init()");
     SkTextHunter   text;
     SkBitmapHunter bitmap;
     SkPathCounter  path;

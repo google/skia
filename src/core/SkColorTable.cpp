@@ -41,19 +41,19 @@ SkColorTable::SkColorTable(SkPMColor* colors, int count, AllocatedWithMalloc)
 
 SkColorTable::~SkColorTable() {
     sk_free(fColors);
-    // f16BitCache frees itself
+    sk_free(f16BitCache);
 }
 
 #include "SkColorPriv.h"
 
 const uint16_t* SkColorTable::read16BitCache() const {
-    return f16BitCache.get([&]{
-        auto cache = new uint16_t[fCount];
+    f16BitCacheOnce([this] {
+        f16BitCache = (uint16_t*)sk_malloc_throw(fCount * sizeof(uint16_t));
         for (int i = 0; i < fCount; i++) {
-            cache[i] = SkPixel32ToPixel16_ToU16(fColors[i]);
+            f16BitCache[i] = SkPixel32ToPixel16_ToU16(fColors[i]);
         }
-        return cache;
     });
+    return f16BitCache;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,7 @@
 #include "GrBufferAccess.h"
 #include "SkMath.h"
 #include "SkString.h"
+#include "../private/SkAtomics.h"
 
 class GrContext;
 class GrCoordTransform;

@@ -318,13 +318,12 @@ bool SkTypeface::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
 #include "SkPaint.h"
 
 SkRect SkTypeface::getBounds() const {
-    return *fLazyBounds.get([&] {
-        SkRect* rect = new SkRect;
-        if (!this->onComputeBounds(rect)) {
-            rect->setEmpty();
+    fBoundsOnce([this] {
+        if (!this->onComputeBounds(&fBounds)) {
+            fBounds.setEmpty();
         }
-        return rect;
     });
+    return fBounds;
 }
 
 bool SkTypeface::onComputeBounds(SkRect* bounds) const {

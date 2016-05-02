@@ -8,7 +8,7 @@
 #ifndef SkBigPicture_DEFINED
 #define SkBigPicture_DEFINED
 
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 #include "SkPicture.h"
 #include "SkRect.h"
 #include "SkTemplates.h"
@@ -65,7 +65,7 @@ public:
 
 private:
     struct Analysis {
-        explicit Analysis(const SkRecord&);
+        void init(const SkRecord&);
 
         bool suitableForGpuRasterization(const char** reason) const;
 
@@ -81,7 +81,8 @@ private:
 
     const SkRect                          fCullRect;
     const size_t                          fApproxBytesUsedBySubPictures;
-    SkOncePtr<const Analysis>             fAnalysis;
+    mutable SkOnce                        fAnalysisOnce;
+    mutable Analysis                      fAnalysis;
     SkAutoTUnref<const SkRecord>          fRecord;
     SkAutoTDelete<const SnapshotArray>    fDrawablePicts;
     SkAutoTUnref<const SkBBoxHierarchy>   fBBH;

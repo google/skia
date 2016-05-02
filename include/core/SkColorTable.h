@@ -10,7 +10,7 @@
 #ifndef SkColorTable_DEFINED
 #define SkColorTable_DEFINED
 
-#include "../private/SkOncePtr.h"
+#include "../private/SkOnce.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
@@ -62,7 +62,8 @@ private:
     SkColorTable(SkPMColor* colors, int count, AllocatedWithMalloc);
 
     SkPMColor*            fColors;
-    SkOncePtr<uint16_t[]> f16BitCache;
+    mutable uint16_t*     f16BitCache = nullptr;
+    mutable SkOnce        f16BitCacheOnce;
     int                   fCount;
 
     void init(const SkPMColor* colors, int count);
