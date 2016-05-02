@@ -24,7 +24,7 @@ deps = {
   "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",
   "third_party/externals/piex"    : "https://android.googlesource.com/platform/external/piex.git@be908191d0a6883a95333bdc0bca749c9b830969",
 
-  "third_party/externals/libjpeg-turbo"             : "https://skia.googlesource.com/third_party/libjpeg-turbo.git@e604eb4b007012e727483784a67c757d49f714c9",
+  "third_party/externals/libjpeg-turbo"             : "https://skia.googlesource.com/third_party/libjpeg-turbo.git@b38b934d246fca482eb6801f4ce79422954a635e",
   # libjpeg-turbo depends on yasm to compile .asm files
   "third_party/externals/yasm/source/patched-yasm/" : "https://chromium.googlesource.com/chromium/deps/yasm/patched-yasm.git@4671120cd8558ce62ee8672ebf3eb6f5216f909b",
   "third_party/externals/yasm/binaries"             : "https://chromium.googlesource.com/chromium/deps/yasm/binaries.git@52f9b3f4b0aa06da24ef8b123058bb61ee468881",
