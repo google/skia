@@ -822,9 +822,10 @@ void GrDrawContext::drawPath(const GrClip& clip,
             if (is_nested_rects(viewMatrix, path, strokeInfo, rects)) {
                 SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateAAFillNestedRects(
                     paint.getColor(), viewMatrix, rects));
-
-                GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-                this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+                if (batch) {
+                    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
+                    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+                }
                 return;
             }
         }

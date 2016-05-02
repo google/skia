@@ -580,15 +580,14 @@ static void compute_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* 
 
 namespace GrAAStrokeRectBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& devOutside,
-                    const SkRect& devOutsideAssist,
-                    const SkRect& devInside,
-                    bool miterStroke,
-                    bool degenerate) {
-    AAStrokeRectBatch* batch = AAStrokeRectBatch::Create(viewMatrix, miterStroke);
-    batch->append(color, devOutside, devOutsideAssist, devInside, degenerate);
+GrDrawBatch* CreateFillBetweenRects(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& devOutside,
+                                    const SkRect& devInside) {
+    SkASSERT(!devOutside.isEmpty())
+    SkASSERT(!devInside.isEmpty())
+    AAStrokeRectBatch* batch = AAStrokeRectBatch::Create(viewMatrix, true);
+    batch->append(color, devOutside, devOutside, devInside, false);
     batch->init();
     return batch;
 }
@@ -643,19 +642,21 @@ bool Append(GrBatch* origBatch,
 DRAW_BATCH_TEST_DEFINE(AAStrokeRectBatch) {
     bool miterStroke = random->nextBool();
 
-    // Create mock stroke rect
-    SkRect outside = GrTest::TestRect(random);
-    SkScalar minDim = SkMinScalar(outside.width(), outside.height());
-    SkScalar strokeWidth = minDim * 0.1f;
-    SkRect outsideAssist = outside;
-    outsideAssist.outset(strokeWidth, strokeWidth);
-    SkRect inside = outside;
-    inside.inset(strokeWidth, strokeWidth);
+    // Create either a empty rect or a non-empty rect.
+    SkRect rect = random->nextBool() ? SkRect::MakeXYWH(10, 10, 50, 40) :
+                                       SkRect::MakeXYWH(6, 7, 0, 0);
+    SkScalar minDim = SkMinScalar(rect.width(), rect.height());
+    SkScalar strokeWidth = random->nextUScalar1() * minDim;
 
     GrColor color = GrRandomColor(random);
 
-    return GrAAStrokeRectBatch::Create(color, GrTest::TestMatrix(random), outside, outsideAssist,
-                                       inside, miterStroke, inside.isFinite() && inside.isEmpty());
+    SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
+    rec.setStrokeStyle(strokeWidth);
+    rec.setStrokeParams(SkPaint::kButt_Cap,
+                        miterStroke ? SkPaint::kMiter_Join : SkPaint::kBevel_Join,
+                        1.f);
+    SkMatrix matrix = GrTest::TestMatrixRectStaysRect(random);
+    return GrAAStrokeRectBatch::Create(color, matrix, rect, rec);
 }
 
 #endif

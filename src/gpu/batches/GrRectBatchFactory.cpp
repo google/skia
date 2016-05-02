@@ -22,9 +22,14 @@ GrDrawBatch* CreateAAFillNestedRects(GrColor color,
     SkRect devOutside, devInside;
     viewMatrix.mapRect(&devOutside, rects[0]);
     viewMatrix.mapRect(&devInside, rects[1]);
+    if (devInside.isEmpty()) {
+        if (devOutside.isEmpty()) {
+            return nullptr;
+        }
+        return GrAAFillRectBatch::Create(color, viewMatrix, devOutside, devOutside);
+    }
 
-    return GrAAStrokeRectBatch::Create(color, viewMatrix, devOutside, devOutside, devInside, true,
-                                       devInside.isEmpty());
+    return GrAAStrokeRectBatch::CreateFillBetweenRects(color, viewMatrix, devOutside, devInside);
 }
 
 };
