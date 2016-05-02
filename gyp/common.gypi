@@ -103,6 +103,7 @@
                 # gcc has problems providing useful warnings of these types for
                 # optimized builds.
                 'cflags': [
+                  '-Wno-array-bounds',
                   '-Wno-maybe-uninitialized',
                   '-Wno-strict-overflow',
                 ],
