@@ -19,12 +19,12 @@ allprojects {
     }
 }
 
-def setupSkiaLibraryBuild(project, appVariants, buildCmd) {
+def setupSkiaLibraryBuild(project, appVariants, buildCmd, requireCMake = false) {
     appVariants.all{ variant ->
         def buildNativeLib = project.task("${variant.name}_SkiaNativeLib", type:Exec) {
             workingDir '../../../..' // top-level skia directory
             commandLine constructBuildCommand(variant, buildCmd).split()
-            environment PATH: getPathWithDepotTools()
+            environment PATH: getPathWithDeps(requireCMake)
             environment ANDROID_SDK_ROOT: getSDKPath()
         }
         buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
@@ -63,8 +63,7 @@ def getSDKPath() {
     return path
 }
 
-def getPathWithDepotTools() {
-    System.getenv("PATH") + ":" + getLocalProperties().getProperty('depot_tools.dir', null)
+def getPathWithDeps(requireCMake = false) {
     String path = System.getenv("PATH")
     if (!path.contains("depot_tools")) {
         path += ":" + getLocalProperties().getProperty('depot_tools.dir', null)
@@ -74,6 +73,18 @@ def getPathWithDepotTools() {
         throw GradleScriptException("Depot Tools not found! Please update your path to include" +
                                     " depot_tools or define depot_tools.dir in gradle.properties")
     }
+
+    if (requireCMake) {
+        String cmakePath = getSDKPath() + "/cmake/bin"
+        if (!file(cmakePath).exists()) {
+            throw new GradleScriptException("cmake not found! Please install the android SDK version" +
+                                        " of cmake.", null);
+        }
+        if (!path.contains(cmakePath)) {
+            path = cmakePath + ":" + path
+        }
+    }
+
     return path
 }
 

@@ -20,5 +20,5 @@ android {
     sourceSets.main.jniLibs.srcDir "src/main/libs"
     productFlavors { arm {}; arm64 {}; x86 {}; x86_64 {}; mips {}; mips64 {}; }
 
-    setupSkiaLibraryBuild(project, applicationVariants, "--vulkan CopyVulkanViewerDeps")
+    setupSkiaLibraryBuild(project, applicationVariants, "--vulkan CopyVulkanViewerDeps", true)
 }
