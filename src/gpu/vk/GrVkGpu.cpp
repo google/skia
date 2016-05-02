@@ -83,15 +83,13 @@ GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
 GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
                  const GrVkBackendContext* backendCtx)
     : INHERITED(context)
-#ifdef ENABLE_VK_LAYERS
-    , fVkInstance(backendCtx->fInstance)
-#endif
     , fDevice(backendCtx->fDevice)
     , fQueue(backendCtx->fQueue)
     , fResourceProvider(this) {
     fBackendContext.reset(backendCtx);
 
 #ifdef ENABLE_VK_LAYERS
+    fCallback = nullptr;
     if (backendCtx->fExtensions & kEXT_debug_report_GrVkExtensionFlag) {
         // Setup callback creation information
         VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
@@ -106,8 +104,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         callbackCreateInfo.pUserData = nullptr;
 
         // Register the callback
-        GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateDebugReportCallbackEXT(fVkInstance,
-                            &callbackCreateInfo, nullptr, &fCallback));
+        GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateDebugReportCallbackEXT(
+                            backendCtx->fInstance, &callbackCreateInfo, nullptr, &fCallback));
     }
 #endif
 
@@ -141,7 +139,7 @@ GrVkGpu::~GrVkGpu() {
 
     // wait for all commands to finish
     fResourceProvider.checkCommandBuffers();
-    SkDEBUGCODE(VkResult res =) VK_CALL(QueueWaitIdle(fQueue));
+    SkDEBUGCODE(VkResult res = ) VK_CALL(QueueWaitIdle(fQueue));
     // VK_ERROR_DEVICE_LOST is acceptable when tearing down (see 4.2.4 in spec)
     SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
 
@@ -153,7 +151,10 @@ GrVkGpu::~GrVkGpu() {
     shaderc_compiler_release(fCompiler);
 
 #ifdef ENABLE_VK_LAYERS
-    VK_CALL(DestroyDebugReportCallbackEXT(fVkInstance, fCallback, nullptr));
+    if (fCallback) {
+        VK_CALL(DestroyDebugReportCallbackEXT(fBackendContext->fInstance, fCallback, nullptr));
+        fCallback = nullptr;
+    }
 #endif
 }
 
