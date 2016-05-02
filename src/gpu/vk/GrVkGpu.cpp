@@ -283,9 +283,10 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
             success = this->uploadTexDataLinear(vkTex, left, top, width, height, config,
                                                 texels.begin()->fPixels, texels.begin()->fRowBytes);
         } else {
-            int mipLevels = texels.count();
-            if (vkTex->texturePriv().maxMipMapLevel() != mipLevels) {
-                if (!vkTex->reallocForMipmap(this, mipLevels)) {
+            int newMipLevels = texels.count();
+            int currentMipLevels = vkTex->texturePriv().maxMipMapLevel();
+            if ((currentMipLevels || newMipLevels != 1) && newMipLevels != currentMipLevels) {
+                if (!vkTex->reallocForMipmap(this, newMipLevels)) {
                     return false;
                 }
             }
@@ -389,36 +390,45 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     size_t bpp = GrBytesPerPixel(dataConfig);
 
     // texels is const.
-    // But we may need to adjust the fPixels ptr based on the copyRect.
-    // In this case we need to make a non-const shallow copy of texels.
-    const SkTArray<GrMipLevel>* texelsPtr = &texels;
-    SkTArray<GrMipLevel> texelsCopy;
-    if (0 != left || 0 != top || width != tex->width() || height != tex->height()) {
-        texelsCopy = texels;
+    // But we may need to adjust the fPixels ptr based on the copyRect, or fRowBytes.
+    // Because of this we need to make a non-const shallow copy of texels.
+    SkTArray<GrMipLevel> texelsShallowCopy(texels);
 
-        SkASSERT(1 == texels.count());
-        SkASSERT(texelsCopy[0].fPixels);
-
-        if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
-                                                   &width, &height, &texelsCopy[0].fPixels,
-                                                   &texelsCopy[0].fRowBytes)) {
-            return false;
-        }
-
-        texelsPtr = &texelsCopy;
+    for (int currentMipLevel = texelsShallowCopy.count() - 1; currentMipLevel >= 0;
+         currentMipLevel--) {
+        SkASSERT(texelsShallowCopy[currentMipLevel].fPixels);
     }
 
     // Determine whether we need to flip when we copy into the buffer
-    bool flipY = (kBottomLeft_GrSurfaceOrigin == desc.fOrigin && !texelsPtr->empty());
+    bool flipY = (kBottomLeft_GrSurfaceOrigin == desc.fOrigin && !texelsShallowCopy.empty());
 
+    // adjust any params (left, top, currentWidth, currentHeight
     // find the combined size of all the mip levels and the relative offset of
     // each into the collective buffer
-    size_t combinedBufferSize = 0;
-    SkTArray<size_t> individualMipOffsets(texelsPtr->count());
-    for (int currentMipLevel = 0; currentMipLevel < texelsPtr->count(); currentMipLevel++) {
-        int twoToTheMipLevel = 1 << currentMipLevel;
-        int currentWidth = SkTMax(1, width / twoToTheMipLevel);
-        int currentHeight = SkTMax(1, height / twoToTheMipLevel);
+    // Do the first level separately because we may need to adjust width and height
+    // (for the non-mipped case).
+    if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
+                                               &width,
+                                               &height,
+                                               &texelsShallowCopy[0].fPixels,
+                                               &texelsShallowCopy[0].fRowBytes)) {
+        return false;
+    }
+    SkTArray<size_t> individualMipOffsets(texelsShallowCopy.count());
+    individualMipOffsets.push_back(0);
+    size_t combinedBufferSize = width * bpp * height;
+    int currentWidth = width;
+    int currentHeight = height;
+    for (int currentMipLevel = 1; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
+        currentWidth = SkTMax(1, currentWidth/2);
+        currentHeight = SkTMax(1, currentHeight/2);
+        if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
+                                                   &currentWidth,
+                                                   &currentHeight,
+                                                   &texelsShallowCopy[currentMipLevel].fPixels,
+                                                   &texelsShallowCopy[currentMipLevel].fRowBytes)) {
+            return false;
+        }
         const size_t trimmedSize = currentWidth * bpp * currentHeight;
         individualMipOffsets.push_back(combinedBufferSize);
         combinedBufferSize += trimmedSize;
@@ -429,18 +439,17 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                    GrVkTransferBuffer::Create(this, combinedBufferSize, GrVkBuffer::kCopyRead_Type);
 
     char* buffer = (char*) transferBuffer->map();
-    SkTArray<VkBufferImageCopy> regions(texelsPtr->count());
+    SkTArray<VkBufferImageCopy> regions(texelsShallowCopy.count());
 
-    for (int currentMipLevel = 0; currentMipLevel < texelsPtr->count(); currentMipLevel++) {
-        int twoToTheMipLevel = 1 << currentMipLevel;
-        int currentWidth = SkTMax(1, width / twoToTheMipLevel);
-        int currentHeight = SkTMax(1, height / twoToTheMipLevel);
+    currentWidth = width;
+    currentHeight = height;
+    for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
         const size_t trimRowBytes = currentWidth * bpp;
-        const size_t rowBytes = (*texelsPtr)[currentMipLevel].fRowBytes;
+        const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
 
         // copy data into the buffer, skipping the trailing bytes
         char* dst = buffer + individualMipOffsets[currentMipLevel];
-        const char* src = (const char*)(*texelsPtr)[currentMipLevel].fPixels;
+        const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
         if (flipY) {
             src += (currentHeight - 1) * rowBytes;
             for (int y = 0; y < currentHeight; y++) {
@@ -460,8 +469,11 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         region.bufferRowLength = currentWidth;
         region.bufferImageHeight = currentHeight;
         region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
-        region.imageOffset = { left, top, 0 };
+        region.imageOffset = { left, flipY ? tex->height() - top - currentHeight : top, 0 };
         region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
+        
+        currentWidth = SkTMax(1, currentWidth/2);
+        currentHeight = SkTMax(1, currentHeight/2);
     }
 
     transferBuffer->unmap();
@@ -553,12 +565,13 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
     // to 1.
+    int mipLevels = texels.empty() ? 1 : texels.count();
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = pixelFormat;
     imageDesc.fWidth = desc.fWidth;
     imageDesc.fHeight = desc.fHeight;
-    imageDesc.fLevels = linearTiling ? 1 : texels.count();
+    imageDesc.fLevels = linearTiling ? 1 : mipLevels;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
