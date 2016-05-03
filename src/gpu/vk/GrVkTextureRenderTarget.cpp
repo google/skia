@@ -29,7 +29,7 @@ GrVkTextureRenderTarget* GrVkTextureRenderTarget::Create(GrVkGpu* gpu,
     uint32_t mipLevels = 1;
     //TODO: does a mipmapped textureRenderTarget make sense?
     //if (desc.fIsMipMapped) {
-    //    mipLevels = SkMipMap::ComputeLevelCount(this->width(), this->height());
+    //    mipLevels = SkMipMap::ComputeLevelCount(this->width(), this->height()) + 1;
     //}
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, image, format,
                                                            GrVkImageView::kColor_Type, mipLevels);

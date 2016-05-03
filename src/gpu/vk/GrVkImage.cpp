@@ -30,6 +30,8 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
                                VkAccessFlags dstAccessMask,
                                VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,
+                               uint32_t baseMipLevel,
+                               uint32_t levelCount,
                                bool byRegion) {
     SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
@@ -49,7 +51,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
         VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
         fResource->fImage,                               // image
-        { aspectFlags, 0, fResource->fLevelCount, 0, 1 } // subresourceRange
+        { aspectFlags, baseMipLevel, levelCount, 0, 1 }  // subresourceRange
     };
 
     // TODO: restrict to area of image we're interested in

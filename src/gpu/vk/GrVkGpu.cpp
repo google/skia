@@ -286,8 +286,8 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
                                                 texels.begin()->fPixels, texels.begin()->fRowBytes);
         } else {
             int newMipLevels = texels.count();
-            int currentMipLevels = vkTex->texturePriv().maxMipMapLevel();
-            if ((currentMipLevels || newMipLevels != 1) && newMipLevels != currentMipLevels) {
+            int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
+            if (newMipLevels != currentMipLevels) {
                 if (!vkTex->reallocForMipmap(this, newMipLevels)) {
                     return false;
                 }
@@ -734,8 +734,9 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     const GrVkImage::Resource* oldResource = tex->resource();
     oldResource->ref();
 
-    uint32_t mipLevels = SkMipMap::ComputeLevelCount(tex->width(), tex->height());
-    if (!tex->reallocForMipmap(this, mipLevels)) {
+    // SkMipMap doesn't include the base level in the level count so we have to add 1
+    uint32_t levelCount = SkMipMap::ComputeLevelCount(tex->width(), tex->height()) + 1;
+    if (!tex->reallocForMipmap(this, levelCount)) {
         oldResource->unref(this);
         return;
     }
@@ -755,14 +756,13 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     // Blit original image
     int width = tex->width();
     int height = tex->height();
-    uint32_t mipLevel = 0;
 
     VkImageBlit blitRegion;
     memset(&blitRegion, 0, sizeof(VkImageBlit));
     blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.srcOffsets[0] = { 0, 0, 0 };
     blitRegion.srcOffsets[1] = { width, height, 0 };
-    blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
+    blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.dstOffsets[0] = { 0, 0, 0 };
     blitRegion.dstOffsets[1] = { width, height, 0 };
 
@@ -775,16 +775,23 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
                                  &blitRegion,
                                  VK_FILTER_LINEAR);
     // Blit the miplevels
-    while (width/2 > 0 && height/2 > 0) {
-        blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
-        blitRegion.srcOffsets[0] = { 0, 0, 0 };
-        blitRegion.srcOffsets[1] = { width, height, 0 };
-        blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel+1, 0, 1 };
-        blitRegion.dstOffsets[0] = { 0, 0, 0 };
-        blitRegion.dstOffsets[1] = { width/2, height/2, 0 };
+    uint32_t mipLevel = 1;
+    while (mipLevel < levelCount) {
+        int prevWidth = width;
+        int prevHeight = height;
+        width = SkTMax(1, width / 2);
+        height = SkTMax(1, height / 2);
 
-        // TODO: insert image barrier to wait on previous blit
-        // TODO: change layout of src subresource to TRANSFER_SRC_OPTIMAL
+        blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel-1, 0, 1 };
+        blitRegion.srcOffsets[0] = { 0, 0, 0 };
+        blitRegion.srcOffsets[1] = { prevWidth, prevHeight, 0 };
+        blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
+        blitRegion.dstOffsets[0] = { 0, 0, 0 };
+        blitRegion.dstOffsets[1] = { width, height, 0 };
+
+        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                            srcAccessMask, dstAccessMask, srcStageMask, dstStageMask, 
+                            mipLevel-1, 1, false);
 
         fCurrentCmdBuffer->blitImage(this,
                                      tex->resource(),
@@ -794,15 +801,11 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
                                      1,
                                      &blitRegion,
                                      VK_FILTER_LINEAR);
-
-        width /= 2;
-        height /= 2;
-        mipLevel++;
+        ++mipLevel;
     }
 
     oldResource->unref(this);
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////

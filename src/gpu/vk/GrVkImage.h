@@ -92,6 +92,19 @@ public:
                         VkAccessFlags dstAccessMask,
                         VkPipelineStageFlags srcStageMask,
                         VkPipelineStageFlags dstStageMask,
+                        bool byRegion) {
+        this->setImageLayout(gpu, newLayout, srcAccessMask, dstAccessMask,
+                             srcStageMask, dstStageMask, 0, fResource->fLevelCount, byRegion);
+    }
+
+    void setImageLayout(const GrVkGpu* gpu,
+                        VkImageLayout newLayout,
+                        VkAccessFlags srcAccessMask,
+                        VkAccessFlags dstAccessMask,
+                        VkPipelineStageFlags srcStageMask,
+                        VkPipelineStageFlags dstStageMask,
+                        uint32_t baseMipLevel,
+                        uint32_t levelCount,
                         bool byRegion);
 
     struct ImageDesc {
