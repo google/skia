@@ -232,7 +232,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
     if (atlased.count() > 0) {
         // All the atlased layers are rendered into the same GrTexture
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        auto surface(SkSurface::MakeRenderTargetDirect(
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTargetDirect(
                                         atlased[0].fLayer->texture()->asRenderTarget(), &props));
 
         SkCanvas* atlasCanvas = surface->getCanvas();
@@ -301,7 +301,9 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     SkImageFilter::Context filterContext(totMat, clipBounds, cache);
 
     // TODO: should the layer hoister store stand alone layers as SkSpecialImages internally?
-    const SkIRect subset = SkIRect::MakeWH(layer->texture()->width(), layer->texture()->height());
+    SkASSERT(layer->rect().width() == layer->texture()->width() &&
+             layer->rect().height() == layer->texture()->height());
+    const SkIRect subset = SkIRect::MakeWH(layer->rect().width(), layer->rect().height());
     sk_sp<SkSpecialImage> img(SkSpecialImage::MakeFromGpu(subset,
                                                           kNeedNewImageUniqueID_SpecialImage,
                                                           sk_ref_sp(layer->texture()),
