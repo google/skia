@@ -7,7 +7,7 @@
 
 #include "GrStyle.h"
 
-void GrStyle::initPathEffect(SkPathEffect* pe) {
+void GrStyle::initPathEffect(sk_sp<SkPathEffect> pe) {
     if (!pe) {
         fDashInfo.fType = SkPathEffect::kNone_DashType;
         return;
@@ -17,7 +17,7 @@ void GrStyle::initPathEffect(SkPathEffect* pe) {
         if (fStrokeRec.getStyle() == SkStrokeRec::kFill_Style) {
             fPathEffect.reset(nullptr);
         } else {
-            fPathEffect.reset(SkSafeRef(pe));
+            fPathEffect = std::move(pe);
             fDashInfo.fType = SkPathEffect::kDash_DashType;
             fDashInfo.fIntervals.reset(info.fCount);
             fDashInfo.fPhase = info.fPhase;
@@ -26,7 +26,7 @@ void GrStyle::initPathEffect(SkPathEffect* pe) {
             return;
         }
     } else {
-        fPathEffect.reset(SkSafeRef(pe));
+        fPathEffect = std::move(pe);
     }
     fDashInfo.fType = SkPathEffect::kNone_DashType;
     fDashInfo.fIntervals.reset(0);

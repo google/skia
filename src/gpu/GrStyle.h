@@ -29,9 +29,9 @@ public:
         fDashInfo.fType = SkPathEffect::kNone_DashType;
     }
 
-    GrStyle(const SkStrokeRec& strokeRec, SkPathEffect* pe) : fStrokeRec(strokeRec) {
+    GrStyle(const SkStrokeRec& strokeRec, sk_sp<SkPathEffect> pe) : fStrokeRec(strokeRec) {
         SkASSERT(SkStrokeRec::kStrokeAndFill_Style != strokeRec.getStyle());
-        this->initPathEffect(pe);
+        this->initPathEffect(std::move(pe));
     }
 
     GrStyle(const GrStyle& that) : fStrokeRec(SkStrokeRec::kFill_InitStyle) {
@@ -40,7 +40,7 @@ public:
 
     explicit GrStyle(const SkPaint& paint) : fStrokeRec(paint) {
         SkASSERT(SkStrokeRec::kStrokeAndFill_Style != fStrokeRec.getStyle());
-        this->initPathEffect(paint.getPathEffect());
+        this->initPathEffect(sk_ref_sp(paint.getPathEffect()));
     }
 
     GrStyle& operator=(const GrStyle& that) {
@@ -68,7 +68,7 @@ public:
     const SkStrokeRec& strokeRec() const { return fStrokeRec; }
 
 private:
-    void initPathEffect(SkPathEffect* pe);
+    void initPathEffect(sk_sp<SkPathEffect> pe);
 
     struct DashInfo {
         DashInfo& operator=(const DashInfo& that) {
