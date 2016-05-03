@@ -280,6 +280,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
                                       srcStageMask,
                                       dstStageMask,
                                       false);
+                this->submitCommandBuffer(kForce_SyncQueue);
             }
             success = this->uploadTexDataLinear(vkTex, left, top, width, height, config,
                                                 texels.begin()->fPixels, texels.begin()->fRowBytes);
