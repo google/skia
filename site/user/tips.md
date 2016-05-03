@@ -167,6 +167,13 @@ text shaper. Skia's client's often use
 [HarfBuzz](http://www.freedesktop.org/wiki/Software/HarfBuzz/) to
 generate the glyphs and their positions, including kerning.
 
+[Here is an example of how to use Skia and HarfBuzz
+together](https://github.com/aam/skiaex).  In the example, a
+`SkTypeface` and a `hb_face_t` are created using the same `mmap()`ed
+`.ttf` font file. The HarfBuzz face is used to shape unicode text into
+a sequence of glyphs and positions, and the SkTypeface can then be
+used to draw those glyphs.
+
 * * *
 
 <span id="text-shadow"></span>
@@ -199,5 +206,7 @@ How do I add drop shadow on text?
     }
 
 <a href='https://fiddle.skia.org/c/@text_shadow'><img src='https://fiddle.skia.org/i/@text_shadow_raster.png'></a>
+
+* * *
 
 <div style="margin-bottom:99%"></div>
