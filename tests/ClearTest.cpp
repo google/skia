@@ -45,7 +45,7 @@ static bool reset_dc(sk_sp<GrDrawContext>* dc, GrContext* context, int w, int h)
     }
     context->freeGpuResources();
 
-    *dc = context->newDrawContext(SkBackingFit::kExact, w, h, kRGBA_8888_GrPixelConfig);
+    *dc = context->newDrawContext(GrContext::kTight_BackingFit, w, h, kRGBA_8888_GrPixelConfig);
 
     SkASSERT((*dc)->accessRenderTarget()->getUniqueID() != oldID);
 

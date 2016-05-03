@@ -253,7 +253,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
     const int height = yuvSizes[0].fHeight;
 
     // Needs to be a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrDrawContext> drawContext(ctx->newDrawContext(SkBackingFit::kExact,
+    sk_sp<GrDrawContext> drawContext(ctx->newDrawContext(GrContext::kTight_BackingFit,
                                                          width, height,
                                                          kRGBA_8888_GrPixelConfig,
                                                          0,
