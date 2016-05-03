@@ -19,7 +19,6 @@
 #include "../private/SkTHash.h"
 
 class SkBitmap;
-class SkBitmapHeap;
 class SkFactorySet;
 class SkFlattenable;
 class SkRefCntSet;
@@ -80,24 +79,12 @@ public:
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
 
     /**
-     * Set an SkBitmapHeap to store bitmaps rather than flattening.
-     *
-     * Incompatible with an SkPixelSerializer. If an SkPixelSerializer is set,
-     * setting an SkBitmapHeap will set the SkPixelSerializer to NULL in release
-     * and crash in debug.
-     */
-    void setBitmapHeap(SkBitmapHeap*);
-
-    /**
      * Set an SkPixelSerializer to store an encoded representation of pixels,
      * e.g. SkBitmaps.
      *
      * Calls ref() on the serializer.
      *
      * TODO: Encode SkImage pixels as well.
-     *
-     * Incompatible with the SkBitmapHeap. If an encoder is set fBitmapHeap will
-     * be set to NULL in release and crash in debug.
      */
     void setPixelSerializer(SkPixelSerializer*);
     SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer; }
@@ -107,7 +94,6 @@ private:
     SkFactorySet* fFactorySet;
     SkWriter32 fWriter;
 
-    SkBitmapHeap* fBitmapHeap;
     SkRefCntSet* fTFSet;
 
     SkAutoTUnref<SkPixelSerializer> fPixelSerializer;

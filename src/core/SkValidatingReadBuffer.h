@@ -9,7 +9,6 @@
 #define SkValidatingReadBuffer_DEFINED
 
 #include "SkRefCnt.h"
-#include "SkBitmapHeap.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkPath.h"

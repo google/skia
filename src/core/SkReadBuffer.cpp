@@ -27,7 +27,6 @@ SkReadBuffer::SkReadBuffer() {
     fVersion = 0;
     fMemoryPtr = nullptr;
 
-    fBitmapStorage = nullptr;
     fTFArray = nullptr;
     fTFCount = 0;
 
@@ -45,7 +44,6 @@ SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
     fReader.setMemory(data, size);
     fMemoryPtr = nullptr;
 
-    fBitmapStorage = nullptr;
     fTFArray = nullptr;
     fTFCount = 0;
 
@@ -65,7 +63,6 @@ SkReadBuffer::SkReadBuffer(SkStream* stream) {
     stream->read(fMemoryPtr, length);
     fReader.setMemory(fMemoryPtr, length);
 
-    fBitmapStorage = nullptr;
     fTFArray = nullptr;
     fTFCount = 0;
 
@@ -79,7 +76,6 @@ SkReadBuffer::SkReadBuffer(SkStream* stream) {
 
 SkReadBuffer::~SkReadBuffer() {
     sk_free(fMemoryPtr);
-    SkSafeUnref(fBitmapStorage);
 }
 
 bool SkReadBuffer::readBool() {
@@ -186,25 +182,15 @@ uint32_t SkReadBuffer::getArrayCount() {
 bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
     const int width = this->readInt();
     const int height = this->readInt();
+
     // The writer stored a boolean value to determine whether an SkBitmapHeap was used during
-    // writing.
+    // writing. That feature is deprecated.
     if (this->readBool()) {
-        // An SkBitmapHeap was used for writing. Read the index from the stream and find the
-        // corresponding SkBitmap in fBitmapStorage.
-        const uint32_t index = this->readUInt();
-        this->readUInt(); // bitmap generation ID (see SkWriteBuffer::writeBitmap)
-        if (fBitmapStorage) {
-            *bitmap = *fBitmapStorage->getBitmap(index);
-            fBitmapStorage->releaseRef(index);
-            return true;
-        } else {
-            // The bitmap was stored in a heap, but there is no way to access it. Set an error and
-            // fall through to use a place holder bitmap.
-            SkErrorInternals::SetError(kParseError_SkError, "SkWriteBuffer::writeBitmap "
-                                       "stored the SkBitmap in an SkBitmapHeap, but "
-                                       "SkReadBuffer has no SkBitmapHeapReader to "
-                                       "retrieve the SkBitmap.");
-        }
+        this->readUInt(); // Bitmap index
+        this->readUInt(); // Bitmap generation ID
+        SkErrorInternals::SetError(kParseError_SkError, "SkWriteBuffer::writeBitmap "
+                                   "stored the SkBitmap in an SkBitmapHeap, but "
+                                   "that feature is no longer supported.");
     } else {
         // The writer stored false, meaning the SkBitmap was not stored in an SkBitmapHeap.
         const size_t length = this->readUInt();

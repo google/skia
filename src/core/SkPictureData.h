@@ -153,10 +153,6 @@ private:
     bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 
-    // Only used by getBitmap() if the passed in index is SkBitmapHeap::INVALID_SLOT. This empty
-    // bitmap allows playback to draw nothing and move on.
-    SkBitmap fBadBitmap;
-
     SkTArray<SkBitmap> fBitmaps;
     SkTArray<SkPaint>  fPaints;
     SkTArray<SkPath>   fPaths;

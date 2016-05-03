@@ -33,8 +33,6 @@
         '<(skia_src_path)/core/SkBitmapController.cpp',
         '<(skia_src_path)/core/SkBitmapDevice.cpp',
         '<(skia_src_path)/core/SkBitmapFilter.h',
-        '<(skia_src_path)/core/SkBitmapHeap.cpp',
-        '<(skia_src_path)/core/SkBitmapHeap.h',
         '<(skia_src_path)/core/SkBitmapProcShader.cpp',
         '<(skia_src_path)/core/SkBitmapProcShader.h',
         '<(skia_src_path)/core/SkBitmapProcState.cpp',

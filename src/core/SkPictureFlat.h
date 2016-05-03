@@ -8,7 +8,6 @@
 #define SkPictureFlat_DEFINED
 
 
-#include "SkBitmapHeap.h"
 #include "SkChecksum.h"
 #include "SkChunkAlloc.h"
 #include "SkReadBuffer.h"

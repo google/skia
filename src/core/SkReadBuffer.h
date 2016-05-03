@@ -8,7 +8,6 @@
 #ifndef SkReadBuffer_DEFINED
 #define SkReadBuffer_DEFINED
 
-#include "SkBitmapHeap.h"
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDrawLooper.h"
@@ -176,10 +175,6 @@ public:
 
     virtual SkTypeface* readTypeface();
 
-    void setBitmapStorage(SkBitmapHeapReader* bitmapStorage) {
-        SkRefCnt_SafeAssign(fBitmapStorage, bitmapStorage);
-    }
-
     void setTypefaceArray(SkTypeface* array[], int count) {
         fTFArray = array;
         fTFCount = count;
@@ -255,7 +250,6 @@ private:
 
     void* fMemoryPtr;
 
-    SkBitmapHeapReader* fBitmapStorage;
     SkTypeface** fTFArray;
     int        fTFCount;
 

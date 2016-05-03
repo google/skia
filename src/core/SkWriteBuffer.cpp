@@ -7,7 +7,6 @@
 
 #include "SkWriteBuffer.h"
 #include "SkBitmap.h"
-#include "SkBitmapHeap.h"
 #include "SkData.h"
 #include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
@@ -17,7 +16,6 @@
 SkWriteBuffer::SkWriteBuffer(uint32_t flags)
     : fFlags(flags)
     , fFactorySet(nullptr)
-    , fBitmapHeap(nullptr)
     , fTFSet(nullptr) {
 }
 
@@ -25,13 +23,11 @@ SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
     : fFlags(flags)
     , fFactorySet(nullptr)
     , fWriter(storage, storageSize)
-    , fBitmapHeap(nullptr)
     , fTFSet(nullptr) {
 }
 
 SkWriteBuffer::~SkWriteBuffer() {
     SkSafeUnref(fFactorySet);
-    SkSafeUnref(fBitmapHeap);
     SkSafeUnref(fTFSet);
 }
 
@@ -139,32 +135,15 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     this->writeInt(bitmap.width());
     this->writeInt(bitmap.height());
 
-    // Record information about the bitmap in one of three ways, in order of priority:
-    // 1. If there is an SkBitmapHeap, store it in the heap. The client can avoid serializing the
-    //    bitmap entirely or serialize it later as desired. A boolean value of true will be written
-    //    to the stream to signify that a heap was used.
-    // 2. If there is a function for encoding bitmaps, use it to write an encoded version of the
+    // Record information about the bitmap in one of two ways, in order of priority:
+    // 1. If there is a function for encoding bitmaps, use it to write an encoded version of the
     //    bitmap. After writing a boolean value of false, signifying that a heap was not used, write
     //    the size of the encoded data. A non-zero size signifies that encoded data was written.
-    // 3. Call SkBitmap::flatten. After writing a boolean value of false, signifying that a heap was
+    // 2. Call SkBitmap::flatten. After writing a boolean value of false, signifying that a heap was
     //    not used, write a zero to signify that the data was not encoded.
-    bool useBitmapHeap = fBitmapHeap != nullptr;
-    // Write a bool: true if the SkBitmapHeap is to be used, in which case the reader must use an
-    // SkBitmapHeapReader to read the SkBitmap. False if the bitmap was serialized another way.
-    this->writeBool(useBitmapHeap);
-    if (useBitmapHeap) {
-        SkASSERT(nullptr == fPixelSerializer);
-        int32_t slot = fBitmapHeap->insert(bitmap);
-        fWriter.write32(slot);
-        // crbug.com/155875
-        // The generation ID is not required information. We write it to prevent collisions
-        // in SkFlatDictionary.  It is possible to get a collision when a previously
-        // unflattened (i.e. stale) instance of a similar flattenable is in the dictionary
-        // and the instance currently being written is re-using the same slot from the
-        // bitmap heap.
-        fWriter.write32(bitmap.getGenerationID());
-        return;
-    }
+
+    // Write a bool to indicate that we did not use an SkBitmapHeap. That feature is deprecated.
+    this->writeBool(false);
 
     SkPixelRef* pixelRef = bitmap.pixelRef();
     if (pixelRef) {
@@ -183,7 +162,6 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
         // see if the caller wants to manually encode
         SkAutoPixmapUnlock result;
         if (fPixelSerializer && bitmap.requestLock(&result)) {
-            SkASSERT(nullptr == fBitmapHeap);
             SkAutoDataUnref data(fPixelSerializer->encode(result.pixmap()));
             if (data.get() != nullptr) {
                 // if we have to "encode" the bitmap, then we assume there is no
@@ -229,21 +207,10 @@ SkRefCntSet* SkWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
     return rec;
 }
 
-void SkWriteBuffer::setBitmapHeap(SkBitmapHeap* bitmapHeap) {
-    SkRefCnt_SafeAssign(fBitmapHeap, bitmapHeap);
-    if (bitmapHeap != nullptr) {
-        SkASSERT(nullptr == fPixelSerializer);
-        fPixelSerializer.reset(nullptr);
-    }
-}
-
 void SkWriteBuffer::setPixelSerializer(SkPixelSerializer* serializer) {
     fPixelSerializer.reset(serializer);
     if (serializer) {
         serializer->ref();
-        SkASSERT(nullptr == fBitmapHeap);
-        SkSafeUnref(fBitmapHeap);
-        fBitmapHeap = nullptr;
     }
 }
 
