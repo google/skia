@@ -32,6 +32,8 @@ public:
 
     const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrStencilSettings& stencil) const;
 
+    GrRenderTarget::SampleConfig sampleConfig() const { return fRenderTarget->fSampleConfig; }
+
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}
     GrRenderTargetPriv(const GrRenderTargetPriv&) {} // unimpl

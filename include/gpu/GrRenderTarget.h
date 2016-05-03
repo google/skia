@@ -11,6 +11,7 @@
 #include "GrSurface.h"
 #include "SkRect.h"
 
+class GrCaps;
 class GrDrawTarget;
 class GrStencilAttachment;
 class GrRenderTargetPriv;
@@ -154,6 +155,8 @@ public:
 
     void setLastDrawTarget(GrDrawTarget* dt);
     GrDrawTarget* getLastDrawTarget() { return fLastDrawTarget; }
+
+    static SampleConfig ComputeSampleConfig(const GrCaps& caps, int sampleCnt);
 
 protected:
     GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,

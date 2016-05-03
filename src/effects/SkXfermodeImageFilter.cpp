@@ -238,7 +238,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                              bounds.width(), bounds.height(),
                                                              kSkia8888_GrPixelConfig));
     if (!drawContext) {
