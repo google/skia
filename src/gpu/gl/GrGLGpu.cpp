@@ -723,19 +723,20 @@ GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextu
     }
 #endif
 
-    GrGLTextureInfo texInfo;
+    GrGLTexture::IDDesc idDesc;
+    idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     GrSurfaceDesc surfDesc;
 
 #ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    texInfo.fID = static_cast<GrGLuint>(desc.fTextureHandle);
+    idDesc.fInfo.fID = static_cast<GrGLuint>(desc.fTextureHandle);
     // We only support GL_TEXTURE_2D at the moment.
-    texInfo.fTarget = GR_GL_TEXTURE_2D;
+    idDesc.fInfo.fTarget = GR_GL_TEXTURE_2D;
 #else
-    texInfo = *info;
+    idDesc.fInfo = *info;
 #endif
 
-    if (GR_GL_TEXTURE_RECTANGLE != texInfo.fTarget &&
-        GR_GL_TEXTURE_2D != texInfo.fTarget) {
+    if (GR_GL_TEXTURE_RECTANGLE != idDesc.fInfo.fTarget &&
+        GR_GL_TEXTURE_2D != idDesc.fInfo.fTarget) {
         // Only texture rectangle and texture 2d are supported. We do not check whether texture
         // rectangle is supported by Skia - if the caller provided us with a texture rectangle,
         // we assume the necessary support exists.
@@ -758,10 +759,10 @@ GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextu
     }
 
     GrGLRenderTarget::IDDesc rtIDDesc;
-    if (!this->createRenderTargetObjects(surfDesc, texInfo, &rtIDDesc)) {
+    if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
         return nullptr;
     }
-    return GrGLRenderTarget::CreateWrapped(this, surfDesc, rtIDDesc, 0);
+    return GrGLTextureRenderTarget::CreateWrapped(this, surfDesc, idDesc, rtIDDesc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

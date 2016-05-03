@@ -85,6 +85,8 @@ public:
      *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
      *  of the texture and the client must ensure the texture is valid for the lifetime of the
      *  SkSurface.
+     *
+     *  If the requested sample count is greater than 0, the contents of the surface are undefined.
      */
     static sk_sp<SkSurface> MakeFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
                                                    const SkSurfaceProps*);
@@ -105,6 +107,8 @@ public:
      *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
      *  of the texture and the client must ensure the texture is valid for the lifetime of the
      *  SkSurface.
+     *
+     *  If the requested sample count is greater than 0, the contents of the surface are undefined.
      */
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(
             GrContext*, const GrBackendTextureDesc&, const SkSurfaceProps*);
