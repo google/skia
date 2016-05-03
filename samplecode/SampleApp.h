@@ -181,7 +181,7 @@ private:
 
     bool fSaveToPdf;
     bool fSaveToSKP;
-    SkAutoTUnref<SkDocument> fPDFDocument;
+    sk_sp<SkDocument> fPDFDocument;
 
     bool fUseClip;
     bool fUsePicture;

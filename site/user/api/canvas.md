@@ -37,13 +37,13 @@ the memory into which the canvas commands are drawn.
     void raster(int width, int height,
                 void(*draw)(SkCanvas*),
                 const char* path) {
-        SkAutoTUnref<SkSurface> rasterSurface(
-                SkSurface::NewRasterN32Premul(width, height));
+        sk_sp<SkSurface> rasterSurface(
+                SkSurface::MakeRasterN32Premul(width, height));
         SkCanvas* rasterCanvas = rasterSurface->getCanvas();
         draw(rasterCanvas);
-        SkAutoTUnref<SkImage> img(s->newImageSnapshot());
+        sk_sp<SkImage> img(s->newImageSnapshot());
         if (!img) { return; }
-        SkAutoTUnref<SkData> png(img->encode());
+        sk_sp<SkData> png(img->encode());
         if (!png) { return; }
         SkFILEWStream out(path);
         (void)out.write(png->data(), png->size());
@@ -60,8 +60,8 @@ explicitly, instead of asking Skia to manage it.
         size_t rowBytes = info.minRowBytes();
         size_t size = info.getSafeSize(rowBytes);
         std::vector<char> pixelMemory(size);  // allocate memory
-        SkAutoTUnref<SkSurface> surface(
-                SkSurface::NewRasterDirect(
+        sk_sp<SkSurface> surface(
+                SkSurface::MakeRasterDirect(
                         info, &pixelMemory[0], rowBytes));
         SkCanvas* canvas = surface.getCanvas();
         draw(canvas);
@@ -89,17 +89,17 @@ example, we use a `GrContextFactory` to create a context.
         GrContextFactory grFactory;
         GrContext* context = grFactory.get(GrContextFactory::kNative_GLContextType);
         SkImageInfo info = SkImageInfo:: MakeN32Premul(width, height);
-        SkAutoTUnref<SkSurface> gpuSurface(
-                SkSurface::NewRenderTarget(context, SkBudgeted::kNo, info));
+        sk_sp<SkSurface> gpuSurface(
+                SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
         if (!gpuSurface) {
-            SkDebugf("SkSurface::NewRenderTarget returned null\n");
+            SkDebugf("SkSurface::MakeRenderTarget returned null\n");
             return;
         }
         SkCanvas* gpuCanvas = gpuSurface->getCanvas();
         draw(gpuCanvas);
-        SkAutoTUnref<SkImage> img(s->newImageSnapshot());
+        sk_sp<SkImage> img(s->newImageSnapshot());
         if (!img) { return; }
-        SkAutoTUnref<SkData> png(img->encode());
+        sk_sp<SkData> png(img->encode());
         if (!png) { return; }
         SkFILEWStream out(path);
         (void)out.write(png->data(), png->size());
@@ -120,7 +120,7 @@ a document must include multiple pages.
                void(*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream pdfStream(path);
-        SkAutoTUnref<SkDocument> pdfDoc(SkDocument::CreatePDF(&pdfStream));
+        sk_sp<SkDocument> pdfDoc(SkDocument::MakePDF(&pdfStream));
         SkCanvas* pdfCanvas = pdfDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(pdfCanvas);
@@ -145,7 +145,7 @@ The SkPicture backend uses SkPictureRecorder instead of SkSurface.
         SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(width),
                                                             SkIntToScalar(height));
         draw(recordingCanvas);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecordingAsPicture());
+        sk_sp<SkPicture> picture(recorder.endRecordingAsPicture());
         SkFILEWStream skpStream(path);
         // Open SKP files with `SampleApp --picture SKP_FILE`
         picture->serialize(&skpStream);
@@ -162,7 +162,7 @@ nothing.
 
     #include "SkNullCanvas.h"
     void picture(int, int, void(*draw)(SkCanvas*), const char*) {
-        SkAutoTDelete<SkCanvas> nullCanvas(SkCreateNullCanvas());
+        sk_sp<SkCanvas> nullCanvas(SkCreateNullCanvas());
         draw(nullCanvas);  // NoOp
     }
 
@@ -180,7 +180,7 @@ The (*still experimental*) SkXPS canvas writes into an XPS document.
                void(*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream xpsStream(path);
-        SkAutoTUnref<SkDocument> xpsDoc(SkDocument::CreateXPS(&pdfStream));
+        sk_sp<SkDocument> xpsDoc(SkDocument::MakeXPS(&pdfStream));
         SkCanvas* xpsCanvas = xpsDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(xpsCanvas);
@@ -202,8 +202,9 @@ The (*still experimental*) SkSVG canvas writes into an SVG document.
                void(*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream svgStream(path);
-        SkAutoTDelete<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&svgStream));
-        SkAutoTUnref<SkCanvas> svgCanvas(SkSVGCanvas::Create(
+        std::unique_ptr<SkXMLWriter> xmlWriter(
+                new SkXMLStreamWriter(&svgStream));
+        sk_sp<SkCanvas> svgCanvas(SkSVGCanvas::Create(
                 SkRect::MakeWH(SkIntToScalar(src.size().width()),
                                SkIntToScalar(src.size().height())),
                 xmlWriter));

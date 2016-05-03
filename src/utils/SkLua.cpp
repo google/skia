@@ -1950,12 +1950,12 @@ static int lsk_newDocumentPDF(lua_State* L) {
         file = lua_tolstring(L, 1, nullptr);
     }
 
-    SkDocument* doc = SkDocument::CreatePDF(file);
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(file);
     if (nullptr == doc) {
         // do I need to push a nil on the stack and return 1?
         return 0;
     } else {
-        push_ref(L, doc)->unref();
+        push_ref(L, std::move(doc));
         return 1;
     }
 }

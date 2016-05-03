@@ -1379,7 +1379,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
 #ifdef SK_BUILD_FOR_ANDROID
         name.prepend("/sdcard/");
 #endif
-        fPDFDocument.reset(SkDocument::CreatePDF(name.c_str()));
+        fPDFDocument = SkDocument::MakePDF(name.c_str());
         canvas = fPDFDocument->beginPage(this->width(), this->height());
     } else if (fSaveToSKP) {
         canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);

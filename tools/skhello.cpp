@@ -48,7 +48,7 @@ static bool do_surface(int w, int h, const char path[], const char text[],
 
 static bool do_document(int w, int h, const char path[], const char text[],
                         const SkPaint& paint) {
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(path));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(path));
     if (doc.get()) {
         SkScalar width = SkIntToScalar(w);
         SkScalar height = SkIntToScalar(h);
