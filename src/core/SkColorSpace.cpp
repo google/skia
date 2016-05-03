@@ -7,6 +7,11 @@
 
 #include "SkAtomics.h"
 #include "SkColorSpace.h"
+#include "SkOncePtr.h"
+
+static bool color_space_almost_equal(float a, float b) {
+    return SkTAbs(a - b) < 0.01f;
+}
 
 void SkFloat3::dump() const {
     SkDebugf("[%7.4f %7.4f %7.4f]\n", fVec[0], fVec[1], fVec[2]);
@@ -32,23 +37,50 @@ SkColorSpace::SkColorSpace(SkColorLookUpTable colorLUT, SkGammas gammas,
     , fNamed(kUnknown_Named)
 {}
 
-sk_sp<SkColorSpace> SkColorSpace::NewRGB(const SkMatrix44& toXYZD50, SkGammas gammas) {
-    return sk_sp<SkColorSpace>(new SkColorSpace(std::move(gammas), toXYZD50, kUnknown_Named));
-}
-
 const float gSRGB_toXYZD50[] {
     0.4358f, 0.2224f, 0.0139f,    // * R
     0.3853f, 0.7170f, 0.0971f,    // * G
     0.1430f, 0.0606f, 0.7139f,    // * B
 };
 
+SK_DECLARE_STATIC_ONCE_PTR(SkColorSpace, sRGB);
+
+sk_sp<SkColorSpace> SkColorSpace::NewRGB(SkGammas gammas, const SkMatrix44& toXYZD50) {
+    // Check if we really have sRGB
+    if (color_space_almost_equal(2.2f, gammas.fRed.fValue) &&
+        color_space_almost_equal(2.2f, gammas.fGreen.fValue) &&
+        color_space_almost_equal(2.2f, gammas.fBlue.fValue) &&
+        color_space_almost_equal(toXYZD50.getFloat(0, 0), gSRGB_toXYZD50[0]) &&
+        color_space_almost_equal(toXYZD50.getFloat(0, 1), gSRGB_toXYZD50[1]) &&
+        color_space_almost_equal(toXYZD50.getFloat(0, 2), gSRGB_toXYZD50[2]) &&
+        color_space_almost_equal(toXYZD50.getFloat(1, 0), gSRGB_toXYZD50[3]) &&
+        color_space_almost_equal(toXYZD50.getFloat(1, 1), gSRGB_toXYZD50[4]) &&
+        color_space_almost_equal(toXYZD50.getFloat(1, 2), gSRGB_toXYZD50[5]) &&
+        color_space_almost_equal(toXYZD50.getFloat(2, 0), gSRGB_toXYZD50[6]) &&
+        color_space_almost_equal(toXYZD50.getFloat(2, 1), gSRGB_toXYZD50[7]) &&
+        color_space_almost_equal(toXYZD50.getFloat(2, 2), gSRGB_toXYZD50[8]) &&
+        color_space_almost_equal(toXYZD50.getFloat(0, 3), 0.0f) &&
+        color_space_almost_equal(toXYZD50.getFloat(1, 3), 0.0f) &&
+        color_space_almost_equal(toXYZD50.getFloat(2, 3), 0.0f) &&
+        color_space_almost_equal(toXYZD50.getFloat(3, 0), 0.0f) &&
+        color_space_almost_equal(toXYZD50.getFloat(3, 1), 0.0f) &&
+        color_space_almost_equal(toXYZD50.getFloat(3, 2), 0.0f) &&
+        color_space_almost_equal(toXYZD50.getFloat(3, 3), 1.0f))
+    {
+        return SkColorSpace::NewNamed(kSRGB_Named);
+    }
+
+    return sk_sp<SkColorSpace>(new SkColorSpace(std::move(gammas), toXYZD50, kUnknown_Named));
+}
+
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
     switch (named) {
         case kSRGB_Named: {
             SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
             srgbToxyzD50.set3x3ColMajorf(gSRGB_toXYZD50);
-            return sk_sp<SkColorSpace>(new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50,
-                                                        kSRGB_Named));
+            return sk_ref_sp(sRGB.get([=]{
+                return new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50, kSRGB_Named);
+            }));
         }
         default:
             break;
@@ -87,10 +119,6 @@ static uint32_t read_big_endian_uint(const uint8_t* ptr) {
 
 static int32_t read_big_endian_int(const uint8_t* ptr) {
     return (int32_t) read_big_endian_uint(ptr);
-}
-
-static bool color_space_almost_equal(float a, float b) {
-    return SkTAbs(a - b) < 0.01f;
 }
 
 // This is equal to the header size according to the ICC specification (128)
@@ -577,9 +605,10 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                                                     b->addr((const uint8_t*) base), b->fLength)) {
                     SkColorSpacePrintf("Failed to read B gamma tag.\n");
                 }
+
                 SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
                 mat.set3x3ColMajorf(toXYZ);
-                return SkColorSpace::NewRGB(mat, std::move(gammas));
+                return SkColorSpace::NewRGB(std::move(gammas), mat);
             }
 
             // Recognize color profile specified by A2B0 tag.
@@ -591,6 +620,12 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                 if (!SkColorSpace::LoadA2B0(&colorLUT, &gammas, &toXYZ,
                                             a2b0->addr((const uint8_t*) base), a2b0->fLength)) {
                     return_null("Failed to parse A2B0 tag");
+                }
+
+                // If there is no colorLUT, use NewRGB.  This allows us to check if the
+                // profile is sRGB.
+                if (!colorLUT.fTable) {
+                    return SkColorSpace::NewRGB(std::move(gammas), toXYZ);
                 }
 
                 return sk_sp<SkColorSpace>(new SkColorSpace(std::move(colorLUT), std::move(gammas),

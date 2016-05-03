@@ -41,13 +41,14 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
     }
 }
 
+const float g_sRGB_XYZ[] = { 0.4358f, 0.2224f, 0.0139f,   // R
+                             0.3853f, 0.7170f, 0.0971f,   // G
+                             0.1430f, 0.0606f, 0.7139f }; // B
+
 DEF_TEST(ColorSpace_sRGB, r) {
-    const float srgb_r[] = { 0.4358f, 0.2224f, 0.0139f };
-    const float srgb_g[] = { 0.3853f, 0.7170f, 0.0971f };
-    const float srgb_b[] = { 0.1430f, 0.0606f, 0.7139f };
     const float srgb_gamma[] = { 2.2f, 2.2f, 2.2f };
     test_space(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named).get(),
-               srgb_r, srgb_g, srgb_b, srgb_gamma);
+               g_sRGB_XYZ, &g_sRGB_XYZ[3], &g_sRGB_XYZ[6], srgb_gamma);
 
 }
 
@@ -99,4 +100,22 @@ DEF_TEST(ColorSpaceParseJpegICCProfile, r) {
     const float blue[] = { 0.436035f, 0.222488f, 0.013916f };
     const float gamma[] = { 2.2f, 2.2f, 2.2f };
     test_space(r, colorSpace, red, green, blue, gamma);
+}
+
+DEF_TEST(ColorSpaceSRGBCompare, r) {
+    // Create an sRGB color space by name
+    sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+
+    // Create an sRGB color space by value
+    SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+    srgbToxyzD50.set3x3ColMajorf(g_sRGB_XYZ);
+    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::NewRGB(
+            SkColorSpace::SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50);
+    REPORTER_ASSERT(r, namedColorSpace == namedColorSpace);
+
+    // Change a single value from the sRGB matrix
+    srgbToxyzD50.set(2, 2, 0.5f);
+    sk_sp<SkColorSpace> strangeColorSpace = SkColorSpace::NewRGB(
+            SkColorSpace::SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50);
+    REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }

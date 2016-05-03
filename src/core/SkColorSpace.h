@@ -115,7 +115,7 @@ public:
      *  Return a colorspace instance, given a transform from linear_RGB to D50_XYZ
      *  and the src-gamma, return a ColorSpace
      */
-    static sk_sp<SkColorSpace> NewRGB(const SkMatrix44& toXYZD50, SkGammas gammas);
+    static sk_sp<SkColorSpace> NewRGB(SkGammas gammas, const SkMatrix44& toXYZD50);
 
     static sk_sp<SkColorSpace> NewNamed(Named);
     static sk_sp<SkColorSpace> NewICC(const void*, size_t);

@@ -236,7 +236,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
         SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
         mat.set3x3ColMajorf(toXYZD50);
-        return SkColorSpace::NewRGB(mat, std::move(gammas));
+        return SkColorSpace::NewRGB(std::move(gammas), mat);
     }
 
     // Last, check for gamma.
@@ -249,7 +249,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         float value = png_inverted_fixed_point_to_float(gamma);
         gammas = SkColorSpace::SkGammas(value, value, value);
 
-        return SkColorSpace::NewRGB(SkMatrix44::I(), std::move(gammas));
+        return SkColorSpace::NewRGB(std::move(gammas), SkMatrix44::I());
     }
 
 #endif // LIBPNG >= 1.6
