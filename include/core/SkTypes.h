@@ -442,6 +442,15 @@ enum class SkBudgeted : bool {
     kYes = true
 };
 
+/**
+ * Indicates whether a backing store needs to be an exact match or can be larger
+ * than is strictly necessary
+ */
+enum class SkBackingFit {
+    kApprox,
+    kExact
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /** Use to combine multiple bits in a bitmask in a type safe way.
