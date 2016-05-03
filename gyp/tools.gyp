@@ -31,6 +31,7 @@
         'skpinfo',
         'skpmaker',
         'test_public_includes',
+        'using_skia_and_harfbuzz',
         'whitelist_typefaces',
       ],
       'conditions': [
@@ -406,6 +407,19 @@
           '../tools',
         ],
       },
+    },
+    {
+      'target_name': 'using_skia_and_harfbuzz',
+      'type': 'executable',
+      'sources': [ '../tools/using_skia_and_harfbuzz.cpp' ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'pdf.gyp:pdf',
+        'harfbuzz.gyp:harfbuzz',
+      ],
+      'cflags': [ '-w', ],
+      'msvs_settings': { 'VCCLCompilerTool': { 'WarningLevel': '0', }, },
+      'xcode_settings': { 'WARNING_CFLAGS': [ '-w', ], },
     },
     {
       'target_name': 'whitelist_typefaces',
