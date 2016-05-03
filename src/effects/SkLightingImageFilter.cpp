@@ -407,7 +407,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
     sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
     SkASSERT(inputTexture);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
                                                              offsetBounds.width(),
                                                              offsetBounds.height(),
                                                              kRGBA_8888_GrPixelConfig));

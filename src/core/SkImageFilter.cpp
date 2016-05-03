@@ -280,7 +280,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     paint.addColorFragmentProcessor(fp.get());
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
                                                              bounds.width(), bounds.height(),
                                                              kRGBA_8888_GrPixelConfig));
     if (!drawContext) {
