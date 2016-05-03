@@ -159,10 +159,12 @@ GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(GrVkGpu* gpu,
     if (kBorrow_GrWrapOwnership == ownership) {
         imageResource = new GrVkImage::BorrowedResource(info->fImage,
                                                         info->fAlloc,
-                                                        flags,
-                                                        info->fFormat);
+                                                        info->fFormat,
+                                                        info->fLevelCount,
+                                                        flags);
     } else {
-        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, flags, info->fFormat);
+        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, info->fFormat, 
+                                                info->fLevelCount, flags);
     }
     if (!imageResource) {
         return nullptr;

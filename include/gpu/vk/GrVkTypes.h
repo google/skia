@@ -36,6 +36,7 @@ struct GrVkTextureInfo {
     VkImageTiling  fImageTiling;
     VkImageLayout  fImageLayout;
     VkFormat       fFormat;
+    uint32_t       fLevelCount;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkTextureInfo*));

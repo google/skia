@@ -31,7 +31,8 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
                                VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,
                                bool byRegion) {
-    SkASSERT(VK_IMAGE_LAYOUT_GENERAL != newLayout || VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
+    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
+             VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
     // Is this reasonable? Could someone want to keep the same layout but use the masks to force
     // a barrier on certain things?
     if (newLayout == fCurrentLayout) {
@@ -39,16 +40,16 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     }
     VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fResource->fFormat);
     VkImageMemoryBarrier imageMemoryBarrier = {
-        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // sType
-        NULL,                                     // pNext
-        srcAccessMask,                            // outputMask
-        dstAccessMask,                            // inputMask
-        fCurrentLayout,                           // oldLayout
-        newLayout,                                // newLayout
-        VK_QUEUE_FAMILY_IGNORED,                  // srcQueueFamilyIndex
-        VK_QUEUE_FAMILY_IGNORED,                  // dstQueueFamilyIndex
-        fResource->fImage,                        // image
-        { aspectFlags, 0, 1, 0, 1 }               // subresourceRange
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
+        NULL,                                            // pNext
+        srcAccessMask,                                   // outputMask
+        dstAccessMask,                                   // inputMask
+        fCurrentLayout,                                  // oldLayout
+        newLayout,                                       // newLayout
+        VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
+        fResource->fImage,                               // image
+        { aspectFlags, 0, fResource->fLevelCount, 0, 1 } // subresourceRange
     };
 
     // TODO: restrict to area of image we're interested in
@@ -104,7 +105,7 @@ const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
         (VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling) ? Resource::kLinearTiling_Flag
                                                            : Resource::kNo_Flags;
 
-    return (new GrVkImage::Resource(image, alloc, flags, imageDesc.fFormat));
+    return (new GrVkImage::Resource(image, alloc, imageDesc.fFormat, imageDesc.fLevels, flags));
 }
 
 GrVkImage::~GrVkImage() {

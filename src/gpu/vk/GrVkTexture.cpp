@@ -55,13 +55,13 @@ template<typename ResourceType>
 GrVkTexture* GrVkTexture::Create(GrVkGpu* gpu,
                                  ResourceType type,
                                  const GrSurfaceDesc& desc,
-                                 VkFormat format, uint32_t levels, 
+                                 VkFormat format,
                                  const GrVkImage::Resource* imageResource) {
     VkImage image = imageResource->fImage;
 
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, image, format,
                                                            GrVkImageView::kColor_Type, 
-                                                           levels);
+                                                           imageResource->fLevelCount);
     if (!imageView) {
         return nullptr;
     }
@@ -79,8 +79,7 @@ GrVkTexture* GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
         return nullptr;
     }
 
-    GrVkTexture* texture = Create(gpu, budgeted, desc, imageDesc.fFormat, imageDesc.fLevels,
-                                  imageResource);
+    GrVkTexture* texture = Create(gpu, budgeted, desc, imageDesc.fFormat, imageResource);
     // Create() will increment the refCount of the image resource if it succeeds
     imageResource->unref(gpu);
 
@@ -103,17 +102,18 @@ GrVkTexture* GrVkTexture::CreateWrappedTexture(GrVkGpu* gpu,
     if (kBorrow_GrWrapOwnership == ownership) {
         imageResource = new GrVkImage::BorrowedResource(info->fImage,
                                                         info->fAlloc,
-                                                        flags,
-                                                        info->fFormat);
+                                                        info->fFormat,
+                                                        info->fLevelCount,
+                                                        flags);
     } else {
-        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, flags, info->fFormat);
+        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, info->fFormat, 
+                                                info->fLevelCount, flags);
     }
     if (!imageResource) {
         return nullptr;
     }
 
-    // We have no other information so we have to assume that wrapped textures have only one level
-    GrVkTexture* texture = Create(gpu, kWrapped, desc, format, 1, imageResource);
+    GrVkTexture* texture = Create(gpu, kWrapped, desc, format, imageResource);
     if (texture) {
         texture->fCurrentLayout = info->fImageLayout;
     }

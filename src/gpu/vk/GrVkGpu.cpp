@@ -494,7 +494,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
     VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    // TODO: change layout of all the subresources
     tex->setImageLayout(this,
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                         srcAccessMask,
@@ -728,7 +727,6 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origSrcLayout);
     VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-    // TODO: change layout of all the subresources
     tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                         srcAccessMask, dstAccessMask, srcStageMask, dstStageMask, false);
 
@@ -751,13 +749,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
     dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-    tex->setImageLayout(this,
-                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        srcAccessMask,
-                        dstAccessMask,
-                        srcStageMask,
-                        dstStageMask,
-                        false);
+    tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        srcAccessMask, dstAccessMask, srcStageMask, dstStageMask, false);
 
     // Blit original image
     int width = tex->width();
@@ -791,6 +784,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
         blitRegion.dstOffsets[1] = { width/2, height/2, 0 };
 
         // TODO: insert image barrier to wait on previous blit
+        // TODO: change layout of src subresource to TRANSFER_SRC_OPTIMAL
 
         fCurrentCmdBuffer->blitImage(this,
                                      tex->resource(),
@@ -969,6 +963,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     info->fImageTiling = imageTiling;
     info->fImageLayout = initialLayout;
     info->fFormat = pixelFormat;
+    info->fLevelCount = 1;
 
     return (GrBackendObject)info;
 }

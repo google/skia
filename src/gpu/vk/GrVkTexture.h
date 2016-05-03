@@ -41,7 +41,7 @@ protected:
 
     template<typename ResourceType>
     static GrVkTexture* Create(GrVkGpu*, ResourceType, const GrSurfaceDesc&, VkFormat,
-                               uint32_t levels, const GrVkImage::Resource* texImpl);
+                               const GrVkImage::Resource* texImpl);
 
     GrVkGpu* getVkGpu() const;
 

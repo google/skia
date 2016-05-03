@@ -31,6 +31,7 @@ public:
         VkImage                  fImage;
         VkDeviceMemory           fAlloc;
         VkFormat                 fFormat;
+        uint32_t                 fLevelCount;
         uint32_t                 fFlags;
 
         Resource()
@@ -38,10 +39,13 @@ public:
             , fImage(VK_NULL_HANDLE)
             , fAlloc(VK_NULL_HANDLE)
             , fFormat(VK_FORMAT_UNDEFINED)
+            , fLevelCount(0)
             , fFlags(kNo_Flags) {}
 
-        Resource(VkImage image, VkDeviceMemory alloc, uint32_t flags, VkFormat format)
-            : fImage(image), fAlloc(alloc), fFormat(format), fFlags(flags) {}
+        Resource(VkImage image, VkDeviceMemory alloc, VkFormat format, uint32_t levelCount,
+                 uint32_t flags)
+            : fImage(image), fAlloc(alloc), fFormat(format), fLevelCount(levelCount)
+            , fFlags(flags) {}
 
         ~Resource() override {}
 
@@ -54,8 +58,9 @@ public:
     // for wrapped textures
     class BorrowedResource : public Resource {
     public:
-        BorrowedResource(VkImage image, VkDeviceMemory alloc, uint32_t flags, VkFormat format)
-            : Resource(image, alloc, (flags | kBorrowed_Flag), format) {
+        BorrowedResource(VkImage image, VkDeviceMemory alloc, VkFormat format, uint32_t levelCount,
+                         uint32_t flags)
+            : Resource(image, alloc, format, levelCount, (flags | kBorrowed_Flag)) {
         }
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
@@ -122,7 +127,6 @@ protected:
     const Resource* fResource;
 
     VkImageLayout   fCurrentLayout;
-
 };
 
 #endif
