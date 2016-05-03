@@ -208,7 +208,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
     // Next, check for chromaticities.
     png_fixed_point XYZ[9];
-    SkFloat3x3 toXYZD50;
+    float toXYZD50[9];
     png_fixed_point gamma;
     SkColorSpace::SkGammas gammas;
     if (png_get_cHRM_XYZ_fixed(png_ptr, info_ptr, &XYZ[0], &XYZ[1], &XYZ[2], &XYZ[3], &XYZ[4],
@@ -221,7 +221,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         //                  we should add a new constructor to SkColorSpace that accepts
         //                  XYZ with D-Unkown?
         for (int i = 0; i < 9; i++) {
-            toXYZD50.fMat[i] = png_fixed_point_to_float(XYZ[i]);
+            toXYZD50[i] = png_fixed_point_to_float(XYZ[i]);
         }
 
         if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
@@ -234,8 +234,9 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
             gammas = SkColorSpace::SkGammas(2.2f, 2.2f, 2.2f);
         }
 
-
-        return SkColorSpace::NewRGB(toXYZD50, std::move(gammas));
+        SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+        mat.set3x3ColMajorf(toXYZD50);
+        return SkColorSpace::NewRGB(mat, std::move(gammas));
     }
 
     // Last, check for gamma.
@@ -243,15 +244,12 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
         // Guess a default value for cHRM?  Or should we just give up?
         // Here we use the identity matrix as a default.
-        // FIXME (msarett): Should SkFloat3x3 have a method to set the identity matrix?
-        memset(toXYZD50.fMat, 0, 9 * sizeof(float));
-        toXYZD50.fMat[0] = toXYZD50.fMat[4] = toXYZD50.fMat[8] = 1.0f;
 
         // Set the gammas.
         float value = png_inverted_fixed_point_to_float(gamma);
         gammas = SkColorSpace::SkGammas(value, value, value);
 
-        return SkColorSpace::NewRGB(toXYZD50, std::move(gammas));
+        return SkColorSpace::NewRGB(SkMatrix44::I(), std::move(gammas));
     }
 
 #endif // LIBPNG >= 1.6

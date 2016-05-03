@@ -209,6 +209,14 @@ void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
     this->dirtyTypeMask();
 }
 
+void SkMatrix44::set3x3ColMajorf(const float src[]) {
+    fMat[0][0] = src[0]; fMat[0][1] = src[3]; fMat[0][2] = src[6]; fMat[0][3] = 0;
+    fMat[1][0] = src[1]; fMat[1][1] = src[4]; fMat[1][2] = src[7]; fMat[1][3] = 0;
+    fMat[2][0] = src[2]; fMat[2][1] = src[5]; fMat[2][2] = src[8]; fMat[2][3] = 0;
+    fMat[3][0] = 0;      fMat[3][1] = 0;      fMat[3][2] = 0;      fMat[3][3] = 1;
+    this->dirtyTypeMask();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {

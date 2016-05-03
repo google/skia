@@ -22,15 +22,10 @@
 //
 
 #include "SkRefCnt.h"
+#include "SkMatrix44.h"
 
 struct SkFloat3 {
     float fVec[3];
-
-    void dump() const;
-};
-
-struct SkFloat3x3 {
-    float fMat[9];
 
     void dump() const;
 };
@@ -117,17 +112,16 @@ public:
     };
 
     /**
-     *  Return a colorspace instance, given a 3x3 transform from linear_RGB to D50_XYZ
+     *  Return a colorspace instance, given a transform from linear_RGB to D50_XYZ
      *  and the src-gamma, return a ColorSpace
      */
-    static sk_sp<SkColorSpace> NewRGB(const SkFloat3x3& toXYZD50, SkGammas gammas);
+    static sk_sp<SkColorSpace> NewRGB(const SkMatrix44& toXYZD50, SkGammas gammas);
 
     static sk_sp<SkColorSpace> NewNamed(Named);
     static sk_sp<SkColorSpace> NewICC(const void*, size_t);
 
     const SkGammas& gammas() const { return fGammas; }
-    SkFloat3x3 xyz() const { return fToXYZD50; }
-    SkFloat3 xyzOffset() const { return fToXYZOffset; }
+    SkMatrix44 xyz() const { return fToXYZD50; }
     Named named() const { return fNamed; }
     uint32_t uniqueID() const { return fUniqueID; }
 
@@ -140,18 +134,17 @@ private:
                              uint32_t outputChannels, const uint8_t* src, size_t len);
 
 
-    static bool LoadA2B0(SkColorLookUpTable* colorLUT, SkGammas* gammas, SkFloat3x3* toXYZ,
-                         SkFloat3* toXYZOffset, const uint8_t* src, size_t len);
+    static bool LoadA2B0(SkColorLookUpTable* colorLUT, SkGammas* gammas, SkMatrix44* toXYZ,
+                         const uint8_t* src, size_t len);
 
-    SkColorSpace(SkGammas gammas, const SkFloat3x3& toXYZ, Named);
+    SkColorSpace(SkGammas gammas, const SkMatrix44& toXYZ, Named);
 
     SkColorSpace(SkColorLookUpTable colorLUT, SkGammas gammas,
-                 const SkFloat3x3& toXYZ, const SkFloat3& toXYZOffset);
+                 const SkMatrix44& toXYZ);
 
     const SkColorLookUpTable fColorLUT;
     const SkGammas           fGammas;
-    const SkFloat3x3         fToXYZD50;
-    const SkFloat3           fToXYZOffset;
+    const SkMatrix44         fToXYZD50;
 
     const uint32_t           fUniqueID;
     const Named              fNamed;

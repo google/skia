@@ -12,50 +12,44 @@ void SkFloat3::dump() const {
     SkDebugf("[%7.4f %7.4f %7.4f]\n", fVec[0], fVec[1], fVec[2]);
 }
 
-void SkFloat3x3::dump() const {
-    SkDebugf("[%7.4f %7.4f %7.4f] [%7.4f %7.4f %7.4f] [%7.4f %7.4f %7.4f]\n",
-             fMat[0], fMat[1], fMat[2],
-             fMat[3], fMat[4], fMat[5],
-             fMat[6], fMat[7], fMat[8]);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 static int32_t gUniqueColorSpaceID;
 
-SkColorSpace::SkColorSpace(SkGammas gammas, const SkFloat3x3& toXYZD50, Named named)
+SkColorSpace::SkColorSpace(SkGammas gammas, const SkMatrix44& toXYZD50, Named named)
     : fGammas(std::move(gammas))
     , fToXYZD50(toXYZD50)
-    , fToXYZOffset({{ 0.0f, 0.0f, 0.0f }})
     , fUniqueID(sk_atomic_inc(&gUniqueColorSpaceID))
     , fNamed(named)
 {}
 
 SkColorSpace::SkColorSpace(SkColorLookUpTable colorLUT, SkGammas gammas,
-                           const SkFloat3x3& toXYZD50, const SkFloat3& toXYZOffset)
+                           const SkMatrix44& toXYZD50)
     : fColorLUT(std::move(colorLUT))
     , fGammas(std::move(gammas))
     , fToXYZD50(toXYZD50)
-    , fToXYZOffset(toXYZOffset)
     , fUniqueID(sk_atomic_inc(&gUniqueColorSpaceID))
     , fNamed(kUnknown_Named)
 {}
 
-sk_sp<SkColorSpace> SkColorSpace::NewRGB(const SkFloat3x3& toXYZD50, SkGammas gammas) {
+sk_sp<SkColorSpace> SkColorSpace::NewRGB(const SkMatrix44& toXYZD50, SkGammas gammas) {
     return sk_sp<SkColorSpace>(new SkColorSpace(std::move(gammas), toXYZD50, kUnknown_Named));
 }
 
-const SkFloat3x3 gSRGB_toXYZD50 {{
+const float gSRGB_toXYZD50[] {
     0.4358f, 0.2224f, 0.0139f,    // * R
     0.3853f, 0.7170f, 0.0971f,    // * G
     0.1430f, 0.0606f, 0.7139f,    // * B
-}};
+};
 
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
     switch (named) {
-        case kSRGB_Named:
-            return sk_sp<SkColorSpace>(new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), gSRGB_toXYZD50,
+        case kSRGB_Named: {
+            SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+            srgbToxyzD50.set3x3ColMajorf(gSRGB_toXYZD50);
+            return sk_sp<SkColorSpace>(new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50,
                                                         kSRGB_Named));
+        }
         default:
             break;
     }
@@ -414,29 +408,35 @@ bool SkColorSpace::LoadColorLUT(SkColorLookUpTable* colorLUT, uint32_t inputChan
     return true;
 }
 
-bool load_matrix(SkFloat3x3* toXYZ, SkFloat3* toXYZOffset, const uint8_t* src, size_t len) {
+bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     if (len < 48) {
         SkColorSpacePrintf("Matrix tag is too small (%d bytes).", len);
         return false;
     }
 
-    toXYZ->fMat[0] = SkFixedToFloat(read_big_endian_int(src));
-    toXYZ->fMat[3] = SkFixedToFloat(read_big_endian_int(src + 4));
-    toXYZ->fMat[6] = SkFixedToFloat(read_big_endian_int(src + 8));
-    toXYZ->fMat[1] = SkFixedToFloat(read_big_endian_int(src + 12));
-    toXYZ->fMat[4] = SkFixedToFloat(read_big_endian_int(src + 16));
-    toXYZ->fMat[7] = SkFixedToFloat(read_big_endian_int(src + 20));
-    toXYZ->fMat[2] = SkFixedToFloat(read_big_endian_int(src + 24));
-    toXYZ->fMat[5] = SkFixedToFloat(read_big_endian_int(src + 28));
-    toXYZ->fMat[8] = SkFixedToFloat(read_big_endian_int(src + 32));
-    toXYZOffset->fVec[0] = SkFixedToFloat(read_big_endian_int(src + 36));
-    toXYZOffset->fVec[1] = SkFixedToFloat(read_big_endian_int(src + 40));
-    toXYZOffset->fVec[2] = SkFixedToFloat(read_big_endian_int(src + 44));
+    float array[16];
+    array[ 0] = SkFixedToFloat(read_big_endian_int(src));
+    array[ 1] = SkFixedToFloat(read_big_endian_int(src + 4));
+    array[ 2] = SkFixedToFloat(read_big_endian_int(src + 8));
+    array[ 3] = 0;
+    array[ 4] = SkFixedToFloat(read_big_endian_int(src + 12));
+    array[ 5] = SkFixedToFloat(read_big_endian_int(src + 16));
+    array[ 6] = SkFixedToFloat(read_big_endian_int(src + 20));
+    array[ 7] = 0;
+    array[ 8] = SkFixedToFloat(read_big_endian_int(src + 24));
+    array[ 9] = SkFixedToFloat(read_big_endian_int(src + 28));
+    array[10] = SkFixedToFloat(read_big_endian_int(src + 32));
+    array[11] = 0;
+    array[12] = SkFixedToFloat(read_big_endian_int(src + 36));  // translate R
+    array[13] = SkFixedToFloat(read_big_endian_int(src + 40));  // translate G
+    array[14] = SkFixedToFloat(read_big_endian_int(src + 44));
+    array[15] = 1;
+    toXYZ->setColMajorf(array);
     return true;
 }
 
-bool SkColorSpace::LoadA2B0(SkColorLookUpTable* colorLUT, SkGammas* gammas, SkFloat3x3* toXYZ,
-                            SkFloat3* toXYZOffset, const uint8_t* src, size_t len) {
+bool SkColorSpace::LoadA2B0(SkColorLookUpTable* colorLUT, SkGammas* gammas, SkMatrix44* toXYZ,
+                            const uint8_t* src, size_t len) {
     if (len < 32) {
         SkColorSpacePrintf("A to B tag is too small (%d bytes).", len);
         return false;
@@ -493,7 +493,7 @@ bool SkColorSpace::LoadA2B0(SkColorLookUpTable* colorLUT, SkGammas* gammas, SkFl
 
     uint32_t offsetToMatrix = read_big_endian_int(src + 16);
     if (0 != offsetToMatrix && offsetToMatrix < len) {
-        if (!load_matrix(toXYZ, toXYZOffset, src + offsetToMatrix, len - offsetToMatrix)) {
+        if (!load_matrix(toXYZ, src + offsetToMatrix, len - offsetToMatrix)) {
             SkColorSpacePrintf("Failed to read matrix from A to B tag.\n");
         }
     }
@@ -551,10 +551,10 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
             const ICCTag* g = ICCTag::Find(tags.get(), tagCount, kTAG_gXYZ);
             const ICCTag* b = ICCTag::Find(tags.get(), tagCount, kTAG_bXYZ);
             if (r && g && b) {
-                SkFloat3x3 toXYZ;
-                if (!load_xyz(&toXYZ.fMat[0], r->addr((const uint8_t*) base), r->fLength) ||
-                    !load_xyz(&toXYZ.fMat[3], g->addr((const uint8_t*) base), g->fLength) ||
-                    !load_xyz(&toXYZ.fMat[6], b->addr((const uint8_t*) base), b->fLength))
+                float toXYZ[9];
+                if (!load_xyz(&toXYZ[0], r->addr((const uint8_t*) base), r->fLength) ||
+                    !load_xyz(&toXYZ[3], g->addr((const uint8_t*) base), g->fLength) ||
+                    !load_xyz(&toXYZ[6], b->addr((const uint8_t*) base), b->fLength))
                 {
                     return_null("Need valid rgb tags for XYZ space");
                 }
@@ -577,7 +577,9 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                                                     b->addr((const uint8_t*) base), b->fLength)) {
                     SkColorSpacePrintf("Failed to read B gamma tag.\n");
                 }
-                return SkColorSpace::NewRGB(toXYZ, std::move(gammas));
+                SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+                mat.set3x3ColMajorf(toXYZ);
+                return SkColorSpace::NewRGB(mat, std::move(gammas));
             }
 
             // Recognize color profile specified by A2B0 tag.
@@ -585,15 +587,14 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
             if (a2b0) {
                 SkColorLookUpTable colorLUT;
                 SkGammas gammas;
-                SkFloat3x3 toXYZ;
-                SkFloat3 toXYZOffset;
-                if (!SkColorSpace::LoadA2B0(&colorLUT, &gammas, &toXYZ, &toXYZOffset,
+                SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+                if (!SkColorSpace::LoadA2B0(&colorLUT, &gammas, &toXYZ,
                                             a2b0->addr((const uint8_t*) base), a2b0->fLength)) {
                     return_null("Failed to parse A2B0 tag");
                 }
 
                 return sk_sp<SkColorSpace>(new SkColorSpace(std::move(colorLUT), std::move(gammas),
-                                                            toXYZ, toXYZOffset));
+                                                            toXYZ));
             }
 
         }
