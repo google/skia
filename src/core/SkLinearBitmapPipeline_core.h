@@ -9,6 +9,7 @@
 #define SkLinearBitmapPipeline_core_DEFINED
 
 #include <cmath>
+#include "SkNx.h"
 
 // New bilerp strategy:
 // Pass through on bilerpList4 and bilerpListFew (analogs to pointList), introduce bilerpEdge

@@ -7,17 +7,18 @@
 
 #include "SkLinearBitmapPipeline.h"
 
-#include "SkPM4f.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include "SkColor.h"
-#include "SkSize.h"
 #include <tuple>
+
 #include "SkLinearBitmapPipeline_core.h"
 #include "SkLinearBitmapPipeline_matrix.h"
 #include "SkLinearBitmapPipeline_tile.h"
 #include "SkLinearBitmapPipeline_sample.h"
+#include "SkNx.h"
+#include "SkOpts.h"
+#include "SkPM4f.h"
 
 class SkLinearBitmapPipeline::PointProcessorInterface {
 public:
@@ -555,10 +556,10 @@ private:
 // RGBA8888UnitRepeatSrc - A sampler that takes advantage of the fact the the src and destination
 // are the same format and do not need in transformations in pixel space. Therefore, there is no
 // need to convert them to HiFi pixel format.
-class RGBA8888UnitRepeat final : public SkLinearBitmapPipeline::SampleProcessorInterface,
-                                 public SkLinearBitmapPipeline::DestinationInterface {
+class RGBA8888UnitRepeatSrc final : public SkLinearBitmapPipeline::SampleProcessorInterface,
+                                    public SkLinearBitmapPipeline::DestinationInterface {
 public:
-    RGBA8888UnitRepeat(const uint32_t* src, int32_t width)
+    RGBA8888UnitRepeatSrc(const uint32_t* src, int32_t width)
         : fSrc{src}, fWidth{width} { }
 
     void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
@@ -620,6 +621,85 @@ private:
     const uint32_t* pixelAddress(int32_t x, int32_t y) {
         return &fSrc[fWidth * y + x];
     }
+    const uint32_t* const fSrc;
+    const int32_t         fWidth;
+    uint32_t*             fDest;
+    uint32_t*             fEnd;
+};
+
+// RGBA8888UnitRepeatSrc - A sampler that takes advantage of the fact the the src and destination
+// are the same format and do not need in transformations in pixel space. Therefore, there is no
+// need to convert them to HiFi pixel format.
+class RGBA8888UnitRepeatSrcOver final : public SkLinearBitmapPipeline::SampleProcessorInterface,
+                                        public SkLinearBitmapPipeline::DestinationInterface {
+public:
+    RGBA8888UnitRepeatSrcOver(const uint32_t* src, int32_t width)
+        : fSrc{src}, fWidth{width} { }
+
+    void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
+        SkASSERT(fDest + n <= fEnd);
+        // At this point xs and ys should be >= 0, so trunc is the same as floor.
+        Sk4i iXs = SkNx_cast<int>(xs);
+        Sk4i iYs = SkNx_cast<int>(ys);
+
+        if (n >= 1) blendPixelAt(iXs[0], iYs[0]);
+        if (n >= 2) blendPixelAt(iXs[1], iYs[1]);
+        if (n >= 3) blendPixelAt(iXs[2], iYs[2]);
+    }
+
+    void VECTORCALL pointList4(Sk4s xs, Sk4s ys) override {
+        SkASSERT(fDest + 4 <= fEnd);
+        Sk4i iXs = SkNx_cast<int>(xs);
+        Sk4i iYs = SkNx_cast<int>(ys);
+        blendPixelAt(iXs[0], iYs[0]);
+        blendPixelAt(iXs[1], iYs[1]);
+        blendPixelAt(iXs[2], iYs[2]);
+        blendPixelAt(iXs[3], iYs[3]);
+    }
+
+    void pointSpan(Span span) override {
+        if (span.length() != 0.0f) {
+            this->repeatSpan(span, 1);
+        }
+    }
+
+    void repeatSpan(Span span, int32_t repeatCount) override {
+        SkASSERT(fDest + span.count() * repeatCount <= fEnd);
+        SkASSERT(span.count() > 0);
+        SkASSERT(repeatCount > 0);
+
+        int32_t x = (int32_t)span.startX();
+        int32_t y = (int32_t)span.startY();
+        const uint32_t* beginSpan = this->pixelAddress(x, y);
+
+        SkOpts::srcover_srgb_srgb(fDest, beginSpan, span.count() * repeatCount, span.count());
+
+        fDest += span.count() * repeatCount;
+
+        SkASSERT(fDest <= fEnd);
+    }
+
+    void VECTORCALL bilerpEdge(Sk4s xs, Sk4s ys) override { SkFAIL("Not Implemented"); }
+
+    void bilerpSpan(Span span, SkScalar y) override { SkFAIL("Not Implemented"); }
+
+    void setDestination(void* dst, int count) override  {
+        SkASSERT(count > 0);
+        fDest = static_cast<uint32_t*>(dst);
+        fEnd = fDest + count;
+    }
+
+private:
+    const uint32_t* pixelAddress(int32_t x, int32_t y) {
+        return &fSrc[fWidth * y + x];
+    }
+
+    void blendPixelAt(int32_t x, int32_t y) {
+        const uint32_t* src = this->pixelAddress(x, y);
+        SkOpts::srcover_srgb_srgb(fDest, src, 1, 1);
+        fDest += 1;
+    };
+
     const uint32_t* const fSrc;
     const int32_t         fWidth;
     uint32_t*             fDest;
@@ -797,24 +877,23 @@ bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
     SkXfermode::Mode xferMode,
     const SkImageInfo& dstInfo)
 {
+    if (xferMode == SkXfermode::kSrcOver_Mode
+        && srcPixmap.info().alphaType() == kOpaque_SkAlphaType) {
+        xferMode = SkXfermode::kSrc_Mode;
+    }
+
     if (matrixMask & ~SkMatrix::kTranslate_Mask ) { return false; }
     if (filterQuality != SkFilterQuality::kNone_SkFilterQuality) { return false; }
     if (finalAlpha != 1.0f) { return false; }
     if (srcPixmap.info().colorType() != kRGBA_8888_SkColorType
         || dstInfo.colorType() != kRGBA_8888_SkColorType) { return false; }
 
-    if (srcPixmap.info().profileType() != dstInfo.profileType()) { return false; }
+    if (srcPixmap.info().profileType() != kSRGB_SkColorProfileType
+        || dstInfo.profileType() != kSRGB_SkColorProfileType) { return false; }
 
-    if (xTileMode != SkShader::kRepeat_TileMode || yTileMode != SkShader::kRepeat_TileMode) {
+    if (xferMode != SkXfermode::kSrc_Mode && xferMode != SkXfermode::kSrcOver_Mode) {
         return false;
     }
-
-    if (xferMode == SkXfermode::kSrcOver_Mode
-        && srcPixmap.info().alphaType() == kOpaque_SkAlphaType) {
-        xferMode = SkXfermode::kSrc_Mode;
-    }
-
-    if (xferMode != SkXfermode::kSrc_Mode) { return false; }
 
     new (blitterStorage) SkLinearBitmapPipeline(pipeline, srcPixmap, xferMode, dstInfo);
 
@@ -827,18 +906,26 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     SkXfermode::Mode mode,
     const SkImageInfo& dstInfo)
 {
-    SkASSERT(mode == SkXfermode::kSrc_Mode);
+    SkASSERT(mode == SkXfermode::kSrc_Mode || mode == SkXfermode::kSrcOver_Mode);
     SkASSERT(srcPixmap.info().colorType() == dstInfo.colorType()
              && srcPixmap.info().colorType() == kRGBA_8888_SkColorType);
 
-    fSampleStage.initSink<RGBA8888UnitRepeat>(srcPixmap.writable_addr32(0, 0), srcPixmap.width());
+    if (mode == SkXfermode::kSrc_Mode) {
+        fSampleStage.initSink<RGBA8888UnitRepeatSrc>(
+            srcPixmap.writable_addr32(0, 0), srcPixmap.rowBytes() / 4);
+        fLastStage = fSampleStage.getInterface<DestinationInterface, RGBA8888UnitRepeatSrc>();
+    } else {
+        fSampleStage.initSink<RGBA8888UnitRepeatSrcOver>(
+            srcPixmap.writable_addr32(0, 0), srcPixmap.rowBytes() / 4);
+        fLastStage = fSampleStage.getInterface<DestinationInterface, RGBA8888UnitRepeatSrcOver>();
+    }
+
     auto sampleStage = fSampleStage.get();
     auto tilerStage = pipeline.fTileStage.cloneStageTo(sampleStage, &fTileStage);
     tilerStage = (tilerStage != nullptr) ? tilerStage : sampleStage;
     auto matrixStage = pipeline.fMatrixStage.cloneStageTo(tilerStage, &fMatrixStage);
     matrixStage = (matrixStage != nullptr) ? matrixStage : tilerStage;
     fFirstStage = matrixStage;
-    fLastStage = fSampleStage.getInterface<DestinationInterface, RGBA8888UnitRepeat>();
 }
 
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {

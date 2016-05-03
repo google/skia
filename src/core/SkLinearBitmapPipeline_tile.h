@@ -298,7 +298,9 @@ public:
 
         // Repeat the center section.
         SkASSERT(0.0f <= repeatableSpan.startX() && repeatableSpan.endX() < fXMax);
-        next->repeatSpan(repeatableSpan, repeatCount);
+        if (repeatCount > 0) {
+            next->repeatSpan(repeatableSpan, repeatCount);
+        }
 
         // Calculate the advance past the center portion.
         SkScalar advance = SkScalar(repeatCount) * fXMax;
