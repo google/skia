@@ -84,3 +84,42 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
         canvas->translate(0, 120);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkColorSpace.h"
+
+DEF_SIMPLE_GM(color4shader, canvas, 1024, 260) {
+    canvas->translate(10, 10);
+
+    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+    // red -> blue, green -> red, blue -> green
+    mat.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
+
+    const SkColor4f colors[] {
+        { 1, 1, 0, 0 },
+        { 1, 0, 1, 0 },
+        { 1, 0, 0, 1 },
+        { 1, 0.5, 0.5, 0.5 },
+    };
+
+    SkPaint paint;
+    SkRect r = SkRect::MakeWH(100, 100);
+
+    for (const auto& c4 : colors) {
+        sk_sp<SkShader> shaders[] {
+            SkShader::MakeColorShader(c4, nullptr),
+            SkShader::MakeColorShader(c4, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)),
+            SkShader::MakeColorShader(c4, SkColorSpace::NewRGB(SkColorSpace::SkGammas(1, 1, 1),
+                                                               mat)),
+        };
+
+        canvas->save();
+        for (const auto& s : shaders) {
+            paint.setShader(s);
+            canvas->drawRect(r, paint);
+            canvas->translate(r.width() * 6 / 5, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, r.height() * 6 / 5);
+    }
+}

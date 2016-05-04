@@ -17,6 +17,7 @@
 #include "../gpu/GrColor.h"
 
 class SkColorFilter;
+class SkColorSpace;
 class SkPath;
 class SkPicture;
 class SkXfermode;
@@ -374,6 +375,14 @@ public:
      *  draw the same as a paint with this color (and no shader).
      */
     static sk_sp<SkShader> MakeColorShader(SkColor);
+
+    /**
+     *  Create a shader that draws the specified color (in the specified colorspace).
+     *
+     *  This works around the limitation that SkPaint::setColor() only takes byte values, and does
+     *  not support specific colorspaces.
+     */
+    static sk_sp<SkShader> MakeColorShader(const SkColor4f&, sk_sp<SkColorSpace>);
 
     static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
                                              SkXfermode::Mode);
