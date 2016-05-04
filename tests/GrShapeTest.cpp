@@ -257,6 +257,9 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     TestCase hairlineCase(geo, hairline, reporter);
     // Since hairline style doesn't change the SkPath data, it is keyed identically to fill.
     hairlineCase.compare(reporter, fillCase, TestCase::kAllSame_ComparisonExpecation);
+    REPORTER_ASSERT(reporter, hairlineCase.baseShape().style().isSimpleHairline());
+    REPORTER_ASSERT(reporter, hairlineCase.appliedFullStyleShape().style().isSimpleHairline());
+    REPORTER_ASSERT(reporter, hairlineCase.appliedPathEffectShape().style().isSimpleHairline());
 }
 
 template <typename GEO, typename T>
@@ -464,7 +467,7 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const GEO& geo) {
         AddLineTosPathEffect() {}
     };
 
-     // This path effect should make the keys invalid when it is applied. We only produce a pathe
+     // This path effect should make the keys invalid when it is applied. We only produce a path
      // effect key for dash path effects. So the only way another arbitrary path effect can produce
      // a styled result with a key is to produce a non-path shape that has a purely geometric key.
     SkPaint peStroke;
@@ -477,6 +480,52 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const GEO& geo) {
     expectations.fPEHasValidKey = false;
     expectations.fStrokeApplies = true;
     geoPEStrokeCase.testExpectations(reporter, expectations);
+}
+
+template <typename GEO>
+void test_make_hairline_path_effect(skiatest::Reporter* reporter, const GEO& geo, bool isNonPath) {
+    /**
+     * This path effect just changes the stroke rec to hairline.
+     */
+    class MakeHairlinePathEffect : SkPathEffect {
+    public:
+        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* strokeRec,
+                        const SkRect* cullR) const override {
+            *dst = src;
+            strokeRec->setHairlineStyle();
+            return true;
+        }
+        void computeFastBounds(SkRect* dst, const SkRect& src) const override {  *dst = src; }
+        static sk_sp<SkPathEffect> Make() {
+            return sk_sp<SkPathEffect>(new MakeHairlinePathEffect);
+        }
+        Factory getFactory() const override { return nullptr; }
+        void toString(SkString*) const override {}
+    private:
+        MakeHairlinePathEffect() {}
+    };
+
+    SkPaint fill;
+    SkPaint pe;
+    pe.setPathEffect(MakeHairlinePathEffect::Make());
+
+    TestCase peCase(geo, pe, reporter);
+
+    SkPath a, b;
+    peCase.baseShape().asPath(&a);
+    peCase.appliedPathEffectShape().asPath(&b);
+    REPORTER_ASSERT(reporter, a == b);
+    peCase.appliedFullStyleShape().asPath(&b);
+    REPORTER_ASSERT(reporter, a == b);
+    REPORTER_ASSERT(reporter, peCase.appliedPathEffectShape().style().isSimpleHairline());
+    REPORTER_ASSERT(reporter, peCase.appliedFullStyleShape().style().isSimpleHairline());
+    if (isNonPath) {
+        REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey() == peCase.baseKey());
+        REPORTER_ASSERT(reporter, peCase.appliedFullStyleKey() == peCase.baseKey());
+    } else {
+        REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey().empty());
+        REPORTER_ASSERT(reporter, peCase.appliedFullStyleKey().empty());
+    }
 }
 
 /**
@@ -623,6 +672,7 @@ DEF_TEST(GrShape, reporter) {
         test_path_effect_makes_rrect(reporter, rr);
         test_unknown_path_effect(reporter, rr);
         test_path_effect_makes_empty_shape(reporter, rr);
+        test_make_hairline_path_effect(reporter, rr, true);
     }
 
     struct TestPath {
@@ -686,6 +736,7 @@ DEF_TEST(GrShape, reporter) {
         test_miter_limit(reporter, path);
         test_unknown_path_effect(reporter, path);
         test_path_effect_makes_empty_shape(reporter, path);
+        test_make_hairline_path_effect(reporter, path, testPath.fIsRRectForStroke);
 
         SkPaint fillPaint;
         TestCase fillPathCase(path, fillPaint, reporter);
