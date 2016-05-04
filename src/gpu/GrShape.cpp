@@ -83,80 +83,7 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
     SkASSERT(key - origKey == this->unstyledKeySize());
 }
 
-int GrShape::StyleKeySize(const GrStyle& style, bool stopAfterPE) {
-    GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(SkScalar));
-    int size = 0;
-    if (style.isDashed()) {
-        // One scalar for dash phase and one for each dash value.
-        size += 1 + style.dashIntervalCnt();
-    } else if (style.pathEffect()) {
-        // No key for a generic path effect.
-        return -1;
-    }
-
-    if (stopAfterPE) {
-        return size;
-    }
-
-    if (style.strokeRec().needToApply()) {
-        // One for style/cap/join, 2 for miter and width.
-        size += 3;
-    }
-    return size;
-}
-
-void GrShape::StyleKey(uint32_t* key, const GrStyle& style, bool stopAfterPE) {
-    SkASSERT(key);
-    SkASSERT(StyleKeySize(style, stopAfterPE) >= 0);
-    GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(SkScalar));
-
-    int i = 0;
-    if (style.isDashed()) {
-        GR_STATIC_ASSERT(sizeof(style.dashPhase()) == sizeof(uint32_t));
-        SkScalar phase = style.dashPhase();
-        memcpy(&key[i++], &phase, sizeof(SkScalar));
-
-        int32_t count = style.dashIntervalCnt();
-        // Dash count should always be even.
-        SkASSERT(0 == (count & 0x1));
-        const SkScalar* intervals = style.dashIntervals();
-        int intervalByteCnt = count * sizeof(SkScalar);
-        memcpy(&key[i], intervals, intervalByteCnt);
-        i += count;
-    } else {
-        SkASSERT(!style.pathEffect());
-    }
-
-    if (!stopAfterPE && style.strokeRec().needToApply()) {
-        enum {
-            kStyleBits = 2,
-            kJoinBits = 2,
-            kCapBits = 32 - kStyleBits - kJoinBits,
-
-            kJoinShift = kStyleBits,
-            kCapShift = kJoinShift + kJoinBits,
-        };
-        GR_STATIC_ASSERT(SkStrokeRec::kStyleCount <= (1 << kStyleBits));
-        GR_STATIC_ASSERT(SkPaint::kJoinCount <= (1 << kJoinBits));
-        GR_STATIC_ASSERT(SkPaint::kCapCount <= (1 << kCapBits));
-        key[i++]  = style.strokeRec().getStyle() |
-                    style.strokeRec().getJoin() << kJoinShift |
-                    style.strokeRec().getCap() << kCapShift;
-
-        SkScalar scalar;
-        // Miter limit only affects miter joins
-        scalar = SkPaint::kMiter_Join == style.strokeRec().getJoin()
-                 ? style.strokeRec().getMiter()
-                 : -1.f;
-        memcpy(&key[i++], &scalar, sizeof(scalar));
-
-        scalar = style.strokeRec().getWidth();
-        memcpy(&key[i++], &scalar, sizeof(scalar));
-    }
-    SkASSERT(StyleKeySize(style, stopAfterPE) == i);
-}
-
-void GrShape::setInheritedKey(const GrShape &parent, bool stopAfterPE) {
+void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply) {
     SkASSERT(!fInheritedKey.count());
     // If the output shape turns out to be simple, then we will just use its geometric key
     if (Type::kPath == fType) {
@@ -176,7 +103,7 @@ void GrShape::setInheritedKey(const GrShape &parent, bool stopAfterPE) {
                 return;
             }
         }
-        int styleCnt = StyleKeySize(parent.fStyle, stopAfterPE);
+        int styleCnt = GrStyle::KeySize(parent.fStyle, apply);
         if (styleCnt < 0) {
             // The style doesn't allow a key, set the path to volatile so that we fail when
             // we try to get a key for the shape.
@@ -193,7 +120,7 @@ void GrShape::setInheritedKey(const GrShape &parent, bool stopAfterPE) {
                    parentCnt * sizeof(uint32_t));
         }
         // Now turn (geo,path_effect) or (geo) into (geo,path_effect,stroke)
-        StyleKey(fInheritedKey.get() + parentCnt, parent.fStyle, stopAfterPE);
+        GrStyle::WriteKey(fInheritedKey.get() + parentCnt, parent.fStyle, apply);
     }
 }
 
@@ -213,69 +140,80 @@ GrShape::GrShape(const GrShape& that) : fType(that.fType), fStyle(that.fStyle) {
            sizeof(uint32_t) * fInheritedKey.count());
 }
 
-GrShape::GrShape(const GrShape& parent, bool stopAfterPE) {
-    fType = Type::kEmpty;
+GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply) {
+    if (!parent.style().applies() ||
+        (GrStyle::Apply::kPathEffectOnly == apply && !parent.style().pathEffect())) {
+        fType = Type::kEmpty;
+        *this = parent;
+        return;
+    }
+
     SkPathEffect* pe = parent.fStyle.pathEffect();
-    const SkPath* inPath;
-    SkStrokeRec strokeRec = parent.fStyle.strokeRec();
-    bool appliedPE = false;
+    SkTLazy<SkPath> tmpPath;
+    const GrShape* parentForKey = &parent;
+    SkTLazy<GrShape> tmpParent;
+    fType = Type::kPath;
+    fPath.init();
     if (pe) {
-        fType = Type::kPath;
-        fPath.init();
+        SkPath* srcForPathEffect;
         if (parent.fType == Type::kPath) {
-            inPath = parent.fPath.get();
+            srcForPathEffect = parent.fPath.get();
         } else {
-            inPath = fPath.get();
-            parent.asPath(fPath.get());
+            srcForPathEffect = tmpPath.init();
+            parent.asPath(tmpPath.get());
         }
         // Should we consider bounds? Would have to include in key, but it'd be nice to know
         // if the bounds actually modified anything before including in key.
-        if (!pe->filterPath(fPath.get(), *inPath, &strokeRec, nullptr)) {
+        SkStrokeRec strokeRec = parent.fStyle.strokeRec();
+        if (!pe->filterPath(fPath.get(), *srcForPathEffect, &strokeRec, nullptr)) {
             // Make an empty unstyled shape if filtering fails.
             fType = Type::kEmpty;
             fStyle = GrStyle();
             fPath.reset();
             return;
         }
-        appliedPE = true;
-        inPath = fPath.get();
-    } else if (stopAfterPE || !strokeRec.needToApply()) {
-        *this = parent;
-        return;
-    } else {
-        fType = Type::kPath;
-        fPath.init();
-        if (parent.fType == Type::kPath) {
-            inPath = parent.fPath.get();
-        } else {
-            inPath = fPath.get();
-            parent.asPath(fPath.get());
-        }
-    }
-    const GrShape* effectiveParent = &parent;
-    SkTLazy<GrShape> tmpParent;
-    if (!stopAfterPE) {
-        if (appliedPE) {
-            // If the intermediate shape from just the PE is not a path then we capture that here
-            // so that we can pass the non-path parent to setInheritedKey.
-            SkRRect rrect;
-            Type parentType = AttemptToReduceFromPathImpl(*fPath.get(), &rrect, nullptr, strokeRec);
-            switch (parentType) {
-                case Type::kEmpty:
-                    tmpParent.init();
-                    effectiveParent = tmpParent.get();
-                    break;
-                case Type::kRRect:
-                    tmpParent.init(rrect, GrStyle(strokeRec, nullptr));
-                    effectiveParent = tmpParent.get();
-                case Type::kPath:
-                    break;
+        if (GrStyle::Apply::kPathEffectAndStrokeRec == apply) {
+            if (strokeRec.needToApply()) {
+                // The intermediate shape may not be a general path. If we we're just applying
+                // the path effect then attemptToReduceFromPath would catch it. This means that
+                // when we subsequently applied the remaining strokeRec we would have a non-path
+                // parent shape that would be used to determine the the stroked path's key.
+                // We detect that case here and change parentForKey to a temporary that represents
+                // the simpler shape so that applying both path effect and the strokerec all at
+                // once produces the same key.
+                SkRRect rrect;
+                Type parentType = AttemptToReduceFromPathImpl(*fPath.get(), &rrect, nullptr,
+                                                              strokeRec);
+                switch (parentType) {
+                    case Type::kEmpty:
+                        tmpParent.init();
+                        parentForKey = tmpParent.get();
+                        break;
+                    case Type::kRRect:
+                        tmpParent.init(rrect, GrStyle(strokeRec, nullptr));
+                        parentForKey = tmpParent.get();
+                    case Type::kPath:
+                        break;
+                }
+                SkAssertResult(strokeRec.applyToPath(fPath.get(), *fPath.get()));
+            } else {
+                fStyle = GrStyle(strokeRec, nullptr);
             }
+        } else {
+            fStyle = GrStyle(strokeRec, nullptr);
         }
-        strokeRec.applyToPath(fPath.get(), *inPath);
     } else {
-        fStyle = GrStyle(strokeRec, nullptr);
+        const SkPath* srcForStrokeRec;
+        if (parent.fType == Type::kPath) {
+            srcForStrokeRec = parent.fPath.get();
+        } else {
+            srcForStrokeRec = tmpPath.init();
+            parent.asPath(tmpPath.get());
+        }
+        SkASSERT(parent.fStyle.strokeRec().needToApply());
+        SkAssertResult(parent.fStyle.strokeRec().applyToPath(fPath.get(), *srcForStrokeRec));
+        fStyle.resetToInitStyle(SkStrokeRec::kFill_InitStyle);
     }
     this->attemptToReduceFromPath();
-    this->setInheritedKey(*effectiveParent, stopAfterPE);
+    this->setInheritedKey(*parentForKey, apply);
 }

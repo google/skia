@@ -106,19 +106,7 @@ public:
 
     const GrStyle& style() const { return fStyle; }
 
-    /**
-     * Returns a GrShape where the shape's geometry fully reflects the original shape's GrStyle.
-     * The GrStyle of the returned shape will either be fill or hairline.
-     */
-    GrShape applyFullStyle() { return GrShape(*this, false); }
-
-    /**
-     * Similar to above but applies only the path effect. Path effects take the original geometry
-     * and fill/stroking information and compute a new geometry and residual fill/stroking
-     * information to be applied. The path effect's output geometry and stroking will be captured
-     * in the returned GrShape.
-     */
-    GrShape applyPathEffect() { return GrShape(*this, true); }
+    GrShape applyStyle(GrStyle::Apply apply) { return GrShape(*this, apply); }
 
     bool asRRect(SkRRect* rrect) const {
         if (Type::kRRect != fType) {
@@ -165,29 +153,15 @@ private:
         kPath,
     };
 
-    /**
-     * Computes the key length for a GrStyle. The return will be negative if it cannot be turned
-     * into a key.
-     */
-    static int StyleKeySize(const GrStyle& , bool stopAfterPE);
-
-    /**
-     * Writes a unique key for the style into the provided buffer. This function assumes the buffer
-     * has room for at least StyleKeySize() values. It assumes that StyleKeySize() returns a
-     * positive value for the style and stopAfterPE param. This is written so that the key for just
-     * dash application followed by the key for the remaining SkStrokeRec is the same as the
-     * key for applying dashing and SkStrokeRec all at once.
-     */
-    static void StyleKey(uint32_t*, const GrStyle&, bool stopAfterPE);
 
     /** Constructor used by Apply* functions */
-    GrShape(const GrShape& parentShape, bool stopAfterPE);
+    GrShape(const GrShape& parentShape, GrStyle::Apply);
 
     /**
      * Determines the key we should inherit from the input shape's geometry and style when
      * we are applying the style to create a new shape.
      */
-    void setInheritedKey(const GrShape& parentShape, bool stopAfterPE);
+    void setInheritedKey(const GrShape& parentShape, GrStyle::Apply);
 
     void attemptToReduceFromPath() {
         SkASSERT(Type::kPath == fType);
