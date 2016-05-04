@@ -159,8 +159,10 @@ GrGLGpu* GrGLRenderTarget::getGLGpu() const {
 }
 
 bool GrGLRenderTarget::canAttemptStencilAttachment() const {
-    // Only modify the FBO's attachments if we have created the FBO.
-    return this->fRTFBOOwnership == GrBackendObjectOwnership::kOwned;
+    // When we have not created the FBO ID we do not attempt to modify its attachments.
+    // Direct GrGLRenderTarget instances are always created with CreateWrapped.
+    SkASSERT(this->resourcePriv().refsWrappedObjects());
+    return false;
 }
 
 void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
