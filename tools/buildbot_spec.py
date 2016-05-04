@@ -199,6 +199,9 @@ def build_targets_from_builder_dict(builder_dict, do_test_steps, do_perf_steps):
     return ['iOSShell']
   if builder_dict.get('extra_config') == 'Appurify':
     return ['VisualBenchTest_APK']
+  if 'SAN' in builder_dict.get('extra_config', ''):
+    # 'most' does not compile under MSAN.
+    return ['dm', 'nanobench']
   t = []
   if do_test_steps:
     t.append('dm')
