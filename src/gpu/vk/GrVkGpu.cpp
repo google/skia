@@ -89,7 +89,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fBackendContext.reset(backendCtx);
 
 #ifdef ENABLE_VK_LAYERS
-    fCallback = nullptr;
+    fCallback = VK_NULL_HANDLE;
     if (backendCtx->fExtensions & kEXT_debug_report_GrVkExtensionFlag) {
         // Setup callback creation information
         VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
@@ -153,7 +153,7 @@ GrVkGpu::~GrVkGpu() {
 #ifdef ENABLE_VK_LAYERS
     if (fCallback) {
         VK_CALL(DestroyDebugReportCallbackEXT(fBackendContext->fInstance, fCallback, nullptr));
-        fCallback = nullptr;
+        fCallback = VK_NULL_HANDLE;
     }
 #endif
 }

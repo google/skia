@@ -240,7 +240,7 @@ void VulkanTestContext::createBuffers(VkFormat format) {
         GrBackendRenderTargetDesc desc;
         GrVkTextureInfo info;
         info.fImage = fImages[i];
-        info.fAlloc = nullptr;
+        info.fAlloc = VK_NULL_HANDLE;
         info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;
