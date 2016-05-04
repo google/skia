@@ -45,6 +45,7 @@
 
     '../tools/debugger/SkDebugCanvas.cpp',
     '../tools/debugger/SkDrawCommand.cpp',
+    '../tools/debugger/SkJsonWriteBuffer.cpp',
     '../tools/debugger/SkObjectParser.cpp',
     '../tools/debugger/SkOverdrawMode.h',
     '../tools/debugger/SkOverdrawMode.cpp',

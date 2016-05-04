@@ -255,7 +255,7 @@ DEF_TEST(Paint_flattening, reporter) {
     FOR_SETUP(n, encodings, setTextEncoding)
     FOR_SETUP(p, styles, setStyle)
 
-    SkWriteBuffer writer;
+    SkBinaryWriteBuffer writer;
     paint.flatten(writer);
 
     SkAutoMalloc buf(writer.bytesWritten());
@@ -295,7 +295,7 @@ DEF_TEST(Paint_MoreFlattening, r) {
     paint.setXfermode(SkXfermode::Make(SkXfermode::kModulate_Mode));
     paint.setLooper(nullptr);  // Default value, ignored.
 
-    SkWriteBuffer writer;
+    SkBinaryWriteBuffer writer;
     paint.flatten(writer);
 
     SkAutoMalloc buf(writer.bytesWritten());

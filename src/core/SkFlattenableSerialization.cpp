@@ -12,7 +12,7 @@
 #include "SkWriteBuffer.h"
 
 SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
-    SkWriteBuffer writer;
+    SkBinaryWriteBuffer writer;
     writer.writeFlattenable(flattenable);
     size_t size = writer.bytesWritten();
     auto data = SkData::MakeUninitialized(size);

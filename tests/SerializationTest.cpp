@@ -139,7 +139,7 @@ template<> struct SerializationTestUtils<SkString, true> {
 
 template<typename T, bool testInvalid>
 static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* reporter) {
-    SkWriteBuffer writer;
+    SkBinaryWriteBuffer writer;
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
@@ -177,7 +177,7 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
 template<typename T>
 static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
                                        skiatest::Reporter* reporter) {
-    SkWriteBuffer writer;
+    SkBinaryWriteBuffer writer;
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
@@ -215,7 +215,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
 
 template<typename T>
 static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
-    SkWriteBuffer writer;
+    SkBinaryWriteBuffer writer;
     SerializationUtils<T>::Write(writer, data, kArraySize);
     size_t bytesWritten = writer.bytesWritten();
     // This should write the length (in 4 bytes) and the array
@@ -533,7 +533,7 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
         // Serialize picture
-        SkWriteBuffer writer;
+        SkBinaryWriteBuffer writer;
         pict->flatten(writer);
         size_t size = writer.bytesWritten();
         SkAutoTMalloc<unsigned char> data(size);

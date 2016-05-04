@@ -1198,7 +1198,7 @@ SkRect SkPaint::getFontBounds() const {
 }
 
 static void add_flattenable(SkDescriptor* desc, uint32_t tag,
-                            SkWriteBuffer* buffer) {
+                            SkBinaryWriteBuffer* buffer) {
     buffer->writeToMemory(desc->addEntry(tag, buffer->bytesWritten(), nullptr));
 }
 
@@ -1528,9 +1528,9 @@ void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContext::Rec* rec) {
 #endif
 
 static void write_out_descriptor(SkDescriptor* desc, const SkScalerContext::Rec& rec,
-                                 const SkPathEffect* pe, SkWriteBuffer* peBuffer,
-                                 const SkMaskFilter* mf, SkWriteBuffer* mfBuffer,
-                                 const SkRasterizer* ra, SkWriteBuffer* raBuffer,
+                                 const SkPathEffect* pe, SkBinaryWriteBuffer* peBuffer,
+                                 const SkMaskFilter* mf, SkBinaryWriteBuffer* mfBuffer,
+                                 const SkRasterizer* ra, SkBinaryWriteBuffer* raBuffer,
                                  size_t descSize) {
     desc->init();
     desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
@@ -1552,9 +1552,9 @@ static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
                            const SkSurfaceProps* surfaceProps,
                            bool fakeGamma, bool boostContrast,
                            const SkMatrix* deviceMatrix,
-                           const SkPathEffect* pe, SkWriteBuffer* peBuffer,
-                           const SkMaskFilter* mf, SkWriteBuffer* mfBuffer,
-                           const SkRasterizer* ra, SkWriteBuffer* raBuffer) {
+                           const SkPathEffect* pe, SkBinaryWriteBuffer* peBuffer,
+                           const SkMaskFilter* mf, SkBinaryWriteBuffer* mfBuffer,
+                           const SkRasterizer* ra, SkBinaryWriteBuffer* raBuffer) {
     SkScalerContext::MakeRec(paint, surfaceProps, deviceMatrix, rec);
     if (!fakeGamma) {
         rec->ignoreGamma();
@@ -1601,9 +1601,9 @@ static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
 
 #ifdef TEST_DESC
 static void test_desc(const SkScalerContext::Rec& rec,
-                      const SkPathEffect* pe, SkWriteBuffer* peBuffer,
-                      const SkMaskFilter* mf, SkWriteBuffer* mfBuffer,
-                      const SkRasterizer* ra, SkWriteBuffer* raBuffer,
+                      const SkPathEffect* pe, SkBinaryWriteBuffer* peBuffer,
+                      const SkMaskFilter* mf, SkBinaryWriteBuffer* mfBuffer,
+                      const SkRasterizer* ra, SkBinaryWriteBuffer* raBuffer,
                       const SkDescriptor* desc, size_t descSize) {
     // Check that we completely write the bytes in desc (our key), and that
     // there are no uninitialized bytes. If there were, then we would get
@@ -1658,7 +1658,7 @@ void SkPaint::getScalerContextDescriptor(SkScalerContextEffects* effects,
     SkMaskFilter*   mf = this->getMaskFilter();
     SkRasterizer*   ra = this->getRasterizer();
 
-    SkWriteBuffer   peBuffer, mfBuffer, raBuffer;
+    SkBinaryWriteBuffer   peBuffer, mfBuffer, raBuffer;
     size_t descSize = fill_out_rec(*this, &rec, &surfaceProps,
                                    SkToBool(scalerContextFlags & kFakeGamma_ScalerContextFlag),
                                    SkToBool(scalerContextFlags & kBoostContrast_ScalerContextFlag),
@@ -1697,7 +1697,7 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
     SkMaskFilter*   mf = this->getMaskFilter();
     SkRasterizer*   ra = this->getRasterizer();
 
-    SkWriteBuffer   peBuffer, mfBuffer, raBuffer;
+    SkBinaryWriteBuffer   peBuffer, mfBuffer, raBuffer;
     size_t descSize = fill_out_rec(*this, &rec, surfaceProps,
                                    SkToBool(scalerContextFlags & kFakeGamma_ScalerContextFlag),
                                    SkToBool(scalerContextFlags & kBoostContrast_ScalerContextFlag),

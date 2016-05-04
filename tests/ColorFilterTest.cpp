@@ -16,7 +16,7 @@
 #include "Test.h"
 
 static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
-    SkWriteBuffer wb;
+    SkBinaryWriteBuffer wb;
     wb.writeFlattenable(obj);
 
     size_t size = wb.bytesWritten();

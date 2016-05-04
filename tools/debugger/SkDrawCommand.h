@@ -116,8 +116,22 @@ public:
     static const char* GetCommandString(OpType type);
 
     // Helper methods for converting things to JSON
+    static Json::Value MakeJsonColor(const SkColor color);
+    static Json::Value MakeJsonPoint(const SkPoint& point);
+    static Json::Value MakeJsonPoint(SkScalar x, SkScalar y);
+    static Json::Value MakeJsonRect(const SkRect& rect);
     static Json::Value MakeJsonIRect(const SkIRect&);
     static Json::Value MakeJsonMatrix(const SkMatrix&);
+    static Json::Value MakeJsonPath(const SkPath& path);
+    static Json::Value MakeJsonRegion(const SkRegion& region);
+    static Json::Value MakeJsonPaint(const SkPaint& paint, UrlDataManager& urlDataManager);
+
+    static void flatten(const SkFlattenable* flattenable, Json::Value* target,
+                        UrlDataManager& urlDataManager);
+    static bool flatten(const SkImage& image, Json::Value* target,
+                        UrlDataManager& urlDataManager);
+    static bool flatten(const SkBitmap& bitmap, Json::Value* target,
+                        UrlDataManager& urlDataManager);
 
 protected:
     SkTDArray<SkString*> fInfo;

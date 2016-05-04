@@ -52,7 +52,7 @@ static sk_sp<SkFlattenable> custom_create_proc(SkReadBuffer& buffer) {
 
 DEF_TEST(UnflattenWithCustomFactory, r) {
     // Create and flatten the test flattenable
-    SkWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer;
     SkAutoTUnref<SkFlattenable> flattenable1(new IntFlattenable(1, 2, 3, 4));
     writeBuffer.writeFlattenable(flattenable1);
     SkAutoTUnref<SkFlattenable> flattenable2(new IntFlattenable(2, 3, 4, 5));

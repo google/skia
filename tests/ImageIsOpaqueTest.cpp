@@ -19,7 +19,7 @@
 static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) {
     // just need a safe amount of storage, but ensure that it is 4-byte aligned.
     int32_t storage[(sizeof(SkImageInfo)*2) / sizeof(int32_t)];
-    SkWriteBuffer wb(storage, sizeof(storage));
+    SkBinaryWriteBuffer wb(storage, sizeof(storage));
     info.flatten(wb);
     SkASSERT(wb.bytesWritten() < sizeof(storage));
 

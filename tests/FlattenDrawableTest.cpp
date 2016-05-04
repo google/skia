@@ -210,7 +210,7 @@ DEF_TEST(FlattenDrawable, r) {
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
     SkAutoTUnref<RootDrawable> root(new RootDrawable(5, 6, 7, 8, paint, 9, 10, 11, 12, drawable));
-    SkWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer;
     writeBuffer.writeFlattenable(root);
 
     // Copy the contents of the write buffer into a read buffer
@@ -270,7 +270,7 @@ DEF_TEST(FlattenRecordedDrawable, r) {
 
     // Serialize the recorded drawable
     sk_sp<SkDrawable> recordedDrawable = recorder.finishRecordingAsDrawable();
-    SkWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer;
     writeBuffer.writeFlattenable(recordedDrawable.get());
 
     // Copy the contents of the write buffer into a read buffer

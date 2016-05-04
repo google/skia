@@ -274,7 +274,7 @@ void SkPictureData::serialize(SkWStream* stream,
     // We delay serializing the bulk of our data until after we've serialized
     // factories and typefaces by first serializing to an in-memory write buffer.
     SkFactorySet factSet;  // buffer refs factSet, so factSet must come first.
-    SkWriteBuffer buffer(SkWriteBuffer::kCrossProcess_Flag);
+    SkBinaryWriteBuffer buffer(SkBinaryWriteBuffer::kCrossProcess_Flag);
     buffer.setFactoryRecorder(&factSet);
     buffer.setPixelSerializer(pixelSerializer);
     buffer.setTypefaceRecorder(typefaceSet);

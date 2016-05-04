@@ -13,103 +13,99 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SkWriteBuffer::SkWriteBuffer(uint32_t flags)
+SkBinaryWriteBuffer::SkBinaryWriteBuffer(uint32_t flags)
     : fFlags(flags)
     , fFactorySet(nullptr)
     , fTFSet(nullptr) {
 }
 
-SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
+SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
     : fFlags(flags)
     , fFactorySet(nullptr)
     , fWriter(storage, storageSize)
     , fTFSet(nullptr) {
 }
 
-SkWriteBuffer::~SkWriteBuffer() {
+SkBinaryWriteBuffer::~SkBinaryWriteBuffer() {
     SkSafeUnref(fFactorySet);
     SkSafeUnref(fTFSet);
 }
 
-void SkWriteBuffer::writeByteArray(const void* data, size_t size) {
+void SkBinaryWriteBuffer::writeByteArray(const void* data, size_t size) {
     fWriter.write32(SkToU32(size));
     fWriter.writePad(data, size);
 }
 
-void SkWriteBuffer::writeBool(bool value) {
+void SkBinaryWriteBuffer::writeBool(bool value) {
     fWriter.writeBool(value);
 }
 
-void SkWriteBuffer::writeScalar(SkScalar value) {
+void SkBinaryWriteBuffer::writeScalar(SkScalar value) {
     fWriter.writeScalar(value);
 }
 
-void SkWriteBuffer::writeScalarArray(const SkScalar* value, uint32_t count) {
+void SkBinaryWriteBuffer::writeScalarArray(const SkScalar* value, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(value, count * sizeof(SkScalar));
 }
 
-void SkWriteBuffer::writeInt(int32_t value) {
+void SkBinaryWriteBuffer::writeInt(int32_t value) {
     fWriter.write32(value);
 }
 
-void SkWriteBuffer::writeIntArray(const int32_t* value, uint32_t count) {
+void SkBinaryWriteBuffer::writeIntArray(const int32_t* value, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(value, count * sizeof(int32_t));
 }
 
-void SkWriteBuffer::writeUInt(uint32_t value) {
+void SkBinaryWriteBuffer::writeUInt(uint32_t value) {
     fWriter.write32(value);
 }
 
-void SkWriteBuffer::write32(int32_t value) {
-    fWriter.write32(value);
-}
-
-void SkWriteBuffer::writeString(const char* value) {
+void SkBinaryWriteBuffer::writeString(const char* value) {
     fWriter.writeString(value);
 }
 
-void SkWriteBuffer::writeColor(const SkColor& color) {
+void SkBinaryWriteBuffer::writeColor(SkColor color) {
     fWriter.write32(color);
 }
 
-void SkWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
+void SkBinaryWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(color, count * sizeof(SkColor));
 }
 
-void SkWriteBuffer::writePoint(const SkPoint& point) {
+void SkBinaryWriteBuffer::writePoint(const SkPoint& point) {
     fWriter.writeScalar(point.fX);
     fWriter.writeScalar(point.fY);
 }
 
-void SkWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
+void SkBinaryWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(point, count * sizeof(SkPoint));
 }
 
-void SkWriteBuffer::writeMatrix(const SkMatrix& matrix) {
+void SkBinaryWriteBuffer::writeMatrix(const SkMatrix& matrix) {
     fWriter.writeMatrix(matrix);
 }
 
-void SkWriteBuffer::writeIRect(const SkIRect& rect) {
+void SkBinaryWriteBuffer::writeIRect(const SkIRect& rect) {
     fWriter.write(&rect, sizeof(SkIRect));
 }
 
-void SkWriteBuffer::writeRect(const SkRect& rect) {
+void SkBinaryWriteBuffer::writeRect(const SkRect& rect) {
     fWriter.writeRect(rect);
 }
 
-void SkWriteBuffer::writeRegion(const SkRegion& region) {
+void SkBinaryWriteBuffer::writeRegion(const SkRegion& region) {
     fWriter.writeRegion(region);
 }
 
-void SkWriteBuffer::writePath(const SkPath& path) {
+void SkBinaryWriteBuffer::writePath(const SkPath& path) {
     fWriter.writePath(path);
 }
 
-size_t SkWriteBuffer::writeStream(SkStream* stream, size_t length) {
+size_t SkBinaryWriteBuffer::writeStream(SkStream* stream, size_t length) {
     fWriter.write32(SkToU32(length));
     size_t bytesWritten = fWriter.readFromStream(stream, length);
     if (bytesWritten < length) {
@@ -118,18 +114,18 @@ size_t SkWriteBuffer::writeStream(SkStream* stream, size_t length) {
     return bytesWritten;
 }
 
-bool SkWriteBuffer::writeToStream(SkWStream* stream) {
+bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) {
     return fWriter.writeToStream(stream);
 }
 
-static void write_encoded_bitmap(SkWriteBuffer* buffer, SkData* data,
+static void write_encoded_bitmap(SkBinaryWriteBuffer* buffer, SkData* data,
                                  const SkIPoint& origin) {
     buffer->writeDataAsByteArray(data);
     buffer->write32(origin.fX);
     buffer->write32(origin.fY);
 }
 
-void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
+void SkBinaryWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     // Record the width and height. This way if readBitmap fails a dummy bitmap can be drawn at the
     // right size.
     this->writeInt(bitmap.width());
@@ -176,7 +172,7 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     SkBitmap::WriteRawPixels(this, bitmap);
 }
 
-void SkWriteBuffer::writeImage(const SkImage* image) {
+void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->width());
     this->writeInt(image->height());
 
@@ -189,7 +185,7 @@ void SkWriteBuffer::writeImage(const SkImage* image) {
     this->writeUInt(0); // signal no pixels (in place of the size of the encoded data)
 }
 
-void SkWriteBuffer::writeTypeface(SkTypeface* obj) {
+void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
     if (nullptr == obj || nullptr == fTFSet) {
         fWriter.write32(0);
     } else {
@@ -197,24 +193,28 @@ void SkWriteBuffer::writeTypeface(SkTypeface* obj) {
     }
 }
 
-SkFactorySet* SkWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
+void SkBinaryWriteBuffer::writePaint(const SkPaint& paint) {
+    paint.flatten(*this);
+}
+
+SkFactorySet* SkBinaryWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
     SkRefCnt_SafeAssign(fFactorySet, rec);
     return rec;
 }
 
-SkRefCntSet* SkWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
+SkRefCntSet* SkBinaryWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
     SkRefCnt_SafeAssign(fTFSet, rec);
     return rec;
 }
 
-void SkWriteBuffer::setPixelSerializer(SkPixelSerializer* serializer) {
+void SkBinaryWriteBuffer::setPixelSerializer(SkPixelSerializer* serializer) {
     fPixelSerializer.reset(serializer);
     if (serializer) {
         serializer->ref();
     }
 }
 
-void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
+void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     /*
      *  The first 32 bits tell us...
      *       0: failure to write the flattenable
