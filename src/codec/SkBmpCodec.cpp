@@ -442,7 +442,9 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     }
                     break;
                 case 24:
-                    color = SkEncodedInfo::kBGR_Color;
+                    // In the case of ICO, kBGRA is actually the closest match,
+                    // since we will need to apply a transparency mask.
+                    color = inIco ? SkEncodedInfo::kBGRA_Color : SkEncodedInfo::kBGR_Color;
                     bitsPerComponent = 8;
                     break;
                 case 32:

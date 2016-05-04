@@ -150,13 +150,18 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
-    // In the case of paletted ico-in-bmps, we will report BGRA to the client,
-    // since we may be required to apply an alpha mask after the decode.  But
-    // the swizzler needs to know the actual format of the bmp.
+    // In the case of bmp-in-icos, we will report BGRA to the client,
+    // since we may be required to apply an alpha mask after the decode.
+    // However, the swizzler needs to know the actual format of the bmp.
     SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
-    if (fInIco && this->bitsPerPixel() <= 8) {
-        swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color, swizzlerInfo.alpha(),
-                this->bitsPerPixel());
+    if (fInIco) {
+        if (this->bitsPerPixel() <= 8) {
+            swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color,
+                    swizzlerInfo.alpha(), this->bitsPerPixel());
+        } else if (this->bitsPerPixel() == 24) {
+            swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kBGR_Color,
+                    SkEncodedInfo::kOpaque_Alpha, 8);
+        }
     }
 
     // Get a pointer to the color table if it exists
