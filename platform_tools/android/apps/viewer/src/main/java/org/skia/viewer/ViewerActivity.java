@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-package org.skia.vulkanviewer;
+package org.skia.viewer;
 
 import android.app.ActionBar;
 import android.os.Bundle;
@@ -13,7 +13,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
 
-public class VulkanViewerActivity extends android.app.NativeActivity {
+public class ViewerActivity extends android.app.NativeActivity {
     static {
         System.loadLibrary("skia_android");
     }

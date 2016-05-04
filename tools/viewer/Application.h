@@ -8,6 +8,8 @@
 #ifndef Application_DEFINED
 #define Application_DEFINED
 
+namespace sk_app {
+
 class Application {
 public:
     static Application* Create(int argc, char** argv, void* platformData);
@@ -16,5 +18,7 @@ public:
 
     virtual void onIdle(double ms) = 0;
 };
+
+}   // namespace sk_app
 
 #endif

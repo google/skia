@@ -15,6 +15,8 @@
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
+using sk_app::Application;
+
 /**
  * This is the main entry point of a native application that is using
  * android_native_app_glue.  It runs in its own thread, with its own
@@ -25,7 +27,7 @@ void android_main(struct android_app* state) {
     app_dummy();
 
     static const char* gCmdLine[] = {
-        "vulkanviewer",
+        "viewer",
         "--skps",
         "/data/local/tmp/skp",
     };

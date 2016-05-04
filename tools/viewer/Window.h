@@ -14,6 +14,8 @@
 class SkCanvas;
 class VulkanTestContext;
 
+namespace sk_app {
+
 class Window {
 public:
     static Window* CreateNativeWindow(void* platformData);
@@ -144,5 +146,5 @@ protected:
     VulkanTestContext* fTestContext;
 };
 
-
+}   // namespace sk_app
 #endif

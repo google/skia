@@ -49,7 +49,7 @@
   },
   'includes' : [
       'canvasproof.gypi',
-      'vulkanviewer.gypi',
+      'viewer.gypi',
   ],
   'targets': [
     {

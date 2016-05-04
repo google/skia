@@ -14,6 +14,8 @@
 #include "SkUtils.h"
 #include "VulkanTestContext_win.h"
 
+namespace sk_app {
+
 Window* Window::CreateNativeWindow(void* platformData) {
     HINSTANCE hInstance = (HINSTANCE)platformData;
 
@@ -279,3 +281,5 @@ bool Window_win::attach(BackEndType attachType, int msaaSampleCount) {
 void Window_win::inval() {
     InvalidateRect(fHWnd, nullptr, false);
 }
+
+}   // namespace sk_app

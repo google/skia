@@ -11,6 +11,8 @@
 #include "SkCanvas.h"
 #include "VulkanTestContext.h"
 
+namespace sk_app {
+
 static bool default_char_func(SkUnichar c, uint32_t modifiers, void* userData) {
     return false;
 }
@@ -72,3 +74,5 @@ void Window::onResize(uint32_t w, uint32_t h) {
     fHeight = h;
     fTestContext->resize(w, h);
 }
+
+}   // namespace sk_app

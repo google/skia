@@ -11,6 +11,8 @@
 #include "../Window.h"
 #include <android_native_app_glue.h>
 
+namespace sk_app {
+
 enum {
     /**
      * Leave plenty of space between this item and the ones defined in the glue layer
@@ -44,5 +46,7 @@ private:
     SkRect mContentRect;
     int mSampleCount = 0;
 };
+
+}   // namespace sk_app
 
 #endif

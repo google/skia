@@ -11,6 +11,8 @@
 #include <windows.h>
 #include "../Window.h"
 
+namespace sk_app {
+
 class Window_win : public Window {
 public:
     Window_win() : Window() {}
@@ -29,5 +31,7 @@ private:
     HINSTANCE fHInstance;
     HWND      fHWnd;
 };
+
+}   // namespace sk_app
 
 #endif

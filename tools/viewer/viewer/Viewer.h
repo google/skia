@@ -5,8 +5,8 @@
 * found in the LICENSE file.
 */
 
-#ifndef VulkanViewer_DEFINED
-#define VulkanViewer_DEFINED
+#ifndef Viewer_DEFINED
+#define Viewer_DEFINED
 
 #include "../Application.h"
 #include "../Window.h"
@@ -16,12 +16,12 @@
 
 class SkCanvas;
 
-class VulkanViewer : public Application {
+class Viewer : public sk_app::Application {
 public:
-    VulkanViewer(int argc, char** argv, void* platformData);
-    ~VulkanViewer() override;
+    Viewer(int argc, char** argv, void* platformData);
+    ~Viewer() override;
 
-    bool onKey(Window::Key key, Window::InputState state, uint32_t modifiers);
+    bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers);
     bool onChar(SkUnichar, uint32_t modifiers);
     void onPaint(SkCanvas* canvas);
     void onIdle(double ms) override;
@@ -35,7 +35,7 @@ private:
     void changeZoomLevel(float delta);
     void updateMatrix();
 
-    Window*      fWindow;
+    sk_app::Window*        fWindow;
 
     static const int kMeasurementCount = 64;  // should be power of 2 for fast mod
     double fMeasurements[kMeasurementCount];

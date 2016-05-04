@@ -9,7 +9,7 @@ android {
     compileSdkVersion 19
     buildToolsVersion "22.0.1"
     defaultConfig {
-        applicationId "org.skia.vulkanviewer"
+        applicationId "org.skia.viewer"
         minSdkVersion 19
         targetSdkVersion 19
         versionCode 1
@@ -20,5 +20,5 @@ android {
     sourceSets.main.jniLibs.srcDir "src/main/libs"
     productFlavors { arm {}; arm64 {}; x86 {}; x86_64 {}; mips {}; mips64 {}; }
 
-    setupSkiaLibraryBuild(project, applicationVariants, "--vulkan CopyVulkanViewerDeps", true)
+    setupSkiaLibraryBuild(project, applicationVariants, "--vulkan CopyViewerDeps", true)
 }

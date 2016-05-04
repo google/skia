@@ -29,14 +29,14 @@
         'visualbench.gyp:visualbench',
         'fuzz.gyp:fuzz',
         'kilobench.gyp:kilobench',
-        'vulkanviewer.gyp:vulkanviewer',
+        'viewer.gyp:viewer',
       ],
       'conditions': [
         [ 'skia_gpu == 0', {
           'dependencies!': [
             'visualbench.gyp:visualbench',
             'kilobench.gyp:kilobench',
-            'vulkanviewer.gyp:vulkanviewer',
+            'viewer.gyp:viewer',
           ]
         }],
         [ 'skia_os != "android" and skia_os != "linux"', {
@@ -61,7 +61,7 @@
             }],
             [ 'skia_vulkan == 1', {
               'dependencies': [
-                'android_system.gyp:VulkanViewer_APK',
+                'android_system.gyp:Viewer_APK',
               ],
             }],
           ],
@@ -86,7 +86,7 @@
         }],
         [ 'skia_vulkan == 0 or (skia_os != "win" and skia_os != "android")', {
           'dependencies!': [
-            'vulkanviewer.gyp:vulkanviewer',
+            'viewer.gyp:viewer',
           ],
         }],
         [ 'skia_skip_gui',

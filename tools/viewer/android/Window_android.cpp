@@ -9,6 +9,8 @@
 
 #include "VulkanTestContext_android.h"
 
+namespace sk_app {
+
 Window* Window::CreateNativeWindow(void* platformData) {
     Window_android* window = new Window_android();
     if (!window->init((android_app*)platformData)) {
@@ -61,7 +63,7 @@ static void android_app_write_cmd(struct android_app* android_app, int8_t cmd) {
 }
 
 void Window_android::inval() {
-	android_app_write_cmd(mApp, APP_CMD_INVAL_WINDOW);
+    android_app_write_cmd(mApp, APP_CMD_INVAL_WINDOW);
 }
 
 void Window_android::paintIfNeeded() {
@@ -149,7 +151,7 @@ static int32_t get_key_modifiers(AInputEvent* event) {
     int32_t modifiers = 0;
 
     if (AKeyEvent_getRepeatCount(event) == 0) {
-    	modifiers |= Window::kFirstPress_ModifierKey;
+        modifiers |= Window::kFirstPress_ModifierKey;
     }
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
@@ -177,3 +179,5 @@ static int32_t handle_input(struct android_app* app, AInputEvent* event) {
     }
     return 0;
 }
+
+}   // namespace sk_app

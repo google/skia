@@ -10,7 +10,7 @@
   ],
   'targets': [
     {
-      'target_name': 'vulkanviewer',
+      'target_name': 'viewer',
       'type': 'executable',
       'includes' : [
         'gmslides.gypi',
@@ -28,7 +28,7 @@
       ],
       'sources': [
         '../gm/gm.cpp',
-        '<!@(python find.py ../tools/vulkan "*.cpp")',
+        '<!@(python find.py ../tools/viewer "*.cpp")',
       ],
       'dependencies': [
         'flags.gyp:flags',

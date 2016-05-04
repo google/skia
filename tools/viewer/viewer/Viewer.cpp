@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "VulkanViewer.h"
+#include "Viewer.h"
 
 #include "GMSlide.h"
 #include "SKPSlide.h"
@@ -16,25 +16,27 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 
+using namespace sk_app;
+
 Application* Application::Create(int argc, char** argv, void* platformData) {
-    return new VulkanViewer(argc, argv, platformData);
+    return new Viewer(argc, argv, platformData);
 }
 
 static bool on_key_handler(Window::Key key, Window::InputState state, uint32_t modifiers,
                            void* userData) {
-    VulkanViewer* vv = reinterpret_cast<VulkanViewer*>(userData);
+    Viewer* vv = reinterpret_cast<Viewer*>(userData);
 
     return vv->onKey(key, state, modifiers);
 }
 
 static bool on_char_handler(SkUnichar c, uint32_t modifiers, void* userData) {
-    VulkanViewer* vv = reinterpret_cast<VulkanViewer*>(userData);
+    Viewer* vv = reinterpret_cast<Viewer*>(userData);
 
     return vv->onChar(c, modifiers);
 }
 
 static void on_paint_handler(SkCanvas* canvas, void* userData) {
-    VulkanViewer* vv = reinterpret_cast<VulkanViewer*>(userData);
+    Viewer* vv = reinterpret_cast<Viewer*>(userData);
 
     return vv->onPaint(canvas);
 }
@@ -52,7 +54,7 @@ DEFINE_string2(match, m, nullptr,
                "it is skipped unless some list entry starts with ~");
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
-VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData)
+Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
     , fZoomCenterX(0.0f)
@@ -91,7 +93,7 @@ VulkanViewer::VulkanViewer(int argc, char** argv, void* platformData)
     fWindow->show();
 }
 
-void VulkanViewer::initSlides() {
+void Viewer::initSlides() {
     const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
     while (gms) {
         SkAutoTDelete<skiagm::GM> gm(gms->factory()(nullptr));
@@ -142,13 +144,13 @@ void VulkanViewer::initSlides() {
 }
 
 
-VulkanViewer::~VulkanViewer() {
+Viewer::~Viewer() {
     fWindow->detach();
     delete fWindow;
 }
 
-void VulkanViewer::setupCurrentSlide(int previousSlide) {
-    SkString title("VulkanViewer: ");
+void Viewer::setupCurrentSlide(int previousSlide) {
+    SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
     fSlides[fCurrentSlide]->load();
     if (previousSlide >= 0) {
@@ -161,7 +163,7 @@ void VulkanViewer::setupCurrentSlide(int previousSlide) {
 #define MAX_ZOOM_LEVEL  8
 #define MIN_ZOOM_LEVEL  -8
 
-void VulkanViewer::changeZoomLevel(float delta) {
+void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
     if (fZoomLevel > 0) {
         fZoomLevel = SkMinScalar(fZoomLevel, MAX_ZOOM_LEVEL);
@@ -175,7 +177,7 @@ void VulkanViewer::changeZoomLevel(float delta) {
     this->updateMatrix();
 }
 
-void VulkanViewer::updateMatrix(){
+void Viewer::updateMatrix(){
     SkMatrix m;
     m.reset();
 
@@ -199,7 +201,7 @@ void VulkanViewer::updateMatrix(){
     fLocalMatrix = m;
 }
 
-bool VulkanViewer::onKey(Window::Key key, Window::InputState state, uint32_t modifiers) {
+bool Viewer::onKey(Window::Key key, Window::InputState state, uint32_t modifiers) {
     if (Window::kDown_InputState == state) {
         switch (key) {
             case Window::kRight_Key: {
@@ -218,7 +220,7 @@ bool VulkanViewer::onKey(Window::Key key, Window::InputState state, uint32_t mod
                 if (fCurrentSlide < 0) {
                     fCurrentSlide = fSlides.count() - 1;
                 }
-                SkString title("VulkanViewer: ");
+                SkString title("Viewer: ");
                 title.append(fSlides[fCurrentSlide]->getName());
                 fWindow->setTitle(title.c_str());
                 setupCurrentSlide(previousSlide);
@@ -245,7 +247,7 @@ bool VulkanViewer::onKey(Window::Key key, Window::InputState state, uint32_t mod
     return false;
 }
 
-bool VulkanViewer::onChar(SkUnichar c, uint32_t modifiers) {
+bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
     if ('s' == c) {
         fDisplayStats = !fDisplayStats;
         return true;
@@ -254,7 +256,7 @@ bool VulkanViewer::onChar(SkUnichar c, uint32_t modifiers) {
     return false;
 }
 
-void VulkanViewer::onPaint(SkCanvas* canvas) {
+void Viewer::onPaint(SkCanvas* canvas) {
 
     int count = canvas->save();
 
@@ -283,7 +285,7 @@ void VulkanViewer::onPaint(SkCanvas* canvas) {
     }
 }
 
-void VulkanViewer::drawStats(SkCanvas* canvas) {
+void Viewer::drawStats(SkCanvas* canvas) {
     static const float kPixelPerMS = 2.0f;
     static const int kDisplayWidth = 130;
     static const int kDisplayHeight = 100;
@@ -331,7 +333,7 @@ void VulkanViewer::drawStats(SkCanvas* canvas) {
     canvas->restore();
 }
 
-void VulkanViewer::onIdle(double ms) {
+void Viewer::onIdle(double ms) {
     // Record measurements
     fMeasurements[fCurrentMeasurement++] = ms;
     fCurrentMeasurement &= (kMeasurementCount - 1);  // fast mod

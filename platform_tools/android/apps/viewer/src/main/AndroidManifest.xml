@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- BEGIN_INCLUDE(manifest) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.skia.vulkanviewer"
+          package="org.skia.viewer"
           android:versionCode="1"
           android:versionName="1.0">
 
   <application
       android:allowBackup="false"
-      android:label="VulkanViewer">
+      android:label="Viewer">
 
-    <activity android:name=".VulkanViewerActivity"
-              android:label="VulkanViewer"
+    <activity android:name=".ViewerActivity"
+              android:label="Viewer"
               android:screenOrientation="portrait"
               android:configChanges="orientation|keyboardHidden">
       <meta-data android:name="android.app.lib_name"
-                 android:value="vulkanviewer" />
+                 android:value="viewer" />
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

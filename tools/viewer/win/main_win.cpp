@@ -13,6 +13,8 @@
 #include "Window_win.h"
 #include "../Application.h"
 
+using sk_app::Application;
+
 static char* tchar_to_utf8(const TCHAR* str) {
 #ifdef _UNICODE
     int size = WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), NULL, 0, NULL, NULL);
