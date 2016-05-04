@@ -159,8 +159,8 @@ private:
             fType = that.fType;
             fPhase = that.fPhase;
             fIntervals.reset(that.fIntervals.count());
-            memcpy(fIntervals.get(), that.fIntervals.get(),
-                   sizeof(SkScalar) * that.fIntervals.count());
+            sk_careful_memcpy(fIntervals.get(), that.fIntervals.get(),
+                              sizeof(SkScalar) * that.fIntervals.count());
             return *this;
         }
         void reset() {

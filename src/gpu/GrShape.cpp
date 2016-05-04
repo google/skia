@@ -32,8 +32,8 @@ GrShape& GrShape::operator=(const GrShape& that) {
             break;
     }
     fInheritedKey.reset(that.fInheritedKey.count());
-    memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
-           sizeof(uint32_t) * fInheritedKey.count());
+    sk_careful_memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
+                      sizeof(uint32_t) * fInheritedKey.count());
     return *this;
 }
 
