@@ -78,7 +78,7 @@ protected:
 
 }
 
-SK_DECLARE_STATIC_MUTEX(gCreateDefaultMutex);
+static SkMutex gCreateDefaultMutex;
 
 SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
     static SkOnce once[4];

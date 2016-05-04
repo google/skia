@@ -267,7 +267,7 @@ static void show_op(SkPathOp op, const char* pathOne, const char* pathTwo) {
     SkDebugf("}\n");
 }
 
-SK_DECLARE_STATIC_MUTEX(gTestMutex);
+static SkMutex gTestMutex;
 
 void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp,
         const char* testName) {
@@ -646,7 +646,7 @@ void SkOpSegment::debugMissingCoincidence(const char* id, SkPathOpsDebug::Glitch
             }
             if (spanBase->segment() != opp && spanBase->containsCoinEnd(opp)) {
                 continue;
-            } 
+            }
             const SkOpPtT* priorPtT = nullptr, * priorStopPtT;
             // find prior span containing opp segment
             const SkOpSegment* priorOpp = nullptr;
@@ -786,11 +786,11 @@ void SkOpSegment::debugMoveMultiples(const char* id, SkPathOpsDebug::GlitchLog* 
                     }
                     goto checkNextSpan;
                 }
-        tryNextSpan: 
+        tryNextSpan:
                 ;
             } while (oppTest != oppLast && (oppTest = oppTest->upCast()->next()));
         } while ((testPtT = testPtT->next()) != startPtT);
-checkNextSpan: 
+checkNextSpan:
         ;
     } while ((test = test->final() ? nullptr : test->upCast()->next()));
 }
@@ -958,7 +958,7 @@ void SkOpSegment::debugShowNewWinding(const char* fun, const SkOpSpan* span, int
 // loop looking for a pair of angle parts that are too close to be sorted
 /* This is called after other more simple intersection and angle sorting tests have been exhausted.
    This should be rarely called -- the test below is thorough and time consuming.
-   This checks the distance between start points; the distance between 
+   This checks the distance between start points; the distance between
 */
 #if DEBUG_ANGLE
 void SkOpAngle::debugCheckNearCoincidence() const {
@@ -996,7 +996,7 @@ void SkOpAngle::debugCheckNearCoincidence() const {
             SkDebugf("\n");
         }
         test = test->fNext;
-    } while (test->fNext != this); 
+    } while (test->fNext != this);
 }
 #endif
 

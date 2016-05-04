@@ -104,7 +104,7 @@ static void info(const char* fmt) {
     }
 }
 
-SK_DECLARE_STATIC_MUTEX(gFailuresMutex);
+static SkMutex gFailuresMutex;
 static SkTArray<SkString> gFailures;
 
 static void fail(const SkString& err) {

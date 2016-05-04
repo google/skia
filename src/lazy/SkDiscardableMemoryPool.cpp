@@ -244,7 +244,7 @@ SkDiscardableMemoryPool* SkDiscardableMemoryPool::Create(size_t size, SkMutex* m
     return new DiscardableMemoryPool(size, mutex);
 }
 
-SK_DECLARE_STATIC_MUTEX(gMutex);
+static SkMutex gMutex;
 
 SkDiscardableMemoryPool* SkGetGlobalDiscardableMemoryPool() {
     static SkOnce once;

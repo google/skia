@@ -27,7 +27,7 @@ void release_portable_typefaces() {
     }
 }
 
-SK_DECLARE_STATIC_MUTEX(gTestFontMutex);
+static SkMutex gTestFontMutex;
 
 SkTypeface* create_font(const char* name, SkTypeface::Style style) {
     SkTestFontData* fontData = nullptr;

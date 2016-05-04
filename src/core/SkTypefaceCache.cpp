@@ -64,7 +64,7 @@ SkFontID SkTypefaceCache::NewFontID() {
     return sk_atomic_inc(&gFontID) + 1;
 }
 
-SK_DECLARE_STATIC_MUTEX(gMutex);
+static SkMutex gMutex;
 
 void SkTypefaceCache::Add(SkTypeface* face) {
     SkAutoMutexAcquire ama(gMutex);

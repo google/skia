@@ -142,7 +142,7 @@ static const GrGLInterface* create_command_buffer_interface() {
 
 // We use a poor man's garbage collector of EGLDisplays. They are only
 // terminated when there are no more EGLDisplays in use. See crbug.com/603223
-SK_DECLARE_STATIC_MUTEX(gDisplayMutex);
+static SkMutex gDisplayMutex;
 static int gActiveDisplayCnt;
 SkTArray<EGLDisplay> gRetiredDisplays;
 

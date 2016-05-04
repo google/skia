@@ -12,7 +12,7 @@
 
 static bool gOnce = false;
 static DWORD gTlsIndex;
-SK_DECLARE_STATIC_MUTEX(gMutex);
+static SkMutex gMutex;
 
 void* SkTLS::PlatformGetSpecific(bool forceCreateTheSlot) {
     if (!forceCreateTheSlot && !gOnce) {

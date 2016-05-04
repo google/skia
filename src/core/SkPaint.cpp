@@ -1457,7 +1457,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
  * cachedMaskGamma the caller must hold the gMaskGammaCacheMutex and continue
  * to hold it until the returned pointer is refed or forgotten.
  */
-SK_DECLARE_STATIC_MUTEX(gMaskGammaCacheMutex);
+static SkMutex gMaskGammaCacheMutex;
 
 static SkMaskGamma* gLinearMaskGamma = nullptr;
 static SkMaskGamma* gMaskGamma = nullptr;

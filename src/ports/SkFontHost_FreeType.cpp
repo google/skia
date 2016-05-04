@@ -145,7 +145,7 @@ private:
 
 struct SkFaceRec;
 
-SK_DECLARE_STATIC_MUTEX(gFTMutex);
+static SkMutex gFTMutex;
 static FreeTypeLibrary* gFTLibrary;
 static SkFaceRec* gFaceRecHead;
 

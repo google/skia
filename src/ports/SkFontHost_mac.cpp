@@ -54,7 +54,7 @@
 #define USE_GLOBAL_MUTEX_FOR_CG_ACCESS
 
 #ifdef USE_GLOBAL_MUTEX_FOR_CG_ACCESS
-    SK_DECLARE_STATIC_MUTEX(gCGMutex);
+    static SkMutex gCGMutex;
     #define AUTO_CG_LOCK()  SkAutoMutexAcquire amc(gCGMutex)
 #else
     #define AUTO_CG_LOCK()
@@ -550,7 +550,7 @@ static SkTypeface* NewFromName(const char familyName[], const SkFontStyle& theSt
     return face;
 }
 
-SK_DECLARE_STATIC_MUTEX(gGetDefaultFaceMutex);
+static SkMutex gGetDefaultFaceMutex;
 static SkTypeface* GetDefaultFace() {
     SkAutoMutexAcquire ma(gGetDefaultFaceMutex);
 

@@ -625,7 +625,7 @@ SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU 
     return fCache;
 }
 
-SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
+static SkMutex gGradientCacheMutex;
 /*
  *  Because our caller might rebuild the same (logically the same) gradient
  *  over and over, we'd like to return exactly the same "bitmap" if possible,
