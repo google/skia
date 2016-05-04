@@ -120,6 +120,9 @@ public:
 
     void asPath(SkPath* out) const {
         switch (fType) {
+            case Type::kEmpty:
+                out->reset();
+                break;
             case Type::kRRect:
                 out->reset();
                 out->addRRect(fRRect);
@@ -127,10 +130,23 @@ public:
             case Type::kPath:
                 *out = *fPath.get();
                 break;
-            case Type::kEmpty:
-                out->reset();
-                break;
         }
+    }
+
+    /**
+     * Is it known that the shape has no unclosed contours. This means that it will not have
+     * any caps if stroked (modulo the effect of any path effect).
+     */
+    bool knownToBeClosed() const {
+        switch (fType) {
+            case Type::kEmpty:
+                return true;
+            case Type::kRRect:
+                return true;
+            case Type::kPath:
+                return false;
+        }
+        return false;
     }
 
     /**

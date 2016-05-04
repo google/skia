@@ -263,10 +263,12 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
 }
 
 template <typename GEO, typename T>
-static void test_stroke_param(skiatest::Reporter* reporter, const GEO& geo,
-                              std::function<void(SkPaint*, T)> setter, T a, T b) {
-    // Set the stroke width so that we don't get hairline. However, call the function second so that
-    // it can override.
+static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
+                                   std::function<void(SkPaint*, T)> setter, T a, T b,
+                                   bool paramAffectsStroke,
+                                   bool paramAffectsDashAndStroke) {
+    // Set the stroke width so that we don't get hairline. However, call the setter afterward so
+    // that it can override the stroke width.
     SkPaint strokeA;
     strokeA.setStyle(SkPaint::kStroke_Style);
     strokeA.setStrokeWidth(2.f);
@@ -278,7 +280,11 @@ static void test_stroke_param(skiatest::Reporter* reporter, const GEO& geo,
 
     TestCase strokeACase(geo, strokeA, reporter);
     TestCase strokeBCase(geo, strokeB, reporter);
-    strokeACase.compare(reporter, strokeBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+    if (paramAffectsStroke) {
+        strokeACase.compare(reporter, strokeBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+    } else {
+        strokeACase.compare(reporter, strokeBCase, TestCase::kAllSame_ComparisonExpecation);
+    }
 
     // Make sure stroking params don't affect fill style.
     SkPaint fillA = strokeA, fillB = strokeB;
@@ -295,38 +301,66 @@ static void test_stroke_param(skiatest::Reporter* reporter, const GEO& geo,
     dashB.setPathEffect(make_dash());
     TestCase dashACase(geo, dashA, reporter);
     TestCase dashBCase(geo, dashB, reporter);
-    dashACase.compare(reporter, dashBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+    if (paramAffectsDashAndStroke) {
+        dashACase.compare(reporter, dashBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+    } else {
+        dashACase.compare(reporter, dashBCase, TestCase::kAllSame_ComparisonExpecation);
+    }
 }
+
+template <typename GEO, typename T>
+static void test_stroke_param(skiatest::Reporter* reporter, const GEO& geo,
+                              std::function<void(SkPaint*, T)> setter, T a, T b) {
+    test_stroke_param_impl(reporter, geo, setter, a, b, true, true);
+};
+
+template <typename GEO>
+static void test_stroke_cap(skiatest::Reporter* reporter, const GEO& geo) {
+    GrShape shape(geo, GrStyle(SkStrokeRec::kHairline_InitStyle));
+    // The cap should only affect shapes that may be open.
+    bool affectsStroke = !shape.knownToBeClosed();
+    // Dashing adds ends that need caps.
+    bool affectsDashAndStroke = true;
+    test_stroke_param_impl<GEO, SkPaint::Cap>(
+        reporter,
+        geo,
+        [](SkPaint* p, SkPaint::Cap c) { p->setStrokeCap(c);},
+        SkPaint::kButt_Cap, SkPaint::kRound_Cap,
+        affectsStroke,
+        affectsDashAndStroke);
+};
 
 template <typename GEO>
 static void test_miter_limit(skiatest::Reporter* reporter, const GEO& geo) {
-    // Miter limit should only matter when stroking with miter joins. It shouldn't affect other
-    // joins or fills.
-    SkPaint miterA;
-    miterA.setStyle(SkPaint::kStroke_Style);
-    miterA.setStrokeWidth(2.f);
-    miterA.setStrokeJoin(SkPaint::kMiter_Join);
-    miterA.setStrokeMiter(0.5f);
-    SkPaint miterB = miterA;
-    miterA.setStrokeMiter(0.6f);
+    auto setMiterJoinAndLimit = [](SkPaint* p, SkScalar miter) {
+        p->setStrokeJoin(SkPaint::kMiter_Join);
+        p->setStrokeMiter(miter);
+    };
 
-    TestCase miterACase(geo, miterA, reporter);
-    TestCase miterBCase(geo, miterB, reporter);
-    miterACase.compare(reporter, miterBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
+    auto setOtherJoinAndLimit = [](SkPaint* p, SkScalar miter) {
+        p->setStrokeJoin(SkPaint::kRound_Join);
+        p->setStrokeMiter(miter);
+    };
 
-    SkPaint noMiterA = miterA, noMiterB = miterB;
-    noMiterA.setStrokeJoin(SkPaint::kRound_Join);
-    noMiterB.setStrokeJoin(SkPaint::kRound_Join);
-    TestCase noMiterACase(geo, noMiterA, reporter);
-    TestCase noMiterBCase(geo, noMiterB, reporter);
-    noMiterACase.compare(reporter, noMiterBCase, TestCase::kAllSame_ComparisonExpecation);
+    // The miter limit should affect stroked and dashed-stroked cases when the join type is
+    // miter.
+    test_stroke_param_impl<GEO, SkScalar>(
+        reporter,
+        geo,
+        setMiterJoinAndLimit,
+        0.5f, 0.75f,
+        true,
+        true);
 
-    SkPaint fillA = miterA, fillB = miterB;
-    fillA.setStyle(SkPaint::kFill_Style);
-    fillB.setStyle(SkPaint::kFill_Style);
-    TestCase fillACase(geo, fillA, reporter);
-    TestCase fillBCase(geo, fillB, reporter);
-    fillACase.compare(reporter, fillBCase, TestCase::kAllSame_ComparisonExpecation);
+    // The miter limit should not affect stroked and dashed-stroked cases when the join type is
+    // not miter.
+    test_stroke_param_impl<GEO, SkScalar>(
+        reporter,
+        geo,
+        setOtherJoinAndLimit,
+        0.5f, 0.75f,
+        false,
+        false);
 }
 
 template<typename GEO>
@@ -660,14 +694,11 @@ DEF_TEST(GrShape, reporter) {
                           reporter, rr,
                           [](SkPaint* p, SkScalar w) { p->setStrokeWidth(w);},
                           SkIntToScalar(2), SkIntToScalar(4));
-        test_stroke_param<SkRRect, SkPaint::Cap>(
-                          reporter, rr,
-                          [](SkPaint* p, SkPaint::Cap c) { p->setStrokeCap(c);},
-                          SkPaint::kButt_Cap, SkPaint::kRound_Cap);
         test_stroke_param<SkRRect, SkPaint::Join>(
                           reporter, rr,
                           [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
                           SkPaint::kMiter_Join, SkPaint::kRound_Join);
+        test_stroke_cap(reporter, rr);
         test_miter_limit(reporter, rr);
         test_path_effect_makes_rrect(reporter, rr);
         test_unknown_path_effect(reporter, rr);
@@ -725,14 +756,11 @@ DEF_TEST(GrShape, reporter) {
             reporter, path,
             [](SkPaint* p, SkScalar w) { p->setStrokeWidth(w);},
             SkIntToScalar(2), SkIntToScalar(4));
-        test_stroke_param<SkPath, SkPaint::Cap>(
-            reporter, path,
-            [](SkPaint* p, SkPaint::Cap c) { p->setStrokeCap(c);},
-            SkPaint::kButt_Cap, SkPaint::kRound_Cap);
         test_stroke_param<SkPath, SkPaint::Join>(
             reporter, path,
             [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
             SkPaint::kMiter_Join, SkPaint::kRound_Join);
+        test_stroke_cap(reporter, path);
         test_miter_limit(reporter, path);
         test_unknown_path_effect(reporter, path);
         test_path_effect_makes_empty_shape(reporter, path);

@@ -7,7 +7,7 @@
 
 #include "GrStyle.h"
 
-int GrStyle::KeySize(const GrStyle &style, Apply apply) {
+int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
     GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(SkScalar));
     int size = 0;
     if (style.isDashed()) {
@@ -29,7 +29,7 @@ int GrStyle::KeySize(const GrStyle &style, Apply apply) {
     return size;
 }
 
-void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply) {
+void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, uint32_t flags) {
     SkASSERT(key);
     SkASSERT(KeySize(style, apply) >= 0);
     GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(SkScalar));
@@ -63,9 +63,17 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply) {
         GR_STATIC_ASSERT(SkStrokeRec::kStyleCount <= (1 << kStyleBits));
         GR_STATIC_ASSERT(SkPaint::kJoinCount <= (1 << kJoinBits));
         GR_STATIC_ASSERT(SkPaint::kCapCount <= (1 << kCapBits));
+        // The cap type only matters for unclosed shapes. However, a path effect could unclose
+        // the shape before it is stroked.
+        SkPaint::Cap cap;
+        if ((flags & kClosed_KeyFlag) && !style.pathEffect()) {
+            cap = SkPaint::kButt_Cap;
+        } else {
+            cap = style.strokeRec().getCap();
+        }
         key[i++] = style.strokeRec().getStyle() |
                    style.strokeRec().getJoin() << kJoinShift |
-                   style.strokeRec().getCap() << kCapShift;
+                   cap << kCapShift;
 
         SkScalar scalar;
         // Miter limit only affects miter joins

@@ -103,7 +103,11 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply) {
                 return;
             }
         }
-        int styleCnt = GrStyle::KeySize(parent.fStyle, apply);
+        uint32_t styleKeyFlags = 0;
+        if (parent.knownToBeClosed()) {
+            styleKeyFlags |= GrStyle::kClosed_KeyFlag;
+        }
+        int styleCnt = GrStyle::KeySize(parent.fStyle, apply, styleKeyFlags);
         if (styleCnt < 0) {
             // The style doesn't allow a key, set the path to volatile so that we fail when
             // we try to get a key for the shape.
@@ -120,7 +124,7 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply) {
                    parentCnt * sizeof(uint32_t));
         }
         // Now turn (geo,path_effect) or (geo) into (geo,path_effect,stroke)
-        GrStyle::WriteKey(fInheritedKey.get() + parentCnt, parent.fStyle, apply);
+        GrStyle::WriteKey(fInheritedKey.get() + parentCnt, parent.fStyle, apply, styleKeyFlags);
     }
 }
 

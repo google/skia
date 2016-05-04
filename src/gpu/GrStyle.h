@@ -49,21 +49,30 @@ public:
     };
 
     /**
+     * Optional flags for computing keys that may remove unnecessary variation in the key due to
+     * style settings that don't affect particular classes of geometry.
+     */
+    enum KeyFlags {
+        // The shape being styled has no open contours.
+        kClosed_KeyFlag = 0x1
+    };
+
+    /**
      * Computes the key length for a GrStyle. The return will be negative if it cannot be turned
      * into a key. This occurs when there is a path effect that is not a dash. The key can
      * either reflect just the path effect (if one) or the path effect and the strokerec. Note
      * that a simple fill has a zero sized key.
      */
-    static int KeySize(const GrStyle& , Apply);
+    static int KeySize(const GrStyle& , Apply, uint32_t flags = 0);
 
     /**
      * Writes a unique key for the style into the provided buffer. This function assumes the buffer
      * has room for at least KeySize() values. It assumes that KeySize() returns a non-negative
-     * value for the style and Apply param. This is written so that the key for just dash
-     * application followed by the key for the remaining SkStrokeRec is the same as the key for
-     * applying dashing and SkStrokeRec all at once.
+     * value for the combination of GrStyle, Apply and flags params. This is written so that the key
+     * for just dash application followed by the key for the remaining SkStrokeRec is the same as
+     * the key for applying dashing and SkStrokeRec all at once.
      */
-    static void WriteKey(uint32_t*, const GrStyle&, Apply);
+    static void WriteKey(uint32_t*, const GrStyle&, Apply, uint32_t flags = 0);
 
     GrStyle() : GrStyle(SkStrokeRec::kFill_InitStyle) {}
 
