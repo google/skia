@@ -116,7 +116,7 @@ static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
         config = kAlpha_8_GrPixelConfig;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->newDrawContext(GrContext::kLoose_BackingFit,
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
                                                              SkScalarCeilToInt(maskRect->width()), 
                                                              SkScalarCeilToInt(maskRect->height()),
                                                              config,

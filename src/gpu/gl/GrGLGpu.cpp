@@ -1474,9 +1474,9 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     idDesc->fRTFBOID = 0;
     idDesc->fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
     idDesc->fTexFBOID = 0;
-    idDesc->fSampleConfig = (GrGLCaps::kMixedSamples_MSFBOType == this->glCaps().msFBOType() &&
-                            desc.fSampleCnt > 0) ? GrRenderTarget::kStencil_SampleConfig :
-                                                   GrRenderTarget::kUnified_SampleConfig;
+    SkASSERT((GrGLCaps::kMixedSamples_MSFBOType == this->glCaps().msFBOType()) ==
+             this->caps()->usesMixedSamples());
+    idDesc->fSampleConfig = GrRenderTarget::ComputeSampleConfig(*this->caps(), desc.fSampleCnt);
 
     GrGLenum status;
 

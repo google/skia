@@ -615,7 +615,7 @@ sk_sp<GrDrawContext> GrContext::drawContext(sk_sp<GrRenderTarget> rt,
     return fDrawingManager->drawContext(std::move(rt), surfaceProps);
 }
 
-sk_sp<GrDrawContext> GrContext::newDrawContext(BackingFit fit,
+sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
                                                int width, int height,
                                                GrPixelConfig config,
                                                int sampleCnt,
@@ -629,7 +629,7 @@ sk_sp<GrDrawContext> GrContext::newDrawContext(BackingFit fit,
     desc.fSampleCnt = sampleCnt;
 
     sk_sp<GrTexture> tex;
-    if (kTight_BackingFit == fit) {
+    if (SkBackingFit::kExact == fit) {
         tex.reset(this->textureProvider()->createTexture(desc, SkBudgeted::kYes));
     } else {
         tex.reset(this->textureProvider()->createApproxTexture(desc));

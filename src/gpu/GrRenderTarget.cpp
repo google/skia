@@ -109,3 +109,11 @@ const GrGpu::MultisampleSpecs&
 GrRenderTargetPriv::getMultisampleSpecs(const GrStencilSettings& stencil) const {
     return fRenderTarget->getGpu()->getMultisampleSpecs(fRenderTarget, stencil);
 }
+
+GrRenderTarget::SampleConfig GrRenderTarget::ComputeSampleConfig(const GrCaps& caps,
+                                                                 int sampleCnt) {
+    return (caps.usesMixedSamples() && sampleCnt > 0)
+                        ? GrRenderTarget::kStencil_SampleConfig
+                        : GrRenderTarget::kUnified_SampleConfig;
+}
+
