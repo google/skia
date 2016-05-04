@@ -9,8 +9,11 @@
 
 #include "SkBitmap.h"
 #include "SkCGUtils.h"
+#include "SkForceLinking.h"
 #include "SkImageEncoder.h"
 #include "SkStream.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 class StdOutWStream : public SkWStream {
 public:

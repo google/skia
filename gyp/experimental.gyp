@@ -33,7 +33,7 @@
             'type': 'executable',
             'include_dirs': [ '../src/core', ],
             'sources': [ '../experimental/tools/coreGraphicsPdf2png.cpp', ],
-            'dependencies': [ 'skia_lib.gyp:skia_lib', ]
+            'dependencies': [ 'skia_lib.gyp:skia_lib', 'libpng.gyp:libpng', ],
           },
         ],
       },
