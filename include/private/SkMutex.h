@@ -8,33 +8,20 @@
 #ifndef SkMutex_DEFINED
 #define SkMutex_DEFINED
 
-// This file is not part of the public Skia API.
 #include "../private/SkSemaphore.h"
+#include "../private/SkThreadID.h"
 #include "SkTypes.h"
 
-#ifdef SK_DEBUG
-    #include "../private/SkThreadID.h"
-#endif
+// TODO: no need for this anymore.
+#define SK_DECLARE_STATIC_MUTEX(name) static SkMutex name;
 
-#define SK_MUTEX_SEMAPHORE_INIT {1, {0}}
+class SkMutex {
+public:
+    constexpr SkMutex() = default;
 
-#ifdef SK_DEBUG
-    #define SK_BASE_MUTEX_INIT {SK_MUTEX_SEMAPHORE_INIT, 0}
-#else
-    #define SK_BASE_MUTEX_INIT {SK_MUTEX_SEMAPHORE_INIT}
-#endif
+    SkMutex(const SkMutex&)            = delete;
+    SkMutex& operator=(const SkMutex&) = delete;
 
-// Using POD-style initialization prevents the generation of a static initializer.
-//
-// Without magic statics there are no thread safety guarantees on initialization
-// of local statics (even POD). As a result, it is illegal to use
-// SK_DECLARE_STATIC_MUTEX in a function.
-//
-// Because SkBaseMutex is not a primitive, a static SkBaseMutex cannot be
-// initialized in a class with this macro.
-#define SK_DECLARE_STATIC_MUTEX(name) namespace {} static SkBaseMutex name = SK_BASE_MUTEX_INIT;
-
-struct SkBaseMutex {
     void acquire() {
         fSemaphore.wait();
         SkDEBUGCODE(fOwner = SkGetThreadID();)
@@ -50,20 +37,9 @@ struct SkBaseMutex {
         SkASSERT(fOwner == SkGetThreadID());
     }
 
-    SkBaseSemaphore fSemaphore;
-    SkDEBUGCODE(SkThreadID fOwner;)
-};
-
-// This needs to use subclassing instead of encapsulation to make SkAutoMutexAcquire to work.
-class SkMutex : public SkBaseMutex {
-public:
-    SkMutex () {
-        fSemaphore = SK_MUTEX_SEMAPHORE_INIT;
-        SkDEBUGCODE(fOwner = kIllegalThreadID);
-    }
-    ~SkMutex () { fSemaphore.deleteSemaphore(); }
-    SkMutex(const SkMutex&) = delete;
-    SkMutex& operator=(const SkMutex&) = delete;
+private:
+    SkSemaphore fSemaphore{1};
+    SkDEBUGCODE(SkThreadID fOwner{kIllegalThreadID};)
 };
 
 template <typename Lock>
@@ -116,10 +92,10 @@ private:
     Lock &fLock;
 };
 
-typedef SkAutoTAcquire<SkBaseMutex> SkAutoMutexAcquire;
+typedef SkAutoTAcquire<SkMutex> SkAutoMutexAcquire;
 #define SkAutoMutexAcquire(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexAcquire)
 
-typedef SkAutoTExclusive<SkBaseMutex> SkAutoMutexExclusive;
+typedef SkAutoTExclusive<SkMutex> SkAutoMutexExclusive;
 #define SkAutoMutexExclusive(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexExclusive)
 
 #endif//SkMutex_DEFINED

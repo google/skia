@@ -29,7 +29,7 @@ public:
     /**
      *  Without mutex, will be not be thread safe.
      */
-    DiscardableMemoryPool(size_t budget, SkBaseMutex* mutex = nullptr);
+    DiscardableMemoryPool(size_t budget, SkMutex* mutex = nullptr);
     virtual ~DiscardableMemoryPool();
 
     SkDiscardableMemory* create(size_t bytes) override;
@@ -52,9 +52,9 @@ public:
     #endif  // SK_LAZY_CACHE_STATS
 
 private:
-    SkBaseMutex* fMutex;
-    size_t       fBudget;
-    size_t       fUsed;
+    SkMutex* fMutex;
+    size_t   fBudget;
+    size_t   fUsed;
     SkTInternalLList<PoolDiscardableMemory> fList;
 
     /** Function called to free memory if needed */
@@ -128,8 +128,7 @@ void PoolDiscardableMemory::unlock() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DiscardableMemoryPool::DiscardableMemoryPool(size_t budget,
-                                             SkBaseMutex* mutex)
+DiscardableMemoryPool::DiscardableMemoryPool(size_t budget, SkMutex* mutex)
     : fMutex(mutex)
     , fBudget(budget)
     , fUsed(0) {
@@ -241,7 +240,7 @@ void DiscardableMemoryPool::dumpPool() {
 
 }  // namespace
 
-SkDiscardableMemoryPool* SkDiscardableMemoryPool::Create(size_t size, SkBaseMutex* mutex) {
+SkDiscardableMemoryPool* SkDiscardableMemoryPool::Create(size_t size, SkMutex* mutex) {
     return new DiscardableMemoryPool(size, mutex);
 }
 
