@@ -5,11 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "GrLayerCache.h"
-#include "GrLayerHoister.h"
-#include "GrRecordReplaceDraw.h"
-
 #include "SkBigPicture.h"
 #include "SkCanvas.h"
 #include "SkImageFilterCache.h"
@@ -17,6 +12,14 @@
 #include "SkRecordDraw.h"
 #include "SkSpecialImage.h"
 #include "SkSurface.h"
+
+#include "GrLayerHoister.h"
+
+#if !defined(SK_IGNORE_GPU_LAYER_HOISTING) && SK_SUPPORT_GPU
+
+#include "GrContext.h"
+#include "GrLayerCache.h"
+#include "GrRecordReplaceDraw.h"
 
 // Create the layer information for the hoisted layer and secure the
 // required texture/render target resources.
@@ -395,3 +398,5 @@ void GrLayerHoister::End(GrContext* context) {
 
     layerCache->end();
 }
+
+#endif

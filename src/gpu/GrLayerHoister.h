@@ -8,8 +8,13 @@
 #ifndef GrLayerHoister_DEFINED
 #define GrLayerHoister_DEFINED
 
+#define SK_IGNORE_GPU_LAYER_HOISTING
+
+
 #include "SkPicture.h"
 #include "SkTDArray.h"
+
+#if !defined(SK_IGNORE_GPU_LAYER_HOISTING) && SK_SUPPORT_GPU
 
 struct GrCachedLayer;
 class GrReplacements;
@@ -120,5 +125,6 @@ private:
     static void FilterLayer(GrContext* context, const SkSurfaceProps*, const GrHoistedLayer& info);
 
 };
+#endif
 
 #endif
