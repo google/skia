@@ -5,24 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDocument.h"
-#include "SkFontMgr.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
-
-#include <hb.h>
-#include <hb-ot.h>
+// This sample progam demonstrates how to use Skia and HarfBuzz to
+// produce a PDF file from UTF-8 text in stdin.
 
 #include <cassert>
 #include <iostream>
 #include <map>
 #include <string>
 
+#include <hb-ot.h>
+
+#include "SkCanvas.h"
+#include "SkDocument.h"
+#include "SkStream.h"
+#include "SkTextBlob.h"
+#include "SkTypeface.h"
 
 struct BaseOption {
   std::string selector;
@@ -207,7 +204,6 @@ class Placement {
         SkPaint::kSubpixelText_Flag);  // ... avoid waggly text when rotating.
     glyph_paint.setColor(SK_ColorBLACK);
     glyph_paint.setTextSize(config.font_size->value);
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     glyph_paint.setTypeface(face->fSkiaTypeface);
     glyph_paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
