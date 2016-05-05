@@ -60,9 +60,10 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
     return pr;
 }
 
-GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                                     DrawType drawType,
-                                                     GrPathRenderer::StencilSupport* stencilSupport) {
+GrPathRenderer* GrPathRendererChain::getPathRenderer(
+        const GrPathRenderer::CanDrawPathArgs& args,
+        DrawType drawType,
+        GrPathRenderer::StencilSupport* stencilSupport) {
     GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
                      GrPathRenderer::kStencilOnly_StencilSupport);
     GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <
@@ -76,12 +77,18 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrPathRenderer::CanDr
     } else {
         minStencilSupport = GrPathRenderer::kNoSupport_StencilSupport;
     }
+    if (minStencilSupport != GrPathRenderer::kNoSupport_StencilSupport) {
+        // We don't support (and shouldn't need) stenciling of non-fill paths.
+        if (!args.fStroke->isFillStyle() || args.fStroke->isDashed()) {
+            return nullptr;
+        }
+    }
 
     for (int i = 0; i < fChain.count(); ++i) {
         if (fChain[i]->canDrawPath(args)) {
             if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
                 GrPathRenderer::StencilSupport support =
-                                        fChain[i]->getStencilSupport(*args.fPath, *args.fStroke);
+                                        fChain[i]->getStencilSupport(*args.fPath);
                 if (support < minStencilSupport) {
                     continue;
                 } else if (stencilSupport) {

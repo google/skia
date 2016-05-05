@@ -14,7 +14,7 @@ class GrDashLinePathRenderer : public GrPathRenderer {
 private:
     bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
-    StencilSupport onGetStencilSupport(const SkPath&, const GrStrokeInfo&) const override {
+    StencilSupport onGetStencilSupport(const SkPath&) const override {
         return kNoSupport_StencilSupport;
     }
 

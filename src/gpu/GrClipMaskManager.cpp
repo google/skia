@@ -865,7 +865,6 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                             args.fPipelineBuilder = &pipelineBuilder;
                             args.fViewMatrix = &viewMatrix;
                             args.fPath = &clipPath;
-                            args.fStroke = &stroke;
                             pr->stencilPath(args);
                         }
                     }

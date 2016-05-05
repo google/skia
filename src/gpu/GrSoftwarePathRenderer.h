@@ -22,7 +22,7 @@ public:
         : fContext(context) {
     }
 private:
-    StencilSupport onGetStencilSupport(const SkPath&, const GrStrokeInfo&) const override {
+    StencilSupport onGetStencilSupport(const SkPath&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
 

@@ -66,7 +66,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     SkASSERT(!args.fPath->isInverseFillType());
-    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fPath, *args.fStroke));
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fPath, GrStrokeInfo::FillInfo()));
     args.fTarget->stencilPath(*args.fPipelineBuilder, *args.fViewMatrix, p, p->getFillType());
 }
 

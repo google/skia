@@ -37,8 +37,8 @@ static inline bool single_pass_path(const SkPath& path, const SkStrokeRec& strok
 }
 
 GrPathRenderer::StencilSupport
-GrMSAAPathRenderer::onGetStencilSupport(const SkPath& path, const GrStrokeInfo& stroke) const {
-    if (single_pass_path(path, stroke)) {
+GrMSAAPathRenderer::onGetStencilSupport(const SkPath& path) const {
+    if (single_pass_path(path, SkStrokeRec(SkStrokeRec::kFill_InitStyle))) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         return GrPathRenderer::kStencilOnly_StencilSupport;
@@ -739,7 +739,7 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
     this->internalDrawPath(args.fTarget, args.fPipelineBuilder, GrColor_WHITE, *args.fViewMatrix,
-                           *args.fPath, *args.fStroke, true);
+                           *args.fPath, GrStrokeInfo::FillInfo(), true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -57,14 +57,13 @@ public:
 
     /**
      * This function is to get the stencil support for a particular path. The path's fill must
-     * not be an inverse type.
+     * not be an inverse type. The path will always be filled and not stroked.
      *
      * @param path      the path that will be drawn
-     * @param stroke    the stroke information (width, join, cap).
      */
-    StencilSupport getStencilSupport(const SkPath& path, const GrStrokeInfo& stroke) const {
+    StencilSupport getStencilSupport(const SkPath& path) const {
         SkASSERT(!path.isInverseFillType());
-        return this->onGetStencilSupport(path, stroke);
+        return this->onGetStencilSupport(path);
     }
 
     /** Args to canDrawPath()
@@ -161,9 +160,11 @@ public:
         canArgs.fIsStencilBufferMSAA =
                           args.fPipelineBuilder->getRenderTarget()->isStencilBufferMultisampled();
         SkASSERT(this->canDrawPath(canArgs));
-        SkASSERT(args.fPipelineBuilder->getStencil().isDisabled() ||
-                 kNoRestriction_StencilSupport == this->getStencilSupport(*args.fPath,
-                                                                          *args.fStroke));
+        if (!args.fPipelineBuilder->getStencil().isDisabled()) {
+            SkASSERT(kNoRestriction_StencilSupport == this->getStencilSupport(*args.fPath));
+            SkASSERT(!args.fStroke->isDashed());
+            SkASSERT(args.fStroke->isFillStyle());
+        }
 #endif
         return this->onDrawPath(args);
     }
@@ -175,7 +176,6 @@ public:
      * fPipelineBuilder       The pipeline builder.
      * fViewMatrix            Matrix applied to the path.
      * fPath                  The path to draw.
-     * fStroke                The stroke information (width, join, cap)
      */
     struct StencilPathArgs {
         GrDrawTarget*       fTarget;
@@ -183,7 +183,6 @@ public:
         GrPipelineBuilder*  fPipelineBuilder;
         const SkMatrix*     fViewMatrix;
         const SkPath*       fPath;
-        const GrStrokeInfo* fStroke;
 
         void validate() const {
             SkASSERT(fTarget);
@@ -191,7 +190,6 @@ public:
             SkASSERT(fPipelineBuilder);
             SkASSERT(fViewMatrix);
             SkASSERT(fPath);
-            SkASSERT(fStroke);
             SkASSERT(!fPath->isEmpty());
         }
     };
@@ -203,7 +201,7 @@ public:
      */
     void stencilPath(const StencilPathArgs& args) {
         SkDEBUGCODE(args.validate();)
-        SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(*args.fPath, *args.fStroke));
+        SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(*args.fPath));
 
         this->onStencilPath(args);
     }
@@ -246,7 +244,7 @@ private:
     /**
      * Subclass overrides if it has any limitations of stenciling support.
      */
-    virtual StencilSupport onGetStencilSupport(const SkPath&, const GrStrokeInfo&) const {
+    virtual StencilSupport onGetStencilSupport(const SkPath&) const {
         return kNoRestriction_StencilSupport;
     }
 
@@ -281,7 +279,7 @@ private:
         drawArgs.fColor = 0xFFFFFFFF;
         drawArgs.fViewMatrix = args.fViewMatrix;
         drawArgs.fPath = args.fPath;
-        drawArgs.fStroke = args.fStroke;
+        drawArgs.fStroke = &GrStrokeInfo::FillInfo();
         drawArgs.fAntiAlias = false;
         drawArgs.fGammaCorrect = false;
         this->drawPath(drawArgs);
