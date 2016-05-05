@@ -7,7 +7,7 @@
 
 #include "SkData.h"
 #include "SkOSFile.h"
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 #include "SkReadBuffer.h"
 #include "SkStream.h"
 #include "SkWriteBuffer.h"
@@ -80,10 +80,12 @@ sk_sp<SkData> SkData::PrivateNewWithCopy(const void* srcOrNull, size_t length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SK_DECLARE_STATIC_ONCE_PTR(SkData, gEmpty);
 sk_sp<SkData> SkData::MakeEmpty() {
-    SkData* data = SkRef(gEmpty.get([]{return new SkData(nullptr, 0, nullptr, nullptr); }));
-    return sk_sp<SkData>(data);
+    static SkOnce once;
+    static SkData* empty;
+
+    once([]{ empty = new SkData(nullptr, 0, nullptr, nullptr); });
+    return sk_ref_sp(empty);
 }
 
 // assumes fPtr was allocated via sk_malloc
