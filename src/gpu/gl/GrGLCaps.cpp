@@ -1586,8 +1586,11 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kAlpha_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     fConfigTable[kAlpha_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-    if (this->textureRedSupport() || kDesktop_ARB_MSFBOType == this->msFBOType()) {
+    if (this->textureRedSupport() ||
+        (kDesktop_ARB_MSFBOType == this->msFBOType() &&
+         ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
         // desktop ARB extension/3.0+ supports ALPHA8 as renderable.
+        // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
         // Core profile removes ALPHA8 support, but we should have chosen R8 in that case.
         fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= allRenderFlags;
     }

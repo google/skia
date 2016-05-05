@@ -127,7 +127,6 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             }
             return;
         }
-
         int n = sscanf(versionString, "%d.%d Mesa %d.%d",
                        &major, &minor, &driverMajor, &driverMinor);
         if (4 == n) {
@@ -303,6 +302,9 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                     return kAdreno4xx_GrGLRenderer;
                 }
             }
+        }
+        if (strcmp("Mesa Offscreen", rendererString)) {
+            return kOSMesa_GrGLRenderer;
         }
     }
     return kOther_GrGLRenderer;
