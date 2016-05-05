@@ -9,7 +9,7 @@
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
-#include "SkOncePtr.h"
+#include "SkOnce.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
@@ -1303,11 +1303,7 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
 #endif
 
 
-SK_DECLARE_STATIC_ONCE_PTR(SkXfermode, cached[SkXfermode::kLastMode + 1]);
-
 sk_sp<SkXfermode> SkXfermode::Make(Mode mode) {
-    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
-
     if ((unsigned)mode >= kModeCount) {
         // report error
         return nullptr;
@@ -1319,13 +1315,20 @@ sk_sp<SkXfermode> SkXfermode::Make(Mode mode) {
         return nullptr;
     }
 
-    return sk_ref_sp(cached[mode].get([=]{
+    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
+
+    static SkOnce        once[SkXfermode::kLastMode+1];
+    static SkXfermode* cached[SkXfermode::kLastMode+1];
+
+    once[mode]([mode] {
         ProcCoeff rec = gProcCoeffs[mode];
         if (auto xfermode = SkOpts::create_xfermode(rec, mode)) {
-            return xfermode;
+            cached[mode] = xfermode;
+        } else {
+            cached[mode] = new SkProcCoeffXfermode(rec, mode);
         }
-        return (SkXfermode*) new SkProcCoeffXfermode(rec, mode);
-    }));
+    });
+    return sk_ref_sp(cached[mode]);
 }
 
 SkXfermodeProc SkXfermode::GetProc(Mode mode) {
