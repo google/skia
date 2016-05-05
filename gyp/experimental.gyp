@@ -31,9 +31,12 @@
           {
             'target_name': 'coreGraphicsPdf2png',
             'type': 'executable',
-            'include_dirs': [ '../src/core', ],
             'sources': [ '../experimental/tools/coreGraphicsPdf2png.cpp', ],
-            'dependencies': [ 'skia_lib.gyp:skia_lib', 'libpng.gyp:libpng', ],
+            'link_settings': {
+              'libraries': [
+                '$(SDKROOT)/System/Library/Frameworks/ApplicationServices.framework',
+              ],
+            },
           },
         ],
       },
