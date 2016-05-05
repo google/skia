@@ -7,7 +7,7 @@
 
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
-#include "SkOnce.h"
+#include "SkOncePtr.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
@@ -169,15 +169,12 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[], SkFontStyle
     return this->onLegacyCreateTypeface(familyName, style);
 }
 
+SK_DECLARE_STATIC_ONCE_PTR(SkFontMgr, singleton);
 SkFontMgr* SkFontMgr::RefDefault() {
-    static SkOnce once;
-    static SkFontMgr* singleton;
-
-    once([]{
+    return SkRef(singleton.get([]{
         SkFontMgr* fm = SkFontMgr::Factory();
-        singleton = fm ? fm : new SkEmptyFontMgr;
-    });
-    return SkRef(singleton);
+        return fm ? fm : new SkEmptyFontMgr;
+    }));
 }
 
 /**

@@ -8,7 +8,7 @@
 #include "SkGlyphCache.h"
 #include "SkGlyphCache_Globals.h"
 #include "SkGraphics.h"
-#include "SkOnce.h"
+#include "SkOncePtr.h"
 #include "SkPath.h"
 #include "SkTemplates.h"
 #include "SkTraceMemoryDump.h"
@@ -23,12 +23,9 @@ const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
 }  // namespace
 
 // Returns the shared globals
+SK_DECLARE_STATIC_ONCE_PTR(SkGlyphCache_Globals, globals);
 static SkGlyphCache_Globals& get_globals() {
-    static SkOnce once;
-    static SkGlyphCache_Globals* globals;
-
-    once([]{ globals = new SkGlyphCache_Globals; });
-    return *globals;
+    return *globals.get([]{ return new SkGlyphCache_Globals; });
 }
 
 ///////////////////////////////////////////////////////////////////////////////

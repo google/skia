@@ -39,4 +39,7 @@ private:
     SkAtomic<int32_t> fPending;
 };
 
+// Returns best estimate of number of CPU cores available to use.
+int sk_num_cores();
+
 #endif//SkTaskGroup_DEFINED

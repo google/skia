@@ -8,7 +8,7 @@
 #include "SkCanvas.h"
 #include "SkTLazy.h"
 #include "SkMiniRecorder.h"
-#include "SkOnce.h"
+#include "SkOncePtr.h"
 #include "SkPicture.h"
 #include "SkPictureCommon.h"
 #include "SkRecordDraw.h"
@@ -27,6 +27,7 @@ public:
     int    numSlowPaths()         const override { return 0; }
     bool   willPlayBackBitmaps()  const override { return false; }
 };
+SK_DECLARE_STATIC_ONCE_PTR(SkEmptyPicture, gEmptyPicture);
 
 template <typename T>
 class SkMiniPicture final : public SkPicture {
@@ -106,13 +107,8 @@ sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect& cull) {
         fState = State::kEmpty; \
         return sk_make_sp<SkMiniPicture<Type>>(cull, reinterpret_cast<Type*>(fBuffer.get()))
 
-    static SkOnce once;
-    static SkPicture* empty;
-
     switch (fState) {
-        case State::kEmpty:
-            once([]{ empty = new SkEmptyPicture; });
-            return sk_ref_sp(empty);
+        case State::kEmpty: return sk_ref_sp(gEmptyPicture.get([]{ return new SkEmptyPicture; }));
         CASE(DrawBitmapRectFixedSize);
         CASE(DrawPath);
         CASE(DrawRect);

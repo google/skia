@@ -14,25 +14,25 @@
 #include "SkThreadUtils.h"
 
 #if defined(SK_BUILD_FOR_WIN32)
-    static void query_num_cores(int* cores) {
+    static void query_num_cores(int* num_cores) {
         SYSTEM_INFO sysinfo;
         GetNativeSystemInfo(&sysinfo);
-        *cores = sysinfo.dwNumberOfProcessors;
+        *num_cores = sysinfo.dwNumberOfProcessors;
     }
 #else
     #include <unistd.h>
-    static void query_num_cores(int* cores) {
-        *cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
+    static void query_num_cores(int* num_cores) {
+        *num_cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
     }
 #endif
 
-static int num_cores() {
-    // We cache num_cores() so we only query the OS once.
-    static int cores = 0;
+int sk_num_cores() {
+    // We cache sk_num_cores() so we only query the OS once.
+    static int num_cores = 0;
     static SkOnce once;
-    once(query_num_cores, &cores);
-    SkASSERT(cores > 0);
-    return cores;
+    once(query_num_cores, &num_cores);
+    SkASSERT(num_cores > 0);
+    return num_cores;
 }
 
 namespace {
@@ -98,7 +98,7 @@ private:
 
     explicit ThreadPool(int threads) {
         if (threads == -1) {
-            threads = num_cores();
+            threads = sk_num_cores();
         }
         for (int i = 0; i < threads; i++) {
             fThreads.push(new SkThread(&ThreadPool::Loop, this));

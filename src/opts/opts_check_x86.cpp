@@ -13,6 +13,7 @@
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkCpu.h"
+#include "SkOncePtr.h"
 #include "SkRTConf.h"
 
 
