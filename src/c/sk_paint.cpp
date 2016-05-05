@@ -9,6 +9,7 @@
 
 #include "sk_paint.h"
 #include "sk_types_priv.h"
+#include "xamarin/sk_x_types_priv.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,32 +37,8 @@ void sk_paint_set_shader(sk_paint_t* cpaint, sk_shader_t* cshader) {
     AsPaint(cpaint)->setShader(AsShader(cshader));
 }
 
-sk_shader_t* sk_paint_get_shader(sk_paint_t* cpaint) {
-    return ToShader(AsPaint(cpaint)->getShader());
-}
-
 void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {
     AsPaint(cpaint)->setMaskFilter(AsMaskFilter(cfilter));
-}
-
-sk_maskfilter_t* sk_paint_get_maskfilter(sk_paint_t* cpaint) {
-    return ToMaskFilter(AsPaint(cpaint)->getMaskFilter());
-}
-
-void sk_paint_set_colorfilter(sk_paint_t* cpaint, sk_colorfilter_t* cfilter) {
-    AsPaint(cpaint)->setColorFilter(AsColorFilter(cfilter));
-}
-
-sk_colorfilter_t* sk_paint_get_colorfilter(sk_paint_t* cpaint) {
-    return ToColorFilter(AsPaint(cpaint)->getColorFilter());
-}
-
-void sk_paint_set_imagefilter(sk_paint_t* cpaint, sk_imagefilter_t* cfilter) {
-    AsPaint(cpaint)->setImageFilter(AsImageFilter(cfilter));
-}
-
-sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t* cpaint) {
-    return ToImageFilter(AsPaint(cpaint)->getImageFilter());
 }
 
 bool sk_paint_is_stroke(const sk_paint_t* cpaint) {
@@ -130,85 +107,3 @@ void sk_paint_set_xfermode_mode(sk_paint_t* paint, sk_xfermode_mode_t mode) {
         AsPaint(paint)->setXfermodeMode(m);
     }
 }
-
-sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t* paint) {
-    SkASSERT(paint);
-
-    SkXfermode::Mode mode;
-    sk_xfermode_mode_t cmode;
-    if (SkXfermode::AsMode(AsPaint(paint)->getXfermode(), &mode) && find_c(mode, &cmode)) {
-        return cmode;
-    }
-    return SRCOVER_SK_XFERMODE_MODE;
-}
-
-sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint)
-{
-    return (sk_typeface_t*) AsPaint(paint)->getTypeface();
-}
-
-void sk_paint_set_typeface(sk_paint_t* paint, sk_typeface_t* typeface)
-{
-    AsPaint(paint)->setTypeface((SkTypeface*) typeface);
-}
-
-float sk_paint_get_textsize(sk_paint_t* paint)
-{
-    return AsPaint(paint)->getTextSize();
-}
-
-void sk_paint_set_textsize(sk_paint_t* paint, float size)
-{
-    AsPaint(paint)->setTextSize(size);
-}
-
-sk_text_align_t sk_paint_get_text_align(const sk_paint_t* cpaint) {
-    sk_text_align_t calign;
-    if (!find_c(AsPaint(*cpaint).getTextAlign(), &calign)) {
-        calign = LEFT_SK_TEXT_ALIGN;
-    }
-    return calign;
-}
-
-void sk_paint_set_text_align(sk_paint_t* cpaint, sk_text_align_t calign) {
-    SkPaint::Align skalign;
-    if (find_sk(calign, &skalign)) {
-        AsPaint(cpaint)->setTextAlign(skalign);
-    } else {
-        // unknown calign
-    }
-}
-
-sk_text_encoding_t sk_paint_get_text_encoding(const sk_paint_t* cpaint) {
-    sk_text_encoding_t cencoding;
-    if (!find_c(AsPaint(*cpaint).getTextEncoding(), &cencoding)) {
-        cencoding = UTF8_SK_TEXT_ENCODING;
-    }
-    return cencoding;
-}
-
-void sk_paint_set_text_encoding(sk_paint_t* cpaint, sk_text_encoding_t cencoding) {
-    SkPaint::TextEncoding skencoding;
-    if (find_sk(cencoding, &skencoding)) {
-        AsPaint(cpaint)->setTextEncoding(skencoding);
-    } else {
-        // unknown cencoding
-    }
-}
-
-float sk_paint_get_text_scale_x(const sk_paint_t* cpaint) {
-    return AsPaint(cpaint)->getTextScaleX();
-}
-
-void sk_paint_set_text_scale_x(sk_paint_t* cpaint, float scale) {
-    AsPaint(cpaint)->setTextScaleX(scale);
-}
-
-float sk_paint_get_text_skew_x(const sk_paint_t* cpaint) {
-    return AsPaint(cpaint)->getTextSkewX();
-}
-
-void sk_paint_set_text_skew_x(sk_paint_t* cpaint, float skew) {
-    AsPaint(cpaint)->setTextSkewX(skew);
-}
-

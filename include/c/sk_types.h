@@ -87,28 +87,7 @@ typedef struct {
 typedef struct {
     float   x;
     float   y;
-    float   z;
-} sk_point3_t;
-
-typedef struct {
-    float   x;
-    float   y;
 } sk_point_t;
-
-typedef struct {
-    float   x;
-    float   y;
-} sk_ipoint_t;
-
-typedef struct {
-    float   w;
-    float   h;
-} sk_size_t;
-
-typedef struct {
-    float   w;
-    float   h;
-} sk_isize_t;
 
 typedef struct {
     int32_t left;
@@ -146,14 +125,6 @@ typedef struct sk_data_t sk_data_t;
 */
 typedef struct sk_image_t sk_image_t;
 /**
-    A sk_bitmap_t is an abstraction that specifies a raster bitmap.
-*/
-typedef struct sk_bitmap_t sk_bitmap_t;
-/**
-    Base class for decoding compressed images into a sk_bitmap_t
-*/
-typedef struct sk_imagedecoder_t sk_imagedecoder_t;
-/**
     A sk_maskfilter_t is an object that perform transformations on an
     alpha-channel mask before drawing it; it may be installed into a
     sk_paint_t.  Each time a primitive is drawn, it is first
@@ -162,9 +133,6 @@ typedef struct sk_imagedecoder_t sk_imagedecoder_t;
     destination.
  */
 typedef struct sk_maskfilter_t sk_maskfilter_t;
-typedef struct sk_colorfilter_t sk_colorfilter_t;
-typedef struct sk_imagefilter_t sk_imagefilter_t;
-typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
 /**
     A sk_paint_t holds the style and color information about how to
     draw geometries, text and bitmaps.
@@ -199,30 +167,7 @@ typedef struct sk_shader_t sk_shader_t;
     For GPU drawing, the destination is a texture or a framebuffer.
 */
 typedef struct sk_surface_t sk_surface_t;
-/**
-   A sk_typeface_t pecifies the typeface and intrinsic style of a font.
-    This is used in the paint, along with optionally algorithmic settings like
-    textSize, textSkewX, textScaleX, kFakeBoldText_Mask, to specify
-    how text appears when drawn (and measured).
 
-    Typeface objects are immutable, and so they can be shared between threads.
-*/
-typedef struct sk_typeface_t sk_typeface_t;
-/**
-   Various stream types
-*/
-typedef struct sk_stream_t sk_stream_t;
-typedef struct sk_stream_filestream_t sk_stream_filestream_t;
-typedef struct sk_stream_asset_t sk_stream_asset_t;
-typedef struct sk_stream_memorystream_t sk_stream_memorystream_t;
-typedef struct sk_stream_streamrewindable_t sk_stream_streamrewindable_t;
-
-typedef enum {
-	UTF8_ENCODING,
-	UTF16_ENCODING,
-	UTF32_ENCODING
-} sk_encoding_t;
-	
 typedef enum {
     CLEAR_SK_XFERMODE_MODE,
     SRC_SK_XFERMODE_MODE,
@@ -254,121 +199,6 @@ typedef enum {
     COLOR_SK_XFERMODE_MODE,
     LUMINOSITY_SK_XFERMODE_MODE,
 } sk_xfermode_mode_t;
-
-typedef enum {
-    POINTS_SK_POINT_MODE,
-    LINES_SK_POINT_MODE,
-    POLYGON_SK_POINT_MODE
-} sk_point_mode_t;
-
-typedef enum {
-    DECODEBOUNDS_SK_IMAGEDECODER_MODE,
-    DECODEPIXELS_SK_IMAGEDECODER_MODE
-} sk_imagedecoder_mode_t;
-
-typedef enum {
-    FAILURE_SK_IMAGEDECODER_RESULT,
-    PARTIALSUCCESS_SK_IMAGEDECODER_RESULT,
-    SUCCESS_SK_IMAGEDECODER_RESULT
-} sk_imagedecoder_result_t;
-
-typedef enum {
-    UNKNOWN_SK_IMAGEDECODER_FORMAT,
-    BMP_SK_IMAGEDECODER_FORMAT,
-    GIF_SK_IMAGEDECODER_FORMAT,
-    ICO_SK_IMAGEDECODER_FORMAT,
-    JPEG_SK_IMAGEDECODER_FORMAT,
-    PNG_SK_IMAGEDECODER_FORMAT,
-    WBMP_SK_IMAGEDECODER_FORMAT,
-    WEBP_SK_IMAGEDECODER_FORMAT,
-    PKM_SK_IMAGEDECODER_FORMAT,
-    KTX_SK_IMAGEDECODER_FORMAT,
-    ASTC_SK_IMAGEDECODER_FORMAT
-} sk_imagedecoder_format_t;
-
-typedef enum {
-    NORMAL_SK_BLUR_STYLE,   //!< fuzzy inside and outside
-    SOLID_SK_BLUR_STYLE,    //!< solid inside, fuzzy outside
-    OUTER_SK_BLUR_STYLE,    //!< nothing inside, fuzzy outside
-    INNER_SK_BLUR_STYLE,    //!< fuzzy inside, nothing outside
-} sk_blurstyle_t;
-
-typedef enum {
-    BUTT_SK_STROKE_CAP,
-    ROUND_SK_STROKE_CAP,
-    SQUARE_SK_STROKE_CAP
-} sk_stroke_cap_t;
-
-typedef enum {
-    MITER_SK_STROKE_JOIN,
-    ROUND_SK_STROKE_JOIN,
-    BEVEL_SK_STROKE_JOIN
-} sk_stroke_join_t;
-
-typedef enum {
-    LEFT_SK_TEXT_ALIGN,
-    CENTER_SK_TEXT_ALIGN,
-    RIGHT_SK_TEXT_ALIGN
-} sk_text_align_t;
-
-typedef enum {
-    UTF8_SK_TEXT_ENCODING,
-    UTF16_SK_TEXT_ENCODING,
-    UTF32_SK_TEXT_ENCODING,
-    GLYPH_ID_SK_TEXT_ENCODING
-} sk_text_encoding_t;
-
-typedef enum {
-    CW_SK_PATH_DIRECTION,
-    CCW_SK_PATH_DIRECTION,
-} sk_path_direction_t;
-
-typedef enum {
-    CLAMP_SK_SHADER_TILEMODE,
-    REPEAT_SK_SHADER_TILEMODE,
-    MIRROR_SK_SHADER_TILEMODE,
-} sk_shader_tilemode_t;
-
-typedef enum {
-	NORMAL_TYPEFACE_STYLE = 0,
-	BOLD_TYPEFACE_STYLE = 1,
-	ITALIC_TYPEFACE_STYLE = 2,
-	BOLD_ITALIC_TYPEFACE_STYLE = 3
-} sk_typeface_style_t;
-
-typedef enum {
-    NONE_SK_FILTER_QUALITY,
-    LOW_SK_FILTER_QUALITY,
-    MEDIUM_SK_FILTER_QUALITY,
-    HIGH_SK_FILTER_QUALITY
-} sk_filter_quality_t;
-
-typedef enum {
-    HAS_LEFT_SK_CROP_RECT_FLAG   = 0x01,
-    HAS_TOP_SK_CROP_RECT_FLAG    = 0x02,
-    HAS_WIDTH_SK_CROP_RECT_FLAG  = 0x04,
-    HAS_HEIGHT_SK_CROP_RECT_FLAG = 0x08,
-    HAS_ALL_SK_CROP_RECT_FLAG    = 0x0F,
-} sk_crop_rect_flags_t;
-
-typedef enum {
-    DRAW_SHADOW_AND_FOREGROUND_SK_DROP_SHADOW_IMAGE_FILTER_SHADOW_MODE,
-    DRAW_SHADOW_ONLY_SK_DROP_SHADOW_IMAGE_FILTER_SHADOW_MODE,
-} sk_drop_shadow_image_filter_shadow_mode_t;
-
-typedef enum {
-    UNKNOWN_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-    R_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-    G_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-    B_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-    A_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-} sk_displacement_map_effect_channel_selector_type_t;
-
-typedef enum {
-    CLAMP_SK_MATRIX_CONVOLUTION_TILEMODE,
-    REPEAT_SK_MATRIX_CONVOLUTION_TILEMODE,
-    CLAMP_TO_BLACK_SK_MATRIX_CONVOLUTION_TILEMODE,
-} sk_matrix_convolution_tilemode_t;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 

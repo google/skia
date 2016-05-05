@@ -89,6 +89,12 @@ SK_API float sk_paint_get_stroke_miter(const sk_paint_t*);
 */
 SK_API void sk_paint_set_stroke_miter(sk_paint_t*, float miter);
 
+typedef enum {
+    BUTT_SK_STROKE_CAP,
+    ROUND_SK_STROKE_CAP,
+    SQUARE_SK_STROKE_CAP
+} sk_stroke_cap_t;
+
 /**
     Return the paint's stroke cap type, controlling how the start and
     end of stroked lines and paths are treated.
@@ -99,6 +105,12 @@ SK_API sk_stroke_cap_t sk_paint_get_stroke_cap(const sk_paint_t*);
     end of stroked lines and paths are treated.
 */
 SK_API void sk_paint_set_stroke_cap(sk_paint_t*, sk_stroke_cap_t);
+
+typedef enum {
+    MITER_SK_STROKE_JOIN,
+    ROUND_SK_STROKE_JOIN,
+    BEVEL_SK_STROKE_JOIN
+} sk_stroke_join_t;
 
 /**
     Return the paint's stroke join type, specifies the treatment that
@@ -116,80 +128,17 @@ SK_API void sk_paint_set_stroke_join(sk_paint_t*, sk_stroke_join_t);
  *  any previous value, and call ref() on the new value.
  */
 SK_API void sk_paint_set_shader(sk_paint_t*, sk_shader_t*);
-SK_API sk_shader_t* sk_paint_get_shader(sk_paint_t*);
 
 /**
  *  Set the paint's maskfilter to the specified parameter. This will automatically call unref() on
  *  any previous value, and call ref() on the new value.
  */
 SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
-SK_API sk_maskfilter_t* sk_paint_get_maskfilter(sk_paint_t*);
-
-SK_API void sk_paint_set_colorfilter(sk_paint_t*, sk_colorfilter_t*);
-SK_API sk_colorfilter_t* sk_paint_get_colorfilter(sk_paint_t*);
-
-SK_API void sk_paint_set_imagefilter(sk_paint_t*, sk_imagefilter_t*);
-SK_API sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t*);
 
 /**
  *  Set the paint's xfermode to the specified parameter.
  */
 SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
-SK_API sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t*);
-
-/**
- *  Get the paint's typeface
- */
-SK_API sk_typeface_t* sk_paint_get_typeface(sk_paint_t*);
-/**
- *  Set the paint's typeface
- */
-SK_API void sk_paint_set_typeface(sk_paint_t*, sk_typeface_t*);
-/**
- *  Get the paint's text sixe
- */
-SK_API float sk_paint_get_textsize(sk_paint_t*);
-/**
- *  Set the paint's text sixe
- */
-SK_API void sk_paint_set_textsize(sk_paint_t*, float);
-
-/**
- *  Get the paint's text alignment
- */
-SK_API sk_text_align_t sk_paint_get_text_align(const sk_paint_t*);
-/**
- *  Set the paint's text alignment
- */
-SK_API void sk_paint_set_text_align(sk_paint_t*, sk_text_align_t);
-
-/**
- *  Get the paint's text encoding
- */
-SK_API sk_text_encoding_t sk_paint_get_text_encoding(const sk_paint_t*);
-/**
- *  Set the paint's text encoding
- */
-SK_API void sk_paint_set_text_encoding(sk_paint_t*, sk_text_encoding_t);
-
-/**
- *  Set the paint's horizontal scale factor for text
- */
-SK_API float sk_paint_get_text_scale_x(const sk_paint_t* cpaint);
-/**
- *  Set the paint's horizontal scale factor for text
- */
-SK_API void sk_paint_set_text_scale_x(sk_paint_t* cpaint, float scale);
-
-/**
- *  Set the paint's horizontal skew factor for text
- */
-SK_API float sk_paint_get_text_skew_x(const sk_paint_t* cpaint);
-/**
- *  Set the paint's horizontal skew factor for text
- */
-SK_API void sk_paint_set_text_skew_x(sk_paint_t* cpaint, float skew);
-
 
 SK_C_PLUS_PLUS_END_GUARD
 
