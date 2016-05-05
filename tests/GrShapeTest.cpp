@@ -251,6 +251,34 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     stroke2RoundBevelCase.compare(reporter, stroke2RoundBevelDashCase,
                                   TestCase::kSameUpToPE_ComparisonExpecation);
 
+    // Stroke and fill cases
+    SkPaint stroke2RoundBevelAndFill = stroke2RoundBevel;
+    stroke2RoundBevelAndFill.setStyle(SkPaint::kStrokeAndFill_Style);
+    TestCase stroke2RoundBevelAndFillCase(geo, stroke2RoundBevelAndFill, reporter);
+    expectations.fPEHasValidKey = true;
+    expectations.fPEHasEffect = false;
+    expectations.fStrokeApplies = true;
+    stroke2RoundBevelAndFillCase.testExpectations(reporter, expectations);
+    TestCase(geo, stroke2RoundBevelAndFill, reporter).compare(reporter,
+            stroke2RoundBevelAndFillCase, TestCase::kAllSame_ComparisonExpecation);
+
+    SkPaint stroke2RoundBevelAndFillDash = stroke2RoundBevelDash;
+    stroke2RoundBevelAndFillDash.setStyle(SkPaint::kStrokeAndFill_Style);
+    TestCase stroke2RoundBevelAndFillDashCase(geo, stroke2RoundBevelAndFillDash, reporter);
+    expectations.fPEHasValidKey = true;
+    expectations.fPEHasEffect = true;
+    expectations.fStrokeApplies = true;
+    stroke2RoundBevelAndFillDashCase.testExpectations(reporter, expectations);
+    TestCase(geo, stroke2RoundBevelAndFillDash, reporter).compare(
+        reporter, stroke2RoundBevelAndFillDashCase, TestCase::kAllSame_ComparisonExpecation);
+
+    stroke2RoundBevelAndFillCase.compare(reporter, stroke2RoundBevelCase,
+                                         TestCase::kSameUpToStroke_ComparisonExpecation);
+    stroke2RoundBevelAndFillDashCase.compare(reporter, stroke2RoundBevelDashCase,
+                                             TestCase::kSameUpToStroke_ComparisonExpecation);
+    stroke2RoundBevelAndFillCase.compare(reporter, stroke2RoundBevelAndFillDashCase,
+                                         TestCase::kSameUpToPE_ComparisonExpecation);
+
     SkPaint hairline;
     hairline.setStyle(SkPaint::kStroke_Style);
     hairline.setStrokeWidth(0.f);
@@ -286,6 +314,20 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
         strokeACase.compare(reporter, strokeBCase, TestCase::kAllSame_ComparisonExpecation);
     }
 
+    SkPaint strokeAndFillA = strokeA;
+    SkPaint strokeAndFillB = strokeB;
+    strokeAndFillA.setStyle(SkPaint::kStrokeAndFill_Style);
+    strokeAndFillB.setStyle(SkPaint::kStrokeAndFill_Style);
+    TestCase strokeAndFillACase(geo, strokeAndFillA, reporter);
+    TestCase strokeAndFillBCase(geo, strokeAndFillB, reporter);
+    if (paramAffectsStroke) {
+        strokeAndFillACase.compare(reporter, strokeAndFillBCase,
+                                   TestCase::kSameUpToStroke_ComparisonExpecation);
+    } else {
+        strokeAndFillACase.compare(reporter, strokeAndFillBCase,
+                                   TestCase::kAllSame_ComparisonExpecation);
+    }
+
     // Make sure stroking params don't affect fill style.
     SkPaint fillA = strokeA, fillB = strokeB;
     fillA.setStyle(SkPaint::kFill_Style);
@@ -305,6 +347,19 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
         dashACase.compare(reporter, dashBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
     } else {
         dashACase.compare(reporter, dashBCase, TestCase::kAllSame_ComparisonExpecation);
+    }
+
+    SkPaint dashStrokeAndFillA = dashA, dashStrokeAndFillB = dashB;
+    dashStrokeAndFillA.setStyle(SkPaint::kStrokeAndFill_Style);
+    dashStrokeAndFillB.setStyle(SkPaint::kStrokeAndFill_Style);
+    TestCase dashStrokeAndFillACase(geo, dashStrokeAndFillA, reporter);
+    TestCase dashStrokeAndFillBCase(geo, dashStrokeAndFillB, reporter);
+    if (paramAffectsDashAndStroke) {
+        dashStrokeAndFillACase.compare(reporter, dashStrokeAndFillBCase,
+                                       TestCase::kSameUpToStroke_ComparisonExpecation);
+    } else {
+        dashStrokeAndFillACase.compare(reporter, dashStrokeAndFillBCase,
+                                       TestCase::kAllSame_ComparisonExpecation);
     }
 }
 

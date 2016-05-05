@@ -18,9 +18,6 @@
  * as well as an optional path effect. If the path effect represents dashing, the dashing
  * information is extracted from the path effect and stored explicitly.
  *
- * This object does not support stroke-and-fill styling. It is expected that stroking and filling
- * is handled by drawing a stroke and a fill separately.
- *
  * This will replace GrStrokeInfo as GrShape is deployed.
  */
 class GrStyle {
@@ -79,14 +76,12 @@ public:
     explicit GrStyle(SkStrokeRec::InitStyle initStyle) : fStrokeRec(initStyle) {}
 
     GrStyle(const SkStrokeRec& strokeRec, SkPathEffect* pe) : fStrokeRec(strokeRec) {
-        SkASSERT(SkStrokeRec::kStrokeAndFill_Style != strokeRec.getStyle());
         this->initPathEffect(pe);
     }
 
     GrStyle(const GrStyle& that) : fStrokeRec(SkStrokeRec::kFill_InitStyle) { *this = that; }
 
     explicit GrStyle(const SkPaint& paint) : fStrokeRec(paint) {
-        SkASSERT(SkStrokeRec::kStrokeAndFill_Style != fStrokeRec.getStyle());
         this->initPathEffect(paint.getPathEffect());
     }
 
