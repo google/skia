@@ -11,13 +11,17 @@
 #ifdef SK_VULKAN
 
 #include <windows.h>
-#include "../VulkanTestContext.h"
+#include "../VulkanWindowContext.h"
+
+namespace sk_app {
 
 // for Windows
 struct ContextPlatformData_win {
     HINSTANCE fHInstance;
     HWND      fHWnd;
 };
+
+}
 
 #endif // SK_VULKAN
 

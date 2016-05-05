@@ -12,9 +12,10 @@
 #include "SkRect.h"
 
 class SkCanvas;
-class VulkanTestContext;
 
 namespace sk_app {
+
+class WindowContext;
 
 class Window {
 public:
@@ -143,7 +144,7 @@ protected:
     OnPaintFunc  fPaintFunc;
     void*        fPaintUserData;
 
-    VulkanTestContext* fTestContext;
+    WindowContext* fWindowContext;
 };
 
 }   // namespace sk_app

@@ -9,7 +9,7 @@
 
 #include "SkSurface.h"
 #include "SkCanvas.h"
-#include "VulkanTestContext.h"
+#include "VulkanWindowContext.h"
 
 namespace sk_app {
 
@@ -36,8 +36,8 @@ Window::Window() : fCharFunc(default_char_func)
 }
 
 void Window::detach() {
-    delete fTestContext;
-    fTestContext = nullptr;
+    delete fWindowContext;
+    fWindowContext = nullptr;
 }
 
 bool Window::onChar(SkUnichar c, uint32_t modifiers) {
@@ -53,7 +53,7 @@ bool Window::onMouse(int x, int y, InputState state, uint32_t modifiers) {
 }
 
 void Window::onPaint() {
-    SkSurface* backbuffer = fTestContext->getBackbufferSurface();
+    SkSurface* backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer) {
         // draw into the canvas of this surface
         SkCanvas* canvas = backbuffer->getCanvas();
@@ -62,7 +62,7 @@ void Window::onPaint() {
 
         canvas->flush();
 
-        fTestContext->swapBuffers();
+        fWindowContext->swapBuffers();
     } else {
         // try recreating testcontext
     }
@@ -72,7 +72,7 @@ void Window::onPaint() {
 void Window::onResize(uint32_t w, uint32_t h) {
     fWidth = w;
     fHeight = h;
-    fTestContext->resize(w, h);
+    fWindowContext->resize(w, h);
 }
 
 }   // namespace sk_app

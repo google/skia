@@ -5,27 +5,29 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef VulkanTestContext_DEFINED
-#define VulkanTestContext_DEFINED
+#ifndef VulkanWindowContext_DEFINED
+#define VulkanWindowContext_DEFINED
 
 #ifdef SK_VULKAN
 
-#include "GrTypes.h"
 #include "vk/GrVkBackendContext.h"
+#include "WindowContext.h"
 
 class SkSurface;
 class GrContext;
 
-class VulkanTestContext {
+namespace sk_app {
+
+class VulkanWindowContext : public WindowContext {
 public:
-    ~VulkanTestContext();
+    ~VulkanWindowContext() override;
 
     // each platform will have to implement these in its CPP file
     static VkSurfaceKHR createVkSurface(VkInstance, void* platformData);
     static bool canPresent(VkInstance, VkPhysicalDevice, uint32_t queueFamilyIndex);
 
-    static VulkanTestContext* Create(void* platformData, int msaaSampleCount) {
-        VulkanTestContext* ctx = new VulkanTestContext(platformData, msaaSampleCount);
+    static VulkanWindowContext* Create(void* platformData, int msaaSampleCount) {
+        VulkanWindowContext* ctx = new VulkanWindowContext(platformData, msaaSampleCount);
         if (!ctx->isValid()) {
             delete ctx;
             return nullptr;
@@ -33,22 +35,24 @@ public:
         return ctx;
     }
 
-    SkSurface* getBackbufferSurface();
-    void swapBuffers();
+    SkSurface* getBackbufferSurface() override;
+    void swapBuffers() override;
 
-    bool makeCurrent() { return true; }
+    bool makeCurrent() override { return true; }
 
-    bool isValid() { return SkToBool(fBackendContext.get()); }
+    bool isValid() override { return SkToBool(fBackendContext.get()); }
 
-    void resize(uint32_t w, uint32_t h) {
-        this->createSwapchain(w, h); 
+    void resize(uint32_t w, uint32_t h) override {
+        this->createSwapchain(w, h);
     }
 
-    GrBackendContext getBackendContext() { return (GrBackendContext)fBackendContext.get(); }
+    GrBackendContext getBackendContext() override { 
+        return (GrBackendContext) fBackendContext.get(); 
+    }
 
 private:
-    VulkanTestContext();
-    VulkanTestContext(void*, int msaaSampleCount);
+    VulkanWindowContext();
+    VulkanWindowContext(void*, int msaaSampleCount);
     void initializeContext(void*);
     void destroyContext();
 
@@ -76,7 +80,7 @@ private:
     private:
         FNPTR_TYPE fPtr;
     };
-    
+
     // WSI interface functions
     VkPtr<PFN_vkDestroySurfaceKHR> fDestroySurfaceKHR;
     VkPtr<PFN_vkGetPhysicalDeviceSurfaceSupportKHR> fGetPhysicalDeviceSurfaceSupportKHR;
@@ -108,6 +112,8 @@ private:
     BackbufferInfo*   fBackbuffers;
     uint32_t          fCurrentBackbufferIndex;
 };
+
+}   // namespace sk_app
 
 #endif // SK_VULKAN
 

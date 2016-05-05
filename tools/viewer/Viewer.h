@@ -8,8 +8,8 @@
 #ifndef Viewer_DEFINED
 #define Viewer_DEFINED
 
-#include "../Application.h"
-#include "../Window.h"
+#include "sk_app/Application.h"
+#include "sk_app/Window.h"
 #include "gm.h"
 #include "SkAnimTimer.h"
 #include "Slide.h"

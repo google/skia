@@ -6,24 +6,26 @@
  * found in the LICENSE file.
  */
 
-#include "VulkanTestContext_win.h"
+#include "VulkanWindowContext_win.h"
 
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
 
+namespace sk_app {
+
 // Platform dependant call
-VkSurfaceKHR VulkanTestContext::createVkSurface(VkInstance instance, void* platformData) {
+VkSurfaceKHR VulkanWindowContext::createVkSurface(VkInstance instance, void* platformData) {
     static PFN_vkCreateWin32SurfaceKHR createWin32SurfaceKHR = nullptr;
     if (!createWin32SurfaceKHR) {
-        createWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)vkGetInstanceProcAddr(instance,
-                                                                         "vkCreateWin32SurfaceKHR");
+        createWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR) vkGetInstanceProcAddr(instance,
+                                                                        "vkCreateWin32SurfaceKHR");
     }
 
     if (!platformData) {
         return VK_NULL_HANDLE;
     }
-    ContextPlatformData_win* winPlatformData = 
-                                           reinterpret_cast<ContextPlatformData_win*>(platformData);
+    ContextPlatformData_win* winPlatformData =
+                                          reinterpret_cast<ContextPlatformData_win*>(platformData);
     VkSurfaceKHR surface;
 
     VkWin32SurfaceCreateInfoKHR surfaceCreateInfo;
@@ -43,16 +45,18 @@ VkSurfaceKHR VulkanTestContext::createVkSurface(VkInstance instance, void* platf
 }
 
 // Platform dependant call
-bool VulkanTestContext::canPresent(VkInstance instance, VkPhysicalDevice physDev, 
+bool VulkanWindowContext::canPresent(VkInstance instance, VkPhysicalDevice physDev,
                                    uint32_t queueFamilyIndex) {
-    static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR 
-                                             getPhysicalDeviceWin32PresentationSupportKHR = nullptr;
+    static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR
+                                            getPhysicalDeviceWin32PresentationSupportKHR = nullptr;
     if (!getPhysicalDeviceWin32PresentationSupportKHR) {
-        getPhysicalDeviceWin32PresentationSupportKHR = 
+        getPhysicalDeviceWin32PresentationSupportKHR =
             (PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR) vkGetInstanceProcAddr(instance,
-                                                  "vkGetPhysicalDeviceWin32PresentationSupportKHR");
+                                                 "vkGetPhysicalDeviceWin32PresentationSupportKHR");
     }
 
     VkBool32 check = getPhysicalDeviceWin32PresentationSupportKHR(physDev, queueFamilyIndex);
     return (VK_FALSE != check);
 }
+
+}   // namespace sk_app

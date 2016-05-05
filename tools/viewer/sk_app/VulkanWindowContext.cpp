@@ -8,7 +8,7 @@
 
 #include "GrContext.h"
 #include "SkSurface.h"
-#include "VulkanTestContext.h"
+#include "VulkanWindowContext.h"
 
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
@@ -22,18 +22,20 @@
 #define GET_PROC(F) f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(instance, "vk" #F)
 #define GET_DEV_PROC(F) f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
 
-VulkanTestContext::VulkanTestContext(void* platformData, int msaaSampleCount) 
-                                 : fSurface(VK_NULL_HANDLE)
-                                 , fSwapchain(VK_NULL_HANDLE)
-                                 , fCommandPool(VK_NULL_HANDLE)
-                                 , fBackbuffers(nullptr) {
+namespace sk_app {
+
+VulkanWindowContext::VulkanWindowContext(void* platformData, int msaaSampleCount)
+    : fSurface(VK_NULL_HANDLE)
+    , fSwapchain(VK_NULL_HANDLE)
+    , fCommandPool(VK_NULL_HANDLE)
+    , fBackbuffers(nullptr) {
 
     // any config code here (particularly for msaa)?
 
     this->initializeContext(platformData);
 }
 
-void VulkanTestContext::initializeContext(void* platformData) {
+void VulkanWindowContext::initializeContext(void* platformData) {
 
     fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
@@ -55,7 +57,7 @@ void VulkanTestContext::initializeContext(void* platformData) {
     GET_DEV_PROC(AcquireNextImageKHR);
     GET_DEV_PROC(QueuePresentKHR);
 
-    fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext)fBackendContext.get());
+    fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) fBackendContext.get());
 
     fSurface = createVkSurface(instance, platformData);
     if (VK_NULL_HANDLE == fSurface) {
@@ -81,8 +83,7 @@ void VulkanTestContext::initializeContext(void* platformData) {
     vkGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
 }
 
-bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
-{
+bool VulkanWindowContext::createSwapchain(uint32_t width, uint32_t height) {
     // check for capabilities
     VkSurfaceCapabilitiesKHR caps;
     VkResult res = fGetPhysicalDeviceSurfaceCapabilitiesKHR(fBackendContext->fPhysicalDevice,
@@ -116,7 +117,7 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
     SkAutoMalloc presentModeAlloc(presentModeCount * sizeof(VkPresentModeKHR));
     VkPresentModeKHR* presentModes = (VkPresentModeKHR*)presentModeAlloc.get();
     res = fGetPhysicalDeviceSurfacePresentModesKHR(fBackendContext->fPhysicalDevice, fSurface,
-                                                    &presentModeCount, presentModes);
+                                                   &presentModeCount, presentModes);
     if (VK_SUCCESS != res) {
         return false;
     }
@@ -223,7 +224,7 @@ bool VulkanTestContext::createSwapchain(uint32_t width, uint32_t height)
     return true;
 }
 
-void VulkanTestContext::createBuffers(VkFormat format) {
+void VulkanWindowContext::createBuffers(VkFormat format) {
     GrVkFormatToPixelConfig(format, &fPixelConfig);
 
     fGetSwapchainImagesKHR(fBackendContext->fDevice, fSwapchain, &fImageCount, nullptr);
@@ -311,14 +312,14 @@ void VulkanTestContext::createBuffers(VkFormat format) {
     fCurrentBackbufferIndex = fImageCount;
 }
 
-void VulkanTestContext::destroyBuffers() {
+void VulkanWindowContext::destroyBuffers() {
 
     if (fBackbuffers) {
         for (uint32_t i = 0; i < fImageCount + 1; ++i) {
             GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
-                                WaitForFences(fBackendContext->fDevice, 2, 
+                                WaitForFences(fBackendContext->fDevice, 2,
                                               fBackbuffers[i].fUsageFences,
-                                true, UINT64_MAX));
+                                              true, UINT64_MAX));
             fBackbuffers[i].fImageIndex = -1;
             GR_VK_CALL(fBackendContext->fInterface,
                        DestroySemaphore(fBackendContext->fDevice,
@@ -349,11 +350,11 @@ void VulkanTestContext::destroyBuffers() {
     fImages = nullptr;
 }
 
-VulkanTestContext::~VulkanTestContext() {
+VulkanWindowContext::~VulkanWindowContext() {
     this->destroyContext();
 }
 
-void VulkanTestContext::destroyContext() {
+void VulkanWindowContext::destroyContext() {
     if (!fBackendContext.get()) {
         return;
     }
@@ -383,7 +384,7 @@ void VulkanTestContext::destroyContext() {
     fBackendContext.reset(nullptr);
 }
 
-VulkanTestContext::BackbufferInfo* VulkanTestContext::getAvailableBackbuffer() {
+VulkanWindowContext::BackbufferInfo* VulkanWindowContext::getAvailableBackbuffer() {
     SkASSERT(fBackbuffers);
 
     ++fCurrentBackbufferIndex;
@@ -399,7 +400,7 @@ VulkanTestContext::BackbufferInfo* VulkanTestContext::getAvailableBackbuffer() {
     return backbuffer;
 }
 
-SkSurface* VulkanTestContext::getBackbufferSurface() {
+SkSurface* VulkanWindowContext::getBackbufferSurface() {
     BackbufferInfo* backbuffer = this->getAvailableBackbuffer();
     SkASSERT(backbuffer);
 
@@ -424,7 +425,7 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
         }
 
         // acquire the image
-        res = fAcquireNextImageKHR(fBackendContext->fDevice,  fSwapchain, UINT64_MAX,
+        res = fAcquireNextImageKHR(fBackendContext->fDevice, fSwapchain, UINT64_MAX,
                                    backbuffer->fAcquireSemaphore, VK_NULL_HANDLE,
                                    &backbuffer->fImageIndex);
 
@@ -439,7 +440,7 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT :
                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    VkAccessFlags srcAccessMask = (VK_IMAGE_LAYOUT_UNDEFINED == layout) ? 
+    VkAccessFlags srcAccessMask = (VK_IMAGE_LAYOUT_UNDEFINED == layout) ?
                                   0 : VK_ACCESS_MEMORY_READ_BIT;
     VkAccessFlags dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
@@ -464,15 +465,15 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
                         BeginCommandBuffer(backbuffer->fTransitionCmdBuffers[0], &info));
 
-    GR_VK_CALL(fBackendContext->fInterface, 
-                CmdPipelineBarrier(backbuffer->fTransitionCmdBuffers[0], 
-                                    srcStageMask, dstStageMask, 0,
-                                    0, nullptr,
-                                    0, nullptr,
-                                    1, &imageMemoryBarrier));
+    GR_VK_CALL(fBackendContext->fInterface,
+               CmdPipelineBarrier(backbuffer->fTransitionCmdBuffers[0],
+                                  srcStageMask, dstStageMask, 0,
+                                  0, nullptr,
+                                  0, nullptr,
+                                  1, &imageMemoryBarrier));
 
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
-                        EndCommandBuffer(backbuffer->fTransitionCmdBuffers[0]));  
+                        EndCommandBuffer(backbuffer->fTransitionCmdBuffers[0]));
 
     VkPipelineStageFlags waitDstStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     // insert the layout transfer into the queue and wait on the acquire
@@ -485,16 +486,16 @@ SkSurface* VulkanTestContext::getBackbufferSurface() {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &backbuffer->fTransitionCmdBuffers[0];
     submitInfo.signalSemaphoreCount = 0;
-    
+
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
-                        QueueSubmit(fBackendContext->fQueue, 1, &submitInfo, 
+                        QueueSubmit(fBackendContext->fQueue, 1, &submitInfo,
                                     backbuffer->fUsageFences[0]));
 
     return fSurfaces[backbuffer->fImageIndex].get();
 }
 
 
-void VulkanTestContext::swapBuffers() {
+void VulkanWindowContext::swapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
 
@@ -525,11 +526,11 @@ void VulkanTestContext::swapBuffers() {
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
                         BeginCommandBuffer(backbuffer->fTransitionCmdBuffers[1], &info));
     GR_VK_CALL(fBackendContext->fInterface,
-                CmdPipelineBarrier(backbuffer->fTransitionCmdBuffers[1],
-                srcStageMask, dstStageMask, 0,
-                0, nullptr,
-                0, nullptr,
-                1, &imageMemoryBarrier));
+               CmdPipelineBarrier(backbuffer->fTransitionCmdBuffers[1],
+                                  srcStageMask, dstStageMask, 0,
+                                  0, nullptr,
+                                  0, nullptr,
+                                  1, &imageMemoryBarrier));
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
                         EndCommandBuffer(backbuffer->fTransitionCmdBuffers[1]));
 
@@ -547,7 +548,7 @@ void VulkanTestContext::swapBuffers() {
     submitInfo.pSignalSemaphores = &backbuffer->fRenderSemaphore;
 
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
-                        QueueSubmit(fBackendContext->fQueue, 1, &submitInfo, 
+                        QueueSubmit(fBackendContext->fQueue, 1, &submitInfo,
                                     backbuffer->fUsageFences[1]));
 
     // Submit present operation to present queue
@@ -566,3 +567,5 @@ void VulkanTestContext::swapBuffers() {
     fQueuePresentKHR(fPresentQueue, &presentInfo);
 
 }
+
+}   //namespace sk_app

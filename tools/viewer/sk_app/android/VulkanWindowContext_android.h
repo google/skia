@@ -10,14 +10,17 @@
 
 #ifdef SK_VULKAN
 
-#include "../VulkanTestContext.h"
+#include "../VulkanWindowContext.h"
 
 struct ANativeWindow;
+
+namespace sk_app {
 
 struct ContextPlatformData_android {
     ANativeWindow* fNativeWindow;
 };
 
+}
 #endif // SK_VULKAN
 
 #endif

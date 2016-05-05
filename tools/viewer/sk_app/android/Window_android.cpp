@@ -7,7 +7,7 @@
 
 #include "Window_android.h"
 
-#include "VulkanTestContext_android.h"
+#include "VulkanWindowContext_android.h"
 
 namespace sk_app {
 
@@ -53,7 +53,7 @@ void Window_android::initDisplay(ANativeWindow* window) {
     SkASSERT(window);
     ContextPlatformData_android platformData;
     platformData.fNativeWindow = window;
-    fTestContext = VulkanTestContext::Create((void*)&platformData, mSampleCount);
+    fWindowContext = VulkanWindowContext::Create((void*)&platformData, mSampleCount);
 }
 
 static void android_app_write_cmd(struct android_app* android_app, int8_t cmd) {

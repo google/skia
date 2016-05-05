@@ -6,12 +6,14 @@
  * found in the LICENSE file.
  */
 
-#include "VulkanTestContext_android.h"
+#include "VulkanWindowContext_android.h"
 
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
 
-VkSurfaceKHR VulkanTestContext::createVkSurface(VkInstance instance, void* platformData) {
+namespace sk_app {
+
+VkSurfaceKHR VulkanWindowContext::createVkSurface(VkInstance instance, void* platformData) {
     static PFN_vkCreateAndroidSurfaceKHR createAndroidSurfaceKHR = nullptr;
     if (!createAndroidSurfaceKHR) {
         createAndroidSurfaceKHR = (PFN_vkCreateAndroidSurfaceKHR)vkGetInstanceProcAddr(instance,
@@ -37,7 +39,9 @@ VkSurfaceKHR VulkanTestContext::createVkSurface(VkInstance instance, void* platf
     return (VK_SUCCESS == res) ? surface : VK_NULL_HANDLE;
 }
 
-bool VulkanTestContext::canPresent(VkInstance instance, VkPhysicalDevice physDev,
+bool VulkanWindowContext::canPresent(VkInstance instance, VkPhysicalDevice physDev,
                                    uint32_t queueFamilyIndex) {
     return true;
 }
+
+}   // namespace sk_app

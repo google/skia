@@ -12,7 +12,7 @@
 #include <windowsx.h>
 
 #include "SkUtils.h"
-#include "VulkanTestContext_win.h"
+#include "VulkanWindowContext_win.h"
 
 namespace sk_app {
 
@@ -273,9 +273,9 @@ bool Window_win::attach(BackEndType attachType, int msaaSampleCount) {
     platformData.fHInstance = fHInstance;
     platformData.fHWnd = fHWnd;
 
-    fTestContext = VulkanTestContext::Create((void*)&platformData, msaaSampleCount);
+    fWindowContext = VulkanWindowContext::Create((void*)&platformData, msaaSampleCount);
 
-    return (SkToBool(fTestContext));
+    return (SkToBool(fWindowContext));
 }
 
 void Window_win::inval() {
