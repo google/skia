@@ -21,19 +21,33 @@ class LineBench : public Benchmark {
     bool        fDoAA;
     SkString    fName;
     enum {
-        PTS = 500,
+        LINES = 500,
     };
-    SkPoint fPts[PTS];
+    SkPoint     fStartPts[LINES];
+    SkPoint     fEndPts[LINES];
 
 public:
-    LineBench(SkScalar width, bool doAA)  {
+    enum LineType {
+        SH, // Straight + horizontally
+        SV, // Straight + vertically
+        RAND,
+    };
+    LineBench(SkScalar width, bool doAA, LineType type)  {
         fStrokeWidth = width;
         fDoAA = doAA;
-        fName.printf("lines_%g_%s", width, doAA ? "AA" : "BW");
+        fName.printf("lines_%g_%s_%s", width, doAA ? "AA" : "BW",
+                     type == SH ? "SH" : (type == SV ? "SV" : "RAND"));
 
         SkRandom rand;
-        for (int i = 0; i < PTS; ++i) {
-            fPts[i].set(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
+        for (int i = 0; i < LINES; ++i) {
+            fStartPts[i].set(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
+            if (type == SH) {
+                fEndPts[i].set(rand.nextUScalar1() * 640, fStartPts[i].y());
+            } else if (type == SV) {
+                fEndPts[i].set(fStartPts[i].x(), rand.nextUScalar1() * 480);
+            } else {
+                fEndPts[i].set(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
+            }
         }
     }
 
@@ -51,7 +65,7 @@ protected:
         paint.setStrokeWidth(fStrokeWidth);
 
         for (int i = 0; i < loops; i++) {
-            canvas->drawPoints(SkCanvas::kLines_PointMode, PTS, fPts, paint);
+            canvas->drawLine(fStartPts[i].x(), fStartPts[i].y(), fEndPts[i].x(), fEndPts[i].y(), paint);
         }
     }
 
@@ -59,8 +73,21 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH(return new LineBench(0,            false);)
-DEF_BENCH(return new LineBench(SK_Scalar1,   false);)
-DEF_BENCH(return new LineBench(0,            true);)
-DEF_BENCH(return new LineBench(SK_Scalar1/2, true);)
-DEF_BENCH(return new LineBench(SK_Scalar1,   true);)
+DEF_BENCH(return new LineBench(0,            false, LineBench::SH);)
+DEF_BENCH(return new LineBench(SK_Scalar1,   false, LineBench::SH);)
+DEF_BENCH(return new LineBench(0,            true, LineBench::SH);)
+DEF_BENCH(return new LineBench(SK_Scalar1/2, true, LineBench::SH);)
+DEF_BENCH(return new LineBench(SK_Scalar1,   true, LineBench::SH);)
+DEF_BENCH(return new LineBench(SK_Scalar1*10,true, LineBench::SH);)
+DEF_BENCH(return new LineBench(0,            false, LineBench::SV);)
+DEF_BENCH(return new LineBench(SK_Scalar1,   false, LineBench::SV);)
+DEF_BENCH(return new LineBench(0,            true, LineBench::SV);)
+DEF_BENCH(return new LineBench(SK_Scalar1/2, true, LineBench::SV);)
+DEF_BENCH(return new LineBench(SK_Scalar1,   true, LineBench::SV);)
+DEF_BENCH(return new LineBench(SK_Scalar1*10,true, LineBench::SV);)
+DEF_BENCH(return new LineBench(0,            false, LineBench::RAND);)
+DEF_BENCH(return new LineBench(SK_Scalar1,   false, LineBench::RAND);)
+DEF_BENCH(return new LineBench(0,            true, LineBench::RAND);)
+DEF_BENCH(return new LineBench(SK_Scalar1/2, true, LineBench::RAND);)
+DEF_BENCH(return new LineBench(SK_Scalar1,   true, LineBench::RAND);)
+DEF_BENCH(return new LineBench(SK_Scalar1*10,true, LineBench::RAND);)
