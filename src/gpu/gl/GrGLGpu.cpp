@@ -2639,7 +2639,7 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds,
         this->flushViewport(target->getViewport());
     }
 
-    if (this->glCaps().srgbSupport()) {
+    if (this->glCaps().srgbWriteControl()) {
         bool enableSRGBWrite = GrPixelConfigIsSRGB(target->config()) && !disableSRGB;
         if (enableSRGBWrite && kYes_TriState != fHWSRGBFramebuffer) {
             GL_CALL(Enable(GR_GL_FRAMEBUFFER_SRGB));

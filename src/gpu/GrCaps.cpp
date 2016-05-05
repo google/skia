@@ -85,6 +85,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
     fSRGBSupport = false;
+    fSRGBWriteControl = false;
     fTwoSidedStencilSupport = false;
     fStencilWrapOpsSupport = false;
     fDiscardRenderTargetSupport = false;
@@ -162,6 +163,7 @@ SkString GrCaps::dump() const {
     r.appendf("MIP Map Support                    : %s\n", gNY[fMipMapSupport]);
     r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
     r.appendf("sRGB Support                       : %s\n", gNY[fSRGBSupport]);
+    r.appendf("sRGB Write Control                 : %s\n", gNY[fSRGBWriteControl]);
     r.appendf("Two Sided Stencil Support          : %s\n", gNY[fTwoSidedStencilSupport]);
     r.appendf("Stencil Wrap Ops  Support          : %s\n", gNY[fStencilWrapOpsSupport]);
     r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);

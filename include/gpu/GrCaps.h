@@ -144,9 +144,12 @@ public:
      * Skia convention is that a device only has sRGB support if it supports sRGB formats for both
      * textures and framebuffers. In addition:
      *   Decoding to linear of an sRGB texture can be disabled.
-     *   Encoding and gamma-correct blending to an sRGB framebuffer can be disabled.
      */
     bool srgbSupport() const { return fSRGBSupport; }
+    /**
+     * Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers?
+     */
+    bool srgbWriteControl() const { return fSRGBWriteControl; }
     bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
     bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
@@ -284,6 +287,7 @@ protected:
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipMapSupport                              : 1;
     bool fSRGBSupport                                : 1;
+    bool fSRGBWriteControl                           : 1;
     bool fTwoSidedStencilSupport                     : 1;
     bool fStencilWrapOpsSupport                      : 1;
     bool fDiscardRenderTargetSupport                 : 1;
