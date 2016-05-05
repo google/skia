@@ -342,7 +342,7 @@ protected:
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.
     */
-    SkMutex* mutex() const { return &fMutex; }
+    SkBaseMutex* mutex() const { return &fMutex; }
 
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.

@@ -13,6 +13,7 @@
 #include "SkRefCnt.h"
 #include "SkTypeface.h"
 
+struct SkBaseMutex;
 class SkFontMgr;
 
 /**
