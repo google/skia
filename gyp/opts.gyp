@@ -61,10 +61,9 @@
           # ARM), the compiler doesn't like that.
           'cflags!': [ '-fno-omit-frame-pointer', '-mapcs-frame', '-mapcs' ],
           'cflags':  [ '-fomit-frame-pointer' ],
-          'variables': { 'arm_neon_optional%': '<(arm_neon_optional>' },
           'sources': [ '<@(armv7_sources)' ],
           'conditions': [
-            [ 'arm_neon == 1 or arm_neon_optional == 1', {
+            [ 'arm_neon == 1', {
               'dependencies': [ 'opts_neon' ]
             }],
           ],

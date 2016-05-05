@@ -35,13 +35,13 @@ while (( "$#" )); do
   elif [[ "$1" == "--gcc" ]]; then
     USE_CLANG="false"
   elif [[ "$1" == "--clang" ]]; then
-    USE_CLANG="true" 
+    USE_CLANG="true"
   elif [[ "$1" == "--logcat" ]]; then
     LOGCAT=1
   elif [[ "$1" == "--verbose" ]]; then
     VERBOSE="true"
   elif [[ "$1" == "--vulkan" ]]; then
-    SKIA_VULKAN="true" 
+    SKIA_VULKAN="true"
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
@@ -126,7 +126,7 @@ setup_device() {
       ANDROID_ARCH="arm"
       ;;
     arm_v7 | xoom)
-      DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7"
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_version=7"
       ANDROID_ARCH="arm"
       ;;
     arm_v7_neon | nexus_4 | nexus_5 | nexus_6 | nexus_7 | nexus_10)

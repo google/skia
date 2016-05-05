@@ -82,7 +82,6 @@ namespace SkOpts {
     void Init_sse42() {}
     void Init_avx() {}
     void Init_avx2() {}
-    void Init_neon();
 
     static void init() {
         // TODO: Chrome's not linking _sse* opts on iOS simulator builds.  Bug or feature?
@@ -92,11 +91,6 @@ namespace SkOpts {
         if (SkCpu::Supports(SkCpu::SSE42)) { Init_sse42(); }
         if (SkCpu::Supports(SkCpu::AVX  )) { Init_avx();   }
         if (SkCpu::Supports(SkCpu::AVX2 )) { Init_avx2();  }
-
-    #elif defined(SK_CPU_ARM32)         && \
-          defined(SK_BUILD_FOR_ANDROID) && \
-         !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-        if (SkCpu::Supports(SkCpu::NEON)) { Init_neon(); }
     #endif
     }
 

@@ -289,11 +289,6 @@
                   '-mfpu=neon',
                 ],
               }],
-              [ 'arm_neon_optional == 1', {
-                'defines': [
-                  'SK_ARM_HAS_OPTIONAL_NEON',
-                ],
-              }],
               [ 'skia_os != "linux"', {
                 'cflags': [
                   '-mfloat-abi=softfp',

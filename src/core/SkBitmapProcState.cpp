@@ -19,7 +19,7 @@
 #include "SkImageEncoder.h"
 #include "SkResourceCache.h"
 
-#if !SK_ARM_NEON_IS_NONE
+#if defined(SK_ARM_HAS_NEON)
 // These are defined in src/opts/SkBitmapProcState_arm_neon.cpp
 extern const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[];
 extern void  S16_D16_filter_DX_neon(const SkBitmapProcState&, const uint32_t*, int, uint16_t*);
@@ -296,7 +296,7 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
                 return false;
         }
 
-#if !SK_ARM_NEON_IS_ALWAYS
+#if !defined(SK_ARM_HAS_NEON)
         static const SampleProc32 gSkBitmapProcStateSample32[] = {
             S32_opaque_D32_nofilter_DXDY,
             S32_alpha_D32_nofilter_DXDY,

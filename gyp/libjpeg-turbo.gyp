@@ -129,16 +129,16 @@
         [ 'skia_arch_type == "x86" and (skia_os != "android" or host_os == "linux")', {
           'sources': [
             '../third_party/externals/libjpeg-turbo/simd/jsimd_i386.c',
-            '../third_party/externals/libjpeg-turbo/simd/jccolor-mmx.asm', 
+            '../third_party/externals/libjpeg-turbo/simd/jccolor-mmx.asm',
             '../third_party/externals/libjpeg-turbo/simd/jccolor-sse2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcgray-mmx.asm',  
+            '../third_party/externals/libjpeg-turbo/simd/jcgray-mmx.asm',
             '../third_party/externals/libjpeg-turbo/simd/jcgray-sse2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jchuff-sse2.asm', 
+            '../third_party/externals/libjpeg-turbo/simd/jchuff-sse2.asm',
             '../third_party/externals/libjpeg-turbo/simd/jcsample-mmx.asm',
             '../third_party/externals/libjpeg-turbo/simd/jcsample-sse2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdcolor-mmx.asm', 
+            '../third_party/externals/libjpeg-turbo/simd/jdcolor-mmx.asm',
             '../third_party/externals/libjpeg-turbo/simd/jdcolor-sse2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdmerge-mmx.asm', 
+            '../third_party/externals/libjpeg-turbo/simd/jdmerge-mmx.asm',
             '../third_party/externals/libjpeg-turbo/simd/jdmerge-sse2.asm',
             '../third_party/externals/libjpeg-turbo/simd/jdsample-mmx.asm',
             '../third_party/externals/libjpeg-turbo/simd/jdsample-sse2.asm',
@@ -157,11 +157,11 @@
             '../third_party/externals/libjpeg-turbo/simd/jidctint-sse2.asm',
             '../third_party/externals/libjpeg-turbo/simd/jidctred-mmx.asm',
             '../third_party/externals/libjpeg-turbo/simd/jidctred-sse2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jquant-3dn.asm',  
+            '../third_party/externals/libjpeg-turbo/simd/jquant-3dn.asm',
             '../third_party/externals/libjpeg-turbo/simd/jquantf-sse2.asm',
             '../third_party/externals/libjpeg-turbo/simd/jquanti-sse2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jquant-mmx.asm',  
-            '../third_party/externals/libjpeg-turbo/simd/jquant-sse.asm',  
+            '../third_party/externals/libjpeg-turbo/simd/jquant-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jquant-sse.asm',
             '../third_party/externals/libjpeg-turbo/simd/jsimdcpu.asm',
           ],
         }],
@@ -194,7 +194,7 @@
         }],
         [ 'skia_arch_type == "arm"', {
           'conditions': [
-            [ 'arm_version >= 7 and (arm_neon == 1 or arm_neon_optional == 1)', {
+            [ 'arm_version >= 7 and arm_neon == 1', {
               'sources': [
                 '../third_party/externals/libjpeg-turbo/simd/jsimd_arm.c',
                 '../third_party/externals/libjpeg-turbo/simd/jsimd_arm_neon.S',
@@ -213,7 +213,7 @@
             '../third_party/externals/libjpeg-turbo/jsimd_none.c',
           ],
         }],
-      
+
         # Build rules for an asm file.
         # On Windows, we use the precompiled yasm binary.
         # On Linux, we build our patched yasm and use it.

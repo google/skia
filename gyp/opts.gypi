@@ -19,7 +19,6 @@
             '<(skia_src_path)/opts/SkBitmapProcState_matrixProcs_neon.cpp',
             '<(skia_src_path)/opts/SkBlitMask_opts_arm_neon.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_arm_neon.cpp',
-            '<(skia_src_path)/opts/SkOpts_neon.cpp',
         ],
         'arm64_sources': [
             '<(skia_src_path)/opts/SkBitmapProcState_arm_neon.cpp',
@@ -29,7 +28,6 @@
             '<(skia_src_path)/opts/SkBlitMask_opts_arm_neon.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_arm.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_arm_neon.cpp',
-            '<(skia_src_path)/opts/SkOpts_neon.cpp',
         ],
 
         'mips_dsp_sources': [
