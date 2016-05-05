@@ -37,6 +37,9 @@
 #define SK_WGL_SUPPORT_OPENGL                       0x2010
 #define SK_WGL_DOUBLE_BUFFER                        0x2011
 #define SK_WGL_COLOR_BITS                           0x2014
+#define SK_WGL_RED_BITS                             0x2015
+#define SK_WGL_GREEN_BITS                           0x2017
+#define SK_WGL_BLUE_BITS                            0x2019
 #define SK_WGL_ALPHA_BITS                           0x201B
 #define SK_WGL_STENCIL_BITS                         0x2023
 #define SK_WGL_FULL_ACCELERATION                    0x2027
@@ -138,7 +141,7 @@ enum SkWGLContextRequest {
  * (including non-MSAA) will be created. If preferCoreProfile is true but a core profile cannot be
  * created then a compatible profile context will be created.
  */
-HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, SkWGLContextRequest context);
+HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor, SkWGLContextRequest context);
 
 /**
  * Helper class for creating a pbuffer context and deleting all the handles when finished. This

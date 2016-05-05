@@ -16,6 +16,7 @@
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkGraphics.h"
+#include "SkImage_Base.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPaint.h"
@@ -178,6 +179,8 @@ public:
         fCurIntf = nullptr;
         fCurRenderTarget = nullptr;
         fMSAASampleCount = 0;
+        fDeepColor = false;
+        fActualColorBits = 0;
 #endif
         fBackend = kNone_BackEndType;
     }
@@ -190,7 +193,7 @@ public:
 #endif
     }
 
-    void setUpBackend(SampleWindow* win, int msaaSampleCount) override {
+    void setUpBackend(SampleWindow* win, int msaaSampleCount, bool deepColor) override {
         SkASSERT(kNone_BackEndType == fBackend);
 
         fBackend = kNone_BackEndType;
@@ -219,12 +222,15 @@ public:
                 break;
         }
         AttachmentInfo attachmentInfo;
-        bool result = win->attach(fBackend, msaaSampleCount, &attachmentInfo);
+        bool result = win->attach(fBackend, msaaSampleCount, deepColor, &attachmentInfo);
         if (!result) {
             SkDebugf("Failed to initialize GL");
             return;
         }
         fMSAASampleCount = msaaSampleCount;
+        fDeepColor = deepColor;
+        // Assume that we have at least 24-bit output, for backends that don't supply this data
+        fActualColorBits = SkTMax(attachmentInfo.fColorBits, 24);
 
         SkASSERT(nullptr == fCurIntf);
         SkAutoTUnref<const GrGLInterface> glInterface;
@@ -294,9 +300,12 @@ public:
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
-            if (kRGBA_F16_SkColorType == win->info().colorType()) {
-                // Need to make an off-screen F16 surface - the current render target is
-                // (probably) the wrong format.
+            if (kRGBA_F16_SkColorType == win->info().colorType() || fActualColorBits > 24) {
+                // If we're rendering to F16, we need an off-screen surface - the current render
+                // target is most likely the wrong format.
+                //
+                // If we're using a deep (10-bit or higher) surface, we probably need an off-screen
+                // surface. 10-bit, in particular, has strange gamma behavior.
                 return SkSurface::MakeRenderTarget(fCurContext, SkBudgeted::kNo, win->info(),
                                                    fMSAASampleCount, &props).release();
             } else {
@@ -313,29 +322,27 @@ public:
         if (fCurContext) {
             // in case we have queued drawing calls
             fCurContext->flush();
+        }
 
-            if (!IsGpuDeviceType(dType)) {
-                // need to send the raster bits to the (gpu) window
-                const SkBitmap& bm = win->getBitmap();
-                fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
-                                             SkImageInfo2GrPixelConfig(bm.colorType(),
-                                                                       bm.alphaType(),
-                                                                       bm.profileType(),
-                                                                       *fCurContext->caps()),
-                                             bm.getPixels(),
-                                             bm.rowBytes(),
-                                             GrContext::kFlushWrites_PixelOp);
-            } else if (kRGBA_F16_SkColorType == win->info().colorType()) {
-                SkBitmap bm;
-                bm.allocPixels(win->info());
-                canvas->readPixels(&bm, 0, 0);
-                fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
-                                              SkImageInfo2GrPixelConfig(bm.info(),
-                                                                        *fCurContext->caps()),
-                                              bm.getPixels(),
-                                              bm.rowBytes(),
-                                              GrContext::kFlushWrites_PixelOp);
-            }
+        if (!IsGpuDeviceType(dType) ||
+            kRGBA_F16_SkColorType == win->info().colorType() ||
+            fActualColorBits > 24) {
+            // We made/have an off-screen surface. Get the contents as an SkImage:
+            SkBitmap bm;
+            bm.allocPixels(win->info());
+            canvas->readPixels(&bm, 0, 0);
+            SkPixmap pm;
+            bm.peekPixels(&pm);
+            sk_sp<SkImage> image(SkImage::MakeTextureFromPixmap(fCurContext, pm,
+                                                                SkBudgeted::kNo));
+            GrTexture* texture = as_IB(image)->peekTexture();
+            SkASSERT(texture);
+
+            // With ten-bit output, we need to manually apply the gamma of the output device
+            // (unless we're in non-gamma correct mode, in which case our data is already
+            // fake-sRGB, like we're expected to put in the 10-bit buffer):
+            bool doGamma = (fActualColorBits == 30) && SkImageInfoIsGammaCorrect(win->info());
+            fCurContext->applyGamma(fCurRenderTarget, texture, doGamma ? 1.0f / 2.2f : 1.0f);
         }
 #endif
 
@@ -346,8 +353,9 @@ public:
 #if SK_SUPPORT_GPU
         if (fCurContext) {
             AttachmentInfo attachmentInfo;
-            win->attach(fBackend, fMSAASampleCount, &attachmentInfo);
+            win->attach(fBackend, fMSAASampleCount, fDeepColor, &attachmentInfo);
             SkSafeUnref(fCurRenderTarget);
+            fActualColorBits = SkTMax(attachmentInfo.fColorBits, 24);
             fCurRenderTarget = win->renderTarget(attachmentInfo, fCurIntf, fCurContext);
         }
 #endif
@@ -369,6 +377,14 @@ public:
 #endif
     }
 
+    int getColorBits() override {
+#if SK_SUPPORT_GPU
+        return fActualColorBits;
+#else
+        return 24;
+#endif
+    }
+
 private:
 
 #if SK_SUPPORT_GPU
@@ -376,6 +392,8 @@ private:
     const GrGLInterface*    fCurIntf;
     GrRenderTarget*         fCurRenderTarget;
     int fMSAASampleCount;
+    bool fDeepColor;
+    int fActualColorBits;
 #endif
 
     SkOSWindow::SkBackEndTypes fBackend;
@@ -773,6 +791,7 @@ static void restrict_samples(SkTDArray<const SkViewFactory*>& factories, const S
 
 DEFINE_string(slide, "", "Start on this sample.");
 DEFINE_int32(msaa, 0, "Request multisampling with this count.");
+DEFINE_bool(deepColor, false, "Request deep color (10-bit/channel or more) display buffer.");
 DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
 DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to show.");
@@ -861,6 +880,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     }
 
     fMSAASampleCount = FLAGS_msaa;
+    fDeepColor = FLAGS_deepColor;
 
     if (FLAGS_list) {
         listTitles();
@@ -1023,7 +1043,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         devManager->ref();
         fDevManager = devManager;
     }
-    fDevManager->setUpBackend(this, fMSAASampleCount);
+    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
 
     // If another constructor set our dimensions, ensure that our
     // onSizeChange gets called.
@@ -1847,7 +1867,7 @@ void SampleWindow::setDeviceType(DeviceType type) {
 
     fDevManager->tearDownBackend(this);
     fDeviceType = type;
-    fDevManager->setUpBackend(this, fMSAASampleCount);
+    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
 
     this->updateTitle();
     this->inval(nullptr);
@@ -1857,7 +1877,7 @@ void SampleWindow::setDeviceColorType(SkColorType ct, SkColorProfileType pt) {
     this->setColorType(ct, pt);
 
     fDevManager->tearDownBackend(this);
-    fDevManager->setUpBackend(this, fMSAASampleCount);
+    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
 
     this->updateTitle();
     this->inval(nullptr);
@@ -1884,7 +1904,7 @@ void SampleWindow::toggleFPS() {
 void SampleWindow::toggleDistanceFieldFonts() {
     // reset backend
     fDevManager->tearDownBackend(this);
-    fDevManager->setUpBackend(this, fMSAASampleCount);
+    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
 
     SkSurfaceProps props = this->getSurfaceProps();
     uint32_t flags = props.flags() ^ SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
@@ -1897,7 +1917,7 @@ void SampleWindow::toggleDistanceFieldFonts() {
 void SampleWindow::setPixelGeometry(int pixelGeometryIndex) {
     // reset backend
     fDevManager->tearDownBackend(this);
-    fDevManager->setUpBackend(this, fMSAASampleCount);
+    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
 
     const SkSurfaceProps& oldProps = this->getSurfaceProps();
     SkSurfaceProps newProps(oldProps.flags(), SkSurfaceProps::kLegacyFontHost_InitType);
@@ -2161,6 +2181,10 @@ void SampleWindow::updateTitle() {
 #endif
 
     title.appendf(" %s", find_config_name(this->info()));
+
+    if (fDevManager && fDevManager->getColorBits() > 24) {
+        title.appendf(" %d bpc", fDevManager->getColorBits());
+    }
 
     if (gTreatSkColorAsSRGB) {
         title.append(" sRGB");

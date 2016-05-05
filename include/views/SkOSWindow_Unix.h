@@ -44,7 +44,7 @@ public:
 #endif // SK_COMMAND_BUFFER
     };
 
-    bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
+    bool attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor, AttachmentInfo*);
     void release();
     void present();
 

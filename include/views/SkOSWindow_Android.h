@@ -28,7 +28,8 @@ public:
         kNativeGL_BackEndType,
     };
 
-    bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info);
+    bool attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor,
+                AttachmentInfo* info);
     void release();
     void present();
     bool makeFullscreen() { return true; }

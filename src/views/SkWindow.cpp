@@ -340,9 +340,14 @@ GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
     //
     // Also, we may not have real sRGB support (ANGLE, in particular), so check for
     // that, and fall back to L32:
-    desc.fConfig = grContext->caps()->srgbSupport() && SkImageInfoIsGammaCorrect(info())
-        ? kSkiaGamma8888_GrPixelConfig
-        : kSkia8888_GrPixelConfig;
+    //
+    // ... and, if we're using a 10-bit/channel FB0, it doesn't do sRGB conversion on write,
+    // so pretend that it's non-sRGB 8888:
+    desc.fConfig =
+        grContext->caps()->srgbSupport() &&
+        SkImageInfoIsGammaCorrect(info()) &&
+        (attachmentInfo.fColorBits != 30)
+        ? kSkiaGamma8888_GrPixelConfig : kSkia8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fSampleCnt = attachmentInfo.fSampleCount;
     desc.fStencilBits = attachmentInfo.fStencilBits;

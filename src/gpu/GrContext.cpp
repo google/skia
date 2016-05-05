@@ -20,6 +20,7 @@
 
 #include "batches/GrCopySurfaceBatch.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "effects/GrGammaEffect.h"
 #include "text/GrTextBlobCache.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
@@ -526,6 +527,44 @@ bool GrContext::readSurfacePixels(GrSurface* src,
 
         return srcPI.convertPixelsTo(&dstPI, width, height);
     }
+    return true;
+}
+
+bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
+    ASSERT_SINGLE_OWNER
+    RETURN_FALSE_IF_ABANDONED
+    ASSERT_OWNED_RESOURCE(dst);
+    ASSERT_OWNED_RESOURCE(src);
+    GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::applyGamma");
+
+    // Dimensions must match exactly.
+    if (dst->width() != src->width() || dst->height() != src->height()) {
+        return false;
+    }
+
+    SkSurfaceProps props(SkSurfaceProps::kGammaCorrect_Flag,
+                         SkSurfaceProps::kLegacyFontHost_InitType);
+    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(dst), &props));
+    if (!drawContext) {
+        return false;
+    }
+
+    GrPaint paint;
+    if (SkScalarNearlyEqual(gamma, 1.0f)) {
+        paint.addColorTextureProcessor(src, GrCoordTransform::MakeDivByTextureWHMatrix(src));
+    } else {
+        SkAutoTUnref<const GrFragmentProcessor> fp;
+        fp.reset(GrGammaEffect::Create(src, gamma));
+        paint.addColorFragmentProcessor(fp);
+    }
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    paint.setGammaCorrect(true);
+
+    SkRect rect;
+    src->getBoundsRect(&rect);
+    drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect);
+
+    this->flushSurfaceWrites(dst);
     return true;
 }
 

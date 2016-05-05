@@ -285,6 +285,8 @@
       '<(skia_src_path)/gpu/effects/GrDistanceFieldGeoProc.h',
       '<(skia_src_path)/gpu/effects/GrDitherEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrDitherEffect.h',
+      '<(skia_src_path)/gpu/effects/GrGammaEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrGammaEffect.h',
       '<(skia_src_path)/gpu/effects/GrMatrixConvolutionEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrMatrixConvolutionEffect.h',
       '<(skia_src_path)/gpu/effects/GrOvalEffect.cpp',

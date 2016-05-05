@@ -100,7 +100,7 @@ public:
      *                      packed.
      * @param pixelOpsFlags See the GrContext::PixelOpsFlags enum.
      *
-     * @return true if the read succeeded, false if not. The read can fail because of an
+     * @return true if the write succeeded, false if not. The write can fail because of an
      *              unsupported pixel config.
      */
     bool writePixels(int left, int top, int width, int height,

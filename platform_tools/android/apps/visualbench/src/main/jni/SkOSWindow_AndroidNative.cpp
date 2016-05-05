@@ -23,6 +23,7 @@ SkOSWindow::~SkOSWindow() {
 
 bool SkOSWindow::attach(SkBackEndTypes attachType,
                         int /*msaaSampleCount*/,
+                        bool /*deepColor*/
                         AttachmentInfo* info) {
     static const EGLint kEGLContextAttribsForOpenGL[] = {
         EGL_NONE

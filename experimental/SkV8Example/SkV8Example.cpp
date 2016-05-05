@@ -74,7 +74,7 @@ void SkV8ExampleWindow::windowSizeChanged() {
     if (FLAGS_gpu) {
         SkOSWindow::AttachmentInfo attachmentInfo;
         bool result = this->attach(
-                SkOSWindow::kNativeGL_BackEndType, 0, &attachmentInfo);
+                SkOSWindow::kNativeGL_BackEndType, 0, false, &attachmentInfo);
         if (!result) {
             printf("Failed to attach.");
             exit(1);

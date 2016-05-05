@@ -339,10 +339,10 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
 
 #if SK_SUPPORT_GPU
 
-bool SkOSWindow::attachGL(int msaaSampleCount, AttachmentInfo* info) {
+bool SkOSWindow::attachGL(int msaaSampleCount, bool deepColor, AttachmentInfo* info) {
     HDC dc = GetDC((HWND)fHWND);
     if (NULL == fHGLRC) {
-        fHGLRC = SkCreateWGLContext(dc, msaaSampleCount,
+        fHGLRC = SkCreateWGLContext(dc, msaaSampleCount, deepColor,
                 kGLPreferCompatibilityProfile_SkWGLContextRequest);
         if (NULL == fHGLRC) {
             return false;
@@ -353,11 +353,13 @@ bool SkOSWindow::attachGL(int msaaSampleCount, AttachmentInfo* info) {
         glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     }
     if (wglMakeCurrent(dc, (HGLRC)fHGLRC)) {
-        // use DescribePixelFormat to get the stencil bit depth.
+        // use DescribePixelFormat to get the stencil and color bit depth.
         int pixelFormat = GetPixelFormat(dc);
         PIXELFORMATDESCRIPTOR pfd;
         DescribePixelFormat(dc, pixelFormat, sizeof(pfd), &pfd);
         info->fStencilBits = pfd.cStencilBits;
+        // pfd.cColorBits includes alpha, so it will be 32 in 8/8/8/8 and 10/10/10/2
+        info->fColorBits = pfd.cRedBits + pfd.cGreenBits + pfd.cBlueBits;
 
         // Get sample count if the MSAA WGL extension is present
         SkWGLExtensions extensions;
@@ -651,7 +653,8 @@ void SkOSWindow::presentCommandBuffer() {
 #endif // SK_SUPPORT_GPU
 
 // return true on success
-bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info) {
+bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor,
+                        AttachmentInfo* info) {
 
     // attach doubles as "windowResize" so we need to allo
     // already bound states to pass through again
@@ -665,7 +668,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, Attachme
         break;
 #if SK_SUPPORT_GPU
     case kNativeGL_BackEndType:
-        result = attachGL(msaaSampleCount, info);
+        result = attachGL(msaaSampleCount, deepColor, info);
         break;
 #if SK_ANGLE
     case kANGLE_BackEndType:

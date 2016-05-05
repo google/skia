@@ -47,7 +47,7 @@ public:
 #endif // SK_SUPPORT_GPU
     };
 
-    bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
+    bool attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor, AttachmentInfo*);
     void release();
     void present();
 
@@ -127,7 +127,7 @@ private:
 
     void updateSize();
 #if SK_SUPPORT_GPU
-    bool attachGL(int msaaSampleCount, AttachmentInfo* info);
+    bool attachGL(int msaaSampleCount, bool deepColor, AttachmentInfo* info);
     void detachGL();
     void presentGL();
 

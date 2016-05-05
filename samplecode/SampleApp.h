@@ -74,7 +74,7 @@ public:
     public:
 
 
-        virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) = 0;
+        virtual void setUpBackend(SampleWindow* win, int msaaSampleCount, bool deepColor) = 0;
 
         virtual void tearDownBackend(SampleWindow* win) = 0;
 
@@ -97,6 +97,10 @@ public:
 
         // return the GrRenderTarget backing gpu devices (nullptr if not built with GPU support)
         virtual GrRenderTarget* getGrRenderTarget() = 0;
+
+        // return the color depth of the output device
+        virtual int getColorBits() = 0;
+
     private:
         typedef SkRefCnt INHERITED;
     };
@@ -212,6 +216,7 @@ private:
     unsigned   fFlipAxis;
 
     int fMSAASampleCount;
+    bool fDeepColor;
 
     SkScalar fZoomCenterX, fZoomCenterY;
 

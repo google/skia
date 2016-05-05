@@ -106,7 +106,7 @@ void VisualBench::resetContext() {
 
 void VisualBench::setupContext() {
     int screenSamples = FLAGS_offscreen ? 0 : FLAGS_msaa;
-    if (!this->attach(kNativeGL_BackEndType, screenSamples, &fAttachmentInfo)) {
+    if (!this->attach(kNativeGL_BackEndType, screenSamples, false, &fAttachmentInfo)) {
         SkDebugf("Not possible to create backend.\n");
         INHERITED::release();
         SkFAIL("Could not create backend\n");

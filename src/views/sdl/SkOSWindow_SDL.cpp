@@ -57,7 +57,8 @@ void SkOSWindow::release() {
     }
 }
 
-bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info) {
+bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, bool deepColor,
+                        AttachmentInfo* info) {
     this->createWindow(msaaSampleCount);
     if (!fWindow) {
         return false;

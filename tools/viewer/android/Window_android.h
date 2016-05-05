@@ -17,12 +17,12 @@ enum {
     /**
      * Leave plenty of space between this item and the ones defined in the glue layer
      */
-	APP_CMD_INVAL_WINDOW = 64,
+    APP_CMD_INVAL_WINDOW = 64,
 };
 
 class Window_android : public Window {
 public:
-	Window_android() : Window() {}
+    Window_android() : Window() {}
     ~Window_android() override {}
 
     bool init(android_app* app_state);
@@ -31,7 +31,7 @@ public:
     void setTitle(const char*) override;
     void show() override {}
 
-    bool attach(BackEndType attachType, int msaaSampleCount) override;
+    bool attach(BackEndType attachType, int msaaSampleCount, bool deepColor) override;
     void inval() override;
 
     void paintIfNeeded();

@@ -62,7 +62,7 @@ bool HelloWorldWindow::setUpBackend() {
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
-    bool result = attach(kNativeGL_BackEndType, 0 /*msaa*/, &fAttachmentInfo);
+    bool result = attach(kNativeGL_BackEndType, 0 /*msaa*/, false, &fAttachmentInfo);
     if (false == result) {
         SkDebugf("Not possible to create backend.\n");
         release();

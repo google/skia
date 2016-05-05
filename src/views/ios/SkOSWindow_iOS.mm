@@ -59,6 +59,7 @@ void SkOSWindow::onUpdateMenu(SkOSMenu* menu) {
 
 bool SkOSWindow::attach(SkBackEndTypes /* attachType */,
                         int /* msaaSampleCount */,
+                        bool /* deepColor */,
                         AttachmentInfo* info) {
     [(SkUIView*)fHWND getAttachmentInfo:info];
     bool success = true;

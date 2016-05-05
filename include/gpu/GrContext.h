@@ -293,8 +293,16 @@ public:
                             uint32_t pixelOpsFlags = 0);
 
     /**
+     * Copies contents of src to dst, while applying a gamma curve. Fails if the two surfaces
+     * are not identically sized.
+     * @param dst           the surface to copy to.
+     * @param src           the texture to copy from.
+     * @param gamma         the gamma value to apply.
+     */
+    bool applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma);
+
+    /**
      * Copies a rectangle of texels from src to dst.
-     * bounds.
      * @param dst           the surface to copy to.
      * @param src           the surface to copy from.
      * @param srcRect       the rectangle of the src that should be copied.

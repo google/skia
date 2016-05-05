@@ -32,8 +32,14 @@ public:
     virtual ~SkWindow();
 
     struct AttachmentInfo {
+        AttachmentInfo()
+            : fSampleCount(0)
+            , fStencilBits(0)
+            , fColorBits(0) {}
+
         int fSampleCount;
         int fStencilBits;
+        int fColorBits;
     };
 
     SkSurfaceProps getSurfaceProps() const { return fSurfaceProps; }

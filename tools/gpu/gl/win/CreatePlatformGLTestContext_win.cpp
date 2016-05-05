@@ -92,7 +92,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI)
     HGLRC glrc;
 
     if (nullptr == fPbufferContext) {
-        if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, contextType))) {
+        if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, false, contextType))) {
             SkDebugf("Could not create rendering context.\n");
             this->destroyGLContext();
             return;
