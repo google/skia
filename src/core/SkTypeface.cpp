@@ -11,7 +11,7 @@
 #include "SkFontMgr.h"
 #include "SkMutex.h"
 #include "SkOTTable_OS_2.h"
-#include "SkOnce.h"
+#include "SkOncePtr.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -79,23 +79,21 @@ protected:
 }
 
 SK_DECLARE_STATIC_MUTEX(gCreateDefaultMutex);
+SK_DECLARE_STATIC_ONCE_PTR(SkTypeface, defaults[4]);
 
 SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
-    static SkOnce once[4];
-    static SkTypeface* defaults[4];
-
     SkASSERT((int)style < 4);
-    once[style]([style] {
+    return defaults[style].get([=]{
         // It is not safe to call FontConfigTypeface::LegacyCreateTypeface concurrently.
         // To be safe, we serialize here with a mutex so only one call to
         // CreateTypeface is happening at any given time.
         // TODO(bungeman, mtklein): This is sad.  Make our fontconfig code safe?
         SkAutoMutexAcquire lock(&gCreateDefaultMutex);
+
         SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
         SkTypeface* t = fm->legacyCreateTypeface(nullptr, SkFontStyle::FromOldStyle(style));
-        defaults[style] = t ? t : SkEmptyTypeface::Create();
+        return t ? t : SkEmptyTypeface::Create();
     });
-    return defaults[style];
 }
 
 SkTypeface* SkTypeface::RefDefault(Style style) {

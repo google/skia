@@ -422,6 +422,7 @@
         '<(skia_include_path)/private/SkMiniRecorder.h',
         '<(skia_include_path)/private/SkMutex.h',
         '<(skia_include_path)/private/SkOnce.h',
+        '<(skia_include_path)/private/SkOncePtr.h',
         '<(skia_include_path)/private/SkRecords.h',
         '<(skia_include_path)/private/SkSemaphore.h',
         '<(skia_include_path)/private/SkSpinlock.h',

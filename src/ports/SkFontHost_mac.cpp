@@ -35,7 +35,7 @@
 #include "SkOTTable_hhea.h"
 #include "SkOTTable_loca.h"
 #include "SkOTUtils.h"
-#include "SkOnce.h"
+#include "SkOncePtr.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkSFNTHeader.h"
@@ -778,12 +778,12 @@ static CTFontDrawGlyphsProc* choose_CTFontDrawGlyphs() {
     return &legacy_CTFontDrawGlyphs;
 }
 
+SK_DECLARE_STATIC_ONCE_PTR(CTFontDrawGlyphsProc, gCTFontDrawGlyphs);
+
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                              CGGlyph glyphID, size_t* rowBytesPtr,
                              bool generateA8FromLCD) {
-    static SkOnce once;
-    static CTFontDrawGlyphsProc* ctFontDrawGlyphs;
-    once([]{ ctFontDrawGlyphs = choose_CTFontDrawGlyphs(); });
+    auto ctFontDrawGlyphs = gCTFontDrawGlyphs.get(choose_CTFontDrawGlyphs);
 
     if (!fRGBSpace) {
         //It doesn't appear to matter what color space is specified.

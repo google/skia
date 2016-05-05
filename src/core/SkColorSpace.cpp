@@ -7,7 +7,7 @@
 
 #include "SkAtomics.h"
 #include "SkColorSpace.h"
-#include "SkOnce.h"
+#include "SkOncePtr.h"
 
 static bool color_space_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.01f;
@@ -43,6 +43,8 @@ const float gSRGB_toXYZD50[] {
     0.1430f, 0.0606f, 0.7139f,    // * B
 };
 
+SK_DECLARE_STATIC_ONCE_PTR(SkColorSpace, sRGB);
+
 sk_sp<SkColorSpace> SkColorSpace::NewRGB(SkGammas gammas, const SkMatrix44& toXYZD50) {
     // Check if we really have sRGB
     if (color_space_almost_equal(2.2f, gammas.fRed.fValue) &&
@@ -72,17 +74,13 @@ sk_sp<SkColorSpace> SkColorSpace::NewRGB(SkGammas gammas, const SkMatrix44& toXY
 }
 
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
-    static SkOnce once;
-    static SkColorSpace* sRGB;
-
     switch (named) {
         case kSRGB_Named: {
-            once([] {
-                SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
-                srgbToxyzD50.set3x3ColMajorf(gSRGB_toXYZD50);
-                sRGB = new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50, kSRGB_Named);
-            });
-            return sk_ref_sp(sRGB);
+            SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+            srgbToxyzD50.set3x3ColMajorf(gSRGB_toXYZD50);
+            return sk_ref_sp(sRGB.get([=]{
+                return new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50, kSRGB_Named);
+            }));
         }
         default:
             break;

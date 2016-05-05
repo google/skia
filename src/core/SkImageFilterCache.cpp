@@ -9,7 +9,7 @@
 
 #include "SkChecksum.h"
 #include "SkMutex.h"
-#include "SkOnce.h"
+#include "SkOncePtr.h"
 #include "SkRefCnt.h"
 #include "SkSpecialImage.h"
 #include "SkTDynamicHash.h"
@@ -125,10 +125,7 @@ SkImageFilterCache* SkImageFilterCache::Create(size_t maxBytes) {
     return new CacheImpl(maxBytes);
 }
 
+SK_DECLARE_STATIC_ONCE_PTR(SkImageFilterCache, cache);
 SkImageFilterCache* SkImageFilterCache::Get() {
-    static SkOnce once;
-    static SkImageFilterCache* cache;
-
-    once([]{ cache = SkImageFilterCache::Create(kDefaultCacheSize); });
-    return cache;
+    return cache.get([]{ return SkImageFilterCache::Create(kDefaultCacheSize); });
 }

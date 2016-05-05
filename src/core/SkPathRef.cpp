@@ -6,7 +6,7 @@
  */
 
 #include "SkBuffer.h"
-#include "SkOnce.h"
+#include "SkOncePtr.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
 #include <limits>
@@ -45,15 +45,13 @@ SkPathRef::~SkPathRef() {
     SkDEBUGCODE(fEditorsAttached = 0x7777777;)
 }
 
-static SkPathRef* gEmpty = nullptr;
-
+SK_DECLARE_STATIC_ONCE_PTR(SkPathRef, empty);
 SkPathRef* SkPathRef::CreateEmpty() {
-    static SkOnce once;
-    once([]{
-        gEmpty = new SkPathRef;
-        gEmpty->computeBounds();   // Avoids races later to be the first to do this.
-    });
-    return SkRef(gEmpty);
+    return SkRef(empty.get([]{
+        SkPathRef* pr = new SkPathRef;
+        pr->computeBounds();   // Avoids races later to be the first to do this.
+        return pr;
+    }));
 }
 
 void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
@@ -471,7 +469,7 @@ uint32_t SkPathRef::genID() const {
 }
 
 void SkPathRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (nullptr == listener || this == gEmpty) {
+    if (nullptr == listener || this == (SkPathRef*)empty) {
         delete listener;
         return;
     }
