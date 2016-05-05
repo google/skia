@@ -10,7 +10,7 @@
 #include "SkMutex.h"
 #include "SkRefCnt.h"
 
-static SkMutex gFontConfigInterfaceMutex;
+SK_DECLARE_STATIC_MUTEX(gFontConfigInterfaceMutex);
 static SkFontConfigInterface* gFontConfigInterface;
 
 SkFontConfigInterface* SkFontConfigInterface::RefGlobal() {

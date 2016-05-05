@@ -12,6 +12,9 @@
 #include "../private/SkThreadID.h"
 #include "SkTypes.h"
 
+// TODO: no need for this anymore.
+#define SK_DECLARE_STATIC_MUTEX(name) static SkMutex name;
+
 class SkMutex {
 public:
     constexpr SkMutex() = default;

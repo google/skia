@@ -223,7 +223,7 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
     dump_path(file, two, false, true);
     fprintf(file, "    SkPath path2(path);\n");
     fprintf(file, "    testPathOp(reporter, path1, path2, (SkPathOp) %d, filename);\n", op);
-    fprintf(file, "}\n");
+    fprintf(file, "}\n");    
     fclose(file);
 }
 #endif
@@ -233,7 +233,7 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
 
 #include "SkMutex.h"
 
-static SkMutex debugWorstLoop;
+SK_DECLARE_STATIC_MUTEX(debugWorstLoop);
 
 SkOpGlobalState debugWorstState(nullptr, nullptr  SkDEBUGPARAMS(nullptr));
 
@@ -254,7 +254,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
     SkOpGlobalState globalState(&coincidence, contourList  SkDEBUGPARAMS(testName));
 #if DEBUGGING_PATHOPS_FROM_HOST
     dump_op(one, two, op);
-#endif
+#endif    
 #if 0 && DEBUG_SHOW_TEST_NAME
     char* debugName = DEBUG_FILENAME_STRING;
     if (debugName && debugName[0]) {

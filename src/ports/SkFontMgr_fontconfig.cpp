@@ -62,7 +62,7 @@ namespace {
 
 // Fontconfig is not threadsafe before 2.10.91. Before that, we lock with a global mutex.
 // See https://bug.skia.org/1497 for background.
-static SkMutex gFCMutex;
+SK_DECLARE_STATIC_MUTEX(gFCMutex);
 
 #ifdef SK_DEBUG
 void* CreateThreadFcLocked() { return new bool(false); }

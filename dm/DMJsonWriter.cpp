@@ -19,7 +19,7 @@
 namespace DM {
 
 SkTArray<JsonWriter::BitmapResult> gBitmapResults;
-static SkMutex gBitmapResultLock;
+SK_DECLARE_STATIC_MUTEX(gBitmapResultLock);
 
 void JsonWriter::AddBitmapResult(const BitmapResult& result) {
     SkAutoMutexAcquire lock(&gBitmapResultLock);
@@ -27,7 +27,7 @@ void JsonWriter::AddBitmapResult(const BitmapResult& result) {
 }
 
 SkTArray<skiatest::Failure> gFailures;
-static SkMutex gFailureLock;
+SK_DECLARE_STATIC_MUTEX(gFailureLock);
 
 void JsonWriter::AddTestFailure(const skiatest::Failure& failure) {
     SkAutoMutexAcquire lock(gFailureLock);

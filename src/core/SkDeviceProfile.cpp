@@ -44,7 +44,7 @@ SkDeviceProfile* SkDeviceProfile::Create(float gammaExp,
     return new SkDeviceProfile(gammaExp, contrast, config, level);
 }
 
-static SkMutex gMutex;
+SK_DECLARE_STATIC_MUTEX(gMutex);
 static SkDeviceProfile* gDefaultProfile;
 static SkDeviceProfile* gGlobalProfile;
 

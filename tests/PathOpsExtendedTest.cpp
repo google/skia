@@ -331,7 +331,7 @@ void ShowTestArray(const char* testName) {
     }
 }
 
-static SkMutex compareDebugOut3;
+SK_DECLARE_STATIC_MUTEX(compareDebugOut3);
 
 static int comparePaths(skiatest::Reporter* reporter, const char* testName, const SkPath& one,
         const SkPath& scaledOne, const SkPath& two, const SkPath& scaledTwo, SkBitmap& bitmap,
@@ -419,7 +419,7 @@ static void outputToStream(const char* pathStr, const char* pathPrefix, const ch
     outFile.flush();
 }
 
-static SkMutex simplifyDebugOut;
+SK_DECLARE_STATIC_MUTEX(simplifyDebugOut);
 
 bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                   const char* pathStr) {
@@ -578,7 +578,7 @@ bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath&
     return true;
 }
 
-static SkMutex gMutex;
+SK_DECLARE_STATIC_MUTEX(gMutex);
 
 void initializeTests(skiatest::Reporter* reporter, const char* test) {
 #if 0  // doesn't work yet

@@ -542,7 +542,7 @@ void SkResourceCache::checkMessages() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkMutex gMutex;
+SK_DECLARE_STATIC_MUTEX(gMutex);
 static SkResourceCache* gResourceCache = nullptr;
 
 /** Must hold gMutex when calling. */
