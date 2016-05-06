@@ -1784,9 +1784,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     ASSERT_SINGLE_OWNER
 #ifndef SK_IGNORE_GPU_LAYER_HOISTING
     // todo: should handle this natively
-    if (paint ||
-        (kRGBA_8888_SkColorType != mainCanvas->imageInfo().colorType() &&
-         kBGRA_8888_SkColorType != mainCanvas->imageInfo().colorType())) {
+    if (paint) {
         return false;
     }
 

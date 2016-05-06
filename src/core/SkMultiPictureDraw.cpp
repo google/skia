@@ -124,9 +124,7 @@ void SkMultiPictureDraw::draw(bool flush) {
         // we only expect 1 context for all the canvases
         SkASSERT(data.fCanvas->getGrContext() == context);
 
-        if (!data.fPaint && 
-            (kRGBA_8888_SkColorType == data.fCanvas->imageInfo().colorType() ||
-             kBGRA_8888_SkColorType == data.fCanvas->imageInfo().colorType())) {
+        if (!data.fPaint) {
             SkRect clipBounds;
             if (!data.fCanvas->getClipBounds(&clipBounds)) {
                 continue;
