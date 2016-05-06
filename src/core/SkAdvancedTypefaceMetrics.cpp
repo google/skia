@@ -27,6 +27,22 @@ typedef struct FT_FaceRec_* FT_Face;
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+template <typename Data>
+static void unwind(SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* ptr) {
+    while (ptr) {
+        SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* next = ptr->fNext.release();
+        delete ptr;
+        ptr = next;
+    }
+}
+
+SkAdvancedTypefaceMetrics::~SkAdvancedTypefaceMetrics() {
+    // If the stacks are too deep we could get stack overflow,
+    // so we manually destruct the linked lists.
+    unwind(fGlyphWidths.release());
+    unwind(fVerticalMetrics.release());
+}
+
 namespace skia_advanced_typeface_metrics_utils {
 
 const int16_t kInvalidAdvance = SK_MinS16;

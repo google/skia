@@ -66,6 +66,8 @@ public:
         , fCapHeight(0)
         , fBBox(SkIRect::MakeEmpty()) {}
 
+    ~SkAdvancedTypefaceMetrics();
+
     SkString fFontName;
 
     enum FontType {

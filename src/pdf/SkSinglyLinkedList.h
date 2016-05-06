@@ -18,6 +18,7 @@ public:
     ~SkSinglyLinkedList() { this->reset(); }
     void reset() {
         SkASSERT(fHead != nullptr || nullptr == fTail);
+        // Use a while loop rather than recursion to avoid stack overflow.
         Node* node = fHead;
         while (node) {
             Node* next = node->fNext;
