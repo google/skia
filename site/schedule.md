@@ -22,3 +22,5 @@ Skia 2016 schedule:
   55        | 10/06/16
   56        | 11/17/16
 
+The current milestone is included in the headers in
+[SkMilestone.h](https://skia.googlesource.com/skia/+/master/include/core/SkMilestone.h).
