@@ -80,6 +80,9 @@ def gyp_defines(builder_dict):
     elif ('Mac' in builder_dict.get('os', '') and
           'Android' in builder_dict.get('extra_config', '')):
       werr = False
+    elif 'Fast' in builder_dict.get('extra_config', ''):
+      # See https://bugs.chromium.org/p/skia/issues/detail?id=5257
+      werr = False
     else:
       werr = True
   gyp_defs['skia_warnings_as_errors'] = str(int(werr))  # True/False -> '1'/'0'
