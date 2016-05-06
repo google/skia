@@ -21,11 +21,13 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
 
     // Create XferProcessor from DS's XPFactory
+    bool hasMixedSamples = builder.getRenderTarget()->hasMixedSamples() &&
+                           (builder.isHWAntialias() || !builder.getStencil().isDisabled());
     const GrXPFactory* xpFactory = builder.getXPFactory();
     SkAutoTUnref<GrXferProcessor> xferProcessor;
     if (xpFactory) {
         xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts,
-                                                           builder.hasMixedSamples(),
+                                                           hasMixedSamples,
                                                            &args.fDstTexture,
                                                            *args.fCaps));
         if (!xferProcessor) {
@@ -36,10 +38,10 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
                                                                         *args.fCaps,
                                                                         args.fOpts,
-                                                                        builder.hasMixedSamples(),
+                                                                        hasMixedSamples,
                                                                         &args.fDstTexture));
     }
-   GrColor overrideColor = GrColor_ILLEGAL;
+    GrColor overrideColor = GrColor_ILLEGAL;
     if (args.fOpts.fColorPOI.firstEffectiveProcessorIndex() != 0) {
         overrideColor = args.fOpts.fColorPOI.inputColorToFirstEffectiveProccesor();
     }

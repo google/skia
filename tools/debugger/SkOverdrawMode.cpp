@@ -229,9 +229,7 @@ private:
         return new OverdrawXP(dstTexture, hasMixedSamples);
     }
 
-    bool onWillReadDstColor(const GrCaps& caps,
-                            const GrPipelineOptimizations& optimizations,
-                            bool hasMixedSamples) const override {
+    bool onWillReadDstColor(const GrCaps&, const GrPipelineOptimizations&) const override {
         return true;
     }
 

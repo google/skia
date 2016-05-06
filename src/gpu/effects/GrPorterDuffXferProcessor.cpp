@@ -799,8 +799,7 @@ void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
 }
 
 bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
-                                               const GrPipelineOptimizations& optimizations,
-                                               bool hasMixedSamples) const {
+                                               const GrPipelineOptimizations& optimizations) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
@@ -816,9 +815,12 @@ bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
         }
         return get_lcd_blend_formula(optimizations.fCoveragePOI, fXfermode).hasSecondaryOutput();
     }
+
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
-    return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, hasMixedSamples,
+    static const bool kHasMixedSamples = false;
+    SkASSERT(!caps.usesMixedSamples()); // We never use mixed samples without dual source blending.
+    return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, kHasMixedSamples,
                              fXfermode).hasSecondaryOutput();
 }
 
@@ -897,8 +899,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
 }
 
 bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
-                                                      const GrPipelineOptimizations& optimizations,
-                                                      bool hasMixedSamples) {
+                                                     const GrPipelineOptimizations& optimizations) {
     if (caps.shaderCaps()->dstReadInShaderSupport() ||
         caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
@@ -915,8 +916,11 @@ bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
         return get_lcd_blend_formula(optimizations.fCoveragePOI,
                                      SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
     }
+
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
+    static const bool kHasMixedSamples = false;
+    SkASSERT(!caps.usesMixedSamples()); // We never use mixed samples without dual source blending.
     return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
-                             hasMixedSamples, SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
+                             kHasMixedSamples, SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
 }

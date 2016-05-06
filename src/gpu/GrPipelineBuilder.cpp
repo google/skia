@@ -55,11 +55,9 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
                                              const GrPipelineOptimizations& optimizations) const {
     if (this->getXPFactory()) {
-        return this->getXPFactory()->willNeedDstTexture(caps, optimizations,
-                                                        this->hasMixedSamples());
+        return this->getXPFactory()->willNeedDstTexture(caps, optimizations);
     }
-    return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, optimizations,
-                                                            this->hasMixedSamples());
+    return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, optimizations);
 }
 
 void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(

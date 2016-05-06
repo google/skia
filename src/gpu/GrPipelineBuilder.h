@@ -193,15 +193,6 @@ public:
      */
     void setRenderTarget(GrRenderTarget* target) { fRenderTarget.reset(SkSafeRef(target)); }
 
-    /**
-     * Returns whether the rasterizer and stencil test (if any) will run at a higher sample rate
-     * than the color buffer. In is scenario, the higher sample rate is resolved during blending.
-     */
-    bool hasMixedSamples() const {
-        return fRenderTarget->hasMixedSamples() &&
-               (this->isHWAntialias() || !fStencilSettings.isDisabled());
-    }
-
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////

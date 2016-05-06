@@ -72,7 +72,7 @@ public:
             SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
             SkAutoTUnref<GrXferProcessor> xp(
                 xpf->createXferProcessor(optimizations, false, nullptr, caps));
-            TEST_ASSERT(!xpf->willNeedDstTexture(caps, optimizations, false));
+            TEST_ASSERT(!xpf->willNeedDstTexture(caps, optimizations));
             xpf->getInvariantBlendedColor(optimizations.fColorPOI, &fBlendedColor);
             fOptFlags = xp->getOptimizations(optimizations, false, nullptr, caps);
             GetXPOutputTypes(xp, &fPrimaryOutputType, &fSecondaryOutputType);
@@ -1122,7 +1122,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     SkASSERT(covPOI.isFourChannelOutput());
 
     SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
-    TEST_ASSERT(!xpf->willNeedDstTexture(caps, opts, false));
+    TEST_ASSERT(!xpf->willNeedDstTexture(caps, opts));
 
     SkAutoTUnref<GrXferProcessor> xp(
         xpf->createXferProcessor(opts, false, nullptr, caps));
@@ -1200,7 +1200,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                 SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
                 SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
                 GrXferProcessor::DstTexture* dstTexture =
-                    xpf->willNeedDstTexture(caps, optimizations, false) ? &fakeDstTexture : 0;
+                    xpf->willNeedDstTexture(caps, optimizations) ? &fakeDstTexture : 0;
                 SkAutoTUnref<GrXferProcessor> xp(
                     xpf->createXferProcessor(optimizations, false, dstTexture, caps));
                 if (!xp) {

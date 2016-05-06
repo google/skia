@@ -48,9 +48,7 @@ public:
         blendedColor->fKnownColorFlags = validColorFlags;
     }
 
-    static bool SrcOverWillNeedDstTexture(const GrCaps& caps,
-                                          const GrPipelineOptimizations& optimizations,
-                                          bool hasMixedSamples);
+    static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineOptimizations&);
 
 private:
     GrPorterDuffXPFactory(SkXfermode::Mode);
@@ -60,9 +58,7 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool onWillReadDstColor(const GrCaps& caps,
-                            const GrPipelineOptimizations& optimizations,
-                            bool hasMixedSamples) const override;
+    bool onWillReadDstColor(const GrCaps&, const GrPipelineOptimizations&) const override;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {
         const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();

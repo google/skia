@@ -337,9 +337,7 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool onWillReadDstColor(const GrCaps& caps,
-                          const GrPipelineOptimizations& optimizations,
-                          bool hasMixedSamples) const override;
+    bool onWillReadDstColor(const GrCaps&, const GrPipelineOptimizations&) const override;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {
         const CustomXPFactory& xpf = xpfBase.cast<CustomXPFactory>();
@@ -373,8 +371,7 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
 }
 
 bool CustomXPFactory::onWillReadDstColor(const GrCaps& caps,
-                                         const GrPipelineOptimizations& optimizations,
-                                         bool hasMixedSamples) const {
+                                         const GrPipelineOptimizations& optimizations) const {
     return !can_use_hw_blend_equation(fHWBlendEquation, optimizations, caps);
 }
 

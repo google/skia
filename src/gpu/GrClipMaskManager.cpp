@@ -448,7 +448,14 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
                                     SkIntToScalar(-clip.origin().fY) };
         // When there are multiple samples we want to do per-sample clipping, not compute a
         // fractional pixel coverage.
-        bool disallowAnalyticAA = rt->isUnifiedMultisampled() || pipelineBuilder.hasMixedSamples();
+        bool disallowAnalyticAA = rt->isStencilBufferMultisampled();
+        if (disallowAnalyticAA && !rt->numColorSamples()) {
+            // With a single color sample, any coverage info is lost from color once it hits the
+            // color buffer anyway, so we may as well use coverage AA if nothing else in the pipe
+            // is multisampled.
+            disallowAnalyticAA = pipelineBuilder.isHWAntialias() ||
+                                 !pipelineBuilder.getStencil().isDisabled();
+        }
         const GrFragmentProcessor* clipFP = nullptr;
         if (elements.isEmpty() ||
             (requiresAA &&
