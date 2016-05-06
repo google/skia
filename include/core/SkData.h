@@ -216,7 +216,7 @@ private:
     // shared internal factory
     static sk_sp<SkData> PrivateNewWithCopy(const void* srcOrNull, size_t length);
 
-    static void DummyReleaseProc(const void*, void*) {}
+    static void DummyReleaseProc(const void*, void*); // {}
 
     typedef SkRefCnt INHERITED;
 };
