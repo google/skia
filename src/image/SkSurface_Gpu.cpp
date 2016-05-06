@@ -68,7 +68,8 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
 }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
-    int sampleCount = fDevice->accessDrawContext()->numColorSamples();
+    GrRenderTarget* rt = fDevice->accessRenderTarget();
+    int sampleCount = rt->numColorSamples();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
@@ -84,7 +85,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, ForceCopyM
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
     if (kYes_ForceCopyMode == forceCopyMode || !tex || rt->resourcePriv().refsWrappedObjects()) {
-        GrSurfaceDesc desc = fDevice->accessDrawContext()->desc();
+        GrSurfaceDesc desc = fDevice->accessRenderTarget()->desc();
         GrContext* ctx = fDevice->context();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
         copy.reset(ctx->textureProvider()->createTexture(desc, budgeted));

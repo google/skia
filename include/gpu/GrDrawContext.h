@@ -273,7 +273,6 @@ public:
      */
     void drawPathBatch(const GrPipelineBuilder&, GrDrawPathBatchBase*);
 
-    const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }

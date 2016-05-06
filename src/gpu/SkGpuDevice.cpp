@@ -744,13 +744,13 @@ static int determine_tile_size(const SkIRect& src, int maxTileSize) {
 
 // Given a bitmap, an optional src rect, and a context with a clip and matrix determine what
 // pixels from the bitmap are necessary.
-static void determine_clipped_src_rect(int width, int height,
+static void determine_clipped_src_rect(const GrRenderTarget* rt,
                                        const GrClip& clip,
                                        const SkMatrix& viewMatrix,
                                        const SkISize& imageSize,
                                        const SkRect* srcRectPtr,
                                        SkIRect* clippedSrcIRect) {
-    clip.getConservativeBounds(width, height, clippedSrcIRect, nullptr);
+    clip.getConservativeBounds(rt->width(), rt->height(), clippedSrcIRect, nullptr);
     SkMatrix inv;
     if (!viewMatrix.invert(&inv)) {
         clippedSrcIRect->setEmpty();
@@ -783,8 +783,7 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
     ASSERT_SINGLE_OWNER
     // if it's larger than the max tile size, then we have no choice but tiling.
     if (imageRect.width() > maxTileSize || imageRect.height() > maxTileSize) {
-        determine_clipped_src_rect(fDrawContext->width(), fDrawContext->height(),
-                                   fClip, viewMatrix, imageRect.size(),
+        determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, imageRect.size(),
                                    srcRectPtr, clippedSubset);
         *tileSize = determine_tile_size(*clippedSubset, maxTileSize);
         return true;
@@ -812,8 +811,7 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
 
     // Figure out how much of the src we will need based on the src rect and clipping. Reject if
     // tiling memory savings would be < 50%.
-    determine_clipped_src_rect(fDrawContext->width(), fDrawContext->height(),
-                               fClip, viewMatrix, imageRect.size(), srcRectPtr,
+    determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, imageRect.size(), srcRectPtr,
                                clippedSubset);
     *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.
     size_t usedTileBytes = get_tile_count(*clippedSubset, kBmpSmallTileSize) *
@@ -1775,7 +1773,7 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     ASSERT_SINGLE_OWNER
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
-    return SkSurface::MakeRenderTarget(fContext, kBudgeted, info, fDrawContext->numColorSamples(),
+    return SkSurface::MakeRenderTarget(fContext, kBudgeted, info, fRenderTarget->desc().fSampleCnt,
                                        &props);
 }
 
@@ -1818,7 +1816,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
                                       initialMatrix,
                                       clipBounds,
                                       &atlasedNeedRendering, &atlasedRecycled,
-                                      fDrawContext->numColorSamples());
+                                      fRenderTarget->numColorSamples());
 
     GrLayerHoister::DrawLayersToAtlas(fContext, atlasedNeedRendering);
 
@@ -1830,7 +1828,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
                                       initialMatrix,
                                       clipBounds,
                                       &needRendering, &recycled,
-                                      fDrawContext->numColorSamples());
+                                      fRenderTarget->numColorSamples());
 
     GrLayerHoister::DrawLayers(fContext, needRendering);
 
