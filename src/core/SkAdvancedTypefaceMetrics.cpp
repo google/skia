@@ -257,6 +257,9 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
     }
     if (curRange->fStartId == lastIndex) {
         SkASSERT(prevRange);
+        if (!prevRange) {
+            return nullptr;  // https://crbug.com/567031
+        }
         SkASSERT(prevRange->fNext->fStartId == lastIndex);
         prevRange->fNext.reset();
     } else {
