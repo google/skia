@@ -10,6 +10,7 @@
 #include "SkDraw.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
+#include "SkStrokeRec.h"
 
 bool SkRasterizer::rasterize(const SkPath& fillPath, const SkMatrix& matrix,
                              const SkIRect* clipBounds, SkMaskFilter* filter,
@@ -41,5 +42,5 @@ bool SkRasterizer::onRasterize(const SkPath& fillPath, const SkMatrix& matrix,
 
     fillPath.transform(matrix, &devPath);
     return SkDraw::DrawToMask(devPath, clipBounds, nullptr, nullptr, mask, mode,
-                              SkPaint::kFill_Style);
+                              SkStrokeRec::kFill_InitStyle);
 }

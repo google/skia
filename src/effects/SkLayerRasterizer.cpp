@@ -16,6 +16,7 @@
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "../core/SkRasterClip.h"
+#include "../core/SkStrokeRec.h"
 #include "SkXfermode.h"
 #include <new>
 
@@ -78,7 +79,7 @@ static bool compute_bounds(const SkDeque& layers, const SkPath& path,
         if (!SkDraw::DrawToMask(devPath, clipBounds, paint.getMaskFilter(),
                                 &matrix, &mask,
                                 SkMask::kJustComputeBounds_CreateMode,
-                                SkPaint::kFill_Style)) {
+                                SkStrokeRec::kFill_InitStyle)) {
             return false;
         }
 

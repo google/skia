@@ -1657,6 +1657,11 @@ void SkXPSDevice::drawPath(const SkDraw& d,
 
         SkMask* mask = nullptr;
 
+        SkASSERT(SkPaint::kFill_Style == paint->getStyle() ||
+                 (SkPaint::kStroke_Style == paint->getStyle() && 0 == paint->getStrokeWidth()));
+        SkStrokeRec::InitStyle style = (SkPaint::kFill_Style == paint->getStyle())
+                                            ? SkStrokeRec::kFill_InitStyle
+                                            : SkStrokeRec::kHairline_InitStyle;
         //[Pixel-path -> Mask]
         SkMask rasteredMask;
         if (SkDraw::DrawToMask(
@@ -1666,7 +1671,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
                         &matrix,
                         &rasteredMask,
                         SkMask::kComputeBoundsAndRenderImage_CreateMode,
-                        paint->getStyle())) {
+                        style)) {
 
             SkAutoMaskFreeImage rasteredAmi(rasteredMask.fImage);
             mask = &rasteredMask;

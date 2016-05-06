@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkMask.h"
 #include "SkPaint.h"
+#include "SkStrokeRec.h"
 
 class SkBitmap;
 class SkClipStack;
@@ -93,7 +94,7 @@ public:
     static bool DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
                            const SkMaskFilter*, const SkMatrix* filterMatrix,
                            SkMask* mask, SkMask::CreateMode mode,
-                           SkPaint::Style style);
+                           SkStrokeRec::InitStyle style);
 
     enum RectType {
         kHair_RectType,

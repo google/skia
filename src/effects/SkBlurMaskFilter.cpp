@@ -991,7 +991,7 @@ const GrFragmentProcessor* GrRRectBlurEffect::Create(GrTextureProvider* texProvi
         path.addRRect(smallRRect);
 
         SkDraw::DrawToMask(path, &mask.fBounds, nullptr, nullptr, &mask,
-                           SkMask::kJustRenderImage_CreateMode, SkPaint::kFill_Style);
+                           SkMask::kJustRenderImage_CreateMode, SkStrokeRec::kFill_InitStyle);
 
         SkMask blurredMask;
         if (!SkBlurMask::BoxBlur(&blurredMask, mask, sigma, kNormal_SkBlurStyle,

@@ -214,8 +214,7 @@ static int countNestedRects(const SkPath& path, SkRect rects[2]) {
 }
 
 bool SkMaskFilter::filterRRect(const SkRRect& devRRect, const SkMatrix& matrix,
-                               const SkRasterClip& clip, SkBlitter* blitter,
-                               SkPaint::Style style) const {
+                               const SkRasterClip& clip, SkBlitter* blitter) const {
     // Attempt to speed up drawing by creating a nine patch. If a nine patch
     // cannot be used, return false to allow our caller to recover and perform
     // the drawing another way.
@@ -233,10 +232,10 @@ bool SkMaskFilter::filterRRect(const SkRRect& devRRect, const SkMatrix& matrix,
 
 bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                               const SkRasterClip& clip, SkBlitter* blitter,
-                              SkPaint::Style style) const {
+                              SkStrokeRec::InitStyle style) const {
     SkRect rects[2];
     int rectCount = 0;
-    if (SkPaint::kFill_Style == style) {
+    if (SkStrokeRec::kFill_InitStyle == style) {
         rectCount = countNestedRects(devPath, rects);
     }
     if (rectCount > 0) {
