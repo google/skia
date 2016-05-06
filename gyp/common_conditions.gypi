@@ -54,6 +54,7 @@
             4275,  # An exported class was derived from a class that was not exported
             4345,  # This is an FYI about a behavior change from long ago. Chrome stifles it too.
             4355,  # 'this' used in base member initializer list. Off by default in newer compilers.
+            4334,  # '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
         ],
         'msvs_cygwin_shell': 0,
         'msvs_settings': {
