@@ -64,15 +64,6 @@
         ],
       },
       'defines': [
-        # Turn on all of the codecs, since we know that we have all of the
-        # necessary dependencies.  Clients that are missing some of the
-        # required decoding libraries may choose to turn the codecs on or
-        # off individually.
-        'SK_CODEC_DECODES_GIF',
-        'SK_CODEC_DECODES_JPEG',
-        'SK_CODEC_DECODES_PNG',
-        'SK_CODEC_DECODES_WEBP',
-
         # Turn on libjpeg-turbo optimizations since we know that the
         # appropriate version of libjpeg-turbo is present.
         'TURBO_HAS_CROP',

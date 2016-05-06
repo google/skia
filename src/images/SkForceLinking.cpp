@@ -14,15 +14,20 @@
 int SkForceLinking(bool doNotPassTrue) {
     if (doNotPassTrue) {
         SkASSERT(false);
+#if defined(SK_HAS_JPEG_LIBRARY)
         CreateJPEGImageEncoder();
+#endif
+#if defined(SK_HAS_WEBP_LIBRARY)
         CreateWEBPImageEncoder();
+#endif
 
         // Only link hardware texture codecs on platforms that build them. See images.gyp
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
         CreateKTXImageEncoder();
 #endif
 
-#if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_IOS)
+#if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_IOS) && \
+    defined(SK_HAS_PNG_LIBRARY)
         CreatePNGImageEncoder();
 #endif
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
