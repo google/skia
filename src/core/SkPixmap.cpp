@@ -226,7 +226,7 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     if (kRGBA_F16_SkColorType != pm.colorType()) {
         Sk4f c4 = Sk4f::Load(color.vec());
         SkColor c;
-        (c4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
+        SkNx_cast<uint8_t>(c4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
         return pm.erase(c);
     }
 
