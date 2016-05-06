@@ -268,17 +268,10 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
             }
             if (VK_IMAGE_LAYOUT_PREINITIALIZED != vkTex->currentLayout()) {
                 // Need to change the layout to general in order to perform a host write
-                VkImageLayout layout = vkTex->currentLayout();
-                VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
-                VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_HOST_BIT;
-                VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
-                VkAccessFlags dstAccessMask = VK_ACCESS_HOST_WRITE_BIT;
                 vkTex->setImageLayout(this,
                                       VK_IMAGE_LAYOUT_GENERAL,
-                                      srcAccessMask,
-                                      dstAccessMask,
-                                      srcStageMask,
-                                      dstStageMask,
+                                      VK_ACCESS_HOST_WRITE_BIT,
+                                      VK_PIPELINE_STAGE_HOST_BIT,
                                       false);
                 this->submitCommandBuffer(kForce_SyncQueue);
             }
@@ -489,17 +482,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                                      false);
 
     // Change layout of our target so it can be copied to
-    VkImageLayout layout = tex->currentLayout();
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
-    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     tex->setImageLayout(this,
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        srcAccessMask,
-                        dstAccessMask,
-                        srcStageMask,
-                        dstStageMask,
+                        VK_ACCESS_TRANSFER_WRITE_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
                         false);
 
     // Copy the buffer to the image
@@ -720,15 +706,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     }
 
     // change the original image's layout
-    VkImageLayout origSrcLayout = tex->currentLayout();
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origSrcLayout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origSrcLayout);
-    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
     tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        srcAccessMask, dstAccessMask, srcStageMask, dstStageMask, false);
+                        VK_ACCESS_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
 
     // grab handle to the original image resource
     const GrVkImage::Resource* oldResource = tex->resource();
@@ -742,16 +721,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     }
 
     // change the new image's layout
-    VkImageLayout origDstLayout = tex->currentLayout();
-
-    srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-    dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-    srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
-    dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-    tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        srcAccessMask, dstAccessMask, srcStageMask, dstStageMask, false);
+    tex->setImageLayout(this, VK_IMAGE_LAYOUT_GENERAL,
+                        VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
 
     // Blit original image
     int width = tex->width();
@@ -770,10 +741,27 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
                                  oldResource,
                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                  tex->resource(),
-                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                 VK_IMAGE_LAYOUT_GENERAL,
                                  1,
                                  &blitRegion,
                                  VK_FILTER_LINEAR);
+
+    // setup memory barrier
+    SkASSERT(GrVkFormatToPixelConfig(tex->resource()->fFormat, nullptr));
+    VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImageMemoryBarrier imageMemoryBarrier = {
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
+        NULL,                                            // pNext
+        VK_ACCESS_TRANSFER_WRITE_BIT,                    // outputMask
+        VK_ACCESS_TRANSFER_READ_BIT,                     // inputMask
+        VK_IMAGE_LAYOUT_GENERAL,                         // oldLayout
+        VK_IMAGE_LAYOUT_GENERAL,                         // newLayout
+        VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
+        tex->resource()->fImage,                         // image
+        { aspectFlags, 0, 1, 0, 1 }                      // subresourceRange
+    };
+
     // Blit the miplevels
     uint32_t mipLevel = 1;
     while (mipLevel < levelCount) {
@@ -782,22 +770,21 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
         width = SkTMax(1, width / 2);
         height = SkTMax(1, height / 2);
 
-        blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel-1, 0, 1 };
+        imageMemoryBarrier.subresourceRange.baseMipLevel = mipLevel - 1;
+        this->addImageMemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                    false, &imageMemoryBarrier);
+
+        blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel - 1, 0, 1 };
         blitRegion.srcOffsets[0] = { 0, 0, 0 };
         blitRegion.srcOffsets[1] = { prevWidth, prevHeight, 0 };
         blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
         blitRegion.dstOffsets[0] = { 0, 0, 0 };
         blitRegion.dstOffsets[1] = { width, height, 0 };
-
-        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                            srcAccessMask, dstAccessMask, srcStageMask, dstStageMask, 
-                            mipLevel-1, 1, false);
-
         fCurrentCmdBuffer->blitImage(this,
                                      tex->resource(),
-                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                     VK_IMAGE_LAYOUT_GENERAL,
                                      tex->resource(),
-                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                     VK_IMAGE_LAYOUT_GENERAL,
                                      1,
                                      &blitRegion,
                                      VK_FILTER_LINEAR);
@@ -1060,22 +1047,11 @@ void GrVkGpu::clearStencil(GrRenderTarget* target) {
     VkClearDepthStencilValue vkStencilColor;
     memset(&vkStencilColor, 0, sizeof(VkClearDepthStencilValue));
 
-    VkImageLayout origDstLayout = vkStencil->currentLayout();
-
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);;
-    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
     vkStencil->setImageLayout(this,
                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                              srcAccessMask,
-                              dstAccessMask,
-                              srcStageMask,
-                              dstStageMask,
+                              VK_ACCESS_TRANSFER_WRITE_BIT,
+                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                               false);
-
 
     VkImageSubresourceRange subRange;
     memset(&subRange, 0, sizeof(VkImageSubresourceRange));
@@ -1114,32 +1090,18 @@ void GrVkGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bo
         vkStencilColor.stencil = 0;
     }
 
-    VkImageLayout origDstLayout = vkStencil->currentLayout();
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
-    VkAccessFlags dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     vkStencil->setImageLayout(this,
                               VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                              srcAccessMask,
-                              dstAccessMask,
-                              srcStageMask,
-                              dstStageMask,
+                              VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                               false);
 
     // Change layout of our render target so it can be used as the color attachment. This is what
     // the render pass expects when it begins.
-    VkImageLayout layout = vkRT->currentLayout();
-    srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
-    dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
-    dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     vkRT->setImageLayout(this,
                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                         srcAccessMask,
-                         dstAccessMask,
-                         srcStageMask,
-                         dstStageMask,
+                         VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                          false);
 
     VkClearRect clearRect;
@@ -1183,37 +1145,23 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
     GrColorToRGBAFloat(color, vkColor.float32);
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
-    VkImageLayout origDstLayout = vkRT->currentLayout();
 
     if (rect.width() != target->width() || rect.height() != target->height()) {
-        VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
-        VkAccessFlags dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-        VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         vkRT->setImageLayout(this,
                              VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                             srcAccessMask,
-                             dstAccessMask,
-                             srcStageMask,
-                             dstStageMask,
+                             VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                              false);
 
         // If we are using a stencil attachment we also need to change its layout to what the render
         // pass is expecting.
         if (GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment()) {
             GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
-            origDstLayout = vkStencil->currentLayout();
-            srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
-            dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-            srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-            dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             vkStencil->setImageLayout(this,
                                       VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                      srcAccessMask,
-                                      dstAccessMask,
-                                      srcStageMask,
-                                      dstStageMask,
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                       false);
         }
 
@@ -1246,20 +1194,11 @@ void GrVkGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color
         return;
     }
 
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);;
-    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
     vkRT->setImageLayout(this,
                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                         srcAccessMask,
-                         dstAccessMask,
-                         srcStageMask,
-                         dstStageMask,
+                         VK_ACCESS_TRANSFER_WRITE_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT,
                          false);
-
 
     VkImageSubresourceRange subRange;
     memset(&subRange, 0, sizeof(VkImageSubresourceRange));
@@ -1309,37 +1248,18 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
                                      const SkIPoint& dstPoint) {
     SkASSERT(can_copy_image(dst, src, this));
 
-    VkImageLayout origDstLayout = dstImage->currentLayout();
-    VkImageLayout origSrcLayout = srcImage->currentLayout();
-
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
     // These flags are for flushing/invalidating caches and for the dst image it doesn't matter if
     // the cache is flushed since it is only being written to.
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);;
-    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
     dstImage->setImageLayout(this,
-                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            srcAccessMask,
-                            dstAccessMask,
-                            srcStageMask,
-                            dstStageMask,
-                            false);
-
-    srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origSrcLayout);
-    dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-    srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origSrcLayout);
-    dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                             VK_ACCESS_TRANSFER_WRITE_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             false);
 
     srcImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                             srcAccessMask,
-                             dstAccessMask,
-                             srcStageMask,
-                             dstStageMask,
+                             VK_ACCESS_TRANSFER_READ_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
                              false);
 
     // Flip rect if necessary
@@ -1408,35 +1328,16 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
                                 const SkIPoint& dstPoint) {
     SkASSERT(can_copy_as_blit(dst, src, dstImage, srcImage, this));
 
-    VkImageLayout origDstLayout = dstImage->currentLayout();
-    VkImageLayout origSrcLayout = srcImage->currentLayout();
-
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);;
-    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
     dstImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                             srcAccessMask,
-                             dstAccessMask,
-                             srcStageMask,
-                             dstStageMask,
+                             VK_ACCESS_TRANSFER_WRITE_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
                              false);
-
-    srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(origSrcLayout);
-    dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-    srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origSrcLayout);
-    dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
     srcImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                             srcAccessMask,
-                             dstAccessMask,
-                             srcStageMask,
-                             dstStageMask,
+                             VK_ACCESS_TRANSFER_READ_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
                              false);
 
     // Flip rect if necessary
@@ -1593,17 +1494,10 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     }
 
     // Change layout of our target so it can be used as copy
-    VkImageLayout layout = tgt->currentLayout();
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
-    VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
     tgt->setImageLayout(this,
                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        srcAccessMask,
-                        dstAccessMask,
-                        srcStageMask,
-                        dstStageMask,
+                        VK_ACCESS_TRANSFER_READ_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
                         false);
 
     GrVkTransferBuffer* transferBuffer =
@@ -1718,35 +1612,20 @@ void GrVkGpu::onDraw(const GrPipeline& pipeline,
     }
 
     // Change layout of our render target so it can be used as the color attachment
-    VkImageLayout layout = vkRT->currentLayout();
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
-    VkAccessFlags dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     vkRT->setImageLayout(this,
                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                         srcAccessMask,
-                         dstAccessMask,
-                         srcStageMask,
-                         dstStageMask,
+                         VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                          false);
 
     // If we are using a stencil attachment we also need to update its layout
     if (GrStencilAttachment* stencil = vkRT->renderTargetPriv().getStencilAttachment()) {
         GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
-        VkImageLayout origDstLayout = vkStencil->currentLayout();
-        VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(origDstLayout);
-        VkAccessFlags dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-        VkPipelineStageFlags srcStageMask =
-            GrVkMemory::LayoutToPipelineStageFlags(origDstLayout);
-        VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         vkStencil->setImageLayout(this,
                                   VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                  srcAccessMask,
-                                  dstAccessMask,
-                                  srcStageMask,
-                                  dstStageMask,
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                   false);
     }
 

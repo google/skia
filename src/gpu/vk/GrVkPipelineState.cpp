@@ -312,17 +312,10 @@ void GrVkPipelineState::writeSamplers(GrVkGpu* gpu,
         fTextureViews.push(textureView);
 
         // Change texture layout so it can be read in shader
-        VkImageLayout layout = texture->currentLayout();
-        VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
-        VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
-        VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
-        VkAccessFlags dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
         texture->setImageLayout(gpu,
                                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                srcAccessMask,
-                                dstAccessMask,
-                                srcStageMask,
-                                dstStageMask,
+                                VK_ACCESS_SHADER_READ_BIT,
+                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                                 false);
 
         VkDescriptorImageInfo imageInfo;

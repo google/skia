@@ -26,12 +26,8 @@ VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
 }
 
 void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
-                               VkAccessFlags srcAccessMask,
                                VkAccessFlags dstAccessMask,
-                               VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,
-                               uint32_t baseMipLevel,
-                               uint32_t levelCount,
                                bool byRegion) {
     SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
@@ -40,6 +36,10 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     if (newLayout == fCurrentLayout) {
         return;
     }
+
+    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(fCurrentLayout);
+    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(fCurrentLayout);
+
     VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fResource->fFormat);
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
@@ -51,10 +51,9 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
         VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
         fResource->fImage,                               // image
-        { aspectFlags, baseMipLevel, levelCount, 0, 1 }  // subresourceRange
+        { aspectFlags, 0, fResource->fLevelCount, 0, 1 } // subresourceRange
     };
 
-    // TODO: restrict to area of image we're interested in
     gpu->addImageMemoryBarrier(srcStageMask, dstStageMask, byRegion, &imageMemoryBarrier);
 
     fCurrentLayout = newLayout;
