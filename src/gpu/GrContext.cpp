@@ -658,8 +658,7 @@ sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
                                                int width, int height,
                                                GrPixelConfig config,
                                                int sampleCnt,
-                                               GrSurfaceOrigin origin,
-                                               const SkSurfaceProps* surfaceProps) {
+                                               GrSurfaceOrigin origin) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = origin;
@@ -678,8 +677,7 @@ sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(tex->asRenderTarget()),
-                                                       surfaceProps));
+    sk_sp<GrDrawContext> drawContext(this->drawContext(sk_ref_sp(tex->asRenderTarget())));
     if (!drawContext) {
         return nullptr;
     }

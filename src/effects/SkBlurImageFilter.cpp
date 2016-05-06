@@ -123,6 +123,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
         SkRect inputBoundsF(SkRect::Make(inputBounds));
         sk_sp<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(context,
                                                           inputTexture.get(),
+                                                          false,
                                                           source->props().isGammaCorrect(),
                                                           SkRect::Make(dstBounds),
                                                           &inputBoundsF,
