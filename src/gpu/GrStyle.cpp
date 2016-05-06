@@ -137,14 +137,20 @@ bool GrStyle::applyToPath(SkPath* dst, SkStrokeRec::InitStyle* style, const SkPa
     SkASSERT(style);
     SkASSERT(dst);
     SkStrokeRec strokeRec = fStrokeRec;
-    if (!apply_path_effect(dst, &strokeRec, fPathEffect, src)) {
+    const SkPath* pathForStrokeRec = &src;
+    if (apply_path_effect(dst, &strokeRec, fPathEffect, src)) {
+        pathForStrokeRec = dst;
+    } else if (fPathEffect) {
         return false;
     }
     if (strokeRec.needToApply()) {
-        if (!strokeRec.applyToPath(dst, *dst)) {
+        if (!strokeRec.applyToPath(dst, *pathForStrokeRec)) {
             return false;
         }
         *style = SkStrokeRec::kFill_InitStyle;
+    } else if (!fPathEffect) {
+        // Nothing to do for path effect or stroke, fail.
+        return false;
     } else {
         SkASSERT(SkStrokeRec::kFill_Style == strokeRec.getStyle() ||
                  SkStrokeRec::kHairline_Style == strokeRec.getStyle());

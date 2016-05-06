@@ -135,14 +135,18 @@ public:
 
     /**
      * Applies just the path effect and returns remaining stroke information. This will fail if
-     * there is no path effect.
+     * there is no path effect. dst may or may not have been overwritten on failure.
      */
-    bool applyPathEffectToPath(SkPath* dst, SkStrokeRec* remainingStoke, const SkPath& src) const;
+    bool SK_WARN_UNUSED_RESULT applyPathEffectToPath(SkPath* dst, SkStrokeRec* remainingStoke,
+                                                     const SkPath& src) const;
 
     /** If this succeeds then the result path should be filled or hairlined as indicated by the
         returned SkStrokeRec::InitStyle value. Will fail if there is no path effect and the
-        strokerec doesn't change the geometry. */
-    bool applyToPath(SkPath* dst, SkStrokeRec::InitStyle* fillOrHairline, const SkPath& src) const;
+        strokerec doesn't change the geometry. When this fails the outputs may or may not have
+        been overwritten.
+      */
+    bool SK_WARN_UNUSED_RESULT applyToPath(SkPath* dst, SkStrokeRec::InitStyle* fillOrHairline,
+                                           const SkPath& src) const;
 
     /** Given bounds of a path compute the bounds of path with the style applied. */
     void adjustBounds(SkRect* dst, const SkRect& src) const {

@@ -88,17 +88,23 @@ private:
         SkPath postAllStyle;
 
         fBase.asPath(&preStyle);
-        SkStrokeRec postPathEffectStrokeRec(SkStrokeRec::kFill_InitStyle);
-        if (fBase.style().applyPathEffectToPath(&postPathEffect, &postPathEffectStrokeRec,
-                                                preStyle)) {
+        SkStrokeRec postPEStrokeRec(SkStrokeRec::kFill_InitStyle);
+        if (fBase.style().applyPathEffectToPath(&postPathEffect, &postPEStrokeRec, preStyle)) {
+            // run postPathEffect through GrShape to get any geometry reductions that would have
+            // occurred to fAppliedPE.
+            GrShape(postPathEffect, GrStyle(postPEStrokeRec, nullptr)).asPath(&postPathEffect);
+
             SkPath testPath;
             fAppliedPE.asPath(&testPath);
             REPORTER_ASSERT(r, testPath == postPathEffect);
-            REPORTER_ASSERT(r,
-                            postPathEffectStrokeRec.hasEqualEffect(fAppliedPE.style().strokeRec()));
+            REPORTER_ASSERT(r, postPEStrokeRec.hasEqualEffect(fAppliedPE.style().strokeRec()));
         }
         SkStrokeRec::InitStyle fillOrHairline;
         if (fBase.style().applyToPath(&postAllStyle, &fillOrHairline, preStyle)) {
+            // run postPathEffect through GrShape to get any reductions that would have occurred
+            // to fAppliedFull.
+            GrShape(postAllStyle, GrStyle(fillOrHairline)).asPath(&postAllStyle);
+
             SkPath testPath;
             fAppliedFull.asPath(&testPath);
             REPORTER_ASSERT(r, testPath == postAllStyle);
