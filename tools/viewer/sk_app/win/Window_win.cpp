@@ -264,7 +264,7 @@ void Window_win::show() {
 }
 
 
-bool Window_win::attach(BackEndType attachType, int msaaSampleCount) {
+bool Window_win::attach(BackEndType attachType, const DisplayParams& params) {
     if (kVulkan_BackendType != attachType) {
         return false;
     }
@@ -273,7 +273,7 @@ bool Window_win::attach(BackEndType attachType, int msaaSampleCount) {
     platformData.fHInstance = fHInstance;
     platformData.fHWnd = fHWnd;
 
-    fWindowContext = VulkanWindowContext::Create((void*)&platformData, msaaSampleCount);
+    fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
 
     return (SkToBool(fWindowContext));
 }

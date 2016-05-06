@@ -8,6 +8,7 @@
 #ifndef Window_DEFINED
 #define Window_DEFINED
 
+#include "DisplayParams.h"
 #include "SkTypes.h"
 #include "SkRect.h"
 
@@ -36,7 +37,7 @@ public:
         kVulkan_BackendType
     };
 
-    virtual bool attach(BackEndType attachType, int msaaSampleCount) = 0;
+    virtual bool attach(BackEndType attachType,  const DisplayParams& params) = 0;
     void detach();
 
     // input handling
@@ -128,6 +129,9 @@ public:
 
     uint32_t width() { return fWidth; }
     uint32_t height() { return fHeight;  }
+
+    const DisplayParams& getDisplayParams();
+    void setDisplayParams(const DisplayParams& params);
 
 protected:
     Window();

@@ -26,8 +26,8 @@ public:
     static VkSurfaceKHR createVkSurface(VkInstance, void* platformData);
     static bool canPresent(VkInstance, VkPhysicalDevice, uint32_t queueFamilyIndex);
 
-    static VulkanWindowContext* Create(void* platformData, int msaaSampleCount) {
-        VulkanWindowContext* ctx = new VulkanWindowContext(platformData, msaaSampleCount);
+    static VulkanWindowContext* Create(void* platformData, const DisplayParams& params) {
+        VulkanWindowContext* ctx = new VulkanWindowContext(platformData, params);
         if (!ctx->isValid()) {
             delete ctx;
             return nullptr;
@@ -43,7 +43,12 @@ public:
     bool isValid() override { return SkToBool(fBackendContext.get()); }
 
     void resize(uint32_t w, uint32_t h) override {
-        this->createSwapchain(w, h);
+        this->createSwapchain(w, h, fDisplayParams);
+    }
+
+    const DisplayParams& getDisplayParams() { return fDisplayParams; }
+    void setDisplayParams(const DisplayParams& params) {
+        this->createSwapchain(fWidth, fHeight, params);
     }
 
     GrBackendContext getBackendContext() override { 
@@ -51,9 +56,8 @@ public:
     }
 
 private:
-    VulkanWindowContext();
-    VulkanWindowContext(void*, int msaaSampleCount);
-    void initializeContext(void*);
+    VulkanWindowContext(void*, const DisplayParams&);
+    void initializeContext(void*, const DisplayParams&);
     void destroyContext();
 
     struct BackbufferInfo {
@@ -65,7 +69,7 @@ private:
     };
 
     BackbufferInfo* getAvailableBackbuffer();
-    bool createSwapchain(uint32_t width, uint32_t height);
+    bool createSwapchain(uint32_t width, uint32_t height, const DisplayParams& params);
     void createBuffers(VkFormat format);
     void destroyBuffers();
 
@@ -102,6 +106,7 @@ private:
     VkQueue           fPresentQueue;
     int               fWidth;
     int               fHeight;
+    DisplayParams     fDisplayParams;
     GrPixelConfig     fPixelConfig;
 
     uint32_t          fImageCount;

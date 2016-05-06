@@ -24,7 +24,7 @@
 
 namespace sk_app {
 
-VulkanWindowContext::VulkanWindowContext(void* platformData, int msaaSampleCount)
+VulkanWindowContext::VulkanWindowContext(void* platformData, const DisplayParams& params)
     : fSurface(VK_NULL_HANDLE)
     , fSwapchain(VK_NULL_HANDLE)
     , fCommandPool(VK_NULL_HANDLE)
@@ -32,10 +32,10 @@ VulkanWindowContext::VulkanWindowContext(void* platformData, int msaaSampleCount
 
     // any config code here (particularly for msaa)?
 
-    this->initializeContext(platformData);
+    this->initializeContext(platformData, params);
 }
 
-void VulkanWindowContext::initializeContext(void* platformData) {
+void VulkanWindowContext::initializeContext(void* platformData, const DisplayParams& params) {
 
     fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
@@ -74,7 +74,7 @@ void VulkanWindowContext::initializeContext(void* platformData) {
         return;
     }
 
-    if (!this->createSwapchain(-1, -1)) {
+    if (!this->createSwapchain(-1, -1, params)) {
         this->destroyContext();
         return;
     }
@@ -83,7 +83,8 @@ void VulkanWindowContext::initializeContext(void* platformData) {
     vkGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
 }
 
-bool VulkanWindowContext::createSwapchain(uint32_t width, uint32_t height) {
+bool VulkanWindowContext::createSwapchain(uint32_t width, uint32_t height,
+                                          const DisplayParams& params) {
     // check for capabilities
     VkSurfaceCapabilitiesKHR caps;
     VkResult res = fGetPhysicalDeviceSurfaceCapabilitiesKHR(fBackendContext->fPhysicalDevice,
@@ -162,9 +163,24 @@ bool VulkanWindowContext::createSwapchain(uint32_t width, uint32_t height) {
                                         VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR :
                                         VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
-    // Pick our surface format -- for now, the first one
-    VkFormat surfaceFormat = surfaceFormats[0].format;
-    VkColorSpaceKHR colorSpace = surfaceFormats[0].colorSpace;
+    // Pick our surface format. For now, just make sure it matches our sRGB request:
+    VkFormat surfaceFormat = VK_FORMAT_UNDEFINED;
+    VkColorSpaceKHR colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+    bool wantSRGB = kSRGB_SkColorProfileType == params.fProfileType;
+    for (uint32_t i = 0; i < surfaceFormatCount; ++i) {
+        GrPixelConfig config;
+        if (GrVkFormatToPixelConfig(surfaceFormats[i].format, &config) &&
+            GrPixelConfigIsSRGB(config) == wantSRGB) {
+            surfaceFormat = surfaceFormats[i].format;
+            colorSpace = surfaceFormats[i].colorSpace;
+            break;
+        }
+    }
+    fDisplayParams = params;
+
+    if (VK_FORMAT_UNDEFINED == surfaceFormat) {
+        return false;
+    }
 
     // If mailbox mode is available, use it, as it is the lowest-latency non-
     // tearing mode. If not, fall back to FIFO which is always available.
@@ -252,7 +268,9 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         desc.fSampleCnt = 0;
         desc.fStencilBits = 0;
         desc.fRenderTargetHandle = (GrBackendObject) &info;
-        SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+        SkSurfaceProps props(GrPixelConfigIsSRGB(fPixelConfig)
+                             ? SkSurfaceProps::kGammaCorrect_Flag : 0,
+                             kUnknown_SkPixelGeometry);
         fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext, desc, &props);
     }
 
@@ -420,7 +438,7 @@ SkSurface* VulkanWindowContext::getBackbufferSurface() {
     }
     if (VK_ERROR_OUT_OF_DATE_KHR == res) {
         // tear swapchain down and try again
-        if (!this->createSwapchain(0, 0)) {
+        if (!this->createSwapchain(0, 0, fDisplayParams)) {
             return nullptr;
         }
 

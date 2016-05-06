@@ -37,12 +37,12 @@ void Window_android::setTitle(const char* title) {
     SkDebugf("Title: %s", title);
 }
 
-bool Window_android::attach(BackEndType attachType, int msaaSampleCount) {
+bool Window_android::attach(BackEndType attachType, const DisplayParams& params) {
     if (kVulkan_BackendType != attachType) {
         return false;
     }
 
-    mSampleCount = msaaSampleCount;
+    fDisplayParams = params;
 
     // We delay the creation of fTestContext until Android informs us that
     // the native window is ready to use.
@@ -53,7 +53,7 @@ void Window_android::initDisplay(ANativeWindow* window) {
     SkASSERT(window);
     ContextPlatformData_android platformData;
     platformData.fNativeWindow = window;
-    fWindowContext = VulkanWindowContext::Create((void*)&platformData, mSampleCount);
+    fWindowContext = VulkanWindowContext::Create((void*)&platformData, mSampleCount, fSRGB);
 }
 
 static void android_app_write_cmd(struct android_app* android_app, int8_t cmd) {

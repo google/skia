@@ -31,7 +31,7 @@ public:
     void setTitle(const char*) override;
     void show() override {}
 
-    bool attach(BackEndType attachType, int msaaSampleCount, bool deepColor) override;
+    bool attach(BackEndType attachType, const DisplayParams& params) override;
     void inval() override;
 
     void paintIfNeeded();
@@ -44,7 +44,7 @@ public:
 private:
     android_app* mApp = nullptr;
     SkRect mContentRect;
-    int mSampleCount = 0;
+    DisplayParams fDisplayParams;
 };
 
 }   // namespace sk_app

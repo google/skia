@@ -73,7 +73,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkCommandLineFlags::Parse(argc, argv);
 
     fWindow = Window::CreateNativeWindow(platformData);
-    fWindow->attach(Window::kVulkan_BackendType, 0);
+    fWindow->attach(Window::kVulkan_BackendType, DisplayParams());
 
     // register callbacks
     fWindow->registerKeyFunc(on_key_handler, this);
@@ -149,14 +149,21 @@ Viewer::~Viewer() {
     delete fWindow;
 }
 
-void Viewer::setupCurrentSlide(int previousSlide) {
+void Viewer::updateTitle() {
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
+    if (kSRGB_SkColorProfileType == fWindow->getDisplayParams().fProfileType) {
+        title.append(" sRGB");
+    }
+    fWindow->setTitle(title.c_str());
+}
+
+void Viewer::setupCurrentSlide(int previousSlide) {
+    this->updateTitle();
     fSlides[fCurrentSlide]->load();
     if (previousSlide >= 0) {
         fSlides[previousSlide]->unload();
     }
-    fWindow->setTitle(title.c_str());
     fWindow->inval();
 }
 
@@ -220,9 +227,6 @@ bool Viewer::onKey(Window::Key key, Window::InputState state, uint32_t modifiers
                 if (fCurrentSlide < 0) {
                     fCurrentSlide = fSlides.count() - 1;
                 }
-                SkString title("Viewer: ");
-                title.append(fSlides[fCurrentSlide]->getName());
-                fWindow->setTitle(title.c_str());
                 setupCurrentSlide(previousSlide);
                 return true;
             }
@@ -248,9 +252,18 @@ bool Viewer::onKey(Window::Key key, Window::InputState state, uint32_t modifiers
 }
 
 bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
-    if ('s' == c) {
-        fDisplayStats = !fDisplayStats;
-        return true;
+    switch (c) {
+        case 's':
+            fDisplayStats = !fDisplayStats;
+            return true;
+        case 'c':
+            DisplayParams params = fWindow->getDisplayParams();
+            params.fProfileType = (kLinear_SkColorProfileType == params.fProfileType)
+                ? kSRGB_SkColorProfileType : kLinear_SkColorProfileType;
+            fWindow->setDisplayParams(params);
+            this->updateTitle();
+            fWindow->inval();
+            return true;
     }
 
     return false;

@@ -28,6 +28,7 @@ public:
 
 private:
     void initSlides();
+    void updateTitle();
     void setupCurrentSlide(int previousSlide);
 
     void drawStats(SkCanvas* canvas);

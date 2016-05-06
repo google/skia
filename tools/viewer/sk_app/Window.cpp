@@ -75,4 +75,12 @@ void Window::onResize(uint32_t w, uint32_t h) {
     fWindowContext->resize(w, h);
 }
 
+const DisplayParams& Window::getDisplayParams() {
+    return fWindowContext->getDisplayParams();
+}
+
+void Window::setDisplayParams(const DisplayParams& params) {
+    fWindowContext->setDisplayParams(params);
+}
+
 }   // namespace sk_app

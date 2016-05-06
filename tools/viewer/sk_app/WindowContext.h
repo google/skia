@@ -7,6 +7,7 @@
 #ifndef WindowContext_DEFINED
 #define WindowContext_DEFINED
 
+#include "DisplayParams.h"
 #include "GrTypes.h"
 
 class SkSurface;
@@ -27,6 +28,9 @@ public:
     virtual bool isValid() = 0;
 
     virtual void resize(uint32_t w, uint32_t h) = 0;
+
+    virtual const DisplayParams& getDisplayParams() = 0;
+    virtual void setDisplayParams(const DisplayParams& params) = 0;
 
     virtual GrBackendContext getBackendContext() = 0;
 };
