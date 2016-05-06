@@ -202,7 +202,8 @@ public:
                                         int width, int height,
                                         GrPixelConfig config,
                                         int sampleCnt = 0,
-                                        GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin);
+                                        GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
+                                        const SkSurfaceProps* surfaceProps = nullptr);
 
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
