@@ -11,7 +11,7 @@
         'common_variables.gypi',
       ],
       'variables': {
-        'sfntly_src_path': '../third_party/externals/sfntly',
+        'sfntly_src_path': '../third_party/externals/sfntly/cpp/src',
       },
       'direct_dependent_settings': {
         'include_dirs': [ '<(sfntly_src_path)/sample/chromium', ],
@@ -22,7 +22,7 @@
       'sources': [
         '<(sfntly_src_path)/sample/chromium/font_subsetter.cc',
         '<(sfntly_src_path)/sample/chromium/subsetter_impl.cc',
-        '<!@(python find.py ../third_party/externals/sfntly/sfntly "*.c*")'
+        '<!@(python find.py "<(sfntly_src_path)/sfntly" "*.c*")'
       ],
       'include_dirs': [
         '<(sfntly_src_path)',
@@ -36,7 +36,7 @@
       'conditions': [
         [ 'skia_os == "win"',
           {
-            'defines': [ 'WIN32', ],
+            'defines': [ 'WIN32', 'NOMINMAX', ],
             'msvs_settings': {
               'VCCLCompilerTool': {
                 'AdditionalOptions': [ '/EHsc' ],
