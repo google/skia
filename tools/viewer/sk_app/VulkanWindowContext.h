@@ -46,8 +46,8 @@ public:
         this->createSwapchain(w, h, fDisplayParams);
     }
 
-    const DisplayParams& getDisplayParams() { return fDisplayParams; }
-    void setDisplayParams(const DisplayParams& params) {
+    const DisplayParams& getDisplayParams() override { return fDisplayParams; }
+    void setDisplayParams(const DisplayParams& params) override {
         this->createSwapchain(fWidth, fHeight, params);
     }
 

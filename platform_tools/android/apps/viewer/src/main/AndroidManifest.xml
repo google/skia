@@ -7,14 +7,11 @@
 
   <application
       android:allowBackup="false"
+      android:theme="@android:style/Theme.Holo.Light"
+      android:name=".ViewerApplication"
       android:label="Viewer">
 
-    <activity android:name=".ViewerActivity"
-              android:label="Viewer"
-              android:screenOrientation="portrait"
-              android:configChanges="orientation|keyboardHidden">
-      <meta-data android:name="android.app.lib_name"
-                 android:value="viewer" />
+    <activity android:name=".ViewerActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
