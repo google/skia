@@ -149,8 +149,8 @@ inline void operator delete(void* p) {
     #define SkPARAM(var)
 
     // unlike SkASSERT, this guy executes its condition in the non-debug build.
-    // It casts to void to allow use with functions declared with SK_WARN_RESULT_UNUSED.
-    #define SkAssertResult(cond)        (void)(cond)
+    // The if is present so that this can be used with functions marked SK_WARN_UNUSED_RESULT.
+    #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
 
 // Legacy macro names for SK_ABORT
