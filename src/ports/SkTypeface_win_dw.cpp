@@ -284,8 +284,6 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
 ///////////////////////////////////////////////////////////////////////////////
 //PDF Support
 
-using namespace skia_advanced_typeface_metrics_utils;
-
 // Construct Glyph to Unicode table.
 // Unicode code points that require conjugate pairs in utf16 are not
 // supported.
@@ -444,19 +442,16 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
 
     if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         if (fixedWidth) {
-            appendRange(&info->fGlyphWidths, 0);
+            SkAdvancedTypefaceMetrics::WidthRange range(0);
             int16_t advance;
             getWidthAdvance(fDWriteFontFace.get(), 1, &advance);
-            info->fGlyphWidths->fAdvance.append(1, &advance);
-            finishRange(info->fGlyphWidths.get(), 0,
-                        SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            range.fAdvance.append(1, &advance);
+            SkAdvancedTypefaceMetrics::FinishRange(
+                    &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            info->fGlyphWidths.emplace_back(std::move(range));
         } else {
-            info->fGlyphWidths.reset(
-                getAdvanceData(fDWriteFontFace.get(),
-                               glyphCount,
-                               glyphIDs,
-                               glyphIDsCount,
-                               getWidthAdvance));
+            info->setGlyphWidths(fDWriteFontFace.get(), glyphCount, glyphIDs,
+                                 glyphIDsCount, getWidthAdvance);
         }
     }
 

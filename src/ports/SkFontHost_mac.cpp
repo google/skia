@@ -1619,17 +1619,14 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
 
     if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         if (info->fStyle & SkAdvancedTypefaceMetrics::kFixedPitch_Style) {
-            skia_advanced_typeface_metrics_utils::appendRange(&info->fGlyphWidths, 0);
-            info->fGlyphWidths->fAdvance.append(1, &min_width);
-            skia_advanced_typeface_metrics_utils::finishRange(info->fGlyphWidths.get(), 0,
-                        SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            SkAdvancedTypefaceMetrics::WidthRange range(0);
+            range.fAdvance.append(1, &min_width);
+            SkAdvancedTypefaceMetrics::FinishRange(
+                    &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            info->fGlyphWidths.emplace_back(std::move(range));
         } else {
-            info->fGlyphWidths.reset(
-                skia_advanced_typeface_metrics_utils::getAdvanceData(ctFont.get(),
-                               SkToInt(glyphCount),
-                               glyphIDs,
-                               glyphIDsCount,
-                               &getWidthAdvance));
+            info->setGlyphWidths(ctFont.get(), SkToInt(glyphCount), glyphIDs,
+                                 glyphIDsCount, &getWidthAdvance);
         }
     }
     return info;

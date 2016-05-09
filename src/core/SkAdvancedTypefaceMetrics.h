@@ -14,34 +14,7 @@
 #include "SkString.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
-
-// Whatever std::unique_ptr Clank's using doesn't seem to work with AdvanceMetric's
-// style of forward-declaration.  Probably just a bug in an old libc++ / libstdc++.
-// For now, hack around it with our own smart pointer.  It'd be nice to clean up.
-template <typename T>
-class SkHackyAutoTDelete : SkNoncopyable {
-public:
-    explicit SkHackyAutoTDelete(T* ptr = nullptr) : fPtr(ptr) {}
-    ~SkHackyAutoTDelete() { delete fPtr; }
-
-    T*        get() const { return fPtr; }
-    T* operator->() const { return fPtr; }
-
-    void reset(T* ptr = nullptr) {
-        if (ptr != fPtr) {
-            delete fPtr;
-            fPtr = ptr;
-        }
-    }
-    T* release() {
-        T* ptr = fPtr;
-        fPtr = nullptr;
-        return ptr;
-    }
-
-private:
-    T* fPtr;
-};
+#include "SkSinglyLinkedList.h"
 
 /** \class SkAdvancedTypefaceMetrics
 
@@ -67,6 +40,29 @@ public:
         , fBBox(SkIRect::MakeEmpty()) {}
 
     ~SkAdvancedTypefaceMetrics();
+
+    /** Retrieve advance data for glyphs. Used by the PDF backend. It
+        calls underlying platform dependent API getAdvance to acquire
+        the data.
+        @param num_glyphs    Total number of glyphs in the given font.
+        @param glyphIDs      For per-glyph info, specify subset of the
+                             font by giving glyph ids.  Each integer
+                             represents a glyph id.  Passing nullptr
+                             means all glyphs in the font.
+        @param glyphIDsCount Number of elements in subsetGlyphIds.
+                             Ignored if glyphIDs is nullptr.
+        @param  getAdvance   A function that takes a glyph id and
+                             passes back advance data from the
+                             typeface.  Returns false on failure.
+    */
+    template <typename FontHandle>
+    void setGlyphWidths(FontHandle fontHandle,
+                        int num_glyphs,
+                        const uint32_t* subsetGlyphIDs,
+                        uint32_t subsetGlyphIDsLength,
+                        bool (*getAdvance)(FontHandle fontHandle,
+                                           int gId,
+                                           int16_t* data));
 
     SkString fFontName;
 
@@ -126,7 +122,22 @@ public:
         uint16_t fStartId;
         uint16_t fEndId;
         SkTDArray<Data> fAdvance;
-        SkHackyAutoTDelete<AdvanceMetric<Data> > fNext;
+        AdvanceMetric(uint16_t startId) : fStartId(startId) {}
+        AdvanceMetric(AdvanceMetric&& other)
+            : fType(other.fType)
+            , fStartId(other.fStartId)
+            , fEndId(other.fEndId) {
+            fAdvance.swap(other.fAdvance);
+        }
+        AdvanceMetric& operator=(AdvanceMetric&& other) {
+            fType = other.fType;
+            fStartId = other.fStartId;
+            fEndId = other.fEndId;
+            fAdvance.swap(other.fAdvance);
+            return *this;
+        }
+        AdvanceMetric(const AdvanceMetric&) = delete;
+        AdvanceMetric& operator=(const AdvanceMetric&) = delete;
     };
 
     struct VerticalMetric {
@@ -138,9 +149,9 @@ public:
     typedef AdvanceMetric<VerticalMetric> VerticalAdvanceRange;
 
     // This is indexed by glyph id.
-    SkAutoTDelete<WidthRange> fGlyphWidths;
+    SkSinglyLinkedList<WidthRange> fGlyphWidths;
     // Only used for Vertical CID fonts.
-    SkAutoTDelete<VerticalAdvanceRange> fVerticalMetrics;
+    SkSinglyLinkedList<VerticalAdvanceRange> fVerticalMetrics;
 
     // The names of each glyph, only populated for postscript fonts.
     SkAutoTDelete<SkAutoTArray<SkString> > fGlyphNames;
@@ -149,45 +160,13 @@ public:
     // kToUnicode_PerGlyphInfo is passed to GetAdvancedTypefaceMetrics.
     SkTDArray<SkUnichar> fGlyphToUnicode;
 
+    static void FinishRange(WidthRange* range,
+                            int endId,
+                            WidthRange::MetricType type);
+
 private:
     typedef SkRefCnt INHERITED;
 };
 
-namespace skia_advanced_typeface_metrics_utils {
-
-template <typename Data>
-void resetRange(SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
-                       int startId);
-
-template <typename Data, template<typename> class AutoTDelete>
-SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* appendRange(
-        AutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
-        int startId);
-
-template <typename Data>
-void finishRange(
-        SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
-        int endId,
-        typename SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::MetricType
-                type);
-
-/** Retrieve advance data for glyphs. Used by the PDF backend. It calls
-    underlying platform dependent API getAdvance to acquire the data.
-    @param num_glyphs    Total number of glyphs in the given font.
-    @param glyphIDs      For per-glyph info, specify subset of the font by
-                         giving glyph ids.  Each integer represents a glyph
-                         id.  Passing nullptr means all glyphs in the font.
-    @param glyphIDsCount Number of elements in subsetGlyphIds. Ignored if
-                         glyphIDs is nullptr.
-*/
-template <typename Data, typename FontHandle>
-SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
-        FontHandle fontHandle,
-        int num_glyphs,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount,
-        bool (*getAdvance)(FontHandle fontHandle, int gId, Data* data));
-
-} // namespace skia_advanced_typeface_metrics_utils
 
 #endif

@@ -322,33 +322,36 @@ static void appendVerticalAdvance(
 
 template <typename Data>
 SkPDFArray* composeAdvanceData(
-        SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* advanceInfo,
+        const SkSinglyLinkedList<
+                SkAdvancedTypefaceMetrics::AdvanceMetric<Data>>& advanceInfo,
         uint16_t emSize,
-        void (*appendAdvance)(const Data& advance, uint16_t emSize,
+        void (*appendAdvance)(const Data& advance,
+                              uint16_t emSize,
                               SkPDFArray* array),
         Data* defaultAdvance) {
     SkPDFArray* result = new SkPDFArray();
-    for (; advanceInfo != nullptr; advanceInfo = advanceInfo->fNext.get()) {
-        switch (advanceInfo->fType) {
-            case SkAdvancedTypefaceMetrics::WidthRange::kDefault: {
-                SkASSERT(advanceInfo->fAdvance.count() == 1);
-                *defaultAdvance = advanceInfo->fAdvance[0];
+    for (const SkAdvancedTypefaceMetrics::AdvanceMetric<Data>& range :
+         advanceInfo) {
+        switch (range.fType) {
+            case SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::kDefault: {
+                SkASSERT(range.fAdvance.count() == 1);
+                *defaultAdvance = range.fAdvance[0];
                 break;
             }
-            case SkAdvancedTypefaceMetrics::WidthRange::kRange: {
+            case SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::kRange: {
                 auto advanceArray = sk_make_sp<SkPDFArray>();
-                for (int j = 0; j < advanceInfo->fAdvance.count(); j++)
-                    appendAdvance(advanceInfo->fAdvance[j], emSize,
+                for (int j = 0; j < range.fAdvance.count(); j++)
+                    appendAdvance(range.fAdvance[j], emSize,
                                   advanceArray.get());
-                result->appendInt(advanceInfo->fStartId);
+                result->appendInt(range.fStartId);
                 result->appendObject(std::move(advanceArray));
                 break;
             }
-            case SkAdvancedTypefaceMetrics::WidthRange::kRun: {
-                SkASSERT(advanceInfo->fAdvance.count() == 1);
-                result->appendInt(advanceInfo->fStartId);
-                result->appendInt(advanceInfo->fEndId);
-                appendAdvance(advanceInfo->fAdvance[0], emSize, result);
+            case SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::kRun: {
+                SkASSERT(range.fAdvance.count() == 1);
+                result->appendInt(range.fStartId);
+                result->appendInt(range.fEndId);
+                appendAdvance(range.fAdvance[0], emSize, result);
                 break;
             }
         }
@@ -1146,12 +1149,11 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
     sysInfo->insertInt("Supplement", 0);
     this->insertObject("CIDSystemInfo", std::move(sysInfo));
 
-    if (fontInfo()->fGlyphWidths.get()) {
+    if (!fontInfo()->fGlyphWidths.empty()) {
         int16_t defaultWidth = 0;
-        sk_sp<SkPDFArray> widths(
-            composeAdvanceData(fontInfo()->fGlyphWidths.get(),
-                               fontInfo()->fEmSize, &appendWidth,
-                               &defaultWidth));
+        sk_sp<SkPDFArray> widths(composeAdvanceData(
+                fontInfo()->fGlyphWidths, fontInfo()->fEmSize, &appendWidth,
+                &defaultWidth));
         if (widths->size())
             this->insertObject("W", std::move(widths));
         if (defaultWidth != 0) {
@@ -1160,15 +1162,14 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
                     scaleFromFontUnits(defaultWidth, fontInfo()->fEmSize));
         }
     }
-    if (fontInfo()->fVerticalMetrics.get()) {
+    if (!fontInfo()->fVerticalMetrics.empty()) {
         struct SkAdvancedTypefaceMetrics::VerticalMetric defaultAdvance;
         defaultAdvance.fVerticalAdvance = 0;
         defaultAdvance.fOriginXDisp = 0;
         defaultAdvance.fOriginYDisp = 0;
-        sk_sp<SkPDFArray> advances(
-            composeAdvanceData(fontInfo()->fVerticalMetrics.get(),
-                               fontInfo()->fEmSize, &appendVerticalAdvance,
-                               &defaultAdvance));
+        sk_sp<SkPDFArray> advances(composeAdvanceData(
+                fontInfo()->fVerticalMetrics, fontInfo()->fEmSize,
+                &appendVerticalAdvance, &defaultAdvance));
         if (advances->size())
             this->insertObject("W2", std::move(advances));
         if (defaultAdvance.fVerticalAdvance ||
@@ -1237,27 +1238,24 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
 }
 
 bool SkPDFType1Font::populate(int16_t glyphID) {
-    SkASSERT(!fontInfo()->fVerticalMetrics.get());
-    SkASSERT(fontInfo()->fGlyphWidths.get());
+    SkASSERT(fontInfo()->fVerticalMetrics.empty());
+    SkASSERT(!fontInfo()->fGlyphWidths.empty());
 
     adjustGlyphRangeForSingleByteEncoding(glyphID);
 
     int16_t defaultWidth = 0;
     const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry = nullptr;
-    const SkAdvancedTypefaceMetrics::WidthRange* widthEntry;
-    for (widthEntry = fontInfo()->fGlyphWidths.get();
-            widthEntry != nullptr;
-            widthEntry = widthEntry->fNext.get()) {
-        switch (widthEntry->fType) {
+    for (const auto& widthEntry : fontInfo()->fGlyphWidths) {
+        switch (widthEntry.fType) {
             case SkAdvancedTypefaceMetrics::WidthRange::kDefault:
-                defaultWidth = widthEntry->fAdvance[0];
+                defaultWidth = widthEntry.fAdvance[0];
                 break;
             case SkAdvancedTypefaceMetrics::WidthRange::kRun:
                 SkASSERT(false);
                 break;
             case SkAdvancedTypefaceMetrics::WidthRange::kRange:
                 SkASSERT(widthRangeEntry == nullptr);
-                widthRangeEntry = widthEntry;
+                widthRangeEntry = &widthEntry;
                 break;
         }
     }

@@ -86,8 +86,6 @@ static bool needToRenderWithSkia(const SkScalerContext::Rec& rec) {
     return rec.getHinting() == SkPaint::kNo_Hinting || rec.getHinting() == SkPaint::kSlight_Hinting;
 }
 
-using namespace skia_advanced_typeface_metrics_utils;
-
 static void tchar_to_skstring(const TCHAR t[], SkString* s) {
 #ifdef UNICODE
     size_t sSize = WideCharToMultiByte(CP_UTF8, 0, t, -1, nullptr, 0, nullptr, nullptr);
@@ -1835,17 +1833,14 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
 
     if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         if (info->fStyle & SkAdvancedTypefaceMetrics::kFixedPitch_Style) {
-            appendRange(&info->fGlyphWidths, 0);
-            info->fGlyphWidths->fAdvance.append(1, &min_width);
-            finishRange(info->fGlyphWidths.get(), 0,
-                        SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            SkAdvancedTypefaceMetrics::WidthRange range(0);
+            range.fAdvance.append(1, &min_width);
+            SkAdvancedTypefaceMetrics::FinishRange(
+                    &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            info->fGlyphWidths.emplace_back(std::move(range));
         } else {
-            info->fGlyphWidths.reset(
-                getAdvanceData(hdc,
-                               glyphCount,
-                               glyphIDs,
-                               glyphIDsCount,
-                               &getWidthAdvance));
+            info->setGlyphWidths(hdc, glyphCount, glyphIDs,
+                                 glyphIDsCount, &getWidthAdvance);
         }
     }
 

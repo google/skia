@@ -58,8 +58,6 @@
 //#define SK_FONTHOST_FREETYPE_RUNTIME_VERSION
 //#define SK_GAMMA_APPLY_TO_A8
 
-using namespace skia_advanced_typeface_metrics_utils;
-
 static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
@@ -591,13 +589,14 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
 
     if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         if (FT_IS_FIXED_WIDTH(face)) {
-            appendRange(&info->fGlyphWidths, 0);
+            SkAdvancedTypefaceMetrics::WidthRange range(0);
             int16_t advance = face->max_advance_width;
-            info->fGlyphWidths->fAdvance.append(1, &advance);
-            finishRange(info->fGlyphWidths.get(), 0,
-                        SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            range.fAdvance.append(1, &advance);
+            SkAdvancedTypefaceMetrics::FinishRange(
+                    &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+            info->fGlyphWidths.emplace_back(std::move(range));
         } else if (!cid) {
-            appendRange(&info->fGlyphWidths, 0);
+            SkAdvancedTypefaceMetrics::WidthRange range(0);
             // So as to not blow out the stack, get advances in batches.
             for (int gID = 0; gID < face->num_glyphs; gID += 128) {
                 FT_Fixed advances[128];
@@ -608,18 +607,16 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
                 FT_Get_Advances(face, gID, advanceCount, FT_LOAD_NO_SCALE, advances);
                 for (int i = 0; i < advanceCount; i++) {
                     int16_t advance = advances[i];
-                    info->fGlyphWidths->fAdvance.append(1, &advance);
+                    range.fAdvance.append(1, &advance);
                 }
             }
-            finishRange(info->fGlyphWidths.get(), face->num_glyphs - 1,
-                        SkAdvancedTypefaceMetrics::WidthRange::kRange);
+            SkAdvancedTypefaceMetrics::FinishRange(
+                    &range, face->num_glyphs - 1,
+                    SkAdvancedTypefaceMetrics::WidthRange::kRange);
+            info->fGlyphWidths.emplace_back(std::move(range));
         } else {
-            info->fGlyphWidths.reset(
-                getAdvanceData(face,
-                               face->num_glyphs,
-                               glyphIDs,
-                               glyphIDsCount,
-                               &getWidthAdvance));
+            info->setGlyphWidths(face, face->num_glyphs, glyphIDs,
+                                 glyphIDsCount, &getWidthAdvance);
         }
     }
 

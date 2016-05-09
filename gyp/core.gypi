@@ -265,6 +265,7 @@
         '<(skia_src_path)/core/SkShader.cpp',
         '<(skia_src_path)/core/SkSharedMutex.cpp',
         '<(skia_src_path)/core/SkSharedMutex.h',
+        '<(skia_src_path)/core/SkSinglyLinkedList.h',
         '<(skia_src_path)/core/SkSmallAllocator.h',
         '<(skia_src_path)/core/SkSpanProcs.cpp',
         '<(skia_src_path)/core/SkSpecialImage.cpp',

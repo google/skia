@@ -31,6 +31,7 @@ public:
     }
     T* back() { return fTail ? &fTail->fData : nullptr; }
     T* front() { return fHead ? &fHead->fData : nullptr; }
+    bool empty() const { return fHead == nullptr; }
     #ifdef SK_DEBUG
     int count() {  // O(n), debug only.
         int count = 0;
