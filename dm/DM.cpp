@@ -923,7 +923,7 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     return nullptr;
 }
 
-static void gather_sinks() {
+static bool gather_sinks() {
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
     for (int i = 0; i < configs.count(); i++) {
@@ -952,6 +952,11 @@ static void gather_sinks() {
             push_sink(config, sink);
         }
     }
+
+    // If no configs were requested (just running tests, perhaps?), then we're okay.
+    // Otherwise, make sure that at least one sink was constructed correctly. This catches
+    // the case of bots without a GPU being assigned GPU configs.
+    return (configs.count() == 0) || (gSinks.count() > 0);
 }
 
 static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
@@ -1323,7 +1328,9 @@ int dm_main() {
     if (!gather_srcs()) {
         return 1;
     }
-    gather_sinks();
+    if (!gather_sinks()) {
+        return 1;
+    }
     gather_tests();
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
     info("%d srcs * %d sinks + %d tests == %d tasks",
