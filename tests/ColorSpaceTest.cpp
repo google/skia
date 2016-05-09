@@ -74,7 +74,7 @@ DEF_TEST(ColorSpaceParsePngICCProfile, r) {
     const float red[] = { 0.436066f, 0.222488f, 0.013916f };
     const float green[] = { 0.385147f, 0.716873f, 0.0970764f };
     const float blue[] = { 0.143066f, 0.0606079f, 0.714096f };
-    const float gamma[] = { 0, 0, 0 };  // table-based gamma returns 0 from this its float-getter
+    const float gamma[] = { 2.2f, 2.2f, 2.2f };
     test_space(r, colorSpace, red, green, blue, gamma);
 #endif
 }

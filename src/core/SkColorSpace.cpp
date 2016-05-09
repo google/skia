@@ -324,13 +324,38 @@ bool SkColorSpace::LoadGammas(SkGammaCurve* gammas, uint32_t numGammas, const ui
                     // The table entry is the gamma (with a bias of 256).
                     uint16_t value = read_big_endian_short((const uint8_t*) table);
                     gammas[i].fValue = value / 256.0f;
-                    SkColorSpacePrintf("gamma %d %g\n", value, *gamma);
+                    SkColorSpacePrintf("gamma %d %g\n", value, gammas[i].fValue);
                     break;
                 }
 
-                // Fill in the interpolation table.
-                // FIXME (msarett):
-                // We should recognize commonly occurring tables and just set gamma to 2.2f.
+                // Check for frequently occurring curves and use a fast approximation.
+                // We do this by sampling a few values and see if they match our expectation.
+                // A more robust solution would be to compare each value in this curve against
+                // a 2.2f curve see if we remain below an error threshold.  At this time,
+                // we haven't seen any images in the wild that make this kind of
+                // calculation necessary.  We encounter identical gamma curves over and
+                // over again, but relatively few variations.
+                if (1024 == count) {
+                    if (0 == read_big_endian_short((const uint8_t*) &table[0]) &&
+                            3341 == read_big_endian_short((const uint8_t*) &table[256]) &&
+                            14057 == read_big_endian_short((const uint8_t*) &table[512]) &&
+                            34318 == read_big_endian_short((const uint8_t*) &table[768]) &&
+                            65535 == read_big_endian_short((const uint8_t*) &table[1023])) {
+                        gammas[i].fValue = 2.2f;
+                        break;
+                    }
+                } else if (26 == count) {
+                    if (0 == read_big_endian_short((const uint8_t*) &table[0]) &&
+                            3062 == read_big_endian_short((const uint8_t*) &table[6]) &&
+                            12824 == read_big_endian_short((const uint8_t*) &table[12]) &&
+                            31237 == read_big_endian_short((const uint8_t*) &table[18]) &&
+                            65535 == read_big_endian_short((const uint8_t*) &table[25])) {
+                        gammas[i].fValue = 2.2f;
+                        break;
+                    }
+                }
+
+                // Otherwise, fill in the interpolation table.
                 gammas[i].fTableSize = count;
                 gammas[i].fTable = std::unique_ptr<float[]>(new float[count]);
                 for (uint32_t j = 0; j < count; j++) {
@@ -373,7 +398,7 @@ bool SkColorSpace::LoadGammas(SkGammaCurve* gammas, uint32_t numGammas, const ui
         }
 
         // Adjust src and len if there is another gamma curve to load.
-        if (0 != numGammas) {
+        if (i != numGammas - 1) {
             // Each curve is padded to 4-byte alignment.
             tagBytes = SkAlign4(tagBytes);
             if (len < tagBytes) {
