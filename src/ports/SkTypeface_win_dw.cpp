@@ -452,11 +452,13 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
         } else {
             IDWriteFontFace* borrowedFontFace = fDWriteFontFace.get();
             info->setGlyphWidths(
-                    glyphCount, glyphIDs, glyphIDsCount,
-                    SkAdvancedTypefaceMetrics::GetAdvance(
-                            [borrowedFontFace](int gId, int16_t* data) {
-                                return getWidthAdvance(borrowedFontFace, gId, data);
-                            }));
+                glyphCount,
+                glyphIDs,
+                glyphIDsCount,
+                SkAdvancedTypefaceMetrics::GetAdvance([borrowedFontFace](int gId, int16_t* data) {
+                    return getWidthAdvance(borrowedFontFace, gId, data);
+                })
+            );
         }
     }
 

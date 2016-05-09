@@ -606,18 +606,19 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
             info->fGlyphWidths.emplace_back(std::move(range));
         } else {
             info->setGlyphWidths(
-                    face->num_glyphs, glyphIDs, glyphIDsCount,
-                    SkAdvancedTypefaceMetrics::GetAdvance(
-                            [face](int gId, int16_t* data) {
-                                FT_Fixed advance = 0;
-                                if (FT_Get_Advances(face, gId, 1,
-                                                    FT_LOAD_NO_SCALE, &advance)) {
-                                    return false;
-                                }
-                                SkASSERT(data);
-                                *data = advance;
-                                return true;
-                            }));
+                face->num_glyphs,
+                glyphIDs,
+                glyphIDsCount,
+                SkAdvancedTypefaceMetrics::GetAdvance([face](int gId, int16_t* data) {
+                    FT_Fixed advance = 0;
+                    if (FT_Get_Advances(face, gId, 1, FT_LOAD_NO_SCALE, &advance)) {
+                        return false;
+                    }
+                    SkASSERT(data);
+                    *data = advance;
+                    return true;
+                })
+            );
         }
     }
 

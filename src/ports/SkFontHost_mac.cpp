@@ -1618,18 +1618,19 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
         } else {
             CTFontRef borrowedCTFont = ctFont.get();
             info->setGlyphWidths(
-                    SkToInt(glyphCount), glyphIDs, glyphIDsCount,
-                    SkAdvancedTypefaceMetrics::GetAdvance(
-                        [borrowedCTFont](int gId, int16_t* data) {
-                            CGSize advance;
-                            advance.width = 0;
-                            CGGlyph glyph = gId;
-                            CTFontGetAdvancesForGlyphs(
-                                    borrowedCTFont, kCTFontHorizontalOrientation,
-                                    &glyph, &advance, 1);
-                            *data = sk_float_round2int(advance.width);
-                            return true;
-                        }));
+                SkToInt(glyphCount),
+                glyphIDs,
+                glyphIDsCount,
+                SkAdvancedTypefaceMetrics::GetAdvance([borrowedCTFont](int gId, int16_t* data) {
+                    CGSize advance;
+                    advance.width = 0;
+                    CGGlyph glyph = gId;
+                    CTFontGetAdvancesForGlyphs(borrowedCTFont, kCTFontHorizontalOrientation,
+                                               &glyph, &advance, 1);
+                    *data = sk_float_round2int(advance.width);
+                    return true;
+                })
+            );
         }
     }
     return info;
