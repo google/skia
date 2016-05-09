@@ -24,8 +24,6 @@ namespace SkGpuBlurUtils {
     * Applies a 2D Gaussian blur to a given texture.
     * @param context         The GPU context
     * @param srcTexture      The source texture to be blurred.
-    * @param canClobberSrc   If true, srcTexture may be overwritten, and
-    *                        may be returned as the result.
     * @param gammaCorrect    Should blur be gamma-correct (sRGB to linear, etc...)
     * @param dstBounds       The destination bounds, relative to the source texture.
     * @param srcBounds       The source bounds, relative to the source texture. If non-null,
@@ -37,7 +35,6 @@ namespace SkGpuBlurUtils {
     */
     GrTexture* GaussianBlur(GrContext* context,
                             GrTexture* srcTexture,
-                            bool canClobberSrc,
                             bool gammaCorrect,
                             const SkRect& dstBounds,
                             const SkRect* srcBounds,
