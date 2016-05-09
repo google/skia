@@ -17,7 +17,7 @@
         'HB_NO_MT',
       ],
       'sources': [
-        '<!@(python find.py <(hb_directory)/src "*.c*")',
+        '<!@(python find.py <(hb_directory)/src "hb-*.c*")',
       ],
       'sources!': [
         '<(hb_directory)/src/hb-directwrite.cc',
