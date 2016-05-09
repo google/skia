@@ -60,7 +60,7 @@ public:
      * either reflect just the path effect (if one) or the path effect and the strokerec. Note
      * that a simple fill has a zero sized key.
      */
-    static int KeySize(const GrStyle& , Apply, uint32_t flags = 0);
+    static int KeySize(const GrStyle&, Apply, uint32_t flags = 0);
 
     /**
      * Writes a unique key for the style into the provided buffer. This function assumes the buffer
@@ -69,7 +69,7 @@ public:
      * for just dash application followed by the key for the remaining SkStrokeRec is the same as
      * the key for applying dashing and SkStrokeRec all at once.
      */
-    static void WriteKey(uint32_t*, const GrStyle&, Apply, uint32_t flags = 0);
+    static void WriteKey(uint32_t*, const GrStyle&, Apply, SkScalar scale, uint32_t flags = 0);
 
     GrStyle() : GrStyle(SkStrokeRec::kFill_InitStyle) {}
 
@@ -135,18 +135,22 @@ public:
 
     /**
      * Applies just the path effect and returns remaining stroke information. This will fail if
-     * there is no path effect. dst may or may not have been overwritten on failure.
+     * there is no path effect. dst may or may not have been overwritten on failure. Scale controls
+     * geometric approximations made by the path effect. It is typically computed from the view
+     * matrix.
      */
     bool SK_WARN_UNUSED_RESULT applyPathEffectToPath(SkPath* dst, SkStrokeRec* remainingStoke,
-                                                     const SkPath& src) const;
+                                                     const SkPath& src, SkScalar scale) const;
 
-    /** If this succeeds then the result path should be filled or hairlined as indicated by the
-        returned SkStrokeRec::InitStyle value. Will fail if there is no path effect and the
-        strokerec doesn't change the geometry. When this fails the outputs may or may not have
-        been overwritten.
-      */
+    /**
+     * If this succeeds then the result path should be filled or hairlined as indicated by the
+     * returned SkStrokeRec::InitStyle value. Will fail if there is no path effect and the
+     * strokerec doesn't change the geometry. When this fails the outputs may or may not have
+     * been overwritten. Scale controls geometric approximations made by the path effect and
+     * stroker. It is typically computed from the view matrix.
+     */
     bool SK_WARN_UNUSED_RESULT applyToPath(SkPath* dst, SkStrokeRec::InitStyle* fillOrHairline,
-                                           const SkPath& src) const;
+                                           const SkPath& src, SkScalar scale) const;
 
     /** Given bounds of a path compute the bounds of path with the style applied. */
     void adjustBounds(SkRect* dst, const SkRect& src) const {

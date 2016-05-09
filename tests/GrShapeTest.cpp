@@ -32,8 +32,9 @@ namespace {
 class TestCase {
 public:
     template <typename GEO>
-    TestCase(const GEO& geo, const SkPaint& paint, skiatest::Reporter* r) : fBase(geo, paint) {
-        this->init(r);
+    TestCase(const GEO& geo, const SkPaint& paint, skiatest::Reporter* r,
+             SkScalar scale = SK_Scalar1) : fBase(geo, paint) {
+        this->init(r, scale);
     }
 
     struct SelfExpectations {
@@ -64,10 +65,11 @@ public:
     const Key& appliedPathEffectThenStrokeKey() const { return fAppliedPEThenStrokeKey; }
 
 private:
-    void init(skiatest::Reporter* r) {
-        fAppliedPE           = fBase.applyStyle(GrStyle::Apply::kPathEffectOnly);
-        fAppliedPEThenStroke = fAppliedPE.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec);
-        fAppliedFull         = fBase.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec);
+    void init(skiatest::Reporter* r, SkScalar scale) {
+        fAppliedPE           = fBase.applyStyle(GrStyle::Apply::kPathEffectOnly, scale);
+        fAppliedPEThenStroke = fAppliedPE.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec,
+                                                     scale);
+        fAppliedFull         = fBase.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, scale);
 
         make_key(&fBaseKey, fBase);
         make_key(&fAppliedPEKey, fAppliedPE);
@@ -89,7 +91,8 @@ private:
 
         fBase.asPath(&preStyle);
         SkStrokeRec postPEStrokeRec(SkStrokeRec::kFill_InitStyle);
-        if (fBase.style().applyPathEffectToPath(&postPathEffect, &postPEStrokeRec, preStyle)) {
+        if (fBase.style().applyPathEffectToPath(&postPathEffect, &postPEStrokeRec, preStyle,
+                                                scale)) {
             // run postPathEffect through GrShape to get any geometry reductions that would have
             // occurred to fAppliedPE.
             GrShape(postPathEffect, GrStyle(postPEStrokeRec, nullptr)).asPath(&postPathEffect);
@@ -100,7 +103,7 @@ private:
             REPORTER_ASSERT(r, postPEStrokeRec.hasEqualEffect(fAppliedPE.style().strokeRec()));
         }
         SkStrokeRec::InitStyle fillOrHairline;
-        if (fBase.style().applyToPath(&postAllStyle, &fillOrHairline, preStyle)) {
+        if (fBase.style().applyToPath(&postAllStyle, &fillOrHairline, preStyle, scale)) {
             // run postPathEffect through GrShape to get any reductions that would have occurred
             // to fAppliedFull.
             GrShape(postAllStyle, GrStyle(fillOrHairline)).asPath(&postAllStyle);
@@ -125,7 +128,6 @@ private:
     Key fAppliedPEKey;
     Key fAppliedPEThenStrokeKey;
     Key fAppliedFullKey;
-
 };
 
 void TestCase::testExpectations(skiatest::Reporter* reporter, SelfExpectations expectations) const {
@@ -294,6 +296,70 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     REPORTER_ASSERT(reporter, hairlineCase.baseShape().style().isSimpleHairline());
     REPORTER_ASSERT(reporter, hairlineCase.appliedFullStyleShape().style().isSimpleHairline());
     REPORTER_ASSERT(reporter, hairlineCase.appliedPathEffectShape().style().isSimpleHairline());
+}
+
+template<typename GEO>
+static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
+    sk_sp<SkPathEffect> dashPE = make_dash();
+
+    static const SkScalar kS1 = 1.f;
+    static const SkScalar kS2 = 2.f;
+
+    SkPaint fill;
+    TestCase fillCase1(geo, fill, reporter, kS1);
+    TestCase fillCase2(geo, fill, reporter, kS2);
+    // Scale doesn't affect fills.
+    fillCase1.compare(reporter, fillCase2, TestCase::kAllSame_ComparisonExpecation);
+
+    SkPaint hairline;
+    hairline.setStyle(SkPaint::kStroke_Style);
+    hairline.setStrokeWidth(0.f);
+    TestCase hairlineCase1(geo, hairline, reporter, kS1);
+    TestCase hairlineCase2(geo, hairline, reporter, kS2);
+    // Scale doesn't affect hairlines.
+    hairlineCase1.compare(reporter, hairlineCase2, TestCase::kAllSame_ComparisonExpecation);
+
+    SkPaint stroke;
+    stroke.setStyle(SkPaint::kStroke_Style);
+    stroke.setStrokeWidth(2.f);
+    TestCase strokeCase1(geo, stroke, reporter, kS1);
+    TestCase strokeCase2(geo, stroke, reporter, kS2);
+    // Scale affects the stroke.
+    strokeCase1.compare(reporter, strokeCase2, TestCase::kSameUpToStroke_ComparisonExpecation);
+
+    SkPaint strokeDash = stroke;
+    strokeDash.setPathEffect(make_dash());
+    TestCase strokeDashCase1(geo, strokeDash, reporter, kS1);
+    TestCase strokeDashCase2(geo, strokeDash, reporter, kS2);
+    // Scale affects the dash and the stroke.
+    strokeDashCase1.compare(reporter, strokeDashCase2,  TestCase::kSameUpToPE_ComparisonExpecation);
+
+    // Stroke and fill cases
+    SkPaint strokeAndFill = stroke;
+    strokeAndFill.setStyle(SkPaint::kStrokeAndFill_Style);
+    TestCase strokeAndFillCase1(geo, strokeAndFill, reporter, kS1);
+    TestCase strokeAndFillCase2(geo, strokeAndFill, reporter, kS2);
+    // Scale affects the stroke. Though, this can wind up creating a rect when the input is a rect.
+    // In that case we wind up with a pure geometry key and the geometries are the same.
+    SkRRect rrect;
+    if (strokeAndFillCase1.appliedFullStyleShape().asRRect(&rrect)) {
+        // We currently only expect to get here in the rect->rect case.
+        REPORTER_ASSERT(reporter, rrect.isRect());
+        REPORTER_ASSERT(reporter, strokeAndFillCase1.baseShape().asRRect(&rrect) && rrect.isRect());
+        strokeAndFillCase1.compare(reporter, strokeAndFillCase2,
+                                   TestCase::kAllSame_ComparisonExpecation);
+    } else {
+        strokeAndFillCase1.compare(reporter, strokeAndFillCase2,
+                                   TestCase::kSameUpToStroke_ComparisonExpecation);
+    }
+
+    SkPaint strokeAndFillDash = strokeDash;
+    strokeAndFillDash.setStyle(SkPaint::kStrokeAndFill_Style);
+    TestCase strokeAndFillDashCase1(geo, strokeAndFillDash, reporter, kS1);
+    TestCase strokeAndFillDashCase2(geo, strokeAndFillDash, reporter, kS2);
+    // Scale affects the path effect and stroke.
+    strokeAndFillDashCase1.compare(reporter, strokeAndFillDashCase2,
+                               TestCase::kSameUpToPE_ComparisonExpecation);
 }
 
 template <typename GEO, typename T>
@@ -748,6 +814,7 @@ DEF_TEST(GrShape, reporter) {
     for (auto rr : { SkRRect::MakeRect(SkRect::MakeWH(10, 10)),
                      SkRRect::MakeRectXY(SkRect::MakeWH(10, 10), 3, 4)}) {
         test_basic(reporter, rr);
+        test_scale(reporter, rr);
         test_dash_fill(reporter, rr);
         test_null_dash(reporter, rr);
         // Test modifying various stroke params.
@@ -809,6 +876,7 @@ DEF_TEST(GrShape, reporter) {
             test_null_dash(reporter, path);
             test_path_effect_makes_rrect(reporter, path);
         }
+        test_scale(reporter, path);
         // This test uses a stroking paint, hence use of fIsRRectForStroke
         test_volatile_path(reporter, path, testPath.fIsRRectForStroke);
         test_dash_fill(reporter, path);

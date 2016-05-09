@@ -106,7 +106,14 @@ public:
 
     const GrStyle& style() const { return fStyle; }
 
-    GrShape applyStyle(GrStyle::Apply apply) { return GrShape(*this, apply); }
+    /**
+     * Returns a shape that has either applied the path effect or path effect and stroking
+     * information from this shape's style to its geometry. Scale is used when approximating the
+     * output geometry and typically is computed from the view matrix
+     */
+    GrShape applyStyle(GrStyle::Apply apply, SkScalar scale) {
+        return GrShape(*this, apply, scale);
+    }
 
     bool asRRect(SkRRect* rrect) const {
         if (Type::kRRect != fType) {
@@ -170,14 +177,14 @@ private:
     };
 
 
-    /** Constructor used by Apply* functions */
-    GrShape(const GrShape& parentShape, GrStyle::Apply);
+    /** Constructor used by the applyStyle() function */
+    GrShape(const GrShape& parentShape, GrStyle::Apply, SkScalar scale);
 
     /**
      * Determines the key we should inherit from the input shape's geometry and style when
      * we are applying the style to create a new shape.
      */
-    void setInheritedKey(const GrShape& parentShape, GrStyle::Apply);
+    void setInheritedKey(const GrShape& parentShape, GrStyle::Apply, SkScalar scale);
 
     void attemptToReduceFromPath() {
         SkASSERT(Type::kPath == fType);
