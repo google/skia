@@ -85,7 +85,7 @@ protected:
         const struct {
             SkPixelGeometry fGeo;
             const char*     fLabel;
-        } rec[] = {
+        } recs[] = {
             { kUnknown_SkPixelGeometry, "Unknown" },
             { kRGB_H_SkPixelGeometry,   "RGB_H" },
             { kBGR_H_SkPixelGeometry,   "BGR_H" },
@@ -97,10 +97,16 @@ protected:
         for (int disallowAA = 0; disallowAA <= 1; ++disallowAA) {
             for (int disallowDither = 0; disallowDither <= 1; ++disallowDither) {
                 SkScalar y = 0;
-                for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
-                    auto surface(make_surface(ctx, info, rec[i].fGeo, disallowAA, disallowDither,
+                for (const auto& rec : recs) {
+                    auto surface(make_surface(ctx, info, rec.fGeo, disallowAA, disallowDither,
                                               gammaCorrect));
-                    test_draw(surface->getCanvas(), rec[i].fLabel);
+                    if (!surface) {
+                        SkDebugf("failed to create surface! label: %s AA: %s dither: %s\n",
+                                 rec.fLabel, (disallowAA == 1 ? "disallowed" : "allowed"),
+                                 (disallowDither == 1 ? "disallowed" : "allowed"));
+                        continue;
+                    }
+                    test_draw(surface->getCanvas(), rec.fLabel);
                     surface->draw(canvas, x, y, nullptr);
                     y += H;
                 }
