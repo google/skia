@@ -8,6 +8,7 @@
 #ifndef GrGLSLProgramDataManager_DEFINED
 #define GrGLSLProgramDataManager_DEFINED
 
+#include "GrResourceHandle.h"
 #include "SkTypes.h"
 
 class SkMatrix;
@@ -18,28 +19,7 @@ class SkMatrix;
  */
 class GrGLSLProgramDataManager : SkNoncopyable {
 public:
-    // Opaque handle to a resource
-    class ShaderResourceHandle {
-    public:
-        ShaderResourceHandle(int value)
-            : fValue(value) {
-            SkASSERT(this->isValid());
-        }
-
-        ShaderResourceHandle()
-            : fValue(kInvalid_ShaderResourceHandle) {
-        }
-
-        bool operator==(const ShaderResourceHandle& other) const { return other.fValue == fValue; }
-        bool isValid() const { return kInvalid_ShaderResourceHandle != fValue; }
-        int toIndex() const { SkASSERT(this->isValid()); return fValue; }
-
-    private:
-        static const int kInvalid_ShaderResourceHandle = -1;
-        int fValue;
-    };
-
-    typedef ShaderResourceHandle UniformHandle;
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(UniformHandle);
 
     virtual ~GrGLSLProgramDataManager() {}
 
@@ -67,7 +47,7 @@ public:
     void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
     // for nvpr only
-    typedef ShaderResourceHandle VaryingHandle;
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(VaryingHandle);
     virtual void setPathFragmentInputTransform(VaryingHandle u, int components,
                                                const SkMatrix& matrix) const = 0;
 
@@ -75,7 +55,6 @@ protected:
     GrGLSLProgramDataManager() {}
 
 private:
-
     typedef SkNoncopyable INHERITED;
 };
 
