@@ -102,12 +102,9 @@ protected:
 
     struct Transform {
         Transform() : fType(kVoid_GrSLType) { fCurrentValue = SkMatrix::InvalidMatrix(); }
-        UniformHandle  fHandle;
         SkMatrix       fCurrentValue;
         GrSLType       fType;
     };
-
-    SkSTArray<8, SkSTArray<2, Transform, true> > fInstalledTransforms;
 };
 
 #endif
