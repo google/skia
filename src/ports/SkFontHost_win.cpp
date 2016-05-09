@@ -1717,20 +1717,6 @@ void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = this->fSerializeAsStream;
 }
 
-static bool getWidthAdvance(HDC hdc, int gId, int16_t* advance) {
-    // Initialize the MAT2 structure to the identify transformation matrix.
-    static const MAT2 mat2 = {SkScalarToFIXED(1), SkScalarToFIXED(0),
-                        SkScalarToFIXED(0), SkScalarToFIXED(1)};
-    int flags = GGO_METRICS | GGO_GLYPH_INDEX;
-    GLYPHMETRICS gm;
-    if (GDI_ERROR == GetGlyphOutline(hdc, gId, flags, &gm, 0, nullptr, &mat2)) {
-        return false;
-    }
-    SkASSERT(advance);
-    *advance = gm.gmCellIncX;
-    return true;
-}
-
 SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
         PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
@@ -1839,8 +1825,25 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
                     &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
             info->fGlyphWidths.emplace_back(std::move(range));
         } else {
-            info->setGlyphWidths(hdc, glyphCount, glyphIDs,
-                                 glyphIDsCount, &getWidthAdvance);
+            info->setGlyphWidths(
+                    glyphCount, glyphIDs, glyphIDsCount,
+                    SkAdvancedTypefaceMetrics::GetAdvance(
+                            [hdc](int gId, int16_t* advance) {
+                                // Initialize the MAT2 structure to
+                                // the identify transformation matrix.
+                                static const MAT2 mat2 = {
+                                    SkScalarToFIXED(1), SkScalarToFIXED(0),
+                                    SkScalarToFIXED(0), SkScalarToFIXED(1)};
+                                int flags = GGO_METRICS | GGO_GLYPH_INDEX;
+                                GLYPHMETRICS gm;
+                                if (GDI_ERROR == GetGlyphOutline(
+                                            hdc, gId, flags, &gm, 0, nullptr, &mat2)) {
+                                    return false;
+                                }
+                                SkASSERT(advance);
+                                *advance = gm.gmCellIncX;
+                                return true;
+                            }));
         }
     }
 

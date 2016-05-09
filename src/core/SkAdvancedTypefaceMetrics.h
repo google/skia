@@ -55,14 +55,11 @@ public:
                              passes back advance data from the
                              typeface.  Returns false on failure.
     */
-    template <typename FontHandle>
-    void setGlyphWidths(FontHandle fontHandle,
-                        int num_glyphs,
+    typedef std::function<bool(int glyphId, int16_t* advanceData)> GetAdvance;
+    void setGlyphWidths(int num_glyphs,
                         const uint32_t* subsetGlyphIDs,
                         uint32_t subsetGlyphIDsLength,
-                        bool (*getAdvance)(FontHandle fontHandle,
-                                           int gId,
-                                           int16_t* data));
+                        GetAdvance getAdvance);
 
     SkString fFontName;
 

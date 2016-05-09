@@ -9,24 +9,6 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkTypes.h"
 
-#if defined(SK_BUILD_FOR_WIN)
-#include <dwrite.h>
-#endif
-
-// forward declare structs needed for getAdvanceData() template for freetype
-struct FT_FaceRec_;
-typedef struct FT_FaceRec_* FT_Face;
-
-#ifdef SK_BUILD_FOR_MAC
-#import <ApplicationServices/ApplicationServices.h>
-#endif
-
-#ifdef SK_BUILD_FOR_IOS
-#include <CoreText/CoreText.h>
-#include <CoreGraphics/CoreGraphics.h>
-#include <CoreFoundation/CoreFoundation.h>
-#endif
-
 SkAdvancedTypefaceMetrics::~SkAdvancedTypefaceMetrics() {}
 
 const int16_t kInvalidAdvance = SK_MinS16;
@@ -87,13 +69,11 @@ void SkAdvancedTypefaceMetrics::FinishRange(
     zeroWildcardsInRange(range);
 }
 
-template <typename FontHandle>
 void SkAdvancedTypefaceMetrics::setGlyphWidths(
-        FontHandle fontHandle,
         int num_glyphs,
         const uint32_t* subsetGlyphIDs,
         uint32_t subsetGlyphIDsLength,
-        bool (*getAdvance)(FontHandle fontHandle, int gId, int16_t* data)) {
+        SkAdvancedTypefaceMetrics::GetAdvance getAdvance) {
     // Assuming that on average, the ASCII representation of an advance plus
     // a space is 8 characters and the ASCII representation of a glyph id is 3
     // characters, then the following cut offs for using different range types
@@ -135,7 +115,7 @@ void SkAdvancedTypefaceMetrics::setGlyphWidths(
             if (!subsetGlyphIDs ||
                 (subsetIndex < subsetGlyphIDsLength &&
                  static_cast<uint32_t>(gId) == subsetGlyphIDs[subsetIndex])) {
-                SkAssertResult(getAdvance(fontHandle, gId, &advance));
+                SkAssertResult(getAdvance(gId, &advance));
                 ++subsetIndex;
             } else {
                 advance = kDontCareAdvance;
@@ -212,41 +192,3 @@ void SkAdvancedTypefaceMetrics::setGlyphWidths(
         fGlyphWidths.emplace_back(std::move(curRange));
     }
 }
-
-// Make AdvanceMetric template functions available for linking with typename
-// WidthRange and VerticalAdvanceRange.
-template void SkAdvancedTypefaceMetrics::setGlyphWidths(
-        FT_Face face,
-        int num_glyphs,
-        const uint32_t* subsetGlyphIDs,
-        uint32_t subsetGlyphIDsLength,
-        bool (*getAdvance)(FT_Face face, int gId, int16_t* data));
-
-#if defined(SK_BUILD_FOR_WIN)
-template void SkAdvancedTypefaceMetrics::setGlyphWidths(
-        HDC hdc,
-        int num_glyphs,
-        const uint32_t* subsetGlyphIDs,
-        uint32_t subsetGlyphIDsLength,
-        bool (*getAdvance)(HDC hdc, int gId, int16_t* data));
-template void SkAdvancedTypefaceMetrics::setGlyphWidths(
-        IDWriteFontFace* fontFace,
-        int num_glyphs,
-        const uint32_t* subsetGlyphIDs,
-        uint32_t subsetGlyphIDsLength,
-        bool (*getAdvance)(IDWriteFontFace* fontFace, int gId, int16_t* data));
-#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-template void SkAdvancedTypefaceMetrics::setGlyphWidths(
-        CTFontRef ctFont,
-        int num_glyphs,
-        const uint32_t* subsetGlyphIDs,
-        uint32_t subsetGlyphIDsLength,
-        bool (*getAdvance)(CTFontRef ctFont, int gId, int16_t* data));
-#endif
-// additional declaration needed for testing with a face of an unknown type
-template void SkAdvancedTypefaceMetrics::setGlyphWidths(
-        void* fontData,
-        int num_glyphs,
-        const uint32_t* subsetGlyphIDs,
-        uint32_t subsetGlyphIDsLength,
-        bool (*getAdvance)(void* fontData, int gId, int16_t* data));

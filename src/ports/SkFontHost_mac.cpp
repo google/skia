@@ -1512,15 +1512,6 @@ static void populate_glyph_to_unicode(CTFontRef ctFont, CFIndex glyphCount,
     }
 }
 
-static bool getWidthAdvance(CTFontRef ctFont, int gId, int16_t* data) {
-    CGSize advance;
-    advance.width = 0;
-    CGGlyph glyph = gId;
-    CTFontGetAdvancesForGlyphs(ctFont, kCTFontHorizontalOrientation, &glyph, &advance, 1);
-    *data = sk_float_round2int(advance.width);
-    return true;
-}
-
 /** Assumes src and dst are not nullptr. */
 static void CFStringToSkString(CFStringRef src, SkString* dst) {
     // Reserve enough room for the worst-case string,
@@ -1625,8 +1616,20 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
                     &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
             info->fGlyphWidths.emplace_back(std::move(range));
         } else {
-            info->setGlyphWidths(ctFont.get(), SkToInt(glyphCount), glyphIDs,
-                                 glyphIDsCount, &getWidthAdvance);
+            CTFontRef borrowedCTFont = ctFont.get();
+            info->setGlyphWidths(
+                    SkToInt(glyphCount), glyphIDs, glyphIDsCount,
+                    SkAdvancedTypefaceMetrics::GetAdvance(
+                        [borrowedCTFont](int gId, int16_t* data) {
+                            CGSize advance;
+                            advance.width = 0;
+                            CGGlyph glyph = gId;
+                            CTFontGetAdvancesForGlyphs(
+                                    borrowedCTFont, kCTFontHorizontalOrientation,
+                                    &glyph, &advance, 1);
+                            *data = sk_float_round2int(advance.width);
+                            return true;
+                        }));
         }
     }
     return info;

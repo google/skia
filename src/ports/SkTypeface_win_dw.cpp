@@ -450,8 +450,13 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
                     &range, 0, SkAdvancedTypefaceMetrics::WidthRange::kDefault);
             info->fGlyphWidths.emplace_back(std::move(range));
         } else {
-            info->setGlyphWidths(fDWriteFontFace.get(), glyphCount, glyphIDs,
-                                 glyphIDsCount, getWidthAdvance);
+            IDWriteFontFace* borrowedFontFace = fDWriteFontFace.get();
+            info->setGlyphWidths(
+                    glyphCount, glyphIDs, glyphIDsCount,
+                    SkAdvancedTypefaceMetrics::GetAdvance(
+                            [borrowedFontFace](int gId, int16_t* data) {
+                                return getWidthAdvance(borrowedFontFace, gId, data);
+                            }));
         }
     }
 

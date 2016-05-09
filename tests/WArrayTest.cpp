@@ -150,19 +150,17 @@ class TestWData {
     const int fSubsetLen;
     const char* fExpected;
 
-    static bool getAdvance(void* tc, int gId, int16_t* advance) {
-        TestWData* testCase = (TestWData*)tc;
-        if (gId >= 0 && gId < testCase->fAdvancesLen) {
-            *advance = testCase->fAdvances[gId];
-            return true;
-        }
-        return false;
-    }
-
     void runTest(skiatest::Reporter* reporter) {
         SkAdvancedTypefaceMetrics metrics;
-        metrics.setGlyphWidths((void*)this, fAdvancesLen, fSubset, fSubsetLen,
-                               getAdvance);
+        metrics.setGlyphWidths(
+                fAdvancesLen, fSubset, fSubsetLen,
+                std::function<bool(int, int16_t*)>([this](int gId, int16_t* advance) {
+                            if (gId >= 0 && gId < fAdvancesLen) {
+                                *advance = fAdvances[gId];
+                                return true;
+                            }
+                            return false;
+                        }));
 
         SkString stringResult = stringify_advance_data(metrics.fGlyphWidths);
         if (!stringResult.equals(fExpected)) {
