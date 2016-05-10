@@ -33,7 +33,7 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
 bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // GrPath doesn't support hairline paths. Also, an arbitrary path effect could change
     // the style type to hairline.
-    if (!args.fStyle->hasNonDashPathEffect() || args.fStyle->strokeRec().isHairlineStyle()) {
+    if (args.fStyle->hasNonDashPathEffect() || args.fStyle->strokeRec().isHairlineStyle()) {
         return false;
     }
     if (!args.fIsStencilDisabled) {
