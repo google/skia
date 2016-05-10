@@ -1016,6 +1016,68 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
     return 1;
 }
 
+void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
+                         SkBlitter* customBlitter, bool doFill) const {
+    SkBlitter* blitter = nullptr;
+    SkAutoBlitterChoose blitterStorage;
+    if (nullptr == customBlitter) {
+        blitterStorage.choose(fDst, *fMatrix, paint, drawCoverage);
+        blitter = blitterStorage.get();
+    } else {
+        blitter = customBlitter;
+    }
+
+    if (paint.getMaskFilter()) {
+        SkStrokeRec::InitStyle style = doFill ? SkStrokeRec::kFill_InitStyle
+        : SkStrokeRec::kHairline_InitStyle;
+        if (paint.getMaskFilter()->filterPath(devPath, *fMatrix, *fRC, blitter, style)) {
+            return; // filterPath() called the blitter, so we're done
+        }
+    }
+
+    void (*proc)(const SkPath&, const SkRasterClip&, SkBlitter*);
+    if (doFill) {
+        if (paint.isAntiAlias()) {
+            proc = SkScan::AntiFillPath;
+        } else {
+            proc = SkScan::FillPath;
+        }
+    } else {    // hairline
+        if (paint.isAntiAlias()) {
+            switch (paint.getStrokeCap()) {
+                case SkPaint::kButt_Cap:
+                    proc = SkScan::AntiHairPath;
+                    break;
+                case SkPaint::kSquare_Cap:
+                    proc = SkScan::AntiHairSquarePath;
+                    break;
+                case SkPaint::kRound_Cap:
+                    proc = SkScan::AntiHairRoundPath;
+                    break;
+                default:
+                    proc SK_INIT_TO_AVOID_WARNING;
+                    SkDEBUGFAIL("unknown paint cap type");
+            }
+        } else {
+            switch (paint.getStrokeCap()) {
+                case SkPaint::kButt_Cap:
+                    proc = SkScan::HairPath;
+                    break;
+                case SkPaint::kSquare_Cap:
+                    proc = SkScan::HairSquarePath;
+                    break;
+                case SkPaint::kRound_Cap:
+                    proc = SkScan::HairRoundPath;
+                    break;
+                default:
+                    proc SK_INIT_TO_AVOID_WARNING;
+                    SkDEBUGFAIL("unknown paint cap type");
+            }
+        }
+    }
+    proc(devPath, *fRC, blitter);
+}
+
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
                       bool drawCoverage, SkBlitter* customBlitter) const {
@@ -1106,68 +1168,10 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     // transform the path into device space
     pathPtr->transform(*matrix, devPathPtr);
 
-    SkBlitter* blitter = nullptr;
-    SkAutoBlitterChoose blitterStorage;
-    if (nullptr == customBlitter) {
-        blitterStorage.choose(fDst, *fMatrix, *paint, drawCoverage);
-        blitter = blitterStorage.get();
-    } else {
-        blitter = customBlitter;
-    }
-
-    if (paint->getMaskFilter()) {
-        SkStrokeRec::InitStyle style = doFill ? SkStrokeRec::kFill_InitStyle
-                                              : SkStrokeRec::kHairline_InitStyle;
-        if (paint->getMaskFilter()->filterPath(*devPathPtr, *fMatrix, *fRC, blitter, style)) {
-            return; // filterPath() called the blitter, so we're done
-        }
-    }
-
-    void (*proc)(const SkPath&, const SkRasterClip&, SkBlitter*);
-    if (doFill) {
-        if (paint->isAntiAlias()) {
-            proc = SkScan::AntiFillPath;
-        } else {
-            proc = SkScan::FillPath;
-        }
-    } else {    // hairline
-        if (paint->isAntiAlias()) {
-            switch (paint->getStrokeCap()) {
-                case SkPaint::kButt_Cap:
-                    proc = SkScan::AntiHairPath;
-                    break;
-                case SkPaint::kSquare_Cap:
-                    proc = SkScan::AntiHairSquarePath;
-                    break;
-                case SkPaint::kRound_Cap:
-                    proc = SkScan::AntiHairRoundPath;
-                    break;
-                default:
-                    proc SK_INIT_TO_AVOID_WARNING;
-                    SkDEBUGFAIL("unknown paint cap type");
-            }
-        } else {
-            switch (paint->getStrokeCap()) {
-                case SkPaint::kButt_Cap:
-                    proc = SkScan::HairPath;
-                    break;
-                case SkPaint::kSquare_Cap:
-                    proc = SkScan::HairSquarePath;
-                    break;
-                case SkPaint::kRound_Cap:
-                    proc = SkScan::HairRoundPath;
-                    break;
-                default:
-                    proc SK_INIT_TO_AVOID_WARNING;
-                    SkDEBUGFAIL("unknown paint cap type");
-            }
-        }
-    }
-    proc(*devPathPtr, *fRC, blitter);
+    this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill);
 }
 
-void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
-                              const SkPaint& paint) const {
+void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {
     SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
 
     if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint)) {

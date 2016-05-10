@@ -129,6 +129,9 @@ private:
                      bool pathIsMutable, bool drawCoverage,
                      SkBlitter* customBlitter = NULL) const;
 
+    void drawLine(const SkPoint[2], const SkPaint&) const;
+    void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
+                     SkBlitter* customBlitter, bool doFill) const;
     /**
      *  Return the current clip bounds, in local coordinates, with slop to account
      *  for antialiasing or hairlines (i.e. device-bounds outset by 1, and then
