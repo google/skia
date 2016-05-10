@@ -610,15 +610,17 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
     if (fInstanceData->count()) {
         pipelineBuilder->setState(GrPipelineBuilder::kHWAntialias_Flag, fFont.isAntiAlias());
 
-        static constexpr GrStencilSettings kStencilPass(
-             kZero_StencilOp,
-             kKeep_StencilOp,
-             kNotEqual_StencilFunc,
-             0xffff,
-             0x0000,
-             0xffff);
+        static constexpr GrUserStencilSettings kCoverPass(
+            GrUserStencilSettings::StaticInit<
+                0x0000,
+                GrUserStencilTest::kNotEqual, // Stencil pass accounts for clip.
+                0xffff,
+                GrUserStencilOp::kZero,
+                GrUserStencilOp::kKeep,
+                0xffff>()
+        );
 
-        *pipelineBuilder->stencil() = kStencilPass;
+        pipelineBuilder->setUserStencil(&kCoverPass);
 
         SkAutoTUnref<GrPathRange> glyphs(this->createGlyphs(ctx));
         if (fLastDrawnGlyphsID != glyphs->getUniqueID()) {

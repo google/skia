@@ -62,7 +62,7 @@ static void draw_non_aa_rect(GrDrawTarget* drawTarget,
 // optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
 // 'prOut' to the non-SW path renderer that will do the job).
 bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
-                                            bool isStencilDisabled,
+                                            bool hasUserStencilSettings,
                                             const GrRenderTarget* rt,
                                             const SkMatrix& viewMatrix,
                                             const Element* element,
@@ -104,7 +104,7 @@ bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
         canDrawArgs.fPath = &path;
         canDrawArgs.fStyle = &GrStyle::SimpleFill();
         canDrawArgs.fAntiAlias = element->isAA();
-        canDrawArgs.fIsStencilDisabled = isStencilDisabled;
+        canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
         canDrawArgs.fIsStencilBufferMSAA = rt->isStencilBufferMultisampled();
 
         // the 'false' parameter disallows use of the SW path renderer
@@ -124,10 +124,10 @@ GrPathRenderer* GrClipMaskManager::GetPathRenderer(GrContext* context,
                                                    const SkMatrix& viewMatrix,
                                                    const SkClipStack::Element* element) {
     GrPathRenderer* pr;
-    static const bool kNeedsStencil = true;
-    static const bool kStencilIsDisabled = true;
+    constexpr bool kNeedsStencil = true;
+    constexpr bool kHasUserStencilSettings = false;
     PathNeedsSWRenderer(context,
-                        kStencilIsDisabled,
+                        kHasUserStencilSettings,
                         texture->asRenderTarget(),
                         viewMatrix,
                         element,
@@ -179,7 +179,7 @@ bool GrClipMaskManager::UseSWOnlyPath(GrContext* context,
         bool needsStencil = invert ||
                             SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op;
 
-        if (PathNeedsSWRenderer(context, pipelineBuilder.getStencil().isDisabled(),
+        if (PathNeedsSWRenderer(context, pipelineBuilder.hasUserStencilSettings(),
                                 rt, translate, element, nullptr, needsStencil)) {
             return true;
         }
@@ -317,13 +317,11 @@ static void add_rect_to_clip(const GrClip& clip, const SkRect& devRect, GrClip* 
 }
 
 bool GrClipMaskManager::setupScissorClip(const GrPipelineBuilder& pipelineBuilder,
-                                         GrPipelineBuilder::AutoRestoreStencil* ars,
                                          const SkIRect& clipScissor,
                                          const SkRect* devBounds,
                                          GrAppliedClip* out) {
-    if (kRespectClip_StencilClipMode == fClipMode) {
-        fClipMode = kIgnoreClip_StencilClipMode;
-    }
+    SkASSERT(kModifyClip_StencilClipMode != fClipMode); // TODO: Remove fClipMode.
+    fClipMode = kIgnoreClip_StencilClipMode;
 
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
 
@@ -340,13 +338,11 @@ bool GrClipMaskManager::setupScissorClip(const GrPipelineBuilder& pipelineBuilde
 
     if (scissor->contains(clipSpaceRTIBounds)) {
         // This counts as wide open
-        this->setPipelineBuilderStencil(pipelineBuilder, ars);
         return true;
     }
 
     if (clipSpaceRTIBounds.intersect(*scissor)) {
         out->fScissorState.set(clipSpaceRTIBounds);
-        this->setPipelineBuilderStencil(pipelineBuilder, ars);
         return true;
     }
     return false;
@@ -356,7 +352,6 @@ bool GrClipMaskManager::setupScissorClip(const GrPipelineBuilder& pipelineBuilde
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
-                                      GrPipelineBuilder::AutoRestoreStencil* ars,
                                       const SkRect* devBounds,
                                       GrAppliedClip* out) {
     if (kRespectClip_StencilClipMode == fClipMode) {
@@ -382,7 +377,6 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
     const GrClip& clip = doDevBoundsClip ? devBoundsClip : pipelineBuilder.clip();
 
     if (clip.isWideOpen(clipSpaceRTIBounds)) {
-        this->setPipelineBuilderStencil(pipelineBuilder, ars);
         return true;
     }
 
@@ -396,7 +390,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             SkIRect scissor = clip.irect();
             if (scissor.intersect(clipSpaceRTIBounds)) {
                 out->fScissorState.set(scissor);
-                this->setPipelineBuilderStencil(pipelineBuilder, ars);
+                out->fHasStencilClip = kIgnoreClip_StencilClipMode != fClipMode;
                 return true;
             }
             return false;
@@ -424,7 +418,6 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             if (elements.isEmpty()) {
                 if (GrReducedClip::kAllIn_InitialState == initialState) {
                     if (clipSpaceIBounds == clipSpaceRTIBounds) {
-                        this->setPipelineBuilderStencil(pipelineBuilder, ars);
                         return true;
                     }
                 } else {
@@ -433,6 +426,8 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             }
         } break;
     }
+
+    SkASSERT(kIgnoreClip_StencilClipMode == fClipMode); // TODO: Remove fClipMode.
 
     // An element count of 4 was chosen because of the common pattern in Blink of:
     //   isect RR
@@ -453,7 +448,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             // color buffer anyway, so we may as well use coverage AA if nothing else in the pipe
             // is multisampled.
             disallowAnalyticAA = pipelineBuilder.isHWAntialias() ||
-                                 !pipelineBuilder.getStencil().isDisabled();
+                                 pipelineBuilder.hasUserStencilSettings();
         }
         const GrFragmentProcessor* clipFP = nullptr;
         if (elements.isEmpty() ||
@@ -466,7 +461,6 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
                 !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
                 out->fScissorState.set(scissorSpaceIBounds);
             }
-            this->setPipelineBuilderStencil(pipelineBuilder, ars);
             out->fClipCoverageFP.reset(clipFP);
             return true;
         }
@@ -508,7 +502,6 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
             rtSpaceMaskBounds.offset(-clip.origin());
             out->fClipCoverageFP.reset(create_fp_for_mask(result, rtSpaceMaskBounds));
-            this->setPipelineBuilderStencil(pipelineBuilder, ars);
             return true;
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
@@ -529,13 +522,14 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
     SkIRect scissorSpaceIBounds(clipSpaceIBounds);
     scissorSpaceIBounds.offset(clipSpaceToStencilSpaceOffset);
     out->fScissorState.set(scissorSpaceIBounds);
-    this->setPipelineBuilderStencil(pipelineBuilder, ars);
+    SkASSERT(kRespectClip_StencilClipMode == fClipMode); // TODO: Remove fClipMode.
+    out->fHasStencilClip = true;
     return true;
 }
 
 static bool stencil_element(GrDrawContext* dc,
                             const SkIRect* scissorRect,
-                            const GrStencilSettings& ss,
+                            const GrUserStencilSettings* ss,
                             const SkMatrix& viewMatrix,
                             const SkClipStack::Element* element) {
 
@@ -681,28 +675,32 @@ GrTexture* GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
 
             // draw directly into the result with the stencil set to make the pixels affected
             // by the clip shape be non-zero.
-            static constexpr GrStencilSettings kStencilInElement(
-                 kReplace_StencilOp,
-                 kReplace_StencilOp,
-                 kAlways_StencilFunc,
-                 0xffff,
-                 0xffff,
-                 0xffff);
-            if (!stencil_element(dc.get(), &maskSpaceIBounds, kStencilInElement,
+            static constexpr GrUserStencilSettings kStencilInElement(
+                 GrUserStencilSettings::StaticInit<
+                     0xffff,
+                     GrUserStencilTest::kAlways,
+                     0xffff,
+                     GrUserStencilOp::kReplace,
+                     GrUserStencilOp::kReplace,
+                     0xffff>()
+            );
+            if (!stencil_element(dc.get(), &maskSpaceIBounds, &kStencilInElement,
                                  translate, element)) {
                 texture->resourcePriv().removeUniqueKey();
                 return nullptr;
             }
 
             // Draw to the exterior pixels (those with a zero stencil value).
-            static constexpr GrStencilSettings kDrawOutsideElement(
-                 kZero_StencilOp,
-                 kZero_StencilOp,
-                 kEqual_StencilFunc,
-                 0xffff,
-                 0x0000,
-                 0xffff);
-            if (!dc->drawContextPriv().drawAndStencilRect(&maskSpaceIBounds, kDrawOutsideElement,
+            static constexpr GrUserStencilSettings kDrawOutsideElement(
+                 GrUserStencilSettings::StaticInit<
+                     0x0000,
+                     GrUserStencilTest::kEqual,
+                     0xffff,
+                     GrUserStencilOp::kZero,
+                     GrUserStencilOp::kZero,
+                     0xffff>()
+            );
+            if (!dc->drawContextPriv().drawAndStencilRect(&maskSpaceIBounds, &kDrawOutsideElement,
                                                           op, !invert, false,
                                                           translate,
                                                           SkRect::Make(clipSpaceIBounds))) {
@@ -753,10 +751,6 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
         stencilSpaceIBounds.offset(clipSpaceToStencilOffset);
         GrClip clip(stencilSpaceIBounds);
 
-        int clipBit = stencilAttachment->bits();
-        SkASSERT((clipBit <= 16) && "Ganesh only handles 16b or smaller stencil buffers");
-        clipBit = (1 << (clipBit-1));
-
         fDrawTarget->cmmAccess().clearStencilClip(stencilSpaceIBounds,
             GrReducedClip::kAllIn_InitialState == initialState, rt);
 
@@ -798,7 +792,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                     clipPath.toggleInverseFillType();
                 }
 
-                SkASSERT(pipelineBuilder.getStencil().isDisabled());
+                SkASSERT(!pipelineBuilder.hasUserStencilSettings());
 
                 GrPathRenderer::CanDrawPathArgs canDrawArgs;
                 canDrawArgs.fShaderCaps = this->getContext()->caps()->shaderCaps();
@@ -806,7 +800,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 canDrawArgs.fPath = &clipPath;
                 canDrawArgs.fStyle = &GrStyle::SimpleFill();
                 canDrawArgs.fAntiAlias = false;
-                canDrawArgs.fIsStencilDisabled = pipelineBuilder.getStencil().isDisabled();
+                canDrawArgs.fHasUserStencilSettings = pipelineBuilder.hasUserStencilSettings();
                 canDrawArgs.fIsStencilBufferMSAA = rt->isStencilBufferMultisampled();
 
                 pr = this->getContext()->drawingManager()->getPathRenderer(canDrawArgs, false,
@@ -817,40 +811,36 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 }
             }
 
-            int passes;
-            GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
-
             bool canRenderDirectToStencil =
                 GrPathRenderer::kNoRestriction_StencilSupport == stencilSupport;
-            bool canDrawDirectToClip; // Given the renderer, the element,
-                                      // fill rule, and set operation can
-                                      // we render the element directly to
-                                      // stencil bit used for clipping.
-            canDrawDirectToClip = GrStencilSettings::GetClipPasses(op,
-                                                                   canRenderDirectToStencil,
-                                                                   clipBit,
-                                                                   fillInverted,
-                                                                   &passes,
-                                                                   stencilSettings);
+            bool drawDirectToClip; // Given the renderer, the element,
+                                   // fill rule, and set operation should
+                                   // we render the element directly to
+                                   // stencil bit used for clipping.
+            GrUserStencilSettings const* const* stencilPasses =
+                GrStencilSettings::GetClipPasses(op, canRenderDirectToStencil, fillInverted,
+                                                 &drawDirectToClip);
 
             // draw the element to the client stencil bits if necessary
-            if (!canDrawDirectToClip) {
-                static constexpr GrStencilSettings kDrawToStencil(
-                     kIncClamp_StencilOp,
-                     kIncClamp_StencilOp,
-                     kAlways_StencilFunc,
-                     0xffff,
-                     0x0000,
-                     0xffff);
+            if (!drawDirectToClip) {
+                static constexpr GrUserStencilSettings kDrawToStencil(
+                     GrUserStencilSettings::StaticInit<
+                         0x0000,
+                         GrUserStencilTest::kAlways,
+                         0xffff,
+                         GrUserStencilOp::kIncMaybeClamp,
+                         GrUserStencilOp::kIncMaybeClamp,
+                         0xffff>()
+                );
                 if (Element::kRect_Type == element->getType()) {
-                    *pipelineBuilder.stencil() = kDrawToStencil;
+                    pipelineBuilder.setUserStencil(&kDrawToStencil);
 
                     draw_non_aa_rect(fDrawTarget, pipelineBuilder, GrColor_WHITE, viewMatrix,
                                      element->getRect());
                 } else {
                     if (!clipPath.isEmpty()) {
                         if (canRenderDirectToStencil) {
-                            *pipelineBuilder.stencil() = kDrawToStencil;
+                            pipelineBuilder.setUserStencil(&kDrawToStencil);
 
                             GrPathRenderer::DrawPathArgs args;
                             args.fTarget = fDrawTarget;
@@ -879,10 +869,10 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             // now we modify the clip bit by rendering either the clip
             // element directly or a bounding rect of the entire clip.
             fClipMode = kModifyClip_StencilClipMode;
-            for (int p = 0; p < passes; ++p) {
-                *pipelineBuilder.stencil() = stencilSettings[p];
+            for (GrUserStencilSettings const* const* pass = stencilPasses; *pass; ++pass) {
+                pipelineBuilder.setUserStencil(*pass);
 
-                if (canDrawDirectToClip) {
+                if (drawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
                         draw_non_aa_rect(fDrawTarget, pipelineBuilder, GrColor_WHITE, viewMatrix,
                                          element->getRect());
@@ -910,165 +900,6 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
     }
     fClipMode = kRespectClip_StencilClipMode;
     return true;
-}
-
-// mapping of clip-respecting stencil funcs to normal stencil funcs
-// mapping depends on whether stencil-clipping is in effect.
-static const GrStencilFunc
-    gSpecialToBasicStencilFunc[2][kClipStencilFuncCnt] = {
-    {// Stencil-Clipping is DISABLED,  we are effectively always inside the clip
-        // In the Clip Funcs
-        kAlways_StencilFunc,          // kAlwaysIfInClip_StencilFunc
-        kEqual_StencilFunc,           // kEqualIfInClip_StencilFunc
-        kLess_StencilFunc,            // kLessIfInClip_StencilFunc
-        kLEqual_StencilFunc,          // kLEqualIfInClip_StencilFunc
-        // Special in the clip func that forces user's ref to be 0.
-        kNotEqual_StencilFunc,        // kNonZeroIfInClip_StencilFunc
-                                      // make ref 0 and do normal nequal.
-    },
-    {// Stencil-Clipping is ENABLED
-        // In the Clip Funcs
-        kEqual_StencilFunc,           // kAlwaysIfInClip_StencilFunc
-                                      // eq stencil clip bit, mask
-                                      // out user bits.
-
-        kEqual_StencilFunc,           // kEqualIfInClip_StencilFunc
-                                      // add stencil bit to mask and ref
-
-        kLess_StencilFunc,            // kLessIfInClip_StencilFunc
-        kLEqual_StencilFunc,          // kLEqualIfInClip_StencilFunc
-                                      // for both of these we can add
-                                      // the clip bit to the mask and
-                                      // ref and compare as normal
-        // Special in the clip func that forces user's ref to be 0.
-        kLess_StencilFunc,            // kNonZeroIfInClip_StencilFunc
-                                      // make ref have only the clip bit set
-                                      // and make comparison be less
-                                      // 10..0 < 1..user_bits..
-    }
-};
-
-void GrClipMaskManager::setPipelineBuilderStencil(const GrPipelineBuilder& pipelineBuilder,
-                                                  GrPipelineBuilder::AutoRestoreStencil* ars) {
-    // We make two copies of the StencilSettings here (except in the early
-    // exit scenario. One copy from draw state to the stack var. Then another
-    // from the stack var to the gpu. We could make this class hold a ptr to
-    // GrGpu's fStencilSettings and eliminate the stack copy here.
-
-    // use stencil for clipping if clipping is enabled and the clip
-    // has been written into the stencil.
-    GrStencilSettings settings;
-
-    // The GrGpu client may not be using the stencil buffer but we may need to
-    // enable it in order to respect a stencil clip.
-    if (pipelineBuilder.getStencil().isDisabled()) {
-        if (GrClipMaskManager::kRespectClip_StencilClipMode == fClipMode) {
-            static constexpr GrStencilSettings kBasicApplyClipSettings(
-                kKeep_StencilOp,
-                kKeep_StencilOp,
-                kAlwaysIfInClip_StencilFunc,
-                0x0000,
-                0x0000,
-                0x0000);
-            settings = kBasicApplyClipSettings;
-        } else {
-            return;
-        }
-    } else {
-        settings = pipelineBuilder.getStencil();
-    }
-
-    int stencilBits = 0;
-    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
-    GrStencilAttachment* stencilAttachment = this->resourceProvider()->attachStencilAttachment(rt);
-    if (stencilAttachment) {
-        stencilBits = stencilAttachment->bits();
-    }
-
-    SkASSERT(this->caps()->stencilWrapOpsSupport() || !settings.usesWrapOp());
-    SkASSERT(this->caps()->twoSidedStencilSupport() || !settings.isTwoSided());
-    this->adjustStencilParams(&settings, fClipMode, stencilBits);
-    ars->set(&pipelineBuilder);
-    ars->setStencil(settings);
-}
-
-void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
-                                            StencilClipMode mode,
-                                            int stencilBitCnt) {
-    SkASSERT(stencilBitCnt > 0);
-
-    if (kModifyClip_StencilClipMode == mode) {
-        // We assume that this clip manager itself is drawing to the GrGpu and
-        // has already setup the correct values.
-        return;
-    }
-
-    unsigned int clipBit = (1 << (stencilBitCnt - 1));
-    unsigned int userBits = clipBit - 1;
-
-    GrStencilSettings::Face face = GrStencilSettings::kFront_Face;
-    bool twoSided = this->caps()->twoSidedStencilSupport();
-
-    bool finished = false;
-    while (!finished) {
-        GrStencilFunc func = settings->func(face);
-        uint16_t writeMask = settings->writeMask(face);
-        uint16_t funcMask = settings->funcMask(face);
-        uint16_t funcRef = settings->funcRef(face);
-
-        SkASSERT((unsigned) func < kStencilFuncCnt);
-
-        writeMask &= userBits;
-
-        if (func >= kBasicStencilFuncCnt) {
-            int respectClip = kRespectClip_StencilClipMode == mode;
-            if (respectClip) {
-                switch (func) {
-                    case kAlwaysIfInClip_StencilFunc:
-                        funcMask = clipBit;
-                        funcRef = clipBit;
-                        break;
-                    case kEqualIfInClip_StencilFunc:
-                    case kLessIfInClip_StencilFunc:
-                    case kLEqualIfInClip_StencilFunc:
-                        funcMask = (funcMask & userBits) | clipBit;
-                        funcRef  = (funcRef  & userBits) | clipBit;
-                        break;
-                    case kNonZeroIfInClip_StencilFunc:
-                        funcMask = (funcMask & userBits) | clipBit;
-                        funcRef = clipBit;
-                        break;
-                    default:
-                        SkFAIL("Unknown stencil func");
-                }
-            } else {
-                funcMask &= userBits;
-                funcRef &= userBits;
-            }
-            const GrStencilFunc* table =
-                gSpecialToBasicStencilFunc[respectClip];
-            func = table[func - kBasicStencilFuncCnt];
-            SkASSERT(func >= 0 && func < kBasicStencilFuncCnt);
-        } else {
-            funcMask &= userBits;
-            funcRef &= userBits;
-        }
-
-        settings->setFunc(face, func);
-        settings->setWriteMask(face, writeMask);
-        settings->setFuncMask(face, funcMask);
-        settings->setFuncRef(face, funcRef);
-
-        if (GrStencilSettings::kFront_Face == face) {
-            face = GrStencilSettings::kBack_Face;
-            finished = !twoSided;
-        } else {
-            finished = true;
-        }
-    }
-    if (!twoSided) {
-        settings->copyFrontSettingsToBack();
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1147,14 +978,4 @@ GrTexture* GrClipMaskManager::CreateSoftwareClipMask(GrContext* context,
     helper.toTexture(result);
 
     return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void GrClipMaskManager::adjustPathStencilParams(const GrStencilAttachment* stencilAttachment,
-                                                GrStencilSettings* settings) {
-    if (stencilAttachment) {
-        int stencilBits = stencilAttachment->bits();
-        this->adjustStencilParams(settings, fClipMode, stencilBits);
-    }
 }

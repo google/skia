@@ -277,25 +277,29 @@ static void set_random_state(GrPipelineBuilder* pipelineBuilder, SkRandom* rando
 
 // right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
 static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
-    static constexpr GrStencilSettings kDoesWriteStencil(
-         kReplace_StencilOp,
-         kReplace_StencilOp,
-         kAlways_StencilFunc,
-         0xffff,
-         0xffff,
-         0xffff);
-    static constexpr GrStencilSettings kDoesNotWriteStencil(
-         kKeep_StencilOp,
-         kKeep_StencilOp,
-         kNever_StencilFunc,
-         0xffff,
-         0xffff,
-         0xffff);
+    static constexpr GrUserStencilSettings kDoesWriteStencil(
+        GrUserStencilSettings::StaticInit<
+            0xffff,
+            GrUserStencilTest::kAlways,
+            0xffff,
+            GrUserStencilOp::kReplace,
+            GrUserStencilOp::kReplace,
+            0xffff>()
+    );
+    static constexpr GrUserStencilSettings kDoesNotWriteStencil(
+        GrUserStencilSettings::StaticInit<
+            0xffff,
+            GrUserStencilTest::kNever,
+            0xffff,
+            GrUserStencilOp::kKeep,
+            GrUserStencilOp::kKeep,
+            0xffff>()
+    );
 
     if (random->nextBool()) {
-        pipelineBuilder->setStencil(kDoesWriteStencil);
+        pipelineBuilder->setUserStencil(&kDoesWriteStencil);
     } else {
-        pipelineBuilder->setStencil(kDoesNotWriteStencil);
+        pipelineBuilder->setUserStencil(&kDoesNotWriteStencil);
     }
 }
 

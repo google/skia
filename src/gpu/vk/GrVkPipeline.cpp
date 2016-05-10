@@ -100,51 +100,51 @@ static void setup_input_assembly_state(GrPrimitiveType primitiveType,
 
 VkStencilOp stencil_op_to_vk_stencil_op(GrStencilOp op) {
     static const VkStencilOp gTable[] = {
-        VK_STENCIL_OP_KEEP,                 // kKeep_StencilOp
-        VK_STENCIL_OP_REPLACE,              // kReplace_StencilOp
-        VK_STENCIL_OP_INCREMENT_AND_WRAP,   // kIncWrap_StencilOp
-        VK_STENCIL_OP_INCREMENT_AND_CLAMP,  // kIncClamp_StencilOp
-        VK_STENCIL_OP_DECREMENT_AND_WRAP,   // kDecWrap_StencilOp
-        VK_STENCIL_OP_DECREMENT_AND_CLAMP,  // kDecClamp_StencilOp
-        VK_STENCIL_OP_ZERO,                 // kZero_StencilOp
-        VK_STENCIL_OP_INVERT,               // kInvert_StencilOp
+        VK_STENCIL_OP_KEEP,                 // kKeep
+        VK_STENCIL_OP_ZERO,                 // kZero
+        VK_STENCIL_OP_REPLACE,              // kReplace
+        VK_STENCIL_OP_INVERT,               // kInvert
+        VK_STENCIL_OP_INCREMENT_AND_WRAP,   // kIncWrap
+        VK_STENCIL_OP_DECREMENT_AND_WRAP,   // kDecWrap
+        VK_STENCIL_OP_INCREMENT_AND_CLAMP,  // kIncClamp
+        VK_STENCIL_OP_DECREMENT_AND_CLAMP,  // kDecClamp
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kStencilOpCnt);
-    GR_STATIC_ASSERT(0 == kKeep_StencilOp);
-    GR_STATIC_ASSERT(1 == kReplace_StencilOp);
-    GR_STATIC_ASSERT(2 == kIncWrap_StencilOp);
-    GR_STATIC_ASSERT(3 == kIncClamp_StencilOp);
-    GR_STATIC_ASSERT(4 == kDecWrap_StencilOp);
-    GR_STATIC_ASSERT(5 == kDecClamp_StencilOp);
-    GR_STATIC_ASSERT(6 == kZero_StencilOp);
-    GR_STATIC_ASSERT(7 == kInvert_StencilOp);
-    SkASSERT((unsigned)op < kStencilOpCnt);
-    return gTable[op];
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrStencilOpCount);
+    GR_STATIC_ASSERT(0 == (int)GrStencilOp::kKeep);
+    GR_STATIC_ASSERT(1 == (int)GrStencilOp::kZero);
+    GR_STATIC_ASSERT(2 == (int)GrStencilOp::kReplace);
+    GR_STATIC_ASSERT(3 == (int)GrStencilOp::kInvert);
+    GR_STATIC_ASSERT(4 == (int)GrStencilOp::kIncWrap);
+    GR_STATIC_ASSERT(5 == (int)GrStencilOp::kDecWrap);
+    GR_STATIC_ASSERT(6 == (int)GrStencilOp::kIncClamp);
+    GR_STATIC_ASSERT(7 == (int)GrStencilOp::kDecClamp);
+    SkASSERT(op < (GrStencilOp)kGrStencilOpCount);
+    return gTable[(int)op];
 }
 
-VkCompareOp stencil_func_to_vk_compare_op(GrStencilFunc basicFunc) {
+VkCompareOp stencil_func_to_vk_compare_op(GrStencilTest test) {
     static const VkCompareOp gTable[] = {
-        VK_COMPARE_OP_ALWAYS,              // kAlways_StencilFunc
-        VK_COMPARE_OP_NEVER,               // kNever_StencilFunc
-        VK_COMPARE_OP_GREATER,             // kGreater_StencilFunc
-        VK_COMPARE_OP_GREATER_OR_EQUAL,    // kGEqual_StencilFunc
-        VK_COMPARE_OP_LESS,                // kLess_StencilFunc
-        VK_COMPARE_OP_LESS_OR_EQUAL,       // kLEqual_StencilFunc,
-        VK_COMPARE_OP_EQUAL,               // kEqual_StencilFunc,
-        VK_COMPARE_OP_NOT_EQUAL,           // kNotEqual_StencilFunc,
+        VK_COMPARE_OP_ALWAYS,              // kAlways
+        VK_COMPARE_OP_NEVER,               // kNever
+        VK_COMPARE_OP_GREATER,             // kGreater
+        VK_COMPARE_OP_GREATER_OR_EQUAL,    // kGEqual
+        VK_COMPARE_OP_LESS,                // kLess
+        VK_COMPARE_OP_LESS_OR_EQUAL,       // kLEqual
+        VK_COMPARE_OP_EQUAL,               // kEqual
+        VK_COMPARE_OP_NOT_EQUAL,           // kNotEqual
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kBasicStencilFuncCnt);
-    GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
-    GR_STATIC_ASSERT(1 == kNever_StencilFunc);
-    GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
-    GR_STATIC_ASSERT(3 == kGEqual_StencilFunc);
-    GR_STATIC_ASSERT(4 == kLess_StencilFunc);
-    GR_STATIC_ASSERT(5 == kLEqual_StencilFunc);
-    GR_STATIC_ASSERT(6 == kEqual_StencilFunc);
-    GR_STATIC_ASSERT(7 == kNotEqual_StencilFunc);
-    SkASSERT((unsigned)basicFunc < kBasicStencilFuncCnt);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrStencilTestCount);
+    GR_STATIC_ASSERT(0 == (int)GrStencilTest::kAlways);
+    GR_STATIC_ASSERT(1 == (int)GrStencilTest::kNever);
+    GR_STATIC_ASSERT(2 == (int)GrStencilTest::kGreater);
+    GR_STATIC_ASSERT(3 == (int)GrStencilTest::kGEqual);
+    GR_STATIC_ASSERT(4 == (int)GrStencilTest::kLess);
+    GR_STATIC_ASSERT(5 == (int)GrStencilTest::kLEqual);
+    GR_STATIC_ASSERT(6 == (int)GrStencilTest::kEqual);
+    GR_STATIC_ASSERT(7 == (int)GrStencilTest::kNotEqual);
+    SkASSERT(test < (GrStencilTest)kGrStencilTestCount);
 
-    return gTable[basicFunc];
+    return gTable[(int)test];
 }
 
 void setup_depth_stencil_state(const GrVkGpu* gpu,
@@ -162,24 +162,28 @@ void setup_depth_stencil_state(const GrVkGpu* gpu,
     stencilInfo->stencilTestEnable = !stencilSettings.isDisabled();
     if (!stencilSettings.isDisabled()) {
         // Set front face
-        GrStencilSettings::Face face = GrStencilSettings::kFront_Face;
-        stencilInfo->front.failOp = stencil_op_to_vk_stencil_op(stencilSettings.failOp(face));
-        stencilInfo->front.passOp = stencil_op_to_vk_stencil_op(stencilSettings.passOp(face));
+        const GrStencilSettings::Face& front = stencilSettings.front();
+        stencilInfo->front.failOp = stencil_op_to_vk_stencil_op(front.fFailOp);
+        stencilInfo->front.passOp = stencil_op_to_vk_stencil_op(front.fPassOp);
         stencilInfo->front.depthFailOp = stencilInfo->front.failOp;
-        stencilInfo->front.compareOp = stencil_func_to_vk_compare_op(stencilSettings.func(face));
-        stencilInfo->front.compareMask = stencilSettings.funcMask(face);
-        stencilInfo->front.writeMask = stencilSettings.writeMask(face);
-        stencilInfo->front.reference = stencilSettings.funcRef(face);
+        stencilInfo->front.compareOp = stencil_func_to_vk_compare_op(front.fTest);
+        stencilInfo->front.compareMask = front.fTestMask;
+        stencilInfo->front.writeMask = front.fWriteMask;
+        stencilInfo->front.reference = front.fRef;
 
         // Set back face
-        face = GrStencilSettings::kBack_Face;
-        stencilInfo->back.failOp = stencil_op_to_vk_stencil_op(stencilSettings.failOp(face));
-        stencilInfo->back.passOp = stencil_op_to_vk_stencil_op(stencilSettings.passOp(face));
-        stencilInfo->back.depthFailOp = stencilInfo->front.failOp;
-        stencilInfo->back.compareOp = stencil_func_to_vk_compare_op(stencilSettings.func(face));
-        stencilInfo->back.compareMask = stencilSettings.funcMask(face);
-        stencilInfo->back.writeMask = stencilSettings.writeMask(face);
-        stencilInfo->back.reference = stencilSettings.funcRef(face);
+        if (!stencilSettings.isTwoSided()) {
+            stencilInfo->back = stencilInfo->front;
+        } else {
+            const GrStencilSettings::Face& back = stencilSettings.back();
+            stencilInfo->back.failOp = stencil_op_to_vk_stencil_op(back.fFailOp);
+            stencilInfo->back.passOp = stencil_op_to_vk_stencil_op(back.fPassOp);
+            stencilInfo->back.depthFailOp = stencilInfo->front.failOp;
+            stencilInfo->back.compareOp = stencil_func_to_vk_compare_op(back.fTest);
+            stencilInfo->back.compareMask = back.fTestMask;
+            stencilInfo->back.writeMask = back.fWriteMask;
+            stencilInfo->back.reference = back.fRef;
+        }
     }
     stencilInfo->minDepthBounds = 0.0f;
     stencilInfo->maxDepthBounds = 1.0f;
