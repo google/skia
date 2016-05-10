@@ -1278,7 +1278,12 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         restoreGLRowLength = false;
 
         const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
-        if (caps.unpackRowLengthSupport() && !swFlipY) {
+      
+        // TODO: This optimization should be enabled with or without mips.
+        // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
+        // mip level, before calling glTexImage2D.
+        const bool usesMips = texelsShallowCopy.count() > 1;
+        if (caps.unpackRowLengthSupport() && !swFlipY && !usesMips) {
             // can't use this for flipping, only non-neg values allowed. :(
             if (rowBytes != trimRowBytes) {
                 GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
