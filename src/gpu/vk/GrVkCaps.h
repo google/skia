@@ -30,35 +30,29 @@ public:
              VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
-        SkASSERT(kGrPixelConfigCnt > config);
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
-        SkASSERT(kGrPixelConfigCnt > config);
         return SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
     bool isConfigTexurableLinearly(GrPixelConfig config) const {
-        SkASSERT(kGrPixelConfigCnt > config);
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);
     }
 
     bool isConfigRenderableLinearly(GrPixelConfig config, bool withMSAA) const {
-        SkASSERT(kGrPixelConfigCnt > config);
         return !withMSAA && SkToBool(ConfigInfo::kRenderable_Flag &
                                      fConfigTable[config].fLinearFlags);
     }
 
     bool configCanBeDstofBlit(GrPixelConfig config, bool linearTiled) const {
-        SkASSERT(kGrPixelConfigCnt > config);
         const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
                                               fConfigTable[config].fOptimalFlags;
         return SkToBool(ConfigInfo::kBlitDst_Flag & flags);
     }
 
     bool configCanBeSrcofBlit(GrPixelConfig config, bool linearTiled) const {
-        SkASSERT(kGrPixelConfigCnt > config);
         const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
                                               fConfigTable[config].fOptimalFlags;
         return SkToBool(ConfigInfo::kBlitSrc_Flag & flags);
