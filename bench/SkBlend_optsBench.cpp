@@ -115,7 +115,7 @@ protected:
     }
     const char* onGetName() override { return fName.c_str(); }
     void onDraw(int loops, SkCanvas*) override {
-        SkASSERT(fPixmap.colorType() == kRGBA_8888_SkColorType);
+        SkASSERT(fPixmap.colorType() == kN32_SkColorType);
 
         const int width = fPixmap.rowBytesAsPixels();
 
