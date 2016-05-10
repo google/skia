@@ -25,24 +25,3 @@ SkFontLCDConfig::LCDOrder SkFontLCDConfig::GetSubpixelOrder() {
 void SkFontLCDConfig::SetSubpixelOrder(LCDOrder order) {
     gLCDOrder = order;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// Legacy wrappers : remove from SkFontHost when webkit switches to new API
-
-#include "SkFontHost.h"
-
-SkFontHost::LCDOrientation SkFontHost::GetSubpixelOrientation() {
-    return (SkFontHost::LCDOrientation)SkFontLCDConfig::GetSubpixelOrientation();
-}
-
-void SkFontHost::SetSubpixelOrientation(LCDOrientation orientation) {
-    SkFontLCDConfig::SetSubpixelOrientation((SkFontLCDConfig::LCDOrientation)orientation);
-}
-
-SkFontHost::LCDOrder SkFontHost::GetSubpixelOrder() {
-    return (SkFontHost::LCDOrder)SkFontLCDConfig::GetSubpixelOrder();
-}
-
-void SkFontHost::SetSubpixelOrder(LCDOrder order) {
-    SkFontLCDConfig::SetSubpixelOrder((SkFontLCDConfig::LCDOrder)order);
-}
