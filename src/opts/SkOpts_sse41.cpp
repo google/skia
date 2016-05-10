@@ -10,6 +10,7 @@
 #define SK_OPTS_NS sk_sse41
 #include "SkBlurImageFilter_opts.h"
 #include "SkBlitRow_opts.h"
+#include "SkBlend_opts.h"
 
 #ifndef SK_SUPPORT_LEGACY_X86_BLITS
 
@@ -211,16 +212,16 @@ static void blit_mask_d32_a8(SkPMColor* dst,     size_t dstRB,
         }
     }
 }
-
 }  // namespace sk_sse41_new
 
 #endif
 
 namespace SkOpts {
     void Init_sse41() {
-        box_blur_xx = sk_sse41::box_blur_xx;
-        box_blur_xy = sk_sse41::box_blur_xy;
-        box_blur_yx = sk_sse41::box_blur_yx;
+        box_blur_xx       = sk_sse41::box_blur_xx;
+        box_blur_xy       = sk_sse41::box_blur_xy;
+        box_blur_yx       = sk_sse41::box_blur_yx;
+        srcover_srgb_srgb = sk_sse41::srcover_srgb_srgb;
 
     #ifndef SK_SUPPORT_LEGACY_X86_BLITS
         blit_row_color32 = sk_sse41_new::blit_row_color32;
