@@ -247,7 +247,8 @@ def get_args(bot):
 
   # These bots run out of memory running RAW codec tests. Do not run them in
   # parallel
-  if 'NexusPlayer' in bot or 'Nexus5' in bot or 'Nexus9' in bot:
+  if ('NexusPlayer' in bot or 'Nexus5' in bot or 'Nexus9' in bot
+      or 'Win8-MSVC-ShuttleB' in bot):
     args.append('--noRAW_threading')
 
   return args
