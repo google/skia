@@ -261,6 +261,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;
+        info.fLevelCount = 1;
         desc.fWidth = fWidth;
         desc.fHeight = fHeight;
         desc.fConfig = fPixelConfig;
