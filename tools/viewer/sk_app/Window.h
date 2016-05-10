@@ -41,45 +41,45 @@ public:
     void detach();
 
     // input handling
-    enum Key {
-        kNONE_Key,    //corresponds to android's UNKNOWN
+    enum class Key {
+        kNONE,    //corresponds to android's UNKNOWN
 
-        kLeftSoftKey_Key,
-        kRightSoftKey_Key,
+        kLeftSoftKey,
+        kRightSoftKey,
 
-        kHome_Key,    //!< the home key - added to match android
-        kBack_Key,    //!< (CLR)
-        kSend_Key,    //!< the green (talk) key
-        kEnd_Key,     //!< the red key
+        kHome,    //!< the home key - added to match android
+        kBack,    //!< (CLR)
+        kSend,    //!< the green (talk) key
+        kEnd,     //!< the red key
 
-        k0_Key,
-        k1_Key,
-        k2_Key,
-        k3_Key,
-        k4_Key,
-        k5_Key,
-        k6_Key,
-        k7_Key,
-        k8_Key,
-        k9_Key,
-        kStar_Key,    //!< the * key
-        kHash_Key,    //!< the # key
+        k0,
+        k1,
+        k2,
+        k3,
+        k4,
+        k5,
+        k6,
+        k7,
+        k8,
+        k9,
+        kStar,    //!< the * key
+        kHash,    //!< the # key
 
-        kUp_Key,
-        kDown_Key,
-        kLeft_Key,
-        kRight_Key,
+        kUp,
+        kDown,
+        kLeft,
+        kRight,
 
-        kOK_Key,      //!< the center key
+        kOK,      //!< the center key
 
-        kVolUp_Key,   //!< volume up    - match android
-        kVolDown_Key, //!< volume down  - same
-        kPower_Key,   //!< power button - same
-        kCamera_Key,  //!< camera       - same
+        kVolUp,   //!< volume up    - match android
+        kVolDown, //!< volume down  - same
+        kPower,   //!< power button - same
+        kCamera,  //!< camera       - same
 
-        kLast_Key = kCamera_Key
+        kLast = kCamera
     };
-    static const int kKeyCount = kLast_Key + 1;
+    static const int kKeyCount = static_cast<int>(Key::kLast) + 1;
 
     enum ModifierKeys {
         kShift_ModifierKey = 1 << 0,

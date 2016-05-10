@@ -22,19 +22,6 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
 }
 
-static bool on_key_handler(Window::Key key, Window::InputState state, uint32_t modifiers,
-                           void* userData) {
-    Viewer* vv = reinterpret_cast<Viewer*>(userData);
-
-    return vv->onKey(key, state, modifiers);
-}
-
-static bool on_char_handler(SkUnichar c, uint32_t modifiers, void* userData) {
-    Viewer* vv = reinterpret_cast<Viewer*>(userData);
-
-    return vv->onChar(c, modifiers);
-}
-
 static void on_paint_handler(SkCanvas* canvas, void* userData) {
     Viewer* vv = reinterpret_cast<Viewer*>(userData);
 
@@ -76,9 +63,46 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fWindow->attach(Window::kVulkan_BackendType, DisplayParams());
 
     // register callbacks
-    fWindow->registerKeyFunc(on_key_handler, this);
-    fWindow->registerCharFunc(on_char_handler, this);
+    fCommands.attach(fWindow);
     fWindow->registerPaintFunc(on_paint_handler, this);
+
+    // add key-bindings
+    fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
+        this->fDisplayStats = !this->fDisplayStats;
+        fWindow->inval();
+    });
+    fCommands.addCommand('c', "Modes", "Toggle sRGB color mode", [this]() {
+        DisplayParams params = fWindow->getDisplayParams();
+        params.fProfileType = (kLinear_SkColorProfileType == params.fProfileType)
+            ? kSRGB_SkColorProfileType : kLinear_SkColorProfileType;
+        fWindow->setDisplayParams(params);
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand(Window::Key::kRight, "Right", "Navigation", "Next slide", [this]() {
+        int previousSlide = fCurrentSlide;
+        fCurrentSlide++;
+        if (fCurrentSlide >= fSlides.count()) {
+            fCurrentSlide = 0;
+        }
+        this->setupCurrentSlide(previousSlide);
+    });
+    fCommands.addCommand(Window::Key::kLeft, "Left", "Navigation", "Previous slide", [this]() {
+        int previousSlide = fCurrentSlide;
+        fCurrentSlide--;
+        if (fCurrentSlide < 0) {
+            fCurrentSlide = fSlides.count() - 1;
+        }
+        this->setupCurrentSlide(previousSlide);
+    });
+    fCommands.addCommand(Window::Key::kUp, "Up", "Transform", "Zoom in", [this]() {
+        this->changeZoomLevel(1.f / 32.f);
+        fWindow->inval();
+    });
+    fCommands.addCommand(Window::Key::kDown, "Down", "Transform", "Zoom out", [this]() {
+        this->changeZoomLevel(-1.f / 32.f);
+        fWindow->inval();
+    });
 
     // set up slides
     this->initSlides();
@@ -208,67 +232,6 @@ void Viewer::updateMatrix(){
     fLocalMatrix = m;
 }
 
-bool Viewer::onKey(Window::Key key, Window::InputState state, uint32_t modifiers) {
-    if (Window::kDown_InputState == state) {
-        switch (key) {
-            case Window::kRight_Key: {
-                int previousSlide = fCurrentSlide;
-                fCurrentSlide++;
-                if (fCurrentSlide >= fSlides.count()) {
-                    fCurrentSlide = 0;
-                }
-                setupCurrentSlide(previousSlide);
-                return true;
-            }
-
-            case Window::kLeft_Key: {
-                int previousSlide = fCurrentSlide;
-                fCurrentSlide--;
-                if (fCurrentSlide < 0) {
-                    fCurrentSlide = fSlides.count() - 1;
-                }
-                setupCurrentSlide(previousSlide);
-                return true;
-            }
-
-            case Window::kUp_Key: {
-                this->changeZoomLevel(1.f / 32.f);
-                fWindow->inval();
-                return true;
-            }
-
-            case Window::kDown_Key: {
-                this->changeZoomLevel(-1.f / 32.f);
-                fWindow->inval();
-                return true;
-            }
-
-            default:
-                break;
-        }
-    }
-
-    return false;
-}
-
-bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
-    switch (c) {
-        case 's':
-            fDisplayStats = !fDisplayStats;
-            return true;
-        case 'c':
-            DisplayParams params = fWindow->getDisplayParams();
-            params.fProfileType = (kLinear_SkColorProfileType == params.fProfileType)
-                ? kSRGB_SkColorProfileType : kLinear_SkColorProfileType;
-            fWindow->setDisplayParams(params);
-            this->updateTitle();
-            fWindow->inval();
-            return true;
-    }
-
-    return false;
-}
-
 void Viewer::onPaint(SkCanvas* canvas) {
 
     int count = canvas->save();
@@ -296,6 +259,7 @@ void Viewer::onPaint(SkCanvas* canvas) {
     if (fDisplayStats) {
         drawStats(canvas);
     }
+    fCommands.drawHelp(canvas);
 }
 
 void Viewer::drawStats(SkCanvas* canvas) {

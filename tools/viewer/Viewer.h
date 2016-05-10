@@ -9,6 +9,7 @@
 #define Viewer_DEFINED
 
 #include "sk_app/Application.h"
+#include "sk_app/CommandSet.h"
 #include "sk_app/Window.h"
 #include "gm.h"
 #include "SkAnimTimer.h"
@@ -21,8 +22,6 @@ public:
     Viewer(int argc, char** argv, void* platformData);
     ~Viewer() override;
 
-    bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers);
-    bool onChar(SkUnichar, uint32_t modifiers);
     void onPaint(SkCanvas* canvas);
     void onIdle(double ms) override;
 
@@ -55,6 +54,7 @@ private:
     SkScalar               fZoomLevel;
     SkScalar               fZoomScale;
 
+    sk_app::CommandSet     fCommands;
 };
 
 

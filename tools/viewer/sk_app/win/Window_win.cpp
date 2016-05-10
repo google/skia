@@ -93,20 +93,20 @@ static Window::Key get_key(WPARAM vk) {
         WPARAM      fVK;
         Window::Key fKey;
     } gPair[] = {
-        { VK_BACK, Window::kBack_Key },
-        { VK_CLEAR, Window::kBack_Key },
-        { VK_RETURN, Window::kOK_Key },
-        { VK_UP, Window::kUp_Key },
-        { VK_DOWN, Window::kDown_Key },
-        { VK_LEFT, Window::kLeft_Key },
-        { VK_RIGHT, Window::kRight_Key }
+        { VK_BACK, Window::Key::kBack },
+        { VK_CLEAR, Window::Key::kBack },
+        { VK_RETURN, Window::Key::kOK },
+        { VK_UP, Window::Key::kUp },
+        { VK_DOWN, Window::Key::kDown },
+        { VK_LEFT, Window::Key::kLeft },
+        { VK_RIGHT, Window::Key::kRight }
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fVK == vk) {
             return gPair[i].fKey;
         }
     }
-    return Window::kNONE_Key;
+    return Window::Key::kNONE;
 }
 
 static uint32_t get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
