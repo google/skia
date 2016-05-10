@@ -239,7 +239,7 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
     pipelineBuilder.setXPFactory(
         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
     pipelineBuilder.setRenderTarget(rt);
-    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
+    GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = dt;
     args.fPipelineBuilder = &pipelineBuilder;
@@ -247,7 +247,7 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &SkMatrix::I();
     args.fPath = &path;
-    args.fStroke = &stroke;
+    args.fStyle = &style;
     args.fAntiAlias = false;
     tess.drawPath(args);
 }

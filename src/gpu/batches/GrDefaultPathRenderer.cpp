@@ -422,21 +422,20 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                              GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const SkPath& path,
-                                             const GrStrokeInfo& origStroke,
+                                             const GrStyle& origStyle,
                                              bool stencilOnly) {
-    SkTCopyOnFirstWrite<GrStrokeInfo> stroke(origStroke);
+    const GrStyle* style = &origStyle;
 
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
-    if (IsStrokeHairlineOrEquivalent(*stroke, viewMatrix, &hairlineCoverage)) {
+    bool isHairline = false;
+    if (IsStrokeHairlineOrEquivalent(*style, viewMatrix, &hairlineCoverage)) {
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
-
-        if (!stroke->isHairlineStyle()) {
-            stroke.writable()->setHairlineStyle();
-        }
+        style = &GrStyle::SimpleHairline();
+        isHairline = true;
+    } else {
+        SkASSERT(style->isSimpleFill());
     }
-
-    const bool isHairline = stroke->isHairlineStyle();
 
     // Save the current xp on the draw state so we can reset it if needed
     const GrXPFactory* xpFactory = pipelineBuilder->getXPFactory();
@@ -460,7 +459,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
         lastPassIsBounds = false;
         drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
     } else {
-        if (single_pass_path(path, *stroke)) {
+        if (single_pass_path(path, style->strokeRec())) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -596,10 +595,11 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
 }
 
 bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // this class can draw any path with any fill but doesn't do any anti-aliasing.
-    return !args.fAntiAlias && (args.fStroke->isFillStyle() ||
-                                IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix,
-                                                             nullptr));
+    // this class can draw any path with any simple fill style but doesn't do any anti-aliasing.
+    return !args.fAntiAlias &&
+           (args.fStyle->isSimpleFill() || IsStrokeHairlineOrEquivalent(*args.fStyle,
+                                                                        *args.fViewMatrix,
+                                                                        nullptr));
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -609,7 +609,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                   args.fColor,
                                   *args.fViewMatrix,
                                   *args.fPath,
-                                  *args.fStroke,
+                                  *args.fStyle,
                                   false);
 }
 
@@ -618,7 +618,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
     this->internalDrawPath(args.fTarget, args.fPipelineBuilder, GrColor_WHITE, *args.fViewMatrix,
-                           *args.fPath, GrStrokeInfo::FillInfo(), true);
+                           *args.fPath, GrStyle::SimpleFill(), true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -631,7 +631,7 @@ DRAW_BATCH_TEST_DEFINE(DefaultPathBatch) {
 
     // For now just hairlines because the other types of draws require two batches.
     // TODO we should figure out a way to combine the stencil and cover steps into one batch
-    GrStrokeInfo stroke(SkStrokeRec::kHairline_InitStyle);
+    GrStyle style(SkStrokeRec::kHairline_InitStyle);
     SkPath path = GrTest::TestPath(random);
 
     // Compute srcSpaceTol

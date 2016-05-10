@@ -6,13 +6,28 @@
  */
 
 #include "GrPath.h"
+#include "GrStyle.h"
 
 namespace {
 // Verb count limit for generating path key from content of a volatile path.
 // The value should accomodate at least simple rects and rrects.
 static const int kSimpleVolatilePathVerbLimit = 10;
 
-inline static bool compute_key_for_line_path(const SkPath& path, const GrStrokeInfo& stroke,
+static inline int style_data_cnt(const GrStyle& style) {
+    int cnt = GrStyle::KeySize(style, GrStyle::Apply::kPathEffectAndStrokeRec);
+    // This should only fail for an arbitrary path effect, and we should not have gotten
+    // here with anything other than a dash path effect.
+    SkASSERT(cnt >= 0);
+    return cnt;
+}
+
+static inline void write_style_key(uint32_t* dst, const GrStyle& style) {
+    // Pass 1 for the scale since the GPU will apply the style not GrStyle::applyToPath().
+    GrStyle::WriteKey(dst, style, GrStyle::Apply::kPathEffectAndStrokeRec, SK_Scalar1);
+}
+
+
+inline static bool compute_key_for_line_path(const SkPath& path, const GrStyle& style,
                                              GrUniqueKey* key) {
     SkPoint pts[2];
     if (!path.isLine(pts)) {
@@ -20,37 +35,37 @@ inline static bool compute_key_for_line_path(const SkPath& path, const GrStrokeI
     }
     static_assert((sizeof(pts) % sizeof(uint32_t)) == 0 && sizeof(pts) > sizeof(uint32_t),
                   "pts_needs_padding");
+    int styleDataCnt = style_data_cnt(style);
 
     const int kBaseData32Cnt = 1 + sizeof(pts) / sizeof(uint32_t);
-    int strokeDataCnt = stroke.computeUniqueKeyFragmentData32Cnt();
     static const GrUniqueKey::Domain kOvalPathDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kOvalPathDomain, kBaseData32Cnt + strokeDataCnt);
+    GrUniqueKey::Builder builder(key, kOvalPathDomain, kBaseData32Cnt + styleDataCnt);
     builder[0] = path.getFillType();
     memcpy(&builder[1], &pts, sizeof(pts));
-    if (strokeDataCnt > 0) {
-        stroke.asUniqueKeyFragment(&builder[kBaseData32Cnt]);
+    if (styleDataCnt > 0) {
+        write_style_key(&builder[kBaseData32Cnt], style);
     }
     return true;
 }
 
-inline static bool compute_key_for_oval_path(const SkPath& path, const GrStrokeInfo& stroke,
+inline static bool compute_key_for_oval_path(const SkPath& path, const GrStyle& style,
                                              GrUniqueKey* key) {
     SkRect rect;
     // Point order is significant when dashing, so we cannot devolve to a rect key.
-    if (stroke.isDashed() || !path.isOval(&rect)) {
+    if (style.pathEffect() || !path.isOval(&rect)) {
         return false;
     }
     static_assert((sizeof(rect) % sizeof(uint32_t)) == 0 && sizeof(rect) > sizeof(uint32_t),
                   "rect_needs_padding");
 
     const int kBaseData32Cnt = 1 + sizeof(rect) / sizeof(uint32_t);
-    int strokeDataCnt = stroke.computeUniqueKeyFragmentData32Cnt();
+    int styleDataCnt = style_data_cnt(style);
     static const GrUniqueKey::Domain kOvalPathDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kOvalPathDomain, kBaseData32Cnt + strokeDataCnt);
+    GrUniqueKey::Builder builder(key, kOvalPathDomain, kBaseData32Cnt + styleDataCnt);
     builder[0] = path.getFillType();
     memcpy(&builder[1], &rect, sizeof(rect));
-    if (strokeDataCnt > 0) {
-        stroke.asUniqueKeyFragment(&builder[kBaseData32Cnt]);
+    if (styleDataCnt > 0) {
+        write_style_key(&builder[kBaseData32Cnt], style);
     }
     return true;
 }
@@ -58,7 +73,7 @@ inline static bool compute_key_for_oval_path(const SkPath& path, const GrStrokeI
 // Encodes the full path data to the unique key for very small, volatile paths. This is typically
 // hit when clipping stencils the clip stack. Intention is that this handles rects too, since
 // SkPath::isRect seems to do non-trivial amount of work.
-inline static bool compute_key_for_simple_path(const SkPath& path, const GrStrokeInfo& stroke,
+inline static bool compute_key_for_simple_path(const SkPath& path, const GrStyle& style,
                                                GrUniqueKey* key) {
     if (!path.isVolatile()) {
         return false;
@@ -109,9 +124,9 @@ inline static bool compute_key_for_simple_path(const SkPath& path, const GrStrok
     // 2) stroke data (varying size)
 
     const int baseData32Cnt = 2 + verbData32Cnt + pointData32Cnt + conicWeightData32Cnt;
-    const int strokeDataCnt = stroke.computeUniqueKeyFragmentData32Cnt();
+    const int styleDataCnt = style_data_cnt(style);
     static const GrUniqueKey::Domain kSimpleVolatilePathDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kSimpleVolatilePathDomain, baseData32Cnt + strokeDataCnt);
+    GrUniqueKey::Builder builder(key, kSimpleVolatilePathDomain, baseData32Cnt + styleDataCnt);
     int i = 0;
     builder[i++] = path.getFillType();
 
@@ -153,57 +168,68 @@ inline static bool compute_key_for_simple_path(const SkPath& path, const GrStrok
         SkDEBUGCODE(i += conicWeightData32Cnt);
     }
     SkASSERT(i == baseData32Cnt);
-    if (strokeDataCnt > 0) {
-        stroke.asUniqueKeyFragment(&builder[baseData32Cnt]);
+    if (styleDataCnt > 0) {
+        write_style_key(&builder[baseData32Cnt], style);
     }
     return true;
 }
 
-inline static void compute_key_for_general_path(const SkPath& path, const GrStrokeInfo& stroke,
+inline static void compute_key_for_general_path(const SkPath& path, const GrStyle& style,
                                                 GrUniqueKey* key) {
     const int kBaseData32Cnt = 2;
-    int strokeDataCnt = stroke.computeUniqueKeyFragmentData32Cnt();
+    int styleDataCnt = style_data_cnt(style);
     static const GrUniqueKey::Domain kGeneralPathDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kGeneralPathDomain, kBaseData32Cnt + strokeDataCnt);
+    GrUniqueKey::Builder builder(key, kGeneralPathDomain, kBaseData32Cnt + styleDataCnt);
     builder[0] = path.getGenerationID();
     builder[1] = path.getFillType();
-    if (strokeDataCnt > 0) {
-        stroke.asUniqueKeyFragment(&builder[kBaseData32Cnt]);
+    if (styleDataCnt > 0) {
+        write_style_key(&builder[kBaseData32Cnt], style);
     }
 }
 
 }
 
-void GrPath::ComputeKey(const SkPath& path, const GrStrokeInfo& stroke, GrUniqueKey* key,
+void GrPath::ComputeKey(const SkPath& path, const GrStyle& style, GrUniqueKey* key,
                         bool* outIsVolatile) {
-    if (compute_key_for_line_path(path, stroke, key)) {
+    if (compute_key_for_line_path(path, style, key)) {
         *outIsVolatile = false;
         return;
     }
 
-    if (compute_key_for_oval_path(path, stroke, key)) {
+    if (compute_key_for_oval_path(path, style, key)) {
         *outIsVolatile = false;
         return;
     }
 
-    if (compute_key_for_simple_path(path, stroke, key)) {
+    if (compute_key_for_simple_path(path, style, key)) {
         *outIsVolatile = false;
         return;
     }
 
-    compute_key_for_general_path(path, stroke, key);
+    compute_key_for_general_path(path, style, key);
     *outIsVolatile = path.isVolatile();
 }
 
 #ifdef SK_DEBUG
-bool GrPath::isEqualTo(const SkPath& path, const GrStrokeInfo& stroke) const {
-    if (!fStroke.hasEqualEffect(stroke)) {
+bool GrPath::isEqualTo(const SkPath& path, const GrStyle& style) const {
+    // Since this is only called in debug we don't care about performance.
+    int cnt0 = GrStyle::KeySize(fStyle, GrStyle::Apply::kPathEffectAndStrokeRec);
+    int cnt1 = GrStyle::KeySize(style, GrStyle::Apply::kPathEffectAndStrokeRec);
+    if (cnt0 < 0 || cnt1 < 0 || cnt0 != cnt1) {
         return false;
     }
-
+    if (cnt0) {
+        SkAutoTArray<uint32_t> key0(cnt0);
+        SkAutoTArray<uint32_t> key1(cnt0);
+        write_style_key(key0.get(), fStyle);
+        write_style_key(key1.get(), style);
+        if (0 != memcmp(key0.get(), key1.get(), cnt0)) {
+            return false;
+        }
+    }
     // We treat same-rect ovals as identical - but only when not dashing.
     SkRect ovalBounds;
-    if (!fStroke.isDashed() && fSkPath.isOval(&ovalBounds)) {
+    if (!fStyle.isDashed() && fSkPath.isOval(&ovalBounds)) {
         SkRect otherOvalBounds;
         return path.isOval(&otherOvalBounds) && ovalBounds == otherOvalBounds;
     }

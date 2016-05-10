@@ -14,7 +14,7 @@
 
 class GrClip;
 class GrDrawBatch;
-class GrStrokeInfo;
+class GrStyle;
 
 namespace GrDashingEffect {
     GrDrawBatch* CreateDashLineBatch(GrColor,
@@ -22,8 +22,8 @@ namespace GrDashingEffect {
                                      const SkPoint pts[2],
                                      bool useAA,
                                      bool msaaIsEnabled,
-                                     const GrStrokeInfo& strokeInfo);
-    bool CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
+                                     const GrStyle& style);
+    bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
                          const SkMatrix& viewMatrix);
 }
 

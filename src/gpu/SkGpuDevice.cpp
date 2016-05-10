@@ -15,7 +15,7 @@
 #include "GrImageIDTextureAdjuster.h"
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
-#include "GrStrokeInfo.h"
+#include "GrStyle.h"
 #include "GrTracing.h"
 #include "SkCanvasPriv.h"
 #include "SkErrorInternals.h"
@@ -454,7 +454,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     }
 
     if (paint.getPathEffect() && 2 == count && SkCanvas::kLines_PointMode == mode) {
-        GrStrokeInfo strokeInfo(paint, SkPaint::kStroke_Style);
+        GrStyle style(paint, SkPaint::kStroke_Style);
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix,
                               this->surfaceProps().isGammaCorrect(), &grPaint)) {
@@ -464,7 +464,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         path.setIsVolatile(true);
         path.moveTo(pts[0]);
         path.lineTo(pts[1]);
-        fDrawContext->drawPath(fClip, grPaint, *draw.fMatrix, path, strokeInfo);
+        fDrawContext->drawPath(fClip, grPaint, *draw.fMatrix, path, style);
         return;
     }
 
@@ -535,9 +535,8 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
         return;
     }
 
-    GrStrokeInfo strokeInfo(paint);
-
-    fDrawContext->drawRect(fClip, grPaint, *draw.fMatrix, rect, &strokeInfo);
+    GrStyle style(paint);
+    fDrawContext->drawRect(fClip, grPaint, *draw.fMatrix, rect, &style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -554,7 +553,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         return;
     }
 
-    GrStrokeInfo strokeInfo(paint);
+    GrStyle style(paint);
     if (paint.getMaskFilter()) {
         // try to hit the fast path for drawing filtered round rects
 
@@ -577,7 +576,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
                                                                         &grPaint,
                                                                         fClip,
                                                                         *draw.fMatrix,
-                                                                        strokeInfo,
+                                                                        style.strokeRec(),
                                                                         devRRect)) {
                         return;
                     }
@@ -587,7 +586,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         }
     }
 
-    if (paint.getMaskFilter() || paint.getPathEffect()) {
+    if (paint.getMaskFilter() || style.pathEffect()) {
         // The only mask filter the native rrect drawing code could've handle was taken
         // care of above.
         // A path effect will presumably transform this rrect into something else.
@@ -601,9 +600,9 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         return;
     }
 
-    SkASSERT(!strokeInfo.isDashed());
+    SkASSERT(!style.pathEffect());
 
-    fDrawContext->drawRRect(fClip, grPaint, *draw.fMatrix, rect, strokeInfo);
+    fDrawContext->drawRRect(fClip, grPaint, *draw.fMatrix, rect, style);
 }
 
 
@@ -675,10 +674,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
         return;
     }
 
-    GrStrokeInfo strokeInfo(paint);
-    SkASSERT(!strokeInfo.isDashed());
-
-    fDrawContext->drawOval(fClip, grPaint, *draw.fMatrix, oval, strokeInfo);
+    fDrawContext->drawOval(fClip, grPaint, *draw.fMatrix, oval, GrStyle(paint));
 }
 
 #include "SkMaskFilter.h"

@@ -28,7 +28,7 @@ class GrPaint;
 class GrPathProcessor;
 class GrPipelineBuilder;
 class GrRenderTarget;
-class GrStrokeInfo;
+class GrStyle;
 class GrSurface;
 class SkDrawFilter;
 struct SkIPoint;
@@ -53,7 +53,7 @@ public:
 
     // TODO: it is odd that we need both the SkPaint in the following 3 methods.
     // We should extract the text parameters from SkPaint and pass them separately
-    // akin to GrStrokeInfo (GrTextInfo?)
+    // akin to GrStyle (GrTextInfo?)
     virtual void drawText(const GrClip&,  const GrPaint&, const SkPaint&,
                           const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                           SkScalar x, SkScalar y, const SkIRect& clipBounds);
@@ -90,19 +90,15 @@ public:
      *  Draw the rect using a paint.
      *  @param paint        describes how to color pixels.
      *  @param viewMatrix   transformation matrix
-     *  @param strokeInfo   the stroke information (width, join, cap), and.
-     *                      the dash information (intervals, count, phase).
-     *                      If strokeInfo == NULL, then the rect is filled.
-     *                      Otherwise, if stroke width == 0, then the stroke
-     *                      is always a single pixel thick, else the rect is
-     *                      mitered/beveled stroked based on stroke width.
+     *  @param style        The style to apply. Null means fill. Currently path effects are not
+     *                      allowed.
      *  The rects coords are used to access the paint (through texture matrix)
      */
     void drawRect(const GrClip&,
                   const GrPaint& paint,
                   const SkMatrix& viewMatrix,
                   const SkRect&,
-                  const GrStrokeInfo* strokeInfo = nullptr);
+                  const GrStyle* style  = nullptr);
 
     /**
      * Maps a rectangle of shader coordinates to a rectangle and fills that rectangle.
@@ -133,14 +129,13 @@ public:
      *  @param paint        describes how to color pixels.
      *  @param viewMatrix   transformation matrix
      *  @param rrect        the roundrect to draw
-     *  @param strokeInfo   the stroke information (width, join, cap) and
-     *                      the dash information (intervals, count, phase).
+     *  @param style        style to apply to the rrect. Currently path effects are not allowed.
      */
     void drawRRect(const GrClip&,
                    const GrPaint&,
                    const SkMatrix& viewMatrix,
                    const SkRRect& rrect,
-                   const GrStrokeInfo&);
+                   const GrStyle& style);
 
     /**
      *  Shortcut for drawing an SkPath consisting of nested rrects using a paint.
@@ -164,14 +159,13 @@ public:
      * @param paint         describes how to color pixels.
      * @param viewMatrix    transformation matrix
      * @param path          the path to draw
-     * @param strokeInfo    the stroke information (width, join, cap) and
-     *                      the dash information (intervals, count, phase).
+     * @param style         style to apply to the path.
      */
     void drawPath(const GrClip&,
                   const GrPaint&,
                   const SkMatrix& viewMatrix,
                   const SkPath&,
-                  const GrStrokeInfo&);
+                  const GrStyle& style);
 
     /**
      * Draws vertices with a paint.
@@ -226,14 +220,13 @@ public:
      * @param paint         describes how to color pixels.
      * @param viewMatrix    transformation matrix
      * @param oval          the bounding rect of the oval.
-     * @param strokeInfo    the stroke information (width, join, cap) and
-     *                      the dash information (intervals, count, phase).
+     * @param style         style to apply to the oval. Currently path effects are not allowed.
      */
     void drawOval(const GrClip&,
                   const GrPaint& paint,
                   const SkMatrix& viewMatrix,
                   const SkRect& oval,
-                  const GrStrokeInfo& strokeInfo);
+                  const GrStyle& style);
 
     /**
      *  Draw the image stretched differentially to fit into dst.
@@ -318,7 +311,7 @@ private:
                           const GrPaint& paint,
                           const SkMatrix& viewMatrix,
                           const SkPath& path,
-                          const GrStrokeInfo& strokeInfo);
+                          const GrStyle& style);
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
     // the drawTarget.
