@@ -85,7 +85,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : { 0, 4}) {
                             bool renderable = ctxInfo.fGrContext->caps()->isConfigRenderable(
-                                                                      config, numSamples > 0);
+                                                                      config, numSamples > 0) &&
+                                  numSamples <= ctxInfo.fGrContext->caps()->maxColorSampleCount();
 
                             GrSurfaceDesc desc;
                             desc.fOrigin = origin;
