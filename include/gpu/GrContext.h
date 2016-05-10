@@ -43,7 +43,6 @@ class GrTextBlobCache;
 class GrTextContext;
 class GrTextureParams;
 class GrVertexBuffer;
-class GrStrokeInfo;
 class GrSwizzle;
 class SkTraceMemoryDump;
 

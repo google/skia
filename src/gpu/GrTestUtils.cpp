@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrStrokeInfo.h"
 #include "GrTestUtils.h"
+#include "GrStyle.h"
+#include "SkDashPathPriv.h"
 #include "SkMatrix.h"
-#include "SkPathEffect.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 
@@ -237,26 +237,53 @@ SkStrokeRec TestStrokeRec(SkRandom* random) {
     return rec;
 }
 
-GrStrokeInfo TestStrokeInfo(SkRandom* random) {
-    SkStrokeRec::InitStyle style =
+void TestStyle(SkRandom* random, GrStyle* style) {
+    SkStrokeRec::InitStyle initStyle =
             SkStrokeRec::InitStyle(random->nextULessThan(SkStrokeRec::kFill_InitStyle + 1));
-    GrStrokeInfo strokeInfo(style);
-    randomize_stroke_rec(&strokeInfo, random);
-    SkPathEffect::DashInfo dashInfo;
-    dashInfo.fCount = random->nextRangeU(1, 50) * 2;
-    dashInfo.fIntervals = new SkScalar[dashInfo.fCount];
-    SkScalar sum = 0;
-    for (int i = 0; i < dashInfo.fCount; i++) {
-        dashInfo.fIntervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
-                                                         SkDoubleToScalar(10.0));
-        sum += dashInfo.fIntervals[i];
+    SkStrokeRec stroke(initStyle);
+    randomize_stroke_rec(&stroke, random);
+    sk_sp<SkPathEffect> pe;
+    if (random->nextBool()) {
+        int cnt = random->nextRangeU(1, 50) * 2;
+        SkAutoTDeleteArray<SkScalar> intervals(new SkScalar[cnt]);
+        SkScalar sum = 0;
+        for (int i = 0; i < cnt; i++) {
+            intervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
+                                                   SkDoubleToScalar(10.0));
+            sum += intervals[i];
+        }
+        SkScalar phase = random->nextRangeScalar(0, sum);
+        pe = TestDashPathEffect::Make(intervals.get(), cnt, phase);
     }
-    dashInfo.fPhase = random->nextRangeScalar(0, sum);
-    strokeInfo.setDashInfo(dashInfo);
-    delete[] dashInfo.fIntervals;
-    return strokeInfo;
+    *style = GrStyle(stroke, pe.get());
 }
 
-};
+TestDashPathEffect::TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase) {
+    fCount = count;
+    fIntervals.reset(count);
+    memcpy(fIntervals.get(), intervals, count * sizeof(SkScalar));
+    SkDashPath::CalcDashParameters(phase, intervals, count, &fInitialDashLength,
+                                   &fInitialDashIndex, &fIntervalLength, &fPhase);
+}
+
+    bool TestDashPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                                     const SkRect* cullRect) const {
+    return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals.get(), fCount,
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength);
+}
+
+SkPathEffect::DashType TestDashPathEffect::asADash(DashInfo* info) const {
+    if (info) {
+        if (info->fCount >= fCount && info->fIntervals) {
+            memcpy(info->fIntervals, fIntervals.get(), fCount * sizeof(SkScalar));
+        }
+        info->fCount = fCount;
+        info->fPhase = fPhase;
+    }
+    return kDash_DashType;
+}
+
+
+}  // namespace GrTest
 
 #endif

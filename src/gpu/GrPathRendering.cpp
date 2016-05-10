@@ -54,7 +54,7 @@ private:
 GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
                                            const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc,
-                                           const GrStrokeInfo& stroke) {
+                                           const GrStyle& style) {
     if (nullptr == typeface) {
         typeface = SkTypeface::GetDefaultTypeface();
         SkASSERT(nullptr != typeface);
@@ -62,7 +62,7 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
 
     if (desc) {
         SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, effects, *desc));
-        return this->createPathRange(generator, stroke);
+        return this->createPathRange(generator, style);
     }
 
     SkScalerContextRec rec;
@@ -83,5 +83,5 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     SkScalerContextEffects noEffects;
 
     SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, noEffects, *genericDesc));
-    return this->createPathRange(generator, stroke);
+    return this->createPathRange(generator, style);
 }

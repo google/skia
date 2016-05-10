@@ -29,7 +29,7 @@ static const float kTolerance = 0.5f;
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
 
-static inline bool single_pass_path(const SkPath& path, const SkStrokeRec& stroke) {
+static inline bool single_pass_path(const SkPath& path) {
     if (!path.isInverseFillType()) {
         return path.isConvex();
     }
@@ -38,7 +38,7 @@ static inline bool single_pass_path(const SkPath& path, const SkStrokeRec& strok
 
 GrPathRenderer::StencilSupport
 GrMSAAPathRenderer::onGetStencilSupport(const SkPath& path) const {
-    if (single_pass_path(path, SkStrokeRec(SkStrokeRec::kFill_InitStyle))) {
+    if (single_pass_path(path)) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         return GrPathRenderer::kStencilOnly_StencilSupport;
@@ -571,9 +571,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawTarget* target,
                                           GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
-                                          const GrStrokeInfo& origStroke,
                                           bool stencilOnly) {
-    SkTCopyOnFirstWrite<GrStrokeInfo> stroke(origStroke);
 
     const GrXPFactory* xpFactory = pipelineBuilder->getXPFactory();
     SkAutoTUnref<const GrXPFactory> backupXPFactory(SkSafeRef(xpFactory));
@@ -586,7 +584,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawTarget* target,
     bool                        reverse = false;
     bool                        lastPassIsBounds;
 
-    if (single_pass_path(path, *stroke)) {
+    if (single_pass_path(path)) {
         passCount = 1;
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
@@ -703,34 +701,36 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawTarget* target,
 }
 
 bool GrMSAAPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    return !IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix, nullptr) &&
-           !args.fAntiAlias;
+    // This path renderer does not support hairlines. We defer on anything that could be handled
+    // as a hairline by another path renderer. Also, arbitrary path effects could produce
+    // a hairline result.
+    return !IsStrokeHairlineOrEquivalent(*args.fStyle, *args.fViewMatrix, nullptr) &&
+           !args.fStyle->strokeRec().isHairlineStyle() &&
+           !args.fStyle->hasNonDashPathEffect() && !args.fAntiAlias;
 }
 
 bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrMSAAPathRenderer::onDrawPath");
-    SkPath path;
-    GrStrokeInfo stroke(*args.fStroke);
-    if (stroke.isDashed()) {
-        if (!stroke.applyDashToPath(&path, &stroke, *args.fPath)) {
+    SkPath tmpPath;
+    const SkPath* path;
+    if (args.fStyle->applies()) {
+        SkStrokeRec::InitStyle fill;
+        SkScalar styleScale = GrStyle::MatrixToScaleFactor(*args.fViewMatrix);
+        if (!args.fStyle->applyToPath(&tmpPath, &fill, *args.fPath, styleScale)) {
             return false;
         }
+        // We don't accept styles that are hairlines or have path effects that could produce
+        // hairlines.
+        SkASSERT(SkStrokeRec::kFill_InitStyle == fill);
+        path = &tmpPath;
     } else {
-        path = *args.fPath;
-    }
-    if (!stroke.isFillStyle()) {
-        stroke.setResScale(SkScalarAbs(args.fViewMatrix->getMaxScale()));
-        if (!stroke.applyToPath(&path, path)) {
-            return false;
-        }
-        stroke.setFillStyle();
+        path = args.fPath;
     }
     return this->internalDrawPath(args.fTarget,
                                   args.fPipelineBuilder,
                                   args.fColor,
                                   *args.fViewMatrix,
-                                  path,
-                                  stroke,
+                                  *path,
                                   false);
 }
 
@@ -739,7 +739,7 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
     this->internalDrawPath(args.fTarget, args.fPipelineBuilder, GrColor_WHITE, *args.fViewMatrix,
-                           *args.fPath, GrStrokeInfo::FillInfo(), true);
+                           *args.fPath, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -55,11 +55,10 @@ public:
     bool init(const SkIRect& resultBounds, const SkMatrix* matrix, bool allowCompression = true);
 
     // Draw a single rect into the accumulation bitmap using the specified op
-    void draw(const SkRect& rect, SkRegion::Op op,
-              bool antiAlias, uint8_t alpha);
+    void draw(const SkRect& rect, SkRegion::Op op, bool antiAlias, uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
-    void draw(const SkPath& path, const SkStrokeRec& stroke, SkRegion::Op op,
+    void draw(const SkPath& path, const GrStyle& style, SkRegion::Op op,
               bool antiAlias, uint8_t alpha);
 
     // Move the mask generation results from the internal bitmap to the gpu.
@@ -77,7 +76,7 @@ public:
     // to the GPU. The result is returned.
     static GrTexture* DrawPathMaskToTexture(GrContext* context,
                                             const SkPath& path,
-                                            const SkStrokeRec& stroke,
+                                            const GrStyle& style,
                                             const SkIRect& resultBounds,
                                             bool antiAlias,
                                             const SkMatrix* matrix);

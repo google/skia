@@ -10,9 +10,9 @@
 #include "GrGLPathRendering.h"
 #include "GrGLGpu.h"
 
-GrGLPathRange::GrGLPathRange(GrGLGpu* gpu, PathGenerator* pathGenerator, const GrStrokeInfo& stroke)
+GrGLPathRange::GrGLPathRange(GrGLGpu* gpu, PathGenerator* pathGenerator, const GrStyle& style)
     : INHERITED(gpu, pathGenerator),
-      fStroke(stroke),
+      fStyle(style),
       fBasePathID(gpu->glPathRendering()->genPaths(this->getNumPaths())),
       fGpuMemorySize(0) {
     this->init();
@@ -23,9 +23,9 @@ GrGLPathRange::GrGLPathRange(GrGLGpu* gpu,
                              GrGLuint basePathID,
                              int numPaths,
                              size_t gpuMemorySize,
-                             const GrStrokeInfo& stroke)
+                             const GrStyle& style)
     : INHERITED(gpu, numPaths),
-      fStroke(stroke),
+      fStyle(style),
       fBasePathID(basePathID),
       fGpuMemorySize(gpuMemorySize) {
     this->init();
@@ -33,19 +33,20 @@ GrGLPathRange::GrGLPathRange(GrGLGpu* gpu,
 }
 
 void GrGLPathRange::init() {
+    const SkStrokeRec& stroke = fStyle.strokeRec();
     // Must force fill:
     // * dashing: NVPR stroke dashing is different to Skia.
     // * end caps: NVPR stroking degenerate contours with end caps is different to Skia.
-    bool forceFill = fStroke.isDashed() ||
-            (fStroke.needToApply() && fStroke.getCap() != SkPaint::kButt_Cap);
+    bool forceFill = fStyle.pathEffect() ||
+            (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap);
 
     if (forceFill) {
         fShouldStroke = false;
         fShouldFill = true;
     } else {
-        fShouldStroke = fStroke.needToApply();
-        fShouldFill = fStroke.isFillStyle() ||
-                fStroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+        fShouldStroke = stroke.needToApply();
+        fShouldFill = stroke.isFillStyle() ||
+                stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
     }
 }
 
@@ -54,7 +55,6 @@ void GrGLPathRange::onInitPath(int index, const SkPath& origSkPath) const {
     if (nullptr == gpu) {
         return;
     }
-
     // Make sure the path at this index hasn't been initted already.
     SkDEBUGCODE(
         GrGLboolean isPath;
@@ -65,32 +65,25 @@ void GrGLPathRange::onInitPath(int index, const SkPath& origSkPath) const {
         GrGLPath::InitPathObjectEmptyPath(gpu, fBasePathID + index);
     } else if (fShouldStroke) {
         GrGLPath::InitPathObjectPathData(gpu, fBasePathID + index, origSkPath);
-        GrGLPath::InitPathObjectStroke(gpu, fBasePathID + index, fStroke);
+        GrGLPath::InitPathObjectStroke(gpu, fBasePathID + index, fStyle.strokeRec());
     } else {
         const SkPath* skPath = &origSkPath;
         SkTLazy<SkPath> tmpPath;
-        const GrStrokeInfo* stroke = &fStroke;
-        GrStrokeInfo tmpStroke(SkStrokeRec::kFill_InitStyle);
-
-        // Dashing must be applied to the path. However, if dashing is present,
-        // we must convert all the paths to fills. The GrStrokeInfo::applyDash leaves
-        // simple paths as strokes but converts other paths to fills.
-        // Thus we must stroke the strokes here, so that all paths in the
-        // path range are using the same style.
-        if (fStroke.isDashed()) {
-            if (!stroke->applyDashToPath(tmpPath.init(), &tmpStroke, *skPath)) {
+        if (!fStyle.isSimpleFill()) {
+            SkStrokeRec::InitStyle fill;
+            // The path effect must be applied to the path. However, if a path effect is present,
+            // we must convert all the paths to fills. The path effect application may leave
+            // simple paths as strokes but converts other paths to fills.
+            // Thus we must stroke the strokes here, so that all paths in the
+            // path range are using the same style.
+            if (!fStyle.applyToPath(tmpPath.init(), &fill, *skPath, SK_Scalar1)) {
                 return;
             }
+            // We shouldn't have allowed hairlines or arbitrary path effect styles to get here
+            // so after application we better have a filled path.
+            SkASSERT(SkStrokeRec::kFill_InitStyle == fill);
             skPath = tmpPath.get();
-            stroke = &tmpStroke;
-        }
-        if (stroke->needToApply()) {
-            if (!tmpPath.isValid()) {
-                tmpPath.init();
-            }
-            if (!stroke->applyToPath(tmpPath.get(), *tmpPath.get())) {
-                return;
-            }
+
         }
         GrGLPath::InitPathObjectPathData(gpu, fBasePathID + index, *skPath);
     }

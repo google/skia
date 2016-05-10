@@ -16,7 +16,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
-#include "GrStrokeInfo.h"
+#include "GrStyle.h"
 #include "SkGr.h"
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -29,7 +29,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Returns whether or not the gpu can fast path the dash line effect.
-bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
+bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
                                       const SkMatrix& viewMatrix) {
     // Pts must be either horizontal or vertical in src space
     if (pts[0].fX != pts[1].fX && pts[0].fY != pts[1].fY) {
@@ -42,16 +42,16 @@ bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& 
         return false;
     }
 
-    if (!strokeInfo.isDashed() || 2 != strokeInfo.getDashCount()) {
+    if (!style.isDashed() || 2 != style.dashIntervalCnt()) {
         return false;
     }
 
-    const SkScalar* intervals = strokeInfo.getDashIntervals();
+    const SkScalar* intervals = style.dashIntervals();
     if (0 == intervals[0] && 0 == intervals[1]) {
         return false;
     }
 
-    SkPaint::Cap cap = strokeInfo.getCap();
+    SkPaint::Cap cap = style.strokeRec().getCap();
     // Current we do don't handle Round or Square cap dashes
     if (SkPaint::kRound_Cap == cap && intervals[0] != 0.f) {
         return false;
@@ -690,14 +690,15 @@ private:
 };
 
 static GrDrawBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const SkPoint pts[2],
-                                 bool useAA, const GrStrokeInfo& strokeInfo, bool msaaRT) {
-    const SkScalar* intervals = strokeInfo.getDashIntervals();
-    SkScalar phase = strokeInfo.getDashPhase();
+                                 bool useAA, const GrStyle& style, bool msaaRT) {
+    SkASSERT(GrDashingEffect::CanDrawDashLine(pts, style, viewMatrix));
+    const SkScalar* intervals = style.dashIntervals();
+    SkScalar phase = style.dashPhase();
 
-    SkPaint::Cap cap = strokeInfo.getCap();
+    SkPaint::Cap cap = style.strokeRec().getCap();
 
     DashBatch::Geometry geometry;
-    geometry.fSrcStrokeWidth = strokeInfo.getWidth();
+    geometry.fSrcStrokeWidth = style.strokeRec().getWidth();
 
     // the phase should be normalized to be [0, sum of all intervals)
     SkASSERT(phase >= 0 && phase < intervals[0] + intervals[1]);
@@ -747,8 +748,8 @@ GrDrawBatch* GrDashingEffect::CreateDashLineBatch(GrColor color,
                                                   const SkPoint pts[2],
                                                   bool useAA,
                                                   bool msaaIsEnabled,
-                                                  const GrStrokeInfo& strokeInfo) {
-    return create_batch(color, viewMatrix, pts, useAA, strokeInfo, msaaIsEnabled);
+                                                  const GrStyle& style) {
+    return create_batch(color, viewMatrix, pts, useAA, style, msaaIsEnabled);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1289,17 +1290,11 @@ DRAW_BATCH_TEST_DEFINE(DashBatch) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SkIntToScalar(1));
     p.setStrokeCap(cap);
+    p.setPathEffect(GrTest::TestDashPathEffect::Make(intervals, 2, phase));
 
-    GrStrokeInfo strokeInfo(p);
+    GrStyle style(p);
 
-    SkPathEffect::DashInfo info;
-    info.fIntervals = intervals;
-    info.fCount = 2;
-    info.fPhase = phase;
-    SkDEBUGCODE(bool success = ) strokeInfo.setDashInfo(info);
-    SkASSERT(success);
-
-    return create_batch(color, viewMatrix, pts, useAA, strokeInfo, msaaRT);
+    return create_batch(color, viewMatrix, pts, useAA, style, msaaRT);
 }
 
 #endif

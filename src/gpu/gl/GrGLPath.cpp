@@ -8,6 +8,7 @@
 #include "GrGLPath.h"
 #include "GrGLPathRendering.h"
 #include "GrGLGpu.h"
+#include "GrStyle.h"
 
 namespace {
 inline GrGLubyte verb_to_gl_path_cmd(SkPath::Verb verb) {
@@ -251,9 +252,7 @@ void GrGLPath::InitPathObjectPathData(GrGLGpu* gpu,
     SkAssertResult(init_path_object_for_general_path<false>(gpu, pathID, skPath));
 }
 
-void GrGLPath::InitPathObjectStroke(GrGLGpu* gpu, GrGLuint pathID, const GrStrokeInfo& stroke) {
-    SkASSERT(stroke.needToApply());
-    SkASSERT(!stroke.isDashed());
+void GrGLPath::InitPathObjectStroke(GrGLGpu* gpu, GrGLuint pathID, const SkStrokeRec& stroke) {
     SkASSERT(!stroke.isHairlineStyle());
     GR_GL_CALL(gpu->glInterface(),
                PathParameterf(pathID, GR_GL_PATH_STROKE_WIDTH, SkScalarToFloat(stroke.getWidth())));
@@ -270,8 +269,8 @@ void GrGLPath::InitPathObjectEmptyPath(GrGLGpu* gpu, GrGLuint pathID) {
     GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, 0, nullptr, 0, GR_GL_FLOAT, nullptr));
 }
 
-GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& origStroke)
-    : INHERITED(gpu, origSkPath, origStroke),
+GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
+    : INHERITED(gpu, origSkPath, style),
       fPathID(gpu->glPathRendering()->genPaths(1)) {
 
     if (origSkPath.isEmpty()) {
@@ -281,21 +280,21 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
     } else {
         const SkPath* skPath = &origSkPath;
         SkTLazy<SkPath> tmpPath;
-        const GrStrokeInfo* stroke = &origStroke;
-        GrStrokeInfo tmpStroke(SkStrokeRec::kFill_InitStyle);
+        SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
 
-        if (stroke->isDashed()) {
+        if (style.pathEffect()) {
             // Skia stroking and NVPR stroking differ with respect to dashing
             // pattern.
-            // Convert a dashing to either a stroke or a fill.
-            if (stroke->applyDashToPath(tmpPath.init(), &tmpStroke, *skPath)) {
+            // Convert a dashing (or other path effect) to either a stroke or a fill.
+            if (style.applyPathEffectToPath(tmpPath.init(), &stroke, *skPath, SK_Scalar1)) {
                 skPath = tmpPath.get();
-                stroke = &tmpStroke;
             }
+        } else {
+            stroke = style.strokeRec();
         }
 
         bool didInit = false;
-        if (stroke->needToApply() && stroke->getCap() != SkPaint::kButt_Cap) {
+        if (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap) {
             // Skia stroking and NVPR stroking differ with respect to stroking
             // end caps of empty subpaths.
             // Convert stroke to fill if path contains empty subpaths.
@@ -304,10 +303,9 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
                 if (!tmpPath.isValid()) {
                     tmpPath.init();
                 }
-                SkAssertResult(stroke->applyToPath(tmpPath.get(), *skPath));
+                SkAssertResult(stroke.applyToPath(tmpPath.get(), *skPath));
                 skPath = tmpPath.get();
-                tmpStroke.setFillStyle();
-                stroke = &tmpStroke;
+                stroke.setFillStyle();
             }
         }
 
@@ -315,18 +313,16 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
             InitPathObjectPathData(gpu, fPathID, *skPath);
         }
 
-        fShouldStroke = stroke->needToApply();
-        fShouldFill = stroke->isFillStyle() ||
-                stroke->getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+        fShouldStroke = stroke.needToApply();
+        fShouldFill = stroke.isFillStyle() ||
+                stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
 
         fFillType = convert_skpath_filltype(skPath->getFillType());
         fBounds = skPath->getBounds();
-
+        SkScalar radius = stroke.getInflationRadius();
+        fBounds.outset(radius, radius);
         if (fShouldStroke) {
-            InitPathObjectStroke(gpu, fPathID, *stroke);
-
-            // FIXME: try to account for stroking, without rasterizing the stroke.
-            fBounds.outset(stroke->getWidth(), stroke->getWidth());
+            InitPathObjectStroke(gpu, fPathID, stroke);
         }
     }
 

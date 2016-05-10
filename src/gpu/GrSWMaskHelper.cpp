@@ -11,6 +11,7 @@
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
+#include "GrStyle.h"
 
 #include "SkData.h"
 #include "SkDistanceFieldGen.h"
@@ -117,22 +118,11 @@ void GrSWMaskHelper::draw(const SkRect& rect, SkRegion::Op op,
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegion::Op op,
+void GrSWMaskHelper::draw(const SkPath& path, const GrStyle& style, SkRegion::Op op,
                           bool antiAlias, uint8_t alpha) {
-
     SkPaint paint;
-    if (stroke.isHairlineStyle()) {
-        paint.setStyle(SkPaint::kStroke_Style);
-    } else {
-        if (stroke.isFillStyle()) {
-            paint.setStyle(SkPaint::kFill_Style);
-        } else {
-            paint.setStyle(SkPaint::kStroke_Style);
-            paint.setStrokeJoin(stroke.getJoin());
-            paint.setStrokeCap(stroke.getCap());
-            paint.setStrokeWidth(stroke.getWidth());
-        }
-    }
+    paint.setPathEffect(sk_ref_sp(style.pathEffect()));
+    style.strokeRec().applyToPaint(&paint);
     paint.setAntiAlias(antiAlias);
 
     SkTBlitterAllocator allocator;
@@ -307,7 +297,7 @@ void GrSWMaskHelper::toSDF(unsigned char* sdf) {
  */
 GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
                                                  const SkPath& path,
-                                                 const SkStrokeRec& stroke,
+                                                 const GrStyle& style,
                                                  const SkIRect& resultBounds,
                                                  bool antiAlias,
                                                  const SkMatrix* matrix) {
@@ -317,7 +307,7 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
         return nullptr;
     }
 
-    helper.draw(path, stroke, SkRegion::kReplace_Op, antiAlias, 0xFF);
+    helper.draw(path, style, SkRegion::kReplace_Op, antiAlias, 0xFF);
 
     GrTexture* texture(helper.createTexture());
     if (!texture) {

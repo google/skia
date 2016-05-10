@@ -10,13 +10,12 @@
 
 #include "GrDrawTarget.h"
 #include "GrStencil.h"
-#include "GrStrokeInfo.h"
+#include "GrStyle.h"
 
 #include "SkDrawProcs.h"
 #include "SkTArray.h"
 
 class SkPath;
-
 struct GrPoint;
 
 /**
@@ -72,14 +71,14 @@ public:
      * fPipelineBuilder  The pipelineBuilder
      * fViewMatrix       The viewMatrix
      * fPath             The path to draw
-     * fStroke           The stroke information (width, join, cap)
+     * fStyle            The styling info (path effect, stroking info)
      * fAntiAlias        True if anti-aliasing is required.
      */
     struct CanDrawPathArgs {
         const GrShaderCaps*         fShaderCaps;
         const SkMatrix*             fViewMatrix;
         const SkPath*               fPath;
-        const GrStrokeInfo*         fStroke;
+        const GrStyle*              fStyle;
         bool                        fAntiAlias;
 
         // These next two are only used by GrStencilAndCoverPathRenderer
@@ -90,7 +89,7 @@ public:
             SkASSERT(fShaderCaps);
             SkASSERT(fViewMatrix);
             SkASSERT(fPath);
-            SkASSERT(fStroke);
+            SkASSERT(fStyle);
             SkASSERT(!fPath->isEmpty());
         }
     };
@@ -116,7 +115,7 @@ public:
      * fColor                 Color to render with
      * fViewMatrix            The viewMatrix
      * fPath                  the path to draw.
-     * fStroke                the stroke information (width, join, cap)
+     * fStyle                 the style information (path effect, stroke info)
      * fAntiAlias             true if anti-aliasing is required.
      * fGammaCorrect          true if gamma-correct rendering is to be used.
      */
@@ -127,7 +126,7 @@ public:
         GrColor                     fColor;
         const SkMatrix*             fViewMatrix;
         const SkPath*               fPath;
-        const GrStrokeInfo*         fStroke;
+        const GrStyle*              fStyle;
         bool                        fAntiAlias;
         bool                        fGammaCorrect;
 
@@ -137,7 +136,7 @@ public:
             SkASSERT(fPipelineBuilder);
             SkASSERT(fViewMatrix);
             SkASSERT(fPath);
-            SkASSERT(fStroke);
+            SkASSERT(fStyle);
             SkASSERT(!fPath->isEmpty());
         }
     };
@@ -153,7 +152,7 @@ public:
         canArgs.fShaderCaps = args.fTarget->caps()->shaderCaps();
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fPath = args.fPath;
-        canArgs.fStroke = args.fStroke;
+        canArgs.fStyle = args.fStyle;
         canArgs.fAntiAlias = args.fAntiAlias;
 
         canArgs.fIsStencilDisabled = args.fPipelineBuilder->getStencil().isDisabled();
@@ -162,8 +161,7 @@ public:
         SkASSERT(this->canDrawPath(canArgs));
         if (!args.fPipelineBuilder->getStencil().isDisabled()) {
             SkASSERT(kNoRestriction_StencilSupport == this->getStencilSupport(*args.fPath));
-            SkASSERT(!args.fStroke->isDashed());
-            SkASSERT(args.fStroke->isFillStyle());
+            SkASSERT(args.fStyle->isSimpleFill());
         }
 #endif
         return this->onDrawPath(args);
@@ -197,22 +195,21 @@ public:
     /**
      * Draws the path to the stencil buffer. Assume the writable stencil bits are already
      * initialized to zero. The pixels inside the path will have non-zero stencil values afterwards.
-     *
      */
     void stencilPath(const StencilPathArgs& args) {
         SkDEBUGCODE(args.validate();)
         SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(*args.fPath));
-
         this->onStencilPath(args);
     }
 
     // Helper for determining if we can treat a thin stroke as a hairline w/ coverage.
     // If we can, we draw lots faster (raster device does this same test).
-    static bool IsStrokeHairlineOrEquivalent(const GrStrokeInfo& stroke, const SkMatrix& matrix,
+    static bool IsStrokeHairlineOrEquivalent(const GrStyle& style, const SkMatrix& matrix,
                                              SkScalar* outCoverage) {
-        if (stroke.isDashed()) {
+        if (style.pathEffect()) {
             return false;
         }
+        const SkStrokeRec& stroke = style.strokeRec();
         if (stroke.isHairlineStyle()) {
             if (outCoverage) {
                 *outCoverage = SK_Scalar1;
@@ -279,12 +276,11 @@ private:
         drawArgs.fColor = 0xFFFFFFFF;
         drawArgs.fViewMatrix = args.fViewMatrix;
         drawArgs.fPath = args.fPath;
-        drawArgs.fStroke = &GrStrokeInfo::FillInfo();
+        drawArgs.fStyle = &GrStyle::SimpleFill();
         drawArgs.fAntiAlias = false;
         drawArgs.fGammaCorrect = false;
         this->drawPath(drawArgs);
     }
-
 
     typedef SkRefCnt INHERITED;
 };
