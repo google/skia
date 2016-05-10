@@ -259,12 +259,14 @@
                 'yasm_flags': [
                   '-D__x86__',
                   '-DELF',
+                  '-DPIC',
                 ],
               }, {
                 'yasm_format': '-felf64',
                 'yasm_flags': [
                   '-D__x86_64__',
                   '-DELF',
+                  '-DPIC',
                 ],
               }],
             ],
