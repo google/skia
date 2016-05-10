@@ -1468,7 +1468,9 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             }
         }
         // All the above srgb extensions support toggling srgb writes
-        fSRGBWriteControl = true;
+        if (fSRGBSupport) {
+            fSRGBWriteControl = true;
+        }
     } else {
         // See https://bug.skia.org/4148 for PowerVR issue.
         fSRGBSupport = kPowerVRRogue_GrGLRenderer != ctxInfo.renderer() &&
