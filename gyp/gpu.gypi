@@ -174,6 +174,8 @@
       '<(skia_src_path)/gpu/GrStencil.h',
       '<(skia_src_path)/gpu/GrStencilAttachment.cpp',
       '<(skia_src_path)/gpu/GrStencilAttachment.h',
+      '<(skia_src_path)/gpu/GrStrokeInfo.cpp',
+      '<(skia_src_path)/gpu/GrStrokeInfo.h',
       '<(skia_src_path)/gpu/GrStyle.cpp',
       '<(skia_src_path)/gpu/GrStyle.h',
       '<(skia_src_path)/gpu/GrTessellator.cpp',

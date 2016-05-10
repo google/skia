@@ -12,7 +12,6 @@
 #include "gl/GrGLTypes.h"
 
 class GrGLGpu;
-class GrStyle;
 
 /**
  * Currently this represents a path built using GL_NV_path_rendering. If we
@@ -28,12 +27,12 @@ public:
     static void InitPathObjectPathData(GrGLGpu*,
                                        GrGLuint pathID,
                                        const SkPath&);
-    static void InitPathObjectStroke(GrGLGpu*, GrGLuint pathID, const SkStrokeRec&);
+    static void InitPathObjectStroke(GrGLGpu* gpu, GrGLuint pathID, const GrStrokeInfo& stroke);
 
     static void InitPathObjectEmptyPath(GrGLGpu*, GrGLuint pathID);
 
 
-    GrGLPath(GrGLGpu*, const SkPath&, const GrStyle&);
+    GrGLPath(GrGLGpu* gpu, const SkPath& path, const GrStrokeInfo& stroke);
     GrGLuint pathID() const { return fPathID; }
 
     bool shouldStroke() const { return fShouldStroke; }

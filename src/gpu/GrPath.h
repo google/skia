@@ -9,8 +9,8 @@
 #define GrPath_DEFINED
 
 #include "GrGpuResource.h"
+#include "GrStrokeInfo.h"
 #include "GrPathRendering.h"
-#include "GrStyle.h"
 #include "SkPath.h"
 #include "SkRect.h"
 
@@ -19,25 +19,25 @@ public:
     /**
      * Initialize to a path with a fixed stroke. Stroke must not be hairline.
      */
-    GrPath(GrGpu* gpu, const SkPath& skPath, const GrStyle& style)
+    GrPath(GrGpu* gpu, const SkPath& skPath, const GrStrokeInfo& stroke)
         : INHERITED(gpu)
         , fBounds(SkRect::MakeEmpty())
         , fFillType(GrPathRendering::kWinding_FillType)
 #ifdef SK_DEBUG
         , fSkPath(skPath)
-        , fStyle(style)
+        , fStroke(stroke)
 #endif
     {
     }
 
-    static void ComputeKey(const SkPath& path, const GrStyle& style, GrUniqueKey* key,
+    static void ComputeKey(const SkPath& path, const GrStrokeInfo& stroke, GrUniqueKey* key,
                            bool* outIsVolatile);
 
     const SkRect& getBounds() const { return fBounds; }
 
     GrPathRendering::FillType getFillType() const { return fFillType; }
 #ifdef SK_DEBUG
-    bool isEqualTo(const SkPath& path, const GrStyle& style) const;
+    bool isEqualTo(const SkPath& path, const GrStrokeInfo& stroke) const;
 #endif
 
 protected:
@@ -46,7 +46,7 @@ protected:
     GrPathRendering::FillType fFillType;
 #ifdef SK_DEBUG
     SkPath fSkPath;
-    GrStyle fStyle;
+    GrStrokeInfo fStroke;
 #endif
 
 private:

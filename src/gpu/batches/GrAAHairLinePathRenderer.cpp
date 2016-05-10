@@ -618,12 +618,7 @@ bool GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
         return false;
     }
 
-    if (!IsStrokeHairlineOrEquivalent(*args.fStyle, *args.fViewMatrix, nullptr)) {
-        return false;
-    }
-
-    // We don't currently handle dashing in this class though perhaps we should.
-    if (args.fStyle->pathEffect()) {
+    if (!IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix, nullptr)) {
         return false;
     }
 
@@ -944,11 +939,11 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
 static GrDrawBatch* create_hairline_batch(GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
-                                          const GrStyle& style,
+                                          const GrStrokeInfo& stroke,
                                           const SkIRect& devClipBounds) {
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
-    if (GrPathRenderer::IsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
+    if (GrPathRenderer::IsStrokeHairlineOrEquivalent(stroke, viewMatrix, &hairlineCoverage)) {
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
     }
 
@@ -969,7 +964,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fPipelineBuilder->clip().getConservativeBounds(rt->width(), rt->height(), &devClipBounds);
 
     SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, *args.fPath,
-                                                          *args.fStyle, devClipBounds));
+                                                          *args.fStroke, devClipBounds));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
@@ -982,10 +977,11 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 DRAW_BATCH_TEST_DEFINE(AAHairlineBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    GrStrokeInfo stroke(SkStrokeRec::kHairline_InitStyle);
     SkPath path = GrTest::TestPath(random);
     SkIRect devClipBounds;
     devClipBounds.setEmpty();
-    return create_hairline_batch(color, viewMatrix, path, GrStyle::SimpleHairline(), devClipBounds);
+    return create_hairline_batch(color, viewMatrix, path, stroke, devClipBounds);
 }
 
 #endif

@@ -9,7 +9,7 @@
 #define GrStencilAndCoverTextContext_DEFINED
 
 #include "GrDrawContext.h"
-#include "GrStyle.h"
+#include "GrStrokeInfo.h"
 #include "SkDrawFilter.h"
 #include "SkTextBlob.h"
 #include "SkTHash.h"
@@ -94,7 +94,7 @@ private:
         GrPathRange* createGlyphs(GrContext*) const;
         void appendGlyph(const SkGlyph&, const SkPoint&, FallbackBlobBuilder*);
 
-        GrStyle                          fStyle;
+        GrStrokeInfo                     fStroke;
         SkPaint                          fFont;
         SkScalar                         fTextRatio;
         float                            fTextInverseRatio;

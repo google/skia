@@ -18,7 +18,7 @@ class GrPath;
 class GrRenderTarget;
 class GrSingleOwner;
 class GrStencilAttachment;
-class GrStyle;
+class GrStrokeInfo;
 class SkDescriptor;
 class SkPath;
 class SkTypeface;
@@ -83,10 +83,10 @@ public:
      * Factories for GrPath and GrPathRange objects. It's an error to call these if path rendering
      * is not supported.
      */
-    GrPath* createPath(const SkPath&, const GrStyle&);
-    GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStyle&);
+    GrPath* createPath(const SkPath&, const GrStrokeInfo&);
+    GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStrokeInfo&);
     GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                              const SkDescriptor*, const GrStyle&);
+                              const SkDescriptor*, const GrStrokeInfo&);
 
     using GrTextureProvider::assignUniqueKeyToResource;
     using GrTextureProvider::findAndRefResourceByUniqueKey;

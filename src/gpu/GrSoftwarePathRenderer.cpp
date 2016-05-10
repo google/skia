@@ -12,7 +12,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    return SkToBool(fContext);
+    if (nullptr == fContext) {
+        return false;
+    }
+    if (args.fStroke->isDashed()) {
+        return false;
+    }
+    return true;
 }
 
 namespace {
@@ -124,7 +130,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     SkAutoTUnref<GrTexture> texture(
-            GrSWMaskHelper::DrawPathMaskToTexture(fContext, *args.fPath, *args.fStyle,
+            GrSWMaskHelper::DrawPathMaskToTexture(fContext, *args.fPath, *args.fStroke,
                                                   devPathBounds,
                                                   args.fAntiAlias, args.fViewMatrix));
     if (nullptr == texture) {

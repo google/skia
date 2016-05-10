@@ -14,7 +14,7 @@
 #include "GrPath.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
-#include "GrStyle.h"
+#include "GrStrokeInfo.h"
 #include "batches/GrRectBatchFactory.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
@@ -31,9 +31,7 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
 }
 
 bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // GrPath doesn't support hairline paths. Also, an arbitrary path effect could change
-    // the style type to hairline.
-    if (!args.fStyle->hasNonDashPathEffect() || args.fStyle->strokeRec().isHairlineStyle()) {
+    if (args.fStroke->isHairlineStyle()) {
         return false;
     }
     if (!args.fIsStencilDisabled) {
@@ -47,19 +45,19 @@ bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 }
 
 static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const SkPath& skPath,
-                           const GrStyle& style) {
+                           const GrStrokeInfo& stroke) {
     GrUniqueKey key;
     bool isVolatile;
-    GrPath::ComputeKey(skPath, style, &key, &isVolatile);
+    GrPath::ComputeKey(skPath, stroke, &key, &isVolatile);
     SkAutoTUnref<GrPath> path(
         static_cast<GrPath*>(resourceProvider->findAndRefResourceByUniqueKey(key)));
     if (!path) {
-        path.reset(resourceProvider->createPath(skPath, style));
+        path.reset(resourceProvider->createPath(skPath, stroke));
         if (!isVolatile) {
             resourceProvider->assignUniqueKeyToResource(key, path);
         }
     } else {
-        SkASSERT(path->isEqualTo(skPath, style));
+        SkASSERT(path->isEqualTo(skPath, stroke));
     }
     return path.release();
 }
@@ -68,14 +66,14 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     SkASSERT(!args.fPath->isInverseFillType());
-    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fPath, GrStyle::SimpleFill()));
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fPath, GrStrokeInfo::FillInfo()));
     args.fTarget->stencilPath(*args.fPipelineBuilder, *args.fViewMatrix, p, p->getFillType());
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
                               "GrStencilAndCoverPathRenderer::onDrawPath");
-    SkASSERT(!args.fStyle->strokeRec().isHairlineStyle());
+    SkASSERT(!args.fStroke->isHairlineStyle());
     const SkPath& path = *args.fPath;
     GrPipelineBuilder* pipelineBuilder = args.fPipelineBuilder;
     const SkMatrix& viewMatrix = *args.fViewMatrix;
@@ -87,7 +85,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         pipelineBuilder->enableState(GrPipelineBuilder::kHWAntialias_Flag);
     }
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, *args.fStyle));
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, *args.fStroke));
 
     if (path.isInverseFillType()) {
         static constexpr GrStencilSettings kInvertedStencilPass(

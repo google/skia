@@ -79,7 +79,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
     }
     if (minStencilSupport != GrPathRenderer::kNoSupport_StencilSupport) {
         // We don't support (and shouldn't need) stenciling of non-fill paths.
-        if (!args.fStyle->isSimpleFill()) {
+        if (!args.fStroke->isFillStyle() || args.fStroke->isDashed()) {
             return nullptr;
         }
     }

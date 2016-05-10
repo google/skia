@@ -11,7 +11,7 @@
 
 #include "GrContext.h"
 #include "GrPath.h"
-#include "GrStyle.h"
+#include "GrStrokeInfo.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -104,8 +104,9 @@ DEF_GPUTEST(GrPathKeys, reporter, /*factory*/) {
 
     bool isVolatile;
     GrUniqueKey key1, key2;
-    GrPath::ComputeKey(path1, GrStyle::SimpleFill(), &key1, &isVolatile);
-    GrPath::ComputeKey(path2, GrStyle::SimpleFill(), &key2, &isVolatile);
+    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
+    GrPath::ComputeKey(path1, stroke, &key1, &isVolatile);
+    GrPath::ComputeKey(path2, stroke, &key2, &isVolatile);
     REPORTER_ASSERT(reporter, key1 != key2);
 }
 

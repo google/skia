@@ -70,24 +70,24 @@ const GrBuffer* GrResourceProvider::createQuadIndexBuffer() {
     return this->createInstancedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
 
-GrPath* GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
+GrPath* GrResourceProvider::createPath(const SkPath& path, const GrStrokeInfo& stroke) {
     SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createPath(path, style);
+    return this->gpu()->pathRendering()->createPath(path, stroke);
 }
 
 GrPathRange* GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen,
-                                                 const GrStyle& style) {
+                                                 const GrStrokeInfo& stroke) {
     SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createPathRange(gen, style);
+    return this->gpu()->pathRendering()->createPathRange(gen, stroke);
 }
 
 GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf,
                                               const SkScalerContextEffects& effects,
                                               const SkDescriptor* desc,
-                                              const GrStyle& style) {
+                                              const GrStrokeInfo& stroke) {
 
     SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createGlyphs(tf, effects, desc, style);
+    return this->gpu()->pathRendering()->createGlyphs(tf, effects, desc, stroke);
 }
 
 GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedType,

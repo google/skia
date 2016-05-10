@@ -106,13 +106,13 @@ void GrGLPathRendering::resetContext() {
     fHWPathStencilSettings.invalidate();
 }
 
-GrPath* GrGLPathRendering::createPath(const SkPath& inPath, const GrStyle& style) {
-    return new GrGLPath(this->gpu(), inPath, style);
+GrPath* GrGLPathRendering::createPath(const SkPath& inPath, const GrStrokeInfo& stroke) {
+    return new GrGLPath(this->gpu(), inPath, stroke);
 }
 
 GrPathRange* GrGLPathRendering::createPathRange(GrPathRange::PathGenerator* pathGenerator,
-                                                const GrStyle& style) {
-    return new GrGLPathRange(this->gpu(), pathGenerator, style);
+                                                const GrStrokeInfo& stroke) {
+    return new GrGLPathRange(this->gpu(), pathGenerator, stroke);
 }
 
 void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath* path) {

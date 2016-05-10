@@ -10,7 +10,7 @@
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
 #include "GrDrawContext.h"
-#include "GrStyle.h"
+#include "GrStrokeInfo.h"
 #include "GrTextureParamsAdjuster.h"
 #include "SkDraw.h"
 #include "SkGrPriv.h"
@@ -240,6 +240,6 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     rectPath.addRect(clippedDstRect);
     rectPath.setIsVolatile(true);
     GrBlurUtils::drawPathWithMaskFilter(this->context(), fDrawContext.get(), fClip,
-                                        rectPath, &grPaint, viewMatrix, mf, GrStyle::SimpleFill(),
-                                        true);
+                                        rectPath, &grPaint, viewMatrix, mf, paint.getPathEffect(),
+                                        GrStrokeInfo::FillInfo(), true);
 }

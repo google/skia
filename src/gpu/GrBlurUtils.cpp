@@ -10,7 +10,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "effects/GrSimpleTextureEffect.h"
-#include "GrStyle.h"
+#include "GrStrokeInfo.h"
 #include "GrTexture.h"
 #include "GrTextureProvider.h"
 #include "SkDraw.h"
@@ -54,10 +54,11 @@ static bool sw_draw_with_mask_filter(GrDrawContext* drawContext,
                                      const SkMaskFilter* filter,
                                      const SkIRect& clipBounds,
                                      GrPaint* grp,
-                                     SkStrokeRec::InitStyle fillOrHairline) {
+                                     SkStrokeRec::InitStyle style) {
     SkMask  srcM, dstM;
+
     if (!SkDraw::DrawToMask(devPath, &clipBounds, filter, &viewMatrix, &srcM,
-                            SkMask::kComputeBoundsAndRenderImage_CreateMode, fillOrHairline)) {
+                            SkMask::kComputeBoundsAndRenderImage_CreateMode, style)) {
         return false;
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);
@@ -95,7 +96,7 @@ static bool sw_draw_with_mask_filter(GrDrawContext* drawContext,
 static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
                                         SkRect* maskRect,
                                         const SkPath& devPath,
-                                        SkStrokeRec::InitStyle fillOrHairline,
+                                        SkStrokeRec::InitStyle style,
                                         bool doAA,
                                         int sampleCnt) {
     // This mask will ultimately be drawn as a non-AA rect (see draw_mask).
@@ -138,7 +139,7 @@ static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
     // the origin using tempPaint.
     SkMatrix translate;
     translate.setTranslate(-maskRect->fLeft, -maskRect->fTop);
-    drawContext->drawPath(clip, tempPaint, translate, devPath, GrStyle(fillOrHairline));
+    drawContext->drawPath(clip, tempPaint, translate, devPath, GrStrokeInfo(style));
     return drawContext->asTexture();;
 }
 
@@ -148,50 +149,52 @@ static void draw_path_with_mask_filter(GrContext* context,
                                        GrPaint* paint,
                                        const SkMatrix& viewMatrix,
                                        const SkMaskFilter* maskFilter,
-                                       const GrStyle& style,
-                                       const SkPath* path,
+                                       const SkPathEffect* pathEffect,
+                                       const GrStrokeInfo& strokeInfo,
+                                       SkPath* pathPtr,
                                        bool pathIsMutable) {
     SkASSERT(maskFilter);
 
     SkIRect clipBounds;
     clip.getConservativeBounds(drawContext->width(), drawContext->height(), &clipBounds);
     SkTLazy<SkPath> tmpPath;
-    SkStrokeRec::InitStyle fillOrHairline;
 
-    // We just fully apply the style here.
-    if (style.applies()) {
-        if (!style.applyToPath(tmpPath.init(), &fillOrHairline, *path,
-                                   GrStyle::MatrixToScaleFactor(viewMatrix))) {
-            return;
-        }
-        pathIsMutable = true;
-        path = tmpPath.get();
-    } else if (style.isSimpleHairline()) {
-        fillOrHairline = SkStrokeRec::kHairline_InitStyle;
+    static const SkRect* cullRect = nullptr;  // TODO: what is our bounds?
+
+    SkASSERT(strokeInfo.isDashed() || !pathEffect);
+    SkStrokeRec::InitStyle maskStyle;
+    if (strokeInfo.isHairlineStyle()) {
+        maskStyle = SkStrokeRec::kHairline_InitStyle;
     } else {
-        SkASSERT(style.isSimpleFill());
-        fillOrHairline = SkStrokeRec::kFill_InitStyle;
+        SkPath* strokedPath = pathIsMutable ? pathPtr : tmpPath.init();
+        SkStrokeRec rec = strokeInfo;
+        if (strokeInfo.isDashed()) {
+            if (pathEffect->filterPath(strokedPath, *pathPtr, &rec, cullRect)) {
+                pathPtr = strokedPath;
+                pathPtr->setIsVolatile(true);
+                pathIsMutable = true;
+            }
+        }
+        if (rec.applyToPath(strokedPath, *pathPtr)) {
+            // Apply the stroke to the path if there is one
+            pathPtr = strokedPath;
+            pathPtr->setIsVolatile(true);
+            pathIsMutable = true;
+        }
+        maskStyle = SkStrokeRec::kFill_InitStyle;
+    }
+
+    // avoid possibly allocating a new path in transform if we can
+    SkPath* devPathPtr = pathIsMutable ? pathPtr : tmpPath.init();
+    if (!pathIsMutable) {
+        devPathPtr->setIsVolatile(true);
     }
 
     // transform the path into device space
-    if (!viewMatrix.isIdentity()) {
-        SkPath* result;
-        if (pathIsMutable) {
-            result = const_cast<SkPath*>(path);
-        } else {
-            if (!tmpPath.isValid()) {
-                tmpPath.init();
-            }
-            result = tmpPath.get();
-        }
-        path->transform(viewMatrix, result);
-        path = result;
-        result->setIsVolatile(true);
-        pathIsMutable = true;
-    }
+    pathPtr->transform(viewMatrix, devPathPtr);
 
     SkRect maskRect;
-    if (maskFilter->canFilterMaskGPU(SkRRect::MakeRect(path->getBounds()),
+    if (maskFilter->canFilterMaskGPU(SkRRect::MakeRect(devPathPtr->getBounds()),
                                      clipBounds,
                                      viewMatrix,
                                      &maskRect)) {
@@ -207,8 +210,8 @@ static void draw_path_with_mask_filter(GrContext* context,
                                             paint,
                                             clip,
                                             viewMatrix,
-                                            SkStrokeRec(fillOrHairline),
-                                            *path)) {
+                                            SkStrokeRec(maskStyle),
+                                            *devPathPtr)) {
             // the mask filter was able to draw itself directly, so there's nothing
             // left to do.
             return;
@@ -216,8 +219,8 @@ static void draw_path_with_mask_filter(GrContext* context,
 
         sk_sp<GrTexture> mask(create_mask_GPU(context,
                                               &maskRect,
-                                              *path,
-                                              fillOrHairline,
+                                              *devPathPtr,
+                                              maskStyle,
                                               paint->isAntiAlias(),
                                               drawContext->numColorSamples()));
         if (mask) {
@@ -235,58 +238,95 @@ static void draw_path_with_mask_filter(GrContext* context,
     }
 
     sw_draw_with_mask_filter(drawContext, context->textureProvider(),
-                             clip, viewMatrix, *path,
-                             maskFilter, clipBounds, paint, fillOrHairline);
-}
-
-void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
-                                         GrDrawContext* drawContext,
-                                         const GrClip& clip,
-                                         const SkPath& path,
-                                         GrPaint* paint,
-                                         const SkMatrix& viewMatrix,
-                                         const SkMaskFilter* mf,
-                                         const GrStyle& style,
-                                         bool pathIsMutable) {
-    draw_path_with_mask_filter(context, drawContext, clip, paint, viewMatrix, mf,
-                               style, &path, pathIsMutable);
+                             clip, viewMatrix, *devPathPtr,
+                             maskFilter, clipBounds, paint, maskStyle);
 }
 
 void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          GrDrawContext* drawContext,
                                          const GrClip& clip,
                                          const SkPath& origPath,
+                                         GrPaint* paint,
+                                         const SkMatrix& viewMatrix,
+                                         const SkMaskFilter* mf,
+                                         const SkPathEffect* pathEffect,
+                                         const GrStrokeInfo& origStrokeInfo,
+                                         bool pathIsMutable) {
+    SkPath* pathPtr = const_cast<SkPath*>(&origPath);
+
+    SkTLazy<SkPath> tmpPath;
+    GrStrokeInfo strokeInfo(origStrokeInfo);
+
+    if (!strokeInfo.isDashed() && pathEffect && pathEffect->filterPath(tmpPath.init(), *pathPtr,
+                                                                       &strokeInfo, nullptr)) {
+        pathPtr = tmpPath.get();
+        pathPtr->setIsVolatile(true);
+        pathIsMutable = true;
+        pathEffect = nullptr;
+    }
+
+    draw_path_with_mask_filter(context, drawContext, clip, paint, viewMatrix, mf, pathEffect,
+                               strokeInfo, pathPtr, pathIsMutable);
+}
+
+void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
+                                         GrDrawContext* drawContext,
+                                         const GrClip& clip,
+                                         const SkPath& origSrcPath,
                                          const SkPaint& paint,
                                          const SkMatrix& origViewMatrix,
                                          const SkMatrix* prePathMatrix,
                                          const SkIRect& clipBounds,
                                          bool pathIsMutable) {
-    SkASSERT(!pathIsMutable || origPath.isVolatile());
+    SkASSERT(!pathIsMutable || origSrcPath.isVolatile());
 
-    GrStyle style(paint);
+    GrStrokeInfo strokeInfo(paint);
+    // comment out the line below to determine if it is the reason that the chrome mac perf bot
+    // has begun crashing
+    // strokeInfo.setResScale(SkDraw::ComputeResScaleForStroking(origViewMatrix));
+
     // If we have a prematrix, apply it to the path, optimizing for the case
     // where the original path can in fact be modified in place (even though
     // its parameter type is const).
-
-    const SkPath* path = &origPath;
+    SkPath* pathPtr = const_cast<SkPath*>(&origSrcPath);
     SkTLazy<SkPath> tmpPath;
+    SkTLazy<SkPath> effectPath;
+    SkPathEffect* pathEffect = paint.getPathEffect();
 
     SkMatrix viewMatrix = origViewMatrix;
 
     if (prePathMatrix) {
-        // Styling, blurs, and shading are supposed to be applied *after* the prePathMatrix.
-        if (!paint.getMaskFilter() && !paint.getShader() && !style.applies()) {
+        // stroking, path effects, and blurs are supposed to be applied *after* the prePathMatrix.
+        // The pre-path-matrix also should not affect shading.
+        if (!paint.getMaskFilter() && !pathEffect && !paint.getShader() &&
+            (strokeInfo.isFillStyle() || strokeInfo.isHairlineStyle())) {
             viewMatrix.preConcat(*prePathMatrix);
         } else {
-            SkPath* result = pathIsMutable ? const_cast<SkPath*>(path) : tmpPath.init();
-            pathIsMutable = true;
-            path->transform(*prePathMatrix, result);
-            path = result;
-            result->setIsVolatile(true);
+            SkPath* result = pathPtr;
+
+            if (!pathIsMutable) {
+                result = tmpPath.init();
+                result->setIsVolatile(true);
+                pathIsMutable = true;
+            }
+            // should I push prePathMatrix on our MV stack temporarily, instead
+            // of applying it here? See SkDraw.cpp
+            pathPtr->transform(*prePathMatrix, result);
+            pathPtr = result;
         }
     }
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
+
+    SkTLazy<SkPath> tmpPath2;
+
+    if (!strokeInfo.isDashed() && pathEffect &&
+        pathEffect->filterPath(tmpPath2.init(), *pathPtr, &strokeInfo, nullptr)) {
+        pathPtr = tmpPath2.get();
+        pathPtr->setIsVolatile(true);
+        pathIsMutable = true;
+        pathEffect = nullptr;
+    }
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(context, paint, viewMatrix, drawContext->isGammaCorrect(),
@@ -296,9 +336,9 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
 
     if (paint.getMaskFilter()) {
         draw_path_with_mask_filter(context, drawContext, clip, &grPaint, viewMatrix,
-                                   paint.getMaskFilter(), style,
-                                   path, pathIsMutable);
+                                   paint.getMaskFilter(), pathEffect, strokeInfo,
+                                   pathPtr, pathIsMutable);
     } else {
-        drawContext->drawPath(clip, grPaint, viewMatrix, *path, style);
+        drawContext->drawPath(clip, grPaint, viewMatrix, *pathPtr, strokeInfo);
     }
 }

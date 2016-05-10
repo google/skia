@@ -85,11 +85,6 @@ public:
         this->initPathEffect(paint.getPathEffect());
     }
 
-    explicit GrStyle(const SkPaint& paint, SkPaint::Style overrideStyle)
-            : fStrokeRec(paint, overrideStyle) {
-        this->initPathEffect(paint.getPathEffect());
-    }
-
     GrStyle& operator=(const GrStyle& that) {
         fPathEffect = that.fPathEffect;
         fDashInfo = that.fDashInfo;
@@ -138,12 +133,6 @@ public:
         return this->pathEffect() || (!fStrokeRec.isFillStyle() && !fStrokeRec.isHairlineStyle());
     }
 
-    static SkScalar MatrixToScaleFactor(const SkMatrix& matrix) {
-        // getMaxScale will return -1 if the matrix has perspective. In that case we can use a scale
-        // factor of 1. This isn't necessarily a good choice and in the future we might consider
-        // taking a bounds here for the perspective case.
-        return SkScalarAbs(matrix.getMaxScale());
-    }
     /**
      * Applies just the path effect and returns remaining stroke information. This will fail if
      * there is no path effect. dst may or may not have been overwritten on failure. Scale controls

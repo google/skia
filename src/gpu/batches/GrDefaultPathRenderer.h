@@ -35,7 +35,7 @@ private:
                           GrColor,
                           const SkMatrix& viewMatrix,
                           const SkPath&,
-                          const GrStyle&,
+                          const GrStrokeInfo&,
                           bool stencilOnly);
 
     bool    fSeparateStencil;

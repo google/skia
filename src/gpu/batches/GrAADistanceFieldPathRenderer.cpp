@@ -81,14 +81,13 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // We don't currently apply the dash or factor it into the DF key. (skbug.com/5082)
-    if (args.fStyle->pathEffect()) {
-        return false;
-    }
+
     // TODO: Support inverse fill
     if (!args.fShaderCaps->shaderDerivativeSupport() || !args.fAntiAlias ||
-        args.fStyle->isSimpleHairline() || args.fPath->isInverseFillType() ||
-        args.fPath->isVolatile()) {
+        SkStrokeRec::kHairline_Style == args.fStroke->getStyle() ||
+        args.fPath->isInverseFillType() || args.fPath->isVolatile() ||
+        // We don't currently apply the dash or factor it into the DF key. (skbug.com/5082)
+        args.fStroke->isDashed()) {
         return false;
     }
 
@@ -101,23 +100,16 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP
     // the goal is to accelerate rendering of lots of small paths that may be scaling
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
-#if 0 // This is more accurate but changes some GMs. TODO: Standalone change to enable this.
-    SkRect bounds;
-    args.fStyle->adjustBounds(&bounds, args.fPath->getBounds());
-    SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
-#else
     const SkRect& bounds = args.fPath->getBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
-    const SkStrokeRec& stroke = args.fStyle->strokeRec();
     // Approximate stroked size by adding the maximum of the stroke width or 2x the miter limit
-    if (!stroke.isFillStyle()) {
-        SkScalar extraWidth = stroke.getWidth();
-        if (SkPaint::kMiter_Join == stroke.getJoin()) {
-            extraWidth = SkTMax(extraWidth, 2.0f*stroke.getMiter());
+    if (!args.fStroke->isFillStyle()) {
+        SkScalar extraWidth = args.fStroke->getWidth();
+        if (SkPaint::kMiter_Join == args.fStroke->getJoin()) {
+            extraWidth = SkTMax(extraWidth, 2.0f*args.fStroke->getMiter());
         }
         maxDim += extraWidth;
     }
-#endif
 
     return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
 }
@@ -560,12 +552,11 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    // It's ok to ignore style's path effect because canDrawPath filtered out path effects.
-    AADistanceFieldPathBatch::Geometry geometry(args.fStyle->strokeRec());
-    if (args.fStyle->isSimpleFill()) {
+    AADistanceFieldPathBatch::Geometry geometry(*args.fStroke);
+    if (SkStrokeRec::kFill_Style == args.fStroke->getStyle()) {
         geometry.fPath = *args.fPath;
     } else {
-        args.fStyle->strokeRec().applyToPath(&geometry.fPath, *args.fPath);
+        args.fStroke->applyToPath(&geometry.fPath, *args.fPath);
     }
     geometry.fColor = args.fColor;
     geometry.fAntiAlias = args.fAntiAlias;

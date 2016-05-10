@@ -85,6 +85,7 @@ bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
         if (path.isInverseFillType()) {
             path.toggleInverseFillType();
         }
+        GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
 
         GrPathRendererChain::DrawType type;
 
@@ -102,7 +103,7 @@ bool GrClipMaskManager::PathNeedsSWRenderer(GrContext* context,
         canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fPath = &path;
-        canDrawArgs.fStyle = &GrStyle::SimpleFill();
+        canDrawArgs.fStroke = &stroke;
         canDrawArgs.fAntiAlias = element->isAA();
         canDrawArgs.fIsStencilDisabled = isStencilDisabled;
         canDrawArgs.fIsStencilBufferMSAA = rt->isStencilBufferMultisampled();
@@ -590,7 +591,7 @@ static void draw_element(GrDrawContext* dc,
                 path.toggleInverseFillType();
             }
 
-            dc->drawPath(clip, paint, viewMatrix, path, GrStyle::SimpleFill());
+            dc->drawPath(clip, paint, viewMatrix, path, GrStrokeInfo::FillInfo());
             break;
         }
     }
@@ -784,6 +785,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             // stencil with arbitrary stencil settings.
             GrPathRenderer::StencilSupport stencilSupport;
 
+            GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
             SkRegion::Op op = element->getOp();
 
             GrPathRenderer* pr = nullptr;
@@ -804,7 +806,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 canDrawArgs.fShaderCaps = this->getContext()->caps()->shaderCaps();
                 canDrawArgs.fViewMatrix = &viewMatrix;
                 canDrawArgs.fPath = &clipPath;
-                canDrawArgs.fStyle = &GrStyle::SimpleFill();
+                canDrawArgs.fStroke = &stroke;
                 canDrawArgs.fAntiAlias = false;
                 canDrawArgs.fIsStencilDisabled = pipelineBuilder.getStencil().isDisabled();
                 canDrawArgs.fIsStencilBufferMSAA = rt->isStencilBufferMultisampled();
@@ -859,7 +861,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                             args.fColor = GrColor_WHITE;
                             args.fViewMatrix = &viewMatrix;
                             args.fPath = &clipPath;
-                            args.fStyle = &GrStyle::SimpleFill();
+                            args.fStroke = &stroke;
                             args.fAntiAlias = false;
                             args.fGammaCorrect = false;
                             pr->drawPath(args);
@@ -894,7 +896,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                         args.fColor = GrColor_WHITE;
                         args.fViewMatrix = &viewMatrix;
                         args.fPath = &clipPath;
-                        args.fStyle = &GrStyle::SimpleFill();
+                        args.fStroke = &stroke;
                         args.fAntiAlias = false;
                         args.fGammaCorrect = false;
                         pr->drawPath(args);
@@ -1098,6 +1100,7 @@ GrTexture* GrClipMaskManager::CreateSoftwareClipMask(GrContext* context,
 
     helper.init(maskSpaceIBounds, &translate, false);
     helper.clear(GrReducedClip::kAllIn_InitialState == initialState ? 0xFF : 0x00);
+    SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
 
     for (GrReducedClip::ElementList::Iter iter(elements.headIter()) ; iter.get(); iter.next()) {
         const Element* element = iter.get();
@@ -1116,8 +1119,7 @@ GrTexture* GrClipMaskManager::CreateSoftwareClipMask(GrContext* context,
             SkPath clipPath;
             element->asPath(&clipPath);
             clipPath.toggleInverseFillType();
-            helper.draw(clipPath, GrStyle::SimpleFill(), SkRegion::kReplace_Op, element->isAA(),
-                        0x00);
+            helper.draw(clipPath, stroke, SkRegion::kReplace_Op, element->isAA(), 0x00);
             continue;
         }
 
@@ -1128,7 +1130,7 @@ GrTexture* GrClipMaskManager::CreateSoftwareClipMask(GrContext* context,
         } else {
             SkPath path;
             element->asPath(&path);
-            helper.draw(path, GrStyle::SimpleFill(), op, element->isAA(), 0xFF);
+            helper.draw(path, stroke, op, element->isAA(), 0xFF);
         }
     }
 

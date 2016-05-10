@@ -17,7 +17,7 @@
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
 #include "GrPipelineBuilder.h"
-#include "GrStyle.h"
+#include "GrStrokeInfo.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
@@ -46,20 +46,16 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
     if (!args.fPath->isConvex()) {
         return false;
     }
-    if (args.fStyle->pathEffect()) {
-        return false;
-    }
-    const SkStrokeRec& stroke = args.fStyle->strokeRec();
-    if (stroke.getStyle() == SkStrokeRec::kStroke_Style) {
+    if (args.fStroke->getStyle() == SkStrokeRec::kStroke_Style) {
         if (!args.fViewMatrix->isSimilarity()) {
             return false;
         }
-        SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();
-        return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth &&
-               SkPathPriv::IsClosedSingleContour(*args.fPath) &&
-               stroke.getJoin() != SkPaint::Join::kRound_Join;
+        SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * args.fStroke->getWidth();
+        return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth && !args.fStroke->isDashed() &&
+                SkPathPriv::IsClosedSingleContour(*args.fPath) &&
+                args.fStroke->getJoin() != SkPaint::Join::kRound_Join;
     }
-    return stroke.getStyle() == SkStrokeRec::kFill_Style;
+    return args.fStroke->getStyle() == SkStrokeRec::kFill_Style;
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator
@@ -329,10 +325,10 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     geometry.fColor = args.fColor;
     geometry.fViewMatrix = *args.fViewMatrix;
     geometry.fPath = *args.fPath;
-    bool fill = args.fStyle->isSimpleFill();
-    geometry.fStrokeWidth = fill ? -1.0f : args.fStyle->strokeRec().getWidth();
-    geometry.fJoin = fill ? SkPaint::Join::kMiter_Join : args.fStyle->strokeRec().getJoin();
-    geometry.fMiterLimit = args.fStyle->strokeRec().getMiter();
+    geometry.fStrokeWidth = args.fStroke->isFillStyle() ? -1.0f : args.fStroke->getWidth();
+    geometry.fJoin = args.fStroke->isFillStyle() ? SkPaint::Join::kMiter_Join :
+                                                   args.fStroke->getJoin();
+    geometry.fMiterLimit = args.fStroke->getMiter();
 
     SkAutoTUnref<GrDrawBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);

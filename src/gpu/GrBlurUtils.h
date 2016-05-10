@@ -13,7 +13,7 @@ class GrContext;
 class GrDrawContext;
 class GrPaint;
 class GrRenderTarget;
-class GrStyle;
+class GrStrokeInfo;
 struct SkIRect;
 class SkMaskFilter;
 class SkMatrix;
@@ -50,7 +50,8 @@ namespace GrBlurUtils {
                                 GrPaint*,
                                 const SkMatrix& viewMatrix,
                                 const SkMaskFilter*,
-                                const GrStyle&,
+                                const SkPathEffect*,
+                                const GrStrokeInfo&,
                                 bool pathIsMutable);
 
 };

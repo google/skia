@@ -23,7 +23,7 @@
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
 #include "GrPipelineBuilder.h"
-#include "GrStyle.h"
+#include "GrStrokeInfo.h"
 #include "GrTessellator.h"
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -778,7 +778,7 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // We have support for even-odd rendering, but are having some troublesome
     // seams. Disable in the presence of even-odd for now.
     return args.fShaderCaps->shaderDerivativeSupport() && args.fAntiAlias &&
-            args.fStyle->isSimpleFill() && !args.fPath->isInverseFillType() &&
+            args.fStroke->isFillStyle() && !args.fPath->isInverseFillType() &&
             args.fPath->getFillType() == SkPath::FillType::kWinding_FillType;
 }
 

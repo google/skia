@@ -26,6 +26,7 @@ private:
                           GrColor,
                           const SkMatrix& viewMatrix,
                           const SkPath&,
+                          const GrStrokeInfo&,
                           bool stencilOnly);
 
     typedef GrPathRenderer INHERITED;

@@ -12,8 +12,8 @@
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
-    if (args.fStyle->isDashed() && args.fPath->isLine(pts)) {
-        return GrDashingEffect::CanDrawDashLine(pts, *args.fStyle, *args.fViewMatrix);
+    if (args.fStroke->isDashed() && args.fPath->isLine(pts)) {
+        return GrDashingEffect::CanDrawDashLine(pts, *args.fStroke, *args.fViewMatrix);
     }
     return false;
 }
@@ -28,7 +28,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                          pts,
                                                                          args.fAntiAlias,
                                                                          msaaIsEnabled,
-                                                                         *args.fStyle));
+                                                                         *args.fStroke));
     if (!batch) {
         return false;
     }

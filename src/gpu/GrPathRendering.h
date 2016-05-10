@@ -17,7 +17,7 @@ class SkDescriptor;
 class SkTypeface;
 class GrPath;
 class GrStencilSettings;
-class GrStyle;
+class GrStrokeInfo;
 
 /**
  * Abstract class wrapping HW path rendering API.
@@ -81,23 +81,21 @@ public:
      * Creates a new gpu path, based on the specified path and stroke and returns it.
      * The caller owns a ref on the returned path which must be balanced by a call to unref.
      *
-     * @param SkPath    the geometry.
-     * @param GrStyle   the style applied to the path. Styles with non-dash path effects are not
-     *                  allowed.
-     * @return a new GPU path object.
+     * @param skPath the path geometry.
+     * @param stroke the path stroke.
+     * @return a new path.
      */
-    virtual GrPath* createPath(const SkPath&, const GrStyle&) = 0;
+    virtual GrPath* createPath(const SkPath&, const GrStrokeInfo&) = 0;
 
     /**
-     * Creates a range of gpu paths with a common style. The caller owns a ref on the
+     * Creates a range of gpu paths with a common stroke. The caller owns a ref on the
      * returned path range which must be balanced by a call to unref.
      *
      * @param PathGenerator class that generates SkPath objects for each path in the range.
-     * @param GrStyle   the common style applied to each path in the range. Styles with non-dash
-     *                  path effects are not allowed.
+     * @param GrStrokeInfo   the common stroke applied to each path in the range.
      * @return a new path range.
      */
-    virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStyle&) = 0;
+    virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStrokeInfo&) = 0;
 
     /**
      * Creates a range of glyph paths, indexed by glyph id. The glyphs will have an
@@ -120,15 +118,15 @@ public:
      *                     including with the stroke information baked directly into
      *                     the outlines.
      *
-     * @param GrStyle      Common style that the GPU will apply to every path. Note that
-     *                     if the glyph outlines contain baked-in styles from the font
-     *                     descriptor, the GPU style will be applied on top of those
+     * @param GrStrokeInfo Common stroke that the GPU will apply to every path. Note that
+     *                     if the glyph outlines contain baked-in strokes from the font
+     *                     descriptor, the GPU stroke will be applied on top of those
      *                     outlines.
      *
      * @return a new path range populated with glyphs.
      */
     GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                              const SkDescriptor*, const GrStyle&);
+                              const SkDescriptor*, const GrStrokeInfo&);
 
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {
