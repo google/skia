@@ -56,6 +56,7 @@ void GLBench::onDraw(int loops, SkCanvas* canvas) {
         return;
     }
     this->glDraw(loops, ctx);
+    canvas->getGrContext()->resetContext();
 }
 
 GrGLuint GLBench::CompileShader(const GrGLInterface* gl, const char* shaderSrc, GrGLenum type) {
