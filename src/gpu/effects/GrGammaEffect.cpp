@@ -23,59 +23,54 @@ public:
         GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
         const char* gammaUniName = nullptr;
-        if (GrGammaEffect::Mode::kExponential == ge.mode()) {
+        if (!ge.gammaIsSRGB()) {
             fGammaUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
                                                    kDefault_GrSLPrecision, "Gamma", &gammaUniName);
         }
 
+        GrGLSLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
+        SkString tmpDecl;
+        tmpVar.appendDecl(args.fGLSLCaps, &tmpDecl);
+
         SkString srgbFuncName;
-        static const GrGLSLShaderVar gSrgbArgs[] = {
-            GrGLSLShaderVar("x", kFloat_GrSLType),
-        };
-        switch (ge.mode()) {
-            case GrGammaEffect::Mode::kLinearToSRGB:
-                fragBuilder->emitFunction(kFloat_GrSLType,
-                                          "linear_to_srgb",
-                                          SK_ARRAY_COUNT(gSrgbArgs),
-                                          gSrgbArgs,
-                                          "return (x <= 0.0031308) ? (x * 12.92) "
-                                          ": (1.055 * pow(x, 0.416666667) - 0.055);",
-                                          &srgbFuncName);
-                break;
-            case GrGammaEffect::Mode::kSRGBToLinear:
-                fragBuilder->emitFunction(kFloat_GrSLType,
-                                          "srgb_to_linear",
-                                          SK_ARRAY_COUNT(gSrgbArgs),
-                                          gSrgbArgs,
-                                          "return (x <= 0.04045) ? (x / 12.92) "
-                                          ": powf((x + 0.055) / 1.055, 2.4);",
-                                          &srgbFuncName);
-            default:
-                // No helper function needed
-                break;
+        if (ge.gammaIsSRGB()) {
+            static const GrGLSLShaderVar gSrgbArgs[] = {
+                GrGLSLShaderVar("x", kFloat_GrSLType),
+            };
+
+            fragBuilder->emitFunction(kFloat_GrSLType,
+                                        "linear_to_srgb",
+                                        SK_ARRAY_COUNT(gSrgbArgs),
+                                        gSrgbArgs,
+                                        "return (x <= 0.0031308) ? (x * 12.92) "
+                                        ": (1.055 * pow(x, 0.416666667) - 0.055);",
+                                        &srgbFuncName);
         }
 
-        if (nullptr == args.fInputColor) {
-            args.fInputColor = "vec4(1)";
-        }
+        fragBuilder->codeAppendf("%s;", tmpDecl.c_str());
 
-        if (GrGammaEffect::Mode::kExponential == ge.mode()) {
-            fragBuilder->codeAppendf("%s = vec4(pow(%s.rgb, vec3(%s)), %s.a);",
-                                     args.fOutputColor, args.fInputColor, gammaUniName,
-                                     args.fInputColor);
-        } else {
+        fragBuilder->codeAppendf("%s = ", tmpVar.c_str());
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], args.fCoords[0].c_str(),
+                                            args.fCoords[0].getType());
+        fragBuilder->codeAppend(";");
+
+        if (ge.gammaIsSRGB()) {
             fragBuilder->codeAppendf("%s = vec4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
-                                     args.fOutputColor,
-                                     srgbFuncName.c_str(), args.fInputColor,
-                                     srgbFuncName.c_str(), args.fInputColor,
-                                     srgbFuncName.c_str(), args.fInputColor,
-                                     args.fInputColor);
+                                        args.fOutputColor,
+                                        srgbFuncName.c_str(), tmpVar.c_str(),
+                                        srgbFuncName.c_str(), tmpVar.c_str(),
+                                        srgbFuncName.c_str(), tmpVar.c_str(),
+                                        tmpVar.c_str());
+        } else {
+            fragBuilder->codeAppendf("%s = vec4(pow(%s.rgb, vec3(%s)), %s.a);",
+                                        args.fOutputColor, tmpVar.c_str(), gammaUniName,
+                                        tmpVar.c_str());
         }
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
         const GrGammaEffect& ge = proc.cast<GrGammaEffect>();
-        if (GrGammaEffect::Mode::kExponential == ge.mode()) {
+        if (!ge.gammaIsSRGB()) {
             pdman.set1f(fGammaUni, ge.gamma());
         }
     }
@@ -83,7 +78,7 @@ public:
     static inline void GenKey(const GrProcessor& processor, const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrGammaEffect& ge = processor.cast<GrGammaEffect>();
-        uint32_t key = static_cast<uint32_t>(ge.mode());
+        uint32_t key = ge.gammaIsSRGB() ? 0x1 : 0x0;
         b->add32(key);
     }
 
@@ -95,17 +90,19 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGammaEffect::GrGammaEffect(Mode mode, SkScalar gamma)
-    : fMode(mode)
-    , fGamma(gamma) {
+GrGammaEffect::GrGammaEffect(GrTexture* texture, SkScalar gamma)
+    : INHERITED(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture)) {
     this->initClassID<GrGammaEffect>();
+
+    fGamma = gamma;
+    fGammaIsSRGB = SkScalarNearlyEqual(gamma, 1.0f / 2.2f);
 }
 
 bool GrGammaEffect::onIsEqual(const GrFragmentProcessor& s) const {
     const GrGammaEffect& other = s.cast<GrGammaEffect>();
     return
-        other.fMode == fMode &&
-        (fMode != Mode::kExponential || other.fGamma == fGamma);
+        other.fGammaIsSRGB == fGammaIsSRGB &&
+        other.fGamma == fGamma;
 }
 
 void GrGammaEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -118,9 +115,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGammaEffect);
 
 const GrFragmentProcessor* GrGammaEffect::TestCreate(GrProcessorTestData* d) {
     // We want to be sure and test sRGB sometimes
-    Mode testMode = static_cast<Mode>(d->fRandom->nextRangeU(0, 2));
-    SkScalar gamma = d->fRandom->nextRangeScalar(0.5f, 2.0f);
-    return new GrGammaEffect(testMode, gamma);
+    bool srgb = d->fRandom->nextBool();
+    return new GrGammaEffect(d->fTextures[GrProcessorUnitTest::kSkiaPMTextureIdx],
+                             srgb ? 1.0f / 2.2f : d->fRandom->nextRangeScalar(0.5f, 2.0f));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -134,15 +131,6 @@ GrGLSLFragmentProcessor* GrGammaEffect::onCreateGLSLInstance() const {
     return new GrGLGammaEffect();
 }
 
-const GrFragmentProcessor* GrGammaEffect::Create(SkScalar gamma) {
-    // TODO: Once our public-facing API for specifying gamma curves settles down, expose this,
-    // and allow clients to explicitly request sRGB, rather than inferring from the exponent.
-    // Note that AdobeRGB (for example) is speficied as x^2.2, not the Rec.709 curves.
-    if (SkScalarNearlyEqual(gamma, 2.2f)) {
-        return new GrGammaEffect(Mode::kSRGBToLinear, 2.2f);
-    } else if (SkScalarNearlyEqual(gamma, 1.0f / 2.2f)) {
-        return new GrGammaEffect(Mode::kLinearToSRGB, 1.0f / 2.2f);
-    } else {
-        return new GrGammaEffect(Mode::kExponential, gamma);
-    }
+const GrFragmentProcessor* GrGammaEffect::Create(GrTexture* texture, SkScalar gamma) {
+    return new GrGammaEffect(texture, gamma);
 }

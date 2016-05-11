@@ -8,40 +8,35 @@
 #ifndef GrGammaEffect_DEFINED
 #define GrGammaEffect_DEFINED
 
-#include "GrFragmentProcessor.h"
+#include "GrSingleTextureEffect.h"
 
-class GrGammaEffect : public GrFragmentProcessor {
+class GrGammaEffect : public GrSingleTextureEffect {
 public:
-    enum class Mode {
-        kLinearToSRGB,
-        kSRGBToLinear,
-        kExponential,
-    };
-
     /**
-    * Creates an effect that applies a gamma curve.
-    */
-    static const GrFragmentProcessor* Create(SkScalar gamma);
+     * Creates an effect that applies a gamma curve. The source texture is always
+     * sampled unfiltered and with clamping.
+     */
+    static const GrFragmentProcessor* Create(GrTexture*, SkScalar gamma);
 
     const char* name() const override { return "Gamma"; }
 
-    Mode mode() const { return fMode; }
+    bool gammaIsSRGB() const { return fGammaIsSRGB; }
     SkScalar gamma() const { return fGamma; }
 
 private:
-    GrGammaEffect(Mode mode, SkScalar gamma);
+    GrGammaEffect(GrTexture*, SkScalar gamma);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
-    Mode fMode;
+    bool fGammaIsSRGB;
     SkScalar fGamma;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    typedef GrFragmentProcessor INHERITED;
+    typedef GrSingleTextureEffect INHERITED;
 };
 
 #endif

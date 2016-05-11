@@ -550,9 +550,12 @@ bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
     }
 
     GrPaint paint;
-    paint.addColorTextureProcessor(src, GrCoordTransform::MakeDivByTextureWHMatrix(src));
-    if (!SkScalarNearlyEqual(gamma, 1.0f)) {
-        paint.addColorFragmentProcessor(GrGammaEffect::Create(gamma))->unref();
+    if (SkScalarNearlyEqual(gamma, 1.0f)) {
+        paint.addColorTextureProcessor(src, GrCoordTransform::MakeDivByTextureWHMatrix(src));
+    } else {
+        SkAutoTUnref<const GrFragmentProcessor> fp;
+        fp.reset(GrGammaEffect::Create(src, gamma));
+        paint.addColorFragmentProcessor(fp);
     }
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     paint.setGammaCorrect(true);
