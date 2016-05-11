@@ -14,7 +14,7 @@
 #include "GrGpuResourceRef.h"
 #include "GrProcOptInfo.h"
 #include "GrRenderTarget.h"
-#include "GrUserStencilSettings.h"
+#include "GrStencil.h"
 #include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "effects/GrCoverageSetOpXP.h"
@@ -199,20 +199,57 @@ public:
     /// @name Stencil
     ////
 
-    bool hasUserStencilSettings() const {
-        return &GrUserStencilSettings::kUnused != fUserStencilSettings;
-    }
-    const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
+    const GrStencilSettings& getStencil() const { return fStencilSettings; }
 
     /**
-     * Sets the user stencil settings for the next draw.
-     * This class only stores pointers to stencil settings objects.
-     * The caller guarantees the pointer will remain valid until it
-     * changes or goes out of scope.
+     * Sets the stencil settings to use for the next draw.
+     * Changing the clip has the side-effect of possibly zeroing
+     * out the client settable stencil bits. So multipass algorithms
+     * using stencil should not change the clip between passes.
      * @param settings  the stencil settings to use.
      */
-    void setUserStencil(const GrUserStencilSettings* settings) { fUserStencilSettings = settings; }
-    void disableUserStencil() { fUserStencilSettings = &GrUserStencilSettings::kUnused; }
+    void setStencil(const GrStencilSettings& settings) { fStencilSettings = settings; }
+
+    GrStencilSettings* stencil() { return &fStencilSettings; }
+
+    /**
+     * AutoRestoreStencil
+     *
+     * This simple struct saves and restores the stencil settings
+     * This class can transiently modify its "const" GrPipelineBuilder object but will restore it
+     * when done - so it is notionally "const" correct.
+     */
+    class AutoRestoreStencil : public ::SkNoncopyable {
+    public:
+        AutoRestoreStencil() : fPipelineBuilder(nullptr) {}
+
+        AutoRestoreStencil(const GrPipelineBuilder& ds) : fPipelineBuilder(nullptr) { this->set(&ds); }
+
+        ~AutoRestoreStencil() { this->set(nullptr); }
+
+        void set(const GrPipelineBuilder* ds) {
+            if (fPipelineBuilder) {
+                fPipelineBuilder->setStencil(fStencilSettings);
+            }
+            fPipelineBuilder = const_cast<GrPipelineBuilder*>(ds);
+            if (ds) {
+                fStencilSettings = ds->getStencil();
+            }
+        }
+
+        bool isSet() const { return SkToBool(fPipelineBuilder); }
+
+        void setStencil(const GrStencilSettings& settings) {
+            SkASSERT(this->isSet());
+            fPipelineBuilder->setStencil(settings);
+        }
+
+    private:
+        // notionally const (as marginalia)
+        GrPipelineBuilder*  fPipelineBuilder;
+        GrStencilSettings   fStencilSettings;
+    };
+
 
     /// @}
 
@@ -334,7 +371,7 @@ private:
 
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
     uint32_t                                fFlags;
-    const GrUserStencilSettings*            fUserStencilSettings;
+    GrStencilSettings                       fStencilSettings;
     DrawFace                                fDrawFace;
     mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
     FragmentProcessorArray                  fColorFragmentProcessors;

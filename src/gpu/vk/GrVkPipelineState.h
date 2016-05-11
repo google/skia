@@ -9,7 +9,6 @@
 #ifndef GrVkPipelineState_DEFINED
 #define GrVkPipelineState_DEFINED
 
-#include "GrStencilSettings.h"
 #include "GrVkImage.h"
 #include "GrVkProgramDesc.h"
 #include "GrVkPipelineStateDataManager.h"

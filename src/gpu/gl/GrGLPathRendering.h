@@ -10,12 +10,12 @@
 
 #include "SkRefCnt.h"
 #include "GrPathRendering.h"
+#include "GrStencil.h"
 #include "gl/GrGLTypes.h"
 #include "glsl/GrGLSLUtil.h"
 
 class GrGLNameAllocator;
 class GrGLGpu;
-class GrStencilSettings;
 class GrStyle;
 
 /**

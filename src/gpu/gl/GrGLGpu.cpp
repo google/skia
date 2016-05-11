@@ -2874,38 +2874,40 @@ namespace {
 
 
 GrGLenum gr_to_gl_stencil_op(GrStencilOp op) {
-    static const GrGLenum gTable[kGrStencilOpCount] = {
-        GR_GL_KEEP,        // kKeep
-        GR_GL_ZERO,        // kZero
-        GR_GL_REPLACE,     // kReplace
-        GR_GL_INVERT,      // kInvert
-        GR_GL_INCR_WRAP,   // kIncWrap
-        GR_GL_DECR_WRAP,   // kDecWrap
-        GR_GL_INCR,        // kIncClamp
-        GR_GL_DECR,        // kDecClamp
+    static const GrGLenum gTable[] = {
+        GR_GL_KEEP,        // kKeep_StencilOp
+        GR_GL_REPLACE,     // kReplace_StencilOp
+        GR_GL_INCR_WRAP,   // kIncWrap_StencilOp
+        GR_GL_INCR,        // kIncClamp_StencilOp
+        GR_GL_DECR_WRAP,   // kDecWrap_StencilOp
+        GR_GL_DECR,        // kDecClamp_StencilOp
+        GR_GL_ZERO,        // kZero_StencilOp
+        GR_GL_INVERT,      // kInvert_StencilOp
     };
-    GR_STATIC_ASSERT(0 == (int)GrStencilOp::kKeep);
-    GR_STATIC_ASSERT(1 == (int)GrStencilOp::kZero);
-    GR_STATIC_ASSERT(2 == (int)GrStencilOp::kReplace);
-    GR_STATIC_ASSERT(3 == (int)GrStencilOp::kInvert);
-    GR_STATIC_ASSERT(4 == (int)GrStencilOp::kIncWrap);
-    GR_STATIC_ASSERT(5 == (int)GrStencilOp::kDecWrap);
-    GR_STATIC_ASSERT(6 == (int)GrStencilOp::kIncClamp);
-    GR_STATIC_ASSERT(7 == (int)GrStencilOp::kDecClamp);
-    SkASSERT(op < (GrStencilOp)kGrStencilOpCount);
-    return gTable[(int)op];
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kStencilOpCnt);
+    GR_STATIC_ASSERT(0 == kKeep_StencilOp);
+    GR_STATIC_ASSERT(1 == kReplace_StencilOp);
+    GR_STATIC_ASSERT(2 == kIncWrap_StencilOp);
+    GR_STATIC_ASSERT(3 == kIncClamp_StencilOp);
+    GR_STATIC_ASSERT(4 == kDecWrap_StencilOp);
+    GR_STATIC_ASSERT(5 == kDecClamp_StencilOp);
+    GR_STATIC_ASSERT(6 == kZero_StencilOp);
+    GR_STATIC_ASSERT(7 == kInvert_StencilOp);
+    SkASSERT((unsigned) op < kStencilOpCnt);
+    return gTable[op];
 }
 
 void set_gl_stencil(const GrGLInterface* gl,
-                    const GrStencilSettings::Face& face,
-                    GrGLenum glFace) {
-    GrGLenum glFunc = GrToGLStencilFunc(face.fTest);
-    GrGLenum glFailOp = gr_to_gl_stencil_op(face.fFailOp);
-    GrGLenum glPassOp = gr_to_gl_stencil_op(face.fPassOp);
+                    const GrStencilSettings& settings,
+                    GrGLenum glFace,
+                    GrStencilSettings::Face grFace) {
+    GrGLenum glFunc = GrToGLStencilFunc(settings.func(grFace));
+    GrGLenum glFailOp = gr_to_gl_stencil_op(settings.failOp(grFace));
+    GrGLenum glPassOp = gr_to_gl_stencil_op(settings.passOp(grFace));
 
-    GrGLint ref = face.fRef;
-    GrGLint mask = face.fTestMask;
-    GrGLint writeMask = face.fWriteMask;
+    GrGLint ref = settings.funcRef(grFace);
+    GrGLint mask = settings.funcMask(grFace);
+    GrGLint writeMask = settings.writeMask(grFace);
 
     if (GR_GL_FRONT_AND_BACK == glFace) {
         // we call the combined func just in case separate stencil is not
@@ -2935,18 +2937,20 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
             }
         }
         if (!stencilSettings.isDisabled()) {
-            if (stencilSettings.isTwoSided()) {
-                SkASSERT(this->caps()->twoSidedStencilSupport());
+            if (this->caps()->twoSidedStencilSupport()) {
                 set_gl_stencil(this->glInterface(),
-                               stencilSettings.front(),
-                               GR_GL_FRONT);
+                               stencilSettings,
+                               GR_GL_FRONT,
+                               GrStencilSettings::kFront_Face);
                 set_gl_stencil(this->glInterface(),
-                               stencilSettings.back(),
-                               GR_GL_BACK);
+                               stencilSettings,
+                               GR_GL_BACK,
+                               GrStencilSettings::kBack_Face);
             } else {
                 set_gl_stencil(this->glInterface(),
-                               stencilSettings.front(),
-                               GR_GL_FRONT_AND_BACK);
+                               stencilSettings,
+                               GR_GL_FRONT_AND_BACK,
+                               GrStencilSettings::kFront_Face);
             }
         }
         fHWStencilSettings = stencilSettings;

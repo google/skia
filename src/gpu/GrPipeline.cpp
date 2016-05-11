@@ -20,35 +20,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrXPOverridesForBatch* overrides) {
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
 
-    GrPipeline* pipeline = new (memory) GrPipeline;
-    pipeline->fRenderTarget.reset(builder.fRenderTarget.get());
-    SkASSERT(pipeline->fRenderTarget);
-    pipeline->fScissorState = *args.fScissor;
-    if (builder.hasUserStencilSettings() || args.fHasStencilClip) {
-        SkASSERT(args.fNumStencilBits);
-        pipeline->fStencilSettings.reset(*builder.getUserStencil(), args.fHasStencilClip,
-                                         args.fNumStencilBits);
-        SkASSERT(!pipeline->fStencilSettings.usesWrapOp() || args.fCaps->stencilWrapOpsSupport());
-    }
-    pipeline->fDrawFace = builder.getDrawFace();
-
-    pipeline->fFlags = 0;
-    if (builder.isHWAntialias()) {
-        pipeline->fFlags |= kHWAA_Flag;
-    }
-    if (builder.snapVerticesToPixelCenters()) {
-        pipeline->fFlags |= kSnapVertices_Flag;
-    }
-    if (builder.getDisableOutputConversionToSRGB()) {
-        pipeline->fFlags |= kDisableOutputConversionToSRGB_Flag;
-    }
-    if (builder.getAllowSRGBInputs()) {
-        pipeline->fFlags |= kAllowSRGBInputs_Flag;
-    }
-
     // Create XferProcessor from DS's XPFactory
     bool hasMixedSamples = builder.getRenderTarget()->hasMixedSamples() &&
-                           (builder.isHWAntialias() || !pipeline->fStencilSettings.isDisabled());
+                           (builder.isHWAntialias() || !builder.getStencil().isDisabled());
     const GrXPFactory* xpFactory = builder.getXPFactory();
     SkAutoTUnref<GrXferProcessor> xferProcessor;
     if (xpFactory) {
@@ -57,7 +31,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                                            &args.fDstTexture,
                                                            *args.fCaps));
         if (!xferProcessor) {
-            pipeline->~GrPipeline();
             return nullptr;
         }
     } else {
@@ -78,7 +51,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
                                                        &GrPorterDuffXPFactory::SimpleSrcOverXP();
     optFlags = xpForOpts->getOptimizations(args.fOpts,
-                                           pipeline->fStencilSettings.doesWrite(),
+                                           builder.getStencil().doesWrite(),
                                            &overrideColor,
                                            *args.fCaps);
 
@@ -86,7 +59,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     // so we must check the draw type. In cases where we will skip drawing we simply return a
     // null GrPipeline.
     if (GrXferProcessor::kSkipDraw_OptFlag & optFlags) {
-        pipeline->~GrPipeline();
         return nullptr;
     }
 
@@ -95,7 +67,28 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         overrideColor = GrColor_ILLEGAL;
     }
 
+    GrPipeline* pipeline = new (memory) GrPipeline;
     pipeline->fXferProcessor.reset(xferProcessor);
+
+    pipeline->fRenderTarget.reset(builder.fRenderTarget.get());
+    SkASSERT(pipeline->fRenderTarget);
+    pipeline->fScissorState = *args.fScissor;
+    pipeline->fStencilSettings = builder.getStencil();
+    pipeline->fDrawFace = builder.getDrawFace();
+
+    pipeline->fFlags = 0;
+    if (builder.isHWAntialias()) {
+        pipeline->fFlags |= kHWAA_Flag;
+    }
+    if (builder.snapVerticesToPixelCenters()) {
+        pipeline->fFlags |= kSnapVertices_Flag;
+    }
+    if (builder.getDisableOutputConversionToSRGB()) {
+        pipeline->fFlags |= kDisableOutputConversionToSRGB_Flag;
+    }
+    if (builder.getAllowSRGBInputs()) {
+        pipeline->fFlags |= kAllowSRGBInputs_Flag;
+    }
 
     int firstColorProcessorIdx = args.fOpts.fColorPOI.firstEffectiveProcessorIndex();
 

@@ -10,7 +10,7 @@
 
 #include "GrDrawContext.h"
 
-struct GrUserStencilSettings;
+class GrStencilSettings;
 
 /** Class that adds methods to GrDrawContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrDrawContext. It should never have additional
@@ -18,7 +18,7 @@ struct GrUserStencilSettings;
 class GrDrawContextPriv {
 public:
     bool drawAndStencilRect(const SkIRect* scissorRect,
-                            const GrUserStencilSettings*,
+                            const GrStencilSettings&,
                             SkRegion::Op op,
                             bool invert,
                             bool doAA,
@@ -26,7 +26,7 @@ public:
                             const SkRect&);
 
     bool drawAndStencilPath(const SkIRect* scissorRect,
-                            const GrUserStencilSettings*,
+                            const GrStencilSettings&,
                             SkRegion::Op op,
                             bool invert,
                             bool doAA,

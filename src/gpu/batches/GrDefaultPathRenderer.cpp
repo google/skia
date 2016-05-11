@@ -443,11 +443,11 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     // face culling doesn't make sense here
     SkASSERT(GrPipelineBuilder::kBoth_DrawFace == pipelineBuilder->getDrawFace());
 
-    int                          passCount = 0;
-    const GrUserStencilSettings* passes[3];
-    GrPipelineBuilder::DrawFace  drawFace[3];
-    bool                         reverse = false;
-    bool                         lastPassIsBounds;
+    int                         passCount = 0;
+    const GrStencilSettings*    passes[3];
+    GrPipelineBuilder::DrawFace drawFace[3];
+    bool                        reverse = false;
+    bool                        lastPassIsBounds;
 
     if (isHairline) {
         passCount = 1;
@@ -544,7 +544,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     for (int p = 0; p < passCount; ++p) {
         pipelineBuilder->setDrawFace(drawFace[p]);
         if (passes[p]) {
-            pipelineBuilder->setUserStencil(passes[p]);
+            *pipelineBuilder->stencil() = *passes[p];
         }
 
         if (lastPassIsBounds && (p == passCount-1)) {

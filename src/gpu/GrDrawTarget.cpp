@@ -16,7 +16,6 @@
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrRenderTargetPriv.h"
-#include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
 #include "gl/GrGLRenderTarget.h"
@@ -236,16 +235,17 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
                              GrDrawBatch* batch,
                              const SkIRect* scissorRect) {
     // Setup clip
+    GrPipelineBuilder::AutoRestoreStencil ars;
     GrAppliedClip clip;
 
     if (scissorRect) {
         SkASSERT(GrClip::kWideOpen_ClipType == pipelineBuilder.clip().clipType());
-        if (!fClipMaskManager->setupScissorClip(pipelineBuilder, *scissorRect,
+        if (!fClipMaskManager->setupScissorClip(pipelineBuilder, &ars, *scissorRect,
                                                 &batch->bounds(), &clip)) {
             return;
         }
     } else {
-        if (!fClipMaskManager->setupClipping(pipelineBuilder, &batch->bounds(), &clip)) {
+        if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &batch->bounds(), &clip)) {
             return;
         }
     }
@@ -257,8 +257,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     }
 
     GrPipeline::CreateArgs args;
-    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip.scissorState(),
-                                          clip.hasStencilClip(), batch)) {
+    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip.scissorState(), batch)) {
         return;
     }
 
@@ -270,36 +269,34 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     this->recordBatch(batch);
 }
 
-inline static const GrUserStencilSettings& get_path_stencil_settings_for_fill(
-        GrPathRendering::FillType fill) {
-    static constexpr GrUserStencilSettings kWindingStencilSettings(
-        GrUserStencilSettings::StaticInit<
-            0xffff,
-            GrUserStencilTest::kAlwaysIfInClip,
-            0xffff,
-            GrUserStencilOp::kIncMaybeClamp, // TODO: Use wrap ops for NVPR.
-            GrUserStencilOp::kIncMaybeClamp,
-            0xffff>()
+void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType fill,
+                                                     const GrStencilAttachment* sb,
+                                                     GrStencilSettings* outStencilSettings) {
+    static constexpr GrStencilSettings kWindingStencilSettings(
+        kIncClamp_StencilOp,
+        kIncClamp_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0xFFFF, 0xFFFF, 0xFFFF
     );
 
-    static constexpr GrUserStencilSettings kEvenOddStencilSettings(
-        GrUserStencilSettings::StaticInit<
-            0xffff,
-            GrUserStencilTest::kAlwaysIfInClip,
-            0xffff,
-            GrUserStencilOp::kInvert,
-            GrUserStencilOp::kInvert,
-            0xffff>()
+    static constexpr GrStencilSettings kEvenODdStencilSettings(
+        kInvert_StencilOp,
+        kInvert_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0xFFFF, 0xFFFF, 0xFFFF
     );
 
     switch (fill) {
         default:
             SkFAIL("Unexpected path fill.");
         case GrPathRendering::kWinding_FillType:
-            return kWindingStencilSettings;
+            *outStencilSettings = kWindingStencilSettings;
+            break;
         case GrPathRendering::kEvenOdd_FillType:
-            return kEvenOddStencilSettings;
+            *outStencilSettings = kEvenODdStencilSettings;
+            break;
     }
+    fClipMaskManager->adjustPathStencilParams(sb, outStencilSettings);
 }
 
 void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
@@ -311,8 +308,9 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
     // Setup clip
+    GrPipelineBuilder::AutoRestoreStencil ars;
     GrAppliedClip clip;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, nullptr, &clip)) {
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, nullptr, &clip)) {
         return;
     }
 
@@ -322,16 +320,15 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
         arfps.addCoverageFragmentProcessor(clip.clipCoverageFragmentProcessor());
     }
 
+    // set stencil settings for path
+    GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
-    GrStencilAttachment* stencilAttachment = rt->renderTargetPriv().getStencilAttachment();
-    SkASSERT(stencilAttachment)
+    GrStencilAttachment* sb = fResourceProvider->attachStencilAttachment(rt);
+    this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
     GrBatch* batch = GrStencilPathBatch::Create(viewMatrix,
                                                 pipelineBuilder.isHWAntialias(),
-                                                get_path_stencil_settings_for_fill(fill),
-                                                clip.hasStencilClip(),
-                                                stencilAttachment->bits(),
-                                                clip.scissorState(),
+                                                stencilSettings, clip.scissorState(),
                                                 pipelineBuilder.getRenderTarget(),
                                                 path);
     this->recordBatch(batch);
@@ -346,8 +343,9 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     // batches.
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
+    GrPipelineBuilder::AutoRestoreStencil ars;
     GrAppliedClip clip;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, &batch->bounds(), &clip)) {
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &batch->bounds(), &clip)) {
         return;
     }
 
@@ -358,16 +356,14 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     }
 
     // Ensure the render target has a stencil buffer and get the stencil settings.
+    GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrStencilAttachment* sb = fResourceProvider->attachStencilAttachment(rt);
-    // TODO: Move this step into GrDrawPathPath::onPrepare().
-    batch->setStencilSettings(get_path_stencil_settings_for_fill(batch->fillType()),
-                              clip.hasStencilClip(),
-                              sb->bits());
+    this->getPathStencilSettingsForFilltype(batch->fillType(), sb, &stencilSettings);
+    batch->setStencilSettings(stencilSettings);
 
     GrPipeline::CreateArgs args;
-    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip.scissorState(),
-                                          clip.hasStencilClip(), batch)) {
+    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip.scissorState(), batch)) {
         return;
     }
 
@@ -551,20 +547,11 @@ void GrDrawTarget::forwardCombine() {
 
 bool GrDrawTarget::installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
                                               const GrScissorState* scissor,
-                                              bool hasStencilClip,
                                               GrDrawBatch* batch) {
     GrPipeline::CreateArgs args;
     args.fPipelineBuilder = pipelineBuilder;
     args.fCaps = this->caps();
     args.fScissor = scissor;
-    if (pipelineBuilder->hasUserStencilSettings() || hasStencilClip) {
-        GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
-        GrStencilAttachment* sb = fResourceProvider->attachStencilAttachment(rt);
-        args.fNumStencilBits = sb->bits();
-    } else {
-        args.fNumStencilBits = 0;
-    }
-    args.fHasStencilClip = hasStencilClip;
     batch->getPipelineOptimizations(&args.fOpts);
     GrScissorState finalScissor;
     if (args.fOpts.fOverrides.fUsePLSDstRead) {

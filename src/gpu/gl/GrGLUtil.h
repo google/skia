@@ -10,7 +10,7 @@
 
 #include "gl/GrGLInterface.h"
 #include "GrGLDefines.h"
-#include "GrStencilSettings.h"
+#include "GrStencil.h"
 
 class SkMatrix;
 
@@ -205,7 +205,7 @@ void GrGLClearErr(const GrGLInterface* gl);
 // call glGetError without doing a redundant error check or logging.
 #define GR_GL_GET_ERROR(IFACE) (IFACE)->fFunctions.fGetError()
 
-GrGLenum GrToGLStencilFunc(GrStencilTest test);
+GrGLenum GrToGLStencilFunc(GrStencilFunc basicFunc);
 
 
 #endif

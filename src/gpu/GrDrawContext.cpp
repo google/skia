@@ -375,7 +375,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
 }
 
 bool GrDrawContextPriv::drawAndStencilRect(const SkIRect* scissorRect,
-                                           const GrUserStencilSettings* ss,
+                                           const GrStencilSettings& ss,
                                            SkRegion::Op op,
                                            bool invert,
                                            bool doAA,
@@ -397,7 +397,7 @@ bool GrDrawContextPriv::drawAndStencilRect(const SkIRect* scissorRect,
         GrPipelineBuilder pipelineBuilder(paint,
                                           fDrawContext->accessRenderTarget(),
                                           GrClip::WideOpen());
-        pipelineBuilder.setUserStencil(ss);
+        pipelineBuilder.setStencil(ss);
 
         fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, batch, scissorRect);
         return true;
@@ -855,7 +855,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
 }
 
 bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
-                                           const GrUserStencilSettings* ss,
+                                           const GrStencilSettings& ss,
                                            SkRegion::Op op,
                                            bool invert,
                                            bool doAA,
@@ -880,7 +880,7 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
     bool useCoverageAA = doAA && !fDrawContext->fRenderTarget->isUnifiedMultisampled();
-    bool hasUserStencilSettings = (&GrUserStencilSettings::kUnused != ss);
+    bool isStencilDisabled = true;
     bool isStencilBufferMSAA = fDrawContext->fRenderTarget->isStencilBufferMultisampled();
 
     const GrPathRendererChain::DrawType type =
@@ -893,7 +893,7 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
     canDrawArgs.fPath = &path;
     canDrawArgs.fStyle = &GrStyle::SimpleFill();
     canDrawArgs.fAntiAlias = useCoverageAA;
-    canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
+    canDrawArgs.fIsStencilDisabled = isStencilDisabled;
     canDrawArgs.fIsStencilBufferMSAA = isStencilBufferMSAA;
 
     // Don't allow the SW renderer
@@ -913,7 +913,7 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
     }
 
     GrPipelineBuilder pipelineBuilder(paint, fDrawContext->accessRenderTarget(), clip);
-    pipelineBuilder.setUserStencil(ss);
+    pipelineBuilder.setStencil(ss);
 
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = fDrawContext->getDrawTarget();
@@ -939,7 +939,7 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     SkASSERT(!origPath.isEmpty());
 
     bool useCoverageAA = should_apply_coverage_aa(paint, fRenderTarget.get());
-    constexpr bool kHasUserStencilSettings = false;
+    const bool isStencilDisabled = true;
     bool isStencilBufferMSAA = fRenderTarget->isStencilBufferMultisampled();
 
     const GrPathRendererChain::DrawType type =
@@ -955,7 +955,7 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     canDrawArgs.fPath = &origPath;
     canDrawArgs.fStyle = &origStyle;
     canDrawArgs.fAntiAlias = useCoverageAA;
-    canDrawArgs.fHasUserStencilSettings = kHasUserStencilSettings;
+    canDrawArgs.fIsStencilDisabled = isStencilDisabled;
     canDrawArgs.fIsStencilBufferMSAA = isStencilBufferMSAA;
 
     // Try a 1st time without applying any of the style to the geometry (and barring sw)

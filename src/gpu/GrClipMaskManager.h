@@ -9,6 +9,7 @@
 
 #include "GrPipelineBuilder.h"
 #include "GrReducedClip.h"
+#include "GrStencil.h"
 #include "GrTexture.h"
 #include "SkClipStack.h"
 #include "SkDeque.h"
@@ -32,15 +33,13 @@ class SkPath;
  */
 class GrAppliedClip : public SkNoncopyable {
 public:
-    GrAppliedClip() : fHasStencilClip(false) {}
+    GrAppliedClip() {}
     const GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP; }
     const GrScissorState& scissorState() const { return fScissorState; }
-    bool hasStencilClip() const { return fHasStencilClip; }
 
 private:
     SkAutoTUnref<const GrFragmentProcessor> fClipCoverageFP;
     GrScissorState                          fScissorState;
-    bool                                    fHasStencilClip;
     friend class GrClipMaskManager;
 
     typedef SkNoncopyable INHERITED;
@@ -61,15 +60,22 @@ public:
     /**
      * Creates a clip mask if necessary as a stencil buffer or alpha texture
      * and sets the GrGpu's scissor and stencil state. If the return is false
-     * then the draw can be skipped. devBounds is optional but can help optimize
-     * clipping.
+     * then the draw can be skipped. The AutoRestoreEffects is initialized by
+     * the manager when it must install additional effects to implement the
+     * clip. devBounds is optional but can help optimize clipping.
      */
-    bool setupClipping(const GrPipelineBuilder&, const SkRect* devBounds, GrAppliedClip*);
+    bool setupClipping(const GrPipelineBuilder&,
+                       GrPipelineBuilder::AutoRestoreStencil*,
+                       const SkRect* devBounds,
+                       GrAppliedClip*);
 
     bool setupScissorClip(const GrPipelineBuilder& pipelineBuilder,
+                          GrPipelineBuilder::AutoRestoreStencil* ars,
                           const SkIRect& scissor,
                           const SkRect* devBounds,
                           GrAppliedClip* out);
+
+    void adjustPathStencilParams(const GrStencilAttachment*, GrStencilSettings*);
 
 private:
     inline GrContext* getContext();
@@ -77,7 +83,7 @@ private:
     inline GrResourceProvider* resourceProvider();
 
     static bool PathNeedsSWRenderer(GrContext* context,
-                                    bool hasUserStencilSettings,
+                                    bool isStencilDisabled,
                                     const GrRenderTarget* rt,
                                     const SkMatrix& viewMatrix,
                                     const SkClipStack::Element* element,
@@ -143,6 +149,21 @@ private:
                              const GrRenderTarget* rt,
                              const SkVector& clipToMaskOffset,
                              const GrReducedClip::ElementList& elements);
+
+    /**
+     * Called prior to return control back the GrGpu in setupClipping. It updates the
+     * GrPipelineBuilder with stencil settings that account for stencil-based clipping.
+     */
+    void setPipelineBuilderStencil(const GrPipelineBuilder&,
+                                   GrPipelineBuilder::AutoRestoreStencil*);
+
+    /**
+     * Adjusts the stencil settings to account for interaction with stencil
+     * clipping.
+     */
+    void adjustStencilParams(GrStencilSettings* settings,
+                             StencilClipMode mode,
+                             int stencilBitCnt);
 
     GrTexture* createCachedMask(int width, int height, const GrUniqueKey& key, bool renderTarget);
 

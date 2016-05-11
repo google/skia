@@ -9,6 +9,7 @@
 #define GrPathRenderer_DEFINED
 
 #include "GrDrawTarget.h"
+#include "GrStencil.h"
 #include "GrStyle.h"
 
 #include "SkDrawProcs.h"
@@ -81,7 +82,7 @@ public:
         bool                        fAntiAlias;
 
         // These next two are only used by GrStencilAndCoverPathRenderer
-        bool                        fHasUserStencilSettings;
+        bool                        fIsStencilDisabled;
         bool                        fIsStencilBufferMSAA;
 
         void validate() const {
@@ -154,11 +155,11 @@ public:
         canArgs.fStyle = args.fStyle;
         canArgs.fAntiAlias = args.fAntiAlias;
 
-        canArgs.fHasUserStencilSettings = args.fPipelineBuilder->hasUserStencilSettings();
+        canArgs.fIsStencilDisabled = args.fPipelineBuilder->getStencil().isDisabled();
         canArgs.fIsStencilBufferMSAA =
                           args.fPipelineBuilder->getRenderTarget()->isStencilBufferMultisampled();
         SkASSERT(this->canDrawPath(canArgs));
-        if (args.fPipelineBuilder->hasUserStencilSettings()) {
+        if (!args.fPipelineBuilder->getStencil().isDisabled()) {
             SkASSERT(kNoRestriction_StencilSupport == this->getStencilSupport(*args.fPath));
             SkASSERT(args.fStyle->isSimpleFill());
         }
@@ -259,16 +260,14 @@ private:
      * kStencilOnly in onGetStencilSupport().
      */
     virtual void onStencilPath(const StencilPathArgs& args) {
-        static constexpr GrUserStencilSettings kIncrementStencil(
-            GrUserStencilSettings::StaticInit<
-                 0xffff,
-                 GrUserStencilTest::kAlways,
-                 0xffff,
-                 GrUserStencilOp::kReplace,
-                 GrUserStencilOp::kReplace,
-                 0xffff>()
-        );
-        args.fPipelineBuilder->setUserStencil(&kIncrementStencil);
+        static constexpr GrStencilSettings kIncrementStencil(
+             kReplace_StencilOp,
+             kReplace_StencilOp,
+             kAlways_StencilFunc,
+             0xffff,
+             0xffff,
+             0xffff);
+        args.fPipelineBuilder->setStencil(kIncrementStencil);
         args.fPipelineBuilder->setDisableColorXPFactory();
         DrawPathArgs drawArgs;
         drawArgs.fTarget = args.fTarget;
