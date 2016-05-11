@@ -34,6 +34,7 @@ void TestContext::waitOnSyncOrSwap() {
         return;
     }
 
+    this->submit();
     if (fFrameFences[fCurrentFenceIdx]) {
         if (!fFenceSync->waitFence(fFrameFences[fCurrentFenceIdx], true)) {
             SkDebugf("WARNING: Wait failed for fence sync. Timings might not be accurate.\n");

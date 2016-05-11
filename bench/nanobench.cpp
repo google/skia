@@ -58,7 +58,7 @@
     #include "GrContextFactory.h"
     #include "gl/GrGLUtil.h"
     using sk_gpu_test::GrContextFactory;
-    using sk_gpu_test::GLTestContext;
+    using sk_gpu_test::TestContext;
     SkAutoTDelete<GrContextFactory> gGrFactory;
 #endif
 
@@ -157,26 +157,25 @@ bool Target::capturePixels(SkBitmap* bmp) {
 
 #if SK_SUPPORT_GPU
 struct GPUTarget : public Target {
-    explicit GPUTarget(const Config& c) : Target(c), gl(nullptr) { }
-    GLTestContext* gl;
+    explicit GPUTarget(const Config& c) : Target(c), context(nullptr) { }
+    TestContext* context;
 
     void setup() override {
-        this->gl->makeCurrent();
+        this->context->makeCurrent();
         // Make sure we're done with whatever came before.
-        GR_GL_CALL(this->gl->gl(), Finish());
+        this->context->finish();
     }
     void endTiming() override {
-        if (this->gl) {
-            GR_GL_CALL(this->gl->gl(), Flush());
-            this->gl->waitOnSyncOrSwap();
+        if (this->context) {
+            this->context->waitOnSyncOrSwap();
         }
     }
     void fence() override {
-        GR_GL_CALL(this->gl->gl(), Finish());
+        this->context->finish();
     }
 
     bool needsFrameTiming(int* maxFrameLag) const override {
-        if (!this->gl->getMaxGpuFrameLag(maxFrameLag)) {
+        if (!this->context->getMaxGpuFrameLag(maxFrameLag)) {
             // Frame lag is unknown.
             *maxFrameLag = FLAGS_gpuFrameLag;
         }
@@ -190,12 +189,12 @@ struct GPUTarget : public Target {
                                                                     this->config.ctxOptions),
                                                          SkBudgeted::kNo, info,
                                                          this->config.samples, &props);
-        this->gl = gGrFactory->getContextInfo(this->config.ctxType,
-                                              this->config.ctxOptions).glContext();
+        this->context = gGrFactory->getContextInfo(this->config.ctxType,
+                                                   this->config.ctxOptions).testContext();
         if (!this->surface.get()) {
             return false;
         }
-        if (!this->gl->fenceSyncSupport()) {
+        if (!this->context->fenceSyncSupport()) {
             SkDebugf("WARNING: GL context for config \"%s\" does not support fence sync. "
                      "Timings might not be accurate.\n", this->config.name.c_str());
         }
@@ -203,17 +202,21 @@ struct GPUTarget : public Target {
     }
     void fillOptions(ResultsWriter* log) override {
         const GrGLubyte* version;
-        GR_GL_CALL_RET(this->gl->gl(), version, GetString(GR_GL_VERSION));
-        log->configOption("GL_VERSION", (const char*)(version));
+        if (this->context->backend() == kOpenGL_GrBackend) {
+            const GrGLInterface* gl =
+                    reinterpret_cast<const GrGLInterface*>(this->context->backendContext());
+            GR_GL_CALL_RET(gl, version, GetString(GR_GL_VERSION));
+            log->configOption("GL_VERSION", (const char*)(version));
 
-        GR_GL_CALL_RET(this->gl->gl(), version, GetString(GR_GL_RENDERER));
-        log->configOption("GL_RENDERER", (const char*) version);
+            GR_GL_CALL_RET(gl, version, GetString(GR_GL_RENDERER));
+            log->configOption("GL_RENDERER", (const char*) version);
 
-        GR_GL_CALL_RET(this->gl->gl(), version, GetString(GR_GL_VENDOR));
-        log->configOption("GL_VENDOR", (const char*) version);
+            GR_GL_CALL_RET(gl, version, GetString(GR_GL_VENDOR));
+            log->configOption("GL_VENDOR", (const char*) version);
 
-        GR_GL_CALL_RET(this->gl->gl(), version, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
-        log->configOption("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
+            GR_GL_CALL_RET(gl, version, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
+            log->configOption("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
+        }
     }
 };
 

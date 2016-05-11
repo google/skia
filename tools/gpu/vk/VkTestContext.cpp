@@ -10,7 +10,7 @@
 #ifdef SK_VULKAN
 
 namespace {
-// TODO: Implement fence syncs and swap buffers
+// TODO: Implement fence syncs, swap buffers, submit, and flush
 class VkTestContextImpl : public sk_gpu_test::VkTestContext {
 public:
     VkTestContextImpl()
@@ -19,6 +19,9 @@ public:
     ~VkTestContextImpl() override { this->teardown(); }
 
     void testAbandon() override {}
+
+    void submit() override {}
+    void finish() override {}
 
 protected:
     void teardown() override { fVk.reset(nullptr); }

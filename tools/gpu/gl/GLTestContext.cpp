@@ -61,6 +61,18 @@ void GLTestContext::testAbandon() {
     }
 }
 
+void GLTestContext::submit() {
+    if (fGL) {
+        GR_GL_CALL(fGL.get(), Flush());
+    }
+}
+
+void GLTestContext::finish() {
+    if (fGL) {
+        GR_GL_CALL(fGL.get(), Finish());
+    }
+}
+
 GLTestContext::GLFenceSync* GLTestContext::GLFenceSync::CreateIfSupported(const GLTestContext* ctx) {
     SkAutoTDelete<GLFenceSync> ret(new GLFenceSync);
 

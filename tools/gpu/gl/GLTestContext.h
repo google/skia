@@ -47,6 +47,12 @@ public:
 
     void testAbandon() override;
 
+    /** Ensures all work is submitted to the GPU for execution. */
+    void submit() override;
+
+    /** Wait until all GPU work is finished. */
+    void finish() override;
+
     /**
      * Creates a new GL context of the same type and makes the returned context current
      * (if not null).

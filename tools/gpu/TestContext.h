@@ -54,6 +54,8 @@ public:
      * Otherwise it will call the platform SwapBuffers method. This may or may
      * not perform some sort of synchronization, depending on whether the
      * drawing surface provided by the platform is double buffered.
+     *
+     * Implicitly performs a submit().
      */
     void waitOnSyncOrSwap();
 
@@ -64,6 +66,12 @@ public:
      * context to test that further API calls are not made by Skia GPU code.
      */
     virtual void testAbandon();
+
+    /** Ensures all work is submitted to the GPU for execution. */
+    virtual void submit() = 0;
+
+    /** Wait until all GPU work is finished. */
+    virtual void finish() = 0;
 
     /**
      * returns the fencesync object owned by this GLTestContext
