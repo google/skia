@@ -99,7 +99,9 @@ SkLinearGradient::LinearGradientContext::LinearGradientContext(
     : INHERITED(shader, ctx)
 {
     // setup for Sk4f
-    int count = shader.fColorCount;
+    const int count = shader.fColorCount;
+    SkASSERT(count > 1);
+
     fRecs.setCount(count);
     Rec* rec = fRecs.begin();
     if (shader.fOrigPos) {
@@ -114,16 +116,16 @@ SkLinearGradient::LinearGradientContext::LinearGradientContext(
                 rec[i].fPosScale = 0;
             }
         }
-        rec[count - 1].fPos = 1;    // overwrite the last value just to be sure we end at 1.0
     } else {
         // no pos specified, so we compute evenly spaced values
         const float scale = float(count - 1);
-        float invScale = 1.0f / scale;
+        const float invScale = 1.0f / scale;
         for (int i = 0; i < count; ++i) {
             rec[i].fPos = i * invScale;
             rec[i].fPosScale = scale;
         }
     }
+    rec[count - 1].fPos = 1;    // overwrite the last value just to be sure we end at 1.0
 
     fApplyAlphaAfterInterp = true;
     if ((shader.getGradFlags() & SkGradientShader::kInterpolateColorsInPremul_Flag) ||

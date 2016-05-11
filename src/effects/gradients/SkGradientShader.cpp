@@ -774,6 +774,8 @@ static bool valid_grad(const SkColor colors[], const SkScalar pos[], int count, 
 static void desc_init(SkGradientShaderBase::Descriptor* desc,
                       const SkColor colors[], const SkScalar pos[], int colorCount,
                       SkShader::TileMode mode, uint32_t flags, const SkMatrix* localMatrix) {
+    SkASSERT(colorCount > 1);
+
     desc->fColors       = colors;
     desc->fPos          = pos;
     desc->fCount        = colorCount;
