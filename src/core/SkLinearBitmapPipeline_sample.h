@@ -8,11 +8,12 @@
 #ifndef SkLinearBitmapPipeline_sampler_DEFINED
 #define SkLinearBitmapPipeline_sampler_DEFINED
 
+#include <tuple>
+
 #include "SkFixed.h"
 #include "SkHalf.h"
 #include "SkLinearBitmapPipeline_core.h"
-#include <array>
-#include <tuple>
+#include "SkPM4fPriv.h"
 
 namespace {
 // Explaination of the math:
@@ -48,7 +49,6 @@ static Sk4s VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
     return sum;
 }
 
-// The GeneralSampler class
 template<typename SourceStrategy, typename Next>
 class GeneralSampler {
 public:
@@ -560,14 +560,6 @@ private:
     SourceStrategy fStrategy;
 };
 
-class sRGBFast {
-public:
-    static Sk4s VECTORCALL sRGBToLinear(Sk4s pixel) {
-        Sk4s l = pixel * pixel;
-        return Sk4s{l[0], l[1], l[2], pixel[3]};
-    }
-};
-
 template <typename PixelGetter>
 class PixelAccessor {
 public:
@@ -630,13 +622,9 @@ public:
 
     Sk4f getPixelFromRow(const void* row, int index) {
         const uint32_t* src = static_cast<const uint32_t*>(row);
-        Sk4b bytePixel = Sk4b::Load((uint8_t *)(&src[index]));
-        Sk4f pixel = SkNx_cast<float, uint8_t>(bytePixel);
-        pixel = pixel * (1.0f/255.0f);
-        if (colorProfile == kSRGB_SkColorProfileType) {
-            pixel = sRGBFast::sRGBToLinear(pixel);
-        }
-        return pixel;
+        return colorProfile == kSRGB_SkColorProfileType
+               ? Sk4f_fromS32(*src)
+               : Sk4f_fromL32(*src);
     }
 
     Sk4f getPixelAt(int index) {
@@ -662,14 +650,10 @@ public:
 
     Sk4f getPixelFromRow(const void* row, int index) {
         const uint32_t* src = static_cast<const uint32_t*>(row);
-        Sk4b bytePixel = Sk4b::Load((uint8_t *)(&src[index]));
-        Sk4f pixel = SkNx_cast<float, uint8_t>(bytePixel);
-        pixel = SkNx_shuffle<2, 1, 0, 3>(pixel);
-        pixel = pixel * (1.0f/255.0f);
-        if (colorProfile == kSRGB_SkColorProfileType) {
-            pixel = sRGBFast::sRGBToLinear(pixel);
-        }
-        return pixel;
+        Sk4f pixel = colorProfile == kSRGB_SkColorProfileType
+                     ? Sk4f_fromS32(*src)
+                     : Sk4f_fromL32(*src);
+        return SkNx_shuffle<2, 1, 0, 3>(pixel);
     }
 
     Sk4f getPixelAt(int index) {
@@ -725,15 +709,14 @@ public:
 private:
     static const size_t kColorTableSize = sizeof(Sk4f[256]) + 12;
     Sk4f convertPixel(SkPMColor pmColor) {
-        Sk4b bPixel = Sk4b::Load(&pmColor);
-        Sk4f pixel = SkNx_cast<float, uint8_t>(bPixel);
-        float alpha = pixel[3];
+        Sk4f pixel = to_4f(pmColor);
+        float alpha = get_alpha(pixel);
         if (alpha != 0.0f) {
-            float invAlpha = 1.0f / pixel[3];
+            float invAlpha = 1.0f / alpha;
             Sk4f normalize = {invAlpha, invAlpha, invAlpha, 1.0f / 255.0f};
             pixel = pixel * normalize;
             if (colorProfile == kSRGB_SkColorProfileType) {
-                pixel = sRGBFast::sRGBToLinear(pixel);
+                pixel = linear_to_srgb(pixel);
             }
             return pixel;
         } else {
