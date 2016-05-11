@@ -20,7 +20,7 @@
     #include "gl/mesa/GLTestContext_mesa.h"
 #endif
 #if SK_VULKAN
-#include "vk/GrVkBackendContext.h"
+#include "vk/VkTestContext.h"
 #endif
 #include "gl/null/NullGLTestContext.h"
 #include "gl/GrGLGpu.h"
@@ -39,15 +39,15 @@ GrContextFactory::~GrContextFactory() {
 
 void GrContextFactory::destroyContexts() {
     for (Context& context : fContexts) {
-        if (context.fGLContext) {
-            context.fGLContext->makeCurrent();
+        if (context.fTestContext) {
+            context.fTestContext->makeCurrent();
         }
         if (!context.fGrContext->unique()) {
             context.fGrContext->releaseResourcesAndAbandonContext();
             context.fAbandoned = true;
         }
         context.fGrContext->unref();
-        delete context.fGLContext;
+        delete context.fTestContext;
     }
     fContexts.reset();
 }
@@ -55,11 +55,11 @@ void GrContextFactory::destroyContexts() {
 void GrContextFactory::abandonContexts() {
     for (Context& context : fContexts) {
         if (!context.fAbandoned) {
-            if (context.fGLContext) {
-                context.fGLContext->makeCurrent();
-                context.fGLContext->testAbandon();
-                delete(context.fGLContext);
-                context.fGLContext = nullptr;
+            if (context.fTestContext) {
+                context.fTestContext->makeCurrent();
+                context.fTestContext->testAbandon();
+                delete(context.fTestContext);
+                context.fTestContext = nullptr;
             }
             context.fGrContext->abandonContext();
             context.fAbandoned = true;
@@ -70,14 +70,14 @@ void GrContextFactory::abandonContexts() {
 void GrContextFactory::releaseResourcesAndAbandonContexts() {
     for (Context& context : fContexts) {
         if (!context.fAbandoned) {
-            if (context.fGLContext) {
-                context.fGLContext->makeCurrent();
+            if (context.fTestContext) {
+                context.fTestContext->makeCurrent();
             }
             context.fGrContext->releaseResourcesAndAbandonContext();
             context.fAbandoned = true;
-            if (context.fGLContext) {
-                delete context.fGLContext;
-                context.fGLContext = nullptr;
+            if (context.fTestContext) {
+                delete context.fTestContext;
+                context.fTestContext = nullptr;
             }
         }
     }
@@ -97,61 +97,58 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
         if (context.fType == type &&
             context.fOptions == options &&
             !context.fAbandoned) {
-            if (context.fGLContext) {
-                context.fGLContext->makeCurrent();
-            }
-            return ContextInfo(context.fGrContext, context.fGLContext);
+            context.fTestContext->makeCurrent();
+            return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
         }
     }
-    SkAutoTDelete<GLTestContext> glCtx;
+    SkAutoTDelete<TestContext> testCtx;
     sk_sp<GrContext> grCtx;
     GrBackendContext backendContext = 0;
     sk_sp<const GrGLInterface> glInterface;
-#ifdef SK_VULKAN
-    sk_sp<const GrVkBackendContext> vkBackend;
-#endif
     GrBackend backend = ContextTypeBackend(type);
     switch (backend) {
-        case kOpenGL_GrBackend:
+        case kOpenGL_GrBackend: {
+            GLTestContext* glCtx;
             switch (type) {
                 case kGL_ContextType:
-                    glCtx.reset(CreatePlatformGLTestContext(kGL_GrGLStandard));
+                    glCtx = CreatePlatformGLTestContext(kGL_GrGLStandard);
                     break;
                 case kGLES_ContextType:
-                    glCtx.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
+                    glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard);
                     break;
 #if SK_ANGLE
 #   ifdef SK_BUILD_FOR_WIN
                 case kANGLE_ContextType:
-                    glCtx.reset(CreateANGLEDirect3DGLTestContext());
+                    glCtx = CreateANGLEDirect3DGLTestContext();
                     break;
 #   endif
                 case kANGLE_GL_ContextType:
-                    glCtx.reset(CreateANGLEOpenGLGLTestContext());
+                    glCtx = CreateANGLEOpenGLGLTestContext();
                     break;
 #endif
 #if SK_COMMAND_BUFFER
                 case kCommandBuffer_ContextType:
-                    glCtx.reset(CommandBufferGLTestContext::Create());
+                    glCtx = CommandBufferGLTestContext::Create();
                     break;
 #endif
 #if SK_MESA
                 case kMESA_ContextType:
-                    glCtx.reset(CreateMesaGLTestContext());
+                    glCtx = CreateMesaGLTestContext();
                     break;
 #endif
                 case kNullGL_ContextType:
-                    glCtx.reset(CreateNullGLTestContext(kEnableNVPR_ContextOptions & options));
+                    glCtx = CreateNullGLTestContext(kEnableNVPR_ContextOptions & options);
                     break;
                 case kDebugGL_ContextType:
-                    glCtx.reset(CreateDebugGLTestContext());
+                    glCtx = CreateDebugGLTestContext();
                     break;
                 default:
                     return ContextInfo();
             }
-            if (nullptr == glCtx.get()) {
+            if (!glCtx) {
                 return ContextInfo();
             }
+            testCtx.reset(glCtx);
             glInterface.reset(SkRef(glCtx->gl()));
             // Block NVPR from non-NVPR types.
             if (!(kEnableNVPR_ContextOptions & options)) {
@@ -161,8 +158,8 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                 }
             }
             backendContext = reinterpret_cast<GrBackendContext>(glInterface.get());
-            glCtx->makeCurrent();
             break;
+        }
 #ifdef SK_VULKAN
         case kVulkan_GrBackend:
             SkASSERT(kVulkan_ContextType == type);
@@ -170,11 +167,11 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                 (kRequireSRGBSupport_ContextOptions & options)) {
                 return ContextInfo();
             }
-            vkBackend.reset(GrVkBackendContext::Create());
-            if (!vkBackend) {
+            testCtx.reset(CreatePlatformVkTestContext());
+            if (!testCtx) {
                 return ContextInfo();
             }
-            backendContext = reinterpret_cast<GrBackendContext>(vkBackend.get());
+
             // There is some bug (either in Skia or the NV Vulkan driver) where VkDevice
             // destruction will hang occaisonally. For some reason having an existing GL
             // context fixes this.
@@ -184,12 +181,14 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                     fSentinelGLContext.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
                 }
             }
+            backendContext = testCtx->backendContext();
             break;
 #endif
         default:
             return ContextInfo();
     }
-
+    testCtx->makeCurrent();
+    SkASSERT(testCtx && testCtx->backend() == backend);
     grCtx.reset(GrContext::Create(backend, backendContext, fGlobalOptions));
     if (!grCtx.get()) {
         return ContextInfo();
@@ -206,11 +205,12 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
     }
 
     Context& context = fContexts.push_back();
-    context.fGLContext = glCtx.release();
+    context.fBackend = backend;
+    context.fTestContext = testCtx.release();
     context.fGrContext = SkRef(grCtx.get());
     context.fType = type;
     context.fOptions = options;
     context.fAbandoned = false;
-    return ContextInfo(context.fGrContext, context.fGLContext);
+    return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
 }
 }  // namespace sk_gpu_test

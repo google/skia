@@ -12,6 +12,7 @@
 #include "GrContextOptions.h"
 
 #include "gl/GLTestContext.h"
+#include "vk/VkTestContext.h"
 #include "SkTArray.h"
 
 struct GrVkBackendContext;
@@ -20,17 +21,35 @@ namespace sk_gpu_test {
 
 class ContextInfo {
 public:
+    ContextInfo() = default;
+    ContextInfo& operator=(const ContextInfo&) = default;
+
+    GrBackend backend() const { return fBackend; };
+
     GrContext* grContext() const { return fGrContext; }
-    GLTestContext* glContext() const { return fGLContext; }
+
+    GLTestContext* glContext() const {
+        SkASSERT(kOpenGL_GrBackend == fBackend);
+        return static_cast<GLTestContext*>(fTestContext);
+    }
+
+#ifdef SK_VULKAN
+    VkTestContext* vkContext() const {
+        SkASSERT(kVulkan_GrBackend == fBackend);
+        return static_cast<VkTestContext*>(fTestContext);
+    }
+#endif
 
 private:
-    ContextInfo()
-            : fGrContext(nullptr), fGLContext(nullptr) { }
-    ContextInfo(GrContext* grContext, GLTestContext* glContext)
-            : fGrContext(grContext), fGLContext(glContext) { }
-    GrContext* fGrContext;
-    GLTestContext* fGLContext; //! Valid until the factory destroys it via abandonContexts() or
-                               //! destroyContexts(). Null if context is not based on OpenGL.
+    ContextInfo(GrBackend backend, TestContext* testContext, GrContext* grContext)
+            : fBackend(backend)
+            , fTestContext(testContext)
+            , fGrContext(grContext) {}
+
+    GrBackend       fBackend = kOpenGL_GrBackend;
+    // Valid until the factory destroys it via abandonContexts() or destroyContexts().
+    TestContext*    fTestContext = nullptr;
+    GrContext*      fGrContext = nullptr;
 
     friend class GrContextFactory;
 };
@@ -134,7 +153,7 @@ public:
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
     GrContext* get(ContextType type, ContextOptions options = kNone_ContextOptions) {
-        return this->getContextInfo(type, options).fGrContext;
+        return this->getContextInfo(type, options).grContext();
     }
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
@@ -142,7 +161,8 @@ private:
     struct Context {
         ContextType     fType;
         ContextOptions  fOptions;
-        GLTestContext*  fGLContext; //  null if non-GL
+        GrBackend       fBackend;
+        TestContext*    fTestContext;
         GrContext*      fGrContext;
         bool            fAbandoned;
     };
