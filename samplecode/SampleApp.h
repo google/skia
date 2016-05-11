@@ -204,7 +204,7 @@ private:
     int fMouseX, fMouseY;
     int fFatBitsScale;
     // Used by the text showing position and color values.
-    SkTypeface* fTypeface;
+    sk_sp<SkTypeface> fTypeface;
     bool fShowZoomer;
 
     SkOSMenu::TriState fLCDState;

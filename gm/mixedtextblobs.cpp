@@ -39,9 +39,9 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        sk_tool_utils::emoji_typeface(&fEmojiTypeface);
+        fEmojiTypeface = sk_tool_utils::emoji_typeface();
         fEmojiText = sk_tool_utils::emoji_sample_text();
-        fReallyBigATypeface.reset(GetResourceAsTypeface("/fonts/ReallyBigA.ttf"));
+        fReallyBigATypeface = MakeResourceAsTypeface("/fonts/ReallyBigA.ttf");
 
         SkTextBlobBuilder builder;
 
@@ -150,8 +150,8 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkTypeface> fEmojiTypeface;
-    SkAutoTUnref<SkTypeface> fReallyBigATypeface;
+    sk_sp<SkTypeface> fEmojiTypeface;
+    sk_sp<SkTypeface> fReallyBigATypeface;
     const char* fEmojiText;
     SkAutoTUnref<const SkTextBlob> fBlob;
 

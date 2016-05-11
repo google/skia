@@ -170,19 +170,15 @@ static void apply_shader(SkPaint* paint, float scale)
 }
 
 class ClockFaceView : public SkView {
-    SkTypeface* fFace;
+    sk_sp<SkTypeface> fFace;
     SkScalar fInterp;
     SkScalar fDx;
 
 public:
     ClockFaceView() {
-        fFace = SkTypeface::CreateFromFile("/Users/reed/Downloads/p052024l.pfb");
+        fFace = SkTypeface::MakeFromFile("/Users/reed/Downloads/p052024l.pfb");
         fInterp = 0;
         fDx = SK_Scalar1/64;
-    }
-
-    virtual ~ClockFaceView() {
-        SkSafeUnref(fFace);
     }
 
 protected:
@@ -225,8 +221,7 @@ protected:
 
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(240));
-        paint.setTypeface(SkTypeface::CreateFromName("sans-serif",
-                                                     SkTypeface::kBold));
+        paint.setTypeface(SkTypeface::MakeFromName("sans-serif", SkTypeface::kBold));
 
         SkString str("9");
 

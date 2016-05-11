@@ -28,9 +28,7 @@
 #include "SkBlurMaskFilter.h"
 
 static void setNamedTypeface(SkPaint* paint, const char name[]) {
-    SkTypeface* face = SkTypeface::CreateFromName(name, SkTypeface::kNormal);
-    paint->setTypeface(face);
-    SkSafeUnref(face);
+    paint->setTypeface(SkTypeface::MakeFromName(name, SkTypeface::kNormal));
 }
 
 static uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
@@ -92,8 +90,7 @@ protected:
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setTextSize(50);
-            paint.setTypeface(SkTypeface::CreateFromName("Arial Unicode MS", SkTypeface::kNormal));
-            SkSafeUnref(paint.getTypeface());
+            paint.setTypeface(SkTypeface::MakeFromName("Arial Unicode MS", SkTypeface::kNormal));
             char buffer[10];
             size_t len = SkUTF8_FromUnichar(0x8500, buffer);
             canvas->drawText(buffer, len, 40, 40, paint);

@@ -53,18 +53,15 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
-        SkTypeface* typeface = sk_tool_utils::create_portable_typeface(
-            "serif", SkTypeface::kItalic);
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
-        paint.setTypeface(typeface);
+        paint.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkTypeface::kItalic));
 
         for (int work = 0; work < loops; work++) {
             do_font_stuff(&paint);
         }
         SkGraphics::SetFontCacheLimit(oldCacheLimitSize);
-        SkSafeUnref(typeface);
     }
 
 private:
@@ -90,7 +87,7 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
-        SkTypeface* typefaces[] =
+        sk_sp<SkTypeface> typefaces[] =
             {sk_tool_utils::create_portable_typeface("serif", SkTypeface::kItalic),
              sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kItalic)};
 
@@ -104,8 +101,6 @@ protected:
             });
         }
         SkGraphics::SetFontCacheLimit(oldCacheLimitSize);
-        SkSafeUnref(typefaces[0]);
-        SkSafeUnref(typefaces[1]);
     }
 
 private:

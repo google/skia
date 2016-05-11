@@ -36,21 +36,14 @@ static const struct {
 static const int gFaceCount = SK_ARRAY_COUNT(gFaces);
 
 class FontScalerTestView : public SampleView {
-    SkTypeface* fFaces[gFaceCount];
+    sk_sp<SkTypeface> fFaces[gFaceCount];
 
 public:
     FontScalerTestView() {
         for (int i = 0; i < gFaceCount; i++) {
-            fFaces[i] = SkTypeface::CreateFromName(gFaces[i].fName,
-                                                   gFaces[i].fStyle);
+            fFaces[i] = SkTypeface::MakeFromName(gFaces[i].fName, gFaces[i].fStyle);
         }
 //        this->setBGColor(0xFFDDDDDD);
-    }
-
-    virtual ~FontScalerTestView() {
-        for (int i = 0; i < gFaceCount; i++) {
-            SkSafeUnref(fFaces[i]);
-        }
     }
 
 protected:
@@ -92,7 +85,7 @@ protected:
 //        paint.setSubpixelText(true);
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
-        SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal)));
+        paint.setTypeface(SkTypeface::MakeFromName("Times Roman", SkTypeface::kNormal));
 
 //        const char* text = "abcdefghijklmnopqrstuvwxyz";
         const char* text = "Hamburgefons ooo mmm";

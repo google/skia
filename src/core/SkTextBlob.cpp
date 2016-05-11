@@ -27,7 +27,7 @@ public:
 
     void applyToPaint(SkPaint* paint) const {
         paint->setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        paint->setTypeface(fTypeface.get());
+        paint->setTypeface(fTypeface);
         paint->setTextSize(fSize);
         paint->setTextScaleX(fScaleX);
         paint->setTextSkewX(fSkewX);
@@ -73,7 +73,7 @@ private:
 
     // Keep this SkAutoTUnref off the first position, to avoid interfering with SkNoncopyable
     // empty baseclass optimization (http://code.google.com/p/skia/issues/detail?id=3694).
-    SkAutoTUnref<SkTypeface> fTypeface;
+    sk_sp<SkTypeface>        fTypeface;
     SkScalar                 fSkewX;
 
     static_assert(SkPaint::kAlignCount < 4, "insufficient_align_bits");

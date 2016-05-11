@@ -19,7 +19,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        sk_tool_utils::emoji_typeface(&fEmojiTypeface);
+        fEmojiTypeface = sk_tool_utils::emoji_typeface();
         fEmojiText = sk_tool_utils::emoji_sample_text();
     }
 
@@ -210,7 +210,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkTypeface> fEmojiTypeface;
+    sk_sp<SkTypeface> fEmojiTypeface;
     const char* fEmojiText;
 
     typedef skiagm::GM INHERITED;

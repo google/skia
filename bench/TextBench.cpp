@@ -47,7 +47,7 @@ class TextBench : public Benchmark {
     FontQuality fFQ;
     bool        fDoPos;
     bool        fDoColorEmoji;
-    SkAutoTUnref<SkTypeface> fColorEmojiTypeface;
+    sk_sp<SkTypeface> fColorEmojiTypeface;
     SkPoint*    fPos;
 public:
     TextBench(const char text[], int ps,
@@ -71,7 +71,7 @@ protected:
     void onDelayedSetup() override {
         if (fDoColorEmoji) {
             SkASSERT(kBW == fFQ);
-            fColorEmojiTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
+            fColorEmojiTypeface = MakeResourceAsTypeface("/fonts/Funkster.ttf");
         }
 
         if (fDoPos) {

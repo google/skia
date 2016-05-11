@@ -512,9 +512,7 @@ static SkPaint make_paint() {
 
     if (false) {
         // our validating buffer does not support typefaces yet, so skip this for now
-        SkAutoTUnref<SkTypeface> typeface(
-                      SkTypeface::CreateFromName(make_font_name().c_str(), make_typeface_style()));
-        paint.setTypeface(typeface);
+        paint.setTypeface(SkTypeface::MakeFromName(make_font_name().c_str(),make_typeface_style()));
     }
 
     SkLayerRasterizer::Builder rasterizerBuilder;

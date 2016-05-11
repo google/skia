@@ -9,13 +9,9 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 
-static SkTypeface* ref_or_default(SkTypeface* face) {
-    return face ? SkRef(face) : SkTypeface::RefDefault();
-}
-
-SkFont::SkFont(SkTypeface* face, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType mt,
+SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType mt,
                uint32_t flags)
-    : fTypeface(ref_or_default(face))
+    : fTypeface(face ? std::move(face) : SkTypeface::MakeDefault())
     , fSize(size)
     , fScaleX(scaleX)
     , fSkewX(skewX)
@@ -28,8 +24,8 @@ SkFont::SkFont(SkTypeface* face, SkScalar size, SkScalar scaleX, SkScalar skewX,
     SkASSERT(0 == (flags & ~kAllFlags));
 }
 
-SkFont* SkFont::Create(SkTypeface* face, SkScalar size, SkScalar scaleX, SkScalar skewX,
-                       MaskType mt, uint32_t flags) {
+sk_sp<SkFont> SkFont::Make(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX,
+                           MaskType mt, uint32_t flags) {
     if (size <= 0 || !SkScalarIsFinite(size)) {
         return nullptr;
     }
@@ -40,23 +36,19 @@ SkFont* SkFont::Create(SkTypeface* face, SkScalar size, SkScalar scaleX, SkScala
         return nullptr;
     }
     flags &= kAllFlags;
-    return new SkFont(face, size, scaleX, skewX, mt, flags);
+    return sk_sp<SkFont>(new SkFont(std::move(face), size, scaleX, skewX, mt, flags));
 }
 
-SkFont* SkFont::Create(SkTypeface* face, SkScalar size, MaskType mt, uint32_t flags) {
-    return SkFont::Create(face, size, 1, 0, mt, flags);
+sk_sp<SkFont> SkFont::Make(sk_sp<SkTypeface> face, SkScalar size, MaskType mt, uint32_t flags) {
+    return SkFont::Make(std::move(face), size, 1, 0, mt, flags);
 }
 
-SkFont* SkFont::cloneWithSize(SkScalar newSize) const {
-    return SkFont::Create(this->getTypeface(), newSize, this->getScaleX(), this->getSkewX(),
-                          this->getMaskType(), this->getFlags());
+sk_sp<SkFont> SkFont::makeWithSize(SkScalar newSize) const {
+    return SkFont::Make(sk_ref_sp(this->getTypeface()), newSize, this->getScaleX(),
+                        this->getSkewX(), this->getMaskType(), this->getFlags());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkFont::~SkFont() {
-    SkSafeUnref(fTypeface);
-}
 
 int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                          uint16_t glyphs[], int maxGlyphCount) const {
@@ -118,7 +110,7 @@ SkScalar SkFont::measureText(const void* text, size_t byteLength, SkTextEncoding
 
 #include "SkPaint.h"
 
-SkFont* SkFont::Testing_CreateFromPaint(const SkPaint& paint) {
+sk_sp<SkFont> SkFont::Testing_CreateFromPaint(const SkPaint& paint) {
     uint32_t flags = 0;
     if (paint.isVerticalText()) {
         flags |= kVertical_Flag;
@@ -150,7 +142,6 @@ SkFont* SkFont::Testing_CreateFromPaint(const SkPaint& paint) {
         maskType = paint.isLCDRenderText() ? kLCD_MaskType : kA8_MaskType;
     }
 
-    return Create(paint.getTypeface(),
-                  paint.getTextSize(), paint.getTextScaleX(), paint.getTextSkewX(),
-                  maskType, flags);
+    return Make(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
+                paint.getTextSkewX(), maskType, flags);
 }

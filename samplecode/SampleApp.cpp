@@ -935,7 +935,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fMouseX = fMouseY = 0;
     fFatBitsScale = 8;
-    fTypeface = SkTypeface::CreateFromTypeface(nullptr, SkTypeface::kBold);
+    fTypeface = SkTypeface::MakeFromTypeface(nullptr, SkTypeface::kBold);
     fShowZoomer = false;
 
     fZoomLevel = 0;
@@ -1061,7 +1061,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 }
 
 SampleWindow::~SampleWindow() {
-    SkSafeUnref(fTypeface);
     SkSafeUnref(fDevManager);
 }
 

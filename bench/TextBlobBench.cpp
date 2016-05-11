@@ -23,13 +23,11 @@
  */
 class TextBlobBench : public Benchmark {
 public:
-    TextBlobBench()
-        : fTypeface(nullptr) {
-    }
+    TextBlobBench() {}
 
 protected:
     void onDelayedSetup() override {
-        fTypeface.reset(sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal));
+        fTypeface = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal);
         // make textblob
         SkPaint paint;
         paint.setTypeface(fTypeface);
@@ -64,9 +62,9 @@ protected:
 
 private:
 
-    SkAutoTUnref<const SkTextBlob> fBlob;
-    SkTDArray<uint16_t>      fGlyphs;
-    SkAutoTUnref<SkTypeface> fTypeface;
+    SkAutoTUnref<const SkTextBlob>  fBlob;
+    SkTDArray<uint16_t>             fGlyphs;
+    sk_sp<SkTypeface>               fTypeface;
 
     typedef Benchmark INHERITED;
 };

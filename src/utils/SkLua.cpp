@@ -925,7 +925,7 @@ static int lpaint_getTypeface(lua_State* L) {
 }
 
 static int lpaint_setTypeface(lua_State* L) {
-    get_obj<SkPaint>(L, 1)->setTypeface(get_ref<SkTypeface>(L, 2));
+    get_obj<SkPaint>(L, 1)->setTypeface(sk_ref_sp(get_ref<SkTypeface>(L, 2)));
     return 0;
 }
 
@@ -2049,13 +2049,12 @@ static int lsk_newTypeface(lua_State* L) {
         }
     }
 
-    SkTypeface* face = SkTypeface::CreateFromName(name,
-                                                  (SkTypeface::Style)style);
+    sk_sp<SkTypeface> face(SkTypeface::MakeFromName(name, (SkTypeface::Style)style));
 //    SkDebugf("---- name <%s> style=%d, face=%p ref=%d\n", name, style, face, face->getRefCnt());
     if (nullptr == face) {
-        face = SkTypeface::RefDefault();
+        face = SkTypeface::MakeDefault();
     }
-    push_ref(L, face)->unref();
+    push_ref(L, std::move(face));
     return 1;
 }
 
