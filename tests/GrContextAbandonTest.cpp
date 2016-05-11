@@ -20,7 +20,7 @@ DEF_GPUTEST(GrContext_abandonContext, reporter, /*factory*/) {
             GrContextFactory testFactory;
             GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
             ContextInfo info = testFactory.getContextInfo(ctxType);
-            if (GrContext* context = info.fGrContext) {
+            if (GrContext* context = info.grContext()) {
                 switch (testType) {
                     case 0:
                         context->abandonContext();

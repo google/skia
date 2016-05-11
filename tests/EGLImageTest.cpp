@@ -82,8 +82,8 @@ static void test_copy_surface(skiatest::Reporter* reporter, GrContext* context,
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
-    GrContext* context0 = ctxInfo.fGrContext;
-    sk_gpu_test::GLTestContext* glCtx0 = ctxInfo.fGLContext;
+    GrContext* context0 = ctxInfo.grContext();
+    sk_gpu_test::GLTestContext* glCtx0 = ctxInfo.glContext();
 
     // Try to create a second GL context and then check if the contexts have necessary
     // extensions to run this test.

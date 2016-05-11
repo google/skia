@@ -134,14 +134,14 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkUploadPixelsTests, reporter, ctxInfo) {
-    basic_texture_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig, false, false);
-    basic_texture_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig, true, false);
-    basic_texture_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig, false, true);
-    basic_texture_test(reporter, ctxInfo.fGrContext, kRGBA_8888_GrPixelConfig, true, true);
-    basic_texture_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig, false, false);
-    basic_texture_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig, true, false);
-    basic_texture_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig, false, true);
-    basic_texture_test(reporter, ctxInfo.fGrContext, kBGRA_8888_GrPixelConfig, true, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, false, false);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, true, false);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, false, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, true, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, false, false);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, true, false);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, false, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, true, true);
 }
 
 #endif

@@ -19,7 +19,7 @@
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
 // and render targets to GrSurface all work as expected.
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
+    GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;

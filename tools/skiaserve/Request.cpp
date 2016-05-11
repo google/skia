@@ -71,7 +71,7 @@ SkCanvas* Request::getCanvas() {
 #if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
     GLTestContext* gl = factory->getContextInfo(GrContextFactory::kNativeGL_ContextType,
-                                            GrContextFactory::kNone_ContextOptions).fGLContext;
+                                            GrContextFactory::kNone_ContextOptions).glContext();
     gl->makeCurrent();
 #endif
     SkASSERT(fDebugCanvas);

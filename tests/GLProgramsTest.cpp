@@ -424,17 +424,17 @@ static int get_glprograms_max_stages(GrContext* context) {
 
 static void test_glprograms_native(skiatest::Reporter* reporter,
                                    const sk_gpu_test::ContextInfo& ctxInfo) {
-    int maxStages = get_glprograms_max_stages(ctxInfo.fGrContext);
+    int maxStages = get_glprograms_max_stages(ctxInfo.grContext());
     if (maxStages == 0) {
         return;
     }
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.fGrContext, maxStages));
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages));
 }
 
 static void test_glprograms_other_contexts(
             skiatest::Reporter* reporter,
             const sk_gpu_test::ContextInfo& ctxInfo) {
-    int maxStages = get_glprograms_max_stages(ctxInfo.fGrContext);
+    int maxStages = get_glprograms_max_stages(ctxInfo.grContext());
 #ifdef SK_BUILD_FOR_WIN
     // Some long shaders run out of temporary registers in the D3D compiler on ANGLE and
     // command buffer.
@@ -443,7 +443,7 @@ static void test_glprograms_other_contexts(
     if (maxStages == 0) {
         return;
     }
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.fGrContext, maxStages));
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages));
 }
 
 static bool is_native_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {

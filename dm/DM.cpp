@@ -1438,12 +1438,12 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                 continue;
             }
         }
-        if (ctxInfo.fGrContext) {
+        if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
         }
         ctxInfo = factory->getContextInfo(contextType,
                                           GrContextFactory::kEnableNVPR_ContextOptions);
-        if (ctxInfo.fGrContext) {
+        if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
         }
     }

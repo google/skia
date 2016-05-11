@@ -25,7 +25,7 @@ DEF_TEST(skbug5221, r) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_ALL_CONTEXTS(skbug5221_GPU, r, contextInfo) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(contextInfo.fGrContext, SkBudgeted::kYes,
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(contextInfo.grContext(), SkBudgeted::kYes,
                                                          SkImageInfo::MakeN32Premul(256, 256), 0,
                                                          nullptr));
     test(surface->getCanvas());

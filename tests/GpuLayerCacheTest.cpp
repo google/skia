@@ -126,9 +126,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GpuLayerCache, reporter, ctxInfo) {
         picture = recorder.finishRecordingAsPicture();
     }
 
-    GrResourceCache* resourceCache = ctxInfo.fGrContext->getResourceCache();
+    GrResourceCache* resourceCache = ctxInfo.grContext()->getResourceCache();
 
-    GrLayerCache cache(ctxInfo.fGrContext);
+    GrLayerCache cache(ctxInfo.grContext());
 
     create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
 

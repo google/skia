@@ -396,7 +396,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
         SkAutoTUnref<GrTexture> surfaceTexture(
-            ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+            ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo));
         auto surface(SkSurface::MakeRenderTargetDirect(surfaceTexture->asRenderTarget()));
         desc.fFlags = kNone_GrSurfaceFlags;
         test_readpixels(reporter, surface, kLast_BitmapInit);
@@ -453,7 +453,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
         desc.fFlags = kNone_GrSurfaceFlags;
-        texture.reset(ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+        texture.reset(ctxInfo.grContext()->textureProvider()->createTexture(desc,
+                                                                            SkBudgeted::kNo));
         test_readpixels_texture(reporter, texture);
     }
 }
@@ -585,7 +586,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, ctxInfo) 
     SkBitmap bm_subset, tx_subset;
 
     // ... one from a texture-subset
-    SkAutoTUnref<GrTexture> fullTx(GrRefCachedBitmapTexture(ctxInfo.fGrContext, bitmap,
+    SkAutoTUnref<GrTexture> fullTx(GrRefCachedBitmapTexture(ctxInfo.grContext(), bitmap,
                                                             GrTextureParams::ClampNoFilter()));
     SkBitmap tx_full;
     GrWrapTextureInBitmap(fullTx, bitmap.width(), bitmap.height(), true, &tx_full);
@@ -594,7 +595,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, ctxInfo) 
     // ... one from a bitmap-subset
     SkBitmap tmp_subset;
     bitmap.extractSubset(&tmp_subset, subset);
-    SkAutoTUnref<GrTexture> subsetTx(GrRefCachedBitmapTexture(ctxInfo.fGrContext, tmp_subset,
+    SkAutoTUnref<GrTexture> subsetTx(GrRefCachedBitmapTexture(ctxInfo.grContext(), tmp_subset,
                                                               GrTextureParams::ClampNoFilter()));
     GrWrapTextureInBitmap(subsetTx, tmp_subset.width(), tmp_subset.height(), true, &bm_subset);
 
@@ -603,8 +604,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadPixels_Subset_Gpu, reporter, ctxInfo) 
 
     // do they draw the same?
     const SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    auto surfA(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info));
-    auto surfB(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info));
+    auto surfA(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info));
+    auto surfB(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info));
 
     if (false) {
         //

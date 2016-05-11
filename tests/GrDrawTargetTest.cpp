@@ -14,9 +14,9 @@
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawTargetPrint, reporter, ctxInfo) {
     // This used to assert.
-    SkString result = ctxInfo.fGrContext->caps()->dump();
+    SkString result = ctxInfo.grContext()->caps()->dump();
     SkASSERT(!result.isEmpty());
-    SkString shaderResult = ctxInfo.fGrContext->caps()->shaderCaps()->dump();
+    SkString shaderResult = ctxInfo.grContext()->caps()->shaderCaps()->dump();
     SkASSERT(!shaderResult.isEmpty());
 }
 

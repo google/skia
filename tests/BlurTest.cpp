@@ -559,7 +559,7 @@ DEF_TEST(BlurAsABlur, reporter) {
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo) {
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
 
     SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);

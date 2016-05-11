@@ -53,7 +53,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
         SkAutoTUnref<GrTexture> texture(
-            ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo , alphaData,
+            ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo, alphaData,
                                                                  0));
         if (!texture) {
             if (!rt) {
@@ -155,8 +155,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 }
             }
             SkAutoTUnref<GrTexture> texture(
-                ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo,
-                                                                     rgbaData, 0));
+                ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo,
+                                                                      rgbaData, 0));
             if (!texture) {
                 // We always expect to be able to create a RGBA texture
                 if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {

@@ -53,7 +53,7 @@ static bool reset_dc(sk_sp<GrDrawContext>* dc, GrContext* context, int w, int h)
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
+    GrContext* context = ctxInfo.grContext();
     static const int kW = 10;
     static const int kH = 10;
 

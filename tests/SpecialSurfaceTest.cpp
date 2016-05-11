@@ -79,7 +79,7 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 #if SK_SUPPORT_GPU
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.fGrContext,
+    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.grContext(),
                                                                     kSmallerSize, kSmallerSize,
                                                                     kSkia8888_GrPixelConfig));
 

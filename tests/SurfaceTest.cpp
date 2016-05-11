@@ -79,7 +79,7 @@ DEF_TEST(SurfaceEmpty, reporter) {
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceEmpty_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
     REPORTER_ASSERT(reporter, nullptr ==
-                    SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info, 0,
+                    SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 0,
                                                 nullptr));
 }
 #endif
@@ -122,7 +122,7 @@ DEF_TEST(SurfaceCanvasPeek, reporter) {
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceCanvasPeek_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         SkImageInfo requestInfo;
-        auto surface(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, &requestInfo));
+        auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, &requestInfo));
         test_canvas_peek(reporter, surface, requestInfo, false);
     }
 }
@@ -154,7 +154,7 @@ DEF_TEST(SurfaceAccessPixels, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAccessPixels_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        auto surface(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
+        auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         test_access_pixels(reporter, surface);
     }
 }
@@ -185,7 +185,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu, reporter, ct
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         for (auto& isOpaque : { true, false }) {
             SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-            auto surface(surface_func(ctxInfo.fGrContext, alphaType, nullptr));
+            auto surface(surface_func(ctxInfo.grContext(), alphaType, nullptr));
             test_snapshot_alphatype(reporter, surface, isOpaque);
         }
     }
@@ -243,7 +243,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessCopyOnWrite_Gpu, re
         for (auto& handle_access_func :
                 { &get_surface_backend_texture_handle, &get_surface_backend_render_target_handle }) {
             for (auto& accessMode : accessModes) {
-                auto surface(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
+                auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
                 test_backend_handle_access_copy_on_write(reporter, surface.get(), accessMode,
                                                          handle_access_func);
             }
@@ -332,7 +332,7 @@ DEF_TEST(UniqueImageSnapshot, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
+    GrContext* context = ctxInfo.grContext();
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface(surface_func(context, kOpaque_SkAlphaType, nullptr));
 
@@ -439,7 +439,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessIDs_Gpu, reporter, 
         for (auto& test_func : { &test_backend_handle_unique_id, &test_backend_handle_gen_id }) {
             for (auto& handle_access_func :
                 { &get_surface_backend_texture_handle, &get_surface_backend_render_target_handle}) {
-                auto surface(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
+                auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
                 test_func(reporter, surface.get(), handle_access_func);
             }
         }
@@ -528,7 +528,7 @@ DEF_TEST(SurfaceCopyOnWrite, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceCopyOnWrite_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        auto surface(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
+        auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         test_copy_on_write(reporter, surface.get());
     }
 }
@@ -550,7 +550,7 @@ DEF_TEST(SurfaceWriteableAfterSnapshotRelease, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceWriteableAfterSnapshotRelease_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        auto surface(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
+        auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         test_writable_after_snapshot_release(reporter, surface.get());
     }
 }
@@ -591,8 +591,8 @@ static void test_crbug263329(skiatest::Reporter* reporter,
 }
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        auto surface1(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
-        auto surface2(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
+        auto surface1(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
+        auto surface2(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         test_crbug263329(reporter, surface1.get(), surface2.get());
     }
 }
@@ -608,7 +608,7 @@ DEF_TEST(SurfaceGetTexture, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
-        auto surface(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
+        auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         sk_sp<SkImage> image(surface->makeImageSnapshot());
         GrTexture* texture = as_IB(image)->peekTexture();
         REPORTER_ASSERT(reporter, texture);
@@ -642,7 +642,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceBudget, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8,8);
     for (auto sbudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
         for (auto ibudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
-            auto surface(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, sbudgeted, info));
+            auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), sbudgeted, info));
             SkASSERT(surface);
             REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
 
@@ -706,7 +706,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         for (auto& test_func : { &test_no_canvas1, &test_no_canvas2 }) {
             for (auto& mode : modes) {
-                auto surface(surface_func(ctxInfo.fGrContext, kPremul_SkAlphaType, nullptr));
+                auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
                 test_func(reporter, surface.get(), mode);
             }
         }
@@ -838,7 +838,7 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
+    GrContext* context = ctxInfo.grContext();
 
     std::function<GrSurface*(SkSurface*)> grSurfaceGetters[] = {
         [] (SkSurface* s){ 
@@ -914,7 +914,7 @@ static void test_surface_draw_partially(
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
-    GrGpu* gpu = ctxInfo.fGrContext->getGpu();
+    GrGpu* gpu = ctxInfo.grContext()->getGpu();
     if (!gpu) {
         return;
     }
@@ -926,7 +926,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo)
         // preserved in pixels that aren't rendered to via the surface.
         // This works only for non-multisampled case.
         GrBackendObject textureObject;
-        auto surface = surfaceFunc(ctxInfo.fGrContext, 0, kOrigColor, &textureObject);
+        auto surface = surfaceFunc(ctxInfo.grContext(), 0, kOrigColor, &textureObject);
         if (surface) {
             test_surface_draw_partially(reporter, surface, kOrigColor);
             surface.reset();
@@ -937,7 +937,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo)
 
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInfo) {
-    GrGpu* gpu = ctxInfo.fGrContext->getGpu();
+    GrGpu* gpu = ctxInfo.grContext()->getGpu();
     if (!gpu) {
         return;
     }
@@ -947,7 +947,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
                               &create_gpu_surface_backend_texture_as_render_target}) {
         for (int sampleCnt : {0, 4, 8}) {
             GrBackendObject textureObject;
-            auto surface = surfaceFunc(ctxInfo.fGrContext, sampleCnt, kOrigColor, &textureObject);
+            auto surface = surfaceFunc(ctxInfo.grContext(), sampleCnt, kOrigColor, &textureObject);
 
             if (!surface && sampleCnt > 0) {
               // Certain platforms don't support MSAA, skip these.
@@ -959,7 +959,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
             GrRenderTarget* rt = surface->getCanvas()->internal_private_accessTopLayerDrawContext()
                 ->accessRenderTarget();
             REPORTER_ASSERT(reporter,
-                            ctxInfo.fGrContext->resourceProvider()->attachStencilAttachment(rt));
+                            ctxInfo.grContext()->resourceProvider()->attachStencilAttachment(rt));
             gpu->deleteTestingOnlyBackendTexture(textureObject);
         }
     }

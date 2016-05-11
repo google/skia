@@ -31,7 +31,7 @@ DEF_GPUTEST(TestGpuFactory, reporter, factory) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(TestGpuAllContexts, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, ctxInfo.fGrContext);
+    REPORTER_ASSERT(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -40,7 +40,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(TestGpuAllContexts, reporter, ctxInfo) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, ctxInfo.fGrContext);
+    REPORTER_ASSERT(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -49,6 +49,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, ctxInfo) 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TestGpuNullContext, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, ctxInfo.fGrContext);
+    REPORTER_ASSERT(reporter, ctxInfo.grContext());
 }
 #endif

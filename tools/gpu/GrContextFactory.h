@@ -18,14 +18,21 @@ struct GrVkBackendContext;
 
 namespace sk_gpu_test {
 
-struct ContextInfo {
+class ContextInfo {
+public:
+    GrContext* grContext() const { return fGrContext; }
+    GLTestContext* glContext() const { return fGLContext; }
+
+private:
     ContextInfo()
-        : fGrContext(nullptr), fGLContext(nullptr) { }
+            : fGrContext(nullptr), fGLContext(nullptr) { }
     ContextInfo(GrContext* grContext, GLTestContext* glContext)
-        : fGrContext(grContext), fGLContext(glContext) { }
+            : fGrContext(grContext), fGLContext(glContext) { }
     GrContext* fGrContext;
     GLTestContext* fGLContext; //! Valid until the factory destroys it via abandonContexts() or
                                //! destroyContexts(). Null if context is not based on OpenGL.
+
+    friend class GrContextFactory;
 };
 
 /**

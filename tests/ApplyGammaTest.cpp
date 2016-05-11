@@ -68,7 +68,7 @@ bool check_gamma(uint32_t src, uint32_t dst, float gamma, float error, uint32_t*
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
+    GrContext* context = ctxInfo.grContext();
     static const int kW = 10;
     static const int kH = 10;
     static const size_t kRowBytes = sizeof(uint32_t) * kW;

@@ -188,7 +188,7 @@ struct GPUTarget {
         fSurface.reset(SkSurface::MakeRenderTarget(context,
                                                    SkBudgeted::kNo, info,
                                                    numSamples, &props).release());
-        fGL = factory->getContextInfo(ctxType, ctxOptions).fGLContext;
+        fGL = factory->getContextInfo(ctxType, ctxOptions).glContext();
         if (!fSurface.get()) {
             return false;
         }

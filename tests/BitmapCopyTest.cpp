@@ -667,8 +667,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BitmapCopy_Texture, reporter, ctxInfo) {
             const void* srcData = (kSkia8888_GrPixelConfig == desc.fConfig) ? kData : swizData;
 
             SkAutoTUnref<GrTexture> texture(
-                ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo, srcData,
-                                                                     0));
+                ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo,
+                                                                      srcData, 0));
 
             if (!texture) {
                 continue;

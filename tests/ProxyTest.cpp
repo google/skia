@@ -76,7 +76,7 @@ static void check_texture(skiatest::Reporter* reporter,
 
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
-    GrTextureProvider* provider = ctxInfo.fGrContext->textureProvider();
+    GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128 }) {
@@ -84,9 +84,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : { 0, 4}) {
-                            bool renderable = ctxInfo.fGrContext->caps()->isConfigRenderable(
+                            bool renderable = ctxInfo.grContext()->caps()->isConfigRenderable(
                                                                       config, numSamples > 0) &&
-                                  numSamples <= ctxInfo.fGrContext->caps()->maxColorSampleCount();
+                                  numSamples <= ctxInfo.grContext()->caps()->maxColorSampleCount();
 
                             GrSurfaceDesc desc;
                             desc.fOrigin = origin;
@@ -97,7 +97,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
 
                             if (renderable) {
                                 sk_sp<GrRenderTargetProxy> rtProxy(GrRenderTargetProxy::Make(
-                                                                    *ctxInfo.fGrContext->caps(),
+                                                                    *ctxInfo.grContext()->caps(),
                                                                     desc, 
                                                                     fit,
                                                                     budgeted));
@@ -123,7 +123,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(AllocedProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
-    GrTextureProvider* provider = ctxInfo.fGrContext->textureProvider();
+    GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
 
     static const int kWidthHeight = 100;
 
@@ -131,7 +131,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         for (auto config : { kAlpha_8_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
             for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                 for (auto numSamples: { 0, 4}) {
-                    bool renderable = ctxInfo.fGrContext->caps()->isConfigRenderable(
+                    bool renderable = ctxInfo.grContext()->caps()->isConfigRenderable(
                                                                 config, numSamples > 0);
 
                     GrSurfaceDesc desc;

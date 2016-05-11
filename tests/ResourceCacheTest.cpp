@@ -31,7 +31,7 @@ static const int gHeight = 480;
 
 ////////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
+    GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -81,7 +81,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
+    GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc smallDesc;
     smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     smallDesc.fConfig = kSkia8888_GrPixelConfig;
@@ -189,7 +189,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
+    GrContext* context = ctxInfo.grContext();
     GrGpu* gpu = context->getGpu();
     // this test is only valid for GL
     if (!gpu || !gpu->glContextForTesting()) {

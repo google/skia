@@ -191,7 +191,7 @@ static GrTexture* create_texture(GrContext* context) {
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
-    SkAutoTUnref<GrTexture> srcTexture(create_texture(ctxInfo.fGrContext));
+    SkAutoTUnref<GrTexture> srcTexture(create_texture(ctxInfo.grContext()));
     if (!srcTexture) {
         return;
     }
@@ -203,7 +203,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter,
     backendDesc.fHeight = kFullSize;
     backendDesc.fSampleCnt = 0;
     backendDesc.fTextureHandle = srcTexture->getTextureHandle();
-    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(ctxInfo.fGrContext, backendDesc, kPremul_SkAlphaType));
+    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType));
     if (!srcImage) {
         return;
     }
@@ -213,7 +213,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter,
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
 
-    sk_sp<GrTexture> srcTexture(create_texture(ctxInfo.fGrContext));
+    sk_sp<GrTexture> srcTexture(create_texture(ctxInfo.grContext()));
     if (!srcTexture) {
         return;
     }

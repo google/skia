@@ -177,7 +177,7 @@ DEF_TEST(ImageEncode, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
-    test_encode(reporter, create_gpu_image(ctxInfo.fGrContext).get());
+    test_encode(reporter, create_gpu_image(ctxInfo.grContext()).get());
 }
 #endif
 
@@ -371,7 +371,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
  */
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    sk_sp<SkImage> image(create_gpu_image(ctxInfo.fGrContext));
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
     const uint32_t uniqueID = image->uniqueID();
 
     auto surface(SkSurface::MakeRaster(info));
@@ -405,8 +405,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInfo) {
-    GrContext* context = contextInfo.fGrContext;
-    sk_gpu_test::GLTestContext* glContext = contextInfo.fGLContext;
+    GrContext* context = contextInfo.grContext();
+    sk_gpu_test::GLTestContext* glContext = contextInfo.glContext();
 
     GrContextFactory otherFactory;
     ContextInfo otherContextInfo =
@@ -423,8 +423,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, context
         [context] { return create_gpu_image(context); },
         // Create a texture image in a another GrContext.
         [glContext, otherContextInfo] {
-            otherContextInfo.fGLContext->makeCurrent();
-            sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.fGrContext);
+            otherContextInfo.glContext()->makeCurrent();
+            sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
             glContext->makeCurrent();
             return otherContextImage;
         }
@@ -578,7 +578,7 @@ DEF_TEST(ImageReadPixels, reporter) {
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
-    test_read_pixels(reporter, create_gpu_image(ctxInfo.fGrContext).get());
+    test_read_pixels(reporter, create_gpu_image(ctxInfo.grContext()).get());
 }
 #endif
 
@@ -646,7 +646,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
         SkImage::kRW_LegacyBitmapMode,
     };
     for (auto& mode : modes) {
-        sk_sp<SkImage> image(create_gpu_image(ctxInfo.fGrContext));
+        sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
         test_legacy_bitmap(reporter, image.get(), mode);
     }
 }
@@ -685,7 +685,7 @@ DEF_TEST(ImagePeek, reporter) {
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImagePeek_Gpu, reporter, ctxInfo) {
-    sk_sp<SkImage> image(create_gpu_image(ctxInfo.fGrContext));
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
     test_peek(reporter, image.get(), false);
 }
 #endif
@@ -705,7 +705,7 @@ static void check_image_color(skiatest::Reporter* reporter, SkImage* image, SkPM
     REPORTER_ASSERT(reporter, pixel == expected);
 }
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, ctxInfo) {
-    GrTextureProvider* provider = ctxInfo.fGrContext->textureProvider();
+    GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
     const int w = 10;
     const int h = 10;
     SkPMColor storage[w * h];
@@ -733,9 +733,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTexture, reporter, ctxInfo)
     backendDesc.fTextureHandle = tex->getTextureHandle();
     TextureReleaseChecker releaseChecker;
     sk_sp<SkImage> refImg(
-        SkImage::MakeFromTexture(ctxInfo.fGrContext, backendDesc, kPremul_SkAlphaType,
+        SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType,
                                  TextureReleaseChecker::Release, &releaseChecker));
-    sk_sp<SkImage> cpyImg(SkImage::MakeFromTextureCopy(ctxInfo.fGrContext, backendDesc,
+    sk_sp<SkImage> cpyImg(SkImage::MakeFromTextureCopy(ctxInfo.grContext(), backendDesc,
                                                        kPremul_SkAlphaType));
 
     check_image_color(reporter, refImg.get(), expected0);
@@ -813,7 +813,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
         if (!image->peekPixels(&pixmap)) {
             ERRORF(reporter, "peek failed");
         } else {
-            sk_sp<SkImage> texImage(SkImage::MakeTextureFromPixmap(ctxInfo.fGrContext, pixmap,
+            sk_sp<SkImage> texImage(SkImage::MakeTextureFromPixmap(ctxInfo.grContext(), pixmap,
                                                                    SkBudgeted::kNo));
             if (!texImage) {
                 ERRORF(reporter, "NewTextureFromPixmap failed.");
@@ -825,8 +825,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.fGrContext;
-    sk_gpu_test::GLTestContext* glContext = ctxInfo.fGLContext;
+    GrContext* context = ctxInfo.grContext();
+    sk_gpu_test::GLTestContext* glContext = ctxInfo.glContext();
     SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
 
     GrContextFactory otherFactory;
@@ -846,8 +846,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         { [context] { return create_gpu_image(context); }, false },
         // Create a texture image in a another GrContext.
         { [glContext, otherContextInfo] {
-            otherContextInfo.fGLContext->makeCurrent();
-            sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.fGrContext);
+            otherContextInfo.glContext()->makeCurrent();
+            sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
             glContext->makeCurrent();
             return otherContextImage;
           }, false },
@@ -888,7 +888,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
                     // The other context should not be able to create images from texture data
                     // created by the original context.
                     sk_sp<SkImage> newImage2(SkImage::MakeFromDeferredTextureImageData(
-                        otherContextInfo.fGrContext, buffer, budgeted));
+                        otherContextInfo.grContext(), buffer, budgeted));
                     REPORTER_ASSERT(reporter, !newImage2);
                     glContext->makeCurrent();
                 }

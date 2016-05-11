@@ -81,8 +81,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo) {
         for (auto& sampleCount : {0, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
             auto surface(
-                SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kNo, info, sampleCount,
-                                            nullptr));
+                SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info,
+                                            sampleCount, nullptr));
             if (!surface) {
                 continue;
             }

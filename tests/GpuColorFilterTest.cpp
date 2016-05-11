@@ -99,7 +99,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, ctxInfo) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(filterTests); ++i) {
         const GetConstantComponentTestCase& test = filterTests[i];
         auto cf(SkColorFilter::MakeModeFilter(test.filterColor, test.filterMode));
-        SkAutoTUnref<const GrFragmentProcessor> fp( cf->asFragmentProcessor(ctxInfo.fGrContext));
+        SkAutoTUnref<const GrFragmentProcessor> fp( cf->asFragmentProcessor(ctxInfo.grContext()));
         REPORTER_ASSERT(reporter, fp);
         GrInvariantOutput inout(test.inputColor,
                                 static_cast<GrColorComponentFlags>(test.inputComponents),

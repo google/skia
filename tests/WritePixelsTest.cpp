@@ -415,7 +415,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = origin;
         SkAutoTUnref<GrTexture> texture(
-            ctxInfo.fGrContext->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+            ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo));
         auto surface(SkSurface::MakeRenderTargetDirect(texture->asRenderTarget()));
         test_write_pixels(reporter, surface.get());
     }

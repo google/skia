@@ -159,9 +159,9 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkWrapTests, reporter, ctxInfo) {
-    wrap_tex_test(reporter, ctxInfo.fGrContext);
-    wrap_rt_test(reporter, ctxInfo.fGrContext);
-    wrap_trt_test(reporter, ctxInfo.fGrContext);
+    wrap_tex_test(reporter, ctxInfo.grContext());
+    wrap_rt_test(reporter, ctxInfo.grContext());
+    wrap_trt_test(reporter, ctxInfo.grContext());
 }
 
 #endif

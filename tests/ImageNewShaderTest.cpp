@@ -141,13 +141,13 @@ void rasterToGpu(skiatest::Reporter* reporter, GrContext* context) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU, reporter, ctxInfo) {
     //  GPU -> GPU
-    gpuToGpu(reporter, ctxInfo.fGrContext);
+    gpuToGpu(reporter, ctxInfo.grContext());
 
     //  GPU -> RASTER
-    gpuToRaster(reporter, ctxInfo.fGrContext);
+    gpuToRaster(reporter, ctxInfo.grContext());
 
     //  RASTER -> GPU
-    rasterToGpu(reporter, ctxInfo.fGrContext);
+    rasterToGpu(reporter, ctxInfo.grContext());
 }
 
 #endif

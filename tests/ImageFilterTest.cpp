@@ -614,7 +614,7 @@ DEF_TEST(ImageFilterNegativeBlurSigma, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, ctxInfo) {
-    test_negative_blur_sigma(reporter, ctxInfo.fGrContext);
+    test_negative_blur_sigma(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -658,7 +658,7 @@ DEF_TEST(ImageFilterZeroBlurSigma, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterZeroBlurSigma_Gpu, reporter, ctxInfo) {
-    test_zero_blur_sigma(reporter, ctxInfo.fGrContext);
+    test_zero_blur_sigma(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -690,7 +690,7 @@ DEF_TEST(ImageFilterFailAffectsTransparentBlack, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterFailAffectsTransparentBlack_Gpu, reporter, ctxInfo) {
-    test_fail_affects_transparent_black(reporter, ctxInfo.fGrContext);
+    test_fail_affects_transparent_black(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -904,7 +904,7 @@ DEF_TEST(ImageFilterMergeResultSize, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterMergeResultSize_Gpu, reporter, ctxInfo) {
-    test_imagefilter_merge_result_size(reporter, ctxInfo.fGrContext);
+    test_imagefilter_merge_result_size(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -1073,7 +1073,7 @@ DEF_TEST(ImageFilterMatrixConvolutionBigKernel, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ImageFilterMatrixConvolutionBigKernel_Gpu,
                                       reporter, ctxInfo) {
-    test_big_kernel(reporter, ctxInfo.fGrContext);
+    test_big_kernel(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -1083,7 +1083,7 @@ DEF_TEST(ImageFilterCropRect, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCropRect_Gpu, reporter, ctxInfo) {
-    test_crop_rects(reporter, ctxInfo.fGrContext);
+    test_crop_rects(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -1204,7 +1204,7 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterClippedPictureImageFilter_Gpu, reporter, ctxInfo) {
-    test_clipped_picture_imagefilter(reporter, ctxInfo.fGrContext);
+    test_clipped_picture_imagefilter(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -1461,7 +1461,7 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterOffset_Gpu, reporter, ctxInfo) {
-    test_composed_imagefilter_offset(reporter, ctxInfo.fGrContext);
+    test_composed_imagefilter_offset(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -1503,7 +1503,7 @@ DEF_TEST(ComposedImageFilterBounds, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ComposedImageFilterBounds_Gpu, reporter, ctxInfo) {
-    test_composed_imagefilter_bounds(reporter, ctxInfo.fGrContext);
+    test_composed_imagefilter_bounds(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -1531,7 +1531,7 @@ DEF_TEST(ImageFilterPartialCropRect, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterPartialCropRect_Gpu, reporter, ctxInfo) {
-    test_partial_crop_rect(reporter, ctxInfo.fGrContext);
+    test_partial_crop_rect(reporter, ctxInfo.grContext());
 }
 #endif
 
@@ -1673,7 +1673,7 @@ DEF_TEST(ImageFilterBlurLargeImage, reporter) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
 
-    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.fGrContext,
+    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
                                                       SkBudgeted::kNo,
                                                       SkImageInfo::MakeN32Premul(100, 100)));
 
@@ -1685,7 +1685,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
 
-    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.fGrContext,
+    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
                                                       SkBudgeted::kNo,
                                                       SkImageInfo::MakeN32Premul(1, 1)));
 
@@ -1696,7 +1696,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, repor
 }
 
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo) {
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.fGrContext, SkBudgeted::kYes,
+    auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kYes,
                                              SkImageInfo::MakeN32Premul(100, 100)));
     test_large_blur_input(reporter, surface->getCanvas());
 }
