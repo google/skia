@@ -196,6 +196,8 @@ public:
     /**
      * Create both a GrRenderTarget and a matching GrDrawContext to wrap it.
      * The created GrRenderTarget will always be budgeted.
+     * We guarantee that "asTexture" will succeed for drawContexts created
+     * via this entry point.
      */
     sk_sp<GrDrawContext> newDrawContext(SkBackingFit fit, 
                                         int width, int height,

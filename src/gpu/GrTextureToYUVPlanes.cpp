@@ -52,11 +52,11 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
     if (GrContext* context = texture->getContext()) {
         // Depending on the relative sizes of the y, u, and v planes we may do 1 to 3 draws/
         // readbacks.
-        SkAutoTUnref<GrTexture> yuvTex;
-        SkAutoTUnref<GrTexture> yTex;
-        SkAutoTUnref<GrTexture> uvTex;
-        SkAutoTUnref<GrTexture> uTex;
-        SkAutoTUnref<GrTexture> vTex;
+        sk_sp<GrDrawContext> yuvDrawContext;
+        sk_sp<GrDrawContext> yDrawContext;
+        sk_sp<GrDrawContext> uvDrawContext;
+        sk_sp<GrDrawContext> uDrawContext;
+        sk_sp<GrDrawContext> vDrawContext;
 
         GrPixelConfig singleChannelPixelConfig;
         if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
@@ -69,105 +69,79 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
         // sizes however we optimize for two other cases - all planes are the same (1 draw to YUV),
         // and U and V are the same but Y differs (2 draws, one for Y, one for UV).
         if (sizes[0] == sizes[1] && sizes[1] == sizes[2]) {
-            GrSurfaceDesc yuvDesc;
-            yuvDesc.fConfig = kRGBA_8888_GrPixelConfig;
-            yuvDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-            yuvDesc.fWidth = sizes[0].fWidth;
-            yuvDesc.fHeight = sizes[0].fHeight;
-            yuvTex.reset(context->textureProvider()->createApproxTexture(yuvDesc));
-            if (!yuvTex) {
+            yuvDrawContext = context->newDrawContext(SkBackingFit::kApprox,
+                                                     sizes[0].fWidth, sizes[0].fHeight,
+                                                     kRGBA_8888_GrPixelConfig);
+            if (!yuvDrawContext) {
                 return false;
             }
         } else {
-            GrSurfaceDesc yDesc;
-            yDesc.fConfig = singleChannelPixelConfig;
-            yDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-            yDesc.fWidth = sizes[0].fWidth;
-            yDesc.fHeight = sizes[0].fHeight;
-            yTex.reset(context->textureProvider()->createApproxTexture(yDesc));
-            if (!yTex) {
+            yDrawContext = context->newDrawContext(SkBackingFit::kApprox,
+                                                   sizes[0].fWidth, sizes[0].fHeight,
+                                                   singleChannelPixelConfig);
+            if (!yDrawContext) {
                 return false;
             }
             if (sizes[1] == sizes[2]) {
-                GrSurfaceDesc uvDesc;
                 // TODO: Add support for GL_RG when available.
-                uvDesc.fConfig = kRGBA_8888_GrPixelConfig;
-                uvDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-                uvDesc.fWidth = sizes[1].fWidth;
-                uvDesc.fHeight = sizes[1].fHeight;
-                uvTex.reset(context->textureProvider()->createApproxTexture(uvDesc));
-                if (!uvTex) {
+                uvDrawContext = context->newDrawContext(SkBackingFit::kApprox,
+                                                        sizes[1].fWidth, sizes[1].fHeight,
+                                                        kRGBA_8888_GrPixelConfig);
+                if (!uvDrawContext) {
                     return false;
                 }
             } else {
-                GrSurfaceDesc uvDesc;
-                uvDesc.fConfig = singleChannelPixelConfig;
-                uvDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-                uvDesc.fWidth = sizes[1].fWidth;
-                uvDesc.fHeight = sizes[1].fHeight;
-                uTex.reset(context->textureProvider()->createApproxTexture(uvDesc));
-                uvDesc.fWidth = sizes[2].fWidth;
-                uvDesc.fHeight = sizes[2].fHeight;
-                vTex.reset(context->textureProvider()->createApproxTexture(uvDesc));
-                if (!uTex || !vTex) {
+                uDrawContext = context->newDrawContext(SkBackingFit::kApprox,
+                                                       sizes[1].fWidth, sizes[1].fHeight,
+                                                       singleChannelPixelConfig);
+                vDrawContext = context->newDrawContext(SkBackingFit::kApprox,
+                                                       sizes[2].fWidth, sizes[2].fHeight,
+                                                       singleChannelPixelConfig);
+                if (!uDrawContext || !vDrawContext) {
                     return false;
                 }
             }
         }
 
         // Do all the draws before any readback.
-        if (yuvTex) {
-            sk_sp<GrDrawContext> dc(context->drawContext(sk_ref_sp(yuvTex->asRenderTarget())));
-            if (!dc) {
+        if (yuvDrawContext) {
+            if (!convert_texture(texture, yuvDrawContext.get(),
+                                 sizes[0].fWidth, sizes[0].fHeight,
+                                 colorSpace, GrYUVEffect::CreateRGBToYUV)) {
                 return false;
             }
-            if (!convert_texture(texture, dc.get(), sizes[0].fWidth, sizes[0].fHeight, colorSpace,
-                                 GrYUVEffect::CreateRGBToYUV)) {
-                return false;
-            }
-
         } else {
-            SkASSERT(yTex);
-            sk_sp<GrDrawContext> dc(context->drawContext(sk_ref_sp(yTex->asRenderTarget())));
-            if (!dc) {
+            SkASSERT(yDrawContext);
+            if (!convert_texture(texture, yDrawContext.get(),
+                                 sizes[0].fWidth, sizes[0].fHeight,
+                                 colorSpace, GrYUVEffect::CreateRGBToY)) {
                 return false;
             }
-            if (!convert_texture(texture, dc.get(), sizes[0].fWidth, sizes[0].fHeight, colorSpace,
-                                 GrYUVEffect::CreateRGBToY)) {
-                return false;
-            }
-            if (uvTex) {
-                dc = context->drawContext(sk_ref_sp(uvTex->asRenderTarget()));
-                if (!dc) {
-                    return false;
-                }
-                if (!convert_texture(texture, dc.get(), sizes[1].fWidth, sizes[1].fHeight,
+            if (uvDrawContext) {
+                if (!convert_texture(texture, uvDrawContext.get(),
+                                     sizes[1].fWidth, sizes[1].fHeight,
                                      colorSpace,  GrYUVEffect::CreateRGBToUV)) {
                     return false;
                 }
             } else {
-                SkASSERT(uTex && vTex);
-                dc = context->drawContext(sk_ref_sp(uTex->asRenderTarget()));
-                if (!dc) {
-                    return false;
-                }
-                if (!convert_texture(texture, dc.get(), sizes[1].fWidth, sizes[1].fHeight,
+                SkASSERT(uDrawContext && vDrawContext);
+                if (!convert_texture(texture, uDrawContext.get(),
+                                     sizes[1].fWidth, sizes[1].fHeight,
                                      colorSpace, GrYUVEffect::CreateRGBToU)) {
                     return false;
                 }
-                dc = context->drawContext(sk_ref_sp(vTex->asRenderTarget()));
-                if (!dc) {
-                    return false;
-                }
-                if (!convert_texture(texture, dc.get(), sizes[2].fWidth, sizes[2].fHeight,
+                if (!convert_texture(texture, vDrawContext.get(),
+                                     sizes[2].fWidth, sizes[2].fHeight,
                                      colorSpace, GrYUVEffect::CreateRGBToV)) {
                     return false;
                 }
             }
         }
 
-        if (yuvTex) {
+        if (yuvDrawContext) {
             SkASSERT(sizes[0] == sizes[1] && sizes[1] == sizes[2]);
+            sk_sp<GrTexture> yuvTex(yuvDrawContext->asTexture());
+            SkASSERT(yuvTex);
             SkISize yuvSize = sizes[0];
             // We have no kRGB_888 pixel format, so readback rgba and then copy three channels.
             SkAutoSTMalloc<128 * 128, uint32_t> tempYUV(yuvSize.fWidth * yuvSize.fHeight);
@@ -198,13 +172,17 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
             }
             return true;
         } else {
+            SkASSERT(yDrawContext);
+            sk_sp<GrTexture> yTex(yDrawContext->asTexture());
             SkASSERT(yTex);
             if (!yTex->readPixels(0, 0, sizes[0].fWidth, sizes[0].fHeight,
                                   kAlpha_8_GrPixelConfig, planes[0], rowBytes[0])) {
                 return false;
             }
-            if (uvTex) {
+            if (uvDrawContext) {
                 SkASSERT(sizes[1].fWidth == sizes[2].fWidth);
+                sk_sp<GrTexture> uvTex(uvDrawContext->asTexture());
+                SkASSERT(uvTex);
                 SkISize uvSize = sizes[1];
                 // We have no kRG_88 pixel format, so readback rgba and then copy two channels.
                 SkAutoSTMalloc<128 * 128, uint32_t> tempUV(uvSize.fWidth * uvSize.fHeight);
@@ -231,13 +209,17 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
                 }
                 return true;
             } else {
-                SkASSERT(uTex && vTex);
-                if (!uTex->readPixels(0, 0, sizes[1].fWidth, sizes[1].fHeight,
-                                      kAlpha_8_GrPixelConfig, planes[1], rowBytes[1])) {
+                SkASSERT(uDrawContext && vDrawContext);
+                sk_sp<GrTexture> tex(uDrawContext->asTexture());
+                SkASSERT(tex);
+                if (!tex->readPixels(0, 0, sizes[1].fWidth, sizes[1].fHeight,
+                                     kAlpha_8_GrPixelConfig, planes[1], rowBytes[1])) {
                     return false;
                 }
-                if (!vTex->readPixels(0, 0, sizes[2].fWidth, sizes[2].fHeight,
-                                      kAlpha_8_GrPixelConfig, planes[2], rowBytes[2])) {
+                tex = vDrawContext->asTexture();
+                SkASSERT(tex);
+                if (!tex->readPixels(0, 0, sizes[2].fWidth, sizes[2].fHeight,
+                                     kAlpha_8_GrPixelConfig, planes[2], rowBytes[2])) {
                     return false;
                 }
                 return true;
