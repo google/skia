@@ -223,6 +223,7 @@ private:
     void forwardCombine();
     bool installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
                                     const GrScissorState* scissor,
+                                    bool hasStencilClip,
                                     GrDrawBatch* batch);
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
@@ -232,11 +233,6 @@ private:
         const GrPipelineOptimizations& optimizations,
         GrXferProcessor::DstTexture*,
         const SkRect& batchBounds);
-
-    // Check to see if this set of draw commands has been sent out
-    void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
-                                           const GrStencilAttachment*,
-                                           GrStencilSettings*);
 
     void addDependency(GrDrawTarget* dependedOn);
 

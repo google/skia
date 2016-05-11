@@ -16,11 +16,14 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 GrPipelineBuilder::GrPipelineBuilder()
-    : fFlags(0x0), fDrawFace(kBoth_DrawFace) {
+    : fFlags(0x0),
+      fUserStencilSettings(&GrUserStencilSettings::kUnused),
+      fDrawFace(kBoth_DrawFace) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
-GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip) {
+GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip)
+    : GrPipelineBuilder() {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
     for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
@@ -34,11 +37,6 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
     fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
     this->setRenderTarget(rt);
-
-    // These have no equivalent in GrPaint, set them to defaults
-    fDrawFace = kBoth_DrawFace;
-    fStencilSettings.setDisabled();
-    fFlags = 0;
 
     fClip = clip;
 

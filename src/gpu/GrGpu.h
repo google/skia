@@ -10,7 +10,6 @@
 
 #include "GrPipelineBuilder.h"
 #include "GrProgramDesc.h"
-#include "GrStencil.h"
 #include "GrSwizzle.h"
 #include "GrAllocator.h"
 #include "GrTextureParamsAdjuster.h"
@@ -34,6 +33,7 @@ class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
 class GrStencilAttachment;
+class GrStencilSettings;
 class GrSurface;
 class GrTexture;
 
@@ -485,17 +485,6 @@ public:
     virtual void resetShaderCacheForTesting() const {}
 
 protected:
-    // Functions used to map clip-respecting stencil tests into normal
-    // stencil funcs supported by GPUs.
-    static GrStencilFunc ConvertStencilFunc(bool stencilInClip,
-                                            GrStencilFunc func);
-    static void ConvertStencilFuncAndMask(GrStencilFunc func,
-                                          bool clipInStencil,
-                                          unsigned int clipBit,
-                                          unsigned int userBits,
-                                          unsigned int* ref,
-                                          unsigned int* mask);
-
     static void ElevateDrawPreference(GrGpu::DrawPreference* preference,
                                       GrGpu::DrawPreference elevation) {
         GR_STATIC_ASSERT(GrGpu::kCallerPrefersDraw_DrawPreference > GrGpu::kNoDraw_DrawPreference);

@@ -15,7 +15,7 @@
 #include "GrPendingProgramElement.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProgramDesc.h"
-#include "GrStencil.h"
+#include "GrStencilSettings.h"
 #include "GrTypesPriv.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
@@ -51,6 +51,8 @@ public:
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;
+        int                         fNumStencilBits;
+        bool                        fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
 

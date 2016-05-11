@@ -28,7 +28,10 @@ public:
 
     GrPathRendering::FillType fillType() const { return fFillType; }
 
-    void setStencilSettings(const GrStencilSettings& stencil) { fStencilSettings = stencil; }
+    void setStencilSettings(const GrUserStencilSettings& stencil, bool hasStencilClip,
+                            int numStencilBits) {
+        fStencilSettings.reset(stencil, hasStencilClip, numStencilBits);
+    }
 
 protected:
     GrDrawPathBatchBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor,
