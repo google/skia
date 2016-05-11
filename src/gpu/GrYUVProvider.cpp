@@ -8,6 +8,7 @@
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrYUVProvider.h"
+#include "effects/GrGammaEffect.h"
 #include "effects/GrYUVEffect.h"
 
 #include "SkCachedData.h"
@@ -120,9 +121,6 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     }
 
     GrPaint paint;
-    // We may be decoding an sRGB image, but the result of our linear math on the YUV planes
-    // is already in sRGB in that case. Don't convert (which will make the image too bright).
-    paint.setDisableOutputConversionToSRGB(true);
     SkAutoTUnref<const GrFragmentProcessor> yuvToRgbProcessor(
                                         GrYUVEffect::CreateYUVToRGB(yuvTextures[0],
                                                                     yuvTextures[1],
@@ -130,6 +128,21 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
                                                                     yuvInfo.fSizeInfo.fSizes,
                                                                     yuvInfo.fColorSpace));
     paint.addColorFragmentProcessor(yuvToRgbProcessor);
+
+    // If we're decoding an sRGB image, the result of our linear math on the YUV planes is already
+    // in sRGB. (The encoding is just math on bytes, with no concept of color spaces.) So, we need
+    // to output the results of that math directly to the buffer that we will then consider sRGB.
+    // If we have sRGB write control, we can just tell the HW not to do the Linear -> sRGB step.
+    // Otherwise, we do our shader math to go from YUV -> sRGB, manually convert sRGB -> Linear,
+    // then let the HW convert Linear -> sRGB.
+    if (GrPixelConfigIsSRGB(desc.fConfig)) {
+        if (ctx->caps()->srgbWriteControl()) {
+            paint.setDisableOutputConversionToSRGB(true);
+        } else {
+            paint.addColorFragmentProcessor(GrGammaEffect::Create(2.2f))->unref();
+        }
+    }
+
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
             yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
