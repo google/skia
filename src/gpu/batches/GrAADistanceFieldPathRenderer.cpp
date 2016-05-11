@@ -101,23 +101,9 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP
     // the goal is to accelerate rendering of lots of small paths that may be scaling
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
-#if 0 // This is more accurate but changes some GMs. TODO: Standalone change to enable this.
     SkRect bounds;
     args.fStyle->adjustBounds(&bounds, args.fPath->getBounds());
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
-#else
-    const SkRect& bounds = args.fPath->getBounds();
-    SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
-    const SkStrokeRec& stroke = args.fStyle->strokeRec();
-    // Approximate stroked size by adding the maximum of the stroke width or 2x the miter limit
-    if (!stroke.isFillStyle()) {
-        SkScalar extraWidth = stroke.getWidth();
-        if (SkPaint::kMiter_Join == stroke.getJoin()) {
-            extraWidth = SkTMax(extraWidth, 2.0f*stroke.getMiter());
-        }
-        maxDim += extraWidth;
-    }
-#endif
 
     return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
 }
