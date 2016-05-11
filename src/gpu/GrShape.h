@@ -115,6 +115,7 @@ public:
         return GrShape(*this, apply, scale);
     }
 
+    /** Returns the unstyled geometry as a rrect if possible. */
     bool asRRect(SkRRect* rrect) const {
         if (Type::kRRect != fType) {
             return false;
@@ -125,6 +126,7 @@ public:
         return true;
     }
 
+    /** Returns the unstyled geometry as a path. */
     void asPath(SkPath* out) const {
         switch (fType) {
             case Type::kEmpty:
@@ -141,8 +143,14 @@ public:
     }
 
     /**
-     * Is it known that the shape has no unclosed contours. This means that it will not have
-     * any caps if stroked (modulo the effect of any path effect).
+     * Returns whether the geometry is empty. Note that applying the style could produce a
+     * non-empty shape.
+     */
+    bool isEmpty() const { return Type::kEmpty == fType; }
+
+    /**
+     * Is it known that the unstyled geometry has no unclosed contours. This means that it will
+     * not have any caps if stroked (modulo the effect of any path effect).
      */
     bool knownToBeClosed() const {
         switch (fType) {

@@ -83,6 +83,15 @@ private:
         fAppliedPEThenStroke.asPath(&a);
         fAppliedFull.asPath(&b);
         REPORTER_ASSERT(r, a == b);
+        REPORTER_ASSERT(r, fAppliedFull.isEmpty() == fAppliedPEThenStroke.isEmpty());
+
+        SkPath path;
+        fBase.asPath(&path);
+        REPORTER_ASSERT(r, path.isEmpty() == fBase.isEmpty());
+        fAppliedPE.asPath(&path);
+        REPORTER_ASSERT(r, path.isEmpty() == fAppliedPE.isEmpty());
+        fAppliedFull.asPath(&path);
+        REPORTER_ASSERT(r, path.isEmpty() == fAppliedFull.isEmpty());
 
         // Check that the same path is produced when style is applied by GrShape and GrStyle.
         SkPath preStyle;
@@ -170,6 +179,7 @@ void TestCase::compare(skiatest::Reporter* reporter, const TestCase& that,
             fBase.asPath(&a);
             that.fBase.asPath(&b);
             REPORTER_ASSERT(reporter, a == b);
+            REPORTER_ASSERT(reporter, fBase.isEmpty() == that.fBase.isEmpty());
             REPORTER_ASSERT(reporter, fAppliedPEKey != that.fAppliedPEKey);
             REPORTER_ASSERT(reporter, fAppliedFullKey != that.fAppliedFullKey);
             break;
@@ -178,10 +188,12 @@ void TestCase::compare(skiatest::Reporter* reporter, const TestCase& that,
             fBase.asPath(&a);
             that.fBase.asPath(&b);
             REPORTER_ASSERT(reporter, a == b);
+            REPORTER_ASSERT(reporter, fBase.isEmpty() == that.fBase.isEmpty());
             REPORTER_ASSERT(reporter, fAppliedPEKey == that.fAppliedPEKey);
             fAppliedPE.asPath(&a);
             that.fAppliedPE.asPath(&b);
             REPORTER_ASSERT(reporter, a == b);
+            REPORTER_ASSERT(reporter, fAppliedPE.isEmpty() == that.fAppliedPE.isEmpty());
             REPORTER_ASSERT(reporter, fAppliedFullKey != that.fAppliedFullKey);
             break;
         case kAllSame_ComparisonExpecation:
@@ -189,14 +201,17 @@ void TestCase::compare(skiatest::Reporter* reporter, const TestCase& that,
             fBase.asPath(&a);
             that.fBase.asPath(&b);
             REPORTER_ASSERT(reporter, a == b);
+            REPORTER_ASSERT(reporter, fBase.isEmpty() == that.fBase.isEmpty());
             REPORTER_ASSERT(reporter, fAppliedPEKey == that.fAppliedPEKey);
             fAppliedPE.asPath(&a);
             that.fAppliedPE.asPath(&b);
             REPORTER_ASSERT(reporter, a == b);
+            REPORTER_ASSERT(reporter, fAppliedPE.isEmpty() == that.fAppliedPE.isEmpty());
             REPORTER_ASSERT(reporter, fAppliedFullKey == that.fAppliedFullKey);
             fAppliedFull.asPath(&a);
             that.fAppliedFull.asPath(&b);
             REPORTER_ASSERT(reporter, a == b);
+            REPORTER_ASSERT(reporter, fAppliedFull.isEmpty() == that.fAppliedFull.isEmpty());
             break;
     }
 }
@@ -745,6 +760,7 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const GEO&
     GrShape emptyShape(emptyPath);
     Key emptyKey;
     make_key(&emptyKey, emptyShape);
+    REPORTER_ASSERT(reporter, emptyShape.isEmpty());
 
     SkPaint pe;
     pe.setPathEffect(EmptyPathEffect::Make());
@@ -752,6 +768,8 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const GEO&
     REPORTER_ASSERT(reporter, geoCase.appliedFullStyleKey() == emptyKey);
     REPORTER_ASSERT(reporter, geoCase.appliedPathEffectKey() == emptyKey);
     REPORTER_ASSERT(reporter, geoCase.appliedPathEffectThenStrokeKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoCase.appliedPathEffectShape().isEmpty());
+    REPORTER_ASSERT(reporter, geoCase.appliedFullStyleShape().isEmpty());
 
     SkPaint peStroke;
     peStroke.setPathEffect(EmptyPathEffect::Make());
@@ -761,12 +779,17 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const GEO&
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedFullStyleKey() == emptyKey);
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectKey() == emptyKey);
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectThenStrokeKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectShape().isEmpty());
+    REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedFullStyleShape().isEmpty());
 }
 
 void test_empty_shape(skiatest::Reporter* reporter) {
     SkPath emptyPath;
     SkPaint fill;
     TestCase fillEmptyCase(emptyPath, fill, reporter);
+    REPORTER_ASSERT(reporter, fillEmptyCase.baseShape().isEmpty());
+    REPORTER_ASSERT(reporter, fillEmptyCase.appliedPathEffectShape().isEmpty());
+    REPORTER_ASSERT(reporter, fillEmptyCase.appliedFullStyleShape().isEmpty());
 
     Key emptyKey(fillEmptyCase.baseKey());
     REPORTER_ASSERT(reporter, emptyKey.count());
