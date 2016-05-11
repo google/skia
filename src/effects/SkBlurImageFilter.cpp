@@ -121,20 +121,21 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(SkSpecialImage* source,
         inputBounds.offset(-inputOffset);
         dstBounds.offset(-inputOffset);
         SkRect inputBoundsF(SkRect::Make(inputBounds));
-        sk_sp<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(context,
-                                                          inputTexture.get(),
-                                                          source->props().isGammaCorrect(),
-                                                          SkRect::Make(dstBounds),
-                                                          &inputBoundsF,
-                                                          sigma.x(),
-                                                          sigma.y()));
-        if (!tex) {
+        sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(
+                                                                  context,
+                                                                  inputTexture.get(),
+                                                                  source->props().isGammaCorrect(),
+                                                                  SkRect::Make(dstBounds),
+                                                                  &inputBoundsF,
+                                                                  sigma.x(),
+                                                                  sigma.y()));
+        if (!drawContext) {
             return nullptr;
         }
 
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           std::move(tex), &source->props());
+                                           drawContext->asTexture(), &source->props());
     }
 #endif
 
