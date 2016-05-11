@@ -291,11 +291,11 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
     {
         ScopedGenerator generator(this);
         Generator_GrYUVProvider provider(generator);
-        GrTexture* tex = provider.refAsTexture(ctx, desc, true);
+        sk_sp<GrTexture> tex = provider.refAsTexture(ctx, desc, true);
         if (tex) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
-            return set_key_and_return(tex, key);
+            return set_key_and_return(tex.release(), key);
         }
     }
 

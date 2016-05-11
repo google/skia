@@ -80,7 +80,9 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
     return true;
 }
 
-GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc, bool useCache) {
+sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
+                                             const GrSurfaceDesc& desc,
+                                             bool useCache) {
     SkYUVPlanesCache::Info yuvInfo;
     void* planes[3];
     YUVScoper scoper;
@@ -110,17 +112,12 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
             }
     }
 
-    GrSurfaceDesc rtDesc = desc;
-    rtDesc.fFlags = rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
-
-    SkAutoTUnref<GrTexture> result(ctx->textureProvider()->createTexture(rtDesc, SkBudgeted::kYes,
-                                                                         nullptr, 0));
-    if (!result) {
+    sk_sp<GrDrawContext> drawContext(ctx->newDrawContext(SkBackingFit::kExact,
+                                                         desc.fWidth, desc.fHeight,
+                                                         desc.fConfig, desc.fSampleCnt));
+    if (!drawContext) {
         return nullptr;
     }
-
-    GrRenderTarget* renderTarget = result->asRenderTarget();
-    SkASSERT(renderTarget);
 
     GrPaint paint;
     // We may be decoding an sRGB image, but the result of our linear math on the YUV planes
@@ -137,12 +134,7 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
             yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
-    sk_sp<GrDrawContext> drawContext(ctx->drawContext(sk_ref_sp(renderTarget)));
-    if (!drawContext) {
-        return nullptr;
-    }
-
     drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), r);
 
-    return result.release();
+    return drawContext->asTexture();
 }

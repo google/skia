@@ -69,9 +69,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         }
 
         GrSurfaceDesc desc;
-        // use RT flag bit because in GL it makes the texture be bottom-up
-        desc.fFlags     = i ? kRenderTarget_GrSurfaceFlag :
-                                kNone_GrSurfaceFlags;
+        desc.fOrigin    = i ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
         desc.fConfig    = kSkia8888_GrPixelConfig;
         desc.fWidth     = 2 * S;
         desc.fHeight    = 2 * S;

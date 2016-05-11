@@ -35,7 +35,7 @@ public:
      *
      *  On failure (e.g. the provider had no data), this returns NULL.
      */
-    GrTexture* refAsTexture(GrContext*, const GrSurfaceDesc&, bool useCache);
+    sk_sp<GrTexture> refAsTexture(GrContext*, const GrSurfaceDesc&, bool useCache);
 
     virtual uint32_t onGetID() = 0;
 

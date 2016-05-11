@@ -181,8 +181,8 @@ public:
     }
 };
 
-static GrTexture* create_texture_from_yuv(GrContext* ctx, const SkBitmap& bm,
-                                          const GrSurfaceDesc& desc) {
+static sk_sp<GrTexture> create_texture_from_yuv(GrContext* ctx, const SkBitmap& bm,
+                                                const GrSurfaceDesc& desc) {
     // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
     SkPixelRef* pixelRef = bm.pixelRef();
     if ((nullptr == pixelRef) ||
@@ -218,8 +218,9 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
         return texture;
     }
 
-    if (GrTexture* texture = create_texture_from_yuv(ctx, bitmap, desc)) {
-        return texture;
+    sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
+    if (texture) {
+        return texture.release();
     }
 
     SkAutoLockPixels alp(bitmap);
@@ -339,9 +340,9 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         }
     }
 
-    GrTexture* texture = create_texture_from_yuv(ctx, bitmap, desc);
+    sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
     if (texture) {
-        return texture;
+        return texture.release();
     }
 
     // SkMipMap::Build doesn't handle sRGB data correctly (yet).
