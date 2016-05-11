@@ -404,14 +404,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInfo) {
     GrContext* context = contextInfo.grContext();
-    sk_gpu_test::GLTestContext* glContext = contextInfo.glContext();
+    sk_gpu_test::TestContext* testContext = contextInfo.testContext();
 
     GrContextFactory otherFactory;
-    ContextInfo otherContextInfo =
-        otherFactory.getContextInfo(GrContextFactory::kNativeGL_ContextType);
-    glContext->makeCurrent();
+    GrContextFactory::ContextType otherContextType =
+            GrContextFactory::NativeContextTypeForBackend(testContext->backend());
+    ContextInfo otherContextInfo = otherFactory.getContextInfo(otherContextType);
+    testContext->makeCurrent();
 
     std::function<sk_sp<SkImage>()> imageFactories[] = {
         create_image,
@@ -422,10 +423,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, context
         // Create a texture image.
         [context] { return create_gpu_image(context); },
         // Create a texture image in a another GrContext.
-        [glContext, otherContextInfo] {
-            otherContextInfo.glContext()->makeCurrent();
+        [testContext, otherContextInfo] {
+            otherContextInfo.testContext()->makeCurrent();
             sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
-            glContext->makeCurrent();
+            testContext->makeCurrent();
             return otherContextImage;
         }
     };
@@ -824,16 +825,16 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    sk_gpu_test::GLTestContext* glContext = ctxInfo.glContext();
+    sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
     SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
 
     GrContextFactory otherFactory;
     ContextInfo otherContextInfo =
         otherFactory.getContextInfo(GrContextFactory::kNativeGL_ContextType);
 
-    glContext->makeCurrent();
+    testContext->makeCurrent();
     REPORTER_ASSERT(reporter, proxy);
     struct {
         std::function<sk_sp<SkImage> ()> fImageFactory;
@@ -845,10 +846,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         { create_picture_image,  false },
         { [context] { return create_gpu_image(context); }, false },
         // Create a texture image in a another GrContext.
-        { [glContext, otherContextInfo] {
-            otherContextInfo.glContext()->makeCurrent();
+        { [testContext, otherContextInfo] {
+            otherContextInfo.testContext()->makeCurrent();
             sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
-            glContext->makeCurrent();
+            testContext->makeCurrent();
             return otherContextImage;
           }, false },
     };
@@ -890,7 +891,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
                     sk_sp<SkImage> newImage2(SkImage::MakeFromDeferredTextureImageData(
                         otherContextInfo.grContext(), buffer, budgeted));
                     REPORTER_ASSERT(reporter, !newImage2);
-                    glContext->makeCurrent();
+                    testContext->makeCurrent();
                 }
             }
             sk_free(buffer);

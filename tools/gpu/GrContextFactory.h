@@ -28,6 +28,8 @@ public:
 
     GrContext* grContext() const { return fGrContext; }
 
+    TestContext* testContext() const { return fTestContext; }
+
     GLTestContext* glContext() const {
         SkASSERT(kOpenGL_GrBackend == fBackend);
         return static_cast<GLTestContext*>(fTestContext);
@@ -92,6 +94,18 @@ public:
         kEnableNVPR_ContextOptions          = 0x1,
         kRequireSRGBSupport_ContextOptions  = 0x2,
     };
+
+    static ContextType NativeContextTypeForBackend(GrBackend backend) {
+        switch (backend) {
+            case kOpenGL_GrBackend:
+                return kNativeGL_ContextType;
+            case kVulkan_GrBackend:
+                return kVulkan_ContextType;
+            default:
+                SkFAIL("Unknown backend");
+                return kNullGL_ContextType;
+        }
+    }
 
     static bool IsRenderingContext(ContextType type) {
         switch (type) {
