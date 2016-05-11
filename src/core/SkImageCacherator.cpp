@@ -25,6 +25,13 @@
 #include "SkGrPriv.h"
 #endif
 
+// Until we actually have codecs/etc. that can contain/support a GPU texture format
+// skip this step, since for some generators, returning their encoded data as a SkData
+// can be somewhat expensive, and this call doesn't indicate to the generator that we're
+// only interested in GPU datas...
+// see skbug.com/ 4971, 5128, ...
+//#define SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
+
 SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
                                                        const SkIRect* subset) {
     if (!gen) {
@@ -195,6 +202,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 
 #if SK_SUPPORT_GPU
 
+#ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
 static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrSurfaceDesc desc) {
     const void* rawStart;
     GrPixelConfig config = GrIsCompressedTextureDataSupported(ctx, data, desc.fWidth, desc.fHeight,
@@ -206,6 +214,7 @@ static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrS
     desc.fConfig = config;
     return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, rawStart, 0);
 }
+#endif
 
 class Generator_GrYUVProvider : public GrYUVProvider {
     SkImageGenerator* fGen;
@@ -276,6 +285,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
     const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo, *ctx->caps());
 
+#ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
     // 3. Ask the generator to return a compressed form that the GPU might support
     SkAutoTUnref<SkData> data(this->refEncoded(ctx));
     if (data) {
@@ -286,6 +296,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
             return set_key_and_return(tex, key);
         }
     }
+#endif
 
     // 4. Ask the generator to return YUV planes, which the GPU can convert
     {
