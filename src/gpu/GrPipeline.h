@@ -51,7 +51,6 @@ public:
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;
-        int                         fNumStencilBits;
         bool                        fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
@@ -153,6 +152,9 @@ public:
     bool getAllowSRGBInputs() const {
         return SkToBool(fFlags & kAllowSRGBInputs_Flag);
     }
+    bool hasStencilClip() const {
+        return SkToBool(fFlags & kHasStencilClip_Flag);
+    }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
         return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
@@ -196,6 +198,7 @@ private:
         kSnapVertices_Flag                  = 0x2,
         kDisableOutputConversionToSRGB_Flag = 0x4,
         kAllowSRGBInputs_Flag               = 0x8,
+        kHasStencilClip_Flag                = 0x10
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;

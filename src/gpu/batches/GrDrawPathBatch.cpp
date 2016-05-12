@@ -7,9 +7,17 @@
 
 #include "GrDrawPathBatch.h"
 
+#include "GrRenderTargetPriv.h"
+
 static void pre_translate_transform_values(const float* xforms,
                                            GrPathRendering::PathTransformType type, int count,
                                            SkScalar x, SkScalar y, float* dst);
+
+void GrDrawPathBatchBase::onPrepare(GrBatchFlushState*) {
+    const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget()->renderTargetPriv();
+    fStencilPassSettings.reset(GrPathRendering::GetStencilPassSettings(fFillType),
+                               this->pipeline()->hasStencilClip(), rtPriv.numStencilBits());
+}
 
 SkString GrDrawPathBatch::dumpInfo() const {
     SkString string;
@@ -23,8 +31,8 @@ void GrDrawPathBatch::onDraw(GrBatchFlushState* state) {
     SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                                    this->overrides(),
                                                                    this->viewMatrix()));
-    state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc, this->stencilSettings(),
-                                            fPath.get());
+    state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
+                                            this->stencilPassSettings(), fPath.get());
 }
 
 SkString GrDrawPathRangeBatch::dumpInfo() const {
@@ -89,7 +97,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     // numbers, and we only partially account for this by not allowing even/odd paths to be
     // combined. (Glyphs in the same font tend to wind the same direction so it works out OK.)
     if (GrPathRendering::kWinding_FillType != this->fillType() ||
-        this->stencilSettings() != that->stencilSettings() ||
+        GrPathRendering::kWinding_FillType != that->fillType() ||
         this->overrides().willColorBlendWithDst()) {
         return false;
     }
@@ -126,7 +134,7 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
         const InstanceData& instances = *head.fInstanceData;
         state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
                                                  *pathProc,
-                                                 this->stencilSettings(),
+                                                 this->stencilPassSettings(),
                                                  fPathRange.get(),
                                                  instances.indices(),
                                                  GrPathRange::kU16_PathIndexType,
@@ -155,7 +163,7 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
 
         state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
                                                  *pathProc,
-                                                 this->stencilSettings(),
+                                                 this->stencilPassSettings(),
                                                  fPathRange.get(),
                                                  indexStorage,
                                                  GrPathRange::kU16_PathIndexType,

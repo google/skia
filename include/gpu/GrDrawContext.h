@@ -258,14 +258,6 @@ public:
      */
     void drawBatch(const GrClip&, const GrPaint&, GrDrawBatch*);
 
-    /**
-     * Draws a path batch. This needs to be separate from drawBatch because we install path stencil
-     * settings late.
-     *
-     * TODO: Figure out a better model that allows us to roll this method into drawBatch.
-     */
-    void drawPathBatch(const GrPipelineBuilder&, GrDrawPathBatchBase*);
-
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
@@ -294,6 +286,7 @@ protected:
 
 private:
     friend class GrAtlasTextBlob; // for access to drawBatch
+    friend class GrStencilAndCoverTextContext; // for access to drawBatch
     friend class GrDrawingManager; // for ctor
     friend class GrDrawContextPriv;
 

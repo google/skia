@@ -26,13 +26,6 @@ public:
         coverage->setKnownSingleComponent(0xff);
     }
 
-    GrPathRendering::FillType fillType() const { return fFillType; }
-
-    void setStencilSettings(const GrUserStencilSettings& stencil, bool hasStencilClip,
-                            int numStencilBits) {
-        fStencilSettings.reset(stencil, hasStencilClip, numStencilBits);
-    }
-
 protected:
     GrDrawPathBatchBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor,
                         GrPathRendering::FillType fill)
@@ -41,10 +34,14 @@ protected:
         , fColor(initialColor)
         , fFillType(fill) {}
 
-    const GrStencilSettings& stencilSettings() const { return fStencilSettings; }
+    const GrStencilSettings& stencilPassSettings() const {
+        SkASSERT(!fStencilPassSettings.isDisabled()); // This shouldn't be called before onPrepare.
+        return fStencilPassSettings;
+    }
     const GrXPOverridesForBatch& overrides() const { return fOverrides; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fColor; }
+    GrPathRendering::FillType fillType() const { return fFillType; }
 
 private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
@@ -52,10 +49,12 @@ private:
         fOverrides = overrides;
     }
 
+    void onPrepare(GrBatchFlushState*) override; // Initializes fStencilPassSettings.
+
     SkMatrix                                                fViewMatrix;
     GrColor                                                 fColor;
     GrPathRendering::FillType                               fFillType;
-    GrStencilSettings                                       fStencilSettings;
+    GrStencilSettings                                       fStencilPassSettings;
     GrXPOverridesForBatch                                   fOverrides;
 
     typedef GrDrawBatch INHERITED;
@@ -65,9 +64,8 @@ class GrDrawPathBatch final : public GrDrawPathBatchBase {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    // This can't return a more abstract type because we install the stencil settings late :(
-    static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, GrColor color,
-                                       GrPathRendering::FillType fill, const GrPath* path) {
+    static GrDrawBatch* Create(const SkMatrix& viewMatrix, GrColor color,
+                               GrPathRendering::FillType fill, const GrPath* path) {
         return new GrDrawPathBatch(viewMatrix, color, fill, path);
     }
 
@@ -85,8 +83,6 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
-
-    void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override;
 
@@ -161,11 +157,9 @@ public:
         SkDEBUGCODE(int fReserveCnt;)
     };
 
-    // This can't return a more abstract type because we install the stencil settings late :(
-    static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x,
-                                       SkScalar y, GrColor color, GrPathRendering::FillType fill,
-                                       GrPathRange* range, const InstanceData* instanceData,
-                                       const SkRect& bounds) {
+    static GrDrawBatch* Create(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x, SkScalar y,
+                               GrColor color, GrPathRendering::FillType fill, GrPathRange* range,
+                               const InstanceData* instanceData, const SkRect& bounds) {
         return new GrDrawPathRangeBatch(viewMatrix, scale, x, y, color, fill, range, instanceData,
                                         bounds);
     }
@@ -182,8 +176,6 @@ private:
     TransformType transformType() const { return fDraws.head()->fInstanceData->transformType(); }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
-
-    void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override;
 

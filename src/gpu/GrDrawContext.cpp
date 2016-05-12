@@ -782,18 +782,6 @@ void GrDrawContext::drawBatch(const GrClip& clip,
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
-void GrDrawContext::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
-                                  GrDrawPathBatchBase* batch) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawPathBatch");
-
-    AutoCheckFlush acf(fDrawingManager);
-
-    this->getDrawTarget()->drawPathBatch(pipelineBuilder, batch);
-}
-
 void GrDrawContext::drawPath(const GrClip& clip,
                              const GrPaint& paint,
                              const SkMatrix& viewMatrix,

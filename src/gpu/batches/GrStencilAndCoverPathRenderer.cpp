@@ -147,9 +147,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         );
 
         pipelineBuilder->setUserStencil(&kCoverPass);
-        SkAutoTUnref<GrDrawPathBatchBase> batch(
+        SkAutoTUnref<GrDrawBatch> batch(
                 GrDrawPathBatch::Create(viewMatrix, args.fColor, p->getFillType(), p));
-        args.fTarget->drawPathBatch(*pipelineBuilder, batch);
+        args.fTarget->drawBatch(*pipelineBuilder, batch);
     }
 
     pipelineBuilder->disableUserStencil();

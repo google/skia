@@ -70,7 +70,7 @@ static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
         default:
             SkFAIL("Unexpected path fill.");
             /* fallthrough */;
-        case GrStencilOp::kIncClamp:
+        case GrStencilOp::kIncWrap:
             return GR_GL_COUNT_UP;
         case GrStencilOp::kInvert:
             return GR_GL_INVERT;
@@ -147,14 +147,14 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
 
 void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
                                    const GrPrimitiveProcessor& primProc,
-                                   const GrStencilSettings& stencil,
+                                   const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
     if (!this->gpu()->flushGLState(pipeline, primProc)) {
         return;
     }
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
-    this->flushPathStencilSettings(stencil);
+    this->flushPathStencilSettings(stencilPassSettings);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode =
@@ -175,16 +175,16 @@ void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
 
 void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
                                     const GrPrimitiveProcessor& primProc,
-                                    const GrStencilSettings& stencil, const GrPathRange* pathRange,
-                                    const void* indices, PathIndexType indexType,
-                                    const float transformValues[], PathTransformType transformType,
-                                    int count) {
+                                    const GrStencilSettings& stencilPassSettings,
+                                    const GrPathRange* pathRange, const void* indices,
+                                    PathIndexType indexType, const float transformValues[],
+                                    PathTransformType transformType, int count) {
     SkDEBUGCODE(verify_floats(transformValues, gXformType2ComponentCount[transformType] * count));
 
     if (!this->gpu()->flushGLState(pipeline, primProc)) {
         return;
     }
-    this->flushPathStencilSettings(stencil);
+    this->flushPathStencilSettings(stencilPassSettings);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
 

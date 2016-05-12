@@ -77,6 +77,8 @@ public:
         kEvenOdd_FillType,
     };
 
+    static const GrUserStencilSettings& GetStencilPassSettings(FillType);
+
     /**
      * Creates a new gpu path, based on the specified path and stroke and returns it.
      * The caller owns a ref on the returned path which must be balanced by a call to unref.
@@ -157,18 +159,18 @@ public:
 
     void drawPath(const GrPipeline& pipeline,
                   const GrPrimitiveProcessor& primProc,
-                  const GrStencilSettings& stencil,
+                  const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
                   const GrPath* path) {
         fGpu->handleDirtyContext();
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
             fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
         }
-        this->onDrawPath(pipeline, primProc, stencil, path);
+        this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
     }
 
     void drawPaths(const GrPipeline& pipeline,
                    const GrPrimitiveProcessor& primProc,
-                   const GrStencilSettings& stencil,
+                   const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
                    const GrPathRange* pathRange,
                    const void* indices,
                    PathIndexType indexType,
@@ -182,7 +184,7 @@ public:
 #ifdef SK_DEBUG
         pathRange->assertPathsLoaded(indices, indexType, count);
 #endif
-        this->onDrawPaths(pipeline, primProc, stencil, pathRange, indices, indexType,
+        this->onDrawPaths(pipeline, primProc, stencilPassSettings, pathRange, indices, indexType,
                           transformValues, transformType, count);
     }
 

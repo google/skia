@@ -12,6 +12,37 @@
 #include "SkTypeface.h"
 #include "GrPathRange.h"
 
+const GrUserStencilSettings& GrPathRendering::GetStencilPassSettings(FillType fill) {
+    switch (fill) {
+        default:
+            SkFAIL("Unexpected path fill.");
+        case GrPathRendering::kWinding_FillType: {
+            constexpr static GrUserStencilSettings kWindingStencilPass(
+                GrUserStencilSettings::StaticInit<
+                    0xffff,
+                    GrUserStencilTest::kAlwaysIfInClip,
+                    0xffff,
+                    GrUserStencilOp::kIncWrap,
+                    GrUserStencilOp::kIncWrap,
+                    0xffff>()
+            );
+            return kWindingStencilPass;
+        }
+        case GrPathRendering::kEvenOdd_FillType: {
+            constexpr static GrUserStencilSettings kEvenOddStencilPass(
+                GrUserStencilSettings::StaticInit<
+                    0xffff,
+                    GrUserStencilTest::kAlwaysIfInClip,
+                    0xffff,
+                    GrUserStencilOp::kInvert,
+                    GrUserStencilOp::kInvert,
+                    0xffff>()
+            );
+            return kEvenOddStencilPass;
+        }
+    }
+}
+
 class GlyphGenerator : public GrPathRange::PathGenerator {
 public:
     GlyphGenerator(const SkTypeface& typeface, const SkScalerContextEffects& effects,

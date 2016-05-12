@@ -637,13 +637,13 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         SkRect bounds = SkRect::MakeIWH(pipelineBuilder->getRenderTarget()->width(),
                                         pipelineBuilder->getRenderTarget()->height());
 
-        SkAutoTUnref<GrDrawPathBatchBase> batch(
+        SkAutoTUnref<GrDrawBatch> batch(
             GrDrawPathRangeBatch::Create(viewMatrix, fTextRatio, fTextInverseRatio * x,
                                          fTextInverseRatio * y, color,
                                          GrPathRendering::kWinding_FillType, glyphs, fInstanceData,
                                          bounds));
 
-        dc->drawPathBatch(*pipelineBuilder, batch);
+        dc->drawBatch(pipelineBuilder, batch);
     }
 
     if (fFallbackTextBlob) {

@@ -117,15 +117,6 @@ public:
                      GrPathRendering::FillType);
 
     /**
-     * Draws a path batch. Fill must not be a hairline. It will respect the HW antialias flag on
-     * the GrPipelineBuilder (if possible in the 3D API). This needs to be separate from drawBatch
-     * because we install path stencil settings late.
-     *
-     * TODO: Figure out a better model that allows us to roll this method into drawBatch.
-     */
-    void drawPathBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawPathBatchBase* batch);
-
-    /**
      * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole
      * thing if rect is nullptr, otherwise just the rect. If canIgnoreRect is set then the entire
      * render target can be optionally cleared.
@@ -221,10 +212,6 @@ private:
 
     void recordBatch(GrBatch*);
     void forwardCombine();
-    bool installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
-                                    const GrScissorState* scissor,
-                                    bool hasStencilClip,
-                                    GrDrawBatch* batch);
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it

@@ -21,13 +21,13 @@ public:
 
     static GrBatch* Create(const SkMatrix& viewMatrix,
                            bool useHWAA,
-                           const GrUserStencilSettings& userStencil,
+                           GrPathRendering::FillType fillType,
                            bool hasStencilClip,
                            int numStencilBits,
                            const GrScissorState& scissor,
                            GrRenderTarget* renderTarget,
                            const GrPath* path) {
-        return new GrStencilPathBatch(viewMatrix, useHWAA, userStencil, hasStencilClip,
+        return new GrStencilPathBatch(viewMatrix, useHWAA, fillType, hasStencilClip,
                                       numStencilBits, scissor, renderTarget, path);
     }
 
@@ -45,7 +45,7 @@ public:
 private:
     GrStencilPathBatch(const SkMatrix& viewMatrix,
                        bool useHWAA,
-                       const GrUserStencilSettings& userStencil,
+                       GrPathRendering::FillType fillType,
                        bool hasStencilClip,
                        int numStencilBits,
                        const GrScissorState& scissor,
@@ -54,7 +54,7 @@ private:
     : INHERITED(ClassID())
     , fViewMatrix(viewMatrix)
     , fUseHWAA(useHWAA)
-    , fStencil(userStencil, hasStencilClip, numStencilBits)
+    , fStencil(GrPathRendering::GetStencilPassSettings(fillType), hasStencilClip, numStencilBits)
     , fScissor(scissor)
     , fRenderTarget(renderTarget)
     , fPath(path) {

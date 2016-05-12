@@ -105,6 +105,10 @@ bool GrRenderTargetPriv::attachStencilAttachment(GrStencilAttachment* stencil) {
     return true;
 }
 
+int GrRenderTargetPriv::numStencilBits() const {
+    return fRenderTarget->fStencilAttachment ? fRenderTarget->fStencilAttachment->bits() : 0;
+}
+
 const GrGpu::MultisampleSpecs&
 GrRenderTargetPriv::getMultisampleSpecs(const GrStencilSettings& stencil) const {
     return fRenderTarget->getGpu()->getMultisampleSpecs(fRenderTarget, stencil);

@@ -170,7 +170,7 @@ void GrStencilSettings::Face::reset(const GrUserStencilSettings::Face& user, boo
     SkASSERT(user.fTest < (GrUserStencilTest)kGrUserStencilTestCount);
     SkASSERT(user.fPassOp < (GrUserStencilOp)kGrUserStencilOpCount);
     SkASSERT(user.fFailOp < (GrUserStencilOp)kGrUserStencilOpCount);
-    SkASSERT(numStencilBits <= 16);
+    SkASSERT(numStencilBits > 0 && numStencilBits <= 16);
     int clipBit = 1 << (numStencilBits - 1);
     int userMask = clipBit - 1;
 

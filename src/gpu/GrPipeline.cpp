@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
+#include "GrRenderTargetPriv.h"
 #include "GrXferProcessor.h"
 
 #include "batches/GrBatch.h"
@@ -25,9 +26,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     SkASSERT(pipeline->fRenderTarget);
     pipeline->fScissorState = *args.fScissor;
     if (builder.hasUserStencilSettings() || args.fHasStencilClip) {
-        SkASSERT(args.fNumStencilBits);
+        const GrRenderTargetPriv& rtPriv = builder.getRenderTarget()->renderTargetPriv();
         pipeline->fStencilSettings.reset(*builder.getUserStencil(), args.fHasStencilClip,
-                                         args.fNumStencilBits);
+                                         rtPriv.numStencilBits());
         SkASSERT(!pipeline->fStencilSettings.usesWrapOp() || args.fCaps->stencilWrapOpsSupport());
     }
     pipeline->fDrawFace = builder.getDrawFace();
@@ -44,6 +45,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
     if (builder.getAllowSRGBInputs()) {
         pipeline->fFlags |= kAllowSRGBInputs_Flag;
+    }
+    if (args.fHasStencilClip) {
+        pipeline->fFlags |= kHasStencilClip_Flag;
     }
 
     // Create XferProcessor from DS's XPFactory
