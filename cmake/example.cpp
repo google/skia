@@ -60,7 +60,7 @@ static std::shared_ptr<SkSurface> create_opengl_surface(int w, int h) {
 
 int main(int, char**) {
     bool gl_ok = setup_gl_context();
-    srand(time(nullptr));
+    srand((unsigned)time(nullptr));
     std::shared_ptr<SkSurface> surface = (gl_ok && rand() % 2) ? create_opengl_surface(320, 240)
                                                                : create_raster_surface(320, 240);
 

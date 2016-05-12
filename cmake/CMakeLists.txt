@@ -123,10 +123,12 @@ file (GLOB_RECURSE ssse3_srcs ../src/*ssse3*.cpp ../src/*SSSE3*.cpp)
 file (GLOB_RECURSE sse41_srcs ../src/*sse4*.cpp ../src/*SSE4*.cpp)
 file (GLOB_RECURSE avx_srcs   ../src/*_avx.cpp)
 file (GLOB_RECURSE avx2_srcs  ../src/*_avx2.cpp)
-set_source_files_properties(${ssse3_srcs} PROPERTIES COMPILE_FLAGS -mssse3)
-set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
-set_source_files_properties(${avx_srcs}   PROPERTIES COMPILE_FLAGS -mavx)
-set_source_files_properties(${avx2_srcs}  PROPERTIES COMPILE_FLAGS -mavx2)
+if (NOT WIN32)
+    set_source_files_properties(${ssse3_srcs} PROPERTIES COMPILE_FLAGS -mssse3)
+    set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
+    set_source_files_properties(${avx_srcs}   PROPERTIES COMPILE_FLAGS -mavx)
+    set_source_files_properties(${avx2_srcs}  PROPERTIES COMPILE_FLAGS -mavx2)
+endif()
 
 # Detect our optional dependencies.
 # If we can't find them, don't build the parts of Skia that use them.
@@ -265,6 +267,7 @@ target_link_libraries(skia
     PRIVATE ${libs})
 
 if (MSVC)
+    string(REGEX REPLACE " /W3 " " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(cc_flags "/w /GR-")
 else()
     set(cc_flags "-w -fno-rtti -fno-exceptions")
