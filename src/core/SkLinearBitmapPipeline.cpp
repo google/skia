@@ -468,7 +468,7 @@ static SkLinearBitmapPipeline::PointProcessorInterface* choose_tiler(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Source Sampling Stage
-template <typename SourceStrategy, typename Next>
+template <SkColorType colorType, SkColorProfileType colorProfile, typename Next>
 class NearestNeighborSampler final : public SkLinearBitmapPipeline::SampleProcessorInterface {
 public:
     template <typename... Args>
@@ -506,10 +506,10 @@ public:
     }
 
 private:
-    GeneralSampler<SourceStrategy, Next> fSampler;
+    GeneralSampler<colorType, colorProfile, Next> fSampler;
 };
 
-template <typename SourceStrategy, typename Next>
+template <SkColorType colorType, SkColorProfileType colorProfile, typename Next>
 class BilerpSampler final : public SkLinearBitmapPipeline::SampleProcessorInterface {
 public:
     template <typename... Args>
@@ -547,7 +547,7 @@ public:
     }
 
 private:
-    GeneralSampler<SourceStrategy, Next> fSampler;
+    GeneralSampler<colorType, colorProfile, Next> fSampler;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -708,7 +708,7 @@ private:
 
 using Blender = SkLinearBitmapPipeline::BlendProcessorInterface;
 
-template<template <typename, typename> class Sampler>
+template<template <SkColorType, SkColorProfileType, typename> class Sampler>
 static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_base(
     Blender* next,
     const SkPixmap& srcPixmap,
@@ -717,27 +717,35 @@ static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_ba
     switch (imageInfo.colorType()) {
         case kRGBA_8888_SkColorType:
             if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                sampleStage->initStage<Sampler<Pixel8888SRGB, Blender>>(next, srcPixmap);
+                using S = Sampler<kRGBA_8888_SkColorType, kSRGB_SkColorProfileType, Blender>;
+                sampleStage->initStage<S>(next, srcPixmap);
             } else {
-                sampleStage->initStage<Sampler<Pixel8888LRGB, Blender>>(next, srcPixmap);
+                using S = Sampler<kRGBA_8888_SkColorType, kLinear_SkColorProfileType, Blender>;
+                sampleStage->initStage<S>(next, srcPixmap);
             }
             break;
         case kBGRA_8888_SkColorType:
             if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                sampleStage->initStage<Sampler<Pixel8888SBGR, Blender>>(next, srcPixmap);
+                using S = Sampler<kBGRA_8888_SkColorType, kSRGB_SkColorProfileType, Blender>;
+                sampleStage->initStage<S>(next, srcPixmap);
             } else {
-                sampleStage->initStage<Sampler<Pixel8888LBGR, Blender>>(next, srcPixmap);
+                using S = Sampler<kBGRA_8888_SkColorType, kLinear_SkColorProfileType, Blender>;
+                sampleStage->initStage<S>(next, srcPixmap);
             }
             break;
         case kIndex_8_SkColorType:
             if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                sampleStage->initStage<Sampler<PixelIndex8SRGB, Blender>>(next, srcPixmap);
+                using S = Sampler<kIndex_8_SkColorType, kSRGB_SkColorProfileType, Blender>;
+                sampleStage->initStage<S>(next, srcPixmap);
             } else {
-                sampleStage->initStage<Sampler<PixelIndex8LRGB, Blender>>(next, srcPixmap);
+                using S = Sampler<kIndex_8_SkColorType, kLinear_SkColorProfileType, Blender>;
+                sampleStage->initStage<S>(next, srcPixmap);
             }
             break;
-        case kRGBA_F16_SkColorType:
-            sampleStage->initStage<Sampler<PixelHalfLinear, Blender>>(next, srcPixmap);
+        case kRGBA_F16_SkColorType: {
+                using S = Sampler<kRGBA_F16_SkColorType, kLinear_SkColorProfileType, Blender>;
+                sampleStage->initStage<S>(next, srcPixmap);
+            }
             break;
         default:
             SkFAIL("Not implemented. Unsupported src");

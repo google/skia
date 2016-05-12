@@ -49,7 +49,162 @@ static Sk4s VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
     return sum;
 }
 
-template<typename SourceStrategy, typename Next>
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PixelGetter is the lowest level interface to the source data. There is a PixelGetter for each
+// of the different SkColorTypes.
+template <SkColorType colorType, SkColorProfileType colorProfile> class PixelGetter;
+
+template <SkColorProfileType colorProfile>
+class PixelGetter<kRGBA_8888_SkColorType, colorProfile> {
+public:
+    using Element = uint32_t;
+    PixelGetter(const SkPixmap& srcPixmap) { }
+
+    Sk4f getPixelAt(const uint32_t* src) {
+        return colorProfile == kSRGB_SkColorProfileType
+               ? Sk4f_fromS32(*src)
+               : Sk4f_fromL32(*src);
+    }
+};
+
+template <SkColorProfileType colorProfile>
+class PixelGetter<kBGRA_8888_SkColorType, colorProfile> {
+public:
+    using Element = uint32_t;
+    PixelGetter(const SkPixmap& srcPixmap) { }
+
+    Sk4f getPixelAt(const uint32_t* src) {
+        Sk4f pixel = colorProfile == kSRGB_SkColorProfileType
+                     ? Sk4f_fromS32(*src)
+                     : Sk4f_fromL32(*src);
+        return SkNx_shuffle<2, 1, 0, 3>(pixel);
+    }
+};
+
+template <SkColorProfileType colorProfile>
+class PixelGetter<kIndex_8_SkColorType, colorProfile> {
+public:
+    using Element = uint8_t;
+    PixelGetter(const SkPixmap& srcPixmap) {
+        SkColorTable* skColorTable = srcPixmap.ctable();
+        SkASSERT(skColorTable != nullptr);
+
+        fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
+        for (int i = 0; i < skColorTable->count(); i++) {
+            fColorTable[i] = this->convertPixel((*skColorTable)[i]);
+        }
+    }
+
+    PixelGetter(const PixelGetter& strategy) {
+        fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
+        // TODO: figure out the count.
+        for (int i = 0; i < 256; i++) {
+            fColorTable[i] = strategy.fColorTable[i];
+        }
+    }
+
+    Sk4f getPixelAt(const uint8_t* src) {
+        return fColorTable[*src];
+    }
+
+private:
+    static const size_t kColorTableSize = sizeof(Sk4f[256]) + 12;
+    Sk4f convertPixel(SkPMColor pmColor) {
+        Sk4f pixel = to_4f(pmColor);
+        float alpha = get_alpha(pixel);
+        if (alpha != 0.0f) {
+            float invAlpha = 1.0f / alpha;
+            Sk4f normalize = {invAlpha, invAlpha, invAlpha, 1.0f / 255.0f};
+            pixel = pixel * normalize;
+            if (colorProfile == kSRGB_SkColorProfileType) {
+                pixel = linear_to_srgb(pixel);
+            }
+            return pixel;
+        } else {
+            return Sk4f{0.0f};
+        }
+    }
+    SkAutoMalloc         fColorTableStorage{kColorTableSize};
+    Sk4f*                fColorTable;
+};
+
+template <>
+class PixelGetter<kRGBA_F16_SkColorType, kLinear_SkColorProfileType> {
+public:
+    using Element = uint64_t;
+    PixelGetter(const SkPixmap& srcPixmap) { }
+
+    Sk4f getPixelAt(const uint64_t* src) {
+        return SkHalfToFloat_01(*src);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PixelAccessor handles all the same plumbing for all the PixelGetters.
+template <SkColorType colorType, SkColorProfileType colorProfile>
+class PixelAccessor {
+    using Element = typename PixelGetter<colorType, colorProfile>::Element;
+public:
+    PixelAccessor(const SkPixmap& srcPixmap)
+        : fSrc{static_cast<const Element*>(srcPixmap.addr())}
+        , fWidth{srcPixmap.rowBytesAsPixels()}
+        , fGetter{srcPixmap} { }
+
+    void VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
+        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
+        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
+        Sk4i bufferLoc = YIs * fWidth + XIs;
+        switch (n) {
+            case 3:
+                *px2 = this->getPixelAt(bufferLoc[2]);
+            case 2:
+                *px1 = this->getPixelAt(bufferLoc[1]);
+            case 1:
+                *px0 = this->getPixelAt(bufferLoc[0]);
+            default:
+                break;
+        }
+    }
+
+    void VECTORCALL get4Pixels(Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
+        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
+        Sk4i bufferLoc = YIs * fWidth + XIs;
+        *px0 = this->getPixelAt(bufferLoc[0]);
+        *px1 = this->getPixelAt(bufferLoc[1]);
+        *px2 = this->getPixelAt(bufferLoc[2]);
+        *px3 = this->getPixelAt(bufferLoc[3]);
+    }
+
+    void get4Pixels(const void* src, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
+        *px0 = this->getPixelFromRow(src, index + 0);
+        *px1 = this->getPixelFromRow(src, index + 1);
+        *px2 = this->getPixelFromRow(src, index + 2);
+        *px3 = this->getPixelFromRow(src, index + 3);
+    }
+
+    Sk4f getPixelFromRow(const void* row, int index) {
+        const Element* src = static_cast<const Element*>(row);
+        return fGetter.getPixelAt(src + index);
+    }
+
+    Sk4f getPixelAt(int index) {
+        return this->getPixelFromRow(fSrc, index);
+    }
+
+    const void* row(int y) const { return fSrc + y * fWidth[0]; }
+
+private:
+    const Element* const                 fSrc;
+    const Sk4i                           fWidth;
+    PixelGetter<colorType, colorProfile> fGetter;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// GeneralSampler handles all the different sampling scenarios. It makes runtime decisions to
+// choose the fastest stratagy given a particular job. It ultimately uses PixelGetters to access
+// the pixels.
+template<SkColorType colorType, SkColorProfileType colorProfile, typename Next>
 class GeneralSampler {
 public:
     template<typename... Args>
@@ -557,205 +712,9 @@ private:
     }
 
     Next* const fNext;
-    SourceStrategy fStrategy;
+    PixelAccessor<colorType, colorProfile> fStrategy;
 };
 
-template <typename PixelGetter>
-class PixelAccessor {
-public:
-    PixelAccessor(const SkPixmap& srcPixmap)
-        : fWidth{srcPixmap.rowBytesAsPixels()}
-        , fGetter{srcPixmap} { }
-
-    void VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
-        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
-        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
-        Sk4i bufferLoc = YIs * fWidth + XIs;
-        switch (n) {
-            case 3:
-                *px2 = fGetter.getPixelAt(bufferLoc[2]);
-            case 2:
-                *px1 = fGetter.getPixelAt(bufferLoc[1]);
-            case 1:
-                *px0 = fGetter.getPixelAt(bufferLoc[0]);
-            default:
-                break;
-        }
-    }
-
-    void VECTORCALL get4Pixels(Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
-        Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
-        Sk4i YIs = SkNx_cast<int, SkScalar>(ys);
-        Sk4i bufferLoc = YIs * fWidth + XIs;
-        *px0 = fGetter.getPixelAt(bufferLoc[0]);
-        *px1 = fGetter.getPixelAt(bufferLoc[1]);
-        *px2 = fGetter.getPixelAt(bufferLoc[2]);
-        *px3 = fGetter.getPixelAt(bufferLoc[3]);
-    }
-
-    void get4Pixels(const void* src, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) {
-        *px0 = fGetter.getPixelFromRow(src, index + 0);
-        *px1 = fGetter.getPixelFromRow(src, index + 1);
-        *px2 = fGetter.getPixelFromRow(src, index + 2);
-        *px3 = fGetter.getPixelFromRow(src, index + 3);
-    }
-
-    Sk4f getPixelFromRow(const void* row, int index) {
-        return fGetter.getPixelFromRow(row, index);
-    }
-
-    const void* row(int y) { return fGetter.row(y); }
-
-private:
-    const Sk4i  fWidth;
-    PixelGetter fGetter;
-};
-
-template <SkColorType colorType, SkColorProfileType colorProfile> class PixelGetter;
-
-template <SkColorProfileType colorProfile>
-class PixelGetter<kRGBA_8888_SkColorType, colorProfile> {
-public:
-    PixelGetter(const SkPixmap& srcPixmap)
-        : fSrc{srcPixmap.addr32()}
-        , fWidth{srcPixmap.rowBytesAsPixels()} { }
-
-    Sk4f getPixelFromRow(const void* row, int index) {
-        const uint32_t* src = static_cast<const uint32_t*>(row) + index;
-        return colorProfile == kSRGB_SkColorProfileType
-               ? Sk4f_fromS32(*src)
-               : Sk4f_fromL32(*src);
-    }
-
-    Sk4f getPixelAt(int index) {
-        return this->getPixelFromRow(fSrc, index);
-    }
-
-    const void* row(int y) { return fSrc + y * fWidth; }
-
-private:
-    const uint32_t* const fSrc;
-    const int             fWidth;
-};
-
-using Pixel8888SRGB = PixelAccessor<PixelGetter<kRGBA_8888_SkColorType, kSRGB_SkColorProfileType>>;
-using Pixel8888LRGB = PixelAccessor<PixelGetter<kRGBA_8888_SkColorType, kLinear_SkColorProfileType>>;
-
-template <SkColorProfileType colorProfile>
-class PixelGetter<kBGRA_8888_SkColorType, colorProfile> {
-public:
-    PixelGetter(const SkPixmap& srcPixmap)
-        : fSrc{srcPixmap.addr32()}
-        , fWidth{srcPixmap.rowBytesAsPixels()} { }
-
-    Sk4f getPixelFromRow(const void* row, int index) {
-        const uint32_t* src = static_cast<const uint32_t*>(row) + index;
-        Sk4f pixel = colorProfile == kSRGB_SkColorProfileType
-                     ? Sk4f_fromS32(*src)
-                     : Sk4f_fromL32(*src);
-        return SkNx_shuffle<2, 1, 0, 3>(pixel);
-    }
-
-    Sk4f getPixelAt(int index) {
-        return this->getPixelFromRow(fSrc, index);
-    }
-
-    const void* row(int y) { return fSrc + y * fWidth; }
-
-private:
-    const uint32_t* const fSrc;
-    const int             fWidth;
-};
-
-using Pixel8888SBGR = PixelAccessor<PixelGetter<kBGRA_8888_SkColorType, kSRGB_SkColorProfileType>>;
-using Pixel8888LBGR = PixelAccessor<PixelGetter<kBGRA_8888_SkColorType, kLinear_SkColorProfileType>>;
-
-template <SkColorProfileType colorProfile>
-class PixelGetter<kIndex_8_SkColorType, colorProfile> {
-public:
-    PixelGetter(const SkPixmap& srcPixmap)
-        : fSrc{srcPixmap.addr8()}, fWidth{static_cast<int>(srcPixmap.rowBytes())} {
-        SkASSERT(srcPixmap.colorType() == kIndex_8_SkColorType);
-        SkColorTable* skColorTable = srcPixmap.ctable();
-        SkASSERT(skColorTable != nullptr);
-
-        fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
-        for (int i = 0; i < skColorTable->count(); i++) {
-            fColorTable[i] = this->convertPixel((*skColorTable)[i]);
-        }
-    }
-
-    PixelGetter(const PixelGetter& strategy)
-        : fSrc{strategy.fSrc}, fWidth{strategy.fWidth} {
-        fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
-        // TODO: figure out the count.
-        for (int i = 0; i < 256; i++) {
-            fColorTable[i] = strategy.fColorTable[i];
-        }
-    }
-
-    Sk4f getPixelFromRow(const void* row, int index) {
-        const uint8_t* src = static_cast<const uint8_t*>(row) + index;
-        Sk4f pixel = fColorTable[*src];
-        return pixel;
-    }
-
-    Sk4f getPixelAt(int index) {
-        return this->getPixelFromRow(fSrc, index);
-    }
-
-    const void* row(int y) { return fSrc + y * fWidth; }
-
-private:
-    static const size_t kColorTableSize = sizeof(Sk4f[256]) + 12;
-    Sk4f convertPixel(SkPMColor pmColor) {
-        Sk4f pixel = to_4f(pmColor);
-        float alpha = get_alpha(pixel);
-        if (alpha != 0.0f) {
-            float invAlpha = 1.0f / alpha;
-            Sk4f normalize = {invAlpha, invAlpha, invAlpha, 1.0f / 255.0f};
-            pixel = pixel * normalize;
-            if (colorProfile == kSRGB_SkColorProfileType) {
-                pixel = linear_to_srgb(pixel);
-            }
-            return pixel;
-        } else {
-            return Sk4f{0.0f};
-        }
-    }
-    const uint8_t* const fSrc;
-    const int            fWidth;
-    SkAutoMalloc         fColorTableStorage{kColorTableSize};
-    Sk4f*                fColorTable;
-};
-
-using PixelIndex8SRGB = PixelAccessor<PixelGetter<kIndex_8_SkColorType, kSRGB_SkColorProfileType>>;
-using PixelIndex8LRGB = PixelAccessor<PixelGetter<kIndex_8_SkColorType, kLinear_SkColorProfileType>>;
-
-template <>
-class PixelGetter<kRGBA_F16_SkColorType, kLinear_SkColorProfileType> {
-public:
-    PixelGetter(const SkPixmap& srcPixmap)
-        : fSrc{srcPixmap.addr64()}
-        , fWidth{static_cast<int>(srcPixmap.rowBytesAsPixels())} { }
-
-    Sk4f getPixelFromRow(const void* row, int index) {
-        const uint64_t* src = static_cast<const uint64_t*>(row) + index;
-        return SkHalfToFloat_01(*src);
-    }
-
-    Sk4f getPixelAt(int index) {
-        return this->getPixelFromRow(fSrc, index);
-    }
-
-    const void* row(int y) { return fSrc + y * fWidth; }
-
-private:
-    const uint64_t* const fSrc;
-    const int             fWidth;
-};
-
-using PixelHalfLinear = PixelAccessor<PixelGetter<kRGBA_F16_SkColorType, kLinear_SkColorProfileType>>;
 
 }  // namespace
 
