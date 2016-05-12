@@ -201,6 +201,9 @@ public:
     }
 
     static HRESULT getDefaultFontFamilyName(SkSMallocWCHAR* name) {
+#ifdef SK_BUILD_FOR_WINRT
+        const wchar_t* default_font_family_name = L"Segoe UI";
+#else // SK_BUILD_FOR_WINRT
         NONCLIENTMETRICSW metrics;
         metrics.cbSize = sizeof(metrics);
         if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS,
@@ -209,9 +212,11 @@ public:
                                        0)) {
             return E_UNEXPECTED;
         }
+        wchar_t* default_font_family_name = metrics.lfMessageFont.lfFaceName;
+#endif // SK_BUILD_FOR_WINRT
 
-        size_t len = wcsnlen_s(metrics.lfMessageFont.lfFaceName, LF_FACESIZE) + 1;
-        if (0 != wcsncpy_s(name->reset(len), len, metrics.lfMessageFont.lfFaceName, _TRUNCATE)) {
+        size_t len = wcsnlen_s(default_font_family_name, LF_FACESIZE) + 1;
+        if (0 != wcsncpy_s(name->reset(len), len, default_font_family_name, _TRUNCATE)) {
             return E_UNEXPECTED;
         }
 

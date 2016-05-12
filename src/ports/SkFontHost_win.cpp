@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN32) && !defined (SK_BUILD_FOR_WINRT)
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBase64.h"
@@ -2514,4 +2514,4 @@ private:
 
 SkFontMgr* SkFontMgr_New_GDI() { return new SkFontMgrGDI; }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif // defined(SK_BUILD_FOR_WIN32) && !defined (SK_BUILD_FOR_WINRT)
