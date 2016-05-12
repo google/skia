@@ -74,6 +74,9 @@ public:
 
         fCanvas.reset(new SkCanvas(fBitmap, this->props()));
         fCanvas->clipRect(SkRect::Make(subset));
+#ifdef SK_IS_BOT
+        fCanvas->clear(SK_ColorRED);  // catch any imageFilter sloppiness
+#endif
     }
 
     ~SkSpecialSurface_Raster() override { }
@@ -130,6 +133,9 @@ public:
 
         fCanvas.reset(new SkCanvas(device.get()));
         fCanvas->clipRect(SkRect::Make(subset));
+#ifdef SK_IS_BOT
+        fCanvas->clear(SK_ColorRED);  // catch any imageFilter sloppiness
+#endif
     }
 
     ~SkSpecialSurface_Gpu() override { }

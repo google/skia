@@ -104,6 +104,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::onFilterImage(SkSpecialImage* sourc
     SkCanvas* canvas = surf->getCanvas();
     SkASSERT(canvas);
 
+    canvas->clear(0x0); // can't count on background to fully clear the background
+
     canvas->translate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
 
     SkPaint paint;

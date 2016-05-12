@@ -26,7 +26,6 @@ static void fill_rect_filtered(SkCanvas* canvas,
 static sk_sp<SkPicture> make_picture() {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
-    canvas->clear(SK_ColorBLACK);
     SkPaint paint;
     paint.setAntiAlias(true);
     sk_tool_utils::set_portable_typeface(&paint);
