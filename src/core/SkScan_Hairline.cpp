@@ -214,7 +214,7 @@ static int compute_int_quad_dist(const SkPoint pts[3]) {
     }
 }
 
-static void hairquad(const SkPoint pts[3], const SkRegion* clip,
+static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
                      SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
     SkASSERT(level <= kMaxQuadSubdivideLevel);
 
@@ -237,6 +237,54 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
     }
     tmp[lines] = pts[2];
     lineproc(tmp, lines + 1, clip, blitter);
+}
+
+static SkRect compute_nocheck_quad_bounds(const SkPoint pts[3]) {
+    SkASSERT(SkScalarsAreFinite(&pts[0].fX, 6));
+
+    Sk2s min = Sk2s::Load(pts);
+    Sk2s max = min;
+    for (int i = 1; i < 3; ++i) {
+        Sk2s pair = Sk2s::Load(pts+i);
+        min = Sk2s::Min(min, pair);
+        max = Sk2s::Max(max, pair);
+    }
+    return { min[0], min[1], max[0], max[1] };
+}
+
+static bool is_inverted(const SkRect& r) {
+    return r.fLeft > r.fRight || r.fTop > r.fBottom;
+}
+
+// Can't call SkRect::intersects, since it cares about empty, and we don't (since we tracking
+// something to be stroked, so empty can still draw something (e.g. horizontal line)
+static bool geometric_overlap(const SkRect& a, const SkRect& b) {
+    SkASSERT(!is_inverted(a) && !is_inverted(b));
+    return a.fLeft < b.fRight && b.fLeft < a.fRight &&
+            a.fTop < b.fBottom && b.fTop < a.fBottom;
+}
+
+// Can't call SkRect::contains, since it cares about empty, and we don't (since we tracking
+// something to be stroked, so empty can still draw something (e.g. horizontal line)
+static bool geometric_contains(const SkRect& outer, const SkRect& inner) {
+    SkASSERT(!is_inverted(outer) && !is_inverted(inner));
+    return inner.fRight <= outer.fRight && inner.fLeft >= outer.fLeft &&
+            inner.fBottom <= outer.fBottom && inner.fTop >= outer.fTop;
+}
+
+static inline void hairquad(const SkPoint pts[3], const SkRegion* clip, const SkRect* insetClip, const SkRect* outsetClip,
+    SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
+    if (insetClip) {
+        SkASSERT(outsetClip);
+        SkRect bounds = compute_nocheck_quad_bounds(pts);
+        if (!geometric_overlap(*outsetClip, bounds)) {
+            return;
+        } else if (geometric_contains(*insetClip, bounds)) {
+            clip = nullptr;
+        }
+    }
+
+    hair_quad(pts, clip, blitter, level, lineproc);
 }
 
 static inline Sk2s abs(const Sk2s& value) {
@@ -329,54 +377,16 @@ static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
     return { min[0], min[1], max[0], max[1] };
 }
 
-static bool is_inverted(const SkRect& r) {
-    return r.fLeft > r.fRight || r.fTop > r.fBottom;
-}
-
-// Can't call SkRect::intersects, since it cares about empty, and we don't (since we tracking
-// something to be stroked, so empty can still draw something (e.g. horizontal line)
-static bool geometric_overlap(const SkRect& a, const SkRect& b) {
-    SkASSERT(!is_inverted(a) && !is_inverted(b));
-    return a.fLeft < b.fRight && b.fLeft < a.fRight &&
-           a.fTop < b.fBottom && b.fTop < a.fBottom;
-}
-
-// Can't call SkRect::contains, since it cares about empty, and we don't (since we tracking
-// something to be stroked, so empty can still draw something (e.g. horizontal line)
-static bool geometric_contains(const SkRect& outer, const SkRect& inner) {
-    SkASSERT(!is_inverted(outer) && !is_inverted(inner));
-    return inner.fRight <= outer.fRight && inner.fLeft >= outer.fLeft &&
-           inner.fBottom <= outer.fBottom && inner.fTop >= outer.fTop;
-}
-
-//#define SK_SHOW_HAIRCLIP_STATS
-#ifdef SK_SHOW_HAIRCLIP_STATS
-static int gKillClip, gRejectClip, gClipCount;
-#endif
-
 static inline void haircubic(const SkPoint pts[4], const SkRegion* clip, const SkRect* insetClip, const SkRect* outsetClip,
                       SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
     if (insetClip) {
         SkASSERT(outsetClip);
-#ifdef SK_SHOW_HAIRCLIP_STATS
-        gClipCount += 1;
-#endif
         SkRect bounds = compute_nocheck_cubic_bounds(pts);
         if (!geometric_overlap(*outsetClip, bounds)) {
-#ifdef SK_SHOW_HAIRCLIP_STATS
-            gRejectClip += 1;
-#endif
             return;
         } else if (geometric_contains(*insetClip, bounds)) {
             clip = nullptr;
-#ifdef SK_SHOW_HAIRCLIP_STATS
-            gKillClip += 1;
-#endif
         }
-#ifdef SK_SHOW_HAIRCLIP_STATS
-        if (0 == gClipCount % 256)
-            SkDebugf("kill %g reject %g total %d\n", 1.0*gKillClip / gClipCount, 1.0*gRejectClip/gClipCount, gClipCount);
-#endif
     }
 
     if (quick_cubic_niceness_check(pts)) {
@@ -512,7 +522,9 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                  */
                 insetStorage.setEmpty();    // just so we don't pass an inverted rect
             }
-            insetClip = &insetStorage;
+            if (rclip.isRect()) {
+                insetClip = &insetStorage;
+            }
             outsetClip = &outsetStorage;
         }
     }
@@ -541,7 +553,7 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 if (SkPaint::kButt_Cap != capStyle) {
                     extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
                 }
-                hairquad(pts, clip, blitter, compute_quad_level(pts), lineproc);
+                hairquad(pts, clip, insetClip, outsetClip, blitter, compute_quad_level(pts), lineproc);
                 lastPt = pts[2];
                 break;
             case SkPath::kConic_Verb: {
@@ -554,7 +566,7 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                                                        iter.conicWeight(), tol);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     int level = compute_quad_level(quadPts);
-                    hairquad(quadPts, clip, blitter, level, lineproc);
+                    hairquad(quadPts, clip, insetClip, outsetClip, blitter, level, lineproc);
                     quadPts += 2;
                 }
                 lastPt = pts[2];
