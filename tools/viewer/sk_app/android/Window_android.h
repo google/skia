@@ -22,6 +22,7 @@ public:
     void initDisplay(ANativeWindow* window);
     void onDisplayDestroyed();
 
+    const DisplayParams& getDisplayParams() override;
     void setTitle(const char*) override;
     void show() override {}
 
@@ -37,7 +38,6 @@ private:
     SkiaAndroidApp* fSkiaAndroidApp = nullptr;
     SkRect fContentRect;
     DisplayParams fDisplayParams;
-    bool fNativeWindowInitialized = false;
 };
 
 }   // namespace sk_app

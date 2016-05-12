@@ -27,6 +27,16 @@ bool Window_android::init(SkiaAndroidApp* skiaAndroidApp) {
     return true;
 }
 
+const DisplayParams& Window_android::getDisplayParams() {
+    if (fWindowContext) {
+        return fWindowContext->getDisplayParams();
+    } else {
+        // fWindowContext doesn't exist because we haven't
+        // initDisplay yet.
+        return fDisplayParams;
+    }
+}
+
 void Window_android::setTitle(const char* title) {
     //todo
     SkDebugf("Title: %s", title);
@@ -49,11 +59,9 @@ void Window_android::initDisplay(ANativeWindow* window) {
     ContextPlatformData_android platformData;
     platformData.fNativeWindow = window;
     fWindowContext = VulkanWindowContext::Create((void*)&platformData, fDisplayParams);
-    fNativeWindowInitialized = true;
 }
 
 void Window_android::onDisplayDestroyed() {
-    fNativeWindowInitialized = false;
     detach();
 }
 

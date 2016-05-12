@@ -130,7 +130,7 @@ public:
     uint32_t width() { return fWidth; }
     uint32_t height() { return fHeight;  }
 
-    const DisplayParams& getDisplayParams();
+    virtual const DisplayParams& getDisplayParams();
     void setDisplayParams(const DisplayParams& params);
 
 protected:

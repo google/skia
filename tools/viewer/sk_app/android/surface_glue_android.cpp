@@ -11,7 +11,9 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <unordered_map>
 
+#include <android/keycodes.h>
 #include <android/looper.h>
 #include <android/native_window_jni.h>
 
@@ -23,6 +25,11 @@
 namespace sk_app {
 
 static const int LOOPER_ID_MESSAGEPIPE = 1;
+
+static const std::unordered_map<int, Window::Key> ANDROID_TO_WINDOW_KEYMAP({
+    {AKEYCODE_SOFT_LEFT, Window::Key::kLeft},
+    {AKEYCODE_SOFT_RIGHT, Window::Key::kRight}
+});
 
 void* pthread_main(void* arg);
 
@@ -90,7 +97,6 @@ static int message_callback(int fd, int events, void* data) {
                      message.fNativeWindow);
             int width = ANativeWindow_getWidth(skiaAndroidApp->fNativeWindow);
             int height = ANativeWindow_getHeight(skiaAndroidApp->fNativeWindow);
-            skiaAndroidApp->fWindow->onResize(width, height);
             auto window_android = (Window_android*)skiaAndroidApp->fWindow;
             window_android->setContentRect(0, 0, width, height);
             skiaAndroidApp->paintIfNeeded();
@@ -103,6 +109,14 @@ static int message_callback(int fd, int events, void* data) {
                 ANativeWindow_release(skiaAndroidApp->fNativeWindow);
                 skiaAndroidApp->fNativeWindow = nullptr;
             }
+            break;
+        }
+        case kKeyPressed: {
+            auto it = ANDROID_TO_WINDOW_KEYMAP.find(message.keycode);
+            SkASSERT(it != ANDROID_TO_WINDOW_KEYMAP.end());
+            // No modifier is supported so far
+            skiaAndroidApp->fWindow->onKey(it->second, Window::kDown_InputState, 0);
+            skiaAndroidApp->fWindow->onKey(it->second, Window::kUp_InputState, 0);
             break;
         }
         default: {
@@ -169,6 +183,16 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onSurfaceD
     JNIEnv* env, jobject activity, jlong handle) {
     auto skiaAndroidApp = (SkiaAndroidApp*)handle;
     skiaAndroidApp->postMessage(Message(kSurfaceDestroyed));
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onKeyPressed(JNIEnv* env,
+                                                                                   jobject activity,
+                                                                                   jlong handle,
+                                                                                   jint keycode) {
+    auto skiaAndroidApp = (SkiaAndroidApp*)handle;
+    Message message(kKeyPressed);
+    message.keycode = keycode;
+    skiaAndroidApp->postMessage(message);
 }
 
 }  // namespace sk_app

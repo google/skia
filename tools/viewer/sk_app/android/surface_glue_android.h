@@ -23,12 +23,14 @@ enum MessageType {
     kSurfaceChanged,
     kSurfaceDestroyed,
     kDestroyApp,
-    kContentInvalidated
+    kContentInvalidated,
+    kKeyPressed
 };
 
 struct Message {
     MessageType fType = kUndefined;
     ANativeWindow* fNativeWindow = nullptr;
+    int keycode = 0;
 
     Message() {}
     Message(MessageType t) : fType(t) {}
