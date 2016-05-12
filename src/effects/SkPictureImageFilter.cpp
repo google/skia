@@ -177,6 +177,8 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(SkSpecialImage* source,
 
         SkCanvas* localCanvas = localSurface->getCanvas();
         SkASSERT(localCanvas);
+        
+        localCanvas->clear(0x0);
 
         localCanvas->translate(-SkIntToScalar(localIBounds.fLeft),
                                -SkIntToScalar(localIBounds.fTop));
