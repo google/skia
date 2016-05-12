@@ -77,25 +77,25 @@ int sk_typeface_glyph_count (sk_typeface_t* typeface)
 
 void sk_typeface_get_family_name(sk_typeface_t* typeface, sk_string_t* family_name)
 {
-	((SkTypeface*)typeface)->getFamilyName(AsString(family_name));
+    ((SkTypeface*)typeface)->getFamilyName(AsString(family_name));
 }
 
 int sk_typeface_count_tables(sk_typeface_t* typeface)
 {
-	return ((SkTypeface*)typeface)->countTables();
+    return ((SkTypeface*)typeface)->countTables();
 }
 
 int sk_typeface_get_table_tags(sk_typeface_t* typeface, sk_font_table_tag_t tags[])
 {
-	return ((SkTypeface*)typeface)->getTableTags(tags);
+    return ((SkTypeface*)typeface)->getTableTags(tags);
 }
 
 size_t sk_typeface_get_table_size(sk_typeface_t* typeface, sk_font_table_tag_t tag)
 {
-	return ((SkTypeface*)typeface)->getTableSize(tag);
+    return ((SkTypeface*)typeface)->getTableSize(tag);
 }
 
 size_t sk_typeface_get_table_data(sk_typeface_t* typeface, sk_font_table_tag_t tag, size_t offset, size_t length, void* data)
 {
-	return ((SkTypeface*)typeface)->getTableData(tag, offset, length, data);
+    return ((SkTypeface*)typeface)->getTableData(tag, offset, length, data);
 }

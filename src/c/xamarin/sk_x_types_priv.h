@@ -634,11 +634,11 @@ static inline sk_fontmetrics_t* ToFontMetrics(SkPaint::FontMetrics* p) {
 }
 
 static inline SkString* AsString(const sk_string_t* cdata) {
-	return reinterpret_cast<SkString*>(const_cast<sk_string_t*>(cdata));
+    return reinterpret_cast<SkString*>(const_cast<sk_string_t*>(cdata));
 }
 
 static inline sk_string_t* ToString(SkString* data) {
-	return reinterpret_cast<sk_string_t*>(data);
+    return reinterpret_cast<sk_string_t*>(data);
 }
 
 
