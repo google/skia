@@ -405,13 +405,13 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             const int count = SkToInt(size);
             fTFPlayback.setCount(count);
             for (int i = 0; i < count; i++) {
-                SkAutoTUnref<SkTypeface> tf(SkTypeface::Deserialize(stream));
+                sk_sp<SkTypeface> tf(SkTypeface::MakeDeserialize(stream));
                 if (!tf.get()) {    // failed to deserialize
                     // fTFPlayback asserts it never has a null, so we plop in
                     // the default here.
-                    tf.reset(SkTypeface::RefDefault());
+                    tf = SkTypeface::MakeDefault();
                 }
-                fTFPlayback.set(i, tf);
+                fTFPlayback.set(i, tf.get());
             }
         } break;
         case SK_PICT_PICTURE_TAG: {

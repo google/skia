@@ -364,14 +364,14 @@ protected:
         return nullptr;
     }
 
-    static SkTypeface_AndroidSystem* find_family_style_character(
+    static sk_sp<SkTypeface_AndroidSystem> find_family_style_character(
             const SkTDArray<NameToFamily>& fallbackNameToFamilyMap,
             const SkFontStyle& style, bool elegant,
             const SkString& langTag, SkUnichar character)
     {
         for (int i = 0; i < fallbackNameToFamilyMap.count(); ++i) {
             SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
-            SkAutoTUnref<SkTypeface_AndroidSystem> face(family->matchStyle(style));
+            sk_sp<SkTypeface_AndroidSystem> face(family->matchStyle(style));
 
             if (!langTag.isEmpty() && !face->fLang.getTag().startsWith(langTag.c_str())) {
                 continue;
@@ -388,7 +388,7 @@ protected:
             uint16_t glyphID;
             paint.textToGlyphs(&character, sizeof(character), &glyphID);
             if (glyphID != 0) {
-                return face.release();
+                return face;
             }
         }
         return nullptr;
@@ -410,23 +410,23 @@ protected:
             for (int bcp47Index = bcp47Count; bcp47Index --> 0;) {
                 SkLanguage lang(bcp47[bcp47Index]);
                 while (!lang.getTag().isEmpty()) {
-                    SkTypeface_AndroidSystem* matchingTypeface =
+                    sk_sp<SkTypeface_AndroidSystem> matchingTypeface =
                         find_family_style_character(fFallbackNameToFamilyMap,
                                                     style, SkToBool(elegant),
                                                     lang.getTag(), character);
                     if (matchingTypeface) {
-                        return matchingTypeface;
+                        return matchingTypeface.release();
                     }
 
                     lang = lang.getParent();
                 }
             }
-            SkTypeface_AndroidSystem* matchingTypeface =
+            sk_sp<SkTypeface_AndroidSystem> matchingTypeface =
                 find_family_style_character(fFallbackNameToFamilyMap,
                                             style, SkToBool(elegant),
                                             SkString(), character);
             if (matchingTypeface) {
-                return matchingTypeface;
+                return matchingTypeface.release();
             }
         }
         return nullptr;

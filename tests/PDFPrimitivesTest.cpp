@@ -430,7 +430,7 @@ DEF_TEST(PDFFontCanEmbedTypeface, reporter) {
     SkPDFCanon canon;
 
     const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
-    sk_sp<SkTypeface> noEmbedTypeface(GetResourceAsTypeface(resource));
+    sk_sp<SkTypeface> noEmbedTypeface(MakeResourceAsTypeface(resource));
     if (noEmbedTypeface) {
         REPORTER_ASSERT(reporter,
                         !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &canon));

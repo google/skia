@@ -369,7 +369,9 @@ void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fLooper = std::move(looper
         this->f##Field.reset(SkSafeRef(f));         \
         return f;                                   \
     }
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
 SET_PTR(Typeface)
+#endif
 #ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
 SET_PTR(Rasterizer)
 #endif
@@ -1896,7 +1898,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     this->setTextEncoding(static_cast<TextEncoding>((tmp >> 0) & 0xFF));
 
     if (flatFlags & kHasTypeface_FlatFlag) {
-        this->setTypeface(buffer.readTypeface());
+        this->setTypeface(sk_ref_sp(buffer.readTypeface()));
     } else {
         this->setTypeface(nullptr);
     }

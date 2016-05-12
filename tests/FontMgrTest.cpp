@@ -19,7 +19,7 @@
 
 static void test_font(skiatest::Reporter* reporter) {
     uint32_t flags = 0;
-    SkAutoTUnref<SkFont> font(SkFont::Create(nullptr, 24, SkFont::kA8_MaskType, flags));
+    sk_sp<SkFont> font(SkFont::Make(nullptr, 24, SkFont::kA8_MaskType, flags));
 
     REPORTER_ASSERT(reporter, font->getTypeface());
     REPORTER_ASSERT(reporter, 24 == font->getSize());
@@ -39,7 +39,7 @@ static void test_font(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, glyphs[0] != glyphs[1]); // 'h' != 'e'
     REPORTER_ASSERT(reporter, glyphs[2] == glyphs[3]); // 'l' == 'l'
 
-    SkAutoTUnref<SkFont> newFont(font->cloneWithSize(36));
+    sk_sp<SkFont> newFont(font->makeWithSize(36));
     REPORTER_ASSERT(reporter, newFont.get());
     REPORTER_ASSERT(reporter, font->getTypeface() == newFont->getTypeface());
     REPORTER_ASSERT(reporter, 36 == newFont->getSize());   // double check we haven't changed
@@ -47,7 +47,7 @@ static void test_font(skiatest::Reporter* reporter) {
 
     SkPaint paint;
     paint.setTextSize(18);
-    font.reset(SkFont::Testing_CreateFromPaint(paint));
+    font = SkFont::Testing_CreateFromPaint(paint);
     REPORTER_ASSERT(reporter, font.get());
     REPORTER_ASSERT(reporter, font->getSize() == paint.getTextSize());
     REPORTER_ASSERT(reporter, SkFont::kBW_MaskType == font->getMaskType());
@@ -64,14 +64,12 @@ static void test_alias_names(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(inNames); ++i) {
-        SkAutoTUnref<SkTypeface> first(SkTypeface::CreateFromName(inNames[i],
-                                                          SkTypeface::kNormal));
+        sk_sp<SkTypeface> first(SkTypeface::MakeFromName(inNames[i], SkTypeface::kNormal));
         if (nullptr == first.get()) {
             continue;
         }
         for (int j = 0; j < 10; ++j) {
-            SkAutoTUnref<SkTypeface> face(SkTypeface::CreateFromName(inNames[i],
-                                                         SkTypeface::kNormal));
+            sk_sp<SkTypeface> face(SkTypeface::MakeFromName(inNames[i], SkTypeface::kNormal));
     #if 0
             SkString name;
             face->getFamilyName(&name);

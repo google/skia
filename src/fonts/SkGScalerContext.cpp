@@ -151,14 +151,11 @@ void SkGScalerContext::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 
 #include "SkTypefaceCache.h"
 
-SkGTypeface::SkGTypeface(SkTypeface* proxy, const SkPaint& paint)
+SkGTypeface::SkGTypeface(sk_sp<SkTypeface> proxy, const SkPaint& paint)
     : SkTypeface(proxy->fontStyle(), SkTypefaceCache::NewFontID(), false)
-    , fProxy(SkRef(proxy))
-    , fPaint(paint) {}
-
-SkGTypeface::~SkGTypeface() {
-    fProxy->unref();
-}
+    , fProxy(std::move(proxy))
+    , fPaint(paint)
+{}
 
 SkScalerContext* SkGTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                     const SkDescriptor* desc) const {

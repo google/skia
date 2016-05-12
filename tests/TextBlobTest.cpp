@@ -178,12 +178,10 @@ public:
         SkPaint font;
         font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-        SkAutoTUnref<SkTypeface> typeface(SkTypeface::RefDefault());
-
         // Kitchen sink font.
         font.setTextSize(42);
         font.setTextScaleX(4.2f);
-        font.setTypeface(typeface);
+        font.setTypeface(SkTypeface::MakeDefault());
         font.setTextSkewX(0.42f);
         font.setTextAlign(SkPaint::kCenter_Align);
         font.setHinting(SkPaint::kFull_Hinting);

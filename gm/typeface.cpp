@@ -90,7 +90,7 @@ static const struct {
 static const int gFaceStylesCount = SK_ARRAY_COUNT(gFaceStyles);
 
 class TypefaceStylesGM : public skiagm::GM {
-    SkTypeface* fFaces[gFaceStylesCount];
+    sk_sp<SkTypeface> fFaces[gFaceStylesCount];
     bool fApplyKerning;
 
 public:
@@ -99,16 +99,10 @@ public:
         memset(fFaces, 0, sizeof(fFaces));
     }
 
-    virtual ~TypefaceStylesGM() {
-        for (int i = 0; i < gFaceStylesCount; i++) {
-            SkSafeUnref(fFaces[i]);
-        }
-    }
-
 protected:
     void onOnceBeforeDraw() override {
         for (int i = 0; i < gFaceStylesCount; i++) {
-            fFaces[i] = SkTypeface::CreateFromName(
+            fFaces[i] = SkTypeface::MakeFromName(
                     sk_tool_utils::platform_font_name(gFaceStyles[i].fName), gFaceStyles[i].fStyle);
         }
     }

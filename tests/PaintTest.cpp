@@ -80,7 +80,7 @@ DEF_TEST(Paint_cmap, reporter) {
 
     SkRandom rand;
     SkPaint paint;
-    paint.setTypeface(SkTypeface::RefDefault())->unref();
+    paint.setTypeface(SkTypeface::MakeDefault());
     SkTypeface* face = paint.getTypeface();
 
     for (int i = 0; i < 1000; ++i) {
@@ -333,7 +333,7 @@ DEF_TEST(Paint_getHash, r) {
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 
     // SkTypeface is the first field we hash, so test it specially.
-    paint.setTypeface(SkTypeface::RefDefault())->unref();
+    paint.setTypeface(SkTypeface::MakeDefault());
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
     paint.setTypeface(nullptr);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);

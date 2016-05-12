@@ -590,6 +590,7 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_MASKFILTER_PTR",
     "SK_SUPPORT_LEGACY_IMAGEFACTORY",
     "SK_SUPPORT_LEGACY_XFERMODE_PTR",
+    "SK_SUPPORT_LEGACY_TYPEFACE_PTR",
 ]
 
 ################################################################################

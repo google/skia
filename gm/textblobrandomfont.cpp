@@ -39,13 +39,12 @@ protected:
         paint.setLCDRenderText(true);
 
         // Setup our random scaler context
-        SkAutoTUnref<SkTypeface> orig(sk_tool_utils::create_portable_typeface("sans-serif",
-                                                                              SkTypeface::kBold));
+        sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface("sans-serif",
+                                                                       SkTypeface::kBold));
         if (nullptr == orig) {
-            orig.reset(SkTypeface::RefDefault());
+            orig = SkTypeface::MakeDefault();
         }
-        SkAutoTUnref<SkTypeface> random(new SkRandomTypeface(orig, paint, false));
-        paint.setTypeface(random);
+        paint.setTypeface(sk_make_sp<SkRandomTypeface>(orig, paint, false));
 
         SkRect bounds;
         paint.measureText(text, strlen(text), &bounds);
@@ -66,16 +65,14 @@ protected:
         sk_tool_utils::add_to_text_blob(&builder, bigtext2, paint, 0, offset);
 
         // color emoji
-        SkAutoTUnref<SkTypeface> origEmoji;
-        sk_tool_utils::emoji_typeface(&origEmoji);
+        sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface();
         const char* osName = sk_tool_utils::platform_os_name();
         // The mac emoji string will break us
         if (origEmoji && (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu"))) {
             const char* emojiText = sk_tool_utils::emoji_sample_text();
             paint.measureText(emojiText, strlen(emojiText), &bounds);
             offset += bounds.height();
-            SkAutoTUnref<SkTypeface> randomEmoji(new SkRandomTypeface(orig, paint, false));
-            paint.setTypeface(randomEmoji);
+            paint.setTypeface(sk_make_sp<SkRandomTypeface>(orig, paint, false));
             sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, offset);
         }
 

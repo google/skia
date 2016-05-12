@@ -18,10 +18,9 @@
 
 class SkRandomTypeface : public SkTypeface {
 public:
-    SkRandomTypeface(SkTypeface* proxy, const SkPaint&, bool fakeit);
-    virtual ~SkRandomTypeface();
+    SkRandomTypeface(sk_sp<SkTypeface> proxy, const SkPaint&, bool fakeit);
 
-    SkTypeface* proxy() const { return fProxy; }
+    SkTypeface* proxy() const { return fProxy.get(); }
     const SkPaint& paint() const { return fPaint; }
 
 protected:
@@ -48,9 +47,9 @@ protected:
                           size_t length, void* data) const override;
 
 private:
-    SkTypeface* fProxy;
-    SkPaint     fPaint;
-    bool        fFakeIt;
+    sk_sp<SkTypeface>   fProxy;
+    SkPaint             fPaint;
+    bool                fFakeIt;
 };
 
 #endif

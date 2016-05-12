@@ -614,8 +614,10 @@ public:
                         paint
         @return         typeface
     */
-    SkTypeface* setTypeface(SkTypeface* typeface);
     void setTypeface(sk_sp<SkTypeface>);
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
+    SkTypeface* setTypeface(SkTypeface* typeface);
+#endif
 
     /** Get the paint's rasterizer (or NULL).
         <p />

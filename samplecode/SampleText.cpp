@@ -122,7 +122,7 @@ protected:
 
   //      canvas->drawText(style, strlen(style), SkIntToScalar(20), SkIntToScalar(20), paint);
 
-        SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromFile("/skimages/samplefont.ttf")));
+        paint.setTypeface(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
         paint.setAntiAlias(true);
         paint.setFlags(paint.getFlags() | gHints[index].fFlags);
 

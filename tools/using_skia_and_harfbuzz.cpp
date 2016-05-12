@@ -142,9 +142,7 @@ struct Face {
     auto data = SkData::MakeFromFileName(path);
     assert(data);
     if (!data) { return; }
-    fSkiaTypeface.reset(
-      SkTypeface::CreateFromStream(
-        new SkMemoryStream(data), index));
+    fSkiaTypeface = SkTypeface::MakeFromStream(new SkMemoryStream(data), index);
     assert(fSkiaTypeface);
     if (!fSkiaTypeface) { return; }
     auto destroy = [](void *d) { static_cast<SkData*>(d)->unref(); };

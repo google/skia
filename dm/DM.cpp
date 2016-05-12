@@ -1286,7 +1286,7 @@ SkThread* start_status_thread() {
 
 #define PORTABLE_FONT_PREFIX "Toy Liberation "
 
-static SkTypeface* create_from_name(const char familyName[], SkTypeface::Style style) {
+static sk_sp<SkTypeface> create_from_name(const char familyName[], SkTypeface::Style style) {
     if (familyName && strlen(familyName) > sizeof(PORTABLE_FONT_PREFIX)
             && !strncmp(familyName, PORTABLE_FONT_PREFIX, sizeof(PORTABLE_FONT_PREFIX) - 1)) {
         return sk_tool_utils::create_portable_typeface(familyName, style);
@@ -1296,7 +1296,7 @@ static SkTypeface* create_from_name(const char familyName[], SkTypeface::Style s
 
 #undef PORTABLE_FONT_PREFIX
 
-extern SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style );
+extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style );
 
 int dm_main();
 int dm_main() {

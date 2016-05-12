@@ -77,7 +77,7 @@ public:
             // we're jamming values into utf8, so we must keep it legal utf8
             fText[i] = 'A' + (i & 31);
         }
-        fPaint.setTypeface(SkTypeface::RefDefault())->unref();
+        fPaint.setTypeface(SkTypeface::MakeDefault());
     }
 
 protected:

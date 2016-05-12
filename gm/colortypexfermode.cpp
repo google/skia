@@ -19,13 +19,7 @@ class ColorTypeXfermodeGM : public GM {
 public:
     const static int W = 64;
     const static int H = 64;
-    ColorTypeXfermodeGM()
-        : fColorType(nullptr) {
-    }
-
-    virtual ~ColorTypeXfermodeGM() {
-        SkSafeUnref(fColorType);
-    }
+    ColorTypeXfermodeGM() {}
 
 protected:
     void onOnceBeforeDraw() override {
@@ -40,12 +34,11 @@ protected:
         paint.setShader(SkGradientShader::MakeSweep(0, 0, colors, nullptr, SK_ARRAY_COUNT(colors),
                                                     0, &local));
 
-        SkTypeface* orig = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kBold);
+        sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface("serif", SkTypeface::kBold));
         if (nullptr == orig) {
-            orig = SkTypeface::RefDefault();
+            orig = SkTypeface::MakeDefault();
         }
-        fColorType = new SkGTypeface(orig, paint);
-        orig->unref();
+        fColorType = sk_make_sp<SkGTypeface>(orig, paint);
 
         fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,
                                             kOpaque_SkAlphaType), gData, 4);
@@ -149,8 +142,8 @@ protected:
     }
 
 private:
-    SkBitmap    fBG;
-    SkTypeface* fColorType;
+    SkBitmap            fBG;
+    sk_sp<SkTypeface>   fColorType;
 
     typedef GM INHERITED;
 };

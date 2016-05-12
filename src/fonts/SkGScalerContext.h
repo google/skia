@@ -13,10 +13,9 @@
 
 class SkGTypeface : public SkTypeface {
 public:
-    SkGTypeface(SkTypeface* proxy, const SkPaint&);
-    virtual ~SkGTypeface();
+    SkGTypeface(sk_sp<SkTypeface> proxy, const SkPaint&);
 
-    SkTypeface* proxy() const { return fProxy; }
+    SkTypeface* proxy() const { return fProxy.get(); }
     const SkPaint& paint() const { return fPaint; }
 
 protected:
@@ -43,8 +42,8 @@ protected:
                           size_t length, void* data) const override;
 
 private:
-    SkTypeface* fProxy;
-    SkPaint     fPaint;
+    sk_sp<SkTypeface>   fProxy;
+    SkPaint             fPaint;
 };
 
 #endif
