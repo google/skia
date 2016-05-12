@@ -473,69 +473,6 @@ static void test_savelayer_extraction(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_has_text(skiatest::Reporter* reporter) {
-    SkPictureRecorder recorder;
-
-    SkCanvas* canvas = recorder.beginRecording(100,100);
-    {
-        canvas->drawRect(SkRect::MakeWH(20, 20), SkPaint());
-    }
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-    REPORTER_ASSERT(reporter, !picture->hasText());
-
-    SkPoint point = SkPoint::Make(10, 10);
-    canvas = recorder.beginRecording(100,100);
-    {
-        canvas->drawText("Q", 1, point.fX, point.fY, SkPaint());
-    }
-    picture = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(reporter, picture->hasText());
-
-    canvas = recorder.beginRecording(100,100);
-    {
-        canvas->drawPosText("Q", 1, &point, SkPaint());
-    }
-    picture = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(reporter, picture->hasText());
-
-    canvas = recorder.beginRecording(100,100);
-    {
-        canvas->drawPosTextH("Q", 1, &point.fX, point.fY, SkPaint());
-    }
-    picture = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(reporter, picture->hasText());
-
-    canvas = recorder.beginRecording(100,100);
-    {
-        SkPath path;
-        path.moveTo(0, 0);
-        path.lineTo(50, 50);
-
-        canvas->drawTextOnPathHV("Q", 1, path, point.fX, point.fY, SkPaint());
-    }
-    picture = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(reporter, picture->hasText());
-
-    canvas = recorder.beginRecording(100,100);
-    {
-        SkPath path;
-        path.moveTo(0, 0);
-        path.lineTo(50, 50);
-
-        canvas->drawTextOnPath("Q", 1, path, nullptr, SkPaint());
-    }
-    picture = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(reporter, picture->hasText());
-
-    // Nest the previous picture inside a new one.
-    canvas = recorder.beginRecording(100,100);
-    {
-        canvas->drawPicture(picture.get());
-    }
-    picture = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(reporter, picture->hasText());
-}
-
 static void set_canvas_to_save_count_4(SkCanvas* canvas) {
     canvas->restoreToCount(1);
     canvas->save();
@@ -1180,7 +1117,6 @@ static void test_typeface(skiatest::Reporter* reporter) {
     paint.setTypeface(SkTypeface::MakeFromName("Arial", SkTypeface::kItalic));
     canvas->drawText("Q", 1, 0, 10, paint);
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-    REPORTER_ASSERT(reporter, picture->hasText());
     SkDynamicMemoryWStream stream;
     picture->serialize(&stream);
 }
@@ -1198,7 +1134,6 @@ DEF_TEST(Picture, reporter) {
 #if SK_SUPPORT_GPU
     test_gpu_veto(reporter);
 #endif
-    test_has_text(reporter);
     test_images_are_found_by_willPlayBackBitmaps(reporter);
     test_analysis(reporter);
     test_clip_bound_opt(reporter);

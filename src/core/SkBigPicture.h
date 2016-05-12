@@ -47,7 +47,6 @@ public:
 // SkPicture overrides
     void playback(SkCanvas*, AbortCallback*) const override;
     SkRect cullRect() const override;
-    bool hasText() const override;
     bool willPlayBackBitmaps() const override;
     int approximateOpCount() const override;
     size_t approximateBytesUsed() const override;
@@ -71,7 +70,6 @@ private:
 
         uint8_t fNumSlowPathsAndDashEffects;
         bool    fWillPlaybackBitmaps : 1;
-        bool    fHasText             : 1;
     };
 
     int numSlowPaths() const override;

@@ -23,7 +23,6 @@ public:
     size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 0; }
     SkRect cullRect()             const override { return SkRect::MakeEmpty(); }
-    bool   hasText()              const override { return false; }
     int    numSlowPaths()         const override { return 0; }
     bool   willPlayBackBitmaps()  const override { return false; }
 };
@@ -42,7 +41,6 @@ public:
     size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 1; }
     SkRect cullRect()             const override { return fCull; }
-    bool   hasText()              const override { return SkTextHunter()(fOp); }
     bool   willPlayBackBitmaps()  const override { return SkBitmapHunter()(fOp); }
     int    numSlowPaths()         const override {
         SkPathCounter counter;
