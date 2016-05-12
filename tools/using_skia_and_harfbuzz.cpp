@@ -9,9 +9,11 @@
 // produce a PDF file from UTF-8 text in stdin.
 
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <string>
+#include <sstream>
 
 #include <hb-ot.h>
 
@@ -46,7 +48,9 @@ struct DoubleOption : Option<double> {
     value = atof(_value.c_str());
   }
   virtual std::string valueToString() {
-    return std::to_string(value);
+      std::ostringstream stm;
+      stm << value;
+      return stm.str();
   }
   DoubleOption(std::string selector, std::string description, double defaultValue) :
     Option<double>(selector, description, defaultValue) {}
