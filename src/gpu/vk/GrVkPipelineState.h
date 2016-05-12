@@ -200,7 +200,8 @@ private:
 
     void writeUniformBuffers(const GrVkGpu* gpu);
 
-    void writeSamplers(GrVkGpu* gpu, const SkTArray<const GrTextureAccess*>& textureBindings);
+    void writeSamplers(GrVkGpu* gpu, const SkTArray<const GrTextureAccess*>& textureBindings,
+                       bool allowSRGBInputs);
 
     /**
     * We use the RT's size and origin to adjust from Skia device space to vulkan normalized device

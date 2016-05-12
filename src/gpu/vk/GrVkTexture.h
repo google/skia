@@ -31,7 +31,7 @@ public:
 
     void textureParamsModified() override {}
 
-    const GrVkImageView* textureView() const { return fTextureView; }
+    const GrVkImageView* textureView(bool allowSRGB);
 
     bool reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels);
 
@@ -56,6 +56,7 @@ private:
                 const GrVkImage::Resource*, const GrVkImageView* imageView);
 
     const GrVkImageView*     fTextureView;
+    const GrVkImageView*     fLinearTextureView;
 
     typedef GrTexture INHERITED;
 };
