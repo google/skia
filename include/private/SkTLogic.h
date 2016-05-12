@@ -53,8 +53,12 @@ template <typename R, typename... Args> struct is_function<R __fastcall (Args...
 template <typename R, typename... Args> struct is_function<R __vectorcall (Args...)> : std::true_type {};
 #endif
 #else
+#if defined(_M_ARM)
+template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> : std::true_type {};
+#else
 template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> : std::true_type {};
 template <typename R, typename... Args> struct is_function<R __vectorcall (Args...)> : std::true_type {};
+#endif
 #endif
 #endif
 template <typename R, typename... Args> struct is_function<R(Args..., ...)> : std::true_type {};

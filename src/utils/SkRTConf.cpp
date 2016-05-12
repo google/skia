@@ -249,6 +249,7 @@ template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
         }
     }
 
+#ifndef SK_BUILD_FOR_WINRT
     SkString environment_variable("skia.");
     environment_variable.append(name);
 
@@ -265,6 +266,7 @@ template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
             str = environment_value;
         }
     }
+#endif // SK_BUILD_FOR_WINRT
 
     if (!str) {
         return false;
