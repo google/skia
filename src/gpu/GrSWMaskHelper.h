@@ -94,6 +94,7 @@ public:
     static void DrawToTargetWithPathMask(GrTexture* texture,
                                          GrDrawTarget* target,
                                          GrPipelineBuilder* pipelineBuilder,
+                                         const GrClip&,
                                          GrColor,
                                          const SkMatrix& viewMatrix,
                                          const SkIRect& rect);

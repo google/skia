@@ -10,7 +10,6 @@
 
 #include "GrBlend.h"
 #include "GrCaps.h"
-#include "GrClip.h"
 #include "GrGpuResourceRef.h"
 #include "GrProcOptInfo.h"
 #include "GrRenderTarget.h"
@@ -37,7 +36,7 @@ public:
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    GrPipelineBuilder(const GrPaint&, GrRenderTarget*, const GrClip&);
+    GrPipelineBuilder(const GrPaint&, GrRenderTarget*);
 
     virtual ~GrPipelineBuilder();
 
@@ -322,9 +321,6 @@ public:
 
     bool usePLSDstRead(const GrDrawBatch* batch) const;
 
-    void setClip(const GrClip& clip) { fClip = clip; }
-    const GrClip& clip() const { return fClip; }
-
 private:
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
@@ -339,7 +335,6 @@ private:
     mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
     FragmentProcessorArray                  fColorFragmentProcessors;
     FragmentProcessorArray                  fCoverageFragmentProcessors;
-    GrClip                                  fClip;
 
     friend class GrPipeline;
     friend class GrDrawTarget;

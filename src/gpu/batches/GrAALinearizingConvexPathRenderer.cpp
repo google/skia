@@ -335,7 +335,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     geometry.fMiterLimit = args.fStyle->strokeRec().getMiter();
 
     SkAutoTUnref<GrDrawBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
+    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
 
     return true;
 }

@@ -253,13 +253,15 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 #define RETURN_IF_ABANDONED        if (fDrawContext->fDrawingManager->abandoned()) { return; }
 
 void GrDrawContextPriv::testingOnly_drawBatch(const GrPipelineBuilder& pipelineBuilder,
-                                              GrDrawBatch* batch) {
+                                              GrDrawBatch* batch,
+                                              const GrClip* clip) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(fDrawContext->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::testingOnly_drawBatch");
 
-    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    const GrClip& drawClip = clip ? *clip : GrClip::WideOpen();
+    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, drawClip, batch);
 }
 
 #undef ASSERT_SINGLE_OWNER

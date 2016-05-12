@@ -564,7 +564,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                      *args.fViewMatrix, fAtlas,
                                                                      &fPathCache, &fPathList,
                                                                      args.fGammaCorrect));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
+    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
 
     return true;
 }

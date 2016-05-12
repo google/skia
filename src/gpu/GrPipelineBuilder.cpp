@@ -22,7 +22,7 @@ GrPipelineBuilder::GrPipelineBuilder()
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
-GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip)
+GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt)
     : GrPipelineBuilder() {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
@@ -37,8 +37,6 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
     fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
     this->setRenderTarget(rt);
-
-    fClip = clip;
 
     this->setState(GrPipelineBuilder::kHWAntialias_Flag,
                    rt->isUnifiedMultisampled() && paint.isAntiAlias());

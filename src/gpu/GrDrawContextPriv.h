@@ -17,7 +17,7 @@ struct GrUserStencilSettings;
     data members or virtual methods. */
 class GrDrawContextPriv {
 public:
-    bool drawAndStencilRect(const SkIRect* scissorRect,
+    bool drawAndStencilRect(const GrClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
@@ -25,7 +25,7 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkRect&);
 
-    bool drawAndStencilPath(const SkIRect* scissorRect,
+    bool drawAndStencilPath(const GrClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
@@ -34,7 +34,8 @@ public:
                             const SkPath&);
 
     void testingOnly_drawBatch(const GrPipelineBuilder& pipelineBuilder,
-                               GrDrawBatch* batch);
+                               GrDrawBatch* batch,
+                               const GrClip* = nullptr);
 
 private:
     explicit GrDrawContextPriv(GrDrawContext* drawContext) : fDrawContext(drawContext) {}

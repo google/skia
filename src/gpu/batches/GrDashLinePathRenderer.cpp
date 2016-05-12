@@ -33,6 +33,6 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
 
-    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
+    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
     return true;
 }

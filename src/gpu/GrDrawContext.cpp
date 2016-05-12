@@ -235,8 +235,8 @@ void GrDrawContext::drawPaint(const GrClip& clip,
         SkAutoTUnref<GrDrawBatch> batch(
                 GrRectBatchFactory::CreateNonAAFill(paint->getColor(), SkMatrix::I(), r, nullptr,
                                                     &localMatrix));
-        GrPipelineBuilder pipelineBuilder(*paint, fRenderTarget.get(), clip);
-        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+        GrPipelineBuilder pipelineBuilder(*paint, fRenderTarget.get());
+        this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
     }
 }
 
@@ -357,14 +357,14 @@ void GrDrawContext::drawRect(const GrClip& clip,
     }
 
     if (batch) {
-        GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
+        GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
 
         if (snapToPixelCenters) {
             pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
                                      snapToPixelCenters);
         }
 
-        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+        this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
         return;
     }
 
@@ -374,7 +374,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, *style);
 }
 
-bool GrDrawContextPriv::drawAndStencilRect(const SkIRect* scissorRect,
+bool GrDrawContextPriv::drawAndStencilRect(const GrClip& clip,
                                            const GrUserStencilSettings* ss,
                                            SkRegion::Op op,
                                            bool invert,
@@ -394,19 +394,17 @@ bool GrDrawContextPriv::drawAndStencilRect(const SkIRect* scissorRect,
 
     SkAutoTUnref<GrDrawBatch> batch(fDrawContext->getFillRectBatch(paint, viewMatrix, rect));
     if (batch) {
-        GrPipelineBuilder pipelineBuilder(paint,
-                                          fDrawContext->accessRenderTarget(),
-                                          GrClip::WideOpen());
+        GrPipelineBuilder pipelineBuilder(paint, fDrawContext->accessRenderTarget());
         pipelineBuilder.setUserStencil(ss);
 
-        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, batch, scissorRect);
+        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
         return true;
     }
 
     SkPath path;
     path.setIsVolatile(true);
     path.addRect(rect);
-    return this->drawAndStencilPath(scissorRect, ss, op, invert, doAA, viewMatrix, path);
+    return this->drawAndStencilPath(clip, ss, op, invert, doAA, viewMatrix, path);
 }
 
 void GrDrawContext::fillRectToRect(const GrClip& clip,
@@ -432,8 +430,8 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     }
 
     if (batch) {
-        GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-        this->drawBatch(&pipelineBuilder, batch);
+        GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+        this->drawBatch(&pipelineBuilder, clip, batch);
     }
 }
 
@@ -459,8 +457,8 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
                                                         nullptr, &localMatrix));
     }
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
 }
 
 void GrDrawContext::drawVertices(const GrClip& clip,
@@ -504,8 +502,8 @@ void GrDrawContext::drawVertices(const GrClip& clip,
                                                                 indexCount, colors, texCoords,
                                                                 bounds));
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -529,8 +527,8 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
     SkAutoTUnref<GrDrawBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount,
                                                              xform, texRect, colors));
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -562,8 +560,8 @@ void GrDrawContext::drawRRect(const GrClip& clip,
                                                                          stroke,
                                                                          shaderCaps));
         if (batch) {
-            GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-            this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+            GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+            this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
             return;
         }
     }
@@ -656,7 +654,6 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
     path.addRRect(outer);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
     this->internalDrawPath(clip, paint, viewMatrix, path, GrStyle::SimpleFill());
 }
 
@@ -688,8 +685,8 @@ void GrDrawContext::drawOval(const GrClip& clip,
                                                                         stroke,
                                                                         shaderCaps));
         if (batch) {
-            GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-            this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+            GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+            this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
             return;
         }
     }
@@ -718,8 +715,8 @@ void GrDrawContext::drawImageNine(const GrClip& clip,
                                                              imageWidth, imageHeight,
                                                              center, dst));
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
 }
 
 
@@ -778,8 +775,8 @@ void GrDrawContext::drawBatch(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
 }
 
 void GrDrawContext::drawPath(const GrClip& clip,
@@ -810,8 +807,8 @@ void GrDrawContext::drawPath(const GrClip& clip,
                 SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateAAFillNestedRects(
                     paint.getColor(), viewMatrix, rects));
                 if (batch) {
-                    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-                    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+                    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+                    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
                 }
                 return;
             }
@@ -827,8 +824,8 @@ void GrDrawContext::drawPath(const GrClip& clip,
                                                                             style.strokeRec(),
                                                                             shaderCaps));
             if (batch) {
-                GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
-                this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+                GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
+                this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
                 return;
             }
         }
@@ -842,7 +839,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, style);
 }
 
-bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
+bool GrDrawContextPriv::drawAndStencilPath(const GrClip& clip,
                                            const GrUserStencilSettings* ss,
                                            SkRegion::Op op,
                                            bool invert,
@@ -855,7 +852,7 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
     GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::drawPath");
 
     if (path.isEmpty() && path.isInverseFillType()) {
-        this->drawAndStencilRect(scissorRect, ss, op, invert, false, SkMatrix::I(),
+        this->drawAndStencilRect(clip, ss, op, invert, false, SkMatrix::I(),
                                  SkRect::MakeIWH(fDrawContext->width(),
                                                  fDrawContext->height()));
         return true;
@@ -893,20 +890,14 @@ bool GrDrawContextPriv::drawAndStencilPath(const SkIRect* scissorRect,
     GrPaint paint;
     paint.setCoverageSetOpXPFactory(op, invert);
 
-    // TODO: it is unfortunate that we have to convert this to a GrClip to
-    // call drawPath.
-    GrClip clip;
-    if (scissorRect) {
-        clip.setIRect(*scissorRect);
-    }
-
-    GrPipelineBuilder pipelineBuilder(paint, fDrawContext->accessRenderTarget(), clip);
+    GrPipelineBuilder pipelineBuilder(paint, fDrawContext->accessRenderTarget());
     pipelineBuilder.setUserStencil(ss);
 
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = fDrawContext->getDrawTarget();
     args.fResourceProvider = fDrawContext->fDrawingManager->getContext()->resourceProvider();
     args.fPipelineBuilder = &pipelineBuilder;
+    args.fClip = &clip;
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &viewMatrix;
     args.fPath = &path;
@@ -1005,12 +996,13 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
         return;
     }
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get(), clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget.get());
 
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = this->getDrawTarget();
     args.fResourceProvider = fDrawingManager->getContext()->resourceProvider();
     args.fPipelineBuilder = &pipelineBuilder;
+    args.fClip = &clip;
     args.fColor = paint.getColor();
     args.fViewMatrix = &viewMatrix;
     args.fPath = canDrawArgs.fPath;
@@ -1020,11 +1012,12 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     pr->drawPath(args);
 }
 
-void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* batch) {
+void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, const GrClip& clip,
+                              GrDrawBatch* batch) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawBatch");
 
-    this->getDrawTarget()->drawBatch(*pipelineBuilder, batch);
+    this->getDrawTarget()->drawBatch(*pipelineBuilder, clip, batch);
 }

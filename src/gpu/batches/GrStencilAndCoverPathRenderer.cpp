@@ -69,7 +69,8 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     SkASSERT(!args.fPath->isInverseFillType());
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fPath, GrStyle::SimpleFill()));
-    args.fTarget->stencilPath(*args.fPipelineBuilder, *args.fViewMatrix, p, p->getFillType());
+    args.fTarget->stencilPath(*args.fPipelineBuilder, *args.fClip, *args.fViewMatrix, p,
+                              p->getFillType());
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -107,7 +108,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         pipelineBuilder->setUserStencil(&kInvertedCoverPass);
 
         // fake inverse with a stencil and cover
-        args.fTarget->stencilPath(*pipelineBuilder, viewMatrix, p, p->getFillType());
+        args.fTarget->stencilPath(*pipelineBuilder, *args.fClip, viewMatrix, p, p->getFillType());
 
         SkMatrix invert = SkMatrix::I();
         SkRect bounds =
@@ -134,7 +135,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkAutoTUnref<GrDrawBatch> batch(
                 GrRectBatchFactory::CreateNonAAFill(args.fColor, viewM, bounds, nullptr,
                                                     &invert));
-        args.fTarget->drawBatch(*pipelineBuilder, batch);
+        args.fTarget->drawBatch(*pipelineBuilder, *args.fClip, batch);
     } else {
         static constexpr GrUserStencilSettings kCoverPass(
             GrUserStencilSettings::StaticInit<
@@ -149,7 +150,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         pipelineBuilder->setUserStencil(&kCoverPass);
         SkAutoTUnref<GrDrawBatch> batch(
                 GrDrawPathBatch::Create(viewMatrix, args.fColor, p->getFillType(), p));
-        args.fTarget->drawBatch(*pipelineBuilder, batch);
+        args.fTarget->drawBatch(*pipelineBuilder, *args.fClip, batch);
     }
 
     pipelineBuilder->disableUserStencil();

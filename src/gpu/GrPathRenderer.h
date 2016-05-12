@@ -111,6 +111,7 @@ public:
      * fTarget                The target that the path will be rendered to
      * fResourceProvider      The resource provider for creating gpu resources to render the path
      * fPipelineBuilder       The pipelineBuilder
+     * fClip                  The clip
      * fColor                 Color to render with
      * fViewMatrix            The viewMatrix
      * fPath                  the path to draw.
@@ -122,6 +123,7 @@ public:
         GrDrawTarget*               fTarget;
         GrResourceProvider*         fResourceProvider;
         GrPipelineBuilder*          fPipelineBuilder;
+        const GrClip*               fClip;
         GrColor                     fColor;
         const SkMatrix*             fViewMatrix;
         const SkPath*               fPath;
@@ -133,6 +135,7 @@ public:
             SkASSERT(fTarget);
             SkASSERT(fResourceProvider);
             SkASSERT(fPipelineBuilder);
+            SkASSERT(fClip);
             SkASSERT(fViewMatrix);
             SkASSERT(fPath);
             SkASSERT(fStyle);
@@ -178,6 +181,7 @@ public:
         GrDrawTarget*       fTarget;
         GrResourceProvider* fResourceProvider;
         GrPipelineBuilder*  fPipelineBuilder;
+        const GrClip*       fClip;
         const SkMatrix*     fViewMatrix;
         const SkPath*       fPath;
 

@@ -331,9 +331,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     // dummy scissor state
     GrScissorState scissor;
 
-    // wide open clip
-    GrClip clip;
-
     SkRandom random;
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
@@ -347,7 +344,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.setRenderTarget(rt.get());
-        pipelineBuilder.setClip(clip);
 
         SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
@@ -387,7 +383,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             GrPipelineBuilder builder;
             builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
             builder.setRenderTarget(rt.get());
-            builder.setClip(clip);
 
             SkAutoTUnref<const GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::CreateIdx(i, &ptd));

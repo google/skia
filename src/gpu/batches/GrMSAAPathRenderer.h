@@ -23,6 +23,7 @@ private:
 
     bool internalDrawPath(GrDrawTarget*,
                           GrPipelineBuilder*,
+                          const GrClip&,
                           GrColor,
                           const SkMatrix& viewMatrix,
                           const SkPath&,

@@ -82,9 +82,9 @@ void GrStencilAndCoverTextContext::drawText(GrContext* context, GrDrawContext* d
     } else if (this->canDraw(skPaint, viewMatrix)) {
         if (skPaint.getTextSize() > 0) {
             TextRun run(skPaint);
-            GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget(), clip);
+            GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget());
             run.setText(text, byteLength, x, y);
-            run.draw(context, dc, &pipelineBuilder, paint.getColor(), viewMatrix, props, 0, 0,
+            run.draw(context, dc, &pipelineBuilder, clip, paint.getColor(), viewMatrix, props, 0, 0,
                      clipBounds, fFallbackTextContext, skPaint);
         }
         return;
@@ -117,9 +117,9 @@ void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrDrawContext
     } else if (this->canDraw(skPaint, viewMatrix)) {
         if (skPaint.getTextSize() > 0) {
             TextRun run(skPaint);
-            GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget(), clip);
+            GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget());
             run.setPosText(text, byteLength, pos, scalarsPerPosition, offset);
-            run.draw(context, dc, &pipelineBuilder, paint.getColor(), viewMatrix, props, 0, 0,
+            run.draw(context, dc, &pipelineBuilder, clip, paint.getColor(), viewMatrix, props, 0, 0,
                      clipBounds, fFallbackTextContext, skPaint);
         }
         return;
@@ -225,11 +225,11 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrDrawContex
     }
 
     const TextBlob& blob = this->findOrCreateTextBlob(skBlob, skPaint);
-    GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget(), clip);
+    GrPipelineBuilder pipelineBuilder(paint, dc->accessRenderTarget());
 
     TextBlob::Iter iter(blob);
     for (TextRun* run = iter.get(); run; run = iter.next()) {
-        run->draw(context, dc, &pipelineBuilder, paint.getColor(), viewMatrix, props,  x, y,
+        run->draw(context, dc, &pipelineBuilder, clip, paint.getColor(), viewMatrix, props,  x, y,
                   clipBounds, fFallbackTextContext, skPaint);
         run->releaseGlyphCache();
     }
@@ -597,6 +597,7 @@ inline void GrStencilAndCoverTextContext::TextRun::appendGlyph(const SkGlyph& gl
 void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  GrDrawContext* dc,
                                                  GrPipelineBuilder* pipelineBuilder,
+                                                 const GrClip& clip,
                                                  GrColor color,
                                                  const SkMatrix& viewMatrix,
                                                  const SkSurfaceProps& props,
@@ -643,7 +644,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                          GrPathRendering::kWinding_FillType, glyphs, fInstanceData,
                                          bounds));
 
-        dc->drawBatch(pipelineBuilder, batch);
+        dc->drawBatch(pipelineBuilder, clip, batch);
     }
 
     if (fFallbackTextBlob) {
@@ -653,9 +654,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
             fallbackSkPaint.setStrokeWidth(fStyle.strokeRec().getWidth() * fTextRatio);
         }
 
-        fallbackTextContext->drawTextBlob(ctx, dc, pipelineBuilder->clip(), fallbackSkPaint,
-                                          viewMatrix, props, fFallbackTextBlob, x, y, nullptr,
-                                          clipBounds);
+        fallbackTextContext->drawTextBlob(ctx, dc, clip, fallbackSkPaint, viewMatrix, props,
+                                          fFallbackTextBlob, x, y, nullptr, clipBounds);
     }
 }
 

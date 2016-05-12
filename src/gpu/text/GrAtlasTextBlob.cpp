@@ -300,8 +300,8 @@ inline GrDrawBatch* GrAtlasTextBlob::createBatch(
 
 inline
 void GrAtlasTextBlob::flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBuilder,
-                               int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                               GrColor color,
+                               const GrClip& clip, int run, const SkMatrix& viewMatrix, SkScalar x,
+                               SkScalar y, GrColor color,
                                const SkPaint& skPaint, const SkSurfaceProps& props,
                                const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                GrBatchFontCache* cache) {
@@ -317,7 +317,7 @@ void GrAtlasTextBlob::flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBui
                                                           skPaint, props,
                                                           distanceAdjustTable, dc->isGammaCorrect(),
                                                           cache));
-        dc->drawBatch(pipelineBuilder, batch);
+        dc->drawBatch(pipelineBuilder, clip, batch);
     }
 }
 
@@ -416,7 +416,7 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
                                   SkScalar x, SkScalar y) {
     // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
     // it as paths
-    GrPipelineBuilder pipelineBuilder(grPaint, dc->accessRenderTarget(), clip);
+    GrPipelineBuilder pipelineBuilder(grPaint, dc->accessRenderTarget());
 
     GrColor color = grPaint.getColor();
 
@@ -427,7 +427,7 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
                                   drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }
-        this->flushRun(dc, &pipelineBuilder, run, viewMatrix, x, y, color, skPaint, props,
+        this->flushRun(dc, &pipelineBuilder, clip, run, viewMatrix, x, y, color, skPaint, props,
                        distanceAdjustTable, context->getBatchFontCache());
     }
 
@@ -445,11 +445,11 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context,
                                      const SkMatrix& viewMatrix,
                                      const SkIRect& clipBounds,
                                      SkScalar x, SkScalar y) {
-    GrPipelineBuilder pipelineBuilder(grPaint, dc->accessRenderTarget(), clip);
+    GrPipelineBuilder pipelineBuilder(grPaint, dc->accessRenderTarget());
 
     GrColor color = grPaint.getColor();
     for (int run = 0; run < fRunCount; run++) {
-        this->flushRun(dc, &pipelineBuilder, run, viewMatrix, x, y, color, skPaint, props,
+        this->flushRun(dc, &pipelineBuilder, clip, run, viewMatrix, x, y, color, skPaint, props,
                        distanceAdjustTable, context->getBatchFontCache());
     }
 

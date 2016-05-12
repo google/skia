@@ -419,6 +419,7 @@ private:
 
 bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                              GrPipelineBuilder* pipelineBuilder,
+                                             const GrClip& clip,
                                              GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const SkPath& path,
@@ -573,7 +574,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             SkAutoTUnref<GrDrawBatch> batch(
                     GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
                                                         &localMatrix));
-            target->drawBatch(*pipelineBuilder, batch);
+            target->drawBatch(*pipelineBuilder, clip, batch);
         } else {
             if (passCount > 1) {
                 pipelineBuilder->setDisableColorXPFactory();
@@ -588,7 +589,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                                                      viewMatrix, isHairline,
                                                                      devBounds));
 
-            target->drawBatch(*pipelineBuilder, batch);
+            target->drawBatch(*pipelineBuilder, clip, batch);
         }
     }
     return true;
@@ -606,6 +607,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrDefaultPathRenderer::onDrawPath");
     return this->internalDrawPath(args.fTarget,
                                   args.fPipelineBuilder,
+                                  *args.fClip,
                                   args.fColor,
                                   *args.fViewMatrix,
                                   *args.fPath,
@@ -617,8 +619,8 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),"GrDefaultPathRenderer::onStencilPath");
     SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
-    this->internalDrawPath(args.fTarget, args.fPipelineBuilder, GrColor_WHITE, *args.fViewMatrix,
-                           *args.fPath, GrStyle::SimpleFill(), true);
+    this->internalDrawPath(args.fTarget, args.fPipelineBuilder, *args.fClip, GrColor_WHITE,
+                           *args.fViewMatrix, *args.fPath, GrStyle::SimpleFill(), true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

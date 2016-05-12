@@ -322,6 +322,7 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
 void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                               GrDrawTarget* target,
                                               GrPipelineBuilder* pipelineBuilder,
+                                              const GrClip& clip,
                                               GrColor color,
                                               const SkMatrix& viewMatrix,
                                               const SkIRect& rect) {
@@ -351,5 +352,5 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
 
     SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(),
                                                                         dstRect, nullptr, &invert));
-    target->drawBatch(*pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, clip, batch);
 }

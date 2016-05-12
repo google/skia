@@ -287,7 +287,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     SkIRect clipBoundsI;
-    args.fPipelineBuilder->clip().getConservativeBounds(rt->width(), rt->height(), &clipBoundsI);
+    args.fClip->getConservativeBounds(rt->width(), rt->height(), &clipBoundsI);
     SkRect clipBounds = SkRect::Make(clipBoundsI);
     SkMatrix vmi;
     if (!args.fViewMatrix->invert(&vmi)) {
@@ -297,7 +297,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fPath,
                                                                   *args.fStyle, *args.fViewMatrix,
                                                                   clipBounds));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
+    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
 
     return true;
 }

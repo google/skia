@@ -308,7 +308,7 @@ private:
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
     // the drawTarget.
-    void drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* batch);
+    void drawBatch(GrPipelineBuilder* pipelineBuilder, const GrClip&, GrDrawBatch* batch);
 
     GrDrawTarget* getDrawTarget();
 

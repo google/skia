@@ -17,6 +17,7 @@
 #include "SkTLList.h"
 #include "SkTypes.h"
 
+class GrClip;
 class GrDrawTarget;
 class GrPathRenderer;
 class GrPathRendererChain;
@@ -56,7 +57,7 @@ private:
  */
 class GrClipMaskManager : SkNoncopyable {
 public:
-    GrClipMaskManager(GrDrawTarget* owner, bool debugClipBatchToBounds);
+    GrClipMaskManager(GrDrawTarget* owner);
 
     /**
      * Creates a clip mask if necessary as a stencil buffer or alpha texture
@@ -64,12 +65,8 @@ public:
      * then the draw can be skipped. devBounds is optional but can help optimize
      * clipping.
      */
-    bool setupClipping(const GrPipelineBuilder&, const SkRect* devBounds, GrAppliedClip*);
-
-    bool setupScissorClip(const GrPipelineBuilder& pipelineBuilder,
-                          const SkIRect& scissor,
-                          const SkRect* devBounds,
-                          GrAppliedClip* out);
+    bool setupClipping(const GrPipelineBuilder&, const GrClip&, const SkRect* devBounds,
+                       GrAppliedClip*);
 
 private:
     inline GrContext* getContext();
@@ -150,7 +147,6 @@ private:
 
     GrDrawTarget*   fDrawTarget;    // This is our owning draw target.
     StencilClipMode fClipMode;
-    bool            fDebugClipBatchToBounds;
 
     typedef SkNoncopyable INHERITED;
 };

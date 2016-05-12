@@ -105,7 +105,7 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, GrDrawBatch*, const SkIRect* scissorRect = nullptr);
+    void drawBatch(const GrPipelineBuilder&, const GrClip&, GrDrawBatch*);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
@@ -113,8 +113,8 @@ public:
      * on the GrPipelineBuilder (if possible in the 3D API).  Note, we will never have an inverse
      * fill with stencil path
      */
-    void stencilPath(const GrPipelineBuilder&, const SkMatrix& viewMatrix, const GrPath*,
-                     GrPathRendering::FillType);
+    void stencilPath(const GrPipelineBuilder&, const GrClip&, const SkMatrix& viewMatrix,
+                     const GrPath*, GrPathRendering::FillType);
 
     /**
      * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole
@@ -217,6 +217,7 @@ private:
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
     bool setupDstReadIfNecessary(const GrPipelineBuilder&,
+        const GrClip&,
         const GrPipelineOptimizations& optimizations,
         GrXferProcessor::DstTexture*,
         const SkRect& batchBounds);
@@ -241,6 +242,7 @@ private:
     SkTDArray<GrDrawTarget*>                    fDependencies;
     GrRenderTarget*                             fRenderTarget;
 
+    bool                                        fClipBatchToBounds;
     bool                                        fDrawBatchBounds;
     int                                         fMaxBatchLookback;
     int                                         fMaxBatchLookahead;

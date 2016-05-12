@@ -243,6 +243,7 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = dt;
     args.fPipelineBuilder = &pipelineBuilder;
+    args.fClip = &GrClip::WideOpen();
     args.fResourceProvider = rp;
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &SkMatrix::I();
