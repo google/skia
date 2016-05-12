@@ -621,7 +621,7 @@ public:
         , fWidth{srcPixmap.rowBytesAsPixels()} { }
 
     Sk4f getPixelFromRow(const void* row, int index) {
-        const uint32_t* src = static_cast<const uint32_t*>(row);
+        const uint32_t* src = static_cast<const uint32_t*>(row) + index;
         return colorProfile == kSRGB_SkColorProfileType
                ? Sk4f_fromS32(*src)
                : Sk4f_fromL32(*src);
@@ -649,7 +649,7 @@ public:
         , fWidth{srcPixmap.rowBytesAsPixels()} { }
 
     Sk4f getPixelFromRow(const void* row, int index) {
-        const uint32_t* src = static_cast<const uint32_t*>(row);
+        const uint32_t* src = static_cast<const uint32_t*>(row) + index;
         Sk4f pixel = colorProfile == kSRGB_SkColorProfileType
                      ? Sk4f_fromS32(*src)
                      : Sk4f_fromL32(*src);
@@ -695,7 +695,7 @@ public:
     }
 
     Sk4f getPixelFromRow(const void* row, int index) {
-        const uint8_t* src = static_cast<const uint8_t*>(row);
+        const uint8_t* src = static_cast<const uint8_t*>(row) + index;
         Sk4f pixel = fColorTable[*src];
         return pixel;
     }
