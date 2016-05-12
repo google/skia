@@ -160,38 +160,8 @@ size_t sk_paint_break_text(const sk_paint_t* cpaint, const void* text, size_t le
     return AsPaint(cpaint)->breakText(text, length, maxWidth, measuredWidth);
 }
 
-size_t sk_paint_break_utf16_text(sk_paint_t* cpaint, const void* text, size_t length, float maxWidth, float* measuredWidth) {
-    SkPaint *paint = AsPaint(cpaint);
-    auto encoding = paint->getTextEncoding ();
-    int changed = 0;
-    if (encoding != SkPaint::kUTF16_TextEncoding){
-        changed = 1;
-        paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
-    }
-    auto ret = paint->breakText(text, length * sizeof(uint16_t), maxWidth, measuredWidth);
-    if (changed != 0){
-        paint->setTextEncoding(encoding);
-    }
-    return ret;
-}
-
 float sk_paint_measure_text(const sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* bounds) {
     return AsPaint(cpaint)->measureText(text, length, AsRect(bounds));
-}
-
-float sk_paint_measure_utf16_text(sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* bounds) {
-    SkPaint* paint = AsPaint(cpaint);
-    auto encoding = paint->getTextEncoding ();
-    int changed = 0;
-    if (encoding != SkPaint::kUTF16_TextEncoding){
-        changed = 1;
-        paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
-    }
-    auto ret = paint->measureText(text, length * sizeof(uint16_t), AsRect(bounds));
-    if (changed != 0){
-        paint->setTextEncoding(encoding);
-    }
-    return ret;
 }
 
 sk_path_t* sk_paint_get_text_path(sk_paint_t* cpaint, const void* text, size_t length, float x, float y) {
@@ -200,49 +170,9 @@ sk_path_t* sk_paint_get_text_path(sk_paint_t* cpaint, const void* text, size_t l
     return ToPath(path);
 }
 
-sk_path_t* sk_paint_get_utf16_text_path(sk_paint_t* cpaint, const uint16_t *text, size_t lengthInChars, float x, float y) {
-    SkPaint* paint = AsPaint(cpaint);
-    SkPath* path = new SkPath();
-
-    auto encoding = paint->getTextEncoding();
-    int changed = 0;
-    if (encoding != SkPaint::kUTF16_TextEncoding) {
-        changed = 1;
-        paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
-    }
-
-    AsPaint(cpaint)->getTextPath(text, lengthInChars * sizeof(uint16_t), x, y, path);
-
-    if (changed != 0) {
-        paint->setTextEncoding(encoding);
-    }
-
-    return ToPath(path);
-}
-
 sk_path_t* sk_paint_get_pos_text_path(sk_paint_t* cpaint, const void* text, size_t length, const sk_point_t pos[]) {
     SkPath* path = new SkPath();
     AsPaint(cpaint)->getPosTextPath(text, length, reinterpret_cast<const SkPoint*>(pos), path);
-    return ToPath(path);
-}
-
-sk_path_t* sk_paint_get_pos_utf16_text_path(sk_paint_t* cpaint, const uint16_t *text, size_t lengthInChars, const sk_point_t pos[]) {
-    SkPaint* paint = AsPaint(cpaint);
-    SkPath* path = new SkPath();
-
-    auto encoding = paint->getTextEncoding();
-    int changed = 0;
-    if (encoding != SkPaint::kUTF16_TextEncoding) {
-        changed = 1;
-        paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
-    }
-
-    AsPaint(cpaint)->getPosTextPath(text, lengthInChars * sizeof(uint16_t), reinterpret_cast<const SkPoint*>(pos), path);
-
-    if (changed != 0) {
-        paint->setTextEncoding(encoding);
-    }
-
     return ToPath(path);
 }
 
