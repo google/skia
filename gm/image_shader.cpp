@@ -38,6 +38,9 @@ static sk_sp<SkImage> make_texture(GrContext* ctx, SkPicture* pic, const SkImage
         return nullptr;
     }
     auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+    if (!surface) {
+        return nullptr;
+    }
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
     return surface->makeImageSnapshot();
