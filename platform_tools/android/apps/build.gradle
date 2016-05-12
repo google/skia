@@ -77,8 +77,7 @@ def getPathWithDeps(requireCMake = false) {
     if (requireCMake) {
         String cmakePath = getSDKPath() + "/cmake/bin"
         if (!file(cmakePath).exists()) {
-            throw new GradleScriptException("cmake not found! Please install the android SDK version" +
-                                        " of cmake.", null);
+            logger.warn("cmake not found! Please install the android SDK version of cmake.");
         }
         if (!path.contains(cmakePath)) {
             path = cmakePath + ":" + path
