@@ -29,7 +29,7 @@ void release_portable_typefaces() {
 
 SK_DECLARE_STATIC_MUTEX(gTestFontMutex);
 
-sk_sp<SkTypeface> create_font(const char* name, SkTypeface::Style style) {
+SkTypeface* create_font(const char* name, SkTypeface::Style style) {
     SkTestFontData* fontData = nullptr;
     const SubFont* sub;
     if (name) {
@@ -47,8 +47,7 @@ sk_sp<SkTypeface> create_font(const char* name, SkTypeface::Style style) {
             // If we called SkTypeface::CreateFromName() here we'd recurse infinitely,
             // so we reimplement its core logic here inline without the recursive aspect.
             SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-            return sk_sp<SkTypeface>(fm->legacyCreateTypeface(name,
-                                                              SkFontStyle::FromOldStyle(style)));
+            return fm->legacyCreateTypeface(name, SkFontStyle::FromOldStyle(style));
         }
     } else {
         sub = &gSubFonts[gDefaultFontIndex];
@@ -66,7 +65,7 @@ sk_sp<SkTypeface> create_font(const char* name, SkTypeface::Style style) {
             fontData->fFontCache = SkSafeRef(font);
         }
     }
-    return sk_make_sp<SkTestTypeface>(font, SkFontStyle::FromOldStyle(style));
+    return new SkTestTypeface(font, SkFontStyle::FromOldStyle(style));
 }
 
 }

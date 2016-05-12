@@ -73,7 +73,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setTypeface(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
+        SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromFile("/skimages/samplefont.ttf")));
         paint.setAntiAlias(true);
         paint.setFilterQuality(kMedium_SkFilterQuality);
 

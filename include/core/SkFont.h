@@ -117,17 +117,17 @@ public:
         kLCD_MaskType,
     };
 
-    static sk_sp<SkFont> Make(sk_sp<SkTypeface>, SkScalar size, MaskType, uint32_t flags);
-    static sk_sp<SkFont> Make(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX,
-                              MaskType, uint32_t flags);
+    static SkFont* Create(SkTypeface*, SkScalar size, MaskType, uint32_t flags);
+    static SkFont* Create(SkTypeface*, SkScalar size, SkScalar scaleX, SkScalar skewX,
+                          MaskType, uint32_t flags);
 
     /**
      *  Return a font with the same attributes of this font, but with the specified size.
      *  If size is not supported (e.g. <= 0 or non-finite) NULL will be returned.
      */
-    sk_sp<SkFont> makeWithSize(SkScalar size) const;
+    SkFont* cloneWithSize(SkScalar size) const;
 
-    SkTypeface* getTypeface() const { return fTypeface.get(); }
+    SkTypeface* getTypeface() const { return fTypeface; }
     SkScalar    getSize() const { return fSize; }
     SkScalar    getScaleX() const { return fScaleX; }
     SkScalar    getSkewX() const { return fSkewX; }
@@ -145,17 +145,17 @@ public:
 
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding) const;
 
-    static sk_sp<SkFont> Testing_CreateFromPaint(const SkPaint&);
+    static SkFont* Testing_CreateFromPaint(const SkPaint&);
 
 private:
     enum {
         kAllFlags = 0xFF,
     };
 
-    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType,
-           uint32_t flags);
+    SkFont(SkTypeface*, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType, uint32_t flags);
+    virtual ~SkFont();
 
-    sk_sp<SkTypeface> fTypeface;
+    SkTypeface* fTypeface;
     SkScalar    fSize;
     SkScalar    fScaleX;
     SkScalar    fSkewX;

@@ -224,7 +224,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fEmFace = MakeResourceAsTypeface("/fonts/Em.ttf");
+        fEmFace.reset(GetResourceAsTypeface("/fonts/Em.ttf"));
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -273,7 +273,7 @@ protected:
 
 private:
     typedef skiagm::GM INHERITED;
-    sk_sp<SkTypeface> fEmFace;
+    SkAutoTUnref<SkTypeface> fEmFace;
 };
 
 //////////////////////////////////////////////////////////////////////////////

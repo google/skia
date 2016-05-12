@@ -50,11 +50,11 @@ public:
 
 protected:
     struct EmojiFont {
-        sk_sp<SkTypeface> typeface;
+        SkAutoTUnref<SkTypeface> typeface;
         const char* text;
     } emojiFont;
     virtual void onOnceBeforeDraw() override {
-        emojiFont.typeface = sk_tool_utils::emoji_typeface();
+        sk_tool_utils::emoji_typeface(&emojiFont.typeface);
         emojiFont.text = sk_tool_utils::emoji_sample_text();
     }
 
@@ -92,7 +92,7 @@ protected:
             for (int makeBlur = 0; makeBlur < 2; makeBlur++) {
                 for (int makeGray = 0; makeGray < 2; makeGray++) {
                     SkPaint shaderPaint;
-                    shaderPaint.setTypeface(sk_ref_sp(paint.getTypeface()));
+                    shaderPaint.setTypeface(paint.getTypeface());
                     if (SkToBool(makeLinear)) {
                         shaderPaint.setShader(MakeLinear());
                     }

@@ -12,8 +12,8 @@
 
 DEF_TEST(Typeface, reporter) {
 
-    sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkTypeface::kNormal));
-    sk_sp<SkTypeface> t2(SkTypeface::MakeDefault(SkTypeface::kNormal));
+    SkAutoTUnref<SkTypeface> t1(SkTypeface::CreateFromName(nullptr, SkTypeface::kNormal));
+    SkAutoTUnref<SkTypeface> t2(SkTypeface::RefDefault(SkTypeface::kNormal));
 
     REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), t2.get()));
     REPORTER_ASSERT(reporter, SkTypeface::Equal(0, t1.get()));
@@ -22,8 +22,8 @@ DEF_TEST(Typeface, reporter) {
     REPORTER_ASSERT(reporter, SkTypeface::Equal(t2.get(), 0));
 
 #ifdef SK_BUILD_FOR_ANDROID
-    sk_sp<SkTypeface> t3(SkTypeface::MakeFromName("non-existent-font", SkTypeface::kNormal));
-    REPORTER_ASSERT(reporter, nullptr == t3);
+    SkAutoTUnref<SkTypeface> t3(SkTypeface::CreateFromName("non-existent-font", SkTypeface::kNormal));
+    REPORTER_ASSERT(reporter, nullptr == t3.get());
 #endif
 }
 

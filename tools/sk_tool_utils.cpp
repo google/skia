@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2014 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -75,14 +75,17 @@ const char* platform_os_emoji() {
     return "";
 }
 
-sk_sp<SkTypeface> emoji_typeface() {
+void emoji_typeface(SkAutoTUnref<SkTypeface>* tf) {
     if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
-        return MakeResourceAsTypeface("/fonts/Funkster.ttf");
+        tf->reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
+        return;
     }
     if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
-        return SkTypeface::MakeFromName("Apple Color Emoji", SkTypeface::kNormal);
+        tf->reset(SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal));
+        return;
     }
-    return nullptr;
+    tf->reset(nullptr);
+    return;
 }
 
 const char* emoji_sample_text() {
@@ -156,12 +159,13 @@ SkColor color_to_565(SkColor color) {
     return SkPixel16ToColor(color16);
 }
 
-sk_sp<SkTypeface> create_portable_typeface(const char* name, SkTypeface::Style style) {
+SkTypeface* create_portable_typeface(const char* name, SkTypeface::Style style) {
     return create_font(name, style);
 }
 
 void set_portable_typeface(SkPaint* paint, const char* name, SkTypeface::Style style) {
-    paint->setTypeface(create_font(name, style));
+    SkTypeface* face = create_font(name, style);
+    SkSafeUnref(paint->setTypeface(face));
 }
 
 void write_pixels(SkCanvas* canvas, const SkBitmap& bitmap, int x, int y,

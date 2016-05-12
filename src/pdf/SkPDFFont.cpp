@@ -1327,7 +1327,7 @@ SkPDFType3Font::~SkPDFType3Font() {}
 
 bool SkPDFType3Font::populate(uint16_t glyphID) {
     SkPaint paint;
-    paint.setTypeface(sk_ref_sp(this->typeface()));
+    paint.setTypeface(typeface());
     paint.setTextSize(1000);
     const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     SkAutoGlyphCache autoCache(paint, &props, nullptr);

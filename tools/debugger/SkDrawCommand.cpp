@@ -1214,7 +1214,8 @@ static void extract_json_paint_typeface(Json::Value& jsonPaint, UrlDataManager& 
         const void* data;
         Json::ArrayIndex length = decode_data(jsonData, urlDataManager, &data);
         SkMemoryStream buffer(data, length);
-        target->setTypeface(SkTypeface::MakeDeserialize(&buffer));
+        SkTypeface* typeface = SkTypeface::Deserialize(&buffer);
+        target->setTypeface(typeface);
     }
 }
 

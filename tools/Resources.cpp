@@ -49,10 +49,10 @@ SkStreamAsset* GetResourceAsStream(const char* resource) {
     }
 }
 
-sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {
+SkTypeface* GetResourceAsTypeface(const char* resource) {
     SkAutoTDelete<SkStreamAsset> stream(GetResourceAsStream(resource));
     if (!stream) {
         return nullptr;
     }
-    return SkTypeface::MakeFromStream(stream.release());
+    return SkTypeface::CreateFromStream(stream.release());
 }

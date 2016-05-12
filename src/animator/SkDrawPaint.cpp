@@ -259,7 +259,7 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (typeface == nullptr)
         paint->setTypeface(nullptr);
     else if (typeface != (SkDrawTypeface*) -1)
-        paint->setTypeface(typeface->getTypeface());
+        SkSafeUnref(paint->setTypeface(typeface->getTypeface()));
     if (underline != -1)
         paint->setUnderlineText(SkToBool(underline));
     if (xfermode != -1)

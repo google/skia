@@ -92,75 +92,51 @@ public:
      */
     static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
 
-    /** Returns the default typeface, which is never nullptr. */
-    static sk_sp<SkTypeface> MakeDefault(Style style = SkTypeface::kNormal);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* RefDefault(Style style = SkTypeface::kNormal) {
-        return MakeDefault(style).release();
-    }
-#endif
+    /**
+     *  Returns a ref() to the default typeface. The caller must call unref()
+     *  when they are done referencing the object. Never returns NULL.
+     */
+    static SkTypeface* RefDefault(Style style = SkTypeface::kNormal);
 
-    /** Return the typeface that most closely matches the requested familyName and style.
-        Pass nullptr as the familyName to request the default font for the requested style.
-        Will never return nullptr.
+    /** Return a new reference to the typeface that most closely matches the
+        requested familyName and style. Pass null as the familyName to return
+        the default font for the requested style. Will never return null
 
         @param familyName  May be NULL. The name of the font family.
         @param style       The style (normal, bold, italic) of the typeface.
-        @return the closest-matching typeface.
+        @return reference to the closest-matching typeface. Call must call
+                unref() when they are done.
     */
-    static sk_sp<SkTypeface> MakeFromName(const char familyName[], Style style);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* CreateFromName(const char familyName[], Style style) {
-        return MakeFromName(familyName, style).release();
-    }
-#endif
+    static SkTypeface* CreateFromName(const char familyName[], Style style);
 
-    /** Return the typeface that most closely matches the requested typeface and style.
-        Use this to pick a new style from the same family of the existing typeface.
-        If family is nullptr, this selects from the default font's family.
+    /** Return a new reference to the typeface that most closely matches the
+        requested typeface and specified Style. Use this call if you want to
+        pick a new style from the same family of the existing typeface.
+        If family is NULL, this selects from the default font's family.
 
         @param family  May be NULL. The name of the existing type face.
         @param s       The style (normal, bold, italic) of the type face.
-        @return the closest-matching typeface.
+        @return reference to the closest-matching typeface. Call must call
+                unref() when they are done.
     */
-    static sk_sp<SkTypeface> MakeFromTypeface(SkTypeface* family, Style);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* CreateFromTypeface(const SkTypeface* family, Style style) {
-        return MakeFromTypeface(const_cast<SkTypeface*>(family), style).release();
-    }
-#endif
+    static SkTypeface* CreateFromTypeface(const SkTypeface* family, Style s);
 
     /** Return a new typeface given a file. If the file does not exist, or is
-        not a valid font file, returns nullptr.
+        not a valid font file, returns null.
     */
-    static sk_sp<SkTypeface> MakeFromFile(const char path[], int index = 0);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* CreateFromFile(const char path[], int index = 0) {
-        return MakeFromFile(path, index).release();
-    }
-#endif
+    static SkTypeface* CreateFromFile(const char path[], int index = 0);
 
     /** Return a new typeface given a stream. If the stream is
-        not a valid font file, returns nullptr. Ownership of the stream is
+        not a valid font file, returns null. Ownership of the stream is
         transferred, so the caller must not reference it again.
     */
-    static sk_sp<SkTypeface> MakeFromStream(SkStreamAsset* stream, int index = 0);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* CreateFromStream(SkStreamAsset* stream, int index = 0) {
-        return MakeFromStream(stream, index).release();
-    }
-#endif
+    static SkTypeface* CreateFromStream(SkStreamAsset* stream, int index = 0);
 
     /** Return a new typeface given font data and configuration. If the data
-        is not valid font data, returns nullptr. Ownership of the font data is
+        is not valid font data, returns null. Ownership of the font data is
         transferred, so the caller must not reference it again.
     */
-    static sk_sp<SkTypeface> MakeFromFontData(SkFontData*);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* CreateFromFontData(SkFontData* fd) {
-        return MakeFromFontData(fd).release();
-    }
-#endif
+    static SkTypeface* CreateFromFontData(SkFontData*);
 
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
@@ -168,16 +144,12 @@ public:
     void serialize(SkWStream*) const;
 
     /** Given the data previously written by serialize(), return a new instance
-        of a typeface referring to the same font. If that font is not available,
-        return nullptr.
+        to a typeface referring to the same font. If that font is not available,
+        return null. If an instance is returned, the caller is responsible for
+        calling unref() when they are done with it.
         Does not affect ownership of SkStream.
      */
-    static sk_sp<SkTypeface> MakeDeserialize(SkStream*);
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    static SkTypeface* Deserialize(SkStream* stream) {
-        return MakeDeserialize(stream).release();
-    }
-#endif
+    static SkTypeface* Deserialize(SkStream*);
 
     enum Encoding {
         kUTF8_Encoding,
@@ -423,6 +395,9 @@ private:
                           uint32_t glyphIDsCount = 0) const;
 
 private:
+    static SkTypeface* CreateDefault(int style);  // SkLazyPtr requires an int, not a Style.
+    static void        DeleteDefault(SkTypeface*);
+
     SkFontID            fUniqueID;
     SkFontStyle         fStyle;
     mutable SkRect      fBounds;

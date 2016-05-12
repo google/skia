@@ -27,6 +27,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
+        SkAutoTUnref<SkTypeface> typeface(GetResourceAsTypeface("/fonts/HangingS.ttf"));
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
@@ -34,7 +35,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
-        paint.setTypeface(MakeResourceAsTypeface("/fonts/HangingS.ttf"));
+        paint.setTypeface(typeface);
 
         const char* text = "Skia";
 

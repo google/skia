@@ -31,9 +31,9 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     // find typeface containing the requested character and draw it
     SkString ch;
     ch.appendUnichar(character);
-    sk_sp<SkTypeface> typeface(fm->matchFamilyStyleCharacter(fontName, fontStyle,
-                                                             bcp47, bcp47Count, character));
-    paint.setTypeface(typeface);
+    SkTypeface* typeface = fm->matchFamilyStyleCharacter(fontName, fontStyle,
+                                                         bcp47, bcp47Count, character);
+    SkSafeUnref(paint.setTypeface(typeface));
     x = drawString(canvas, ch, x, y, paint) + 20;
 
     if (nullptr == typeface) {
@@ -45,8 +45,8 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     // it expects to get the same glyph when following this pattern.
     SkString familyName;
     typeface->getFamilyName(&familyName);
-    paint.setTypeface(sk_sp<SkTypeface>(fm->legacyCreateTypeface(familyName.c_str(),
-                                                                 typeface->fontStyle())));
+    SkTypeface* typefaceCopy = fm->legacyCreateTypeface(familyName.c_str(), typeface->fontStyle());
+    SkSafeUnref(paint.setTypeface(typefaceCopy));
     return drawString(canvas, ch, x, y, paint) + 20;
 }
 
@@ -104,7 +104,7 @@ protected:
                 set->getStyle(j, &fs, &sname);
                 sname.appendf(" [%d %d %d]", fs.weight(), fs.width(), fs.slant());
 
-                paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
+                SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
                 x = drawString(canvas, sname, x, y, paint) + 20;
 
                 // check to see that we get different glyphs in japanese and chinese
@@ -155,7 +155,7 @@ protected:
 
             sname.appendf(" [%d %d]", fs.weight(), fs.width());
 
-            p.setTypeface(sk_sp<SkTypeface>(fset->createTypeface(j)));
+            SkSafeUnref(p.setTypeface(fset->createTypeface(j)));
             (void)drawString(canvas, sname, 0, y, p);
             y += 24;
         }
@@ -169,11 +169,11 @@ protected:
         for (int weight = 100; weight <= 900; weight += 200) {
             for (int width = 1; width <= 9; width += 2) {
                 SkFontStyle fs(weight, width, SkFontStyle::kUpright_Slant);
-                sk_sp<SkTypeface> face(fset->matchStyle(fs));
+                SkTypeface* face = fset->matchStyle(fs);
                 if (face) {
                     SkString str;
                     str.printf("request [%d %d]", fs.weight(), fs.width());
-                    p.setTypeface(std::move(face));
+                    p.setTypeface(face)->unref();
                     (void)drawString(canvas, str, 0, y, p);
                     y += 24;
                 }
@@ -274,7 +274,7 @@ protected:
         for (int i = 0; i < count; ++i) {
             SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count(); ++j) {
-                paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
+                SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
                 if (paint.getTypeface()) {
                     show_bounds(canvas, paint, x, y, boundsColors[index & 1]);
                     index += 1;

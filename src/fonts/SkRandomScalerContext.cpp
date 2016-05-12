@@ -190,11 +190,15 @@ void SkRandomScalerContext::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 
 #include "SkTypefaceCache.h"
 
-SkRandomTypeface::SkRandomTypeface(sk_sp<SkTypeface> proxy, const SkPaint& paint, bool fakeIt)
+SkRandomTypeface::SkRandomTypeface(SkTypeface* proxy, const SkPaint& paint, bool fakeIt)
     : SkTypeface(proxy->fontStyle(), SkTypefaceCache::NewFontID(), false)
-    , fProxy(std::move(proxy))
+    , fProxy(SkRef(proxy))
     , fPaint(paint)
     , fFakeIt(fakeIt) {}
+
+SkRandomTypeface::~SkRandomTypeface() {
+    fProxy->unref();
+}
 
 SkScalerContext* SkRandomTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                          const SkDescriptor* desc) const {

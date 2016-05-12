@@ -17,15 +17,23 @@ namespace skiagm {
 
 class VertText2GM : public GM {
 public:
-    VertText2GM() {}
+    VertText2GM()
+        : fProp(nullptr)
+        , fMono(nullptr) {
+    }
+
+    virtual ~VertText2GM() {
+        SkSafeUnref(fProp);
+        SkSafeUnref(fMono);
+    }
 
 protected:
     void onOnceBeforeDraw() override {
         const int pointSize = 24;
         textHeight = SkIntToScalar(pointSize);
-        fProp = SkTypeface::MakeFromName(sk_tool_utils::platform_font_name("sans-serif"),
+        fProp = SkTypeface::CreateFromName(sk_tool_utils::platform_font_name("sans-serif"),
                 SkTypeface::kNormal);
-        fMono = SkTypeface::MakeFromName(sk_tool_utils::platform_font_name("monospace"),
+        fMono = SkTypeface::CreateFromName(sk_tool_utils::platform_font_name("monospace"),
                 SkTypeface::kNormal);
     }
 
@@ -66,13 +74,13 @@ protected:
     }
 
     void drawText(SkCanvas* canvas, const SkString& string,
-                  sk_sp<SkTypeface> family, SkPaint::Align alignment) {
+                  SkTypeface* family, SkPaint::Align alignment) {
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setAntiAlias(true);
         paint.setVerticalText(true);
         paint.setTextAlign(alignment);
-        paint.setTypeface(std::move(family));
+        paint.setTypeface(family);
         paint.setTextSize(textHeight);
 
         canvas->drawText(string.c_str(), string.size(), y,
@@ -84,8 +92,8 @@ protected:
 private:
     typedef GM INHERITED;
     SkScalar y, textHeight;
-    sk_sp<SkTypeface> fProp;
-    sk_sp<SkTypeface> fMono;
+    SkTypeface* fProp;
+    SkTypeface* fMono;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

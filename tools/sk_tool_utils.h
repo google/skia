@@ -36,7 +36,7 @@ namespace sk_tool_utils {
     /**
      * Return a color emoji typeface if available.
      */
-    sk_sp<SkTypeface> emoji_typeface();
+    void emoji_typeface(SkAutoTUnref<SkTypeface>* );
 
     /**
      * If the platform supports color emoji, return sample text the emoji can render.
@@ -77,7 +77,7 @@ namespace sk_tool_utils {
     /**
      * Returns a platform-independent text renderer.
      */
-    sk_sp<SkTypeface> create_portable_typeface(const char* name, SkTypeface::Style style);
+    SkTypeface* create_portable_typeface(const char* name, SkTypeface::Style style);
 
     /** Call to clean up portable font references. */
     void release_portable_typefaces();
@@ -89,7 +89,7 @@ namespace sk_tool_utils {
     void write_pixels(SkCanvas*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
 
     // private to sk_tool_utils
-    sk_sp<SkTypeface> create_font(const char* name, SkTypeface::Style);
+    SkTypeface* create_font(const char* name, SkTypeface::Style);
 
     /** Returns a newly created CheckerboardShader. */
     sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);

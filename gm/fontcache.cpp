@@ -20,7 +20,15 @@ static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
 
 class FontCacheGM : public skiagm::GM {
 public:
-    FontCacheGM() {}
+    FontCacheGM() {
+        fTypefaces[0] = nullptr;
+        fTypefaces[1] = nullptr;
+    }
+
+    virtual ~FontCacheGM() {
+        SkSafeUnref(fTypefaces[0]);
+        SkSafeUnref(fTypefaces[1]);
+    }
 
 protected:
     SkString onShortName() override {
@@ -68,7 +76,7 @@ protected:
     }
 
 private:
-    sk_sp<SkTypeface> fTypefaces[2];
+    SkTypeface* fTypefaces[2];
     typedef GM INHERITED;
 };
 

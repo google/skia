@@ -99,11 +99,12 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
             set->getStyle(j, &fs, nullptr);
 
             // We use a typeface which randomy returns unexpected mask formats to fuzz
-            sk_sp<SkTypeface> orig(set->createTypeface(j));
+            SkAutoTUnref<SkTypeface> orig(set->createTypeface(j));
             if (normal) {
                 paint.setTypeface(orig);
             } else {
-                paint.setTypeface(sk_make_sp<SkRandomTypeface>(orig, paint, true));
+                SkAutoTUnref<SkTypeface> typeface(new SkRandomTypeface(orig, paint, true));
+                paint.setTypeface(typeface);
             }
 
             SkTextBlobBuilder builder;

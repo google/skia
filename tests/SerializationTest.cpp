@@ -322,14 +322,14 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
     }
     REPORTER_ASSERT(reporter, 0 == pixelErrors);
 }
-static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const char* text,
+static void serialize_and_compare_typeface(SkTypeface* typeface, const char* text,
                                            skiatest::Reporter* reporter)
 {
     // Create a paint with the typeface.
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
     paint.setTextSize(SkIntToScalar(30));
-    paint.setTypeface(std::move(typeface));
+    paint.setTypeface(typeface);
 
     // Paint some text.
     SkPictureRecorder recorder;
@@ -357,11 +357,11 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
     {
         // Load typeface from file to test CreateFromFile with index.
         SkString filename = GetResourcePath("/fonts/test.ttc");
-        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFile(filename.c_str(), 1));
+        SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFile(filename.c_str(), 1));
         if (!typeface) {
             INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
         } else {
-            serialize_and_compare_typeface(std::move(typeface), "A!", reporter);
+            serialize_and_compare_typeface(typeface, "A!", reporter);
         }
     }
 
@@ -372,12 +372,12 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
             INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
             SkFixed axis = SK_FixedSqrt2;
-            sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
+            SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFontData(
                 new SkFontData(distortable.release(), 0, &axis, 1)));
             if (!typeface) {
                 INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {
-                serialize_and_compare_typeface(std::move(typeface), "abc", reporter);
+                serialize_and_compare_typeface(typeface, "abc", reporter);
             }
         }
     }

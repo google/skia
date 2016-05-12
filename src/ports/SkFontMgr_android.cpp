@@ -371,7 +371,7 @@ protected:
     {
         for (int i = 0; i < fallbackNameToFamilyMap.count(); ++i) {
             SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
-            sk_sp<SkTypeface_AndroidSystem> face(family->matchStyle(style));
+            SkAutoTUnref<SkTypeface_AndroidSystem> face(family->matchStyle(style));
 
             if (!langTag.isEmpty() && !face->fLang.getTag().startsWith(langTag.c_str())) {
                 continue;
@@ -387,6 +387,9 @@ protected:
 
             uint16_t glyphID;
             paint.textToGlyphs(&character, sizeof(character), &glyphID);
+            if (glyphID != 0) {
+                return face.release();
+            }
         }
         return nullptr;
     }

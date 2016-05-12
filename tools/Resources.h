@@ -22,6 +22,6 @@ void SetResourcePath(const char* );
 bool GetResourceAsBitmap(const char* resource, SkBitmap* dst);
 sk_sp<SkImage> GetResourceAsImage(const char* resource);
 SkStreamAsset* GetResourceAsStream(const char* resource);
-sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource);
+SkTypeface* GetResourceAsTypeface(const char* resource);
 
 #endif  // Resources_DEFINED

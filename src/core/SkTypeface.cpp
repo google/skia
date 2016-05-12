@@ -27,9 +27,9 @@ extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
 #define SK_TYPEFACE_DELEGATE nullptr
 #endif
 
-sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style ) = nullptr;
+SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style ) = nullptr;
 void (*gSerializeTypefaceDelegate)(const SkTypeface*, SkWStream* ) = SK_TYPEFACE_DELEGATE;
-sk_sp<SkTypeface> (*gDeserializeTypefaceDelegate)(SkStream* ) = nullptr;
+SkTypeface* (*gDeserializeTypefaceDelegate)(SkStream* ) = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -98,8 +98,8 @@ SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
     return defaults[style];
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeDefault(Style style) {
-    return sk_ref_sp(GetDefaultTypeface(style));
+SkTypeface* SkTypeface::RefDefault(Style style) {
+    return SkRef(GetDefaultTypeface(style));
 }
 
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
@@ -115,46 +115,47 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[], Style style) {
+SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
     if (gCreateTypefaceDelegate) {
-        sk_sp<SkTypeface> result = (*gCreateTypefaceDelegate)(name, style);
+        SkTypeface* result = (*gCreateTypefaceDelegate)(name, style);
         if (result) {
             return result;
         }
     }
     if (nullptr == name) {
-        return MakeDefault(style);
+        return RefDefault(style);
     }
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return sk_sp<SkTypeface>(fm->legacyCreateTypeface(name, SkFontStyle::FromOldStyle(style)));
+    return fm->legacyCreateTypeface(name, SkFontStyle::FromOldStyle(style));
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeFromTypeface(SkTypeface* family, Style s) {
+SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
     if (!family) {
-        return SkTypeface::MakeDefault(s);
+        return SkTypeface::RefDefault(s);
     }
 
     if (family->style() == s) {
-        return sk_ref_sp(family);
+        family->ref();
+        return const_cast<SkTypeface*>(family);
     }
 
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return sk_sp<SkTypeface>(fm->matchFaceStyle(family, SkFontStyle::FromOldStyle(s)));
+    return fm->matchFaceStyle(family, SkFontStyle::FromOldStyle(s));
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeFromStream(SkStreamAsset* stream, int index) {
+SkTypeface* SkTypeface::CreateFromStream(SkStreamAsset* stream, int index) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return sk_sp<SkTypeface>(fm->createFromStream(stream, index));
+    return fm->createFromStream(stream, index);
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeFromFontData(SkFontData* data) {
+SkTypeface* SkTypeface::CreateFromFontData(SkFontData* data) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return sk_sp<SkTypeface>(fm->createFromFontData(data));
+    return fm->createFromFontData(data);
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeFromFile(const char path[], int index) {
+SkTypeface* SkTypeface::CreateFromFile(const char path[], int index) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return sk_sp<SkTypeface>(fm->createFromFile(path, index));
+    return fm->createFromFile(path, index);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -175,7 +176,7 @@ void SkTypeface::serialize(SkWStream* wstream) const {
     desc.serialize(wstream);
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
+SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
     if (gDeserializeTypefaceDelegate) {
         return (*gDeserializeTypefaceDelegate)(stream);
     }
@@ -187,12 +188,12 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
 
     SkFontData* data = desc.detachFontData();
     if (data) {
-        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(data));
+        SkTypeface* typeface = SkTypeface::CreateFromFontData(data);
         if (typeface) {
             return typeface;
         }
     }
-    return SkTypeface::MakeFromName(desc.getFamilyName(), desc.getStyle());
+    return SkTypeface::CreateFromName(desc.getFamilyName(), desc.getStyle());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -334,7 +335,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     const SkScalar invTextSize = 1 / textSize;
 
     SkPaint paint;
-    paint.setTypeface(sk_ref_sp(const_cast<SkTypeface*>(this)));
+    paint.setTypeface(const_cast<SkTypeface*>(this));
     paint.setTextSize(textSize);
     paint.setLinearText(true);
 
