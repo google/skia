@@ -72,6 +72,7 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     // TODO: If no scaling is being performed then use copySurface.
 
     GrPaint paint;
+    paint.setGammaCorrect(true);
 
     // TODO: Initializing these values for no reason cause the compiler is complaining
     SkScalar sx = 0.f;
