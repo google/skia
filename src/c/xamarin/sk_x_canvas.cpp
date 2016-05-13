@@ -133,3 +133,11 @@ void sk_canvas_clip_path_with_operation(sk_canvas_t* ccanvas, const sk_path_t* c
     }
     AsCanvas(ccanvas)->clipPath(AsPath(*cpath), operation, doAA);
 }
+
+bool sk_canvas_get_clip_bounds(sk_canvas_t* ccanvas, sk_rect_t* cbounds) {
+    return AsCanvas(ccanvas)->getClipBounds(AsRect(cbounds));
+}
+
+bool sk_canvas_get_clip_device_bounds(sk_canvas_t* ccanvas, sk_irect_t* cbounds) {
+    return AsCanvas(ccanvas)->getClipDeviceBounds(AsIRect(cbounds));
+}

@@ -119,6 +119,18 @@ SK_API void sk_canvas_clip_rect_with_operation(sk_canvas_t* t, const sk_rect_t* 
 */
 SK_API void sk_canvas_clip_path_with_operation(sk_canvas_t* t, const sk_path_t* crect, sk_region_op_t op, bool doAA);
 
+/** Return the bounds of the current clip (in local coordinates) in the
+    bounds parameter, and return true if it is non-empty. This can be useful
+    in a way similar to quickReject, in that it tells you that drawing
+    outside of these bounds will be clipped out.
+*/
+SK_API bool sk_canvas_get_clip_bounds(sk_canvas_t* t, sk_rect_t* cbounds);
+/** Return the bounds of the current clip, in device coordinates; returns
+    true if non-empty. Maybe faster than getting the clip explicitly and
+    then taking its bounds.
+*/
+SK_API bool sk_canvas_get_clip_device_bounds(sk_canvas_t* t, sk_irect_t* cbounds);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
