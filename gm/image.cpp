@@ -258,6 +258,7 @@ static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*dra
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info, GrContext* ctx, void (*draw)(SkCanvas*)) {
     if (!ctx) { return nullptr; }
     auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+    if (!surface) { return nullptr; }
     draw(surface->getCanvas());
     return surface->makeImageSnapshot();
 }

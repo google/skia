@@ -212,16 +212,22 @@ public:
         , fCtx(SkRef(ctx))
     {
         auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
-        surface->getCanvas()->clear(0);
-        surface->getCanvas()->translate(-100, -100);
-        surface->getCanvas()->drawPicture(pic);
-        sk_sp<SkImage> image(surface->makeImageSnapshot());
-        fTexture.reset(SkRef(as_IB(image)->peekTexture()));
+        if (surface) {
+            surface->getCanvas()->clear(0);
+            surface->getCanvas()->translate(-100, -100);
+            surface->getCanvas()->drawPicture(pic);
+            sk_sp<SkImage> image(surface->makeImageSnapshot());
+            fTexture.reset(SkRef(as_IB(image)->peekTexture()));
+        }
     }
 protected:
     GrTexture* onGenerateTexture(GrContext* ctx, const SkIRect* subset) override {
         if (ctx) {
             SkASSERT(ctx == fCtx.get());
+        }
+
+        if (!fTexture) {
+            return nullptr;
         }
 
         if (!subset) {
