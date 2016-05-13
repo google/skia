@@ -370,7 +370,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
 
     // If the stencil buffer is multisampled we can use it to do everything.
     if (!rt->isStencilBufferMultisampled() && requiresAA) {
-        sk_sp<GrTexture> result;
+        SkAutoTUnref<GrTexture> result;
 
         // The top-left of the mask corresponds to the top-left corner of the bounds.
         SkVector clipToMaskOffset = {
@@ -381,19 +381,19 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         if (UseSWOnlyPath(this->getContext(), pipelineBuilder, rt, clipToMaskOffset, elements)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
-            result = CreateSoftwareClipMask(this->getContext(),
-                                            genID,
-                                            initialState,
-                                            elements,
-                                            clipToMaskOffset,
-                                            clipSpaceIBounds);
+            result.reset(CreateSoftwareClipMask(this->getContext(),
+                                                genID,
+                                                initialState,
+                                                elements,
+                                                clipToMaskOffset,
+                                                clipSpaceIBounds));
         } else {
-            result = CreateAlphaClipMask(this->getContext(),
-                                         genID,
-                                         initialState,
-                                         elements,
-                                         clipToMaskOffset,
-                                         clipSpaceIBounds);
+            result.reset(CreateAlphaClipMask(this->getContext(),
+                                             genID,
+                                             initialState,
+                                             elements,
+                                             clipToMaskOffset,
+                                             clipSpaceIBounds));
             // If createAlphaClipMask fails it means UseSWOnlyPath has a bug
             SkASSERT(result);
         }
@@ -403,7 +403,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
             rtSpaceMaskBounds.offset(-clip.origin());
-            out->fClipCoverageFP.reset(create_fp_for_mask(result.get(), rtSpaceMaskBounds));
+            out->fClipCoverageFP.reset(create_fp_for_mask(result, rtSpaceMaskBounds));
             return true;
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
@@ -502,33 +502,42 @@ static void GetClipMaskKey(int32_t clipGenID, const SkIRect& bounds, GrUniqueKey
     builder[2] = SkToU16(bounds.fTop) | (SkToU16(bounds.fBottom) << 16);
 }
 
-sk_sp<GrTexture> GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
-                                                        int32_t elementsGenID,
-                                                        GrReducedClip::InitialState initialState,
-                                                        const GrReducedClip::ElementList& elements,
-                                                        const SkVector& clipToMaskOffset,
-                                                        const SkIRect& clipSpaceIBounds) {
+GrTexture* GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
+                                                  int32_t elementsGenID,
+                                                  GrReducedClip::InitialState initialState,
+                                                  const GrReducedClip::ElementList& elements,
+                                                  const SkVector& clipToMaskOffset,
+                                                  const SkIRect& clipSpaceIBounds) {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
     GetClipMaskKey(elementsGenID, clipSpaceIBounds, &key);
     if (GrTexture* texture = resourceProvider->findAndRefTextureByUniqueKey(key)) {
-        return sk_ref_sp(texture);
+        return texture;
     }
 
     // There's no texture in the cache. Let's try to allocate it then.
-    GrPixelConfig config = kRGBA_8888_GrPixelConfig;
+    GrSurfaceDesc desc;
+    desc.fWidth = clipSpaceIBounds.width();
+    desc.fHeight = clipSpaceIBounds.height();
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-        config = kAlpha_8_GrPixelConfig;
+        desc.fConfig = kAlpha_8_GrPixelConfig;
+    } else {
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
     }
 
-    sk_sp<GrDrawContext> dc(context->newDrawContext(SkBackingFit::kApprox,
-                                                    clipSpaceIBounds.width(),
-                                                    clipSpaceIBounds.height(),
-                                                    config));
+    SkAutoTUnref<GrTexture> texture(resourceProvider->createApproxTexture(desc, 0));
+    if (!texture) {
+        return nullptr;
+    }
+
+    texture->resourcePriv().setUniqueKey(key);
+
+    sk_sp<GrDrawContext> dc(context->drawContext(sk_ref_sp(texture->asRenderTarget())));
     if (!dc) {
         return nullptr;
     }
-    
+
     // The texture may be larger than necessary, this rect represents the part of the texture
     // we populate with a rasterization of the clip.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(clipSpaceIBounds.width(), clipSpaceIBounds.height());
@@ -554,6 +563,17 @@ sk_sp<GrTexture> GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
         SkRegion::Op op = element->getOp();
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
+#ifdef SK_DEBUG
+            GrPathRenderer* pr = GetPathRenderer(context,
+                                                 texture, translate, element);
+            if (Element::kRect_Type != element->getType() && !pr) {
+                // UseSWOnlyPath should now filter out all cases where gpu-side mask merging would
+                // be performed (i.e., pr would be NULL for a non-rect path).
+                // See https://bug.skia.org/4519 for rationale and details.
+                SkASSERT(0);
+            }
+#endif
+
             GrFixedClip clip(maskSpaceIBounds);
 
             // draw directly into the result with the stencil set to make the pixels affected
@@ -569,6 +589,7 @@ sk_sp<GrTexture> GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
             );
             if (!stencil_element(dc.get(), clip, &kStencilInElement,
                                  translate, element)) {
+                texture->resourcePriv().removeUniqueKey();
                 return nullptr;
             }
 
@@ -586,6 +607,7 @@ sk_sp<GrTexture> GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
                                                           op, !invert, false,
                                                           translate,
                                                           SkRect::Make(clipSpaceIBounds))) {
+                texture->resourcePriv().removeUniqueKey();
                 return nullptr;
             }
         } else {
@@ -598,10 +620,7 @@ sk_sp<GrTexture> GrClipMaskManager::CreateAlphaClipMask(GrContext* context,
         }
     }
 
-    sk_sp<GrTexture> texture(dc->asTexture());
-    SkASSERT(texture);
-    texture->resourcePriv().setUniqueKey(key);
-    return texture;
+    return texture.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -788,18 +807,17 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
-                                                    GrContext* context,
-                                                    int32_t elementsGenID,
-                                                    GrReducedClip::InitialState initialState,
-                                                    const GrReducedClip::ElementList& elements,
-                                                    const SkVector& clipToMaskOffset,
-                                                    const SkIRect& clipSpaceIBounds) {
+GrTexture* GrClipMaskManager::CreateSoftwareClipMask(GrContext* context,
+                                                     int32_t elementsGenID,
+                                                     GrReducedClip::InitialState initialState,
+                                                     const GrReducedClip::ElementList& elements,
+                                                     const SkVector& clipToMaskOffset,
+                                                     const SkIRect& clipSpaceIBounds) {
     GrUniqueKey key;
     GetClipMaskKey(elementsGenID, clipSpaceIBounds, &key);
     GrResourceProvider* resourceProvider = context->resourceProvider();
     if (GrTexture* texture = resourceProvider->findAndRefTextureByUniqueKey(key)) {
-        return sk_ref_sp(texture);
+        return texture;
     }
 
     // The mask texture may be larger than necessary. We round out the clip space bounds and pin
@@ -855,13 +873,13 @@ sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
     desc.fHeight = clipSpaceIBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    sk_sp<GrTexture> result(context->resourceProvider()->createApproxTexture(desc, 0));
+    GrTexture* result = context->resourceProvider()->createApproxTexture(desc, 0);
     if (!result) {
         return nullptr;
     }
     result->resourcePriv().setUniqueKey(key);
 
-    helper.toTexture(result.get());
+    helper.toTexture(result);
 
     return result;
 }
