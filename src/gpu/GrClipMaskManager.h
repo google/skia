@@ -85,20 +85,20 @@ private:
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
-    static GrTexture* CreateAlphaClipMask(GrContext*,
-                                          int32_t elementsGenID,
-                                          GrReducedClip::InitialState initialState,
-                                          const GrReducedClip::ElementList& elements,
-                                          const SkVector& clipToMaskOffset,
-                                          const SkIRect& clipSpaceIBounds);
+    static sk_sp<GrTexture> CreateAlphaClipMask(GrContext*,
+                                                int32_t elementsGenID,
+                                                GrReducedClip::InitialState initialState,
+                                                const GrReducedClip::ElementList& elements,
+                                                const SkVector& clipToMaskOffset,
+                                                const SkIRect& clipSpaceIBounds);
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
-    static GrTexture* CreateSoftwareClipMask(GrContext*,
-                                             int32_t elementsGenID,
-                                             GrReducedClip::InitialState initialState,
-                                             const GrReducedClip::ElementList& elements,
-                                             const SkVector& clipToMaskOffset,
-                                             const SkIRect& clipSpaceIBounds);
+    static sk_sp<GrTexture> CreateSoftwareClipMask(GrContext*,
+                                                   int32_t elementsGenID,
+                                                   GrReducedClip::InitialState initialState,
+                                                   const GrReducedClip::ElementList& elements,
+                                                   const SkVector& clipToMaskOffset,
+                                                   const SkIRect& clipSpaceIBounds);
 
    static bool UseSWOnlyPath(GrContext*,
                              const GrPipelineBuilder&,
