@@ -255,10 +255,6 @@ public:
 
     bool immediateFlush() const { return fImmediateFlush; }
 
-    bool drawPathMasksToCompressedTexturesSupport() const {
-        return fDrawPathMasksToCompressedTextureSupport;
-    }
-
     size_t bufferMapThreshold() const {
         SkASSERT(fBufferMapThreshold >= 0);
         return fBufferMapThreshold;
@@ -333,7 +329,6 @@ private:
 
     bool fSuppressPrints : 1;
     bool fImmediateFlush: 1;
-    bool fDrawPathMasksToCompressedTextureSupport : 1;
 
     typedef SkRefCnt INHERITED;
 };

@@ -29,7 +29,6 @@
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
 #include "SkTemplates.h"
-#include "SkTextureCompressor.h"
 #include "SkYUVPlanesCache.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"

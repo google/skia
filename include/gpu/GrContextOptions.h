@@ -12,8 +12,7 @@
 
 struct GrContextOptions {
     GrContextOptions()
-        : fDrawPathToCompressedTexture(false)
-        , fSuppressPrints(false)
+        : fSuppressPrints(false)
         , fMaxTextureSizeOverride(SK_MaxS32)
         , fMaxTileSizeOverride(0)
         , fSuppressDualSourceBlending(false)
@@ -25,11 +24,6 @@ struct GrContextOptions {
         , fMaxBatchLookback(-1)
         , fMaxBatchLookahead(-1)
         , fUseShaderSwizzling(false) {}
-
-    // EXPERIMENTAL
-    // May be removed in the future, or may become standard depending
-    // on the outcomes of a variety of internal tests.
-    bool fDrawPathToCompressedTexture;
 
     // Suppress prints for the GrContext.
     bool fSuppressPrints;
