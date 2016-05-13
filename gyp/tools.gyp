@@ -32,6 +32,7 @@
         'skpmaker',
         'test_public_includes',
         'using_skia_and_harfbuzz',
+        'visualize_color_gamut',
         'whitelist_typefaces',
       ],
       'conditions': [
@@ -420,6 +421,23 @@
       'cflags': [ '-w', ],
       'msvs_settings': { 'VCCLCompilerTool': { 'WarningLevel': '0', }, },
       'xcode_settings': { 'WARNING_CFLAGS': [ '-w', ], },
+    },
+    {
+      'target_name': 'visualize_color_gamut',
+      'type': 'executable',
+      'sources': [
+        '../tools/visualize_color_gamut.cpp',
+      ],
+      'include_dirs': [
+        '../src/core',
+        '../include/private',
+        '../tools',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'resources',
+        'skia_lib.gyp:skia_lib',
+      ],
     },
     {
       'target_name': 'whitelist_typefaces',
