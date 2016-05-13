@@ -75,9 +75,11 @@ int sk_typeface_glyph_count (sk_typeface_t* typeface)
     return ((SkTypeface*) typeface)->countGlyphs();
 }
 
-void sk_typeface_get_family_name(sk_typeface_t* typeface, sk_string_t* family_name)
+sk_string_t* sk_typeface_get_family_name(sk_typeface_t* typeface)
 {
-    ((SkTypeface*)typeface)->getFamilyName(AsString(family_name));
+    SkString* family_name = new SkString();
+    ((SkTypeface*)typeface)->getFamilyName(family_name);
+    return ToString(family_name);
 }
 
 int sk_typeface_count_tables(sk_typeface_t* typeface)
