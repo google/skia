@@ -255,7 +255,10 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     args.fScissor = &appliedClip.scissorState();
     args.fHasStencilClip = appliedClip.hasStencilClip();
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
-        fResourceProvider->attachStencilAttachment(pipelineBuilder.getRenderTarget());
+        if (!fResourceProvider->attachStencilAttachment(pipelineBuilder.getRenderTarget())) {
+            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
+            return;
+        }
     }
     batch->getPipelineOptimizations(&args.fOpts);
     GrScissorState finalScissor;
@@ -328,6 +331,10 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(rt);
+    if (!stencilAttachment) {
+        SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
+        return;
+    }
 
     GrBatch* batch = GrStencilPathBatch::Create(viewMatrix,
                                                 pipelineBuilder.isHWAntialias(),
