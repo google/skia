@@ -110,6 +110,14 @@ SK_API void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* cmatri
     paint.
 */
 SK_API void sk_canvas_draw_round_rect(sk_canvas_t*, const sk_rect_t*, float rx, float ry, const sk_paint_t*);
+/**
+    Modify the current clip with the specified rectangle.
+*/
+SK_API void sk_canvas_clip_rect_with_operation(sk_canvas_t* t, const sk_rect_t* crect, sk_region_op_t op, bool doAA);
+/**
+    Modify the current clip with the specified path.
+*/
+SK_API void sk_canvas_clip_path_with_operation(sk_canvas_t* t, const sk_path_t* crect, sk_region_op_t op, bool doAA);
 
 SK_C_PLUS_PLUS_END_GUARD
 
