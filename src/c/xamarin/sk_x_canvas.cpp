@@ -119,18 +119,14 @@ void sk_canvas_draw_round_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, flo
 }
 
 void sk_canvas_clip_rect_with_operation(sk_canvas_t* ccanvas, const sk_rect_t* crect, sk_region_op_t op, bool doAA) {
-    SkRegion::Op operation = SkRegion::kIntersect_Op;
-    if (op) {
-        find_sk(op, &operation);
-    }
+    SkRegion::Op operation;
+    find_sk(op, &operation);
     AsCanvas(ccanvas)->clipRect(AsRect(*crect), operation, doAA);
 }
 
 void sk_canvas_clip_path_with_operation(sk_canvas_t* ccanvas, const sk_path_t* cpath, sk_region_op_t op, bool doAA) {
-    SkRegion::Op operation = SkRegion::kIntersect_Op;
-    if (op) {
-        find_sk(op, &operation);
-    }
+    SkRegion::Op operation;
+    find_sk(op, &operation);
     AsCanvas(ccanvas)->clipPath(AsPath(*cpath), operation, doAA);
 }
 
