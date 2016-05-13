@@ -66,7 +66,7 @@ public:
                                   const SkRRect& rrect) const override;
     bool filterMaskGPU(GrTexture* src,
                        const SkMatrix& ctm,
-                       const SkRect& maskRect,
+                       const SkIRect& maskRect,
                        GrTexture** result,
                        bool canOverwriteSrc) const override;
 #endif
@@ -1235,10 +1235,11 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
 
 bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
                                          const SkMatrix& ctm,
-                                         const SkRect& maskRect,
+                                         const SkIRect& maskRect,
                                          GrTexture** result,
                                          bool canOverwriteSrc) const {
-    SkRect clipRect = SkRect::MakeWH(maskRect.width(), maskRect.height());
+    // 'maskRect' isn't snapped to the UL corner but the mask in 'src' is.
+    const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
 
     GrContext* context = src->getContext();
 
@@ -1277,7 +1278,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
             paint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
         }
 
-        drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), clipRect);
+        drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), SkRect::Make(clipRect));
     }
 
     *result = drawContext->asTexture().release();

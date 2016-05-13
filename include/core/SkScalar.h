@@ -101,6 +101,7 @@ typedef double SkScalar;
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define SkIntToScalar(x)        static_cast<SkScalar>(x)
+#define SkIntToFloat(x)         static_cast<float>(x)
 #define SkScalarTruncToInt(x)   static_cast<int>(x)
 
 #define SkScalarToFloat(x)      static_cast<float>(x)

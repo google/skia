@@ -336,7 +336,7 @@ bool SkMaskFilter::directFilterRRectMaskGPU(GrTextureProvider* texProvider,
 
 bool SkMaskFilter::filterMaskGPU(GrTexture* src,
                                  const SkMatrix& ctm,
-                                 const SkRect& maskRect,
+                                 const SkIRect& maskRect,
                                  GrTexture** result,
                                  bool canOverwriteSrc) const {
     return false;

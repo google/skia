@@ -34,11 +34,10 @@ namespace SkGpuBlurUtils {
     sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
                                       GrTexture* srcTexture,
                                       bool gammaCorrect,
-                                      const SkRect& dstBounds,
-                                      const SkRect* srcBounds,
+                                      const SkIRect& dstBounds,
+                                      const SkIRect* srcBounds,
                                       float sigmaX,
                                       float sigmaY);
-
 };
 
 #endif
