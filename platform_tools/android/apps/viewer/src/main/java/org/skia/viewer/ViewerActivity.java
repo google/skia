@@ -12,6 +12,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -24,33 +27,30 @@ public class ViewerActivity
 
     private SurfaceView mView;
     private ViewerApplication mApplication;
-    private GestureDetector mGestureDetector;
 
     private native void onSurfaceCreated(long handle, Surface surface);
     private native void onSurfaceChanged(long handle, Surface surface);
     private native void onSurfaceDestroyed(long handle);
     private native void onKeyPressed(long handle, int keycode);
 
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return true;
-        }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.title, menu);
+        return true;
+    }
 
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (Math.abs(velocityX) > Math.abs(velocityY)
-                && Math.abs(velocityX) > FLING_VELOCITY_THRESHOLD) {
-                if (velocityX > 0) {
-                    // Fling right
-                    onKeyPressed(mApplication.getNativeHandle(), KeyEvent.KEYCODE_SOFT_RIGHT);
-                } else {
-                    // Fling left
-                    onKeyPressed(mApplication.getNativeHandle(), KeyEvent.KEYCODE_SOFT_LEFT);
-                }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_left:
+                onKeyPressed(mApplication.getNativeHandle(), KeyEvent.KEYCODE_SOFT_LEFT);
                 return true;
-            }
-            return false;
+            case R.id.action_right:
+                onKeyPressed(mApplication.getNativeHandle(), KeyEvent.KEYCODE_SOFT_RIGHT);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -63,7 +63,6 @@ public class ViewerActivity
         mView = (SurfaceView) findViewById(R.id.surfaceView);
         mView.getHolder().addCallback(this);
 
-        mGestureDetector = new GestureDetector(getApplicationContext(), new GestureListener());
         mView.setOnTouchListener(this);
     }
 
@@ -90,6 +89,6 @@ public class ViewerActivity
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
+        return false; // TODO pass the touch event to native code
     }
 }
