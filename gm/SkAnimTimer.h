@@ -104,6 +104,23 @@ public:
         return SkDoubleToScalar(value);
     }
 
+    /**
+     * Transitions from ends->mid->ends linearly over period seconds. The phase specifies a phase
+     * shift in seconds.
+     */
+    SkScalar pingPong(SkScalar period, SkScalar phase, SkScalar ends, SkScalar mid) const {
+        return PingPong(this->secs(), period, phase, ends, mid);
+    }
+
+    /** Helper for computing a ping-pong value without a SkAnimTimer object. */
+    static SkScalar PingPong(double t, SkScalar period, SkScalar phase, SkScalar ends,
+                             SkScalar mid) {
+        double value = ::fmod(t + phase, period);
+        double half = period / 2.0;
+        double diff = ::fabs(value - half);
+        return SkDoubleToScalar(ends + (1.0 - diff / half) * (mid - ends));
+    }
+
 private:
     double  fBaseTimeNanos;
     double  fCurrTimeNanos;
