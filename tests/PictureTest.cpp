@@ -20,6 +20,7 @@
 #include "SkMD5.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureAnalyzer.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
 #include "SkPixelRef.h"
@@ -158,7 +159,8 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     // path effects currently render an SkPicture undesireable for GPU rendering
 
     const char *reason = nullptr;
-    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(nullptr, &reason));
+    REPORTER_ASSERT(reporter,
+        !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization(&reason));
     REPORTER_ASSERT(reporter, reason);
 
     canvas = recorder.beginRecording(100, 100);
@@ -181,7 +183,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     }
     picture = recorder.finishRecordingAsPicture();
     // A lot of small AA concave paths should be fine for GPU rendering
-    REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(nullptr));
+    REPORTER_ASSERT(reporter, SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
 
     canvas = recorder.beginRecording(100, 100);
     {
@@ -203,7 +205,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     }
     picture = recorder.finishRecordingAsPicture();
     // A lot of large AA concave paths currently render an SkPicture undesireable for GPU rendering
-    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(nullptr));
+    REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
 
     canvas = recorder.beginRecording(100, 100);
     {
@@ -227,7 +229,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     }
     picture = recorder.finishRecordingAsPicture();
     // hairline stroked AA concave paths are fine for GPU rendering
-    REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(nullptr));
+    REPORTER_ASSERT(reporter, SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
 
     canvas = recorder.beginRecording(100, 100);
     {
@@ -243,7 +245,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     }
     picture = recorder.finishRecordingAsPicture();
     // fast-path dashed effects are fine for GPU rendering ...
-    REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(nullptr));
+    REPORTER_ASSERT(reporter, SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
 
     canvas = recorder.beginRecording(100, 100);
     {
@@ -257,18 +259,18 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     }
     picture = recorder.finishRecordingAsPicture();
     // ... but only when applied to drawPoint() calls
-    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(nullptr));
+    REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
 
     // Nest the previous picture inside a new one.
     canvas = recorder.beginRecording(100, 100);
     {
-        canvas->drawPicture(picture.get());
+        canvas->drawPicture(picture);
     }
     picture = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(nullptr));
+    REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
 }
 
-#endif
+#endif // SK_SUPPORT_GPU
 
 static void test_savelayer_extraction(skiatest::Reporter* reporter) {
     static const int kWidth = 100;
@@ -1346,3 +1348,38 @@ DEF_TEST(Picture_preserveCullRect, r) {
     REPORTER_ASSERT(r, deserializedPicture->cullRect().right() == 3);
     REPORTER_ASSERT(r, deserializedPicture->cullRect().bottom() == 4);
 }
+
+#if SK_SUPPORT_GPU
+
+DEF_TEST(PictureGpuAnalyzer, r) {
+    SkPictureRecorder recorder;
+
+    {
+        SkCanvas* canvas = recorder.beginRecording(10, 10);
+        SkPaint paint;
+        SkScalar intervals [] = { 10, 20 };
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 25));
+
+        for (int i = 0; i < 50; ++i) {
+            canvas->drawRect(SkRect::MakeWH(10, 10), paint);
+        }
+    }
+    sk_sp<SkPicture> vetoPicture(recorder.finishRecordingAsPicture());
+
+    SkPictureGpuAnalyzer analyzer;
+    REPORTER_ASSERT(r, analyzer.suitableForGpuRasterization());
+
+    analyzer.analyze(vetoPicture.get());
+    REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
+
+    analyzer.reset();
+    REPORTER_ASSERT(r, analyzer.suitableForGpuRasterization());
+
+    recorder.beginRecording(10, 10)->drawPicture(vetoPicture);
+    sk_sp<SkPicture> nestedVetoPicture(recorder.finishRecordingAsPicture());
+
+    analyzer.analyze(nestedVetoPicture.get());
+    REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
+}
+
+#endif // SK_SUPPORT_GPU

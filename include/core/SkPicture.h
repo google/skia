@@ -153,8 +153,10 @@ public:
     static bool InternalOnly_StreamIsSKP(SkStream*, SkPictInfo*);
     static bool InternalOnly_BufferIsSKP(SkReadBuffer*, SkPictInfo*);
 
+#ifdef SK_SUPPORT_LEGACY_PICTURE_GPUVETO
     /** Return true if the picture is suitable for rendering on the GPU.  */
     bool suitableForGpuRasterization(GrContext*, const char** whyNot = NULL) const;
+#endif
 
     // Sent via SkMessageBus from destructor.
     struct DeletionMessage { int32_t fUniqueID; };  // TODO: -> uint32_t?
@@ -190,6 +192,7 @@ private:
     friend class SkPictureData;
 
     virtual int numSlowPaths() const = 0;
+    friend class SkPictureGpuAnalyzer;
     friend struct SkPathCounter;
 
     // V35: Store SkRect (rather then width & height) in header

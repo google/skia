@@ -7,6 +7,7 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
+#include "SkPictureAnalyzer.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 
@@ -57,7 +58,7 @@ int tool_main(int argc, char** argv) {
                                               nullptr, 0));
     sk_sp<SkPicture> recorded(recorder.finishRecordingAsPicture());
 
-    if (recorded->suitableForGpuRasterization(nullptr)) {
+    if (SkPictureGpuAnalyzer(recorded).suitableForGpuRasterization(nullptr)) {
         SkDebugf("suitable\n");
     } else {
         SkDebugf("unsuitable\n");
