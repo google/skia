@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'files': [
+      '<(ANDROID_SDK_DIR)/',
+    ],
+  },
+}
