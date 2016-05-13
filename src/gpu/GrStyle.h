@@ -167,6 +167,10 @@ public:
     void adjustBounds(SkRect* dst, const SkRect& src) const {
         if (this->pathEffect()) {
             this->pathEffect()->computeFastBounds(dst, src);
+            // This may not be the correct SkStrokeRec to use. skbug.com/5299
+            // It happens to work for dashing.
+            SkScalar radius = fStrokeRec.getInflationRadius();
+            dst->outset(radius, radius);
         } else {
             SkScalar radius = fStrokeRec.getInflationRadius();
             *dst = src.makeOutset(radius, radius);

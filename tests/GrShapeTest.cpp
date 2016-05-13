@@ -10,8 +10,10 @@
 #include "Test.h"
 #if SK_SUPPORT_GPU
 #include "GrShape.h"
-#include "SkPath.h"
+#include "SkCanvas.h"
 #include "SkDashPathEffect.h"
+#include "SkPath.h"
+#include "SkSurface.h"
 
 using Key = SkTArray<uint32_t>;
 
@@ -27,8 +29,44 @@ static bool make_key(Key* key, const GrShape& shape) {
     return true;
 }
 
-namespace {
+static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds) {
+    static constexpr int kRes = 2000;
+    // This tolerance is in units of 1/kRes fractions of the bounds width/height.
+    static constexpr int kTol = 0;
+    GR_STATIC_ASSERT(kRes % 4 == 0);
+    SkImageInfo info = SkImageInfo::MakeA8(kRes, kRes);
+    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+    surface->getCanvas()->clear(0x0);
+    SkRect clip = SkRect::MakeXYWH(kRes/4, kRes/4, kRes/2, kRes/2);
+    SkMatrix matrix;
+    matrix.setRectToRect(bounds, clip, SkMatrix::kFill_ScaleToFit);
+    clip.outset(SkIntToScalar(kTol), SkIntToScalar(kTol));
+    surface->getCanvas()->clipRect(clip, SkRegion::kDifference_Op);
+    surface->getCanvas()->concat(matrix);
+    SkPaint whitePaint;
+    whitePaint.setColor(SK_ColorWHITE);
+    surface->getCanvas()->drawPath(path, whitePaint);
+    SkPixmap pixmap;
+    surface->getCanvas()->peekPixels(&pixmap);
+#if defined(SK_BUILD_FOR_WIN)
+    // The static constexpr version in #else causes cl.exe to crash.
+    const uint8_t* kZeros = reinterpret_cast<uint8_t*>(calloc(kRes, 1));
+#else
+    static constexpr uint8_t kZeros[kRes] = {0};
+#endif
+    for (int y = 0; y < kRes/4; ++y) {
+        const uint8_t* row = pixmap.addr8(0, y);
+        if (0 != memcmp(kZeros, row, kRes)) {
+            return false;
+        }
+    }
+#ifdef SK_BUILD_FOR_WIN
+    free(const_cast<uint8_t*>(kZeros));
+#endif
+    return true;
+}
 
+namespace {
 class TestCase {
 public:
     template <typename GEO>
@@ -65,6 +103,20 @@ public:
     const Key& appliedPathEffectThenStrokeKey() const { return fAppliedPEThenStrokeKey; }
 
 private:
+    static void CheckBounds(skiatest::Reporter* r, const GrShape& shape, const SkRect& bounds) {
+        SkPath path;
+        shape.asPath(&path);
+        // If the bounds are empty, the path ought to be as well.
+        if (bounds.isEmpty()) {
+            REPORTER_ASSERT(r, path.isEmpty());
+            return;
+        }
+        if (path.isEmpty()) {
+            return;
+        }
+        REPORTER_ASSERT(r, test_bounds_by_rasterizing(path, bounds));
+    }
+
     void init(skiatest::Reporter* r, SkScalar scale) {
         fAppliedPE           = fBase.applyStyle(GrStyle::Apply::kPathEffectOnly, scale);
         fAppliedPEThenStroke = fAppliedPE.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec,
@@ -92,6 +144,16 @@ private:
         REPORTER_ASSERT(r, path.isEmpty() == fAppliedPE.isEmpty());
         fAppliedFull.asPath(&path);
         REPORTER_ASSERT(r, path.isEmpty() == fAppliedFull.isEmpty());
+
+        CheckBounds(r, fBase, fBase.bounds());
+        CheckBounds(r, fAppliedPE, fAppliedPE.bounds());
+        CheckBounds(r, fAppliedPEThenStroke, fAppliedPEThenStroke.bounds());
+        CheckBounds(r, fAppliedFull, fAppliedFull.bounds());
+        SkRect styledBounds;
+        fBase.styledBounds(&styledBounds);
+        CheckBounds(r, fAppliedFull, styledBounds);
+        fAppliedPE.styledBounds(&styledBounds);
+        CheckBounds(r, fAppliedFull, styledBounds);
 
         // Check that the same path is produced when style is applied by GrShape and GrStyle.
         SkPath preStyle;

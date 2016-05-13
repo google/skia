@@ -390,10 +390,8 @@ struct SK_API SkIRect {
 struct SK_API SkRect {
     SkScalar    fLeft, fTop, fRight, fBottom;
 
-    static SkRect SK_WARN_UNUSED_RESULT MakeEmpty() {
-        SkRect r;
-        r.setEmpty();
-        return r;
+    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty() {
+        return SkRect{0, 0, 0, 0};
     }
 
     static SkRect SK_WARN_UNUSED_RESULT MakeLargest() {
@@ -506,7 +504,7 @@ struct SK_API SkRect {
 
     /** Set this rectangle to the empty rectangle (0,0,0,0)
     */
-    void setEmpty() { memset(this, 0, sizeof(*this)); }
+    void setEmpty() { *this = MakeEmpty(); }
 
     void set(const SkIRect& src) {
         fLeft   = SkIntToScalar(src.fLeft);

@@ -37,6 +37,28 @@ GrShape& GrShape::operator=(const GrShape& that) {
     return *this;
 }
 
+const SkRect& GrShape::bounds() const {
+    static constexpr SkRect kEmpty = SkRect::MakeEmpty();
+    switch (fType) {
+        case Type::kEmpty:
+            return kEmpty;
+        case Type::kRRect:
+            return fRRect.getBounds();
+        case Type::kPath:
+            return fPath.get()->getBounds();
+    }
+    SkFAIL("Unknown shape type");
+    return kEmpty;
+}
+
+void GrShape::styledBounds(SkRect* bounds) const {
+    if (Type::kEmpty == fType && !fStyle.hasNonDashPathEffect()) {
+        *bounds = SkRect::MakeEmpty();
+    } else {
+        fStyle.adjustBounds(bounds, this->bounds());
+    }
+}
+
 int GrShape::unstyledKeySize() const {
     if (fInheritedKey.count()) {
         return fInheritedKey.count();

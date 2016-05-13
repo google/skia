@@ -148,6 +148,12 @@ public:
      */
     bool isEmpty() const { return Type::kEmpty == fType; }
 
+    /** Gets the bounds of the geometry without reflecting the shape's styling. */
+    const SkRect& bounds() const;
+
+    /** Gets the bounds of the geometry reflecting the shape's styling. */
+    void styledBounds(SkRect* bounds) const;
+
     /**
      * Is it known that the unstyled geometry has no unclosed contours. This means that it will
      * not have any caps if stroked (modulo the effect of any path effect).
