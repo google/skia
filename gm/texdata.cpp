@@ -82,7 +82,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         SkAutoTUnref<GrTexture> au(texture);
 
         // setup new clip
-        GrClip clip(SkRect::MakeWH(2*S, 2*S));
+        GrFixedClip clip(SkIRect::MakeWH(2*S, 2*S));
 
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkXfermode::kSrcOver_Mode);

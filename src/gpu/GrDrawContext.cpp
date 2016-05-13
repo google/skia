@@ -301,14 +301,8 @@ void GrDrawContext::drawRect(const GrClip& clip,
     if (width < 0) {
         SkRect rtRect;
         fRenderTarget->getBoundsRect(&rtRect);
-        SkRect clipSpaceRTRect = rtRect;
-        bool checkClip = GrClip::kWideOpen_ClipType != clip.clipType();
-        if (checkClip) {
-            clipSpaceRTRect.offset(SkIntToScalar(clip.origin().fX),
-                                   SkIntToScalar(clip.origin().fY));
-        }
         // Does the clip contain the entire RT?
-        if (!checkClip || clip.quickContains(clipSpaceRTRect)) {
+        if (clip.quickContains(rtRect)) {
             SkMatrix invM;
             if (!viewMatrix.invert(&invM)) {
                 return;
@@ -374,7 +368,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, *style);
 }
 
-bool GrDrawContextPriv::drawAndStencilRect(const GrClip& clip,
+bool GrDrawContextPriv::drawAndStencilRect(const GrFixedClip& clip,
                                            const GrUserStencilSettings* ss,
                                            SkRegion::Op op,
                                            bool invert,
@@ -839,7 +833,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, style);
 }
 
-bool GrDrawContextPriv::drawAndStencilPath(const GrClip& clip,
+bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
                                            const GrUserStencilSettings* ss,
                                            SkRegion::Op op,
                                            bool invert,

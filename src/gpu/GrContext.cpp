@@ -373,7 +373,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             paint.addColorFragmentProcessor(fp);
             paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-            drawContext->drawRect(GrClip::WideOpen(), paint, matrix, rect, nullptr);
+            drawContext->drawRect(GrNoClip(), paint, matrix, rect, nullptr);
 
             if (kFlushWrites_PixelOp & pixelOpsFlags) {
                 this->flushSurfaceWrites(surface);
@@ -487,7 +487,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 sk_sp<GrDrawContext> drawContext(
                                             this->drawContext(sk_ref_sp(temp->asRenderTarget())));
-                drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect, nullptr);
+                drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect, nullptr);
                 surfaceToRead.reset(SkRef(temp.get()));
                 left = 0;
                 top = 0;
@@ -559,7 +559,7 @@ bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
 
     SkRect rect;
     src->getBoundsRect(&rect);
-    drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect);
+    drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect);
 
     this->flushSurfaceWrites(dst);
     return true;

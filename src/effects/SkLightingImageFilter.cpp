@@ -415,11 +415,11 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(SkSpecialIma
         return nullptr;
     }
 
-    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(offsetBounds.width()),
-                                    SkIntToScalar(offsetBounds.height()));
+    SkIRect dstIRect = SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height());
+    SkRect dstRect = SkRect::Make(dstIRect);
 
     // setup new clip
-    GrClip clip(dstRect);
+    GrFixedClip clip(dstIRect);
 
     const SkIRect inputBounds = SkIRect::MakeWH(input->width(), input->height());
     SkRect topLeft = SkRect::MakeXYWH(0, 0, 1, 1);

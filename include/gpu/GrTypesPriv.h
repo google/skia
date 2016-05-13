@@ -401,6 +401,8 @@ enum GrIOType {
 
 struct GrScissorState {
     GrScissorState() : fEnabled(false) {}
+    GrScissorState(const SkIRect& rect) : fEnabled(true), fRect(rect) {}
+    void setDisabled() { fEnabled = false; }
     void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
     bool operator==(const GrScissorState& other) const {
         return fEnabled == other.fEnabled &&

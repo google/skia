@@ -168,8 +168,7 @@ void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& 
 
     grPaint.addColorTextureProcessor(tex, textureMat);
 
-    GrClip clip;
-    fDrawContext->drawRect(clip, grPaint, mat, dst);
+    fDrawContext->drawRect(GrNoClip(), grPaint, mat, dst);
 }
 
 
@@ -260,8 +259,11 @@ void GrDrawContextPriv::testingOnly_drawBatch(const GrPipelineBuilder& pipelineB
     SkDEBUGCODE(fDrawContext->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::testingOnly_drawBatch");
 
-    const GrClip& drawClip = clip ? *clip : GrClip::WideOpen();
-    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, drawClip, batch);
+    if (clip) {
+        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, *clip, batch);
+    } else {
+        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, GrNoClip(), batch);
+    }
 }
 
 #undef ASSERT_SINGLE_OWNER

@@ -153,7 +153,7 @@ private:
 
     SkAutoTUnref<const SkClipStack> fClipStack;
     SkIPoint                        fClipOrigin;
-    GrClip                          fClip;;
+    GrClipStackClip                 fClip;
     // remove when our clients don't rely on accessBitmap()
     SkBitmap                        fLegacyBitmap;
     bool                            fOpaque;

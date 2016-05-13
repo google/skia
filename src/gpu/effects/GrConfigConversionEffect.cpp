@@ -232,7 +232,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             break;
         }
 
-        readDrawContext->fillRectToRect(GrClip::WideOpen(),
+        readDrawContext->fillRectToRect(GrNoClip(),
                                         paint1,
                                         SkMatrix::I(),
                                         kDstRect,
@@ -249,7 +249,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             failed = true;
             break;
         }
-        tempDrawContext->fillRectToRect(GrClip::WideOpen(),
+        tempDrawContext->fillRectToRect(GrNoClip(),
                                         paint2,
                                         SkMatrix::I(),
                                         kDstRect,
@@ -264,7 +264,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             break;
         }
 
-        readDrawContext->fillRectToRect(GrClip::WideOpen(),
+        readDrawContext->fillRectToRect(GrNoClip(),
                                         paint3,
                                         SkMatrix::I(),
                                         kDstRect,

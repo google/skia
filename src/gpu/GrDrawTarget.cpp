@@ -239,7 +239,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
                              GrDrawBatch* batch) {
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, clip, &batch->bounds(), &appliedClip)) {
+    if (!clip.apply(fClipMaskManager, pipelineBuilder, &batch->bounds(), &appliedClip)) {
         return;
     }
 
@@ -317,16 +317,14 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, clip, nullptr, &appliedClip)) {
+    if (!clip.apply(fClipMaskManager, pipelineBuilder, nullptr, &appliedClip)) {
         return;
     }
     // TODO: respect fClipBatchToBounds if we ever start computing bounds here.
 
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
-    if (appliedClip.clipCoverageFragmentProcessor()) {
-        arfps.set(&pipelineBuilder);
-        arfps.addCoverageFragmentProcessor(appliedClip.clipCoverageFragmentProcessor());
-    }
+    // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
+    // attempt this in a situation that would require coverage AA.
+    SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(rt);
@@ -378,7 +376,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
         SkAutoTUnref<GrDrawBatch> batch(
                 GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(), scalarRect,
                                                     nullptr, nullptr));
-        this->drawBatch(pipelineBuilder, GrClip::WideOpen(), batch);
+        this->drawBatch(pipelineBuilder, GrNoClip(), batch);
     } else {
         GrBatch* batch = new GrClearBatch(*rect, color, renderTarget);
         this->recordBatch(batch);

@@ -114,7 +114,7 @@ sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* contex
     SkRegion::Iterator iter(fRegion);
     drawContext->clear(nullptr, 0x0, true);
 
-    GrClip clip(SkRect::Make(SkIRect::MakeWH(bounds.width(), bounds.height())));
+    GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {
         SkRect rect = SkRect::Make(iter.rect());
         drawContext->drawRect(clip, grPaint, inMatrix, rect);

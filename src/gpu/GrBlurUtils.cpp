@@ -125,8 +125,8 @@ static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
     tempPaint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
 
     // setup new clip
-    const SkRect clipRect = SkRect::MakeIWH(maskRect.width(), maskRect.height());
-    GrClip clip(clipRect);
+    const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
+    GrFixedClip clip(clipRect);
 
     // Draw the mask into maskTexture with the path's integerized top-left at
     // the origin using tempPaint.

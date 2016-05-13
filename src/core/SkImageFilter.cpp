@@ -287,13 +287,13 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
         return nullptr;
     }
 
+    SkIRect dstIRect = SkIRect::MakeWH(bounds.width(), bounds.height());
     SkRect srcRect = SkRect::Make(bounds);
     SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
-    GrClip clip(dstRect);
+    GrFixedClip clip(dstIRect);
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
-    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                       kNeedNewImageUniqueID_SpecialImage,
+    return SkSpecialImage::MakeFromGpu(dstIRect, kNeedNewImageUniqueID_SpecialImage,
                                        drawContext->asTexture());
 }
 #endif

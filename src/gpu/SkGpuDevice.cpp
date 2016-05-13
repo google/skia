@@ -341,7 +341,7 @@ void SkGpuDevice::prepareDraw(const SkDraw& draw) {
 
     SkASSERT(draw.fClipStack && draw.fClipStack == fClipStack);
 
-    fClip.setClipStack(fClipStack, &this->getOrigin());
+    fClip.reset(fClipStack, &this->getOrigin());
 }
 
 GrRenderTarget* SkGpuDevice::accessRenderTarget() {

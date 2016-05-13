@@ -269,7 +269,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect);
+    drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect);
     ctx->flushSurfaceWrites(drawContext->accessRenderTarget());
     return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
                                    kOpaque_SkAlphaType,

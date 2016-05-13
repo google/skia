@@ -342,7 +342,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
             return nullptr;
         }
 
-        drawContext->drawRect(GrClip::WideOpen(), paint, matrix, SkRect::Make(colorBounds));
+        drawContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(colorBounds));
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();

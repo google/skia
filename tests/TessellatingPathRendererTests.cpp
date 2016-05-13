@@ -239,11 +239,12 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
     pipelineBuilder.setXPFactory(
         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
     pipelineBuilder.setRenderTarget(rt);
+    GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = dt;
     args.fPipelineBuilder = &pipelineBuilder;
-    args.fClip = &GrClip::WideOpen();
+    args.fClip = &noClip;
     args.fResourceProvider = rp;
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &SkMatrix::I();

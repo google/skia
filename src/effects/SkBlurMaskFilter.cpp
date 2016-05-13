@@ -1278,7 +1278,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
             paint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
         }
 
-        drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), SkRect::Make(clipRect));
+        drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), SkRect::Make(clipRect));
     }
 
     *result = drawContext->asTexture().release();

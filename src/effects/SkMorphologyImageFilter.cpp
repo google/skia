@@ -478,8 +478,7 @@ static sk_sp<SkSpecialImage> apply_morphology(GrContext* context,
     SkASSERT(srcTexture);
 
     // setup new clip
-    const GrClip clip(SkRect::MakeWH(SkIntToScalar(srcTexture->width()),
-                                     SkIntToScalar(srcTexture->height())));
+    const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
 
     const SkIRect dstRect = SkIRect::MakeWH(rect.width(), rect.height());
     SkIRect srcRect = rect;

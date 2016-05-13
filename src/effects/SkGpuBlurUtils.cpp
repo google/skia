@@ -212,7 +212,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
     scale_irect(&srcRect, scaleFactorX, scaleFactorY);
 
     // setup new clip
-    GrClip clip(localDstBounds);
+    GrFixedClip clip(localDstBounds);
 
     sk_sp<GrTexture> srcTexture(sk_ref_sp(origSrc));
 

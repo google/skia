@@ -17,35 +17,14 @@
 #include "SkTLList.h"
 #include "SkTypes.h"
 
-class GrClip;
+class GrAppliedClip;
+class GrClipStackClip;
 class GrDrawTarget;
 class GrPathRenderer;
 class GrPathRendererChain;
 class GrResourceProvider;
 class GrTexture;
 class SkPath;
-
-/**
- * Produced by GrClipMaskManager. It provides a set of modifications to the drawing state that
- * are used to create the final GrPipeline for a GrBatch. This is a work in progress. It will
- * eventually encapsulate all mechanisms for modifying the scissor, shaders, and stencil state
- * to implement clipping.
- */
-class GrAppliedClip : public SkNoncopyable {
-public:
-    GrAppliedClip() : fHasStencilClip(false) {}
-    const GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP; }
-    const GrScissorState& scissorState() const { return fScissorState; }
-    bool hasStencilClip() const { return fHasStencilClip; }
-
-private:
-    SkAutoTUnref<const GrFragmentProcessor> fClipCoverageFP;
-    GrScissorState                          fScissorState;
-    bool                                    fHasStencilClip;
-    friend class GrClipMaskManager;
-
-    typedef SkNoncopyable INHERITED;
-};
 
 /**
  * The clip mask creator handles the generation of the clip mask. If anti
@@ -57,7 +36,7 @@ private:
  */
 class GrClipMaskManager : SkNoncopyable {
 public:
-    GrClipMaskManager(GrDrawTarget* owner);
+    GrClipMaskManager(GrDrawTarget* owner) : fDrawTarget(owner) {}
 
     /**
      * Creates a clip mask if necessary as a stencil buffer or alpha texture
@@ -65,7 +44,7 @@ public:
      * then the draw can be skipped. devBounds is optional but can help optimize
      * clipping.
      */
-    bool setupClipping(const GrPipelineBuilder&, const GrClip&, const SkRect* devBounds,
+    bool setupClipping(const GrPipelineBuilder&, const GrClipStackClip&, const SkRect* devBounds,
                        GrAppliedClip*);
 
 private:
@@ -84,20 +63,6 @@ private:
                                            GrTexture* texture,
                                            const SkMatrix& viewMatrix,
                                            const SkClipStack::Element* element);
-
-    /**
-     * Informs the helper function adjustStencilParams() about how the stencil
-     * buffer clip is being used.
-     */
-    enum StencilClipMode {
-        // Draw to the clip bit of the stencil buffer
-        kModifyClip_StencilClipMode,
-        // Clip against the existing representation of the clip in the high bit
-        // of the stencil buffer.
-        kRespectClip_StencilClipMode,
-        // Neither writing to nor clipping against the clip bit.
-        kIgnoreClip_StencilClipMode,
-    };
 
     // Attempts to install a series of coverage effects to implement the clip. Return indicates
     // whether the element list was successfully converted to processors. *fp may be nullptr even
@@ -146,7 +111,6 @@ private:
     static const int kMaxAnalyticElements = 4;
 
     GrDrawTarget*   fDrawTarget;    // This is our owning draw target.
-    StencilClipMode fClipMode;
 
     typedef SkNoncopyable INHERITED;
 };
