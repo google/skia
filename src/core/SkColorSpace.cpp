@@ -336,20 +336,36 @@ bool SkColorSpace::LoadGammas(SkGammaCurve* gammas, uint32_t numGammas, const ui
                 // calculation necessary.  We encounter identical gamma curves over and
                 // over again, but relatively few variations.
                 if (1024 == count) {
+                    // The magic values were chosen because they match a very common sRGB
+                    // gamma table and the less common Canon sRGB gamma table (which use
+                    // different rounding rules).
                     if (0 == read_big_endian_short((const uint8_t*) &table[0]) &&
-                            3341 == read_big_endian_short((const uint8_t*) &table[256]) &&
-                            14057 == read_big_endian_short((const uint8_t*) &table[512]) &&
+                            3366 == read_big_endian_short((const uint8_t*) &table[257]) &&
+                            14116 == read_big_endian_short((const uint8_t*) &table[513]) &&
                             34318 == read_big_endian_short((const uint8_t*) &table[768]) &&
                             65535 == read_big_endian_short((const uint8_t*) &table[1023])) {
                         gammas[i].fValue = 2.2f;
                         break;
                     }
                 } else if (26 == count) {
+                    // The magic values were chosen because they match a very common sRGB
+                    // gamma table.
                     if (0 == read_big_endian_short((const uint8_t*) &table[0]) &&
                             3062 == read_big_endian_short((const uint8_t*) &table[6]) &&
                             12824 == read_big_endian_short((const uint8_t*) &table[12]) &&
                             31237 == read_big_endian_short((const uint8_t*) &table[18]) &&
                             65535 == read_big_endian_short((const uint8_t*) &table[25])) {
+                        gammas[i].fValue = 2.2f;
+                        break;
+                    }
+                } else if (4096 == count) {
+                    // The magic values were chosen because they match Nikon, Epson, and
+                    // LCMS sRGB gamma tables (all of which use different rounding rules).
+                    if (0 == read_big_endian_short((const uint8_t*) &table[0]) &&
+                            950 == read_big_endian_short((const uint8_t*) &table[515]) &&
+                            3342 == read_big_endian_short((const uint8_t*) &table[1025]) &&
+                            14079 == read_big_endian_short((const uint8_t*) &table[2051]) &&
+                            65535 == read_big_endian_short((const uint8_t*) &table[4095])) {
                         gammas[i].fValue = 2.2f;
                         break;
                     }
