@@ -37,19 +37,31 @@ struct Message {
 };
 
 struct SkiaAndroidApp {
-    int fPipes[2];  // 0 is the read message pipe, 1 is the write message pipe
     Application* fApp;
     Window* fWindow;
-    ANativeWindow* fNativeWindow;
+    jobject fAndroidApp;
 
-    SkiaAndroidApp();
-    ~SkiaAndroidApp();
-    void postMessage(const Message& message);
-    void readMessage(Message* message);
+    SkiaAndroidApp(JNIEnv* env, jobject androidApp);
+
+    void postMessage(const Message& message) const;
+    void readMessage(Message* message) const;
     void paintIfNeeded();
 
+    // This must be called in SkiaAndroidApp's own pthread because the JNIEnv is thread sensitive
+    void setTitle(const char* title) const;
 private:
     pthread_t fThread;
+    ANativeWindow* fNativeWindow;
+    int fPipes[2];  // 0 is the read message pipe, 1 is the write message pipe
+    JavaVM* fJavaVM;
+    JNIEnv* fPThreadEnv;
+    jmethodID fSetTitleMethodID;
+
+    // This must be called in SkiaAndroidApp's own pthread because the JNIEnv is thread sensitive
+    ~SkiaAndroidApp();
+
+    static int message_callback(int fd, int events, void* data);
+    static void* pthread_main(void*);
 };
 
 }  // namespace sk_app

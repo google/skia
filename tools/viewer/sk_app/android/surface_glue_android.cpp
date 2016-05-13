@@ -31,14 +31,17 @@ static const std::unordered_map<int, Window::Key> ANDROID_TO_WINDOW_KEYMAP({
     {AKEYCODE_SOFT_RIGHT, Window::Key::kRight}
 });
 
-void* pthread_main(void* arg);
-
-SkiaAndroidApp::SkiaAndroidApp() {
+SkiaAndroidApp::SkiaAndroidApp(JNIEnv* env, jobject androidApp) {
+    env->GetJavaVM(&fJavaVM);
+    fAndroidApp = env->NewGlobalRef(androidApp);
+    jclass cls = env->GetObjectClass(fAndroidApp);
+    fSetTitleMethodID = env->GetMethodID(cls, "setTitle", "(Ljava/lang/String;)V");
     fNativeWindow = nullptr;
     pthread_create(&fThread, nullptr, pthread_main, this);
 }
 
 SkiaAndroidApp::~SkiaAndroidApp() {
+    fPThreadEnv->DeleteGlobalRef(fAndroidApp);
     if (fWindow) {
         fWindow->detach();
     }
@@ -51,23 +54,29 @@ SkiaAndroidApp::~SkiaAndroidApp() {
     }
 }
 
+void SkiaAndroidApp::setTitle(const char* title) const {
+    jstring titleString = fPThreadEnv->NewStringUTF(title);
+    fPThreadEnv->CallVoidMethod(fAndroidApp, fSetTitleMethodID, titleString);
+    fPThreadEnv->DeleteLocalRef(titleString);
+}
+
 void SkiaAndroidApp::paintIfNeeded() {
     if (fNativeWindow && fWindow) {
         fWindow->onPaint();
     }
 }
 
-void SkiaAndroidApp::postMessage(const Message& message) {
+void SkiaAndroidApp::postMessage(const Message& message) const {
     auto writeSize = write(fPipes[1], &message, sizeof(message));
     SkASSERT(writeSize == sizeof(message));
 }
 
-void SkiaAndroidApp::readMessage(Message* message) {
+void SkiaAndroidApp::readMessage(Message* message) const {
     auto readSize = read(fPipes[0], message, sizeof(Message));
     SkASSERT(readSize == sizeof(Message));
 }
 
-static int message_callback(int fd, int events, void* data) {
+int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
     auto skiaAndroidApp = (SkiaAndroidApp*)data;
     Message message;
     skiaAndroidApp->readMessage(&message);
@@ -127,10 +136,13 @@ static int message_callback(int fd, int events, void* data) {
     return 1;  // continue receiving callbacks
 }
 
-void* pthread_main(void* arg) {
+void* SkiaAndroidApp::pthread_main(void* arg) {
     SkDebugf("pthread_main begins");
 
     auto skiaAndroidApp = (SkiaAndroidApp*)arg;
+
+    // Because JNIEnv is thread sensitive, we need AttachCurrentThread to set our fPThreadEnv
+    skiaAndroidApp->fJavaVM->AttachCurrentThread(&(skiaAndroidApp->fPThreadEnv), nullptr);
 
     ALooper* looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
     pipe(skiaAndroidApp->fPipes);
@@ -152,13 +164,13 @@ void* pthread_main(void* arg) {
 
 extern "C"  // extern "C" is needed for JNI (although the method itself is in C++)
     JNIEXPORT jlong JNICALL
-    Java_org_skia_viewer_ViewerApplication_createNativeApp(JNIEnv* env, jobject activity) {
-    SkiaAndroidApp* skiaAndroidApp = new SkiaAndroidApp;
+    Java_org_skia_viewer_ViewerApplication_createNativeApp(JNIEnv* env, jobject application) {
+    SkiaAndroidApp* skiaAndroidApp = new SkiaAndroidApp(env, application);
     return (jlong)((size_t)skiaAndroidApp);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerApplication_destroyNativeApp(
-    JNIEnv* env, jobject activity, jlong handle) {
+    JNIEnv* env, jobject application, jlong handle) {
     auto skiaAndroidApp = (SkiaAndroidApp*)handle;
     skiaAndroidApp->postMessage(Message(kDestroyApp));
 }

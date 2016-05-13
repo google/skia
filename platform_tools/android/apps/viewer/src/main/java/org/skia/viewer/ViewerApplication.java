@@ -11,6 +11,7 @@ import android.app.Application;
 
 public class ViewerApplication extends Application {
     private long mNativeHandle = 0;
+    private ViewerActivity mViewerActivity;
 
     static {
         System.loadLibrary("skia_android");
@@ -37,5 +38,21 @@ public class ViewerApplication extends Application {
 
     public long getNativeHandle() {
         return mNativeHandle;
+    }
+
+    public void setViewerActivity(ViewerActivity viewerActivity) {
+        this.mViewerActivity = viewerActivity;
+    }
+
+    public void setTitle(String title) {
+        final String finalTitle = title;
+        if (mViewerActivity != null) {
+            mViewerActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mViewerActivity.setTitle(finalTitle);
+                }
+            });
+        }
     }
 }

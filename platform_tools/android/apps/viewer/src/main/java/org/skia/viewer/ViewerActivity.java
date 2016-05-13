@@ -60,10 +60,17 @@ public class ViewerActivity
         setContentView(R.layout.activity_main);
 
         mApplication = (ViewerApplication) getApplication();
+        mApplication.setViewerActivity(this);
         mView = (SurfaceView) findViewById(R.id.surfaceView);
         mView.getHolder().addCallback(this);
 
         mView.setOnTouchListener(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mApplication.setViewerActivity(null);
+        super.onDestroy();
     }
 
     @Override

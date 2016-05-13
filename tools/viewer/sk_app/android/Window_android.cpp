@@ -38,8 +38,7 @@ const DisplayParams& Window_android::getDisplayParams() {
 }
 
 void Window_android::setTitle(const char* title) {
-    //todo
-    SkDebugf("Title: %s", title);
+    fSkiaAndroidApp->setTitle(title);
 }
 
 bool Window_android::attach(BackEndType attachType, const DisplayParams& params) {
