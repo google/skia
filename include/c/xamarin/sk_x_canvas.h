@@ -110,6 +110,26 @@ SK_API void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* cmatri
     paint.
 */
 SK_API void sk_canvas_draw_round_rect(sk_canvas_t*, const sk_rect_t*, float rx, float ry, const sk_paint_t*);
+/**
+    Modify the current clip with the specified rectangle.
+*/
+SK_API void sk_canvas_clip_rect_with_operation(sk_canvas_t* t, const sk_rect_t* crect, sk_region_op_t op, bool doAA);
+/**
+    Modify the current clip with the specified path.
+*/
+SK_API void sk_canvas_clip_path_with_operation(sk_canvas_t* t, const sk_path_t* crect, sk_region_op_t op, bool doAA);
+
+/** Return the bounds of the current clip (in local coordinates) in the
+    bounds parameter, and return true if it is non-empty. This can be useful
+    in a way similar to quickReject, in that it tells you that drawing
+    outside of these bounds will be clipped out.
+*/
+SK_API bool sk_canvas_get_clip_bounds(sk_canvas_t* t, sk_rect_t* cbounds);
+/** Return the bounds of the current clip, in device coordinates; returns
+    true if non-empty. Maybe faster than getting the clip explicitly and
+    then taking its bounds.
+*/
+SK_API bool sk_canvas_get_clip_device_bounds(sk_canvas_t* t, sk_irect_t* cbounds);
 
 SK_C_PLUS_PLUS_END_GUARD
 

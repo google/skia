@@ -360,6 +360,22 @@ const struct {
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_join_t)
 #include "../sk_c_from_to.h"
 
+const struct {
+    sk_region_op_t fC;
+    SkRegion::Op   fSK;
+} MAKE_FROM_TO_NAME(sk_region_op_t)[] = {
+    { DIFFERENCE_SK_REGION_OP,         SkRegion::kDifference_Op },
+    { INTERSECT_SK_REGION_OP,          SkRegion::kIntersect_Op },
+    { UNION_SK_REGION_OP,              SkRegion::kUnion_Op },
+    { XOR_SK_REGION_OP,                SkRegion::kXOR_Op },
+    { REVERSE_DIFFERENCE_SK_REGION_OP, SkRegion::kReverseDifference_Op },
+    { REPLACE_SK_REGION_OP,            SkRegion::kReplace_Op },
+};
+#define CType           sk_region_op_t
+#define SKType          SkRegion::Op
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_region_op_t)
+#include "../sk_c_from_to.h"
+
 static inline SkRect* AsRect(sk_rect_t* crect) {
     return reinterpret_cast<SkRect*>(crect);
 }
@@ -374,6 +390,10 @@ static inline const SkRect& AsRect(const sk_rect_t& crect) {
 
 static inline sk_rect_t ToRect(const SkRect& rect) {
     return reinterpret_cast<const sk_rect_t&>(rect);
+}
+
+static inline SkIRect* AsIRect(sk_irect_t* crect) {
+    return reinterpret_cast<SkIRect*>(crect);
 }
 
 static inline const SkIRect* AsIRect(const sk_irect_t* crect) {

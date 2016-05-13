@@ -117,3 +117,23 @@ void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* cmatrix)
 void sk_canvas_draw_round_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, float rx, float ry, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawRoundRect(AsRect(*crect), rx, ry, AsPaint(*cpaint));
 }
+
+void sk_canvas_clip_rect_with_operation(sk_canvas_t* ccanvas, const sk_rect_t* crect, sk_region_op_t op, bool doAA) {
+    SkRegion::Op operation = SkRegion::kIntersect_Op;
+    find_sk(op, &operation);
+    AsCanvas(ccanvas)->clipRect(AsRect(*crect), operation, doAA);
+}
+
+void sk_canvas_clip_path_with_operation(sk_canvas_t* ccanvas, const sk_path_t* cpath, sk_region_op_t op, bool doAA) {
+    SkRegion::Op operation = SkRegion::kIntersect_Op;
+    find_sk(op, &operation);
+    AsCanvas(ccanvas)->clipPath(AsPath(*cpath), operation, doAA);
+}
+
+bool sk_canvas_get_clip_bounds(sk_canvas_t* ccanvas, sk_rect_t* cbounds) {
+    return AsCanvas(ccanvas)->getClipBounds(AsRect(cbounds));
+}
+
+bool sk_canvas_get_clip_device_bounds(sk_canvas_t* ccanvas, sk_irect_t* cbounds) {
+    return AsCanvas(ccanvas)->getClipDeviceBounds(AsIRect(cbounds));
+}
