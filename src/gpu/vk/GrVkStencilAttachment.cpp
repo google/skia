@@ -16,11 +16,11 @@
 GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
                                              const Format& format,
                                              const GrVkImage::ImageDesc& desc,
-                                             const GrVkImage::Resource* imageResource,
+                                             const GrVkImageInfo& info,
                                              const GrVkImageView* stencilView)
     : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight,
                           format.fStencilBits, desc.fSamples)
-    , GrVkImage(imageResource)
+    , GrVkImage(info, GrVkImage::kNot_Wrapped)
     , fFormat(format)
     , fStencilView(stencilView) {
     this->registerWithCache(SkBudgeted::kYes);
@@ -44,22 +44,22 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
                             VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    const GrVkImage::Resource* imageResource = GrVkImage::CreateResource(gpu, imageDesc);
-    if (!imageResource) {
+    GrVkImageInfo info;
+    if (!GrVkImage::InitImageInfo(gpu, imageDesc, &info)) {
         return nullptr;
     }
 
-    const GrVkImageView* imageView = GrVkImageView::Create(gpu, imageResource->fImage,
+    const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage,
                                                            format.fInternalFormat,
                                                            GrVkImageView::kStencil_Type, 1);
     if (!imageView) {
-        imageResource->unref(gpu);
+        VK_CALL(gpu, DestroyImage(gpu->device(), info.fImage, nullptr));
+        VK_CALL(gpu, FreeMemory(gpu->device(), info.fAlloc, nullptr));
         return nullptr;
     }
 
     GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, format, imageDesc,
-                                                               imageResource, imageView);
-    imageResource->unref(gpu);
+                                                               info, imageView);
     imageView->unref(gpu);
 
     return stencil;

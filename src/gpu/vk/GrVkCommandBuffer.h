@@ -127,13 +127,33 @@ public:
                    const VkImageCopy* copyRegions);
 
     void blitImage(const GrVkGpu* gpu,
-                   const GrVkImage::Resource* srcImage,
+                   const GrVkResource* srcResource,
+                   VkImage srcImage,
                    VkImageLayout srcLayout,
-                   const GrVkImage::Resource* dstImage,
+                   const GrVkResource* dstResource,
+                   VkImage dstImage,
                    VkImageLayout dstLayout,
                    uint32_t blitRegionCount,
                    const VkImageBlit* blitRegions,
                    VkFilter filter);
+
+    void blitImage(const GrVkGpu* gpu,
+                   const GrVkImage& srcImage,
+                   const GrVkImage& dstImage,
+                   uint32_t blitRegionCount,
+                   const VkImageBlit* blitRegions,
+                   VkFilter filter) {
+        this->blitImage(gpu,
+                        srcImage.resource(),
+                        srcImage.image(),
+                        srcImage.currentLayout(),
+                        dstImage.resource(),
+                        dstImage.image(),
+                        dstImage.currentLayout(),
+                        blitRegionCount,
+                        blitRegions,
+                        filter);
+    }
 
     void copyImageToBuffer(const GrVkGpu* gpu,
                            GrVkImage* srcImage,

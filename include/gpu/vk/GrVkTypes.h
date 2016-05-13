@@ -27,18 +27,22 @@
 ///////////////////////////////////////////////////////////////////////////////
 /**
  * Types for interacting with Vulkan resources created externally to Skia. GrBackendObjects for 
- * Vulkan textures are really const GrVkTextureInfo*
+ * Vulkan textures are really const GrVkImageInfo*
  */
-
-struct GrVkTextureInfo {
+struct GrVkImageInfo {
     VkImage        fImage;
-    VkDeviceMemory fAlloc;    // this may be null iff the texture is an RT and uses borrow semantics
+    VkDeviceMemory fAlloc;    // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
     VkImageTiling  fImageTiling;
     VkImageLayout  fImageLayout;
     VkFormat       fFormat;
     uint32_t       fLevelCount;
+
+    // This gives a way for a client to update the layout of the Image if they change the layout
+    // while we're still holding onto the wrapped texture. They will first need to get a handle
+    // to our internal GrVkImageInfo by calling getTextureHandle on a GrVkTexture.
+    void updateImageLayout(VkImageLayout layout) { fImageLayout = layout; }
 };
 
-GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkTextureInfo*));
+GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkImageInfo*));
 
 #endif

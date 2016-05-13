@@ -255,7 +255,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         fImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
 
         GrBackendRenderTargetDesc desc;
-        GrVkTextureInfo info;
+        GrVkImageInfo info;
         info.fImage = fImages[i];
         info.fAlloc = VK_NULL_HANDLE;
         info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;

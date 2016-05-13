@@ -304,7 +304,7 @@ void GrVkPipelineState::writeSamplers(GrVkGpu* gpu,
         fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params,
                                                           texture->texturePriv().maxMipMapLevel()));
 
-        const GrVkImage::Resource* textureResource = texture->resource();
+        const GrVkResource* textureResource = texture->resource();
         textureResource->ref();
         fTextures.push(textureResource);
 

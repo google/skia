@@ -24,17 +24,18 @@
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkBudgeted budgeted,
                                    const GrSurfaceDesc& desc,
-                                   const GrVkImage::Resource* imageResource,
-                                   const GrVkImage::Resource* msaaResource,
+                                   const GrVkImageInfo& info,
+                                   const GrVkImageInfo& msaaInfo,
                                    const GrVkImageView* colorAttachmentView,
-                                   const GrVkImageView* resolveAttachmentView)
+                                   const GrVkImageView* resolveAttachmentView,
+                                   GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
-    , GrVkImage(imageResource)
+    , GrVkImage(info, wrapped)
     // for the moment we only support 1:1 color to stencil
     , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
     , fFramebuffer(nullptr)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImageResource(msaaResource)
+    , fMSAAImage(new GrVkImage(info, GrVkImage::kNot_Wrapped))
     , fResolveAttachmentView(resolveAttachmentView)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt);
@@ -42,31 +43,30 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     fColorValuesPerPixel = desc.fSampleCnt + 1; // TODO: this still correct?
     this->createFramebuffer(gpu);
     this->registerWithCache(budgeted);
-    msaaResource->ref();
 }
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
 // constructor must be explicitly called.
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrSurfaceDesc& desc,
-                                   const GrVkImage::Resource* imageResource,
-                                   const GrVkImage::Resource* msaaResource,
+                                   const GrVkImageInfo& info,
+                                   const GrVkImageInfo& msaaInfo,
                                    const GrVkImageView* colorAttachmentView,
-                                   const GrVkImageView* resolveAttachmentView)
+                                   const GrVkImageView* resolveAttachmentView,
+                                   GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
-    , GrVkImage(imageResource)
+    , GrVkImage(info, wrapped)
     // for the moment we only support 1:1 color to stencil
     , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
     , fFramebuffer(nullptr)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImageResource(msaaResource)
+    , fMSAAImage(new GrVkImage(info, GrVkImage::kNot_Wrapped))
     , fResolveAttachmentView(resolveAttachmentView)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt);
     // The plus 1 is to account for the resolve texture.
     fColorValuesPerPixel = desc.fSampleCnt + 1; // TODO: this still correct?
     this->createFramebuffer(gpu);
-    msaaResource->ref();
 }
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
@@ -74,14 +74,15 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkBudgeted budgeted,
                                    const GrSurfaceDesc& desc,
-                                   const GrVkImage::Resource* imageResource,
-                                   const GrVkImageView* colorAttachmentView)
+                                   const GrVkImageInfo& info,
+                                   const GrVkImageView* colorAttachmentView,
+                                   GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
-    , GrVkImage(imageResource)
+    , GrVkImage(info, wrapped)
     , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
     , fFramebuffer(nullptr)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImageResource(nullptr)
+    , fMSAAImage(nullptr)
     , fResolveAttachmentView(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(!desc.fSampleCnt);
@@ -94,14 +95,15 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
 // constructor must be explicitly called.
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrSurfaceDesc& desc,
-                                   const GrVkImage::Resource* imageResource,
-                                   const GrVkImageView* colorAttachmentView)
+                                   const GrVkImageInfo& info,
+                                   const GrVkImageView* colorAttachmentView,
+                                   GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
-    , GrVkImage(imageResource)
+    , GrVkImage(info, wrapped)
     , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
     , fFramebuffer(nullptr)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImageResource(nullptr)
+    , fMSAAImage(nullptr)
     , fResolveAttachmentView(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(!desc.fSampleCnt);
@@ -113,14 +115,15 @@ GrVkRenderTarget*
 GrVkRenderTarget::Create(GrVkGpu* gpu,
                          SkBudgeted budgeted,
                          const GrSurfaceDesc& desc,
-                         const GrVkImage::Resource* imageResource) {
+                         const GrVkImageInfo& info,
+                         GrVkImage::Wrapped wrapped) {
     VkFormat pixelFormat;
     GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat);
 
     VkImage colorImage;
 
     // create msaa surface if necessary
-    const GrVkImage::Resource* msaaResource = nullptr;
+    GrVkImageInfo msInfo;
     const GrVkImageView* resolveAttachmentView = nullptr;
     if (desc.fSampleCnt) {
         GrVkImage::ImageDesc msImageDesc;
@@ -134,46 +137,42 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
         msImageDesc.fUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         msImageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-        msaaResource = GrVkImage::CreateResource(gpu, msImageDesc);
-
-        if (!msaaResource) {
+        if (!GrVkImage::InitImageInfo(gpu, msImageDesc, &msInfo)) {
             return nullptr;
         }
 
         // Set color attachment image
-        colorImage = msaaResource->fImage;
+        colorImage = msInfo.fImage;
 
         // Create Resolve attachment view
-        resolveAttachmentView = GrVkImageView::Create(gpu, imageResource->fImage, pixelFormat,
+        resolveAttachmentView = GrVkImageView::Create(gpu, info.fImage, pixelFormat,
                                                       GrVkImageView::kColor_Type, 1);
         if (!resolveAttachmentView) {
-            msaaResource->unref(gpu);
+            GrVkImage::DestroyImageInfo(gpu, &msInfo);
             return nullptr;
         }
     } else {
         // Set color attachment image
-        colorImage = imageResource->fImage;
+        colorImage = info.fImage;
     }
 
     // Get color attachment view
     const GrVkImageView* colorAttachmentView = GrVkImageView::Create(gpu, colorImage, pixelFormat,
                                                                      GrVkImageView::kColor_Type, 1);
     if (!colorAttachmentView) {
-        if (msaaResource) {
+        if (desc.fSampleCnt) {
             resolveAttachmentView->unref(gpu);
-            msaaResource->unref(gpu);
+            GrVkImage::DestroyImageInfo(gpu, &msInfo);
         }
-        return NULL;
+        return nullptr;
     }
 
     GrVkRenderTarget* texRT;
-    if (msaaResource) {
-        texRT = new GrVkRenderTarget(gpu, budgeted, desc, imageResource, msaaResource,
-                                     colorAttachmentView, resolveAttachmentView);
-        msaaResource->unref(gpu);
+    if (desc.fSampleCnt) {
+        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, msInfo,
+                                     colorAttachmentView, resolveAttachmentView, wrapped);
     } else {
-        texRT = new GrVkRenderTarget(gpu, budgeted, desc, imageResource,
-                                     colorAttachmentView);
+        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, colorAttachmentView, wrapped);
     }
 
     return texRT;
@@ -186,14 +185,16 @@ GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu,
                                         const GrVkImage::ImageDesc& imageDesc) {
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
-    const GrVkImage::Resource* imageResource = GrVkImage::CreateResource(gpu, imageDesc);
-    if (!imageResource) {
+    GrVkImageInfo info;
+    if (!GrVkImage::InitImageInfo(gpu, imageDesc, &info)) {
         return nullptr;
     }
 
-    GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, budgeted, desc, imageResource);
-    // Create() will increment the refCount of the image resource if it succeeds
-    imageResource->unref(gpu);
+    GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, budgeted, desc, info,
+                                                    GrVkImage::kNot_Wrapped);
+    if (!rt) {
+        GrVkImage::DestroyImageInfo(gpu, &info);
+    }
     return rt;
 }
 
@@ -201,36 +202,16 @@ GrVkRenderTarget*
 GrVkRenderTarget::CreateWrappedRenderTarget(GrVkGpu* gpu,
                                             const GrSurfaceDesc& desc,
                                             GrWrapOwnership ownership,
-                                            const GrVkTextureInfo* info) {
+                                            const GrVkImageInfo* info) {
     SkASSERT(info);
     // We can wrap a rendertarget without its allocation, as long as we don't take ownership
     SkASSERT(VK_NULL_HANDLE != info->fImage);
     SkASSERT(VK_NULL_HANDLE != info->fAlloc || kAdopt_GrWrapOwnership != ownership);
 
-    GrVkImage::Resource::Flags flags = (VK_IMAGE_TILING_LINEAR == info->fImageTiling)
-                                     ? Resource::kLinearTiling_Flag : Resource::kNo_Flags;
+    GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership ? GrVkImage::kBorrowed_Wrapped
+                                                                      : GrVkImage::kAdopted_Wrapped;
 
-    const GrVkImage::Resource* imageResource;
-    if (kBorrow_GrWrapOwnership == ownership) {
-        imageResource = new GrVkImage::BorrowedResource(info->fImage,
-                                                        info->fAlloc,
-                                                        info->fFormat,
-                                                        info->fLevelCount,
-                                                        flags);
-    } else {
-        imageResource = new GrVkImage::Resource(info->fImage, info->fAlloc, info->fFormat,
-                                                info->fLevelCount, flags);
-    }
-    if (!imageResource) {
-        return nullptr;
-    }
-
-    GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, imageResource);
-    if (rt) {
-        rt->fCurrentLayout = info->fImageLayout;
-    }
-    // Create() will increment the refCount of the image resource if it succeeds
-    imageResource->unref(gpu);
+    GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, *info, wrapped);
 
     return rt;
 }
@@ -292,7 +273,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
 
 GrVkRenderTarget::~GrVkRenderTarget() {
     // either release or abandon should have been called by the owner of this object.
-    SkASSERT(!fMSAAImageResource);
+    SkASSERT(!fMSAAImage);
     SkASSERT(!fResolveAttachmentView);
     SkASSERT(!fColorAttachmentView);
     SkASSERT(!fFramebuffer);
@@ -316,9 +297,9 @@ void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer) const {
 void GrVkRenderTarget::releaseInternalObjects() {
     GrVkGpu* gpu = this->getVkGpu();
 
-    if (fMSAAImageResource) {
-        fMSAAImageResource->unref(gpu);
-        fMSAAImageResource = nullptr;
+    if (fMSAAImage) {
+        fMSAAImage->releaseImage(gpu);
+        fMSAAImage = nullptr;
     }
 
     if (fResolveAttachmentView) {
@@ -340,9 +321,9 @@ void GrVkRenderTarget::releaseInternalObjects() {
 }
 
 void GrVkRenderTarget::abandonInternalObjects() {
-    if (fMSAAImageResource) {
-        fMSAAImageResource->unrefAndAbandon();
-        fMSAAImageResource = nullptr;
+    if (fMSAAImage) {
+        fMSAAImage->abandonImage();
+        fMSAAImage = nullptr;
     }
 
     if (fResolveAttachmentView) {
@@ -381,7 +362,7 @@ GrBackendObject GrVkRenderTarget::getRenderTargetHandle() const {
     return (GrBackendObject)&fResource;
 }
 
-const GrVkImage::Resource* GrVkRenderTarget::stencilImageResource() const {
+const GrVkResource* GrVkRenderTarget::stencilImageResource() const {
     const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
     if (stencil) {
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);

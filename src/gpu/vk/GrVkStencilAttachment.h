@@ -29,7 +29,7 @@ public:
 
     ~GrVkStencilAttachment() override;
 
-    const GrVkImage::Resource* imageResource() const { return this->resource(); }
+    const GrVkResource* imageResource() const { return this->resource(); }
     const GrVkImageView* stencilView() const { return fStencilView; }
 
     VkFormat vkFormat() const { return fFormat.fInternalFormat; }
@@ -44,7 +44,7 @@ private:
     GrVkStencilAttachment(GrVkGpu* gpu,
                           const Format& format,
                           const GrVkImage::ImageDesc&,
-                          const GrVkImage::Resource*,
+                          const GrVkImageInfo&,
                           const GrVkImageView* stencilView);
 
     GrVkGpu* getVkGpu() const;

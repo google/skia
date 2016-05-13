@@ -129,8 +129,6 @@ protected:
             return;
         }
 
-        GrBackendObject yuvHandles[3];
-        this->createYUVTextures(context, yuvHandles);
 
         static const SkScalar kPad = 10.f;
 
@@ -142,12 +140,14 @@ protected:
         SkTArray<sk_sp<SkImage>> images;
         images.push_back(fRGBImage);
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
+            GrBackendObject yuvHandles[3];
+            this->createYUVTextures(context, yuvHandles);
             images.push_back(SkImage::MakeFromYUVTexturesCopy(context,
                                                               static_cast<SkYUVColorSpace>(space),
                                                               yuvHandles, sizes,
                                                               kTopLeft_GrSurfaceOrigin));
+            this->deleteYUVTextures(context, yuvHandles);
         }
-        this->deleteYUVTextures(context, yuvHandles);
         for (int i = 0; i < images.count(); ++ i) {
             SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
             SkScalar x = kPad;

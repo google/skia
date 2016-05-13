@@ -14,7 +14,7 @@
 
 class GrVkGpu;
 class GrVkImageView;
-struct GrVkTextureInfo;
+struct GrVkImageInfo;
 
 class GrVkTexture : public GrTexture, public virtual GrVkImage {
 public:
@@ -22,8 +22,7 @@ public:
                                          const GrVkImage::ImageDesc&);
 
     static GrVkTexture* CreateWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
-                                             GrWrapOwnership,
-                                             VkFormat, const GrVkTextureInfo*);
+                                             GrWrapOwnership, const GrVkImageInfo*);
 
     ~GrVkTexture() override;
 
@@ -36,12 +35,8 @@ public:
     bool reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels);
 
 protected:
-    GrVkTexture(GrVkGpu*, const GrSurfaceDesc&,
-                const GrVkImage::Resource*, const GrVkImageView* imageView);
-
-    template<typename ResourceType>
-    static GrVkTexture* Create(GrVkGpu*, ResourceType, const GrSurfaceDesc&, VkFormat,
-                               const GrVkImage::Resource* texImpl);
+    GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, const GrVkImageView*,
+                GrVkImage::Wrapped wrapped);
 
     GrVkGpu* getVkGpu() const;
 
@@ -51,9 +46,9 @@ protected:
 private:
     enum Wrapped { kWrapped };
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
-                const GrVkImage::Resource*, const GrVkImageView* imageView);
+                const GrVkImageInfo&, const GrVkImageView* imageView);
     GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&,
-                const GrVkImage::Resource*, const GrVkImageView* imageView);
+                const GrVkImageInfo&, const GrVkImageView* imageView, GrVkImage::Wrapped wrapped);
 
     const GrVkImageView*     fTextureView;
     const GrVkImageView*     fLinearTextureView;

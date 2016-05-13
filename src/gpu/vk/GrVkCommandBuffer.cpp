@@ -251,30 +251,32 @@ void GrVkCommandBuffer::copyImage(const GrVkGpu* gpu,
     this->addResource(srcImage->resource());
     this->addResource(dstImage->resource());
     GR_VK_CALL(gpu->vkInterface(), CmdCopyImage(fCmdBuffer,
-                                                srcImage->textureImage(),
+                                                srcImage->image(),
                                                 srcLayout,
-                                                dstImage->textureImage(),
+                                                dstImage->image(),
                                                 dstLayout,
                                                 copyRegionCount,
                                                 copyRegions));
 }
 
 void GrVkCommandBuffer::blitImage(const GrVkGpu* gpu,
-                                  const GrVkImage::Resource* srcImage,
+                                  const GrVkResource* srcResource,
+                                  VkImage srcImage,
                                   VkImageLayout srcLayout,
-                                  const GrVkImage::Resource*  dstImage,
+                                  const GrVkResource* dstResource,
+                                  VkImage dstImage,
                                   VkImageLayout dstLayout,
                                   uint32_t blitRegionCount,
                                   const VkImageBlit* blitRegions,
                                   VkFilter filter) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
-    this->addResource(srcImage);
-    this->addResource(dstImage);
+    this->addResource(srcResource);
+    this->addResource(dstResource);
     GR_VK_CALL(gpu->vkInterface(), CmdBlitImage(fCmdBuffer,
-                                                srcImage->fImage,
+                                                srcImage,
                                                 srcLayout,
-                                                dstImage->fImage,
+                                                dstImage,
                                                 dstLayout,
                                                 blitRegionCount,
                                                 blitRegions,
@@ -292,7 +294,7 @@ void GrVkCommandBuffer::copyImageToBuffer(const GrVkGpu* gpu,
     this->addResource(srcImage->resource());
     this->addResource(dstBuffer->resource());
     GR_VK_CALL(gpu->vkInterface(), CmdCopyImageToBuffer(fCmdBuffer,
-                                                        srcImage->textureImage(),
+                                                        srcImage->image(),
                                                         srcLayout,
                                                         dstBuffer->buffer(),
                                                         copyRegionCount,
@@ -311,7 +313,7 @@ void GrVkCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
     this->addResource(dstImage->resource());
     GR_VK_CALL(gpu->vkInterface(), CmdCopyBufferToImage(fCmdBuffer,
                                                         srcBuffer->buffer(),
-                                                        dstImage->textureImage(),
+                                                        dstImage->image(),
                                                         dstLayout,
                                                         copyRegionCount,
                                                         copyRegions));
@@ -326,7 +328,7 @@ void GrVkCommandBuffer::clearColorImage(const GrVkGpu* gpu,
     SkASSERT(!fActiveRenderPass);
     this->addResource(image->resource());
     GR_VK_CALL(gpu->vkInterface(), CmdClearColorImage(fCmdBuffer,
-                                                      image->textureImage(),
+                                                      image->image(),
                                                       image->currentLayout(),
                                                       color,
                                                       subRangeCount,
@@ -342,7 +344,7 @@ void GrVkCommandBuffer::clearDepthStencilImage(const GrVkGpu* gpu,
     SkASSERT(!fActiveRenderPass);
     this->addResource(image->resource());
     GR_VK_CALL(gpu->vkInterface(), CmdClearDepthStencilImage(fCmdBuffer,
-                                                             image->textureImage(),
+                                                             image->image(),
                                                              image->currentLayout(),
                                                              color,
                                                              subRangeCount,

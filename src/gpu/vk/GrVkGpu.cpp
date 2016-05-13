@@ -326,7 +326,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
     const GrVkInterface* interface = this->vkInterface();
 
     GR_VK_CALL(interface, GetImageSubresourceLayout(fDevice,
-                                                    tex->textureImage(),
+                                                    tex->image(),
                                                     &subres,
                                                     &layout));
 
@@ -334,8 +334,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
     VkDeviceSize offset = texTop*layout.rowPitch + left*bpp;
     VkDeviceSize size = height*layout.rowPitch;
     void* mapPtr;
-    err = GR_VK_CALL(interface, MapMemory(fDevice, tex->textureMemory(), offset, size, 0,
-                                            &mapPtr));
+    err = GR_VK_CALL(interface, MapMemory(fDevice, tex->memory(), offset, size, 0, &mapPtr));
     if (err) {
         return false;
     }
@@ -359,7 +358,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
         }
     }
 
-    GR_VK_CALL(interface, UnmapMemory(fDevice, tex->textureMemory()));
+    GR_VK_CALL(interface, UnmapMemory(fDevice, tex->memory()));
 
     return true;
 }
@@ -608,11 +607,6 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin) {
 
 GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
                                          GrWrapOwnership ownership) {
-    VkFormat format;
-    if (!GrPixelConfigToVkFormat(desc.fConfig, &format)) {
-        return nullptr;
-    }
-
     if (0 == desc.fTextureHandle) {
         return nullptr;
     }
@@ -622,10 +616,17 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         return nullptr;
     }
 
-    const GrVkTextureInfo* info = reinterpret_cast<const GrVkTextureInfo*>(desc.fTextureHandle);
+    const GrVkImageInfo* info = reinterpret_cast<const GrVkImageInfo*>(desc.fTextureHandle);
     if (VK_NULL_HANDLE == info->fImage || VK_NULL_HANDLE == info->fAlloc) {
         return nullptr;
     }
+#ifdef SK_DEBUG
+    VkFormat format;
+    if (!GrPixelConfigToVkFormat(desc.fConfig, &format)) {
+        return nullptr;
+    }
+    SkASSERT(format == info->fFormat);
+#endif
 
     GrSurfaceDesc surfDesc;
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
@@ -642,10 +643,9 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     GrVkTexture* texture = nullptr;
     if (renderTarget) {
         texture = GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(this, surfDesc,
-                                                                            ownership, format,
-                                                                            info);
+                                                                            ownership, info);
     } else {
-        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, ownership, format, info);
+        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, ownership, info);
     }
     if (!texture) {
         return nullptr;
@@ -657,8 +657,8 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
 GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
                                                    GrWrapOwnership ownership) {
 
-    const GrVkTextureInfo* info =
-        reinterpret_cast<const GrVkTextureInfo*>(wrapDesc.fRenderTargetHandle);
+    const GrVkImageInfo* info =
+        reinterpret_cast<const GrVkImageInfo*>(wrapDesc.fRenderTargetHandle);
     if (VK_NULL_HANDLE == info->fImage ||
         (VK_NULL_HANDLE == info->fAlloc && kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
@@ -710,8 +710,9 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
                         VK_ACCESS_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
 
     // grab handle to the original image resource
-    const GrVkImage::Resource* oldResource = tex->resource();
+    const GrVkResource* oldResource = tex->resource();
     oldResource->ref();
+    VkImage oldImage = tex->image();
 
     // SkMipMap doesn't include the base level in the level count so we have to add 1
     uint32_t levelCount = SkMipMap::ComputeLevelCount(tex->width(), tex->height()) + 1;
@@ -739,15 +740,17 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
 
     fCurrentCmdBuffer->blitImage(this,
                                  oldResource,
+                                 oldImage,
                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                  tex->resource(),
+                                 tex->image(),
                                  VK_IMAGE_LAYOUT_GENERAL,
                                  1,
                                  &blitRegion,
                                  VK_FILTER_LINEAR);
 
     // setup memory barrier
-    SkASSERT(GrVkFormatToPixelConfig(tex->resource()->fFormat, nullptr));
+    SkASSERT(GrVkFormatToPixelConfig(tex->imageFormat(), nullptr));
     VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
@@ -758,7 +761,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
         VK_IMAGE_LAYOUT_GENERAL,                         // newLayout
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
         VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
-        tex->resource()->fImage,                         // image
+        tex->image(),                                    // image
         { aspectFlags, 0, 1, 0, 1 }                      // subresourceRange
     };
 
@@ -781,10 +784,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
         blitRegion.dstOffsets[0] = { 0, 0, 0 };
         blitRegion.dstOffsets[1] = { width, height, 0 };
         fCurrentCmdBuffer->blitImage(this,
-                                     tex->resource(),
-                                     VK_IMAGE_LAYOUT_GENERAL,
-                                     tex->resource(),
-                                     VK_IMAGE_LAYOUT_GENERAL,
+                                     *tex,
+                                     *tex,
                                      1,
                                      &blitRegion,
                                      VK_FILTER_LINEAR);
@@ -947,7 +948,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
         }
     }
 
-    GrVkTextureInfo* info = new GrVkTextureInfo;
+    GrVkImageInfo* info = new GrVkImageInfo;
     info->fImage = image;
     info->fAlloc = alloc;
     info->fImageTiling = imageTiling;
@@ -959,7 +960,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
 }
 
 bool GrVkGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
-    const GrVkTextureInfo* backend = reinterpret_cast<const GrVkTextureInfo*>(id);
+    const GrVkImageInfo* backend = reinterpret_cast<const GrVkImageInfo*>(id);
 
     if (backend && backend->fImage && backend->fAlloc) {
         VkMemoryRequirements req;
@@ -976,7 +977,7 @@ bool GrVkGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
 }
 
 void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandon) {
-    const GrVkTextureInfo* backend = reinterpret_cast<const GrVkTextureInfo*>(id);
+    const GrVkImageInfo* backend = reinterpret_cast<const GrVkImageInfo*>(id);
 
     if (backend) {
         if (!abandon) {
@@ -1379,10 +1380,8 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
     blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 0 };
 
     fCurrentCmdBuffer->blitImage(this,
-                                 srcImage->resource(),
-                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                 dstImage->resource(),
-                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                 *srcImage,
+                                 *dstImage,
                                  1,
                                  &blitRegion,
                                  VK_FILTER_NEAREST); // We never scale so any filter works here

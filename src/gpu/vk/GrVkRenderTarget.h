@@ -20,7 +20,7 @@ class GrVkGpu;
 class GrVkImageView;
 class GrVkStencilAttachment;
 
-struct GrVkTextureInfo;
+struct GrVkImageInfo;
 
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives bogus warnings about inheriting asTexture/asRenderTarget via dominance.
@@ -35,15 +35,20 @@ public:
 
     static GrVkRenderTarget* CreateWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
                                                        GrWrapOwnership,
-                                                       const GrVkTextureInfo*);
+                                                       const GrVkImageInfo*);
 
     ~GrVkRenderTarget() override;
 
     const GrVkFramebuffer* framebuffer() const { return fFramebuffer; }
     const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView; }
-    const GrVkImage::Resource* msaaImageResource() const { return fMSAAImageResource; }
+    const GrVkResource* msaaImageResource() const {
+        if (fMSAAImage) {
+            return fMSAAImage->fResource;
+        }
+        return nullptr;
+    }
     const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView; }
-    const GrVkImage::Resource* stencilImageResource() const;
+    const GrVkResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
 
     const GrVkRenderPass* simpleRenderPass() const { return fCachedSimpleRenderPass; }
@@ -67,33 +72,18 @@ public:
 
 protected:
     GrVkRenderTarget(GrVkGpu* gpu,
-                     SkBudgeted,
                      const GrSurfaceDesc& desc,
-                     const GrVkImage::Resource* imageResource,
-                     const GrVkImage::Resource* msaaImageResource,
+                     const GrVkImageInfo& info,
+                     const GrVkImageInfo& msaaInfo,
                      const GrVkImageView* colorAttachmentView,
-                     const GrVkImageView* resolveAttachmentView);
+                     const GrVkImageView* resolveAttachmentView,
+                     GrVkImage::Wrapped wrapped);
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      const GrSurfaceDesc& desc,
-                     const GrVkImage::Resource* imageResource,
-                     const GrVkImage::Resource* msaaImageResource,
+                     const GrVkImageInfo& info,
                      const GrVkImageView* colorAttachmentView,
-                     const GrVkImageView* resolveAttachmentView);
-
-    GrVkRenderTarget(GrVkGpu* gpu,
-                     SkBudgeted,
-                     const GrSurfaceDesc& desc,
-                     const GrVkImage::Resource* imageResource,
-                     const GrVkImageView* colorAttachmentView);
-
-    GrVkRenderTarget(GrVkGpu* gpu,
-                     const GrSurfaceDesc& desc,
-                     const GrVkImage::Resource* imageResource,
-                     const GrVkImageView* colorAttachmentView);
-
-    static GrVkRenderTarget* Create(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
-                                    const GrVkImage::Resource* imageResource);
+                     GrVkImage::Wrapped wrapped);
 
     GrVkGpu* getVkGpu() const;
 
@@ -110,6 +100,25 @@ protected:
     }
 
 private:
+    GrVkRenderTarget(GrVkGpu* gpu,
+                     SkBudgeted,
+                     const GrSurfaceDesc& desc,
+                     const GrVkImageInfo& info,
+                     const GrVkImageInfo& msaaInfo,
+                     const GrVkImageView* colorAttachmentView,
+                     const GrVkImageView* resolveAttachmentView,
+                     GrVkImage::Wrapped wrapped);
+
+    GrVkRenderTarget(GrVkGpu* gpu,
+                     SkBudgeted,
+                     const GrSurfaceDesc& desc,
+                     const GrVkImageInfo& info,
+                     const GrVkImageView* colorAttachmentView,
+                     GrVkImage::Wrapped wrapped);
+
+    static GrVkRenderTarget* Create(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
+                                    const GrVkImageInfo&, GrVkImage::Wrapped wrapped);
+
     bool completeStencilAttachment() override;
 
     void createFramebuffer(GrVkGpu* gpu);
@@ -119,7 +128,7 @@ private:
 
     const GrVkFramebuffer*     fFramebuffer;
     const GrVkImageView*       fColorAttachmentView;
-    const GrVkImage::Resource* fMSAAImageResource;
+    GrVkImage*                 fMSAAImage;
     const GrVkImageView*       fResolveAttachmentView;
     int                        fColorValuesPerPixel;
 

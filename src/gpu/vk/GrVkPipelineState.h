@@ -266,7 +266,7 @@ private:
     // GrVkResources used for sampling textures
     SkTDArray<GrVkSampler*> fSamplers;
     SkTDArray<const GrVkImageView*> fTextureViews;
-    SkTDArray<const GrVkImage::Resource*> fTextures;
+    SkTDArray<const GrVkResource*> fTextures;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;

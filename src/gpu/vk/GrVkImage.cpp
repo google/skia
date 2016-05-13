@@ -31,36 +31,36 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
                                bool byRegion) {
     SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
+    VkImageLayout currentLayout = this->currentLayout();
     // Is this reasonable? Could someone want to keep the same layout but use the masks to force
     // a barrier on certain things?
-    if (newLayout == fCurrentLayout) {
+    if (newLayout == currentLayout) {
         return;
     }
 
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(fCurrentLayout);
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(fCurrentLayout);
+    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(currentLayout);
+    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(currentLayout);
 
-    VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fResource->fFormat);
+    VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fInfo.fFormat);
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
         NULL,                                            // pNext
         srcAccessMask,                                   // outputMask
         dstAccessMask,                                   // inputMask
-        fCurrentLayout,                                  // oldLayout
+        currentLayout,                                   // oldLayout
         newLayout,                                       // newLayout
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
         VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
-        fResource->fImage,                               // image
-        { aspectFlags, 0, fResource->fLevelCount, 0, 1 } // subresourceRange
+        fInfo.fImage,                                    // image
+        { aspectFlags, 0, fInfo.fLevelCount, 0, 1 }      // subresourceRange
     };
 
     gpu->addImageMemoryBarrier(srcStageMask, dstStageMask, byRegion, &imageMemoryBarrier);
 
-    fCurrentLayout = newLayout;
+    fInfo.fImageLayout = newLayout;
 }
 
-const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
-                                                     const ImageDesc& imageDesc) {
+bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo* info) {
     VkImage image = 0;
     VkDeviceMemory alloc;
 
@@ -71,7 +71,7 @@ const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
     // Create Image
     VkSampleCountFlagBits vkSamples;
     if (!GrSampleCountToVkSampleCount(imageDesc.fSamples, &vkSamples)) {
-        return nullptr;
+        return false;
     }
 
     SkASSERT(VK_IMAGE_TILING_OPTIMAL == imageDesc.fImageTiling ||
@@ -95,18 +95,30 @@ const GrVkImage::Resource* GrVkImage::CreateResource(const GrVkGpu* gpu,
         initialLayout                                // initialLayout
     };
 
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
+    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateImage(gpu->device(), &imageCreateInfo, nullptr,
+                                                        &image));
 
     if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, imageDesc.fMemProps, &alloc)) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
-        return nullptr;
+        return false;
     }
 
-    GrVkImage::Resource::Flags flags =
-        (VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling) ? Resource::kLinearTiling_Flag
-                                                           : Resource::kNo_Flags;
+    info->fImage = image;
+    info->fAlloc = alloc;
+    info->fImageTiling = imageDesc.fImageTiling;
+    info->fImageLayout = initialLayout;
+    info->fFormat = imageDesc.fFormat;
+    info->fLevelCount = imageDesc.fLevels;
+    return true;
+}
 
-    return (new GrVkImage::Resource(image, alloc, imageDesc.fFormat, imageDesc.fLevels, flags));
+void GrVkImage::DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo* info) {
+    VK_CALL(gpu, DestroyImage(gpu->device(), info->fImage, nullptr));
+    VK_CALL(gpu, FreeMemory(gpu->device(), info->fAlloc, nullptr));
+}
+
+void GrVkImage::setNewResource(VkImage image, VkDeviceMemory alloc) {
+    fResource = new Resource(image, alloc);
 }
 
 GrVkImage::~GrVkImage() {
