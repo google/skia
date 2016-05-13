@@ -62,6 +62,13 @@ static inline Sk4f Sk4f_fromS32(uint32_t src) {
     return srgb_to_linear(to_4f(src) * Sk4f(1.0f/255));
 }
 
+// Color handling:
+//   SkColor has an ordering of (b, g, r, a) if cast to an Sk4f, so the code swizzles r and b to
+// produce the needed (r, g, b, a) ordering.
+static inline Sk4f Sk4f_from_SkColor(SkColor color) {
+    return swizzle_rb(gTreatSkColorAsSRGB ? Sk4f_fromS32(color) : Sk4f_fromL32(color));
+}
+
 static inline uint32_t Sk4f_toL32(const Sk4f& x4) {
     return to_4b(x4 * Sk4f(255) + Sk4f(0.5f));
 }

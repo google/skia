@@ -10,9 +10,12 @@
 
 #include <tuple>
 
+#include "SkColor.h"
+#include "SkColorPriv.h"
 #include "SkFixed.h"
 #include "SkHalf.h"
 #include "SkLinearBitmapPipeline_core.h"
+#include "SkNx.h"
 #include "SkPM4fPriv.h"
 
 namespace {
@@ -54,6 +57,53 @@ static Sk4s VECTORCALL bilerp4(Sk4s xs, Sk4s ys, Sk4f px00, Sk4f px10,
 // of the different SkColorTypes.
 template <SkColorType colorType, SkColorProfileType colorProfile> class PixelGetter;
 
+// Alpha handling:
+//   The alpha from the paint (tintColor) is used in the blend part of the pipeline to modulate
+// the entire bitmap. So, the tint color is given an alpha of 1.0 so that the later alpha can
+// modulate this color later.
+template <>
+class PixelGetter<kAlpha_8_SkColorType, kLinear_SkColorProfileType> {
+public:
+    using Element = uint8_t;
+    PixelGetter(const SkPixmap& srcPixmap, SkColor tintColor)
+        : fTintColor{set_alpha(Sk4f_from_SkColor(tintColor), 1.0f)} { }
+
+    Sk4f getPixelAt(const uint8_t* src) {
+        return fTintColor * (*src * (1.0f/255.0f));
+    }
+
+private:
+    const Sk4f fTintColor;
+};
+
+template <SkColorProfileType colorProfile>
+class PixelGetter<kRGB_565_SkColorType, colorProfile> {
+public:
+    using Element = uint16_t;
+    PixelGetter(const SkPixmap& srcPixmap) { }
+
+    Sk4f getPixelAt(const uint16_t* src) {
+        SkPMColor pixel = SkPixel16ToPixel32(*src);
+        return colorProfile == kSRGB_SkColorProfileType
+               ? Sk4f_fromS32(pixel)
+               : Sk4f_fromL32(pixel);
+    }
+};
+
+template <SkColorProfileType colorProfile>
+class PixelGetter<kARGB_4444_SkColorType, colorProfile> {
+public:
+    using Element = uint16_t;
+    PixelGetter(const SkPixmap& srcPixmap) { }
+
+    Sk4f getPixelAt(const uint16_t* src) {
+        SkPMColor pixel = SkPixel4444ToPixel32(*src);
+        return colorProfile == kSRGB_SkColorProfileType
+               ? Sk4f_fromS32(pixel)
+               : Sk4f_fromL32(pixel);
+    }
+};
+
 template <SkColorProfileType colorProfile>
 class PixelGetter<kRGBA_8888_SkColorType, colorProfile> {
 public:
@@ -77,7 +127,7 @@ public:
         Sk4f pixel = colorProfile == kSRGB_SkColorProfileType
                      ? Sk4f_fromS32(*src)
                      : Sk4f_fromL32(*src);
-        return SkNx_shuffle<2, 1, 0, 3>(pixel);
+        return swizzle_rb(pixel);
     }
 };
 
@@ -128,6 +178,21 @@ private:
     Sk4f*                fColorTable;
 };
 
+template <SkColorProfileType colorProfile>
+class PixelGetter<kGray_8_SkColorType, colorProfile> {
+public:
+    using Element = uint8_t;
+    PixelGetter(const SkPixmap& srcPixmap) { }
+
+    Sk4f getPixelAt(const uint8_t* src) {
+        float gray = *src * (1.0f/255.0f);
+        Sk4f pixel = Sk4f{gray, gray, gray, 1.0f};
+        return colorProfile == kSRGB_SkColorProfileType
+               ? srgb_to_linear(pixel)
+               : pixel;
+    }
+};
+
 template <>
 class PixelGetter<kRGBA_F16_SkColorType, kLinear_SkColorProfileType> {
 public:
@@ -145,10 +210,11 @@ template <SkColorType colorType, SkColorProfileType colorProfile>
 class PixelAccessor {
     using Element = typename PixelGetter<colorType, colorProfile>::Element;
 public:
-    PixelAccessor(const SkPixmap& srcPixmap)
+    template <typename... Args>
+    PixelAccessor(const SkPixmap& srcPixmap, Args&&... args)
         : fSrc{static_cast<const Element*>(srcPixmap.addr())}
         , fWidth{srcPixmap.rowBytesAsPixels()}
-        , fGetter{srcPixmap} { }
+        , fGetter{srcPixmap, std::move<Args>(args)...} { }
 
     void VECTORCALL getFewPixels(int n, Sk4s xs, Sk4s ys, Sk4f* px0, Sk4f* px1, Sk4f* px2) {
         Sk4i XIs = SkNx_cast<int, SkScalar>(xs);
@@ -711,10 +777,9 @@ private:
         }
     }
 
-    Next* const fNext;
+    Next* const                            fNext;
     PixelAccessor<colorType, colorProfile> fStrategy;
 };
-
 
 }  // namespace
 

@@ -19,7 +19,7 @@ public:
         const SkMatrix& inverse,
         SkFilterQuality filterQuality,
         SkShader::TileMode xTile, SkShader::TileMode yTile,
-        float postAlpha,
+        SkColor paintColor,
         const SkPixmap& srcPixmap);
 
 

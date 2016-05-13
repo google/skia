@@ -708,39 +708,52 @@ private:
 
 using Blender = SkLinearBitmapPipeline::BlendProcessorInterface;
 
+template <SkColorType colorType, template <SkColorType, SkColorProfileType, typename> class Sampler>
+static void choose_specific_sampler(
+    Blender* next,
+    const SkPixmap& srcPixmap,
+    SkLinearBitmapPipeline::SampleStage* sampleStage)
+{
+    if (srcPixmap.info().profileType() == kSRGB_SkColorProfileType) {
+        using S = Sampler<colorType, kSRGB_SkColorProfileType, Blender>;
+        sampleStage->initStage<S>(next, srcPixmap);
+    } else {
+        using S = Sampler<colorType, kLinear_SkColorProfileType, Blender>;
+        sampleStage->initStage<S>(next, srcPixmap);
+    }
+}
+
 template<template <SkColorType, SkColorProfileType, typename> class Sampler>
 static SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler_base(
     Blender* next,
     const SkPixmap& srcPixmap,
-    SkLinearBitmapPipeline::SampleStage* sampleStage) {
+    const SkColor A8TintColor,
+    SkLinearBitmapPipeline::SampleStage* sampleStage)
+{
     const SkImageInfo& imageInfo = srcPixmap.info();
     switch (imageInfo.colorType()) {
-        case kRGBA_8888_SkColorType:
-            if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                using S = Sampler<kRGBA_8888_SkColorType, kSRGB_SkColorProfileType, Blender>;
-                sampleStage->initStage<S>(next, srcPixmap);
-            } else {
-                using S = Sampler<kRGBA_8888_SkColorType, kLinear_SkColorProfileType, Blender>;
-                sampleStage->initStage<S>(next, srcPixmap);
+        case kAlpha_8_SkColorType: {
+                using S = Sampler<kAlpha_8_SkColorType, kLinear_SkColorProfileType, Blender>;
+                sampleStage->initStage<S>(next, srcPixmap, A8TintColor);
             }
+            break;
+        case kARGB_4444_SkColorType:
+            choose_specific_sampler<kARGB_4444_SkColorType, Sampler>(next, srcPixmap, sampleStage);
+            break;
+        case kRGB_565_SkColorType:
+            choose_specific_sampler<kRGB_565_SkColorType, Sampler>(next, srcPixmap, sampleStage);
+            break;
+        case kRGBA_8888_SkColorType:
+            choose_specific_sampler<kRGBA_8888_SkColorType, Sampler>(next, srcPixmap, sampleStage);
             break;
         case kBGRA_8888_SkColorType:
-            if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                using S = Sampler<kBGRA_8888_SkColorType, kSRGB_SkColorProfileType, Blender>;
-                sampleStage->initStage<S>(next, srcPixmap);
-            } else {
-                using S = Sampler<kBGRA_8888_SkColorType, kLinear_SkColorProfileType, Blender>;
-                sampleStage->initStage<S>(next, srcPixmap);
-            }
+            choose_specific_sampler<kBGRA_8888_SkColorType, Sampler>(next, srcPixmap, sampleStage);
             break;
         case kIndex_8_SkColorType:
-            if (imageInfo.profileType() == kSRGB_SkColorProfileType) {
-                using S = Sampler<kIndex_8_SkColorType, kSRGB_SkColorProfileType, Blender>;
-                sampleStage->initStage<S>(next, srcPixmap);
-            } else {
-                using S = Sampler<kIndex_8_SkColorType, kLinear_SkColorProfileType, Blender>;
-                sampleStage->initStage<S>(next, srcPixmap);
-            }
+            choose_specific_sampler<kIndex_8_SkColorType, Sampler>(next, srcPixmap, sampleStage);
+            break;
+        case kGray_8_SkColorType:
+            choose_specific_sampler<kGray_8_SkColorType, Sampler>(next, srcPixmap, sampleStage);
             break;
         case kRGBA_F16_SkColorType: {
                 using S = Sampler<kRGBA_F16_SkColorType, kLinear_SkColorProfileType, Blender>;
@@ -758,12 +771,14 @@ SkLinearBitmapPipeline::SampleProcessorInterface* choose_pixel_sampler(
     Blender* next,
     SkFilterQuality filterQuality,
     const SkPixmap& srcPixmap,
+    const SkColor A8TintColor,
     SkLinearBitmapPipeline::SampleStage* sampleStage)
 {
     if (filterQuality == kNone_SkFilterQuality) {
-        return choose_pixel_sampler_base<NearestNeighborSampler>(next, srcPixmap, sampleStage);
+        return choose_pixel_sampler_base<NearestNeighborSampler>(
+            next, srcPixmap, A8TintColor, sampleStage);
     } else {
-        return choose_pixel_sampler_base<BilerpSampler>(next, srcPixmap, sampleStage);
+        return choose_pixel_sampler_base<BilerpSampler>(next, srcPixmap, A8TintColor, sampleStage);
     }
 }
 
@@ -837,7 +852,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     const SkMatrix& inverse,
     SkFilterQuality filterQuality,
     SkShader::TileMode xTile, SkShader::TileMode yTile,
-    float postAlpha,
+    SkColor paintColor,
     const SkPixmap& srcPixmap)
 {
     SkISize dimensions = srcPixmap.info().dimensions();
@@ -863,10 +878,12 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
         alphaType = kUnpremul_SkAlphaType;
     }
 
+    float postAlpha = SkColorGetA(paintColor) * (1.0f / 255.0f);
     // As the stages are built, the chooser function may skip a stage. For example, with the
     // identity matrix, the matrix stage is skipped, and the tilerStage is the first stage.
     auto blenderStage = choose_blender_for_shading(alphaType, postAlpha, &fBlenderStage);
-    auto samplerStage = choose_pixel_sampler(blenderStage, filterQuality, srcPixmap, &fSampleStage);
+    auto samplerStage = choose_pixel_sampler(
+        blenderStage, filterQuality, srcPixmap, paintColor, &fSampleStage);
     auto tilerStage   = choose_tiler(samplerStage, dimensions, xTile, yTile,
                                      filterQuality, dx, &fTileStage);
     fFirstStage       = choose_matrix(tilerStage, adjustedInverse, &fMatrixStage);

@@ -132,9 +132,9 @@ public:
         // Need to ensure that our pipeline is created at a 16byte aligned address
         fShaderPipeline = (SkLinearBitmapPipeline*)SkAlign16((intptr_t)fShaderStorage);
         new (fShaderPipeline) SkLinearBitmapPipeline(info->fRealInvMatrix, info->fFilterQuality,
-                                               info->fTileModeX, info->fTileModeY,
-                                               fAlpha,
-                                               info->fPixmap);
+                                                     info->fTileModeX, info->fTileModeY,
+                                                     info->fPaintColor,
+                                                     info->fPixmap);
 
         // To implement the old shadeSpan entry-point, we need to efficiently convert our native
         // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
@@ -223,16 +223,6 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImageInfo& srcInfo) {
-    // These src attributes are not supported in the new 4f context (yet)
-    //
-    if (srcInfo.profileType() != kSRGB_SkColorProfileType) { return false; }
-    if (srcInfo.colorType() != kRGBA_8888_SkColorType
-        && srcInfo.colorType() != kBGRA_8888_SkColorType
-        && srcInfo.colorType() != kIndex_8_SkColorType
-        && srcInfo.colorType() != kRGBA_F16_SkColorType) {
-        return false;
-    }
-
     // If we get here, we can reasonably use either context, respect the caller's preference
     //
     return SkShader::ContextRec::kPM4f_DstType == rec.fPreferredDstType;
@@ -264,12 +254,7 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
             info->~SkBitmapProcInfo();
             return nullptr;
         }
-        if (info->fPixmap.colorType() != kRGBA_8888_SkColorType
-            && info->fPixmap.colorType() != kBGRA_8888_SkColorType
-            && info->fPixmap.colorType() != kIndex_8_SkColorType
-            && info->fPixmap.colorType() != kRGBA_F16_SkColorType) {
-            return nullptr;
-        }
+
         return new (storage) LinearPipelineContext(shader, rec, info);
     } else {
         void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
