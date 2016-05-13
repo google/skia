@@ -258,6 +258,7 @@ public:
      */
     void drawBatch(const GrClip&, const GrPaint&, GrDrawBatch*);
 
+    const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
