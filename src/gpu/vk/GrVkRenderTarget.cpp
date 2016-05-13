@@ -35,7 +35,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
     , fFramebuffer(nullptr)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImage(new GrVkImage(info, GrVkImage::kNot_Wrapped))
+    , fMSAAImage(new GrVkImage(msaaInfo, GrVkImage::kNot_Wrapped))
     , fResolveAttachmentView(resolveAttachmentView)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt);
@@ -60,7 +60,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , GrRenderTarget(gpu, desc, kUnified_SampleConfig)
     , fFramebuffer(nullptr)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImage(new GrVkImage(info, GrVkImage::kNot_Wrapped))
+    , fMSAAImage(new GrVkImage(msaaInfo, GrVkImage::kNot_Wrapped))
     , fResolveAttachmentView(resolveAttachmentView)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt);
