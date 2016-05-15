@@ -196,7 +196,7 @@ bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels) {
 
     GrVkImageInfo info;
     if (!GrVkImage::InitImageInfo(gpu, imageDesc, &info)) {
-        return nullptr;
+        return false;
     }
 
     // have to create a new image view for new resource
