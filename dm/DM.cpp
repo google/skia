@@ -501,7 +501,6 @@ static void push_codec_srcs(Path path) {
             break;
         default:
             nativeModes.push_back(CodecSrc::kScanline_Mode);
-            nativeModes.push_back(CodecSrc::kStripe_Mode);
             break;
     }
 

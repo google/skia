@@ -484,9 +484,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             // This mode was designed to test the new skip scanlines API in libjpeg-turbo.
             // Jpegs have kTopDown_SkScanlineOrder, and at this time, it is not interesting
             // to run this test for image types that do not have this scanline ordering.
-            if (SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
-                return Error::Nonfatal("kStripe test is only interesting for kTopDown codecs.");
-            }
+            // We only run this on Jpeg, which is always kTopDown.
+            SkASSERT(SkCodec::kTopDown_SkScanlineOrder == codec->getScanlineOrder());
 
             for (int i = 0; i < numStripes; i += 2) {
                 // Skip a stripe
