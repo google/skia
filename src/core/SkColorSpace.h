@@ -87,6 +87,7 @@ public:
     enum Named {
         kUnknown_Named,
         kSRGB_Named,
+        kAdobeRGB_Named,
     };
 
     struct SkGammas {

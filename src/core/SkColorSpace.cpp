@@ -43,46 +43,76 @@ const float gSRGB_toXYZD50[] {
     0.1430f, 0.0606f, 0.7139f,    // * B
 };
 
+const float gAdobeRGB_toXYZD50[] {
+    0.6098f, 0.3111f, 0.0195f,    // * R
+    0.2052f, 0.6257f, 0.0609f,    // * G
+    0.1492f, 0.0632f, 0.7448f,    // * B
+};
+
+/**
+ *  Checks if our toXYZ matrix is a close match to a known color gamut.
+ *
+ *  @param toXYZD50 transformation matrix deduced from profile data
+ *  @param standard 3x3 canonical transformation matrix
+ */
+static bool xyz_almost_equal(const SkMatrix44& toXYZD50, const float* standard) {
+    return color_space_almost_equal(toXYZD50.getFloat(0, 0), standard[0]) &&
+           color_space_almost_equal(toXYZD50.getFloat(0, 1), standard[1]) &&
+           color_space_almost_equal(toXYZD50.getFloat(0, 2), standard[2]) &&
+           color_space_almost_equal(toXYZD50.getFloat(1, 0), standard[3]) &&
+           color_space_almost_equal(toXYZD50.getFloat(1, 1), standard[4]) &&
+           color_space_almost_equal(toXYZD50.getFloat(1, 2), standard[5]) &&
+           color_space_almost_equal(toXYZD50.getFloat(2, 0), standard[6]) &&
+           color_space_almost_equal(toXYZD50.getFloat(2, 1), standard[7]) &&
+           color_space_almost_equal(toXYZD50.getFloat(2, 2), standard[8]) &&
+           color_space_almost_equal(toXYZD50.getFloat(0, 3), 0.0f) &&
+           color_space_almost_equal(toXYZD50.getFloat(1, 3), 0.0f) &&
+           color_space_almost_equal(toXYZD50.getFloat(2, 3), 0.0f) &&
+           color_space_almost_equal(toXYZD50.getFloat(3, 0), 0.0f) &&
+           color_space_almost_equal(toXYZD50.getFloat(3, 1), 0.0f) &&
+           color_space_almost_equal(toXYZD50.getFloat(3, 2), 0.0f) &&
+           color_space_almost_equal(toXYZD50.getFloat(3, 3), 1.0f);
+}
+
 sk_sp<SkColorSpace> SkColorSpace::NewRGB(SkGammas gammas, const SkMatrix44& toXYZD50) {
-    // Check if we really have sRGB
+    // Check if we really have sRGB or Adobe RGB
     if (color_space_almost_equal(2.2f, gammas.fRed.fValue) &&
         color_space_almost_equal(2.2f, gammas.fGreen.fValue) &&
-        color_space_almost_equal(2.2f, gammas.fBlue.fValue) &&
-        color_space_almost_equal(toXYZD50.getFloat(0, 0), gSRGB_toXYZD50[0]) &&
-        color_space_almost_equal(toXYZD50.getFloat(0, 1), gSRGB_toXYZD50[1]) &&
-        color_space_almost_equal(toXYZD50.getFloat(0, 2), gSRGB_toXYZD50[2]) &&
-        color_space_almost_equal(toXYZD50.getFloat(1, 0), gSRGB_toXYZD50[3]) &&
-        color_space_almost_equal(toXYZD50.getFloat(1, 1), gSRGB_toXYZD50[4]) &&
-        color_space_almost_equal(toXYZD50.getFloat(1, 2), gSRGB_toXYZD50[5]) &&
-        color_space_almost_equal(toXYZD50.getFloat(2, 0), gSRGB_toXYZD50[6]) &&
-        color_space_almost_equal(toXYZD50.getFloat(2, 1), gSRGB_toXYZD50[7]) &&
-        color_space_almost_equal(toXYZD50.getFloat(2, 2), gSRGB_toXYZD50[8]) &&
-        color_space_almost_equal(toXYZD50.getFloat(0, 3), 0.0f) &&
-        color_space_almost_equal(toXYZD50.getFloat(1, 3), 0.0f) &&
-        color_space_almost_equal(toXYZD50.getFloat(2, 3), 0.0f) &&
-        color_space_almost_equal(toXYZD50.getFloat(3, 0), 0.0f) &&
-        color_space_almost_equal(toXYZD50.getFloat(3, 1), 0.0f) &&
-        color_space_almost_equal(toXYZD50.getFloat(3, 2), 0.0f) &&
-        color_space_almost_equal(toXYZD50.getFloat(3, 3), 1.0f))
+        color_space_almost_equal(2.2f, gammas.fBlue.fValue))
     {
-        return SkColorSpace::NewNamed(kSRGB_Named);
+        if (xyz_almost_equal(toXYZD50, gSRGB_toXYZD50)) {
+            return SkColorSpace::NewNamed(kSRGB_Named);
+        } else if (xyz_almost_equal(toXYZD50, gAdobeRGB_toXYZD50)) {
+            return SkColorSpace::NewNamed(kAdobeRGB_Named);
+        }
     }
 
     return sk_sp<SkColorSpace>(new SkColorSpace(std::move(gammas), toXYZD50, kUnknown_Named));
 }
 
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
-    static SkOnce once;
+    static SkOnce sRGBOnce;
     static SkColorSpace* sRGB;
+    static SkOnce adobeRGBOnce;
+    static SkColorSpace* adobeRGB;
 
     switch (named) {
         case kSRGB_Named: {
-            once([] {
+            sRGBOnce([] {
                 SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
                 srgbToxyzD50.set3x3ColMajorf(gSRGB_toXYZD50);
                 sRGB = new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50, kSRGB_Named);
             });
             return sk_ref_sp(sRGB);
+        }
+        case kAdobeRGB_Named: {
+            adobeRGBOnce([] {
+                SkMatrix44 adobergbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+                adobergbToxyzD50.set3x3ColMajorf(gAdobeRGB_toXYZD50);
+                adobeRGB = new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), adobergbToxyzD50,
+                                            kAdobeRGB_Named);
+            });
+            return sk_ref_sp(adobeRGB);
         }
         default:
             break;
