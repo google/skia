@@ -249,7 +249,7 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fDrawContext->fSingleOwner);)
-#define RETURN_IF_ABANDONED        if (fDrawContext->fDrawingManager->abandoned()) { return; }
+#define RETURN_IF_ABANDONED        if (fDrawContext->fDrawingManager->wasAbandoned()) { return; }
 
 void GrDrawContextPriv::testingOnly_drawBatch(const GrPipelineBuilder& pipelineBuilder,
                                               GrDrawBatch* batch,

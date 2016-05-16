@@ -35,10 +35,10 @@
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fDrawContext->fSingleOwner);)
-#define RETURN_IF_ABANDONED        if (fDrawingManager->abandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->abandoned()) { return false; }
-#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fDrawContext->fDrawingManager->abandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (fDrawingManager->abandoned()) { return nullptr; }
+#define RETURN_IF_ABANDONED        if (fDrawingManager->wasAbandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->wasAbandoned()) { return false; }
+#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fDrawContext->fDrawingManager->wasAbandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED   if (fDrawingManager->wasAbandoned()) { return nullptr; }
 
 class AutoCheckFlush {
 public:
@@ -50,6 +50,10 @@ public:
 private:
     GrDrawingManager* fDrawingManager;
 };
+
+bool GrDrawContext::wasAbandoned() const {
+    return fDrawingManager->wasAbandoned();
+}
 
 // In MDB mode the reffing of the 'getLastDrawTarget' call's result allows in-progress
 // drawTargets to be picked up and added to by drawContexts lower in the call

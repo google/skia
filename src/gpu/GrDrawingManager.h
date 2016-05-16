@@ -28,7 +28,7 @@ class GrDrawingManager {
 public:
     ~GrDrawingManager();
 
-    bool abandoned() const { return fAbandoned; }
+    bool wasAbandoned() const { return fAbandoned; }
     void freeGpuResources();
 
     sk_sp<GrDrawContext> drawContext(sk_sp<GrRenderTarget> rt, const SkSurfaceProps*);

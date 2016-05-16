@@ -58,7 +58,7 @@ void GrDrawingManager::reset() {
 }
 
 void GrDrawingManager::flush() {
-    if (fFlushing || this->abandoned()) {
+    if (fFlushing || this->wasAbandoned()) {
         return;
     }
     fFlushing = true;
@@ -161,7 +161,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 
 sk_sp<GrDrawContext> GrDrawingManager::drawContext(sk_sp<GrRenderTarget> rt,
                                                    const SkSurfaceProps* surfaceProps) {
-    if (this->abandoned()) {
+    if (this->wasAbandoned()) {
         return nullptr;
     }
 

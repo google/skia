@@ -13,7 +13,7 @@
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
-#define RETURN_IF_ABANDONED        if (this->drawingManager()->abandoned()) { return; }
+#define RETURN_IF_ABANDONED        if (this->drawingManager()->wasAbandoned()) { return; }
 
 void GrPathRenderingDrawContext::drawText(const GrClip& clip,  const GrPaint& grPaint,
                                           const SkPaint& skPaint,

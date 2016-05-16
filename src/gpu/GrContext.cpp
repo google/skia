@@ -26,9 +26,9 @@
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fSingleOwner);)
-#define RETURN_IF_ABANDONED if (fDrawingManager->abandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->abandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED if (fDrawingManager->abandoned()) { return nullptr; }
+#define RETURN_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return nullptr; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -686,7 +686,7 @@ sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
 
 bool GrContext::abandoned() const {
     ASSERT_SINGLE_OWNER
-    return fDrawingManager->abandoned();
+    return fDrawingManager->wasAbandoned();
 }
 
 namespace {

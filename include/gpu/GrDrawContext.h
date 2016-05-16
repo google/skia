@@ -264,6 +264,8 @@ public:
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
     bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
 
+    bool wasAbandoned() const;
+
     GrRenderTarget* accessRenderTarget() { return fRenderTarget.get(); }
 
     sk_sp<GrRenderTarget> renderTarget() { return fRenderTarget; }
