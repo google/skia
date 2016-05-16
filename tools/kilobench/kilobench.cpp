@@ -302,7 +302,7 @@ struct TimingThread {
 
     void waitFence(SkPlatformGpuFence sync) {
         SkDEBUGCODE(double start = now_ms());
-        fFenceSync->waitFence(sync, false);
+        fFenceSync->waitFence(sync);
         SkASSERT(sanity(start));
     }
 

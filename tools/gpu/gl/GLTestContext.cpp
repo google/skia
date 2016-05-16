@@ -14,7 +14,7 @@ public:
     static GLFenceSync* CreateIfSupported(const GLTestContext*);
 
     SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(SkPlatformGpuFence fence, bool flush) const override;
+    bool waitFence(SkPlatformGpuFence fence) const override;
     void deleteFence(SkPlatformGpuFence fence) const override;
 
 private:
@@ -112,9 +112,9 @@ SkPlatformGpuFence GLTestContext::GLFenceSync::insertFence() const {
     return fGLFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
-bool GLTestContext::GLFenceSync::waitFence(SkPlatformGpuFence fence, bool flush) const {
+bool GLTestContext::GLFenceSync::waitFence(SkPlatformGpuFence fence) const {
     GLsync glsync = static_cast<GLsync>(fence);
-    return GL_WAIT_FAILED != fGLClientWaitSync(glsync, flush ? GL_SYNC_FLUSH_COMMANDS_BIT : 0, -1);
+    return GL_WAIT_FAILED != fGLClientWaitSync(glsync, GL_SYNC_FLUSH_COMMANDS_BIT, -1);
 }
 
 void GLTestContext::GLFenceSync::deleteFence(SkPlatformGpuFence fence) const {

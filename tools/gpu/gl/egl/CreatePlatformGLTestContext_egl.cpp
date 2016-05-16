@@ -25,7 +25,7 @@ public:
     static EGLFenceSync* CreateIfSupported(EGLDisplay);
 
     SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(SkPlatformGpuFence fence, bool flush) const override;
+    bool waitFence(SkPlatformGpuFence fence) const override;
     void deleteFence(SkPlatformGpuFence fence) const override;
 
 private:
@@ -305,12 +305,12 @@ SkPlatformGpuFence EGLFenceSync::insertFence() const {
     return eglCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
 }
 
-bool EGLFenceSync::waitFence(SkPlatformGpuFence platformFence, bool flush) const {
+bool EGLFenceSync::waitFence(SkPlatformGpuFence platformFence) const {
     EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
     return EGL_CONDITION_SATISFIED_KHR ==
             eglClientWaitSyncKHR(fDisplay,
                                  eglsync,
-                                 flush ? EGL_SYNC_FLUSH_COMMANDS_BIT_KHR : 0,
+                                 EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
                                  EGL_FOREVER_KHR);
 }
 
