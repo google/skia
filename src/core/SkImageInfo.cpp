@@ -11,7 +11,7 @@
 #include "SkWriteBuffer.h"
 
 // Indicate how images and gradients should interpret colors by default.
-bool gDefaultProfileIsSRGB;
+bool gDefaultProfileIsSRGB = true;
 
 SkColorProfileType SkDefaultColorProfile() {
     return gDefaultProfileIsSRGB ? kSRGB_SkColorProfileType
