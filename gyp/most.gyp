@@ -49,21 +49,9 @@
             'example.gyp:HelloWorld',
           ],
         }],
-        ['skia_os == "android"', {
+        ['skia_os == "android" and skia_vulkan == 1', {
           'dependencies': [
-            'android_system.gyp:SampleApp_APK',
-          ],
-          'conditions': [
-            [ 'skia_gpu == 1', {
-              'dependencies': [
-                'android_system.gyp:VisualBench_APK',
-              ],
-            }],
-            [ 'skia_vulkan == 1', {
-              'dependencies': [
-                'android_system.gyp:Viewer_APK',
-              ],
-            }],
+            'android_system.gyp:Viewer_APK',
           ],
         }],
         ['skia_os == "ios"', {

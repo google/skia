@@ -29,6 +29,18 @@
             #'v8.gyp:SkV8Example',
           ],
         }],
+        ['skia_os == "android"', {
+          'dependencies': [
+            'android_system.gyp:SampleApp_APK',
+          ],
+          'conditions': [
+            [ 'skia_gpu == 1', {
+              'dependencies': [
+                'android_system.gyp:VisualBench_APK',
+              ],
+            }],
+          ],
+        }],
       ],
     },
   ],
