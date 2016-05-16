@@ -137,14 +137,7 @@ private:
 
 class AndroidCodecSrc : public Src {
 public:
-    enum Mode {
-        kFullImage_Mode,
-        // Splits the image into multiple subsets using a divisor and decodes the subsets
-        // separately.
-        kDivisor_Mode,
-    };
-
-    AndroidCodecSrc(Path, Mode, CodecSrc::DstColorType, SkAlphaType, int sampleSize);
+    AndroidCodecSrc(Path, CodecSrc::DstColorType, SkAlphaType, int sampleSize);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -153,7 +146,6 @@ public:
     bool serial() const override { return fRunSerially; }
 private:
     Path                    fPath;
-    Mode                    fMode;
     CodecSrc::DstColorType  fDstColorType;
     SkAlphaType             fDstAlphaType;
     int                     fSampleSize;

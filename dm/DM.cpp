@@ -394,17 +394,10 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
     push_src("image", folder, src);
 }
 
-static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
-        CodecSrc::DstColorType dstColorType, SkAlphaType dstAlphaType, int sampleSize) {
+static void push_android_codec_src(Path path, CodecSrc::DstColorType dstColorType,
+        SkAlphaType dstAlphaType, int sampleSize) {
     SkString folder;
-    switch (mode) {
-        case AndroidCodecSrc::kFullImage_Mode:
-            folder.append("scaled_codec");
-            break;
-        case AndroidCodecSrc::kDivisor_Mode:
-            folder.append("scaled_codec_divisor");
-            break;
-    }
+    folder.append("scaled_codec");
 
     switch (dstColorType) {
         case CodecSrc::kGrayscale_Always_DstColorType:
@@ -438,7 +431,7 @@ static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
         folder.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 
-    AndroidCodecSrc* src = new AndroidCodecSrc(path, mode, dstColorType, dstAlphaType, sampleSize);
+    AndroidCodecSrc* src = new AndroidCodecSrc(path, dstColorType, dstAlphaType, sampleSize);
     push_src("image", folder, src);
 }
 
@@ -564,21 +557,6 @@ static void push_codec_srcs(Path path) {
         return;
     }
 
-    // https://bug.skia.org/4428
-    bool subset = false;
-    // The following image types are supported by BitmapRegionDecoder,
-    // so we will test full image decodes and subset decodes.
-    static const char* const exts[] = {
-        "jpg", "jpeg", "png", "webp",
-        "JPG", "JPEG", "PNG", "WEBP",
-    };
-    for (const char* ext : exts) {
-        if (path.endsWith(ext)) {
-            subset = true;
-            break;
-        }
-    }
-
     const int sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
     for (int sampleSize : sampleSizes) {
@@ -590,12 +568,7 @@ static void push_codec_srcs(Path path) {
                     continue;
                 }
 
-                push_android_codec_src(path, AndroidCodecSrc::kFullImage_Mode, colorType,
-                        alphaType, sampleSize);
-                if (subset) {
-                    push_android_codec_src(path, AndroidCodecSrc::kDivisor_Mode, colorType,
-                            alphaType, sampleSize);
-                }
+                push_android_codec_src(path, colorType, alphaType, sampleSize);
             }
         }
     }

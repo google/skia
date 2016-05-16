@@ -642,10 +642,9 @@ Name CodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-AndroidCodecSrc::AndroidCodecSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType,
+AndroidCodecSrc::AndroidCodecSrc(Path path, CodecSrc::DstColorType dstColorType,
         SkAlphaType dstAlphaType, int sampleSize)
     : fPath(path)
-    , fMode(mode)
     , fDstColorType(dstColorType)
     , fDstAlphaType(dstAlphaType)
     , fSampleSize(sampleSize)
@@ -712,84 +711,17 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     options.fColorCount = colorCountPtr;
     options.fSampleSize = fSampleSize;
 
-    switch (fMode) {
-        case kFullImage_Mode: {
-            switch (codec->getAndroidPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(),
-                    &options)) {
-                case SkCodec::kSuccess:
-                case SkCodec::kIncompleteInput:
-                    break;
-                default:
-                    return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
-            }
-            premultiply_if_necessary(bitmap);
-            swap_rb_if_necessary(bitmap, fDstColorType);
-            canvas->drawBitmap(bitmap, 0, 0);
-            return "";
-        }
-        case kDivisor_Mode: {
-            const int width = codec->getInfo().width();
-            const int height = codec->getInfo().height();
-            const int divisor = 2;
-            if (width < divisor || height < divisor) {
-                return Error::Nonfatal("Divisor is larger than image dimension.");
-            }
-
-            // Keep track of the final decoded dimensions.
-            int finalScaledWidth = 0;
-            int finalScaledHeight = 0;
-            for (int x = 0; x < divisor; x++) {
-                for (int y = 0; y < divisor; y++) {
-                    // Calculate the subset dimensions
-                    int subsetWidth = width / divisor;
-                    int subsetHeight = height / divisor;
-                    const int left = x * subsetWidth;
-                    const int top = y * subsetHeight;
-
-                    // Increase the size of the last subset in each row or column, when the
-                    // divisor does not divide evenly into the image dimensions
-                    subsetWidth += (x + 1 == divisor) ? (width % divisor) : 0;
-                    subsetHeight += (y + 1 == divisor) ? (height % divisor) : 0;
-                    SkIRect subset = SkIRect::MakeXYWH(left, top, subsetWidth, subsetHeight);
-                    if (!codec->getSupportedSubset(&subset)) {
-                        return "Could not get supported subset to decode.";
-                    }
-                    options.fSubset = &subset;
-                    const int scaledWidthOffset = subset.left() / fSampleSize;
-                    const int scaledHeightOffset = subset.top() / fSampleSize;
-                    void* pixels = bitmap.getAddr(scaledWidthOffset, scaledHeightOffset);
-                    SkISize scaledSubsetSize = codec->getSampledSubsetDimensions(fSampleSize,
-                            subset);
-                    SkImageInfo subsetDecodeInfo = decodeInfo.makeWH(scaledSubsetSize.width(),
-                            scaledSubsetSize.height());
-
-                    if (x + 1 == divisor && y + 1 == divisor) {
-                        finalScaledWidth = scaledWidthOffset + scaledSubsetSize.width();
-                        finalScaledHeight = scaledHeightOffset + scaledSubsetSize.height();
-                    }
-
-                    switch (codec->getAndroidPixels(subsetDecodeInfo, pixels, bitmap.rowBytes(),
-                            &options)) {
-                        case SkCodec::kSuccess:
-                        case SkCodec::kIncompleteInput:
-                            break;
-                        default:
-                            return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
-                    }
-                }
-            }
-
-            SkRect rect = SkRect::MakeXYWH(0, 0, (SkScalar) finalScaledWidth,
-                    (SkScalar) finalScaledHeight);
-            premultiply_if_necessary(bitmap);
-            swap_rb_if_necessary(bitmap, fDstColorType);
-            canvas->drawBitmapRect(bitmap, rect, rect, nullptr);
-            return "";
-        }
+    switch (codec->getAndroidPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), &options)) {
+        case SkCodec::kSuccess:
+        case SkCodec::kIncompleteInput:
+            break;
         default:
-            SkASSERT(false);
-            return "Error: Should not be reached.";
+            return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
     }
+    premultiply_if_necessary(bitmap);
+    swap_rb_if_necessary(bitmap, fDstColorType);
+    canvas->drawBitmap(bitmap, 0, 0);
+    return "";
 }
 
 SkISize AndroidCodecSrc::size() const {
