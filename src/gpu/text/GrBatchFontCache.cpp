@@ -210,8 +210,6 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrDrawBatch::Target* target,
     SkASSERT(scaler);
     SkASSERT(fCache.find(glyph->fPackedID));
 
-    SkAutoUnref ar(SkSafeRef(scaler));
-
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
     size_t size = glyph->fBounds.area() * bytesPerPixel;
