@@ -20,6 +20,9 @@
  *
  * In Sample mode this draws a single circle and almost-circle with animating radius and blur
  * radius.
+ *
+ * Bench mode draws the same as GM mode but without the comparison almost-circle paths. It also
+ * slightly perturbs the blur and circle radii to stress caching of blurred profiles in GPU mode.
  */
 class BlurCircles2GM : public skiagm::GM {
 public:
@@ -32,6 +35,8 @@ public:
     }
 
 protected:
+    bool runAsBench() const override { return true; }
+
     SkString onShortName() override { return SkString("blurcircles2"); }
 
     SkISize onISize() override {
@@ -69,43 +74,58 @@ protected:
                 canvas->drawPath(almostCircle, paint);
             canvas->restore();
         } else {
+            bool benchMode = this->getMode() == kBench_Mode;
             canvas->save();
             static constexpr SkScalar kPad = 5;
             static constexpr SkScalar kRadiusSteps = 5;
             static constexpr SkScalar kBlurRadiusSteps = 5;
             canvas->translate(kPad + kMinRadius + kMaxBlurRadius,
                               kPad + kMinRadius + kMaxBlurRadius);
+            static constexpr SkScalar kDeltaRadius = (kMaxRadius - kMinRadius) / kRadiusSteps;
+            static constexpr SkScalar kDeltaBlurRadius = (kMaxBlurRadius - kMinBlurRadius) /
+                                                         kBlurRadiusSteps;
             SkScalar lineWidth = 0;
-            for (int r = 0; r < kRadiusSteps - 1; ++r) {
-                const SkScalar radius = r * (kMaxRadius - kMinRadius) / kBlurRadiusSteps +
-                                        kMinRadius;
-                lineWidth += 2 * (radius + kMaxBlurRadius) + kPad;
+            if (!benchMode) {
+                for (int r = 0; r < kRadiusSteps - 1; ++r) {
+                    const SkScalar radius = r * kDeltaRadius + kMinRadius;
+                    lineWidth += 2 * (radius + kMaxBlurRadius) + kPad;
+                }
             }
             for (int br = 0; br < kBlurRadiusSteps; ++br) {
-                const SkScalar blurRadius = br * (kMaxBlurRadius - kMinBlurRadius) /
-                                            kBlurRadiusSteps + kMinBlurRadius;
+                SkScalar blurRadius = br * kDeltaBlurRadius + kMinBlurRadius;
+                if (benchMode) {
+                    blurRadius += fRandom.nextSScalar1() * kDeltaBlurRadius;
+                }
                 const SkScalar maxRowR = blurRadius + kMaxRadius;
                 paint.setMaskFilter(blurMaker(blurRadius));
                 canvas->save();
                 for (int r = 0; r < kRadiusSteps; ++r) {
-                    const SkScalar radius = r * (kMaxRadius - kMinRadius) / kBlurRadiusSteps +
-                                            kMinRadius;
+                    SkScalar radius = r * kDeltaRadius + kMinRadius;
+                    if (benchMode) {
+                        radius += fRandom.nextSScalar1() * kDeltaRadius;
+                    }
                     SkPath almostCircle;
-                    almostCircleMaker(radius, &almostCircle);
+                    if (!benchMode) {
+                        almostCircleMaker(radius, &almostCircle);
+                    }
                     canvas->save();
                         canvas->drawCircle(0, 0, radius, paint);
                         canvas->translate(0, 2 * maxRowR + kPad);
+                    if (!benchMode) {
                         canvas->drawPath(almostCircle, paint);
+                    }
                     canvas->restore();
                     const SkScalar maxColR = radius + kMaxBlurRadius;
                     canvas->translate(maxColR * 2 + kPad, 0);
                 }
                 canvas->restore();
-                SkPaint blackPaint;
-                blackPaint.setColor(SK_ColorBLACK);
-                const SkScalar lineY = 3 * maxRowR + 1.5f * kPad;
-                if (br != kBlurRadiusSteps - 1) {
-                    canvas->drawLine(0, lineY, lineWidth, lineY, blackPaint);
+                if (!benchMode) {
+                    SkPaint blackPaint;
+                    blackPaint.setColor(SK_ColorBLACK);
+                    const SkScalar lineY = 3 * maxRowR + 1.5f * kPad;
+                    if (br != kBlurRadiusSteps - 1) {
+                        canvas->drawLine(0, lineY, lineWidth, lineY, blackPaint);
+                    }
                 }
                 canvas->translate(0, maxRowR * 4 + 2 * kPad);
             }
@@ -134,6 +154,8 @@ private:
 
     SkScalar    fAnimRadius;
     SkScalar    fAnimBlurRadius;
+
+    SkRandom    fRandom;
 
     typedef skiagm::GM INHERITED;
 };
