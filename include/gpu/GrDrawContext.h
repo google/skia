@@ -261,6 +261,7 @@ public:
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
+    bool isUnifiedMultisampled() const { return fRenderTarget->isUnifiedMultisampled(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
     bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
 

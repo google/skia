@@ -888,7 +888,7 @@ void SkGpuDevice::drawBitmap(const SkDraw& origDraw,
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
-    bool drawAA = !fRenderTarget->isUnifiedMultisampled() &&
+    bool drawAA = !fDrawContext->isUnifiedMultisampled() &&
                   paint.isAntiAlias() &&
                   bitmap.width() <= maxTileSize &&
                   bitmap.height() <= maxTileSize;
@@ -988,7 +988,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
 
     const SkPaint* paint = &origPaint;
     SkPaint tempPaint;
-    if (origPaint.isAntiAlias() && !fRenderTarget->isUnifiedMultisampled()) {
+    if (origPaint.isAntiAlias() && !fDrawContext->isUnifiedMultisampled()) {
         // Drop antialiasing to avoid seams at tile boundaries.
         tempPaint = origPaint;
         tempPaint.setAntiAlias(false);
@@ -1264,7 +1264,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
-    bool drawAA = !fRenderTarget->isUnifiedMultisampled() &&
+    bool drawAA = !fDrawContext->isUnifiedMultisampled() &&
         paint.isAntiAlias() &&
         bitmap.width() <= maxTileSize &&
         bitmap.height() <= maxTileSize;
@@ -1426,7 +1426,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
     CHECK_SHOULD_DRAW(draw);
 
     bool useFallback = paint.getMaskFilter() || paint.isAntiAlias() ||
-                       fRenderTarget->isUnifiedMultisampled();
+                       fDrawContext->isUnifiedMultisampled();
     bool doBicubic;
     GrTextureParams::FilterMode textureFilterMode =
         GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), *draw.fMatrix, SkMatrix::I(),

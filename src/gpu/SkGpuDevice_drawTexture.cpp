@@ -186,7 +186,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(viewMatrix, srcToDstMatrix);
         if (can_ignore_bilerp_constraint(*producer, clippedSrcRect, combinedMatrix,
-                                         fRenderTarget->isUnifiedMultisampled())) {
+                                         fDrawContext->isUnifiedMultisampled())) {
             constraintMode = GrTextureAdjuster::kNo_FilterConstraint;
         }
     }
