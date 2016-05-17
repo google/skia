@@ -208,10 +208,10 @@ def build_targets_from_builder_dict(builder_dict, do_test_steps, do_perf_steps):
   t = []
   if do_test_steps:
     t.append('dm')
-  if do_perf_steps and builder_dict.get('extra_config') == 'VisualBench':
-      t.append('visualbench')
+  if builder_dict.get('extra_config') == 'VisualBench':
+    t.append('visualbench')
   elif do_perf_steps:
-      t.append('nanobench')
+    t.append('nanobench')
   if t:
     return t
   else:
@@ -358,8 +358,9 @@ def self_test():
         'Build-Win-MSVC-x86-Debug-Exceptions',
         'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',
         'Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon',
-        'Build-Ubuntu-GCC-x86_64-Release-Mesa',
         'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
+        'Build-Ubuntu-GCC-x64_64-Release-Fast',
+        'Build-Ubuntu-GCC-x86_64-Release-Mesa',
         'Housekeeper-PerCommit',
         'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
         'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-VisualBench',
@@ -370,6 +371,7 @@ def self_test():
         'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
         'Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
         'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage',
+        'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
         ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-'
          'SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD',
