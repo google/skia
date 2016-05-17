@@ -316,8 +316,6 @@
       '<(skia_src_path)/gpu/text/GrBatchFontCache.h',
       '<(skia_src_path)/gpu/text/GrDistanceFieldAdjustTable.cpp',
       '<(skia_src_path)/gpu/text/GrDistanceFieldAdjustTable.h',
-      '<(skia_src_path)/gpu/text/GrFontScaler.cpp',
-      '<(skia_src_path)/gpu/text/GrFontScaler.h',
       '<(skia_src_path)/gpu/text/GrStencilAndCoverTextContext.cpp',
       '<(skia_src_path)/gpu/text/GrStencilAndCoverTextContext.h',
       '<(skia_src_path)/gpu/text/GrTextBlobCache.cpp',

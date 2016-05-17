@@ -136,7 +136,6 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
     // in a row
     const SkDescriptor* desc = nullptr;
     SkGlyphCache* cache = nullptr;
-    GrFontScaler* scaler = nullptr;
     SkTypeface* typeface = nullptr;
 
     GrBlobRegenHelper helper(this, target, &flushInfo);
@@ -148,7 +147,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         void* blobVertices;
         int subRunGlyphCount;
         blob->regenInBatch(target, fFontCache, &helper, args.fRun, args.fSubRun, &cache,
-                           &typeface, &scaler, &desc, vertexStride, args.fViewMatrix, args.fX,
+                           &typeface, &desc, vertexStride, args.fViewMatrix, args.fX,
                            args.fY, args.fColor, &blobVertices, &byteCount, &subRunGlyphCount);
 
         // now copy all vertices

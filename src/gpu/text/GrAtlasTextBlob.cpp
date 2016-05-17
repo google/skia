@@ -48,7 +48,6 @@ GrAtlasTextBlob* GrAtlasTextBlob::Create(GrMemoryPool* pool, int glyphCount, int
     return cacheBlob;
 }
 
-
 SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
                                           const SkSurfaceProps& props,
                                           uint32_t scalerContextFlags,
@@ -69,12 +68,12 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
                                   GrColor color,
                                   GrBatchTextStrike* strike,
                                   GrGlyph* glyph,
-                                  GrFontScaler* scaler, const SkGlyph& skGlyph,
+                                  SkGlyphCache* cache, const SkGlyph& skGlyph,
                                   SkScalar x, SkScalar y, SkScalar scale, bool applyVM) {
 
     // If the glyph is too large we fall back to paths
     if (glyph->fTooLargeForAtlas) {
-        this->appendLargeGlyph(glyph, scaler, skGlyph, x, y, scale, applyVM);
+        this->appendLargeGlyph(glyph, cache, skGlyph, x, y, scale, applyVM);
         return;
     }
 
@@ -152,10 +151,10 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->glyphAppended();
 }
 
-void GrAtlasTextBlob::appendLargeGlyph(GrGlyph* glyph, GrFontScaler* scaler, const SkGlyph& skGlyph,
+void GrAtlasTextBlob::appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
                                        SkScalar x, SkScalar y, SkScalar scale, bool applyVM) {
     if (nullptr == glyph->fPath) {
-        const SkPath* glyphPath = scaler->getGlyphPath(skGlyph);
+        const SkPath* glyphPath = cache->findPath(skGlyph);
         if (!glyphPath) {
             return;
         }

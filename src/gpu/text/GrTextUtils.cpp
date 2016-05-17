@@ -56,11 +56,8 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
 
     GrBatchTextStrike* currStrike = nullptr;
 
-    // Get GrFontScaler from cache
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, skPaint,
                                            &viewMatrix);
-    GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
-
     SkFindAndPlaceGlyph::ProcessText(
         skPaint.getTextEncoding(), text, byteLength,
         {x, y}, viewMatrix, skPaint.getTextAlign(),
@@ -70,7 +67,7 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
             BmpAppendGlyph(
                 blob, runIndex, fontCache, &currStrike, glyph,
                 SkScalarFloorToInt(position.fX), SkScalarFloorToInt(position.fY),
-                color, fontScaler);
+                color, cache);
         }
     );
 
@@ -98,10 +95,8 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
 
     GrBatchTextStrike* currStrike = nullptr;
 
-    // Get GrFontScaler from cache
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, skPaint,
                                            &viewMatrix);
-    GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessPosText(
         skPaint.getTextEncoding(), text, byteLength,
@@ -112,7 +107,7 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
             BmpAppendGlyph(
                 blob, runIndex, fontCache, &currStrike, glyph,
                 SkScalarFloorToInt(position.fX), SkScalarFloorToInt(position.fY),
-                color, fontScaler);
+                color, cache);
         }
     );
 
@@ -122,16 +117,16 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
 void GrTextUtils::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
                                  GrBatchFontCache* fontCache,
                                  GrBatchTextStrike** strike, const SkGlyph& skGlyph,
-                                 int vx, int vy, GrColor color, GrFontScaler* scaler) {
+                                 int vx, int vy, GrColor color, SkGlyphCache* cache) {
     if (!*strike) {
-        *strike = fontCache->getStrike(scaler);
+        *strike = fontCache->getStrike(cache);
     }
 
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
                                          skGlyph.getSubXFixed(),
                                          skGlyph.getSubYFixed(),
                                          GrGlyph::kCoverage_MaskStyle);
-    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, scaler);
+    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, cache);
     if (!glyph) {
         return;
     }
@@ -149,7 +144,7 @@ void GrTextUtils::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     r.fRight = r.fLeft + SkIntToScalar(width);
     r.fBottom = r.fTop + SkIntToScalar(height);
 
-    blob->appendGlyph(runIndex, r, color, *strike, glyph, scaler, skGlyph,
+    blob->appendGlyph(runIndex, r, color, *strike, glyph, cache, skGlyph,
                       SkIntToScalar(vx), SkIntToScalar(vy), 1.0f, false);
 }
 
@@ -351,7 +346,6 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     SkGlyphCache* cache = blob->setupCache(runIndex, props, SkPaint::kNone_ScalerContextFlags,
                                            dfPaint, nullptr);
     SkPaint::GlyphCacheProc glyphCacheProc = dfPaint.getGlyphCacheProc(true);
-    GrFontScaler* fontScaler = GrTextUtils::GetGrFontScaler(cache);
 
     const char* stop = text + byteLength;
 
@@ -370,7 +364,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                                    fontCache,
                                    &currStrike,
                                    glyph,
-                                   x, y, color, fontScaler,
+                                   x, y, color, cache,
                                    textRatio, viewMatrix)) {
                     // couldn't append, send to fallback
                     fallbackTxt.append(SkToInt(text-lastText), lastText);
@@ -403,7 +397,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                                    &currStrike,
                                    glyph,
                                    x - advanceX, y - advanceY, color,
-                                   fontScaler,
+                                   cache,
                                    textRatio,
                                    viewMatrix)) {
                     // couldn't append, send to fallback
@@ -431,17 +425,17 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
 bool GrTextUtils::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex, GrBatchFontCache* cache,
                                 GrBatchTextStrike** strike, const SkGlyph& skGlyph,
                                 SkScalar sx, SkScalar sy, GrColor color,
-                                GrFontScaler* scaler,
+                                SkGlyphCache* glyphCache,
                                 SkScalar textRatio, const SkMatrix& viewMatrix) {
     if (!*strike) {
-        *strike = cache->getStrike(scaler);
+        *strike = cache->getStrike(glyphCache);
     }
 
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
                                          skGlyph.getSubXFixed(),
                                          skGlyph.getSubYFixed(),
                                          GrGlyph::kDistance_MaskStyle);
-    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, scaler);
+    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, glyphCache);
     if (!glyph) {
         return true;
     }
@@ -465,7 +459,7 @@ bool GrTextUtils::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex, GrBatchFont
     sy += dy;
     SkRect glyphRect = SkRect::MakeXYWH(sx, sy, width, height);
 
-    blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, scaler, skGlyph,
+    blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, glyphCache, skGlyph,
                       sx - dx, sy - dy, scale, true);
     return true;
 }
@@ -568,24 +562,4 @@ uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const 
     }
 
     return flags;
-}
-
-static void glyph_cache_aux_proc(void* data) {
-    GrFontScaler* scaler = (GrFontScaler*)data;
-    delete scaler;
-}
-
-GrFontScaler* GrTextUtils::GetGrFontScaler(SkGlyphCache* cache) {
-    void* auxData;
-    GrFontScaler* scaler = nullptr;
-
-    if (cache->getAuxProcData(glyph_cache_aux_proc, &auxData)) {
-        scaler = (GrFontScaler*)auxData;
-    }
-    if (nullptr == scaler) {
-        scaler = new GrFontScaler(cache);
-        cache->setAuxProc(glyph_cache_aux_proc, scaler);
-    }
-
-    return scaler;
 }

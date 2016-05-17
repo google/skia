@@ -143,7 +143,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
                                    GrBlobRegenHelper *helper,
                                    Run* run,
                                    Run::SubRunInfo* info, SkGlyphCache** cache,
-                                   SkTypeface** typeface, GrFontScaler** scaler,
+                                   SkTypeface** typeface,
                                    const SkDescriptor** desc,
                                    int glyphCount, size_t vertexStride,
                                    GrColor color, SkScalar transX,
@@ -166,12 +166,11 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
             }
             *desc = newDesc;
             *cache = SkGlyphCache::DetachCache(run->fTypeface, run->fEffects, *desc);
-            *scaler = GrTextUtils::GetGrFontScaler(*cache);
             *typeface = run->fTypeface;
         }
 
         if (regenGlyphs) {
-            strike = fontCache->getStrike(*scaler);
+            strike = fontCache->getStrike(*cache);
         } else {
             strike = info->strike();
         }
@@ -188,20 +187,20 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
                 // Get the id from the old glyph, and use the new strike to lookup
                 // the glyph.
                 GrGlyph::PackedID id = fGlyphs[glyphOffset]->fPackedID;
-                fGlyphs[glyphOffset] = strike->getGlyph(id, info->maskFormat(), *scaler);
+                fGlyphs[glyphOffset] = strike->getGlyph(id, info->maskFormat(), *cache);
                 SkASSERT(id == fGlyphs[glyphOffset]->fPackedID);
             }
             glyph = fGlyphs[glyphOffset];
             SkASSERT(glyph && glyph->fMaskFormat == info->maskFormat());
 
             if (!fontCache->hasGlyph(glyph) &&
-                !strike->addGlyphToAtlas(target, glyph, *scaler, info->maskFormat())) {
+                !strike->addGlyphToAtlas(target, glyph, *cache, info->maskFormat())) {
                 helper->flush();
                 brokenRun = glyphIdx > 0;
 
                 SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(target,
                                                                     glyph,
-                                                                    *scaler,
+                                                                    *cache,
                                                                     info->maskFormat());
                 SkASSERT(success);
             }
@@ -248,17 +247,16 @@ enum RegenMask {
     kRegenColTexGlyph = kRegenCol | kRegenGlyph,
 };
 
-#define REGEN_ARGS target, fontCache, helper, &run, &info, cache, typeface, scaler, desc, \
+#define REGEN_ARGS target, fontCache, helper, &run, &info, cache, typeface, desc, \
                    *glyphCount, vertexStride, color, transX, transY
 
 void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
                                    GrBatchFontCache* fontCache,
                                    GrBlobRegenHelper *helper,
                                    int runIndex, int subRunIndex, SkGlyphCache** cache,
-                                   SkTypeface** typeface, GrFontScaler** scaler,
-                                   const SkDescriptor** desc, size_t vertexStride,
-                                   const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                   GrColor color,
+                                   SkTypeface** typeface, const SkDescriptor** desc,
+                                   size_t vertexStride, const SkMatrix& viewMatrix,
+                                   SkScalar x, SkScalar y, GrColor color,
                                    void** vertices, size_t* byteCount, int* glyphCount) {
     Run& run = fRuns[runIndex];
     Run::SubRunInfo& info = run.fSubRunInfo[subRunIndex];
