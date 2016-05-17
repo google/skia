@@ -140,41 +140,6 @@ static const GrGLInterface* create_command_buffer_interface() {
     return GrGLAssembleGLESInterface(gLibrary, command_buffer_get_gl_proc);
 }
 
-// We use a poor man's garbage collector of EGLDisplays. They are only
-// terminated when there are no more EGLDisplays in use. See crbug.com/603223
-SK_DECLARE_STATIC_MUTEX(gDisplayMutex);
-static int gActiveDisplayCnt;
-SkTArray<EGLDisplay> gRetiredDisplays;
-
-static EGLDisplay get_and_init_display() {
-    SkAutoMutexAcquire am(gDisplayMutex);
-    EGLDisplay dsp = gfGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (dsp == EGL_NO_DISPLAY) {
-        return EGL_NO_DISPLAY;
-    }
-    EGLint major, minor;
-    if (!gfInitialize(dsp, &major, &minor)) {
-        gRetiredDisplays.push_back(dsp);
-        return EGL_NO_DISPLAY;
-    }
-    ++gActiveDisplayCnt;
-    return dsp;
-}
-
-static void retire_display(EGLDisplay dsp) {
-    if (dsp == EGL_NO_DISPLAY) {
-        return;
-    }
-    SkAutoMutexAcquire am(gDisplayMutex);
-    gRetiredDisplays.push_back(dsp);
-    --gActiveDisplayCnt;
-    if (!gActiveDisplayCnt) {
-        for (EGLDisplay d : gRetiredDisplays) {
-            gfTerminate(d);
-        }
-        gRetiredDisplays.reset();
-    }
-}
 }  // anonymous namespace
 
 namespace sk_gpu_test {
@@ -232,12 +197,16 @@ void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const i
 
     // Make sure CHROMIUM_path_rendering is enabled for NVPR support.
     sk_setenv("CHROME_COMMAND_BUFFER_GLES2_ARGS", "--enable-gl-path-rendering");
-    fDisplay = get_and_init_display();
+    fDisplay = gfGetDisplay(EGL_DEFAULT_DISPLAY);
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Command Buffer: Could not create EGL display.\n");
         return;
     }
-
+    if (!gfInitialize(fDisplay, nullptr, nullptr)) {
+        SkDebugf("Command Buffer: Could not initialize EGL display.\n");
+        this->destroyGLContext();
+        return;
+    }
     EGLint numConfigs;
     if (!gfChooseConfig(fDisplay, configAttribs, static_cast<EGLConfig *>(&fConfig), 1,
                         &numConfigs) || numConfigs != 1) {
@@ -303,22 +272,24 @@ void CommandBufferGLTestContext::destroyGLContext() {
     if (!gfFunctionsLoadedSuccessfully) {
         return;
     }
-    if (fDisplay) {
-        gfMakeCurrent(fDisplay, 0, 0, 0);
-
-        if (fContext) {
-            gfDestroyContext(fDisplay, fContext);
-            fContext = EGL_NO_CONTEXT;
-        }
-
-        if (fSurface) {
-            gfDestroySurface(fDisplay, fSurface);
-            fSurface = EGL_NO_SURFACE;
-        }
-
-        retire_display(fDisplay);
-        fDisplay = EGL_NO_DISPLAY;
+    if (EGL_NO_DISPLAY == fDisplay) {
+        return;
     }
+    if (EGL_NO_CONTEXT != fContext) {
+        gfDestroyContext(fDisplay, fContext);
+        fContext = EGL_NO_CONTEXT;
+    }
+    // Call MakeCurrent after destroying the context, so that the EGL implementation knows that
+    // the context is not used anymore after it is released from being current.  This way
+    // command buffer does not need to abandon the context before destruction, and no
+    // client-side errors are printed.
+    gfMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+
+    if (EGL_NO_SURFACE != fSurface) {
+        gfDestroySurface(fDisplay, fSurface);
+        fSurface = EGL_NO_SURFACE;
+    }
+    fDisplay = EGL_NO_DISPLAY;
 }
 
 void CommandBufferGLTestContext::onPlatformMakeCurrent() const {
