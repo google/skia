@@ -511,13 +511,13 @@ void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlo
 
         SkASSERT_RELEASE(lRun.fDescriptor.getDesc());
         SkASSERT_RELEASE(rRun.fDescriptor.getDesc());
-        SkASSERT_RELEASE(lRun.fDescriptor.getDesc()->equals(*rRun.fDescriptor.getDesc()));
+        SkASSERT_RELEASE(*lRun.fDescriptor.getDesc() == *rRun.fDescriptor.getDesc());
 
         if (lRun.fOverrideDescriptor.get()) {
             SkASSERT_RELEASE(lRun.fOverrideDescriptor->getDesc());
             SkASSERT_RELEASE(rRun.fOverrideDescriptor.get() && rRun.fOverrideDescriptor->getDesc());
-            SkASSERT_RELEASE(lRun.fOverrideDescriptor->getDesc()->equals(
-                    *rRun.fOverrideDescriptor->getDesc()));
+            SkASSERT_RELEASE(*lRun.fOverrideDescriptor->getDesc() ==
+                             *rRun.fOverrideDescriptor->getDesc());
         } else {
             SkASSERT_RELEASE(!rRun.fOverrideDescriptor.get());
         }

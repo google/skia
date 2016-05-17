@@ -160,7 +160,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
                                       run->fOverrideDescriptor->getDesc() :
                                       run->fDescriptor.getDesc();
         if (!*cache || !SkTypeface::Equal(*typeface, run->fTypeface) ||
-            !((*desc)->equals(*newDesc))) {
+            !(**desc == *newDesc)) {
             if (*cache) {
                 SkGlyphCache::AttachCache(*cache);
             }

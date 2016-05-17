@@ -529,7 +529,7 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
         globals.validate();
 
         for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
-            if (cache->fDesc->equals(*desc)) {
+            if (*cache->fDesc == *desc) {
                 globals.internalDetachCache(cache);
                 if (!proc(cache, context)) {
                     globals.internalAttachCacheToHead(cache);

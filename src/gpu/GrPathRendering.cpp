@@ -71,9 +71,7 @@ public:
         fScalerContext->getPath(skGlyph, out);
     }
 #ifdef SK_DEBUG
-    bool isEqualTo(const SkDescriptor& desc) const override {
-        return fDesc->equals(desc);
-    }
+    bool isEqualTo(const SkDescriptor& desc) const override { return *fDesc == desc; }
 #endif
 private:
     const SkAutoTDelete<SkScalerContext> fScalerContext;

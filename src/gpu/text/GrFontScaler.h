@@ -27,7 +27,7 @@ public:
     uint32_t getHash() const { return fHash; }
 
     bool operator==(const GrFontDescKey& rh) const {
-        return fHash == rh.fHash && fDesc.getDesc()->equals(*rh.fDesc.getDesc());
+        return fHash == rh.fHash && *fDesc.getDesc() == *rh.fDesc.getDesc();
     }
 
 private:
