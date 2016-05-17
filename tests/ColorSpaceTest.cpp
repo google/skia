@@ -8,6 +8,7 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "Test.h"
 
 #include "png.h"
@@ -19,12 +20,12 @@ static bool almost_equal(float a, float b) {
 static void test_space(skiatest::Reporter* r, SkColorSpace* space,
                        const float red[], const float green[], const float blue[],
                        const float expectedGammas[]) {
-#ifdef SK_DEBUG
-    const SkColorSpace::SkGammas& gammas = space->gammas();
-    REPORTER_ASSERT(r, almost_equal(expectedGammas[0], gammas.red()));
-    REPORTER_ASSERT(r, almost_equal(expectedGammas[1], gammas.green()));
-    REPORTER_ASSERT(r, almost_equal(expectedGammas[2], gammas.blue()));
-#endif
+
+    SkGammas* gammas = space->gammas();
+    REPORTER_ASSERT(r, almost_equal(expectedGammas[0], gammas->fRed.fValue));
+    REPORTER_ASSERT(r, almost_equal(expectedGammas[1], gammas->fGreen.fValue));
+    REPORTER_ASSERT(r, almost_equal(expectedGammas[2], gammas->fBlue.fValue));
+
 
     SkMatrix44 mat = space->xyz();
     const float src[] = {
@@ -106,16 +107,16 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
     // Create an sRGB color space by name
     sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
 
+
     // Create an sRGB color space by value
     SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+    float sRGBGammas[3] = { 2.2f, 2.2f, 2.2f };
     srgbToxyzD50.set3x3ColMajorf(g_sRGB_XYZ);
-    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::NewRGB(
-            SkColorSpace::SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50);
+    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::NewRGB(sRGBGammas, srgbToxyzD50);
     REPORTER_ASSERT(r, namedColorSpace == namedColorSpace);
 
     // Change a single value from the sRGB matrix
     srgbToxyzD50.set(2, 2, 0.5f);
-    sk_sp<SkColorSpace> strangeColorSpace = SkColorSpace::NewRGB(
-            SkColorSpace::SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50);
+    sk_sp<SkColorSpace> strangeColorSpace = SkColorSpace::NewRGB(sRGBGammas, srgbToxyzD50);
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }

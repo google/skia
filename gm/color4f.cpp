@@ -95,6 +95,8 @@ DEF_SIMPLE_GM(color4shader, canvas, 1024, 260) {
     // red -> blue, green -> red, blue -> green
     mat.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
 
+    float linearGamma[3] = { 1.0f, 1.0f, 1.0f };
+
     const SkColor4f colors[] {
         { 1, 1, 0, 0 },
         { 1, 0, 1, 0 },
@@ -109,8 +111,7 @@ DEF_SIMPLE_GM(color4shader, canvas, 1024, 260) {
         sk_sp<SkShader> shaders[] {
             SkShader::MakeColorShader(c4, nullptr),
             SkShader::MakeColorShader(c4, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)),
-            SkShader::MakeColorShader(c4, SkColorSpace::NewRGB(SkColorSpace::SkGammas(1, 1, 1),
-                                                               mat)),
+            SkShader::MakeColorShader(c4, SkColorSpace::NewRGB(linearGamma, mat)),
         };
 
         canvas->save();

@@ -21,107 +21,32 @@
 // http://www.poynton.com/notes/colour_and_gamma/ColorFAQ.html
 //
 
-#include "SkRefCnt.h"
 #include "SkMatrix44.h"
+#include "SkRefCnt.h"
+#include "SkTemplates.h"
 
-struct SkFloat3 {
-    float fVec[3];
-
-    void dump() const;
-};
+struct SkColorLookUpTable;
+struct SkGammaCurve;
+struct SkGammas;
 
 class SkColorSpace : public SkRefCnt {
-private:
-    struct SkGammaCurve {
-        bool isValue() const {
-            bool result = (0.0f != fValue);
-            SkASSERT(!result || (0 == fTableSize));
-            return result;
-        }
-
-        bool isTable() const {
-            bool result = (0 != fTableSize);
-            SkASSERT(!result || (0.0f == fValue));
-            SkASSERT(!result || fTable);
-            return result;
-        }
-
-        bool isParametric() const { return false; }
-
-        // We have three different ways to represent gamma.
-        // (1) A single value:
-        float                    fValue;
-
-        // (2) A lookup table:
-        uint32_t                 fTableSize;
-        std::unique_ptr<float[]> fTable;
-
-        // (3) Parameters for a curve:
-        // FIXME (msarett): Handle parametric curves.
-
-        SkGammaCurve() {
-            memset(this, 0, sizeof(struct SkGammaCurve));
-        }
-
-        SkGammaCurve(float value)
-            : fValue(value)
-            , fTableSize(0)
-            , fTable(nullptr)
-        {}
-    };
-
-    struct SkColorLookUpTable {
-        static const uint8_t kMaxChannels = 16;
-
-        uint8_t                  fInputChannels;
-        uint8_t                  fOutputChannels;
-        uint8_t                  fGridPoints[kMaxChannels];
-        std::unique_ptr<float[]> fTable;
-
-        SkColorLookUpTable() {
-            memset(this, 0, sizeof(struct SkColorLookUpTable));
-        }
-    };
-
 public:
+
     enum Named {
         kUnknown_Named,
         kSRGB_Named,
         kAdobeRGB_Named,
     };
 
-    struct SkGammas {
-    public:
-        SkGammas(float red, float green, float blue)
-            : fRed(red)
-            , fGreen(green)
-            , fBlue(blue)
-        {}
-
-        SkGammas() {}
-
-        SkDEBUGCODE(float red() const { return fRed.fValue; })
-        SkDEBUGCODE(float green() const { return fGreen.fValue; })
-        SkDEBUGCODE(float blue() const { return fBlue.fValue; })
-
-    private:
-        SkGammaCurve fRed;
-        SkGammaCurve fGreen;
-        SkGammaCurve fBlue;
-
-        friend class SkColorSpace;
-    };
-
     /**
-     *  Return a colorspace instance, given a transform from linear_RGB to D50_XYZ
-     *  and the src-gamma, return a ColorSpace
+     *  Given the src gamma and a transform from src gamut to D50_XYZ, return a SkColorSpace.
      */
-    static sk_sp<SkColorSpace> NewRGB(SkGammas gammas, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> NewRGB(float gammas[3], const SkMatrix44& toXYZD50);
 
     static sk_sp<SkColorSpace> NewNamed(Named);
     static sk_sp<SkColorSpace> NewICC(const void*, size_t);
 
-    const SkGammas& gammas() const { return fGammas; }
+    SkGammas* gammas() const { return fGammas.get(); }
     SkMatrix44 xyz() const { return fToXYZD50; }
     Named named() const { return fNamed; }
     uint32_t uniqueID() const { return fUniqueID; }
@@ -135,20 +60,19 @@ private:
                              uint32_t outputChannels, const uint8_t* src, size_t len);
 
 
-    static bool LoadA2B0(SkColorLookUpTable* colorLUT, SkGammas* gammas, SkMatrix44* toXYZ,
+    static bool LoadA2B0(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas, SkMatrix44* toXYZ,
                          const uint8_t* src, size_t len);
 
-    SkColorSpace(SkGammas gammas, const SkMatrix44& toXYZ, Named);
+    SkColorSpace(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, Named);
 
-    SkColorSpace(SkColorLookUpTable colorLUT, SkGammas gammas,
-                 const SkMatrix44& toXYZ);
+    SkColorSpace(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ);
 
-    const SkColorLookUpTable fColorLUT;
-    const SkGammas           fGammas;
-    const SkMatrix44         fToXYZD50;
+    SkAutoTDelete<SkColorLookUpTable> fColorLUT;
+    sk_sp<SkGammas>                   fGammas;
+    const SkMatrix44                  fToXYZD50;
 
-    const uint32_t           fUniqueID;
-    const Named              fNamed;
+    const uint32_t                    fUniqueID;
+    const Named                       fNamed;
 };
 
 #endif

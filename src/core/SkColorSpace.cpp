@@ -7,31 +7,28 @@
 
 #include "SkAtomics.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkOnce.h"
 
 static bool color_space_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.01f;
 }
 
-void SkFloat3::dump() const {
-    SkDebugf("[%7.4f %7.4f %7.4f]\n", fVec[0], fVec[1], fVec[2]);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 static int32_t gUniqueColorSpaceID;
 
-SkColorSpace::SkColorSpace(SkGammas gammas, const SkMatrix44& toXYZD50, Named named)
-    : fGammas(std::move(gammas))
+SkColorSpace::SkColorSpace(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZD50, Named named)
+    : fGammas(gammas)
     , fToXYZD50(toXYZD50)
     , fUniqueID(sk_atomic_inc(&gUniqueColorSpaceID))
     , fNamed(named)
 {}
 
-SkColorSpace::SkColorSpace(SkColorLookUpTable colorLUT, SkGammas gammas,
+SkColorSpace::SkColorSpace(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas,
                            const SkMatrix44& toXYZD50)
-    : fColorLUT(std::move(colorLUT))
-    , fGammas(std::move(gammas))
+    : fColorLUT(colorLUT)
+    , fGammas(gammas)
     , fToXYZD50(toXYZD50)
     , fUniqueID(sk_atomic_inc(&gUniqueColorSpaceID))
     , fNamed(kUnknown_Named)
@@ -74,12 +71,22 @@ static bool xyz_almost_equal(const SkMatrix44& toXYZD50, const float* standard) 
            color_space_almost_equal(toXYZD50.getFloat(3, 3), 1.0f);
 }
 
-sk_sp<SkColorSpace> SkColorSpace::NewRGB(SkGammas gammas, const SkMatrix44& toXYZD50) {
+static SkOnce gStandardGammasOnce;
+static SkGammas* gStandardGammas;
+
+sk_sp<SkColorSpace> SkColorSpace::NewRGB(float gammaVals[3], const SkMatrix44& toXYZD50) {
+    sk_sp<SkGammas> gammas = nullptr;
+
     // Check if we really have sRGB or Adobe RGB
-    if (color_space_almost_equal(2.2f, gammas.fRed.fValue) &&
-        color_space_almost_equal(2.2f, gammas.fGreen.fValue) &&
-        color_space_almost_equal(2.2f, gammas.fBlue.fValue))
+    if (color_space_almost_equal(2.2f, gammaVals[0]) &&
+        color_space_almost_equal(2.2f, gammaVals[1]) &&
+        color_space_almost_equal(2.2f, gammaVals[2]))
     {
+        gStandardGammasOnce([] {
+            gStandardGammas = new SkGammas(2.2f, 2.2f, 2.2f);
+        });
+        gammas = sk_ref_sp(gStandardGammas);
+
         if (xyz_almost_equal(toXYZD50, gSRGB_toXYZD50)) {
             return SkColorSpace::NewNamed(kSRGB_Named);
         } else if (xyz_almost_equal(toXYZD50, gAdobeRGB_toXYZD50)) {
@@ -87,7 +94,10 @@ sk_sp<SkColorSpace> SkColorSpace::NewRGB(SkGammas gammas, const SkMatrix44& toXY
         }
     }
 
-    return sk_sp<SkColorSpace>(new SkColorSpace(std::move(gammas), toXYZD50, kUnknown_Named));
+    if (!gammas) {
+        gammas = sk_ref_sp(new SkGammas(gammaVals[0], gammaVals[1], gammaVals[2]));
+    }
+    return sk_sp<SkColorSpace>(new SkColorSpace(gammas, toXYZD50, kUnknown_Named));
 }
 
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
@@ -98,18 +108,26 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
 
     switch (named) {
         case kSRGB_Named: {
+            gStandardGammasOnce([] {
+                gStandardGammas = new SkGammas(2.2f, 2.2f, 2.2f);
+            });
+
             sRGBOnce([] {
                 SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
                 srgbToxyzD50.set3x3ColMajorf(gSRGB_toXYZD50);
-                sRGB = new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), srgbToxyzD50, kSRGB_Named);
+                sRGB = new SkColorSpace(sk_ref_sp(gStandardGammas), srgbToxyzD50, kSRGB_Named);
             });
             return sk_ref_sp(sRGB);
         }
         case kAdobeRGB_Named: {
+            gStandardGammasOnce([] {
+                gStandardGammas = new SkGammas(2.2f, 2.2f, 2.2f);
+            });
+
             adobeRGBOnce([] {
                 SkMatrix44 adobergbToxyzD50(SkMatrix44::kUninitialized_Constructor);
                 adobergbToxyzD50.set3x3ColMajorf(gAdobeRGB_toXYZD50);
-                adobeRGB = new SkColorSpace(SkGammas(2.2f, 2.2f, 2.2f), adobergbToxyzD50,
+                adobeRGB = new SkColorSpace(sk_ref_sp(gStandardGammas), adobergbToxyzD50,
                                             kAdobeRGB_Named);
             });
             return sk_ref_sp(adobeRGB);
@@ -536,7 +554,7 @@ bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     return true;
 }
 
-bool SkColorSpace::LoadA2B0(SkColorLookUpTable* colorLUT, SkGammas* gammas, SkMatrix44* toXYZ,
+bool SkColorSpace::LoadA2B0(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas, SkMatrix44* toXYZ,
                             const uint8_t* src, size_t len) {
     if (len < 32) {
         SkColorSpacePrintf("A to B tag is too small (%d bytes).", len);
@@ -662,47 +680,62 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
 
                 // It is not uncommon to see missing or empty gamma tags.  This indicates
                 // that we should use unit gamma.
-                SkGammas gammas;
+                sk_sp<SkGammas> gammas(new SkGammas());
                 r = ICCTag::Find(tags.get(), tagCount, kTAG_rTRC);
                 g = ICCTag::Find(tags.get(), tagCount, kTAG_gTRC);
                 b = ICCTag::Find(tags.get(), tagCount, kTAG_bTRC);
-                if (!r || !SkColorSpace::LoadGammas(&gammas.fRed, 1,
+                if (!r || !SkColorSpace::LoadGammas(&gammas->fRed, 1,
                                                     r->addr((const uint8_t*) base), r->fLength)) {
                     SkColorSpacePrintf("Failed to read R gamma tag.\n");
                 }
-                if (!g || !SkColorSpace::LoadGammas(&gammas.fGreen, 1,
+                if (!g || !SkColorSpace::LoadGammas(&gammas->fGreen, 1,
                                                     g->addr((const uint8_t*) base), g->fLength)) {
                     SkColorSpacePrintf("Failed to read G gamma tag.\n");
                 }
-                if (!b || !SkColorSpace::LoadGammas(&gammas.fBlue, 1,
+                if (!b || !SkColorSpace::LoadGammas(&gammas->fBlue, 1,
                                                     b->addr((const uint8_t*) base), b->fLength)) {
                     SkColorSpacePrintf("Failed to read B gamma tag.\n");
                 }
 
                 SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
                 mat.set3x3ColMajorf(toXYZ);
-                return SkColorSpace::NewRGB(std::move(gammas), mat);
+                if (gammas->isValues()) {
+                    // When we have values, take advantage of the NewFromRGB initializer.
+                    // This allows us to check for canonical sRGB and Adobe RGB.
+                    float gammaVals[3];
+                    gammaVals[0] = gammas->fRed.fValue;
+                    gammaVals[1] = gammas->fGreen.fValue;
+                    gammaVals[2] = gammas->fBlue.fValue;
+                    return SkColorSpace::NewRGB(gammaVals, mat);
+                } else {
+                    return sk_sp<SkColorSpace>(new SkColorSpace(gammas, mat, kUnknown_Named));
+                }
             }
 
             // Recognize color profile specified by A2B0 tag.
             const ICCTag* a2b0 = ICCTag::Find(tags.get(), tagCount, kTAG_A2B0);
             if (a2b0) {
-                SkColorLookUpTable colorLUT;
-                SkGammas gammas;
+                SkAutoTDelete<SkColorLookUpTable> colorLUT(new SkColorLookUpTable());
+                sk_sp<SkGammas> gammas(new SkGammas());
                 SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
-                if (!SkColorSpace::LoadA2B0(&colorLUT, &gammas, &toXYZ,
+                if (!SkColorSpace::LoadA2B0(colorLUT, gammas, &toXYZ,
                                             a2b0->addr((const uint8_t*) base), a2b0->fLength)) {
                     return_null("Failed to parse A2B0 tag");
                 }
 
-                // If there is no colorLUT, use NewRGB.  This allows us to check if the
-                // profile is sRGB.
-                if (!colorLUT.fTable) {
-                    return SkColorSpace::NewRGB(std::move(gammas), toXYZ);
+                if (colorLUT->fTable) {
+                    return sk_sp<SkColorSpace>(new SkColorSpace(colorLUT.release(), gammas, toXYZ));
+                } else if (gammas->isValues()) {
+                    // When we have values, take advantage of the NewFromRGB initializer.
+                    // This allows us to check for canonical sRGB and Adobe RGB.
+                    float gammaVals[3];
+                    gammaVals[0] = gammas->fRed.fValue;
+                    gammaVals[1] = gammas->fGreen.fValue;
+                    gammaVals[2] = gammas->fBlue.fValue;
+                    return SkColorSpace::NewRGB(gammaVals, toXYZ);
+                } else {
+                    return sk_sp<SkColorSpace>(new SkColorSpace(gammas, toXYZ, kUnknown_Named));
                 }
-
-                return sk_sp<SkColorSpace>(new SkColorSpace(std::move(colorLUT), std::move(gammas),
-                                                            toXYZ));
             }
 
         }
