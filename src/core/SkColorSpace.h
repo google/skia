@@ -23,7 +23,7 @@
 
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
-#include "SkTemplates.h"
+#include "../private/SkTemplates.h"
 
 struct SkColorLookUpTable;
 struct SkGammaCurve;
@@ -46,7 +46,11 @@ public:
     static sk_sp<SkColorSpace> NewNamed(Named);
     static sk_sp<SkColorSpace> NewICC(const void*, size_t);
 
+    /**
+     *  Used only by test code.
+     */
     SkGammas* gammas() const { return fGammas.get(); }
+
     SkMatrix44 xyz() const { return fToXYZD50; }
     Named named() const { return fNamed; }
     uint32_t uniqueID() const { return fUniqueID; }
@@ -55,12 +59,10 @@ private:
 
     static bool LoadGammas(SkGammaCurve* gammas, uint32_t num, const uint8_t* src, size_t len);
 
-
     static bool LoadColorLUT(SkColorLookUpTable* colorLUT, uint32_t inputChannels,
                              uint32_t outputChannels, const uint8_t* src, size_t len);
 
-
-    static bool LoadA2B0(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas, SkMatrix44* toXYZ,
+    static bool LoadA2B0(SkColorLookUpTable* colorLUT, SkGammaCurve*, SkMatrix44* toXYZ,
                          const uint8_t* src, size_t len);
 
     SkColorSpace(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, Named);

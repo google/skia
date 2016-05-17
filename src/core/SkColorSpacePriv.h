@@ -52,14 +52,20 @@ public:
         return fRed.isValue() && fGreen.isValue() && fBlue.isValue();
     }
 
-    SkGammaCurve fRed;
-    SkGammaCurve fGreen;
-    SkGammaCurve fBlue;
+    const SkGammaCurve fRed;
+    const SkGammaCurve fGreen;
+    const SkGammaCurve fBlue;
 
     SkGammas(float red, float green, float blue)
         : fRed(red)
         , fGreen(green)
         , fBlue(blue)
+    {}
+
+    SkGammas(SkGammaCurve red, SkGammaCurve green, SkGammaCurve blue)
+        : fRed(std::move(red))
+        , fGreen(std::move(green))
+        , fBlue(std::move(blue))
     {}
 
     SkGammas() {}

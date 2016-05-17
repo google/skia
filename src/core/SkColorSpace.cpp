@@ -554,7 +554,7 @@ bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
     return true;
 }
 
-bool SkColorSpace::LoadA2B0(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas, SkMatrix44* toXYZ,
+bool SkColorSpace::LoadA2B0(SkColorLookUpTable* colorLUT, SkGammaCurve* gammas, SkMatrix44* toXYZ,
                             const uint8_t* src, size_t len) {
     if (len < 32) {
         SkColorSpacePrintf("A to B tag is too small (%d bytes).", len);
@@ -604,7 +604,7 @@ bool SkColorSpace::LoadA2B0(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas
 
     uint32_t offsetToMCurves = read_big_endian_int(src + 20);
     if (0 != offsetToMCurves && offsetToMCurves < len) {
-        if (!SkColorSpace::LoadGammas(&gammas->fRed, outputChannels, src + offsetToMCurves,
+        if (!SkColorSpace::LoadGammas(gammas, outputChannels, src + offsetToMCurves,
                                       len - offsetToMCurves)) {
             SkColorSpacePrintf("Failed to read M curves from A to B tag.\n");
         }
@@ -680,23 +680,25 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
 
                 // It is not uncommon to see missing or empty gamma tags.  This indicates
                 // that we should use unit gamma.
-                sk_sp<SkGammas> gammas(new SkGammas());
+                SkGammaCurve curves[3];
                 r = ICCTag::Find(tags.get(), tagCount, kTAG_rTRC);
                 g = ICCTag::Find(tags.get(), tagCount, kTAG_gTRC);
                 b = ICCTag::Find(tags.get(), tagCount, kTAG_bTRC);
-                if (!r || !SkColorSpace::LoadGammas(&gammas->fRed, 1,
+                if (!r || !SkColorSpace::LoadGammas(&curves[0], 1,
                                                     r->addr((const uint8_t*) base), r->fLength)) {
                     SkColorSpacePrintf("Failed to read R gamma tag.\n");
                 }
-                if (!g || !SkColorSpace::LoadGammas(&gammas->fGreen, 1,
+                if (!g || !SkColorSpace::LoadGammas(&curves[1], 1,
                                                     g->addr((const uint8_t*) base), g->fLength)) {
                     SkColorSpacePrintf("Failed to read G gamma tag.\n");
                 }
-                if (!b || !SkColorSpace::LoadGammas(&gammas->fBlue, 1,
+                if (!b || !SkColorSpace::LoadGammas(&curves[2], 1,
                                                     b->addr((const uint8_t*) base), b->fLength)) {
                     SkColorSpacePrintf("Failed to read B gamma tag.\n");
                 }
 
+                sk_sp<SkGammas> gammas(new SkGammas(std::move(curves[0]), std::move(curves[1]),
+                                                    std::move(curves[2])));
                 SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
                 mat.set3x3ColMajorf(toXYZ);
                 if (gammas->isValues()) {
@@ -716,13 +718,15 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
             const ICCTag* a2b0 = ICCTag::Find(tags.get(), tagCount, kTAG_A2B0);
             if (a2b0) {
                 SkAutoTDelete<SkColorLookUpTable> colorLUT(new SkColorLookUpTable());
-                sk_sp<SkGammas> gammas(new SkGammas());
+                SkGammaCurve curves[3];
                 SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
-                if (!SkColorSpace::LoadA2B0(colorLUT, gammas, &toXYZ,
+                if (!SkColorSpace::LoadA2B0(colorLUT, curves, &toXYZ,
                                             a2b0->addr((const uint8_t*) base), a2b0->fLength)) {
                     return_null("Failed to parse A2B0 tag");
                 }
 
+                sk_sp<SkGammas> gammas(new SkGammas(std::move(curves[0]), std::move(curves[1]),
+                                                    std::move(curves[2])));
                 if (colorLUT->fTable) {
                     return sk_sp<SkColorSpace>(new SkColorSpace(colorLUT.release(), gammas, toXYZ));
                 } else if (gammas->isValues()) {
