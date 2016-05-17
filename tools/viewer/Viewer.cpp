@@ -28,6 +28,13 @@ static void on_paint_handler(SkCanvas* canvas, void* userData) {
     return vv->onPaint(canvas);
 }
 
+static bool on_touch_handler(int owner, Window::InputState state, float x, float y, void* userData)
+{
+    Viewer* viewer = reinterpret_cast<Viewer*>(userData);
+
+    return viewer->onTouch(owner, state, x, y);
+}
+
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifying this builder.");
 DEFINE_string2(match, m, nullptr,
@@ -71,6 +78,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     // register callbacks
     fCommands.attach(fWindow);
     fWindow->registerPaintFunc(on_paint_handler, this);
+    fWindow->registerTouchFunc(on_touch_handler, this);
 
     // add key-bindings
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
@@ -134,7 +142,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     // set up first frame
     fCurrentSlide = 0;
     setupCurrentSlide(-1);
-    updateMatrix();
 
     fWindow->show();
 }
@@ -228,10 +235,9 @@ void Viewer::changeZoomLevel(float delta) {
     } else {
         fZoomScale = SK_Scalar1;
     }
-    this->updateMatrix();
 }
 
-void Viewer::updateMatrix(){
+SkMatrix Viewer::computeMatrix() {
     SkMatrix m;
     m.reset();
 
@@ -247,12 +253,10 @@ void Viewer::updateMatrix(){
         m.postTranslate(cx, cy);
     }
 
-    // TODO: add gesture support
-    // Apply any gesture matrix
-    //m.preConcat(fGesture.localM());
-    //m.preConcat(fGesture.globalM());
+    m.preConcat(fGesture.localM());
+    m.preConcat(fGesture.globalM());
 
-    fLocalMatrix = m;
+    return m;
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
@@ -273,7 +277,7 @@ void Viewer::onPaint(SkCanvas* canvas) {
         matrix.setRectToRect(slideBounds, contentRect, SkMatrix::kCenter_ScaleToFit);
         canvas->concat(matrix);
     }
-    canvas->concat(fLocalMatrix);
+    canvas->concat(computeMatrix());
 
     fSlides[fCurrentSlide]->draw(canvas);
     canvas->restoreToCount(count);
@@ -282,6 +286,26 @@ void Viewer::onPaint(SkCanvas* canvas) {
         drawStats(canvas);
     }
     fCommands.drawHelp(canvas);
+}
+
+bool Viewer::onTouch(int owner, Window::InputState state, float x, float y) {
+    void* castedOwner = reinterpret_cast<void*>(owner);
+    switch (state) {
+        case Window::kUp_InputState: {
+            fGesture.touchEnd(castedOwner);
+            break;
+        }
+        case Window::kDown_InputState: {
+            fGesture.touchBegin(castedOwner, x, y);
+            break;
+        }
+        case Window::kMove_InputState: {
+            fGesture.touchMoved(castedOwner, x, y);
+            break;
+        }
+    }
+    fWindow->inval();
+    return true;
 }
 
 void Viewer::drawStats(SkCanvas* canvas) {

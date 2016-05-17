@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <unordered_map>
 
+#include <android/input.h>
 #include <android/keycodes.h>
 #include <android/looper.h>
 #include <android/native_window_jni.h>
@@ -29,6 +30,15 @@ static const int LOOPER_ID_MESSAGEPIPE = 1;
 static const std::unordered_map<int, Window::Key> ANDROID_TO_WINDOW_KEYMAP({
     {AKEYCODE_SOFT_LEFT, Window::Key::kLeft},
     {AKEYCODE_SOFT_RIGHT, Window::Key::kRight}
+});
+
+static const std::unordered_map<int, Window::InputState> ANDROID_TO_WINDOW_STATEMAP({
+    {AMOTION_EVENT_ACTION_DOWN, Window::kDown_InputState},
+    {AMOTION_EVENT_ACTION_POINTER_DOWN, Window::kDown_InputState},
+    {AMOTION_EVENT_ACTION_UP, Window::kUp_InputState},
+    {AMOTION_EVENT_ACTION_POINTER_UP, Window::kUp_InputState},
+    {AMOTION_EVENT_ACTION_MOVE, Window::kMove_InputState},
+    {AMOTION_EVENT_ACTION_CANCEL, Window::kUp_InputState},
 });
 
 SkiaAndroidApp::SkiaAndroidApp(JNIEnv* env, jobject androidApp) {
@@ -76,6 +86,14 @@ void SkiaAndroidApp::readMessage(Message* message) const {
     SkASSERT(readSize == sizeof(Message));
 }
 
+void SkiaAndroidApp::inval() {
+    SkAutoMutexAcquire ama(fMutex);
+    if (!fIsContentInvalidated) {
+        postMessage(Message(kContentInvalidated));
+        fIsContentInvalidated = true;
+    }
+}
+
 int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
     auto skiaAndroidApp = (SkiaAndroidApp*)data;
     Message message;
@@ -90,6 +108,8 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             return 0;
         }
         case kContentInvalidated: {
+            SkAutoMutexAcquire ama(skiaAndroidApp->fMutex);
+            skiaAndroidApp->fIsContentInvalidated = false;
             skiaAndroidApp->paintIfNeeded();
             break;
         }
@@ -121,11 +141,18 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             break;
         }
         case kKeyPressed: {
-            auto it = ANDROID_TO_WINDOW_KEYMAP.find(message.keycode);
+            auto it = ANDROID_TO_WINDOW_KEYMAP.find(message.fKeycode);
             SkASSERT(it != ANDROID_TO_WINDOW_KEYMAP.end());
             // No modifier is supported so far
             skiaAndroidApp->fWindow->onKey(it->second, Window::kDown_InputState, 0);
             skiaAndroidApp->fWindow->onKey(it->second, Window::kUp_InputState, 0);
+            break;
+        }
+        case kTouched: {
+            auto it = ANDROID_TO_WINDOW_STATEMAP.find(message.fTouchState);
+            SkASSERT(it != ANDROID_TO_WINDOW_STATEMAP.end());
+            skiaAndroidApp->fWindow->onTouch(message.fTouchOwner, it->second, message.fTouchX,
+                                             message.fTouchY);
             break;
         }
         default: {
@@ -203,7 +230,18 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onKeyPress
                                                                                    jint keycode) {
     auto skiaAndroidApp = (SkiaAndroidApp*)handle;
     Message message(kKeyPressed);
-    message.keycode = keycode;
+    message.fKeycode = keycode;
+    skiaAndroidApp->postMessage(message);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onTouched(
+    JNIEnv* env, jobject activity, jlong handle, jint owner, jfloat x, jfloat y, jint state) {
+    auto skiaAndroidApp = (SkiaAndroidApp*)handle;
+    Message message(kTouched);
+    message.fTouchOwner = owner;
+    message.fTouchState = state;
+    message.fTouchX = x;
+    message.fTouchY = y;
     skiaAndroidApp->postMessage(message);
 }
 

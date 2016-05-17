@@ -24,6 +24,7 @@ public:
 
     void onPaint(SkCanvas* canvas);
     void onIdle(double ms) override;
+    bool onTouch(int owner, sk_app::Window::InputState state, float x, float y);
 
 private:
     void initSlides();
@@ -33,7 +34,7 @@ private:
     void drawStats(SkCanvas* canvas);
 
     void changeZoomLevel(float delta);
-    void updateMatrix();
+    SkMatrix computeMatrix();
 
     sk_app::Window*        fWindow;
 
@@ -50,13 +51,14 @@ private:
     sk_app::Window::BackendType fBackendType;
 
     // transform data
-    SkMatrix               fLocalMatrix;
     SkScalar               fZoomCenterX;
     SkScalar               fZoomCenterY;
     SkScalar               fZoomLevel;
     SkScalar               fZoomScale;
 
     sk_app::CommandSet     fCommands;
+
+    SkTouchGesture         fGesture;
 };
 
 

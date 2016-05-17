@@ -9,8 +9,9 @@
 #define Window_DEFINED
 
 #include "DisplayParams.h"
-#include "SkTypes.h"
 #include "SkRect.h"
+#include "SkTouchGesture.h"
+#include "SkTypes.h"
 
 class SkCanvas;
 
@@ -104,6 +105,7 @@ public:
     typedef bool(*OnCharFunc)(SkUnichar c, uint32_t modifiers, void* userData);
     typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
     typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
+    typedef bool(*OnTouchFunc)(int owner, InputState state, float x, float y, void* userData);
     typedef void(*OnPaintFunc)(SkCanvas*, void* userData);
 
     void registerCharFunc(OnCharFunc func, void* userData) {
@@ -126,9 +128,15 @@ public:
         fPaintUserData = userData;
     }
 
+    void registerTouchFunc(OnTouchFunc func, void* userData) {
+        fTouchFunc = func;
+        fTouchUserData = userData;
+    }
+
     bool onChar(SkUnichar c, uint32_t modifiers);
     bool onKey(Key key, InputState state, uint32_t modifiers);
     bool onMouse(int x, int y, InputState state, uint32_t modifiers);
+    bool onTouch(int owner, InputState state, float x, float y);  // multi-owner = multi-touch
     void onPaint();
     void onResize(uint32_t width, uint32_t height);
 
@@ -150,10 +158,12 @@ protected:
     void*        fKeyUserData;
     OnMouseFunc  fMouseFunc;
     void*        fMouseUserData;
+    OnTouchFunc  fTouchFunc;
+    void*        fTouchUserData;
     OnPaintFunc  fPaintFunc;
     void*        fPaintUserData;
 
-    WindowContext* fWindowContext;
+    WindowContext* fWindowContext = nullptr;
 };
 
 }   // namespace sk_app

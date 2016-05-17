@@ -12,6 +12,7 @@
 
 #include <android/native_window_jni.h>
 
+#include "../private/SkMutex.h"
 #include "../Application.h"
 #include "../Window.h"
 
@@ -24,13 +25,16 @@ enum MessageType {
     kSurfaceDestroyed,
     kDestroyApp,
     kContentInvalidated,
-    kKeyPressed
+    kKeyPressed,
+    kTouched
 };
 
 struct Message {
     MessageType fType = kUndefined;
     ANativeWindow* fNativeWindow = nullptr;
-    int keycode = 0;
+    int fKeycode = 0;
+    int fTouchOwner, fTouchState;
+    float fTouchX, fTouchY;
 
     Message() {}
     Message(MessageType t) : fType(t) {}
@@ -49,6 +53,10 @@ struct SkiaAndroidApp {
 
     // This must be called in SkiaAndroidApp's own pthread because the JNIEnv is thread sensitive
     void setTitle(const char* title) const;
+
+    // This posts a kContentInvalidated message if there's no such message currently in the queue
+    void inval();
+
 private:
     pthread_t fThread;
     ANativeWindow* fNativeWindow;
@@ -56,6 +64,9 @@ private:
     JavaVM* fJavaVM;
     JNIEnv* fPThreadEnv;
     jmethodID fSetTitleMethodID;
+
+    bool fIsContentInvalidated = false;  // use this to avoid duplicate invalidate events
+    SkMutex fMutex;
 
     // This must be called in SkiaAndroidApp's own pthread because the JNIEnv is thread sensitive
     ~SkiaAndroidApp();

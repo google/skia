@@ -64,6 +64,8 @@ void Window_android::onDisplayDestroyed() {
     detach();
 }
 
-void Window_android::inval() { fSkiaAndroidApp->postMessage(Message(kContentInvalidated)); }
+void Window_android::inval() {
+    fSkiaAndroidApp->inval();
+}
 
 }   // namespace sk_app

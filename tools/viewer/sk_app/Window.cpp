@@ -27,11 +27,17 @@ static bool default_mouse_func(int x, int y, Window::InputState state, uint32_t 
     return false;
 }
 
+static bool default_touch_func(int owner, Window::InputState state, float x, float y,
+                               void* userData) {
+    return false;
+}
+
 static void default_paint_func(SkCanvas*, void* userData) {}
 
 Window::Window() : fCharFunc(default_char_func)
                  , fKeyFunc(default_key_func)
                  , fMouseFunc(default_mouse_func)
+                 , fTouchFunc(default_touch_func)
                  , fPaintFunc(default_paint_func) {
 }
 
@@ -50,6 +56,10 @@ bool Window::onKey(Key key, InputState state, uint32_t modifiers) {
 
 bool Window::onMouse(int x, int y, InputState state, uint32_t modifiers) {
     return fMouseFunc(x, y, state, modifiers, fMouseUserData);
+}
+
+bool Window::onTouch(int owner, InputState state, float x, float y) {
+    return fTouchFunc(owner, state, x, y, fTouchUserData);
 }
 
 void Window::onPaint() {

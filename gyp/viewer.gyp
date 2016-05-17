@@ -18,6 +18,7 @@
       'include_dirs': [
         '../bench',
         '../gm',
+        '../include/views',
         '../include/private',
         '../src/core',
         '../src/effects',
@@ -28,6 +29,7 @@
       ],
       'sources': [
         '../gm/gm.cpp',
+        '../src/views/SkTouchGesture.cpp',
         '<!@(python find.py ../tools/viewer "*.cpp")',
       ],
       'dependencies': [
