@@ -275,7 +275,7 @@ bool CodecSrc::veto(SinkFlags flags) const {
 }
 
 // Allows us to test decodes to non-native 8888.
-void swap_rb_if_necessary(SkBitmap& bitmap, CodecSrc::DstColorType dstColorType) {
+static void swap_rb_if_necessary(SkBitmap& bitmap, CodecSrc::DstColorType dstColorType) {
     if (CodecSrc::kNonNative8888_Always_DstColorType != dstColorType) {
         return;
     }
@@ -288,7 +288,7 @@ void swap_rb_if_necessary(SkBitmap& bitmap, CodecSrc::DstColorType dstColorType)
 
 // FIXME: Currently we cannot draw unpremultiplied sources. skbug.com/3338 and skbug.com/3339.
 // This allows us to still test unpremultiplied decodes.
-void premultiply_if_necessary(SkBitmap& bitmap) {
+static void premultiply_if_necessary(SkBitmap& bitmap) {
     if (kUnpremul_SkAlphaType != bitmap.alphaType()) {
         return;
     }
@@ -316,8 +316,8 @@ void premultiply_if_necessary(SkBitmap& bitmap) {
     bitmap.setAlphaType(kPremul_SkAlphaType);
 }
 
-bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
-                     CodecSrc::DstColorType dstColorType) {
+static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
+                            CodecSrc::DstColorType dstColorType) {
     switch (dstColorType) {
         case CodecSrc::kIndex8_Always_DstColorType:
             if (kRGB_565_SkColorType == canvasColorType) {
@@ -354,6 +354,17 @@ bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
     return true;
 }
 
+static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixels, size_t rowBytes,
+                           SkPMColor* colorPtr, int colorCount, CodecSrc::DstColorType dstColorType,
+                           SkScalar left = 0, SkScalar top = 0) {
+    SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colorPtr, colorCount));
+    SkBitmap bitmap;
+    bitmap.installPixels(info, pixels, rowBytes, colorTable.get(), nullptr, nullptr);
+    premultiply_if_necessary(bitmap);
+    swap_rb_if_necessary(bitmap, dstColorType);
+    canvas->drawBitmap(bitmap, left, top);
+}
+
 Error CodecSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
@@ -383,24 +394,15 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     }
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
-    // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
-    SkPMColor* colorPtr = nullptr;
-    int* colorCountPtr = nullptr;
-    int maxColors = 256;
-    if (kIndex_8_SkColorType == decodeInfo.colorType()) {
-        SkPMColor colors[256];
-        colorTable.reset(new SkColorTable(colors, maxColors));
-        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-        colorCountPtr = &maxColors;
-    }
+    const int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
+    const size_t rowBytes = size.width() * bpp;
+    SkAutoMalloc pixels(decodeInfo.getSafeSize(rowBytes));
+    SkPMColor colorPtr[256];
+    int colorCount = 256;
 
-    SkBitmap bitmap;
-    SkPixelRefFactory* factory = nullptr;
-    SkMallocPixelRef::ZeroedPRFactory zeroFactory;
     SkCodec::Options options;
     if (kCodecZeroInit_Mode == fMode) {
-        factory = &zeroFactory;
+        memset(pixels.get(), 0, size.height() * rowBytes);
         options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
     }
 
@@ -409,16 +411,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             kBGRA_8888_SkColorType == decodeInfo.colorType()) {
         bitmapInfo = bitmapInfo.makeColorType(kN32_SkColorType);
     }
-    if (!bitmap.tryAllocPixels(bitmapInfo, factory, colorTable.get())) {
-        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
-                              decodeInfo.width(), decodeInfo.height());
-    }
 
     switch (fMode) {
         case kCodecZeroInit_Mode:
         case kCodec_Mode: {
-            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), &options,
-                    colorPtr, colorCountPtr)) {
+            switch (codec->getPixels(decodeInfo, pixels.get(), rowBytes, &options,
+                    colorPtr, &colorCount)) {
                 case SkCodec::kSuccess:
                     // We consider incomplete to be valid, since we should still decode what is
                     // available.
@@ -428,19 +426,18 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     // Everything else is considered a failure.
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
-            premultiply_if_necessary(bitmap);
-            swap_rb_if_necessary(bitmap, fDstColorType);
-            canvas->drawBitmap(bitmap, 0, 0);
+
+            draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, colorPtr, colorCount,
+                           fDstColorType);
             break;
         }
         case kScanline_Mode: {
             if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
-                                                                colorCountPtr)) {
+                                                                &colorCount)) {
                 return "Could not start scanline decoder";
             }
 
-            void* dst = bitmap.getAddr(0, 0);
-            size_t rowBytes = bitmap.rowBytes();
+            void* dst = pixels.get();
             uint32_t height = decodeInfo.height();
             switch (codec->getScanlineOrder()) {
                 case SkCodec::kTopDown_SkScanlineOrder:
@@ -453,19 +450,17 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 case SkCodec::kOutOfOrder_SkScanlineOrder: {
                     for (int y = 0; y < decodeInfo.height(); y++) {
                         int dstY = codec->outputScanline(y);
-                        void* dstPtr = bitmap.getAddr(0, dstY);
+                        void* dstPtr = SkTAddOffset<void>(dst, rowBytes * dstY);
                         // We complete the loop, even if this call begins to fail
                         // due to an incomplete image.  This ensures any uninitialized
                         // memory will be filled with the proper value.
-                        codec->getScanlines(dstPtr, 1, bitmap.rowBytes());
+                        codec->getScanlines(dstPtr, 1, rowBytes);
                     }
                     break;
                 }
             }
 
-            premultiply_if_necessary(bitmap);
-            swap_rb_if_necessary(bitmap, fDstColorType);
-            canvas->drawBitmap(bitmap, 0, 0);
+            draw_to_canvas(canvas, bitmapInfo, dst, rowBytes, colorPtr, colorCount, fDstColorType);
             break;
         }
         case kStripe_Mode: {
@@ -474,10 +469,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             // does not align with image blocks.
             const int stripeHeight = 37;
             const int numStripes = (height + stripeHeight - 1) / stripeHeight;
+            void* dst = pixels.get();
 
             // Decode odd stripes
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
-                                                                colorCountPtr)) {
+            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, nullptr, colorPtr,
+                                                                &colorCount)) {
                 return "Could not start scanline decoder";
             }
 
@@ -496,13 +492,14 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 const int startY = (i + 1) * stripeHeight;
                 const int linesToRead = SkTMin(stripeHeight, height - startY);
                 if (linesToRead > 0) {
-                    codec->getScanlines(bitmap.getAddr(0, startY), linesToRead, bitmap.rowBytes());
+                    codec->getScanlines(SkTAddOffset<void>(dst, rowBytes * startY), linesToRead,
+                                        rowBytes);
                 }
             }
 
             // Decode even stripes
             const SkCodec::Result startResult = codec->startScanlineDecode(decodeInfo, nullptr,
-                    colorPtr, colorCountPtr);
+                    colorPtr, &colorCount);
             if (SkCodec::kSuccess != startResult) {
                 return "Failed to restart scanline decoder with same parameters.";
             }
@@ -510,7 +507,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 // Read a stripe
                 const int startY = i * stripeHeight;
                 const int linesToRead = SkTMin(stripeHeight, height - startY);
-                codec->getScanlines(bitmap.getAddr(0, startY), linesToRead, bitmap.rowBytes());
+                codec->getScanlines(SkTAddOffset<void>(dst, rowBytes * startY), linesToRead,
+                                    rowBytes);
 
                 // Skip a stripe
                 const int linesToSkip = SkTMin(stripeHeight, height - (i + 1) * stripeHeight);
@@ -518,9 +516,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     codec->skipScanlines(linesToSkip);
                 }
             }
-            premultiply_if_necessary(bitmap);
-            swap_rb_if_necessary(bitmap, fDstColorType);
-            canvas->drawBitmap(bitmap, 0, 0);
+
+            draw_to_canvas(canvas, bitmapInfo, dst, rowBytes, colorPtr, colorCount, fDstColorType);
             break;
         }
         case kCroppedScanline_Mode: {
@@ -537,16 +534,15 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 subset = SkIRect::MakeXYWH(x, 0, SkTMin(tileSize, width - x), height);
                 opts.fSubset = &subset;
                 if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &opts,
-                        colorPtr, colorCountPtr)) {
+                        colorPtr, &colorCount)) {
                     return "Could not start scanline decoder.";
                 }
 
-                codec->getScanlines(bitmap.getAddr(x, 0), height, bitmap.rowBytes());
+                codec->getScanlines(SkTAddOffset<void>(pixels.get(), x * bpp), height, rowBytes);
             }
 
-            premultiply_if_necessary(bitmap);
-            swap_rb_if_necessary(bitmap, fDstColorType);
-            canvas->drawBitmap(bitmap, 0, 0);
+            draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, colorPtr, colorCount,
+                           fDstColorType);
             break;
         }
         case kSubset_Mode: {
@@ -569,7 +565,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             opts.fSubset = &subset;
             SkBitmap subsetBm;
             // We will reuse pixel memory from bitmap.
-            void* pixels = bitmap.getPixels();
+            void* dst = pixels.get();
             // Keep track of left and top (for drawing subsetBm into canvas). We could use
             // fScale * x and fScale * y, but we want integers such that the next subset will start
             // where the last one ended. So we'll add decodeInfo.width() and height().
@@ -588,13 +584,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     const int scaledH = SkTMax(1, SkScalarRoundToInt(preScaleH * fScale));
                     decodeInfo = decodeInfo.makeWH(scaledW, scaledH);
                     SkImageInfo subsetBitmapInfo = bitmapInfo.makeWH(scaledW, scaledH);
-                    size_t rowBytes = subsetBitmapInfo.minRowBytes();
-                    if (!subsetBm.installPixels(subsetBitmapInfo, pixels, rowBytes, colorTable.get(),
-                                                nullptr, nullptr)) {
-                        return SkStringPrintf("could not install pixels for %s.", fPath.c_str());
-                    }
-                    const SkCodec::Result result = codec->getPixels(decodeInfo, pixels, rowBytes,
-                            &opts, colorPtr, colorCountPtr);
+                    size_t subsetRowBytes = subsetBitmapInfo.minRowBytes();
+                    const SkCodec::Result result = codec->getPixels(decodeInfo, dst, subsetRowBytes,
+                            &opts, colorPtr, &colorCount);
                     switch (result) {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:
@@ -605,9 +597,10 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                                   x, y, decodeInfo.width(), decodeInfo.height(),
                                                   fPath.c_str(), W, H, result);
                     }
-                    premultiply_if_necessary(subsetBm);
-                    swap_rb_if_necessary(subsetBm, fDstColorType);
-                    canvas->drawBitmap(subsetBm, SkIntToScalar(left), SkIntToScalar(top));
+                    draw_to_canvas(canvas, subsetBitmapInfo, dst, subsetRowBytes, colorPtr,
+                                   colorCount, fDstColorType, SkIntToScalar(left),
+                                   SkIntToScalar(top));
+
                     // translate by the scaled height.
                     top += decodeInfo.height();
                 }
@@ -681,17 +674,11 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     }
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
-    // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
-    SkPMColor* colorPtr = nullptr;
-    int* colorCountPtr = nullptr;
-    int maxColors = 256;
-    if (kIndex_8_SkColorType == decodeInfo.colorType()) {
-        SkPMColor colors[256];
-        colorTable.reset(new SkColorTable(colors, maxColors));
-        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-        colorCountPtr = &maxColors;
-    }
+    int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
+    size_t rowBytes = size.width() * bpp;
+    SkAutoMalloc pixels(size.height() * rowBytes);
+    SkPMColor colorPtr[256];
+    int colorCount = 256;
 
     SkBitmap bitmap;
     SkImageInfo bitmapInfo = decodeInfo;
@@ -699,27 +686,21 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
             kBGRA_8888_SkColorType == decodeInfo.colorType()) {
         bitmapInfo = bitmapInfo.makeColorType(kN32_SkColorType);
     }
-    if (!bitmap.tryAllocPixels(bitmapInfo, nullptr, colorTable.get())) {
-        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
-                              decodeInfo.width(), decodeInfo.height());
-    }
 
     // Create options for the codec.
     SkAndroidCodec::AndroidOptions options;
     options.fColorPtr = colorPtr;
-    options.fColorCount = colorCountPtr;
+    options.fColorCount = &colorCount;
     options.fSampleSize = fSampleSize;
 
-    switch (codec->getAndroidPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), &options)) {
+    switch (codec->getAndroidPixels(decodeInfo, pixels.get(), rowBytes, &options)) {
         case SkCodec::kSuccess:
         case SkCodec::kIncompleteInput:
             break;
         default:
             return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
     }
-    premultiply_if_necessary(bitmap);
-    swap_rb_if_necessary(bitmap, fDstColorType);
-    canvas->drawBitmap(bitmap, 0, 0);
+    draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, colorPtr, colorCount, fDstColorType);
     return "";
 }
 
@@ -820,31 +801,18 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         return Error::Nonfatal("Avoid requesting non-opaque kGray8 decodes.");
     }
 
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
-    SkPMColor* colorPtr = nullptr;
-    int* colorCountPtr = nullptr;
-    int maxColors = 256;
-    if (kIndex_8_SkColorType == decodeInfo.colorType()) {
-        SkPMColor colors[256];
-        colorTable.reset(new SkColorTable(colors, maxColors));
-        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-        colorCountPtr = &maxColors;
-    }
+    int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
+    size_t rowBytes = decodeInfo.width() * bpp;
+    SkAutoMalloc pixels(decodeInfo.height() * rowBytes);
+    SkPMColor colorPtr[256];
+    int colorCount = 256;
 
-    SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
-        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
-                              decodeInfo.width(), decodeInfo.height());
-    }
-
-    if (!gen->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), colorPtr,
-                        colorCountPtr))
-    {
+    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, colorPtr, &colorCount)) {
         return SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
     }
 
-    premultiply_if_necessary(bitmap);
-    canvas->drawBitmap(bitmap, 0, 0);
+    draw_to_canvas(canvas, decodeInfo, pixels.get(), rowBytes, colorPtr, colorCount,
+                   CodecSrc::kGetFromCanvas_DstColorType);
     return "";
 }
 

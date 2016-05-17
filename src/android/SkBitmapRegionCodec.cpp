@@ -57,22 +57,10 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
 
     // Construct a color table for the decode if necessary
     SkAutoTUnref<SkColorTable> colorTable(nullptr);
-    SkPMColor* colorPtr = nullptr;
-    int* colorCountPtr = nullptr;
     int maxColors = 256;
     SkPMColor colors[256];
     if (kIndex_8_SkColorType == dstColorType) {
-        // TODO (msarett): This performs a copy that is unnecessary since
-        //                 we have not yet initialized the color table.
-        //                 And then we need to use a const cast to get
-        //                 a pointer to the color table that we can
-        //                 modify during the decode.  We could alternatively
-        //                 perform the decode before creating the bitmap and
-        //                 the color table.  We still would need to copy the
-        //                 colors into the color table after the decode.
         colorTable.reset(new SkColorTable(colors, maxColors));
-        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-        colorCountPtr = &maxColors;
     }
 
     // Initialize the destination bitmap
@@ -122,8 +110,8 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     SkAndroidCodec::AndroidOptions options;
     options.fSampleSize = sampleSize;
     options.fSubset = &subset;
-    options.fColorPtr = colorPtr;
-    options.fColorCount = colorCountPtr;
+    options.fColorPtr = colors;
+    options.fColorCount = &maxColors;
     options.fZeroInitialized = zeroInit;
     void* dst = bitmap->getAddr(scaledOutX, scaledOutY);
 
@@ -139,6 +127,11 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
         SkCodecPrintf("Error: Could not get pixels.\n");
         return false;
+    }
+
+    // Intialize the color table
+    if (kIndex_8_SkColorType == dstColorType) {
+        colorTable->dangerous_overwriteColors(colors, maxColors);
     }
 
     return true;

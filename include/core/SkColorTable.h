@@ -69,6 +69,7 @@ private:
     void init(const SkPMColor* colors, int count);
 
     friend class SkImageGenerator;
+    friend class SkBitmapRegionCodec;
     // Only call if no other thread or cache has seen this table.
     void dangerous_overwriteColors(const SkPMColor newColors[], int count) {
         if (count < 0 || count > fCount) {
