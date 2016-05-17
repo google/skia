@@ -3,11 +3,15 @@ Version: 1.6.16
 License: libpng license
 License File: LICENSE, pulled out of png.h
 Description: png compression/decompression library
-Local Modifications: (1) Created pnglibconf.h from pnglibconf.h.prebuilt (a
-    rename with a few additional settings enabled). (2) Copied LICENSE into
-    this directory. (Originally it was pulled from png.h, but libpng has
-    now provided a separate LICENSE file for convenience, which we use
+Local Modifications:
+    (1) Created pnglibconf.h from pnglibconf.h.prebuilt (a
+    rename with a few additional settings enabled).
+    (2) Copied LICENSE into this directory. (Originally it
+    was pulled from png.h, but libpng has now provided a
+    separate LICENSE file for convenience, which we use
     directly.)
+    (3) Included Intel optimizations by running:
+    "patch -i contrib/intel/intel_sse.patch -p1"
 
 FAQ:
 Q: Why does this directory exist?
