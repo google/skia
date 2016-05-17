@@ -656,7 +656,8 @@ sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
                                                GrPixelConfig config,
                                                int sampleCnt,
                                                GrSurfaceOrigin origin,
-                                               const SkSurfaceProps* surfaceProps) {
+                                               const SkSurfaceProps* surfaceProps,
+                                               SkBudgeted budgeted) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = origin;
@@ -667,7 +668,7 @@ sk_sp<GrDrawContext> GrContext::newDrawContext(SkBackingFit fit,
 
     sk_sp<GrTexture> tex;
     if (SkBackingFit::kExact == fit) {
-        tex.reset(this->textureProvider()->createTexture(desc, SkBudgeted::kYes));
+        tex.reset(this->textureProvider()->createTexture(desc, budgeted));
     } else {
         tex.reset(this->textureProvider()->createApproxTexture(desc));
     }

@@ -195,7 +195,6 @@ public:
 
     /**
      * Create both a GrRenderTarget and a matching GrDrawContext to wrap it.
-     * The created GrRenderTarget will always be budgeted.
      * We guarantee that "asTexture" will succeed for drawContexts created
      * via this entry point.
      */
@@ -204,7 +203,8 @@ public:
                                         GrPixelConfig config,
                                         int sampleCnt = 0,
                                         GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
-                                        const SkSurfaceProps* surfaceProps = nullptr);
+                                        const SkSurfaceProps* surfaceProps = nullptr,
+                                        SkBudgeted = SkBudgeted::kYes);
 
     ///////////////////////////////////////////////////////////////////////////
     // Misc.

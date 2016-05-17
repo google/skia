@@ -129,21 +129,34 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, const SkSurfaceProps* props,
                                      InitContents init) {
-    const int width = rt->width();
-    const int height = rt->height();
-    return SkGpuDevice::Make(std::move(rt), width, height, props, init);
-}
-
-sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTarget> rt, int width, int height,
-                                     const SkSurfaceProps* props, InitContents init) {
-    if (!rt || rt->wasDestroyed()) {
+    if (!rt || rt->wasDestroyed() || !rt->getContext()) {
         return nullptr;
     }
     unsigned flags;
     if (!CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
         return nullptr;
     }
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(rt.get(), width, height, props, flags));
+
+    const int width = rt->width();
+    const int height = rt->height();
+
+    GrContext* context = rt->getContext();
+
+    sk_sp<GrDrawContext> drawContext(context->drawContext(std::move(rt), props));
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(drawContext), width, height, flags));
+}
+
+sk_sp<SkBaseDevice> SkGpuDevice::Make(sk_sp<GrDrawContext> drawContext,
+                                      int width, int height,
+                                      InitContents init) {
+    if (!drawContext || drawContext->wasAbandoned()) {
+        return nullptr;
+    }
+    unsigned flags;
+    if (!CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
+        return nullptr;
+    }
+    return sk_sp<SkBaseDevice>(new SkGpuDevice(std::move(drawContext), width, height, flags));
 }
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
@@ -154,35 +167,39 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
         return nullptr;
     }
 
-    SkAutoTUnref<GrRenderTarget> rt(CreateRenderTarget(context, budgeted, info, sampleCount));
-    if (!rt) {
+    sk_sp<GrDrawContext> drawContext(CreateDrawContext(context, budgeted, info,
+                                                       sampleCount, props));
+    if (!drawContext) {
         return nullptr;
     }
 
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(rt, info.width(), info.height(), props, flags));
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(drawContext),
+                                              info.width(), info.height(), flags));
 }
 
-SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
-                         const SkSurfaceProps* props, unsigned flags)
-    : INHERITED(SkSurfacePropsCopyOrDefault(props))
-    , fContext(SkRef(rt->getContext()))
-    , fRenderTarget(SkRef(rt)) {
+SkGpuDevice::SkGpuDevice(sk_sp<GrDrawContext> drawContext, int width, int height, unsigned flags) 
+    : INHERITED(drawContext->surfaceProps())
+    , fContext(SkRef(drawContext->accessRenderTarget()->getContext()))
+    , fRenderTarget(drawContext->renderTarget())
+    , fDrawContext(std::move(drawContext)) {
     fOpaque = SkToBool(flags & kIsOpaque_Flag);
 
     SkAlphaType at = fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    SkImageInfo info = rt->surfacePriv().info(at).makeWH(width, height);
-    SkPixelRef* pr = new SkGrPixelRef(info, rt);
+    SkImageInfo info = fRenderTarget->surfacePriv().info(at).makeWH(width, height);
+    SkPixelRef* pr = new SkGrPixelRef(info, fRenderTarget.get());
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext = this->context()->drawContext(sk_ref_sp(rt), &this->surfaceProps());
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
 }
 
-GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkBudgeted budgeted,
-                                                const SkImageInfo& origInfo, int sampleCount) {
+sk_sp<GrDrawContext> SkGpuDevice::CreateDrawContext(GrContext* context,
+                                                    SkBudgeted budgeted,
+                                                    const SkImageInfo& origInfo,
+                                                    int sampleCount,
+                                                    const SkSurfaceProps* surfaceProps) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
         return nullptr;
@@ -208,21 +225,13 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkBudgeted b
         ct = kN32_SkColorType;
     }
 
-    const SkImageInfo info = SkImageInfo::Make(origInfo.width(), origInfo.height(), ct, at, pt);
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(ct, at, pt, *context->caps());
 
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = info.width();
-    desc.fHeight = info.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(info, *context->caps());
-    desc.fSampleCnt = sampleCount;
-    desc.fIsMipMapped = false;
-    GrTexture* texture = context->textureProvider()->createTexture(desc, budgeted, nullptr, 0);
-    if (nullptr == texture) {
-        return nullptr;
-    }
-    SkASSERT(nullptr != texture->asRenderTarget());
-    return texture->asRenderTarget();
+    return context->newDrawContext(SkBackingFit::kExact,               // Why exact?
+                                   origInfo.width(), origInfo.height(),
+                                   config, sampleCount,
+                                   kDefault_GrSurfaceOrigin, surfaceProps, budgeted);
+
 }
 
 // This method ensures that we always have a texture-backed "bitmap" when we finally
@@ -346,7 +355,7 @@ void SkGpuDevice::prepareDraw(const SkDraw& draw) {
 
 GrRenderTarget* SkGpuDevice::accessRenderTarget() {
     ASSERT_SINGLE_OWNER
-    return fRenderTarget;
+    return fRenderTarget.get();
 }
 
 GrDrawContext* SkGpuDevice::accessDrawContext() {
@@ -362,15 +371,17 @@ void SkGpuDevice::clearAll() {
     fDrawContext->clear(&rect, color, true);
 }
 
-void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
+void SkGpuDevice::replaceDrawContext(bool shouldRetainContent) {
     ASSERT_SINGLE_OWNER
 
     SkBudgeted budgeted = fRenderTarget->resourcePriv().isBudgeted();
 
-    SkAutoTUnref<GrRenderTarget> newRT(CreateRenderTarget(
-        this->context(), budgeted, this->imageInfo(), fRenderTarget->desc().fSampleCnt));
-
-    if (nullptr == newRT) {
+    sk_sp<GrDrawContext> newDC(CreateDrawContext(this->context(), 
+                                                 budgeted,
+                                                 this->imageInfo(),
+                                                 fDrawContext->numColorSamples(),
+                                                 &this->surfaceProps()));
+    if (!newDC) {
         return;
     }
 
@@ -378,23 +389,24 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
         if (fRenderTarget->wasDestroyed()) {
             return;
         }
-        this->context()->copySurface(newRT, fRenderTarget);
+        newDC->copySurface(fDrawContext->asTexture().get(),
+                           SkIRect::MakeWH(this->width(), this->height()),
+                           SkIPoint::Make(0, 0));
     }
 
-    SkASSERT(fRenderTarget != newRT);
+    SkASSERT(fDrawContext->accessRenderTarget() != newDC->accessRenderTarget());
 
-    fRenderTarget.reset(newRT.release());
+    fRenderTarget = newDC->renderTarget();
 
 #ifdef SK_DEBUG
     SkImageInfo info = fRenderTarget->surfacePriv().info(fOpaque ? kOpaque_SkAlphaType :
                                                                    kPremul_SkAlphaType);
     SkASSERT(info == fLegacyBitmap.info());
 #endif
-    SkPixelRef* pr = new SkGrPixelRef(fLegacyBitmap.info(), fRenderTarget);
+    SkPixelRef* pr = new SkGrPixelRef(fLegacyBitmap.info(), fRenderTarget.get());
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext = this->context()->drawContext(sk_ref_sp(fRenderTarget.get()),
-                                                &this->surfaceProps());
+    fDrawContext = newDC;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1319,9 +1331,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     // drawDevice is defined to be in device coords.
     CHECK_SHOULD_DRAW(draw);
 
-    GrRenderTarget* devRT = dev->accessRenderTarget();
-    GrTexture* devTex;
-    if (nullptr == (devTex = devRT->asTexture())) {
+    sk_sp<GrTexture> devTex(dev->accessDrawContext()->asTexture());
+    if (!devTex) {
         return;
     }
 
@@ -1333,7 +1344,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
 
     GrPaint grPaint;
     SkAutoTUnref<const GrFragmentProcessor> fp(
-        GrSimpleTextureEffect::Create(devTex, SkMatrix::I()));
+        GrSimpleTextureEffect::Create(devTex.get(), SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(devTex->config())) {
         // Can this happen?
         fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
@@ -1735,36 +1746,33 @@ void SkGpuDevice::flush() {
 
 SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     ASSERT_SINGLE_OWNER
-    GrSurfaceDesc desc;
-    desc.fConfig = fRenderTarget->config();
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = cinfo.fInfo.width();
-    desc.fHeight = cinfo.fInfo.height();
-    desc.fSampleCnt = fRenderTarget->desc().fSampleCnt;
 
-    SkAutoTUnref<GrTexture> texture;
-    // Skia's convention is to only clear a device if it is non-opaque.
-    InitContents init = cinfo.fInfo.isOpaque() ? kUninit_InitContents : kClear_InitContents;
+    SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
 
-    // layers are never draw in repeat modes, so we can request an approx
+    // layers are never drawn in repeat modes, so we can request an approx
     // match and ignore any padding.
-    if (kNever_TileUsage == cinfo.fTileUsage) {
-        texture.reset(fContext->textureProvider()->createApproxTexture(desc));
-    } else {
-        texture.reset(fContext->textureProvider()->createTexture(desc, SkBudgeted::kYes));
-    }
+    SkBackingFit fit = kNever_TileUsage == cinfo.fTileUsage ? SkBackingFit::kApprox
+                                                            : SkBackingFit::kExact;
 
-    if (texture) {
-        SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return SkGpuDevice::Make(sk_ref_sp(texture->asRenderTarget()),
-                                 cinfo.fInfo.width(), cinfo.fInfo.height(),
-                                 &props, init).release();
-    } else {
+    sk_sp<GrDrawContext> dc(fContext->newDrawContext(fit,
+                                                     cinfo.fInfo.width(), cinfo.fInfo.height(),
+                                                     fDrawContext->config(),
+                                                     fDrawContext->desc().fSampleCnt,
+                                                     kDefault_GrSurfaceOrigin,
+                                                     &props));
+    if (!dc) {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "---- failed to create gpu device texture [%d %d]\n",
                                     cinfo.fInfo.width(), cinfo.fInfo.height());
-        return nullptr;
+        return nullptr;    
     }
+
+    // Skia's convention is to only clear a device if it is non-opaque.
+    InitContents init = cinfo.fInfo.isOpaque() ? kUninit_InitContents : kClear_InitContents;
+
+    return SkGpuDevice::Make(std::move(dc),
+                             cinfo.fInfo.width(), cinfo.fInfo.height(),
+                             init).release();
 }
 
 sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {

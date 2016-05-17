@@ -115,7 +115,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
     SkASSERT(image);
     if (rt->asTexture() == as_IB(image)->peekTexture()) {
-        this->fDevice->replaceRenderTarget(SkSurface::kRetain_ContentChangeMode == mode);
+        this->fDevice->replaceDrawContext(SkSurface::kRetain_ContentChangeMode == mode);
         SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
@@ -123,7 +123,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
 }
 
 void SkSurface_Gpu::onDiscard() {
-    fDevice->accessRenderTarget()->discard();
+    fDevice->accessDrawContext()->discard();
 }
 
 void SkSurface_Gpu::onPrepareForExternalIO() {

@@ -261,9 +261,11 @@ public:
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
+    GrPixelConfig config() const { return fRenderTarget->config(); }
     bool isUnifiedMultisampled() const { return fRenderTarget->isUnifiedMultisampled(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
     bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
     bool wasAbandoned() const;
 
@@ -283,8 +285,7 @@ protected:
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
     GrAuditTrail* auditTrail() { return fAuditTrail; }
-    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
-    
+
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
     SkDEBUGCODE(void validate() const;)
 
