@@ -17,27 +17,6 @@ class SkGlyph;
 class SkPath;
 
 /*
- *  Wrapper class to turn a font cache descriptor into a key
- *  for GrFontScaler-related lookups
- */
-class GrFontDescKey : public SkRefCnt {
-public:
-    explicit GrFontDescKey(const SkDescriptor& desc) : fDesc(desc), fHash(desc.getChecksum()) {}
-
-    uint32_t getHash() const { return fHash; }
-
-    bool operator==(const GrFontDescKey& rh) const {
-        return fHash == rh.fHash && *fDesc.getDesc() == *rh.fDesc.getDesc();
-    }
-
-private:
-    SkAutoDescriptor fDesc;
-    uint32_t fHash;
-
-    typedef SkRefCnt INHERITED;
-};
-
-/*
  *  This is Gr's interface to the host platform's font scaler.
  *
  *  The client is responsible for instantiating this. The instance is created
@@ -46,10 +25,8 @@ private:
 class GrFontScaler final : public SkNoncopyable {
 public:
     explicit GrFontScaler(SkGlyphCache* strike);
-    ~GrFontScaler();
 
-    const GrFontDescKey* getKey();
-    GrMaskFormat getMaskFormat() const;
+    const SkDescriptor& getKey();
     GrMaskFormat getPackedGlyphMaskFormat(const SkGlyph&) const;
     bool getPackedGlyphBounds(const SkGlyph&, SkIRect* bounds);
     bool getPackedGlyphImage(const SkGlyph&, int width, int height, int rowBytes,
@@ -63,7 +40,6 @@ private:
     // The SkGlyphCache actually owns this GrFontScaler. The GrFontScaler is deleted when the
     // SkGlyphCache is deleted.
     SkGlyphCache*  fStrike;
-    GrFontDescKey* fKey;
 
     typedef SkNoncopyable INHERITED;
 };

@@ -69,7 +69,7 @@ GrBatchFontCache::GrBatchFontCache(GrContext* context)
 }
 
 GrBatchFontCache::~GrBatchFontCache() {
-    SkTDynamicHash<GrBatchTextStrike, GrFontDescKey>::Iter iter(&fCache);
+    StrikeHash::Iter iter(&fCache);
     while (!iter.done()) {
         (*iter).fIsAbandoned = true;
         (*iter).unref();
@@ -81,7 +81,7 @@ GrBatchFontCache::~GrBatchFontCache() {
 }
 
 void GrBatchFontCache::freeAll() {
-    SkTDynamicHash<GrBatchTextStrike, GrFontDescKey>::Iter iter(&fCache);
+    StrikeHash::Iter iter(&fCache);
     while (!iter.done()) {
         (*iter).fIsAbandoned = true;
         (*iter).unref();
@@ -97,7 +97,7 @@ void GrBatchFontCache::freeAll() {
 void GrBatchFontCache::HandleEviction(GrBatchAtlas::AtlasID id, void* ptr) {
     GrBatchFontCache* fontCache = reinterpret_cast<GrBatchFontCache*>(ptr);
 
-    SkTDynamicHash<GrBatchTextStrike, GrFontDescKey>::Iter iter(&fontCache->fCache);
+    StrikeHash::Iter iter(&fontCache->fCache);
     for (; !iter.done(); ++iter) {
         GrBatchTextStrike* strike = &*iter;
         strike->removeID(id);
@@ -105,7 +105,7 @@ void GrBatchFontCache::HandleEviction(GrBatchAtlas::AtlasID id, void* ptr) {
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
         if (strike != fontCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
-            fontCache->fCache.remove(*(strike->fFontScalerKey));
+            fontCache->fCache.remove(GrBatchTextStrike::GetKey(*strike));
             strike->fIsAbandoned = true;
             strike->unref();
         }
@@ -153,14 +153,12 @@ void GrBatchFontCache::setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs
     atlas and a position within that texture.
  */
 
-GrBatchTextStrike::GrBatchTextStrike(GrBatchFontCache* cache, const GrFontDescKey* key)
-    : fFontScalerKey(SkRef(key))
+GrBatchTextStrike::GrBatchTextStrike(GrBatchFontCache* owner, const SkDescriptor& key)
+    : fFontScalerKey(key)
     , fPool(9/*start allocations at 512 bytes*/)
+    , fBatchFontCache(owner) // no need to ref, it won't go away before we do
     , fAtlasedGlyphs(0)
-    , fIsAbandoned(false) {
-
-    fBatchFontCache = cache;     // no need to ref, it won't go away before we do
-}
+    , fIsAbandoned(false) {}
 
 GrBatchTextStrike::~GrBatchTextStrike() {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);

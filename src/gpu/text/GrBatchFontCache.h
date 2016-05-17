@@ -20,15 +20,16 @@ class GrGpu;
 
 /**
  *  The GrBatchTextStrike manages a pool of CPU backing memory for GrGlyphs.  This backing memory
- *  is indexed by a PackedID and GrFontScaler.  The GrFontScaler is what actually creates the mask.
+ *  is indexed by a PackedID and GrFontScaler. The GrFontScaler is what actually creates the mask.
+ *  The GrBatchTextStrike may outlive the generating GrFontScaler. However, it retains a copy
+ *  of it's SkDescriptor as a key to access (or regenerate) the GrFontScaler. GrBatchTextStrikes are
+ *  created by and owned by a GrBatchFontCache.
  */
 class GrBatchTextStrike : public SkNVRefCnt<GrBatchTextStrike> {
 public:
-    GrBatchTextStrike(GrBatchFontCache*, const GrFontDescKey* fontScalerKey);
+    /** Owner is the cache that owns this strike. */
+    GrBatchTextStrike(GrBatchFontCache* owner, const SkDescriptor& fontScalerKey);
     ~GrBatchTextStrike();
-
-    const GrFontDescKey* getFontScalerKey() const { return fFontScalerKey; }
-    GrBatchFontCache* getBatchFontCache() const { return fBatchFontCache; }
 
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                              GrFontScaler* scaler) {
@@ -75,16 +76,15 @@ public:
     // If a TextStrike is abandoned by the cache, then the caller must get a new strike
     bool isAbandoned() const { return fIsAbandoned; }
 
-    static const GrFontDescKey& GetKey(const GrBatchTextStrike& ts) {
-        return *(ts.fFontScalerKey);
+    static const SkDescriptor& GetKey(const GrBatchTextStrike& ts) {
+        return *ts.fFontScalerKey.getDesc();
     }
-    static uint32_t Hash(const GrFontDescKey& key) {
-        return key.getHash();
-    }
+
+    static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
 
 private:
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID> fCache;
-    SkAutoTUnref<const GrFontDescKey> fFontScalerKey;
+    SkAutoDescriptor fFontScalerKey;
     SkVarAlloc fPool;
 
     GrBatchFontCache* fBatchFontCache;
@@ -113,7 +113,7 @@ public:
     // Therefore, the caller must check GrBatchTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
     inline GrBatchTextStrike* getStrike(GrFontScaler* scaler) {
-        GrBatchTextStrike* strike = fCache.find(*(scaler->getKey()));
+        GrBatchTextStrike* strike = fCache.find(scaler->getKey());
         if (nullptr == strike) {
             strike = this->generateStrike(scaler);
         }
@@ -221,8 +221,9 @@ private:
 
     static void HandleEviction(GrBatchAtlas::AtlasID, void*);
 
+    using StrikeHash = SkTDynamicHash<GrBatchTextStrike, SkDescriptor>;
     GrContext* fContext;
-    SkTDynamicHash<GrBatchTextStrike, GrFontDescKey> fCache;
+    StrikeHash fCache;
     GrBatchAtlas* fAtlases[kMaskFormatCount];
     GrBatchTextStrike* fPreserveStrike;
     GrBatchAtlasConfig fAtlasConfigs[kMaskFormatCount];

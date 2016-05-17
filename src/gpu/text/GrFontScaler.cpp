@@ -14,36 +14,9 @@
 
 GrFontScaler::GrFontScaler(SkGlyphCache* strike) {
     fStrike = strike;
-    fKey = nullptr;
 }
 
-GrFontScaler::~GrFontScaler() {
-    SkSafeUnref(fKey);
-}
-
-GrMaskFormat GrFontScaler::getMaskFormat() const {
-    SkMask::Format format = fStrike->getMaskFormat();
-    switch (format) {
-        case SkMask::kBW_Format:
-            // fall through to kA8 -- we store BW glyphs in our 8-bit cache
-        case SkMask::kA8_Format:
-            return kA8_GrMaskFormat;
-        case SkMask::kLCD16_Format:
-            return kA565_GrMaskFormat;
-        case SkMask::kARGB32_Format:
-            return kARGB_GrMaskFormat;
-        default:
-            SkDEBUGFAIL("unsupported SkMask::Format");
-            return kA8_GrMaskFormat;
-    }
-}
-
-const GrFontDescKey* GrFontScaler::getKey() {
-    if (nullptr == fKey) {
-        fKey = new GrFontDescKey(fStrike->getDescriptor());
-    }
-    return fKey;
-}
+const SkDescriptor& GrFontScaler::getKey() { return fStrike->getDescriptor(); }
 
 GrMaskFormat GrFontScaler::getPackedGlyphMaskFormat(const SkGlyph& glyph) const {
     SkMask::Format format = static_cast<SkMask::Format>(glyph.fMaskFormat);
