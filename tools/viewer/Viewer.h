@@ -47,6 +47,8 @@ private:
 
     bool                   fDisplayStats;
 
+    sk_app::Window::BackendType fBackendType;
+
     // transform data
     SkMatrix               fLocalMatrix;
     SkScalar               fZoomCenterX;

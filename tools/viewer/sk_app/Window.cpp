@@ -53,7 +53,7 @@ bool Window::onMouse(int x, int y, InputState state, uint32_t modifiers) {
 }
 
 void Window::onPaint() {
-    SkSurface* backbuffer = fWindowContext->getBackbufferSurface();
+    sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer) {
         // draw into the canvas of this surface
         SkCanvas* canvas = backbuffer->getCanvas();
@@ -66,7 +66,6 @@ void Window::onPaint() {
     } else {
         // try recreating testcontext
     }
-
 }
 
 void Window::onResize(uint32_t w, uint32_t h) {

@@ -13,8 +13,7 @@
 #include "vk/GrVkBackendContext.h"
 #include "WindowContext.h"
 
-class SkSurface;
-class GrContext;
+class GrRenderTarget;
 
 namespace sk_app {
 
@@ -35,10 +34,8 @@ public:
         return ctx;
     }
 
-    SkSurface* getBackbufferSurface() override;
+    sk_sp<SkSurface> getBackbufferSurface() override;
     void swapBuffers() override;
-
-    bool makeCurrent() override { return true; }
 
     bool isValid() override { return SkToBool(fBackendContext.get()); }
 
@@ -46,7 +43,6 @@ public:
         this->createSwapchain(w, h, fDisplayParams);
     }
 
-    const DisplayParams& getDisplayParams() override { return fDisplayParams; }
     void setDisplayParams(const DisplayParams& params) override {
         this->createSwapchain(fWidth, fHeight, params);
     }
@@ -99,23 +95,21 @@ private:
     VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
     VkPtr<PFN_vkCreateSharedSwapchainsKHR> fCreateSharedSwapchainsKHR;
 
-    GrContext*        fContext;
     VkSurfaceKHR      fSurface;
     VkSwapchainKHR    fSwapchain;
     uint32_t          fPresentQueueIndex;
     VkQueue           fPresentQueue;
     int               fWidth;
     int               fHeight;
-    DisplayParams     fDisplayParams;
-    GrPixelConfig     fPixelConfig;
 
-    uint32_t          fImageCount;
-    VkImage*          fImages;         // images in the swapchain
-    VkImageLayout*    fImageLayouts;   // layouts of these images when not color attachment
-    sk_sp<SkSurface>* fSurfaces;       // wrapped surface for those images
-    VkCommandPool     fCommandPool;
-    BackbufferInfo*   fBackbuffers;
-    uint32_t          fCurrentBackbufferIndex;
+    uint32_t               fImageCount;
+    VkImage*               fImages;         // images in the swapchain
+    VkImageLayout*         fImageLayouts;   // layouts of these images when not color attachment
+    sk_sp<GrRenderTarget>* fRenderTargets;  // wrapped rendertargets for those images
+    sk_sp<SkSurface>*      fSurfaces;       // surfaces client renders to (may not be based on rts)
+    VkCommandPool          fCommandPool;
+    BackbufferInfo*        fBackbuffers;
+    uint32_t               fCurrentBackbufferIndex;
 };
 
 }   // namespace sk_app

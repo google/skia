@@ -9,30 +9,54 @@
 
 #include "DisplayParams.h"
 #include "GrTypes.h"
+#include "SkRefCnt.h"
+#include "SkSurfaceProps.h"
 
+class GrContext;
 class SkSurface;
+class GrRenderTarget;
 
 namespace sk_app {
 
-// TODO: fill this out with an interface
 class WindowContext {
 public:
+    WindowContext() : fContext(nullptr)
+                    , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType) {}
+
     virtual ~WindowContext() {}
 
-    virtual SkSurface* getBackbufferSurface() = 0;
+    virtual sk_sp<SkSurface> getBackbufferSurface() = 0;
 
     virtual void swapBuffers() = 0;
-
-    virtual bool makeCurrent() = 0;
 
     virtual bool isValid() = 0;
 
     virtual void resize(uint32_t w, uint32_t h) = 0;
 
-    virtual const DisplayParams& getDisplayParams() = 0;
+    const DisplayParams& getDisplayParams() { return fDisplayParams; }
     virtual void setDisplayParams(const DisplayParams& params) = 0;
 
+    SkSurfaceProps getSurfaceProps() const { return fSurfaceProps; }
+    void setSurfaceProps(const SkSurfaceProps& props) {
+        fSurfaceProps = props;
+    }
+
     virtual GrBackendContext getBackendContext() = 0;
+
+    sk_sp<SkSurface> createRenderSurface(sk_sp<GrRenderTarget>, int colorBits);
+    void presentRenderSurface(sk_sp<SkSurface> renderSurface, sk_sp<GrRenderTarget> rt,
+                              int colorBits);
+
+protected:
+    virtual bool isGpuContext() { return true;  }
+
+    GrContext*        fContext;
+
+    int               fWidth;
+    int               fHeight;
+    DisplayParams     fDisplayParams;
+    GrPixelConfig     fPixelConfig;
+    SkSurfaceProps    fSurfaceProps;
 };
 
 }   // namespace sk_app

@@ -41,9 +41,15 @@ DEFINE_string2(match, m, nullptr,
                "it is skipped unless some list entry starts with ~");
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
+const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
+    " [OpenGL]",
+    " [Vulkan]"
+};
+
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
+    , fBackendType(sk_app::Window::kVulkan_BackendType)
     , fZoomCenterX(0.0f)
     , fZoomCenterY(0.0f)
     , fZoomLevel(0.0f)
@@ -60,7 +66,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkCommandLineFlags::Parse(argc, argv);
 
     fWindow = Window::CreateNativeWindow(platformData);
-    fWindow->attach(Window::kVulkan_BackendType, DisplayParams());
+    fWindow->attach(fBackendType, DisplayParams());
 
     // register callbacks
     fCommands.attach(fWindow);
@@ -103,6 +109,22 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->changeZoomLevel(-1.f / 32.f);
         fWindow->inval();
     });
+#ifndef SK_BUILD_FOR_ANDROID
+    fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
+        fWindow->detach();
+
+        if (sk_app::Window::kVulkan_BackendType == fBackendType) {
+            fBackendType = sk_app::Window::kNativeGL_BackendType;
+        } 
+        // TODO: get Vulkan -> OpenGL working without swapchain creation failure
+        //else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
+        //    fBackendType = sk_app::Window::kVulkan_BackendType;
+        //}
+
+        fWindow->attach(fBackendType, DisplayParams());
+        this->updateTitle();
+    });
+#endif
 
     // set up slides
     this->initSlides();
@@ -179,6 +201,7 @@ void Viewer::updateTitle() {
     if (kSRGB_SkColorProfileType == fWindow->getDisplayParams().fProfileType) {
         title.append(" sRGB");
     }
+    title.append(kBackendTypeStrings[fBackendType]);
     fWindow->setTitle(title.c_str());
 }
 
@@ -233,7 +256,6 @@ void Viewer::updateMatrix(){
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
-
     int count = canvas->save();
 
     if (fWindow->supportsContentRect()) {
