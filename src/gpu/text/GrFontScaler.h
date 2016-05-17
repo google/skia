@@ -43,10 +43,10 @@ private:
  *  The client is responsible for instantiating this. The instance is created
  *  for a specific font+size+matrix.
  */
-class GrFontScaler : public SkRefCnt {
+class GrFontScaler final : public SkNoncopyable {
 public:
     explicit GrFontScaler(SkGlyphCache* strike);
-    virtual ~GrFontScaler();
+    ~GrFontScaler();
 
     const GrFontDescKey* getKey();
     GrMaskFormat getMaskFormat() const;
@@ -60,10 +60,12 @@ public:
     const SkGlyph& grToSkGlyph(GrGlyph::PackedID);
 
 private:
+    // The SkGlyphCache actually owns this GrFontScaler. The GrFontScaler is deleted when the
+    // SkGlyphCache is deleted.
     SkGlyphCache*  fStrike;
     GrFontDescKey* fKey;
 
-    typedef SkRefCnt INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
 
 #endif

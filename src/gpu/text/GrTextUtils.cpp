@@ -572,7 +572,7 @@ uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const 
 
 static void glyph_cache_aux_proc(void* data) {
     GrFontScaler* scaler = (GrFontScaler*)data;
-    SkSafeUnref(scaler);
+    delete scaler;
 }
 
 GrFontScaler* GrTextUtils::GetGrFontScaler(SkGlyphCache* cache) {
