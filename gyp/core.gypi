@@ -26,6 +26,7 @@
         '<(skia_include_path)/c/xamarin/sk_x_shader.h',
         '<(skia_include_path)/c/xamarin/sk_x_stream.h',
         '<(skia_include_path)/c/xamarin/sk_x_typeface.h',
+        '<(skia_include_path)/c/xamarin/sk_x_string.h',
         '<(skia_src_path)/c/xamarin/sk_x_types_priv.h',
         '<(skia_src_path)/c/xamarin/sk_x_bitmap.cpp',
         '<(skia_src_path)/c/xamarin/sk_x_imagedecoder.cpp',
@@ -40,6 +41,7 @@
         '<(skia_src_path)/c/xamarin/sk_x_shader.cpp',
         '<(skia_src_path)/c/xamarin/sk_x_stream.cpp',
         '<(skia_src_path)/c/xamarin/sk_x_typeface.cpp',
+        '<(skia_src_path)/c/xamarin/sk_x_string.cpp',
         
         '<(skia_include_path)/c/sk_canvas.h',
         '<(skia_include_path)/c/sk_data.h',

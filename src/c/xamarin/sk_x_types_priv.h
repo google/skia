@@ -20,6 +20,7 @@
 #include "SkPictureRecorder.h"
 #include "SkPoint3.h"
 #include "SkStream.h"
+#include "SkString.h"
 #include "../../include/effects/SkDisplacementMapEffect.h"
 #include "../../include/effects/SkDropShadowImageFilter.h"
 #include "../../include/effects/SkMatrixConvolutionImageFilter.h"
@@ -651,5 +652,14 @@ static inline SkPaint::FontMetrics* AsFontMetrics(sk_fontmetrics_t* p) {
 static inline sk_fontmetrics_t* ToFontMetrics(SkPaint::FontMetrics* p) {
     return reinterpret_cast<sk_fontmetrics_t*>(p);
 }
+
+static inline SkString* AsString(const sk_string_t* cdata) {
+    return reinterpret_cast<SkString*>(const_cast<sk_string_t*>(cdata));
+}
+
+static inline sk_string_t* ToString(SkString* data) {
+    return reinterpret_cast<sk_string_t*>(data);
+}
+
 
 #endif
