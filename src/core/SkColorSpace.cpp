@@ -95,7 +95,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewRGB(float gammaVals[3], const SkMatrix44& t
     }
 
     if (!gammas) {
-        gammas = sk_ref_sp(new SkGammas(gammaVals[0], gammaVals[1], gammaVals[2]));
+        gammas = sk_sp<SkGammas>(new SkGammas(gammaVals[0], gammaVals[1], gammaVals[2]));
     }
     return sk_sp<SkColorSpace>(new SkColorSpace(gammas, toXYZD50, kUnknown_Named));
 }
