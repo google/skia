@@ -105,11 +105,14 @@ GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
 bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This path renderer can draw all fill styles, all stroke styles except hairlines, but does
     // not do antialiasing. It can do convex and concave paths, but we'll leave the convex ones to
-    // simpler algorithms. Similary, we skip the non-hairlines that can be treated as hairline.
-    // An arbitrary path effect could produce a hairline result so we pass on those.
-    return !IsStrokeHairlineOrEquivalent(*args.fStyle, *args.fViewMatrix, nullptr) &&
+    // simpler algorithms. Similarly, we skip the non-hairlines that can be treated as hairline.
+    // An arbitrary path effect could produce a hairline result so we pass on those. We also skip
+    // volatile paths since they are not cacheable.
+    return !args.fAntiAlias && !args.fPath->isVolatile() &&
            !args.fStyle->strokeRec().isHairlineStyle() &&
-           !args.fStyle->hasNonDashPathEffect() && !args.fAntiAlias && !args.fPath->isConvex();
+           !args.fStyle->hasNonDashPathEffect() &&
+           !IsStrokeHairlineOrEquivalent(*args.fStyle, *args.fViewMatrix, nullptr) &&
+           !args.fPath->isConvex();
 }
 
 class TessellatingPathBatch : public GrVertexBatch {
@@ -160,25 +163,25 @@ private:
         int clipBoundsCnt =
             fPath.isInverseFillType() ? sizeof(fClipBounds) / sizeof(uint32_t) : 0;
         int styleDataCnt = GrStyle::KeySize(fStyle, GrStyle::Apply::kPathEffectAndStrokeRec);
-        if (styleDataCnt >= 0) {
-            GrUniqueKey::Builder builder(&key, kDomain, 2 + clipBoundsCnt + styleDataCnt);
-            builder[0] = fPath.getGenerationID();
-            builder[1] = fPath.getFillType();
-            // For inverse fills, the tessellation is dependent on clip bounds.
-            if (fPath.isInverseFillType()) {
-                memcpy(&builder[2], &fClipBounds, sizeof(fClipBounds));
-            }
-            if (styleDataCnt) {
-                GrStyle::WriteKey(&builder[2 + clipBoundsCnt], fStyle,
-                                  GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
-            }
-            builder.finish();
-            SkAutoTUnref<GrBuffer> cachedVertexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
-            int actualCount;
-            if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-                this->drawVertices(target, gp, cachedVertexBuffer.get(), 0, actualCount);
-                return;
-            }
+        // We should have excluded anything we wouldn't know how to cache.
+        SkASSERT(styleDataCnt >= 0);
+        GrUniqueKey::Builder builder(&key, kDomain, 2 + clipBoundsCnt + styleDataCnt);
+        builder[0] = fPath.getGenerationID();
+        builder[1] = fPath.getFillType();
+        // For inverse fills, the tessellation is dependent on clip bounds.
+        if (fPath.isInverseFillType()) {
+            memcpy(&builder[2], &fClipBounds, sizeof(fClipBounds));
+        }
+        if (styleDataCnt) {
+            GrStyle::WriteKey(&builder[2 + clipBoundsCnt], fStyle,
+                              GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
+        }
+        builder.finish();
+        SkAutoTUnref<GrBuffer> cachedVertexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
+        int actualCount;
+        if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
+            this->drawVertices(target, gp, cachedVertexBuffer.get(), 0, actualCount);
+            return;
         }
 
         SkPath path;
