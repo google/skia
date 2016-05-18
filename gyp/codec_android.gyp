@@ -27,7 +27,6 @@
         '../src/codec',
       ],
       'sources': [
-        '../src/android/SkBitmapRegionCanvas.cpp',
         '../src/android/SkBitmapRegionCodec.cpp',
         '../src/android/SkBitmapRegionDecoder.cpp',
       ],

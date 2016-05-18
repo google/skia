@@ -71,10 +71,8 @@ void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-BRDSrc::BRDSrc(Path path, SkBitmapRegionDecoder::Strategy strategy, Mode mode,
-        CodecSrc::DstColorType dstColorType, uint32_t sampleSize)
+BRDSrc::BRDSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType, uint32_t sampleSize)
     : fPath(path)
-    , fStrategy(strategy)
     , fMode(mode)
     , fDstColorType(dstColorType)
     , fSampleSize(sampleSize)
@@ -86,13 +84,12 @@ bool BRDSrc::veto(SinkFlags flags) const {
         || flags.approach != SinkFlags::kDirect;
 }
 
-static SkBitmapRegionDecoder* create_brd(Path path,
-        SkBitmapRegionDecoder::Strategy strategy) {
+static SkBitmapRegionDecoder* create_brd(Path path) {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
     if (!encoded) {
         return NULL;
     }
-    return SkBitmapRegionDecoder::Create(encoded, strategy);
+    return SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy);
 }
 
 Error BRDSrc::draw(SkCanvas* canvas) const {
@@ -115,7 +112,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
             break;
     }
 
-    SkAutoTDelete<SkBitmapRegionDecoder> brd(create_brd(fPath, fStrategy));
+    SkAutoTDelete<SkBitmapRegionDecoder> brd(create_brd(fPath));
     if (nullptr == brd.get()) {
         return Error::Nonfatal(SkStringPrintf("Could not create brd for %s.", fPath.c_str()));
     }
@@ -217,7 +214,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize BRDSrc::size() const {
-    SkAutoTDelete<SkBitmapRegionDecoder> brd(create_brd(fPath, fStrategy));
+    SkAutoTDelete<SkBitmapRegionDecoder> brd(create_brd(fPath));
     if (brd) {
         return SkISize::Make(SkTMax(1, brd->width() / (int) fSampleSize),
                 SkTMax(1, brd->height() / (int) fSampleSize));

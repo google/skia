@@ -513,19 +513,12 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     return target;
 }
 
-static bool valid_brd_bench(SkData* encoded, SkBitmapRegionDecoder::Strategy strategy,
-        SkColorType colorType, uint32_t sampleSize, uint32_t minOutputSize, int* width,
-        int* height) {
+static bool valid_brd_bench(SkData* encoded, SkColorType colorType, uint32_t sampleSize,
+        uint32_t minOutputSize, int* width, int* height) {
     SkAutoTDelete<SkBitmapRegionDecoder> brd(
-            SkBitmapRegionDecoder::Create(encoded, strategy));
+            SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
     if (nullptr == brd.get()) {
         // This is indicates that subset decoding is not supported for a particular image format.
-        return false;
-    }
-
-    SkBitmap bitmap;
-    if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, brd->width(), brd->height()),
-            1, colorType, false)) {
         return false;
     }
 
@@ -568,7 +561,6 @@ public:
                       , fCurrentColorType(0)
                       , fCurrentAlphaType(0)
                       , fCurrentSubsetType(0)
-                      , fCurrentBRDStrategy(0)
                       , fCurrentSampleSize(0)
                       , fCurrentAnimSKP(0) {
         for (int i = 0; i < FLAGS_skps.count(); i++) {
@@ -842,15 +834,6 @@ public:
         }
 
         // Run the BRDBenches
-        // We will benchmark multiple BRD strategies.
-        static const struct {
-            SkBitmapRegionDecoder::Strategy    fStrategy;
-            const char*                        fName;
-        } strategies[] = {
-            { SkBitmapRegionDecoder::kCanvas_Strategy,       "BRD_canvas" },
-            { SkBitmapRegionDecoder::kAndroidCodec_Strategy, "BRD_android_codec" },
-        };
-
         // We intend to create benchmarks that model the use cases in
         // android/libraries/social/tiledimage.  In this library, an image is decoded in 512x512
         // tiles.  The image can be translated freely, so the location of a tile may be anywhere in
@@ -866,78 +849,72 @@ public:
         const uint32_t brdSampleSizes[] = { 1, 2, 4, 8, 16 };
         const uint32_t minOutputSize = 512;
         for (; fCurrentBRDImage < fImages.count(); fCurrentBRDImage++) {
+            fSourceType = "image";
+            fBenchType = "BRD";
+
             const SkString& path = fImages[fCurrentBRDImage];
             if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
-            while (fCurrentBRDStrategy < (int) SK_ARRAY_COUNT(strategies)) {
-                fSourceType = "image";
-                fBenchType = strategies[fCurrentBRDStrategy].fName;
 
-                const SkBitmapRegionDecoder::Strategy strategy =
-                        strategies[fCurrentBRDStrategy].fStrategy;
+            while (fCurrentColorType < fColorTypes.count()) {
+                while (fCurrentSampleSize < (int) SK_ARRAY_COUNT(brdSampleSizes)) {
+                    while (fCurrentSubsetType <= kLastSingle_SubsetType) {
 
-                while (fCurrentColorType < fColorTypes.count()) {
-                    while (fCurrentSampleSize < (int) SK_ARRAY_COUNT(brdSampleSizes)) {
-                        while (fCurrentSubsetType <= kLastSingle_SubsetType) {
+                        SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
+                        const SkColorType colorType = fColorTypes[fCurrentColorType];
+                        uint32_t sampleSize = brdSampleSizes[fCurrentSampleSize];
+                        int currentSubsetType = fCurrentSubsetType++;
 
-                            SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
-                            const SkColorType colorType = fColorTypes[fCurrentColorType];
-                            uint32_t sampleSize = brdSampleSizes[fCurrentSampleSize];
-                            int currentSubsetType = fCurrentSubsetType++;
-
-                            int width = 0;
-                            int height = 0;
-                            if (!valid_brd_bench(encoded.get(), strategy, colorType, sampleSize,
-                                    minOutputSize, &width, &height)) {
-                                break;
-                            }
-
-                            SkString basename = SkOSPath::Basename(path.c_str());
-                            SkIRect subset;
-                            const uint32_t subsetSize = sampleSize * minOutputSize;
-                            switch (currentSubsetType) {
-                                case kTopLeft_SubsetType:
-                                    basename.append("_TopLeft");
-                                    subset = SkIRect::MakeXYWH(0, 0, subsetSize, subsetSize);
-                                    break;
-                                case kTopRight_SubsetType:
-                                    basename.append("_TopRight");
-                                    subset = SkIRect::MakeXYWH(width - subsetSize, 0, subsetSize,
-                                            subsetSize);
-                                    break;
-                                case kMiddle_SubsetType:
-                                    basename.append("_Middle");
-                                    subset = SkIRect::MakeXYWH((width - subsetSize) / 2,
-                                            (height - subsetSize) / 2, subsetSize, subsetSize);
-                                    break;
-                                case kBottomLeft_SubsetType:
-                                    basename.append("_BottomLeft");
-                                    subset = SkIRect::MakeXYWH(0, height - subsetSize, subsetSize,
-                                            subsetSize);
-                                    break;
-                                case kBottomRight_SubsetType:
-                                    basename.append("_BottomRight");
-                                    subset = SkIRect::MakeXYWH(width - subsetSize,
-                                            height - subsetSize, subsetSize, subsetSize);
-                                    break;
-                                default:
-                                    SkASSERT(false);
-                            }
-
-                            return new BitmapRegionDecoderBench(basename.c_str(), encoded.get(),
-                                    strategy, colorType, sampleSize, subset);
+                        int width = 0;
+                        int height = 0;
+                        if (!valid_brd_bench(encoded.get(), colorType, sampleSize, minOutputSize,
+                                &width, &height)) {
+                            break;
                         }
-                        fCurrentSubsetType = 0;
-                        fCurrentSampleSize++;
+
+                        SkString basename = SkOSPath::Basename(path.c_str());
+                        SkIRect subset;
+                        const uint32_t subsetSize = sampleSize * minOutputSize;
+                        switch (currentSubsetType) {
+                            case kTopLeft_SubsetType:
+                                basename.append("_TopLeft");
+                                subset = SkIRect::MakeXYWH(0, 0, subsetSize, subsetSize);
+                                break;
+                            case kTopRight_SubsetType:
+                                basename.append("_TopRight");
+                                subset = SkIRect::MakeXYWH(width - subsetSize, 0, subsetSize,
+                                        subsetSize);
+                                break;
+                            case kMiddle_SubsetType:
+                                basename.append("_Middle");
+                                subset = SkIRect::MakeXYWH((width - subsetSize) / 2,
+                                        (height - subsetSize) / 2, subsetSize, subsetSize);
+                                break;
+                            case kBottomLeft_SubsetType:
+                                basename.append("_BottomLeft");
+                                subset = SkIRect::MakeXYWH(0, height - subsetSize, subsetSize,
+                                        subsetSize);
+                                break;
+                            case kBottomRight_SubsetType:
+                                basename.append("_BottomRight");
+                                subset = SkIRect::MakeXYWH(width - subsetSize,
+                                        height - subsetSize, subsetSize, subsetSize);
+                                break;
+                            default:
+                                SkASSERT(false);
+                        }
+
+                        return new BitmapRegionDecoderBench(basename.c_str(), encoded.get(),
+                                colorType, sampleSize, subset);
                     }
-                    fCurrentSampleSize = 0;
-                    fCurrentColorType++;
+                    fCurrentSubsetType = 0;
+                    fCurrentSampleSize++;
                 }
-                fCurrentColorType = 0;
-                fCurrentBRDStrategy++;
+                fCurrentSampleSize = 0;
+                fCurrentColorType++;
             }
-            fCurrentBRDStrategy = 0;
+            fCurrentColorType = 0;
         }
 
         return nullptr;
@@ -1001,7 +978,6 @@ private:
     int fCurrentColorType;
     int fCurrentAlphaType;
     int fCurrentSubsetType;
-    int fCurrentBRDStrategy;
     int fCurrentSampleSize;
     int fCurrentAnimSKP;
 };

@@ -165,7 +165,7 @@ public:
         kDivisor_Mode,
     };
 
-    BRDSrc(Path, SkBitmapRegionDecoder::Strategy, Mode, CodecSrc::DstColorType, uint32_t);
+    BRDSrc(Path, Mode, CodecSrc::DstColorType, uint32_t);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -173,7 +173,6 @@ public:
     bool veto(SinkFlags) const override;
 private:
     Path                                     fPath;
-    SkBitmapRegionDecoder::Strategy          fStrategy;
     Mode                                     fMode;
     CodecSrc::DstColorType                   fDstColorType;
     uint32_t                                 fSampleSize;

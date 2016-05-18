@@ -609,44 +609,9 @@ static void push_codec_srcs(Path path) {
     }
 }
 
-static bool brd_color_type_supported(SkBitmapRegionDecoder::Strategy strategy,
-        CodecSrc::DstColorType dstColorType) {
-    switch (strategy) {
-        case SkBitmapRegionDecoder::kCanvas_Strategy:
-            if (CodecSrc::kGetFromCanvas_DstColorType == dstColorType) {
-                return true;
-            }
-            return false;
-        case SkBitmapRegionDecoder::kAndroidCodec_Strategy:
-            switch (dstColorType) {
-                case CodecSrc::kGetFromCanvas_DstColorType:
-                case CodecSrc::kIndex8_Always_DstColorType:
-                case CodecSrc::kGrayscale_Always_DstColorType:
-                    return true;
-                default:
-                    return false;
-            }
-        default:
-            SkASSERT(false);
-            return false;
-    }
-}
-
-static void push_brd_src(Path path, SkBitmapRegionDecoder::Strategy strategy,
-        CodecSrc::DstColorType dstColorType, BRDSrc::Mode mode, uint32_t sampleSize) {
-    SkString folder;
-    switch (strategy) {
-        case SkBitmapRegionDecoder::kCanvas_Strategy:
-            folder.append("brd_canvas");
-            break;
-        case SkBitmapRegionDecoder::kAndroidCodec_Strategy:
-            folder.append("brd_android_codec");
-            break;
-        default:
-            SkASSERT(false);
-            return;
-    }
-
+static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc::Mode mode,
+        uint32_t sampleSize) {
+    SkString folder("brd_android_codec");
     switch (mode) {
         case BRDSrc::kFullImage_Mode:
             break;
@@ -676,17 +641,11 @@ static void push_brd_src(Path path, SkBitmapRegionDecoder::Strategy strategy,
         folder.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 
-    BRDSrc* src = new BRDSrc(path, strategy, mode, dstColorType, sampleSize);
+    BRDSrc* src = new BRDSrc(path, mode, dstColorType, sampleSize);
     push_src("image", folder, src);
 }
 
 static void push_brd_srcs(Path path) {
-
-    const SkBitmapRegionDecoder::Strategy strategies[] = {
-            SkBitmapRegionDecoder::kCanvas_Strategy,
-            SkBitmapRegionDecoder::kAndroidCodec_Strategy,
-    };
-
     // Test on a variety of sampleSizes, making sure to include:
     // - 2, 4, and 8, which are natively supported by jpeg
     // - multiples of 2 which are not divisible by 4 (analogous for 4)
@@ -707,14 +666,10 @@ static void push_brd_srcs(Path path) {
             BRDSrc::kDivisor_Mode,
     };
 
-    for (SkBitmapRegionDecoder::Strategy strategy : strategies) {
-        for (uint32_t sampleSize : sampleSizes) {
-            for (CodecSrc::DstColorType dstColorType : dstColorTypes) {
-                if (brd_color_type_supported(strategy, dstColorType)) {
-                    for (BRDSrc::Mode mode : modes) {
-                        push_brd_src(path, strategy, dstColorType, mode, sampleSize);
-                    }
-                }
+    for (uint32_t sampleSize : sampleSizes) {
+        for (CodecSrc::DstColorType dstColorType : dstColorTypes) {
+            for (BRDSrc::Mode mode : modes) {
+                push_brd_src(path, dstColorType, mode, sampleSize);
             }
         }
     }
