@@ -98,7 +98,9 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* so
     if (fColorFilter->affectsTransparentBlack()) {
         // The subsequent input->draw() call may not fill the entire canvas. For filters which
         // affect transparent black, ensure that the filter is applied everywhere.
+        paint.setColor(SK_ColorTRANSPARENT);
         canvas->drawPaint(paint);
+        paint.setColor(SK_ColorBLACK);
     } else {
         canvas->clear(0x0);
     }

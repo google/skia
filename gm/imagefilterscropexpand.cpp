@@ -50,11 +50,13 @@ protected:
 
         sk_sp<SkImageFilter> gradientCircleSource(SkImageSource::Make(std::move(gradientCircle)));
         sk_sp<SkImageFilter> noopCropped(SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect));
-        SkScalar sk255 = SkIntToScalar(255);
+        // This color matrix saturates the green component but only partly increases the opacity.
+        // For the opaque checkerboard, the opacity boost doesn't matter but it does impact the
+        // area outside the checkerboard.
         SkScalar matrix[20] = { 1, 0, 0, 0, 0,
-                                0, 1, 0, 0, sk255,
+                                0, 1, 0, 0, 255,
                                 0, 0, 1, 0, 0,
-                                0, 0, 0, 0, sk255 };
+                                0, 0, 0, 1, 32 };
         sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
