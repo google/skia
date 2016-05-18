@@ -62,13 +62,14 @@ static void test_blender(
 
     std::string fileName = resourceName + ".png";
     sk_sp<SkImage> image = GetResourceAsImage(fileName.c_str());
-    SkASSERT(image != nullptr);
     if (image == nullptr) {
-        SkFAIL("image is NULL");
+        ERRORF(reporter, "image is NULL");
+        return;
     }
     SkBitmap bm;
     if (!as_IB(image)->getROPixels(&bm)) {
-        SkFAIL("Could not read resource");
+        ERRORF(reporter, "Could not read resource");
+        return;
     }
 
     SkPixmap pixmap;
