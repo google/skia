@@ -362,7 +362,7 @@ bool SkColorSpace::LoadGammas(SkGammaCurve* gammas, uint32_t numGammas, const ui
                     // a count of 0.
                     gammas[i].fValue = 1.0f;
                     break;
-                } else if (len < 12 + 2 * count) {
+                } else if (len < tagBytes) {
                     SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
                     return false;
                 }
@@ -429,27 +429,93 @@ bool SkColorSpace::LoadGammas(SkGammaCurve* gammas, uint32_t numGammas, const ui
                 break;
             }
             case kTAG_ParaCurveType:
-                // Guess 2.2f.
-                // FIXME (msarett): Handle parametric curves.
-                SkColorSpacePrintf("parametric curve\n");
-                gammas[i].fValue = 2.2f;
-
-                // Determine the size of the parametric curve tag.
+                // Determine the format of the parametric curve tag.
                 switch(read_big_endian_short(src + 8)) {
-                    case 0:
+                    case 0: {
                         tagBytes = 12 + 4;
+                        if (len < tagBytes) {
+                            SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+                            return false;
+                        }
+
+                        // Y = X^g
+                        int32_t g = read_big_endian_int(src + 12);
+                        gammas[i].fValue = SkFixedToFloat(g);
                         break;
-                    case 1:
+                    }
+
+                    // Here's where the real parametric gammas start.  There are many
+                    // permutations of the same equations.
+                    //
+                    // Y = (aX + b)^g + c  for X >= d
+                    // Y = eX + f          otherwise
+                    //
+                    // We will fill in with zeros as necessary to always match the above form.
+                    // Note that there is no need to actually write zero, since the struct is
+                    // zero initialized.
+                    case 1: {
                         tagBytes = 12 + 12;
+                        if (len < tagBytes) {
+                            SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+                            return false;
+                        }
+
+                        // Y = (aX + b)^g  for X >= -b/a
+                        // Y = 0           otherwise
+                        gammas[i].fG = SkFixedToFloat(read_big_endian_int(src + 12));
+                        gammas[i].fA = SkFixedToFloat(read_big_endian_int(src + 16));
+                        gammas[i].fB = SkFixedToFloat(read_big_endian_int(src + 20));
+                        gammas[i].fD = -gammas[i].fB / gammas[i].fA;
                         break;
+                    }
                     case 2:
                         tagBytes = 12 + 16;
+                        if (len < tagBytes) {
+                            SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+                            return false;
+                        }
+
+                        // Y = (aX + b)^g + c  for X >= -b/a
+                        // Y = c               otherwise
+                        gammas[i].fG = SkFixedToFloat(read_big_endian_int(src + 12));
+                        gammas[i].fA = SkFixedToFloat(read_big_endian_int(src + 16));
+                        gammas[i].fB = SkFixedToFloat(read_big_endian_int(src + 20));
+                        gammas[i].fC = SkFixedToFloat(read_big_endian_int(src + 24));
+                        gammas[i].fD = -gammas[i].fB / gammas[i].fA;
+                        gammas[i].fF = gammas[i].fC;
                         break;
                     case 3:
                         tagBytes = 12 + 20;
+                        if (len < tagBytes) {
+                            SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+                            return false;
+                        }
+
+                        // Y = (aX + b)^g  for X >= d
+                        // Y = cX          otherwise
+                        gammas[i].fG = SkFixedToFloat(read_big_endian_int(src + 12));
+                        gammas[i].fA = SkFixedToFloat(read_big_endian_int(src + 16));
+                        gammas[i].fB = SkFixedToFloat(read_big_endian_int(src + 20));
+                        gammas[i].fD = SkFixedToFloat(read_big_endian_int(src + 28));
+                        gammas[i].fE = SkFixedToFloat(read_big_endian_int(src + 24));
                         break;
                     case 4:
                         tagBytes = 12 + 28;
+                        if (len < tagBytes) {
+                            SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
+                            return false;
+                        }
+
+                        // Y = (aX + b)^g + c  for X >= d
+                        // Y = eX + f          otherwise
+                        // NOTE: The ICC spec writes "cX" instead of "eX" but I think it's a typo.
+                        gammas[i].fG = SkFixedToFloat(read_big_endian_int(src + 12));
+                        gammas[i].fA = SkFixedToFloat(read_big_endian_int(src + 16));
+                        gammas[i].fB = SkFixedToFloat(read_big_endian_int(src + 20));
+                        gammas[i].fC = SkFixedToFloat(read_big_endian_int(src + 24));
+                        gammas[i].fD = SkFixedToFloat(read_big_endian_int(src + 28));
+                        gammas[i].fE = SkFixedToFloat(read_big_endian_int(src + 32));
+                        gammas[i].fF = SkFixedToFloat(read_big_endian_int(src + 36));
                         break;
                     default:
                         SkColorSpacePrintf("Invalid parametric curve type\n");

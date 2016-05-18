@@ -12,17 +12,24 @@ struct SkGammaCurve {
     bool isValue() const {
         bool result = (0.0f != fValue);
         SkASSERT(!result || (0 == fTableSize));
+        SkASSERT(!result || (0.0f == fG));
         return result;
     }
 
     bool isTable() const {
         bool result = (0 != fTableSize);
         SkASSERT(!result || (0.0f == fValue));
+        SkASSERT(!result || (0.0f == fG));
         SkASSERT(!result || fTable);
         return result;
     }
 
-    bool isParametric() const { return false; }
+    bool isParametric() const {
+        bool result = (0.0f != fG);
+        SkASSERT(!result || (0.0f == fValue));
+        SkASSERT(!result || (0 == fTableSize));
+        return result;
+    }
 
     // We have three different ways to represent gamma.
     // (1) A single value:
@@ -33,7 +40,15 @@ struct SkGammaCurve {
     std::unique_ptr<float[]> fTable;
 
     // (3) Parameters for a curve:
-    // FIXME (msarett): Handle parametric curves.
+    //     Y = (aX + b)^g + c  for X >= d
+    //     Y = eX + f          otherwise
+    float                    fG;
+    float                    fA;
+    float                    fB;
+    float                    fC;
+    float                    fD;
+    float                    fE;
+    float                    fF;
 
     SkGammaCurve() {
         memset(this, 0, sizeof(struct SkGammaCurve));
@@ -43,6 +58,13 @@ struct SkGammaCurve {
         : fValue(value)
         , fTableSize(0)
         , fTable(nullptr)
+        , fG(0.0f)
+        , fA(0.0f)
+        , fB(0.0f)
+        , fC(0.0f)
+        , fD(0.0f)
+        , fE(0.0f)
+        , fF(0.0f)
     {}
 };
 
