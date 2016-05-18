@@ -115,9 +115,9 @@ void GrCircleBlurFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* 
 // Evaluate an AA circle function centered at the origin with 'radius' at (x,y)
 static inline float disk(float x, float y, float radius) {
     float distSq = x*x + y*y;
-    if (distSq <= (radius-0.5f)*(radius-0.5f)) {
+    if (distSq <= (radius - 0.5f) * (radius - 0.5f)) {
         return 1.0f;
-    } else if (distSq >= (radius+0.5f)*(radius+0.5f)) {
+    } else if (distSq >= (radius + 0.5f) * (radius + 0.5f)) {
         return 0.0f;
     } else {
         float ramp = radius + 0.5f - sqrtf(distSq);
@@ -130,48 +130,65 @@ static inline float disk(float x, float y, float radius) {
 static void make_half_kernel(float* kernel, int kernelWH, float sigma) {
     SkASSERT(!(kernelWH & 1));
 
-    const float kernelOff = (kernelWH-1)/2.0f;
+    // We treat each cell in the half-kernel as a 1x1 window and evaluate it
+    // at the center. So the evaluations go from -kernelOff to kernelOff in x
+    // and -kernelOff to -.5 in y (since this is a top-half kernel).
+    const float kernelOff = (kernelWH - 1) / 2.0f;
 
     float b = 1.0f / (2.0f * sigma * sigma);
     // omit the scale term since we're just going to renormalize
 
     float tot = 0.0f;
-    for (int y = 0; y < kernelWH/2; ++y) {
-        for (int x = 0; x < kernelWH/2; ++x) {
+    for (int y = 0; y < kernelWH / 2; ++y) {
+        for (int x = 0; x < kernelWH / 2; ++x) {
             // TODO: use a cheap approximation of the 2D Guassian?
-            float x2 = (x-kernelOff) * (x-kernelOff);
-            float y2 = (y-kernelOff) * (y-kernelOff);
+            float x2 = (x - kernelOff) * (x - kernelOff);
+            float y2 = (y - kernelOff) * (y - kernelOff);
             // The kernel is symmetric so only compute it once for both sides
-            kernel[y*kernelWH+(kernelWH-x-1)] = kernel[y*kernelWH+x] = expf(-(x2 + y2) * b);
-            tot += 2.0f * kernel[y*kernelWH+x];
+            float value = expf(-(x2 + y2) * b);
+            kernel[y * kernelWH + x] = value;
+            kernel[y * kernelWH + (kernelWH - x - 1)] = value;
+            tot += 2.0f * value;
         }
     }
-    // Still normalize the half kernel to 1.0 (rather than 0.5) so we don't
-    // have to scale by 2.0 after convolution.
-    for (int y = 0; y < kernelWH/2; ++y) {
+    // Normalize the half kernel to 1.0 (rather than 0.5) so we don't have to scale by 2.0 after
+    // convolution.
+    for (int y = 0; y < kernelWH / 2; ++y) {
         for (int x = 0; x < kernelWH; ++x) {
-            kernel[y*kernelWH+x] /= tot;
+            kernel[y * kernelWH + x] /= tot;
         }
     }
 }
 
 // Apply the half-kernel at 't' away from the center of the circle
-static uint8_t eval_at(float t, float halfWidth, float* halfKernel, int kernelWH) {
+static uint8_t eval_at(float t, float circleR, float* halfKernel, int kernelWH) {
     SkASSERT(!(kernelWH & 1));
-
-    const float kernelOff = (kernelWH-1)/2.0f;
 
     float acc = 0;
 
-    for (int y = 0; y < kernelWH/2; ++y) {
-        if (kernelOff-y > halfWidth+0.5f) {
-            // All disk() samples in this row will be 0.0f
+    // We evaluate the kernel application at (x=t, y=0) using halfKernel which represents the top
+    // half of a 2D Guassian kernel. The full kernel is symmetric so evaluating just the upper half
+    // is sufficient. The half kernel has been normalized to 1 rather than 0.5 so there is no need
+    // to double after evaluation.
+
+    // The sample positions relative to (t, 0) match the sampling used to create the half kernel.
+    const float kernelOff = (kernelWH - 1) / 2.0f;
+
+    for (int j = 0; j < kernelWH / 2; ++j) {
+        float y = (kernelOff - j);
+        if (y > circleR + 0.5f) {
+            // The entire row is above the circle.
             continue;
         }
 
-        for (int x = 0; x < kernelWH; ++x) {
-            float image = disk(t - kernelOff + x, -kernelOff + y, halfWidth);
-            float kernel = halfKernel[y*kernelWH+x];
+        for (int i = 0; i < kernelWH; ++i) {
+            float x = t - kernelOff + i;
+            if (x > circleR + 0.5f) {
+                // Stop evaluation once x crosses outside the circle.
+                break;
+            }
+            float image = disk(x, y, circleR);
+            float kernel = halfKernel[j * kernelWH + i];
             acc += kernel * image;
         }
     }
@@ -179,42 +196,42 @@ static uint8_t eval_at(float t, float halfWidth, float* halfKernel, int kernelWH
     return SkUnitScalarClampToByte(acc);
 }
 
-static inline void compute_profile_offset_and_size(float halfWH, float sigma,
+static inline void compute_profile_offset_and_size(float circleR, float sigma,
                                                    float* offset, int* size) {
 
-    if (3*sigma <= halfWH) {
+    if (3*sigma <= circleR) {
         // The circle is bigger than the Gaussian. In this case we know the interior of the
         // blurred circle is solid.
-        *offset = halfWH - 3 * sigma; // This location maps to 0.5f in the weights texture.
-                                      // It should always be 255.
+        *offset = circleR - 3 * sigma; // This location maps to 0.5f in the weights texture.
+                                       // It should always be 255.
         *size = SkScalarCeilToInt(6*sigma);
     } else {
         // The Gaussian is bigger than the circle.
         *offset = 0.0f;
-        *size = SkScalarCeilToInt(halfWH + 3*sigma);
+        *size = SkScalarCeilToInt(circleR + 3*sigma);
     }
 }
 
-static uint8_t* create_profile(float halfWH, float sigma) {
+static uint8_t* create_profile(float circleR, float sigma) {
 
     int kernelWH = SkScalarCeilToInt(6.0f*sigma);
     kernelWH = (kernelWH + 1) & ~1; // make it the next even number up
 
-    SkAutoTArray<float> halfKernel(kernelWH*kernelWH/2);
+    SkAutoTArray<float> halfKernel(kernelWH * kernelWH / 2);
 
     make_half_kernel(halfKernel.get(), kernelWH, sigma);
 
     float offset;
     int numSteps;
 
-    compute_profile_offset_and_size(halfWH, sigma, &offset, &numSteps);
+    compute_profile_offset_and_size(circleR, sigma, &offset, &numSteps);
 
     uint8_t* weights = new uint8_t[numSteps];
     for (int i = 0; i < numSteps - 1; ++i) {
-        weights[i] = eval_at(offset+i, halfWH, halfKernel.get(), kernelWH);
+        weights[i] = eval_at(offset+i, circleR, halfKernel.get(), kernelWH);
     }
     // Ensure the tail of the Gaussian goes to zero.
-    weights[numSteps-1] = 0;
+    weights[numSteps - 1] = 0;
 
     return weights;
 }
@@ -224,15 +241,7 @@ GrTexture* GrCircleBlurFragmentProcessor::CreateCircleBlurProfileTexture(
                                                                 const SkRect& circle,
                                                                 float sigma,
                                                                 float* offset) {
-    float halfWH = circle.width() / 2.0f;
-
-    int size;
-    compute_profile_offset_and_size(halfWH, sigma, offset, &size);
-
-    GrSurfaceDesc texDesc;
-    texDesc.fWidth = size;
-    texDesc.fHeight = 1;
-    texDesc.fConfig = kAlpha_8_GrPixelConfig;
+    float circleR = circle.width() / 2.0f;
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
@@ -240,13 +249,22 @@ GrTexture* GrCircleBlurFragmentProcessor::CreateCircleBlurProfileTexture(
     // The profile curve varies with both the sigma of the Gaussian and the size of the
     // disk. Quantizing to 16.16 should be close enough though.
     builder[0] = SkScalarToFixed(sigma);
-    builder[1] = SkScalarToFixed(halfWH);
+    builder[1] = SkScalarToFixed(circleR);
     builder.finish();
 
     GrTexture *blurProfile = textureProvider->findAndRefTextureByUniqueKey(key);
 
+    int profileSize;
+    compute_profile_offset_and_size(circleR, sigma, offset, &profileSize);
+
     if (!blurProfile) {
-        SkAutoTDeleteArray<uint8_t> profile(create_profile(halfWH, sigma));
+
+        GrSurfaceDesc texDesc;
+        texDesc.fWidth = profileSize;
+        texDesc.fHeight = 1;
+        texDesc.fConfig = kAlpha_8_GrPixelConfig;
+
+        SkAutoTDeleteArray<uint8_t> profile(create_profile(circleR, sigma));
 
         blurProfile = textureProvider->createTexture(texDesc, SkBudgeted::kYes, profile.get(), 0);
         if (blurProfile) {
