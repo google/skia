@@ -32,12 +32,12 @@ of matrix and clip settings.
 
         paint1.setTextSize(64.0f);
         paint1.setAntiAlias(true);
-        paint1.setColor(SkColorSetRGB(255, 0, 0);
+        paint1.setColor(SkColorSetRGB(255, 0, 0));
         paint1.setStyle(SkPaint::kFill_Style);
 
         paint2.setTextSize(64.f);
         paint2.setAntiAlias(true);
-        paint2.setColor(SkColorSetRGB(0, 136, 0);
+        paint2.setColor(SkColorSetRGB(0, 136, 0));
         paint2.setStyle(SkPaint::kStroke_Style);
         paint2.setStrokeWidth(SkIntToScalar(3));
 
