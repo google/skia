@@ -36,18 +36,18 @@ sk_imagedecoder_format_t sk_imagedecoder_get_stream_format(sk_stream_streamrewin
     return UNKNOWN_SK_IMAGEDECODER_FORMAT;
 }
 
-const char* sk_imagedecoder_get_format_name_from_format(sk_imagedecoder_format_t cformat)
+sk_string_t* sk_imagedecoder_get_format_name_from_format(sk_imagedecoder_format_t cformat)
 {
     SkImageDecoder::Format format;
     if (find_sk(cformat, &format)) {
-        return SkImageDecoder::GetFormatName(format);
+        return ToString(new SkString(SkImageDecoder::GetFormatName(format)));
     }
     return nullptr;
 }
 
-const char* sk_imagedecoder_get_format_name_from_decoder(sk_imagedecoder_t* cdecoder)
+sk_string_t* sk_imagedecoder_get_format_name_from_decoder(sk_imagedecoder_t* cdecoder)
 {
-    return AsImageDecoder(cdecoder)->getFormatName();
+    return ToString(new SkString(AsImageDecoder(cdecoder)->getFormatName()));
 }
 
 bool sk_imagedecoder_get_skip_writing_zeros(sk_imagedecoder_t* cdecoder)

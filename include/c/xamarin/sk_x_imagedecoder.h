@@ -19,8 +19,8 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 SK_API void sk_imagedecoder_destructor(sk_imagedecoder_t* cdecoder);
 SK_API sk_imagedecoder_format_t sk_imagedecoder_get_decoder_format(sk_imagedecoder_t* cdecoder);
 SK_API sk_imagedecoder_format_t sk_imagedecoder_get_stream_format(sk_stream_streamrewindable_t* cstream);
-SK_API const char* sk_imagedecoder_get_format_name_from_format(sk_imagedecoder_format_t cformat);
-SK_API const char* sk_imagedecoder_get_format_name_from_decoder(sk_imagedecoder_t* cdecoder);
+SK_API sk_string_t* sk_imagedecoder_get_format_name_from_format(sk_imagedecoder_format_t cformat);
+SK_API sk_string_t* sk_imagedecoder_get_format_name_from_decoder(sk_imagedecoder_t* cdecoder);
 SK_API bool sk_imagedecoder_get_skip_writing_zeros(sk_imagedecoder_t* cdecoder);
 SK_API void sk_imagedecoder_set_skip_writing_zeros(sk_imagedecoder_t* cdecoder, bool skip);
 SK_API bool sk_imagedecoder_get_dither_image(sk_imagedecoder_t* cdecoder);
