@@ -6,8 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "../VulkanWindowContext.h"
-#include "Window_win.h"
+#include "VulkanWindowContext_win.h"
 
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"

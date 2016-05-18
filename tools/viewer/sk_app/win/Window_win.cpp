@@ -12,8 +12,7 @@
 #include <windowsx.h>
 
 #include "SkUtils.h"
-#include "../GLWindowContext.h"
-#include "../VulkanWindowContext.h"
+#include "VulkanWindowContext_win.h"
 
 namespace sk_app {
 
@@ -265,21 +264,16 @@ void Window_win::show() {
 }
 
 
-bool Window_win::attach(BackendType attachType, const DisplayParams& params) {
+bool Window_win::attach(BackEndType attachType, const DisplayParams& params) {
+    if (kVulkan_BackendType != attachType) {
+        return false;
+    }
+
     ContextPlatformData_win platformData;
     platformData.fHInstance = fHInstance;
     platformData.fHWnd = fHWnd;
 
-    switch (attachType) {
-        case kNativeGL_BackendType:
-        default:
-            fWindowContext = GLWindowContext::Create((void*)&platformData, params);
-            break;
-
-        case kVulkan_BackendType:
-            fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
-            break;
-    }
+    fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
 
     return (SkToBool(fWindowContext));
 }

@@ -7,7 +7,6 @@
  */
 
 #include "GrContext.h"
-#include "GrRenderTarget.h"
 #include "SkSurface.h"
 #include "VulkanWindowContext.h"
 
@@ -26,12 +25,8 @@
 namespace sk_app {
 
 VulkanWindowContext::VulkanWindowContext(void* platformData, const DisplayParams& params)
-    : WindowContext()
-    , fSurface(VK_NULL_HANDLE)
+    : fSurface(VK_NULL_HANDLE)
     , fSwapchain(VK_NULL_HANDLE)
-    , fImages(nullptr)
-    , fImageLayouts(nullptr)
-    , fSurfaces(nullptr)
     , fCommandPool(VK_NULL_HANDLE)
     , fBackbuffers(nullptr) {
 
@@ -255,7 +250,6 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
 
     // set up initial image layouts and create surfaces
     fImageLayouts = new VkImageLayout[fImageCount];
-    fRenderTargets = new sk_sp<GrRenderTarget>[fImageCount];
     fSurfaces = new sk_sp<SkSurface>[fImageCount];
     for (uint32_t i = 0; i < fImageCount; ++i) {
         fImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -275,9 +269,10 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         desc.fSampleCnt = 0;
         desc.fStencilBits = 0;
         desc.fRenderTargetHandle = (GrBackendObject) &info;
-        fRenderTargets[i].reset(fContext->textureProvider()->wrapBackendRenderTarget(desc));
-
-        fSurfaces[i] = this->createRenderSurface(fRenderTargets[i], 24);
+        SkSurfaceProps props(GrPixelConfigIsSRGB(fPixelConfig)
+                             ? SkSurfaceProps::kGammaCorrect_Flag : 0,
+                             kUnknown_SkPixelGeometry);
+        fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext, desc, &props);
     }
 
     // create the command pool for the command buffers
@@ -366,11 +361,8 @@ void VulkanWindowContext::destroyBuffers() {
     delete[] fBackbuffers;
     fBackbuffers = nullptr;
 
-    // Does this actually free the surfaces?
     delete[] fSurfaces;
     fSurfaces = nullptr;
-    delete[] fRenderTargets;
-    fRenderTargets = nullptr;
     delete[] fImageLayouts;
     fImageLayouts = nullptr;
     delete[] fImages;
@@ -406,8 +398,7 @@ void VulkanWindowContext::destroyContext() {
         fSurface = VK_NULL_HANDLE;
     }
 
-    fContext->abandonContext();
-    fContext->unref();
+    delete fContext;
 
     fBackendContext.reset(nullptr);
 }
@@ -428,7 +419,7 @@ VulkanWindowContext::BackbufferInfo* VulkanWindowContext::getAvailableBackbuffer
     return backbuffer;
 }
 
-sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
+SkSurface* VulkanWindowContext::getBackbufferSurface() {
     BackbufferInfo* backbuffer = this->getAvailableBackbuffer();
     SkASSERT(backbuffer);
 
@@ -519,15 +510,13 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
                         QueueSubmit(fBackendContext->fQueue, 1, &submitInfo,
                                     backbuffer->fUsageFences[0]));
 
-    return sk_ref_sp(fSurfaces[backbuffer->fImageIndex].get());
+    return fSurfaces[backbuffer->fImageIndex].get();
 }
+
 
 void VulkanWindowContext::swapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
-
-    this->presentRenderSurface(fSurfaces[backbuffer->fImageIndex],
-                               fRenderTargets[backbuffer->fImageIndex], 24);
 
     VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;

@@ -126,7 +126,6 @@ void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
 
 void GrVkBuffer::vkAbandon() {
     fResource->unrefAndAbandon();
-    fResource = nullptr;
     fMapPtr = nullptr;
     VALIDATE();
 }

@@ -15,13 +15,11 @@ struct DisplayParams {
     DisplayParams()
         : fColorType(kN32_SkColorType)
         , fProfileType(kLinear_SkColorProfileType)
-        , fMSAASampleCount(0)
-        , fDeepColor(false) {}
+        , fMSAASampleCount(0) {}
 
-    SkColorType        fColorType;
+    SkColorType fColorType;
     SkColorProfileType fProfileType;
-    int                fMSAASampleCount;
-    bool               fDeepColor;
+    int fMSAASampleCount;
 };
 
 }   // namespace sk_app

@@ -33,17 +33,12 @@ public:
     virtual bool supportsContentRect() const { return false; }
     virtual SkRect getContentRect() { return SkRect::MakeEmpty(); }
 
-    enum BackendType {
+    enum BackEndType {
         kNativeGL_BackendType,
-        kVulkan_BackendType,
-
-        kLast_BackendType = kVulkan_BackendType
-    };
-    enum {
-        kBackendTypeCount = kLast_BackendType + 1
+        kVulkan_BackendType
     };
 
-    virtual bool attach(BackendType attachType,  const DisplayParams& params) = 0;
+    virtual bool attach(BackEndType attachType,  const DisplayParams& params) = 0;
     void detach();
 
     // input handling
