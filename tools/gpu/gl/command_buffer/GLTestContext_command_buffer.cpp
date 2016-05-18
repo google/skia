@@ -195,8 +195,6 @@ void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const i
         return;
     }
 
-    // Make sure CHROMIUM_path_rendering is enabled for NVPR support.
-    sk_setenv("CHROME_COMMAND_BUFFER_GLES2_ARGS", "--enable-gl-path-rendering");
     fDisplay = gfGetDisplay(EGL_DEFAULT_DISPLAY);
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Command Buffer: Could not create EGL display.\n");
