@@ -15,7 +15,7 @@
 class SkMatrix;
 class GrCaps;
 class GrContext;
-class GrRenderTarget;
+class GrDrawContext;
 struct GrProcessorTestData;
 
 namespace GrProcessorUnitTest {
@@ -43,19 +43,19 @@ struct GrProcessorTestData {
     GrProcessorTestData(SkRandom* random,
                         GrContext* context,
                         const GrCaps* caps,
-                        const GrRenderTarget* rt,
+                        const GrDrawContext* drawContext,
                         GrTexture* textures[2])
         : fRandom(random)
         , fContext(context)
         , fCaps(caps)
-        , fRenderTarget(rt) {
+        , fDrawContext(drawContext) {
         fTextures[0] = textures[0];
         fTextures[1] = textures[1];
     }
     SkRandom* fRandom;
     GrContext* fContext;
     const GrCaps* fCaps;
-    const GrRenderTarget* fRenderTarget;
+    const GrDrawContext* fDrawContext;
     GrTexture* fTextures[2];
 };
 

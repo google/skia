@@ -147,34 +147,41 @@ private:
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static GrRenderTarget* random_render_target(GrTextureProvider* textureProvider, SkRandom* random,
-                                            const GrCaps* caps) {
-    // setup render target
-    GrTextureParams params;
-    GrSurfaceDesc texDesc;
-    texDesc.fWidth = kRenderTargetWidth;
-    texDesc.fHeight = kRenderTargetHeight;
-    texDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    texDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
-                                                   kBottomLeft_GrSurfaceOrigin;
-    texDesc.fSampleCnt = random->nextBool() == true ? SkTMin(4, caps->maxSampleCount()) : 0;
+static sk_sp<GrDrawContext> random_draw_context(GrContext* context,
+                                                SkRandom* random,
+                                                const GrCaps* caps) {
+    GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
+                                                : kBottomLeft_GrSurfaceOrigin;
+    int sampleCnt = random->nextBool() ? SkTMin(4, caps->maxSampleCount()) : 0;
 
     GrUniqueKey key;
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(&key, kDomain, 2);
-    builder[0] = texDesc.fOrigin;
-    builder[1] = texDesc.fSampleCnt;
+    builder[0] = origin;
+    builder[1] = sampleCnt;
     builder.finish();
 
-    GrTexture* texture = textureProvider->findAndRefTextureByUniqueKey(key);
-    if (!texture) {
-        texture = textureProvider->createTexture(texDesc, SkBudgeted::kYes);
-        if (texture) {
-            textureProvider->assignUniqueKeyToTexture(key, texture);
-        }
+    sk_sp<GrTexture> texture(context->textureProvider()->findAndRefTextureByUniqueKey(key));
+    if (texture) {
+        sk_sp<GrRenderTarget> rt(sk_ref_sp(texture->asRenderTarget()));
+        return context->drawContext(std::move(rt));
     }
-    return texture ? texture->asRenderTarget() : nullptr;
+
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kExact,
+                                                             kRenderTargetWidth,
+                                                             kRenderTargetHeight,
+                                                             kRGBA_8888_GrPixelConfig,
+                                                             sampleCnt,
+                                                             origin));
+    if (!drawContext) {
+        return nullptr;
+    }
+
+    // TODO: need a real way to do this via the drawContext
+    texture = drawContext->asTexture();
+    context->textureProvider()->assignUniqueKeyToTexture(key, texture.get());
+
+    return drawContext;
 }
 
 static void set_random_xpf(GrPipelineBuilder* pipelineBuilder, GrProcessorTestData* d) {
@@ -261,15 +268,16 @@ static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
     }
 }
 
-static void set_random_state(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
+static void set_random_state(GrPipelineBuilder* pipelineBuilder,
+                             GrDrawContext* drawContext,
+                             SkRandom* random) {
     int state = 0;
     for (int i = 1; i <= GrPipelineBuilder::kLast_Flag; i <<= 1) {
         state |= random->nextBool() * i;
     }
 
     // If we don't have an MSAA rendertarget then we have to disable useHWAA
-    if ((state | GrPipelineBuilder::kHWAntialias_Flag) &&
-        !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled()) {
+    if ((state | GrPipelineBuilder::kHWAntialias_Flag) && !drawContext->isUnifiedMultisampled()) {
         state &= ~GrPipelineBuilder::kHWAntialias_Flag;
     }
     pipelineBuilder->enableState(state);
@@ -335,30 +343,24 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        sk_sp<GrRenderTarget> rt(random_render_target(
-            context->textureProvider(), &random, context->caps()));
-        if (!rt.get()) {
-            SkDebugf("Could not allocate render target");
-            return false;
-        }
-
-        GrPipelineBuilder pipelineBuilder;
-        pipelineBuilder.setRenderTarget(rt.get());
-
-        SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
-        SkASSERT(batch);
-
-        GrProcessorTestData ptd(&random, context, context->caps(), rt.get(), dummyTextures);
-        set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
-        set_random_xpf(&pipelineBuilder, &ptd);
-        set_random_state(&pipelineBuilder, &random);
-        set_random_stencil(&pipelineBuilder, &random);
-
-        sk_sp<GrDrawContext> drawContext(context->drawContext(rt));
+        sk_sp<GrDrawContext> drawContext(random_draw_context(context, &random, context->caps()));
         if (!drawContext) {
             SkDebugf("Could not allocate drawContext");
             return false;
         }
+
+        GrPipelineBuilder pipelineBuilder;
+        pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
+
+        SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
+        SkASSERT(batch);
+
+        GrProcessorTestData ptd(&random, context, context->caps(),
+                                drawContext.get(), dummyTextures);
+        set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
+        set_random_xpf(&pipelineBuilder, &ptd);
+        set_random_state(&pipelineBuilder, drawContext.get(), &random);
+        set_random_stencil(&pipelineBuilder, &random);
 
         drawContext->drawContextPriv().testingOnly_drawBatch(pipelineBuilder, batch);
     }
@@ -366,35 +368,32 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     drawingManager->flush();
 
     // Validate that GrFPs work correctly without an input.
-    GrSurfaceDesc rtDesc;
-    rtDesc.fWidth = kRenderTargetWidth;
-    rtDesc.fHeight = kRenderTargetHeight;
-    rtDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    rtDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    sk_sp<GrRenderTarget> rt(
-        context->textureProvider()->createTexture(rtDesc, SkBudgeted::kNo)->asRenderTarget());
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kExact,
+                                                             kRenderTargetWidth,
+                                                             kRenderTargetHeight,
+                                                             kRGBA_8888_GrPixelConfig));
+    if (!drawContext) {
+        SkDebugf("Could not allocate a drawContext");
+        return false;
+    }
+
     int fpFactoryCnt = GrProcessorTestFactory<GrFragmentProcessor>::Count();
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
             SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
-            GrProcessorTestData ptd(&random, context, context->caps(), rt.get(), dummyTextures);
+            GrProcessorTestData ptd(&random, context, context->caps(),
+                                    drawContext.get(), dummyTextures);
             GrPipelineBuilder builder;
             builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-            builder.setRenderTarget(rt.get());
+            builder.setRenderTarget(drawContext->accessRenderTarget());
 
             SkAutoTUnref<const GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::CreateIdx(i, &ptd));
             SkAutoTUnref<const GrFragmentProcessor> blockFP(
                 BlockInputFragmentProcessor::Create(fp));
             builder.addColorFragmentProcessor(blockFP);
-
-            sk_sp<GrDrawContext> drawContext(context->drawContext(rt));
-            if (!drawContext) {
-                SkDebugf("Could not allocate a drawcontext");
-                return false;
-            }
 
             drawContext->drawContextPriv().testingOnly_drawBatch(builder, batch);
             drawingManager->flush();

@@ -8,6 +8,7 @@
 #include "effects/GrCoverageSetOpXP.h"
 #include "GrCaps.h"
 #include "GrColor.h"
+#include "GrDrawContext.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
@@ -338,6 +339,6 @@ GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);
 
 const GrXPFactory* GrCoverageSetOpXPFactory::TestCreate(GrProcessorTestData* d) {
     SkRegion::Op regionOp = SkRegion::Op(d->fRandom->nextULessThan(SkRegion::kLastOp + 1));
-    bool invertCoverage = !d->fRenderTarget->hasMixedSamples() && d->fRandom->nextBool();
+    bool invertCoverage = !d->fDrawContext->hasMixedSamples() && d->fRandom->nextBool();
     return GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage);
 }
