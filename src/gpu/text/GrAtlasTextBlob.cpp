@@ -58,9 +58,13 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
     // if we have an override descriptor for the run, then we should use that
     SkAutoDescriptor* desc = run->fOverrideDescriptor.get() ? run->fOverrideDescriptor.get() :
                                                               &run->fDescriptor;
-    skPaint.getScalerContextDescriptor(&run->fEffects, desc, props, scalerContextFlags, viewMatrix);
+    SkScalerContextEffects effects;
+    skPaint.getScalerContextDescriptor(&effects, desc, props, scalerContextFlags, viewMatrix);
     run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
-    return SkGlyphCache::DetachCache(run->fTypeface, run->fEffects, desc->getDesc());
+    run->fPathEffect = sk_ref_sp(effects.fPathEffect);
+    run->fRasterizer = sk_ref_sp(effects.fRasterizer);
+    run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);
+    return SkGlyphCache::DetachCache(run->fTypeface, effects, desc->getDesc());
 }
 
 void GrAtlasTextBlob::appendGlyph(int runIndex,

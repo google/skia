@@ -158,7 +158,11 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
                                       : run->fDescriptor.getDesc();
 
         if (!*lazyCache || (*lazyCache)->getDescriptor() != *desc) {
-            lazyCache->reset(SkGlyphCache::DetachCache(run->fTypeface, run->fEffects, desc));
+            SkScalerContextEffects effects;
+            effects.fPathEffect = run->fPathEffect.get();
+            effects.fRasterizer = run->fRasterizer.get();
+            effects.fMaskFilter = run->fMaskFilter.get();
+            lazyCache->reset(SkGlyphCache::DetachCache(run->fTypeface, effects, desc));
         }
 
         if (regenGlyphs) {
