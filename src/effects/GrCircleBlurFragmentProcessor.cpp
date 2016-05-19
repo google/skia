@@ -112,93 +112,81 @@ void GrCircleBlurFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* 
     inout->mulByUnknownSingleComponent();
 }
 
-// Evaluate an AA circle function centered at the origin with 'radius' at (x,y)
-static inline float disk(float x, float y, float radius) {
-    float distSq = x*x + y*y;
-    if (distSq <= (radius - 0.5f) * (radius - 0.5f)) {
-        return 1.0f;
-    } else if (distSq >= (radius + 0.5f) * (radius + 0.5f)) {
-        return 0.0f;
-    } else {
-        float ramp = radius + 0.5f - sqrtf(distSq);
-        SkASSERT(ramp >= 0.0f && ramp <= 1.0f);
-        return ramp;
-    }
-}
-
-// Create the top half of an even-sized Gaussian kernel
-static void make_half_kernel(float* kernel, int kernelWH, float sigma) {
-    SkASSERT(!(kernelWH & 1));
-
-    // We treat each cell in the half-kernel as a 1x1 window and evaluate it
-    // at the center. So the evaluations go from -kernelOff to kernelOff in x
-    // and -kernelOff to -.5 in y (since this is a top-half kernel).
-    const float kernelOff = (kernelWH - 1) / 2.0f;
-
-    float b = 1.0f / (2.0f * sigma * sigma);
-    // omit the scale term since we're just going to renormalize
-
+// Create a Gaussian half-kernel and a summed area table given a sigma and number of discrete
+// steps. The half kernel is normalized to sum to 0.5.
+static void make_half_kernel_and_summed_table(float* halfKernel, float* summedHalfKernel,
+                                              int halfKernelSize, float sigma) {
+    const float invSigma = 1.f / sigma;
+    const float b = -0.5f * invSigma * invSigma;
     float tot = 0.0f;
-    for (int y = 0; y < kernelWH / 2; ++y) {
-        for (int x = 0; x < kernelWH / 2; ++x) {
-            // TODO: use a cheap approximation of the 2D Guassian?
-            float x2 = (x - kernelOff) * (x - kernelOff);
-            float y2 = (y - kernelOff) * (y - kernelOff);
-            // The kernel is symmetric so only compute it once for both sides
-            float value = expf(-(x2 + y2) * b);
-            kernel[y * kernelWH + x] = value;
-            kernel[y * kernelWH + (kernelWH - x - 1)] = value;
-            tot += 2.0f * value;
-        }
+    // Compute half kernel values at half pixel steps out from the center.
+    float t = 0.5f;
+    for (int i = 0; i < halfKernelSize; ++i) {
+        float value = expf(t * t * b);
+        tot += value;
+        halfKernel[i] = value;
+        t += 1.f;
     }
-    // Normalize the half kernel to 1.0 (rather than 0.5) so we don't have to scale by 2.0 after
-    // convolution.
-    for (int y = 0; y < kernelWH / 2; ++y) {
-        for (int x = 0; x < kernelWH; ++x) {
-            kernel[y * kernelWH + x] /= tot;
-        }
+    float sum = 0.f;
+    // The half kernel should sum to 0.5 not 1.0.
+    tot *= 2.f;
+    for (int i = 0; i < halfKernelSize; ++i) {
+        halfKernel[i] /= tot;
+        sum += halfKernel[i];
+        summedHalfKernel[i] = sum;
     }
 }
 
-// Apply the half-kernel at 't' away from the center of the circle
-static uint8_t eval_at(float t, float circleR, float* halfKernel, int kernelWH) {
-    SkASSERT(!(kernelWH & 1));
+// Applies the 1D half kernel vertically at a point (x, 0) to a circle centered at the origin with
+// radius circleR.
+static float eval_vertically(float x, float circleR, const float* summedHalfKernelTable,
+                             int halfKernelSize) {
+    // Given x find the positive y that is on the edge of the circle.
+    float y = sqrtf(fabs(circleR * circleR - x * x));
+    // In the column at x we exit the circle at +y and -y
+    // table entry j is actually the kernel evaluated at j + 0.5.
+    y -= 0.5f;
+    int yInt = SkScalarFloorToInt(y);
+    SkASSERT(yInt >= -1);
+    if (y < 0) {
+        return (y + 0.5f) * summedHalfKernelTable[0];
+    } else if (yInt >= halfKernelSize - 1) {
+        return 0.5f;
+    } else {
+        float yFrac = y - yInt;
+        return (1.f - yFrac) * summedHalfKernelTable[yInt] +
+                       yFrac * summedHalfKernelTable[yInt + 1];
+    }
+}
 
+// Apply the kernel at point (t, 0) to a circle centered at the origin with radius circleR.
+static uint8_t eval_at(float t, float circleR, const float* halfKernel,
+                       const float* summedHalfKernelTable, int halfKernelSize) {
     float acc = 0;
 
-    // We evaluate the kernel application at (x=t, y=0) using halfKernel which represents the top
-    // half of a 2D Guassian kernel. The full kernel is symmetric so evaluating just the upper half
-    // is sufficient. The half kernel has been normalized to 1 rather than 0.5 so there is no need
-    // to double after evaluation.
-
-    // The sample positions relative to (t, 0) match the sampling used to create the half kernel.
-    const float kernelOff = (kernelWH - 1) / 2.0f;
-
-    for (int j = 0; j < kernelWH / 2; ++j) {
-        float y = (kernelOff - j);
-        if (y > circleR + 0.5f) {
-            // The entire row is above the circle.
+    for (int i = 0; i < halfKernelSize; ++i) {
+        float x = t - i - 0.5f;
+        if (x < -circleR || x > circleR) {
             continue;
         }
-
-        for (int i = 0; i < kernelWH; ++i) {
-            float x = t - kernelOff + i;
-            if (x > circleR + 0.5f) {
-                // Stop evaluation once x crosses outside the circle.
-                break;
-            }
-            float image = disk(x, y, circleR);
-            float kernel = halfKernel[j * kernelWH + i];
-            acc += kernel * image;
-        }
+        float verticalEval = eval_vertically(x, circleR, summedHalfKernelTable, halfKernelSize);
+        acc += verticalEval * halfKernel[i];
     }
-
-    return SkUnitScalarClampToByte(acc);
+    for (int i = 0; i < halfKernelSize; ++i) {
+        float x = t + i + 0.5f;
+        if (x < -circleR || x > circleR) {
+            continue;
+        }
+        float verticalEval = eval_vertically(x, circleR, summedHalfKernelTable, halfKernelSize);
+        acc += verticalEval * halfKernel[i];
+    }
+    // Since we applied a half kernel in y we multiply acc by 2 (the circle is symmetric about the
+    // x axis).
+    return SkUnitScalarClampToByte(2.f * acc);
 }
 
 static inline void compute_profile_offset_and_size(float circleR, float sigma,
                                                    float* offset, int* size) {
-
     if (3*sigma <= circleR) {
         // The circle is bigger than the Gaussian. In this case we know the interior of the
         // blurred circle is solid.
@@ -212,27 +200,33 @@ static inline void compute_profile_offset_and_size(float circleR, float sigma,
     }
 }
 
+// This function creates a profile of a blurred circle. It does this by computing a kernel for
+// half the Gaussian and a matching summed area table. To compute a profile value at x = r it steps
+// outward in x from (r, 0) in both directions. There is a step for each direction for each entry
+// in the half kernel. The y contribution at each step is computed from the summed area table using
+// the height of the circle above the step point. Each y contribution is multiplied by the half
+// kernel value corresponding to the step in x.
 static uint8_t* create_profile(float circleR, float sigma) {
-
-    int kernelWH = SkScalarCeilToInt(6.0f*sigma);
-    kernelWH = (kernelWH + 1) & ~1; // make it the next even number up
-
-    SkAutoTArray<float> halfKernel(kernelWH * kernelWH / 2);
-
-    make_half_kernel(halfKernel.get(), kernelWH, sigma);
-
     float offset;
     int numSteps;
-
     compute_profile_offset_and_size(circleR, sigma, &offset, &numSteps);
 
     uint8_t* weights = new uint8_t[numSteps];
+
+    // The full kernel is 6 sigmas wide.
+    int halfKernelSize = SkScalarCeilToInt(6.0f*sigma);
+    // round up to next multiple of 2 and then divide by 2
+    halfKernelSize = ((halfKernelSize + 1) & ~1) >> 1;
+    SkAutoTArray<float> halfKernel(halfKernelSize);
+    SkAutoTArray<float> summedKernel(halfKernelSize);
+    make_half_kernel_and_summed_table(halfKernel.get(), summedKernel.get(), halfKernelSize,
+                                      sigma);
     for (int i = 0; i < numSteps - 1; ++i) {
-        weights[i] = eval_at(offset+i, circleR, halfKernel.get(), kernelWH);
+        weights[i] = eval_at(offset+i, circleR, halfKernel.get(), summedKernel.get(),
+                             halfKernelSize);
     }
     // Ensure the tail of the Gaussian goes to zero.
     weights[numSteps - 1] = 0;
-
     return weights;
 }
 
