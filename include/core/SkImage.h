@@ -320,6 +320,27 @@ public:
      */
     sk_sp<SkImage> makeTextureImage(GrContext*) const;
 
+    /**
+     *  Apply a given image filter to this image, and return the filtered result.
+     *
+     *  The subset represents the active portion of this image. The return value is similarly an
+     *  SkImage, with an active subset (outSubset). This is usually used with texture-backed
+     *  images, where the texture may be approx-match and thus larger than the required size.
+     *
+     *  clipBounds constrains the device-space extent of the image which may be produced to the
+     *  given rect.
+     *
+     *  offset is the amount to translate the resulting image relative to the src when it is drawn.
+     *  This is an out-param.
+     *
+     *  If the result image cannot be created, or the result would be transparent black, null
+     *  is returned, in which case the offset and outSubset parameters should be ignored by the
+     *  caller.
+     */
+    sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+                                  const SkIRect& clipBounds, SkIRect* outSubset,
+                                  SkIPoint* offset) const;
+
     /** Drawing params for which a deferred texture image data should be optimized. */
     struct DeferredTextureImageUsageParams {
         SkMatrix        fMatrix;
