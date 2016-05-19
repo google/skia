@@ -132,23 +132,17 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
 
     unsigned char* currVertex = reinterpret_cast<unsigned char*>(vertices);
 
-    // We cache some values to avoid going to the glyphcache for the same fontScaler twice
-    // in a row
-    const SkDescriptor* desc = nullptr;
-    SkGlyphCache* cache = nullptr;
-    SkTypeface* typeface = nullptr;
-
     GrBlobRegenHelper helper(this, target, &flushInfo);
-
+    SkAutoGlyphCache glyphCache;
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
         size_t byteCount;
         void* blobVertices;
         int subRunGlyphCount;
-        blob->regenInBatch(target, fFontCache, &helper, args.fRun, args.fSubRun, &cache,
-                           &typeface, &desc, vertexStride, args.fViewMatrix, args.fX,
-                           args.fY, args.fColor, &blobVertices, &byteCount, &subRunGlyphCount);
+        blob->regenInBatch(target, fFontCache, &helper, args.fRun, args.fSubRun, &glyphCache,
+                           vertexStride, args.fViewMatrix, args.fX, args.fY, args.fColor,
+                           &blobVertices, &byteCount, &subRunGlyphCount);
 
         // now copy all vertices
         memcpy(currVertex, blobVertices, byteCount);
@@ -172,10 +166,6 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         currVertex += byteCount;
     }
 
-    // Make sure to attach the last cache if applicable
-    if (cache) {
-        SkGlyphCache::AttachCache(cache);
-    }
     this->flush(target, &flushInfo);
 }
 
