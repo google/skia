@@ -52,9 +52,11 @@ bool GrFixedClip::apply(GrClipMaskManager*, const GrPipelineBuilder& pipelineBui
         if (devBounds && !devBounds->intersects(SkRect::Make(tightScissor))) {
             return false;
         }
-        out->fScissorState.set(tightScissor);
+        out->makeScissoredStencil(fHasStencilClip, tightScissor);
+        return true;
     }
-    out->fHasStencilClip = fHasStencilClip;
+
+    out->makeStencil(fHasStencilClip);
     return true;
 }
 

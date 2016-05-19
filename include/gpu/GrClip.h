@@ -19,20 +19,43 @@ class GrPipelineBuilder;
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
  * create the final GrPipeline for a GrBatch.
  */
-class GrAppliedClip {
+class GrAppliedClip : public SkNoncopyable {
 public:
     GrAppliedClip() : fHasStencilClip(false) {}
-    const GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP; }
+    const GrFragmentProcessor* clipCoverageFragmentProcessor() const {
+        return fClipCoverageFP.get();
+    }
     const GrScissorState& scissorState() const { return fScissorState; }
     bool hasStencilClip() const { return fHasStencilClip; }
 
-private:
-    SkAutoTUnref<const GrFragmentProcessor> fClipCoverageFP;
-    GrScissorState                          fScissorState;
-    bool                                    fHasStencilClip;
+    void makeStencil(bool hasStencil) {
+        fClipCoverageFP = nullptr;
+        fScissorState.setDisabled();
+        fHasStencilClip = hasStencil;
+    }
 
-    friend class GrFixedClip;
-    friend class GrClipMaskManager;
+    void makeScissoredStencil(bool hasStencil, const SkIRect& scissor) {
+        fClipCoverageFP = nullptr;
+        fScissorState.set(scissor);
+        fHasStencilClip = hasStencil;
+    }
+
+    void makeFPBased(sk_sp<const GrFragmentProcessor> fp) {
+        fClipCoverageFP = fp;
+        fScissorState.setDisabled();
+        fHasStencilClip = false;
+    }
+
+    void makeScissoredFPBased(sk_sp<const GrFragmentProcessor> fp, SkIRect& scissor) {
+        fClipCoverageFP = fp;
+        fScissorState.set(scissor);
+        fHasStencilClip = false;
+    }
+
+private:
+    sk_sp<const GrFragmentProcessor> fClipCoverageFP;
+    GrScissorState                   fScissorState;
+    bool                             fHasStencilClip;
 
     typedef SkNoncopyable INHERITED;
 };

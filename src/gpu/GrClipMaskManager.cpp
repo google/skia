@@ -31,7 +31,8 @@ typedef SkClipStack::Element Element;
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask. Besides setting up the
 // stage matrix this also alters the vertex layout
-static const GrFragmentProcessor* create_fp_for_mask(GrTexture* result, const SkIRect &devBound) {
+static sk_sp<const GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
+                                                           const SkIRect &devBound) {
     SkMatrix mat;
     // We use device coords to compute the texture coordinates. We set our matrix to be a
     // translation to the devBound, and then a scaling matrix to normalized coords.
@@ -40,12 +41,13 @@ static const GrFragmentProcessor* create_fp_for_mask(GrTexture* result, const Sk
                      SkIntToScalar(-devBound.fTop));
 
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
-    return GrTextureDomainEffect::Create(result,
+    return sk_sp<const GrFragmentProcessor>(GrTextureDomainEffect::Create(
+                                         result,
                                          mat,
                                          GrTextureDomain::MakeTexelDomain(result, domainTexels),
                                          GrTextureDomain::kDecal_Mode,
                                          GrTextureParams::kNone_FilterMode,
-                                         kDevice_GrCoordSet);
+                                         kDevice_GrCoordSet));
 }
 
 static void draw_non_aa_rect(GrDrawTarget* drawTarget,
@@ -186,7 +188,7 @@ bool GrClipMaskManager::getAnalyticClipProcessor(const GrReducedClip::ElementLis
                                                  bool abortIfAA,
                                                  SkVector& clipToRTOffset,
                                                  const SkRect* drawBounds,
-                                                 const GrFragmentProcessor** resultFP) {
+                                                 sk_sp<const GrFragmentProcessor>* resultFP) {
     SkRect boundsInClipSpace;
     if (drawBounds) {
         boundsInClipSpace = *drawBounds;
@@ -271,7 +273,7 @@ bool GrClipMaskManager::getAnalyticClipProcessor(const GrReducedClip::ElementLis
 
     *resultFP = nullptr;
     if (!failed && fpCnt) {
-        *resultFP = GrFragmentProcessor::RunInSeries(fps, fpCnt);
+        resultFP->reset(GrFragmentProcessor::RunInSeries(fps, fpCnt));
     }
     for (int i = 0; i < fpCnt; ++i) {
         fps[i]->unref();
@@ -352,7 +354,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             disallowAnalyticAA = pipelineBuilder.isHWAntialias() ||
                                  pipelineBuilder.hasUserStencilSettings();
         }
-        const GrFragmentProcessor* clipFP = nullptr;
+        sk_sp<const GrFragmentProcessor> clipFP;
         if (elements.isEmpty() ||
             (requiresAA &&
              this->getAnalyticClipProcessor(elements, disallowAnalyticAA, clipToRTOffset, devBounds,
@@ -361,9 +363,10 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             scissorSpaceIBounds.offset(-clip.origin());
             if (nullptr == devBounds ||
                 !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
-                out->fScissorState.set(scissorSpaceIBounds);
+                out->makeScissoredFPBased(clipFP, scissorSpaceIBounds);
+                return true;
             }
-            out->fClipCoverageFP.reset(clipFP);
+            out->makeFPBased(clipFP);
             return true;
         }
     }
@@ -403,7 +406,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
             rtSpaceMaskBounds.offset(-clip.origin());
-            out->fClipCoverageFP.reset(create_fp_for_mask(result.get(), rtSpaceMaskBounds));
+            out->makeFPBased(create_fp_for_mask(result.get(), rtSpaceMaskBounds));
             return true;
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
@@ -423,8 +426,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
     // use both stencil and scissor test to the bounds for the final draw.
     SkIRect scissorSpaceIBounds(clipSpaceIBounds);
     scissorSpaceIBounds.offset(clipSpaceToStencilSpaceOffset);
-    out->fScissorState.set(scissorSpaceIBounds);
-    out->fHasStencilClip = true;
+    out->makeScissoredStencil(true, scissorSpaceIBounds);
     return true;
 }
 

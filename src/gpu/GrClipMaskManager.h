@@ -73,7 +73,7 @@ private:
                                   bool abortIfAA,
                                   SkVector& clipOffset,
                                   const SkRect* devBounds,
-                                  const GrFragmentProcessor** fp);
+                                  sk_sp<const GrFragmentProcessor>* fp);
 
     // Draws the clip into the stencil buffer
     bool createStencilClipMask(GrRenderTarget*,
