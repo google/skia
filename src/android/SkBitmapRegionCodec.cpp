@@ -115,15 +115,8 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     options.fZeroInitialized = zeroInit;
     void* dst = bitmap->getAddr(scaledOutX, scaledOutY);
 
-    // FIXME: skbug.com/4538
-    // It is important that we use the rowBytes on the pixelRef.  They may not be
-    // set properly on the bitmap.
-    SkPixelRef* pr = SkRef(bitmap->pixelRef());
-    size_t rowBytes = pr->rowBytes();
-    bitmap->setInfo(outInfo, rowBytes);
-    bitmap->setPixelRef(pr)->unref();
-    bitmap->lockPixels();
-    SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, rowBytes, &options);
+    SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, bitmap->rowBytes(),
+            &options);
     if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
         SkCodecPrintf("Error: Could not get pixels.\n");
         return false;
