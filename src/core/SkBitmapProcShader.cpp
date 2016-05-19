@@ -129,26 +129,17 @@ public:
         fFilterQuality = info->fFilterQuality;
         fMatrixTypeMask = info->fRealInvMatrix.getType();
 
-        // Need to ensure that our pipeline is created at a 16byte aligned address
-        fShaderPipeline = (SkLinearBitmapPipeline*)SkAlign16((intptr_t)fShaderStorage);
-        new (fShaderPipeline) SkLinearBitmapPipeline(info->fRealInvMatrix, info->fFilterQuality,
-                                                     info->fTileModeX, info->fTileModeY,
-                                                     info->fPaintColor,
-                                                     info->fPixmap);
+        fShaderPipeline.init(
+            info->fRealInvMatrix, info->fFilterQuality,
+            info->fTileModeX, info->fTileModeY,
+            info->fPaintColor,
+            info->fPixmap);
 
         // To implement the old shadeSpan entry-point, we need to efficiently convert our native
         // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
         //
         sk_sp<SkXfermode> xfer(SkXfermode::Make(SkXfermode::kSrc_Mode));
         fXferProc = SkXfermode::GetD32Proc(xfer.get(), 0);
-    }
-
-    ~LinearPipelineContext() override {
-        // since we did a manual new, we need to manually destroy as well.
-        fShaderPipeline->~SkLinearBitmapPipeline();
-        if (fBlitterPipeline != nullptr) {
-            fBlitterPipeline->~SkLinearBitmapPipeline();
-        }
     }
 
     void shadeSpan4f(int x, int y, SkPM4f dstC[], int count) override {
@@ -173,23 +164,19 @@ public:
         SkXfermode::Mode mode;
         if (!SkXfermode::AsMode(state->fXfer, &mode)) { return false; }
 
-        // Need to ensure that our pipeline is created at a 16byte aligned address
-        fBlitterPipeline = (SkLinearBitmapPipeline*)SkAlign16((intptr_t)fBlitterStorage);
         if (SkLinearBitmapPipeline::ClonePipelineForBlitting(
-            fBlitterPipeline, *fShaderPipeline,
+            &fBlitterPipeline, *fShaderPipeline,
             fMatrixTypeMask,
             fXMode, fYMode,
             fFilterQuality, fSrcPixmap,
             fAlpha, mode, dstInfo))
         {
-            state->fStorage[0] = fBlitterPipeline;
+            state->fStorage[0] = fBlitterPipeline.get();
             state->fBlitBW = &LinearPipelineContext::ForwardToPipeline;
 
             return true;
         }
 
-        // Did not successfully create a pipeline so don't destruct it.
-        fBlitterPipeline = nullptr;
         return false;
     }
 
@@ -199,23 +186,16 @@ public:
         pipeline->blitSpan(x, y, addr, count);
     }
 
-
 private:
-    enum {
-        kActualSize = sizeof(SkLinearBitmapPipeline),
-        kPaddedSize = SkAlignPtr(kActualSize + 12),
-    };
-    void* fShaderStorage[kPaddedSize / sizeof(void*)];
-    SkLinearBitmapPipeline* fShaderPipeline;
-    void* fBlitterStorage[kPaddedSize / sizeof(void*)];
-    SkLinearBitmapPipeline* fBlitterPipeline{nullptr};
-    SkXfermode::D32Proc     fXferProc;
-    SkPixmap                fSrcPixmap;
-    float                   fAlpha;
-    SkShader::TileMode      fXMode;
-    SkShader::TileMode      fYMode;
-    SkMatrix::TypeMask      fMatrixTypeMask;
-    SkFilterQuality         fFilterQuality;
+    SkEmbeddableLinearPipeline fShaderPipeline;
+    SkEmbeddableLinearPipeline fBlitterPipeline;
+    SkXfermode::D32Proc        fXferProc;
+    SkPixmap                   fSrcPixmap;
+    float                      fAlpha;
+    SkShader::TileMode         fXMode;
+    SkShader::TileMode         fYMode;
+    SkMatrix::TypeMask         fMatrixTypeMask;
+    SkFilterQuality            fFilterQuality;
 
     typedef BitmapProcInfoContext INHERITED;
 };

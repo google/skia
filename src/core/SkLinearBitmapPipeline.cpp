@@ -891,7 +891,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
 }
 
 bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
-    void* blitterStorage,
+    SkEmbeddableLinearPipeline* pipelineStorage,
     const SkLinearBitmapPipeline& pipeline,
     SkMatrix::TypeMask matrixMask,
     SkShader::TileMode xTileMode,
@@ -920,7 +920,7 @@ bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
         return false;
     }
 
-    new (blitterStorage) SkLinearBitmapPipeline(pipeline, srcPixmap, xferMode, dstInfo);
+    pipelineStorage->init(pipeline, srcPixmap, xferMode, dstInfo);
 
     return true;
 }
