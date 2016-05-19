@@ -520,6 +520,16 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     }
     SkASSERT(desc);
 
+    // Precondition: the typeface id must be the fFontID in the descriptor
+    SkDEBUGCODE(
+        uint32_t length;
+        const SkScalerContext::Rec* rec = static_cast<const SkScalerContext::Rec*>(
+            desc->findEntry(kRec_SkDescriptorTag, &length));
+        SkASSERT(rec);
+        SkASSERT(length == sizeof(*rec));
+        SkASSERT(typeface->uniqueID() == rec->fFontID);
+    )
+
     SkGlyphCache_Globals& globals = get_globals();
     SkGlyphCache*         cache;
 
