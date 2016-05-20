@@ -31,6 +31,15 @@
         '../third_party/externals/microhttpd/src/microhttpd/response.c',
         '../third_party/externals/microhttpd/src/microhttpd/tsearch.c',
     ],
+    'variables': {
+      'skia_microhttpd_flags' : [
+        '-Wno-sign-compare',
+        '-Wno-unused-const-variable',
+        '-Wno-tautological-constant-out-of-range-compare',
+      ],
+    },
+    'cflags': [ '<@(skia_microhttpd_flags)' ],
+    'xcode_settings': { 'WARNING_CFLAGS': [ '<@(skia_microhttpd_flags)' ], },
     'conditions': [
       # For each platform, run configure and scrape the generated MHD_config.h
       # to get a list of platform specific defines

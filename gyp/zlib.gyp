@@ -19,7 +19,8 @@
           },
         }, {
           'type': 'static_library',
-          'cflags': [ '-w' ],
+          'cflags': [ '-Wno-unused-value' ],
+          'xcode_settings': { 'WARNING_CFLAGS': [ '-Wno-unused-value', ], },
           'sources': [
             '../third_party/externals/zlib/adler32.c',
             '../third_party/externals/zlib/compress.c',

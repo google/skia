@@ -59,6 +59,16 @@
       'defines': [
         "getlocaledecpoint()='.'",
       ],
+      'cflags': [
+        '-Wno-parentheses-equality',
+        '-Wno-pointer-bool-conversion',
+       ],
+      'xcode_settings': {
+        'WARNING_CFLAGS': [
+          '-Wno-parentheses-equality',
+          '-Wno-pointer-bool-conversion',
+        ],
+      },
       'conditions': [
         ['skia_os != "win"',
          {
