@@ -323,8 +323,7 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             *decodeInfo = decodeInfo->makeColorType(kIndex_8_SkColorType);
             break;
         case CodecSrc::kGrayscale_Always_DstColorType:
-            if (kRGB_565_SkColorType == canvasColorType ||
-                    kOpaque_SkAlphaType != decodeInfo->alphaType()) {
+            if (kRGB_565_SkColorType == canvasColorType) {
                 return false;
             }
             *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
