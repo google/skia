@@ -373,9 +373,6 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
     }
 
     switch (dstAlphaType) {
-        case kOpaque_SkAlphaType:
-            folder.append("_opaque");
-            break;
         case kPremul_SkAlphaType:
             folder.append("_premul");
             break;
@@ -414,9 +411,6 @@ static void push_android_codec_src(Path path, CodecSrc::DstColorType dstColorTyp
     }
 
     switch (dstAlphaType) {
-        case kOpaque_SkAlphaType:
-            folder.append("_opaque");
-            break;
         case kPremul_SkAlphaType:
             folder.append("_premul");
             break;
@@ -524,18 +518,17 @@ static void push_codec_srcs(Path path) {
 
     SkTArray<SkAlphaType> alphaModes;
     alphaModes.push_back(kPremul_SkAlphaType);
-    alphaModes.push_back(kUnpremul_SkAlphaType);
-    if (codec->getInfo().alphaType() == kOpaque_SkAlphaType) {
-        alphaModes.push_back(kOpaque_SkAlphaType);
+    if (codec->getInfo().alphaType() != kOpaque_SkAlphaType) {
+        alphaModes.push_back(kUnpremul_SkAlphaType);
     }
 
     for (CodecSrc::Mode mode : nativeModes) {
         for (CodecSrc::DstColorType colorType : colorTypes) {
             for (SkAlphaType alphaType : alphaModes) {
-                // Only test kCroppedScanline_Mode when the alpha type is opaque.  The test is
+                // Only test kCroppedScanline_Mode when the alpha type is premul.  The test is
                 // slow and won't be interestingly different with different alpha types.
                 if (CodecSrc::kCroppedScanline_Mode == mode &&
-                        kOpaque_SkAlphaType != alphaType) {
+                        kPremul_SkAlphaType != alphaType) {
                     continue;
                 }
 
