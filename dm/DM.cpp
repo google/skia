@@ -646,6 +646,16 @@ static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc:
 }
 
 static void push_brd_srcs(Path path) {
+    // Only run Index8 and grayscale to one sampleSize and Mode. Though interesting
+    // to test these color types, they should not reveal anything across various
+    // sampleSizes and Modes
+    for (auto type : { CodecSrc::kIndex8_Always_DstColorType,
+                       CodecSrc::kGrayscale_Always_DstColorType }) {
+        // Arbitrarily choose Mode and sampleSize.
+        push_brd_src(path, type, BRDSrc::kFullImage_Mode, 2);
+    }
+
+
     // Test on a variety of sampleSizes, making sure to include:
     // - 2, 4, and 8, which are natively supported by jpeg
     // - multiples of 2 which are not divisible by 4 (analogous for 4)
@@ -653,24 +663,14 @@ static void push_brd_srcs(Path path) {
     // We will only produce output for the larger sizes on large images.
     const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 24, 32, 64 };
 
-    // We will only test to one backend (8888), but we will test all of the
-    // color types that we need to decode to on this backend.
-    const CodecSrc::DstColorType dstColorTypes[] = {
-            CodecSrc::kGetFromCanvas_DstColorType,
-            CodecSrc::kIndex8_Always_DstColorType,
-            CodecSrc::kGrayscale_Always_DstColorType,
-    };
-
     const BRDSrc::Mode modes[] = {
             BRDSrc::kFullImage_Mode,
             BRDSrc::kDivisor_Mode,
     };
 
     for (uint32_t sampleSize : sampleSizes) {
-        for (CodecSrc::DstColorType dstColorType : dstColorTypes) {
-            for (BRDSrc::Mode mode : modes) {
-                push_brd_src(path, dstColorType, mode, sampleSize);
-            }
+        for (BRDSrc::Mode mode : modes) {
+            push_brd_src(path, CodecSrc::kGetFromCanvas_DstColorType, mode, sampleSize);
         }
     }
 }
