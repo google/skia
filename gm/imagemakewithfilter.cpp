@@ -41,7 +41,7 @@ protected:
         return SkString("imagemakewithfilter");
     }
 
-    SkISize onISize() override { return SkISize::Make(320, 100); }
+    SkISize onISize() override { return SkISize::Make(440, 530); }
 
     void onDraw(SkCanvas* canvas) override {
         auto cf = SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkXfermode::kSrc_Mode);
