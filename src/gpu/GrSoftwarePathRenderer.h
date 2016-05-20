@@ -10,7 +10,7 @@
 
 #include "GrPathRenderer.h"
 
-class GrContext;
+class GrTextureProvider;
 
 /**
  * This class uses the software side to render a path to an SkBitmap and
@@ -18,9 +18,8 @@ class GrContext;
  */
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
-    GrSoftwarePathRenderer(GrContext* context)
-        : fContext(context) {
-    }
+    GrSoftwarePathRenderer(GrTextureProvider* texProvider) : fTexProvider(texProvider) { }
+
 private:
     StencilSupport onGetStencilSupport(const SkPath&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
@@ -31,7 +30,7 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
 private:
-    GrContext*     fContext;
+    GrTextureProvider*     fTexProvider;
 
     typedef GrPathRenderer INHERITED;
 };

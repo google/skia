@@ -9,12 +9,7 @@
 
 #include "GrPipelineBuilder.h"
 #include "GrReducedClip.h"
-#include "GrTexture.h"
 #include "SkClipStack.h"
-#include "SkDeque.h"
-#include "SkPath.h"
-#include "SkRefCnt.h"
-#include "SkTLList.h"
 #include "SkTypes.h"
 
 class GrAppliedClip;
@@ -24,7 +19,7 @@ class GrPathRenderer;
 class GrPathRendererChain;
 class GrResourceProvider;
 class GrTexture;
-class SkPath;
+class GrTextureProvider;
 
 /**
  * The clip mask creator handles the generation of the clip mask. If anti
@@ -93,7 +88,7 @@ private:
                                                 const SkIRect& clipSpaceIBounds);
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
-    static sk_sp<GrTexture> CreateSoftwareClipMask(GrContext*,
+    static sk_sp<GrTexture> CreateSoftwareClipMask(GrTextureProvider*,
                                                    int32_t elementsGenID,
                                                    GrReducedClip::InitialState initialState,
                                                    const GrReducedClip::ElementList& elements,

@@ -19,7 +19,7 @@
 #include "SkTypes.h"
 
 class GrClip;
-class GrContext;
+class GrTextureProvider;
 class GrTexture;
 class SkPath;
 class SkStrokeRec;
@@ -41,7 +41,7 @@ class GrDrawTarget;
  */
 class GrSWMaskHelper : SkNoncopyable {
 public:
-    GrSWMaskHelper(GrContext* context) : fContext(context) { }
+    GrSWMaskHelper(GrTextureProvider* texProvider) : fTexProvider(texProvider) { }
 
     // set up the internal state in preparation for draws. Since many masks
     // may be accumulated in the helper during creation, "resultBounds"
@@ -69,7 +69,7 @@ public:
 
     // Canonical usage utility that draws a single path and uploads it
     // to the GPU. The result is returned.
-    static GrTexture* DrawPathMaskToTexture(GrContext* context,
+    static GrTexture* DrawPathMaskToTexture(GrTextureProvider*,
                                             const SkPath& path,
                                             const GrStyle& style,
                                             const SkIRect& resultBounds,
@@ -99,11 +99,11 @@ private:
     // result (i.e., right size & format)
     GrTexture* createTexture();
 
-    GrContext*      fContext;
-    SkMatrix        fMatrix;
+    GrTextureProvider*  fTexProvider;
+    SkMatrix            fMatrix;
     SkAutoPixmapStorage fPixels;
-    SkDraw          fDraw;
-    SkRasterClip    fRasterClip;
+    SkDraw              fDraw;
+    SkRasterClip        fRasterClip;
 
     typedef SkNoncopyable INHERITED;
 };

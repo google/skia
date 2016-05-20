@@ -6,13 +6,13 @@
  */
 
 #include "GrSoftwarePathRenderer.h"
-#include "GrContext.h"
 #include "GrSWMaskHelper.h"
+#include "GrTextureProvider.h"
 #include "batches/GrRectBatchFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    return SkToBool(fContext);
+    return SkToBool(fTexProvider);
 }
 
 namespace {
@@ -21,22 +21,17 @@ namespace {
 // gets device coord bounds of path (not considering the fill) and clip. The
 // path bounds will be a subset of the clip bounds. returns false if
 // path bounds would be empty.
-bool get_path_and_clip_bounds(const GrPipelineBuilder* pipelineBuilder,
+bool get_path_and_clip_bounds(int width, int height,
                               const GrClip& clip,
                               const SkPath& path,
                               const SkMatrix& matrix,
                               SkIRect* devPathBounds,
                               SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
-    const GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
-    if (nullptr == rt) {
-        return false;
-    }
-
-    clip.getConservativeBounds(rt->width(), rt->height(), devClipBounds);
+    clip.getConservativeBounds(width, height, devClipBounds);
 
     if (devClipBounds->isEmpty()) {
-        *devPathBounds = SkIRect::MakeWH(rt->width(), rt->height());
+        *devPathBounds = SkIRect::MakeWH(width, height);
         return false;
     }
 
@@ -112,12 +107,15 @@ void draw_around_inv_path(GrDrawTarget* target,
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrSoftwarePathRenderer::onDrawPath");
-    if (nullptr == fContext) {
+    if (!fTexProvider || !args.fPipelineBuilder->getRenderTarget()) {
         return false;
     }
 
+    const int width = args.fPipelineBuilder->getRenderTarget()->width();
+    const int height = args.fPipelineBuilder->getRenderTarget()->height();
+
     SkIRect devPathBounds, devClipBounds;
-    if (!get_path_and_clip_bounds(args.fPipelineBuilder, *args.fClip, *args.fPath,
+    if (!get_path_and_clip_bounds(width, height, *args.fClip, *args.fPath,
                                   *args.fViewMatrix, &devPathBounds, &devClipBounds)) {
         if (args.fPath->isInverseFillType()) {
             draw_around_inv_path(args.fTarget, args.fPipelineBuilder, *args.fClip, args.fColor,
@@ -127,7 +125,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     SkAutoTUnref<GrTexture> texture(
-            GrSWMaskHelper::DrawPathMaskToTexture(fContext, *args.fPath, *args.fStyle,
+            GrSWMaskHelper::DrawPathMaskToTexture(fTexProvider, *args.fPath, *args.fStyle,
                                                   devPathBounds,
                                                   args.fAntiAlias, args.fViewMatrix));
     if (nullptr == texture) {

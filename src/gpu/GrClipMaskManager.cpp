@@ -384,7 +384,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         if (UseSWOnlyPath(this->getContext(), pipelineBuilder, rt, clipToMaskOffset, elements)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
-            result = CreateSoftwareClipMask(this->getContext(),
+            result = CreateSoftwareClipMask(this->getContext()->textureProvider(),
                                             genID,
                                             initialState,
                                             elements,
@@ -791,7 +791,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
-                                                    GrContext* context,
+                                                    GrTextureProvider* texProvider,
                                                     int32_t elementsGenID,
                                                     GrReducedClip::InitialState initialState,
                                                     const GrReducedClip::ElementList& elements,
@@ -799,8 +799,7 @@ sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
                                                     const SkIRect& clipSpaceIBounds) {
     GrUniqueKey key;
     GetClipMaskKey(elementsGenID, clipSpaceIBounds, &key);
-    GrResourceProvider* resourceProvider = context->resourceProvider();
-    if (GrTexture* texture = resourceProvider->findAndRefTextureByUniqueKey(key)) {
+    if (GrTexture* texture = texProvider->findAndRefTextureByUniqueKey(key)) {
         return sk_sp<GrTexture>(texture);
     }
 
@@ -808,7 +807,7 @@ sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
     // the top left corner of the resulting rect to the top left of the texture.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(clipSpaceIBounds.width(), clipSpaceIBounds.height());
 
-    GrSWMaskHelper helper(context);
+    GrSWMaskHelper helper(texProvider);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
@@ -857,7 +856,7 @@ sk_sp<GrTexture> GrClipMaskManager::CreateSoftwareClipMask(
     desc.fHeight = clipSpaceIBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    sk_sp<GrTexture> result(context->resourceProvider()->createApproxTexture(desc, 0));
+    sk_sp<GrTexture> result(texProvider->createApproxTexture(desc));
     if (!result) {
         return nullptr;
     }

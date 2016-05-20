@@ -104,7 +104,7 @@ GrTexture* GrSWMaskHelper::createTexture() {
     desc.fHeight = fPixels.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    return fContext->textureProvider()->createApproxTexture(desc);
+    return fTexProvider->createApproxTexture(desc);
 }
 
 /**
@@ -134,13 +134,13 @@ void GrSWMaskHelper::toSDF(unsigned char* sdf) {
  * and uploads the result to a scratch texture. Returns the resulting
  * texture on success; nullptr on failure.
  */
-GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
+GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrTextureProvider* texProvider,
                                                  const SkPath& path,
                                                  const GrStyle& style,
                                                  const SkIRect& resultBounds,
                                                  bool antiAlias,
                                                  const SkMatrix* matrix) {
-    GrSWMaskHelper helper(context);
+    GrSWMaskHelper helper(texProvider);
 
     if (!helper.init(resultBounds, matrix)) {
         return nullptr;
