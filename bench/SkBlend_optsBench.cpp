@@ -93,20 +93,10 @@ public:
 template <typename Blender>
 class LinearSrcOverBench : public Benchmark {
 public:
-    LinearSrcOverBench(const char* fileName) {
+    LinearSrcOverBench(const char* fileName) : fFileName(fileName) {
         fName = "LinearSrcOver";
         fName.append(fileName);
         fName.append(Blender::Name());
-
-        sk_sp<SkImage> image = GetResourceAsImage(fileName);
-        SkBitmap bm;
-        if (!as_IB(image)->getROPixels(&bm)) {
-            SkFAIL("Could not read resource");
-        }
-        bm.peekPixels(&fPixmap);
-        fCount = fPixmap.rowBytesAsPixels();
-        fDst.reset(fCount);
-        memset(fDst.get(), 0, fPixmap.rowBytes());
     }
 
 protected:
@@ -114,6 +104,21 @@ protected:
         return backend == kNonRendering_Backend && Blender::WorksOnCpu();
     }
     const char* onGetName() override { return fName.c_str(); }
+
+    void onPreDraw(SkCanvas*) override {
+        if (!fPixmap.addr()) {
+            sk_sp<SkImage> image = GetResourceAsImage(fFileName.c_str());
+            SkBitmap bm;
+            if (!as_IB(image)->getROPixels(&bm)) {
+                SkFAIL("Could not read resource");
+            }
+            bm.peekPixels(&fPixmap);
+            fCount = fPixmap.rowBytesAsPixels();
+            fDst.reset(fCount);
+            memset(fDst.get(), 0, fPixmap.rowBytes());
+        }
+    }
+
     void onDraw(int loops, SkCanvas*) override {
         SkASSERT(fPixmap.colorType() == kN32_SkColorType);
 
@@ -139,6 +144,7 @@ protected:
 private:
     int fCount;
     SkAutoTArray<uint32_t> fDst;
+    SkString fFileName;
     SkString fName;
     SkPixmap fPixmap;
 
