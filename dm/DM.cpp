@@ -481,9 +481,8 @@ static void push_codec_srcs(Path path) {
         return;
     }
 
-    // Native Scales
-    // SkJpegCodec natively supports scaling to: 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875
-    const float nativeScales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
+    // native scaling is only supported by WEBP and JPEG
+    bool supportsNativeScaling = false;
 
     SkTArray<CodecSrc::Mode> nativeModes;
     nativeModes.push_back(CodecSrc::kCodec_Mode);
@@ -493,9 +492,11 @@ static void push_codec_srcs(Path path) {
             nativeModes.push_back(CodecSrc::kScanline_Mode);
             nativeModes.push_back(CodecSrc::kStripe_Mode);
             nativeModes.push_back(CodecSrc::kCroppedScanline_Mode);
+            supportsNativeScaling = true;
             break;
         case SkEncodedFormat::kWEBP_SkEncodedFormat:
             nativeModes.push_back(CodecSrc::kSubset_Mode);
+            supportsNativeScaling = true;
             break;
         case SkEncodedFormat::kDNG_SkEncodedFormat:
             break;
@@ -529,24 +530,26 @@ static void push_codec_srcs(Path path) {
     }
 
     for (CodecSrc::Mode mode : nativeModes) {
-        for (float scale : nativeScales) {
-            for (CodecSrc::DstColorType colorType : colorTypes) {
-                for (SkAlphaType alphaType : alphaModes) {
-                    // Only test kCroppedScanline_Mode when the alpha type is opaque.  The test is
-                    // slow and won't be interestingly different with different alpha types.
-                    if (CodecSrc::kCroppedScanline_Mode == mode &&
-                            kOpaque_SkAlphaType != alphaType) {
-                        continue;
-                    }
+        for (CodecSrc::DstColorType colorType : colorTypes) {
+            for (SkAlphaType alphaType : alphaModes) {
+                // Only test kCroppedScanline_Mode when the alpha type is opaque.  The test is
+                // slow and won't be interestingly different with different alpha types.
+                if (CodecSrc::kCroppedScanline_Mode == mode &&
+                        kOpaque_SkAlphaType != alphaType) {
+                    continue;
+                }
 
-                    // Skip kNonNative on different native scales.  It won't be interestingly
-                    // different.
-                    if (CodecSrc::kNonNative8888_Always_DstColorType == colorType && 1.0f != scale)
-                    {
-                        continue;
-                    }
+                push_codec_src(path, mode, colorType, alphaType, 1.0f);
 
-                    push_codec_src(path, mode, colorType, alphaType, scale);
+                // Skip kNonNative on different native scales.  It won't be interestingly
+                // different.
+                if (supportsNativeScaling &&
+                        CodecSrc::kNonNative8888_Always_DstColorType == colorType) {
+                    // Native Scales
+                    // SkJpegCodec natively supports scaling to the following:
+                    for (auto scale : { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f }) {
+                        push_codec_src(path, mode, colorType, alphaType, scale);
+                    }
                 }
             }
         }
