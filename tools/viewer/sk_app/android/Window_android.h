@@ -26,7 +26,7 @@ public:
     void setTitle(const char*) override;
     void show() override {}
 
-    bool attach(BackEndType attachType, const DisplayParams& params) override;
+    bool attach(BackendType attachType, const DisplayParams& params) override;
     void inval() override;
 
     bool scaleContentToFit() const override { return true; }

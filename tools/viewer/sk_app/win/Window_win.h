@@ -13,6 +13,12 @@
 
 namespace sk_app {
 
+// for Windows
+struct ContextPlatformData_win {
+    HINSTANCE fHInstance;
+    HWND      fHWnd;
+};
+
 class Window_win : public Window {
 public:
     Window_win() : Window() {}
@@ -23,7 +29,7 @@ public:
     void setTitle(const char*) override;
     void show() override;
 
-    bool attach(BackEndType attachType, const DisplayParams& params) override;
+    bool attach(BackendType attachType, const DisplayParams& params) override;
 
     void inval() override;
 

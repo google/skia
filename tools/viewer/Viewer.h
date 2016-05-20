@@ -48,6 +48,8 @@ private:
 
     bool                   fDisplayStats;
 
+    sk_app::Window::BackendType fBackendType;
+
     // transform data
     SkScalar               fZoomCenterX;
     SkScalar               fZoomCenterY;

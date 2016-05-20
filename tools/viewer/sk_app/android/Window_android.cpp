@@ -41,7 +41,7 @@ void Window_android::setTitle(const char* title) {
     fSkiaAndroidApp->setTitle(title);
 }
 
-bool Window_android::attach(BackEndType attachType, const DisplayParams& params) {
+bool Window_android::attach(BackendType attachType, const DisplayParams& params) {
     if (kVulkan_BackendType != attachType) {
         return false;
     }
