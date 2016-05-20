@@ -213,6 +213,28 @@ void Viewer::updateTitle() {
 }
 
 void Viewer::setupCurrentSlide(int previousSlide) {
+    fGesture.reset();
+    fDefaultMatrix.reset();
+    fDefaultMatrixInv.reset();
+
+    if (fWindow->supportsContentRect() && fWindow->scaleContentToFit()) {
+        const SkRect contentRect = fWindow->getContentRect();
+        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+        const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
+        if (contentRect.width() > 0 && contentRect.height() > 0) {
+            fDefaultMatrix.setRectToRect(slideBounds, contentRect, SkMatrix::kStart_ScaleToFit);
+            bool inverted = fDefaultMatrix.invert(&fDefaultMatrixInv);
+            SkASSERT(inverted);
+        }
+    }
+
+    if (fWindow->supportsContentRect()) {
+        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+        SkRect windowRect = fWindow->getContentRect();
+        fDefaultMatrixInv.mapRect(&windowRect);
+        fGesture.setTransLimit(SkRect::MakeWH(slideSize.width(), slideSize.height()), windowRect);
+    }
+
     this->updateTitle();
     fSlides[fCurrentSlide]->load();
     if (previousSlide >= 0) {
@@ -269,14 +291,7 @@ void Viewer::onPaint(SkCanvas* canvas) {
     }
 
     canvas->clear(SK_ColorWHITE);
-    if (fWindow->supportsContentRect() && fWindow->scaleContentToFit()) {
-        const SkRect contentRect = fWindow->getContentRect();
-        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
-        const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
-        SkMatrix matrix;
-        matrix.setRectToRect(slideBounds, contentRect, SkMatrix::kCenter_ScaleToFit);
-        canvas->concat(matrix);
-    }
+    canvas->concat(fDefaultMatrix);
     canvas->concat(computeMatrix());
 
     fSlides[fCurrentSlide]->draw(canvas);
@@ -290,17 +305,18 @@ void Viewer::onPaint(SkCanvas* canvas) {
 
 bool Viewer::onTouch(int owner, Window::InputState state, float x, float y) {
     void* castedOwner = reinterpret_cast<void*>(owner);
+    SkPoint touchPoint = fDefaultMatrixInv.mapXY(x, y);
     switch (state) {
         case Window::kUp_InputState: {
             fGesture.touchEnd(castedOwner);
             break;
         }
         case Window::kDown_InputState: {
-            fGesture.touchBegin(castedOwner, x, y);
+            fGesture.touchBegin(castedOwner, touchPoint.fX, touchPoint.fY);
             break;
         }
         case Window::kMove_InputState: {
-            fGesture.touchMoved(castedOwner, x, y);
+            fGesture.touchMoved(castedOwner, touchPoint.fX, touchPoint.fY);
             break;
         }
     }

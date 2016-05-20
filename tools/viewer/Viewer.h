@@ -59,6 +59,10 @@ private:
     sk_app::CommandSet     fCommands;
 
     SkTouchGesture         fGesture;
+
+    // identity unless the window initially scales the content to fit the screen.
+    SkMatrix               fDefaultMatrix;
+    SkMatrix               fDefaultMatrixInv;
 };
 
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-
+#include <algorithm>
 
 #include "SkTouchGesture.h"
 #include "SkMatrix.h"
@@ -109,6 +109,7 @@ SkTouchGesture::~SkTouchGesture() {
 }
 
 void SkTouchGesture::reset() {
+    fIsTransLimited = false;
     fTouches.reset();
     fState = kEmpty_State;
     fLocalM.reset();
@@ -293,6 +294,8 @@ void SkTouchGesture::touchEnd(void* owner) {
     }
 
     fTouches.removeShuffle(index);
+
+    limitTrans();
 }
 
 float SkTouchGesture::computePinch(const Rec& rec0, const Rec& rec1) {
@@ -326,4 +329,25 @@ bool SkTouchGesture::handleDblTap(float x, float y) {
     fLastUpMillis = now;
     fLastUpP.set(x, y);
     return found;
+}
+
+void SkTouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& windowRect) {
+    fIsTransLimited = true;
+    fContentRect = contentRect;
+    fWindowRect = windowRect;
+}
+
+void SkTouchGesture::limitTrans() {
+    if (!fIsTransLimited) {
+        return;
+    }
+
+    SkRect scaledContent = fContentRect;
+    fGlobalM.mapRect(&scaledContent);
+    const SkScalar ZERO = 0;
+
+    fGlobalM.postTranslate(ZERO, std::min(ZERO, fWindowRect.fBottom - scaledContent.fTop));
+    fGlobalM.postTranslate(ZERO, std::max(ZERO, fWindowRect.fTop - scaledContent.fBottom));
+    fGlobalM.postTranslate(std::min(ZERO, fWindowRect.fRight - scaledContent.fLeft), ZERO);
+    fGlobalM.postTranslate(std::max(ZERO, fWindowRect.fLeft - scaledContent.fRight), ZERO);
 }

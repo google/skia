@@ -43,6 +43,8 @@ public:
     const SkMatrix& localM();
     const SkMatrix& globalM() const { return fGlobalM; }
 
+    void setTransLimit(const SkRect& contentRect, const SkRect& windowRect);
+
 private:
     enum State {
         kEmpty_State,
@@ -65,7 +67,11 @@ private:
     double          fLastUpMillis;
     SkPoint         fLastUpP;
 
+    // The following rects are used to limit the translation so the content never leaves the window
+    SkRect          fContentRect, fWindowRect;
+    bool            fIsTransLimited = false;
 
+    void limitTrans(); // here we only limit the translation with respect to globalM
     void flushLocalM();
     int findRec(void* owner) const;
     void appendNewRec(void* owner, float x, float y);
