@@ -140,13 +140,13 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
 
-    GrTexture* subTx = ctx->textureProvider()->createTexture(desc, fBudgeted);
+    sk_sp<GrTexture> subTx(ctx->textureProvider()->createTexture(desc, fBudgeted));
     if (!subTx) {
         return nullptr;
     }
-    ctx->copySurface(subTx, fTexture, subset, SkIPoint::Make(0, 0));
+    ctx->copySurface(subTx.get(), fTexture, subset, SkIPoint::Make(0, 0));
     return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                   fAlphaType, subTx, fBudgeted);
+                                   fAlphaType, subTx.get(), fBudgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
