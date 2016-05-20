@@ -77,11 +77,13 @@ void SkiaAndroidApp::paintIfNeeded() {
 }
 
 void SkiaAndroidApp::postMessage(const Message& message) const {
-    SkAssertResult(write(fPipes[1], &message, sizeof(message)) == sizeof(message));
+    SkDEBUGCODE(auto writeSize =) write(fPipes[1], &message, sizeof(message));
+    SkASSERT(writeSize == sizeof(message));
 }
 
 void SkiaAndroidApp::readMessage(Message* message) const {
-    SkAssertResult(read(fPipes[0], message, sizeof(Message)) == sizeof(Message));
+    SkDEBUGCODE(auto readSize =) read(fPipes[0], message, sizeof(Message));
+    SkASSERT(readSize == sizeof(Message));
 }
 
 void SkiaAndroidApp::inval() {
