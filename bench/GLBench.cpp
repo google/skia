@@ -8,7 +8,9 @@
 #include "GLBench.h"
 
 #if SK_SUPPORT_GPU
+#include "GrGpu.h"
 #include "GrTest.h"
+#include "gl/GrGLContext.h"
 #include <stdio.h>
 
 const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {

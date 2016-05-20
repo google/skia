@@ -296,6 +296,7 @@ private:
     friend class GrStencilAndCoverTextContext; // for access to drawBatch
     friend class GrDrawingManager; // for ctor
     friend class GrDrawContextPriv;
+    friend class GrTestTarget;  // for access to getDrawTarget
 
     bool drawFilledDRRect(const GrClip& clip,
                           const GrPaint& paint,

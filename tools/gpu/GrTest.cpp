@@ -52,39 +52,21 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 }
 };
 
-void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target, GrRenderTarget* rt) {
+void GrTestTarget::init(GrContext* ctx, sk_sp<GrDrawContext> drawContext) {
     SkASSERT(!fContext);
 
     fContext.reset(SkRef(ctx));
-    fDrawTarget.reset(SkRef(target));
-    fRenderTarget.reset(SkRef(rt));
+    fDrawContext = drawContext;
 }
 
-void GrContext::getTestTarget(GrTestTarget* tar, GrRenderTarget* rt) {
+void GrContext::getTestTarget(GrTestTarget* tar, sk_sp<GrDrawContext> drawContext) {
     this->flush();
+    SkASSERT(drawContext);
     // We could create a proxy GrDrawTarget that passes through to fGpu until ~GrTextTarget() and
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    if (!rt) {
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = 32;
-        desc.fHeight = 32;
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
-        desc.fSampleCnt = 0;
-
-        SkAutoTUnref<GrTexture> texture(this->textureProvider()->createTexture(
-            desc, SkBudgeted::kNo, nullptr, 0));
-        if (nullptr == texture) {
-            return;
-        }
-        SkASSERT(nullptr != texture->asRenderTarget());
-        rt = texture->asRenderTarget();
-    }
-
-    SkAutoTUnref<GrDrawTarget> dt(fDrawingManager->newDrawTarget(rt));
-    tar->init(this, dt, rt);
+    tar->init(this, std::move(drawContext));
 }
 
 void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {

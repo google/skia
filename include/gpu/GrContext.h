@@ -27,7 +27,6 @@ struct GrContextOptions;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
 class GrDrawContext;
-class GrDrawTarget;
 class GrFragmentProcessor;
 class GrGpu;
 class GrIndexBuffer;
@@ -354,8 +353,8 @@ public:
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
 
-    // Called by tests that draw directly to the context via GrDrawTarget
-    void getTestTarget(GrTestTarget*, GrRenderTarget* rt);
+    // Called by tests that draw directly to the context via GrDrawContext
+    void getTestTarget(GrTestTarget*, sk_sp<GrDrawContext>);
 
     /** Reset GPU stats */
     void resetGpuStats() const ;
