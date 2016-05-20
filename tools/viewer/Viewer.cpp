@@ -223,8 +223,7 @@ void Viewer::setupCurrentSlide(int previousSlide) {
         const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
         if (contentRect.width() > 0 && contentRect.height() > 0) {
             fDefaultMatrix.setRectToRect(slideBounds, contentRect, SkMatrix::kStart_ScaleToFit);
-            bool inverted = fDefaultMatrix.invert(&fDefaultMatrixInv);
-            SkASSERT(inverted);
+            SkAssertResult(fDefaultMatrix.invert(&fDefaultMatrixInv));
         }
     }
 
