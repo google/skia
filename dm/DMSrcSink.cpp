@@ -314,7 +314,7 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
 }
 
 static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
-                            CodecSrc::DstColorType dstColorType) {
+                            CodecSrc::DstColorType dstColorType, SkAlphaType dstAlphaType) {
     switch (dstColorType) {
         case CodecSrc::kIndex8_Always_DstColorType:
             if (kRGB_565_SkColorType == canvasColorType) {
@@ -348,6 +348,7 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             break;
     }
 
+    *decodeInfo = decodeInfo->makeAlphaType(dstAlphaType);
     return true;
 }
 
@@ -373,8 +374,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo().makeAlphaType(fDstAlphaType);
-    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType)) {
+    SkImageInfo decodeInfo = codec->getInfo();
+    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
+                         fDstAlphaType)) {
         return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
     }
 
@@ -656,8 +658,9 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo().makeAlphaType(fDstAlphaType);
-    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType)) {
+    SkImageInfo decodeInfo = codec->getInfo();
+    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
+                         fDstAlphaType)) {
         return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
     }
 
@@ -792,11 +795,6 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
     // Test various color and alpha types on CPU
     SkImageInfo decodeInfo = gen->getInfo().makeAlphaType(fDstAlphaType);
-
-    if (kGray_8_SkColorType == decodeInfo.colorType() &&
-            kOpaque_SkAlphaType != decodeInfo.alphaType()) {
-        return Error::Nonfatal("Avoid requesting non-opaque kGray8 decodes.");
-    }
 
     int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     size_t rowBytes = decodeInfo.width() * bpp;
