@@ -24,7 +24,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fSRGBSupport = true;   // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fTwoSidedStencilSupport = true;  // always available in Vulkan
-    fStencilWrapOpsSupport = false; //TODO: figure this out
+    fStencilWrapOpsSupport = true; // always available in Vulkan
     fDiscardRenderTargetSupport = false; //TODO: figure this out
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
@@ -40,7 +40,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fMaxTextureSize = 4096; // minimum required by spec
     fMaxColorSampleCount = 4; // minimum required by spec
     fMaxStencilSampleCount = 4; // minimum required by spec
-
 
     fShaderCaps.reset(new GrGLSLCaps(contextOptions));
 
