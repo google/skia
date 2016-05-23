@@ -16,7 +16,7 @@ deps = {
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@v0.5.0",
   "third_party/externals/nanomsg" : "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
-  "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@c4e33043fb071b6ea0a153845da625d7ed633d3d",
+  "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4576304a4b9835aa8646c9735b079e1d96858633",
   # NOTE: If we update libpng, we may need to update the generated file at third_party/libpng/pnglibconf.h
   # skbug.com/4710: We'd prefer to mirror AOSP or Chrome.
   "third_party/externals/libpng"  : "https://github.com/mattsarett/libpng.git@91d2a9e56ea83f7bce091b1606ae4d04ddfc547a",

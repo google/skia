@@ -59,16 +59,15 @@
       'defines': [
         "getlocaledecpoint()='.'",
       ],
-      'cflags': [
-        '-Wno-parentheses-equality',
-        '-Wno-pointer-bool-conversion',
-       ],
-      'xcode_settings': {
-        'WARNING_CFLAGS': [
+      'variables': {
+        'skia_lua_flags' : [
           '-Wno-parentheses-equality',
           '-Wno-pointer-bool-conversion',
+          '-Wno-array-bounds',
         ],
       },
+      'cflags': [ '<@(skia_lua_flags)' ],
+      'xcode_settings': { 'WARNING_CFLAGS': [ '<@(skia_lua_flags)' ], },
       'conditions': [
         ['skia_os != "win"',
          {

@@ -19,8 +19,14 @@
           },
         }, {
           'type': 'static_library',
-          'cflags': [ '-Wno-unused-value' ],
-          'xcode_settings': { 'WARNING_CFLAGS': [ '-Wno-unused-value', ], },
+          'variables': {
+            'skia_zlib_flags' : [
+              '-Wno-unused-value',
+              '-Wno-shift-negative-value',
+            ],
+          },
+          'cflags': [ '<@(skia_zlib_flags)' ],
+          'xcode_settings': { 'WARNING_CFLAGS': [ '<@(skia_zlib_flags)' ], },
           'sources': [
             '../third_party/externals/zlib/adler32.c',
             '../third_party/externals/zlib/compress.c',
