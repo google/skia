@@ -44,7 +44,7 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& para
     createInfo.flags = 0;
     createInfo.magFilter = vkMagFilterModes[params.filterMode()];
     createInfo.minFilter = vkMinFilterModes[params.filterMode()];
-    createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     createInfo.addressModeU = tile_to_vk_sampler_address(params.getTileModeX());
     createInfo.addressModeV = tile_to_vk_sampler_address(params.getTileModeY());
     createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE; // Shouldn't matter
