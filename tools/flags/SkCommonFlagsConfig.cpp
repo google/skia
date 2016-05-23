@@ -45,7 +45,7 @@ static const char configHelp[] =
     " hwui"
 #endif
 #ifdef SK_VULKAN
-    " vk"
+    " vk vksrgb"
 #endif
     " or use extended form 'backend(option=value,...)'.\n";
 
@@ -124,7 +124,8 @@ static const char configExtendedHelp[] =
     "\tmesa      \t= gpu(api=mesa)\n"
 #endif
 #ifdef SK_VULKAN
-     "\vk        \t= gpu(api=vulkan)\n"
+    "\tvk        \t= gpu(api=vulkan)\n"
+    "\tvksrgb    \t= gpu(api=vulkan,color=srgb)\n"
 #endif
 #endif
     ;
@@ -170,6 +171,7 @@ static const struct {
 #endif
 #ifdef SK_VULKAN
     , { "vk", "gpu", "api=vulkan" }
+    , { "vksrgb", "gpu", "api=vulkan,color=srgb" }
 #endif
 
 #else
