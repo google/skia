@@ -8,7 +8,7 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
+#include "SkColorSpace_Base.h"
 #include "Test.h"
 
 #include "png.h"
@@ -21,7 +21,7 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
                        const float red[], const float green[], const float blue[],
                        const float expectedGammas[]) {
 
-    SkGammas* gammas = space->gammas();
+    SkGammas* gammas = as_CSB(space)->gammas();
     REPORTER_ASSERT(r, almost_equal(expectedGammas[0], gammas->fRed.fValue));
     REPORTER_ASSERT(r, almost_equal(expectedGammas[1], gammas->fGreen.fValue));
     REPORTER_ASSERT(r, almost_equal(expectedGammas[2], gammas->fBlue.fValue));

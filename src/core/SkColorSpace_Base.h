@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkColorSpacePriv_DEFINED
-#define SkColorSpacePriv_DEFINED
+#ifndef SkColorSpace_Base_DEFINED
+#define SkColorSpace_Base_DEFINED
+
+#include "SkColorSpace.h"
 
 struct SkGammaCurve {
     bool isValue() const {
@@ -107,5 +109,31 @@ struct SkColorLookUpTable {
         memset(this, 0, sizeof(struct SkColorLookUpTable));
     }
 };
+
+class SkColorSpace_Base : public SkColorSpace {
+public:
+
+    SkGammas* gammas() const { return fGammas.get(); }
+
+private:
+
+    SkColorSpace_Base(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, Named);
+
+    SkColorSpace_Base(sk_sp<SkGammas> gammas, GammaNamed gammaNamed, const SkMatrix44& toXYZ,
+                      Named);
+
+    SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas,
+                      const SkMatrix44& toXYZ);
+
+    SkAutoTDelete<SkColorLookUpTable> fColorLUT;
+    sk_sp<SkGammas>                   fGammas;
+
+    friend class SkColorSpace;
+    typedef SkColorSpace INHERITED;
+};
+
+static inline SkColorSpace_Base* as_CSB(SkColorSpace* colorSpace) {
+    return static_cast<SkColorSpace_Base*>(colorSpace);
+}
 
 #endif
