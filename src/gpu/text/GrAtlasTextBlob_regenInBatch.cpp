@@ -165,7 +165,11 @@ void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
                 SkGlyphCache::AttachCache(*cache);
             }
             *desc = newDesc;
-            *cache = SkGlyphCache::DetachCache(run->fTypeface, run->fEffects, *desc);
+            SkScalerContextEffects effects;
+            effects.fPathEffect = run->fPathEffect.get();
+            effects.fRasterizer = run->fRasterizer.get();
+            effects.fMaskFilter = run->fMaskFilter.get();
+            *cache = SkGlyphCache::DetachCache(run->fTypeface, effects, *desc);
             *typeface = run->fTypeface;
         }
 
