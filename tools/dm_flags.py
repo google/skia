@@ -158,13 +158,9 @@ def get_args(bot):
     blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
     blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
     blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
-    if 'CPU' in bot:
-      if 'x86_64' in bot:
-        # This GM triggers a SkSmallAllocator assert. skia:5315
-        blacklist.extend('_ gm _ composeshader_bitmap'.split(' '))
-      elif '-x86-' in bot:
-        # This image flakily fails to decode due to memory usage. skia:5318
-        blacklist.extend('_ image _ HTC.dng'.split(' '))
+    if 'x86_64' in bot and 'CPU' in bot:
+      # This GM triggers a SkSmallAllocator assert.
+      blacklist.extend('_ gm _ composeshader_bitmap'.split(' '))
 
   # skia:4095
   for test in ['not_native32_bitmap_config',
@@ -281,7 +277,6 @@ def self_test():
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-    'Test-Win-MSVC-GCE-CPU-AVX2-x86-Release',
     'Test-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
     'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
