@@ -14,7 +14,7 @@
 #elif defined(SK_BUILD_FOR_ANDROID)
 #   define VK_USE_PLATFORM_ANDROID_KHR
 #elif defined(SK_BUILD_FOR_UNIX)
-#   define VK_USE_PLATFORM_XLIB_KHR
+#   define VK_USE_PLATFORM_XCB_KHR
 #endif
 
 #if defined(Bool) || defined(Status) || defined(True) || defined(False)
@@ -22,20 +22,5 @@
 #endif
 
 #include <vulkan/vulkan.h>
-
-
-// Xlib.h may define these macros with common names (Grrr)
-#ifdef Bool
-#   undef Bool
-#endif
-#ifdef Status
-#   undef Status
-#endif
-#ifdef True
-#   undef True
-#endif
-#ifdef False
-#   undef False
-#endif
 
 #endif

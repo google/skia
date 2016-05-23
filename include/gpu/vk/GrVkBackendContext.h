@@ -25,7 +25,7 @@ enum GrVkExtensionFlags {
     kKHR_swapchain_GrVkExtensionFlag       = 0x0008,
     kKHR_win32_surface_GrVkExtensionFlag   = 0x0010,
     kKHR_android_surface_GrVkExtensionFlag = 0x0020,
-    kKHR_xlib_surface_GrVkExtensionFlag    = 0x0040,
+    kKHR_xcb_surface_GrVkExtensionFlag     = 0x0040,
 };
 
 enum GrVkFeatureFlags {
@@ -55,7 +55,9 @@ struct GrVkBackendContext : public SkRefCnt {
     // If presentQueueIndex is non-NULL, will try to set up presentQueue as part of device
     // creation. canPresent() is a device-dependent function.
     static const GrVkBackendContext* Create(uint32_t* presentQueueIndex = nullptr,
-                    bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex) = nullptr);
+                    bool(*canPresent)(VkInstance, VkPhysicalDevice, uint32_t queueIndex,
+                                      void* platformData) = nullptr,
+                    void* platformData = nullptr);
 
     ~GrVkBackendContext() override;
 };

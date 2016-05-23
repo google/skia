@@ -41,8 +41,9 @@ VulkanWindowContext::VulkanWindowContext(void* platformData, const DisplayParams
 }
 
 void VulkanWindowContext::initializeContext(void* platformData, const DisplayParams& params) {
+    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent, 
+                                                     platformData));
 
-    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
         !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
         fBackendContext.reset(nullptr);
@@ -147,6 +148,7 @@ bool VulkanWindowContext::createSwapchain(uint32_t width, uint32_t height,
     } else if (extent.height > caps.maxImageExtent.height) {
         extent.height = caps.maxImageExtent.height;
     }
+
     fWidth = (int)extent.width;
     fHeight = (int)extent.height;
 

@@ -25,11 +25,13 @@
         '../src/gpu',
         '../src/images',
         '../src/image',
+        '../src/views/unix',
         '../tools/timer',
       ],
       'sources': [
         '../gm/gm.cpp',
         '../src/views/SkTouchGesture.cpp',
+        '../src/views/unix/keysym2ucs.c',
         '<!@(python find.py ../tools/viewer "*.cpp")',
       ],
       'dependencies': [
@@ -56,8 +58,21 @@
             ],
           },
         }],
+        [ 'skia_os == "linux"', {
+          'link_settings': {
+            'libraries': [
+              '-lX11-xcb',
+            ],
+          },
+        }],
         ['skia_os != "android"', {
           'sources/': [ ['exclude', '_android.(h|cpp)$'],
+          ],
+        }],
+        ['skia_os != "linux"', {
+          'sources/': [ 
+            ['exclude', '_unix.(h|cpp)$'],
+            ['exclude', 'keysym2ucs.c'],
           ],
         }],
         ['skia_os != "win"', {

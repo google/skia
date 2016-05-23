@@ -47,7 +47,7 @@ VkSurfaceKHR VulkanWindowContext::createVkSurface(VkInstance instance, void* pla
 
 // Platform dependant call
 bool VulkanWindowContext::canPresent(VkInstance instance, VkPhysicalDevice physDev,
-                                   uint32_t queueFamilyIndex) {
+                                     uint32_t queueFamilyIndex, void*) {
     static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR
                                             getPhysicalDeviceWin32PresentationSupportKHR = nullptr;
     if (!getPhysicalDeviceWin32PresentationSupportKHR) {

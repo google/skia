@@ -40,7 +40,7 @@ VkSurfaceKHR VulkanWindowContext::createVkSurface(VkInstance instance, void* pla
 }
 
 bool VulkanWindowContext::canPresent(VkInstance instance, VkPhysicalDevice physDev,
-                                   uint32_t queueFamilyIndex) {
+                                     uint32_t queueFamilyIndex, void*) {
     return true;
 }
 

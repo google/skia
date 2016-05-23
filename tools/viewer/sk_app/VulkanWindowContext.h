@@ -23,7 +23,8 @@ public:
 
     // each platform will have to implement these in its CPP file
     static VkSurfaceKHR createVkSurface(VkInstance, void* platformData);
-    static bool canPresent(VkInstance, VkPhysicalDevice, uint32_t queueFamilyIndex);
+    static bool canPresent(VkInstance, VkPhysicalDevice, uint32_t queueFamilyIndex,
+                           void* platformData);
 
     static VulkanWindowContext* Create(void* platformData, const DisplayParams& params) {
         VulkanWindowContext* ctx = new VulkanWindowContext(platformData, params);
@@ -99,8 +100,6 @@ private:
     VkSwapchainKHR    fSwapchain;
     uint32_t          fPresentQueueIndex;
     VkQueue           fPresentQueue;
-    int               fWidth;
-    int               fHeight;
 
     uint32_t               fImageCount;
     VkImage*               fImages;         // images in the swapchain
