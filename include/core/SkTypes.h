@@ -369,7 +369,7 @@ typedef uint32_t SkMSec;
 
 /** Faster than SkToBool for integral conditions. Returns 0 or 1
 */
-static inline int Sk32ToBool(uint32_t n) {
+static constexpr int Sk32ToBool(uint32_t n) {
     return (n | (0-n)) >> 31;
 }
 
@@ -408,11 +408,11 @@ static inline int32_t SkMin32(int32_t a, int32_t b) {
     return a;
 }
 
-template <typename T> const T& SkTMin(const T& a, const T& b) {
+template <typename T> constexpr const T& SkTMin(const T& a, const T& b) {
     return (a < b) ? a : b;
 }
 
-template <typename T> const T& SkTMax(const T& a, const T& b) {
+template <typename T> constexpr const T& SkTMax(const T& a, const T& b) {
     return (b < a) ? a : b;
 }
 
@@ -428,7 +428,7 @@ static inline int32_t SkFastMin32(int32_t value, int32_t max) {
 }
 
 /** Returns value pinned between min and max, inclusively. */
-template <typename T> static inline const T& SkTPin(const T& value, const T& min, const T& max) {
+template <typename T> static constexpr const T& SkTPin(const T& value, const T& min, const T& max) {
     return SkTMax(SkTMin(value, max), min);
 }
 
