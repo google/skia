@@ -31,7 +31,7 @@ public:
 
     bool attach(BackendType attachType, const DisplayParams& params) override;
 
-    void inval() override;
+    void onInval() override;
 
 private:
     HINSTANCE fHInstance;

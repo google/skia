@@ -27,7 +27,9 @@ public:
     void show() override {}
 
     bool attach(BackendType attachType, const DisplayParams& params) override;
-    void inval() override;
+    void onInval() override;
+
+    void paintIfNeeded();
 
     bool scaleContentToFit() const override { return true; }
     bool supportsContentRect() const override { return true; }

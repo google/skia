@@ -284,7 +284,7 @@ bool Window_win::attach(BackendType attachType, const DisplayParams& params) {
     return (SkToBool(fWindowContext));
 }
 
-void Window_win::inval() {
+void Window_win::onInval() {
     InvalidateRect(fHWnd, nullptr, false);
 }
 

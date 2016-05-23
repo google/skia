@@ -63,6 +63,7 @@ bool Window::onTouch(int owner, InputState state, float x, float y) {
 }
 
 void Window::onPaint() {
+    markInvalProcessed();
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer) {
         // draw into the canvas of this surface
@@ -90,6 +91,17 @@ const DisplayParams& Window::getDisplayParams() {
 
 void Window::setDisplayParams(const DisplayParams& params) {
     fWindowContext->setDisplayParams(params);
+}
+
+void Window::inval() {
+    if (!fIsContentInvalidated) {
+        fIsContentInvalidated = true;
+        onInval();
+    }
+}
+
+void Window::markInvalProcessed() {
+    fIsContentInvalidated = false;
 }
 
 }   // namespace sk_app

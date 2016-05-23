@@ -64,8 +64,16 @@ void Window_android::onDisplayDestroyed() {
     detach();
 }
 
-void Window_android::inval() {
-    fSkiaAndroidApp->inval();
+void Window_android::onInval() {
+    fSkiaAndroidApp->postMessage(Message(kContentInvalidated));
+}
+
+void Window_android::paintIfNeeded() {
+    if (fWindowContext) { // Check if initDisplay has already been called
+        onPaint();
+    } else {
+        markInvalProcessed();
+    }
 }
 
 }   // namespace sk_app

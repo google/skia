@@ -27,7 +27,11 @@ public:
 
     virtual void setTitle(const char*) = 0;
     virtual void show() = 0;
-    virtual void inval() = 0;
+
+    // Shedules an invalidation event for window if one is not currently pending.
+    // Make sure that either onPaint or markInvalReceived is called when the client window consumes
+    // the the inval event. They unset fIsContentInvalided which allow future onInval.
+    void inval();
 
     virtual bool scaleContentToFit() const { return false; }
     virtual bool supportsContentRect() const { return false; }
@@ -164,6 +168,13 @@ protected:
     void*        fPaintUserData;
 
     WindowContext* fWindowContext = nullptr;
+
+    virtual void onInval() = 0;
+
+    // Uncheck fIsContentInvalided to allow future inval/onInval.
+    void markInvalProcessed();
+
+    bool fIsContentInvalidated = false;  // use this to avoid duplicate invalidate events
 };
 
 }   // namespace sk_app

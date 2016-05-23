@@ -70,12 +70,6 @@ void SkiaAndroidApp::setTitle(const char* title) const {
     fPThreadEnv->DeleteLocalRef(titleString);
 }
 
-void SkiaAndroidApp::paintIfNeeded() {
-    if (fNativeWindow && fWindow) {
-        fWindow->onPaint();
-    }
-}
-
 void SkiaAndroidApp::postMessage(const Message& message) const {
     SkDEBUGCODE(auto writeSize =) write(fPipes[1], &message, sizeof(message));
     SkASSERT(writeSize == sizeof(message));
@@ -84,14 +78,6 @@ void SkiaAndroidApp::postMessage(const Message& message) const {
 void SkiaAndroidApp::readMessage(Message* message) const {
     SkDEBUGCODE(auto readSize =) read(fPipes[0], message, sizeof(Message));
     SkASSERT(readSize == sizeof(Message));
-}
-
-void SkiaAndroidApp::inval() {
-    SkAutoMutexAcquire ama(fMutex);
-    if (!fIsContentInvalidated) {
-        postMessage(Message(kContentInvalidated));
-        fIsContentInvalidated = true;
-    }
 }
 
 int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
@@ -108,9 +94,7 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             return 0;
         }
         case kContentInvalidated: {
-            SkAutoMutexAcquire ama(skiaAndroidApp->fMutex);
-            skiaAndroidApp->fIsContentInvalidated = false;
-            skiaAndroidApp->paintIfNeeded();
+            ((Window_android*)skiaAndroidApp->fWindow)->paintIfNeeded();
             break;
         }
         case kSurfaceCreated: {
@@ -118,7 +102,7 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             skiaAndroidApp->fNativeWindow = message.fNativeWindow;
             auto window_android = (Window_android*)skiaAndroidApp->fWindow;
             window_android->initDisplay(skiaAndroidApp->fNativeWindow);
-            skiaAndroidApp->paintIfNeeded();
+            ((Window_android*)skiaAndroidApp->fWindow)->paintIfNeeded();
             break;
         }
         case kSurfaceChanged: {
@@ -128,7 +112,7 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             int height = ANativeWindow_getHeight(skiaAndroidApp->fNativeWindow);
             auto window_android = (Window_android*)skiaAndroidApp->fWindow;
             window_android->setContentRect(0, 0, width, height);
-            skiaAndroidApp->paintIfNeeded();
+            window_android->paintIfNeeded();
             break;
         }
         case kSurfaceDestroyed: {
