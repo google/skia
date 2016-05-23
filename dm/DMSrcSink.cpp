@@ -9,6 +9,8 @@
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
+#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
@@ -825,14 +827,26 @@ Name ImageGenSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ColorCodecSrc::ColorCodecSrc(Path path, Mode mode)
+ColorCodecSrc::ColorCodecSrc(Path path, Mode mode, sk_sp<SkColorSpace> dstSpace)
     : fPath(path)
     , fMode(mode)
+    , fDstSpace(dstSpace)
 {}
 
 bool ColorCodecSrc::veto(SinkFlags flags) const {
     // Test to direct raster backends (8888 and 565).
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
+}
+
+static uint8_t clampFloatToByte(float v) {
+    v = v * 255.0f;
+    if (v > 255.0f) {
+        return 255;
+    } else if (v < 0.0f) {
+        return 0;
+    } else {
+        return (uint8_t) (v + 0.5f);
+    }
 }
 
 Error ColorCodecSrc::draw(SkCanvas* canvas) const {
@@ -850,24 +864,84 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(decodeInfo)) {
+    if (!bitmap.tryAllocPixels(info)) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
-                              decodeInfo.width(), decodeInfo.height());
+                              info.width(), info.height());
+    }
+
+    SkImageInfo decodeInfo = info;
+    if (kBaseline_Mode != fMode) {
+        decodeInfo = decodeInfo.makeColorType(kRGBA_8888_SkColorType);
+    }
+
+    SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes());
+    if (SkCodec::kSuccess != r) {
+        return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
     }
 
     switch (fMode) {
         case kBaseline_Mode:
-            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes())) {
-                case SkCodec::kSuccess:
-                    break;
-                default:
-                    // Everything else is considered a failure.
-                    return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
-            }
             canvas->drawBitmap(bitmap, 0, 0);
             break;
+        case kDst_HPZR30w_Mode: {
+            sk_sp<SkColorSpace> srcSpace = sk_ref_sp(codec->getColorSpace());
+            if (!srcSpace) {
+                return SkStringPrintf("Cannot test color correction without a src profile.");
+            } else if (!as_CSB(srcSpace)->gammas()->isValues()) {
+                // FIXME (msarett):
+                // The conversion here doesn't cover all of the images that I've uploaded for
+                // testing.  Once we support all of them, this should be a fatal error.
+                return Error::Nonfatal("Unimplemented gamma conversion.");
+            }
+
+            // Build a matrix to transform to dst gamut.
+            // srcToDst = inverse(dstToXYZ) * srcToXYZ
+            const SkMatrix44& srcToXYZ = srcSpace->xyz();
+            const SkMatrix44& dstToXYZ = fDstSpace->xyz();
+            SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
+            dstToXYZ.invert(&srcToDst);
+            srcToDst.postConcat(srcToXYZ);
+
+            for (int y = 0; y < info.height(); y++) {
+                for (int x = 0; x < info.width(); x++) {
+                    // Extract floats.
+                    uint32_t* pixelPtr = (uint32_t*) bitmap.getAddr(x, y);
+                    float src[3];
+                    src[0] = ((*pixelPtr >>  0) & 0xFF) / 255.0f;
+                    src[1] = ((*pixelPtr >>  8) & 0xFF) / 255.0f;
+                    src[2] = ((*pixelPtr >> 16) & 0xFF) / 255.0f;
+
+                    // Convert to linear.
+                    src[0] = pow(src[0], as_CSB(srcSpace)->gammas()->fRed.fValue);
+                    src[1] = pow(src[1], as_CSB(srcSpace)->gammas()->fGreen.fValue);
+                    src[2] = pow(src[2], as_CSB(srcSpace)->gammas()->fBlue.fValue);
+
+                    // Convert to dst gamut.
+                    float dst[3];
+                    dst[0] = src[0]*srcToDst.getFloat(0, 0) + src[1]*srcToDst.getFloat(1, 0) +
+                             src[2]*srcToDst.getFloat(2, 0) + srcToDst.getFloat(3, 0);
+                    dst[1] = src[0]*srcToDst.getFloat(0, 1) + src[1]*srcToDst.getFloat(1, 1) +
+                             src[2]*srcToDst.getFloat(2, 1) + srcToDst.getFloat(3, 1);
+                    dst[2] = src[0]*srcToDst.getFloat(0, 2) + src[1]*srcToDst.getFloat(1, 2) +
+                             src[2]*srcToDst.getFloat(2, 2) + srcToDst.getFloat(3, 2);
+
+                    // Convert to dst gamma.
+                    dst[0] = pow(dst[0], 1.0f / as_CSB(fDstSpace)->gammas()->fRed.fValue);
+                    dst[1] = pow(dst[1], 1.0f / as_CSB(fDstSpace)->gammas()->fGreen.fValue);
+                    dst[2] = pow(dst[2], 1.0f / as_CSB(fDstSpace)->gammas()->fBlue.fValue);
+
+                    *pixelPtr = SkPackARGB32NoCheck(((*pixelPtr >> 24) & 0xFF),
+                                                    clampFloatToByte(dst[0]),
+                                                    clampFloatToByte(dst[1]),
+                                                    clampFloatToByte(dst[2]));
+                }
+            }
+
+            canvas->drawBitmap(bitmap, 0, 0);
+            break;
+        }
         default:
             SkASSERT(false);
             return "Invalid fMode";

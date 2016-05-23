@@ -15,6 +15,7 @@
 #include "SkChecksum.h"
 #include "SkCodec.h"
 #include "SkColorPriv.h"
+#include "SkColorSpace.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkData.h"
@@ -723,9 +724,18 @@ static bool gather_srcs() {
         return false;
     }
 
+    // Load the dstSpace.  This particular dst is fairly similar to Adobe RGB.
+    SkAutoTUnref<SkData> data(SkData::NewFromFileName(
+            GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str()));
+    sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewICC(data->data(), data->size());
+    SkASSERT(dstSpace);
+
     for (auto colorImage : colorImages) {
-        ColorCodecSrc* src = new ColorCodecSrc(colorImage, ColorCodecSrc::kBaseline_Mode);
+        ColorCodecSrc* src = new ColorCodecSrc(colorImage, ColorCodecSrc::kBaseline_Mode, nullptr);
         push_src("image", "color_codec_baseline", src);
+
+        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_HPZR30w_Mode, dstSpace);
+        push_src("image", "color_codec_HPZR30w", src);
     }
 
     return true;

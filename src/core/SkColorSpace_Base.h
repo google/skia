@@ -136,4 +136,8 @@ static inline SkColorSpace_Base* as_CSB(SkColorSpace* colorSpace) {
     return static_cast<SkColorSpace_Base*>(colorSpace);
 }
 
+static inline SkColorSpace_Base* as_CSB(const sk_sp<SkColorSpace>& colorSpace) {
+    return static_cast<SkColorSpace_Base*>(colorSpace.get());
+}
+
 #endif
