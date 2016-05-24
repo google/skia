@@ -102,6 +102,51 @@ public:
     int count() const { return fCount; }
 
 #ifdef SK_DEBUG
+    class ConstIter {
+    public:
+        explicit ConstIter(const SkTMultiMap* mmap)
+            : fIter(&(mmap->fHash))
+            , fList(nullptr) {
+            if (!fIter.done()) {
+                fList = &(*fIter);
+            }
+        }
+
+        bool done() const {
+            return fIter.done();
+        }
+
+        const T* operator*() {
+            SkASSERT(fList);
+            return fList->fValue;
+        }
+
+        void operator++() {
+            if (fList) {
+                fList = fList->fNext;
+            }
+            if (!fList) {
+                ++fIter;
+                if (!fIter.done()) {
+                    fList = &(*fIter);
+                }
+            }
+        }
+
+    private:
+        typename SkTDynamicHash<ValueList, Key>::ConstIter fIter;
+        const ValueList* fList;
+    };
+
+    bool has(const T* value, const Key& key) const {
+        for (ValueList* list = fHash.find(key); list; list = list->fNext) {
+            if (list->fValue == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // This is not particularly fast and only used for validation, so debug only.
     int countForKey(const Key& key) const {
         int count = 0;
