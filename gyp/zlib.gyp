@@ -23,6 +23,7 @@
             'skia_zlib_flags' : [
               '-Wno-unused-value',
               '-Wno-shift-negative-value',
+              '-Wno-unknown-warning-option',
             ],
           },
           'cflags': [ '<@(skia_zlib_flags)' ],
