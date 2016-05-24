@@ -57,7 +57,7 @@ public:
     void discard(GrRenderTarget*) override;
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, const GrTextureParams& params, bool dstConfigAllowsSRGB,
+    void bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
                      GrGLTexture* texture);
 
     void bindTexelBuffer(int unitIdx, intptr_t offsetInBytes, GrPixelConfig, GrGLBuffer*);

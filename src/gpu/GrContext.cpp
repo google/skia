@@ -367,11 +367,10 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             if (!drawContext) {
                 return false;
             }
-            // SRGBTODO: AllowSRGBInputs? (We could force it on here, so we don't need the
-            // per-texture override in config conversion effect?)
             GrPaint paint;
             paint.addColorFragmentProcessor(fp);
             paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+            paint.setAllowSRGBInputs(true);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
             drawContext->drawRect(GrNoClip(), paint, matrix, rect, nullptr);
 
@@ -479,11 +478,10 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                     GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
             }
             if (fp) {
-                // SRGBTODO: AllowSRGBInputs? (We could force it on here, so we don't need the
-                // per-texture override in config conversion effect?)
                 GrPaint paint;
                 paint.addColorFragmentProcessor(fp);
                 paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+                paint.setAllowSRGBInputs(true);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 sk_sp<GrDrawContext> drawContext(
                                             this->drawContext(sk_ref_sp(temp->asRenderTarget())));

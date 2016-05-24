@@ -3101,7 +3101,7 @@ static void get_tex_param_swizzle(GrPixelConfig config,
     }
 }
 
-void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool dstConfigAllowsSRGB,
+void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
                           GrGLTexture* texture) {
     SkASSERT(texture);
 
@@ -3141,9 +3141,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool dstCo
     if (this->caps()->srgbSupport()) {
         // By default, the decision to allow SRGB decode is based on the destination config.
         // A texture can override that by specifying a value in GrTextureParams.
-        newTexParams.fSRGBDecode =
-            (dstConfigAllowsSRGB || GrTextureParams::kForceAllowSRGB_SRGBMode == params.srgbMode())
-            ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
+        newTexParams.fSRGBDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
 
         if (setAll || newTexParams.fSRGBDecode != oldTexParams.fSRGBDecode) {
             this->setTextureUnit(unitIdx);
