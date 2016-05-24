@@ -9,6 +9,7 @@
 #define SkColorSpace_Base_DEFINED
 
 #include "SkColorSpace.h"
+#include "SkTemplates.h"
 
 struct SkGammaCurve {
     bool isValue() const {
@@ -113,7 +114,7 @@ struct SkColorLookUpTable {
 class SkColorSpace_Base : public SkColorSpace {
 public:
 
-    SkGammas* gammas() const { return fGammas.get(); }
+    const sk_sp<SkGammas>& gammas() const { return fGammas; }
 
 private:
 

@@ -24,20 +24,20 @@ SkColorSpace::SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Na
 SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZD50,
                                      Named named)
     : INHERITED(kNonStandard_GammaNamed, toXYZD50, named)
-    , fGammas(gammas)
+    , fGammas(std::move(gammas))
 {}
 
 SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkGammas> gammas, GammaNamed gammaNamed,
                                      const SkMatrix44& toXYZD50, Named named)
     : INHERITED(gammaNamed, toXYZD50, named)
-    , fGammas(gammas)
+    , fGammas(std::move(gammas))
 {}
 
 SkColorSpace_Base::SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas,
                                      const SkMatrix44& toXYZD50)
     : INHERITED(kNonStandard_GammaNamed, toXYZD50, kUnknown_Named)
     , fColorLUT(colorLUT)
-    , fGammas(gammas)
+    , fGammas(std::move(gammas))
 {}
 
 const float gSRGB_toXYZD50[] {
@@ -82,7 +82,7 @@ static SkGammas* g2Dot2CurveGammas;
 static SkOnce gLinearGammasOnce;
 static SkGammas* gLinearGammas;
 
-sk_sp<SkColorSpace> SkColorSpace::NewRGB(float gammaVals[3], const SkMatrix44& toXYZD50) {
+sk_sp<SkColorSpace> SkColorSpace::NewRGB(const float gammaVals[3], const SkMatrix44& toXYZD50) {
     sk_sp<SkGammas> gammas = nullptr;
     GammaNamed gammaNamed = kNonStandard_GammaNamed;
 
@@ -795,7 +795,8 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                     gammaVals[2] = gammas->fBlue.fValue;
                     return SkColorSpace::NewRGB(gammaVals, mat);
                 } else {
-                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(gammas, mat, kUnknown_Named));
+                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(std::move(gammas), mat,
+                                                                     kUnknown_Named));
                 }
             }
 
@@ -813,8 +814,8 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                 sk_sp<SkGammas> gammas(new SkGammas(std::move(curves[0]), std::move(curves[1]),
                                                     std::move(curves[2])));
                 if (colorLUT->fTable) {
-                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(colorLUT.release(), gammas,
-                                                                     toXYZ));
+                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(colorLUT.release(),
+                                                                     std::move(gammas), toXYZ));
                 } else if (gammas->isValues()) {
                     // When we have values, take advantage of the NewFromRGB initializer.
                     // This allows us to check for canonical sRGB and Adobe RGB.
@@ -824,11 +825,10 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                     gammaVals[2] = gammas->fBlue.fValue;
                     return SkColorSpace::NewRGB(gammaVals, toXYZ);
                 } else {
-                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(gammas, toXYZ,
+                    return sk_sp<SkColorSpace>(new SkColorSpace_Base(std::move(gammas), toXYZ,
                                                                      kUnknown_Named));
                 }
             }
-
         }
         default:
             break;

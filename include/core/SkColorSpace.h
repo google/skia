@@ -10,7 +10,6 @@
 
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
-#include "../private/SkTemplates.h"
 
 class SkColorSpace : public SkRefCnt {
 public:
@@ -27,7 +26,7 @@ public:
     /**
      *  Create an SkColorSpace from the src gamma and a transform from src gamut to D50 XYZ.
      */
-    static sk_sp<SkColorSpace> NewRGB(float gammas[3], const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> NewRGB(const float gammas[3], const SkMatrix44& toXYZD50);
 
     /**
      *  Create a common, named SkColorSpace.
@@ -61,15 +60,15 @@ public:
     /**
      *  Returns the matrix used to transform src gamut to XYZ D50.
      */
-    SkMatrix44 xyz() const { return fToXYZD50; }
+    const SkMatrix44& xyz() const { return fToXYZD50; }
 
 protected:
 
     SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Named named);
 
-    const GammaNamed                  fGammaNamed;
-    const SkMatrix44                  fToXYZD50;
-    const Named                       fNamed;
+    const GammaNamed fGammaNamed;
+    const SkMatrix44 fToXYZD50;
+    const Named      fNamed;
 };
 
 #endif

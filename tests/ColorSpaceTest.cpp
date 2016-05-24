@@ -21,7 +21,7 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
                        const float red[], const float green[], const float blue[],
                        const float expectedGammas[]) {
 
-    SkGammas* gammas = as_CSB(space)->gammas();
+    const sk_sp<SkGammas>& gammas = as_CSB(space)->gammas();
     REPORTER_ASSERT(r, almost_equal(expectedGammas[0], gammas->fRed.fValue));
     REPORTER_ASSERT(r, almost_equal(expectedGammas[1], gammas->fGreen.fValue));
     REPORTER_ASSERT(r, almost_equal(expectedGammas[2], gammas->fBlue.fValue));
