@@ -369,7 +369,7 @@ typedef uint32_t SkMSec;
 
 /** Faster than SkToBool for integral conditions. Returns 0 or 1
 */
-static constexpr int Sk32ToBool(uint32_t n) {
+static inline constexpr int Sk32ToBool(uint32_t n) {
     return (n | (0-n)) >> 31;
 }
 
