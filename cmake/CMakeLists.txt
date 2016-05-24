@@ -244,15 +244,16 @@ endif()
 
 if (WIN32)
     list (APPEND libs FontSub.lib Usp10.lib)
+else()
+    list (APPEND libs pthread)
 endif()
 
 find_package(OpenGL REQUIRED)
 list (APPEND libs  ${OPENGL_LIBRARIES})
 
-# This is our main output, libskia.so.
-# We mostly build an .so here because it helps test we've linked everything,
-# not so much that we think Skia is a good candidate to ship as a shared library.
-add_library (skia SHARED ${srcs})
+# This is our main output, libskia.{a,so,dll,dylib,etc...}
+# You can control whether this is static or shared with BUILD_SHARED_LIBS.
+add_library (skia ${srcs})
 
 target_compile_definitions(skia
     PUBLIC  ${public_defines}
@@ -274,9 +275,12 @@ else()
 endif()
 
 set_target_properties(skia PROPERTIES
-    COMPILE_FLAGS ${cc_flags}
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN true)
+    COMPILE_FLAGS ${cc_flags})
+if (BUILD_SHARED_LIBS)
+    set_target_properties(skia PROPERTIES
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN true)
+endif()
 
 # Experimental C API install:
 file(GLOB c_headers "../include/c/*.h")
