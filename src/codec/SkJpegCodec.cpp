@@ -222,11 +222,15 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
 
         Origin orientation = get_exif_orientation(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = get_icc_profile(decoderMgr->dinfo());
+        if (!colorSpace) {
+            // Treat unmarked jpegs as sRGB.
+            colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        }
 
         const int width = decoderMgr->dinfo()->image_width;
         const int height = decoderMgr->dinfo()->image_height;
-        *codecOut = new SkJpegCodec(width, height, info, stream, decoderMgr.release(), colorSpace,
-                orientation);
+        *codecOut = new SkJpegCodec(width, height, info, stream, decoderMgr.release(),
+                std::move(colorSpace), orientation);
     } else {
         SkASSERT(nullptr != decoderMgrOut);
         *decoderMgrOut = decoderMgr.release();
@@ -248,7 +252,7 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
 
 SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
-    : INHERITED(width, height, info, stream, colorSpace, origin)
+    : INHERITED(width, height, info, stream, std::move(colorSpace), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzlerSubset(SkIRect::MakeEmpty())

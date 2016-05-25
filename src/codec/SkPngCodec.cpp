@@ -608,6 +608,11 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
 
     if (outCodec) {
         sk_sp<SkColorSpace> colorSpace = read_color_space(png_ptr, info_ptr);
+        if (!colorSpace) {
+            // Treat unmarked pngs as sRGB.
+            colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        }
+
         SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
 
         if (1 == numberPasses) {
