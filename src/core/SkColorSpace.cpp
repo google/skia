@@ -7,6 +7,7 @@
 
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
+#include "SkEndian.h"
 #include "SkOnce.h"
 
 static bool color_space_almost_equal(float a, float b) {
@@ -22,31 +23,35 @@ SkColorSpace::SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Na
 {}
 
 SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZD50,
-                                     Named named)
+                                     Named named, sk_sp<SkData> profileData)
     : INHERITED(kNonStandard_GammaNamed, toXYZD50, named)
     , fGammas(std::move(gammas))
+    , fProfileData(std::move(profileData))
 {}
 
 SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkGammas> gammas, GammaNamed gammaNamed,
-                                     const SkMatrix44& toXYZD50, Named named)
+                                     const SkMatrix44& toXYZD50, Named named,
+                                     sk_sp<SkData> profileData)
     : INHERITED(gammaNamed, toXYZD50, named)
     , fGammas(std::move(gammas))
+    , fProfileData(std::move(profileData))
 {}
 
 SkColorSpace_Base::SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas,
-                                     const SkMatrix44& toXYZD50)
+                                     const SkMatrix44& toXYZD50, sk_sp<SkData> profileData)
     : INHERITED(kNonStandard_GammaNamed, toXYZD50, kUnknown_Named)
     , fColorLUT(colorLUT)
     , fGammas(std::move(gammas))
+    , fProfileData(std::move(profileData))
 {}
 
-const float gSRGB_toXYZD50[] {
+static constexpr float gSRGB_toXYZD50[] {
     0.4358f, 0.2224f, 0.0139f,    // * R
     0.3853f, 0.7170f, 0.0971f,    // * G
     0.1430f, 0.0606f, 0.7139f,    // * B
 };
 
-const float gAdobeRGB_toXYZD50[] {
+static constexpr float gAdobeRGB_toXYZD50[] {
     0.6098f, 0.3111f, 0.0195f,    // * R
     0.2052f, 0.6257f, 0.0609f,    // * G
     0.1492f, 0.0632f, 0.7448f,    // * B
@@ -83,6 +88,11 @@ static SkOnce gLinearGammasOnce;
 static SkGammas* gLinearGammas;
 
 sk_sp<SkColorSpace> SkColorSpace::NewRGB(const float gammaVals[3], const SkMatrix44& toXYZD50) {
+    return SkColorSpace_Base::NewRGB(gammaVals, toXYZD50, nullptr);
+}
+
+sk_sp<SkColorSpace> SkColorSpace_Base::NewRGB(const float gammaVals[3], const SkMatrix44& toXYZD50,
+                                              sk_sp<SkData> profileData) {
     sk_sp<SkGammas> gammas = nullptr;
     GammaNamed gammaNamed = kNonStandard_GammaNamed;
 
@@ -116,7 +126,8 @@ sk_sp<SkColorSpace> SkColorSpace::NewRGB(const float gammaVals[3], const SkMatri
     if (!gammas) {
         gammas = sk_sp<SkGammas>(new SkGammas(gammaVals[0], gammaVals[1], gammaVals[2]));
     }
-    return sk_sp<SkColorSpace>(new SkColorSpace_Base(gammas, gammaNamed, toXYZD50, kUnknown_Named));
+    return sk_sp<SkColorSpace>(new SkColorSpace_Base(gammas, gammaNamed, toXYZD50, kUnknown_Named,
+                                                     std::move(profileData)));
 }
 
 sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
@@ -135,7 +146,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
                 SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
                 srgbToxyzD50.set3x3ColMajorf(gSRGB_toXYZD50);
                 sRGB = new SkColorSpace_Base(sk_ref_sp(g2Dot2CurveGammas), k2Dot2Curve_GammaNamed,
-                                             srgbToxyzD50, kSRGB_Named);
+                                             srgbToxyzD50, kSRGB_Named, nullptr);
             });
             return sk_ref_sp(sRGB);
         }
@@ -149,7 +160,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
                 adobergbToxyzD50.set3x3ColMajorf(gAdobeRGB_toXYZD50);
                 adobeRGB = new SkColorSpace_Base(sk_ref_sp(g2Dot2CurveGammas),
                                                  k2Dot2Curve_GammaNamed, adobergbToxyzD50,
-                                                 kAdobeRGB_Named);
+                                                 kAdobeRGB_Named, nullptr);
             });
             return sk_ref_sp(adobeRGB);
         }
@@ -195,12 +206,17 @@ static int32_t read_big_endian_int(const uint8_t* ptr) {
 // This is equal to the header size according to the ICC specification (128)
 // plus the size of the tag count (4).  We include the tag count since we
 // always require it to be present anyway.
-static const size_t kICCHeaderSize = 132;
+static constexpr size_t kICCHeaderSize = 132;
 
 // Contains a signature (4), offset (4), and size (4).
-static const size_t kICCTagTableEntrySize = 12;
+static constexpr size_t kICCTagTableEntrySize = 12;
 
-static const uint32_t kRGB_ColorSpace  = SkSetFourByteTag('R', 'G', 'B', ' ');
+static constexpr uint32_t kRGB_ColorSpace  = SkSetFourByteTag('R', 'G', 'B', ' ');
+static constexpr uint32_t kDisplay_Profile = SkSetFourByteTag('m', 'n', 't', 'r');
+static constexpr uint32_t kInput_Profile   = SkSetFourByteTag('s', 'c', 'n', 'r');
+static constexpr uint32_t kOutput_Profile  = SkSetFourByteTag('p', 'r', 't', 'r');
+static constexpr uint32_t kXYZ_PCSSpace    = SkSetFourByteTag('X', 'Y', 'Z', ' ');
+static constexpr uint32_t kACSP_Signature  = SkSetFourByteTag('a', 'c', 's', 'p');
 
 struct ICCProfileHeader {
     uint32_t fSize;
@@ -266,9 +282,6 @@ struct ICCProfileHeader {
         // These are the three basic classes of profiles that we might expect to see embedded
         // in images.  Four additional classes exist, but they generally are used as a convenient
         // way for CMMs to store calculated transforms.
-        const uint32_t kDisplay_Profile = SkSetFourByteTag('m', 'n', 't', 'r');
-        const uint32_t kInput_Profile   = SkSetFourByteTag('s', 'c', 'n', 'r');
-        const uint32_t kOutput_Profile  = SkSetFourByteTag('p', 'r', 't', 'r');
         return_if_false(fProfileClass == kDisplay_Profile ||
                         fProfileClass == kInput_Profile ||
                         fProfileClass == kOutput_Profile,
@@ -280,10 +293,9 @@ struct ICCProfileHeader {
 
         // TODO (msarett):
         // All the profiles we've tested so far use XYZ as the profile connection space.
-        const uint32_t kXYZ_PCSSpace = SkSetFourByteTag('X', 'Y', 'Z', ' ');
         return_if_false(fPCS == kXYZ_PCSSpace, "Unsupported PCS space");
 
-        return_if_false(fSignature == SkSetFourByteTag('a', 'c', 's', 'p'), "Bad signature");
+        return_if_false(fSignature == kACSP_Signature, "Bad signature");
 
         // TODO (msarett):
         // Should we treat different rendering intents differently?
@@ -333,13 +345,13 @@ struct ICCTag {
     }
 };
 
-static const uint32_t kTAG_rXYZ = SkSetFourByteTag('r', 'X', 'Y', 'Z');
-static const uint32_t kTAG_gXYZ = SkSetFourByteTag('g', 'X', 'Y', 'Z');
-static const uint32_t kTAG_bXYZ = SkSetFourByteTag('b', 'X', 'Y', 'Z');
-static const uint32_t kTAG_rTRC = SkSetFourByteTag('r', 'T', 'R', 'C');
-static const uint32_t kTAG_gTRC = SkSetFourByteTag('g', 'T', 'R', 'C');
-static const uint32_t kTAG_bTRC = SkSetFourByteTag('b', 'T', 'R', 'C');
-static const uint32_t kTAG_A2B0 = SkSetFourByteTag('A', '2', 'B', '0');
+static constexpr uint32_t kTAG_rXYZ = SkSetFourByteTag('r', 'X', 'Y', 'Z');
+static constexpr uint32_t kTAG_gXYZ = SkSetFourByteTag('g', 'X', 'Y', 'Z');
+static constexpr uint32_t kTAG_bXYZ = SkSetFourByteTag('b', 'X', 'Y', 'Z');
+static constexpr uint32_t kTAG_rTRC = SkSetFourByteTag('r', 'T', 'R', 'C');
+static constexpr uint32_t kTAG_gTRC = SkSetFourByteTag('g', 'T', 'R', 'C');
+static constexpr uint32_t kTAG_bTRC = SkSetFourByteTag('b', 'T', 'R', 'C');
+static constexpr uint32_t kTAG_A2B0 = SkSetFourByteTag('A', '2', 'B', '0');
 
 bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
     if (len < 20) {
@@ -354,8 +366,8 @@ bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
     return true;
 }
 
-static const uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
-static const uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', 'a');
+static constexpr uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
+static constexpr uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', 'a');
 
 bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, size_t len) {
     for (uint32_t i = 0; i < numGammas; i++) {
@@ -563,7 +575,7 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
     return true;
 }
 
-static const uint32_t kTAG_AtoBType = SkSetFourByteTag('m', 'A', 'B', ' ');
+static constexpr uint32_t kTAG_AtoBType = SkSetFourByteTag('m', 'A', 'B', ' ');
 
 bool load_color_lut(SkColorLookUpTable* colorLUT, uint32_t inputChannels, uint32_t outputChannels,
                     const uint8_t* src, size_t len) {
@@ -705,12 +717,17 @@ bool load_a2b0(SkColorLookUpTable* colorLUT, SkGammaCurve* gammas, SkMatrix44* t
     return true;
 }
 
-sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
-    const uint8_t* ptr = (const uint8_t*) base;
-
+sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
     if (len < kICCHeaderSize) {
         return_null("Data is not large enough to contain an ICC profile");
     }
+
+    // Create our own copy of the input.
+    void* memory = sk_malloc_throw(len);
+    memcpy(memory, input, len);
+    sk_sp<SkData> data = SkData::MakeFromMalloc(memory, len);
+    const void* base = data->data();
+    const uint8_t* ptr = (const uint8_t*) base;
 
     // Read the ICC profile header and check to make sure that it is valid.
     ICCProfileHeader header;
@@ -793,10 +810,11 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                     gammaVals[0] = gammas->fRed.fValue;
                     gammaVals[1] = gammas->fGreen.fValue;
                     gammaVals[2] = gammas->fBlue.fValue;
-                    return SkColorSpace::NewRGB(gammaVals, mat);
+                    return SkColorSpace_Base::NewRGB(gammaVals, mat, std::move(data));
                 } else {
                     return sk_sp<SkColorSpace>(new SkColorSpace_Base(std::move(gammas), mat,
-                                                                     kUnknown_Named));
+                                                                     kUnknown_Named,
+                                                                     std::move(data)));
                 }
             }
 
@@ -815,7 +833,8 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                                                     std::move(curves[2])));
                 if (colorLUT->fTable) {
                     return sk_sp<SkColorSpace>(new SkColorSpace_Base(colorLUT.release(),
-                                                                     std::move(gammas), toXYZ));
+                                                                     std::move(gammas), toXYZ,
+                                                                     std::move(data)));
                 } else if (gammas->isValues()) {
                     // When we have values, take advantage of the NewFromRGB initializer.
                     // This allows us to check for canonical sRGB and Adobe RGB.
@@ -823,10 +842,11 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
                     gammaVals[0] = gammas->fRed.fValue;
                     gammaVals[1] = gammas->fGreen.fValue;
                     gammaVals[2] = gammas->fBlue.fValue;
-                    return SkColorSpace::NewRGB(gammaVals, toXYZ);
+                    return SkColorSpace_Base::NewRGB(gammaVals, toXYZ, std::move(data));
                 } else {
                     return sk_sp<SkColorSpace>(new SkColorSpace_Base(std::move(gammas), toXYZ,
-                                                                     kUnknown_Named));
+                                                                     kUnknown_Named,
+                                                                     std::move(data)));
                 }
             }
         }
@@ -835,4 +855,203 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* base, size_t len) {
     }
 
     return_null("ICC profile contains unsupported colorspace");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// We will write a profile with the minimum nine required tags.
+static constexpr uint32_t kICCNumEntries = 9;
+
+static constexpr uint32_t kTAG_desc = SkSetFourByteTag('d', 'e', 's', 'c');
+static constexpr uint32_t kTAG_desc_Bytes = 12;
+static constexpr uint32_t kTAG_desc_Offset = kICCHeaderSize + kICCNumEntries*kICCTagTableEntrySize;
+
+static constexpr uint32_t kTAG_XYZ_Bytes = 20;
+static constexpr uint32_t kTAG_rXYZ_Offset = kTAG_desc_Offset + kTAG_desc_Bytes;
+static constexpr uint32_t kTAG_gXYZ_Offset = kTAG_rXYZ_Offset + kTAG_XYZ_Bytes;
+static constexpr uint32_t kTAG_bXYZ_Offset = kTAG_gXYZ_Offset + kTAG_XYZ_Bytes;
+
+static constexpr uint32_t kTAG_TRC_Bytes = 14;
+static constexpr uint32_t kTAG_rTRC_Offset = kTAG_bXYZ_Offset + kTAG_XYZ_Bytes;
+static constexpr uint32_t kTAG_gTRC_Offset = kTAG_rTRC_Offset + SkAlign4(kTAG_TRC_Bytes);
+static constexpr uint32_t kTAG_bTRC_Offset = kTAG_gTRC_Offset + SkAlign4(kTAG_TRC_Bytes);
+
+static constexpr uint32_t kTAG_wtpt = SkSetFourByteTag('w', 't', 'p', 't');
+static constexpr uint32_t kTAG_wtpt_Offset = kTAG_bTRC_Offset + SkAlign4(kTAG_TRC_Bytes);
+
+static constexpr uint32_t kTAG_cprt = SkSetFourByteTag('c', 'p', 'r', 't');
+static constexpr uint32_t kTAG_cprt_Bytes = 12;
+static constexpr uint32_t kTAG_cprt_Offset = kTAG_wtpt_Offset + kTAG_XYZ_Bytes;
+
+static constexpr uint32_t kICCProfileSize = kTAG_cprt_Offset + kTAG_cprt_Bytes;
+
+static constexpr uint32_t gICCHeader[kICCHeaderSize / 4] {
+    SkEndian_SwapBE32(kICCProfileSize),  // Size of the profile
+    0,                                   // Preferred CMM type (ignored)
+    SkEndian_SwapBE32(0x02100000),       // Version 2.1
+    SkEndian_SwapBE32(kDisplay_Profile), // Display device profile
+    SkEndian_SwapBE32(kRGB_ColorSpace),  // RGB input color space
+    SkEndian_SwapBE32(kXYZ_PCSSpace),    // XYZ profile connection space
+    0, 0, 0,                             // Date and time (ignored)
+    SkEndian_SwapBE32(kACSP_Signature),  // Profile signature
+    0,                                   // Platform target (ignored)
+    0x00000000,                          // Flags: not embedded, can be used independently
+    0,                                   // Device manufacturer (ignored)
+    0,                                   // Device model (ignored)
+    0, 0,                                // Device attributes (ignored)
+    SkEndian_SwapBE32(1),                // Relative colorimetric rendering intent
+    SkEndian_SwapBE32(0x0000f6d6),       // D50 standard illuminant (X)
+    SkEndian_SwapBE32(0x00010000),       // D50 standard illuminant (Y)
+    SkEndian_SwapBE32(0x0000d32d),       // D50 standard illuminant (Z)
+    0,                                   // Profile creator (ignored)
+    0, 0, 0, 0,                          // Profile id checksum (ignored)
+    0, 0, 0, 0, 0, 0, 0,                 // Reserved (ignored)
+    SkEndian_SwapBE32(kICCNumEntries),   // Number of tags
+};
+
+static constexpr uint32_t gICCTagTable[3 * kICCNumEntries] {
+    // Profile description
+    SkEndian_SwapBE32(kTAG_desc),
+    SkEndian_SwapBE32(kTAG_desc_Offset),
+    SkEndian_SwapBE32(kTAG_desc_Bytes),
+
+    // rXYZ
+    SkEndian_SwapBE32(kTAG_rXYZ),
+    SkEndian_SwapBE32(kTAG_rXYZ_Offset),
+    SkEndian_SwapBE32(kTAG_XYZ_Bytes),
+
+    // gXYZ
+    SkEndian_SwapBE32(kTAG_gXYZ),
+    SkEndian_SwapBE32(kTAG_gXYZ_Offset),
+    SkEndian_SwapBE32(kTAG_XYZ_Bytes),
+
+    // bXYZ
+    SkEndian_SwapBE32(kTAG_bXYZ),
+    SkEndian_SwapBE32(kTAG_bXYZ_Offset),
+    SkEndian_SwapBE32(kTAG_XYZ_Bytes),
+
+    // rTRC
+    SkEndian_SwapBE32(kTAG_rTRC),
+    SkEndian_SwapBE32(kTAG_rTRC_Offset),
+    SkEndian_SwapBE32(kTAG_TRC_Bytes),
+
+    // gTRC
+    SkEndian_SwapBE32(kTAG_gTRC),
+    SkEndian_SwapBE32(kTAG_gTRC_Offset),
+    SkEndian_SwapBE32(kTAG_TRC_Bytes),
+
+    // bTRC
+    SkEndian_SwapBE32(kTAG_bTRC),
+    SkEndian_SwapBE32(kTAG_bTRC_Offset),
+    SkEndian_SwapBE32(kTAG_TRC_Bytes),
+
+    // White point
+    SkEndian_SwapBE32(kTAG_wtpt),
+    SkEndian_SwapBE32(kTAG_wtpt_Offset),
+    SkEndian_SwapBE32(kTAG_XYZ_Bytes),
+
+    // Copyright
+    SkEndian_SwapBE32(kTAG_cprt),
+    SkEndian_SwapBE32(kTAG_cprt_Offset),
+    SkEndian_SwapBE32(kTAG_cprt_Bytes),
+};
+
+static constexpr uint32_t kTAG_TextType = SkSetFourByteTag('m', 'l', 'u', 'c');
+static constexpr uint32_t gEmptyTextTag[3] {
+    SkEndian_SwapBE32(kTAG_TextType), // Type signature
+    0,                                // Reserved
+    0,                                // Zero records
+};
+
+static void write_xyz_tag(uint32_t* ptr, const SkMatrix44& toXYZ, int row) {
+    ptr[0] = SkEndian_SwapBE32(kXYZ_PCSSpace);
+    ptr[1] = 0;
+    ptr[2] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(row, 0)));
+    ptr[3] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(row, 1)));
+    ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(row, 2)));
+}
+
+static void write_trc_tag(uint32_t* ptr, float value) {
+    ptr[0] = SkEndian_SwapBE32(kTAG_CurveType);
+    ptr[1] = 0;
+
+    // Gamma will be specified with a single value.
+    ptr[2] = SkEndian_SwapBE32(1);
+
+    // Convert gamma to 16-bit fixed point.
+    uint16_t* ptr16 = (uint16_t*) (ptr + 3);
+    ptr16[0] = SkEndian_SwapBE16((uint16_t) (value * 256.0f));
+
+    // Pad tag with zero.
+    ptr16[1] = 0;
+}
+
+sk_sp<SkData> SkColorSpace_Base::writeToICC() const {
+    // Return if this object was created from a profile, or if we have already serialized
+    // the profile.
+    if (fProfileData) {
+        return fProfileData;
+    }
+
+    // The client may create an SkColorSpace using an SkMatrix44, but currently we only
+    // support writing profiles with 3x3 matrices.
+    // TODO (msarett): Fix this!
+    if (0.0f != fToXYZD50.getFloat(3, 0) || 0.0f != fToXYZD50.getFloat(3, 1) ||
+        0.0f != fToXYZD50.getFloat(3, 2) || 0.0f != fToXYZD50.getFloat(0, 3) ||
+        0.0f != fToXYZD50.getFloat(1, 3) || 0.0f != fToXYZD50.getFloat(2, 3))
+    {
+        return nullptr;
+    }
+
+    SkAutoMalloc profile(kICCProfileSize);
+    uint8_t* ptr = (uint8_t*) profile.get();
+
+    // Write profile header
+    memcpy(ptr, gICCHeader, sizeof(gICCHeader));
+    ptr += sizeof(gICCHeader);
+
+    // Write tag table
+    memcpy(ptr, gICCTagTable, sizeof(gICCTagTable));
+    ptr += sizeof(gICCTagTable);
+
+    // Write profile description tag
+    memcpy(ptr, gEmptyTextTag, sizeof(gEmptyTextTag));
+    ptr += sizeof(gEmptyTextTag);
+
+    // Write XYZ tags
+    write_xyz_tag((uint32_t*) ptr, fToXYZD50, 0);
+    ptr += kTAG_XYZ_Bytes;
+    write_xyz_tag((uint32_t*) ptr, fToXYZD50, 1);
+    ptr += kTAG_XYZ_Bytes;
+    write_xyz_tag((uint32_t*) ptr, fToXYZD50, 2);
+    ptr += kTAG_XYZ_Bytes;
+
+    // Write TRC tags
+    SkASSERT(as_CSB(this)->fGammas->fRed.isValue());
+    write_trc_tag((uint32_t*) ptr, as_CSB(this)->fGammas->fRed.fValue);
+    ptr += SkAlign4(kTAG_TRC_Bytes);
+    SkASSERT(as_CSB(this)->fGammas->fGreen.isValue());
+    write_trc_tag((uint32_t*) ptr, as_CSB(this)->fGammas->fGreen.fValue);
+    ptr += SkAlign4(kTAG_TRC_Bytes);
+    SkASSERT(as_CSB(this)->fGammas->fBlue.isValue());
+    write_trc_tag((uint32_t*) ptr, as_CSB(this)->fGammas->fBlue.fValue);
+    ptr += SkAlign4(kTAG_TRC_Bytes);
+
+    // Write white point tag
+    uint32_t* ptr32 = (uint32_t*) ptr;
+    ptr32[0] = SkEndian_SwapBE32(kXYZ_PCSSpace);
+    ptr32[1] = 0;
+    // TODO (msarett): These values correspond to the D65 white point.  This may not always be
+    //                 correct.
+    ptr32[2] = SkEndian_SwapBE32(0x0000f351);
+    ptr32[3] = SkEndian_SwapBE32(0x00010000);
+    ptr32[4] = SkEndian_SwapBE32(0x000116cc);
+    ptr += kTAG_XYZ_Bytes;
+
+    // Write copyright tag
+    memcpy(ptr, gEmptyTextTag, sizeof(gEmptyTextTag));
+
+    // TODO (msarett): Should we try to hold onto the data so we can return immediately if
+    //                 the client calls again?
+    return SkData::MakeFromMalloc(profile.release(), kICCProfileSize);
 }

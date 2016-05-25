@@ -9,6 +9,7 @@
 #define SkColorSpace_Base_DEFINED
 
 #include "SkColorSpace.h"
+#include "SkData.h"
 #include "SkTemplates.h"
 
 struct SkGammaCurve {
@@ -116,18 +117,28 @@ public:
 
     const sk_sp<SkGammas>& gammas() const { return fGammas; }
 
+    /**
+     *  Writes this object as an ICC profile.
+     */
+    sk_sp<SkData> writeToICC() const;
+
 private:
 
-    SkColorSpace_Base(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, Named);
+    static sk_sp<SkColorSpace> NewRGB(const float gammas[3], const SkMatrix44& toXYZD50,
+                                      sk_sp<SkData> profileData);
+
+    SkColorSpace_Base(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, Named,
+                      sk_sp<SkData> profileData);
 
     SkColorSpace_Base(sk_sp<SkGammas> gammas, GammaNamed gammaNamed, const SkMatrix44& toXYZ,
-                      Named);
+                      Named, sk_sp<SkData> profileData);
 
     SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas,
-                      const SkMatrix44& toXYZ);
+                      const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
 
     SkAutoTDelete<SkColorLookUpTable> fColorLUT;
     sk_sp<SkGammas>                   fGammas;
+    sk_sp<SkData>                     fProfileData;
 
     friend class SkColorSpace;
     typedef SkColorSpace INHERITED;
@@ -135,6 +146,10 @@ private:
 
 static inline SkColorSpace_Base* as_CSB(SkColorSpace* colorSpace) {
     return static_cast<SkColorSpace_Base*>(colorSpace);
+}
+
+static inline const SkColorSpace_Base* as_CSB(const SkColorSpace* colorSpace) {
+    return static_cast<const SkColorSpace_Base*>(colorSpace);
 }
 
 static inline SkColorSpace_Base* as_CSB(const sk_sp<SkColorSpace>& colorSpace) {
