@@ -9,11 +9,13 @@
 #define SkPictureAnalyzer_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkRegion.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 
+class SkPath;
 class SkPicture;
 
 /** \class SkPictureGpuAnalyzer
@@ -29,7 +31,15 @@ public:
     /**
      *  Process the given picture and accumulate its stats.
      */
-    void analyze(const SkPicture*);
+    void analyzePicture(const SkPicture*);
+
+    // Legacy/transitional alias.
+    void analyze(const SkPicture* picture) { this->analyzePicture(picture); }
+
+    /**
+     *  Process an explicit clipPath op.
+     */
+    void analyzeClipPath(const SkPath&, SkRegion::Op, bool doAntiAlias);
 
     /**
      *  Reset all accumulated stats.

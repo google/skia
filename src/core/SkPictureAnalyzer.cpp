@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPictureAnalyzer.h"
+#include "SkPictureCommon.h"
+#include "SkRecords.h"
 
 #if SK_SUPPORT_GPU
 
@@ -27,12 +30,28 @@ SkPictureGpuAnalyzer::SkPictureGpuAnalyzer(const sk_sp<SkPicture>& picture,
     this->analyze(picture.get());
 }
 
-void SkPictureGpuAnalyzer::analyze(const SkPicture* picture) {
+void SkPictureGpuAnalyzer::analyzePicture(const SkPicture* picture) {
     if (!picture || veto_predicate(fNumSlowPaths)) {
         return;
     }
 
     fNumSlowPaths += picture->numSlowPaths();
+}
+
+void SkPictureGpuAnalyzer::analyzeClipPath(const SkPath& path, SkRegion::Op op, bool doAntiAlias) {
+    if (veto_predicate(fNumSlowPaths)) {
+        return;
+    }
+
+    const SkRecords::ClipPath clipOp = {
+        SkIRect::MakeEmpty(), // Willie don't care.
+        path,
+        SkRecords::RegionOpAndAA(op, doAntiAlias)
+    };
+
+    SkPathCounter counter;
+    counter(clipOp);
+    fNumSlowPaths += counter.fNumSlowPathsAndDashEffects;
 }
 
 void SkPictureGpuAnalyzer::reset() {

@@ -135,6 +135,25 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
 
 #if SK_SUPPORT_GPU
 
+static SkPath make_convex_path() {
+    SkPath path;
+    path.lineTo(100, 0);
+    path.lineTo(50, 100);
+    path.close();
+
+    return path;
+}
+
+static SkPath make_concave_path() {
+    SkPath path;
+    path.lineTo(50, 50);
+    path.lineTo(100, 0);
+    path.lineTo(50, 100);
+    path.close();
+
+    return path;
+}
+
 static void test_gpu_veto(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
 
@@ -259,6 +278,34 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     }
     picture = recorder.finishRecordingAsPicture();
     // ... but only when applied to drawPoint() calls
+    REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
+
+    canvas = recorder.beginRecording(100, 100);
+    {
+        const SkPath convexClip = make_convex_path();
+        const SkPath concaveClip = make_concave_path();
+
+        for (int i = 0; i < 50; ++i) {
+            canvas->clipPath(convexClip);
+            canvas->clipPath(concaveClip);
+            canvas->clipPath(convexClip, SkRegion::kIntersect_Op, true);
+            canvas->drawRect(SkRect::MakeWH(100, 100), SkPaint());
+        }
+    }
+    picture = recorder.finishRecordingAsPicture();
+    // Convex clips and non-AA concave clips are fine on the GPU.
+    REPORTER_ASSERT(reporter, SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
+
+    canvas = recorder.beginRecording(100, 100);
+    {
+        const SkPath concaveClip = make_concave_path();
+        for (int i = 0; i < 50; ++i) {
+            canvas->clipPath(concaveClip, SkRegion::kIntersect_Op, true);
+            canvas->drawRect(SkRect::MakeWH(100, 100), SkPaint());
+        }
+    }
+    picture = recorder.finishRecordingAsPicture();
+    // ... but AA concave clips are not.
     REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
 
     // Nest the previous picture inside a new one.
@@ -1379,6 +1426,22 @@ DEF_TEST(PictureGpuAnalyzer, r) {
     sk_sp<SkPicture> nestedVetoPicture(recorder.finishRecordingAsPicture());
 
     analyzer.analyze(nestedVetoPicture.get());
+    REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
+
+    analyzer.reset();
+
+    const SkPath convexClip = make_convex_path();
+    const SkPath concaveClip = make_concave_path();
+    for (int i = 0; i < 50; ++i) {
+        analyzer.analyzeClipPath(convexClip, SkRegion::kIntersect_Op, false);
+        analyzer.analyzeClipPath(convexClip, SkRegion::kIntersect_Op, true);
+        analyzer.analyzeClipPath(concaveClip, SkRegion::kIntersect_Op, false);
+    }
+    REPORTER_ASSERT(r, analyzer.suitableForGpuRasterization());
+
+    for (int i = 0; i < 50; ++i) {
+        analyzer.analyzeClipPath(concaveClip, SkRegion::kIntersect_Op, true);
+    }
     REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
 }
 
