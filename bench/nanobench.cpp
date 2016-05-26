@@ -123,6 +123,8 @@ DEFINE_string(sourceType, "",
 DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, playback, skcodec, etc.");
 
+DEFINE_bool(forceSRGB, false, "Force SRGB for imageinfos");
+
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {
@@ -1002,6 +1004,8 @@ static void start_keepalive() {
     intentionallyLeaked->start();
 }
 
+extern bool gDefaultProfileIsSRGB;
+
 int nanobench_main();
 int nanobench_main() {
     SetupCrashHandler();
@@ -1012,6 +1016,10 @@ int nanobench_main() {
     GrContextOptions grContextOpts;
     gGrFactory.reset(new GrContextFactory(grContextOpts));
 #endif
+
+    if (FLAGS_forceSRGB) {
+        gDefaultProfileIsSRGB = true;
+    }
 
     if (FLAGS_veryVerbose) {
         FLAGS_verbose = true;
