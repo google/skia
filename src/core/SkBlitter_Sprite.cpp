@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkOpts.h"
 #include "SkSmallAllocator.h"
 #include "SkSpriteBlitter.h"
 
@@ -43,7 +44,7 @@ void SkSpriteBlitter::blitMask(const SkMask&, const SkIRect& clip) {
 //      2. paint has no modifiers (i.e. alpha, colorfilter, etc.)
 //      3. xfermode needs no blending: e.g. kSrc_Mode or kSrcOver_Mode + opaque src
 //
-class SkSpriteBlitter_memcpy : public SkSpriteBlitter {
+class SkSpriteBlitter_Src_SrcOver : public SkSpriteBlitter {
 public:
     static bool Supports(const SkPixmap& dst, const SkPixmap& src, const SkPaint& paint) {
         if (dst.colorType() != src.colorType()) {
@@ -68,14 +69,32 @@ public:
         if (SkXfermode::kSrcOver_Mode == mode && src.isOpaque()) {
             return true;
         }
-        return false;
+
+        // At this point memcpy can't be used. The following check for using SrcOver.
+
+        if (dst.colorType() != kN32_SkColorType
+            || dst.info().profileType() != kSRGB_SkColorProfileType) {
+            return false;
+        }
+
+        return SkXfermode::kSrcOver_Mode == mode;
     }
 
-    SkSpriteBlitter_memcpy(const SkPixmap& src)  : INHERITED(src) {}
+    SkSpriteBlitter_Src_SrcOver(const SkPixmap& src)  : INHERITED(src) {}
 
     void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {
         SkASSERT(Supports(dst, fSource, paint));
         this->INHERITED::setup(dst, left, top, paint);
+        SkXfermode::Mode mode;
+        if (!SkXfermode::AsMode(paint.getXfermode(), &mode)) {
+            SkFAIL("Should never happen.");
+        }
+
+        SkASSERT(mode == SkXfermode::kSrcOver_Mode || mode == SkXfermode::kSrc_Mode);
+
+        if (mode == SkXfermode::kSrcOver_Mode && !fSource.isOpaque()) {
+            fUseMemcpy = false;
+        }
     }
 
     void blitRect(int x, int y, int width, int height) override {
@@ -83,22 +102,37 @@ public:
         SkASSERT(fDst.info().profileType() == fSource.info().profileType());
         SkASSERT(width > 0 && height > 0);
 
-        char* dst = (char*)fDst.writable_addr(x, y);
-        const char* src = (const char*)fSource.addr(x - fLeft, y - fTop);
-        const size_t dstRB = fDst.rowBytes();
-        const size_t srcRB = fSource.rowBytes();
-        const size_t bytesToCopy = width << fSource.shiftPerPixel();
+        if (fUseMemcpy) {
+            char* dst = (char*)fDst.writable_addr(x, y);
+            const char* src = (const char*)fSource.addr(x - fLeft, y - fTop);
+            const size_t dstRB = fDst.rowBytes();
+            const size_t srcRB = fSource.rowBytes();
+            const size_t bytesToCopy = width << fSource.shiftPerPixel();
 
-        while (--height >= 0) {
-            memcpy(dst, src, bytesToCopy);
-            dst += dstRB;
-            src += srcRB;
+            while (height --> 0) {
+                memcpy(dst, src, bytesToCopy);
+                dst += dstRB;
+                src += srcRB;
+            }
+        } else {
+            uint32_t* dst       = fDst.writable_addr32(x, y);
+            const uint32_t* src = fSource.addr32(x - fLeft, y - fTop);
+            const int dstStride = fDst.rowBytesAsPixels();
+            const int srcStride = fSource.rowBytesAsPixels();
+
+            while (height --> 0) {
+                SkOpts::srcover_srgb_srgb(dst, src, width, width);
+                dst += dstStride;
+                src += srcStride;
+            }
         }
     }
 
+private:
     typedef SkSpriteBlitter INHERITED;
-};
 
+    bool fUseMemcpy {true};
+};
 
 // returning null means the caller will call SkBlitter::Choose() and
 // have wrapped the source bitmap inside a shader
@@ -115,10 +149,10 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     */
     SkASSERT(allocator != nullptr);
 
-    SkSpriteBlitter* blitter;
+    SkSpriteBlitter* blitter = nullptr;
 
-    if (SkSpriteBlitter_memcpy::Supports(dst, source, paint)) {
-        blitter = allocator->createT<SkSpriteBlitter_memcpy>(source);
+    if (SkSpriteBlitter_Src_SrcOver::Supports(dst, source, paint)) {
+        blitter = allocator->createT<SkSpriteBlitter_Src_SrcOver>(source);
     } else {
         switch (dst.colorType()) {
             case kRGB_565_SkColorType:
@@ -135,7 +169,6 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
                 blitter = SkSpriteBlitter::ChooseF16(source, paint, allocator);
                 break;
             default:
-                blitter = nullptr;
                 break;
         }
     }
