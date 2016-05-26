@@ -96,5 +96,4 @@ DEF_TEST(PathOpsOpCubicsThreaded, reporter) {
     }
 finish:
     testRunner.render();
-    ShowTestArray("cubicOp");
 }

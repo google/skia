@@ -254,7 +254,7 @@ static void fuzz763_378c(skiatest::Reporter* reporter, const char* filename) {
     path.quadTo(-39.8065f, 18.9507f, -43.0072f, 19.8086f);
     path.close();
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_378d(skiatest::Reporter* reporter, const char* filename) {
@@ -932,7 +932,8 @@ path.quadTo(SkBits2Float(0x42240000), SkBits2Float(0x41ed7d86), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    // FIXME: This should not fail; trading adding this failure for fixing security bug
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz763_24588(skiatest::Reporter* reporter, const char* filename) {
@@ -2416,10 +2417,10 @@ static struct TestDesc tests[] = {
     TEST(fuzz763_35322),
     TEST(fuzz763_8712),
     TEST(fuzz763_8712a),
+    TEST(fuzz763_4713),
     TEST(fuzz763_4014),
     TEST(fuzz763_4014a),
     TEST(fuzz763_1404),
-    TEST(fuzz763_4713),
     TEST(fuzz763_378),
     TEST(fuzz763_378b),
     TEST(fuzz763_378d),

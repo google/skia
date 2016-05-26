@@ -79,5 +79,4 @@ DEF_TEST(PathOpsOpCircleThreaded, reporter) {
     }
 finish:
     testRunner.render();
-    ShowTestArray("circleOp");
 }

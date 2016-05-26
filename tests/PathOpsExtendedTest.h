@@ -58,7 +58,6 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
                 void (*firstTest)(skiatest::Reporter* , const char* filename),
                 void (*skipTest)(skiatest::Reporter* , const char* filename),
                 void (*stopTest)(skiatest::Reporter* , const char* filename), bool reverse);
-void ShowTestArray(const char* testName);
 void ShowTestName(PathOpsThreadState* data, int a, int b, int c, int d);
 void ShowFunctionHeader(const char* name);
 void ShowPath(const SkPath& path, const char* pathName);

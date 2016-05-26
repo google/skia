@@ -299,8 +299,6 @@ int comparePaths(skiatest::Reporter* reporter, const char* filename, const SkPat
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
 }
 
-const int gTestFirst = 41;
-static int gTestNo = gTestFirst;
 static SkTDArray<SkPathOp> gTestOp;
 
 static void showPathOpPath(const char* testName, const SkPath& one, const SkPath& two,
@@ -310,25 +308,15 @@ static void showPathOpPath(const char* testName, const SkPath& one, const SkPath
     if (!testName) {
         testName = "xOp";
     }
-    SkDebugf("static void %s%d%s(skiatest::Reporter* reporter, const char* filename) {\n",
-        testName, gTestNo, opSuffixes[shapeOp]);
+    SkDebugf("static void %s_%s(skiatest::Reporter* reporter, const char* filename) {\n",
+        testName, opSuffixes[shapeOp]);
     *gTestOp.append() = shapeOp;
-    ++gTestNo;
     SkDebugf("    SkPath path, pathB;\n");
     SkPathOpsDebug::ShowOnePath(a, "path", false);
     SkPathOpsDebug::ShowOnePath(b, "pathB", false);
     SkDebugf("    testPathOp(reporter, path, pathB, %s, filename);\n", opStrs[shapeOp]);
     SkDebugf("}\n");
     drawAsciiPaths(scaledOne, scaledTwo, true);
-}
-
-void ShowTestArray(const char* testName) {
-    if (!testName) {
-        testName = "xOp";
-    }
-    for (int x = gTestFirst; x < gTestNo; ++x) {
-        SkDebugf("    TEST(%s%d%s),\n", testName, x, opSuffixes[gTestOp[x - gTestFirst]]);
-    }
 }
 
 SK_DECLARE_STATIC_MUTEX(compareDebugOut3);

@@ -512,7 +512,7 @@ int SkTSpan<TCurve, OppCurve>::hullCheck(const SkTSpan<OppCurve, TCurve>* opp,
         }
         fIsLinear = true;
         fIsLine = fPart.controlsInside();
-        return ptsInCommon ? 2 : -1;
+        return ptsInCommon ? 1 : -1;
     } else {  // hull is not linear; check set true if intersected at the end points
         return ((int) ptsInCommon) << 1;  // 0 or 2
     }
