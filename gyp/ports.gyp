@@ -12,6 +12,7 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
+        'qcms.gyp:qcms',
       ],
       'include_dirs': [
         '../include/effects',
