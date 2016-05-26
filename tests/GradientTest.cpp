@@ -234,6 +234,25 @@ static void test_two_point_conical_zero_radius(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkGetPackedR32(centerPMColor) == 0);
 }
 
+// http://crbug.com/599458
+static void test_clamping_overflow(skiatest::Reporter*) {
+    SkPaint p;
+    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
+    const SkPoint pts1[] = { SkPoint::Make(1001, 1000001), SkPoint::Make(1000.99f, 1000000) };
+
+    p.setShader(SkGradientShader::MakeLinear(pts1, colors, nullptr, 2, SkShader::kClamp_TileMode));
+
+    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(50, 50));
+    surface->getCanvas()->scale(100, 100);
+    surface->getCanvas()->drawPaint(p);
+
+    const SkPoint pts2[] = { SkPoint::Make(10000.99f, 1000000), SkPoint::Make(10001, 1000001) };
+    p.setShader(SkGradientShader::MakeLinear(pts2, colors, nullptr, 2, SkShader::kClamp_TileMode));
+    surface->getCanvas()->drawPaint(p);
+
+    // Passes if we don't trigger asserts.
+}
+
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
     TestConstantGradient(reporter);
@@ -241,4 +260,5 @@ DEF_TEST(Gradient, reporter) {
     test_nearly_vertical(reporter);
     test_linear_fuzz(reporter);
     test_two_point_conical_zero_radius(reporter);
+    test_clamping_overflow(reporter);
 }
