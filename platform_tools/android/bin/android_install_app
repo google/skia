@@ -9,7 +9,7 @@ function print_usage {
   echo "                  -h  Prints this help message"
   echo "            --release Install the release build of Skia"
   echo "      -s [device_s/n] Serial number of the device to be used"
-  echo "              AppName Can be either SampleApp or VisualBench"
+  echo "              AppName Can be either SampleApp or Viewer"
 }
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
