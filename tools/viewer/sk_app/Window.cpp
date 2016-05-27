@@ -83,7 +83,6 @@ void Window::onPaint() {
 
         fWindowContext->swapBuffers();
     } else {
-        printf("no backbuffer!?\n");
         // try recreating testcontext
     }
 }

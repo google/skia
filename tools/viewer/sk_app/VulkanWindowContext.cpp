@@ -388,7 +388,6 @@ void VulkanWindowContext::destroyContext() {
         return;
     }
 
-    GR_VK_CALL(fBackendContext->fInterface, QueueWaitIdle(fPresentQueue));
     GR_VK_CALL(fBackendContext->fInterface, DeviceWaitIdle(fBackendContext->fDevice));
 
     this->destroyBuffers();
