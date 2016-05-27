@@ -1161,7 +1161,7 @@ void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) 
             this->close();
 
             SkPathRef::Editor ed(&fPathRef);
-            ed.setIsRRect(isRRect);
+            ed.setIsRRect(isRRect, dir, startIndex % 8);
 
             SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
         }
@@ -1259,7 +1259,7 @@ void SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIndex
 
     SkPathRef::Editor ed(&fPathRef);
 
-    ed.setIsOval(isOval);
+    ed.setIsOval(isOval, kCCW_Direction == dir, startPointIndex % 4);
 }
 
 void SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, Direction dir) {

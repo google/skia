@@ -2215,8 +2215,22 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, readBack.getConvexityOrUnknown() ==
                               p.getConvexityOrUnknown());
 
+    SkRect oval0, oval1;
+    SkPath::Direction dir0, dir1;
+    unsigned start0, start1;
     REPORTER_ASSERT(reporter, readBack.isOval(nullptr) == p.isOval(nullptr));
-
+    if (p.isOval(&oval0, &dir0, &start0) && readBack.isOval(&oval1, &dir1, &start1)) {
+        REPORTER_ASSERT(reporter, oval0 == oval1);
+        REPORTER_ASSERT(reporter, dir0 == dir1);
+        REPORTER_ASSERT(reporter, start0 == start1);
+    }
+    REPORTER_ASSERT(reporter, readBack.isRRect(nullptr) == p.isRRect(nullptr));
+    SkRRect rrect0, rrect1;
+    if (p.isRRect(&rrect0, &dir0, &start0) && readBack.isRRect(&rrect1, &dir1, &start1)) {
+        REPORTER_ASSERT(reporter, rrect0 == rrect1);
+        REPORTER_ASSERT(reporter, dir0 == dir1);
+        REPORTER_ASSERT(reporter, start0 == start1);
+    }
     const SkRect& origBounds = p.getBounds();
     const SkRect& readBackBounds = readBack.getBounds();
 
@@ -2890,11 +2904,16 @@ static void check_for_circle(skiatest::Reporter* reporter,
                              SkPathPriv::FirstDirection expectedDir) {
     SkRect rect = SkRect::MakeEmpty();
     REPORTER_ASSERT(reporter, path.isOval(&rect) == expectedCircle);
-    REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, expectedDir));
-
-    if (expectedCircle) {
+    SkPath::Direction isOvalDir;
+    unsigned isOvalStart;
+    if (path.isOval(&rect, &isOvalDir, &isOvalStart)) {
         REPORTER_ASSERT(reporter, rect.height() == rect.width());
+        REPORTER_ASSERT(reporter, SkPathPriv::AsFirstDirection(isOvalDir) == expectedDir);
+        SkPath tmpPath;
+        tmpPath.addOval(rect, isOvalDir, isOvalStart);
+        REPORTER_ASSERT(reporter, path == tmpPath);
     }
+    REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, expectedDir));
 }
 
 static void test_circle_skew(skiatest::Reporter* reporter,
@@ -2963,14 +2982,12 @@ static void test_circle_mirror_x(skiatest::Reporter* reporter,
     m.reset();
     m.setScaleX(-SK_Scalar1);
     path.transform(m, &tmp);
-
     if (SkPathPriv::kCW_FirstDirection == dir) {
         dir = SkPathPriv::kCCW_FirstDirection;
     } else {
         REPORTER_ASSERT(reporter, SkPathPriv::kCCW_FirstDirection == dir);
         dir = SkPathPriv::kCW_FirstDirection;
     }
-
     check_for_circle(reporter, tmp, true, dir);
 }
 
@@ -3018,6 +3035,9 @@ static void test_circle_with_direction(skiatest::Reporter* reporter,
     test_circle_rotate(reporter, path, dir);
     test_circle_translate(reporter, path, dir);
     test_circle_skew(reporter, path, dir);
+    test_circle_mirror_x(reporter, path, dir);
+    test_circle_mirror_y(reporter, path, dir);
+    test_circle_mirror_xy(reporter, path, dir);
 
     // circle at an offset at (10, 10)
     path.reset();
@@ -3031,6 +3051,18 @@ static void test_circle_with_direction(skiatest::Reporter* reporter,
     test_circle_mirror_x(reporter, path, dir);
     test_circle_mirror_y(reporter, path, dir);
     test_circle_mirror_xy(reporter, path, dir);
+
+    // Try different starting points for the contour.
+    for (unsigned start = 0; start < 4; ++start) {
+        path.reset();
+        path.addOval(SkRect::MakeXYWH(20, 10, 5, 5), inDir, start);
+        test_circle_rotate(reporter, path, dir);
+        test_circle_translate(reporter, path, dir);
+        test_circle_skew(reporter, path, dir);
+        test_circle_mirror_x(reporter, path, dir);
+        test_circle_mirror_y(reporter, path, dir);
+        test_circle_mirror_xy(reporter, path, dir);
+    }
 }
 
 static void test_circle_with_add_paths(skiatest::Reporter* reporter) {
@@ -3060,6 +3092,7 @@ static void test_circle_with_add_paths(skiatest::Reporter* reporter) {
     // circle + empty (translate)
     path = circle;
     path.addPath(empty, translate);
+
     check_for_circle(reporter, path, true, SkPathPriv::AsFirstDirection(kCircleDir));
 
     // test reverseAddPath
@@ -3102,17 +3135,23 @@ static void test_oval(skiatest::Reporter* reporter) {
     SkRect rect;
     SkMatrix m;
     SkPath path;
+    unsigned start = 0;
+    SkPath::Direction dir = SkPath::kCCW_Direction;
 
     rect = SkRect::MakeWH(SkIntToScalar(30), SkIntToScalar(50));
     path.addOval(rect);
 
+    // Defaults to dir = CW and start = 1
     REPORTER_ASSERT(reporter, path.isOval(nullptr));
 
     m.setRotate(SkIntToScalar(90));
     SkPath tmp;
     path.transform(m, &tmp);
-    // an oval rotated 90 degrees is still an oval.
-    REPORTER_ASSERT(reporter, tmp.isOval(nullptr));
+    // an oval rotated 90 degrees is still an oval. The start index changes from 1 to 2. Direction
+    // is unchanged.
+    REPORTER_ASSERT(reporter, tmp.isOval(nullptr, &dir, &start));
+    REPORTER_ASSERT(reporter, 2 == start);
+    REPORTER_ASSERT(reporter, SkPath::kCW_Direction == dir);
 
     m.reset();
     m.setRotate(SkIntToScalar(30));
@@ -3150,7 +3189,9 @@ static void test_oval(skiatest::Reporter* reporter) {
     tmp.reset();
     tmp.addOval(rect);
     path = tmp;
-    REPORTER_ASSERT(reporter, path.isOval(nullptr));
+    REPORTER_ASSERT(reporter, path.isOval(nullptr, &dir, &start));
+    REPORTER_ASSERT(reporter, SkPath::kCW_Direction == dir);
+    REPORTER_ASSERT(reporter, 1 == start);
 }
 
 static void test_empty(skiatest::Reporter* reporter, const SkPath& p) {
