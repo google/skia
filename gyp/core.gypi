@@ -123,7 +123,6 @@
         '<(skia_src_path)/core/SkFindAndPlaceGlyph.h',
         '<(skia_src_path)/core/SkFlattenable.cpp',
         '<(skia_src_path)/core/SkFlattenableSerialization.cpp',
-        '<(skia_src_path)/core/SkFloatBits.cpp',
         '<(skia_src_path)/core/SkFont.cpp',
         '<(skia_src_path)/core/SkFontLCDConfig.cpp',
         '<(skia_src_path)/core/SkFontMgr.cpp',

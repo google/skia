@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -11,6 +10,7 @@
 #define SkFloatBits_DEFINED
 
 #include "SkTypes.h"
+#include <math.h>
 
 /** Convert a sign-bit int (i.e. float interpreted as int) into a 2s compliement
     int. This also converts -0 (0x80000000) to 0. Doing this to a float allows
@@ -35,27 +35,6 @@ static inline int32_t Sk2sComplimentToSignBit(int32_t x) {
     x |= SkLeftShift(sign, 31);
     return x;
 }
-
-/** Given the bit representation of a float, return its value cast to an int.
-    If the value is out of range, or NaN, return return +/- SK_MaxS32
-*/
-int32_t SkFloatBits_toIntCast(int32_t floatBits);
-
-/** Given the bit representation of a float, return its floor as an int.
-    If the value is out of range, or NaN, return return +/- SK_MaxS32
- */
-SK_API int32_t SkFloatBits_toIntFloor(int32_t floatBits);
-
-/** Given the bit representation of a float, return it rounded to an int.
-    If the value is out of range, or NaN, return return +/- SK_MaxS32
- */
-SK_API int32_t SkFloatBits_toIntRound(int32_t floatBits);
-
-/** Given the bit representation of a float, return its ceiling as an int.
-    If the value is out of range, or NaN, return return +/- SK_MaxS32
- */
-SK_API int32_t SkFloatBits_toIntCeil(int32_t floatBits);
-
 
 union SkFloatIntUnion {
     float   fFloat;
@@ -92,36 +71,29 @@ static inline float Sk2sComplimentAsFloat(int32_t x) {
     return SkBits2Float(Sk2sComplimentToSignBit(x));
 }
 
-/** Return x cast to a float (i.e. (float)x)
-*/
-float SkIntToFloatCast(int x);
-
-/** Return the float cast to an int.
-    If the value is out of range, or NaN, return +/- SK_MaxS32
-*/
-static inline int32_t SkFloatToIntCast(float x) {
-    return SkFloatBits_toIntCast(SkFloat2Bits(x));
+static inline int32_t pin_double_to_int(double x) {
+    return (int32_t)SkTPin<double>(x, SK_MinS32, SK_MaxS32);
 }
 
 /** Return the floor of the float as an int.
     If the value is out of range, or NaN, return +/- SK_MaxS32
 */
 static inline int32_t SkFloatToIntFloor(float x) {
-    return SkFloatBits_toIntFloor(SkFloat2Bits(x));
+    return pin_double_to_int(floor(x));
 }
 
 /** Return the float rounded to an int.
     If the value is out of range, or NaN, return +/- SK_MaxS32
 */
 static inline int32_t SkFloatToIntRound(float x) {
-    return SkFloatBits_toIntRound(SkFloat2Bits(x));
+    return pin_double_to_int(floor((double)x + 0.5));
 }
 
 /** Return the ceiling of the float as an int.
     If the value is out of range, or NaN, return +/- SK_MaxS32
 */
 static inline int32_t SkFloatToIntCeil(float x) {
-    return SkFloatBits_toIntCeil(SkFloat2Bits(x));
+    return pin_double_to_int(ceil(x));
 }
 
 //  Scalar wrappers for float-bit routines

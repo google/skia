@@ -209,32 +209,27 @@ static float nextFloat(SkRandom& rand) {
 /*  returns true if a == b as resulting from (int)x. Since it is undefined
  what to do if the float exceeds 2^32-1, we check for that explicitly.
  */
-static bool equal_float_native_skia(float x, uint32_t ni, uint32_t si) {
-    if (!(x == x)) {    // NAN
-        return ((int32_t)si) == SK_MaxS32 || ((int32_t)si) == SK_MinS32;
+static bool equal_float_native_skia(float x, int32_t ni, int32_t si) {
+    // When the float is out of integer range (NaN, above, below),
+    // the C cast is undefined, but Skia's methods should have clamped.
+    if (!(x == x)) {    // NaN
+        return si == SK_MaxS32 || si == SK_MinS32;
     }
-    // for out of range, C is undefined, but skia always should return NaN32
     if (x > SK_MaxS32) {
-        return ((int32_t)si) == SK_MaxS32;
+        return si == SK_MaxS32;
     }
-    if (x < -SK_MaxS32) {
-        return ((int32_t)si) == SK_MinS32;
+    if (x < SK_MinS32) {
+        return si == SK_MinS32;
     }
     return si == ni;
 }
 
 static void assert_float_equal(skiatest::Reporter* reporter, const char op[],
-                               float x, uint32_t ni, uint32_t si) {
+                               float x, int32_t ni, int32_t si) {
     if (!equal_float_native_skia(x, ni, si)) {
         ERRORF(reporter, "%s float %g bits %x native %x skia %x\n",
                op, x, SkFloat2Bits(x), ni, si);
     }
-}
-
-static void test_float_cast(skiatest::Reporter* reporter, float x) {
-    int ix = (int)x;
-    int iix = SkFloatToIntCast(x);
-    assert_float_equal(reporter, "cast", x, ix, iix);
 }
 
 static void test_float_floor(skiatest::Reporter* reporter, float x) {
@@ -257,16 +252,9 @@ static void test_float_ceil(skiatest::Reporter* reporter, float x) {
 }
 
 static void test_float_conversions(skiatest::Reporter* reporter, float x) {
-    test_float_cast(reporter, x);
     test_float_floor(reporter, x);
     test_float_round(reporter, x);
     test_float_ceil(reporter, x);
-}
-
-static void test_int2float(skiatest::Reporter* reporter, int ival) {
-    float x0 = (float)ival;
-    float x1 = SkIntToFloatCast(ival);
-    REPORTER_ASSERT(reporter, x0 == x1);
 }
 
 static void unittest_fastfloat(skiatest::Reporter* reporter) {
@@ -274,6 +262,7 @@ static void unittest_fastfloat(skiatest::Reporter* reporter) {
     size_t i;
 
     static const float gFloats[] = {
+        0.f/0.f, -0.f/0.f, 1.f/0.f, -1.f/0.f,
         0.f, 1.f, 0.5f, 0.499999f, 0.5000001f, 1.f/3,
         0.000000001f, 1000000000.f,     // doesn't overflow
         0.0000000001f, 10000000000.f    // does overflow
@@ -288,17 +277,6 @@ static void unittest_fastfloat(skiatest::Reporter* reporter) {
         for (i = 0; i < 100000; i++) {
             float x = nextFloat(rand);
             test_float_conversions(reporter, x);
-        }
-
-        test_int2float(reporter, 0);
-        test_int2float(reporter, 1);
-        test_int2float(reporter, -1);
-        for (i = 0; i < 100000; i++) {
-            // for now only test ints that are 24bits or less, since we don't
-            // round (down) large ints the same as IEEE...
-            int ival = rand.nextU() & 0xFFFFFF;
-            test_int2float(reporter, ival);
-            test_int2float(reporter, -ival);
         }
     }
 }
