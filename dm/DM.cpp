@@ -71,6 +71,7 @@ DEFINE_string(uninterestingHashesFile, "",
 DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_bool(simpleCodec, false, "Only decode images to native scale");
+DEFINE_bool(forceSRGB, false, "Force SRGB for imageinfos");
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
@@ -1231,6 +1232,8 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkTypeface::S
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style );
 
+extern bool gDefaultProfileIsSRGB;
+
 int dm_main();
 int dm_main() {
     setbuf(stdout, nullptr);
@@ -1241,6 +1244,10 @@ int dm_main() {
     } else if (!FLAGS_writePath.isEmpty()) {
         sk_mkdir(FLAGS_writePath[0]);
         gVLog = freopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w", stderr);
+    }
+
+    if (FLAGS_forceSRGB) {
+        gDefaultProfileIsSRGB = true;
     }
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
