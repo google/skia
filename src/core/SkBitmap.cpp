@@ -53,6 +53,7 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
 
         // inc src reference counts
         SkSafeRef(src.fPixelRef);
+        SkSafeRef(src.fInfo.colorSpace());
 
         // we reset our locks if we get blown away
         fPixelLockCount = 0;
@@ -97,6 +98,7 @@ void SkBitmap::swap(SkBitmap& other) {
 
 void SkBitmap::reset() {
     this->freePixels();
+    this->fInfo.reset();
     sk_bzero(this, sizeof(*this));
 }
 

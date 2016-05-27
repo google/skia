@@ -24,10 +24,10 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
     SkASSERT(wb.bytesWritten() < sizeof(storage));
 
     SkReadBuffer rb(storage, wb.bytesWritten());
-    SkImageInfo info2;
 
     // pick a noisy byte pattern, so we ensure that unflatten sets all of our fields
-    memset(&info2, 0xB8, sizeof(info2));
+    SkImageInfo info2 = SkImageInfo::Make(0xB8, 0xB8, (SkColorType) 0xB8, (SkAlphaType) 0xB8,
+                                          (SkColorProfileType) 0xB8);
 
     info2.unflatten(rb);
     REPORTER_ASSERT(reporter, rb.offset() == wb.bytesWritten());

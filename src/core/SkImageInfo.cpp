@@ -30,6 +30,11 @@ static bool color_type_is_valid(SkColorType colorType) {
     return (colorType >= 0) && (colorType <= kLastEnum_SkColorType);
 }
 
+SkImageInfo SkImageInfo::Make(int width, int height, SkColorType ct, SkAlphaType at,
+                              sk_sp<SkColorSpace> cs) {
+    return SkImageInfo(width, height, ct, at, SkDefaultColorProfile(), std::move(cs));
+}
+
 void SkImageInfo::unflatten(SkReadBuffer& buffer) {
     fWidth = buffer.read32();
     fHeight = buffer.read32();

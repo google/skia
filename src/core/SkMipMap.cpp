@@ -451,7 +451,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         height = SkTMax(1, height >> 1);
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
 
-        levels[i].fPixmap = SkPixmap(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
+        new (&levels[i].fPixmap) SkPixmap(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
         levels[i].fScale  = SkSize::Make(SkIntToScalar(width)  / src.width(),
                                          SkIntToScalar(height) / src.height());
 

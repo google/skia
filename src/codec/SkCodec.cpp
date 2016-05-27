@@ -117,10 +117,10 @@ SkCodec* SkCodec::NewFromData(SkData* data, SkPngChunkReader* reader) {
 SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         sk_sp<SkColorSpace> colorSpace, Origin origin)
     : fEncodedInfo(info)
-    , fSrcInfo(info.makeImageInfo(width, height))
+    , fSrcInfo(info.makeImageInfo(width, height, colorSpace))
     , fStream(stream)
     , fNeedsRewind(false)
-    , fColorSpace(colorSpace)
+    , fColorSpace(std::move(colorSpace))
     , fOrigin(origin)
     , fDstInfo()
     , fOptions()
