@@ -419,7 +419,8 @@ int SkDCubic::RootsReal(double A, double B, double C, double D, double s[3]) {
     double r;
     double* roots = s;
     if (R2MinusQ3 < 0) {   // we have 3 real roots
-        double theta = acos(R / sqrt(Q3));
+        // the divide/root can, due to finite precisions, be slightly outside of -1...1
+        double theta = acos(SkTPin(R / sqrt(Q3), -1., 1.));
         double neg2RootQ = -2 * sqrt(Q);
 
         r = neg2RootQ * cos(theta / 3) - adiv3;

@@ -743,7 +743,8 @@ static int solve_cubic_poly(const SkScalar coeff[4], SkScalar tValues[3]) {
     SkScalar    r;
 
     if (R2MinusQ3 < 0) { // we have 3 real roots
-        SkScalar theta = SkScalarACos(R / SkScalarSqrt(Q3));
+        // the divide/root can, due to finite precisions, be slightly outside of -1...1
+        SkScalar theta = SkScalarACos(SkScalarPin(R / SkScalarSqrt(Q3), -1, 1));
         SkScalar neg2RootQ = -2 * SkScalarSqrt(Q);
 
         r = neg2RootQ * SkScalarCos(theta/3) - adiv3;
