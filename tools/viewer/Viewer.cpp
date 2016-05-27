@@ -35,7 +35,13 @@ static bool on_touch_handler(int owner, Window::InputState state, float x, float
     return viewer->onTouch(owner, state, x, y);
 }
 
-DEFINE_bool2(fullscreen, f, false, "Run fullscreen.");
+static void on_ui_state_changed_handler(const SkString& stateName, const SkString& stateValue, void* userData) {
+    Viewer* viewer = reinterpret_cast<Viewer*>(userData);
+
+    return viewer->onUIStateChanged(stateName, stateValue);
+}
+
+DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifying this builder.");
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
@@ -53,6 +59,12 @@ const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
     " [Vulkan]"
 };
+
+const char* kName = "name";
+const char* kValue = "value";
+const char* kOptions = "options";
+const char* kSlideStateName = "Slide";
+const char* kBackendStateName = "Backend";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
@@ -83,6 +95,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.attach(fWindow);
     fWindow->registerPaintFunc(on_paint_handler, this);
     fWindow->registerTouchFunc(on_touch_handler, this);
+    fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
 
     // add key-bindings
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
@@ -220,6 +233,10 @@ void Viewer::updateTitle() {
 }
 
 void Viewer::setupCurrentSlide(int previousSlide) {
+    if (fCurrentSlide == previousSlide) {
+        return; // no change; do nothing
+    }
+
     fGesture.reset();
     fDefaultMatrix.reset();
     fDefaultMatrixInv.reset();
@@ -242,6 +259,7 @@ void Viewer::setupCurrentSlide(int previousSlide) {
     }
 
     this->updateTitle();
+    this->updateUIState();
     fSlides[fCurrentSlide]->load();
     if (previousSlide >= 0) {
         fSlides[previousSlide]->unload();
@@ -387,5 +405,51 @@ void Viewer::onIdle(double ms) {
     fAnimTimer.updateTime();
     if (fSlides[fCurrentSlide]->animate(fAnimTimer) || fDisplayStats) {
         fWindow->inval();
+    }
+}
+
+void Viewer::updateUIState() {
+    Json::Value slideState(Json::objectValue);
+    slideState[kName] = kSlideStateName;
+    slideState[kValue] = fSlides[fCurrentSlide]->getName().c_str();
+    Json::Value allSlideNames(Json::arrayValue);
+    for(auto slide : fSlides) {
+        allSlideNames.append(Json::Value(slide->getName().c_str()));
+    }
+    slideState[kOptions] = allSlideNames;
+
+    // This state is currently a demo for the one without options.
+    // We will be able to change the backend too.
+    Json::Value backendState(Json::objectValue);
+    backendState[kName] = kBackendStateName;
+    backendState[kValue] = fBackendType == sk_app::Window::kVulkan_BackendType ?
+            "Vulkan" : "Other than Vulkan";
+    backendState[kOptions] = Json::Value(Json::arrayValue);
+
+    Json::Value state(Json::arrayValue);
+    state.append(slideState);
+    state.append(backendState);
+
+    fWindow->setUIState(state);
+}
+
+void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateValue) {
+    // Currently, we only recognize the Slide state
+    if (stateName.equals(kSlideStateName)) {
+        int previousSlide = fCurrentSlide;
+        fCurrentSlide = 0;
+        for(auto slide : fSlides) {
+            if (slide->getName().equals(stateValue)) {
+                setupCurrentSlide(previousSlide);
+                break;
+            }
+            fCurrentSlide++;
+        }
+        if (fCurrentSlide >= fSlides.count()) {
+            fCurrentSlide = previousSlide;
+            SkDebugf("Slide not found: %s", stateValue.c_str());
+        }
+    } else {
+        SkDebugf("Unknown stateName: %s", stateName.c_str());
     }
 }

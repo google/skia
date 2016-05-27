@@ -5,8 +5,14 @@
  * found in the LICENSE file.
  */
 apply plugin: 'com.android.application'
+
+dependencies {
+    compile 'com.android.support:support-v13:23.3.0'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+}
+
 android {
-    compileSdkVersion 19
+    compileSdkVersion 23
     buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "org.skia.viewer"

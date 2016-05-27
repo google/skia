@@ -12,6 +12,7 @@
 #include "SkRect.h"
 #include "SkTouchGesture.h"
 #include "SkTypes.h"
+#include "SkJSONCPP.h"
 
 class SkCanvas;
 
@@ -27,6 +28,7 @@ public:
 
     virtual void setTitle(const char*) = 0;
     virtual void show() = 0;
+    virtual void setUIState(const Json::Value& state) {}  // do nothing in default
 
     // Shedules an invalidation event for window if one is not currently pending.
     // Make sure that either onPaint or markInvalReceived is called when the client window consumes
@@ -110,6 +112,8 @@ public:
     typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
     typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
     typedef bool(*OnTouchFunc)(int owner, InputState state, float x, float y, void* userData);
+    typedef void(*OnUIStateChangedFunc)(
+            const SkString& stateName, const SkString& stateValue, void* userData);
     typedef void(*OnPaintFunc)(SkCanvas*, void* userData);
 
     void registerCharFunc(OnCharFunc func, void* userData) {
@@ -137,10 +141,16 @@ public:
         fTouchUserData = userData;
     }
 
+    void registerUIStateChangedFunc(OnUIStateChangedFunc func, void* userData) {
+        fUIStateChangedFunc = func;
+        fUIStateChangedUserData = userData;
+    }
+
     bool onChar(SkUnichar c, uint32_t modifiers);
     bool onKey(Key key, InputState state, uint32_t modifiers);
     bool onMouse(int x, int y, InputState state, uint32_t modifiers);
     bool onTouch(int owner, InputState state, float x, float y);  // multi-owner = multi-touch
+    void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();
     void onResize(uint32_t width, uint32_t height);
 
@@ -164,6 +174,9 @@ protected:
     void*        fMouseUserData;
     OnTouchFunc  fTouchFunc;
     void*        fTouchUserData;
+    OnUIStateChangedFunc
+                 fUIStateChangedFunc;
+    void*        fUIStateChangedUserData;
     OnPaintFunc  fPaintFunc;
     void*        fPaintUserData;
 

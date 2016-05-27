@@ -46,6 +46,7 @@ SkiaAndroidApp::SkiaAndroidApp(JNIEnv* env, jobject androidApp) {
     fAndroidApp = env->NewGlobalRef(androidApp);
     jclass cls = env->GetObjectClass(fAndroidApp);
     fSetTitleMethodID = env->GetMethodID(cls, "setTitle", "(Ljava/lang/String;)V");
+    fSetStateMethodID = env->GetMethodID(cls, "setState", "(Ljava/lang/String;)V");
     fNativeWindow = nullptr;
     pthread_create(&fThread, nullptr, pthread_main, this);
 }
@@ -68,6 +69,12 @@ void SkiaAndroidApp::setTitle(const char* title) const {
     jstring titleString = fPThreadEnv->NewStringUTF(title);
     fPThreadEnv->CallVoidMethod(fAndroidApp, fSetTitleMethodID, titleString);
     fPThreadEnv->DeleteLocalRef(titleString);
+}
+
+void SkiaAndroidApp::setUIState(const Json::Value& state) const {
+    jstring jstr = fPThreadEnv->NewStringUTF(state.toStyledString().c_str());
+    fPThreadEnv->CallVoidMethod(fAndroidApp, fSetStateMethodID, jstr);
+    fPThreadEnv->DeleteLocalRef(jstr);
 }
 
 void SkiaAndroidApp::postMessage(const Message& message) const {
@@ -137,6 +144,12 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             SkASSERT(it != ANDROID_TO_WINDOW_STATEMAP.end());
             skiaAndroidApp->fWindow->onTouch(message.fTouchOwner, it->second, message.fTouchX,
                                              message.fTouchY);
+            break;
+        }
+        case kUIStateChanged: {
+            skiaAndroidApp->fWindow->onUIStateChanged(*message.stateName, *message.stateValue);
+            delete message.stateName;
+            delete message.stateValue;
             break;
         }
         default: {
@@ -227,6 +240,19 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onTouched(
     message.fTouchX = x;
     message.fTouchY = y;
     skiaAndroidApp->postMessage(message);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onUIStateChanged(
+    JNIEnv* env, jobject activity, jlong handle, jstring stateName, jstring stateValue) {
+    auto skiaAndroidApp = (SkiaAndroidApp*)handle;
+    Message message(kUIStateChanged);
+    const char* nameChars = env->GetStringUTFChars(stateName, nullptr);
+    const char* valueChars = env->GetStringUTFChars(stateValue, nullptr);
+    message.stateName = new SkString(nameChars);
+    message.stateValue = new SkString(valueChars);
+    skiaAndroidApp->postMessage(message);
+    env->ReleaseStringUTFChars(stateName, nameChars);
+    env->ReleaseStringUTFChars(stateValue, valueChars);
 }
 
 }  // namespace sk_app
