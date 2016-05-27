@@ -49,26 +49,22 @@ SkBitmap::~SkBitmap() {
 SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
     if (this != &src) {
         this->freePixels();
-        memcpy(this, &src, sizeof(src));
-
-        // inc src reference counts
-        SkSafeRef(src.fPixelRef);
-        SkSafeRef(src.fInfo.colorSpace());
-
-        // we reset our locks if we get blown away
-        fPixelLockCount = 0;
-
-        if (fPixelRef) {
-            // ignore the values from the memcpy
-            fPixels = nullptr;
-            fColorTable = nullptr;
-            // Note that what to for genID is somewhat arbitrary. We have no
-            // way to track changes to raw pixels across multiple SkBitmaps.
-            // Would benefit from an SkRawPixelRef type created by
-            // setPixels.
-            // Just leave the memcpy'ed one but they'll get out of sync
-            // as soon either is modified.
+        this->fPixelRef = SkSafeRef(src.fPixelRef);
+        if (this->fPixelRef) {
+            // ignore the values if we have a pixelRef
+            this->fPixels = nullptr;
+            this->fColorTable = nullptr;
+        } else {
+            this->fPixels = src.fPixels;
+            this->fColorTable = src.fColorTable;
         }
+        // we reset our locks if we get blown away
+        this->fPixelLockCount = 0;
+
+        this->fPixelRefOrigin = src.fPixelRefOrigin;
+        this->fInfo = src.fInfo;
+        this->fRowBytes = src.fRowBytes;
+        this->fFlags = src.fFlags;
     }
 
     SkDEBUGCODE(this->validate();)
