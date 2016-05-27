@@ -12,8 +12,6 @@
 
 #include <android/native_window_jni.h>
 
-#include "SkString.h"
-
 #include "../Application.h"
 #include "../Window.h"
 
@@ -27,8 +25,7 @@ enum MessageType {
     kDestroyApp,
     kContentInvalidated,
     kKeyPressed,
-    kTouched,
-    kUIStateChanged,
+    kTouched
 };
 
 struct Message {
@@ -37,9 +34,6 @@ struct Message {
     int fKeycode = 0;
     int fTouchOwner, fTouchState;
     float fTouchX, fTouchY;
-
-    SkString* stateName;
-    SkString* stateValue;
 
     Message() {}
     Message(MessageType t) : fType(t) {}
@@ -55,9 +49,8 @@ struct SkiaAndroidApp {
     void postMessage(const Message& message) const;
     void readMessage(Message* message) const;
 
-    // These must be called in SkiaAndroidApp's own pthread because the JNIEnv is thread sensitive
+    // This must be called in SkiaAndroidApp's own pthread because the JNIEnv is thread sensitive
     void setTitle(const char* title) const;
-    void setUIState(const Json::Value& state) const;
 
 private:
     pthread_t fThread;
@@ -65,7 +58,7 @@ private:
     int fPipes[2];  // 0 is the read message pipe, 1 is the write message pipe
     JavaVM* fJavaVM;
     JNIEnv* fPThreadEnv;
-    jmethodID fSetTitleMethodID, fSetStateMethodID;
+    jmethodID fSetTitleMethodID;
 
     // This must be called in SkiaAndroidApp's own pthread because the JNIEnv is thread sensitive
     ~SkiaAndroidApp();

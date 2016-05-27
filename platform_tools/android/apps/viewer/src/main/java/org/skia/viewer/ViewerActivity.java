@@ -8,10 +8,9 @@
 package org.skia.viewer;
 
 import android.app.Activity;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,16 +20,10 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.ListView;
 
 public class ViewerActivity
         extends Activity implements SurfaceHolder.Callback, View.OnTouchListener {
     private static final float FLING_VELOCITY_THRESHOLD = 1000;
-
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private ListView mDrawerList;
-    private StateAdapter mStateAdapter;
 
     private SurfaceView mView;
     private ViewerApplication mApplication;
@@ -40,7 +33,6 @@ public class ViewerActivity
     private native void onSurfaceDestroyed(long handle);
     private native void onKeyPressed(long handle, int keycode);
     private native void onTouched(long handle, int owner, int state, float x, float y);
-    private native void onUIStateChanged(long handle, String stateName, String stateValue);
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,12 +43,6 @@ public class ViewerActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
         switch (item.getItemId()) {
             case R.id.action_left:
                 onKeyPressed(mApplication.getNativeHandle(), KeyEvent.KEYCODE_SOFT_LEFT);
@@ -74,36 +60,12 @@ public class ViewerActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mApplication = (ViewerApplication) getApplication();
+        mApplication.setViewerActivity(this);
         mView = (SurfaceView) findViewById(R.id.surfaceView);
         mView.getHolder().addCallback(this);
 
         mView.setOnTouchListener(this);
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.string.drawer_open, R.string.drawer_close);
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
-
-        mDrawerList = (ListView) findViewById(R.id.leftDrawer);
-        mStateAdapter = new StateAdapter(this);
-        mDrawerList.setAdapter(mStateAdapter);
-
-        mApplication = (ViewerApplication) getApplication();
-        mApplication.setViewerActivity(this);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -144,13 +106,5 @@ public class ViewerActivity
             onTouched(mApplication.getNativeHandle(), owner, action, x, y);
         }
         return true;
-    }
-
-    public void setState(String stateJson) {
-        mStateAdapter.setState(stateJson);
-    }
-
-    public void onStateChanged(String stateName, String stateValue) {
-        onUIStateChanged(mApplication.getNativeHandle(), stateName, stateValue);
     }
 }
