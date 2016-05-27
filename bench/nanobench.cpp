@@ -123,8 +123,6 @@ DEFINE_string(sourceType, "",
 DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, playback, skcodec, etc.");
 
-DEFINE_bool(forceSRGB, false, "Force SRGB for imageinfos");
-
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {

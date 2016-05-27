@@ -71,7 +71,6 @@ DEFINE_string(uninterestingHashesFile, "",
 DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_bool(simpleCodec, false, "Only decode images to native scale");
-DEFINE_bool(forceSRGB, false, "Force SRGB for imageinfos");
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
