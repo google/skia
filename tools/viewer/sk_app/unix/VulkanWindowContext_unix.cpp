@@ -39,7 +39,7 @@ VkSurfaceKHR VulkanWindowContext::createVkSurface(VkInstance instance, void* pla
     surfaceCreateInfo.pNext = nullptr;
     surfaceCreateInfo.flags = 0;
     surfaceCreateInfo.connection = XGetXCBConnection(unixPlatformData->fDisplay);
-    surfaceCreateInfo.window = unixPlatformData->fHWnd;
+    surfaceCreateInfo.window = unixPlatformData->fWindow;
 
     VkResult res = createXcbSurfaceKHR(instance, &surfaceCreateInfo, nullptr, &surface);
     if (VK_SUCCESS != res) {
@@ -64,10 +64,11 @@ bool VulkanWindowContext::canPresent(VkInstance instance, VkPhysicalDevice physD
                                           reinterpret_cast<ContextPlatformData_unix*>(platformData);
 
     Display* display = unixPlatformData->fDisplay;
+    VisualID visualID = unixPlatformData->fVisualInfo->visualid;
     VkBool32 check = getPhysicalDeviceXcbPresentationSupportKHR(physDev, 
                                                                 queueFamilyIndex, 
                                                                 XGetXCBConnection(display),
-                                                                unixPlatformData->fVisualID);
+                                                                visualID);
     return (VK_FALSE != check);
 }
 

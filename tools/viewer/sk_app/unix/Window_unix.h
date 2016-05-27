@@ -9,6 +9,7 @@
 #define Window_unix_DEFINED
 
 #include <X11/Xlib.h>
+#include <GL/glx.h>
 #include "../Window.h"
 #include "SkChecksum.h"
 #include "SkTDynamicHash.h"
@@ -18,17 +19,22 @@ typedef Window XWindow;
 namespace sk_app {
 
 struct ContextPlatformData_unix {
-    Display* fDisplay;
-    XWindow  fHWnd;
-    VisualID fVisualID;
+    Display*     fDisplay;
+    XWindow      fWindow;
+    XVisualInfo* fVisualInfo;
 };
 
 class Window_unix : public Window {
 public:
-    Window_unix() : Window() {}
-    ~Window_unix() override {}
+    Window_unix() : Window()
+                  , fDisplay(nullptr)
+                  , fWindow(0)
+                  , fGC(nullptr)
+                  , fVisualInfo(nullptr)
+                  , fMSAASampleCount(0) {}
+    ~Window_unix() override { this->closeWindow(); }
 
-    bool init(Display* display);
+    bool initWindow(Display* display, const DisplayParams* params);
 
     void setTitle(const char*) override;
     void show() override;
@@ -40,7 +46,7 @@ public:
     bool handleEvent(const XEvent& event);
 
     static const XWindow& GetKey(const Window_unix& w) {
-        return w.fHWnd;
+        return w.fWindow;
     }
 
     static uint32_t Hash(const XWindow& w) {
@@ -70,8 +76,13 @@ public:
     }
 
 private:
-    Display* fDisplay;
-    XWindow  fHWnd;
+    void closeWindow();
+
+    Display*     fDisplay;
+    XWindow      fWindow;
+    GC           fGC;
+    XVisualInfo* fVisualInfo;
+    int          fMSAASampleCount;
 
     Atom     fWmDeleteMessage;
 

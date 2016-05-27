@@ -9,6 +9,7 @@
 
 #include "SkUtils.h"
 #include "Timer.h"
+#include "../GLWindowContext.h"
 #include "../VulkanWindowContext.h"
 #include "Window_unix.h"
 
@@ -26,7 +27,7 @@ Window* Window::CreateNativeWindow(void* platformData) {
     Display* display = (Display*)platformData;
 
     Window_unix* window = new Window_unix();
-    if (!window->init(display)) {
+    if (!window->initWindow(display, nullptr)) {
         delete window;
         return nullptr;
     }
@@ -34,27 +35,87 @@ Window* Window::CreateNativeWindow(void* platformData) {
     return window;
 }
 
-bool Window_unix::init(Display* display) {
+const long kEventMask = ExposureMask | StructureNotifyMask | 
+                        KeyPressMask | KeyReleaseMask | 
+                        PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
+
+bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
+    if (params && params->fMSAASampleCount != fMSAASampleCount) {
+        this->closeWindow();
+    }
+    // we already have a window
+    if (fDisplay) {
+        return true;
+    } 
     fDisplay = display;
 
     fWidth = 1280;
     fHeight = 960;
-    fHWnd = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, fWidth, fHeight, 
-                                0, BlackPixel(display, DefaultScreen(display)), 
-                                BlackPixel(display, DefaultScreen(display)));
 
-    if (!fHWnd) {
+    // Attempt to create a window that supports GL
+    GLint att[] = {
+        GLX_RGBA,
+        GLX_DEPTH_SIZE, 24,
+        GLX_DOUBLEBUFFER,
+        GLX_STENCIL_SIZE, 8,
+        None
+    };
+    SkASSERT(nullptr == fVisualInfo);
+    if (params && params->fMSAASampleCount > 0) {
+        static const GLint kAttCount = SK_ARRAY_COUNT(att);
+        GLint msaaAtt[kAttCount + 4];
+        memcpy(msaaAtt, att, sizeof(att));
+        SkASSERT(None == msaaAtt[kAttCount - 1]);
+        msaaAtt[kAttCount - 1] = GLX_SAMPLE_BUFFERS_ARB;
+        msaaAtt[kAttCount + 0] = 1;
+        msaaAtt[kAttCount + 1] = GLX_SAMPLES_ARB;
+        msaaAtt[kAttCount + 2] = params->fMSAASampleCount;
+        msaaAtt[kAttCount + 3] = None;
+        fVisualInfo = glXChooseVisual(display, DefaultScreen(display), msaaAtt);
+        fMSAASampleCount = params->fMSAASampleCount;
+    }
+    if (nullptr == fVisualInfo) {
+        fVisualInfo = glXChooseVisual(display, DefaultScreen(display), att);
+        fMSAASampleCount = 0;
+    }
+
+    if (fVisualInfo) {
+        Colormap colorMap = XCreateColormap(display,
+                                            RootWindow(display, fVisualInfo->screen),
+                                            fVisualInfo->visual,
+                                            AllocNone);
+        XSetWindowAttributes swa;
+        swa.colormap = colorMap;
+        swa.event_mask = kEventMask;
+        fWindow = XCreateWindow(display,
+                                RootWindow(display, fVisualInfo->screen),
+                                0, 0, // x, y
+                                fWidth, fHeight,
+                                0, // border width
+                                fVisualInfo->depth,
+                                InputOutput,
+                                fVisualInfo->visual,
+                                CWEventMask | CWColormap,
+                                &swa);
+    } else {
+        // Create a simple window instead.  We will not be able to show GL
+        fWindow = XCreateSimpleWindow(display,
+                                      DefaultRootWindow(display),
+                                      0, 0,  // x, y
+                                      fWidth, fHeight,
+                                      0,     // border width
+                                      0,     // border value
+                                      0);    // background value
+        XSelectInput(display, fWindow, kEventMask);
+    }
+
+    if (!fWindow) {
         return false;
     }
 
-    // choose the events we care about
-    XSelectInput(display, fHWnd, 
-                 ExposureMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | 
-                 PointerMotionMask | ButtonPressMask | ButtonReleaseMask);
-
     // set up to catch window delete message
     fWmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", False);
-    XSetWMProtocols(display, fHWnd, &fWmDeleteMessage, 1);
+    XSetWMProtocols(display, fWindow, &fWmDeleteMessage, 1);
 
     // add to hashtable of windows
     gWindowMap.add(this);
@@ -64,6 +125,21 @@ bool Window_unix::init(Display* display) {
     fPendingResize = false;
 
     return true;
+}
+
+void Window_unix::closeWindow() {
+    if (fDisplay) {
+        this->detach();
+        SkASSERT(fGC);
+        XFreeGC(fDisplay, fGC);
+        fGC = nullptr;
+        gWindowMap.remove(fWindow);
+        XDestroyWindow(fDisplay, fWindow);
+        fWindow = 0;
+        fVisualInfo = nullptr;
+        fDisplay = nullptr;
+        fMSAASampleCount = 0;
+    }
 }
 
 static Window::Key get_key(KeySym keysym) {
@@ -108,6 +184,12 @@ static uint32_t get_modifiers(const XEvent& event) {
 
 bool Window_unix::handleEvent(const XEvent& event) {
     switch (event.type) {
+        case MapNotify:
+            if (!fGC) {
+                fGC = XCreateGC(fDisplay, fWindow, 0, nullptr);
+            }
+            break;
+
         case ClientMessage:
             if ((Atom)event.xclient.data.l[0] == fWmDeleteMessage &&
                 gWindowMap.count() == 1) {
@@ -179,24 +261,28 @@ bool Window_unix::handleEvent(const XEvent& event) {
 void Window_unix::setTitle(const char* title) {
     XTextProperty textproperty;
     XStringListToTextProperty(const_cast<char**>(&title), 1, &textproperty);
-    XSetWMName(fDisplay, fHWnd, &textproperty);    
+    XSetWMName(fDisplay, fWindow, &textproperty);    
 }
 
 void Window_unix::show() {
-    XMapWindow(fDisplay, fHWnd);
+    XMapWindow(fDisplay, fWindow);
 }
 
 bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
+    this->initWindow(fDisplay, &params);
+
     ContextPlatformData_unix platformData;
     platformData.fDisplay = fDisplay;
-    platformData.fHWnd = fHWnd;
-    XWindowAttributes attribs;
-    XGetWindowAttributes(fDisplay, fHWnd, &attribs);
-    platformData.fVisualID = XVisualIDFromVisual(attribs.visual);
+    platformData.fWindow = fWindow;
+    platformData.fVisualInfo = fVisualInfo;
     switch (attachType) {
         case kVulkan_BackendType:
-        default:
             fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
+            break;
+
+        case kNativeGL_BackendType:
+        default:
+            fWindowContext = GLWindowContext::Create((void*)&platformData, params);
             break;
     }
 
@@ -208,14 +294,14 @@ void Window_unix::onInval() {
     event.type = Expose;
     event.xexpose.send_event = True;
     event.xexpose.display = fDisplay;
-    event.xexpose.window = fHWnd;
+    event.xexpose.window = fWindow;
     event.xexpose.x = 0;
     event.xexpose.y = 0;
     event.xexpose.width = fWidth;
     event.xexpose.height = fHeight;
     event.xexpose.count = 0;
     
-    XSendEvent(fDisplay, fHWnd, False, 0, &event);
+    XSendEvent(fDisplay, fWindow, False, 0, &event);
 }
 
 }   // namespace sk_app

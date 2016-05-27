@@ -41,7 +41,7 @@ static void on_ui_state_changed_handler(const SkString& stateName, const SkStrin
     return viewer->onUIStateChanged(stateName, stateValue);
 }
 
-DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
+DEFINE_bool2(fullscreen, f, false, "Run fullscreen.");
 DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifying this builder.");
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
@@ -53,6 +53,7 @@ DEFINE_string2(match, m, nullptr,
                "If a bench does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
 DEFINE_string(skps, "skps", "Directory to read skps from.");
+DEFINE_bool(vulkan, true, "Run with Vulkan.");
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
@@ -83,6 +84,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkDebugf("\n");
 
     SkCommandLineFlags::Parse(argc, argv);
+
+    fBackendType = FLAGS_vulkan ? sk_app::Window::kVulkan_BackendType
+                                : sk_app::Window::kNativeGL_BackendType;
 
     fWindow = Window::CreateNativeWindow(platformData);
     fWindow->attach(fBackendType, DisplayParams());
@@ -130,6 +134,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->changeZoomLevel(-1.f / 32.f);
         fWindow->inval();
     });
+#if 0  // this doesn't seem to work on any platform right now
 #ifndef SK_BUILD_FOR_ANDROID
     fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
         fWindow->detach();
@@ -137,14 +142,16 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         if (sk_app::Window::kVulkan_BackendType == fBackendType) {
             fBackendType = sk_app::Window::kNativeGL_BackendType;
         } 
-        // TODO: get Vulkan -> OpenGL working without swapchain creation failure
+        // TODO: get Vulkan -> OpenGL working on Windows without swapchain creation failure
         //else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
         //    fBackendType = sk_app::Window::kVulkan_BackendType;
         //}
 
         fWindow->attach(fBackendType, DisplayParams());
         this->updateTitle();
+        fWindow->inval();
     });
+#endif
 #endif
 
     // set up slides
