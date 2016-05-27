@@ -16,6 +16,7 @@
         '../src/image',
         '../src/images',
         '../src/lazy',
+        '../src/pathops',
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../tools/debugger',
@@ -35,6 +36,7 @@
         '../samplecode/PerlinPatch.cpp',
         '../samplecode/Sample2PtRadial.cpp',
         '../samplecode/SampleAAClip.cpp',
+        '../samplecode/SampleAAGeometry.cpp',
         '../samplecode/SampleAARects.cpp',
         '../samplecode/SampleAARectModes.cpp',
         '../samplecode/SampleAll.cpp',
