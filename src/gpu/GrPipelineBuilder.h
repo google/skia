@@ -31,12 +31,12 @@ public:
     GrPipelineBuilder();
 
     /**
-     * Initializes the GrPipelineBuilder based on a GrPaint, render target, and clip. Note
+     * Initializes the GrPipelineBuilder based on a GrPaint, MSAA availability. Note
      * that GrPipelineBuilder encompasses more than GrPaint. Aspects of GrPipelineBuilder that have
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    GrPipelineBuilder(const GrPaint&, GrRenderTarget*);
+    GrPipelineBuilder(const GrPaint&, bool targetHasUnifiedMultisampling);
 
     virtual ~GrPipelineBuilder();
 

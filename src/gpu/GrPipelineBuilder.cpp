@@ -16,13 +16,13 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 GrPipelineBuilder::GrPipelineBuilder()
-    : fFlags(0x0),
-      fUserStencilSettings(&GrUserStencilSettings::kUnused),
-      fDrawFace(kBoth_DrawFace) {
+    : fFlags(0x0)
+    , fUserStencilSettings(&GrUserStencilSettings::kUnused)
+    , fDrawFace(kBoth_DrawFace) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
-GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt)
+GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool targetHasUnifiedMultisampling)
     : GrPipelineBuilder() {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
@@ -36,10 +36,8 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt)
 
     fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
-    this->setRenderTarget(rt);
-
     this->setState(GrPipelineBuilder::kHWAntialias_Flag,
-                   rt->isUnifiedMultisampled() && paint.isAntiAlias());
+                   targetHasUnifiedMultisampling && paint.isAntiAlias());
     this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
                    paint.getDisableOutputConversionToSRGB());
     this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,

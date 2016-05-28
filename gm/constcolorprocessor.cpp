@@ -107,7 +107,9 @@ protected:
                     GrColor color = kColors[procColor];
                     SkAutoTUnref<GrFragmentProcessor> fp(GrConstColorProcessor::Create(color, mode));
 
-                    GrPipelineBuilder pipelineBuilder(grPaint, drawContext->accessRenderTarget());
+                    GrPipelineBuilder pipelineBuilder(grPaint,
+                                                      drawContext->isUnifiedMultisampled());
+                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
                     pipelineBuilder.addColorFragmentProcessor(fp);
 
                     SkAutoTUnref<GrDrawBatch> batch(
