@@ -526,11 +526,15 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     switch (fDecoderMgr->dinfo()->out_color_space) {
         case JCS_RGB:
             preSwizzled = false;
-            swizzlerInfo.setColor(SkEncodedInfo::kRGB_Color);
+            swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kRGB_Color,
+                                               swizzlerInfo.alpha(),
+                                               swizzlerInfo.bitsPerComponent());
             break;
         case JCS_CMYK:
             preSwizzled = false;
-            swizzlerInfo.setColor(SkEncodedInfo::kInvertedCMYK_Color);
+            swizzlerInfo = SkEncodedInfo::Make(
+                    SkEncodedInfo::kInvertedCMYK_Color, swizzlerInfo.alpha(),
+                    swizzlerInfo.bitsPerComponent());
             break;
         default:
             break;

@@ -191,15 +191,9 @@ private:
         , fBitsPerComponent(bitsPerComponent)
     {}
 
-    void setColor(Color color) {
-        fColor = color;
-    }
-
     Color   fColor;
     Alpha   fAlpha;
     uint8_t fBitsPerComponent;
-
-    friend class SkJpegCodec;
 };
 
 #endif
