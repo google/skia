@@ -366,6 +366,20 @@ bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
     return true;
 }
 
+template <class T>
+static bool safe_add(T arg1, T arg2, size_t* result) {
+    SkASSERT(arg1 >= 0);
+    SkASSERT(arg2 >= 0);
+    if (arg1 >= 0 && arg2 <= std::numeric_limits<T>::max() - arg1) {
+        T sum = arg1 + arg2;
+        if (sum <= std::numeric_limits<size_t>::max()) {
+            *result = static_cast<size_t>(sum);
+            return true;
+        }
+    }
+    return false;
+}
+
 static constexpr uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
 static constexpr uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', 'a');
 
@@ -387,7 +401,16 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
         switch (type) {
             case kTAG_CurveType: {
                 uint32_t count = read_big_endian_uint(src + 8);
-                tagBytes = 12 + count * 2;
+
+                // tagBytes = 12 + 2 * count
+                // We need to do safe addition here to avoid integer overflow.
+                if (!safe_add(count, count, &tagBytes) ||
+                    !safe_add((size_t) 12, tagBytes, &tagBytes))
+                {
+                    SkColorSpacePrintf("Invalid gamma count");
+                    return false;
+                }
+
                 if (0 == count) {
                     // Some tags require a gamma curve, but the author doesn't actually want
                     // to transform the data.  In this case, it is common to see a curve with
