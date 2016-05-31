@@ -328,12 +328,19 @@ public:
 
 private:
     uint32_t fContextUniqueID;
+    struct MipMapLevelData {
+        void* fPixelData;
+        size_t fRowBytes;
+    };
     struct Data {
         SkImageInfo fInfo;
-        void*       fPixelData;
-        size_t      fRowBytes;
         int         fColorTableCnt;
         uint32_t*   fColorTableData;
+        int         fMipMapLevelCount;
+        // The fMipMapLevelData array may contain more than 1 element.
+        // It contains fMipMapLevelCount elements.
+        // That means this struct's size is not known at compile-time.
+        MipMapLevelData fMipMapLevelData[1];
     };
     Data fData;
 
@@ -384,9 +391,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             SkASSERT(!pixmap.ctable());
         }
     }
+    int mipMapLevelCount = 1;
     size_t size = 0;
     size_t dtiSize = SkAlign8(sizeof(DeferredTextureImage));
     size += dtiSize;
+    size += mipMapLevelCount * sizeof(DeferredTextureImage::MipMapLevelData);
     size_t pixelOffset = size;
     size += pixelSize;
     size_t ctOffset = size;
@@ -411,10 +420,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     DeferredTextureImage* dti = new (buffer) DeferredTextureImage();
     dti->fContextUniqueID = proxy.fContextUniqueID;
     dti->fData.fInfo = info;
-    dti->fData.fPixelData = pixels;
-    dti->fData.fRowBytes = rowBytes;
     dti->fData.fColorTableCnt = ctCount;
     dti->fData.fColorTableData = ct;
+    dti->fData.fMipMapLevelCount = mipMapLevelCount;
+    dti->fData.fMipMapLevelData[0].fPixelData = pixels;
+    dti->fData.fMipMapLevelData[0].fRowBytes = rowBytes;
     return size;
 }
 
@@ -433,8 +443,10 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
         SkASSERT(dti->fData.fColorTableData);
         colorTable.reset(new SkColorTable(dti->fData.fColorTableData, dti->fData.fColorTableCnt));
     }
+    SkASSERT(dti->fData.fMipMapLevelCount == 1);
     SkPixmap pixmap;
-    pixmap.reset(dti->fData.fInfo, dti->fData.fPixelData, dti->fData.fRowBytes, colorTable.get());
+    pixmap.reset(dti->fData.fInfo, dti->fData.fMipMapLevelData[0].fPixelData,
+                 dti->fData.fMipMapLevelData[0].fRowBytes, colorTable.get());
     return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
 }
 
