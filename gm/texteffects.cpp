@@ -268,7 +268,7 @@ DEF_SIMPLE_GM(fancyunderline, canvas, 900, 1350) {
     const char test[] = "aAjJgGyY_|{-(~[,]qQ}pP}zZ";
     SkPoint textPt = { 10, 80 };
     for (int font = 0; font < 3; ++font) {
-        sk_tool_utils::set_portable_typeface(&paint, fam[font], SkTypeface::kNormal);
+        sk_tool_utils::set_portable_typeface(&paint, fam[font]);
         for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
             paint.setTextSize(textSize);
             const SkScalar uWidth = textSize / 15;
@@ -312,7 +312,7 @@ DEF_SIMPLE_GM(fancyposunderline, canvas, 900, 1350) {
     const char test[] = "aAjJgGyY_|{-(~[,]qQ}pP}zZ";
     SkPoint textPt = { 10, 80 };
     for (int font = 0; font < 3; ++font) {
-        sk_tool_utils::set_portable_typeface(&paint, fam[font], SkTypeface::kNormal);
+        sk_tool_utils::set_portable_typeface(&paint, fam[font]);
         for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
             paint.setTextSize(textSize);
             const SkScalar uWidth = textSize / 15;

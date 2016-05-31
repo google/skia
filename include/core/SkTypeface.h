@@ -100,6 +100,19 @@ public:
     }
 #endif
 
+  /** Creates a new reference to the typeface that most closely matches the
+      requested familyName and fontStyle. This method allows extended font
+      face specifiers as in the SkFontStyle type. Will never return null.
+
+      @param familyName  May be NULL. The name of the font family.
+      @param fontStyle   The style of the typeface.
+      @return reference to the closest-matching typeface. Call must call
+              unref() when they are done.
+    */
+  static sk_sp<SkTypeface> MakeFromName(const char familyName[],
+                                        SkFontStyle fontStyle);
+
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_MAKE_FROM_NAME
     /** Return the typeface that most closely matches the requested familyName and style.
         Pass nullptr as the familyName to request the default font for the requested style.
         Will never return nullptr.
@@ -109,9 +122,10 @@ public:
         @return the closest-matching typeface.
     */
     static sk_sp<SkTypeface> MakeFromName(const char familyName[], Style style);
+#endif
 #ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
     static SkTypeface* CreateFromName(const char familyName[], Style style) {
-        return MakeFromName(familyName, style).release();
+        return MakeFromName(familyName, SkFontStyle::FromOldStyle(style)).release();
     }
 #endif
 

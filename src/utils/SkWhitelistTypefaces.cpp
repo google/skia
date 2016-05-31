@@ -28,7 +28,7 @@ static bool timesNewRomanSerializedNameOnly = false;
 
 #define SUBNAME_PREFIX "sk_"
 
-static bool font_name_is_local(const char* fontName, SkTypeface::Style style) {
+static bool font_name_is_local(const char* fontName, SkFontStyle style) {
     if (!strcmp(fontName, "DejaVu Sans")) {
         return true;
     }
@@ -162,7 +162,7 @@ void WhitelistSerializeTypeface(const SkTypeface* tf, SkWStream* wstream) {
         return;
     }
     const char* fontName = whitelist[whitelistIndex].fFontName;
-    if (!font_name_is_local(fontName, tf->style())) {
+    if (!font_name_is_local(fontName, tf->fontStyle())) {
 #if WHITELIST_DEBUG
         SkDebugf("name not found locally \"%s\" style=%d\n", fontName, tf->style());
 #endif
@@ -200,13 +200,13 @@ sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* stream) {
     if (!strncmp(SUBNAME_PREFIX, familyName, sizeof(SUBNAME_PREFIX) - 1)) {
         familyName += sizeof(SUBNAME_PREFIX) - 1;
     }
-    return SkTypeface::MakeFromName(familyName, desc.getStyle());
+    return SkTypeface::MakeFromName(familyName, SkFontStyle::FromOldStyle(desc.getStyle()));
 }
 
 bool CheckChecksums() {
     for (int i = 0; i < whitelistCount; ++i) {
         const char* fontName = whitelist[i].fFontName;
-        sk_sp<SkTypeface> tf(SkTypeface::MakeFromName(fontName, SkTypeface::kNormal));
+        sk_sp<SkTypeface> tf(SkTypeface::MakeFromName(fontName, SkFontStyle()));
         uint32_t checksum = compute_checksum(tf.get());
         if (whitelist[i].fChecksum != checksum) {
             return false;
@@ -261,7 +261,7 @@ bool GenerateChecksums() {
     sk_fwrite(line.c_str(), line.size(), file);
     for (int i = 0; i < whitelistCount; ++i) {
         const char* fontName = whitelist[i].fFontName;
-        sk_sp<SkTypeface> tf(SkTypeface::MakeFromName(fontName, SkTypeface::kNormal));
+        sk_sp<SkTypeface> tf(SkTypeface::MakeFromName(fontName, SkFontStyle()));
         uint32_t checksum = compute_checksum(tf.get());
         line.printf(checksumEntry, fontName, checksum);
         sk_fwrite(line.c_str(), line.size(), file);

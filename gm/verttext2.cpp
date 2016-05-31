@@ -24,9 +24,9 @@ protected:
         const int pointSize = 24;
         textHeight = SkIntToScalar(pointSize);
         fProp = SkTypeface::MakeFromName(sk_tool_utils::platform_font_name("sans-serif"),
-                SkTypeface::kNormal);
+                SkFontStyle());
         fMono = SkTypeface::MakeFromName(sk_tool_utils::platform_font_name("monospace"),
-                SkTypeface::kNormal);
+                SkFontStyle());
     }
 
     SkString onShortName() override {

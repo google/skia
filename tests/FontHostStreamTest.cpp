@@ -69,7 +69,7 @@ DEF_TEST(FontHostStream, reporter) {
         paint.setColor(SK_ColorGRAY);
         paint.setTextSize(SkIntToScalar(30));
 
-        paint.setTypeface(SkTypeface::MakeFromName("Georgia", SkTypeface::kNormal));
+        paint.setTypeface(SkTypeface::MakeFromName("Georgia", SkFontStyle()));
 
         SkIRect origRect = SkIRect::MakeWH(64, 64);
         SkBitmap origBitmap;

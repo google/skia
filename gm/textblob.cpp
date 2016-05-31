@@ -72,7 +72,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fTypeface = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal);
+        fTypeface = sk_tool_utils::create_portable_typeface("serif", SkFontStyle());
         SkPaint p;
         p.setTypeface(fTypeface);
         size_t txtLen = strlen(fText);

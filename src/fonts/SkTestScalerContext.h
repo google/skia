@@ -41,7 +41,7 @@ public:
     mutable unsigned char fDebugBits[16];
     mutable SkUnichar fDebugOverage[8];
     const char* fDebugName;
-    SkTypeface::Style fDebugStyle;
+    SkFontStyle fDebugStyle;
     const char* debugFontName() const { return fName; }
 #endif
 private:

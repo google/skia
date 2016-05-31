@@ -27,7 +27,7 @@ public:
 
 protected:
     void onDelayedSetup() override {
-        fTypeface = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal);
+        fTypeface = sk_tool_utils::create_portable_typeface("serif", SkFontStyle());
         // make textblob
         SkPaint paint;
         paint.setTypeface(fTypeface);

@@ -1163,7 +1163,8 @@ static void test_typeface(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(10, 10);
     SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeFromName("Arial", SkTypeface::kItalic));
+    paint.setTypeface(SkTypeface::MakeFromName("Arial",
+                                               SkFontStyle::FromOldStyle(SkTypeface::kItalic)));
     canvas->drawText("Q", 1, 0, 10, paint);
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     SkDynamicMemoryWStream stream;

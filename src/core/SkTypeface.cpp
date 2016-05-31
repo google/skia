@@ -27,7 +27,8 @@ extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
 #define SK_TYPEFACE_DELEGATE nullptr
 #endif
 
-sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style ) = nullptr;
+sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char[], SkFontStyle) = nullptr;
+
 void (*gSerializeTypefaceDelegate)(const SkTypeface*, SkWStream* ) = SK_TYPEFACE_DELEGATE;
 sk_sp<SkTypeface> (*gDeserializeTypefaceDelegate)(SkStream* ) = nullptr;
 
@@ -108,18 +109,32 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_MAKE_FROM_NAME
 sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[], Style style) {
+  return MakeFromName(name, SkFontStyle::FromOldStyle(style));
+}
+#endif
+
+sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
+                                           SkFontStyle fontStyle) {
     if (gCreateTypefaceDelegate) {
-        sk_sp<SkTypeface> result = (*gCreateTypefaceDelegate)(name, style);
+        sk_sp<SkTypeface> result = (*gCreateTypefaceDelegate)(name, fontStyle);
         if (result) {
             return result;
         }
     }
-    if (nullptr == name) {
-        return MakeDefault(style);
+    if (nullptr == name && (fontStyle.slant() == SkFontStyle::kItalic_Slant ||
+                            fontStyle.slant() == SkFontStyle::kUpright_Slant) &&
+                           (fontStyle.weight() == SkFontStyle::kBold_Weight ||
+                            fontStyle.weight() == SkFontStyle::kNormal_Weight)) {
+        return MakeDefault(static_cast<SkTypeface::Style>(
+            (fontStyle.slant() == SkFontStyle::kItalic_Slant ? SkTypeface::kItalic :
+                                                               SkTypeface::kNormal) |
+            (fontStyle.weight() == SkFontStyle::kBold_Weight ? SkTypeface::kBold :
+                                                               SkTypeface::kNormal)));
     }
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return sk_sp<SkTypeface>(fm->legacyCreateTypeface(name, SkFontStyle::FromOldStyle(style)));
+    return sk_sp<SkTypeface>(fm->legacyCreateTypeface(name, fontStyle));
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeFromTypeface(SkTypeface* family, Style s) {
@@ -185,7 +200,9 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
             return typeface;
         }
     }
-    return SkTypeface::MakeFromName(desc.getFamilyName(), desc.getStyle());
+
+    return SkTypeface::MakeFromName(desc.getFamilyName(),
+                                    SkFontStyle::FromOldStyle(desc.getStyle()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

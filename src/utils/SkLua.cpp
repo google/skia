@@ -2049,7 +2049,7 @@ static int lsk_newTypeface(lua_State* L) {
         }
     }
 
-    sk_sp<SkTypeface> face(SkTypeface::MakeFromName(name, (SkTypeface::Style)style));
+    sk_sp<SkTypeface> face(SkTypeface::MakeFromName(name, SkFontStyle::FromOldStyle(style)));
 //    SkDebugf("---- name <%s> style=%d, face=%p ref=%d\n", name, style, face, face->getRefCnt());
     if (nullptr == face) {
         face = SkTypeface::MakeDefault();

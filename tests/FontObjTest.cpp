@@ -78,7 +78,7 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
     char txt[] = "long.text.with.lots.of.dots.";
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
-        paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkTypeface::kNormal));
+        paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
             paint.setHinting(settings[j].hinting);

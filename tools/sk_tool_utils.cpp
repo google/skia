@@ -80,7 +80,7 @@ sk_sp<SkTypeface> emoji_typeface() {
         return MakeResourceAsTypeface("/fonts/Funkster.ttf");
     }
     if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
-        return SkTypeface::MakeFromName("Apple Color Emoji", SkTypeface::kNormal);
+        return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
     }
     return nullptr;
 }
@@ -156,11 +156,11 @@ SkColor color_to_565(SkColor color) {
     return SkPixel16ToColor(color16);
 }
 
-sk_sp<SkTypeface> create_portable_typeface(const char* name, SkTypeface::Style style) {
+sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style) {
     return create_font(name, style);
 }
 
-void set_portable_typeface(SkPaint* paint, const char* name, SkTypeface::Style style) {
+void set_portable_typeface(SkPaint* paint, const char* name, SkFontStyle style) {
     paint->setTypeface(create_font(name, style));
 }
 

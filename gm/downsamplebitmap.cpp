@@ -29,7 +29,7 @@ static void make_checker(SkBitmap* bm, int size, int numChecks) {
     }
 }
 
-static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
+static void setTypeface(SkPaint* paint, const char name[], SkFontStyle style) {
     sk_tool_utils::set_portable_typeface(paint, name, style);
 }
 
@@ -125,13 +125,13 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
           paint.setSubpixelText(true);
           paint.setTextSize(fTextSize);
 
-          setTypeface(&paint, "serif", SkTypeface::kNormal);
+          setTypeface(&paint, "serif", SkFontStyle());
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 1.2f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kBold);
+          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kBold));
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 2.4f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kItalic);
+          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kItalic));
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 3.6f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kBoldItalic);
+          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kBoldItalic));
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 4.8f*fTextSize, paint);
       }
   private:

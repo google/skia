@@ -52,10 +52,12 @@ protected:
         SkScalar h = SkIntToScalar(size.fHeight);
 
         static_assert(4 == SK_ARRAY_COUNT(fTypefaces), "typeface_cnt");
-        fTypefaces[0] = sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kNormal);
-        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kBold);
-        fTypefaces[2] = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal);
-        fTypefaces[3] = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kBold);
+        fTypefaces[0] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle());
+        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif",
+                            SkFontStyle::FromOldStyle(SkTypeface::kBold));
+        fTypefaces[2] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle());
+        fTypefaces[3] = sk_tool_utils::create_portable_typeface("serif",
+                            SkFontStyle::FromOldStyle(SkTypeface::kBold));
 
         SkRandom random;
         for (int i = 0; i < kCnt; ++i) {

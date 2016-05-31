@@ -72,12 +72,12 @@ namespace sk_tool_utils {
      * Sets the paint to use a platform-independent text renderer
      */
     void set_portable_typeface(SkPaint* paint, const char* name = nullptr,
-                               SkTypeface::Style style = SkTypeface::kNormal);
+                               SkFontStyle style = SkFontStyle());
 
     /**
      * Returns a platform-independent text renderer.
      */
-    sk_sp<SkTypeface> create_portable_typeface(const char* name, SkTypeface::Style style);
+    sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style);
 
     /** Call to clean up portable font references. */
     void release_portable_typefaces();
@@ -89,7 +89,7 @@ namespace sk_tool_utils {
     void write_pixels(SkCanvas*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
 
     // private to sk_tool_utils
-    sk_sp<SkTypeface> create_font(const char* name, SkTypeface::Style);
+    sk_sp<SkTypeface> create_font(const char* name, SkFontStyle);
 
     /** Returns a newly created CheckerboardShader. */
     sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);
