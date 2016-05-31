@@ -1136,7 +1136,8 @@ size_t SkRegion::readFromMemory(const void* storage, size_t length) {
             tmp.fRunHead = SkRegion_gRectRunHeadPtr;
         } else {
             int32_t ySpanCount, intervalCount;
-            if (buffer.readS32(&ySpanCount) && buffer.readS32(&intervalCount)) {
+            if (buffer.readS32(&ySpanCount) && buffer.readS32(&intervalCount) &&
+                intervalCount > 1) {
                 tmp.allocateRuns(count, ySpanCount, intervalCount);
                 buffer.read(tmp.fRunHead->writable_runs(), count * sizeof(RunType));
             }
