@@ -247,13 +247,6 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType type, const 
         return nullptr;
     }
 
-    if (path.countPoints() > kMaxEdges) {
-        return nullptr;
-    }
-
-    SkPoint pts[kMaxEdges];
-    SkScalar edges[3 * kMaxEdges];
-
     SkPathPriv::FirstDirection dir;
     // The only way this should fail is if the clip is effectively a infinitely thin line. In that
     // case nothing is inside the clip. It'd be nice to detect this at a higher level and either
@@ -273,24 +266,45 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType type, const 
         t = *offset;
     }
 
-    int count = path.getPoints(pts, kMaxEdges);
+    SkScalar        edges[3 * kMaxEdges];
+    SkPoint         pts[4];
+    SkPath::Verb    verb;
+    SkPath::Iter    iter(path, true);
+
+    // SkPath considers itself convex so long as there is a convex contour within it,
+    // regardless of any degenerate contours such as a string of moveTos before it.
+    // Iterate here to consume any degenerate contours and only process the points
+    // on the actual convex contour.
     int n = 0;
-    for (int lastPt = count - 1, i = 0; i < count; lastPt = i++) {
-        if (pts[lastPt] != pts[i]) {
-            SkVector v = pts[i] - pts[lastPt];
-            v.normalize();
-            if (SkPathPriv::kCCW_FirstDirection == dir) {
-                edges[3 * n] = v.fY;
-                edges[3 * n + 1] = -v.fX;
-            } else {
-                edges[3 * n] = -v.fY;
-                edges[3 * n + 1] = v.fX;
+    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                SkASSERT(n == 0);
+            case SkPath::kClose_Verb:
+                break;
+            case SkPath::kLine_Verb: {
+                if (n >= kMaxEdges) {
+                    return nullptr;
+                }
+                SkVector v = pts[1] - pts[0];
+                v.normalize();
+                if (SkPathPriv::kCCW_FirstDirection == dir) {
+                    edges[3 * n] = v.fY;
+                    edges[3 * n + 1] = -v.fX;
+                } else {
+                    edges[3 * n] = -v.fY;
+                    edges[3 * n + 1] = v.fX;
+                }
+                SkPoint p = pts[1] + t;
+                edges[3 * n + 2] = -(edges[3 * n] * p.fX + edges[3 * n + 1] * p.fY);
+                ++n;
+                break;
             }
-            SkPoint p = pts[i] + t;
-            edges[3 * n + 2] = -(edges[3 * n] * p.fX + edges[3 * n + 1] * p.fY);
-            ++n;
+            default:
+                return nullptr;
         }
     }
+
     if (path.isInverseFillType()) {
         type = GrInvertProcessorEdgeType(type);
     }
