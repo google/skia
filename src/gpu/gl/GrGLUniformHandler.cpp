@@ -85,14 +85,15 @@ void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
 
 void GrGLUniformHandler::bindUniformLocations(GrGLuint programID, const GrGLCaps& caps) {
     if (caps.bindUniformLocationSupport()) {
-        int count = fUniforms.count();
-        for (int i = 0; i < count; ++i) {
+        int uniformCnt = fUniforms.count();
+        for (int i = 0; i < uniformCnt; ++i) {
             GL_CALL(BindUniformLocation(programID, i, fUniforms[i].fVariable.c_str()));
             fUniforms[i].fLocation = i;
         }
         for (int i = 0; i < fSamplers.count(); ++i) {
-            GL_CALL(BindUniformLocation(programID, i, fSamplers[i].fShaderVar.c_str()));
-            fSamplers[i].fLocation = i;
+            GrGLint location = i + uniformCnt;
+            GL_CALL(BindUniformLocation(programID, location, fSamplers[i].fShaderVar.c_str()));
+            fSamplers[i].fLocation = location;
         }
     }
 }
