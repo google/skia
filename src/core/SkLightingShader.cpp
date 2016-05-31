@@ -50,13 +50,13 @@ public:
         @param normLocalM the local matrix for the normal coordinates
     */
     SkLightingShaderImpl(const SkBitmap& diffuse, const SkBitmap& normal,
-                         const SkLightingShader::Lights* lights,
+                         const sk_sp<SkLights> lights,
                          const SkVector& invNormRotation,
                          const SkMatrix* diffLocalM, const SkMatrix* normLocalM)
         : INHERITED(diffLocalM)
         , fDiffuseMap(diffuse)
         , fNormalMap(normal)
-        , fLights(SkRef(lights))
+        , fLights(std::move(lights))
         , fInvNormRotation(invNormRotation) {
 
         if (normLocalM) {
@@ -108,13 +108,13 @@ protected:
     bool computeNormTotalInverse(const ContextRec& rec, SkMatrix* normTotalInverse) const;
 
 private:
-    SkBitmap  fDiffuseMap;
-    SkBitmap  fNormalMap;
+    SkBitmap        fDiffuseMap;
+    SkBitmap        fNormalMap;
 
-    SkAutoTUnref<const SkLightingShader::Lights>   fLights;
+    sk_sp<SkLights> fLights;
 
-    SkMatrix  fNormLocalMatrix;
-    SkVector  fInvNormRotation;
+    SkMatrix        fNormLocalMatrix;
+    SkVector        fInvNormRotation;
 
     friend class SkLightingShader;
 
@@ -140,7 +140,7 @@ class LightingFP : public GrFragmentProcessor {
 public:
     LightingFP(GrTexture* diffuse, GrTexture* normal, const SkMatrix& diffMatrix,
                const SkMatrix& normMatrix, const GrTextureParams& diffParams,
-               const GrTextureParams& normParams, const SkLightingShader::Lights* lights,
+               const GrTextureParams& normParams, sk_sp<SkLights> lights,
                const SkVector& invNormRotation)
         : fDiffDeviceTransform(kLocal_GrCoordSet, diffMatrix, diffuse, diffParams.filterMode())
         , fNormDeviceTransform(kLocal_GrCoordSet, normMatrix, normal, normParams.filterMode())
@@ -155,7 +155,7 @@ public:
         // fuse all ambient lights into a single one
         fAmbientColor.set(0.0f, 0.0f, 0.0f);
         for (int i = 0; i < lights->numLights(); ++i) {
-            if (SkLight::kAmbient_LightType == lights->light(i).type()) {
+            if (SkLights::Light::kAmbient_LightType == lights->light(i).type()) {
                 fAmbientColor += lights->light(i).color();
             } else {
                 // TODO: handle more than one of these
@@ -519,9 +519,9 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
             SkColor3f accum = SkColor3f::Make(0.0f, 0.0f, 0.0f);
             // This is all done in linear unpremul color space (each component 0..255.0f though)
             for (int l = 0; l < lightShader.fLights->numLights(); ++l) {
-                const SkLight& light = lightShader.fLights->light(l);
+                const SkLights::Light& light = lightShader.fLights->light(l);
 
-                if (SkLight::kAmbient_LightType == light.type()) {
+                if (SkLights::Light::kAmbient_LightType == light.type()) {
                     accum += light.color().makeScale(255.0f);
                 } else {
                     SkScalar NdotL = xformedNorm.dot(light.dir());
@@ -583,7 +583,7 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     int numLights = buf.readInt();
 
-    SkLightingShader::Lights::Builder builder;
+    SkLights::Builder builder;
 
     for (int l = 0; l < numLights; ++l) {
         bool isAmbient = buf.readBool();
@@ -594,24 +594,24 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
         }
 
         if (isAmbient) {
-            builder.add(SkLight(color));
+            builder.add(SkLights::Light(color));
         } else {
             SkVector3 dir;
             if (!buf.readScalarArray(&dir.fX, 3)) {
                 return nullptr;
             }
-            builder.add(SkLight(color, dir));
+            builder.add(SkLights::Light(color, dir));
         }
     }
 
-    SkAutoTUnref<const SkLightingShader::Lights> lights(builder.finish());
+    sk_sp<SkLights> lights(builder.finish());
 
     SkVector invNormRotation = {1,0};
     if (!buf.isVersionLT(SkReadBuffer::kLightingShaderWritesInvNormRotation)) {
         invNormRotation = buf.readPoint();
     }
 
-    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, lights, invNormRotation,
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, std::move(lights), invNormRotation,
                                             &diffLocalM, &normLocalM);
 }
 
@@ -629,9 +629,9 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
 
     buf.writeInt(fLights->numLights());
     for (int l = 0; l < fLights->numLights(); ++l) {
-        const SkLight& light = fLights->light(l);
+        const SkLights::Light& light = fLights->light(l);
 
-        bool isAmbient = SkLight::kAmbient_LightType == light.type();
+        bool isAmbient = SkLights::Light::kAmbient_LightType == light.type();
 
         buf.writeBool(isAmbient);
         buf.writeScalarArray(&light.color().fX, 3);
@@ -706,7 +706,7 @@ static bool bitmap_is_too_big(const SkBitmap& bm) {
 }
 
 sk_sp<SkShader> SkLightingShader::Make(const SkBitmap& diffuse, const SkBitmap& normal,
-                                       const Lights* lights,
+                                       sk_sp<SkLights> lights,
                                        const SkVector& invNormRotation,
                                        const SkMatrix* diffLocalM, const SkMatrix* normLocalM) {
     if (diffuse.isNull() || bitmap_is_too_big(diffuse) ||
@@ -718,8 +718,8 @@ sk_sp<SkShader> SkLightingShader::Make(const SkBitmap& diffuse, const SkBitmap& 
 
     SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
 
-    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, lights, invNormRotation, diffLocalM,
-                                            normLocalM);
+    return sk_make_sp<SkLightingShaderImpl>(diffuse, normal, std::move(lights),
+                                            invNormRotation, diffLocalM, normLocalM);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
