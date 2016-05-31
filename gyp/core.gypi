@@ -369,6 +369,7 @@
         '<(skia_include_path)/core/SkImageEncoder.h',
         '<(skia_include_path)/core/SkImageFilter.h',
         '<(skia_include_path)/core/SkImageInfo.h',
+        '<(skia_include_path)/core/SkLights.h',
         '<(skia_include_path)/core/SkMallocPixelRef.h',
         '<(skia_include_path)/core/SkMask.h',
         '<(skia_include_path)/core/SkMaskFilter.h',
