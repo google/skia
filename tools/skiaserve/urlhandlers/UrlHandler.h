@@ -154,3 +154,12 @@ public:
                const char* url, const char* method,
                const char* upload_data, size_t* upload_data_size) override;
 };
+
+class QuitHandler : public UrlHandler {
+public:
+    bool canHandle(const char* method, const char* url) override;
+    int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
+               const char* upload_data, size_t* upload_data_size) override;
+};
+
