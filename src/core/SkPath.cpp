@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <cmath>
 #include "SkBuffer.h"
 #include "SkCubicClipper.h"
 #include "SkErrorInternals.h"
@@ -1421,10 +1422,21 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle
     const SkScalar kFullCircleAngle = SkIntToScalar(360);
 
     if (sweepAngle >= kFullCircleAngle || sweepAngle <= -kFullCircleAngle) {
-        this->addOval(oval, sweepAngle > 0 ? kCW_Direction : kCCW_Direction);
-    } else {
-        this->arcTo(oval, startAngle, sweepAngle, true);
+        // We can treat the arc as an oval if it begins at one of our legal starting positions.
+        // See SkPath::addOval() docs.
+        SkScalar startOver90 = startAngle / 90.f;
+        SkScalar startOver90I = SkScalarRoundToScalar(startOver90);
+        SkScalar error = startOver90 - startOver90I;
+        if (SkScalarNearlyEqual(error, 0)) {
+            // Index 1 is at startAngle == 0.
+            SkScalar startIndex = std::fmod(startOver90I + 1.f, 4.f);
+            startIndex = startIndex < 0 ? startIndex + 4.f : startIndex;
+            this->addOval(oval, sweepAngle > 0 ? kCW_Direction : kCCW_Direction,
+                          (unsigned) startIndex);
+            return;
+        }
     }
+    this->arcTo(oval, startAngle, sweepAngle, true);
 }
 
 /*

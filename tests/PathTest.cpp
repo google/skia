@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <cmath>
 #include "SkCanvas.h"
 #include "SkGeometry.h"
 #include "SkPaint.h"
@@ -3306,12 +3307,12 @@ static void test_arc(skiatest::Reporter* reporter) {
     p.reset();
     SkPath cwOval;
     cwOval.addOval(oval);
-    p.addArc(oval, 1, 360);
+    p.addArc(oval, 0, 360);
     REPORTER_ASSERT(reporter, p == cwOval);
     p.reset();
     SkPath ccwOval;
     ccwOval.addOval(oval, SkPath::kCCW_Direction);
-    p.addArc(oval, 1, -360);
+    p.addArc(oval, 0, -360);
     REPORTER_ASSERT(reporter, p == ccwOval);
     p.reset();
     p.addArc(oval, 1, 180);
@@ -3319,6 +3320,70 @@ static void test_arc(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p, SkPathPriv::kCW_FirstDirection));
     p.setConvexity(SkPath::kUnknown_Convexity);
     REPORTER_ASSERT(reporter, p.isConvex());
+}
+
+static inline SkScalar oval_start_index_to_angle(unsigned start) {
+    switch (start) {
+        case 0:
+            return 270.f;
+        case 1:
+            return 0.f;
+        case 2:
+            return 90.f;
+        case 3:
+            return 180.f;
+        default:
+            return -1.f;
+    }
+}
+
+static inline SkScalar canonical_start_angle(float angle) {
+    while (angle < 0.f) {
+        angle += 360.f;
+    }
+    while (angle >= 360.f) {
+        angle -= 360.f;
+    }
+    return angle;
+}
+
+static void check_oval_arc(skiatest::Reporter* reporter, SkScalar start, SkScalar sweep,
+                           const SkPath& path) {
+    SkRect r = SkRect::MakeEmpty();
+    SkPath::Direction d = SkPath::kCCW_Direction;
+    unsigned s = ~0U;
+    bool isOval = path.isOval(&r, &d, &s);
+    REPORTER_ASSERT(reporter, isOval);
+    SkPath recreatedPath;
+    recreatedPath.addOval(r, d, s);
+    REPORTER_ASSERT(reporter, path == recreatedPath);
+    REPORTER_ASSERT(reporter, oval_start_index_to_angle(s) == canonical_start_angle(start));
+    REPORTER_ASSERT(reporter, (SkPath::kCW_Direction == d) == (sweep > 0.f));
+}
+
+static void test_arc_ovals(skiatest::Reporter* reporter) {
+    SkRect oval = SkRect::MakeWH(10, 20);
+    for (SkScalar sweep : {-720.f, -540.f, -360.f, 360.f, 432.f, 720.f}) {
+        for (SkScalar start = -360.f; start <= 360.f; start += 1.f) {
+            SkPath path;
+            path.addArc(oval, start, sweep);
+            // SkPath's interfaces for inserting and extracting ovals only allow contours
+            // to start at multiples of 90 degrees.
+            if (std::fmod(start, 90.f) == 0) {
+                check_oval_arc(reporter, start, sweep, path);
+            } else {
+                REPORTER_ASSERT(reporter, !path.isOval(nullptr));
+            }
+        }
+        // Test start angles that are nearly at valid oval start angles.
+        for (float start : {-180.f, -90.f, 90.f, 180.f}) {
+            for (float delta : {-SK_ScalarNearlyZero, SK_ScalarNearlyZero}) {
+                SkPath path;
+                path.addArc(oval, start + delta, sweep);
+                check_oval_arc(reporter, start, sweep, path);
+            }
+        }
+    }
 }
 
 static void check_move(skiatest::Reporter* reporter, SkPath::RawIter* iter,
@@ -4121,6 +4186,7 @@ DEF_TEST(Paths, reporter) {
     test_path_to_region(reporter);
     test_rrect(reporter);
     test_arc(reporter);
+    test_arc_ovals(reporter);
     test_arcTo(reporter);
     test_addPath(reporter);
     test_addPathMode(reporter, false, false);
