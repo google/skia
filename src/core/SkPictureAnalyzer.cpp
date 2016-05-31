@@ -27,7 +27,7 @@ SkPictureGpuAnalyzer::SkPictureGpuAnalyzer(sk_sp<GrContextThreadSafeProxy> /* un
 SkPictureGpuAnalyzer::SkPictureGpuAnalyzer(const sk_sp<SkPicture>& picture,
                                            sk_sp<GrContextThreadSafeProxy> ctx)
     : SkPictureGpuAnalyzer(std::move(ctx)) {
-    this->analyze(picture.get());
+    this->analyzePicture(picture.get());
 }
 
 void SkPictureGpuAnalyzer::analyzePicture(const SkPicture* picture) {

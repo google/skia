@@ -1416,7 +1416,7 @@ DEF_TEST(PictureGpuAnalyzer, r) {
     SkPictureGpuAnalyzer analyzer;
     REPORTER_ASSERT(r, analyzer.suitableForGpuRasterization());
 
-    analyzer.analyze(vetoPicture.get());
+    analyzer.analyzePicture(vetoPicture.get());
     REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
 
     analyzer.reset();
@@ -1425,7 +1425,7 @@ DEF_TEST(PictureGpuAnalyzer, r) {
     recorder.beginRecording(10, 10)->drawPicture(vetoPicture);
     sk_sp<SkPicture> nestedVetoPicture(recorder.finishRecordingAsPicture());
 
-    analyzer.analyze(nestedVetoPicture.get());
+    analyzer.analyzePicture(nestedVetoPicture.get());
     REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
 
     analyzer.reset();

@@ -33,9 +33,6 @@ public:
      */
     void analyzePicture(const SkPicture*);
 
-    // Legacy/transitional alias.
-    void analyze(const SkPicture* picture) { this->analyzePicture(picture); }
-
     /**
      *  Process an explicit clipPath op.
      */
