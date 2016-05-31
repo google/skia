@@ -22,7 +22,6 @@
             '../src/utils', # needed to get SkBitSet.h
           ],
           'sources': [
-            '../src/xps/SkConstexprMath.h',
             '../src/xps/SkDocument_XPS.cpp',
             '../src/xps/SkXPSDevice.cpp',
             '../src/xps/SkXPSDevice.h',
