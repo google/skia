@@ -62,7 +62,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
 
 bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo* info) {
     VkImage image = 0;
-    VkDeviceMemory alloc;
+    GrVkAlloc alloc;
 
     VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling)
         ? VK_IMAGE_LAYOUT_PREINITIALIZED
@@ -118,10 +118,10 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
 
 void GrVkImage::DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo* info) {
     VK_CALL(gpu, DestroyImage(gpu->device(), info->fImage, nullptr));
-    VK_CALL(gpu, FreeMemory(gpu->device(), info->fAlloc, nullptr));
+    GrVkMemory::FreeImageMemory(gpu, info->fAlloc);
 }
 
-void GrVkImage::setNewResource(VkImage image, VkDeviceMemory alloc) {
+void GrVkImage::setNewResource(VkImage image, const GrVkAlloc& alloc) {
     fResource = new Resource(image, alloc);
 }
 
@@ -146,7 +146,7 @@ void GrVkImage::abandonImage() {
 
 void GrVkImage::Resource::freeGPUData(const GrVkGpu* gpu) const {
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
-    VK_CALL(gpu, FreeMemory(gpu->device(), fAlloc, nullptr));
+    GrVkMemory::FreeImageMemory(gpu, fAlloc);
 }
 
 void GrVkImage::BorrowedResource::freeGPUData(const GrVkGpu* gpu) const {

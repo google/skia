@@ -41,7 +41,7 @@ public:
     virtual ~GrVkImage();
 
     VkImage image() const { return fInfo.fImage; }
-    VkDeviceMemory memory() const { return fInfo.fAlloc; }
+    const GrVkAlloc& alloc() const { return fInfo.fAlloc; }
     VkFormat imageFormat() const { return fInfo.fFormat; }
     const Resource* resource() const { return fResource; }
     bool isLinearTiled() const {
@@ -87,7 +87,7 @@ protected:
     void releaseImage(const GrVkGpu* gpu);
     void abandonImage();
 
-    void setNewResource(VkImage image, VkDeviceMemory alloc);
+    void setNewResource(VkImage image, const GrVkAlloc& alloc);
 
     GrVkImageInfo   fInfo;
     bool            fIsBorrowed;
@@ -98,19 +98,21 @@ private:
     public:
         Resource()
             : INHERITED()
-            , fImage(VK_NULL_HANDLE)
-            , fAlloc(VK_NULL_HANDLE) {
+            , fImage(VK_NULL_HANDLE) {
+            fAlloc.fMemory = VK_NULL_HANDLE;
+            fAlloc.fOffset = 0;
         }
 
-        Resource(VkImage image, VkDeviceMemory alloc) : fImage(image), fAlloc(alloc) {}
+    Resource(VkImage image, const GrVkAlloc& alloc) 
+            : fImage(image), fAlloc(alloc) {}
 
         ~Resource() override {}
 
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
 
-        VkImage                  fImage;
-        VkDeviceMemory           fAlloc;
+        VkImage        fImage;
+        GrVkAlloc      fAlloc;
 
         typedef GrVkResource INHERITED;
     };
@@ -118,7 +120,8 @@ private:
     // for wrapped textures
     class BorrowedResource : public Resource {
     public:
-        BorrowedResource(VkImage image, VkDeviceMemory alloc) : Resource(image, alloc) {
+        BorrowedResource(VkImage image, const GrVkAlloc& alloc) 
+            : Resource(image, alloc) {
         }
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;

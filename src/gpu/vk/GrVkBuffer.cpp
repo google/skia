@@ -20,7 +20,7 @@
 
 const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& desc) {
     VkBuffer       buffer;
-    VkDeviceMemory alloc;
+    GrVkAlloc      alloc;
 
     // create the buffer object
     VkBufferCreateInfo bufInfo;
@@ -79,7 +79,7 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& d
     const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(buffer, alloc);
     if (!resource) {
         VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
-        VK_CALL(gpu, FreeMemory(gpu->device(), alloc, nullptr));
+        GrVkMemory::FreeBufferMemory(gpu, alloc);
         return nullptr;
     }
 
@@ -111,9 +111,9 @@ void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
 
 void GrVkBuffer::Resource::freeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(fBuffer);
-    SkASSERT(fAlloc);
+    SkASSERT(fAlloc.fMemory);
     VK_CALL(gpu, DestroyBuffer(gpu->device(), fBuffer, nullptr));
-    VK_CALL(gpu, FreeMemory(gpu->device(), fAlloc, nullptr));
+    GrVkMemory::FreeBufferMemory(gpu, fAlloc);
 }
 
 void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
@@ -141,7 +141,9 @@ void* GrVkBuffer::vkMap(const GrVkGpu* gpu) {
         fResource = Create(gpu, fDesc);
     }
 
-    VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc(), 0, VK_WHOLE_SIZE, 0, &fMapPtr));
+    const GrVkAlloc& alloc = this->alloc();
+    VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory, alloc.fOffset,
+                                          VK_WHOLE_SIZE, 0, &fMapPtr));
     if (err) {
         fMapPtr = nullptr;
     }
@@ -154,7 +156,7 @@ void GrVkBuffer::vkUnmap(const GrVkGpu* gpu) {
     VALIDATE();
     SkASSERT(this->vkIsMapped());
 
-    VK_CALL(gpu, UnmapMemory(gpu->device(), alloc()));
+    VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
 
     fMapPtr = nullptr;
 }
@@ -182,7 +184,9 @@ bool GrVkBuffer::vkUpdateData(const GrVkGpu* gpu, const void* src, size_t srcSiz
     }
 
     void* mapPtr;
-    VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc(), 0, srcSizeInBytes, 0, &mapPtr));
+    const GrVkAlloc& alloc = this->alloc();
+    VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory, alloc.fOffset,
+                                          srcSizeInBytes, 0, &mapPtr));
 
     if (VK_SUCCESS != err) {
         return false;
@@ -190,7 +194,7 @@ bool GrVkBuffer::vkUpdateData(const GrVkGpu* gpu, const void* src, size_t srcSiz
 
     memcpy(mapPtr, src, srcSizeInBytes);
 
-    VK_CALL(gpu, UnmapMemory(gpu->device(), alloc()));
+    VK_CALL(gpu, UnmapMemory(gpu->device(), alloc.fMemory));
 
     return true;
 }

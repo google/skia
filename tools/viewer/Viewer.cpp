@@ -255,7 +255,9 @@ void Viewer::setupCurrentSlide(int previousSlide) {
         const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
         SkRect windowRect = fWindow->getContentRect();
         fDefaultMatrixInv.mapRect(&windowRect);
-        fGesture.setTransLimit(SkRect::MakeWH(slideSize.width(), slideSize.height()), windowRect);
+        fGesture.setTransLimit(SkRect::MakeWH(SkIntToScalar(slideSize.width()), 
+                                              SkIntToScalar(slideSize.height())),
+                               windowRect);
     }
 
     this->updateTitle();

@@ -53,8 +53,7 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
                                                            format.fInternalFormat,
                                                            GrVkImageView::kStencil_Type, 1);
     if (!imageView) {
-        VK_CALL(gpu, DestroyImage(gpu->device(), info.fImage, nullptr));
-        VK_CALL(gpu, FreeMemory(gpu->device(), info.fAlloc, nullptr));
+        GrVkImage::DestroyImageInfo(gpu, &info);
         return nullptr;
     }
 

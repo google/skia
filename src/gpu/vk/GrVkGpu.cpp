@@ -331,10 +331,11 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
                                                     &layout));
 
     int texTop = kBottomLeft_GrSurfaceOrigin == desc.fOrigin ? tex->height() - top - height : top;
-    VkDeviceSize offset = texTop*layout.rowPitch + left*bpp;
+    const GrVkAlloc& alloc = tex->alloc();
+    VkDeviceSize offset = alloc.fOffset + texTop*layout.rowPitch + left*bpp;
     VkDeviceSize size = height*layout.rowPitch;
     void* mapPtr;
-    err = GR_VK_CALL(interface, MapMemory(fDevice, tex->memory(), offset, size, 0, &mapPtr));
+    err = GR_VK_CALL(interface, MapMemory(fDevice, alloc.fMemory, offset, size, 0, &mapPtr));
     if (err) {
         return false;
     }
@@ -358,7 +359,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
         }
     }
 
-    GR_VK_CALL(interface, UnmapMemory(fDevice, tex->memory()));
+    GR_VK_CALL(interface, UnmapMemory(fDevice, alloc.fMemory));
 
     return true;
 }
@@ -617,7 +618,7 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     }
 
     const GrVkImageInfo* info = reinterpret_cast<const GrVkImageInfo*>(desc.fTextureHandle);
-    if (VK_NULL_HANDLE == info->fImage || VK_NULL_HANDLE == info->fAlloc) {
+    if (VK_NULL_HANDLE == info->fImage || VK_NULL_HANDLE == info->fAlloc.fMemory) {
         return nullptr;
     }
 #ifdef SK_DEBUG
@@ -660,7 +661,7 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     const GrVkImageInfo* info =
         reinterpret_cast<const GrVkImageInfo*>(wrapDesc.fRenderTargetHandle);
     if (VK_NULL_HANDLE == info->fImage ||
-        (VK_NULL_HANDLE == info->fAlloc && kAdopt_GrWrapOwnership == ownership)) {
+        (VK_NULL_HANDLE == info->fAlloc.fMemory && kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
 
@@ -873,7 +874,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
                                                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     VkImage image = VK_NULL_HANDLE;
-    VkDeviceMemory alloc = VK_NULL_HANDLE;
+    GrVkAlloc alloc = { VK_NULL_HANDLE, 0 };
 
     VkImageTiling imageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
     VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageTiling)
@@ -924,9 +925,10 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
             VK_CALL(GetImageSubresourceLayout(fDevice, image, &subres, &layout));
 
             void* mapPtr;
-            err = VK_CALL(MapMemory(fDevice, alloc, 0, layout.rowPitch * h, 0, &mapPtr));
+            err = VK_CALL(MapMemory(fDevice, alloc.fMemory, alloc.fOffset, layout.rowPitch * h,
+                                    0, &mapPtr));
             if (err) {
-                VK_CALL(FreeMemory(this->device(), alloc, nullptr));
+                GrVkMemory::FreeImageMemory(this, alloc);
                 VK_CALL(DestroyImage(this->device(), image, nullptr));
                 return 0;
             }
@@ -941,7 +943,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
                 SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), srcData, rowCopyBytes,
                              rowCopyBytes, h);
             }
-            VK_CALL(UnmapMemory(fDevice, alloc));
+            VK_CALL(UnmapMemory(fDevice, alloc.fMemory));
         } else {
             // TODO: Add support for copying to optimal tiling
             SkASSERT(false);
@@ -962,7 +964,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
 bool GrVkGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
     const GrVkImageInfo* backend = reinterpret_cast<const GrVkImageInfo*>(id);
 
-    if (backend && backend->fImage && backend->fAlloc) {
+    if (backend && backend->fImage && backend->fAlloc.fMemory) {
         VkMemoryRequirements req;
         memset(&req, 0, sizeof(req));
         GR_VK_CALL(this->vkInterface(), GetImageMemoryRequirements(fDevice,
@@ -984,7 +986,7 @@ void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandon) 
             // something in the command buffer may still be using this, so force submit
             this->submitCommandBuffer(kForce_SyncQueue);
 
-            VK_CALL(FreeMemory(this->device(), backend->fAlloc, nullptr));
+            GrVkMemory::FreeImageMemory(this, backend->fAlloc);
             VK_CALL(DestroyImage(this->device(), backend->fImage, nullptr));
         }
         delete backend;

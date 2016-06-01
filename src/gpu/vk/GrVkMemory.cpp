@@ -61,47 +61,63 @@ static bool alloc_device_memory(const GrVkGpu* gpu,
 bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
                                           VkBuffer buffer,
                                           const VkMemoryPropertyFlags flags,
-                                          VkDeviceMemory* memory) {
+                                          GrVkAlloc* alloc) {
     const GrVkInterface* iface = gpu->vkInterface();
     VkDevice device = gpu->device();
 
     VkMemoryRequirements memReqs;
     GR_VK_CALL(iface, GetBufferMemoryRequirements(device, buffer, &memReqs));
 
-    if (!alloc_device_memory(gpu, &memReqs, flags, memory)) {
+    if (!alloc_device_memory(gpu, &memReqs, flags, &alloc->fMemory)) {
         return false;
     }
+    // for now, offset is always 0
+    alloc->fOffset = 0;
 
-    // Bind Memory to queue
-    VkResult err = GR_VK_CALL(iface, BindBufferMemory(device, buffer, *memory, 0));
+    // Bind Memory to device
+    VkResult err = GR_VK_CALL(iface, BindBufferMemory(device, buffer, 
+                                                      alloc->fMemory, alloc->fOffset));
     if (err) {
-        GR_VK_CALL(iface, FreeMemory(device, *memory, nullptr));
+        GR_VK_CALL(iface, FreeMemory(device, alloc->fMemory, nullptr));
         return false;
     }
     return true;
 }
 
+void GrVkMemory::FreeBufferMemory(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
+    const GrVkInterface* iface = gpu->vkInterface();
+    GR_VK_CALL(iface, FreeMemory(gpu->device(), alloc.fMemory, nullptr));
+}
+
 bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
                                          VkImage image,
                                          const VkMemoryPropertyFlags flags,
-                                         VkDeviceMemory* memory) {
+                                         GrVkAlloc* alloc) {
     const GrVkInterface* iface = gpu->vkInterface();
     VkDevice device = gpu->device();
 
     VkMemoryRequirements memReqs;
     GR_VK_CALL(iface, GetImageMemoryRequirements(device, image, &memReqs));
 
-    if (!alloc_device_memory(gpu, &memReqs, flags, memory)) {
+    if (!alloc_device_memory(gpu, &memReqs, flags, &alloc->fMemory)) {
         return false;
     }
+    // for now, offset is always 0
+    alloc->fOffset = 0;
 
-    // Bind Memory to queue
-    VkResult err = GR_VK_CALL(iface, BindImageMemory(device, image, *memory, 0));
+    // Bind Memory to device
+    VkResult err = GR_VK_CALL(iface, BindImageMemory(device, image,
+                              alloc->fMemory, alloc->fOffset));
     if (err) {
-        GR_VK_CALL(iface, FreeMemory(device, *memory, nullptr));
+        GR_VK_CALL(iface, FreeMemory(device, alloc->fMemory, nullptr));
         return false;
     }
     return true;
+}
+
+void GrVkMemory::FreeImageMemory(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
+    const GrVkInterface* iface = gpu->vkInterface();
+    GR_VK_CALL(iface, FreeMemory(gpu->device(), alloc.fMemory, nullptr));
 }
 
 VkPipelineStageFlags GrVkMemory::LayoutToPipelineStageFlags(const VkImageLayout layout) {

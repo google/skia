@@ -9,6 +9,7 @@
 #define GrVkMemory_DEFINED
 
 #include "vk/GrVkDefines.h"
+#include "vk/GrVkTypes.h"
 
 class GrVkGpu;
 
@@ -20,12 +21,14 @@ namespace GrVkMemory {
     bool AllocAndBindBufferMemory(const GrVkGpu* gpu,
                                   VkBuffer buffer,
                                   const VkMemoryPropertyFlags flags,
-                                  VkDeviceMemory* memory);
+                                  GrVkAlloc* alloc);
+    void FreeBufferMemory(const GrVkGpu* gpu, const GrVkAlloc& alloc);
 
     bool AllocAndBindImageMemory(const GrVkGpu* gpu,
                                  VkImage image,
                                  const VkMemoryPropertyFlags flags,
-                                 VkDeviceMemory* memory);
+                                 GrVkAlloc* alloc);
+    void FreeImageMemory(const GrVkGpu* gpu, const GrVkAlloc& alloc);
 
     VkPipelineStageFlags LayoutToPipelineStageFlags(const VkImageLayout layout);
 
