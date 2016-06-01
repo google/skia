@@ -212,9 +212,14 @@ public:
         // TODO (msarett): Should we add a new test with a new monitor and verify that outputs
         //                 look identical on two different dsts?
         kDst_HPZR30w_Mode,
+
+#if !defined(GOOGLE3)
+        // Use QCMS for color correction.
+        kQCMS_HPZR30w_Mode,
+#endif
     };
 
-    ColorCodecSrc(Path, Mode, sk_sp<SkColorSpace>);
+    ColorCodecSrc(Path, Mode);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -223,7 +228,6 @@ public:
 private:
     Path                    fPath;
     Mode                    fMode;
-    sk_sp<SkColorSpace>     fDstSpace;
 };
 
 class SKPSrc : public Src {

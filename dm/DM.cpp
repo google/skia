@@ -724,18 +724,17 @@ static bool gather_srcs() {
         return false;
     }
 
-    // Load the dstSpace.  This particular dst is fairly similar to Adobe RGB.
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(
-            GetResourcePath("monitor_profiles/HP_ZR30w.icc").c_str()));
-    sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewICC(data->data(), data->size());
-    SkASSERT(dstSpace);
-
     for (auto colorImage : colorImages) {
-        ColorCodecSrc* src = new ColorCodecSrc(colorImage, ColorCodecSrc::kBaseline_Mode, nullptr);
+        ColorCodecSrc* src = new ColorCodecSrc(colorImage, ColorCodecSrc::kBaseline_Mode);
         push_src("image", "color_codec_baseline", src);
 
-        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_HPZR30w_Mode, dstSpace);
+        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_HPZR30w_Mode);
         push_src("image", "color_codec_HPZR30w", src);
+
+#if !defined(GOOGLE3)
+        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kQCMS_HPZR30w_Mode);
+        push_src("image", "color_codec_QCMS_HPZR30w", src);
+#endif
     }
 
     return true;
