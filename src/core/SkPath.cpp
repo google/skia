@@ -3295,8 +3295,8 @@ bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Di
     int verticalCnt = 0;
     int horizontalCnt = 0;
     // dirs are 0 - right, 1 - down, 2 - left, 3 - up.
-    int firstDir;
-    int secondDir;
+    int firstDir = 0;
+    int secondDir = 0;
     SkRect tempRect;
     for (int i = 0; i < 4; ++i) {
         int sameCnt = 0;
@@ -3365,7 +3365,7 @@ bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Di
     } else {
         SkASSERT(((secondDir + 1) & 0b11) == firstDir);
         *direction = SkPath::kCCW_Direction;
-        *start =  secondDir;
+        *start = secondDir;
     }
     *rect = tempRect;
     return true;
