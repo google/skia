@@ -562,7 +562,12 @@
     [ 'skia_os == "ios"',
       {
         'defines': [
+          # When targetting iOS and using gyp to generate the build files, it is
+          # not possible to select files to build depending on the architecture
+          # (i.e. it is not possible to use hand optimized assembly version). In
+          # that configuration, disable all optimisation.
           'SK_BUILD_FOR_IOS',
+          'SK_BUILD_NO_OPTS',
         ],
         'conditions' : [
           [ 'skia_warnings_as_errors', {

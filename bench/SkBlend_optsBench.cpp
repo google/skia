@@ -151,7 +151,7 @@ private:
     typedef Benchmark INHERITED;
 };
 
-#if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
+#if defined(SK_CPU_X86) && !defined(SK_BUILD_NO_OPTS)
 #define BENCHES(fileName)                                                        \
 DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsBruteForce>(fileName); )  \
 DEF_BENCH( return new LinearSrcOverBench<SrcOverVSkOptsTrivial>(fileName); )     \
