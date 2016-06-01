@@ -67,10 +67,7 @@ DEF_TEST(ColorSpaceParsePngICCProfile, r) {
     }
 
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-    if (!codec) {
-        ERRORF(r, "Failed to create codec from a PNG. Is PNG support missing (or too old)?");
-        return;
-    }
+    REPORTER_ASSERT(r, nullptr != codec);
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
     SkColorSpace* colorSpace = codec->getColorSpace();
