@@ -59,6 +59,10 @@ protected:
         }
     }
 
+    void onPerCanvasPostDraw(SkCanvas*) override {
+        fSurface.reset(nullptr);
+    }
+
 private:
     typedef Benchmark INHERITED;
 };
