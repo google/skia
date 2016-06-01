@@ -161,6 +161,10 @@ static void test_encode(skiatest::Reporter* reporter, SkImage* image) {
     REPORTER_ASSERT(reporter, origEncoded->size() > 0);
 
     sk_sp<SkImage> decoded(SkImage::MakeFromEncoded(origEncoded));
+    if (!decoded) {
+        ERRORF(reporter, "failed to decode image!");
+        return;
+    }
     REPORTER_ASSERT(reporter, decoded);
     assert_equal(reporter, image, nullptr, decoded.get());
 
@@ -518,6 +522,10 @@ static bool has_pixels(const SkPMColor pixels[], int count, SkPMColor expected) 
 }
 
 static void test_read_pixels(skiatest::Reporter* reporter, SkImage* image) {
+    if (!image) {
+        ERRORF(reporter, "Failed to create image!");
+        return;
+    }
     const SkPMColor expected = SkPreMultiplyColor(SK_ColorWHITE);
     const SkPMColor notExpected = ~expected;
 
@@ -603,6 +611,10 @@ static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* ima
 }
 
 static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image, SkImage::LegacyBitmapMode mode) {
+    if (!image) {
+        ERRORF(reporter, "Failed to create image.");
+        return;
+    }
     SkBitmap bitmap;
     REPORTER_ASSERT(reporter, image->asLegacyBitmap(&bitmap, mode));
     check_legacy_bitmap(reporter, image, bitmap, mode);
@@ -654,6 +666,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
 #endif
 
 static void test_peek(skiatest::Reporter* reporter, SkImage* image, bool expectPeekSuccess) {
+    if (!image) {
+        ERRORF(reporter, "Failed to create image!");
+        return;
+    }
     SkPixmap pm;
     bool success = image->peekPixels(&pm);
     REPORTER_ASSERT(reporter, expectPeekSuccess == success);
@@ -857,6 +873,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
 
     for (auto testCase : testCases) {
         sk_sp<SkImage> image(testCase.fImageFactory());
+        if (!image) {
+            ERRORF(reporter, "Failed to create image!");
+            continue;
+        }
 
         // This isn't currently used in the implementation, just set any old values.
         SkImage::DeferredTextureImageUsageParams params;
