@@ -83,6 +83,14 @@ public:
     static void AddGenIDChangeListener(const SkPath& path, SkPathRef::GenIDChangeListener* listener) {
         path.fPathRef->addGenIDChangeListener(listener);
     }
+
+    /**
+     * This returns true for a rect that begins and ends at the same corner and has either a move
+     * followed by four lines or a move followed by 3 lines and a close. None of the parameters are
+     * optional. This does not permit degenerate line or point rectangles.
+     */
+    static bool IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Direction* direction,
+                                   unsigned* start);
 };
 
 #endif

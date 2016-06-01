@@ -3249,3 +3249,124 @@ int SkPath::ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPo
     const SkConic conic(p0, p1, p2, w);
     return conic.chopIntoQuadsPOW2(pts, pow2);
 }
+
+bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Direction* direction,
+                                    unsigned* start) {
+    if (path.getSegmentMasks() != SkPath::kLine_SegmentMask) {
+        return false;
+    }
+    SkPath::RawIter iter(path);
+    SkPoint verbPts[4];
+    SkPath::Verb v;
+    SkPoint rectPts[5];
+    int rectPtCnt = 0;
+    while ((v = iter.next(verbPts)) != SkPath::kDone_Verb) {
+        switch (v) {
+            case SkPath::kMove_Verb:
+                if (0 != rectPtCnt) {
+                    return false;
+                }
+                rectPts[0] = verbPts[0];
+                ++rectPtCnt;
+                break;
+            case SkPath::kLine_Verb:
+                if (5 == rectPtCnt) {
+                    return false;
+                }
+                rectPts[rectPtCnt] = verbPts[1];
+                ++rectPtCnt;
+                break;
+            case SkPath::kClose_Verb:
+                if (4 == rectPtCnt) {
+                    rectPts[4] = rectPts[0];
+                    rectPtCnt = 5;
+                }
+                break;
+            default:
+                return false;
+        }
+    }
+    if (rectPtCnt < 5) {
+        return false;
+    }
+    if (rectPts[0] != rectPts[4]) {
+        return false;
+    }
+    int verticalCnt = 0;
+    int horizontalCnt = 0;
+    // dirs are 0 - right, 1 - down, 2 - left, 3 - up.
+    int firstDir;
+    int secondDir;
+    SkRect tempRect;
+    for (int i = 0; i < 4; ++i) {
+        int sameCnt = 0;
+        if (rectPts[i].fX == rectPts[i + 1].fX) {
+            verticalCnt += 1;
+            sameCnt = 1;
+            if (0 == i) {
+                if (rectPts[1].fY > rectPts[0].fY) {
+                    firstDir = 1;
+                    tempRect.fTop = rectPts[0].fY;
+                    tempRect.fBottom = rectPts[1].fY;
+                } else {
+                    firstDir = 3;
+                    tempRect.fTop = rectPts[1].fY;
+                    tempRect.fBottom = rectPts[0].fY;
+                }
+            } else if (1 == i) {
+                if (rectPts[2].fY > rectPts[1].fY) {
+                    secondDir = 1;
+                    tempRect.fTop = rectPts[1].fY;
+                    tempRect.fBottom = rectPts[2].fY;
+                } else {
+                    secondDir = 3;
+                    tempRect.fTop = rectPts[2].fY;
+                    tempRect.fBottom = rectPts[1].fY;
+                }
+            }
+        }
+        if (rectPts[i].fY == rectPts[i + 1].fY) {
+            horizontalCnt += 1;
+            sameCnt += 1;
+            if (0 == i) {
+                if (rectPts[1].fX > rectPts[0].fX) {
+                    firstDir = 0;
+                    tempRect.fLeft = rectPts[0].fX;
+                    tempRect.fRight = rectPts[1].fX;
+                } else {
+                    firstDir = 2;
+                    tempRect.fLeft = rectPts[1].fX;
+                    tempRect.fRight = rectPts[0].fX;
+                }
+            } else if (1 == i) {
+                if (rectPts[2].fX > rectPts[1].fX) {
+                    secondDir = 0;
+                    tempRect.fLeft = rectPts[1].fX;
+                    tempRect.fRight = rectPts[2].fX;
+                } else {
+                    secondDir = 2;
+                    tempRect.fLeft = rectPts[2].fX;
+                    tempRect.fRight = rectPts[1].fX;
+                }
+            }
+        }
+        if (sameCnt != 1) {
+            return false;
+        }
+    }
+    if (2 != horizontalCnt || 2 != verticalCnt) {
+        return false;
+    }
+    // low bit indicates a vertical dir
+    SkASSERT((firstDir ^ secondDir) & 0b1);
+    if (((firstDir + 1) & 0b11) == secondDir) {
+        *direction = SkPath::kCW_Direction;
+        *start = firstDir;
+    } else {
+        SkASSERT(((secondDir + 1) & 0b11) == firstDir);
+        *direction = SkPath::kCCW_Direction;
+        *start =  secondDir;
+    }
+    *rect = tempRect;
+    return true;
+}
