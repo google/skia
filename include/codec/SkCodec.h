@@ -25,7 +25,6 @@ class SkSampler;
 
 namespace DM {
 class CodecSrc;
-class ColorCodecSrc;
 }
 
 /**
@@ -696,11 +695,6 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    /**
-     *  Used for testing with qcms.
-     *  FIXME: Remove this when we are done comparing with qcms.
-     */
-    virtual sk_sp<SkData> getICCData() const { return nullptr; }
 private:
     const SkEncodedInfo         fEncodedInfo;
     const SkImageInfo           fSrcInfo;
@@ -776,11 +770,6 @@ private:
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
 
     friend class DM::CodecSrc;  // for fillIncompleteImage
-
-    // For testing with qcms
-    // FIXME: Remove this when we are done comparing with qcms.
-    friend class DM::ColorCodecSrc;
-
     friend class SkSampledCodec;
     friend class SkIcoCodec;
 };
