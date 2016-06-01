@@ -120,7 +120,7 @@ static bool is_icc_marker(jpeg_marker_struct* marker) {
  *     (1) Discover all ICC profile markers and verify that they are numbered properly.
  *     (2) Copy the data from each marker into a contiguous ICC profile.
  */
-static sk_sp<SkColorSpace> get_icc_profile(jpeg_decompress_struct* dinfo) {
+static sk_sp<SkData> get_icc_profile(jpeg_decompress_struct* dinfo) {
     // Note that 256 will be enough storage space since each markerIndex is stored in 8-bits.
     jpeg_marker_struct* markerSequence[256];
     memset(markerSequence, 0, sizeof(markerSequence));
@@ -165,8 +165,8 @@ static sk_sp<SkColorSpace> get_icc_profile(jpeg_decompress_struct* dinfo) {
     }
 
     // Combine the ICC marker data into a contiguous profile.
-    SkAutoMalloc iccData(totalBytes);
-    void* dst = iccData.get();
+    sk_sp<SkData> iccData = SkData::MakeUninitialized(totalBytes);
+    void* dst = iccData->writable_data();
     for (uint32_t i = 1; i <= numMarkers; i++) {
         jpeg_marker_struct* marker = markerSequence[i];
         if (!marker) {
@@ -180,7 +180,7 @@ static sk_sp<SkColorSpace> get_icc_profile(jpeg_decompress_struct* dinfo) {
         dst = SkTAddOffset<void>(dst, bytes);
     }
 
-    return SkColorSpace::NewICC(iccData.get(), totalBytes);
+    return iccData;
 }
 
 bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
@@ -221,7 +221,14 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         SkEncodedInfo info = SkEncodedInfo::Make(color, SkEncodedInfo::kOpaque_Alpha, 8);
 
         Origin orientation = get_exif_orientation(decoderMgr->dinfo());
-        sk_sp<SkColorSpace> colorSpace = get_icc_profile(decoderMgr->dinfo());
+        sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
+        sk_sp<SkColorSpace> colorSpace = nullptr;
+        if (iccData) {
+            colorSpace = SkColorSpace::NewICC(iccData->data(), iccData->size());
+            if (!colorSpace) {
+                SkCodecPrintf("Could not create SkColorSpace from ICC data.\n");
+            }
+        }
         if (!colorSpace) {
             // Treat unmarked jpegs as sRGB.
             colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
@@ -230,7 +237,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         const int width = decoderMgr->dinfo()->image_width;
         const int height = decoderMgr->dinfo()->image_height;
         *codecOut = new SkJpegCodec(width, height, info, stream, decoderMgr.release(),
-                std::move(colorSpace), orientation);
+                std::move(colorSpace), orientation, std::move(iccData));
     } else {
         SkASSERT(nullptr != decoderMgrOut);
         *decoderMgrOut = decoderMgr.release();
@@ -251,11 +258,13 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
 }
 
 SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
+        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin,
+        sk_sp<SkData> iccData)
     : INHERITED(width, height, info, stream, std::move(colorSpace), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzlerSubset(SkIRect::MakeEmpty())
+    , fICCData(std::move(iccData))
 {}
 
 /*
