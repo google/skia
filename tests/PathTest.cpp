@@ -484,6 +484,17 @@ static void test_crbug_495894(skiatest::Reporter* reporter) {
             65536);
 }
 
+static void test_crbug_613918() {
+    SkPath path;
+    path.conicTo(-6.62478e-08f, 4.13885e-08f, -6.36935e-08f, 3.97927e-08f, 0.729058f);
+    path.quadTo(2.28206e-09f, -1.42572e-09f, 3.91919e-09f, -2.44852e-09f);
+    path.cubicTo(-16752.2f, -26792.9f, -21.4673f, 10.9347f, -8.57322f, -7.22739f);
+
+    // This call could lead to an assert or uninitialized read due to a failure
+    // to check the return value from SkCubicClipper::ChopMonoAtY.
+    path.contains(-1.84817e-08f, 1.15465e-08f);
+}
+
 static void test_addrect(skiatest::Reporter* reporter) {
     SkPath path;
     path.lineTo(0, 0);
@@ -4277,6 +4288,7 @@ DEF_TEST(Paths, reporter) {
     test_crbug_170666();
     test_crbug_493450(reporter);
     test_crbug_495894(reporter);
+    test_crbug_613918();
     test_bad_cubic_crbug229478();
     test_bad_cubic_crbug234190();
     test_gen_id(reporter);
