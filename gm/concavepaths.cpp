@@ -166,6 +166,26 @@ void test_overlapping(SkCanvas* canvas, const SkPaint& paint) {
     canvas->restore();
 }
 
+// Two "island" triangles inside a containing rect.
+// This exercises the partnering code in the tessellator.
+void test_partners(SkCanvas* canvas, const SkPaint& paint) {
+    SkPath path;
+    canvas->save();
+    canvas->translate(300, 200);
+    path.moveTo(20, 80);
+    path.lineTo(80, 80);
+    path.lineTo(80, 20);
+    path.lineTo(20, 20);
+    path.moveTo(30, 30);
+    path.lineTo(45, 50);
+    path.lineTo(30, 70);
+    path.moveTo(70, 30);
+    path.lineTo(70, 70);
+    path.lineTo(55, 50);
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
 // Monotone test 1 (point in the middle)
 void test_monotone_1(SkCanvas* canvas, const SkPaint& paint) {
     SkPath path;
@@ -370,6 +390,7 @@ protected:
         test_stairstep(canvas, paint);
         test_stairstep2(canvas, paint);
         test_overlapping(canvas, paint);
+        test_partners(canvas, paint);
         test_monotone_1(canvas, paint);
         test_monotone_2(canvas, paint);
         test_monotone_3(canvas, paint);
