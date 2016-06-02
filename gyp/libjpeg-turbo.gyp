@@ -102,11 +102,19 @@
         '../third_party/externals/libjpeg-turbo/jmorecfg.h',
         '../third_party/externals/libjpeg-turbo/jpegint.h',
         '../third_party/externals/libjpeg-turbo/jpeglib.h',
-        '../third_party/externals/libjpeg-turbo/jpeglibmangler.h',
         '../third_party/externals/libjpeg-turbo/jquant1.c',
         '../third_party/externals/libjpeg-turbo/jquant2.c',
         '../third_party/externals/libjpeg-turbo/jutils.c',
         '../third_party/externals/libjpeg-turbo/jversion.h',
+        '../third_party/externals/libjpeg-turbo/turbojpeg.c',
+        '../third_party/externals/libjpeg-turbo/turbojpeg.h',
+        '../third_party/externals/libjpeg-turbo/jdatadst-tj.c',
+        '../third_party/externals/libjpeg-turbo/jdatasrc-tj.c',
+        '../third_party/externals/libjpeg-turbo/transupp.c',
+        '../third_party/externals/libjpeg-turbo/transupp.h',
+        '../third_party/externals/libjpeg-turbo/jdtrans.c',
+        '../third_party/externals/libjpeg-turbo/jctrans.c',
+        
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -130,59 +138,61 @@
         [ 'skia_arch_type == "x86" and (skia_os != "android" or host_os == "linux")', {
           'sources': [
             '../third_party/externals/libjpeg-turbo/simd/jsimd_i386.c',
-            '../third_party/externals/libjpeg-turbo/simd/jccolmmx.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jccolss2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcgrammx.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcgrass2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcqnt3dn.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcqntmmx.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcqnts2f.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcqnts2i.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcqntsse.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcsammmx.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcsamss2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdcolmmx.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdcolss2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdmermmx.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdmerss2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdsammmx.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdsamss2.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jf3dnflt.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jfmmxfst.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jfmmxint.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jfss2fst.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jfss2int.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jfsseflt.asm',
-            '../third_party/externals/libjpeg-turbo/simd/ji3dnflt.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jimmxfst.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jimmxint.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jimmxred.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jiss2flt.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jiss2fst.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jiss2int.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jiss2red.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jisseflt.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jccolor-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jccolor-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jcgray-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jcgray-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jchuff-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jcsample-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jcsample-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdcolor-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdcolor-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdmerge-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdmerge-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdsample-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdsample-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctflt-3dn.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctflt-sse.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctfst-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctfst-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctint-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctint-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctflt-3dn.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctflt-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctflt-sse.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctfst-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctfst-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctint-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctint-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctred-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctred-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jquant-3dn.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jquantf-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jquanti-sse2.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jquant-mmx.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jquant-sse.asm',
             '../third_party/externals/libjpeg-turbo/simd/jsimdcpu.asm',
           ],
         }],
         [ 'skia_arch_type == "x86_64" and (skia_os != "android" or host_os == "linux")', {
           'sources': [
             '../third_party/externals/libjpeg-turbo/simd/jsimd_x86_64.c',
-            '../third_party/externals/libjpeg-turbo/simd/jccolss2-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcgrass2-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcqnts2f-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcqnts2i-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jcsamss2-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdcolss2-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdmerss2-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jdsamss2-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jfss2fst-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jfss2int-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jfsseflt-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jiss2flt-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jiss2fst-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jiss2int-64.asm',
-            '../third_party/externals/libjpeg-turbo/simd/jiss2red-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jccolor-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jcgray-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jchuff-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jcsample-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdcolor-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdmerge-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jdsample-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctflt-sse-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctfst-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jfdctint-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctflt-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctfst-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctint-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jidctred-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jquantf-sse2-64.asm',
+            '../third_party/externals/libjpeg-turbo/simd/jquanti-sse2-64.asm',
           ],
         }],
         [ 'skia_arch_type == "arm64"', {
@@ -193,7 +203,7 @@
         }],
         [ 'skia_arch_type == "arm"', {
           'conditions': [
-            [ 'arm_version >= 7 and (arm_neon == 1 or arm_neon_optional == 1)', {
+            [ 'arm_version >= 7 and arm_neon == 1', {
               'sources': [
                 '../third_party/externals/libjpeg-turbo/simd/jsimd_arm.c',
                 '../third_party/externals/libjpeg-turbo/simd/jsimd_arm_neon.S',
@@ -212,7 +222,7 @@
             '../third_party/externals/libjpeg-turbo/jsimd_none.c',
           ],
         }],
-      
+
         # Build rules for an asm file.
         # On Windows, we use the precompiled yasm binary.
         # On Linux, we build our patched yasm and use it.
@@ -220,6 +230,9 @@
         [ 'skia_os == "win"', {
           'dependencies': [
             'yasm-win',
+          ],
+          'defines': [
+            'TURBO_FOR_WINDOWS',
           ],
           'variables': {
             'yasm_path': '<(PRODUCT_DIR)/yasm.exe',
@@ -230,7 +243,6 @@
                   '-D__x86__',
                   '-DWIN32',
                   '-DMSVC',
-                  '-I../third_party/externals/libjpeg-turbo/win/'
                 ],
               }, {
                 'yasm_format': '-fwin64',
@@ -238,7 +250,6 @@
                   '-D__x86_64__',
                   '-DWIN64',
                   '-DMSVC',
-                  '-I../third_party/externals/libjpeg-turbo/win/'
                 ],
               }],
             ],
@@ -257,14 +268,14 @@
                 'yasm_flags': [
                   '-D__x86__',
                   '-DELF',
-                  '-I../third_party/externals/libjpeg-turbo/linux/'
+                  '-DPIC',
                 ],
               }, {
                 'yasm_format': '-felf64',
                 'yasm_flags': [
                   '-D__x86_64__',
                   '-DELF',
-                  '-I../third_party/externals/libjpeg-turbo/linux/'
+                  '-DPIC',
                 ],
               }],
             ],
@@ -283,21 +294,19 @@
                 'yasm_flags': [
                   '-D__x86__',
                   '-DMACHO',
-                  '-I../third_party/externals/libjpeg-turbo/mac/'
                 ],
               }, {
                 'yasm_format': '-fmacho64',
                 'yasm_flags': [
                   '-D__x86_64__',
                   '-DMACHO',
-                  '-I../third_party/externals/libjpeg-turbo/mac/'
                 ],
               }],
             ],
           },
         }],
         [ '(skia_os == "linux" or skia_os == "freebsd" or skia_os == "openbsd" or \
-            skia_os == "solaris" or skia_os == "chromeos")', {
+            skia_os == "solaris")', {
           'dependencies': [
             'yasm.gyp:yasm#host',
           ],
@@ -309,14 +318,12 @@
                 'yasm_flags': [
                   '-D__x86__',
                   '-DELF',
-                  '-I../third_party/externals/libjpeg-turbo/linux/'
                 ],
               }, {
                 'yasm_format': '-felf64',
                 'yasm_flags': [
                   '-D__x86_64__',
                   '-DELF',
-                  '-I../third_party/externals/libjpeg-turbo/linux/'
                 ],
               }],
             ],
@@ -340,6 +347,7 @@
                 '<@(yasm_flags)',
                 '-DRGBX_FILLER_0XFF',
                 '-DSTRICT_MEMORY_ACCESS',
+                '-Isimd/',
                 '-o', '<(shared_generated_dir)/<(RULE_INPUT_ROOT).<(object_suffix)',
                 '<(RULE_INPUT_PATH)',
               ],
