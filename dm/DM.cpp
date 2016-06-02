@@ -72,6 +72,8 @@ DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_bool(simpleCodec, false, "Only decode images to native scale");
 
+DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -699,6 +701,19 @@ static bool gather_srcs() {
             }
         } else {
             push_src("skp", "", new SKPSrc(path));
+        }
+    }
+
+    for (int i = 0; i < FLAGS_mskps.count(); i++) {
+        const char* path = FLAGS_mskps[i];
+        if (sk_isdir(path)) {
+            SkOSFile::Iter it(path, "mskp");
+            for (SkString file; it.next(&file);) {
+                push_src("mskp", "",
+                         new MSKPSrc(SkOSPath::Join(path, file.c_str())));
+            }
+        } else {
+            push_src("mskp", "", new MSKPSrc(path));
         }
     }
 

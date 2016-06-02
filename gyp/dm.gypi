@@ -24,7 +24,7 @@
     'skia_lib.gyp:skia_lib',
     'svg.gyp:svg',
     'tools.gyp:crash_handler',
-	'tools.gyp:picture_utils',
+    'tools.gyp:picture_utils',
     'tools.gyp:proc_stats',
     'tools.gyp:sk_tool_utils',
     'tools.gyp:url_data_manager',
@@ -43,6 +43,7 @@
     '../dm/DMJsonWriter.cpp',
     '../gm/gm.cpp',
 
+    '../src/utils/SkMultiPictureDocumentReader.cpp',
     '../tools/debugger/SkDebugCanvas.cpp',
     '../tools/debugger/SkDrawCommand.cpp',
     '../tools/debugger/SkJsonWriteBuffer.cpp',

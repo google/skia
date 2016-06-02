@@ -15,6 +15,7 @@
 #include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkMultiPictureDocumentReader.h"
 #include "SkPicture.h"
 #include "gm.h"
 
@@ -66,6 +67,11 @@ struct Src {
     virtual void modifyGrContextOptions(GrContextOptions* options) const {}
     virtual bool veto(SinkFlags) const { return false; }
 
+    virtual int pageCount() const { return 1; }
+    virtual Error SK_WARN_UNUSED_RESULT draw(int, SkCanvas* canvas) const {
+        return this->draw(canvas);
+    }
+    virtual SkISize size(int) const { return this->size(); }
     // Force Tasks using this Src to run on the main thread?
     virtual bool serial() const { return false; }
 };
@@ -239,6 +245,24 @@ public:
     Name name() const override;
 private:
     Path fPath;
+};
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+class MSKPSrc : public Src {
+public:
+    explicit MSKPSrc(Path path);
+
+    int pageCount() const override;
+    Error draw(SkCanvas* c) const override;
+    Error draw(int, SkCanvas*) const override;
+    SkISize size() const override;
+    SkISize size(int) const override;
+    Name name() const override;
+
+private:
+    Path fPath;
+    SkMultiPictureDocumentReader fReader;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

@@ -54,6 +54,7 @@
         '<(skia_src_path)/utils/SkMatrix22.cpp',
         '<(skia_src_path)/utils/SkMatrix22.h',
         '<(skia_src_path)/utils/SkMeshUtils.cpp',
+        '<(skia_src_path)/utils/SkMultiPictureDocument.cpp',
         '<(skia_src_path)/utils/SkNinePatch.cpp',
         '<(skia_src_path)/utils/SkNWayCanvas.cpp',
         '<(skia_src_path)/utils/SkNullCanvas.cpp',

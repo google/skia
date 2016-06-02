@@ -1007,6 +1007,41 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+MSKPSrc::MSKPSrc(Path path) : fPath(path) {
+    std::unique_ptr<SkStreamAsset> stream(SkStream::NewFromFile(fPath.c_str()));
+    (void)fReader.init(stream.get());
+}
+
+int MSKPSrc::pageCount() const { return fReader.pageCount(); }
+
+SkISize MSKPSrc::size() const { return this->size(0); }
+SkISize MSKPSrc::size(int i) const { return fReader.pageSize(i).toCeil(); }
+
+Error MSKPSrc::draw(SkCanvas* c) const { return this->draw(0, c); }
+Error MSKPSrc::draw(int i, SkCanvas* canvas) const {
+    std::unique_ptr<SkStreamAsset> stream(SkStream::NewFromFile(fPath.c_str()));
+    if (!stream) {
+        return SkStringPrintf("Unable to open file: %s", fPath.c_str());
+    }
+    if (fReader.pageCount() == 0) {
+        return SkStringPrintf("Unable to parse MultiPictureDocument file: %s", fPath.c_str());
+    }
+    if (i >= fReader.pageCount()) {
+        return SkStringPrintf("MultiPictureDocument page number out of range: %d", i);
+    }
+    sk_sp<SkPicture> page = fReader.readPage(stream.get(), i);
+    if (!page) {
+        return SkStringPrintf("SkMultiPictureDocumentReader failed on page %d: %s",
+                              i, fPath.c_str());
+    }
+    canvas->drawPicture(page);
+    return "";
+}
+
+Name MSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
     SkAutoTDelete<SkCanvas> canvas(SkCreateNullCanvas());
     return src.draw(canvas);
@@ -1099,44 +1134,15 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
         return "Source has empty dimensions";
     }
     SkASSERT(doc);
-    int width  = src.size().width(),
-        height = src.size().height();
-
-    if (FLAGS_multiPage) {
-        // Print the given DM:Src to a document, breaking on 8.5x11 pages.
-        const int kLetterWidth = 612,  // 8.5 * 72
-                kLetterHeight = 792;   // 11 * 72
-        const SkRect letter = SkRect::MakeWH(SkIntToScalar(kLetterWidth),
-                                             SkIntToScalar(kLetterHeight));
-
-        int xPages = ((width - 1) / kLetterWidth) + 1;
-        int yPages = ((height - 1) / kLetterHeight) + 1;
-
-        for (int y = 0; y < yPages; ++y) {
-            for (int x = 0; x < xPages; ++x) {
-                int w = SkTMin(kLetterWidth, width - (x * kLetterWidth));
-                int h = SkTMin(kLetterHeight, height - (y * kLetterHeight));
-                SkCanvas* canvas =
-                        doc->beginPage(SkIntToScalar(w), SkIntToScalar(h));
-                if (!canvas) {
-                    return "SkDocument::beginPage(w,h) returned nullptr";
-                }
-                canvas->clipRect(letter);
-                canvas->translate(-letter.width() * x, -letter.height() * y);
-                Error err = src.draw(canvas);
-                if (!err.isEmpty()) {
-                    return err;
-                }
-                doc->endPage();
-            }
-        }
-    } else {
+    int pageCount = src.pageCount();
+    for (int i = 0; i < pageCount; ++i) {
+        int width = src.size(i).width(), height = src.size(i).height();
         SkCanvas* canvas =
                 doc->beginPage(SkIntToScalar(width), SkIntToScalar(height));
         if (!canvas) {
             return "SkDocument::beginPage(w,h) returned nullptr";
         }
-        Error err = src.draw(canvas);
+        Error err = src.draw(i, canvas);
         if (!err.isEmpty()) {
             return err;
         }
