@@ -109,20 +109,8 @@ public:
       @return reference to the closest-matching typeface. Call must call
               unref() when they are done.
     */
-  static sk_sp<SkTypeface> MakeFromName(const char familyName[],
-                                        SkFontStyle fontStyle);
+  static sk_sp<SkTypeface> MakeFromName(const char familyName[], SkFontStyle fontStyle);
 
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_MAKE_FROM_NAME
-    /** Return the typeface that most closely matches the requested familyName and style.
-        Pass nullptr as the familyName to request the default font for the requested style.
-        Will never return nullptr.
-
-        @param familyName  May be NULL. The name of the font family.
-        @param style       The style (normal, bold, italic) of the typeface.
-        @return the closest-matching typeface.
-    */
-    static sk_sp<SkTypeface> MakeFromName(const char familyName[], Style style);
-#endif
 #ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
     static SkTypeface* CreateFromName(const char familyName[], Style style) {
         return MakeFromName(familyName, SkFontStyle::FromOldStyle(style)).release();

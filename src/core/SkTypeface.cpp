@@ -109,12 +109,6 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_MAKE_FROM_NAME
-sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[], Style style) {
-  return MakeFromName(name, SkFontStyle::FromOldStyle(style));
-}
-#endif
-
 sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
                                            SkFontStyle fontStyle) {
     if (gCreateTypefaceDelegate) {
