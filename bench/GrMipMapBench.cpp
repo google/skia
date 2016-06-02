@@ -70,7 +70,7 @@ private:
 // Build variants that exercise the width and heights being even or odd at each level, as the
 // impl specializes on each of these.
 //
-DEF_BENCH( return new GrMipMapBench(511, 1023); )
+DEF_BENCH( return new GrMipMapBench(511, 511); )
 DEF_BENCH( return new GrMipMapBench(512, 511); )
 DEF_BENCH( return new GrMipMapBench(511, 512); )
 DEF_BENCH( return new GrMipMapBench(512, 512); )
