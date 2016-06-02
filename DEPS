@@ -17,9 +17,6 @@ deps = {
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@v0.5.0",
   "third_party/externals/nanomsg" : "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
   "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4576304a4b9835aa8646c9735b079e1d96858633",
-  # NOTE: If we update libpng, we may need to update the generated file at third_party/libpng/pnglibconf.h
-  # skbug.com/4710: We'd prefer to mirror AOSP or Chrome.
-  "third_party/externals/libpng"  : "https://github.com/mattsarett/libpng.git@91d2a9e56ea83f7bce091b1606ae4d04ddfc547a",
   "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@ab10e256df4f684260ca239905b1cec727181f6c",
 
   "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",

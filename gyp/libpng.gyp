@@ -26,9 +26,7 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'include_dirs': [
-        # Needed for generated pnglibconf.h and pngprefix.h
         '../third_party/libpng',
-        '../third_party/externals/libpng',
       ],
       'dependencies': [
         'zlib.gyp:zlib',
@@ -38,8 +36,6 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '../third_party/externals/libpng',
-          # Needed for generated pnglibconf.h and pngprefix.h
           '../third_party/libpng',
         ],
       },
@@ -48,21 +44,21 @@
         '-fvisibility=hidden',
       ],
       'sources': [
-        '../third_party/externals/libpng/png.c',
-        '../third_party/externals/libpng/pngerror.c',
-        '../third_party/externals/libpng/pngget.c',
-        '../third_party/externals/libpng/pngmem.c',
-        '../third_party/externals/libpng/pngpread.c',
-        '../third_party/externals/libpng/pngread.c',
-        '../third_party/externals/libpng/pngrio.c',
-        '../third_party/externals/libpng/pngrtran.c',
-        '../third_party/externals/libpng/pngrutil.c',
-        '../third_party/externals/libpng/pngset.c',
-        '../third_party/externals/libpng/pngtrans.c',
-        '../third_party/externals/libpng/pngwio.c',
-        '../third_party/externals/libpng/pngwrite.c',
-        '../third_party/externals/libpng/pngwtran.c',
-        '../third_party/externals/libpng/pngwutil.c',
+        '../third_party/libpng/png.c',
+        '../third_party/libpng/pngerror.c',
+        '../third_party/libpng/pngget.c',
+        '../third_party/libpng/pngmem.c',
+        '../third_party/libpng/pngpread.c',
+        '../third_party/libpng/pngread.c',
+        '../third_party/libpng/pngrio.c',
+        '../third_party/libpng/pngrtran.c',
+        '../third_party/libpng/pngrutil.c',
+        '../third_party/libpng/pngset.c',
+        '../third_party/libpng/pngtrans.c',
+        '../third_party/libpng/pngwio.c',
+        '../third_party/libpng/pngwrite.c',
+        '../third_party/libpng/pngwtran.c',
+        '../third_party/libpng/pngwutil.c',
       ],
       'conditions': [
         [ '"x86" in skia_arch_type', {
@@ -70,8 +66,8 @@
             'PNG_INTEL_SSE_OPT=1',
           ],
           'sources': [
-            '../third_party/externals/libpng/contrib/intel/intel_init.c',
-            '../third_party/externals/libpng/contrib/intel/filter_sse2_intrinsics.c',
+            '../third_party/libpng/contrib/intel/intel_init.c',
+            '../third_party/libpng/contrib/intel/filter_sse2_intrinsics.c',
           ],
         }],
         [ '(("arm64" == skia_arch_type) or                   \
@@ -82,8 +78,8 @@
             'PNG_ARM_NEON_IMPLEMENTATION=1',
           ],
           'sources': [
-            '../third_party/externals/libpng/arm/arm_init.c',
-            '../third_party/externals/libpng/arm/filter_neon_intrinsics.c',
+            '../third_party/libpng/arm/arm_init.c',
+            '../third_party/libpng/arm/filter_neon_intrinsics.c',
           ],
         }],
         [ '"ios" == skia_os', {

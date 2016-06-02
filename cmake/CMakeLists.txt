@@ -35,6 +35,13 @@ list (APPEND public_includes ${userconfig_directory})
 list (APPEND srcs             ../third_party/etc1/etc1.cpp ../third_party/ktx/ktx.cpp)
 list (APPEND private_includes ../third_party/etc1          ../third_party/ktx)
 
+list (APPEND private_includes ../third_party/libpng)
+file (GLOB libpng_srcs ../third_party/libpng/*.c)
+foreach (src ${libpng_srcs})
+    list (APPEND srcs ${src})
+endforeach()
+
+
 function (remove_srcs)
     file (GLOB_RECURSE to_remove ${ARGN})
     list (REMOVE_ITEM srcs ${to_remove})
@@ -148,7 +155,6 @@ if (UNIX AND NOT APPLE)
     find_library (FONTCONFIG_LIBRARIES fontconfig)
     find_package (GIF)
     find_package (JPEG)
-    find_package (PNG)
 endif()
 
 # Do not compile SkRawCodec.
@@ -188,17 +194,9 @@ else()
     remove_srcs(../src/utils/*Lua*)
 endif()
 
-if (PNG_FOUND)
-    list (APPEND private_includes ${PNG_INCLUDE_DIRS})
-    list (APPEND libs             ${PNG_LIBRARIES})
-    add_definitions(-DPNG_SKIP_SETJMP_CHECK)
-    add_definitions(-DPNG_SKIP_SKIA_OPTS)
-    add_definitions(-DSK_HAS_PNG_LIBRARY)
-else()
-    remove_srcs(../src/images/*PNG*)
-    remove_srcs(../src/codec/*Png*)
-    remove_srcs(../src/codec/*Ico*)
-endif()
+# PNG
+add_definitions(-DSK_HAS_PNG_LIBRARY)
+add_definitions(-DPNG_ARM_NEON_OPT=0)
 
 if (ZLIB_FOUND)
     list (APPEND private_includes ${ZLIB_INCLUDE_DIRS})
