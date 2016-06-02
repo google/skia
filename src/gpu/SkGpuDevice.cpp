@@ -757,7 +757,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
             draw.fMatrix->preservesRightAngles() && origSrcPath.isLine(points)) {
             // Path-based stroking looks better for thin rects
             SkScalar strokeWidth = draw.fMatrix->getMaxScale() * paint.getStrokeWidth();
-            if (strokeWidth > 0.9f) {
+            if (strokeWidth >= 1.0f) {
                 // Round capping support is currently disabled b.c. it would require
                 // a RRect batch that takes a localMatrix.
                 this->drawStrokedLine(points, draw, paint);
