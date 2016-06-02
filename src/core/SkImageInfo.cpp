@@ -35,6 +35,11 @@ SkImageInfo SkImageInfo::Make(int width, int height, SkColorType ct, SkAlphaType
     return SkImageInfo(width, height, ct, at, SkDefaultColorProfile(), std::move(cs));
 }
 
+SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
+    return SkImageInfo(width, height, kN32_SkColorType, at, kSRGB_SkColorProfileType,
+                       SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
+}
+
 void SkImageInfo::unflatten(SkReadBuffer& buffer) {
     fWidth = buffer.read32();
     fHeight = buffer.read32();

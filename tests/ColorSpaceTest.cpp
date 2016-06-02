@@ -138,3 +138,26 @@ DEF_TEST(ColorSpaceWriteICC, r) {
     REPORTER_ASSERT(r, monitorSpace->xyz() == newMonitorSpace->xyz());
     REPORTER_ASSERT(r, as_CSB(monitorSpace)->gammas() == as_CSB(newMonitorSpace)->gammas());
 }
+
+DEF_TEST(ColorSpace_Named, r) {
+    const struct {
+        SkColorSpace::Named fNamed;
+        bool fExpectedToSucceed;
+    } recs[] {
+        { SkColorSpace::kUnknown_Named,  false },
+        { SkColorSpace::kSRGB_Named,     true  },
+        { SkColorSpace::kAdobeRGB_Named, true  },
+    };
+
+    for (auto rec : recs) {
+        auto cs = SkColorSpace::NewNamed(rec.fNamed);
+        REPORTER_ASSERT(r, !cs == !rec.fExpectedToSucceed);
+        if (cs) {
+            REPORTER_ASSERT(r, SkColorSpace::k2Dot2Curve_GammaNamed == cs->gammaNamed());
+        }
+    }
+
+    SkImageInfo info = SkImageInfo::MakeS32(10, 10, kPremul_SkAlphaType);
+    REPORTER_ASSERT(r, kSRGB_SkColorProfileType == info.profileType());
+    REPORTER_ASSERT(r, SkColorSpace::k2Dot2Curve_GammaNamed == info.colorSpace()->gammaNamed());
+}

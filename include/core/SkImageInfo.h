@@ -223,6 +223,11 @@ public:
         return MakeN32Premul(size.width(), size.height(), pt);
     }
 
+    /**
+     *  Create an ImageInfo marked as SRGB with N32 swizzle.
+     */
+    static SkImageInfo MakeS32(int width, int height, SkAlphaType at);
+
     static SkImageInfo MakeA8(int width, int height) {
         return SkImageInfo(width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType,
                            kLinear_SkColorProfileType, nullptr);

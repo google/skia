@@ -17,7 +17,7 @@ static bool color_space_almost_equal(float a, float b) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkColorSpace::SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Named named)
-    : fGammaNamed(kNonStandard_GammaNamed)
+    : fGammaNamed(gammaNamed)
     , fToXYZD50(toXYZD50)
     , fNamed(named)
 {}
