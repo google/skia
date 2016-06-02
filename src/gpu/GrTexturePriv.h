@@ -29,7 +29,9 @@ public:
         return 0 != (fTexture->fDesc.fFlags & flags);
     }
 
-    void dirtyMipMaps(bool mipMapsDirty) { fTexture->dirtyMipMaps(mipMapsDirty); }
+    void dirtyMipMaps(bool mipMapsDirty, bool sRGBCorrect = false) {
+        fTexture->dirtyMipMaps(mipMapsDirty, sRGBCorrect);
+    }
 
     bool mipMapsAreDirty() const {
         return GrTexture::kValid_MipMapsStatus != fTexture->fMipMapsStatus;
@@ -45,6 +47,10 @@ public:
 
     int maxMipMapLevel() const {
         return fTexture->fMaxMipMapLevel;
+    }
+
+    bool mipMapsAreSRGBCorrect() const {
+        return fTexture->fMipMapsAreSRGBCorrect;
     }
 
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);

@@ -10,7 +10,7 @@
 #include "Resources.h"
 #include "SkGradientShader.h"
 
-DEF_SIMPLE_GM(gamma, canvas, 500, 200) {
+DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     SkPaint p;
     const SkScalar sz = 50.0f;
     const int szInt = SkScalarTruncToInt(sz);
@@ -34,7 +34,18 @@ DEF_SIMPLE_GM(gamma, canvas, 500, 200) {
     SkImageInfo srgbGreyInfo = SkImageInfo::MakeN32(szInt, szInt, kOpaque_SkAlphaType,
                                                     kSRGB_SkColorProfileType);
     srgbGreyBmp.allocPixels(srgbGreyInfo);
+    // 0xBC = 255 * linear_to_srgb(0.5f)
     srgbGreyBmp.eraseARGB(0xFF, 0xBC, 0xBC, 0xBC);
+
+    SkBitmap mipmapBmp;
+    SkImageInfo mipmapInfo = SkImageInfo::MakeN32(2, 2, kOpaque_SkAlphaType,
+                                                  kSRGB_SkColorProfileType);
+    mipmapBmp.allocPixels(mipmapInfo);
+    SkPMColor* mipmapPixels = reinterpret_cast<SkPMColor*>(mipmapBmp.getPixels());
+    // 0x89 = 255 * linear_to_srgb(0.25f)
+    mipmapPixels[0] = mipmapPixels[3] = SkPackARGB32(0xFF, 0x89, 0x89, 0x89);
+    // 0xE1 = 255 * linear_to_srgb(0.75f)
+    mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, 0xE1, 0xE1, 0xE1);
 
     SkPaint textPaint;
     textPaint.setColor(SK_ColorWHITE);
@@ -106,6 +117,12 @@ DEF_SIMPLE_GM(gamma, canvas, 500, 200) {
     p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt, &scaleMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Dither", "Scale");
+
+    // 25%/75% dither, scaled down by 2x. Tests ALL aspects of minification. Specifically, are
+    // sRGB sources decoded to linear before computing mipmaps?
+    p.setShader(SkShader::MakeBitmapShader(mipmapBmp, rpt, rpt, &scaleMatrix));
+    p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
+    nextRect("MipMaps", 0);
 
     // 50% grey via paint color.
     p.setColor(0xff7f7f7f);

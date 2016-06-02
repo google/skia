@@ -62,6 +62,8 @@ public:
 
     void bindTexelBuffer(int unitIdx, intptr_t offsetInBytes, GrPixelConfig, GrGLBuffer*);
 
+    void generateMipmaps(const GrTextureParams& params, bool allowSRGBInputs, GrGLTexture* texture);
+
     bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
                              GrPixelConfig readConfig, DrawPreference*,
                              ReadPixelTempDrawInfo*) override;
@@ -237,6 +239,7 @@ private:
                                       GrSurface* src,
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
+    bool generateMipmap(GrGLTexture* texture, bool gammaCorrect);
 
     void stampPLSSetupRect(const SkRect& bounds);
 
@@ -319,6 +322,8 @@ private:
 
     void flushMinSampleShading(float minSampleShading);
 
+    void flushFramebufferSRGB(bool enable);
+
     // helper for onCreateTexture and writeTexturePixels
     enum UploadType {
         kNewTexture_UploadType,    // we are creating a new texture
@@ -365,6 +370,7 @@ private:
     SkAutoTUnref<GrGLContext>  fGLContext;
 
     bool createCopyProgram(int progIdx);
+    bool createMipmapProgram(int progIdx);
     bool createWireRectProgram();
     bool createPLSSetupProgram();
 
@@ -532,6 +538,14 @@ private:
     }                           fCopyPrograms[3];
     SkAutoTUnref<GrGLBuffer>    fCopyProgramArrayBuffer;
 
+    /** IDs for texture mipmap program. (4 filter configurations) */
+    struct {
+        GrGLuint    fProgram;
+        GrGLint     fTextureUniform;
+        GrGLint     fTexCoordXformUniform;
+    }                           fMipmapPrograms[4];
+    SkAutoTUnref<GrGLBuffer>    fMipmapProgramArrayBuffer;
+
     struct {
         GrGLuint fProgram;
         GrGLint  fColorUniform;
@@ -551,6 +565,12 @@ private:
                 SkFAIL("Unexpected texture target type.");
                 return 0;
         }
+    }
+
+    static int TextureSizeToMipmapProgramIdx(int width, int height) {
+        const bool wide = (width > 1) && SkToBool(width & 0x1);
+        const bool tall = (height > 1) && SkToBool(height & 0x1);
+        return (wide ? 0x2 : 0x0) | (tall ? 0x1 : 0x0);
     }
 
     struct {

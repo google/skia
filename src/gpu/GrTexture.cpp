@@ -18,7 +18,7 @@
 #include "SkMipMap.h"
 #include "SkTypes.h"
 
-void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
+void GrTexture::dirtyMipMaps(bool mipMapsDirty, bool sRGBCorrect) {
     if (mipMapsDirty) {
         if (kValid_MipMapsStatus == fMipMapsStatus) {
             fMipMapsStatus = kAllocated_MipMapsStatus;
@@ -26,6 +26,7 @@ void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
     } else {
         const bool sizeChanged = kNotAllocated_MipMapsStatus == fMipMapsStatus;
         fMipMapsStatus = kValid_MipMapsStatus;
+        fMipMapsAreSRGBCorrect = sRGBCorrect;
         if (sizeChanged) {
             // This must not be called until after changing fMipMapsStatus.
             this->didChangeGpuMemorySize();
@@ -93,9 +94,12 @@ GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType
     if (wasMipMapDataProvided) {
         fMipMapsStatus = kValid_MipMapsStatus;
         fMaxMipMapLevel = SkMipMap::ComputeLevelCount(fDesc.fWidth, fDesc.fHeight);
+        // At the moment, the CPU code for generating mipmaps doesn't account for sRGB:
+        fMipMapsAreSRGBCorrect = false;
     } else {
         fMipMapsStatus = kNotAllocated_MipMapsStatus;
         fMaxMipMapLevel = 0;
+        fMipMapsAreSRGBCorrect = false;
     }
 }
 

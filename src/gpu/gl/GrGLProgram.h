@@ -96,6 +96,12 @@ public:
      */
     void setData(const GrPrimitiveProcessor&, const GrPipeline&);
 
+    /**
+     * This function retrieves the textures that need to be used by each GrGL*Processor, and
+     * ensures that any textures requiring mipmaps have their mipmaps correctly built.
+     */
+    void generateMipmaps(const GrPrimitiveProcessor&, const GrPipeline&);
+
 protected:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
@@ -121,6 +127,9 @@ protected:
 
     // Helper for setData() that binds textures and texel buffers to the appropriate texture units
     void bindTextures(const GrProcessor&, bool allowSRGBInputs, int* nextSamplerIdx);
+
+    // Helper for generateMipmaps() that ensures mipmaps are up to date
+    void generateMipmaps(const GrProcessor&, bool allowSRGBInputs);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;
