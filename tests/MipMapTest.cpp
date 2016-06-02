@@ -150,3 +150,50 @@ DEF_TEST(MipMap_ComputeLevelCount, reporter) {
         REPORTER_ASSERT(reporter, currentTest.fExpectedLevelCount == levelCount);
     }
 }
+
+struct LevelSizeScenario {
+    int fBaseWidth;
+    int fBaseHeight;
+    int fLevel;
+    SkSize fExpectedMipMapLevelSize;
+};
+
+DEF_TEST(MipMap_ComputeLevelSize, reporter) {
+    const LevelSizeScenario tests[] = {
+        // Test mipmaps with negative sizes
+        {-100, 100, 1, SkSize::Make(0, 0)},
+        {100, -100, 1, SkSize::Make(0, 0)},
+        {-100, -100, 1, SkSize::Make(0, 0)},
+
+        // Test mipmaps with 0, 1, 2 as dimensions
+        // (SkMipMap::Build requires a min size of 1)
+        //
+        // 0
+        {0, 100, 1, SkSize::Make(0, 0)},
+        {100, 0, 1, SkSize::Make(0, 0)},
+        {0, 0, 1, SkSize::Make(0, 0)},
+        // 1
+
+        {1, 100, 1, SkSize::Make(1, 50)},
+        {100, 1, 1, SkSize::Make(50, 1)},
+        {1, 1, 1, SkSize::Make(0, 0)},
+        // 2
+        {2, 100, 1, SkSize::Make(1, 50)},
+        {100, 2, 2, SkSize::Make(25, 1)},
+        {2, 2, 1, SkSize::Make(1, 1)},
+
+        // Test a handful of cases
+        {63, 63, 3, SkSize::Make(7, 7)},
+        {64, 64, 3, SkSize::Make(8, 8)},
+        {127, 127, 3, SkSize::Make(15, 15)},
+        {64, 129, 4, SkSize::Make(4, 8)},
+        {255, 32, 7, SkSize::Make(1, 1)},
+        {500, 1000, 2, SkSize::Make(125, 250)},
+    };
+
+    for (auto& currentTest : tests) {
+        SkSize levelSize = SkMipMap::ComputeLevelSize(currentTest.fBaseWidth,
+                                                      currentTest.fBaseHeight, currentTest.fLevel);
+        REPORTER_ASSERT(reporter, currentTest.fExpectedMipMapLevelSize == levelSize);
+    }
+}

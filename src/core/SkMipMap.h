@@ -23,9 +23,11 @@ public:
     static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc);
     static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
-    // This function lets you determine how many levels a SkMipMap will have without
-    // creating that mipmap.
+    // Determines how many levels a SkMipMap will have without creating that mipmap.
     static int ComputeLevelCount(int baseWidth, int baseHeight);
+
+    // Determines the size of a given mipmap level.
+    static SkSize ComputeLevelSize(int baseWidth, int baseHeight, int level);
 
     struct Level {
         SkPixmap    fPixmap;

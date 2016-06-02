@@ -371,22 +371,11 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     }
     // whip through our loop to compute the exact size needed
     size_t  size = 0;
-    int countLevels = 0;
-    {
-        int width = src.width();
-        int height = src.height();
-        for (;;) {
-            width = SkTMax(1, width >> 1);
-            height = SkTMax(1, height >> 1);
-            size += SkColorTypeMinRowBytes(ct, width) * height;
-            countLevels += 1;
-            if (1 == width && 1 == height) {
-                break;
-            }
-        }
+    int countLevels = ComputeLevelCount(src.width(), src.height());
+    for (int currentMipLevel = countLevels; currentMipLevel > 0; currentMipLevel--) {
+        SkSize mipSize = ComputeLevelSize(src.width(), src.height(), currentMipLevel);
+        size += SkColorTypeMinRowBytes(ct, mipSize.fWidth) * mipSize.fHeight;
     }
-
-    SkASSERT(countLevels == SkMipMap::ComputeLevelCount(src.width(), src.height()));
 
     size_t storageSize = SkMipMap::AllocLevelsSize(countLevels, size);
     if (0 == storageSize) {
@@ -505,6 +494,29 @@ int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
     }
 
     return mipLevelCount;
+}
+
+SkSize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
+    if (baseWidth < 1 || baseHeight < 1) {
+        return SkSize::Make(0, 0);
+    }
+
+    int maxLevelCount = ComputeLevelCount(baseWidth, baseHeight);
+    if (level > maxLevelCount || level < 0) {
+        return SkSize::Make(0, 0);
+    }
+    if (level == 0) {
+        return SkSize::Make(baseWidth, baseHeight);
+    }
+
+    // OpenGL's spec requires that each mipmap level have height/width equal to
+    // max(1, floor(original_height / 2^i)
+    // (or original_width) where i is the mipmap level.
+
+    int width = SkTMax(1, baseWidth >> level);
+    int height = SkTMax(1, baseHeight >> level);
+
+    return SkSize::Make(width, height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
