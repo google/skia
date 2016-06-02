@@ -692,12 +692,78 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
 #include "SkMaskFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
+                                  const SkDraw& draw,
+                                  const SkPaint& origPaint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawStrokedLine", fContext);
+    CHECK_SHOULD_DRAW(draw);
+
+    // Adding support for round capping would require a GrDrawContext::fillRRectWithLocalMatrix
+    // entry point
+    SkASSERT(SkPaint::kRound_Cap != origPaint.getStrokeCap());
+    SkASSERT(SkPaint::kStroke_Style == origPaint.getStyle());
+    SkASSERT(!origPaint.getPathEffect());
+    SkASSERT(!origPaint.getMaskFilter());
+
+    const SkScalar halfWidth = 0.5f * origPaint.getStrokeWidth();
+    SkASSERT(halfWidth > 0);
+
+    SkVector v = points[1] - points[0];
+
+    SkScalar length = SkPoint::Normalize(&v);
+    if (!length) {
+        v.fX = 1.0f;
+        v.fY = 0.0f;
+    }
+
+    SkPaint newPaint(origPaint);
+    newPaint.setStyle(SkPaint::kFill_Style);
+
+    SkScalar xtraLength = 0.0f;
+    if (SkPaint::kButt_Cap != origPaint.getStrokeCap()) {
+        xtraLength = halfWidth;
+    }
+
+    SkPoint mid = points[0] + points[1];
+    mid.scale(0.5f);
+
+    SkRect rect = SkRect::MakeLTRB(mid.fX-halfWidth, mid.fY - 0.5f*length - xtraLength,
+                                   mid.fX+halfWidth, mid.fY + 0.5f*length + xtraLength);
+    SkMatrix m;
+    m.setSinCos(v.fX, -v.fY, mid.fX, mid.fY);
+
+    SkMatrix local = m;
+
+    m.postConcat(*draw.fMatrix);
+
+    GrPaint grPaint;
+    if (!SkPaintToGrPaint(this->context(), newPaint, m,
+                          this->surfaceProps().isGammaCorrect(), &grPaint)) {
+        return;
+    }
+
+    fDrawContext->fillRectWithLocalMatrix(fClip, grPaint, m, rect, local);
+}
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
     ASSERT_SINGLE_OWNER
     if (!origSrcPath.isInverseFillType() && !paint.getPathEffect() && !prePathMatrix) {
+        SkPoint points[2];
+        if (SkPaint::kStroke_Style == paint.getStyle() && paint.getStrokeWidth() > 0 &&
+            !paint.getMaskFilter() && SkPaint::kRound_Cap != paint.getStrokeCap() &&
+            draw.fMatrix->preservesRightAngles() && origSrcPath.isLine(points)) {
+            // Path-based stroking looks better for thin rects
+            SkScalar strokeWidth = draw.fMatrix->getMaxScale() * paint.getStrokeWidth();
+            if (strokeWidth > 0.9f) {
+                // Round capping support is currently disabled b.c. it would require
+                // a RRect batch that takes a localMatrix.
+                this->drawStrokedLine(points, draw, paint);
+                return;
+            }
+        }
         bool isClosed;
         SkRect rect;
         if (origSrcPath.isRect(&rect, &isClosed) && isClosed) {
