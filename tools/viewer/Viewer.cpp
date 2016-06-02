@@ -424,9 +424,11 @@ void Viewer::updateUIState() {
     // We will be able to change the backend too.
     Json::Value backendState(Json::objectValue);
     backendState[kName] = kBackendStateName;
-    backendState[kValue] = fBackendType == sk_app::Window::kVulkan_BackendType ?
-            "Vulkan" : "Other than Vulkan";
+    backendState[kValue] = kBackendTypeStrings[fBackendType];
     backendState[kOptions] = Json::Value(Json::arrayValue);
+    for(auto str : kBackendTypeStrings) {
+        backendState[kOptions].append(Json::Value(str));
+    }
 
     Json::Value state(Json::arrayValue);
     state.append(slideState);
@@ -436,7 +438,10 @@ void Viewer::updateUIState() {
 }
 
 void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateValue) {
-    // Currently, we only recognize the Slide state
+    // For those who will add more features to handle the state change in this function:
+    // After the change, please call updateUIState no notify the frontend (e.g., Android app).
+    // For example, after slide change, updateUIState is called inside setupCurrentSlide;
+    // after backend change, updateUIState is called in this function.
     if (stateName.equals(kSlideStateName)) {
         int previousSlide = fCurrentSlide;
         fCurrentSlide = 0;
@@ -450,6 +455,20 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
         if (fCurrentSlide >= fSlides.count()) {
             fCurrentSlide = previousSlide;
             SkDebugf("Slide not found: %s", stateValue.c_str());
+        }
+    } else if (stateName.equals(kBackendStateName)) {
+        for (int i = 0; i < sk_app::Window::kBackendTypeCount; i++) {
+            if (stateValue.equals(kBackendTypeStrings[i])) {
+                if (fBackendType != i) {
+                    fBackendType = (sk_app::Window::BackendType)i;
+                    fWindow->detach();
+                    fWindow->attach(fBackendType, DisplayParams());
+                    fWindow->inval();
+                    updateTitle();
+                    updateUIState();
+                }
+                break;
+            }
         }
     } else {
         SkDebugf("Unknown stateName: %s", stateName.c_str());

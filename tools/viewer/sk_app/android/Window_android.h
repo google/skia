@@ -8,10 +8,16 @@
 #ifndef Window_android_DEFINED
 #define Window_android_DEFINED
 
+#include <android/native_window_jni.h>
+
 #include "../Window.h"
 #include "surface_glue_android.h"
 
 namespace sk_app {
+
+struct ContextPlatformData_android {
+    ANativeWindow* fNativeWindow;
+};
 
 class Window_android : public Window {
 public:
@@ -38,9 +44,13 @@ public:
     void setContentRect(int l, int t, int r, int b) { fContentRect.set(l,t,r,b); }
 
 private:
+    // We need fNativeWindow for attaching with another backend.
+    // (in that case, attach is called without initDisplay being called later)
+    ANativeWindow* fNativeWindow = nullptr;
     SkiaAndroidApp* fSkiaAndroidApp = nullptr;
     SkRect fContentRect;
     DisplayParams fDisplayParams;
+    BackendType fBackendType;
 };
 
 }   // namespace sk_app

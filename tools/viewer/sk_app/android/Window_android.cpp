@@ -6,8 +6,8 @@
 */
 
 #include "Window_android.h"
-
-#include "VulkanWindowContext_android.h"
+#include "../GLWindowContext.h"
+#include "../VulkanWindowContext.h"
 
 namespace sk_app {
 
@@ -46,26 +46,39 @@ void Window_android::setUIState(const Json::Value& state) {
 }
 
 bool Window_android::attach(BackendType attachType, const DisplayParams& params) {
-    if (kVulkan_BackendType != attachType) {
-        return false;
-    }
-
+    fBackendType = attachType;
     fDisplayParams = params;
 
-    // We delay the creation of fTestContext until Android informs us that
+    if (fNativeWindow) {
+        this->initDisplay(fNativeWindow);
+    }
+    // If fNativeWindow is not set,
+    // we delay the creation of fWindowContext until Android informs us that
     // the native window is ready to use.
+    // The creation will be done in initDisplay, which is initiated by kSurfaceCreated event.
     return true;
 }
 
 void Window_android::initDisplay(ANativeWindow* window) {
     SkASSERT(window);
+    fNativeWindow = window;
     ContextPlatformData_android platformData;
     platformData.fNativeWindow = window;
-    fWindowContext = VulkanWindowContext::Create((void*)&platformData, fDisplayParams);
+    switch (fBackendType) {
+        case kNativeGL_BackendType:
+            fWindowContext = GLWindowContext::Create((void*)&platformData, fDisplayParams);
+            break;
+
+        case kVulkan_BackendType:
+        default:
+            fWindowContext = VulkanWindowContext::Create((void*)&platformData, fDisplayParams);
+            break;
+    }
 }
 
 void Window_android::onDisplayDestroyed() {
     detach();
+    fNativeWindow = nullptr;
 }
 
 void Window_android::onInval() {
