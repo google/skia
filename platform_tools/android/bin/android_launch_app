@@ -21,7 +21,7 @@ fi
 
 if [[ ${app} == 'SampleApp' ]]; then
     activity="com.skia.sample_app/com.skia.SkiaSampleActivity"
-elif [[ ${app} == "VisualBench" ]] ; then
+elif [[ ${app} == "Viewer" ]] ; then
     activity="org.skia.viewer/org.skia.viewer.ViewerActivity"
 else
     echo "ERROR: supports either 'SampleApp' or 'Viewer' as valid apps"
