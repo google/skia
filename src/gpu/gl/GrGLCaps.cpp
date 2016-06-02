@@ -50,6 +50,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fPartialFBOReadIsSlow = false;
     fMipMapLevelAndLodControlSupport = false;
     fRGBAToBGRAReadbackConversionsAreSlow = false;
+    fDoManualMipmapping = false;
 
     fBlitFramebufferSupport = kNone_BlitFramebufferSupport;
 
@@ -541,6 +542,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     } else if (ctxInfo.hasExtension("GL_OES_sample_shading")) {
         fSampleShadingSupport = true;
+    }
+
+    // Manual mip-mapping requires mip-level sampling control.
+    // Additionally, Adreno330 will produce empty mip-maps for the very smallest mips with
+    // our manual (draw-call) implementation.
+    if (fMipMapLevelAndLodControlSupport &&
+        kAdreno3xx_GrGLRenderer != ctxInfo.renderer()) {
+        fDoManualMipmapping = true;
     }
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have

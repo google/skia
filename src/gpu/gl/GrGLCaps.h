@@ -333,6 +333,8 @@ public:
 
     bool mipMapLevelAndLodControlSupport() const { return fMipMapLevelAndLodControlSupport; }
 
+    bool doManualMipmapping() const { return fDoManualMipmapping; }
+
     /**
      * Returns a string containing the caps info.
      */
@@ -410,6 +412,7 @@ private:
     bool fTextureSwizzleSupport : 1;
     bool fMipMapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
+    bool fDoManualMipmapping : 1;
 
     BlitFramebufferSupport fBlitFramebufferSupport;
 

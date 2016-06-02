@@ -4314,14 +4314,12 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
     return true;
 }
 
-bool gManualMipmaps = true;
-
 // Manual implementation of mipmap generation, to work around driver bugs w/sRGB.
 // Uses draw calls to do a series of downsample operations to successive mips.
 // If this returns false, then the calling code falls back to using glGenerateMipmap.
 bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
-    // Global switch for manual mipmap generation:
-    if (!gManualMipmaps) {
+    // Our iterative downsample requires the ability to limit which level we're sampling:
+    if (!this->glCaps().doManualMipmapping()) {
         return false;
     }
 
@@ -4332,11 +4330,6 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
 
     // We need to be able to render to the texture for this to work:
     if (!this->caps()->isConfigRenderable(texture->config(), false)) {
-        return false;
-    }
-
-    // Our iterative downsample requires the ability to limit which level we're sampling:
-    if (!this->glCaps().mipMapLevelAndLodControlSupport()) {
         return false;
     }
 
