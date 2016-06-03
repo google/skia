@@ -1,9 +1,0 @@
-CODE_REVIEW_SERVER: codereview.chromium.org
-CC_LIST: chromium-reviews@chromium.org
-VIEW_VC: https://chromium.googlesource.com/chromium/deps/libjpeg_turbo/+/
-STATUS: http://chromium-status.appspot.com/status
-TRY_ON_UPLOAD: False
-TRYSERVER_SVN_URL: svn://svn.chromium.org/chrome-try/try
-GITCL_PREUPLOAD: http://src.chromium.org/viewvc/chrome/trunk/tools/depot_tools/git-cl-upload-hook?revision=HEAD
-GITCL_PREDCOMMIT: http://src.chromium.org/viewvc/chrome/trunk/tools/depot_tools/git-cl-upload-hook?revision=HEAD
-PROJECT: chromium_deps
