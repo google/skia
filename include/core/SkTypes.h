@@ -131,7 +131,11 @@ inline void operator delete(void* p) {
 #define SkASSERT_RELEASE(cond)          if(!(cond)) { SK_ABORT(#cond); }
 
 #ifdef SK_DEBUG
-    #define SkASSERT(cond)              SkASSERT_RELEASE(cond)
+    #if defined SK_BUILD_FOR_WIN
+        #define SkASSERT(cond)          if(!(cond)) { __debugbreak(); }
+    #else
+        #define SkASSERT(cond)          SkASSERT_RELEASE(cond)
+    #endif
     #define SkDEBUGFAIL(message)        SkASSERT(false && message)
     #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
     #define SkDEBUGCODE(code)           code
