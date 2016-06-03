@@ -149,6 +149,12 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     */
     SkASSERT(allocator != nullptr);
 
+    // Defer to the general code if the pixels are unpremultipled. This case is not common,
+    // and this simplifies the code.
+    if (source.alphaType() == kUnpremul_SkAlphaType) {
+        return nullptr;
+    }
+
     SkSpriteBlitter* blitter = nullptr;
 
     if (SkSpriteBlitter_Src_SrcOver::Supports(dst, source, paint)) {
