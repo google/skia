@@ -758,7 +758,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
 
     if (glslCaps->fTexelFetchSupport) {
         if (kGL_GrGLStandard == standard) {
-            glslCaps->fTexelBufferSupport = ctxInfo.version() >= GR_GL_VER(4, 3) &&
+            glslCaps->fTexelBufferSupport = ctxInfo.version() >= GR_GL_VER(3, 1) &&
                                             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
         } else {
             if (ctxInfo.version() >= GR_GL_VER(3, 2) &&

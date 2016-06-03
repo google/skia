@@ -3248,11 +3248,9 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool allow
     texture->setCachedTexParams(newTexParams, this->getResetTimestamp());
 }
 
-void GrGLGpu::bindTexelBuffer(int unitIdx, intptr_t offsetInBytes, GrPixelConfig texelConfig,
-                              GrGLBuffer* buffer) {
+void GrGLGpu::bindTexelBuffer(int unitIdx, GrPixelConfig texelConfig, GrGLBuffer* buffer) {
     SkASSERT(this->glCaps().canUseConfigWithTexelBuffer(texelConfig));
     SkASSERT(unitIdx >= 0 && unitIdx < fHWBufferTextures.count());
-    SkASSERT(offsetInBytes >= 0 && offsetInBytes < (intptr_t) buffer->glSizeInBytes());
 
     BufferTexture& buffTex = fHWBufferTextures[unitIdx];
 
@@ -3271,22 +3269,14 @@ void GrGLGpu::bindTexelBuffer(int unitIdx, intptr_t offsetInBytes, GrPixelConfig
     }
 
     if (buffer->getUniqueID() != buffTex.fAttachedBufferUniqueID ||
-        buffTex.fOffsetInBytes != offsetInBytes ||
-        buffTex.fTexelConfig != texelConfig ||
-        buffTex.fAttachedSizeInBytes != buffer->glSizeInBytes() - offsetInBytes) {
-
-        size_t attachmentSizeInBytes = buffer->glSizeInBytes() - offsetInBytes;
+        buffTex.fTexelConfig != texelConfig) {
 
         this->setTextureUnit(unitIdx);
-        GL_CALL(TexBufferRange(GR_GL_TEXTURE_BUFFER,
-                               this->glCaps().configSizedInternalFormat(texelConfig),
-                               buffer->bufferID(),
-                               offsetInBytes,
-                               attachmentSizeInBytes));
+        GL_CALL(TexBuffer(GR_GL_TEXTURE_BUFFER,
+                          this->glCaps().configSizedInternalFormat(texelConfig),
+                          buffer->bufferID()));
 
-        buffTex.fOffsetInBytes = offsetInBytes;
         buffTex.fTexelConfig = texelConfig;
-        buffTex.fAttachedSizeInBytes = attachmentSizeInBytes;
         buffTex.fAttachedBufferUniqueID = buffer->getUniqueID();
 
         if (this->glCaps().textureSwizzleSupport() &&

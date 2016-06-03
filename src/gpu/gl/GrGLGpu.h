@@ -60,7 +60,7 @@ public:
     void bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
                      GrGLTexture* texture);
 
-    void bindTexelBuffer(int unitIdx, intptr_t offsetInBytes, GrPixelConfig, GrGLBuffer*);
+    void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
 
     void generateMipmaps(const GrTextureParams& params, bool allowSRGBInputs, GrGLTexture* texture);
 
@@ -514,9 +514,7 @@ private:
 
         GrGLuint        fTextureID;
         bool            fKnownBound;
-        intptr_t        fOffsetInBytes;
         GrPixelConfig   fTexelConfig;
-        size_t          fAttachedSizeInBytes;
         uint32_t        fAttachedBufferUniqueID;
         GrSwizzle       fSwizzle;
     };
