@@ -263,7 +263,7 @@ def product_board(builder_dict):
       'AndroidOne':    None,  # TODO(borenet,kjlubick)
       'GalaxyS3':      'm0',  #'smdk4x12', Detected incorrectly by swarming?
       'GalaxyS4':      None,  # TODO(borenet,kjlubick)
-      'NVIDIA_Shield': None,  # TODO(borenet,kjlubick)
+      'NVIDIA_Shield': 'foster',
       'Nexus10':       'manta',
       'Nexus5':        'hammerhead',
       'Nexus6':        'shamu',
