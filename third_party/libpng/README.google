@@ -9,3 +9,4 @@ Local Modifications:
     (2) Included Intel optimizations by running:
     "patch -i contrib/intel/intel_sse.patch -p1"
     (3) Removed files unused by Skia
+    (4) Fixed an undefined behavior bug (skbug.com/5390)

@@ -499,7 +499,18 @@ png_push_save_buffer(png_structrp png_ptr)
          png_error(png_ptr, "Insufficient memory for save_buffer");
       }
 
+#if 0
+      // This is the code checked into libpng. Calling memcpy with a null
+      // source is undefined, even if count is 0, but libpng does not
+      // currently check for null or 0. The Skia fix is below.
+      // skbug.com/5390
       memcpy(png_ptr->save_buffer, old_buffer, png_ptr->save_buffer_size);
+#else
+      if (old_buffer)
+         memcpy(png_ptr->save_buffer, old_buffer, png_ptr->save_buffer_size);
+      else if (png_ptr->save_buffer_size)
+         png_error(png_ptr, "save_buffer error");
+#endif
       png_free(png_ptr, old_buffer);
       png_ptr->save_buffer_max = new_max;
    }
