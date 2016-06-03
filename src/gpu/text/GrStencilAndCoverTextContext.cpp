@@ -647,7 +647,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                          GrPathRendering::kWinding_FillType, glyphs, fInstanceData,
                                          bounds));
 
-        dc->drawBatch(pipelineBuilder, clip, batch);
+        dc->drawBatch(*pipelineBuilder, clip, batch);
     }
 
     if (fFallbackTextBlob) {

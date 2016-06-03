@@ -985,7 +985,12 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     geometry.fPath = *args.fPath;
 
     SkAutoTUnref<GrDrawBatch> batch(PLSPathBatch::Create(geometry));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
+
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
+    pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     SkDEBUGCODE(inPLSDraw = false;)
     return true;

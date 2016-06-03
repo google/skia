@@ -9,8 +9,10 @@
 #define GrDrawContextPriv_DEFINED
 
 #include "GrDrawContext.h"
+#include "GrPathRendering.h"
 
 class GrFixedClip;
+class GrPath;
 struct GrUserStencilSettings;
 
 /** Class that adds methods to GrDrawContext that are only intended for use internal to Skia.
@@ -18,6 +20,20 @@ struct GrUserStencilSettings;
     data members or virtual methods. */
 class GrDrawContextPriv {
 public:
+    void clearStencilClip(const SkIRect& rect, bool insideClip);
+
+    void stencilRect(const GrFixedClip& clip,
+                     const GrUserStencilSettings* ss,
+                     bool doAA,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect);
+
+    void stencilPath(const GrPipelineBuilder&,
+                     const GrClip&,
+                     const SkMatrix& viewMatrix,
+                     const GrPath*,
+                     GrPathRendering::FillType);
+
     bool drawAndStencilRect(const GrFixedClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,

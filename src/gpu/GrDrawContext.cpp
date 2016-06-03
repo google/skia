@@ -36,6 +36,7 @@
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fDrawContext->fSingleOwner);)
 #define RETURN_IF_ABANDONED        if (fDrawingManager->wasAbandoned()) { return; }
+#define RETURN_IF_ABANDONED_PRIV   if (fDrawContext->fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_FALSE_IF_ABANDONED_PRIV  if (fDrawContext->fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED   if (fDrawingManager->wasAbandoned()) { return nullptr; }
@@ -189,7 +190,7 @@ void GrDrawContext::clear(const SkIRect* rect,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::clear");
 
     AutoCheckFlush acf(fDrawingManager);
-    this->getDrawTarget()->clear(rect, color, canIgnoreRect, fRenderTarget.get());
+    this->getDrawTarget()->clear(rect, color, canIgnoreRect, this);
 }
 
 
@@ -241,7 +242,7 @@ void GrDrawContext::drawPaint(const GrClip& clip,
                                                     &localMatrix));
         GrPipelineBuilder pipelineBuilder(*paint, this->isUnifiedMultisampled());
         pipelineBuilder.setRenderTarget(fRenderTarget.get());
-        this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+        this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
     }
 }
 
@@ -322,7 +323,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isConstantBlendedColor(&clearColor)) {
-                    this->getDrawTarget()->clear(nullptr, clearColor, true, fRenderTarget.get());
+                    this->getDrawTarget()->clear(nullptr, clearColor, true, this);
                     return;
                 }
             }
@@ -364,7 +365,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
                                      snapToPixelCenters);
         }
 
-        this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+        this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
         return;
     }
 
@@ -372,6 +373,52 @@ void GrDrawContext::drawRect(const GrClip& clip,
     path.setIsVolatile(true);
     path.addRect(rect);
     this->internalDrawPath(clip, paint, viewMatrix, path, *style);
+}
+
+void GrDrawContextPriv::clearStencilClip(const SkIRect& rect, bool insideClip) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkDEBUGCODE(fDrawContext->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContextPriv::clearStencilClip");
+
+    AutoCheckFlush acf(fDrawContext->fDrawingManager);
+    fDrawContext->getDrawTarget()->clearStencilClip(rect, insideClip,
+                                                    fDrawContext->accessRenderTarget());
+}
+
+void GrDrawContextPriv::stencilPath(const GrPipelineBuilder& pipelineBuilder,
+                                    const GrClip& clip, 
+                                    const SkMatrix& viewMatrix,
+                                    const GrPath* path,
+                                    GrPathRendering::FillType fill) {
+    fDrawContext->getDrawTarget()->stencilPath(pipelineBuilder, fDrawContext,
+                                               clip, viewMatrix, path, fill);
+}
+
+void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,
+                                    const GrUserStencilSettings* ss,
+                                    bool doAA,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkDEBUGCODE(fDrawContext->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::stencilRect");
+
+    AutoCheckFlush acf(fDrawContext->fDrawingManager);
+
+    GrPaint paint;
+    paint.setAntiAlias(doAA);
+    paint.setXPFactory(GrDisableColorXPFactory::Create());
+
+    SkAutoTUnref<GrDrawBatch> batch(fDrawContext->getFillRectBatch(paint, viewMatrix, rect));
+    SkASSERT(batch);
+
+    GrPipelineBuilder pipelineBuilder(paint, fDrawContext->isUnifiedMultisampled());
+    pipelineBuilder.setRenderTarget(fDrawContext->accessRenderTarget());
+    pipelineBuilder.setUserStencil(ss);
+
+    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, clip, batch);
 }
 
 bool GrDrawContextPriv::drawAndStencilRect(const GrFixedClip& clip,
@@ -398,7 +445,7 @@ bool GrDrawContextPriv::drawAndStencilRect(const GrFixedClip& clip,
         pipelineBuilder.setRenderTarget(fDrawContext->accessRenderTarget());
         pipelineBuilder.setUserStencil(ss);
 
-        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, clip, batch);
         return true;
     }
 
@@ -433,7 +480,7 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     if (batch) {
         GrPipelineBuilder pipelineBuilder(paint, this->isUnifiedMultisampled());
         pipelineBuilder.setRenderTarget(fRenderTarget.get());
-        this->drawBatch(&pipelineBuilder, clip, batch);
+        this->drawBatch(pipelineBuilder, clip, batch);
     }
 }
 
@@ -461,7 +508,7 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
     pipelineBuilder.setRenderTarget(fRenderTarget.get());
-    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
 }
 
 void GrDrawContext::drawVertices(const GrClip& clip,
@@ -507,7 +554,7 @@ void GrDrawContext::drawVertices(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
     pipelineBuilder.setRenderTarget(fRenderTarget.get());
-    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -533,7 +580,7 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
     pipelineBuilder.setRenderTarget(fRenderTarget.get());
-    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -567,7 +614,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
             pipelineBuilder.setRenderTarget(fRenderTarget.get());
-            this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
             return;
         }
     }
@@ -693,7 +740,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
             pipelineBuilder.setRenderTarget(fRenderTarget.get());
-            this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+            this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
             return;
         }
     }
@@ -724,7 +771,7 @@ void GrDrawContext::drawImageNine(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
     pipelineBuilder.setRenderTarget(fRenderTarget.get());
-    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
 }
 
 
@@ -785,7 +832,7 @@ void GrDrawContext::drawBatch(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
     pipelineBuilder.setRenderTarget(fRenderTarget.get());
-    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
 }
 
 void GrDrawContext::drawPath(const GrClip& clip,
@@ -818,7 +865,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
                 if (batch) {
                     GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
                     pipelineBuilder.setRenderTarget(fRenderTarget.get());
-                    this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+                    this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
                 }
                 return;
             }
@@ -836,7 +883,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
             if (batch) {
                 GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
                 pipelineBuilder.setRenderTarget(fRenderTarget.get());
-                this->getDrawTarget()->drawBatch(pipelineBuilder, clip, batch);
+                this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
                 return;
             }
         }
@@ -876,7 +923,7 @@ bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
     bool useCoverageAA = doAA && !fDrawContext->fRenderTarget->isUnifiedMultisampled();
-    bool hasUserStencilSettings = (&GrUserStencilSettings::kUnused != ss);
+    bool hasUserStencilSettings = !ss->isUnused();
     bool isStencilBufferMSAA = fDrawContext->fRenderTarget->isStencilBufferMultisampled();
 
     const GrPathRendererChain::DrawType type =
@@ -901,14 +948,11 @@ bool GrDrawContextPriv::drawAndStencilPath(const GrFixedClip& clip,
     GrPaint paint;
     paint.setCoverageSetOpXPFactory(op, invert);
 
-    GrPipelineBuilder pipelineBuilder(paint,  fDrawContext->isUnifiedMultisampled());
-    pipelineBuilder.setRenderTarget(fDrawContext->accessRenderTarget());
-    pipelineBuilder.setUserStencil(ss);
-
     GrPathRenderer::DrawPathArgs args;
-    args.fTarget = fDrawContext->getDrawTarget();
     args.fResourceProvider = fDrawContext->fDrawingManager->getContext()->resourceProvider();
-    args.fPipelineBuilder = &pipelineBuilder;
+    args.fPaint = &paint;
+    args.fUserStencilSettings = ss;
+    args.fDrawContext = fDrawContext;
     args.fClip = &clip;
     args.fColor = GrColor_WHITE;
     args.fViewMatrix = &viewMatrix;
@@ -1008,13 +1052,11 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
         return;
     }
 
-    GrPipelineBuilder pipelineBuilder(paint,  this->isUnifiedMultisampled());
-    pipelineBuilder.setRenderTarget(fRenderTarget.get());
-
     GrPathRenderer::DrawPathArgs args;
-    args.fTarget = this->getDrawTarget();
     args.fResourceProvider = fDrawingManager->getContext()->resourceProvider();
-    args.fPipelineBuilder = &pipelineBuilder;
+    args.fPaint = &paint;
+    args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
+    args.fDrawContext = this;
     args.fClip = &clip;
     args.fColor = paint.getColor();
     args.fViewMatrix = &viewMatrix;
@@ -1025,12 +1067,12 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     pr->drawPath(args);
 }
 
-void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, const GrClip& clip,
+void GrDrawContext::drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
                               GrDrawBatch* batch) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::drawBatch");
 
-    this->getDrawTarget()->drawBatch(*pipelineBuilder, clip, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, this, clip, batch);
 }

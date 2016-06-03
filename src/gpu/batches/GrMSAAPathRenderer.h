@@ -21,8 +21,9 @@ private:
 
     void onStencilPath(const StencilPathArgs&) override;
 
-    bool internalDrawPath(GrDrawTarget*,
-                          GrPipelineBuilder*,
+    bool internalDrawPath(GrDrawContext*,
+                          const GrPaint&,
+                          const GrUserStencilSettings*,
                           const GrClip&,
                           GrColor,
                           const SkMatrix& viewMatrix,

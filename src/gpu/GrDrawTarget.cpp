@@ -9,6 +9,7 @@
 
 #include "GrAuditTrail.h"
 #include "GrCaps.h"
+#include "GrDrawContext.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPipeline.h"
@@ -46,7 +47,6 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
     , fRenderTarget(rt) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
-    fClipMaskManager.reset(new GrClipMaskManager(this));
 
     fClipBatchToBounds = options.fClipBatchToBounds;
     fDrawBatchBounds = options.fDrawBatchBounds;
@@ -235,11 +235,12 @@ void GrDrawTarget::reset() {
 }
 
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
+                             GrDrawContext* drawContext,
                              const GrClip& clip,
                              GrDrawBatch* batch) {
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!clip.apply(fClipMaskManager, pipelineBuilder, &batch->bounds(), &appliedClip)) {
+    if (!clip.apply(fContext, pipelineBuilder, drawContext, &batch->bounds(), &appliedClip)) {
         return;
     }
 
@@ -310,6 +311,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
 }
 
 void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
+                               GrDrawContext* drawContext,
                                const GrClip& clip,
                                const SkMatrix& viewMatrix,
                                const GrPath* path,
@@ -320,7 +322,7 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!clip.apply(fClipMaskManager, pipelineBuilder, nullptr, &appliedClip)) {
+    if (!clip.apply(fContext, pipelineBuilder, drawContext, nullptr, &appliedClip)) {
         return;
     }
     // TODO: respect fClipBatchToBounds if we ever start computing bounds here.
@@ -351,8 +353,8 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 void GrDrawTarget::clear(const SkIRect* rect,
                          GrColor color,
                          bool canIgnoreRect,
-                         GrRenderTarget* renderTarget) {
-    SkIRect rtRect = SkIRect::MakeWH(renderTarget->width(), renderTarget->height());
+                         GrDrawContext* drawContext) {
+    SkIRect rtRect = SkIRect::MakeWH(drawContext->width(), drawContext->height());
     SkIRect clippedRect;
     if (!rect ||
         (canIgnoreRect && this->caps()->fullClearIsFree()) ||
@@ -371,21 +373,21 @@ void GrDrawTarget::clear(const SkIRect* rect,
         // The driver will ignore a clear if it is the only thing rendered to a
         // target before the target is read.
         if (rect == &rtRect) {
-            this->discard(renderTarget);
+            drawContext->discard();
         }
 
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.setXPFactory(
             GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-        pipelineBuilder.setRenderTarget(renderTarget);
+        pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
         SkRect scalarRect = SkRect::Make(*rect);
         SkAutoTUnref<GrDrawBatch> batch(
                 GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(), scalarRect,
                                                     nullptr, nullptr));
-        this->drawBatch(pipelineBuilder, GrNoClip(), batch);
+        this->drawBatch(pipelineBuilder, drawContext, GrNoClip(), batch);
     } else {
-        GrBatch* batch = new GrClearBatch(*rect, color, renderTarget);
+        GrBatch* batch = new GrClearBatch(*rect, color, drawContext->accessRenderTarget());
         this->recordBatch(batch);
         batch->unref();
     }

@@ -232,18 +232,18 @@ static SkPath create_path_15() {
     return path;
 }
 
-static void test_path(GrDrawTarget* dt, GrDrawContext* drawContext,
-                      GrResourceProvider* rp, const SkPath& path) {
+static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const SkPath& path) {
     GrTessellatingPathRenderer tess;
-    GrPipelineBuilder pipelineBuilder;
-    pipelineBuilder.setXPFactory(
-        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
+
+    GrPaint paint;
+    paint.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrPathRenderer::DrawPathArgs args;
-    args.fTarget = dt;
-    args.fPipelineBuilder = &pipelineBuilder;
+    args.fPaint = &paint;
+    args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
+    args.fDrawContext = drawContext;
     args.fClip = &noClip;
     args.fResourceProvider = rp;
     args.fColor = GrColor_WHITE;
@@ -266,24 +266,23 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
 
     GrTestTarget tt;
     ctxInfo.grContext()->getTestTarget(&tt, drawContext);
-    GrDrawTarget* dt = tt.target();
     GrResourceProvider* rp = tt.resourceProvider();
 
-    test_path(dt, drawContext.get(), rp, create_path_0());
-    test_path(dt, drawContext.get(), rp, create_path_1());
-    test_path(dt, drawContext.get(), rp, create_path_2());
-    test_path(dt, drawContext.get(), rp, create_path_3());
-    test_path(dt, drawContext.get(), rp, create_path_4());
-    test_path(dt, drawContext.get(), rp, create_path_5());
-    test_path(dt, drawContext.get(), rp, create_path_6());
-    test_path(dt, drawContext.get(), rp, create_path_7());
-    test_path(dt, drawContext.get(), rp, create_path_8());
-    test_path(dt, drawContext.get(), rp, create_path_9());
-    test_path(dt, drawContext.get(), rp, create_path_10());
-    test_path(dt, drawContext.get(), rp, create_path_11());
-    test_path(dt, drawContext.get(), rp, create_path_12());
-    test_path(dt, drawContext.get(), rp, create_path_13());
-    test_path(dt, drawContext.get(), rp, create_path_14());
-    test_path(dt, drawContext.get(), rp, create_path_15());
+    test_path(drawContext.get(), rp, create_path_0());
+    test_path(drawContext.get(), rp, create_path_1());
+    test_path(drawContext.get(), rp, create_path_2());
+    test_path(drawContext.get(), rp, create_path_3());
+    test_path(drawContext.get(), rp, create_path_4());
+    test_path(drawContext.get(), rp, create_path_5());
+    test_path(drawContext.get(), rp, create_path_6());
+    test_path(drawContext.get(), rp, create_path_7());
+    test_path(drawContext.get(), rp, create_path_8());
+    test_path(drawContext.get(), rp, create_path_9());
+    test_path(drawContext.get(), rp, create_path_10());
+    test_path(drawContext.get(), rp, create_path_11());
+    test_path(drawContext.get(), rp, create_path_12());
+    test_path(drawContext.get(), rp, create_path_13());
+    test_path(drawContext.get(), rp, create_path_14());
+    test_path(drawContext.get(), rp, create_path_15());
 }
 #endif

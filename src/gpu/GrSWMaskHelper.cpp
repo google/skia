@@ -8,7 +8,9 @@
 #include "GrSWMaskHelper.h"
 
 #include "GrCaps.h"
-#include "GrDrawTarget.h"
+#include "GrContext.h"
+#include "batches/GrDrawBatch.h"
+#include "GrDrawContext.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrStyle.h"
@@ -159,8 +161,9 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrTextureProvider* texProvider,
 }
 
 void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
-                                              GrDrawTarget* target,
-                                              GrPipelineBuilder* pipelineBuilder,
+                                              GrDrawContext* drawContext,
+                                              const GrPaint* paint,
+                                              const GrUserStencilSettings* userStencilSettings,
                                               const GrClip& clip,
                                               GrColor color,
                                               const SkMatrix& viewMatrix,
@@ -169,7 +172,6 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     if (!viewMatrix.invert(&invert)) {
         return;
     }
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps(*pipelineBuilder);
 
     SkRect dstRect = SkRect::MakeLTRB(SK_Scalar1 * rect.fLeft,
                                       SK_Scalar1 * rect.fTop,
@@ -183,7 +185,11 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     maskMatrix.setIDiv(texture->width(), texture->height());
     maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
 
-    pipelineBuilder->addCoverageFragmentProcessor(
+    GrPipelineBuilder pipelineBuilder(*paint, drawContext->isUnifiedMultisampled());
+    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
+    pipelineBuilder.setUserStencil(userStencilSettings);
+
+    pipelineBuilder.addCoverageFragmentProcessor(
                          GrSimpleTextureEffect::Create(texture,
                                                        maskMatrix,
                                                        GrTextureParams::kNone_FilterMode,
@@ -191,5 +197,5 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
 
     SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(),
                                                                         dstRect, nullptr, &invert));
-    target->drawBatch(*pipelineBuilder, clip, batch);
+    drawContext->drawBatch(pipelineBuilder, clip, batch);
 }

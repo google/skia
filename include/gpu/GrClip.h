@@ -12,7 +12,7 @@
 #include "GrTypesPriv.h"
 #include "SkClipStack.h"
 
-class GrClipMaskManager;
+class GrDrawContext;
 class GrPipelineBuilder;
 
 /**
@@ -69,8 +69,8 @@ public:
     virtual bool quickContains(const SkRect&) const = 0;
     virtual void getConservativeBounds(int width, int height, SkIRect* devResult,
                                        bool* isIntersectionOfRects = nullptr) const = 0;
-    virtual bool apply(GrClipMaskManager*, const GrPipelineBuilder&, const SkRect* devBounds,
-                       GrAppliedClip*) const = 0;
+    virtual bool apply(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
+                       const SkRect* devBounds, GrAppliedClip*) const = 0;
 
     virtual ~GrClip() {}
 };
@@ -83,7 +83,7 @@ private:
     bool quickContains(const SkRect&) const final { return true; }
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
-    bool apply(GrClipMaskManager*, const GrPipelineBuilder&,
+    bool apply(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
                const SkRect*, GrAppliedClip*) const final { return true; }
 };
 
@@ -116,7 +116,7 @@ public:
                                bool* isIntersectionOfRects) const final;
 
 private:
-    bool apply(GrClipMaskManager*, const GrPipelineBuilder&,
+    bool apply(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
                const SkRect* devBounds, GrAppliedClip* out) const final;
 
     GrScissorState   fScissorState;
@@ -144,7 +144,7 @@ public:
     bool quickContains(const SkRect&) const final;
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
-    bool apply(GrClipMaskManager*, const GrPipelineBuilder&,
+    bool apply(GrContext*, const GrPipelineBuilder&, GrDrawContext*,
                const SkRect* devBounds, GrAppliedClip*) const final;
 
 private:

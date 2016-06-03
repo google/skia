@@ -258,6 +258,9 @@ public:
      */
     void drawBatch(const GrClip&, const GrPaint&, GrDrawBatch*);
 
+    bool isStencilBufferMultisampled() const {
+        return fRenderTarget->isStencilBufferMultisampled();
+    }
     bool hasMixedSamples() const { return fRenderTarget->hasMixedSamples(); }
 
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
@@ -281,12 +284,13 @@ public:
     GrDrawContextPriv drawContextPriv();
     const GrDrawContextPriv drawContextPriv() const;
 
+    GrAuditTrail* auditTrail() { return fAuditTrail; }
+
 protected:
     GrDrawContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTarget>,
                   const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
-    GrAuditTrail* auditTrail() { return fAuditTrail; }
 
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
     SkDEBUGCODE(void validate() const;)
@@ -297,6 +301,21 @@ private:
     friend class GrDrawingManager; // for ctor
     friend class GrDrawContextPriv;
     friend class GrTestTarget;  // for access to getDrawTarget
+    friend class GrSWMaskHelper;                 // for access to drawBatch
+    friend class GrClipMaskManager;              // for access to drawBatch
+
+    // All the path renderers currently make their own batches
+    friend class GrSoftwarePathRenderer;         // for access to drawBatch
+    friend class GrAAConvexPathRenderer;         // for access to drawBatch
+    friend class GrDashLinePathRenderer;         // for access to drawBatch
+    friend class GrAAHairLinePathRenderer;       // for access to drawBatch
+    friend class GrAALinearizingConvexPathRenderer;  // for access to drawBatch
+    friend class GrAADistanceFieldPathRenderer;  // for access to drawBatch
+    friend class GrDefaultPathRenderer;          // for access to drawBatch
+    friend class GrPLSPathRenderer;              // for access to drawBatch
+    friend class GrMSAAPathRenderer;             // for access to drawBatch
+    friend class GrStencilAndCoverPathRenderer;  // for access to drawBatch
+    friend class GrTessellatingPathRenderer;     // for access to drawBatch
 
     bool drawFilledDRRect(const GrClip& clip,
                           const GrPaint& paint,
@@ -316,7 +335,7 @@ private:
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
     // the drawTarget.
-    void drawBatch(GrPipelineBuilder* pipelineBuilder, const GrClip&, GrDrawBatch* batch);
+    void drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip&, GrDrawBatch* batch);
 
     GrDrawTarget* getDrawTarget();
 

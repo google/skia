@@ -320,7 +320,7 @@ void GrAtlasTextBlob::flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBui
                                                           skPaint, props,
                                                           distanceAdjustTable, dc->isGammaCorrect(),
                                                           cache));
-        dc->drawBatch(pipelineBuilder, clip, batch);
+        dc->drawBatch(*pipelineBuilder, clip, batch);
     }
 }
 

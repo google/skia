@@ -963,14 +963,21 @@ static GrDrawBatch* create_hairline_batch(GrColor color,
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),"GrAAHairlinePathRenderer::onDrawPath");
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+                              "GrAAHairlinePathRenderer::onDrawPath");
     SkIRect devClipBounds;
-    GrRenderTarget* rt = args.fPipelineBuilder->getRenderTarget();
-    args.fClip->getConservativeBounds(rt->width(), rt->height(), &devClipBounds);
+    args.fClip->getConservativeBounds(args.fDrawContext->width(), args.fDrawContext->height(),
+                                      &devClipBounds);
 
     SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, *args.fPath,
                                                           *args.fStyle, devClipBounds));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
+
+    GrPipelineBuilder pipelineBuilder(*args.fPaint,
+                                      args.fDrawContext->isStencilBufferMultisampled());
+    pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     return true;
 }

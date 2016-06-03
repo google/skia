@@ -9,7 +9,6 @@
 #define GrDrawTarget_DEFINED
 
 #include "GrClip.h"
-#include "GrClipMaskManager.h"
 #include "GrContext.h"
 #include "GrPathProcessor.h"
 #include "GrPrimitiveProcessor.h"
@@ -105,7 +104,7 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, const GrClip&, GrDrawBatch*);
+    void drawBatch(const GrPipelineBuilder&, GrDrawContext*, const GrClip&, GrDrawBatch*);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
@@ -113,7 +112,8 @@ public:
      * on the GrPipelineBuilder (if possible in the 3D API).  Note, we will never have an inverse
      * fill with stencil path
      */
-    void stencilPath(const GrPipelineBuilder&, const GrClip&, const SkMatrix& viewMatrix,
+    void stencilPath(const GrPipelineBuilder&, GrDrawContext*,
+                     const GrClip&, const SkMatrix& viewMatrix,
                      const GrPath*, GrPathRendering::FillType);
 
     /**
@@ -124,7 +124,7 @@ public:
     void clear(const SkIRect* rect,
                GrColor color,
                bool canIgnoreRect,
-               GrRenderTarget* renderTarget);
+               GrDrawContext*);
 
     /** Discards the contents render target. */
     void discard(GrRenderTarget*);
@@ -166,6 +166,7 @@ public:
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawContextPriv; // for clearStencilClip
 
     enum Flags {
         kClosed_Flag    = 0x01,   //!< This drawTarget can't accept any more batches
@@ -228,7 +229,6 @@ private:
     void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
     SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
-    SkAutoTDelete<GrClipMaskManager>            fClipMaskManager;
     // The context is only in service of the clip mask manager, remove once CMM doesn't need this.
     GrContext*                                  fContext;
     GrGpu*                                      fGpu;

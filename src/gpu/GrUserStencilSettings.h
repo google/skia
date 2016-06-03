@@ -188,6 +188,8 @@ struct GrUserStencilSettings {
     const Face       fBack;
 
     static const GrUserStencilSettings& kUnused;
+
+    bool isUnused() const { return this == &kUnused; }
 };
 
 template<GrUserStencilTest Test, GrUserStencilOp PassOp, GrUserStencilOp FailOp>

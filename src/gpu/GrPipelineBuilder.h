@@ -198,9 +198,7 @@ public:
     /// @name Stencil
     ////
 
-    bool hasUserStencilSettings() const {
-        return &GrUserStencilSettings::kUnused != fUserStencilSettings;
-    }
+    bool hasUserStencilSettings() const { return !fUserStencilSettings->isUnused(); }
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
     /**

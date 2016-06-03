@@ -242,9 +242,9 @@ void GrDrawContextPriv::testingOnly_drawBatch(const GrPipelineBuilder& pipelineB
     GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::testingOnly_drawBatch");
 
     if (clip) {
-        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, *clip, batch);
+        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, *clip, batch);
     } else {
-        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, GrNoClip(), batch);
+        fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, GrNoClip(), batch);
     }
 }
 

@@ -417,8 +417,9 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
-                                             GrPipelineBuilder* pipelineBuilder,
+bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
+                                             const GrPaint& paint,
+                                             const GrUserStencilSettings* userStencilSettings,
                                              const GrClip& clip,
                                              GrColor color,
                                              const SkMatrix& viewMatrix,
@@ -437,12 +438,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     } else {
         SkASSERT(style->isSimpleFill());
     }
-
-    // Save the current xp on the draw state so we can reset it if needed
-    const GrXPFactory* xpFactory = pipelineBuilder->getXPFactory();
-    SkAutoTUnref<const GrXPFactory> backupXPFactory(SkSafeRef(xpFactory));
-    // face culling doesn't make sense here
-    SkASSERT(GrPipelineBuilder::kBoth_DrawFace == pipelineBuilder->getDrawFace());
 
     int                          passCount = 0;
     const GrUserStencilSettings* passes[3];
@@ -540,21 +535,13 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, path.getBounds());
 
     SkRect devBounds;
-    GetPathDevBounds(path, pipelineBuilder->getRenderTarget(), viewMatrix, &devBounds);
+    GetPathDevBounds(path, drawContext->width(), drawContext->height(), viewMatrix, &devBounds);
 
     for (int p = 0; p < passCount; ++p) {
-        pipelineBuilder->setDrawFace(drawFace[p]);
-        if (passes[p]) {
-            pipelineBuilder->setUserStencil(passes[p]);
-        }
-
         if (lastPassIsBounds && (p == passCount-1)) {
-            // Reset the XP Factory on pipelineBuilder
-            pipelineBuilder->setXPFactory(backupXPFactory);
             SkRect bounds;
             SkMatrix localMatrix = SkMatrix::I();
             if (reverse) {
-                SkASSERT(pipelineBuilder->getRenderTarget());
                 // draw over the dev bounds (which will be the whole dst surface for inv fill).
                 bounds = devBounds;
                 SkMatrix vmi;
@@ -574,12 +561,18 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             SkAutoTUnref<GrDrawBatch> batch(
                     GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
                                                         &localMatrix));
-            target->drawBatch(*pipelineBuilder, clip, batch);
-        } else {
-            if (passCount > 1) {
-                pipelineBuilder->setDisableColorXPFactory();
+
+            GrPipelineBuilder pipelineBuilder(paint, drawContext->isUnifiedMultisampled());
+            pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
+            pipelineBuilder.setDrawFace(drawFace[p]);
+            if (passes[p]) {
+                pipelineBuilder.setUserStencil(passes[p]);
+            } else {
+                pipelineBuilder.setUserStencil(userStencilSettings);
             }
 
+            drawContext->drawBatch(pipelineBuilder, clip, batch);
+        } else {
             DefaultPathBatch::Geometry geometry;
             geometry.fColor = color;
             geometry.fPath = path;
@@ -589,7 +582,19 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                                                      viewMatrix, isHairline,
                                                                      devBounds));
 
-            target->drawBatch(*pipelineBuilder, clip, batch);
+            GrPipelineBuilder pipelineBuilder(paint, drawContext->isUnifiedMultisampled());
+            pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
+            pipelineBuilder.setDrawFace(drawFace[p]);
+            if (passes[p]) {
+                pipelineBuilder.setUserStencil(passes[p]);
+            } else {
+                pipelineBuilder.setUserStencil(userStencilSettings);
+            }
+            if (passCount > 1) {
+                pipelineBuilder.setDisableColorXPFactory();
+            }
+
+            drawContext->drawBatch(pipelineBuilder, clip, batch);
         }
     }
     return true;
@@ -604,9 +609,11 @@ bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrDefaultPathRenderer::onDrawPath");
-    return this->internalDrawPath(args.fTarget,
-                                  args.fPipelineBuilder,
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+                              "GrDefaultPathRenderer::onDrawPath");
+    return this->internalDrawPath(args.fDrawContext,
+                                  *args.fPaint,
+                                  args.fUserStencilSettings,
                                   *args.fClip,
                                   args.fColor,
                                   *args.fViewMatrix,
@@ -616,11 +623,24 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
 }
 
 void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),"GrDefaultPathRenderer::onStencilPath");
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+                              "GrDefaultPathRenderer::onStencilPath");
     SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
-    this->internalDrawPath(args.fTarget, args.fPipelineBuilder, *args.fClip, GrColor_WHITE,
-                           *args.fViewMatrix, *args.fPath, GrStyle::SimpleFill(), true);
+
+    GrPaint paint;
+    paint.setXPFactory(GrDisableColorXPFactory::Create());
+    paint.setAntiAlias(args.fIsAA);
+
+    this->internalDrawPath(args.fDrawContext,
+                           paint,
+                           &GrUserStencilSettings::kUnused,
+                           *args.fClip,
+                           GrColor_WHITE,
+                           *args.fViewMatrix,
+                           *args.fPath,
+                           GrStyle::SimpleFill(),
+                           true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,6 @@ class GrTextureProvider;
 class GrTexture;
 class SkPath;
 class SkStrokeRec;
-class GrDrawTarget;
 
 /**
  * The GrSWMaskHelper helps generate clip masks using the software rendering
@@ -87,8 +86,9 @@ public:
     // This method is really only intended to be used with the
     // output of DrawPathMaskToTexture.
     static void DrawToTargetWithPathMask(GrTexture* texture,
-                                         GrDrawTarget* target,
-                                         GrPipelineBuilder* pipelineBuilder,
+                                         GrDrawContext*,
+                                         const GrPaint* paint,
+                                         const GrUserStencilSettings* userStencilSettings,
                                          const GrClip&,
                                          GrColor,
                                          const SkMatrix& viewMatrix,

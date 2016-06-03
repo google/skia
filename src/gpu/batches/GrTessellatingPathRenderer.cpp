@@ -7,8 +7,10 @@
 
 #include "GrTessellatingPathRenderer.h"
 
+#include "GrAuditTrail.h"
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
+#include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMesh.h"
 #include "GrPathUtils.h"
@@ -278,16 +280,13 @@ private:
 };
 
 bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrTessellatingPathRenderer::onDrawPath");
     SkASSERT(!args.fAntiAlias);
-    const GrRenderTarget* rt = args.fPipelineBuilder->getRenderTarget();
-    if (nullptr == rt) {
-        return false;
-    }
 
     SkIRect clipBoundsI;
-    args.fClip->getConservativeBounds(rt->width(), rt->height(), &clipBoundsI);
+    args.fClip->getConservativeBounds(args.fDrawContext->width(), args.fDrawContext->height(),
+                                      &clipBoundsI);
     SkRect clipBounds = SkRect::Make(clipBoundsI);
     SkMatrix vmi;
     if (!args.fViewMatrix->invert(&vmi)) {
@@ -297,7 +296,12 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fPath,
                                                                   *args.fStyle, *args.fViewMatrix,
                                                                   clipBounds));
-    args.fTarget->drawBatch(*args.fPipelineBuilder, *args.fClip, batch);
+
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
+    pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+
+    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     return true;
 }
