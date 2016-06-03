@@ -101,11 +101,6 @@ public:
     virtual sk_sp<SkTypeface> makeTypeface(const FontIdentity& identity) {
         return SkTypeface::MakeFromStream(this->openStream(identity), identity.fTTCIndex);
     }
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-    virtual SkTypeface* createTypeface(const FontIdentity& identity) {
-        return this->makeTypeface(identity).release();
-    }
-#endif
 
     /**
      *  Return a singleton instance of a direct subclass that calls into
