@@ -373,7 +373,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     size_t  size = 0;
     int countLevels = ComputeLevelCount(src.width(), src.height());
     for (int currentMipLevel = countLevels; currentMipLevel > 0; currentMipLevel--) {
-        SkSize mipSize = ComputeLevelSize(src.width(), src.height(), currentMipLevel);
+        SkISize mipSize = ComputeLevelSize(src.width(), src.height(), currentMipLevel);
         size += SkColorTypeMinRowBytes(ct, mipSize.fWidth) * mipSize.fHeight;
     }
 
@@ -496,17 +496,17 @@ int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
     return mipLevelCount;
 }
 
-SkSize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
+SkISize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
     if (baseWidth < 1 || baseHeight < 1) {
-        return SkSize::Make(0, 0);
+        return SkISize::Make(0, 0);
     }
 
     int maxLevelCount = ComputeLevelCount(baseWidth, baseHeight);
     if (level > maxLevelCount || level < 0) {
-        return SkSize::Make(0, 0);
+        return SkISize::Make(0, 0);
     }
     if (level == 0) {
-        return SkSize::Make(baseWidth, baseHeight);
+        return SkISize::Make(baseWidth, baseHeight);
     }
 
     // OpenGL's spec requires that each mipmap level have height/width equal to
@@ -516,7 +516,7 @@ SkSize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
     int width = SkTMax(1, baseWidth >> level);
     int height = SkTMax(1, baseHeight >> level);
 
-    return SkSize::Make(width, height);
+    return SkISize::Make(width, height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -27,7 +27,7 @@ public:
     static int ComputeLevelCount(int baseWidth, int baseHeight);
 
     // Determines the size of a given mipmap level.
-    static SkSize ComputeLevelSize(int baseWidth, int baseHeight, int level);
+    static SkISize ComputeLevelSize(int baseWidth, int baseHeight, int level);
 
     struct Level {
         SkPixmap    fPixmap;
