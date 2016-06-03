@@ -84,6 +84,7 @@
         '../samplecode/SampleLCD.cpp',
         '../samplecode/SampleLighting.cpp',
         '../samplecode/SampleLines.cpp',
+        '../samplecode/SampleLitAtlas.cpp',
         '../samplecode/SampleLua.cpp',
         '../samplecode/SampleManyRects.cpp',
         '../samplecode/SampleMeasure.cpp',

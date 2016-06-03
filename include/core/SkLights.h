@@ -61,7 +61,7 @@ public:
             }
         }
 
-        const sk_sp<SkLights> finish() {
+        sk_sp<SkLights> finish() {
             return fLights;
         }
 

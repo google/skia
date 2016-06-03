@@ -15,7 +15,6 @@
 #include "SkXfermode.h"
 #include "SkPM4fPriv.h"
 #include "SkShader.h"
-#include "SkBitmapProcShader.h"
 
 static void fill_in_bits(SkBitmap& bm, SkIRect ir, SkColor c, bool premul) {
     bm.allocN32Pixels(ir.width(), ir.height());
