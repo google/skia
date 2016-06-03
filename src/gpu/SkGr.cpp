@@ -394,6 +394,14 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
                                                           mipLevelCount);
 }
 
+GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
+                                   const GrMipLevel* texels, int mipLevelCount) {
+    const GrCaps* caps = ctx->caps();
+    return ctx->textureProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
+                                                          SkBudgeted::kYes, texels,
+                                                          mipLevelCount);
+}
+
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrTextureParams& params) {
     if (bitmap.getTexture()) {

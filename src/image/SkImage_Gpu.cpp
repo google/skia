@@ -468,3 +468,16 @@ GrTexture* GrDeepCopyTexture(GrTexture* src, SkBudgeted budgeted) {
     return dst;
 }
 
+sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo& info,
+                                              const GrMipLevel* texels, int mipLevelCount,
+                                              SkBudgeted budgeted) {
+    if (!ctx) {
+        return nullptr;
+    }
+    SkAutoTUnref<GrTexture> texture(GrUploadMipMapToTexture(ctx, info, texels, mipLevelCount));
+    if (!texture) {
+        return nullptr;
+    }
+    return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), kNeedNewImageUniqueID,
+                                   info.alphaType(), texture, budgeted);
+}

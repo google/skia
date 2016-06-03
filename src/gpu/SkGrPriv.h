@@ -131,6 +131,12 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&);
  */
 GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
 
+/**
+ * Creates a new texture populated with the mipmap levels.
+ */
+GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
+                                   int mipLevelCount);
+
 //////////////////////////////////////////////////////////////////////////////
 
 GR_STATIC_ASSERT((int)kZero_GrBlendCoeff == (int)SkXfermode::kZero_Coeff);

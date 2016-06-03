@@ -396,7 +396,7 @@ public:
      *  to empty.
      */
     bool asLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
-    
+
     /**
      *  Returns true if the image is backed by an image-generator or other src that creates
      *  (and caches) its pixels / texture on-demand.
@@ -443,6 +443,10 @@ protected:
     SkImage(int width, int height, uint32_t uniqueID);
 
 private:
+    static sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&,
+                                                const GrMipLevel* texels, int mipLevelCount,
+                                                SkBudgeted);
+
     const int       fWidth;
     const int       fHeight;
     const uint32_t  fUniqueID;

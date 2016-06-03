@@ -499,3 +499,8 @@ SkImage* SkImage::NewFromDeferredTextureImageData(GrContext* ctx, const void* da
     return MakeFromDeferredTextureImageData(ctx, data, budgeted).release();
 }
 #endif
+
+sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
+                                     int mipLevelCount, SkBudgeted) {
+    return nullptr;
+}
