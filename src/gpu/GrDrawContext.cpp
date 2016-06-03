@@ -409,7 +409,7 @@ void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,
 
     GrPaint paint;
     paint.setAntiAlias(doAA);
-    paint.setXPFactory(GrDisableColorXPFactory::Create());
+    SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
 
     SkAutoTUnref<GrDrawBatch> batch(fDrawContext->getFillRectBatch(paint, viewMatrix, rect));
     SkASSERT(batch);
