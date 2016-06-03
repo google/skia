@@ -21,7 +21,8 @@ class DrawLitAtlasDrawable : public SkDrawable {
 public:
     DrawLitAtlasDrawable(const SkRect& r)
         : fBounds(r)
-        , fUseColors(false) {
+        , fUseColors(false)
+        , fLightDir(SkVector3::Make(1.0f, 0.0f, 0.0f)) {
         fAtlas = MakeAtlas();
 
         SkRandom rand;
@@ -31,17 +32,23 @@ public:
 
         fShip.initShip(fBounds, &fDiffTex[kNumAsteroids], &fNormTex[kNumAsteroids]);
 
-        SkLights::Builder builder;
-
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    SkVector3::Make(1.0f, 0.0f, 0.0f)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
-
-        fLights = builder.finish();
+        this->updateLights();
     }
 
     void toggleUseColors() {
         fUseColors = !fUseColors;
+    }
+
+    void rotateLight() {
+        SkScalar c;
+        SkScalar s = SkScalarSinCos(SK_ScalarPI/6.0f, &c);
+
+        SkScalar newX = c * fLightDir.fX - s * fLightDir.fY;
+        SkScalar newY = s * fLightDir.fX + c * fLightDir.fY;
+
+        fLightDir.set(newX, newY, 0.0f);
+
+        this->updateLights();
     }
 
     void left() {
@@ -91,7 +98,9 @@ protected:
 
 #ifdef SK_DEBUG
         canvas->drawBitmap(fAtlas, 0, 0); // just to see the atlas
-#endif        
+
+        this->drawLightDir(canvas, fBounds.centerX(), fBounds.centerY());
+#endif
 
 #if 0
         // TODO: revitalize when drawLitAtlas API lands
@@ -121,6 +130,7 @@ protected:
 
             // TODO: correctly pull out the pure rotation
             SkVector invNormRotation = { m[SkMatrix::kMScaleX], m[SkMatrix::kMSkewY] };
+            SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
 
             paint.setShader(SkLightingShader::Make(fAtlas, fAtlas, fLights,
                                                    invNormRotation, &diffMat, &normalMat));
@@ -164,6 +174,36 @@ private:
     };
 
     static const int kObjTypeCount = kLast_ObjType + 1;
+
+    void updateLights() {        
+        SkLights::Builder builder;
+
+        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f), fLightDir));
+        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+
+        fLights = builder.finish();
+    }
+
+#ifdef SK_DEBUG
+    // Draw a vector to the light
+    void drawLightDir(SkCanvas* canvas, SkScalar centerX, SkScalar centerY) {
+        static const int kBgLen = 30;
+        static const int kSmLen = 5;
+
+        // TODO: change the lighting coordinate system to be right handed
+        SkPoint p1 = SkPoint::Make(centerX + kBgLen * fLightDir.fX,
+                                   centerY - kBgLen * fLightDir.fY);
+        SkPoint p2 = SkPoint::Make(centerX + (kBgLen-kSmLen) * fLightDir.fX,
+                                   centerY - (kBgLen-kSmLen) * fLightDir.fY);
+
+        SkPaint p;
+        canvas->drawLine(centerX, centerY, p1.fX, p1.fY, p);
+        canvas->drawLine(p1.fX, p1.fY,
+                         p2.fX - kSmLen * fLightDir.fY, p2.fY - kSmLen * fLightDir.fX, p);
+        canvas->drawLine(p1.fX, p1.fY,
+                         p2.fX + kSmLen * fLightDir.fY, p2.fY + kSmLen * fLightDir.fX, p);
+    }
+#endif
 
     // Create the mixed diffuse & normal atlas
     // 
@@ -398,6 +438,7 @@ private:
     SkRect          fNormTex[kNumAsteroids+kNumShips];
     SkRect          fBounds;
     bool            fUseColors;
+    SkVector3       fLightDir;
     sk_sp<SkLights> fLights;
 
     typedef SkDrawable INHERITED;
@@ -432,6 +473,10 @@ protected:
                     return true;
                 case 'l':
                     fDrawable->right();
+                    this->inval(NULL); 
+                    return true;
+                case 'o':
+                    fDrawable->rotateLight();
                     this->inval(NULL); 
                     return true;
                 default:

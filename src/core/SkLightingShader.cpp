@@ -510,8 +510,8 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
 
             xformedNorm.fX = lightShader.fInvNormRotation.fX * norm.fX +
                              lightShader.fInvNormRotation.fY * norm.fY;
-            xformedNorm.fY = lightShader.fInvNormRotation.fX * norm.fX -
-                             lightShader.fInvNormRotation.fY * norm.fY;
+            xformedNorm.fY = -lightShader.fInvNormRotation.fY * norm.fX +
+                             lightShader.fInvNormRotation.fX * norm.fY;
             xformedNorm.fZ = norm.fZ;
 
             SkColor diffColor = SkUnPreMultiply::PMColorToColor(tmpColor2[i]);
