@@ -12,6 +12,7 @@
 #include "Window.h"
 
 #include <functional>
+#include <vector>
 
 class SkCanvas;
 
@@ -40,6 +41,7 @@ public:
     void attach(Window* window);
     bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers);
     bool onChar(SkUnichar, uint32_t modifiers);
+    bool onSoftkey(const SkString& softkey);
 
     void addCommand(SkUnichar c, const char* group, const char* description,
                     std::function<void(void)> function);
@@ -47,6 +49,8 @@ public:
                     std::function<void(void)> function);
 
     void drawHelp(SkCanvas* canvas);
+
+    std::vector<SkString> getCommandsAsSoftkeys() const;
 
 private:
     struct Command {
@@ -86,6 +90,10 @@ private:
         SkString fGroup;
         SkString fDescription;
         std::function<void(void)> fFunction;
+
+        SkString getSoftkeyString() const {
+            return SkStringPrintf("%s (%s)", fKeyName.c_str(), fDescription.c_str());
+        }
     };
 
     static bool compareCommandKey(const Command& first, const Command& second);

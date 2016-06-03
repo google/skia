@@ -65,6 +65,9 @@ const char* kValue = "value";
 const char* kOptions = "options";
 const char* kSlideStateName = "Slide";
 const char* kBackendStateName = "Backend";
+const char* kSoftkeyStateName = "Softkey";
+const char* kSoftkeyHint = "Please select a softkey";
+
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
@@ -411,6 +414,7 @@ void Viewer::onIdle(double ms) {
 }
 
 void Viewer::updateUIState() {
+    // Slide state
     Json::Value slideState(Json::objectValue);
     slideState[kName] = kSlideStateName;
     slideState[kValue] = fSlides[fCurrentSlide]->getName().c_str();
@@ -420,19 +424,29 @@ void Viewer::updateUIState() {
     }
     slideState[kOptions] = allSlideNames;
 
-    // This state is currently a demo for the one without options.
-    // We will be able to change the backend too.
+    // Backend state
     Json::Value backendState(Json::objectValue);
     backendState[kName] = kBackendStateName;
     backendState[kValue] = kBackendTypeStrings[fBackendType];
     backendState[kOptions] = Json::Value(Json::arrayValue);
-    for(auto str : kBackendTypeStrings) {
+    for (auto str : kBackendTypeStrings) {
         backendState[kOptions].append(Json::Value(str));
+    }
+
+    // Softkey state
+    Json::Value softkeyState(Json::objectValue);
+    softkeyState[kName] = kSoftkeyStateName;
+    softkeyState[kValue] = kSoftkeyHint;
+    softkeyState[kOptions] = Json::Value(Json::arrayValue);
+    softkeyState[kOptions].append(kSoftkeyHint);
+    for (const auto& softkey : fCommands.getCommandsAsSoftkeys()) {
+        softkeyState[kOptions].append(Json::Value(softkey.c_str()));
     }
 
     Json::Value state(Json::arrayValue);
     state.append(slideState);
     state.append(backendState);
+    state.append(softkeyState);
 
     fWindow->setUIState(state);
 }
@@ -469,6 +483,11 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                 }
                 break;
             }
+        }
+    } else if (stateName.equals(kSoftkeyStateName)) {
+        if (!stateValue.equals(kSoftkeyHint)) {
+            fCommands.onSoftkey(stateValue);
+            updateUIState(); // This is still needed to reset the value to kSoftkeyHint
         }
     } else {
         SkDebugf("Unknown stateName: %s", stateName.c_str());
