@@ -206,6 +206,8 @@ public:
         GrGLFunction<GrGLMapBufferRangeProc> fMapBufferRange;
         GrGLFunction<GrGLMapBufferSubDataProc> fMapBufferSubData;
         GrGLFunction<GrGLMapTexSubImage2DProc> fMapTexSubImage2D;
+        GrGLFunction<GrGLMultiDrawArraysIndirectProc> fMultiDrawArraysIndirect;
+        GrGLFunction<GrGLMultiDrawElementsIndirectProc> fMultiDrawElementsIndirect;
         GrGLFunction<GrGLPixelStoreiProc> fPixelStorei;
         GrGLFunction<GrGLPopGroupMarkerProc> fPopGroupMarker;
         GrGLFunction<GrGLPushGroupMarkerProc> fPushGroupMarker;
@@ -322,10 +324,6 @@ public:
 
         /* NV_framebuffer_mixed_samples */
         GrGLFunction<GrGLCoverageModulationProc> fCoverageModulation;
-
-        /* EXT_multi_draw_indirect */
-        GrGLFunction<GrGLMultiDrawArraysIndirectProc> fMultiDrawArraysIndirect;
-        GrGLFunction<GrGLMultiDrawElementsIndirectProc> fMultiDrawElementsIndirect;
 
         /* NV_bindless_texture */
         // We use the NVIDIA verson for now because it does not require dynamically uniform handles.

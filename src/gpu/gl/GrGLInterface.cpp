@@ -600,7 +600,8 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
+    if ((kGL_GrGLStandard == fStandard &&
+         (glVer >= GR_GL_VER(4,0) || fExtensions.has("GL_ARB_draw_indirect"))) ||
         (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
         if (NULL == fFunctions.fDrawArraysIndirect ||
             NULL == fFunctions.fDrawElementsIndirect) {
@@ -608,7 +609,8 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
+    if ((kGL_GrGLStandard == fStandard &&
+         (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_multi_draw_indirect"))) ||
         (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_EXT_multi_draw_indirect"))) {
         if (NULL == fFunctions.fMultiDrawArraysIndirect ||
             NULL == fFunctions.fMultiDrawElementsIndirect) {

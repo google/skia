@@ -519,10 +519,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (kGL_GrGLStandard == standard) {
-        // We don't use ARB_draw_indirect because it does not support a base instance.
-        // We don't use ARB_multi_draw_indirect because it does not support GL_DRAW_INDIRECT_BUFFER.
-        fDrawIndirectSupport =
-            fMultiDrawIndirectSupport = fBaseInstanceSupport = version >= GR_GL_VER(4,3);
+        fDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
+                               ctxInfo.hasExtension("GL_ARB_draw_indirect");
+        fBaseInstanceSupport = version >= GR_GL_VER(4,2);
+        fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
+                                    (!fBaseInstanceSupport && // The ARB extension has no base inst.
+                                     ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
     } else {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
         fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
