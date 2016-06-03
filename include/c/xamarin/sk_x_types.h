@@ -92,6 +92,13 @@ typedef struct sk_stream_filestream_t sk_stream_filestream_t;
 typedef struct sk_stream_asset_t sk_stream_asset_t;
 typedef struct sk_stream_memorystream_t sk_stream_memorystream_t;
 typedef struct sk_stream_streamrewindable_t sk_stream_streamrewindable_t;
+typedef struct sk_wstream_t sk_wstream_t;
+typedef struct sk_wstream_filestream_t sk_wstream_filestream_t;
+typedef struct sk_wstream_dynamicmemorystream_t sk_wstream_dynamicmemorystream_t;
+/**
+   High-level API for creating a document-based canvas.
+*/
+typedef struct sk_document_t sk_document_t;
 
 typedef enum {
     UTF8_ENCODING,

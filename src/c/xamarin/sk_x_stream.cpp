@@ -12,6 +12,21 @@
 #include "../sk_types_priv.h"
 #include "sk_x_types_priv.h"
 
+void sk_stream_asset_destroy(sk_stream_asset_t* cstream)
+{
+    delete AsStreamAsset(cstream);
+}
+
+void sk_filestream_destroy(sk_stream_filestream_t* cstream)
+{
+    delete AsFileStream(cstream);
+}
+
+void sk_memorystream_destroy(sk_stream_memorystream_t* cstream)
+{
+    delete AsMemoryStream(cstream);
+}
+
 sk_stream_filestream_t* sk_filestream_new (const char* path)
 {
     return (sk_stream_filestream_t*)new SkFILEStream(path);
@@ -114,4 +129,119 @@ bool sk_stream_has_length (sk_stream_t* cstream)
 size_t sk_stream_get_length (sk_stream_t* cstream)
 {
     return AsStream(cstream)->getLength();
+}
+
+void sk_filewstream_destroy(sk_wstream_filestream_t* cstream)
+{
+    delete AsFileWStream(cstream);
+}
+
+void sk_dynamicmemorywstream_destroy(sk_wstream_dynamicmemorystream_t* cstream)
+{
+    delete AsDynamicMemoryWStream(cstream);
+}
+
+sk_wstream_filestream_t* sk_filewstream_new(const char* path)
+{
+    return ToFileWStream(new SkFILEWStream(path));
+}
+
+sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new()
+{
+    return ToDynamicMemoryWStream(new SkDynamicMemoryWStream());
+}
+
+sk_data_t* sk_dynamicmemorywstream_copy_to_data(sk_wstream_dynamicmemorystream_t* cstream)
+{
+    return ToData(AsDynamicMemoryWStream(cstream)->copyToData());
+}
+
+sk_stream_asset_t* sk_dynamicmemorywstream_detach_as_stream(sk_wstream_dynamicmemorystream_t* cstream)
+{
+    return ToStreamAsset(AsDynamicMemoryWStream(cstream)->detachAsStream());
+}
+
+bool sk_wstream_write(sk_wstream_t* cstream, const void* buffer, size_t size)
+{
+    return AsWStream(cstream)->write(buffer, size);
+}
+
+void sk_wstream_newline(sk_wstream_t* cstream)
+{
+    return AsWStream(cstream)->newline();
+}
+
+void sk_wstream_flush(sk_wstream_t* cstream)
+{
+    return AsWStream(cstream)->flush();
+}
+
+size_t sk_wstream_bytes_written(sk_wstream_t* cstream)
+{
+    return AsWStream(cstream)->bytesWritten();
+}
+
+bool sk_wstream_write_8(sk_wstream_t* cstream, uint8_t value)
+{
+    return AsWStream(cstream)->write8(value);
+}
+
+bool sk_wstream_write_16(sk_wstream_t* cstream, uint16_t value)
+{
+    return AsWStream(cstream)->write16(value);
+}
+
+bool sk_wstream_write_32(sk_wstream_t* cstream, uint32_t value)
+{
+    return AsWStream(cstream)->write32(value);
+}
+
+bool sk_wstream_write_text(sk_wstream_t* cstream, const char* value)
+{
+    return AsWStream(cstream)->writeText(value);
+}
+
+bool sk_wstream_write_dec_as_text(sk_wstream_t* cstream, int32_t value)
+{
+    return AsWStream(cstream)->writeDecAsText(value);
+}
+
+bool sk_wstream_write_bigdec_as_text(sk_wstream_t* cstream, int64_t value, int minDigits)
+{
+    return AsWStream(cstream)->writeBigDecAsText(value, minDigits);
+}
+
+bool sk_wstream_write_hex_as_text(sk_wstream_t* cstream, uint32_t value, int minDigits)
+{
+    return AsWStream(cstream)->writeHexAsText(value, minDigits);
+}
+
+bool sk_wstream_write_scalar_as_text(sk_wstream_t* cstream, float value)
+{
+    return AsWStream(cstream)->writeScalarAsText(value);
+}
+
+bool sk_wstream_write_bool(sk_wstream_t* cstream, bool value)
+{
+    return AsWStream(cstream)->writeBool(value);
+}
+
+bool sk_wstream_write_scalar(sk_wstream_t* cstream, float value)
+{
+    return AsWStream(cstream)->writeScalar(value);
+}
+
+bool sk_wstream_write_packed_uint(sk_wstream_t* cstream, size_t value)
+{
+    return AsWStream(cstream)->writePackedUInt(value);
+}
+
+bool sk_wstream_write_stream(sk_wstream_t* cstream, sk_stream_t* input, size_t length)
+{
+    return AsWStream(cstream)->writeStream(AsStream(input), length);
+}
+
+int sk_wstream_get_size_of_packed_uint(size_t value)
+{
+    return SkWStream::SizeOfPackedUInt(value);
 }

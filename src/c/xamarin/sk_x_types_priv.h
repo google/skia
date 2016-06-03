@@ -13,6 +13,7 @@
 
 #include "SkImageInfo.h"
 #include "SkBlurTypes.h"
+#include "SkDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkImageDecoder.h"
@@ -597,6 +598,42 @@ static inline SkStream* AsStream(sk_stream_t* cstream) {
     return reinterpret_cast<SkStream*>(cstream);
 }
 
+static inline sk_stream_t* ToStream(SkStream* cstream) {
+    return reinterpret_cast<sk_stream_t*>(cstream);
+}
+
+static inline sk_stream_asset_t* ToStreamAsset(SkStreamAsset* cstream) {
+    return reinterpret_cast<sk_stream_asset_t*>(cstream);
+}
+
+static inline SkStreamAsset* AsStreamAsset(sk_stream_asset_t* cstream) {
+    return reinterpret_cast<SkStreamAsset*>(cstream);
+}
+
+static inline SkFILEWStream* AsFileWStream(sk_wstream_filestream_t* cfilestream) {
+    return reinterpret_cast<SkFILEWStream*>(cfilestream);
+}
+
+static inline SkDynamicMemoryWStream* AsDynamicMemoryWStream(sk_wstream_dynamicmemorystream_t* cmemorystream) {
+    return reinterpret_cast<SkDynamicMemoryWStream*>(cmemorystream);
+}
+
+static inline SkWStream* AsWStream(sk_wstream_t* cstream) {
+    return reinterpret_cast<SkWStream*>(cstream);
+}
+
+static inline sk_wstream_filestream_t* ToFileWStream(SkFILEWStream* filestream) {
+    return reinterpret_cast<sk_wstream_filestream_t*>(filestream);
+}
+
+static inline sk_wstream_dynamicmemorystream_t* ToDynamicMemoryWStream(SkDynamicMemoryWStream* memorystream) {
+    return reinterpret_cast<sk_wstream_dynamicmemorystream_t*>(memorystream);
+}
+
+static inline sk_wstream_t* ToWStream(SkWStream* stream) {
+    return reinterpret_cast<sk_wstream_t*>(stream);
+}
+
 static inline const SkPoint& AsPoint(const sk_point_t& p) {
     return reinterpret_cast<const SkPoint&>(p);
 }
@@ -659,6 +696,14 @@ static inline SkString* AsString(const sk_string_t* cdata) {
 
 static inline sk_string_t* ToString(SkString* data) {
     return reinterpret_cast<sk_string_t*>(data);
+}
+
+static inline SkDocument* AsDocument(sk_document_t* cdocument) {
+    return reinterpret_cast<SkDocument*>(cdocument);
+}
+
+static inline sk_document_t* ToDocument(SkDocument* document) {
+    return reinterpret_cast<sk_document_t*>(document);
 }
 
 
