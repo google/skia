@@ -27,6 +27,7 @@ namespace DM {
 class CodecSrc;
 class ColorCodecSrc;
 }
+class ColorCodecBench;
 
 /**
  *  Abstraction layer directly on top of an image codec.
@@ -776,8 +777,10 @@ private:
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
 
     // For testing with qcms
-    // FIXME: Remove this when we are done comparing with qcms.
+    // FIXME: Remove these when we are done comparing with qcms.
     friend class DM::ColorCodecSrc;
+    friend class ColorCodecBench;
+
     friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
