@@ -751,7 +751,7 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
 
     GrPaint paint;
-    paint.setXPFactory(GrDisableColorXPFactory::Create());
+    SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
     paint.setAntiAlias(args.fIsAA);
 
     this->internalDrawPath(args.fDrawContext,

@@ -71,7 +71,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
                               "GrStencilAndCoverPathRenderer::onStencilPath");
 
     GrPaint paint;
-    paint.setXPFactory(GrDisableColorXPFactory::Create());
+    SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
     paint.setAntiAlias(args.fIsAA);
 
     GrPipelineBuilder pipelineBuilder(paint, args.fDrawContext->isUnifiedMultisampled());    

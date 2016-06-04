@@ -683,7 +683,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                     if (!clipPath.isEmpty()) {
                         if (canRenderDirectToStencil) {
                             GrPaint paint;
-                            paint.setXPFactory(GrDisableColorXPFactory::Create());
+                            SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
                             paint.setAntiAlias(element->isAA());
 
                             GrPathRenderer::DrawPathArgs args;
@@ -724,7 +724,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                                       viewMatrix, element->getRect(), element->isAA(), *pass);
                     } else {
                         GrPaint paint;
-                        paint.setXPFactory(GrDisableColorXPFactory::Create());
+                        SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
                         paint.setAntiAlias(element->isAA());
 
                         GrPathRenderer::DrawPathArgs args;
