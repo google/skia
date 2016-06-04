@@ -205,7 +205,10 @@ private:
 static bool choose_linear_pipeline(const SkShader::ContextRec& rec, const SkImageInfo& srcInfo) {
     // If we get here, we can reasonably use either context, respect the caller's preference
     //
-    return SkShader::ContextRec::kPM4f_DstType == rec.fPreferredDstType;
+    bool needsPremul = srcInfo.alphaType() == kUnpremul_SkAlphaType;
+    bool needsSwizzle = srcInfo.bytesPerPixel() == 4 && srcInfo.colorType() != kN32_SkColorType;
+    return SkShader::ContextRec::kPM4f_DstType == rec.fPreferredDstType
+           || needsPremul || needsSwizzle;
 }
 
 size_t SkBitmapProcShader::ContextSize(const ContextRec& rec, const SkImageInfo& srcInfo) {
