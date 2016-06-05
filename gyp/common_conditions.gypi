@@ -306,13 +306,17 @@
             ],
           }],
           [ '"mips" in skia_arch_type', {
-            'cflags': [ '-EL' ],
-            'conditions': [
-              [ 'mips_arch_variant == "mips32r2"', {
-                'cflags': [ '-march=mips32r2' ],
-                'conditions': [
-                  [ 'mips_dsp == 1', { 'cflags': [ '-mdsp'   ] }],
-                  [ 'mips_dsp == 2', { 'cflags': [ '-mdspr2' ] }],
+            'target_conditions': [
+              [ '_toolset == "target"', {
+                'cflags' : ['-EL'],
+                'conditions' : [
+                  [ 'mips_arch_variant == "mips32r2"', {
+                    'cflags': [ '-march=mips32r2' ],
+                    'conditions': [
+                      [ 'mips_dsp == 1', { 'cflags': [ '-mdsp'   ] }],
+                      [ 'mips_dsp == 2', { 'cflags': [ '-mdspr2' ] }],
+                    ],
+                  }],
                 ],
               }],
             ],
