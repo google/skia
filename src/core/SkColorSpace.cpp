@@ -484,9 +484,17 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                 break;
             }
             case kTAG_ParaCurveType: {
+                enum ParaCurveType {
+                    kExponential_ParaCurveType = 0,
+                    kGAB_ParaCurveType         = 1,
+                    kGABC_ParaCurveType        = 2,
+                    kGABDE_ParaCurveType       = 3,
+                    kGABCDEF_ParaCurveType     = 4,
+                };
+
                 // Determine the format of the parametric curve tag.
                 uint16_t format = read_big_endian_short(src + 8);
-                if (0 == format) {
+                if (kExponential_ParaCurveType == format) {
                     tagBytes = 12 + 4;
                     if (len < tagBytes) {
                         SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
@@ -506,7 +514,7 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                     // We will fill in with zeros as necessary to always match the above form.
                     float g = 0.0f, a = 0.0f, b = 0.0f, c = 0.0f, d = 0.0f, e = 0.0f, f = 0.0f;
                     switch(format) {
-                        case 1: {
+                        case kGAB_ParaCurveType: {
                             tagBytes = 12 + 12;
                             if (len < tagBytes) {
                                 SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
@@ -521,7 +529,7 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                             d = -b / a;
                             break;
                         }
-                        case 2:
+                        case kGABC_ParaCurveType:
                             tagBytes = 12 + 16;
                             if (len < tagBytes) {
                                 SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
@@ -537,7 +545,7 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                             d = -b / a;
                             f = c;
                             break;
-                        case 3:
+                        case kGABDE_ParaCurveType:
                             tagBytes = 12 + 20;
                             if (len < tagBytes) {
                                 SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
@@ -552,7 +560,7 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                             d = SkFixedToFloat(read_big_endian_int(src + 28));
                             e = SkFixedToFloat(read_big_endian_int(src + 24));
                             break;
-                        case 4:
+                        case kGABCDEF_ParaCurveType:
                             tagBytes = 12 + 28;
                             if (len < tagBytes) {
                                 SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
