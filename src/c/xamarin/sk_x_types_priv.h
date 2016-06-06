@@ -578,12 +578,20 @@ static inline SkFILEStream* AsFileStream(sk_stream_filestream_t* cfilestream) {
     return reinterpret_cast<SkFILEStream*>(cfilestream);
 }
 
+static inline sk_stream_filestream_t* ToFileStream(SkFILEStream* stream) {
+    return reinterpret_cast<sk_stream_filestream_t*>(stream);
+}
+
 static inline const SkMemoryStream* AsMemoryStream(const sk_stream_memorystream_t* cmemorystream) {
     return reinterpret_cast<const SkMemoryStream*>(cmemorystream);
 }
 
 static inline SkMemoryStream* AsMemoryStream(sk_stream_memorystream_t* cmemorystream) {
     return reinterpret_cast<SkMemoryStream*>(cmemorystream);
+}
+
+static inline sk_stream_memorystream_t* ToMemoryStream(SkMemoryStream* stream) {
+    return reinterpret_cast<sk_stream_memorystream_t*>(stream);
 }
 
 static inline SkStreamRewindable* AsStreamRewindable(sk_stream_streamrewindable_t* cstreamrewindable) {

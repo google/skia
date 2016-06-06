@@ -29,24 +29,24 @@ void sk_memorystream_destroy(sk_stream_memorystream_t* cstream)
 
 sk_stream_filestream_t* sk_filestream_new (const char* path)
 {
-    return (sk_stream_filestream_t*)new SkFILEStream(path);
+    return ToFileStream(new SkFILEStream(path));
 }
 
 sk_stream_memorystream_t* sk_memorystream_new ()
 {
-    return (sk_stream_memorystream_t*)new SkMemoryStream();
+    return ToMemoryStream(new SkMemoryStream());
 }
 sk_stream_memorystream_t* sk_memorystream_new_with_length (size_t length)
 {
-    return (sk_stream_memorystream_t*)new SkMemoryStream(length);
+    return ToMemoryStream(new SkMemoryStream(length));
 }
 sk_stream_memorystream_t* sk_memorystream_new_with_data (const void* data, size_t length, bool copyData)
 {
-    return (sk_stream_memorystream_t*)new SkMemoryStream(data, length, copyData);
+    return ToMemoryStream(new SkMemoryStream(data, length, copyData));
 }
 sk_stream_memorystream_t* sk_memorystream_new_with_skdata (sk_data_t* data)
 {
-    return (sk_stream_memorystream_t*)new SkMemoryStream(AsData(data));
+    return ToMemoryStream(new SkMemoryStream(AsData(data)));
 }
 void sk_memorystream_set_memory (sk_stream_memorystream_t* cmemorystream, const void* data, size_t length, bool copyData)
 {
