@@ -427,6 +427,10 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                     // The table entry is the gamma (with a bias of 256).
                     uint16_t value = read_big_endian_short((const uint8_t*) table);
                     gammas[i].fValue = value / 256.0f;
+                    if (0.0f == gammas[i].fValue) {
+                        SkColorSpacePrintf("Cannot have zero gamma value");
+                        return false;
+                    }
                     SkColorSpacePrintf("gamma %d %g\n", value, gammas[i].fValue);
                     break;
                 }
@@ -525,6 +529,10 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                             // Y = 0           otherwise
                             g = SkFixedToFloat(read_big_endian_int(src + 12));
                             a = SkFixedToFloat(read_big_endian_int(src + 16));
+                            if (0.0f == a) {
+                                return false;
+                            }
+
                             b = SkFixedToFloat(read_big_endian_int(src + 20));
                             d = -b / a;
                             break;
@@ -540,6 +548,10 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                             // Y = c               otherwise
                             g = SkFixedToFloat(read_big_endian_int(src + 12));
                             a = SkFixedToFloat(read_big_endian_int(src + 16));
+                            if (0.0f == a) {
+                                return false;
+                            }
+
                             b = SkFixedToFloat(read_big_endian_int(src + 20));
                             c = SkFixedToFloat(read_big_endian_int(src + 24));
                             d = -b / a;
@@ -594,6 +606,27 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                             color_space_almost_equal(2.4000f, g)) {
                         gammas[i].fValue = 2.2f;
                     } else {
+                        // Fail on invalid gammas.
+                        if (d <= 0.0f) {
+                            // Y = (aX + b)^g + c  for always
+                            if (0.0f == a || 0.0f == g) {
+                                SkColorSpacePrintf("A or G is zero, constant gamma function "
+                                                   "is nonsense");
+                                return false;
+                            }
+                        } else if (d >= 1.0f) {
+                            // Y = eX + f          for always
+                            if (0.0f == e) {
+                                SkColorSpacePrintf("E is zero, constant gamma function is "
+                                                   "nonsense");
+                                return false;
+                            }
+                        } else if ((0.0f == a || 0.0f == g) && 0.0f == e) {
+                            SkColorSpacePrintf("A or G, and E are zero, constant gamma function "
+                                               "is nonsense");
+                            return false;
+                        }
+
                         gammas[i].fG = g;
                         gammas[i].fA = a;
                         gammas[i].fB = b;
@@ -610,6 +643,9 @@ bool load_gammas(SkGammaCurve* gammas, uint32_t numGammas, const uint8_t* src, s
                 SkColorSpacePrintf("Unsupported gamma tag type %d\n", type);
                 return false;
         }
+
+        // Ensure that we have successfully read a gamma representation.
+        SkASSERT(gammas[i].isValue() || gammas[i].isTable() || gammas[i].isParametric());
 
         // Adjust src and len if there is another gamma curve to load.
         if (i != numGammas - 1) {

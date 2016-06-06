@@ -16,20 +16,20 @@ struct SkGammaCurve {
     bool isValue() const {
         bool result = (0.0f != fValue);
         SkASSERT(!result || (0 == fTableSize));
-        SkASSERT(!result || (0.0f == fG));
+        SkASSERT(!result || (0.0f == fG && 0.0f == fE));
         return result;
     }
 
     bool isTable() const {
         bool result = (0 != fTableSize);
         SkASSERT(!result || (0.0f == fValue));
-        SkASSERT(!result || (0.0f == fG));
+        SkASSERT(!result || (0.0f == fG && 0.0f == fE));
         SkASSERT(!result || fTable);
         return result;
     }
 
     bool isParametric() const {
-        bool result = (0.0f != fG);
+        bool result = (0.0f != fG || 0.0f != fE);
         SkASSERT(!result || (0.0f == fValue));
         SkASSERT(!result || (0 == fTableSize));
         return result;
