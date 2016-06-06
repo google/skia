@@ -520,7 +520,7 @@ uint32_t SkGifCodec::onGetFillValue(SkColorType colorType) const {
 
 SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& opts, SkPMColor inputColorPtr[], int* inputColorCount) {
-    return this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, this->options());
+    return this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, opts);
 }
 
 void SkGifCodec::handleScanlineFrame(int count, int* rowsBeforeFrame, int* rowsInFrame) {
