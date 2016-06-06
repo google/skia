@@ -10,6 +10,7 @@
 
 #include "GrStyle.h"
 #include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkRRect.h"
 #include "SkTemplates.h"
 #include "SkTLazy.h"
@@ -27,29 +28,31 @@
  * to two shapes that reflect the same underlying geometry the computed keys of the stylized shapes
  * will be the same.
  *
- * Currently this can only be constructed from a rrect, though it can become a path by applying
- * style to the geometry. The idea is to expand this to cover most or all of the geometries that
- * have SkCanvas::draw APIs.
+ * Currently this can only be constructed from a path, rect, or rrect though it can become a path
+ * applying style to the geometry. The idea is to expand this to cover most or all of the geometries
+ * that have SkCanvas::draw APIs.
  */
 class GrShape {
 public:
     GrShape() : fType(Type::kEmpty) {}
 
     explicit GrShape(const SkPath& path)
-            : fType(Type::kPath)
-            , fPath(&path) {
+        : fType(Type::kPath)
+        , fPath(&path) {
         this->attemptToReduceFromPath();
     }
 
     explicit GrShape(const SkRRect& rrect)
         : fType(Type::kRRect)
         , fRRect(rrect) {
+        fRRectStart = DefaultRRectDirAndStartIndex(rrect, false, &fRRectDir);
         this->attemptToReduceFromRRect();
     }
 
     explicit GrShape(const SkRect& rect)
         : fType(Type::kRRect)
         , fRRect(SkRRect::MakeRect(rect)) {
+        fRRectStart = DefaultRectDirAndStartIndex(rect, false, &fRRectDir);
         this->attemptToReduceFromRRect();
     }
 
@@ -64,6 +67,20 @@ public:
         : fType(Type::kRRect)
         , fRRect(rrect)
         , fStyle(style) {
+        fRRectStart = DefaultRRectDirAndStartIndex(rrect, style.hasPathEffect(), &fRRectDir);
+        this->attemptToReduceFromRRect();
+    }
+
+    GrShape(const SkRRect& rrect, SkPath::Direction dir, unsigned start, const GrStyle& style)
+        : fType(Type::kRRect)
+        , fRRect(rrect)
+        , fStyle(style) {
+        if (style.pathEffect()) {
+            fRRectDir = dir;
+            fRRectStart = start;
+        } else {
+            fRRectStart = DefaultRRectDirAndStartIndex(rrect, false, &fRRectDir);
+        }
         this->attemptToReduceFromRRect();
     }
 
@@ -71,6 +88,7 @@ public:
         : fType(Type::kRRect)
         , fRRect(SkRRect::MakeRect(rect))
         , fStyle(style) {
+        fRRectStart = DefaultRectDirAndStartIndex(rect, style.hasPathEffect(), &fRRectDir);
         this->attemptToReduceFromRRect();
     }
 
@@ -85,6 +103,7 @@ public:
         : fType(Type::kRRect)
         , fRRect(rrect)
         , fStyle(paint) {
+        fRRectStart = DefaultRRectDirAndStartIndex(rrect, fStyle.hasPathEffect(), &fRRectDir);
         this->attemptToReduceFromRRect();
     }
 
@@ -92,6 +111,7 @@ public:
         : fType(Type::kRRect)
         , fRRect(SkRRect::MakeRect(rect))
         , fStyle(paint) {
+        fRRectStart = DefaultRectDirAndStartIndex(rect, fStyle.hasPathEffect(), &fRRectDir);
         this->attemptToReduceFromRRect();
     }
 
@@ -116,12 +136,18 @@ public:
     }
 
     /** Returns the unstyled geometry as a rrect if possible. */
-    bool asRRect(SkRRect* rrect) const {
+    bool asRRect(SkRRect* rrect, SkPath::Direction* dir, unsigned* start) const {
         if (Type::kRRect != fType) {
             return false;
         }
         if (rrect) {
             *rrect = fRRect;
+        }
+        if (dir) {
+            *dir = fRRectDir;
+        }
+        if (start) {
+            *start = fRRectStart;
         }
         return true;
     }
@@ -134,7 +160,7 @@ public:
                 break;
             case Type::kRRect:
                 out->reset();
-                out->addRRect(fRRect);
+                out->addRRect(fRRect, fRRectDir, fRRectStart);
                 break;
             case Type::kPath:
                 *out = *fPath.get();
@@ -190,7 +216,6 @@ private:
         kPath,
     };
 
-
     /** Constructor used by the applyStyle() function */
     GrShape(const GrShape& parentShape, GrStyle::Apply, SkScalar scale);
 
@@ -202,8 +227,8 @@ private:
 
     void attemptToReduceFromPath() {
         SkASSERT(Type::kPath == fType);
-        fType = AttemptToReduceFromPathImpl(*fPath.get(), &fRRect, fStyle.pathEffect(),
-                                            fStyle.strokeRec());
+        fType = AttemptToReduceFromPathImpl(*fPath.get(), &fRRect, &fRRectDir, &fRRectStart,
+                                            fStyle.pathEffect(), fStyle.strokeRec());
         if (Type::kPath != fType) {
             fPath.reset();
             fInheritedKey.reset(0);
@@ -219,31 +244,58 @@ private:
     }
 
     static Type AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* rrect,
-                                            const SkPathEffect* pe, const SkStrokeRec& strokeRec) {
-        if (path.isEmpty()) {
-            return Type::kEmpty;
+                                            SkPath::Direction* rrectDir, unsigned* rrectStart,
+                                            const SkPathEffect* pe, const SkStrokeRec& strokeRec);
+
+    static constexpr SkPath::Direction kDefaultRRectDir = SkPath::kCW_Direction;
+    static constexpr unsigned kDefaultRRectStart = 0;
+
+    static unsigned DefaultRectDirAndStartIndex(const SkRect& rect, bool hasPathEffect,
+                                                SkPath::Direction* dir) {
+        *dir = kDefaultRRectDir;
+        // This comes from SkPath's interface. The default for adding a SkRect is counter clockwise
+        // beginning at index 0 (which happens to correspond to rrect index 0 or 7).
+        if (!hasPathEffect) {
+            // It doesn't matter what start we use, just be consistent to avoid redundant keys.
+            return kDefaultRRectStart;
         }
-        if (path.isRRect(rrect)) {
-            SkASSERT(!rrect->isEmpty());
-            return Type::kRRect;
+        // In SkPath a rect starts at index 0 by default. This is the top left corner. However,
+        // we store rects as rrects. RRects don't preserve the invertedness, but rather sort the
+        // rect edges. Thus, we may need to modify the rrect's start index to account for the sort.
+        bool swapX = rect.fLeft > rect.fRight;
+        bool swapY = rect.fTop > rect.fBottom;
+        if (swapX && swapY) {
+            // 0 becomes start index 2 and times 2 to convert from rect the rrect indices.
+            return 2 * 2;
+        } else if (swapX) {
+            *dir = SkPath::kCCW_Direction;
+            // 0 becomes start index 1 and times 2 to convert from rect the rrect indices.
+            return 2 * 1;
+        } else if (swapY) {
+            *dir = SkPath::kCCW_Direction;
+            // 0 becomes start index 3 and times 2 to convert from rect the rrect indices.
+            return 2 * 3;
         }
-        SkRect rect;
-        if (path.isOval(&rect)) {
-            rrect->setOval(rect);
-            return Type::kRRect;
+        return 0;
+    }
+
+    static unsigned DefaultRRectDirAndStartIndex(const SkRRect& rrect, bool hasPathEffect,
+                                                 SkPath::Direction* dir) {
+        // This comes from SkPath's interface. The default for adding a SkRRect to a path is
+        // clockwise beginning at starting index 6.
+        static constexpr unsigned kPathRRectStartIdx = 6;
+        *dir = kDefaultRRectDir;
+        if (!hasPathEffect) {
+            // It doesn't matter what start we use, just be consistent to avoid redundant keys.
+            return kDefaultRRectStart;
         }
-        bool closed;
-        if (path.isRect(&rect, &closed, nullptr)) {
-            if (closed || (!pe && strokeRec.isFillStyle())) {
-                rrect->setRect(rect);
-                return Type::kRRect;
-            }
-        }
-        return Type::kPath;
+        return kPathRRectStartIdx;
     }
 
     Type                        fType;
     SkRRect                     fRRect;
+    SkPath::Direction           fRRectDir;
+    unsigned                    fRRectStart;
     SkTLazy<SkPath>             fPath;
     GrStyle                     fStyle;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;

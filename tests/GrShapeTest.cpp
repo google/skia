@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkPath.h"
+#include "SkPathOps.h"
 #include "SkSurface.h"
 
 using Key = SkTArray<uint32_t>;
@@ -27,6 +28,12 @@ static bool make_key(Key* key, const GrShape& shape) {
     key->reset(size);
     shape.writeUnstyledKey(key->begin());
     return true;
+}
+
+static bool paths_fill_same(const SkPath& a, const SkPath& b) {
+    SkPath pathXor;
+    Op(a, b, SkPathOp::kXOR_SkPathOp, &pathXor);
+    return pathXor.isEmpty();
 }
 
 static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds) {
@@ -134,7 +141,17 @@ private:
         SkPath a, b;
         fAppliedPEThenStroke.asPath(&a);
         fAppliedFull.asPath(&b);
-        REPORTER_ASSERT(r, a == b);
+        // If the output of the path effect is a rrect then it is possible for a and b to be
+        // different paths that fill identically. The reason is that fAppliedFull will do this:
+        // base -> apply path effect -> rrect_as_path -> stroke -> stroked_rrect_as_path
+        // fAppliedPEThenStroke will have converted the rrect_as_path back to a rrect. However,
+        // now that there is no longer a path effect, the direction and starting index get
+        // canonicalized before the stroke.
+        if (fAppliedPE.asRRect(nullptr, nullptr, nullptr)) {
+            REPORTER_ASSERT(r, paths_fill_same(a, b));
+        } else {
+            REPORTER_ASSERT(r, a == b);
+        }
         REPORTER_ASSERT(r, fAppliedFull.isEmpty() == fAppliedPEThenStroke.isEmpty());
 
         SkPath path;
@@ -227,53 +244,71 @@ void TestCase::testExpectations(skiatest::Reporter* reporter, SelfExpectations e
     }
 }
 
-void TestCase::compare(skiatest::Reporter* reporter, const TestCase& that,
+void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b,
+                       const Key& keyA, const Key& keyB) {
+    // GrShape only respects the input winding direction and start point for rrect shapes
+    // when there is a path effect. Thus, if there are two GrShapes representing the same rrect
+    // but one has a path effect in its style and the other doesn't then asPath() and the unstyled
+    // key will differ. GrShape will have canonicalized the direction and start point for the shape
+    // without the path effect. If *both* have path effects then they should have both preserved
+    // the direction and starting point.
+
+    // The asRRect() output params are all initialized just to silence compiler warnings about
+    // uninitialized variables.
+    SkRRect rrectA = SkRRect::MakeEmpty(), rrectB = SkRRect::MakeEmpty();
+    SkPath::Direction dirA = SkPath::kCW_Direction, dirB = SkPath::kCW_Direction;
+    unsigned startA = ~0U, startB = ~0U;
+
+    bool aIsRRect = a.asRRect(&rrectA, &dirA, &startA);
+    bool bIsRRect = b.asRRect(&rrectB, &dirB, &startB);
+    bool aHasPE = a.style().hasPathEffect();
+    bool bHasPE = b.style().hasPathEffect();
+    bool allowSameRRectButDiffStartAndDir = (aIsRRect && bIsRRect) && (aHasPE != bHasPE);
+    SkPath pathA, pathB;
+    a.asPath(&pathA);
+    b.asPath(&pathB);
+    if (allowSameRRectButDiffStartAndDir) {
+        REPORTER_ASSERT(r, rrectA == rrectB);
+        REPORTER_ASSERT(r, paths_fill_same(pathA, pathB));
+    } else {
+        REPORTER_ASSERT(r, pathA == pathB);
+        REPORTER_ASSERT(r, keyA == keyB);
+        REPORTER_ASSERT(r, aIsRRect == bIsRRect);
+        if (aIsRRect) {
+            REPORTER_ASSERT(r, rrectA == rrectB);
+            REPORTER_ASSERT(r, dirA == dirB);
+            REPORTER_ASSERT(r, startA == startB);
+        }
+    }
+    REPORTER_ASSERT(r, a.isEmpty() == b.isEmpty());
+    REPORTER_ASSERT(r, a.knownToBeClosed() == b.knownToBeClosed());
+    REPORTER_ASSERT(r, a.bounds() == b.bounds());
+}
+
+void TestCase::compare(skiatest::Reporter* r, const TestCase& that,
                        ComparisonExpecation expectation) const {
     SkPath a, b;
     switch (expectation) {
         case kAllDifferent_ComparisonExpecation:
-            REPORTER_ASSERT(reporter, fBaseKey != that.fBaseKey);
-            REPORTER_ASSERT(reporter, fAppliedPEKey != that.fAppliedPEKey);
-            REPORTER_ASSERT(reporter, fAppliedFullKey != that.fAppliedFullKey);
+            REPORTER_ASSERT(r, fBaseKey != that.fBaseKey);
+            REPORTER_ASSERT(r, fAppliedPEKey != that.fAppliedPEKey);
+            REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
             break;
         case kSameUpToPE_ComparisonExpecation:
-            REPORTER_ASSERT(reporter, fBaseKey == that.fBaseKey);
-            fBase.asPath(&a);
-            that.fBase.asPath(&b);
-            REPORTER_ASSERT(reporter, a == b);
-            REPORTER_ASSERT(reporter, fBase.isEmpty() == that.fBase.isEmpty());
-            REPORTER_ASSERT(reporter, fAppliedPEKey != that.fAppliedPEKey);
-            REPORTER_ASSERT(reporter, fAppliedFullKey != that.fAppliedFullKey);
+            check_equivalence(r, fBase, that.fBase, fBaseKey, that.fBaseKey);
+            REPORTER_ASSERT(r, fAppliedPEKey != that.fAppliedPEKey);
+            REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
             break;
         case kSameUpToStroke_ComparisonExpecation:
-            REPORTER_ASSERT(reporter, fBaseKey == that.fBaseKey);
-            fBase.asPath(&a);
-            that.fBase.asPath(&b);
-            REPORTER_ASSERT(reporter, a == b);
-            REPORTER_ASSERT(reporter, fBase.isEmpty() == that.fBase.isEmpty());
-            REPORTER_ASSERT(reporter, fAppliedPEKey == that.fAppliedPEKey);
-            fAppliedPE.asPath(&a);
-            that.fAppliedPE.asPath(&b);
-            REPORTER_ASSERT(reporter, a == b);
-            REPORTER_ASSERT(reporter, fAppliedPE.isEmpty() == that.fAppliedPE.isEmpty());
-            REPORTER_ASSERT(reporter, fAppliedFullKey != that.fAppliedFullKey);
+            check_equivalence(r, fBase, that.fBase, fBaseKey, that.fBaseKey);
+            check_equivalence(r, fAppliedPE, that.fAppliedPE, fAppliedPEKey, that.fAppliedPEKey);
+            REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
             break;
         case kAllSame_ComparisonExpecation:
-            REPORTER_ASSERT(reporter, fBaseKey == that.fBaseKey);
-            fBase.asPath(&a);
-            that.fBase.asPath(&b);
-            REPORTER_ASSERT(reporter, a == b);
-            REPORTER_ASSERT(reporter, fBase.isEmpty() == that.fBase.isEmpty());
-            REPORTER_ASSERT(reporter, fAppliedPEKey == that.fAppliedPEKey);
-            fAppliedPE.asPath(&a);
-            that.fAppliedPE.asPath(&b);
-            REPORTER_ASSERT(reporter, a == b);
-            REPORTER_ASSERT(reporter, fAppliedPE.isEmpty() == that.fAppliedPE.isEmpty());
-            REPORTER_ASSERT(reporter, fAppliedFullKey == that.fAppliedFullKey);
-            fAppliedFull.asPath(&a);
-            that.fAppliedFull.asPath(&b);
-            REPORTER_ASSERT(reporter, a == b);
-            REPORTER_ASSERT(reporter, fAppliedFull.isEmpty() == that.fAppliedFull.isEmpty());
+            check_equivalence(r, fBase, that.fBase, fBaseKey, that.fBaseKey);
+            check_equivalence(r, fAppliedPE, that.fAppliedPE, fAppliedPEKey, that.fAppliedPEKey);
+            check_equivalence(r, fAppliedFull, that.fAppliedFull, fAppliedFullKey,
+                              that.fAppliedFullKey);
             break;
     }
 }
@@ -419,10 +454,12 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     // Scale affects the stroke. Though, this can wind up creating a rect when the input is a rect.
     // In that case we wind up with a pure geometry key and the geometries are the same.
     SkRRect rrect;
-    if (strokeAndFillCase1.appliedFullStyleShape().asRRect(&rrect)) {
+    if (strokeAndFillCase1.appliedFullStyleShape().asRRect(&rrect, nullptr, nullptr)) {
         // We currently only expect to get here in the rect->rect case.
         REPORTER_ASSERT(reporter, rrect.isRect());
-        REPORTER_ASSERT(reporter, strokeAndFillCase1.baseShape().asRRect(&rrect) && rrect.isRect());
+        REPORTER_ASSERT(reporter,
+                        strokeAndFillCase1.baseShape().asRRect(&rrect, nullptr, nullptr) &&
+                        rrect.isRect());
         strokeAndFillCase1.compare(reporter, strokeAndFillCase2,
                                    TestCase::kAllSame_ComparisonExpecation);
     } else {
@@ -661,20 +698,22 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const GEO& geo) 
     SkRRect rrect;
     // Applying the path effect should make a SkRRect shape. There is no further stroking in the
     // geoPECase, so the full style should be the same as just the PE.
-    REPORTER_ASSERT(reporter, geoPECase.appliedPathEffectShape().asRRect(&rrect));
+    REPORTER_ASSERT(reporter, geoPECase.appliedPathEffectShape().asRRect(&rrect, nullptr, nullptr));
     REPORTER_ASSERT(reporter, rrect == RRectPathEffect::RRect());
     REPORTER_ASSERT(reporter, geoPECase.appliedPathEffectKey() == rrectFillCase.baseKey());
 
-    REPORTER_ASSERT(reporter, geoPECase.appliedFullStyleShape().asRRect(&rrect));
+    REPORTER_ASSERT(reporter, geoPECase.appliedFullStyleShape().asRRect(&rrect, nullptr, nullptr));
     REPORTER_ASSERT(reporter, rrect == RRectPathEffect::RRect());
     REPORTER_ASSERT(reporter, geoPECase.appliedFullStyleKey() == rrectFillCase.baseKey());
 
     // In the PE+stroke case applying the full style should be the same as just stroking the rrect.
-    REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectShape().asRRect(&rrect));
+    REPORTER_ASSERT(reporter,
+                    geoPEStrokeCase.appliedPathEffectShape().asRRect(&rrect, nullptr, nullptr));
     REPORTER_ASSERT(reporter, rrect == RRectPathEffect::RRect());
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectKey() == rrectFillCase.baseKey());
 
-    REPORTER_ASSERT(reporter, !geoPEStrokeCase.appliedFullStyleShape().asRRect(&rrect));
+    REPORTER_ASSERT(reporter,
+                    !geoPEStrokeCase.appliedFullStyleShape().asRRect(&rrect, nullptr, nullptr));
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedFullStyleKey() ==
                               rrectStrokeCase.appliedFullStyleKey());
 }
@@ -749,21 +788,25 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const GEO& geo
 
     TestCase peCase(geo, pe, reporter);
 
-    SkPath a, b;
+    SkPath a, b, c;
     peCase.baseShape().asPath(&a);
     peCase.appliedPathEffectShape().asPath(&b);
-    REPORTER_ASSERT(reporter, a == b);
-    peCase.appliedFullStyleShape().asPath(&b);
-    REPORTER_ASSERT(reporter, a == b);
-    REPORTER_ASSERT(reporter, peCase.appliedPathEffectShape().style().isSimpleHairline());
-    REPORTER_ASSERT(reporter, peCase.appliedFullStyleShape().style().isSimpleHairline());
+    peCase.appliedFullStyleShape().asPath(&c);
     if (isNonPath) {
-        REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey() == peCase.baseKey());
-        REPORTER_ASSERT(reporter, peCase.appliedFullStyleKey() == peCase.baseKey());
+        // RRect types can have a change in start index or direction after the PE is applied. This
+        // is because once the PE is applied, GrShape may canonicalize the dir and index since it
+        // is not germane to the styling any longer.
+        // Instead we just check that the paths would fill the same both before and after styling.
+        REPORTER_ASSERT(reporter, paths_fill_same(a, b));
+        REPORTER_ASSERT(reporter, paths_fill_same(a, c));
     } else {
+        REPORTER_ASSERT(reporter, a == b);
+        REPORTER_ASSERT(reporter, a == c);
         REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey().empty());
         REPORTER_ASSERT(reporter, peCase.appliedFullStyleKey().empty());
     }
+    REPORTER_ASSERT(reporter, peCase.appliedPathEffectShape().style().isSimpleHairline());
+    REPORTER_ASSERT(reporter, peCase.appliedFullStyleShape().style().isSimpleHairline());
 }
 
 /**
@@ -894,10 +937,34 @@ void test_empty_shape(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(GrShape, reporter) {
-    sk_sp<SkPathEffect> dashPE = make_dash();
+    for (auto r : { SkRect::MakeWH(10, 20),
+                    SkRect::MakeWH(-10, -20),
+                    SkRect::MakeWH(-10, 20),
+                    SkRect::MakeWH(10, -20)}) {
+        test_basic(reporter, r);
+        test_scale(reporter, r);
+        test_dash_fill(reporter, r);
+        test_null_dash(reporter, r);
+        // Test modifying various stroke params.
+        test_stroke_param<SkRect, SkScalar>(
+                reporter, r,
+                [](SkPaint* p, SkScalar w) { p->setStrokeWidth(w);},
+                SkIntToScalar(2), SkIntToScalar(4));
+        test_stroke_param<SkRect, SkPaint::Join>(
+                reporter, r,
+                [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
+                SkPaint::kMiter_Join, SkPaint::kRound_Join);
+        test_stroke_cap(reporter, r);
+        test_miter_limit(reporter, r);
+        test_path_effect_makes_rrect(reporter, r);
+        test_unknown_path_effect(reporter, r);
+        test_path_effect_makes_empty_shape(reporter, r);
+        test_make_hairline_path_effect(reporter, r, true);
+    }
 
     for (auto rr : { SkRRect::MakeRect(SkRect::MakeWH(10, 10)),
-                     SkRRect::MakeRectXY(SkRect::MakeWH(10, 10), 3, 4)}) {
+                     SkRRect::MakeRectXY(SkRect::MakeWH(10, 10), 3, 4),
+                     SkRRect::MakeOval(SkRect::MakeWH(20, 20))}) {
         test_basic(reporter, rr);
         test_scale(reporter, rr);
         test_dash_fill(reporter, rr);
@@ -984,11 +1051,12 @@ DEF_TEST(GrShape, reporter) {
         TestCase fillPathCase(path, fillPaint, reporter);
         SkRRect rrect;
         REPORTER_ASSERT(reporter, testPath.fIsRRectForFill ==
-                                  fillPathCase.baseShape().asRRect(&rrect));
+                                  fillPathCase.baseShape().asRRect(&rrect, nullptr, nullptr));
         if (testPath.fIsRRectForFill) {
+            TestCase fillPathCase2(path, fillPaint, reporter);
             REPORTER_ASSERT(reporter, rrect == testPath.fRRect);
             TestCase fillRRectCase(rrect, fillPaint, reporter);
-            fillPathCase.compare(reporter, fillRRectCase, TestCase::kAllSame_ComparisonExpecation);
+            fillPathCase2.compare(reporter, fillRRectCase, TestCase::kAllSame_ComparisonExpecation);
         }
 
         SkPaint strokePaint;
@@ -996,12 +1064,12 @@ DEF_TEST(GrShape, reporter) {
         strokePaint.setStyle(SkPaint::kStroke_Style);
         TestCase strokePathCase(path, strokePaint, reporter);
         REPORTER_ASSERT(reporter, testPath.fIsRRectForStroke ==
-                                  strokePathCase.baseShape().asRRect(&rrect));
+                                  strokePathCase.baseShape().asRRect(&rrect, nullptr, nullptr));
         if (testPath.fIsRRectForStroke) {
             REPORTER_ASSERT(reporter, rrect == testPath.fRRect);
             TestCase strokeRRectCase(rrect, strokePaint, reporter);
             strokePathCase.compare(reporter, strokeRRectCase,
-                                 TestCase::kAllSame_ComparisonExpecation);
+                                   TestCase::kAllSame_ComparisonExpecation);
         }
     }
 

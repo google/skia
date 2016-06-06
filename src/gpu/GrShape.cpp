@@ -22,6 +22,8 @@ GrShape& GrShape::operator=(const GrShape& that) {
                 fPath.reset();
             }
             fRRect = that.fRRect;
+            fRRectDir = that.fRRectDir;
+            fRRectStart = that.fRRectStart;
             break;
         case Type::kPath:
             if (wasPath) {
@@ -69,7 +71,8 @@ int GrShape::unstyledKeySize() const {
         case Type::kRRect:
             SkASSERT(!fInheritedKey.count());
             SkASSERT(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
-            return SkRRect::kSizeInMemory / sizeof(uint32_t);
+            // + 1 for the direction + start index.
+            return SkRRect::kSizeInMemory / sizeof(uint32_t) + 1;
         case Type::kPath:
             if (fPath.get()->isVolatile()) {
                 return -1;
@@ -95,6 +98,9 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
             case Type::kRRect:
                 fRRect.writeToMemory(key);
                 key += SkRRect::kSizeInMemory / sizeof(uint32_t);
+                *key = (fRRectDir == SkPath::kCCW_Direction) ? (1 << 31) : 0;
+                *key++ |= fRRectStart;
+                SkASSERT(fRRectStart < 8);
                 break;
             case Type::kPath:
                 SkASSERT(!fPath.get()->isVolatile());
@@ -217,15 +223,17 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
                 // the simpler shape so that applying both path effect and the strokerec all at
                 // once produces the same key.
                 SkRRect rrect;
-                Type parentType = AttemptToReduceFromPathImpl(*fPath.get(), &rrect, nullptr,
-                                                              strokeRec);
+                SkPath::Direction dir;
+                unsigned start;
+                Type parentType = AttemptToReduceFromPathImpl(*fPath.get(), &rrect, &dir, &start,
+                                                              nullptr, strokeRec);
                 switch (parentType) {
                     case Type::kEmpty:
                         tmpParent.init();
                         parentForKey = tmpParent.get();
                         break;
                     case Type::kRRect:
-                        tmpParent.init(rrect, GrStyle(strokeRec, nullptr));
+                        tmpParent.init(rrect, dir, start, GrStyle(strokeRec, nullptr));
                         parentForKey = tmpParent.get();
                     case Type::kPath:
                         break;
@@ -254,4 +262,62 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
     }
     this->attemptToReduceFromPath();
     this->setInheritedKey(*parentForKey, apply, scale);
+}
+
+GrShape::Type GrShape::AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* rrect,
+                                                   SkPath::Direction* rrectDir,
+                                                   unsigned* rrectStart,
+                                                   const SkPathEffect* pe,
+                                                   const SkStrokeRec& strokeRec) {
+    if (path.isEmpty()) {
+        return Type::kEmpty;
+    }
+    if (path.isRRect(rrect, rrectDir, rrectStart)) {
+        // Currently SkPath does not acknowledge that empty, rect, or oval subtypes as rrects.
+        SkASSERT(!rrect->isEmpty());
+        SkASSERT(rrect->getType() != SkRRect::kRect_Type);
+        SkASSERT(rrect->getType() != SkRRect::kOval_Type);
+        if (!pe) {
+            *rrectStart = DefaultRRectDirAndStartIndex(*rrect, false, rrectDir);
+        }
+        return Type::kRRect;
+    }
+    SkRect rect;
+    if (path.isOval(&rect, rrectDir, rrectStart)) {
+        rrect->setOval(rect);
+        if (!pe) {
+            *rrectDir = kDefaultRRectDir;
+            *rrectStart = kDefaultRRectStart;
+        } else {
+            // convert from oval indexing to rrect indexiing.
+            *rrectStart *= 2;
+        }
+        return Type::kRRect;
+    }
+    // When there is a path effect we restrict rect detection to the narrower API that
+    // gives us the starting position. Otherwise, we will retry with the more aggressive isRect().
+    if (SkPathPriv::IsSimpleClosedRect(path, &rect, rrectDir, rrectStart)) {
+        if (!pe) {
+            *rrectDir = kDefaultRRectDir;
+            *rrectStart = kDefaultRRectStart;
+        } else {
+            // convert from rect indexing to rrect indexiing.
+            *rrectStart *= 2;
+        }
+        rrect->setRect(rect);
+        return Type::kRRect;
+    }
+    if (!pe) {
+        bool closed;
+        if (path.isRect(&rect, &closed, nullptr)) {
+            if (closed || strokeRec.isFillStyle()) {
+                rrect->setRect(rect);
+                // Since there is no path effect the dir and start index is immaterial.
+                *rrectDir = kDefaultRRectDir;
+                *rrectStart = kDefaultRRectStart;
+                return Type::kRRect;
+            }
+        }
+    }
+    return Type::kPath;
 }

@@ -115,6 +115,8 @@ public:
 
     SkPathEffect* pathEffect() const { return fPathEffect.get(); }
 
+    bool hasPathEffect() const { return SkToBool(fPathEffect.get()); }
+
     bool hasNonDashPathEffect() const { return fPathEffect.get() && !this->isDashed(); }
 
     bool isDashed() const { return SkPathEffect::kDash_DashType == fDashInfo.fType; }
