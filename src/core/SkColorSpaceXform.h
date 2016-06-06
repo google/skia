@@ -9,8 +9,9 @@
 #define SkColorSpaceXform_DEFINED
 
 #include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 
-class SkColorSpaceXform {
+class SkColorSpaceXform : SkNoncopyable {
 public:
 
     /**
@@ -46,6 +47,26 @@ private:
     float            fDstGammas[3];
 
     friend class SkColorSpaceXform;
+};
+
+/**
+ *  Works for any valid src and dst profiles.
+ */
+class SkDefaultXform : public SkColorSpaceXform {
+public:
+
+    void xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
+
+private:
+    SkDefaultXform(const sk_sp<SkGammas>& srcGammas, const SkMatrix44& srcToDst,
+                   const sk_sp<SkGammas>& dstGammas);
+
+    sk_sp<SkGammas>  fSrcGammas;
+    const SkMatrix44 fSrcToDst;
+    sk_sp<SkGammas>  fDstGammas;
+
+    friend class SkColorSpaceXform;
+    friend class ColorSpaceXformTest;
 };
 
 #endif

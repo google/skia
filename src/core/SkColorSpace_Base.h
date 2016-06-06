@@ -78,6 +78,11 @@ public:
         return fRed.isValue() && fGreen.isValue() && fBlue.isValue();
     }
 
+    const SkGammaCurve& operator[](int i) {
+        SkASSERT(0 <= i && i < 3);
+        return (&fRed)[i];
+    }
+
     const SkGammaCurve fRed;
     const SkGammaCurve fGreen;
     const SkGammaCurve fBlue;
@@ -116,6 +121,8 @@ class SkColorSpace_Base : public SkColorSpace {
 public:
 
     const sk_sp<SkGammas>& gammas() const { return fGammas; }
+
+    SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
 
     /**
      *  Writes this object as an ICC profile.

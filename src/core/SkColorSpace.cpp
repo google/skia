@@ -719,19 +719,21 @@ bool load_matrix(SkMatrix44* toXYZ, const uint8_t* src, size_t len) {
         return false;
     }
 
+    // For this matrix to behave like our "to XYZ D50" matrices, it needs to be scaled.
+    constexpr float scale = 65535.0 / 32768.0;
     float array[16];
-    array[ 0] = SkFixedToFloat(read_big_endian_int(src));
-    array[ 1] = SkFixedToFloat(read_big_endian_int(src + 4));
-    array[ 2] = SkFixedToFloat(read_big_endian_int(src + 8));
-    array[ 3] = SkFixedToFloat(read_big_endian_int(src + 36)); // translate R
-    array[ 4] = SkFixedToFloat(read_big_endian_int(src + 12));
-    array[ 5] = SkFixedToFloat(read_big_endian_int(src + 16));
-    array[ 6] = SkFixedToFloat(read_big_endian_int(src + 20));
-    array[ 7] = SkFixedToFloat(read_big_endian_int(src + 40)); // translate G
-    array[ 8] = SkFixedToFloat(read_big_endian_int(src + 24));
-    array[ 9] = SkFixedToFloat(read_big_endian_int(src + 28));
-    array[10] = SkFixedToFloat(read_big_endian_int(src + 32));
-    array[11] = SkFixedToFloat(read_big_endian_int(src + 44)); // translate B
+    array[ 0] = scale * SkFixedToFloat(read_big_endian_int(src));
+    array[ 1] = scale * SkFixedToFloat(read_big_endian_int(src + 4));
+    array[ 2] = scale * SkFixedToFloat(read_big_endian_int(src + 8));
+    array[ 3] = scale * SkFixedToFloat(read_big_endian_int(src + 36)); // translate R
+    array[ 4] = scale * SkFixedToFloat(read_big_endian_int(src + 12));
+    array[ 5] = scale * SkFixedToFloat(read_big_endian_int(src + 16));
+    array[ 6] = scale * SkFixedToFloat(read_big_endian_int(src + 20));
+    array[ 7] = scale * SkFixedToFloat(read_big_endian_int(src + 40)); // translate G
+    array[ 8] = scale * SkFixedToFloat(read_big_endian_int(src + 24));
+    array[ 9] = scale * SkFixedToFloat(read_big_endian_int(src + 28));
+    array[10] = scale * SkFixedToFloat(read_big_endian_int(src + 32));
+    array[11] = scale * SkFixedToFloat(read_big_endian_int(src + 44)); // translate B
     array[12] = 0.0f;
     array[13] = 0.0f;
     array[14] = 0.0f;
