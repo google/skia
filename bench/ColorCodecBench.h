@@ -12,7 +12,7 @@
 #include "SkData.h"
 #include "SkImageInfo.h"
 
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
 #include "qcms.h"
 #endif
 
@@ -40,7 +40,7 @@ private:
     SkAutoMalloc                                         fDst;
     SkAutoMalloc                                         fSrc;
     sk_sp<SkColorSpace>                                  fDstSpace;
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
     SkAutoTCallVProc<qcms_profile, qcms_profile_release> fDstSpaceQCMS;
 #endif
     sk_sp<SkData>                                        fSrcData;

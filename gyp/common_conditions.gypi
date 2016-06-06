@@ -19,6 +19,9 @@
     'SK_HAS_JPEG_LIBRARY',
     'SK_HAS_PNG_LIBRARY',
     'SK_HAS_WEBP_LIBRARY',
+
+    # Temporarily test against the QCMS library.
+    'SK_TEST_QCMS',
   ],
   'conditions' : [
     [ 'skia_is_bot', {

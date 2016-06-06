@@ -41,7 +41,7 @@
     #include "SkAutoCoInitialize.h"
 #endif
 
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
     #include "qcms.h"
 #endif
 
@@ -932,7 +932,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
         case kQCMS_HPZR30w_Mode: {
             sk_sp<SkData> srcData = codec->getICCData();
             SkAutoTCallVProc<qcms_profile, qcms_profile_release>

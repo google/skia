@@ -219,7 +219,7 @@ public:
         //                 look identical on two different dsts?
         kDst_HPZR30w_Mode,
 
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
         // Use QCMS for color correction.
         kQCMS_HPZR30w_Mode,
 #endif

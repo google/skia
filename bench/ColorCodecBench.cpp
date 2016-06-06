@@ -11,19 +11,19 @@
 #include "SkColorSpaceXform.h"
 #include "SkCommandLineFlags.h"
 
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
 DEFINE_bool(qcms, false, "Bench qcms color conversion");
 #endif
 DEFINE_bool(xform_only, false, "Only time the color xform, do not include the decode time");
 
 ColorCodecBench::ColorCodecBench(const char* name, sk_sp<SkData> encoded)
     : fEncoded(std::move(encoded))
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
     , fDstSpaceQCMS(nullptr)
 #endif
 {
     fName.appendf("Color%s", FLAGS_xform_only ? "Xform" : "Codec");
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
     fName.appendf("%s", FLAGS_qcms ? "QCMS" : "");
 #endif
     fName.appendf("_%s", name);
@@ -65,7 +65,7 @@ void ColorCodecBench::decodeAndXform() {
     }
 }
 
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
 void ColorCodecBench::decodeAndXformQCMS() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
 #ifdef SK_DEBUG
@@ -121,7 +121,7 @@ void ColorCodecBench::xformOnly() {
     }
 }
 
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
 void ColorCodecBench::xformOnlyQCMS() {
     SkAutoTCallVProc<qcms_profile, qcms_profile_release>
             srcSpace(qcms_profile_from_memory(fSrcData->data(), fSrcData->size()));
@@ -168,7 +168,7 @@ void ColorCodecBench::onDelayedSetup() {
     SkASSERT(dstData);
 
 
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
     if (FLAGS_qcms) {
         fDstSpaceQCMS.reset(qcms_profile_from_memory(dstData->data(), dstData->size()));
         SkASSERT(fDstSpaceQCMS);
@@ -182,7 +182,7 @@ void ColorCodecBench::onDelayedSetup() {
 
 void ColorCodecBench::onDraw(int n, SkCanvas*) {
     for (int i = 0; i < n; i++) {
-#if !defined(GOOGLE3)
+#if defined(SK_TEST_QCMS)
         if (FLAGS_qcms) {
             if (FLAGS_xform_only) {
                 this->xformOnlyQCMS();
