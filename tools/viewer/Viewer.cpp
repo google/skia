@@ -28,7 +28,7 @@ static void on_paint_handler(SkCanvas* canvas, void* userData) {
     return vv->onPaint(canvas);
 }
 
-static bool on_touch_handler(int owner, Window::InputState state, float x, float y, void* userData)
+static bool on_touch_handler(intptr_t owner, Window::InputState state, float x, float y, void* userData)
 {
     Viewer* viewer = reinterpret_cast<Viewer*>(userData);
 
@@ -332,7 +332,7 @@ void Viewer::onPaint(SkCanvas* canvas) {
     fCommands.drawHelp(canvas);
 }
 
-bool Viewer::onTouch(int owner, Window::InputState state, float x, float y) {
+bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
     void* castedOwner = reinterpret_cast<void*>(owner);
     SkPoint touchPoint = fDefaultMatrixInv.mapXY(x, y);
     switch (state) {

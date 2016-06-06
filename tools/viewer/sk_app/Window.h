@@ -111,7 +111,7 @@ public:
     typedef bool(*OnCharFunc)(SkUnichar c, uint32_t modifiers, void* userData);
     typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
     typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
-    typedef bool(*OnTouchFunc)(int owner, InputState state, float x, float y, void* userData);
+    typedef bool(*OnTouchFunc)(intptr_t owner, InputState state, float x, float y, void* userData);
     typedef void(*OnUIStateChangedFunc)(
             const SkString& stateName, const SkString& stateValue, void* userData);
     typedef void(*OnPaintFunc)(SkCanvas*, void* userData);
@@ -149,7 +149,7 @@ public:
     bool onChar(SkUnichar c, uint32_t modifiers);
     bool onKey(Key key, InputState state, uint32_t modifiers);
     bool onMouse(int x, int y, InputState state, uint32_t modifiers);
-    bool onTouch(int owner, InputState state, float x, float y);  // multi-owner = multi-touch
+    bool onTouch(intptr_t owner, InputState state, float x, float y);  // multi-owner = multi-touch
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();
     void onResize(uint32_t width, uint32_t height);

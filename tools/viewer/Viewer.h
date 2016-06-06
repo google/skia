@@ -24,7 +24,7 @@ public:
 
     void onPaint(SkCanvas* canvas);
     void onIdle(double ms) override;
-    bool onTouch(int owner, sk_app::Window::InputState state, float x, float y);
+    bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y);
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
 
 private:

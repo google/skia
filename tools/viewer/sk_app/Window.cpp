@@ -27,7 +27,7 @@ static bool default_mouse_func(int x, int y, Window::InputState state, uint32_t 
     return false;
 }
 
-static bool default_touch_func(int owner, Window::InputState state, float x, float y,
+static bool default_touch_func(intptr_t owner, Window::InputState state, float x, float y,
                                void* userData) {
     return false;
 }
@@ -62,7 +62,7 @@ bool Window::onMouse(int x, int y, InputState state, uint32_t modifiers) {
     return fMouseFunc(x, y, state, modifiers, fMouseUserData);
 }
 
-bool Window::onTouch(int owner, InputState state, float x, float y) {
+bool Window::onTouch(intptr_t owner, InputState state, float x, float y) {
     return fTouchFunc(owner, state, x, y, fTouchUserData);
 }
 
