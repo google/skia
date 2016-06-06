@@ -298,7 +298,6 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                   clipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
-    pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);

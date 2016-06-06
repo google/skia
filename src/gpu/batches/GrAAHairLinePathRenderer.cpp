@@ -974,7 +974,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                       args.fDrawContext->isStencilBufferMultisampled());
-    pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);

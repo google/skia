@@ -419,8 +419,7 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
                                   SkScalar x, SkScalar y) {
     // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
     // it as paths
-    GrPipelineBuilder pipelineBuilder(grPaint,  dc->isUnifiedMultisampled());
-    pipelineBuilder.setRenderTarget(dc->accessRenderTarget());
+    GrPipelineBuilder pipelineBuilder(grPaint, dc->isUnifiedMultisampled());
 
     GrColor color = grPaint.getColor();
 
@@ -449,8 +448,7 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context,
                                      const SkMatrix& viewMatrix,
                                      const SkIRect& clipBounds,
                                      SkScalar x, SkScalar y) {
-    GrPipelineBuilder pipelineBuilder(grPaint,  dc->isUnifiedMultisampled());
-    pipelineBuilder.setRenderTarget(dc->accessRenderTarget());
+    GrPipelineBuilder pipelineBuilder(grPaint, dc->isUnifiedMultisampled());
 
     GrColor color = grPaint.getColor();
     for (int run = 0; run < fRunCount; run++) {

@@ -109,7 +109,6 @@ protected:
 
                     GrPipelineBuilder pipelineBuilder(grPaint,
                                                       drawContext->isUnifiedMultisampled());
-                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
                     pipelineBuilder.addColorFragmentProcessor(fp);
 
                     SkAutoTUnref<GrDrawBatch> batch(

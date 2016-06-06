@@ -261,13 +261,13 @@ public:
     bool isStencilBufferMultisampled() const {
         return fRenderTarget->isStencilBufferMultisampled();
     }
+    bool isUnifiedMultisampled() const { return fRenderTarget->isUnifiedMultisampled(); }
     bool hasMixedSamples() const { return fRenderTarget->hasMixedSamples(); }
 
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
     GrPixelConfig config() const { return fRenderTarget->config(); }
-    bool isUnifiedMultisampled() const { return fRenderTarget->isUnifiedMultisampled(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
     bool isGammaCorrect() const { return fSurfaceProps.isGammaCorrect(); }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
@@ -298,6 +298,7 @@ protected:
 private:
     friend class GrAtlasTextBlob; // for access to drawBatch
     friend class GrStencilAndCoverTextContext; // for access to drawBatch
+
     friend class GrDrawingManager; // for ctor
     friend class GrDrawContextPriv;
     friend class GrTestTarget;  // for access to getDrawTarget

@@ -71,7 +71,6 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrDrawContext* drawContext,
                                                                         nullptr, &localMatrix));
 
     GrPipelineBuilder pipelineBuilder(*paint, drawContext->isUnifiedMultisampled());
-    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
     pipelineBuilder.setUserStencil(userStencilSettings);
 
     drawContext->drawBatch(pipelineBuilder, clip, batch);

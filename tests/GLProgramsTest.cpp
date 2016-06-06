@@ -350,7 +350,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         }
 
         GrPipelineBuilder pipelineBuilder;
-        pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
         SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
@@ -387,7 +386,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                                     drawContext.get(), dummyTextures);
             GrPipelineBuilder builder;
             builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-            builder.setRenderTarget(drawContext->accessRenderTarget());
 
             SkAutoTUnref<const GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::CreateIdx(i, &ptd));

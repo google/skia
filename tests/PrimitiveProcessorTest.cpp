@@ -104,9 +104,9 @@ private:
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrDrawContext> dc(context->newDrawContext(SkBackingFit::kApprox,
-                                                    1, 1, kRGBA_8888_GrPixelConfig));
-    if (!dc) {
+    sk_sp<GrDrawContext> drawContext(context->newDrawContext(SkBackingFit::kApprox,
+                                                             1, 1, kRGBA_8888_GrPixelConfig));
+    if (!drawContext) {
         ERRORF(reporter, "Could not create draw context.");
         return;
     }
@@ -123,10 +123,9 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
 #endif
     SkAutoTUnref<GrDrawBatch> batch;
     GrPipelineBuilder pb;
-    pb.setRenderTarget(dc->accessRenderTarget());
     // This one should succeed.
     batch.reset(new Batch(attribCnt));
-    dc->drawContextPriv().testingOnly_drawBatch(pb, batch);
+    drawContext->drawContextPriv().testingOnly_drawBatch(pb, batch);
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
@@ -135,7 +134,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     context->resetGpuStats();
     // This one should fail.
     batch.reset(new Batch(attribCnt+1));
-    dc->drawContextPriv().testingOnly_drawBatch(pb, batch);
+    drawContext->drawContextPriv().testingOnly_drawBatch(pb, batch);
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);

@@ -74,8 +74,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
     paint.setAntiAlias(args.fIsAA);
 
-    GrPipelineBuilder pipelineBuilder(paint, args.fDrawContext->isUnifiedMultisampled());    
-    pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
+    const GrPipelineBuilder pipelineBuilder(paint, args.fDrawContext->isUnifiedMultisampled());
 
     SkASSERT(!args.fPath->isInverseFillType());
     SkAutoTUnref<GrPath> path(get_gr_path(fResourceProvider, *args.fPath, GrStyle::SimpleFill()));
@@ -113,7 +112,6 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         {
             GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                               args.fDrawContext->isUnifiedMultisampled());
-            pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
             if (args.fAntiAlias) {
                 SkASSERT(args.fDrawContext->isStencilBufferMultisampled());
@@ -151,7 +149,6 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         {
             GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                               args.fDrawContext->isUnifiedMultisampled());
-            pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
             if (args.fAntiAlias) {
                 SkASSERT(args.fDrawContext->isStencilBufferMultisampled());
@@ -179,7 +176,6 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
         GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                           args.fDrawContext->isUnifiedMultisampled());
-        pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
         pipelineBuilder.setUserStencil(&kCoverPass);
         if (args.fAntiAlias) {
             SkASSERT(args.fDrawContext->isStencilBufferMultisampled());

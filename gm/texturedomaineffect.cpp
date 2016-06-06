@@ -124,7 +124,6 @@ protected:
                         continue;
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
                     pipelineBuilder.addColorFragmentProcessor(fp);
 
                     SkAutoTUnref<GrDrawBatch> batch(

@@ -122,7 +122,6 @@ protected:
                 if (fp) {
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
                     pipelineBuilder.addColorFragmentProcessor(fp);
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,

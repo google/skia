@@ -566,7 +566,6 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                      args.fGammaCorrect));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
-    pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);

@@ -84,7 +84,6 @@ protected:
                 SkASSERT(fp);
                 if (fp) {
                     pipelineBuilder.addCoverageFragmentProcessor(fp);
-                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));

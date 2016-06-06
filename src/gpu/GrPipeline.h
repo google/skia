@@ -21,6 +21,7 @@
 #include "SkRefCnt.h"
 
 class GrBatch;
+class GrDrawContext;
 class GrDeviceCoordTexture;
 class GrPipelineBuilder;
 
@@ -48,6 +49,7 @@ public:
 
     struct CreateArgs {
         const GrPipelineBuilder*    fPipelineBuilder;
+        GrDrawContext*              fDrawContext;
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;

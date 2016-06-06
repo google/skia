@@ -18,8 +18,7 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImageInfo& info,
                                              const GrVkImageView* stencilView)
-    : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight,
-                          format.fStencilBits, desc.fSamples)
+    : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight, format.fStencilBits, desc.fSamples)
     , GrVkImage(info, GrVkImage::kNot_Wrapped)
     , fFormat(format)
     , fStencilView(stencilView) {

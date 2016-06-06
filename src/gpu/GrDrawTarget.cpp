@@ -130,6 +130,7 @@ void GrDrawTarget::dump() const {
 #endif
 
 bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuilder,
+                                           GrRenderTarget* rt,
                                            const GrClip& clip,
                                            const GrPipelineOptimizations& optimizations,
                                            GrXferProcessor::DstTexture* dstTexture,
@@ -140,8 +141,6 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     if (!pipelineBuilder.willXPNeedDstTexture(*this->caps(), optimizations)) {
         return true;
     }
-
-    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
 
     if (this->caps()->textureBarrierSupport()) {
         if (GrTexture* rtTex = rt->asTexture()) {
@@ -244,6 +243,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
         return;
     }
 
+    // TODO: this is the only remaining usage of the AutoRestoreFragmentProcessorState - remove it
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     if (appliedClip.clipCoverageFragmentProcessor()) {
         arfps.set(&pipelineBuilder);
@@ -252,11 +252,12 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
 
     GrPipeline::CreateArgs args;
     args.fPipelineBuilder = &pipelineBuilder;
+    args.fDrawContext = drawContext;
     args.fCaps = this->caps();
     args.fScissor = &appliedClip.scissorState();
     args.fHasStencilClip = appliedClip.hasStencilClip();
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
-        if (!fResourceProvider->attachStencilAttachment(pipelineBuilder.getRenderTarget())) {
+        if (!fResourceProvider->attachStencilAttachment(drawContext->accessRenderTarget())) {
             SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
             return;
         }
@@ -264,12 +265,11 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     batch->getPipelineOptimizations(&args.fOpts);
     GrScissorState finalScissor;
     if (args.fOpts.fOverrides.fUsePLSDstRead || fClipBatchToBounds) {
-        GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
         GrGLIRect viewport;
         viewport.fLeft = 0;
         viewport.fBottom = 0;
-        viewport.fWidth = rt->width();
-        viewport.fHeight = rt->height();
+        viewport.fWidth = drawContext->width();
+        viewport.fHeight = drawContext->height();
         SkIRect ibounds;
         ibounds.fLeft = SkTPin(SkScalarFloorToInt(batch->bounds().fLeft), viewport.fLeft,
                               viewport.fWidth);
@@ -293,8 +293,9 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     args.fOpts.fCoveragePOI.completeCalculations(
                                                pipelineBuilder.fCoverageFragmentProcessors.begin(),
                                                pipelineBuilder.numCoverageFragmentProcessors());
-    if (!this->setupDstReadIfNecessary(pipelineBuilder, clip, args.fOpts, &args.fDstTexture,
-                                       batch->bounds())) {
+    if (!this->setupDstReadIfNecessary(pipelineBuilder, drawContext->accessRenderTarget(),
+                                       clip, args.fOpts,
+                                       &args.fDstTexture, batch->bounds())) {
         return;
     }
 
@@ -331,8 +332,8 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     // attempt this in a situation that would require coverage AA.
     SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
-    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
-    GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(rt);
+    GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(
+                                                drawContext->accessRenderTarget());
     if (!stencilAttachment) {
         SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
         return;
@@ -344,7 +345,7 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
                                                 appliedClip.hasStencilClip(),
                                                 stencilAttachment->bits(),
                                                 appliedClip.scissorState(),
-                                                pipelineBuilder.getRenderTarget(),
+                                                drawContext->accessRenderTarget(),
                                                 path);
     this->recordBatch(batch);
     batch->unref();
@@ -376,10 +377,10 @@ void GrDrawTarget::clear(const SkIRect* rect,
             drawContext->discard();
         }
 
+        // TODO: flip this into real draw!
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.setXPFactory(
             GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-        pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
         SkRect scalarRect = SkRect::Make(*rect);
         SkAutoTUnref<GrDrawBatch> batch(

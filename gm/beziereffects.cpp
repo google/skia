@@ -192,7 +192,6 @@ protected:
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
                         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, klmSigns[c]));
@@ -325,7 +324,6 @@ protected:
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
                         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
@@ -533,7 +531,6 @@ protected:
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
                         GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 

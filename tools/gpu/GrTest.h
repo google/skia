@@ -29,7 +29,6 @@ public:
 
     void init(GrContext*, sk_sp<GrDrawContext>);
 
-    GrDrawTarget* target() { return fDrawContext->getDrawTarget(); }
     GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
 private:

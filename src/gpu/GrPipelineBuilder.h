@@ -31,7 +31,7 @@ public:
     GrPipelineBuilder();
 
     /**
-     * Initializes the GrPipelineBuilder based on a GrPaint, MSAA availability. Note
+     * Initializes the GrPipelineBuilder based on a GrPaint and MSAA availability. Note
      * that GrPipelineBuilder encompasses more than GrPaint. Aspects of GrPipelineBuilder that have
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
@@ -175,26 +175,6 @@ public:
 
 
     ///////////////////////////////////////////////////////////////////////////
-    /// @name Render Target
-    ////
-
-    /**
-     * Retrieves the currently set render-target.
-     *
-     * @return    The currently set render target.
-     */
-    GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
-
-    /**
-     * Sets the render-target used at the next drawing call
-     *
-     * @param target  The render target to set.
-     */
-    void setRenderTarget(GrRenderTarget* target) { fRenderTarget.reset(SkSafeRef(target)); }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
     /// @name Stencil
     ////
 
@@ -326,7 +306,6 @@ private:
 
     typedef SkSTArray<4, const GrFragmentProcessor*, true> FragmentProcessorArray;
 
-    SkAutoTUnref<GrRenderTarget>            fRenderTarget;
     uint32_t                                fFlags;
     const GrUserStencilSettings*            fUserStencilSettings;
     DrawFace                                fDrawFace;

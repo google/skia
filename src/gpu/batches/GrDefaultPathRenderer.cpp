@@ -563,7 +563,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                                         &localMatrix));
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->isUnifiedMultisampled());
-            pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
             pipelineBuilder.setDrawFace(drawFace[p]);
             if (passes[p]) {
                 pipelineBuilder.setUserStencil(passes[p]);
@@ -583,7 +582,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                                                      devBounds));
 
             GrPipelineBuilder pipelineBuilder(paint, drawContext->isUnifiedMultisampled());
-            pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
             pipelineBuilder.setDrawFace(drawFace[p]);
             if (passes[p]) {
                 pipelineBuilder.setUserStencil(passes[p]);

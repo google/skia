@@ -182,7 +182,6 @@ protected:
                 pipelineBuilder.setXPFactory(
                     GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                 pipelineBuilder.addCoverageFragmentProcessor(fp);
-                pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                 SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
 
@@ -223,7 +222,6 @@ protected:
                 pipelineBuilder.setXPFactory(
                     GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                 pipelineBuilder.addCoverageFragmentProcessor(fp);
-                pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                 SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
 

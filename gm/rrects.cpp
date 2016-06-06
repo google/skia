@@ -112,7 +112,6 @@ protected:
                                                                                    rrect));
                         if (fp) {
                             pipelineBuilder.addCoverageFragmentProcessor(fp);
-                            pipelineBuilder.setRenderTarget(drawContext->accessRenderTarget());
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);

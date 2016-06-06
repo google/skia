@@ -36,7 +36,6 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, msaaIsEnabled);
-    pipelineBuilder.setRenderTarget(args.fDrawContext->accessRenderTarget());
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
