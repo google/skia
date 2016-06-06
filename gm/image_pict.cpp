@@ -316,6 +316,7 @@ protected:
 #if SK_SUPPORT_GPU
         SkAutoTUnref<GrTexture> texture(cache->lockAsTexture(canvas->getGrContext(),
                                                              GrTextureParams::ClampBilerp(),
+                                                             SkSourceGammaTreatment::kRespect,
                                                              nullptr));
         if (!texture) {
             // show placeholder if we have no texture

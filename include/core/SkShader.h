@@ -327,7 +327,8 @@ public:
     virtual const GrFragmentProcessor* asFragmentProcessor(GrContext*,
                                                            const SkMatrix& viewMatrix,
                                                            const SkMatrix* localMatrix,
-                                                           SkFilterQuality) const;
+                                                           SkFilterQuality,
+                                                           SkSourceGammaTreatment) const;
 
     /**
      *  If the shader can represent its "average" luminance in a single color, return true and

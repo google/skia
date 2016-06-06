@@ -48,7 +48,8 @@ public:
      *
      *  The caller is responsible for calling texture->unref() when they are done.
      */
-    GrTexture* lockAsTexture(GrContext*, const GrTextureParams&, const SkImage* client,
+    GrTexture* lockAsTexture(GrContext*, const GrTextureParams&,
+                             SkSourceGammaTreatment gammaTreatment, const SkImage* client,
                              SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
     /**
@@ -75,7 +76,7 @@ private:
     // Returns the texture. If the cacherator is generating the texture and wants to cache it,
     // it should use the passed in key (if the key is valid).
     GrTexture* lockTexture(GrContext*, const GrUniqueKey& key, const SkImage* client,
-                           SkImage::CachingHint, bool willBeMipped);
+                           SkImage::CachingHint, bool willBeMipped, SkSourceGammaTreatment);
 #endif
 
     class ScopedGenerator {

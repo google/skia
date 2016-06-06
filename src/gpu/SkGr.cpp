@@ -329,7 +329,8 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
     pixelRef->addGenIDChangeListener(new Invalidator(key));
 }
 
-GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap)
+GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap,
+                                               SkSourceGammaTreatment gammaTreatment)
 {
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
     if (kIndex_8_SkColorType != bitmap.colorType() && !bitmap.readyToDraw()) {
@@ -403,11 +404,13 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                    const GrTextureParams& params) {
+                                    const GrTextureParams& params,
+                                    SkSourceGammaTreatment gammaTreatment) {
     if (bitmap.getTexture()) {
-        return GrBitmapTextureAdjuster(&bitmap).refTextureSafeForParams(params, nullptr);
+        return GrBitmapTextureAdjuster(&bitmap).refTextureSafeForParams(params, gammaTreatment,
+                                                                        nullptr);
     }
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params);
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, gammaTreatment);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -519,8 +522,10 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (shaderProcessor) {
             shaderFP = *shaderProcessor;
         } else if (const SkShader* shader = skPaint.getShader()) {
+            SkSourceGammaTreatment gammaTreatment = allowSRGBInputs
+                ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
             aufp.reset(shader->asFragmentProcessor(context, viewM, nullptr,
-                                                   skPaint.getFilterQuality()));
+                                                   skPaint.getFilterQuality(), gammaTreatment));
             shaderFP = aufp;
             if (!shaderFP) {
                 return false;
@@ -689,10 +694,13 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
     SkAutoTUnref<const GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
         if (const SkShader* shader = paint.getShader()) {
+            SkSourceGammaTreatment gammaTreatment = allowSRGBInputs
+                ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
             shaderFP.reset(shader->asFragmentProcessor(context,
                                                        viewM,
                                                        nullptr,
-                                                       paint.getFilterQuality()));
+                                                       paint.getFilterQuality(),
+                                                       gammaTreatment));
             if (!shaderFP) {
                 return false;
             }

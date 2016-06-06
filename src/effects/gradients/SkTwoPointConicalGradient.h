@@ -60,7 +60,8 @@ public:
     const GrFragmentProcessor* asFragmentProcessor(GrContext*,
                                                    const SkMatrix&,
                                                    const SkMatrix*,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 #endif
     bool isOpaque() const override;
 

@@ -319,10 +319,10 @@ void SkPictureShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 const GrFragmentProcessor* SkPictureShader::asFragmentProcessor(
-                                                    GrContext* context,
-                                                    const SkMatrix& viewM,
-                                                    const SkMatrix* localMatrix,
-                                                    SkFilterQuality fq) const {
+                                                     GrContext* context, const SkMatrix& viewM,
+                                                     const SkMatrix* localMatrix,
+                                                     SkFilterQuality fq,
+                                                     SkSourceGammaTreatment gammaTreatment) const {
     int maxTextureSize = 0;
     if (context) {
         maxTextureSize = context->caps()->maxTextureSize();
@@ -331,6 +331,6 @@ const GrFragmentProcessor* SkPictureShader::asFragmentProcessor(
     if (!bitmapShader) {
         return nullptr;
     }
-    return bitmapShader->asFragmentProcessor(context, viewM, nullptr, fq);
+    return bitmapShader->asFragmentProcessor(context, viewM, nullptr, fq, gammaTreatment);
 }
 #endif

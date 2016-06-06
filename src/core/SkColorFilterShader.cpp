@@ -98,13 +98,15 @@ void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f 
 /////////////////////////////////////////////////////////////////////
 
 const GrFragmentProcessor* SkColorFilterShader::asFragmentProcessor(
-                                                               GrContext* context,
-                                                               const SkMatrix& viewM,
-                                                               const SkMatrix* localMatrix,
-                                                               SkFilterQuality fq) const {
+                                                     GrContext* context,
+                                                     const SkMatrix& viewM,
+                                                     const SkMatrix* localMatrix,
+                                                     SkFilterQuality fq,
+                                                     SkSourceGammaTreatment gammaTreatment) const {
 
     SkAutoTUnref<const GrFragmentProcessor> fp1(fShader->asFragmentProcessor(context, viewM,
-                                                                             localMatrix, fq));
+                                                                             localMatrix, fq,
+                                                                             gammaTreatment));
     if (!fp1.get()) {
         return nullptr;
     }

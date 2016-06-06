@@ -82,7 +82,8 @@ public:
     bool onPeekPixels(SkPixmap*) const override;
     SkData* onRefEncoded(GrContext*) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
+    GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
+                            SkSourceGammaTreatment) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
@@ -174,13 +175,14 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
     return true;
 }
 
-GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {
+GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& params,
+                                        SkSourceGammaTreatment gammaTreatment) const {
 #if SK_SUPPORT_GPU
     if (!ctx) {
         return nullptr;
     }
 
-    return GrRefCachedBitmapTexture(ctx, fBitmap, params);
+    return GrRefCachedBitmapTexture(ctx, fBitmap, params, gammaTreatment);
 #endif
 
     return nullptr;

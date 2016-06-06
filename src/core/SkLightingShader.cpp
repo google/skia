@@ -75,7 +75,8 @@ public:
     const GrFragmentProcessor* asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 #endif
 
     class LightingShaderContext : public SkShader::Context {
@@ -350,10 +351,11 @@ static bool make_mat(const SkBitmap& bm,
 }
 
 const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
-                                                             GrContext* context,
-                                                             const SkMatrix& viewM,
-                                                             const SkMatrix* localMatrix,
-                                                             SkFilterQuality filterQuality) const {
+                                                     GrContext* context,
+                                                     const SkMatrix& viewM,
+                                                     const SkMatrix* localMatrix,
+                                                     SkFilterQuality filterQuality,
+                                                     SkSourceGammaTreatment gammaTreatment) const {
     // we assume diffuse and normal maps have same width and height
     // TODO: support different sizes
     SkASSERT(fDiffuseMap.width() == fNormalMap.width() &&
@@ -386,7 +388,8 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
     // TODO: support other tile modes
     GrTextureParams diffParams(kClamp_TileMode, diffFilterMode);
     SkAutoTUnref<GrTexture> diffuseTexture(GrRefCachedBitmapTexture(context,
-                                                                    fDiffuseMap, diffParams));
+                                                                    fDiffuseMap, diffParams,
+                                                                    gammaTreatment));
     if (!diffuseTexture) {
         SkErrorInternals::SetError(kInternalError_SkError, "Couldn't convert bitmap to texture.");
         return nullptr;
@@ -394,7 +397,8 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
 
     GrTextureParams normParams(kClamp_TileMode, normFilterMode);
     SkAutoTUnref<GrTexture> normalTexture(GrRefCachedBitmapTexture(context,
-                                                                   fNormalMap, normParams));
+                                                                   fNormalMap, normParams,
+                                                                   gammaTreatment));
     if (!normalTexture) {
         SkErrorInternals::SetError(kInternalError_SkError, "Couldn't convert bitmap to texture.");
         return nullptr;

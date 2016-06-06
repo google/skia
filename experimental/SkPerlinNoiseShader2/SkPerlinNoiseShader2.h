@@ -107,7 +107,8 @@ public:
 
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor* asFragmentProcessor(GrContext* context, const SkMatrix& viewM,
-                                                   const SkMatrix*, SkFilterQuality) const override;
+                                                   const SkMatrix*, SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

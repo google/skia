@@ -412,7 +412,8 @@ void SkBitmapProcShader::toString(SkString* str) const {
 
 const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* context,
                                              const SkMatrix& viewM, const SkMatrix* localMatrix,
-                                             SkFilterQuality filterQuality) const {
+                                             SkFilterQuality filterQuality,
+                                             SkSourceGammaTreatment gammaTreatment) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
@@ -443,7 +444,8 @@ const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* co
             GrSkFilterQualityToGrFilterMode(filterQuality, viewM, this->getLocalMatrix(),
                                             &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fRawBitmap, params));
+    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fRawBitmap, params,
+                                                             gammaTreatment));
 
     if (!texture) {
         SkErrorInternals::SetError( kInternalError_SkError,

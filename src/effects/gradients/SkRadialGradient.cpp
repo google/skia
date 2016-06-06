@@ -313,7 +313,8 @@ const GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) 
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeRadial(center, radius, colors, stops, colorCount, tm);
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality);
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -341,7 +342,8 @@ const GrFragmentProcessor* SkRadialGradient::asFragmentProcessor(
                                                  GrContext* context,
                                                  const SkMatrix& viewM,
                                                  const SkMatrix* localMatrix,
-                                                 SkFilterQuality) const {
+                                                 SkFilterQuality,
+                                                 SkSourceGammaTreatment) const {
     SkASSERT(context);
 
     SkMatrix matrix;

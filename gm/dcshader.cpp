@@ -38,7 +38,8 @@ public:
     const GrFragmentProcessor* asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
@@ -101,7 +102,8 @@ private:
 const GrFragmentProcessor* DCShader::asFragmentProcessor(GrContext*,
                                                          const SkMatrix& viewM,
                                                          const SkMatrix* localMatrix,
-                                                         SkFilterQuality) const {
+                                                         SkFilterQuality,
+                                                         SkSourceGammaTreatment) const {
     SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }

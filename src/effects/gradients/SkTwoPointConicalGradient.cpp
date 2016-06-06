@@ -360,7 +360,8 @@ const GrFragmentProcessor* SkTwoPointConicalGradient::asFragmentProcessor(
                                                   GrContext* context,
                                                   const SkMatrix& viewM,
                                                   const SkMatrix* localMatrix,
-                                                  SkFilterQuality) const {
+                                                  SkFilterQuality,
+                                                  SkSourceGammaTreatment) const {
     SkASSERT(context);
     SkASSERT(fPtsToUnit.isIdentity());
     SkAutoTUnref<const GrFragmentProcessor> inner(

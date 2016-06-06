@@ -77,8 +77,10 @@ bool SkImage_Gpu::asBitmapForImageFilters(SkBitmap* bitmap) const {
     return true;
 }
 
-GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {
-    return GrImageTextureAdjuster(as_IB(this)).refTextureSafeForParams(params, nullptr);
+GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params,
+                                     SkSourceGammaTreatment gammaTreatment) const {
+    return GrImageTextureAdjuster(as_IB(this)).refTextureSafeForParams(params, gammaTreatment,
+                                                                       nullptr);
 }
 
 bool SkImage_Gpu::isOpaque() const {
@@ -277,7 +279,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
 }
 
 static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {
-    SkAutoTUnref<GrTexture> texture(maker->refTextureForParams(GrTextureParams::ClampNoFilter()));
+    SkAutoTUnref<GrTexture> texture(maker->refTextureForParams(GrTextureParams::ClampNoFilter(),
+                                                               SkSourceGammaTreatment::kRespect));
     if (!texture) {
         return nullptr;
     }

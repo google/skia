@@ -80,21 +80,23 @@ public:
     AutoBitmapTexture(GrContext* context,
                       const SkBitmap& bitmap,
                       const GrTextureParams& params,
+                      SkSourceGammaTreatment gammaTreatment,
                       GrTexture** texture) {
         SkASSERT(texture);
-        *texture = this->set(context, bitmap, params);
+        *texture = this->set(context, bitmap, params, gammaTreatment);
     }
 
     GrTexture* set(GrContext* context,
                    const SkBitmap& bitmap,
-                   const GrTextureParams& params) {
+                   const GrTextureParams& params,
+                   SkSourceGammaTreatment gammaTreatment) {
         // Either get the texture directly from the bitmap, or else use the cache and
         // remember to unref it.
         if (GrTexture* bmpTexture = bitmap.getTexture()) {
             fTexture.reset(nullptr);
             return bmpTexture;
         } else {
-            fTexture.reset(GrRefCachedBitmapTexture(context, bitmap, params));
+            fTexture.reset(GrRefCachedBitmapTexture(context, bitmap, params, gammaTreatment));
             return fTexture.get();
         }
     }
@@ -260,7 +262,8 @@ void SkGpuDevice::drawSpriteWithFilter(const SkDraw& draw, const SkBitmap& bitma
 
     GrTexture* texture;
     // draw sprite neither filters nor tiles.
-    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(), &texture);
+    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(),
+                          SkSourceGammaTreatment::kRespect, &texture);
     if (!texture) {
         return;
     }
@@ -1165,7 +1168,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
               bitmap.height() <= fContext->caps()->maxTileSize()));
 
     GrTexture* texture;
-    AutoBitmapTexture abt(fContext, bitmap, params, &texture);
+    SkSourceGammaTreatment gammaTreatment = this->surfaceProps().isGammaCorrect()
+        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
+    AutoBitmapTexture abt(fContext, bitmap, params, gammaTreatment, &texture);
     if (nullptr == texture) {
         return;
     }
@@ -1264,7 +1269,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     GrTexture* texture;
     // draw sprite neither filters nor tiles.
-    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(), &texture);
+    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(),
+                          SkSourceGammaTreatment::kRespect, &texture);
     if (!texture) {
         return;
     }
@@ -1520,15 +1526,17 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
     }
 
     static const GrTextureParams::FilterMode kMode = GrTextureParams::kNone_FilterMode;
+    bool gammaCorrect = this->surfaceProps().isGammaCorrect();
+    SkSourceGammaTreatment gammaTreatment = gammaCorrect
+        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
     SkAutoTUnref<const GrFragmentProcessor> fp(
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
-                                          &kMode));
+                                          &kMode, gammaTreatment));
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, fp,
-                                     producer->isAlphaOnly(),
-                                     this->surfaceProps().isGammaCorrect(), &grPaint)) {
+                                     producer->isAlphaOnly(), gammaCorrect, &grPaint)) {
         return;
     }
 

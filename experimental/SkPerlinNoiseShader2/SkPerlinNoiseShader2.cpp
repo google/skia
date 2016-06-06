@@ -729,7 +729,7 @@ const GrFragmentProcessor* GrPerlinNoise2Effect::TestCreate(GrProcessorTestData*
     GrPaint grPaint;
     return shader->asFragmentProcessor(d->fContext,
                                        GrTest::TestMatrix(d->fRandom), nullptr,
-                                       kNone_SkFilterQuality);
+                                       kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect);
 }
 
 void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
@@ -1134,7 +1134,7 @@ const GrFragmentProcessor* GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTe
     GrPaint grPaint;
     return shader->asFragmentProcessor(d->fContext,
                                        GrTest::TestMatrix(d->fRandom), nullptr,
-                                       kNone_SkFilterQuality);
+                                       kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect);
 }
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
@@ -1302,7 +1302,8 @@ const GrFragmentProcessor* SkPerlinNoiseShader2::asFragmentProcessor(
                                                     GrContext* context,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* externalLocalMatrix,
-                                                    SkFilterQuality) const {
+                                                    SkFilterQuality,
+                                                    SkSourceGammaTreatment gammaTreatment) const {
     SkASSERT(context);
 
     SkMatrix localMatrix = this->getLocalMatrix();
@@ -1328,10 +1329,10 @@ const GrFragmentProcessor* SkPerlinNoiseShader2::asFragmentProcessor(
                                       GrTextureParams::FilterMode::kNone_FilterMode);
         SkAutoTUnref<GrTexture> permutationsTexture(
             GrRefCachedBitmapTexture(context, paintingData->getImprovedPermutationsBitmap(),
-                                     textureParams));
+                                     textureParams, gammaTreatment));
         SkAutoTUnref<GrTexture> gradientTexture(
             GrRefCachedBitmapTexture(context, paintingData->getGradientBitmap(),
-                                     textureParams));
+                                     textureParams, gammaTreatment));
         return GrImprovedPerlinNoiseEffect::Create(fNumOctaves, fSeed, paintingData, 
                                                    permutationsTexture, gradientTexture, m);
     }
@@ -1350,10 +1351,10 @@ const GrFragmentProcessor* SkPerlinNoiseShader2::asFragmentProcessor(
 
     SkAutoTUnref<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(context, paintingData->getPermutationsBitmap(),
-                                 GrTextureParams::ClampNoFilter()));
+                                 GrTextureParams::ClampNoFilter(), gammaTreatment));
     SkAutoTUnref<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(context, paintingData->getNoiseBitmap(),
-                                 GrTextureParams::ClampNoFilter()));
+                                 GrTextureParams::ClampNoFilter(), gammaTreatment));
 
     if ((permutationsTexture) && (noiseTexture)) {
         SkAutoTUnref<GrFragmentProcessor> inner(

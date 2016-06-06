@@ -31,7 +31,8 @@ public:
     const GrFragmentProcessor* asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix*,
-                                                   SkFilterQuality) const override;
+                                                   SkFilterQuality,
+                                                   SkSourceGammaTreatment) const override;
 #endif
 
 protected:

@@ -221,7 +221,8 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
 }
 
 const GrFragmentProcessor* SkShader::asFragmentProcessor(GrContext*, const SkMatrix&,
-                                                         const SkMatrix*, SkFilterQuality)  const {
+                                                         const SkMatrix*, SkFilterQuality,
+                                                         SkSourceGammaTreatment)  const {
     return nullptr;
 }
 

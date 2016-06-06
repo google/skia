@@ -82,7 +82,8 @@ protected:
         }
 
         SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fBmp,
-                                                                 GrTextureParams::ClampNoFilter()));
+                                                                 GrTextureParams::ClampNoFilter(),
+                                                                 SkSourceGammaTreatment::kRespect));
         if (!texture) {
             return;
         }

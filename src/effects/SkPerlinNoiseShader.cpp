@@ -593,7 +593,7 @@ const GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
 
     return shader->asFragmentProcessor(d->fContext,
                                        GrTest::TestMatrix(d->fRandom), nullptr,
-                                       kNone_SkFilterQuality);
+                                       kNone_SkFilterQuality, SkSourceGammaTreatment::kRespect);
 }
 
 void GrGLPerlinNoise::emitCode(EmitArgs& args) {
@@ -893,10 +893,11 @@ void GrGLPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
 
 /////////////////////////////////////////////////////////////////////
 const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
-                                                    GrContext* context,
-                                                    const SkMatrix& viewM,
-                                                    const SkMatrix* externalLocalMatrix,
-                                                    SkFilterQuality) const {
+                                                     GrContext* context,
+                                                     const SkMatrix& viewM,
+                                                     const SkMatrix* externalLocalMatrix,
+                                                     SkFilterQuality,
+                                                     SkSourceGammaTreatment gammaTreatment) const {
     SkASSERT(context);
 
     SkMatrix localMatrix = this->getLocalMatrix();
@@ -926,10 +927,10 @@ const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
             new PaintingData(fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, matrix);
     SkAutoTUnref<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(context, paintingData->getPermutationsBitmap(),
-                                 GrTextureParams::ClampNoFilter()));
+                                 GrTextureParams::ClampNoFilter(), gammaTreatment));
     SkAutoTUnref<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(context, paintingData->getNoiseBitmap(),
-                                 GrTextureParams::ClampNoFilter()));
+                                 GrTextureParams::ClampNoFilter(), gammaTreatment));
 
     SkMatrix m = viewM;
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);

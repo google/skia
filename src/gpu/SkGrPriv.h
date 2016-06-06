@@ -124,7 +124,7 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
  */
 GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
-GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&);
+GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&, SkSourceGammaTreatment);
 
 /**
  * Creates a new texture for the pixmap.

@@ -193,7 +193,8 @@ const GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
                                                        colorCount));
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
                                                                 GrTest::TestMatrix(d->fRandom),
-                                                                NULL, kNone_SkFilterQuality);
+                                                                NULL, kNone_SkFilterQuality,
+                                                                SkSourceGammaTreatment::kRespect);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -230,7 +231,8 @@ const GrFragmentProcessor* SkSweepGradient::asFragmentProcessor(
                                                     GrContext* context,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* localMatrix,
-                                                    SkFilterQuality) const {
+                                                    SkFilterQuality,
+                                                    SkSourceGammaTreatment) const {
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {

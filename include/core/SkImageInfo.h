@@ -176,6 +176,11 @@ enum SkColorProfileType {
     kLastEnum_SkColorProfileType = kSRGB_SkColorProfileType
 };
 
+enum class SkSourceGammaTreatment {
+    kRespect,
+    kIgnore,
+};
+
 /**
  *  Describe an image's dimensions and pixel type.
  *  Used for both src images and render-targets (surfaces).
