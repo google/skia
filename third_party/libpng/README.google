@@ -5,7 +5,7 @@ License File: LICENSE, pulled out of png.h
 Description: png compression/decompression library
 Local Modifications:
     (1) Created pnglibconf.h from pnglibconf.h.prebuilt (a
-    rename with a few additional settings enabled).
+    pure rename).
     (2) Included Intel optimizations by running:
     "patch -i contrib/intel/intel_sse.patch -p1"
     (3) Removed files unused by Skia
