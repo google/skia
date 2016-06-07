@@ -14,6 +14,12 @@
 #include "SkPostConfig.h"
 #include <stddef.h>
 #include <stdint.h>
+
+#if defined(SK_ARM_HAS_NEON)
+    #include <arm_neon.h>
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #include <immintrin.h>
+#endif
 // IWYU pragma: end_exports
 
 #include <string.h>
