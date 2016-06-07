@@ -53,7 +53,12 @@ void ramp<DstType::S32, ApplyPremul::False>(const Sk4f& c, const Sk4f& dc, SkPMC
     Sk4x4f        c4x = Sk4x4f::Transpose(c, c + dc, c + dc * 2, c + dc * 3);
 
     while (n >= 4) {
-        const Sk4x4f cx4s32 = { c4x.r.sqrt(), c4x.g.sqrt(), c4x.b.sqrt(), c4x.a };
+        const Sk4x4f cx4s32 = {
+            c4x.r.rsqrt().invert(),
+            c4x.g.rsqrt().invert(),
+            c4x.b.rsqrt().invert(),
+            c4x.a
+        };
         cx4s32.transpose((uint8_t*)dst);
 
         c4x.r += dc4x.r;

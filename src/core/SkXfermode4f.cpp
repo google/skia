@@ -68,10 +68,10 @@ static Sk4x4f load_4_srgb(const void* ptr) {
 // Store an Sk4x4f back to 4 interlaced 8888 sRGB pixels.
 static void store_4_srgb(void* ptr, const Sk4x4f& p) {
     // Convert back to sRGB and [0,255], again approximating sRGB as gamma == 2.
-    auto r = p.r.sqrt() * 255.0f + 0.5f,
-         g = p.g.sqrt() * 255.0f + 0.5f,
-         b = p.b.sqrt() * 255.0f + 0.5f,
-         a = p.a        * 255.0f + 0.5f;
+    auto r = p.r.rsqrt().invert() * 255.0f + 0.5f,
+         g = p.g.rsqrt().invert() * 255.0f + 0.5f,
+         b = p.b.rsqrt().invert() * 255.0f + 0.5f,
+         a = p.a                  * 255.0f + 0.5f;
     Sk4x4f{r,g,b,a}.transpose((uint8_t*)ptr);
 }
 

@@ -41,7 +41,7 @@ static inline Sk4f srgb_to_linear(const Sk4f& s4) {
 }
 
 static inline Sk4f linear_to_srgb(const Sk4f& l4) {
-    return set_alpha(l4.sqrt(), get_alpha(l4));
+    return set_alpha(l4.rsqrt().invert(), get_alpha(l4));
 }
 
 static inline float srgb_to_linear(float x) {
