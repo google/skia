@@ -67,7 +67,7 @@ const char* kSlideStateName = "Slide";
 const char* kBackendStateName = "Backend";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
-
+const char* kFpsStateName = "FPS";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
@@ -170,6 +170,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 }
 
 void Viewer::initSlides() {
+    fAllSlideNames = Json::Value(Json::arrayValue);
+
     const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
     while (gms) {
         SkAutoTDelete<skiagm::GM> gm(gms->factory()(nullptr));
@@ -410,6 +412,7 @@ void Viewer::onIdle(double ms) {
     fAnimTimer.updateTime();
     if (fSlides[fCurrentSlide]->animate(fAnimTimer) || fDisplayStats) {
         fWindow->inval();
+        updateUIState(); // Update the FPS
     }
 }
 
@@ -418,11 +421,12 @@ void Viewer::updateUIState() {
     Json::Value slideState(Json::objectValue);
     slideState[kName] = kSlideStateName;
     slideState[kValue] = fSlides[fCurrentSlide]->getName().c_str();
-    Json::Value allSlideNames(Json::arrayValue);
-    for(auto slide : fSlides) {
-        allSlideNames.append(Json::Value(slide->getName().c_str()));
+    if (fAllSlideNames.size() == 0) {
+        for(auto slide : fSlides) {
+            fAllSlideNames.append(Json::Value(slide->getName().c_str()));
+        }
     }
-    slideState[kOptions] = allSlideNames;
+    slideState[kOptions] = fAllSlideNames;
 
     // Backend state
     Json::Value backendState(Json::objectValue);
@@ -443,10 +447,20 @@ void Viewer::updateUIState() {
         softkeyState[kOptions].append(Json::Value(softkey.c_str()));
     }
 
+    // FPS state
+    Json::Value fpsState(Json::objectValue);
+    fpsState[kName] = kFpsStateName;
+    double measurement = fMeasurements[
+            (fCurrentMeasurement + (kMeasurementCount-1)) % kMeasurementCount
+    ];
+    fpsState[kValue] = SkStringPrintf("%8.3lf ms", measurement).c_str();
+    fpsState[kOptions] = Json::Value(Json::arrayValue);
+
     Json::Value state(Json::arrayValue);
     state.append(slideState);
     state.append(backendState);
     state.append(softkeyState);
+    state.append(fpsState);
 
     fWindow->setUIState(state);
 }

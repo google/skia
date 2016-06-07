@@ -66,6 +66,8 @@ private:
     // identity unless the window initially scales the content to fit the screen.
     SkMatrix               fDefaultMatrix;
     SkMatrix               fDefaultMatrixInv;
+
+    Json::Value            fAllSlideNames; // cache all slide names for fast updateUIState
 };
 
 
