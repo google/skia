@@ -1,6 +1,7 @@
 package org.skia.viewer;
 
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,6 +31,7 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
     static final String NAME = "name";
     static final String VALUE = "value";
     static final String OPTIONS = "options";
+    private static final String BACKEND_STATE_NAME = "Backend";
 
     ViewerActivity mViewerActivity;
     LinearLayout mLayout;
@@ -145,6 +147,21 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
         if (!stateValue.equals(stateItem.getTag(R.integer.value_tag_key))) {
             stateItem.setTag(null); // Reset the tag to let updateDrawer update this item view.
             mViewerActivity.onStateChanged(stateName, stateValue);
+        }
+
+        // Due to the current Android limitation, we're required to recreate the SurfaceView for
+        // switching to/from the Raster backend.
+        // (Although we can switch between GPU backend without recreating the SurfaceView.)
+        final Object oldValue = stateItem.getTag(R.integer.value_tag_key);
+        if (stateName.equals(BACKEND_STATE_NAME)
+                && oldValue != null && !stateValue.equals(oldValue)) {
+            LinearLayout mainLayout = (LinearLayout) mViewerActivity.findViewById(R.id.mainLayout);
+            mainLayout.removeAllViews();
+            SurfaceView surfaceView = new SurfaceView(mViewerActivity);
+            surfaceView.setId(R.id.surfaceView);
+            surfaceView.getHolder().addCallback(mViewerActivity);
+            surfaceView.setOnTouchListener(mViewerActivity);
+            mainLayout.addView(surfaceView);
         }
     }
 

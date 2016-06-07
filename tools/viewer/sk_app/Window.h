@@ -42,8 +42,9 @@ public:
     enum BackendType {
         kNativeGL_BackendType,
         kVulkan_BackendType,
+        kRaster_BackendType,
 
-        kLast_BackendType = kVulkan_BackendType
+        kLast_BackendType = kRaster_BackendType
     };
     enum {
         kBackendTypeCount = kLast_BackendType + 1

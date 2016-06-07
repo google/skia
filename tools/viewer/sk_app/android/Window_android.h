@@ -44,9 +44,6 @@ public:
     void setContentRect(int l, int t, int r, int b) { fContentRect.set(l,t,r,b); }
 
 private:
-    // We need fNativeWindow for attaching with another backend.
-    // (in that case, attach is called without initDisplay being called later)
-    ANativeWindow* fNativeWindow = nullptr;
     SkiaAndroidApp* fSkiaAndroidApp = nullptr;
     SkRect fContentRect;
     DisplayParams fDisplayParams;

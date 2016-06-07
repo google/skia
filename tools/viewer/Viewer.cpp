@@ -57,7 +57,8 @@ DEFINE_bool(vulkan, true, "Run with Vulkan.");
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
-    " [Vulkan]"
+    " [Vulkan]",
+    " [Raster]"
 };
 
 const char* kName = "name";

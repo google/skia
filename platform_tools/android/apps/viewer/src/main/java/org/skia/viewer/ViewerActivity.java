@@ -32,7 +32,6 @@ public class ViewerActivity
     private ListView mDrawerList;
     private StateAdapter mStateAdapter;
 
-    private SurfaceView mView;
     private ViewerApplication mApplication;
 
     private native void onSurfaceCreated(long handle, Surface surface);
@@ -74,10 +73,9 @@ public class ViewerActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mView = (SurfaceView) findViewById(R.id.surfaceView);
-        mView.getHolder().addCallback(this);
-
-        mView.setOnTouchListener(this);
+        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+        surfaceView.getHolder().addCallback(this);
+        surfaceView.setOnTouchListener(this);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,

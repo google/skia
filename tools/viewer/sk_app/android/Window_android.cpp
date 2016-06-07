@@ -8,6 +8,7 @@
 #include "Window_android.h"
 #include "../GLWindowContext.h"
 #include "../VulkanWindowContext.h"
+#include "../RasterWindowContext.h"
 
 namespace sk_app {
 
@@ -49,11 +50,7 @@ bool Window_android::attach(BackendType attachType, const DisplayParams& params)
     fBackendType = attachType;
     fDisplayParams = params;
 
-    if (fNativeWindow) {
-        this->initDisplay(fNativeWindow);
-    }
-    // If fNativeWindow is not set,
-    // we delay the creation of fWindowContext until Android informs us that
+    // We delay the creation of fWindowContext until Android informs us that
     // the native window is ready to use.
     // The creation will be done in initDisplay, which is initiated by kSurfaceCreated event.
     return true;
@@ -61,14 +58,15 @@ bool Window_android::attach(BackendType attachType, const DisplayParams& params)
 
 void Window_android::initDisplay(ANativeWindow* window) {
     SkASSERT(window);
-    fNativeWindow = window;
     ContextPlatformData_android platformData;
     platformData.fNativeWindow = window;
     switch (fBackendType) {
         case kNativeGL_BackendType:
             fWindowContext = GLWindowContext::Create((void*)&platformData, fDisplayParams);
             break;
-
+        case kRaster_BackendType:
+            fWindowContext = RasterWindowContext::Create((void*)&platformData, fDisplayParams);
+            break;
         case kVulkan_BackendType:
         default:
             fWindowContext = VulkanWindowContext::Create((void*)&platformData, fDisplayParams);
@@ -78,7 +76,6 @@ void Window_android::initDisplay(ANativeWindow* window) {
 
 void Window_android::onDisplayDestroyed() {
     detach();
-    fNativeWindow = nullptr;
 }
 
 void Window_android::onInval() {
