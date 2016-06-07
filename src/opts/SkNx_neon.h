@@ -8,6 +8,8 @@
 #ifndef SkNx_neon_DEFINED
 #define SkNx_neon_DEFINED
 
+#include <arm_neon.h>
+
 #define SKNX_IS_FAST
 
 // ARMv8 has vrndmq_f32 to floor 4 floats.  Here we emulate it:
