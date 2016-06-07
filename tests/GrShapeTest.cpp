@@ -157,10 +157,13 @@ private:
         SkPath path;
         fBase.asPath(&path);
         REPORTER_ASSERT(r, path.isEmpty() == fBase.isEmpty());
+        REPORTER_ASSERT(r, path.getSegmentMasks() == fBase.segmentMask());
         fAppliedPE.asPath(&path);
         REPORTER_ASSERT(r, path.isEmpty() == fAppliedPE.isEmpty());
+        REPORTER_ASSERT(r, path.getSegmentMasks() == fAppliedPE.segmentMask());
         fAppliedFull.asPath(&path);
         REPORTER_ASSERT(r, path.isEmpty() == fAppliedFull.isEmpty());
+        REPORTER_ASSERT(r, path.getSegmentMasks() == fAppliedFull.segmentMask());
 
         CheckBounds(r, fBase, fBase.bounds());
         CheckBounds(r, fAppliedPE, fAppliedPE.bounds());
@@ -283,6 +286,7 @@ void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b
     REPORTER_ASSERT(r, a.isEmpty() == b.isEmpty());
     REPORTER_ASSERT(r, a.knownToBeClosed() == b.knownToBeClosed());
     REPORTER_ASSERT(r, a.bounds() == b.bounds());
+    REPORTER_ASSERT(r, a.segmentMask() == b.segmentMask());
 }
 
 void TestCase::compare(skiatest::Reporter* r, const TestCase& that,

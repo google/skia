@@ -196,6 +196,23 @@ public:
         return false;
     }
 
+    uint32_t segmentMask() const {
+        switch (fType) {
+            case Type::kEmpty:
+                return 0;
+            case Type::kRRect:
+                if (fRRect.getType() == SkRRect::kOval_Type) {
+                    return SkPath::kConic_SegmentMask;
+                } else if (fRRect.getType() == SkRRect::kRect_Type) {
+                    return SkPath::kLine_SegmentMask;
+                }
+                return SkPath::kLine_SegmentMask | SkPath::kConic_SegmentMask;
+            case Type::kPath:
+                return fPath.get()->getSegmentMasks();
+        }
+        return 0;
+    }
+
     /**
      * Gets the size of the key for the shape represented by this GrShape (ignoring its styling).
      * A negative value is returned if the shape has no key (shouldn't be cached).
