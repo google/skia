@@ -418,13 +418,12 @@ struct Poly {
         if (!fTail) {
             fHead = fTail = ALLOC_NEW(MonotonePoly, (e, side), alloc);
             fCount += 2;
+        } else if (e->fBottom == fTail->fLastEdge->fBottom) {
+            return poly;
         } else if (side == fTail->fSide) {
             fTail->addEdge(e);
             fCount++;
         } else {
-            if (e->fBottom == fTail->fLastEdge->fBottom) {
-                return poly;
-            }
             e = ALLOC_NEW(Edge, (fTail->fLastEdge->fBottom, e->fBottom, 1), alloc);
             fTail->addEdge(e);
             fCount++;
@@ -1240,7 +1239,7 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
         }
         if (v->fFirstEdgeBelow) {
             if (!v->fFirstEdgeAbove) {
-                if (leftPoly) {
+                if (leftPoly && rightPoly) {
                     if (leftPoly == rightPoly) {
                         if (leftPoly->fTail && leftPoly->fTail->fSide == Poly::kLeft_Side) {
                             leftPoly = new_poly(&polys, leftPoly->lastVertex(),
