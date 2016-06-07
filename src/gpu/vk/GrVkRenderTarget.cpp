@@ -231,7 +231,8 @@ void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
 
     // Vulkan requires us to create a compatible renderpass before we can create our framebuffer,
     // so we use this to get a (cached) basic renderpass, only for creation.
-    fCachedSimpleRenderPass = gpu->resourceProvider().findOrCreateCompatibleRenderPass(*this);
+    fCachedSimpleRenderPass =
+        gpu->resourceProvider().findCompatibleRenderPass(*this, &fCompatibleRPHandle);
 
     // Stencil attachment view is stored in the base RT stencil attachment
     const GrVkImageView* stencilView = this->stencilAttachmentView();

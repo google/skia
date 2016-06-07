@@ -28,7 +28,7 @@ GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
 }
 
 GrVkResourceProvider::~GrVkResourceProvider() {
-    SkASSERT(0 == fSimpleRenderPasses.count());
+    SkASSERT(0 == fRenderPassArray.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
     delete fPipelineStateCache;
 }
@@ -102,18 +102,34 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
 // only used for framebuffer creation. When we actually render we will create
 // RenderPasses as needed that are compatible with the framebuffer.
 const GrVkRenderPass*
-GrVkResourceProvider::findOrCreateCompatibleRenderPass(const GrVkRenderTarget& target) {
-    for (int i = 0; i < fSimpleRenderPasses.count(); ++i) {
-        GrVkRenderPass* renderPass = fSimpleRenderPasses[i];
-        if (renderPass->isCompatible(target)) {
+GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
+                                               CompatibleRPHandle* compatibleHandle) {
+    for (int i = 0; i < fRenderPassArray.count(); ++i) {
+        if (fRenderPassArray[i].isCompatible(target)) {
+            const GrVkRenderPass* renderPass = fRenderPassArray[i].getCompatibleRenderPass();
             renderPass->ref();
+            if (compatibleHandle) {
+                *compatibleHandle = CompatibleRPHandle(i);
+            }
             return renderPass;
         }
     }
 
-    GrVkRenderPass* renderPass = new GrVkRenderPass();
-    renderPass->initSimple(fGpu, target);
-    fSimpleRenderPasses.push_back(renderPass);
+    const GrVkRenderPass* renderPass =
+        fRenderPassArray.emplace_back(fGpu, target).getCompatibleRenderPass();
+    renderPass->ref();
+
+    if (compatibleHandle) {
+        *compatibleHandle = CompatibleRPHandle(fRenderPassArray.count() - 1);
+    }
+    return renderPass;
+}
+
+const GrVkRenderPass*
+GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle) {
+    SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
+    int index = compatibleHandle.toIndex();
+    const GrVkRenderPass* renderPass = fRenderPassArray[index].getCompatibleRenderPass();
     renderPass->ref();
     return renderPass;
 }
@@ -198,11 +214,11 @@ void GrVkResourceProvider::destroyResources() {
     }
     fActiveCommandBuffers.reset();
 
-    // loop over all render passes to make sure we destroy all the internal VkRenderPasses
-    for (int i = 0; i < fSimpleRenderPasses.count(); ++i) {
-        fSimpleRenderPasses[i]->unref(fGpu);
+    // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses
+    for (int i = 0; i < fRenderPassArray.count(); ++i) {
+        fRenderPassArray[i].releaseResources(fGpu);
     }
-    fSimpleRenderPasses.reset();
+    fRenderPassArray.reset();
 
     // Iterate through all store GrVkSamplers and unref them before resetting the hash.
     SkTDynamicHash<GrVkSampler, uint16_t>::Iter iter(&fSamplers);
@@ -237,10 +253,11 @@ void GrVkResourceProvider::abandonResources() {
     }
     fActiveCommandBuffers.reset();
 
-    for (int i = 0; i < fSimpleRenderPasses.count(); ++i) {
-        fSimpleRenderPasses[i]->unrefAndAbandon();
+    // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses
+    for (int i = 0; i < fRenderPassArray.count(); ++i) {
+        fRenderPassArray[i].abandonResources();
     }
-    fSimpleRenderPasses.reset();
+    fRenderPassArray.reset();
 
     // Iterate through all store GrVkSamplers and unrefAndAbandon them before resetting the hash.
     SkTDynamicHash<GrVkSampler, uint16_t>::Iter iter(&fSamplers);
@@ -258,4 +275,40 @@ void GrVkResourceProvider::abandonResources() {
 
     fUniformDescLayout = VK_NULL_HANDLE;
     fUniformDescPool->unrefAndAbandon();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(
+                                                                     const GrVkGpu* gpu,
+                                                                     const GrVkRenderTarget& target)
+    : fLastReturnedIndex(0) {
+    fRenderPasses.emplace_back(new GrVkRenderPass());
+    fRenderPasses[0]->initSimple(gpu, target);
+}
+
+bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
+                                                             const GrVkRenderTarget& target) const {
+    // The first GrVkRenderpass should always exists since we create the basic load store
+    // render pass on create
+    SkASSERT(fRenderPasses[0]);
+    return fRenderPasses[0]->isCompatible(target);
+}
+
+void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources(const GrVkGpu* gpu) {
+    for (int i = 0; i < fRenderPasses.count(); ++i) {
+        if (fRenderPasses[i]) {
+            fRenderPasses[i]->unref(gpu);
+            fRenderPasses[i] = nullptr;
+        }
+    }
+}
+
+void GrVkResourceProvider::CompatibleRenderPassSet::abandonResources() {
+    for (int i = 0; i < fRenderPasses.count(); ++i) {
+        if (fRenderPasses[i]) {
+            fRenderPasses[i]->unrefAndAbandon();
+            fRenderPasses[i] = nullptr;
+        }
+    }
 }

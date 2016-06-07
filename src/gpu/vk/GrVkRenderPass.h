@@ -27,12 +27,25 @@ public:
         struct AttachmentDesc {
             VkFormat fFormat;
             int fSamples;
-            AttachmentDesc() : fFormat(VK_FORMAT_UNDEFINED), fSamples(0) {}
+            VkAttachmentLoadOp fLoadOp;
+            VkAttachmentStoreOp fStoreOp;
+
+            AttachmentDesc()
+                : fFormat(VK_FORMAT_UNDEFINED)
+                , fSamples(0)
+                , fLoadOp(VK_ATTACHMENT_LOAD_OP_LOAD)
+                , fStoreOp(VK_ATTACHMENT_STORE_OP_STORE) {}
             bool operator==(const AttachmentDesc& right) const {
-                return (fFormat == right.fFormat && fSamples == right.fSamples);
+                return (fFormat == right.fFormat &&
+                        fSamples == right.fSamples &&
+                        fLoadOp == right.fLoadOp &&
+                        fStoreOp == right.fStoreOp);
             }
             bool operator!=(const AttachmentDesc& right) const {
                 return !(*this == right);
+            }
+            bool isCompatible(const AttachmentDesc& desc) const {
+                return (fFormat == desc.fFormat && fSamples == desc.fSamples);
             }
         };
         AttachmentDesc fColor;
@@ -77,7 +90,6 @@ public:
 
 private:
     GrVkRenderPass(const GrVkRenderPass&);
-    GrVkRenderPass& operator=(const GrVkRenderPass&);
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 
