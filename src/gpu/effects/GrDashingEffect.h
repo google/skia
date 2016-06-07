@@ -17,11 +17,17 @@ class GrDrawBatch;
 class GrStyle;
 
 namespace GrDashingEffect {
+    enum class AAMode {
+        kNone,
+        kCoverage,
+        kCoverageWithMSAA,
+    };
+    static const int kAAModeCnt = static_cast<int>(AAMode::kCoverageWithMSAA) + 1;
+
     GrDrawBatch* CreateDashLineBatch(GrColor,
                                      const SkMatrix& viewMatrix,
                                      const SkPoint pts[2],
-                                     bool useAA,
-                                     bool msaaIsEnabled,
+                                     AAMode,
                                      const GrStyle& style);
     bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
                          const SkMatrix& viewMatrix);

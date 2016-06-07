@@ -23,13 +23,22 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrDashLinePathRenderer::onDrawPath");
     bool msaaIsEnabled = args.fDrawContext->isUnifiedMultisampled();
+    GrDashingEffect::AAMode aaMode;
+    if (msaaIsEnabled) {
+        // We ignore args.fAntiAlias here and force anti aliasing when using MSAA. Otherwise,
+        // we can wind up with external edges antialiased and internal edges unantialiased.
+        aaMode = GrDashingEffect::AAMode::kCoverageWithMSAA;
+    } else if (args.fAntiAlias) {
+        aaMode = GrDashingEffect::AAMode::kCoverage;
+    } else {
+        aaMode = GrDashingEffect::AAMode::kNone;
+    }
     SkPoint pts[2];
     SkAssertResult(args.fPath->isLine(pts));
     SkAutoTUnref<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fColor,
                                                                          *args.fViewMatrix,
                                                                          pts,
-                                                                         args.fAntiAlias,
-                                                                         msaaIsEnabled,
+                                                                         aaMode,
                                                                          *args.fStyle));
     if (!batch) {
         return false;
