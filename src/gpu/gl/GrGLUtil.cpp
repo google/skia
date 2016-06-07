@@ -252,6 +252,9 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
         if (0 == strcmp(vendorString, "NVIDIA Corporation")) {
             return kNVIDIA_GrGLVendor;
         }
+        if (0 == strcmp(vendorString, "ATI Technologies Inc.")) {
+            return kATI_GrGLVendor;
+        }
     }
     return kOther_GrGLVendor;
 }

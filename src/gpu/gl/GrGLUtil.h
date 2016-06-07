@@ -40,6 +40,7 @@ enum GrGLVendor {
     kIntel_GrGLVendor,
     kQualcomm_GrGLVendor,
     kNVIDIA_GrGLVendor,
+    kATI_GrGLVendor,
 
     kOther_GrGLVendor
 };

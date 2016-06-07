@@ -546,13 +546,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSampleShadingSupport = true;
     }
 
-    // Manual mip-mapping requires mip-level sampling control.
-    // Additionally, Adreno330 will produce empty mip-maps for the very smallest mips with
-    // our manual (draw-call) implementation.
-    // At least some Mali chips (T604 in Nexus10) produces incorrect (wrt sRGB) mips using draws
+    // We support manual mip-map generation (via iterative downsampling draw calls). This fixes
+    // bugs on some cards/drivers that produce incorrect mip-maps for sRGB textures when using
+    // glGenerateMipmap. Our implementation requires mip-level sampling control. Additionally,
+    // it can be much slower (especially on mobile GPUs), so we opt-in only when necessary:
     if (fMipMapLevelAndLodControlSupport &&
-        kAdreno3xx_GrGLRenderer != ctxInfo.renderer() &&
-        kARM_GrGLVendor != ctxInfo.vendor()) {
+        ((kIntel_GrGLVendor == ctxInfo.vendor()) ||
+         (kNVIDIA_GrGLDriver == ctxInfo.driver() && isMAC) ||
+         (kATI_GrGLVendor == ctxInfo.vendor()))) {
         fDoManualMipmapping = true;
     }
 
