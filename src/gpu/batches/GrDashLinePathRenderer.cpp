@@ -22,9 +22,9 @@ bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrDashLinePathRenderer::onDrawPath");
-    bool msaaIsEnabled = args.fDrawContext->isUnifiedMultisampled();
+    bool useHWAA = args.fDrawContext->isUnifiedMultisampled();
     GrDashingEffect::AAMode aaMode;
-    if (msaaIsEnabled) {
+    if (useHWAA) {
         // We ignore args.fAntiAlias here and force anti aliasing when using MSAA. Otherwise,
         // we can wind up with external edges antialiased and internal edges unantialiased.
         aaMode = GrDashingEffect::AAMode::kCoverageWithMSAA;
@@ -44,7 +44,8 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, msaaIsEnabled);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
+    pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, useHWAA);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
