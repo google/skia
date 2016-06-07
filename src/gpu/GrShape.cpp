@@ -204,11 +204,16 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
         SkStrokeRec strokeRec = parent.fStyle.strokeRec();
         strokeRec.setResScale(scale);
         if (!pe->filterPath(fPath.get(), *srcForPathEffect, &strokeRec, nullptr)) {
-            // Make an empty unstyled shape if filtering fails.
-            fType = Type::kEmpty;
-            fStyle = GrStyle();
-            fPath.reset();
-            return;
+            // If the path effect fails then we continue as though there was no path effect.
+            // If the original was a rrect that we couldn't canonicalize because of the path
+            // effect, then do so now.
+            if (parent.fType == Type::kRRect && (parent.fRRectDir != kDefaultRRectDir ||
+                                                 parent.fRRectStart != kDefaultRRectStart)) {
+                SkASSERT(srcForPathEffect == tmpPath.get());
+                tmpPath.get()->reset();
+                tmpPath.get()->addRRect(parent.fRRect, kDefaultRRectDir, kDefaultRRectDir);
+            }
+            *fPath.get() = *srcForPathEffect;
         }
         // A path effect has access to change the res scale but we aren't expecting it to and it
         // would mess up our key computation.

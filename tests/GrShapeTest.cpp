@@ -892,6 +892,69 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const GEO&
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedFullStyleShape().isEmpty());
 }
 
+template <typename GEO>
+void test_path_effect_fails(skiatest::Reporter* reporter, const GEO& geo) {
+    /**
+     * This path effect returns an empty path.
+     */
+    class FailurePathEffect : SkPathEffect {
+    public:
+        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                        const SkRect* cullR) const override {
+            return false;
+        }
+        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
+            *dst = src;
+        }
+        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new FailurePathEffect); }
+        Factory getFactory() const override { return nullptr; }
+        void toString(SkString*) const override {}
+    private:
+        FailurePathEffect() {}
+    };
+
+    SkPaint fill;
+    TestCase fillCase(geo, fill, reporter);
+
+    SkPaint pe;
+    pe.setPathEffect(FailurePathEffect::Make());
+    TestCase peCase(geo, pe, reporter);
+
+    SkPaint stroke;
+    stroke.setStrokeWidth(2.f);
+    stroke.setStyle(SkPaint::kStroke_Style);
+    TestCase strokeCase(geo, stroke, reporter);
+
+    SkPaint peStroke = stroke;
+    peStroke.setPathEffect(FailurePathEffect::Make());
+    TestCase peStrokeCase(geo, peStroke, reporter);
+
+    // In general the path effect failure can cause some of the TestCase::compare() tests to fail
+    // for at least two reasons: 1) We will initially treat the shape as unkeyable because of the
+    // path effect, but then when the path effect fails we can key it. 2) GrShape will change its
+    // mind about whether a unclosed rect is actually rect. The path effect initially bars us from
+    // closing it but after the effect fails we can (for the fill+pe case). This causes different
+    // routes through GrShape to have equivalent but different representations of the path (closed
+    // or not) but that fill the same.
+    SkPath a;
+    SkPath b;
+    fillCase.appliedPathEffectShape().asPath(&a);
+    peCase.appliedPathEffectShape().asPath(&b);
+    REPORTER_ASSERT(reporter, paths_fill_same(a, b));
+
+    fillCase.appliedFullStyleShape().asPath(&a);
+    peCase.appliedFullStyleShape().asPath(&b);
+    REPORTER_ASSERT(reporter, paths_fill_same(a, b));
+
+    strokeCase.appliedPathEffectShape().asPath(&a);
+    peStrokeCase.appliedPathEffectShape().asPath(&b);
+    REPORTER_ASSERT(reporter, paths_fill_same(a, b));
+
+    strokeCase.appliedFullStyleShape().asPath(&a);
+    peStrokeCase.appliedFullStyleShape().asPath(&b);
+    REPORTER_ASSERT(reporter, paths_fill_same(a, b));
+}
+
 void test_empty_shape(skiatest::Reporter* reporter) {
     SkPath emptyPath;
     SkPaint fill;
@@ -963,6 +1026,7 @@ DEF_TEST(GrShape, reporter) {
         test_path_effect_makes_rrect(reporter, r);
         test_unknown_path_effect(reporter, r);
         test_path_effect_makes_empty_shape(reporter, r);
+        test_path_effect_fails(reporter, r);
         test_make_hairline_path_effect(reporter, r, true);
     }
 
@@ -987,6 +1051,7 @@ DEF_TEST(GrShape, reporter) {
         test_path_effect_makes_rrect(reporter, rr);
         test_unknown_path_effect(reporter, rr);
         test_path_effect_makes_empty_shape(reporter, rr);
+        test_path_effect_fails(reporter, rr);
         test_make_hairline_path_effect(reporter, rr, true);
     }
 
@@ -1049,6 +1114,7 @@ DEF_TEST(GrShape, reporter) {
         test_miter_limit(reporter, path);
         test_unknown_path_effect(reporter, path);
         test_path_effect_makes_empty_shape(reporter, path);
+        test_path_effect_fails(reporter, path);
         test_make_hairline_path_effect(reporter, path, testPath.fIsRRectForStroke);
 
         SkPaint fillPaint;
