@@ -69,12 +69,14 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const SkPath& s
 void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onStencilPath");
+    SkASSERT(!args.fIsAA || args.fDrawContext->isStencilBufferMultisampled());
 
     GrPaint paint;
     SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
     paint.setAntiAlias(args.fIsAA);
 
-    const GrPipelineBuilder pipelineBuilder(paint, args.fDrawContext->isUnifiedMultisampled());
+    GrPipelineBuilder pipelineBuilder(paint, args.fDrawContext->isUnifiedMultisampled());
+    pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, args.fIsAA);
 
     SkASSERT(!args.fPath->isInverseFillType());
     SkAutoTUnref<GrPath> path(get_gr_path(fResourceProvider, *args.fPath, GrStyle::SimpleFill()));
