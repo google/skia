@@ -214,7 +214,7 @@ private:
     // Created by GrVkGpu
     GrVkResourceProvider                   fResourceProvider;
     VkCommandPool                          fCmdPool;
-    GrVkCommandBuffer*                     fCurrentCmdBuffer;
+    GrVkPrimaryCommandBuffer*              fCurrentCmdBuffer;
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
 #ifdef ENABLE_VK_LAYERS

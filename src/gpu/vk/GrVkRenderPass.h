@@ -110,6 +110,8 @@ public:
     // basic RenderPasses that can be used when creating a VkFrameBuffer object.
     bool isCompatible(const GrVkRenderTarget& target) const;
 
+    bool isCompatible(const GrVkRenderPass& renderPass) const;
+
     bool equalLoadStoreOps(const LoadStoreOps& colorOps,
                            const LoadStoreOps& resolveOps,
                            const LoadStoreOps& stencilOps) const;
@@ -125,6 +127,8 @@ private:
               const LoadStoreOps& colorOps,
               const LoadStoreOps& resolveOps,
               const LoadStoreOps& stencilOps);
+
+    bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 

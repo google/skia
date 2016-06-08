@@ -128,7 +128,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
 
     // must call this after creating the CommandPool
     fResourceProvider.init();
-    fCurrentCmdBuffer = fResourceProvider.createCommandBuffer();
+    fCurrentCmdBuffer = fResourceProvider.createPrimaryCommandBuffer();
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->begin(this);
 }
@@ -169,7 +169,7 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 
     // Release old command buffer and create a new one
     fCurrentCmdBuffer->unref(this);
-    fCurrentCmdBuffer = fResourceProvider.createCommandBuffer();
+    fCurrentCmdBuffer = fResourceProvider.createPrimaryCommandBuffer();
     SkASSERT(fCurrentCmdBuffer);
 
     fCurrentCmdBuffer->begin(this);

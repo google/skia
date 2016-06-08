@@ -25,7 +25,7 @@
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrTextureParams;
-class GrVkCommandBuffer;
+class GrVkPrimaryCommandBuffer;
 class GrVkGpu;
 class GrVkPipeline;
 class GrVkRenderTarget;
@@ -77,7 +77,7 @@ public:
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
 
-    GrVkCommandBuffer* createCommandBuffer();
+    GrVkPrimaryCommandBuffer* createPrimaryCommandBuffer();
     void checkCommandBuffers();
 
     // Finds or creates a compatible GrVkDescriptorPool for the requested type and count.
@@ -201,7 +201,7 @@ private:
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 
     // Array of CommandBuffers that are currently in flight
-    SkSTArray<4, GrVkCommandBuffer*> fActiveCommandBuffers;
+    SkSTArray<4, GrVkPrimaryCommandBuffer*> fActiveCommandBuffers;
 
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates

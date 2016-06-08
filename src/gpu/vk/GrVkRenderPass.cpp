@@ -233,11 +233,8 @@ void GrVkRenderPass::getBeginInfo(const GrVkRenderTarget& target,
     *contents = VK_SUBPASS_CONTENTS_INLINE;
 }
 
-bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
-    AttachmentsDescriptor desc;
-    AttachmentFlags flags;
-    target.getAttachmentsDescriptor(&desc, &flags);
-
+bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,
+                                  const AttachmentFlags& flags) const {
     if (flags != fAttachmentFlags) {
         return false;
     }
@@ -259,6 +256,18 @@ bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
     }
 
     return true;
+}
+
+bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
+    AttachmentsDescriptor desc;
+    AttachmentFlags flags;
+    target.getAttachmentsDescriptor(&desc, &flags);
+
+    return this->isCompatible(desc, flags);
+}
+
+bool GrVkRenderPass::isCompatible(const GrVkRenderPass& renderPass) const {
+    return this->isCompatible(renderPass.fAttachmentsDescriptor, renderPass.fAttachmentFlags);
 }
 
 bool GrVkRenderPass::equalLoadStoreOps(const LoadStoreOps& colorOps,

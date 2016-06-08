@@ -215,8 +215,8 @@ void GrVkResourceProvider::getUniformDescriptorSet(VkDescriptorSet* ds,
     *outPool = fUniformDescPool;
 }
 
-GrVkCommandBuffer* GrVkResourceProvider::createCommandBuffer() {
-    GrVkCommandBuffer* cmdBuffer = GrVkCommandBuffer::Create(fGpu, fGpu->cmdPool());
+GrVkPrimaryCommandBuffer* GrVkResourceProvider::createPrimaryCommandBuffer() {
+    GrVkPrimaryCommandBuffer* cmdBuffer = GrVkPrimaryCommandBuffer::Create(fGpu, fGpu->cmdPool());
     fActiveCommandBuffers.push_back(cmdBuffer);
     cmdBuffer->ref();
     return cmdBuffer;
