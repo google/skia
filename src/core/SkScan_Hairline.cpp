@@ -7,6 +7,7 @@
 
 #include "SkScan.h"
 #include "SkBlitter.h"
+#include "SkMathPriv.h"
 #include "SkRasterClip.h"
 #include "SkFDot6.h"
 #include "SkLineClipper.h"

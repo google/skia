@@ -34,6 +34,7 @@
 #include "SkData.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
+#include "SkLeanWindows.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"

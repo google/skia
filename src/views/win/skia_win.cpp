@@ -4,10 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <windows.h>
-#include <tchar.h>
 
 #include "SkTypes.h"
+
+#include <tchar.h>
+
 #include "SkApplication.h"
 #include "SkOSWindow_Win.h"
 

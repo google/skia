@@ -14,6 +14,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkData.h"
 #include "SkEndian.h"
+#include "SkMathPriv.h"
 #include "SkOpts.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT

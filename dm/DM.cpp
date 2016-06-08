@@ -22,6 +22,7 @@
 #include "SkFontMgr.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
+#include "SkLeanWindows.h"
 #include "SkMD5.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"

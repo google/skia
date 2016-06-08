@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkLeanWindows.h"
 #include "SkString.h"
 #include "SkTime.h"
 #include "SkTypes.h"
@@ -25,10 +26,8 @@ void SkTime::DateTime::toISO8601(SkString* dst) const {
     }
 }
 
-
 #ifdef SK_BUILD_FOR_WIN32
 
-#include "windows.h"
 void SkTime::GetDateTime(DateTime* dt) {
     if (dt) {
         SYSTEMTIME st;

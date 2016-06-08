@@ -11,10 +11,10 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkDWrite.h"
 #include "SkHRESULT.h"
+#include "SkLeanWindows.h"
 #include "SkTScopedComPtr.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
-#include "SkTypes.h"
 
 #include <dwrite.h>
 #if SK_HAS_DWRITE_1_H

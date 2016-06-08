@@ -8,7 +8,7 @@
 #ifndef SkTScopedComPtr_DEFINED
 #define SkTScopedComPtr_DEFINED
 
-#include "SkTypes.h"
+#include "../../private/SkLeanWindows.h"
 
 #ifdef SK_BUILD_FOR_WIN
 

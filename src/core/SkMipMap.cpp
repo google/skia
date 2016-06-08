@@ -9,7 +9,7 @@
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkHalf.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 #include "SkNx.h"
 #include "SkTypes.h"
 

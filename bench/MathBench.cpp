@@ -8,6 +8,7 @@
 #include "Benchmark.h"
 #include "SkColorPriv.h"
 #include "SkFixed.h"
+#include "SkMathPriv.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkRandom.h"

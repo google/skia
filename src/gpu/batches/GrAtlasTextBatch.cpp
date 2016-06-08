@@ -11,6 +11,7 @@
 #include "GrResourceProvider.h"
 
 #include "SkGlyphCache.h"
+#include "SkMathPriv.h"
 
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"

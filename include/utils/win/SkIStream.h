@@ -14,8 +14,7 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "../../private/SkLeanWindows.h"
 #include <ole2.h>
 
 class SkStream;

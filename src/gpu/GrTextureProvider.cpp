@@ -10,6 +10,7 @@
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "../private/GrSingleOwner.h"
+#include "SkMathPriv.h"
 #include "SkTArray.h"
 
 #define ASSERT_SINGLE_OWNER \

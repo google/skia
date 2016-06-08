@@ -8,6 +8,8 @@
 
 #if defined(SK_BUILD_FOR_WIN)
 
+#include "SkLeanWindows.h"
+
 #include <GL/gl.h>
 #include <WindowsX.h>
 #include "win/SkWGL.h"

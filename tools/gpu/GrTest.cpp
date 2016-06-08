@@ -16,6 +16,7 @@
 
 #include "SkGpuDevice.h"
 #include "SkGrPriv.h"
+#include "SkMathPriv.h"
 #include "SkString.h"
 
 #include "text/GrBatchFontCache.h"

@@ -10,7 +10,7 @@
 
 #include "SkBlitter.h"
 #include "SkEndian.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 
 // This table contains the weight values for each texel. This is used in determining
 // how to convert a 12x12 grid of alpha values into a 6x5 grid of index values. Since

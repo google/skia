@@ -180,7 +180,7 @@ static void test_path_to_region(skiatest::Reporter* reporter) {
     }
 }
 
-#if defined(WIN32)
+#ifdef SK_BUILD_FOR_WIN
     #define SUPPRESS_VISIBILITY_WARNING
 #else
     #define SUPPRESS_VISIBILITY_WARNING __attribute__((visibility("hidden")))

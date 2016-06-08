@@ -9,6 +9,7 @@
 
 #include "GrTypes.h"
 #include "SkGeometry.h"
+#include "SkMathPriv.h"
 
 SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
                                           const SkMatrix& viewM,

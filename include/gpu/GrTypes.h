@@ -108,20 +108,6 @@ static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Return the next power of 2 >= n.
- */
-static inline uint32_t GrNextPow2(uint32_t n) {
-    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
-}
-
-static inline int GrNextPow2(int n) {
-    SkASSERT(n >= 0); // this impl only works for non-neg.
-    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
  * Possible 3D APIs that may be used by Ganesh.
  */
 enum GrBackend {

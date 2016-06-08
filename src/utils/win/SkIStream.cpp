@@ -8,9 +8,6 @@
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN32)
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <ole2.h>
 #include "SkIStream.h"
 #include "SkStream.h"
 

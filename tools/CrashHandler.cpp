@@ -7,7 +7,7 @@
 
 #include "CrashHandler.h"
 
-#include "SkTypes.h"
+#include "../private/SkLeanWindows.h"
 
 #include <stdlib.h>
 

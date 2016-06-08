@@ -21,7 +21,7 @@
 #include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
-#include "SkTypes.h"
+#include "SkMathPriv.h"
 
 GrMesh& GrMesh::operator =(const GrMesh& di) {
     fPrimitiveType  = di.fPrimitiveType;

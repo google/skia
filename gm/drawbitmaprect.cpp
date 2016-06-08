@@ -12,6 +12,7 @@
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkImage_Base.h"
+#include "SkMathPriv.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 

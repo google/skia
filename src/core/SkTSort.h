@@ -10,7 +10,7 @@
 #define SkTSort_DEFINED
 
 #include "SkTypes.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 
 /* A comparison functor which performs the comparison 'a < b'. */
 template <typename T> struct SkTCompareLT {

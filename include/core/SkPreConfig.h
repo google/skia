@@ -210,7 +210,7 @@
 #endif
 
 #if defined(SKIA_DLL)
-    #if defined(WIN32)
+    #if defined(SK_BUILD_FOR_WIN32)
         #if SKIA_IMPLEMENTATION
             #define SK_API __declspec(dllexport)
         #else

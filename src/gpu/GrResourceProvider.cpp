@@ -15,6 +15,7 @@
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
 #include "GrStencilAttachment.h"
+#include "SkMathPriv.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
 

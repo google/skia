@@ -7,11 +7,11 @@
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN32)
 
+#include "SkLeanWindows.h"
+
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLUtil.h"
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 class AutoLibraryUnload {
 public:

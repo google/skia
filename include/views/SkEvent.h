@@ -12,6 +12,8 @@
 #include "SkMetaData.h"
 #include "SkString.h"
 
+#include "../private/SkLeanWindows.h"
+
 /** Unique 32bit id used to identify an instance of SkEventSink. When events are
     posted, they are posted to a specific sinkID. When it is time to dispatch the
     event, the sinkID is used to find the specific SkEventSink object. If it is found,
