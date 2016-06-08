@@ -36,7 +36,7 @@ public:
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    GrPipelineBuilder(const GrPaint&, bool targetHasUnifiedMultisampling);
+    GrPipelineBuilder(const GrPaint&, bool useHWAA = false);
 
     virtual ~GrPipelineBuilder();
 

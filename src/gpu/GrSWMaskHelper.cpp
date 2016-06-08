@@ -185,7 +185,7 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     maskMatrix.setIDiv(texture->width(), texture->height());
     maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
 
-    GrPipelineBuilder pipelineBuilder(*paint, drawContext->isUnifiedMultisampled());
+    GrPipelineBuilder pipelineBuilder(*paint, drawContext->mustUseHWAA(*paint));
     pipelineBuilder.setUserStencil(userStencilSettings);
 
     pipelineBuilder.addCoverageFragmentProcessor(

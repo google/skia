@@ -44,8 +44,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
-    pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, useHWAA);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, useHWAA);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);

@@ -667,7 +667,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                     GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
                                                         &localMatrix));
 
-            GrPipelineBuilder pipelineBuilder(paint, drawContext->isUnifiedMultisampled());
+            GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
             if (passes[p]) {
                 pipelineBuilder.setUserStencil(passes[p]);
@@ -688,7 +688,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                 return false;
             }
 
-            GrPipelineBuilder pipelineBuilder(paint, drawContext->isUnifiedMultisampled());
+            GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
             if (passes[p]) {
                 pipelineBuilder.setUserStencil(passes[p]);

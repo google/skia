@@ -9,6 +9,7 @@
 #define GrDrawContext_DEFINED
 
 #include "GrColor.h"
+#include "GrPaint.h"
 #include "GrRenderTarget.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
@@ -250,19 +251,15 @@ public:
                        const SkIRect& center,
                        const SkRect& dst);
 
-    /**
-     * Draws a batch
-     *
-     * @param paint    describes how to color pixels.
-     * @param batch    the batch to draw
-     */
-    void drawBatch(const GrClip&, const GrPaint&, GrDrawBatch*);
-
     bool isStencilBufferMultisampled() const {
         return fRenderTarget->isStencilBufferMultisampled();
     }
     bool isUnifiedMultisampled() const { return fRenderTarget->isUnifiedMultisampled(); }
     bool hasMixedSamples() const { return fRenderTarget->hasMixedSamples(); }
+
+    bool mustUseHWAA(const GrPaint& paint) const {
+        return paint.isAntiAlias() && fRenderTarget->isUnifiedMultisampled();
+    }
 
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
@@ -326,7 +323,8 @@ private:
 
     GrDrawBatch* getFillRectBatch(const GrPaint& paint,
                                   const SkMatrix& viewMatrix,
-                                  const SkRect& rect);
+                                  const SkRect& rect,
+                                  bool* useHWAA);
 
     void internalDrawPath(const GrClip& clip,
                           const GrPaint& paint,

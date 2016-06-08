@@ -530,6 +530,8 @@ private:
 bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrAADistanceFieldPathRenderer::onDrawPath");
+    SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
+
     // we've already bailed on inverse filled paths, so this is safe
     if (args.fPath->isEmpty()) {
         return true;
@@ -565,7 +567,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                      &fPathCache, &fPathList,
                                                                      args.fGammaCorrect));
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
+    GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);

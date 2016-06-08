@@ -70,7 +70,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrDrawContext* drawContext,
     SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect,
                                                                         nullptr, &localMatrix));
 
-    GrPipelineBuilder pipelineBuilder(*paint, drawContext->isUnifiedMultisampled());
+    GrPipelineBuilder pipelineBuilder(*paint, drawContext->mustUseHWAA(*paint));
     pipelineBuilder.setUserStencil(userStencilSettings);
 
     drawContext->drawBatch(pipelineBuilder, clip, batch);

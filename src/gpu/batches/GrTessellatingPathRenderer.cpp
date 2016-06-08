@@ -297,7 +297,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                   *args.fStyle, *args.fViewMatrix,
                                                                   clipBounds));
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);

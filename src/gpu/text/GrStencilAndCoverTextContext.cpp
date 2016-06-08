@@ -82,7 +82,7 @@ void GrStencilAndCoverTextContext::drawText(GrContext* context, GrDrawContext* d
     } else if (this->canDraw(skPaint, viewMatrix)) {
         if (skPaint.getTextSize() > 0) {
             TextRun run(skPaint);
-            GrPipelineBuilder pipelineBuilder(paint, dc->isUnifiedMultisampled());
+            GrPipelineBuilder pipelineBuilder(paint);
             run.setText(text, byteLength, x, y);
             run.draw(context, dc, &pipelineBuilder, clip, paint.getColor(), viewMatrix, props, 0, 0,
                      clipBounds, fFallbackTextContext, skPaint);
@@ -117,7 +117,7 @@ void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrDrawContext
     } else if (this->canDraw(skPaint, viewMatrix)) {
         if (skPaint.getTextSize() > 0) {
             TextRun run(skPaint);
-            GrPipelineBuilder pipelineBuilder(paint, dc->isUnifiedMultisampled());
+            GrPipelineBuilder pipelineBuilder(paint);
             run.setPosText(text, byteLength, pos, scalarsPerPosition, offset);
             run.draw(context, dc, &pipelineBuilder, clip, paint.getColor(), viewMatrix, props, 0, 0,
                      clipBounds, fFallbackTextContext, skPaint);
@@ -225,7 +225,7 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrDrawContex
     }
 
     const TextBlob& blob = this->findOrCreateTextBlob(skBlob, skPaint);
-    GrPipelineBuilder pipelineBuilder(paint, dc->isUnifiedMultisampled());
+    GrPipelineBuilder pipelineBuilder(paint);
 
     TextBlob::Iter iter(blob);
     for (TextRun* run = iter.get(); run; run = iter.next()) {

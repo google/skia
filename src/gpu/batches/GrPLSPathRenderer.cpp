@@ -986,7 +986,7 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkAutoTUnref<GrDrawBatch> batch(PLSPathBatch::Create(geometry));
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->isUnifiedMultisampled());
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fDrawContext->mustUseHWAA(*args.fPaint));
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);

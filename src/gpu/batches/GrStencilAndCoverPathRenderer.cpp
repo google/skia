@@ -75,8 +75,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
     paint.setAntiAlias(args.fIsAA);
 
-    GrPipelineBuilder pipelineBuilder(paint, args.fDrawContext->isUnifiedMultisampled());
-    pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, args.fIsAA);
+    const GrPipelineBuilder pipelineBuilder(paint, args.fIsAA);
 
     SkASSERT(!args.fPath->isInverseFillType());
     SkAutoTUnref<GrPath> path(get_gr_path(fResourceProvider, *args.fPath, GrStyle::SimpleFill()));
@@ -90,6 +89,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onDrawPath");
+    SkASSERT(!args.fPaint->isAntiAlias() || args.fDrawContext->isStencilBufferMultisampled());
     SkASSERT(!args.fStyle->strokeRec().isHairlineStyle());
     const SkPath& path = *args.fPath;
     const SkMatrix& viewMatrix = *args.fViewMatrix;
@@ -112,13 +112,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
         // fake inverse with a stencil and cover
         {
-            GrPipelineBuilder pipelineBuilder(*args.fPaint,
-                                              args.fDrawContext->isUnifiedMultisampled());
+            GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fPaint->isAntiAlias());
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
-            if (args.fAntiAlias) {
-                SkASSERT(args.fDrawContext->isStencilBufferMultisampled());
-                pipelineBuilder.enableState(GrPipelineBuilder::kHWAntialias_Flag);
-            }
 
             args.fDrawContext->drawContextPriv().stencilPath(pipelineBuilder, *args.fClip,
                                                              viewMatrix, p, p->getFillType());
@@ -144,23 +139,17 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
-        SkAutoTUnref<GrDrawBatch> batch(
+        SkAutoTUnref<GrDrawBatch> coverBatch(
                 GrRectBatchFactory::CreateNonAAFill(args.fColor, viewM, bounds, nullptr,
                                                     &invert));
 
         {
             GrPipelineBuilder pipelineBuilder(*args.fPaint,
-                                              args.fDrawContext->isUnifiedMultisampled());
+                                              args.fPaint->isAntiAlias() &&
+                                              !args.fDrawContext->hasMixedSamples());
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
-            if (args.fAntiAlias) {
-                SkASSERT(args.fDrawContext->isStencilBufferMultisampled());
-                pipelineBuilder.enableState(GrPipelineBuilder::kHWAntialias_Flag);
-            }
-            if (args.fDrawContext->hasMixedSamples()) {
-                pipelineBuilder.disableState(GrPipelineBuilder::kHWAntialias_Flag);
-            }
 
-            args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+            args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, coverBatch);
         }
     } else {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -176,8 +165,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkAutoTUnref<GrDrawBatch> batch(
                 GrDrawPathBatch::Create(viewMatrix, args.fColor, p->getFillType(), p));
 
-        GrPipelineBuilder pipelineBuilder(*args.fPaint,
-                                          args.fDrawContext->isUnifiedMultisampled());
+        GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fPaint->isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);
         if (args.fAntiAlias) {
             SkASSERT(args.fDrawContext->isStencilBufferMultisampled());

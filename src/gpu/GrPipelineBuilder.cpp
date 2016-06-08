@@ -22,7 +22,7 @@ GrPipelineBuilder::GrPipelineBuilder()
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
-GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool targetHasUnifiedMultisampling)
+GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA)
     : GrPipelineBuilder() {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
@@ -36,8 +36,7 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool targetHasUnified
 
     fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
-    this->setState(GrPipelineBuilder::kHWAntialias_Flag,
-                   targetHasUnifiedMultisampling && paint.isAntiAlias());
+    this->setState(GrPipelineBuilder::kHWAntialias_Flag, useHWAA);
     this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
                    paint.getDisableOutputConversionToSRGB());
     this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,

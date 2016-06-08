@@ -562,7 +562,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                     GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
                                                         &localMatrix));
 
-            GrPipelineBuilder pipelineBuilder(paint, drawContext->isUnifiedMultisampled());
+            GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
             if (passes[p]) {
                 pipelineBuilder.setUserStencil(passes[p]);
@@ -581,7 +581,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                                                                      viewMatrix, isHairline,
                                                                      devBounds));
 
-            GrPipelineBuilder pipelineBuilder(paint, drawContext->isUnifiedMultisampled());
+            GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
             pipelineBuilder.setDrawFace(drawFace[p]);
             if (passes[p]) {
                 pipelineBuilder.setUserStencil(passes[p]);

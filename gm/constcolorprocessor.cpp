@@ -107,8 +107,7 @@ protected:
                     GrColor color = kColors[procColor];
                     SkAutoTUnref<GrFragmentProcessor> fp(GrConstColorProcessor::Create(color, mode));
 
-                    GrPipelineBuilder pipelineBuilder(grPaint,
-                                                      drawContext->isUnifiedMultisampled());
+                    GrPipelineBuilder pipelineBuilder(grPaint, drawContext->mustUseHWAA(grPaint));
                     pipelineBuilder.addColorFragmentProcessor(fp);
 
                     SkAutoTUnref<GrDrawBatch> batch(
