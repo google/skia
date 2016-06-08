@@ -734,10 +734,10 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
     memset(&blitRegion, 0, sizeof(VkImageBlit));
     blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.srcOffsets[0] = { 0, 0, 0 };
-    blitRegion.srcOffsets[1] = { width, height, 0 };
+    blitRegion.srcOffsets[1] = { width, height, 1 };
     blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.dstOffsets[0] = { 0, 0, 0 };
-    blitRegion.dstOffsets[1] = { width, height, 0 };
+    blitRegion.dstOffsets[1] = { width, height, 1 };
 
     fCurrentCmdBuffer->blitImage(this,
                                  oldResource,
@@ -780,10 +780,10 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) const {
 
         blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel - 1, 0, 1 };
         blitRegion.srcOffsets[0] = { 0, 0, 0 };
-        blitRegion.srcOffsets[1] = { prevWidth, prevHeight, 0 };
+        blitRegion.srcOffsets[1] = { prevWidth, prevHeight, 1 };
         blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
         blitRegion.dstOffsets[0] = { 0, 0, 0 };
-        blitRegion.dstOffsets[1] = { width, height, 0 };
+        blitRegion.dstOffsets[1] = { width, height, 1 };
         fCurrentCmdBuffer->blitImage(this,
                                      *tex,
                                      *tex,
