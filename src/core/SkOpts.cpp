@@ -16,6 +16,7 @@
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
+#include "SkColorXform_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
@@ -75,6 +76,9 @@ namespace SkOpts {
     decltype(float_to_half) float_to_half = sk_default::float_to_half;
 
     decltype(srcover_srgb_srgb) srcover_srgb_srgb = sk_default::srcover_srgb_srgb;
+
+    decltype(color_xform_2Dot2_RGBA_to_8888) color_xform_2Dot2_RGBA_to_8888 =
+            sk_default::color_xform_2Dot2_RGBA_to_8888;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

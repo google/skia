@@ -34,17 +34,15 @@ public:
     virtual ~SkColorSpaceXform() {}
 };
 
-class SkGammaByValueXform : public SkColorSpaceXform {
+class Sk2Dot2Xform : public SkColorSpaceXform {
 public:
 
     void xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
 
 private:
-    SkGammaByValueXform(float srcGammas[3], const SkMatrix44& srcToDst, float dstGammas[3]);
+    Sk2Dot2Xform(const SkMatrix44& srcToDst);
 
-    float            fSrcGammas[3];
-    const SkMatrix44 fSrcToDst;
-    float            fDstGammas[3];
+    float fSrcToDst[16];
 
     friend class SkColorSpaceXform;
 };

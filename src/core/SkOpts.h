@@ -68,6 +68,11 @@ namespace SkOpts {
     // Blend ndst src pixels over dst, where both src and dst point to sRGB pixels (RGBA or BGRA).
     // If nsrc < ndst, we loop over src to create a pattern.
     extern void (*srcover_srgb_srgb)(uint32_t* dst, const uint32_t* src, int ndst, int nsrc);
+
+    // Color xform RGBA input into SkPMColor ordered 8888 pixels.  Does not premultiply, and
+    // assumes src and dst gamma curves are both 2.2f exponentials.
+    extern void (*color_xform_2Dot2_RGBA_to_8888)(uint32_t* dst, const uint32_t* src, int len,
+                                                  const float srcToDstMatrix[16]);
 }
 
 #endif//SkOpts_DEFINED

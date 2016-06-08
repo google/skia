@@ -172,6 +172,10 @@ void ColorCodecBench::onDelayedSetup() {
     if (FLAGS_qcms) {
         fDstSpaceQCMS.reset(qcms_profile_from_memory(dstData->data(), dstData->size()));
         SkASSERT(fDstSpaceQCMS);
+
+        // This call takes a non-trivial amount of time, but I think it's the most fair to
+        // treat it as overhead.  It only needs to happen once.
+        qcms_profile_precache_output_transform(fDstSpaceQCMS);
     } else
 #endif
     {
