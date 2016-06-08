@@ -268,7 +268,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // GeneralSampler handles all the different sampling scenarios. It makes runtime decisions to
-// choose the fastest stratagy given a particular job. It ultimately uses PixelGetters to access
+// choose the fastest strategy given a particular job. It ultimately uses PixelGetters to access
 // the pixels.
 template<SkColorType colorType, SkColorProfileType colorProfile, typename Next>
 class GeneralSampler {
@@ -312,12 +312,13 @@ public:
         }
     }
 
-    Sk4f bilerNonEdgePixel(SkScalar x, SkScalar y) {
+    Sk4f bilerpNonEdgePixel(SkScalar x, SkScalar y) {
         Sk4f px00, px10, px01, px11;
-        Sk4f xs = Sk4f{x};
-        Sk4f ys = Sk4f{y};
-        Sk4f sampleXs = xs + Sk4f{-0.5f, 0.5f, -0.5f, 0.5f};
-        Sk4f sampleYs = ys + Sk4f{-0.5f, -0.5f, 0.5f, 0.5f};
+        // bilerp4() expects xs, ys are the top-lefts of the 2x2 kernel.
+        Sk4f xs = Sk4f{x} - 0.5f;
+        Sk4f ys = Sk4f{y} - 0.5f;
+        Sk4f sampleXs = xs + Sk4f{0.0f, 1.0f, 0.0f, 1.0f};
+        Sk4f sampleYs = ys + Sk4f{0.0f, 0.0f, 1.0f, 1.0f};
         fStrategy.get4Pixels(sampleXs, sampleYs, &px00, &px10, &px01, &px11);
         return bilerp4(xs, ys, px00, px10, px01, px11);
     }
@@ -325,7 +326,7 @@ public:
     void VECTORCALL bilerpListFew(int n, Sk4s xs, Sk4s ys) {
         SkASSERT(0 < n && n < 4);
         auto bilerpPixel = [&](int index) {
-            return this->bilerNonEdgePixel(xs[index], ys[index]);
+            return this->bilerpNonEdgePixel(xs[index], ys[index]);
         };
 
         if (n >= 1) fNext->blendPixel(bilerpPixel(0));
@@ -335,7 +336,7 @@ public:
 
     void VECTORCALL bilerpList4(Sk4s xs, Sk4s ys) {
         auto bilerpPixel = [&](int index) {
-            return this->bilerNonEdgePixel(xs[index], ys[index]);
+            return this->bilerpNonEdgePixel(xs[index], ys[index]);
         };
         fNext->blend4Pixels(bilerpPixel(0), bilerpPixel(1), bilerpPixel(2), bilerpPixel(3));
     }
@@ -514,11 +515,9 @@ private:
         SkScalar length;
         int count;
         std::tie(start, length, count) = span;
-        SkFixed fx = SkScalarToFixed(X(start)
-                                         -0.5f);
+        SkFixed fx = SkScalarToFixed(X(start)-0.5f);
 
         SkFixed fdx = SkScalarToFixed(length / (count - 1));
-        //start = start + SkPoint{-0.5f, -0.5f};
 
         Sk4f xAdjust;
         if (fdx >= 0) {
@@ -751,7 +750,10 @@ private:
         std::tie(start, length, count) = span;
         SkScalar x = X(start);
         SkScalar y = Y(start);
-        if (false && y == y1) {
+        // In this sampler, it is assumed that if span.StartY() and y1 are the same then both
+        // y-lines are on the same tile.
+        if (y == y1) {
+            // Both y-lines are on the same tile.
             struct BilerpWrapper {
                 void VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) {
                     fSampler.bilerpListFew(n, xs, ys);
@@ -766,6 +768,7 @@ private:
             BilerpWrapper wrapper{*this};
             span_fallback(span, &wrapper);
         } else {
+            // The y-lines are on different tiles.
             SkScalar dx = length / (count - 1);
             Sk4f ys = {y - 0.5f, y - 0.5f, y1 + 0.5f, y1 + 0.5f};
             while (count > 0) {
