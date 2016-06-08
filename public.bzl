@@ -79,9 +79,6 @@ BASE_SRCS_ALL = struct(
         "third_party/etc1/*.h",
         "third_party/ktx/*.cpp",
         "third_party/ktx/*.h",
-
-        "third_party/libpng/*.c",
-        "third_party/libpng/*.h",
     ],
     exclude = PRIVATE_HDRS_LIST + [
         # Exclude platform-dependent files.
@@ -386,7 +383,6 @@ INCLUDES = [
     "src/utils",
     "third_party/etc1",
     "third_party/ktx",
-    "third_party/libpng",
 ]
 
 ################################################################################
