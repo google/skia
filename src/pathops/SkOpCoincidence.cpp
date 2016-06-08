@@ -90,6 +90,9 @@ bool SkOpCoincidence::addExpanded(SkChunkAlloc* allocator
         }
         SkOpSpanBase* test = start->upCast()->next();
         SkOpSpanBase* oTest = coin->fFlipped ? oStart->prev() : oStart->upCast()->next();
+        if (!oTest) {
+            return false;
+        }
         while (test != end || oTest != oEnd) {
             if (!test->ptT()->contains(oTest->ptT())) {
                 // use t ranges to guess which one is missing

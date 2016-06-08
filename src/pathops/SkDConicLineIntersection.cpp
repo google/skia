@@ -103,9 +103,14 @@ public:
         for (int index = 0; index < roots; ++index) {
             double conicT = rootVals[index];
             double lineT = this->findLineT(conicT);
-            SkDEBUGCODE(SkDPoint conicPt = fConic.ptAtT(conicT));
-            SkDEBUGCODE(SkDPoint linePt = fLine->ptAtT(lineT));
-            SkASSERT(conicPt.approximatelyEqual(linePt));
+#ifdef SK_DEBUG
+            if (!fIntersections->debugGlobalState()
+                    || !fIntersections->debugGlobalState()->debugSkipAssert()) {
+                SkDEBUGCODE(SkDPoint conicPt = fConic.ptAtT(conicT));
+                SkDEBUGCODE(SkDPoint linePt = fLine->ptAtT(lineT));
+                SkASSERT(conicPt.approximatelyEqual(linePt));
+            }
+#endif
             SkDPoint pt;
             if (this->pinTs(&conicT, &lineT, &pt, kPointUninitialized)
                     && this->uniqueAnswer(conicT, pt)) {

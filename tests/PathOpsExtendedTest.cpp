@@ -488,15 +488,17 @@ static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
 #endif
 
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
-             bool expectSuccess  SkDEBUGPARAMS(const char* testName));
+             bool expectSuccess  SkDEBUGPARAMS(bool skipAssert)
+             SkDEBUGPARAMS(const char* testName));
 
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-        const SkPathOp shapeOp, const char* testName, bool expectSuccess) {
+        const SkPathOp shapeOp, const char* testName, bool expectSuccess, bool skipAssert) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showName(a, b, shapeOp);
 #endif
     SkPath out;
-    if (!OpDebug(a, b, shapeOp, &out, expectSuccess  SkDEBUGPARAMS(testName))) {
+    if (!OpDebug(a, b, shapeOp, &out, expectSuccess  SkDEBUGPARAMS(skipAssert)
+            SkDEBUGPARAMS(testName))) {
         SkDebugf("%s did not expect failure\n", __FUNCTION__);
         REPORTER_ASSERT(reporter, 0);
         return false;
@@ -536,17 +538,22 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
 
 bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, true);
+    return innerPathOp(reporter, a, b, shapeOp, testName, true, false);
 }
 
 bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, bool checkFail) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, checkFail);
+    return innerPathOp(reporter, a, b, shapeOp, testName, checkFail, false);
 }
 
 bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, false);
+    return innerPathOp(reporter, a, b, shapeOp, testName, false, false);
+}
+
+bool testPathSkipAssertOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+        const SkPathOp shapeOp, const char* testName) {
+    return innerPathOp(reporter, a, b, shapeOp, testName, true, true);
 }
 
 bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,

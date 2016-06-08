@@ -31,6 +31,7 @@ class SkIntersectionHelper;
 class SkOpGlobalState {
 public:
     SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head
+                    SkDEBUGPARAMS(bool debugSkipAssert)
                     SkDEBUGPARAMS(const char* testName));
 
     enum Phase {
@@ -69,6 +70,7 @@ public:
     const class SkOpPtT* debugPtT(int id) const;
     bool debugRunFail() const;
     const class SkOpSegment* debugSegment(int id) const;
+    bool debugSkipAssert() const { return fDebugSkipAssert; }
     const class SkOpSpanBase* debugSpan(int id) const;
     const char* debugTestName() const { return fDebugTestName; }
 #endif
@@ -152,6 +154,7 @@ private:
     int fPtTID;
     int fSegmentID;
     int fSpanID;
+    bool fDebugSkipAssert;
 #endif
 #if DEBUG_T_SECT_LOOP_COUNT
     int fDebugLoopCount[3];

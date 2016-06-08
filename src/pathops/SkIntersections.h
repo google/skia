@@ -15,9 +15,10 @@
 
 class SkIntersections {
 public:
-    SkIntersections()
+    SkIntersections(SkDEBUGCODE(SkOpGlobalState* globalState = nullptr))
         : fSwap(0)
 #ifdef SK_DEBUG
+        SkDEBUGPARAMS(fDebugGlobalState(globalState))
         , fDepth(0)
 #endif
     {
@@ -101,6 +102,10 @@ public:
         fMax = 3;
         return intersect(cubic, line);
     }
+
+#ifdef SK_DEBUG
+    SkOpGlobalState* debugGlobalState() { return fDebugGlobalState; }
+#endif
 
     bool hasT(double t) const {
         SkASSERT(t == 0 || t == 1);
@@ -309,6 +314,7 @@ private:
     bool fAllowNear;
     bool fSwap;
 #ifdef SK_DEBUG
+    SkOpGlobalState* fDebugGlobalState;
     int fDepth;
 #endif
 #if DEBUG_T_SECT_LOOP_COUNT
