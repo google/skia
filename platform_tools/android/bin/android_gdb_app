@@ -5,12 +5,26 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh "$@"
-
-APP_NAME=${APP_ARGS[0]}
-PORT=5039
-
 source $SCRIPT_DIR/utils/setup_adb.sh
 
+app=${APP_ARGS[0]}
+if [[ ${app} == '-'* ]]; then
+    echo "Defaulting to running SampleApp."
+    app="SampleApp"
+    APP_ARGS=( "SampleApp" ${APP_ARGS[*]} )
+fi
+PORT=5039
+
+if [[ ${app} == 'SampleApp' ]]; then
+    activity="com.skia.sample_app/com.skia.SkiaSampleActivity"
+    activityShort="com.skia.sample_app"
+elif [[ ${app} == "Viewer" ]] ; then
+    activity="org.skia.viewer/org.skia.viewer.ViewerActivity"
+    activityShort="org.skia.viewer"
+else
+    echo "ERROR: supports either 'SampleApp' or 'Viewer' as valid apps"
+    exit 1
+fi
 
 # Forward local to remote socket connection.
 $ADB $DEVICE_SERIAL forward "tcp:$PORT" "tcp:$PORT"
@@ -34,13 +48,13 @@ adb_push_if_needed $ANDROID_TOOLCHAIN/gdbserver /data/local/tmp
 
 # Launch the app
 echo "Launching the app..."
-$ADB $DEVICE_SERIAL shell am start -n com.skia.sample_app/com.skia.SkiaSampleActivity
+$ADB $DEVICE_SERIAL shell "am start -n ${activity} --es cmdLineFlags \"${APP_ARGS[*]:1}\""
 
 # Wait for app process to initialize
 sleep 2
 
 # Attach gdbserver to the app process
-PID=$($ADB shell ps | grep com.skia.sample_app | awk '{print $2}')
+PID=$($ADB shell ps | grep ${activityShort} | awk '{print $2}')
 echo "Attaching to pid: $PID"
 $ADB $DEVICE_SERIAL shell /data/local/tmp/gdbserver :$PORT --attach $PID &
 
