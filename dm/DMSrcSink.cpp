@@ -921,6 +921,10 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
             SkAutoTCallVProc<qcms_profile, qcms_profile_release>
                     dstSpace(qcms_profile_from_memory(dstData->data(), dstData->size()));
             SkASSERT(dstSpace);
+
+            // Optimizes conversion by precomputing the inverse transformation to dst.  Also
+            // causes QCMS to use a completely different codepath.  This is how Chrome uses QCMS.
+            qcms_profile_precache_output_transform(dstSpace);
             SkAutoTCallVProc<qcms_transform, qcms_transform_release>
                     transform (qcms_transform_create(srcSpace, QCMS_DATA_RGBA_8, dstSpace,
                                                      QCMS_DATA_RGBA_8, QCMS_INTENT_PERCEPTUAL));
