@@ -289,10 +289,10 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
         bool ccw = ccw_dxdy(hit->fSlope, dir);
 //        SkASSERT(!approximately_zero(hit->fT) || !hit->fValid);
         SkOpSpan* span = hit->fSpan;
-        SkOpSegment* hitSegment = span->segment();
         if (!span) {
             return false;
         }
+        SkOpSegment* hitSegment = span->segment();
         if (span->windValue() == 0 && span->oppValue() == 0) {
             continue;
         }

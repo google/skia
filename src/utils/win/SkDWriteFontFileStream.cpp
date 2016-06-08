@@ -139,7 +139,7 @@ HRESULT SkDWriteFontFileStreamWrapper::Create(SkStreamAsset* stream,
                                               SkDWriteFontFileStreamWrapper** streamFontFileStream)
 {
     *streamFontFileStream = new SkDWriteFontFileStreamWrapper(stream);
-    if (nullptr == streamFontFileStream) {
+    if (nullptr == *streamFontFileStream) {
         return E_OUTOFMEMORY;
     }
     return S_OK;
