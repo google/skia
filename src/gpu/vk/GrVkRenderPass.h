@@ -21,25 +21,51 @@ class GrVkRenderTarget;
 class GrVkRenderPass : public GrVkResource {
 public:
     GrVkRenderPass() : INHERITED(), fRenderPass(VK_NULL_HANDLE) {}
+
+    struct LoadStoreOps {
+        VkAttachmentLoadOp  fLoadOp;
+        VkAttachmentStoreOp fStoreOp;
+
+        LoadStoreOps(VkAttachmentLoadOp loadOp, VkAttachmentStoreOp storeOp)
+            : fLoadOp(loadOp)
+            , fStoreOp(storeOp) {}
+
+        bool operator==(const LoadStoreOps& right) const {
+            return fLoadOp == right.fLoadOp && fStoreOp == right.fStoreOp;
+        }
+
+        bool operator!=(const LoadStoreOps& right) const {
+            return !(*this == right);
+        }
+    };
+
     void initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& target);
+    void init(const GrVkGpu* gpu,
+              const GrVkRenderTarget& target,
+              const LoadStoreOps& colorOp,
+              const LoadStoreOps& resolveOp,
+              const LoadStoreOps& stencilOp);
+
+    void init(const GrVkGpu* gpu,
+              const GrVkRenderPass& compatibleRenderPass,
+              const LoadStoreOps& colorOp,
+              const LoadStoreOps& resolveOp,
+              const LoadStoreOps& stencilOp);
 
     struct AttachmentsDescriptor {
         struct AttachmentDesc {
             VkFormat fFormat;
             int fSamples;
-            VkAttachmentLoadOp fLoadOp;
-            VkAttachmentStoreOp fStoreOp;
+            LoadStoreOps fLoadStoreOps;
 
             AttachmentDesc()
                 : fFormat(VK_FORMAT_UNDEFINED)
                 , fSamples(0)
-                , fLoadOp(VK_ATTACHMENT_LOAD_OP_LOAD)
-                , fStoreOp(VK_ATTACHMENT_STORE_OP_STORE) {}
+                , fLoadStoreOps(VK_ATTACHMENT_LOAD_OP_LOAD, VK_ATTACHMENT_STORE_OP_STORE) {}
             bool operator==(const AttachmentDesc& right) const {
                 return (fFormat == right.fFormat &&
                         fSamples == right.fSamples &&
-                        fLoadOp == right.fLoadOp &&
-                        fStoreOp == right.fStoreOp);
+                        fLoadStoreOps == right.fLoadStoreOps);
             }
             bool operator!=(const AttachmentDesc& right) const {
                 return !(*this == right);
@@ -84,12 +110,21 @@ public:
     // basic RenderPasses that can be used when creating a VkFrameBuffer object.
     bool isCompatible(const GrVkRenderTarget& target) const;
 
+    bool equalLoadStoreOps(const LoadStoreOps& colorOps,
+                           const LoadStoreOps& resolveOps,
+                           const LoadStoreOps& stencilOps) const;
+
     VkRenderPass vkRenderPass() const { return fRenderPass; }
 
     void genKey(GrProcessorKeyBuilder* b) const;
 
 private:
     GrVkRenderPass(const GrVkRenderPass&);
+
+    void init(const GrVkGpu* gpu,
+              const LoadStoreOps& colorOps,
+              const LoadStoreOps& resolveOps,
+              const LoadStoreOps& stencilOps);
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 

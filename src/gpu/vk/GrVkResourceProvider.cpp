@@ -10,7 +10,6 @@
 #include "GrTextureParams.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkPipeline.h"
-#include "GrVkRenderPass.h"
 #include "GrVkSampler.h"
 #include "GrVkUtil.h"
 
@@ -130,6 +129,33 @@ GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compati
     SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
     int index = compatibleHandle.toIndex();
     const GrVkRenderPass* renderPass = fRenderPassArray[index].getCompatibleRenderPass();
+    renderPass->ref();
+    return renderPass;
+}
+
+const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
+                                                     const GrVkRenderTarget& target,
+                                                     const GrVkRenderPass::LoadStoreOps& colorOps,
+                                                     const GrVkRenderPass::LoadStoreOps& resolveOps,
+                                                     const GrVkRenderPass::LoadStoreOps& stencilOps,
+                                                     CompatibleRPHandle* compatibleHandle) {
+    // This will get us the handle to (and possible create) the compatible set for the specific
+    // GrVkRenderPass we are looking for.
+    this->findCompatibleRenderPass(target, compatibleHandle);
+    return this->findRenderPass(*compatibleHandle, colorOps, resolveOps, stencilOps);
+}
+
+const GrVkRenderPass*
+GrVkResourceProvider::findRenderPass(const CompatibleRPHandle& compatibleHandle,
+                                     const GrVkRenderPass::LoadStoreOps& colorOps,
+                                     const GrVkRenderPass::LoadStoreOps& resolveOps,
+                                     const GrVkRenderPass::LoadStoreOps& stencilOps) {
+    SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
+    CompatibleRenderPassSet& compatibleSet = fRenderPassArray[compatibleHandle.toIndex()];
+    const GrVkRenderPass* renderPass = compatibleSet.getRenderPass(fGpu,
+                                                                   colorOps,
+                                                                   resolveOps,
+                                                                   stencilOps);
     renderPass->ref();
     return renderPass;
 }
@@ -293,6 +319,24 @@ bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
     // render pass on create
     SkASSERT(fRenderPasses[0]);
     return fRenderPasses[0]->isCompatible(target);
+}
+
+GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
+                                                   const GrVkGpu* gpu,
+                                                   const GrVkRenderPass::LoadStoreOps& colorOps,
+                                                   const GrVkRenderPass::LoadStoreOps& resolveOps,
+                                                   const GrVkRenderPass::LoadStoreOps& stencilOps) {
+    for (int i = 0; i < fRenderPasses.count(); ++i) {
+        int idx = (i + fLastReturnedIndex) % fRenderPasses.count();
+        if (fRenderPasses[idx]->equalLoadStoreOps(colorOps, resolveOps, stencilOps)) {
+            fLastReturnedIndex = idx;
+            return fRenderPasses[idx];
+        }
+    }
+    GrVkRenderPass* renderPass = fRenderPasses.push_back();
+    renderPass->init(gpu, *this->getCompatibleRenderPass(), colorOps, resolveOps, stencilOps);
+    fLastReturnedIndex = fRenderPasses.count() - 1;
+    return renderPass;
 }
 
 void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources(const GrVkGpu* gpu) {

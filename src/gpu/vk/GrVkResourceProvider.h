@@ -12,6 +12,7 @@
 #include "GrResourceHandle.h"
 #include "GrVkDescriptorPool.h"
 #include "GrVkPipelineState.h"
+#include "GrVkRenderPass.h"
 #include "GrVkResource.h"
 #include "GrVkUtil.h"
 #include "SkTArray.h"
@@ -27,7 +28,6 @@ class GrTextureParams;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkPipeline;
-class GrVkRenderPass;
 class GrVkRenderTarget;
 class GrVkSampler;
 
@@ -59,21 +59,23 @@ public:
     // findCompatibleRenderPass(GrVkRenderTarget&, CompatibleRPHandle*).
     const GrVkRenderPass* findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle);
 
-#if 0
-    // TODO:
+    // Finds or creates a render pass that matches the target and LoadStoreOps, increments the
+    // refcount, and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle.
+    // If this is non null it will be set to a handle that can be used in the furutre to quickly
+    // return a GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
     const GrVkRenderPass* findRenderPass(const GrVkRenderTarget& target,
-                                         VkAttachmentLoadOp colorLoad,
-                                         VkAttachmentStoreOp colorStore,
-                                         VkAttachmentLoadOp stencilLoad,
-                                         VkAttachmentStoreOp stencilStore,
+                                         const GrVkRenderPass::LoadStoreOps& colorOps,
+                                         const GrVkRenderPass::LoadStoreOps& resolveOps,
+                                         const GrVkRenderPass::LoadStoreOps& stencilOps,
                                          CompatibleRPHandle* compatibleHandle = nullptr);
 
+    // The CompatibleRPHandle must be a valid handle previously set by a call to findRenderPass or
+    // findCompatibleRenderPass.
     const GrVkRenderPass* findRenderPass(const CompatibleRPHandle& compatibleHandle,
-                                         VkAttachmentLoadOp colorLoad,
-                                         VkAttachmentStoreOp colorStore,
-                                         VkAttachmentLoadOp stencilLoad,
-                                         VkAttachmentStoreOp stencilStore);
-#endif
+                                         const GrVkRenderPass::LoadStoreOps& colorOps,
+                                         const GrVkRenderPass::LoadStoreOps& resolveOps,
+                                         const GrVkRenderPass::LoadStoreOps& stencilOps);
+
 
     GrVkCommandBuffer* createCommandBuffer();
     void checkCommandBuffers();
@@ -174,6 +176,11 @@ private:
             SkASSERT(fRenderPasses[0]);
             return fRenderPasses[0];
         }
+
+        GrVkRenderPass* getRenderPass(const GrVkGpu* gpu,
+                                      const GrVkRenderPass::LoadStoreOps& colorOps,
+                                      const GrVkRenderPass::LoadStoreOps& resolveOps,
+                                      const GrVkRenderPass::LoadStoreOps& stencilOps);
 
         void releaseResources(const GrVkGpu* gpu);
         void abandonResources();

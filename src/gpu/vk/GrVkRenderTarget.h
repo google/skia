@@ -65,7 +65,6 @@ public:
 
     GrBackendObject getRenderTargetHandle() const override;
 
-    // Returns the total number of attachments
     void getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
                                   GrVkRenderPass::AttachmentFlags* flags) const;
 
