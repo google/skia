@@ -114,11 +114,16 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             break;
         }
         case kSurfaceChanged: {
-            SkASSERT(message.fNativeWindow == skiaAndroidApp->fNativeWindow &&
-                     message.fNativeWindow);
+            SkASSERT(message.fNativeWindow);
             int width = ANativeWindow_getWidth(skiaAndroidApp->fNativeWindow);
             int height = ANativeWindow_getHeight(skiaAndroidApp->fNativeWindow);
             auto window_android = (Window_android*)skiaAndroidApp->fWindow;
+            if (message.fNativeWindow != skiaAndroidApp->fNativeWindow) {
+                window_android->onDisplayDestroyed();
+                ANativeWindow_release(skiaAndroidApp->fNativeWindow);
+                skiaAndroidApp->fNativeWindow = message.fNativeWindow;
+                window_android->initDisplay(skiaAndroidApp->fNativeWindow);
+            }
             window_android->setContentRect(0, 0, width, height);
             window_android->paintIfNeeded();
             break;

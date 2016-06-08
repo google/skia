@@ -1,12 +1,14 @@
 package org.skia.viewer;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,6 +34,7 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
     static final String VALUE = "value";
     static final String OPTIONS = "options";
     private static final String BACKEND_STATE_NAME = "Backend";
+    private static final int FILTER_LENGTH = 20;
 
     ViewerActivity mViewerActivity;
     LinearLayout mLayout;
@@ -86,7 +89,7 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
     }
 
     private View inflateItemView(JSONObject item) throws JSONException {
-        View itemView = LayoutInflater.from(mViewerActivity).inflate(R.layout.state_item, null);
+        LinearLayout itemView = (LinearLayout) LayoutInflater.from(mViewerActivity).inflate(R.layout.state_item, null);
         TextView nameText = (TextView) itemView.findViewById(R.id.nameText);
         TextView valueText = (TextView) itemView.findViewById(R.id.valueText);
         Spinner optionSpinner = (Spinner) itemView.findViewById(R.id.optionSpinner);
@@ -97,15 +100,31 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
             valueText.setText(value);
             valueText.setVisibility(View.VISIBLE);
             optionSpinner.setVisibility(View.GONE);
-
         } else {
             ArrayList<String> optionList = new ArrayList<>();
             String[] optionStrings = new String[options.length()];
             for (int j = 0; j < options.length(); j++) {
                 optionList.add(options.getString(j));
             }
-            optionSpinner.setAdapter(new ArrayAdapter<String>(mViewerActivity,
-                    android.R.layout.simple_spinner_dropdown_item, optionList));
+            final OptionAdapter adapter = new OptionAdapter(mViewerActivity,
+                    android.R.layout.simple_spinner_dropdown_item, optionList, optionSpinner);
+            adapter.setCurrentOption(value);
+            optionSpinner.setAdapter(adapter);
+            if (optionStrings.length >= FILTER_LENGTH) {
+                EditText filterText = new EditText(mViewerActivity);
+                filterText.setHint("Filter");
+                itemView.addView(filterText, 1);
+                filterText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int cnt, int after) {}
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int cnt) {}
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        adapter.getFilter().filter(s.toString());
+                    }
+                });
+            }
             optionSpinner.setSelection(optionList.indexOf(value));
             optionSpinner.setOnItemSelectedListener(this);
             optionSpinner.setVisibility(View.VISIBLE);
