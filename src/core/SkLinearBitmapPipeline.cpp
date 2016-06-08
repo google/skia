@@ -367,7 +367,9 @@ private:
         }
     }
     void breakIntoEdges(Span span) {
-        if (span.length() == 0) {
+        if (span.count() == 1) {
+            this->bilerpPoint(span.startX(), span.startY());
+        } else if (span.length() == 0) {
             yProcessSpan(span);
         } else {
             SkScalar dx = span.length() / (span.count() - 1);
