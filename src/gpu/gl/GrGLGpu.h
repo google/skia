@@ -101,6 +101,12 @@ public:
 
     void clearStencil(GrRenderTarget*) override;
 
+    GrGpuCommandBuffer* createCommandBuffer(const GrRenderTarget& target,
+                                            GrGpuCommandBuffer::LoadAndStoreOp colorOp,
+                                            GrColor colorClear,
+                                            GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
+                                            GrColor stencilClear) override;
+
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
     }

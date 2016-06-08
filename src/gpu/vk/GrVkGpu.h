@@ -24,10 +24,11 @@ class GrPipeline;
 class GrNonInstancedMesh;
 
 class GrVkBufferImpl;
-class GrVkCommandBuffer;
 class GrVkPipeline;
 class GrVkPipelineState;
+class GrVkPrimaryCommandBuffer;
 class GrVkRenderPass;
+class GrVkSecondaryCommandBuffer;
 class GrVkTexture;
 struct GrVkInterface;
 
@@ -90,6 +91,12 @@ public:
 
     void clearStencil(GrRenderTarget* target) override;
 
+    GrGpuCommandBuffer* createCommandBuffer(const GrRenderTarget& target,
+                                            GrGpuCommandBuffer::LoadAndStoreOp colorOp,
+                                            GrColor colorClear,
+                                            GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
+                                            GrColor stencilClear) override;
+
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
 
     void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
@@ -108,6 +115,8 @@ public:
     shaderc_compiler_t shadercCompiler() const {
         return fCompiler;
     }
+
+    void submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer*);
 
     void finishDrawTarget() override;
 

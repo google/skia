@@ -8,6 +8,7 @@
 #include "GrGLGpu.h"
 #include "GrGLBuffer.h"
 #include "GrGLGLSL.h"
+#include "GrGLGpuCommandBuffer.h"
 #include "GrGLStencilAttachment.h"
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourcePriv.h"
@@ -2621,6 +2622,14 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         }
     }
     return true;
+}
+
+GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(const GrRenderTarget& target,
+                                                 GrGpuCommandBuffer::LoadAndStoreOp colorOp,
+                                                 GrColor colorClear,
+                                                 GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
+                                                 GrColor stencilClear) {
+    return new GrGLGpuCommandBuffer(this);
 }
 
 void GrGLGpu::finishDrawTarget() {

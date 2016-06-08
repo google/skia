@@ -311,6 +311,9 @@ void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
 
     GR_VK_CALL(gpu->vkInterface(), CmdExecuteCommands(fCmdBuffer, 1, &buffer->fCmdBuffer));
     this->addResource(buffer);
+    // When executing a secondary command buffer all state (besides render pass state) becomes
+    // invalidated and must be reset. This includes bound buffers, pipelines, dynamic state, etc.
+    this->invalidateState();
 }
 
 void GrVkPrimaryCommandBuffer::submitToQueue(const GrVkGpu* gpu,

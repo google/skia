@@ -302,6 +302,14 @@ public:
         return false;
     }
 
+    GrGpuCommandBuffer* createCommandBuffer(const GrRenderTarget& target,
+                                            GrGpuCommandBuffer::LoadAndStoreOp colorOp,
+                                            GrColor colorClear,
+                                            GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
+                                            GrColor stencilClear) override {
+        return nullptr;
+    }
+
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {};
 
 private:

@@ -17,6 +17,7 @@
 #include "GrTexturePriv.h"
 
 #include "GrVkCommandBuffer.h"
+#include "GrVkGpuCommandBuffer.h"
 #include "GrVkImage.h"
 #include "GrVkIndexBuffer.h"
 #include "GrVkMemory.h"
@@ -159,6 +160,15 @@ GrVkGpu::~GrVkGpu() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(const GrRenderTarget& target,
+                                                 GrGpuCommandBuffer::LoadAndStoreOp colorOp,
+                                                 GrColor colorClear,
+                                                 GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
+                                                 GrColor stencilClear) {
+    const GrVkRenderTarget& vkRT = static_cast<const GrVkRenderTarget&>(target);
+    return new GrVkGpuCommandBuffer(this, vkRT, colorOp, colorClear, stencilOp, stencilClear);
+}
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(fCurrentCmdBuffer);
@@ -1569,6 +1579,11 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
 
     return true;
 }
+
+void GrVkGpu::submitSecondaryCommandBuffer(const GrVkSecondaryCommandBuffer* buffer) {
+    fCurrentCmdBuffer->executeCommands(this, buffer);
+}
+
 sk_sp<GrVkPipelineState> GrVkGpu::prepareDrawState(const GrPipeline& pipeline,
                                                    const GrPrimitiveProcessor& primProc,
                                                    GrPrimitiveType primitiveType,

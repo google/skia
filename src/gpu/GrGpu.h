@@ -8,6 +8,7 @@
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
+#include "GrGpuCommandBuffer.h"
 #include "GrPipelineBuilder.h"
 #include "GrProgramDesc.h"
 #include "GrSwizzle.h"
@@ -359,6 +360,14 @@ public:
     // draw state prior to querying multisample information; they should not have any effect on the
     // multisample information itself.
     const MultisampleSpecs& getMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&);
+
+    // Creates a GrGpuCommandBuffer in which the GrDrawTarget can send draw commands to instead of
+    // directly to the Gpu object.
+    virtual GrGpuCommandBuffer* createCommandBuffer(const GrRenderTarget& target,
+                                                    GrGpuCommandBuffer::LoadAndStoreOp colorOp,
+                                                    GrColor colorClear,
+                                                    GrGpuCommandBuffer::LoadAndStoreOp stencilOp,
+                                                    GrColor stencilClear) = 0;
 
     // We pass in an array of meshCount GrMesh to the draw. The backend should loop over each
     // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and

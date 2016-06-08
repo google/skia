@@ -10,6 +10,7 @@
 #include "GrTextureParams.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkPipeline.h"
+#include "GrVkRenderTarget.h"
 #include "GrVkSampler.h"
 #include "GrVkUtil.h"
 
@@ -139,10 +140,15 @@ const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
                                                      const GrVkRenderPass::LoadStoreOps& resolveOps,
                                                      const GrVkRenderPass::LoadStoreOps& stencilOps,
                                                      CompatibleRPHandle* compatibleHandle) {
+    GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
+    GrVkResourceProvider::CompatibleRPHandle* pRPHandle = compatibleHandle ? compatibleHandle
+                                                                           : &tempRPHandle;
+    *pRPHandle = target.compatibleRenderPassHandle();
+
     // This will get us the handle to (and possible create) the compatible set for the specific
     // GrVkRenderPass we are looking for.
     this->findCompatibleRenderPass(target, compatibleHandle);
-    return this->findRenderPass(*compatibleHandle, colorOps, resolveOps, stencilOps);
+    return this->findRenderPass(*pRPHandle, colorOps, resolveOps, stencilOps);
 }
 
 const GrVkRenderPass*

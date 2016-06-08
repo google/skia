@@ -53,6 +53,9 @@ public:
     const GrVkImageView* stencilAttachmentView() const;
 
     const GrVkRenderPass* simpleRenderPass() const { return fCachedSimpleRenderPass; }
+    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle() const {
+        return fCompatibleRPHandle;
+    }
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
