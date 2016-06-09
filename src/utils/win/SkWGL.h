@@ -8,8 +8,6 @@
 
 #include "SkRefCnt.h"
 
-#ifndef SK_BUILD_FOR_WINRT
-
 #ifndef SkWGL_DEFINED
 #define SkWGL_DEFINED
 
@@ -168,5 +166,3 @@ private:
 };
 
 #endif
-
-#endif // SK_BUILD_FOR_WINRT
