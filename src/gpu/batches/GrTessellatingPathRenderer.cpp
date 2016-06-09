@@ -211,7 +211,7 @@ private:
     }
 
     void onPrepareDraws(Target* target) const override {
-        SkAutoTUnref<const GrGeometryProcessor> gp;
+        sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
 
@@ -226,8 +226,7 @@ private:
                 coverageType = Coverage::kNone_Type;
             }
             Coverage coverage(coverageType);
-            gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
-                                                     fViewMatrix));
+            gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, fViewMatrix);
         }
         this->draw(target, gp.get());
     }

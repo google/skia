@@ -27,11 +27,11 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA)
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
     for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
-        fColorFragmentProcessors.push_back(SkRef(paint.getColorFragmentProcessor(i)));
+        fColorFragmentProcessors.emplace_back(SkRef(paint.getColorFragmentProcessor(i)));
     }
 
     for (int i = 0; i < paint.numCoverageFragmentProcessors(); ++i) {
-        fCoverageFragmentProcessors.push_back(SkRef(paint.getCoverageFragmentProcessor(i)));
+        fCoverageFragmentProcessors.emplace_back(SkRef(paint.getCoverageFragmentProcessor(i)));
     }
 
     fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
@@ -58,17 +58,12 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
     if (fPipelineBuilder) {
         int m = fPipelineBuilder->numColorFragmentProcessors() - fColorEffectCnt;
         SkASSERT(m >= 0);
-        for (int i = 0; i < m; ++i) {
-            fPipelineBuilder->fColorFragmentProcessors.fromBack(i)->unref();
-        }
         fPipelineBuilder->fColorFragmentProcessors.pop_back_n(m);
 
         int n = fPipelineBuilder->numCoverageFragmentProcessors() - fCoverageEffectCnt;
         SkASSERT(n >= 0);
-        for (int i = 0; i < n; ++i) {
-            fPipelineBuilder->fCoverageFragmentProcessors.fromBack(i)->unref();
-        }
         fPipelineBuilder->fCoverageFragmentProcessors.pop_back_n(n);
+
         SkDEBUGCODE(--fPipelineBuilder->fBlockEffectRemovalCnt;)
     }
     fPipelineBuilder = const_cast<GrPipelineBuilder*>(pipelineBuilder);
@@ -83,10 +78,4 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
 
 GrPipelineBuilder::~GrPipelineBuilder() {
     SkASSERT(0 == fBlockEffectRemovalCnt);
-    for (int i = 0; i < fColorFragmentProcessors.count(); ++i) {
-        fColorFragmentProcessors[i]->unref();
-    }
-    for (int i = 0; i < fCoverageFragmentProcessors.count(); ++i) {
-        fCoverageFragmentProcessors[i]->unref();
-    }
 }

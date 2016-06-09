@@ -85,12 +85,12 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrArithmeticFP::GrArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                               const GrFragmentProcessor* dst)
+                               sk_sp<GrFragmentProcessor> dst)
   : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
     this->initClassID<GrArithmeticFP>();
 
     SkASSERT(dst);
-    SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(dst);
+    SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(std::move(dst));
     SkASSERT(0 == dstIndex);
 }
 
@@ -118,15 +118,15 @@ void GrArithmeticFP::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
     float k1 = d->fRandom->nextF();
     float k2 = d->fRandom->nextF();
     float k3 = d->fRandom->nextF();
     float k4 = d->fRandom->nextF();
     bool enforcePMColor = d->fRandom->nextBool();
 
-    SkAutoTUnref<const GrFragmentProcessor> dst(GrProcessorUnitTest::CreateChildFP(d));
-    return new GrArithmeticFP(k1, k2, k3, k4, enforcePMColor, dst);
+    sk_sp<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeChildFP(d));
+    return GrArithmeticFP::Make(k1, k2, k3, k4, enforcePMColor, std::move(dst));
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticFP);
@@ -283,14 +283,14 @@ void GrArithmeticXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
 
 GR_DEFINE_XP_FACTORY_TEST(GrArithmeticXPFactory);
 
-const GrXPFactory* GrArithmeticXPFactory::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrXPFactory> GrArithmeticXPFactory::TestCreate(GrProcessorTestData* d) {
     float k1 = d->fRandom->nextF();
     float k2 = d->fRandom->nextF();
     float k3 = d->fRandom->nextF();
     float k4 = d->fRandom->nextF();
     bool enforcePMColor = d->fRandom->nextBool();
 
-    return GrArithmeticXPFactory::Create(k1, k2, k3, k4, enforcePMColor);
+    return GrArithmeticXPFactory::Make(k1, k2, k3, k4, enforcePMColor);
 }
 
 #endif

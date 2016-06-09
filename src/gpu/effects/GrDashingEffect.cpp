@@ -232,11 +232,11 @@ static void setup_dashed_rect_pos(const SkRect& rect, int idx, const SkMatrix& m
  * Bounding geometry is rendered and the effect computes coverage based on the fragment's
  * position relative to the dashed line.
  */
-static GrGeometryProcessor* create_dash_gp(GrColor,
-                                           AAMode aaMode,
-                                           DashCap cap,
-                                           const SkMatrix& localMatrix,
-                                           bool usesLocalCoords);
+static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
+                                               AAMode aaMode,
+                                               DashCap cap,
+                                               const SkMatrix& localMatrix,
+                                               bool usesLocalCoords);
 
 class DashBatch : public GrVertexBatch {
 public:
@@ -331,10 +331,10 @@ private:
         bool isRoundCap = SkPaint::kRound_Cap == cap;
         DashCap capType = isRoundCap ? kRound_DashCap : kNonRound_DashCap;
 
-        SkAutoTUnref<const GrGeometryProcessor> gp;
+        sk_sp<GrGeometryProcessor> gp;
         if (this->fullDash()) {
-            gp.reset(create_dash_gp(this->color(), this->aaMode(), capType, this->viewMatrix(),
-                                    this->usesLocalCoords()));
+            gp = make_dash_gp(this->color(), this->aaMode(), capType, this->viewMatrix(),
+                              this->usesLocalCoords());
         } else {
             // Set up the vertex data for the line and start/end dashes
             using namespace GrDefaultGeoProcFactory;
@@ -343,7 +343,7 @@ private:
                                                         Coverage::kSolid_Type);
             LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
                                                               LocalCoords::kUnused_Type);
-            gp.reset(CreateForDeviceSpace(color, coverage, localCoords, this->viewMatrix()));
+            gp = MakeForDeviceSpace(color, coverage, localCoords, this->viewMatrix());
         }
 
         if (!gp) {
@@ -622,7 +622,7 @@ private:
             rectIndex++;
         }
         SkASSERT(0 == (curVIdx % 4) && (curVIdx / 4) == totalRectCount);
-        helper.recordDraw(target, gp);
+        helper.recordDraw(target, gp.get());
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -757,10 +757,10 @@ class DashingCircleEffect : public GrGeometryProcessor {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
-    static GrGeometryProcessor* Create(GrColor,
-                                       AAMode aaMode,
-                                       const SkMatrix& localMatrix,
-                                       bool usesLocalCoords);
+    static sk_sp<GrGeometryProcessor> Make(GrColor,
+                                           AAMode aaMode,
+                                           const SkMatrix& localMatrix,
+                                           bool usesLocalCoords);
 
     const char* name() const override { return "DashingCircleEffect"; }
 
@@ -919,11 +919,12 @@ void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrGeometryProcessor* DashingCircleEffect::Create(GrColor color,
-                                                 AAMode aaMode,
-                                                 const SkMatrix& localMatrix,
-                                                 bool usesLocalCoords) {
-    return new DashingCircleEffect(color, aaMode, localMatrix, usesLocalCoords);
+sk_sp<GrGeometryProcessor> DashingCircleEffect::Make(GrColor color,
+                                                     AAMode aaMode,
+                                                     const SkMatrix& localMatrix,
+                                                     bool usesLocalCoords) {
+    return sk_sp<GrGeometryProcessor>(
+        new DashingCircleEffect(color, aaMode, localMatrix, usesLocalCoords));
 }
 
 void DashingCircleEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
@@ -952,11 +953,11 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
 
-const GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrGeometryProcessor> DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
     AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashingEffect::kAAModeCnt));
-    return DashingCircleEffect::Create(GrRandomColor(d->fRandom),
-                                      aaMode, GrTest::TestMatrix(d->fRandom),
-                                      d->fRandom->nextBool());
+    return DashingCircleEffect::Make(GrRandomColor(d->fRandom),
+                                    aaMode, GrTest::TestMatrix(d->fRandom),
+                                    d->fRandom->nextBool());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -976,10 +977,10 @@ class DashingLineEffect : public GrGeometryProcessor {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
-    static GrGeometryProcessor* Create(GrColor,
-                                       AAMode aaMode,
-                                       const SkMatrix& localMatrix,
-                                       bool usesLocalCoords);
+    static sk_sp<GrGeometryProcessor> Make(GrColor,
+                                           AAMode aaMode,
+                                           const SkMatrix& localMatrix,
+                                           bool usesLocalCoords);
 
     const char* name() const override { return "DashingEffect"; }
 
@@ -1151,11 +1152,12 @@ void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrGeometryProcessor* DashingLineEffect::Create(GrColor color,
-                                               AAMode aaMode,
-                                               const SkMatrix& localMatrix,
-                                               bool usesLocalCoords) {
-    return new DashingLineEffect(color, aaMode, localMatrix, usesLocalCoords);
+sk_sp<GrGeometryProcessor> DashingLineEffect::Make(GrColor color,
+                                                   AAMode aaMode,
+                                                   const SkMatrix& localMatrix,
+                                                   bool usesLocalCoords) {
+    return sk_sp<GrGeometryProcessor>(
+        new DashingLineEffect(color, aaMode, localMatrix, usesLocalCoords));
 }
 
 void DashingLineEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
@@ -1183,20 +1185,20 @@ DashingLineEffect::DashingLineEffect(GrColor color,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
 
-const GrGeometryProcessor* DashingLineEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrGeometryProcessor> DashingLineEffect::TestCreate(GrProcessorTestData* d) {
     AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashingEffect::kAAModeCnt));
-    return DashingLineEffect::Create(GrRandomColor(d->fRandom),
-                                     aaMode, GrTest::TestMatrix(d->fRandom),
-                                     d->fRandom->nextBool());
+    return DashingLineEffect::Make(GrRandomColor(d->fRandom),
+                                   aaMode, GrTest::TestMatrix(d->fRandom),
+                                   d->fRandom->nextBool());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GrGeometryProcessor* create_dash_gp(GrColor color,
-                                           AAMode aaMode,
-                                           DashCap cap,
-                                           const SkMatrix& viewMatrix,
-                                           bool usesLocalCoords) {
+static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor color,
+                                               AAMode aaMode,
+                                               DashCap cap,
+                                               const SkMatrix& viewMatrix,
+                                               bool usesLocalCoords) {
     SkMatrix invert;
     if (usesLocalCoords && !viewMatrix.invert(&invert)) {
         SkDebugf("Failed to invert\n");
@@ -1205,9 +1207,9 @@ static GrGeometryProcessor* create_dash_gp(GrColor color,
 
     switch (cap) {
         case kRound_DashCap:
-            return DashingCircleEffect::Create(color, aaMode, invert, usesLocalCoords);
+            return DashingCircleEffect::Make(color, aaMode, invert, usesLocalCoords);
         case kNonRound_DashCap:
-            return DashingLineEffect::Create(color, aaMode, invert, usesLocalCoords);
+            return DashingLineEffect::Make(color, aaMode, invert, usesLocalCoords);
     }
     return nullptr;
 }

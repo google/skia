@@ -22,7 +22,7 @@ class GrPipelineBuilder;
 class GrAppliedClip : public SkNoncopyable {
 public:
     GrAppliedClip() : fHasStencilClip(false) {}
-    const GrFragmentProcessor* clipCoverageFragmentProcessor() const {
+    GrFragmentProcessor* getClipCoverageFragmentProcessor() const {
         return fClipCoverageFP.get();
     }
     const GrScissorState& scissorState() const { return fScissorState; }
@@ -40,22 +40,22 @@ public:
         fHasStencilClip = hasStencil;
     }
 
-    void makeFPBased(sk_sp<const GrFragmentProcessor> fp) {
+    void makeFPBased(sk_sp<GrFragmentProcessor> fp) {
         fClipCoverageFP = fp;
         fScissorState.setDisabled();
         fHasStencilClip = false;
     }
 
-    void makeScissoredFPBased(sk_sp<const GrFragmentProcessor> fp, SkIRect& scissor) {
+    void makeScissoredFPBased(sk_sp<GrFragmentProcessor> fp, SkIRect& scissor) {
         fClipCoverageFP = fp;
         fScissorState.set(scissor);
         fHasStencilClip = false;
     }
 
 private:
-    sk_sp<const GrFragmentProcessor> fClipCoverageFP;
-    GrScissorState                   fScissorState;
-    bool                             fHasStencilClip;
+    sk_sp<GrFragmentProcessor> fClipCoverageFP;
+    GrScissorState             fScissorState;
+    bool                       fHasStencilClip;
 
     typedef SkNoncopyable INHERITED;
 };

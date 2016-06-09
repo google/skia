@@ -18,6 +18,10 @@
 #include "SkShader.h"
 #include "SkWriteBuffer.h"
 
+#if SK_SUPPORT_GPU
+#include "GrFragmentProcessor.h"
+#endif
+
 //#define SK_TRACK_SHADER_LIFETIME
 
 #ifdef SK_TRACK_SHADER_LIFETIME
@@ -220,11 +224,13 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
     return kNone_GradientType;
 }
 
-const GrFragmentProcessor* SkShader::asFragmentProcessor(GrContext*, const SkMatrix&,
+#if SK_SUPPORT_GPU
+sk_sp<GrFragmentProcessor> SkShader::asFragmentProcessor(GrContext*, const SkMatrix&,
                                                          const SkMatrix*, SkFilterQuality,
-                                                         SkSourceGammaTreatment)  const {
+                                                         SkSourceGammaTreatment) const {
     return nullptr;
 }
+#endif
 
 SkShader* SkShader::refAsALocalMatrixShader(SkMatrix*) const {
     return nullptr;

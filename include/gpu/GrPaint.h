@@ -15,6 +15,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "GrFragmentProcessor.h"
 
+#include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkXfermode.h"
 
@@ -42,7 +43,7 @@ public:
 
     GrPaint(const GrPaint& paint) { *this = paint; }
 
-    ~GrPaint() { this->resetFragmentProcessors();  }
+    ~GrPaint() { }
 
     /**
      * The initial color of the drawn primitive. Defaults to solid white.
@@ -79,13 +80,12 @@ public:
         setAllowSRGBInputs(gammaCorrect);
     }
 
-    const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
-        fXPFactory.reset(SkSafeRef(xpFactory));
-        return xpFactory;
+    void setXPFactory(sk_sp<GrXPFactory> xpFactory) {
+        fXPFactory = std::move(xpFactory);
     }
 
     void setPorterDuffXPFactory(SkXfermode::Mode mode) {
-        fXPFactory.reset(GrPorterDuffXPFactory::Create(mode));
+        fXPFactory = GrPorterDuffXPFactory::Make(mode);
     }
 
     void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false); 
@@ -93,19 +93,17 @@ public:
     /**
      * Appends an additional color processor to the color computation.
      */
-    const GrFragmentProcessor* addColorFragmentProcessor(const GrFragmentProcessor* fp) {
+    void addColorFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
         SkASSERT(fp);
-        fColorFragmentProcessors.push_back(SkRef(fp));
-        return fp;
+        fColorFragmentProcessors.push_back(std::move(fp));
     }
 
     /**
      * Appends an additional coverage processor to the coverage computation.
      */
-    const GrFragmentProcessor* addCoverageFragmentProcessor(const GrFragmentProcessor* fp) {
+    void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
         SkASSERT(fp);
-        fCoverageFragmentProcessors.push_back(SkRef(fp));
-        return fp;
+        fCoverageFragmentProcessors.push_back(std::move(fp));
     }
 
     /**
@@ -122,15 +120,15 @@ public:
     int numTotalFragmentProcessors() const { return this->numColorFragmentProcessors() +
                                               this->numCoverageFragmentProcessors(); }
 
-    const GrXPFactory* getXPFactory() const {
-        return fXPFactory;
+    GrXPFactory* getXPFactory() const {
+        return fXPFactory.get();
     }
 
-    const GrFragmentProcessor* getColorFragmentProcessor(int i) const {
-        return fColorFragmentProcessors[i];
+    GrFragmentProcessor* getColorFragmentProcessor(int i) const {
+        return fColorFragmentProcessors[i].get();
     }
-    const GrFragmentProcessor* getCoverageFragmentProcessor(int i) const {
-        return fCoverageFragmentProcessors[i];
+    GrFragmentProcessor* getCoverageFragmentProcessor(int i) const {
+        return fCoverageFragmentProcessors[i].get();
     }
 
     GrPaint& operator=(const GrPaint& paint) {
@@ -139,17 +137,10 @@ public:
         fAllowSRGBInputs = paint.fAllowSRGBInputs;
 
         fColor = paint.fColor;
-        this->resetFragmentProcessors();
         fColorFragmentProcessors = paint.fColorFragmentProcessors;
         fCoverageFragmentProcessors = paint.fCoverageFragmentProcessors;
-        for (int i = 0; i < fColorFragmentProcessors.count(); ++i) {
-            fColorFragmentProcessors[i]->ref();
-        }
-        for (int i = 0; i < fCoverageFragmentProcessors.count(); ++i) {
-            fCoverageFragmentProcessors[i]->ref();
-        }
 
-        fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
+        fXPFactory = paint.fXPFactory;
 
         return *this;
     }
@@ -163,26 +154,15 @@ public:
     bool isConstantBlendedColor(GrColor* constantColor) const;
 
 private:
-    void resetFragmentProcessors() {
-        for (int i = 0; i < fColorFragmentProcessors.count(); ++i) {
-            fColorFragmentProcessors[i]->unref();
-        }
-        for (int i = 0; i < fCoverageFragmentProcessors.count(); ++i) {
-            fCoverageFragmentProcessors[i]->unref();
-        }
-        fColorFragmentProcessors.reset();
-        fCoverageFragmentProcessors.reset();
-    }
+    mutable sk_sp<GrXPFactory>                fXPFactory;
+    SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
+    SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
 
-    mutable SkAutoTUnref<const GrXPFactory>         fXPFactory;
-    SkSTArray<4, const GrFragmentProcessor*, true>  fColorFragmentProcessors;
-    SkSTArray<2, const GrFragmentProcessor*, true>  fCoverageFragmentProcessors;
+    bool                                      fAntiAlias;
+    bool                                      fDisableOutputConversionToSRGB;
+    bool                                      fAllowSRGBInputs;
 
-    bool                                            fAntiAlias;
-    bool                                            fDisableOutputConversionToSRGB;
-    bool                                            fAllowSRGBInputs;
-
-    GrColor                                         fColor;
+    GrColor                                   fColor;
 };
 
 #endif

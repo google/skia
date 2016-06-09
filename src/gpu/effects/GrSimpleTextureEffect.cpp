@@ -46,7 +46,7 @@ GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const  {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 
-const GrFragmentProcessor* GrSimpleTextureEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -68,5 +68,5 @@ const GrFragmentProcessor* GrSimpleTextureEffect::TestCreate(GrProcessorTestData
     GrCoordSet coordSet = kCoordSets[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kCoordSets))];
 
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
-    return GrSimpleTextureEffect::Create(d->fTextures[texIdx], matrix, coordSet);
+    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], matrix, coordSet);
 }

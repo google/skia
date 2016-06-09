@@ -102,7 +102,7 @@ public:
     };
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext* context, const SkMatrix& viewM,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context, const SkMatrix& viewM,
                                                    const SkMatrix*, SkFilterQuality,
                                                    SkSourceGammaTreatment) const override;
 #endif

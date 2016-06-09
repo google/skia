@@ -89,8 +89,7 @@ private:
     GrTInstanceBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
-        SkAutoTUnref<const GrGeometryProcessor> gp(Impl::CreateGP(this->seedGeometry(),
-                                                                  fOverrides));
+        sk_sp<GrGeometryProcessor> gp(Impl::MakeGP(this->seedGeometry(), fOverrides));
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -115,7 +114,7 @@ private:
                              i * Impl::kVertsPerInstance * vertexStride;
             Impl::Tesselate(verts, vertexStride, fGeoData[i], fOverrides);
         }
-        helper.recordDraw(target, gp);
+        helper.recordDraw(target, gp.get());
     }
 
     const Geometry& seedGeometry() const { return fGeoData[0]; }

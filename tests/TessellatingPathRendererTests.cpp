@@ -236,7 +236,7 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
     GrTessellatingPathRenderer tess;
 
     GrPaint paint;
-    paint.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+    paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);

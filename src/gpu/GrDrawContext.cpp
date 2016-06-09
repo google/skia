@@ -420,7 +420,7 @@ void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,
 
     GrPaint paint;
     paint.setAntiAlias(doAA);
-    SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
+    paint.setXPFactory(GrDisableColorXPFactory::Make());
 
     bool useHWAA;
     SkAutoTUnref<GrDrawBatch> batch(
@@ -671,18 +671,18 @@ bool GrDrawContext::drawFilledDRRect(const GrClip& clip,
     grPaint.setAntiAlias(false);
 
     // TODO these need to be a geometry processors
-    SkAutoTUnref<GrFragmentProcessor> innerEffect(GrRRectEffect::Create(innerEdgeType, *inner));
+    sk_sp<GrFragmentProcessor> innerEffect(GrRRectEffect::Make(innerEdgeType, *inner));
     if (!innerEffect) {
         return false;
     }
 
-    SkAutoTUnref<GrFragmentProcessor> outerEffect(GrRRectEffect::Create(outerEdgeType, *outer));
+    sk_sp<GrFragmentProcessor> outerEffect(GrRRectEffect::Make(outerEdgeType, *outer));
     if (!outerEffect) {
         return false;
     }
 
-    grPaint.addCoverageFragmentProcessor(innerEffect);
-    grPaint.addCoverageFragmentProcessor(outerEffect);
+    grPaint.addCoverageFragmentProcessor(std::move(innerEffect));
+    grPaint.addCoverageFragmentProcessor(std::move(outerEffect));
 
     SkRect bounds = outer->getBounds();
     if (applyAA) {

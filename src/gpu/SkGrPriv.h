@@ -62,7 +62,7 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
     no primitive color. */
 bool SkPaintToGrPaintReplaceShader(GrContext*,
                                    const SkPaint& skPaint,
-                                   const GrFragmentProcessor* shaderFP,
+                                   sk_sp<GrFragmentProcessor> shaderFP,
                                    bool allowSRGBInputs,
                                    GrPaint* grPaint);
 
@@ -93,7 +93,7 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, const SkPaint
 bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
-                                 const GrFragmentProcessor* fp,
+                                 sk_sp<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  bool allowSRGBInputs,
                                  GrPaint* grPaint);

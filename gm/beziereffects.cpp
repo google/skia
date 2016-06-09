@@ -34,10 +34,10 @@ public:
 
     const char* name() const override { return "BezierCubicOrConicTestBatch"; }
 
-    BezierCubicOrConicTestBatch(const GrGeometryProcessor* gp, const SkRect& bounds,
+    BezierCubicOrConicTestBatch(sk_sp<GrGeometryProcessor> gp, const SkRect& bounds,
                                 GrColor color, const SkScalar klmEqs[9], SkScalar sign)
         : INHERITED(ClassID(), bounds, color)
-        , fGeometryProcessor(SkRef(gp)) {
+        , fGeometryProcessor(std::move(gp)) {
         for (int i = 0; i < 9; i++) {
             fKlmEqs[i] = klmEqs[i];
         }
@@ -67,12 +67,12 @@ private:
             verts[v].fKLM[1] = eval_line(verts[v].fPosition, fKlmEqs + 3, fSign);
             verts[v].fKLM[2] = eval_line(verts[v].fPosition, fKlmEqs + 6, 1.f);
         }
-        helper.recordDraw(target, fGeometryProcessor);
+        helper.recordDraw(target, fGeometryProcessor.get());
     }
 
-    SkScalar                                fKlmEqs[9];
-    SkScalar                                fSign;
-    SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
+    SkScalar                   fKlmEqs[9];
+    SkScalar                   fSign;
+    sk_sp<GrGeometryProcessor> fGeometryProcessor;
 
     static const int kVertsPerCubic = 4;
     static const int kIndicesPerCubic = 6;
@@ -135,10 +135,9 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
             for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
-                SkAutoTUnref<GrGeometryProcessor> gp;
+                sk_sp<GrGeometryProcessor> gp;
                 GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                gp.reset(GrCubicEffect::Create(color, SkMatrix::I(), et,
-                                               *context->caps()));
+                gp = GrCubicEffect::Make(color, SkMatrix::I(), et, *context->caps());
                 if (!gp) {
                     continue;
                 }
@@ -191,7 +190,7 @@ protected:
 
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+                        GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, klmSigns[c]));
@@ -269,10 +268,10 @@ protected:
             };
             SkScalar weight = rand.nextRangeF(0.f, 2.f);
             for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
-                SkAutoTUnref<GrGeometryProcessor> gp;
+                sk_sp<GrGeometryProcessor> gp;
                 GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                gp.reset(GrConicEffect::Create(color, SkMatrix::I(), et,
-                                               *context->caps(), SkMatrix::I(), false));
+                gp = GrConicEffect::Make(color, SkMatrix::I(), et,
+                                         *context->caps(), SkMatrix::I(), false);
                 if (!gp) {
                     continue;
                 }
@@ -323,7 +322,7 @@ protected:
 
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+                        GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
@@ -387,11 +386,11 @@ public:
     DEFINE_BATCH_CLASS_ID
     const char* name() const override { return "BezierQuadTestBatch"; }
 
-    BezierQuadTestBatch(const GrGeometryProcessor* gp, const SkRect& bounds, GrColor color,
+    BezierQuadTestBatch(sk_sp<GrGeometryProcessor> gp, const SkRect& bounds, GrColor color,
                         const GrPathUtils::QuadUVMatrix& devToUV)
         : INHERITED(ClassID(), bounds, color)
         , fDevToUV(devToUV)
-        , fGeometryProcessor(SkRef(gp)) {
+        , fGeometryProcessor(std::move(gp)) {
     }
 
 private:
@@ -413,11 +412,11 @@ private:
         verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom,
                                       sizeof(Vertex));
         fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
-        helper.recordDraw(target, fGeometryProcessor);
+        helper.recordDraw(target, fGeometryProcessor.get());
     }
 
-    GrPathUtils::QuadUVMatrix               fDevToUV;
-    SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
+    GrPathUtils::QuadUVMatrix  fDevToUV;
+    sk_sp<GrGeometryProcessor> fGeometryProcessor;
 
     static const int kVertsPerCubic = 4;
     static const int kIndicesPerCubic = 6;
@@ -479,10 +478,10 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
             for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
-                SkAutoTUnref<GrGeometryProcessor> gp;
+                sk_sp<GrGeometryProcessor> gp;
                 GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                gp.reset(GrQuadEffect::Create(color, SkMatrix::I(), et,
-                                              *context->caps(), SkMatrix::I(), false));
+                gp = GrQuadEffect::Make(color, SkMatrix::I(), et,
+                                        *context->caps(), SkMatrix::I(), false);
                 if (!gp) {
                     continue;
                 }
@@ -530,7 +529,7 @@ protected:
 
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+                        GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 

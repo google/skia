@@ -36,7 +36,7 @@ void GrDrawAtlasBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) 
     fCoverageIgnored = !overrides.readsCoverage();
 }
 
-static const GrGeometryProcessor* set_vertex_attributes(bool hasColors,
+static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasColors,
                                                         GrColor color,
                                                         const SkMatrix& viewMatrix,
                                                         bool coverageIgnored) {
@@ -48,15 +48,15 @@ static const GrGeometryProcessor* set_vertex_attributes(bool hasColors,
 
     Coverage coverage(coverageIgnored ? Coverage::kNone_Type : Coverage::kSolid_Type);
     LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-    return GrDefaultGeoProcFactory::Create(gpColor, coverage, localCoords, viewMatrix);
+    return GrDefaultGeoProcFactory::Make(gpColor, coverage, localCoords, viewMatrix);
 }
 
 void GrDrawAtlasBatch::onPrepareDraws(Target* target) const {
     // Setup geometry processor
-    SkAutoTUnref<const GrGeometryProcessor> gp(set_vertex_attributes(this->hasColors(),
-                                                                     this->color(),
-                                                                     this->viewMatrix(),
-                                                                     this->coverageIgnored()));
+    sk_sp<GrGeometryProcessor> gp(set_vertex_attributes(this->hasColors(),
+                                                        this->color(),
+                                                        this->viewMatrix(),
+                                                        this->coverageIgnored()));
 
     int instanceCount = fGeoData.count();
     size_t vertexStride = gp->getVertexStride();
@@ -79,7 +79,7 @@ void GrDrawAtlasBatch::onPrepareDraws(Target* target) const {
         memcpy(vertPtr, args.fVerts.begin(), allocSize);
         vertPtr += allocSize;
     }
-    helper.recordDraw(target, gp);
+    helper.recordDraw(target, gp.get());
 }
 
 GrDrawAtlasBatch::GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix,

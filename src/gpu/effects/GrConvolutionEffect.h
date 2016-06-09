@@ -21,23 +21,25 @@ class GrConvolutionEffect : public Gr1DKernelEffect {
 public:
 
     /// Convolve with an arbitrary user-specified kernel
-    static GrFragmentProcessor* Create(GrTexture* tex,
-                                       Direction dir,
-                                       int halfWidth,
-                                       const float* kernel,
-                                       bool useBounds,
-                                       float bounds[2]) {
-        return new GrConvolutionEffect(tex, dir, halfWidth, kernel, useBounds, bounds);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
+                                           Direction dir,
+                                           int halfWidth,
+                                           const float* kernel,
+                                           bool useBounds,
+                                           float bounds[2]) {
+        return sk_sp<GrFragmentProcessor>(
+            new GrConvolutionEffect(tex, dir, halfWidth, kernel, useBounds, bounds));
     }
 
     /// Convolve with a Gaussian kernel
-    static GrFragmentProcessor* CreateGaussian(GrTexture* tex,
-                                               Direction dir,
-                                               int halfWidth,
-                                               float gaussianSigma,
-                                               bool useBounds,
-                                               float bounds[2]) {
-        return new GrConvolutionEffect(tex, dir, halfWidth, gaussianSigma, useBounds, bounds);
+    static sk_sp<GrFragmentProcessor> MakeGaussian(GrTexture* tex,
+                                                   Direction dir,
+                                                   int halfWidth,
+                                                   float gaussianSigma,
+                                                   bool useBounds,
+                                                   float bounds[2]) {
+        return sk_sp<GrFragmentProcessor>(
+            new GrConvolutionEffect(tex, dir, halfWidth, gaussianSigma, useBounds, bounds));
     }
 
     virtual ~GrConvolutionEffect();

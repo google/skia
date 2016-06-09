@@ -10,6 +10,7 @@
 
 #include "SkColor.h"
 #include "SkFlattenable.h"
+#include "SkRefCnt.h"
 #include "SkXfermode.h"
 
 class GrContext;
@@ -142,6 +143,7 @@ public:
     }
 #endif
 
+#if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
      *  a GrFragmentProcessor that implemets the color filter in GPU shader code.
@@ -151,9 +153,8 @@ public:
      *
      *  A null return indicates that the color filter isn't implemented for the GPU backend.
      */
-    virtual const GrFragmentProcessor* asFragmentProcessor(GrContext*) const {
-        return nullptr;
-    }
+    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*) const;
+#endif
 
     bool affectsTransparentBlack() const {
         return this->filterColor(0) != 0;

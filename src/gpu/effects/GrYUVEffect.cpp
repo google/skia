@@ -62,9 +62,9 @@ static const float kRec709InverseConversionMatrix[16] = {
 
 class YUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(GrTexture* yTexture, GrTexture* uTexture,
-                                       GrTexture* vTexture, const SkISize sizes[3],
-                                       SkYUVColorSpace colorSpace) {
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* yTexture, GrTexture* uTexture,
+                                           GrTexture* vTexture, const SkISize sizes[3],
+                                           SkYUVColorSpace colorSpace) {
         SkScalar w[3], h[3];
         w[0] = SkIntToScalar(sizes[0].fWidth)  / SkIntToScalar(yTexture->width());
         h[0] = SkIntToScalar(sizes[0].fHeight) / SkIntToScalar(yTexture->height());
@@ -85,8 +85,8 @@ public:
              (sizes[2].fHeight != sizes[0].fHeight)) ?
             GrTextureParams::kBilerp_FilterMode :
             GrTextureParams::kNone_FilterMode;
-        return new YUVtoRGBEffect(yTexture, uTexture, vTexture, yuvMatrix, uvFilterMode,
-                                  colorSpace);
+        return sk_sp<GrFragmentProcessor>(
+            new YUVtoRGBEffect(yTexture, uTexture, vTexture, yuvMatrix, uvFilterMode, colorSpace));
     }
 
     const char* name() const override { return "YUV to RGB"; }
@@ -206,12 +206,12 @@ public:
         kV_OutputChannels
     };
 
-    RGBToYUVEffect(const GrFragmentProcessor* rgbFP, SkYUVColorSpace colorSpace,
+    RGBToYUVEffect(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace,
                    OutputChannels output)
         : fColorSpace(colorSpace)
         , fOutputChannels(output) {
         this->initClassID<RGBToYUVEffect>();
-        this->registerChildProcessor(rgbFP);
+        this->registerChildProcessor(std::move(rgbFP));
     }
 
     const char* name() const override { return "RGBToYUV"; }
@@ -350,39 +350,44 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor*
-GrYUVEffect::CreateYUVToRGB(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
+sk_sp<GrFragmentProcessor>
+GrYUVEffect::MakeYUVToRGB(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
                             const SkISize sizes[3], SkYUVColorSpace colorSpace) {
     SkASSERT(yTexture && uTexture && vTexture && sizes);
-    return YUVtoRGBEffect::Create(yTexture, uTexture, vTexture, sizes, colorSpace);
+    return YUVtoRGBEffect::Make(yTexture, uTexture, vTexture, sizes, colorSpace);
 }
 
-const GrFragmentProcessor*
-GrYUVEffect::CreateRGBToYUV(const GrFragmentProcessor* rgbFP, SkYUVColorSpace colorSpace) {
+sk_sp<GrFragmentProcessor>
+GrYUVEffect::MakeRGBToYUV(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace) {
     SkASSERT(rgbFP);
-    return new RGBToYUVEffect(rgbFP, colorSpace, RGBToYUVEffect::kYUV_OutputChannels);
+    return sk_sp<GrFragmentProcessor>(
+        new RGBToYUVEffect(std::move(rgbFP), colorSpace, RGBToYUVEffect::kYUV_OutputChannels));
 }
 
-const GrFragmentProcessor*
-GrYUVEffect::CreateRGBToY(const GrFragmentProcessor* rgbFP, SkYUVColorSpace colorSpace) {
+sk_sp<GrFragmentProcessor>
+GrYUVEffect::MakeRGBToY(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace) {
     SkASSERT(rgbFP);
-    return new RGBToYUVEffect(rgbFP, colorSpace, RGBToYUVEffect::kY_OutputChannels);
+    return sk_sp<GrFragmentProcessor>(
+        new RGBToYUVEffect(std::move(rgbFP), colorSpace, RGBToYUVEffect::kY_OutputChannels));
 }
 
-const GrFragmentProcessor*
-GrYUVEffect::CreateRGBToUV(const GrFragmentProcessor* rgbFP, SkYUVColorSpace colorSpace) {
+sk_sp<GrFragmentProcessor>
+GrYUVEffect::MakeRGBToUV(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace) {
     SkASSERT(rgbFP);
-    return new RGBToYUVEffect(rgbFP, colorSpace, RGBToYUVEffect::kUV_OutputChannels);
+    return sk_sp<GrFragmentProcessor>(
+        new RGBToYUVEffect(std::move(rgbFP), colorSpace, RGBToYUVEffect::kUV_OutputChannels));
 }
 
-const GrFragmentProcessor*
-GrYUVEffect::CreateRGBToU(const GrFragmentProcessor* rgbFP, SkYUVColorSpace colorSpace) {
+sk_sp<GrFragmentProcessor>
+GrYUVEffect::MakeRGBToU(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace) {
     SkASSERT(rgbFP);
-    return new RGBToYUVEffect(rgbFP, colorSpace, RGBToYUVEffect::kU_OutputChannels);
+    return sk_sp<GrFragmentProcessor>(
+        new RGBToYUVEffect(std::move(rgbFP), colorSpace, RGBToYUVEffect::kU_OutputChannels));
 }
 
-const GrFragmentProcessor*
-GrYUVEffect::CreateRGBToV(const GrFragmentProcessor* rgbFP, SkYUVColorSpace colorSpace) {
+sk_sp<GrFragmentProcessor>
+GrYUVEffect::MakeRGBToV(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace) {
     SkASSERT(rgbFP);
-    return new RGBToYUVEffect(rgbFP, colorSpace, RGBToYUVEffect::kV_OutputChannels);
+    return sk_sp<GrFragmentProcessor>(
+        new RGBToYUVEffect(std::move(rgbFP), colorSpace, RGBToYUVEffect::kV_OutputChannels));
 }

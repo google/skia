@@ -116,11 +116,11 @@ void GrGammaEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGammaEffect);
 
-const GrFragmentProcessor* GrGammaEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrGammaEffect::TestCreate(GrProcessorTestData* d) {
     // We want to be sure and test sRGB sometimes
     Mode testMode = static_cast<Mode>(d->fRandom->nextRangeU(0, 2));
     SkScalar gamma = d->fRandom->nextRangeScalar(0.5f, 2.0f);
-    return new GrGammaEffect(testMode, gamma);
+    return sk_sp<GrFragmentProcessor>(new GrGammaEffect(testMode, gamma));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -134,15 +134,15 @@ GrGLSLFragmentProcessor* GrGammaEffect::onCreateGLSLInstance() const {
     return new GrGLGammaEffect();
 }
 
-const GrFragmentProcessor* GrGammaEffect::Create(SkScalar gamma) {
+sk_sp<GrFragmentProcessor> GrGammaEffect::Make(SkScalar gamma) {
     // TODO: Once our public-facing API for specifying gamma curves settles down, expose this,
     // and allow clients to explicitly request sRGB, rather than inferring from the exponent.
     // Note that AdobeRGB (for example) is speficied as x^2.2, not the Rec.709 curves.
     if (SkScalarNearlyEqual(gamma, 2.2f)) {
-        return new GrGammaEffect(Mode::kSRGBToLinear, 2.2f);
+        return sk_sp<GrFragmentProcessor>(new GrGammaEffect(Mode::kSRGBToLinear, 2.2f));
     } else if (SkScalarNearlyEqual(gamma, 1.0f / 2.2f)) {
-        return new GrGammaEffect(Mode::kLinearToSRGB, 1.0f / 2.2f);
+        return sk_sp<GrFragmentProcessor>(new GrGammaEffect(Mode::kLinearToSRGB, 1.0f / 2.2f));
     } else {
-        return new GrGammaEffect(Mode::kExponential, gamma);
+        return sk_sp<GrFragmentProcessor>(new GrGammaEffect(Mode::kExponential, gamma));
     }
 }

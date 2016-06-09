@@ -75,15 +75,14 @@ protected:
                 canvas->drawRect(testBounds, paint);
 
                 GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.setXPFactory(
-                    GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+                pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
-                SkAutoTUnref<GrFragmentProcessor> fp(GrRRectEffect::Create(edgeType, rrect));
+                sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
                 SkASSERT(fp);
                 if (fp) {
-                    pipelineBuilder.addCoverageFragmentProcessor(fp);
+                    pipelineBuilder.addCoverageFragmentProcessor(std::move(fp));
 
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));

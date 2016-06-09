@@ -21,7 +21,7 @@ static void set_inset_fan(SkPoint* pts, size_t stride,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
 
-static const GrGeometryProcessor* create_stroke_rect_gp(bool tweakAlphaForCoverage,
+static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCoverage,
                                                         const SkMatrix& viewMatrix,
                                                         bool usesLocalCoords,
                                                         bool coverageIgnored) {
@@ -40,7 +40,7 @@ static const GrGeometryProcessor* create_stroke_rect_gp(bool tweakAlphaForCovera
     Coverage coverage(coverageType);
     LocalCoords localCoords(usesLocalCoords ? LocalCoords::kUsePosition_Type :
                                               LocalCoords::kUnused_Type);
-    return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
+    return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
 class AAStrokeRectBatch : public GrVertexBatch {
@@ -183,10 +183,10 @@ void AAStrokeRectBatch::initBatchTracker(const GrXPOverridesForBatch& overrides)
 void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
     bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
-    SkAutoTUnref<const GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,
-                                                                     this->viewMatrix(),
-                                                                     this->usesLocalCoords(),
-                                                                     this->coverageIgnored()));
+    sk_sp<GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,
+                                                        this->viewMatrix(),
+                                                        this->usesLocalCoords(),
+                                                        this->coverageIgnored()));
     if (!gp) {
         SkDebugf("Couldn't create GrGeometryProcessor\n");
         return;
@@ -229,7 +229,7 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
                                            args.fDegenerate,
                                            canTweakAlphaForCoverage);
     }
-    helper.recordDraw(target, gp);
+    helper.recordDraw(target, gp.get());
 }
 
 const GrBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,

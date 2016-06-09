@@ -72,7 +72,7 @@ public:
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
                                                    SkFilterQuality,
@@ -350,7 +350,7 @@ static bool make_mat(const SkBitmap& bm,
     return true;
 }
 
-const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(
                                                      GrContext* context,
                                                      const SkMatrix& viewM,
                                                      const SkMatrix* localMatrix,
@@ -404,10 +404,10 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
         return nullptr;
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> inner (
+    sk_sp<GrFragmentProcessor> inner (
         new LightingFP(diffuseTexture, normalTexture, diffM, normM, diffParams, normParams, fLights,
                        fInvNormRotation));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif

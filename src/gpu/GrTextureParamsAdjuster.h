@@ -59,7 +59,7 @@ public:
      * @param filterOrNullForBicubic           If non-null indicates the filter mode. If null means
      *                                         use bicubic filtering.
      **/
-    virtual const GrFragmentProcessor* createFragmentProcessor(
+    virtual sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                     const SkMatrix& textureMatrix,
                                     const SkRect& constraintRect,
                                     FilterConstraint filterConstraint,
@@ -131,7 +131,7 @@ public:
     GrTexture* refTextureSafeForParams(const GrTextureParams&, SkSourceGammaTreatment,
                                        SkIPoint* outOffset);
 
-    const GrFragmentProcessor* createFragmentProcessor(
+    sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
                                 const SkRect& constraintRect,
                                 FilterConstraint,
@@ -172,7 +172,7 @@ public:
         the texture. */
     GrTexture* refTextureForParams(const GrTextureParams&, SkSourceGammaTreatment);
 
-    const GrFragmentProcessor* createFragmentProcessor(
+    sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
                                 const SkRect& constraintRect,
                                 FilterConstraint filterConstraint,

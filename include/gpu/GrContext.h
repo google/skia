@@ -457,9 +457,9 @@ private:
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
      * return NULL. They also can perform a swizzle as part of the draw.
      */
-    const GrFragmentProcessor* createPMToUPMEffect(GrTexture*, const GrSwizzle&,
+    sk_sp<GrFragmentProcessor> createPMToUPMEffect(GrTexture*, const GrSwizzle&,
                                                    const SkMatrix&) const;
-    const GrFragmentProcessor* createUPMToPMEffect(GrTexture*, const GrSwizzle&,
+    sk_sp<GrFragmentProcessor> createUPMToPMEffect(GrTexture*, const GrSwizzle&,
                                                    const SkMatrix&) const;
     /** Called before either of the above two functions to determine the appropriate fragment
         processors for conversions. This must be called by readSurfacePixels before a mutex is

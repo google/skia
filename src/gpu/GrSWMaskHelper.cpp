@@ -189,10 +189,10 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     pipelineBuilder.setUserStencil(userStencilSettings);
 
     pipelineBuilder.addCoverageFragmentProcessor(
-                         GrSimpleTextureEffect::Create(texture,
-                                                       maskMatrix,
-                                                       GrTextureParams::kNone_FilterMode,
-                                                       kDevice_GrCoordSet))->unref();
+                         GrSimpleTextureEffect::Make(texture,
+                                                     maskMatrix,
+                                                     GrTextureParams::kNone_FilterMode,
+                                                     kDevice_GrCoordSet));
 
     SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(),
                                                                         dstRect, nullptr, &invert));

@@ -114,18 +114,18 @@ protected:
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setXPFactory(
-                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                    SkAutoTUnref<const GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Create(texture, textureMatrices[tm],
+                        GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    sk_sp<GrFragmentProcessor> fp(
+                        GrTextureDomainEffect::Make(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
-                                                                                texelDomains[d]),
+                                                                                 texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));
 
                     if (!fp) {
                         continue;
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    pipelineBuilder.addColorFragmentProcessor(fp);
+                    pipelineBuilder.addColorFragmentProcessor(std::move(fp));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,

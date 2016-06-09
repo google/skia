@@ -76,9 +76,9 @@ static void convolve_gaussian_1d(GrDrawContext* drawContext,
                                  float bounds[2]) {
     GrPaint paint;
     paint.setGammaCorrect(drawContext->isGammaCorrect());
-    SkAutoTUnref<GrFragmentProcessor> conv(GrConvolutionEffect::CreateGaussian(
+    sk_sp<GrFragmentProcessor> conv(GrConvolutionEffect::MakeGaussian(
         texture, direction, radius, sigma, useBounds, bounds));
-    paint.addColorFragmentProcessor(conv);
+    paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
                                                -SkIntToScalar(srcOffset.y()));
@@ -104,11 +104,11 @@ static void convolve_gaussian_2d(GrDrawContext* drawContext,
     paint.setGammaCorrect(drawContext->isGammaCorrect());
     SkIRect bounds = srcBounds ? *srcBounds : SkIRect::EmptyIRect();
 
-    SkAutoTUnref<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::CreateGaussian(
+    sk_sp<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::MakeGaussian(
             texture, bounds, size, 1.0, 0.0, kernelOffset,
             srcBounds ? GrTextureDomain::kDecal_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
-    paint.addColorFragmentProcessor(conv);
+    paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     drawContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(), 
                                          SkRect::Make(dstRect), localMatrix);
@@ -273,13 +273,13 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
             matrix.mapRect(&domain, SkRect::Make(*srcBounds));
             domain.inset((i < scaleFactorX) ? SK_ScalarHalf / srcTexture->width() : 0.0f,
                          (i < scaleFactorY) ? SK_ScalarHalf / srcTexture->height() : 0.0f);
-            sk_sp<const GrFragmentProcessor> fp(GrTextureDomainEffect::Create(
+            sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
                                                         srcTexture.get(),
                                                         matrix,
                                                         domain,
                                                         GrTextureDomain::kDecal_Mode,
                                                         GrTextureParams::kBilerp_FilterMode));
-            paint.addColorFragmentProcessor(fp.get());
+            paint.addColorFragmentProcessor(std::move(fp));
             srcRect.offset(-srcOffset);
             srcOffset.set(0, 0);
         } else {

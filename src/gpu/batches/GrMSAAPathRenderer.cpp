@@ -84,7 +84,7 @@ static inline void append_contour_edge_indices(uint16_t fanCenterIdx,
     *(lines.nextIndex++) = edgeV0Idx + 1;
 }
 
-static inline void add_quad(MSAALineVertices& lines, MSAAQuadVertices& quads, const SkPoint pts[], 
+static inline void add_quad(MSAALineVertices& lines, MSAAQuadVertices& quads, const SkPoint pts[],
                             SkColor color, bool indexed, uint16_t subpathLineIdxStart) {
     SkASSERT(lines.nextVertex < lines.verticesEnd);
     *lines.nextVertex = { pts[2], color };
@@ -144,16 +144,16 @@ public:
             vsBuilder->codeAppendf("%s = %s;", uv.vsOut(), qp.inUV()->fName);
 
             // Setup position
-            this->setupPosition(vsBuilder, uniformHandler, gpArgs, qp.inPosition()->fName, 
+            this->setupPosition(vsBuilder, uniformHandler, gpArgs, qp.inPosition()->fName,
                                 qp.viewMatrix(), &fViewMatrixUniform);
 
             // emit transforms
-            this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar, 
-                                 qp.inPosition()->fName, SkMatrix::I(), args.fTransformsIn, 
+            this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
+                                 qp.inPosition()->fName, SkMatrix::I(), args.fTransformsIn,
                                  args.fTransformsOut);
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
-            fsBuilder->codeAppendf("if (%s.x * %s.x >= %s.y) discard;", uv.fsIn(), uv.fsIn(), 
+            fsBuilder->codeAppendf("if (%s.x * %s.x >= %s.y) discard;", uv.fsIn(), uv.fsIn(),
                                                                         uv.fsIn());
             fsBuilder->codeAppendf("%s = vec4(1.0);", args.fOutputCoverage);
         }
@@ -204,9 +204,9 @@ private:
     MSAAQuadProcessor(const SkMatrix& viewMatrix)
         : fViewMatrix(viewMatrix) {
         this->initClassID<MSAAQuadProcessor>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType, 
+        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
                                                        kHigh_GrSLPrecision));
-        fInUV = &this->addVertexAttrib(Attribute("inUV", kVec2f_GrVertexAttribType, 
+        fInUV = &this->addVertexAttrib(Attribute("inUV", kVec2f_GrVertexAttribType,
                                                  kHigh_GrSLPrecision));
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
         this->setSampleShading(1.0f);
@@ -216,7 +216,7 @@ private:
     const Attribute* fInUV;
     const Attribute* fInColor;
     SkMatrix         fViewMatrix;
-    
+
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
     typedef GrGeometryProcessor INHERITED;
@@ -232,14 +232,14 @@ public:
         SkScalar fTolerance;
     };
 
-    static MSAAPathBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix, 
+    static MSAAPathBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
                                const SkRect& devBounds) {
         return new MSAAPathBatch(geometry, viewMatrix, devBounds);
     }
 
     const char* name() const override { return "MSAAPathBatch"; }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
@@ -260,7 +260,7 @@ private:
         overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
     }
 
-    void computeWorstCasePointCount(const SkPath& path, int* subpaths, SkScalar tol, 
+    void computeWorstCasePointCount(const SkPath& path, int* subpaths, SkScalar tol,
                                     int* outLinePointCount, int* outQuadPointCount) const {
         int linePointCount = 0;
         int quadPointCount = 0;
@@ -319,7 +319,7 @@ private:
             return;
         }
 
-        GrPrimitiveType primitiveType = fIsIndexed ? kTriangles_GrPrimitiveType 
+        GrPrimitiveType primitiveType = fIsIndexed ? kTriangles_GrPrimitiveType
                                                    : kTriangleFan_GrPrimitiveType;
 
         // allocate vertex / index buffers
@@ -327,9 +327,9 @@ private:
         int firstLineVertex;
         MSAALineVertices lines;
         size_t lineVertexStride = sizeof(MSAALineVertices::Vertex);
-        lines.vertices = (MSAALineVertices::Vertex*) target->makeVertexSpace(lineVertexStride, 
+        lines.vertices = (MSAALineVertices::Vertex*) target->makeVertexSpace(lineVertexStride,
                                                                              fMaxLineVertices,
-                                                                             &lineVertexBuffer, 
+                                                                             &lineVertexBuffer,
                                                                              &firstLineVertex);
         if (!lines.vertices) {
             SkDebugf("Could not allocate vertices\n");
@@ -348,7 +348,7 @@ private:
         const GrBuffer* lineIndexBuffer = nullptr;
         int firstLineIndex;
         if (fIsIndexed) {
-            lines.indices = target->makeIndexSpace(fMaxLineIndices, &lineIndexBuffer, 
+            lines.indices = target->makeIndexSpace(fMaxLineIndices, &lineIndexBuffer,
                                                    &firstLineIndex);
             if (!lines.indices) {
                 SkDebugf("Could not allocate indices\n");
@@ -392,26 +392,26 @@ private:
         SkASSERT(quadVertexOffset <= fMaxQuadVertices && quadIndexOffset <= fMaxQuadIndices);
 
         if (lineVertexOffset) {
-            SkAutoTUnref<const GrGeometryProcessor> lineGP;
+            sk_sp<GrGeometryProcessor> lineGP;
             {
                 using namespace GrDefaultGeoProcFactory;
-                lineGP.reset(GrDefaultGeoProcFactory::Create(Color(Color::kAttribute_Type), 
-                                                             Coverage(255),
-                                                             LocalCoords(LocalCoords::kUnused_Type), 
-                                                             fViewMatrix));
+                lineGP = GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type),
+                                                       Coverage(255),
+                                                       LocalCoords(LocalCoords::kUnused_Type),
+                                                       fViewMatrix);
             }
             SkASSERT(lineVertexStride == lineGP->getVertexStride());
 
             GrMesh lineMeshes;
             if (fIsIndexed) {
-                lineMeshes.initIndexed(primitiveType, lineVertexBuffer, lineIndexBuffer, 
-                                         firstLineVertex, firstLineIndex, lineVertexOffset, 
+                lineMeshes.initIndexed(primitiveType, lineVertexBuffer, lineIndexBuffer,
+                                         firstLineVertex, firstLineIndex, lineVertexOffset,
                                          lineIndexOffset);
             } else {
-                lineMeshes.init(primitiveType, lineVertexBuffer, firstLineVertex, 
+                lineMeshes.init(primitiveType, lineVertexBuffer, firstLineVertex,
                                   lineVertexOffset);
             }
-            target->draw(lineGP, lineMeshes);
+            target->draw(lineGP.get(), lineMeshes);
         }
 
         if (quadVertexOffset) {
@@ -420,7 +420,7 @@ private:
 
             const GrBuffer* quadVertexBuffer;
             int firstQuadVertex;
-            MSAAQuadVertices::Vertex* quadVertices = (MSAAQuadVertices::Vertex*) 
+            MSAAQuadVertices::Vertex* quadVertices = (MSAAQuadVertices::Vertex*)
                     target->makeVertexSpace(quadVertexStride, quadVertexOffset, &quadVertexBuffer,
                                             &firstQuadVertex);
             memcpy(quadVertices, quads.vertices, quadVertexStride * quadVertexOffset);
@@ -428,15 +428,15 @@ private:
             if (fIsIndexed) {
                 const GrBuffer* quadIndexBuffer;
                 int firstQuadIndex;
-                uint16_t* quadIndices = (uint16_t*) target->makeIndexSpace(quadIndexOffset, 
-                                                                           &quadIndexBuffer, 
+                uint16_t* quadIndices = (uint16_t*) target->makeIndexSpace(quadIndexOffset,
+                                                                           &quadIndexBuffer,
                                                                            &firstQuadIndex);
                 memcpy(quadIndices, quads.indices, sizeof(uint16_t) * quadIndexOffset);
-                quadMeshes.initIndexed(kTriangles_GrPrimitiveType, quadVertexBuffer, 
-                                       quadIndexBuffer, firstQuadVertex, firstQuadIndex, 
+                quadMeshes.initIndexed(kTriangles_GrPrimitiveType, quadVertexBuffer,
+                                       quadIndexBuffer, firstQuadVertex, firstQuadIndex,
                                        quadVertexOffset, quadIndexOffset);
             } else {
-                quadMeshes.init(kTriangles_GrPrimitiveType, quadVertexBuffer, firstQuadVertex, 
+                quadMeshes.init(kTriangles_GrPrimitiveType, quadVertexBuffer, firstQuadVertex,
                                 quadVertexOffset);
             }
             target->draw(quadGP, quadMeshes);
@@ -451,7 +451,7 @@ private:
         fGeoData.push_back(geometry);
         this->setBounds(devBounds);
         int contourCount;
-        this->computeWorstCasePointCount(geometry.fPath, &contourCount, kTolerance, 
+        this->computeWorstCasePointCount(geometry.fPath, &contourCount, kTolerance,
                                          &fMaxLineVertices, &fMaxQuadVertices);
         fMaxLineIndices = fMaxLineVertices * 3;
         fMaxQuadIndices = fMaxQuadVertices * 3;
@@ -469,7 +469,7 @@ private:
             return false;
         }
 
-        if ((fMaxLineIndices + that->fMaxLineIndices > SK_MaxU16) || 
+        if ((fMaxLineIndices + that->fMaxLineIndices > SK_MaxU16) ||
             (fMaxQuadIndices + that->fMaxQuadIndices > SK_MaxU16)) {
             return false;
         }
@@ -524,17 +524,17 @@ private:
                     case SkPath::kConic_Verb: {
                         SkScalar weight = iter.conicWeight();
                         SkAutoConicToQuads converter;
-                        const SkPoint* quadPts = converter.computeQuads(pts, weight, 
+                        const SkPoint* quadPts = converter.computeQuads(pts, weight,
                                                                         kTolerance);
                         for (int i = 0; i < converter.countQuads(); ++i) {
-                            add_quad(lines, quads, quadPts + i * 2, color, isIndexed, 
+                            add_quad(lines, quads, quadPts + i * 2, color, isIndexed,
                                      subpathIdxStart);
                         }
                         break;
                     }
                     case SkPath::kQuad_Verb: {
                         add_quad(lines, quads, pts, color, isIndexed, subpathIdxStart);
-                        break;                        
+                        break;
                     }
                     case SkPath::kCubic_Verb: {
                         SkSTArray<15, SkPoint, true> quadPts;
@@ -682,7 +682,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
             geometry.fPath = path;
             geometry.fTolerance = kTolerance;
 
-            SkAutoTUnref<MSAAPathBatch> batch(MSAAPathBatch::Create(geometry, viewMatrix, 
+            SkAutoTUnref<MSAAPathBatch> batch(MSAAPathBatch::Create(geometry, viewMatrix,
                                                                     devBounds));
             if (!batch->isValid()) {
                 return false;
@@ -749,7 +749,7 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
 
     GrPaint paint;
-    SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
+    paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
     this->internalDrawPath(args.fDrawContext,

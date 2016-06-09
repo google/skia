@@ -318,7 +318,7 @@ void SkPictureShader::toString(SkString* str) const {
 #endif
 
 #if SK_SUPPORT_GPU
-const GrFragmentProcessor* SkPictureShader::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
                                                      GrContext* context, const SkMatrix& viewM,
                                                      const SkMatrix* localMatrix,
                                                      SkFilterQuality fq,

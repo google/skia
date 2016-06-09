@@ -101,11 +101,11 @@ private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override;
 
     struct FlushInfo {
-        SkAutoTUnref<const GrBuffer>            fVertexBuffer;
-        SkAutoTUnref<const GrBuffer>            fIndexBuffer;
-        SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
-        int                                     fGlyphsToFlush;
-        int                                     fVertexOffset;
+        SkAutoTUnref<const GrBuffer> fVertexBuffer;
+        SkAutoTUnref<const GrBuffer> fIndexBuffer;
+        sk_sp<GrGeometryProcessor>   fGeometryProcessor;
+        int                          fGlyphsToFlush;
+        int                          fVertexOffset;
     };
 
     void onPrepareDraws(Target* target) const override;
@@ -153,8 +153,8 @@ private:
 
     // TODO just use class params
     // TODO trying to figure out why lcd is so whack
-    GrGeometryProcessor* setupDfProcessor(const SkMatrix& viewMatrix, SkColor filteredColor,
-                                          GrColor color, GrTexture* texture) const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor filteredColor,
+                                                GrColor color, GrTexture* texture) const;
 
     struct BatchTracker {
         GrColor fColor;

@@ -35,8 +35,8 @@ static bool draw_mask(GrDrawContext* drawContext,
     matrix.setTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
     matrix.postIDiv(mask->width(), mask->height());
 
-    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(mask, matrix,
-                                                                    kDevice_GrCoordSet))->unref();
+    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(mask, matrix,
+                                                                  kDevice_GrCoordSet));
 
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {

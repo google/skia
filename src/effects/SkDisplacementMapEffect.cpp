@@ -214,13 +214,14 @@ void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 class GrDisplacementMapEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(
+    static sk_sp<GrFragmentProcessor> Make(
                 SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                 SkDisplacementMapEffect::ChannelSelectorType yChannelSelector, SkVector scale,
                 GrTexture* displacement, const SkMatrix& offsetMatrix, GrTexture* color,
                 const SkISize& colorDimensions) {
-        return new GrDisplacementMapEffect(xChannelSelector, yChannelSelector, scale, displacement,
-                                           offsetMatrix, color, colorDimensions);
+        return sk_sp<GrFragmentProcessor>(
+            new GrDisplacementMapEffect(xChannelSelector, yChannelSelector, scale, displacement,
+                                        offsetMatrix, color, colorDimensions));
     }
 
     virtual ~GrDisplacementMapEffect();
@@ -323,14 +324,13 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                   SkIntToScalar(colorOffset.fY - displOffset.fY));
 
         paint.addColorFragmentProcessor(
-            GrDisplacementMapEffect::Create(fXChannelSelector,
-                                            fYChannelSelector,
-                                            scale,
-                                            displTexture.get(),
-                                            offsetMatrix,
-                                            colorTexture.get(),
-                                            SkISize::Make(color->width(),
-                                                          color->height())))->unref();
+            GrDisplacementMapEffect::Make(fXChannelSelector,
+                                          fYChannelSelector,
+                                          scale,
+                                          displTexture.get(),
+                                          offsetMatrix,
+                                          colorTexture.get(),
+                                          SkISize::Make(color->width(), color->height())));
         paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
@@ -504,7 +504,7 @@ void GrDisplacementMapEffect::onComputeInvariantOutput(GrInvariantOutput* inout)
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDisplacementMapEffect);
 
-const GrFragmentProcessor* GrDisplacementMapEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestData* d) {
     int texIdxDispl = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                                GrProcessorUnitTest::kAlphaTextureIdx;
     int texIdxColor = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
@@ -521,9 +521,9 @@ const GrFragmentProcessor* GrDisplacementMapEffect::TestCreate(GrProcessorTestDa
     SkISize colorDimensions;
     colorDimensions.fWidth = d->fRandom->nextRangeU(0, d->fTextures[texIdxColor]->width());
     colorDimensions.fHeight = d->fRandom->nextRangeU(0, d->fTextures[texIdxColor]->height());
-    return GrDisplacementMapEffect::Create(xChannelSelector, yChannelSelector, scale,
-                                           d->fTextures[texIdxDispl], SkMatrix::I(),
-                                           d->fTextures[texIdxColor], colorDimensions);
+    return GrDisplacementMapEffect::Make(xChannelSelector, yChannelSelector, scale,
+                                         d->fTextures[texIdxDispl], SkMatrix::I(),
+                                         d->fTextures[texIdxColor], colorDimensions);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

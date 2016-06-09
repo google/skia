@@ -315,8 +315,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         bounds.offset(-inputOffset);
 
         // SRGBTODO: handle sRGB here
-        sk_sp<GrFragmentProcessor> fp(GrMatrixConvolutionEffect::Create(
-                                                                      inputTexture.get(),
+        sk_sp<GrFragmentProcessor> fp(GrMatrixConvolutionEffect::Make(inputTexture.get(),
                                                                       bounds,
                                                                       fKernelSize,
                                                                       fKernel,

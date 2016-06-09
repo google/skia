@@ -220,14 +220,14 @@ public:
         It is legal for the function to return a null output. This indicates that
         the output of the blend is simply the src color.
      */
-    virtual const GrFragmentProcessor* getFragmentProcessorForImageFilter(
-                                                            const GrFragmentProcessor* dst) const;
+    virtual sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
+                                                            sk_sp<GrFragmentProcessor> dst) const;
 
     /** A subclass must implement this factory function to work with the GPU backend. 
         The xfermode will return a factory for which the caller will get a ref. It is up 
         to the caller to install it. XferProcessors cannot use a background texture.
       */
-    virtual GrXPFactory* asXPFactory() const;
+    virtual sk_sp<GrXPFactory> asXPFactory() const;
 #endif
 
     SK_TO_STRING_PUREVIRT()

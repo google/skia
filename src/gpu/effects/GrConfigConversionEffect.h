@@ -33,8 +33,8 @@ public:
         kPMConversionCnt
     };
 
-    static const GrFragmentProcessor* Create(GrTexture*, const GrSwizzle&, PMConversion,
-                                             const SkMatrix&);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture*, const GrSwizzle&, PMConversion,
+                                           const SkMatrix&);
 
     const char* name() const override { return "Config Conversion"; }
 

@@ -1198,7 +1198,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
-    SkAutoTUnref<const GrFragmentProcessor> fp;
+    sk_sp<GrFragmentProcessor> fp;
 
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
         // Use a constrained texture domain to avoid color bleeding
@@ -1219,24 +1219,21 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         }
         textureDomain.setLTRB(left, top, right, bottom);
         if (bicubic) {
-            fp.reset(GrBicubicEffect::Create(texture, texMatrix, textureDomain));
+            fp = GrBicubicEffect::Make(texture, texMatrix, textureDomain);
         } else {
-            fp.reset(GrTextureDomainEffect::Create(texture,
-                                                   texMatrix,
-                                                   textureDomain,
-                                                   GrTextureDomain::kClamp_Mode,
-                                                   params.filterMode()));
+            fp = GrTextureDomainEffect::Make(texture, texMatrix, textureDomain,
+                                             GrTextureDomain::kClamp_Mode, params.filterMode());
         }
     } else if (bicubic) {
         SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp.reset(GrBicubicEffect::Create(texture, texMatrix, tileModes));
+        fp = GrBicubicEffect::Make(texture, texMatrix, tileModes);
     } else {
-        fp.reset(GrSimpleTextureEffect::Create(texture, texMatrix, params));
+        fp = GrSimpleTextureEffect::Make(texture, texMatrix, params);
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(this->context(), paint, viewMatrix, fp,
+    if (!SkPaintToGrPaintWithTexture(this->context(), paint, viewMatrix, std::move(fp),
                                      kAlpha_8_SkColorType == bitmap.colorType(),
                                      this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
@@ -1280,14 +1277,13 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     SkASSERT(!paint.getImageFilter());
 
     GrPaint grPaint;
-    SkAutoTUnref<const GrFragmentProcessor> fp(
-        GrSimpleTextureEffect::Create(texture, SkMatrix::I()));
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture, SkMatrix::I()));
     if (alphaOnly) {
-        fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
+        fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
     } else {
-        fp.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
+        fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
     }
-    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, fp,
+    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, std::move(fp),
                                        this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
@@ -1415,16 +1411,15 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     SkASSERT(!paint.getImageFilter());
 
     GrPaint grPaint;
-    SkAutoTUnref<const GrFragmentProcessor> fp(
-        GrSimpleTextureEffect::Create(devTex.get(), SkMatrix::I()));
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(devTex.get(), SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(devTex->config())) {
         // Can this happen?
-        fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
+        fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
    } else {
-        fp.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
+        fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
     }
 
-    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, fp,
+    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, std::move(fp),
                                        this->surfaceProps().isGammaCorrect(), &grPaint)) {
         return;
     }
@@ -1529,13 +1524,13 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
     bool gammaCorrect = this->surfaceProps().isGammaCorrect();
     SkSourceGammaTreatment gammaTreatment = gammaCorrect
         ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
-    SkAutoTUnref<const GrFragmentProcessor> fp(
+    sk_sp<GrFragmentProcessor> fp(
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, gammaTreatment));
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, fp,
+    if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, std::move(fp),
                                      producer->isAlphaOnly(), gammaCorrect, &grPaint)) {
         return;
     }

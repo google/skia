@@ -266,8 +266,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
-    paint.addColorFragmentProcessor(GrYUVEffect::CreateYUVToRGB(yTex, uTex, vTex, yuvSizes,
-                                                                colorSpace))->unref();
+    paint.addColorFragmentProcessor(GrYUVEffect::MakeYUVToRGB(yTex, uTex, vTex, yuvSizes,
+                                                              colorSpace));
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 

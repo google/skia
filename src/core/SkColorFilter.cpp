@@ -31,6 +31,12 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
     return false;
 }
 
+#if SK_SUPPORT_GPU
+sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*) const {
+    return nullptr;
+}
+#endif
+
 void SkColorFilter::filterSpan4f(const SkPM4f[], int count, SkPM4f span[]) const {
     const int N = 128;
     SkPMColor tmp[N];
@@ -99,13 +105,13 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext* context) const override {
-        SkAutoTUnref<const GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context));
-        SkAutoTUnref<const GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context));
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context) const override {
+        sk_sp<GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context));
+        sk_sp<GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context));
         if (!innerFP || !outerFP) {
             return nullptr;
         }
-        const GrFragmentProcessor* series[] = { innerFP, outerFP };
+        sk_sp<GrFragmentProcessor> series[] = { std::move(innerFP), std::move(outerFP) };
         return GrFragmentProcessor::RunInSeries(series, 2);
     }
 #endif

@@ -143,14 +143,14 @@ public:
         kDilate_MorphologyType,
     };
 
-    static GrFragmentProcessor* Create(GrTexture* tex, Direction dir, int radius,
-                                       MorphologyType type) {
-        return new GrMorphologyEffect(tex, dir, radius, type);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex, Direction dir, int radius,
+                                           MorphologyType type) {
+        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(tex, dir, radius, type));
     }
 
-    static GrFragmentProcessor* Create(GrTexture* tex, Direction dir, int radius,
-                                       MorphologyType type, float bounds[2]) {
-        return new GrMorphologyEffect(tex, dir, radius, type, bounds);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex, Direction dir, int radius,
+                                           MorphologyType type, float bounds[2]) {
+        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(tex, dir, radius, type, bounds));
     }
 
     virtual ~GrMorphologyEffect();
@@ -370,16 +370,16 @@ void GrMorphologyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) cons
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
 
-const GrFragmentProcessor* GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                      GrProcessorUnitTest::kAlphaTextureIdx;
+                                          GrProcessorUnitTest::kAlphaTextureIdx;
     Direction dir = d->fRandom->nextBool() ? kX_Direction : kY_Direction;
     static const int kMaxRadius = 10;
     int radius = d->fRandom->nextRangeU(1, kMaxRadius);
     MorphologyType type = d->fRandom->nextBool() ? GrMorphologyEffect::kErode_MorphologyType :
                                                GrMorphologyEffect::kDilate_MorphologyType;
 
-    return GrMorphologyEffect::Create(d->fTextures[texIdx], dir, radius, type);
+    return GrMorphologyEffect::Make(d->fTextures[texIdx], dir, radius, type);
 }
 
 
@@ -394,11 +394,11 @@ static void apply_morphology_rect(GrDrawContext* drawContext,
                                   Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
     // SRGBTODO: AllowSRGBInputs?
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Create(texture,
-                                                               direction,
-                                                               radius,
-                                                               morphType,
-                                                               bounds))->unref();
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(texture,
+                                                             direction,
+                                                             radius,
+                                                             morphType,
+                                                             bounds));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
                                      SkRect::Make(srcRect));
@@ -414,10 +414,8 @@ static void apply_morphology_rect_no_bounds(GrDrawContext* drawContext,
                                             Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
     // SRGBTODO: AllowSRGBInputs?
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Create(texture,
-                                                               direction,
-                                                               radius,
-                                                               morphType))->unref();
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(texture, direction, radius,
+                                                             morphType));
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
                                 SkRect::Make(srcRect));

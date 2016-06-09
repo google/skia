@@ -44,7 +44,7 @@ const GrBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
         gAAFillRectIndexBufferKey);
 }
 
-static const GrGeometryProcessor* create_fill_rect_gp(
+static sk_sp<GrGeometryProcessor> create_fill_rect_gp(
                                        const SkMatrix& viewMatrix,
                                        const GrXPOverridesForBatch& overrides,
                                        GrDefaultGeoProcFactory::LocalCoords::Type localCoordsType) {
@@ -65,11 +65,11 @@ static const GrGeometryProcessor* create_fill_rect_gp(
     // We assume the caller has inverted the viewmatrix
     if (LocalCoords::kHasExplicit_Type == localCoordsType) {
         LocalCoords localCoords(localCoordsType);
-        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
+        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
     } else {
         LocalCoords localCoords(overrides.readsLocalCoords() ? localCoordsType :
                                                                LocalCoords::kUnused_Type);
-        return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
+        return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
     }
 }
 
@@ -239,9 +239,9 @@ public:
         return !overrides.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
     }
 
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+    static sk_sp<GrGeometryProcessor> MakeGP(const Geometry& geo,
                                                const GrXPOverridesForBatch& overrides) {
-        const GrGeometryProcessor* gp =
+        sk_sp<GrGeometryProcessor> gp =
                 create_fill_rect_gp(geo.fViewMatrix, overrides,
                                     GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
 
@@ -286,9 +286,9 @@ public:
         return true;
     }
 
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+    static sk_sp<GrGeometryProcessor> MakeGP(const Geometry& geo,
                                                const GrXPOverridesForBatch& overrides) {
-        const GrGeometryProcessor* gp =
+        sk_sp<GrGeometryProcessor> gp =
                 create_fill_rect_gp(geo.fViewMatrix, overrides,
                                     GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
 

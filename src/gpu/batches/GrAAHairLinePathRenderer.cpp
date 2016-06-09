@@ -831,7 +831,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
 
     // do lines first
     if (lineCount) {
-        SkAutoTUnref<const GrGeometryProcessor> lineGP;
+        sk_sp<GrGeometryProcessor> lineGP;
         {
             using namespace GrDefaultGeoProcFactory;
 
@@ -840,8 +840,8 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
             LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
                                     LocalCoords::kUnused_Type);
             localCoords.fMatrix = geometryProcessorLocalM;
-            lineGP.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
-                                                         *geometryProcessorViewM));
+            lineGP = GrDefaultGeoProcFactory::Make(color, coverage, localCoords,
+                                                   *geometryProcessorViewM);
         }
 
         SkAutoTUnref<const GrBuffer> linesIndexBuffer(
@@ -870,27 +870,27 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
         mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer,
                            firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, lineCount,
                            kLineSegsNumInIdxBuffer);
-        target->draw(lineGP, mesh);
+        target->draw(lineGP.get(), mesh);
     }
 
     if (quadCount || conicCount) {
-        SkAutoTUnref<const GrGeometryProcessor> quadGP(
-            GrQuadEffect::Create(this->color(),
-                                 *geometryProcessorViewM,
-                                 kHairlineAA_GrProcessorEdgeType,
-                                 target->caps(),
-                                 *geometryProcessorLocalM,
-                                 this->usesLocalCoords(),
-                                 this->coverage()));
+        sk_sp<GrGeometryProcessor> quadGP(
+            GrQuadEffect::Make(this->color(),
+                               *geometryProcessorViewM,
+                               kHairlineAA_GrProcessorEdgeType,
+                               target->caps(),
+                               *geometryProcessorLocalM,
+                               this->usesLocalCoords(),
+                               this->coverage()));
 
-        SkAutoTUnref<const GrGeometryProcessor> conicGP(
-            GrConicEffect::Create(this->color(),
-                                  *geometryProcessorViewM,
-                                  kHairlineAA_GrProcessorEdgeType,
-                                  target->caps(),
-                                  *geometryProcessorLocalM,
-                                  this->usesLocalCoords(),
-                                  this->coverage()));
+        sk_sp<GrGeometryProcessor> conicGP(
+            GrConicEffect::Make(this->color(),
+                                *geometryProcessorViewM,
+                                kHairlineAA_GrProcessorEdgeType,
+                                target->caps(),
+                                *geometryProcessorLocalM,
+                                this->usesLocalCoords(),
+                                this->coverage()));
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
@@ -927,7 +927,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
             mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
                                firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
                                kQuadsNumInIdxBuffer);
-            target->draw(quadGP, mesh);
+            target->draw(quadGP.get(), mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -936,7 +936,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
             mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
                                firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
                                kQuadsNumInIdxBuffer);
-            target->draw(conicGP, mesh);
+            target->draw(conicGP.get(), mesh);
         }
     }
 }

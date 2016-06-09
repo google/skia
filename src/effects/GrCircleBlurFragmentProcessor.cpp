@@ -289,11 +289,11 @@ GrTexture* GrCircleBlurFragmentProcessor::CreateCircleBlurProfileTexture(
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
 
-const GrFragmentProcessor* GrCircleBlurFragmentProcessor::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     SkScalar wh = d->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar sigma = d->fRandom->nextRangeF(1.f,10.f);
     SkRect circle = SkRect::MakeWH(wh, wh);
-    return GrCircleBlurFragmentProcessor::Create(d->fContext->textureProvider(), circle, sigma);
+    return GrCircleBlurFragmentProcessor::Make(d->fContext->textureProvider(), circle, sigma);
 }
 
 #endif

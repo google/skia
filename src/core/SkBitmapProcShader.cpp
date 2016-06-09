@@ -410,7 +410,7 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #include "SkGr.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* context,
+sk_sp<GrFragmentProcessor> SkBitmapProcShader::asFragmentProcessor(GrContext* context,
                                              const SkMatrix& viewM, const SkMatrix* localMatrix,
                                              SkFilterQuality filterQuality,
                                              SkSourceGammaTreatment gammaTreatment) const {
@@ -453,17 +453,17 @@ const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* co
         return nullptr;
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> inner;
+    sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner.reset(GrBicubicEffect::Create(texture, matrix, tm));
+        inner = GrBicubicEffect::Make(texture, matrix, tm);
     } else {
-        inner.reset(GrSimpleTextureEffect::Create(texture, matrix, params));
+        inner = GrSimpleTextureEffect::Make(texture, matrix, params);
     }
 
     if (kAlpha_8_SkColorType == fRawBitmap.colorType()) {
-        return GrFragmentProcessor::MulOutputByInputUnpremulColor(inner);
+        return GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(inner));
     }
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif

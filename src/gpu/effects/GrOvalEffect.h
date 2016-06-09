@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
+#include "SkRefCnt.h"
 
 class GrFragmentProcessor;
 struct SkRect;
@@ -18,7 +19,7 @@ namespace GrOvalEffect {
     /**
      * Creates an effect that performs clipping against an oval.
      */
-    GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkRect&);
+    sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRect&);
 };
 
 #endif

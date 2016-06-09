@@ -51,10 +51,10 @@ public:
 
     The vertex attrib order is always pos, color, [local coords].
  */
-static const GrGeometryProcessor* create_gp(const SkMatrix& viewMatrix,
-                                            bool readsCoverage,
-                                            bool hasExplicitLocalCoords,
-                                            const SkMatrix* localMatrix) {
+static sk_sp<GrGeometryProcessor> make_gp(const SkMatrix& viewMatrix,
+                                          bool readsCoverage,
+                                          bool hasExplicitLocalCoords,
+                                          const SkMatrix* localMatrix) {
     using namespace GrDefaultGeoProcFactory;
     Color color(Color::kAttribute_Type);
     Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
@@ -67,14 +67,14 @@ static const GrGeometryProcessor* create_gp(const SkMatrix& viewMatrix,
         LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type :
                                                          LocalCoords::kUsePosition_Type,
                                 localMatrix);
-        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, viewMatrix);
+        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, viewMatrix);
     } else if (hasExplicitLocalCoords) {
         LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
+        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
     } else {
         LocalCoords localCoords(LocalCoords::kUsePosition_Type, localMatrix);
-        return GrDefaultGeoProcFactory::CreateForDeviceSpace(color, coverage, localCoords,
-                                                             viewMatrix);
+        return GrDefaultGeoProcFactory::MakeForDeviceSpace(color, coverage, localCoords,
+                                                           viewMatrix);
     }
 }
 
@@ -138,10 +138,10 @@ public:
         return true;
     }
 
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrXPOverridesForBatch& overrides) {
-        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, overrides.readsCoverage(), true,
-                                                  nullptr);
+    static sk_sp<GrGeometryProcessor> MakeGP(const Geometry& geo,
+                                             const GrXPOverridesForBatch& overrides) {
+        sk_sp<GrGeometryProcessor> gp = make_gp(geo.fViewMatrix, overrides.readsCoverage(), true,
+                                                nullptr);
 
         SkASSERT(gp->getVertexStride() ==
                 sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr));
@@ -186,12 +186,12 @@ public:
                (!mine.fHasLocalMatrix || mine.fLocalMatrix.cheapEqualTo(theirs.fLocalMatrix));
     }
 
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrXPOverridesForBatch& overrides) {
-        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, overrides.readsCoverage(),
-                                                  geo.fHasLocalRect,
-                                                  geo.fHasLocalMatrix ? &geo.fLocalMatrix :
-                                                                        nullptr);
+    static sk_sp<GrGeometryProcessor> MakeGP(const Geometry& geo,
+                                             const GrXPOverridesForBatch& overrides) {
+        sk_sp<GrGeometryProcessor> gp = make_gp(geo.fViewMatrix, overrides.readsCoverage(),
+                                                geo.fHasLocalRect,
+                                                geo.fHasLocalMatrix ? &geo.fLocalMatrix
+                                                                    : nullptr);
 
         SkASSERT(geo.fHasLocalRect ?
              gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :

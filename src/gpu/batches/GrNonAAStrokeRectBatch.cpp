@@ -105,7 +105,7 @@ private:
     }
 
     void onPrepareDraws(Target* target) const override {
-        SkAutoTUnref<const GrGeometryProcessor> gp;
+        sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(this->color());
@@ -113,8 +113,7 @@ private:
                                                         Coverage::kNone_Type);
             LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
                                                               LocalCoords::kUnused_Type);
-            gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
-                                                     this->viewMatrix()));
+            gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, this->viewMatrix());
         }
 
         size_t vertexStride = gp->getVertexStride();
@@ -157,7 +156,7 @@ private:
 
         GrMesh mesh;
         mesh.init(primType, vertexBuffer, firstVertex, vertexCount);
-        target->draw(gp, mesh);
+        target->draw(gp.get(), mesh);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {

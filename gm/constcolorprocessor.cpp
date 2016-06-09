@@ -105,10 +105,10 @@ protected:
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
                     GrColor color = kColors[procColor];
-                    SkAutoTUnref<GrFragmentProcessor> fp(GrConstColorProcessor::Create(color, mode));
+                    sk_sp<GrFragmentProcessor> fp(GrConstColorProcessor::Make(color, mode));
 
                     GrPipelineBuilder pipelineBuilder(grPaint, drawContext->mustUseHWAA(grPaint));
-                    pipelineBuilder.addColorFragmentProcessor(fp);
+                    pipelineBuilder.addColorFragmentProcessor(std::move(fp));
 
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,

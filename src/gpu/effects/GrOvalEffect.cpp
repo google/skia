@@ -19,7 +19,8 @@
 
 class CircleEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
+    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPoint& center,
+                                           SkScalar radius);
 
     virtual ~CircleEffect() {};
 
@@ -50,10 +51,10 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-GrFragmentProcessor* CircleEffect::Create(GrPrimitiveEdgeType edgeType, const SkPoint& center,
-                                          SkScalar radius) {
+sk_sp<GrFragmentProcessor> CircleEffect::Make(GrPrimitiveEdgeType edgeType, const SkPoint& center,
+                                              SkScalar radius) {
     SkASSERT(radius >= 0);
-    return new CircleEffect(edgeType, center, radius);
+    return sk_sp<GrFragmentProcessor>(new CircleEffect(edgeType, center, radius));
 }
 
 void CircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -77,7 +78,7 @@ bool CircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleEffect);
 
-const GrFragmentProcessor* CircleEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> CircleEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center;
     center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = d->fRandom->nextRangeScalar(0.f, 1000.f);
@@ -86,7 +87,7 @@ const GrFragmentProcessor* CircleEffect::TestCreate(GrProcessorTestData* d) {
     do {
         et = (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
     } while (kHairlineAA_GrProcessorEdgeType == et);
-    return CircleEffect::Create(et, center, radius);
+    return CircleEffect::Make(et, center, radius);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -183,8 +184,8 @@ GrGLSLFragmentProcessor* CircleEffect::onCreateGLSLInstance() const  {
 
 class EllipseEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkPoint& center, SkScalar rx,
-                                       SkScalar ry);
+    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPoint& center,
+                                           SkScalar rx, SkScalar ry);
 
     virtual ~EllipseEffect() {};
 
@@ -215,12 +216,12 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-GrFragmentProcessor* EllipseEffect::Create(GrPrimitiveEdgeType edgeType,
-                                           const SkPoint& center,
-                                           SkScalar rx,
-                                           SkScalar ry) {
+sk_sp<GrFragmentProcessor> EllipseEffect::Make(GrPrimitiveEdgeType edgeType,
+                                               const SkPoint& center,
+                                               SkScalar rx,
+                                               SkScalar ry) {
     SkASSERT(rx >= 0 && ry >= 0);
-    return new EllipseEffect(edgeType, center, rx, ry);
+    return sk_sp<GrFragmentProcessor>(new EllipseEffect(edgeType, center, rx, ry));
 }
 
 void EllipseEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -244,7 +245,7 @@ bool EllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(EllipseEffect);
 
-const GrFragmentProcessor* EllipseEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> EllipseEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center;
     center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = d->fRandom->nextRangeScalar(0.f, 1000.f);
@@ -254,7 +255,7 @@ const GrFragmentProcessor* EllipseEffect::TestCreate(GrProcessorTestData* d) {
     do {
         et = (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
     } while (kHairlineAA_GrProcessorEdgeType == et);
-    return EllipseEffect::Create(et, center, rx, ry);
+    return EllipseEffect::Make(et, center, rx, ry);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -391,7 +392,7 @@ GrGLSLFragmentProcessor* EllipseEffect::onCreateGLSLInstance() const  {
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor* GrOvalEffect::Create(GrPrimitiveEdgeType edgeType, const SkRect& oval) {
+sk_sp<GrFragmentProcessor> GrOvalEffect::Make(GrPrimitiveEdgeType edgeType, const SkRect& oval) {
     if (kHairlineAA_GrProcessorEdgeType == edgeType) {
         return nullptr;
     }
@@ -399,11 +400,11 @@ GrFragmentProcessor* GrOvalEffect::Create(GrPrimitiveEdgeType edgeType, const Sk
     SkScalar h = oval.height();
     if (SkScalarNearlyEqual(w, h)) {
         w /= 2;
-        return CircleEffect::Create(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + w), w);
+        return CircleEffect::Make(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + w), w);
     } else {
         w /= 2;
         h /= 2;
-        return EllipseEffect::Create(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + h), w, h);
+        return EllipseEffect::Make(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + h), w, h);
     }
 
     return nullptr;

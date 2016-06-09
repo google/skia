@@ -245,9 +245,9 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
 
     // TODO: this is the only remaining usage of the AutoRestoreFragmentProcessorState - remove it
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
-    if (appliedClip.clipCoverageFragmentProcessor()) {
+    if (appliedClip.getClipCoverageFragmentProcessor()) {
         arfps.set(&pipelineBuilder);
-        arfps.addCoverageFragmentProcessor(appliedClip.clipCoverageFragmentProcessor());
+        arfps.addCoverageFragmentProcessor(sk_ref_sp(appliedClip.getClipCoverageFragmentProcessor()));
     }
 
     GrPipeline::CreateArgs args;
@@ -288,11 +288,12 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
         finalScissor.set(ibounds);
         args.fScissor = &finalScissor;
     }
-    args.fOpts.fColorPOI.completeCalculations(pipelineBuilder.fColorFragmentProcessors.begin(),
-                                              pipelineBuilder.numColorFragmentProcessors());
+    args.fOpts.fColorPOI.completeCalculations(
+        sk_sp_address_as_pointer_address(pipelineBuilder.fColorFragmentProcessors.begin()),
+        pipelineBuilder.numColorFragmentProcessors());
     args.fOpts.fCoveragePOI.completeCalculations(
-                                               pipelineBuilder.fCoverageFragmentProcessors.begin(),
-                                               pipelineBuilder.numCoverageFragmentProcessors());
+        sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
+        pipelineBuilder.numCoverageFragmentProcessors());
     if (!this->setupDstReadIfNecessary(pipelineBuilder, drawContext->accessRenderTarget(),
                                        clip, args.fOpts,
                                        &args.fDstTexture, batch->bounds())) {
@@ -330,7 +331,7 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 
     // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
     // attempt this in a situation that would require coverage AA.
-    SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
+    SkASSERT(!appliedClip.getClipCoverageFragmentProcessor());
 
     GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(
                                                 drawContext->accessRenderTarget());
@@ -379,8 +380,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
 
         // TODO: flip this into real draw!
         GrPipelineBuilder pipelineBuilder;
-        pipelineBuilder.setXPFactory(
-            GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+        pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
         SkRect scalarRect = SkRect::Make(*rect);
         SkAutoTUnref<GrDrawBatch> batch(

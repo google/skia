@@ -115,20 +115,20 @@ namespace GrDefaultGeoProcFactory {
         const SkMatrix* fMatrix;
     };
 
-    const GrGeometryProcessor* Create(const Color&,
-                                      const Coverage&,
-                                      const LocalCoords&,
-                                      const SkMatrix& viewMatrix);
+    sk_sp<GrGeometryProcessor> Make(const Color&,
+                                    const Coverage&,
+                                    const LocalCoords&,
+                                    const SkMatrix& viewMatrix);
 
     /*
      * Use this factory to create a GrGeometryProcessor that expects a device space vertex position
      * attribute. The view matrix must still be provided to compute correctly transformed
      * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
      */
-    const GrGeometryProcessor* CreateForDeviceSpace(const Color&,
-                                                    const Coverage&,
-                                                    const LocalCoords&,
-                                                    const SkMatrix& viewMatrix);
+    sk_sp<GrGeometryProcessor> MakeForDeviceSpace(const Color&,
+                                                  const Coverage&,
+                                                  const LocalCoords&,
+                                                  const SkMatrix& viewMatrix);
 
     inline size_t DefaultVertexStride() { return sizeof(PositionAttr); }
 };

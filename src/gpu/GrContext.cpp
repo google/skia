@@ -317,12 +317,11 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     // temp buffer for doing sw premul conversion, if needed.
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
     if (tempTexture) {
-        SkAutoTUnref<const GrFragmentProcessor> fp;
+        sk_sp<GrFragmentProcessor> fp;
         SkMatrix textureMatrix;
         textureMatrix.setIDiv(tempTexture->width(), tempTexture->height());
         if (applyPremulToSrc) {
-            fp.reset(this->createUPMToPMEffect(tempTexture, tempDrawInfo.fSwizzle,
-                                               textureMatrix));
+            fp = this->createUPMToPMEffect(tempTexture, tempDrawInfo.fSwizzle, textureMatrix);
             // If premultiplying was the only reason for the draw, fall back to a straight write.
             if (!fp) {
                 if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
@@ -334,8 +333,9 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         }
         if (tempTexture) {
             if (!fp) {
-                fp.reset(GrConfigConversionEffect::Create(tempTexture, tempDrawInfo.fSwizzle,
-                    GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
+                fp = GrConfigConversionEffect::Make(tempTexture, tempDrawInfo.fSwizzle,
+                                                    GrConfigConversionEffect::kNone_PMConversion,
+                                                    textureMatrix);
                 if (!fp) {
                     return false;
                 }
@@ -368,7 +368,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
                 return false;
             }
             GrPaint paint;
-            paint.addColorFragmentProcessor(fp);
+            paint.addColorFragmentProcessor(std::move(fp));
             paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
             paint.setAllowSRGBInputs(true);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
@@ -461,10 +461,10 @@ bool GrContext::readSurfacePixels(GrSurface* src,
             SkMatrix textureMatrix;
             textureMatrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
             textureMatrix.postIDiv(src->width(), src->height());
-            SkAutoTUnref<const GrFragmentProcessor> fp;
+            sk_sp<GrFragmentProcessor> fp;
             if (unpremul) {
-                fp.reset(this->createPMToUPMEffect(src->asTexture(), tempDrawInfo.fSwizzle,
-                    textureMatrix));
+                fp = this->createPMToUPMEffect(src->asTexture(), tempDrawInfo.fSwizzle,
+                                               textureMatrix);
                 if (fp) {
                     unpremul = false; // we no longer need to do this on CPU after the read back.
                 } else if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
@@ -474,12 +474,13 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 }
             }
             if (!fp && temp) {
-                fp.reset(GrConfigConversionEffect::Create(src->asTexture(), tempDrawInfo.fSwizzle,
-                    GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
+                fp = GrConfigConversionEffect::Make(src->asTexture(), tempDrawInfo.fSwizzle,
+                                                    GrConfigConversionEffect::kNone_PMConversion,
+                                                    textureMatrix);
             }
             if (fp) {
                 GrPaint paint;
-                paint.addColorFragmentProcessor(fp);
+                paint.addColorFragmentProcessor(std::move(fp));
                 paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
                 paint.setAllowSRGBInputs(true);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
@@ -550,7 +551,7 @@ bool GrContext::applyGamma(GrRenderTarget* dst, GrTexture* src, SkScalar gamma){
     GrPaint paint;
     paint.addColorTextureProcessor(src, GrCoordTransform::MakeDivByTextureWHMatrix(src));
     if (!SkScalarNearlyEqual(gamma, 1.0f)) {
-        paint.addColorFragmentProcessor(GrGammaEffect::Create(gamma))->unref();
+        paint.addColorFragmentProcessor(GrGammaEffect::Make(gamma));
     }
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     paint.setGammaCorrect(true);
@@ -709,7 +710,7 @@ void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     }
 }
 
-const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrTexture* texture,
+sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
                                                           const GrSwizzle& swizzle,
                                                           const SkMatrix& matrix) const {
     ASSERT_SINGLE_OWNER
@@ -718,13 +719,13 @@ const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrTexture* texture,
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Create(texture, swizzle, pmToUPM, matrix);
+        return GrConfigConversionEffect::Make(texture, swizzle, pmToUPM, matrix);
     } else {
         return nullptr;
     }
 }
 
-const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrTexture* texture,
+sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(GrTexture* texture,
                                                           const GrSwizzle& swizzle,
                                                           const SkMatrix& matrix) const {
     ASSERT_SINGLE_OWNER
@@ -733,7 +734,7 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrTexture* texture,
     GrConfigConversionEffect::PMConversion upmToPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
-        return GrConfigConversionEffect::Create(texture, swizzle, upmToPM, matrix);
+        return GrConfigConversionEffect::Make(texture, swizzle, upmToPM, matrix);
     } else {
         return nullptr;
     }

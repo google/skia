@@ -128,7 +128,7 @@ private:
     }
 
     void onPrepareDraws(Target* target) const override {
-        SkAutoTUnref<const GrGeometryProcessor> gp;
+        sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(this->color());
@@ -138,8 +138,7 @@ private:
             }
             LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
                                                               LocalCoords::kUnused_Type);
-            gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
-                                                     this->viewMatrix()));
+            gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, this->viewMatrix());
         }
 
         size_t vertexStride = gp->getVertexStride();
@@ -243,7 +242,7 @@ private:
         } else {
             mesh.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
-        target->draw(gp, mesh);
+        target->draw(gp.get(), mesh);
 
         // put back reserves
         target->putBackIndices((size_t)(maxIndices - indexOffset));
@@ -627,7 +626,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
 
     GrPaint paint;
-    SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
+    paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
     this->internalDrawPath(args.fDrawContext,

@@ -49,7 +49,7 @@ public:
     GradientType asAGradient(GradientInfo* info) const override;
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, const SkMatrix& viewM,
                                                    const SkMatrix*, SkFilterQuality,
                                                    SkSourceGammaTreatment) const override;
 #endif
@@ -104,7 +104,7 @@ public:
     GradientType asAGradient(GradientInfo* info) const override;
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, const SkMatrix& viewM,
                                                    const SkMatrix*, SkFilterQuality,
                                                    SkSourceGammaTreatment) const override;
 #endif

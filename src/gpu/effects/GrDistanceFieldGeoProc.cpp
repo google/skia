@@ -260,7 +260,7 @@ GrGLSLPrimitiveProcessor* GrDistanceFieldA8TextGeoProc::createGLSLInstance(const
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
 
-const GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -281,14 +281,14 @@ const GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
 
-    return GrDistanceFieldA8TextGeoProc::Create(GrRandomColor(d->fRandom),
-                                                GrTest::TestMatrix(d->fRandom),
-                                                d->fTextures[texIdx], params,
+    return GrDistanceFieldA8TextGeoProc::Make(GrRandomColor(d->fRandom),
+                                              GrTest::TestMatrix(d->fRandom),
+                                              d->fTextures[texIdx], params,
 #ifdef SK_GAMMA_APPLY_TO_A8
-                                                d->fRandom->nextF(),
+                                              d->fRandom->nextF(),
 #endif
-                                                flags,
-                                                d->fRandom->nextBool());
+                                              flags,
+                                              d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -497,7 +497,7 @@ GrGLSLPrimitiveProcessor* GrDistanceFieldPathGeoProc::createGLSLInstance(const G
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
 
-const GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -518,12 +518,12 @@ const GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
 
-    return GrDistanceFieldPathGeoProc::Create(GrRandomColor(d->fRandom),
-                                              GrTest::TestMatrix(d->fRandom),
-                                              d->fTextures[texIdx],
-                                              params,
-                                              flags,
-                                              d->fRandom->nextBool());
+    return GrDistanceFieldPathGeoProc::Make(GrRandomColor(d->fRandom),
+                                            GrTest::TestMatrix(d->fRandom),
+                                            d->fTextures[texIdx],
+                                            params,
+                                            flags,
+                                            d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -794,7 +794,7 @@ GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(cons
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
 
-const GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -815,10 +815,10 @@ const GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
     flags |= d->fRandom->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
-    return GrDistanceFieldLCDTextGeoProc::Create(GrRandomColor(d->fRandom),
-                                                 GrTest::TestMatrix(d->fRandom),
-                                                 d->fTextures[texIdx], params,
-                                                 wa,
-                                                 flags,
-                                                 d->fRandom->nextBool());
+    return GrDistanceFieldLCDTextGeoProc::Make(GrRandomColor(d->fRandom),
+                                               GrTest::TestMatrix(d->fRandom),
+                                               d->fTextures[texIdx], params,
+                                               wa,
+                                               flags,
+                                               d->fRandom->nextBool());
 }

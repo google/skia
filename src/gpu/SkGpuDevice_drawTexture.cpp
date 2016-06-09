@@ -204,7 +204,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     bool gammaCorrect = this->surfaceProps().isGammaCorrect();
     SkSourceGammaTreatment gammaTreatment = gammaCorrect
         ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
-    SkAutoTUnref<const GrFragmentProcessor> fp(producer->createFragmentProcessor(
+    sk_sp<GrFragmentProcessor> fp(producer->createFragmentProcessor(
         *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
         gammaTreatment));
     if (!fp) {

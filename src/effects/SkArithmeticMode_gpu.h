@@ -31,9 +31,10 @@ class GrGLArtithmeticFP;
 
 class GrArithmeticFP : public GrFragmentProcessor {
 public:
-    static const GrFragmentProcessor* Create(float k1, float k2, float k3, float k4,
-                                             bool enforcePMColor, const GrFragmentProcessor* dst) {
-        return new GrArithmeticFP(k1, k2, k3, k4, enforcePMColor, dst);
+    static sk_sp<GrFragmentProcessor> Make(float k1, float k2, float k3, float k4,
+                                           bool enforcePMColor, sk_sp<GrFragmentProcessor> dst) {
+        return sk_sp<GrFragmentProcessor>(new GrArithmeticFP(k1, k2, k3, k4, enforcePMColor,
+                                                             std::move(dst)));
     }
 
     ~GrArithmeticFP() override {};
@@ -62,7 +63,7 @@ private:
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GrArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                   const GrFragmentProcessor* dst);
+                   sk_sp<GrFragmentProcessor> dst);
 
     float                       fK1, fK2, fK3, fK4;
     bool                        fEnforcePMColor;
@@ -77,8 +78,8 @@ private:
 
 class GrArithmeticXPFactory : public GrXPFactory {
 public:
-    static GrXPFactory* Create(float k1, float k2, float k3, float k4, bool enforcePMColor) {
-        return new GrArithmeticXPFactory(k1, k2, k3, k4, enforcePMColor);
+    static sk_sp<GrXPFactory> Make(float k1, float k2, float k3, float k4, bool enforcePMColor) {
+        return sk_sp<GrXPFactory>(new GrArithmeticXPFactory(k1, k2, k3, k4, enforcePMColor));
     }
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,

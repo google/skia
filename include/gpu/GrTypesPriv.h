@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "SkRect.h"
+#include "SkRefCnt.h"
 
  /**
   * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
@@ -475,5 +476,10 @@ enum class GrBackendObjectOwnership : bool {
     /** Holder destroys the backend object. */
     kOwned = true
 };
+
+template <typename T> T * const * sk_sp_address_as_pointer_address(sk_sp<T> const * sp) {
+    static_assert(sizeof(T*) == sizeof(sk_sp<T>), "sk_sp not expected size.");
+    return reinterpret_cast<T * const *>(sp);
+}
 
 #endif

@@ -25,7 +25,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, const SkMatrix& viewM,
                                                    const SkMatrix*, SkFilterQuality,
                                                    SkSourceGammaTreatment) const override;
 #endif

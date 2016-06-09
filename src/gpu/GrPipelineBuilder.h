@@ -16,6 +16,7 @@
 #include "GrUserStencilSettings.h"
 #include "GrXferProcessor.h"
 #include "SkMatrix.h"
+#include "SkRefCnt.h"
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -56,47 +57,43 @@ public:
                                                this->numCoverageFragmentProcessors(); }
 
     const GrFragmentProcessor* getColorFragmentProcessor(int idx) const {
-        return fColorFragmentProcessors[idx];
+        return fColorFragmentProcessors[idx].get();
     }
     const GrFragmentProcessor* getCoverageFragmentProcessor(int idx) const {
-        return fCoverageFragmentProcessors[idx];
+        return fCoverageFragmentProcessors[idx].get();
     }
 
-    const GrFragmentProcessor* addColorFragmentProcessor(const GrFragmentProcessor* processor) {
+    void addColorFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
         SkASSERT(processor);
-        fColorFragmentProcessors.push_back(SkRef(processor));
-        return processor;
+        fColorFragmentProcessors.push_back(std::move(processor));
     }
 
-    const GrFragmentProcessor* addCoverageFragmentProcessor(const GrFragmentProcessor* processor) {
+    void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
         SkASSERT(processor);
-        fCoverageFragmentProcessors.push_back(SkRef(processor));
-        return processor;
+        fCoverageFragmentProcessors.push_back(std::move(processor));
     }
 
     /**
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix));
     }
 
     void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix));
     }
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix,
-                                                                      params))->unref();
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix, params));
     }
 
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
                                      const GrTextureParams& params) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix,
-                                                                         params))->unref();
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, matrix, params));
     }
 
     /**
@@ -125,10 +122,9 @@ public:
 
         bool isSet() const { return SkToBool(fPipelineBuilder); }
 
-        const GrFragmentProcessor* addCoverageFragmentProcessor(
-            const GrFragmentProcessor* processor) {
+        void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
             SkASSERT(this->isSet());
-            return fPipelineBuilder->addCoverageFragmentProcessor(processor);
+            return fPipelineBuilder->addCoverageFragmentProcessor(std::move(processor));
         }
 
     private:
@@ -148,9 +144,8 @@ public:
      * Installs a GrXPFactory. This object controls how src color, fractional pixel coverage,
      * and the dst color are blended.
      */
-    const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
-        fXPFactory.reset(SkSafeRef(xpFactory));
-        return xpFactory;
+    void setXPFactory(sk_sp<GrXPFactory> xpFactory) {
+        fXPFactory = std::move(xpFactory);
     }
 
     /**
@@ -158,11 +153,11 @@ public:
      * rendering to the stencil buffer.
      */
     void setDisableColorXPFactory() {
-        fXPFactory.reset(GrDisableColorXPFactory::Create());
+        fXPFactory = GrDisableColorXPFactory::Make();
     }
 
     const GrXPFactory* getXPFactory() const {
-        return fXPFactory;
+        return fXPFactory.get();
     }
 
     /**
@@ -304,12 +299,12 @@ private:
     // This is used to assert that this condition holds.
     SkDEBUGCODE(mutable int fBlockEffectRemovalCnt;)
 
-    typedef SkSTArray<4, const GrFragmentProcessor*, true> FragmentProcessorArray;
+    typedef SkSTArray<4, sk_sp<GrFragmentProcessor>> FragmentProcessorArray;
 
     uint32_t                                fFlags;
     const GrUserStencilSettings*            fUserStencilSettings;
     DrawFace                                fDrawFace;
-    mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
+    mutable sk_sp<GrXPFactory>              fXPFactory;
     FragmentProcessorArray                  fColorFragmentProcessors;
     FragmentProcessorArray                  fCoverageFragmentProcessors;
 

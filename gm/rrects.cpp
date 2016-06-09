@@ -103,15 +103,14 @@ protected:
 #if SK_SUPPORT_GPU
                         GrPipelineBuilder pipelineBuilder;
                         pipelineBuilder.setXPFactory(
-                            GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+                            GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                        SkAutoTUnref<GrFragmentProcessor> fp(GrRRectEffect::Create(edgeType,
-                                                                                   rrect));
+                        sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
                         if (fp) {
-                            pipelineBuilder.addCoverageFragmentProcessor(fp);
+                            pipelineBuilder.addCoverageFragmentProcessor(std::move(fp));
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);

@@ -57,7 +57,7 @@ public:
 
     SkShader::GradientType asAGradient(GradientInfo* info) const  override;
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                    const SkMatrix&,
                                                    const SkMatrix*,
                                                    SkFilterQuality,

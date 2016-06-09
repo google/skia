@@ -11,6 +11,7 @@
 
 #include "GrInvariantOutput.h"
 #include "GrTextureAccess.h"
+#include "SkRefCnt.h"
 
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -144,7 +145,7 @@ void GrGLAlphaThresholdFragmentProcessor::onSetData(const GrGLSLProgramDataManag
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 
-const GrFragmentProcessor* GrAlphaThresholdFragmentProcessor::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     GrTexture* bmpTex = d->fTextures[GrProcessorUnitTest::kSkiaPMTextureIdx];
     GrTexture* maskTex = d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx];
     float innerThresh = d->fRandom->nextUScalar1();
@@ -158,7 +159,7 @@ const GrFragmentProcessor* GrAlphaThresholdFragmentProcessor::TestCreate(GrProce
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
     return GrAlphaThresholdFragmentProcessor::Make(bmpTex, maskTex,
                                                    innerThresh, outerThresh,
-                                                   bounds).release();
+                                                   bounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

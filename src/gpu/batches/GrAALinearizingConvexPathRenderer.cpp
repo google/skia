@@ -96,7 +96,7 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     }
 }
 
-static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
+static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
                                                  const SkMatrix& viewMatrix,
                                                  bool usesLocalCoords,
                                                  bool coverageIgnored) {
@@ -115,7 +115,7 @@ static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
     Coverage coverage(coverageType);
     LocalCoords localCoords(usesLocalCoords ? LocalCoords::kUsePosition_Type :
                                               LocalCoords::kUnused_Type);
-    return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
+    return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
 class AAFlatteningConvexPathBatch : public GrVertexBatch {
@@ -195,10 +195,10 @@ private:
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
-        SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_gp(canTweakAlphaForCoverage,
-                                                                  this->viewMatrix(),
-                                                                  this->usesLocalCoords(),
-                                                                  this->coverageIgnored()));
+        sk_sp<GrGeometryProcessor> gp(create_fill_gp(canTweakAlphaForCoverage,
+                                                     this->viewMatrix(),
+                                                     this->usesLocalCoords(),
+                                                     this->coverageIgnored()));
         if (!gp) {
             SkDebugf("Couldn't create a GrGeometryProcessor\n");
             return;
@@ -231,7 +231,8 @@ private:
             if (indexCount + currentIndices > UINT16_MAX) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->draw(target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
+                this->draw(target, gp.get(),
+                           vertexCount, vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -250,7 +251,7 @@ private:
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        this->draw(target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
+        this->draw(target, gp.get(), vertexCount, vertexStride, vertices, indexCount, indices);
         sk_free(vertices);
         sk_free(indices);
     }

@@ -8,11 +8,12 @@
 #include "SkColorMatrixFilterRowMajor255.h"
 #include "SkColorPriv.h"
 #include "SkNx.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkUnPreMultiply.h"
-#include "SkString.h"
 #include "SkPM4fPriv.h"
+#include "SkReadBuffer.h"
+#include "SkRefCnt.h"
+#include "SkString.h"
+#include "SkUnPreMultiply.h"
+#include "SkWriteBuffer.h"
 
 static void transpose(float dst[20], const float src[20]) {
     const float* srcR = src + 0;
@@ -247,8 +248,8 @@ SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) c
 
 class ColorMatrixEffect : public GrFragmentProcessor {
 public:
-    static const GrFragmentProcessor* Create(const SkScalar matrix[20]) {
-        return new ColorMatrixEffect(matrix);
+    static sk_sp<GrFragmentProcessor> Make(const SkScalar matrix[20]) {
+        return sk_sp<GrFragmentProcessor>(new ColorMatrixEffect(matrix));
     }
 
     const char* name() const override { return "Color Matrix"; }
@@ -387,16 +388,16 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorMatrixEffect);
 
-const GrFragmentProcessor* ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar colorMatrix[20];
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix); ++i) {
         colorMatrix[i] = d->fRandom->nextSScalar1();
     }
-    return ColorMatrixEffect::Create(colorMatrix);
+    return ColorMatrixEffect::Make(colorMatrix);
 }
 
-const GrFragmentProcessor* SkColorMatrixFilterRowMajor255::asFragmentProcessor(GrContext*) const {
-    return ColorMatrixEffect::Create(fMatrix);
+sk_sp<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(GrContext*) const {
+    return ColorMatrixEffect::Make(fMatrix);
 }
 
 #endif

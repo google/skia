@@ -66,8 +66,8 @@ private:
 
 class BigKeyProcessor : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create() {
-        return new BigKeyProcessor;
+    static sk_sp<GrFragmentProcessor> Make() {
+        return sk_sp<GrFragmentProcessor>(new BigKeyProcessor);
     }
 
     const char* name() const override { return "Big Ole Key"; }
@@ -94,16 +94,16 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
 
-const GrFragmentProcessor* BigKeyProcessor::TestCreate(GrProcessorTestData*) {
-    return BigKeyProcessor::Create();
+sk_sp<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {
+    return BigKeyProcessor::Make();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 class BlockInputFragmentProcessor : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(const GrFragmentProcessor* fp) {
-        return new BlockInputFragmentProcessor(fp);
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> fp) {
+        return sk_sp<GrFragmentProcessor>(new BlockInputFragmentProcessor(fp));
     }
 
     const char* name() const override { return "Block Input"; }
@@ -121,9 +121,9 @@ private:
         typedef GrGLSLFragmentProcessor INHERITED;
     };
 
-    BlockInputFragmentProcessor(const GrFragmentProcessor* child) {
+    BlockInputFragmentProcessor(sk_sp<GrFragmentProcessor> child) {
         this->initClassID<BlockInputFragmentProcessor>();
-        this->registerChildProcessor(child);
+        this->registerChildProcessor(std::move(child));
     }
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {}
@@ -185,13 +185,13 @@ static sk_sp<GrDrawContext> random_draw_context(GrContext* context,
 }
 
 static void set_random_xpf(GrPipelineBuilder* pipelineBuilder, GrProcessorTestData* d) {
-    SkAutoTUnref<const GrXPFactory> xpf(GrProcessorTestFactory<GrXPFactory>::Create(d));
+    sk_sp<GrXPFactory> xpf(GrProcessorTestFactory<GrXPFactory>::Make(d));
     SkASSERT(xpf);
-    pipelineBuilder->setXPFactory(xpf.get());
+    pipelineBuilder->setXPFactory(std::move(xpf));
 }
 
-static const GrFragmentProcessor* create_random_proc_tree(GrProcessorTestData* d,
-                                                           int minLevels, int maxLevels) {
+static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d,
+                                                          int minLevels, int maxLevels) {
     SkASSERT(1 <= minLevels);
     SkASSERT(minLevels <= maxLevels);
 
@@ -202,14 +202,13 @@ static const GrFragmentProcessor* create_random_proc_tree(GrProcessorTestData* d
     if (1 == minLevels) {
         bool terminate = (1 == maxLevels) || (d->fRandom->nextF() < terminateProbability);
         if (terminate) {
-            const GrFragmentProcessor* fp;
+            sk_sp<GrFragmentProcessor> fp;
             while (true) {
-                fp = GrProcessorTestFactory<GrFragmentProcessor>::Create(d);
+                fp = GrProcessorTestFactory<GrFragmentProcessor>::Make(d);
                 SkASSERT(fp);
                 if (0 == fp->numChildProcessors()) {
                     break;
                 }
-                fp->unref();
             }
             return fp;
         }
@@ -220,18 +219,18 @@ static const GrFragmentProcessor* create_random_proc_tree(GrProcessorTestData* d
     if (minLevels > 1) {
         --minLevels;
     }
-    SkAutoTUnref<const GrFragmentProcessor> minLevelsChild(create_random_proc_tree(d, minLevels,
-                                                                                   maxLevels - 1));
-    SkAutoTUnref<const GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1,
-                                                                               maxLevels - 1));
+    sk_sp<GrFragmentProcessor> minLevelsChild(create_random_proc_tree(d, minLevels, maxLevels - 1));
+    sk_sp<GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1, maxLevels - 1));
     SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(d->fRandom->nextRangeU(0,
                                                           SkXfermode::kLastCoeffMode));
-    const GrFragmentProcessor* fp;
+    sk_sp<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
-        fp = GrXfermodeFragmentProcessor::CreateFromTwoProcessors(minLevelsChild, otherChild, mode);
+        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(minLevelsChild),
+                                                                std::move(otherChild), mode);
         SkASSERT(fp);
     } else {
-        fp = GrXfermodeFragmentProcessor::CreateFromTwoProcessors(otherChild, minLevelsChild, mode);
+        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(otherChild),
+                                                                std::move(minLevelsChild), mode);
         SkASSERT(fp);
     }
     return fp;
@@ -245,23 +244,21 @@ static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
         // A full tree with 5 levels (31 nodes) may exceed the max allowed length of the gl
         // processor key; maxTreeLevels should be a number from 1 to 4 inclusive.
         const int maxTreeLevels = 4;
-        SkAutoTUnref<const GrFragmentProcessor> fp(
-                                        create_random_proc_tree(d, 2, maxTreeLevels));
-        pipelineBuilder->addColorFragmentProcessor(fp);
+        sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
+        pipelineBuilder->addColorFragmentProcessor(std::move(fp));
     } else {
         int numProcs = d->fRandom->nextULessThan(maxStages + 1);
         int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
 
         for (int s = 0; s < numProcs;) {
-            SkAutoTUnref<const GrFragmentProcessor> fp(
-                GrProcessorTestFactory<GrFragmentProcessor>::Create(d));
+            sk_sp<GrFragmentProcessor> fp(GrProcessorTestFactory<GrFragmentProcessor>::Make(d));
             SkASSERT(fp);
 
             // finally add the stage to the correct pipeline in the drawstate
             if (s < numColorProcs) {
-                pipelineBuilder->addColorFragmentProcessor(fp);
+                pipelineBuilder->addColorFragmentProcessor(std::move(fp));
             } else {
-                pipelineBuilder->addCoverageFragmentProcessor(fp);
+                pipelineBuilder->addCoverageFragmentProcessor(std::move(fp));
             }
             ++s;
         }
@@ -385,13 +382,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     drawContext.get(), dummyTextures);
             GrPipelineBuilder builder;
-            builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
+            builder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
-            SkAutoTUnref<const GrFragmentProcessor> fp(
-                GrProcessorTestFactory<GrFragmentProcessor>::CreateIdx(i, &ptd));
-            SkAutoTUnref<const GrFragmentProcessor> blockFP(
-                BlockInputFragmentProcessor::Create(fp));
-            builder.addColorFragmentProcessor(blockFP);
+            sk_sp<GrFragmentProcessor> fp(
+                GrProcessorTestFactory<GrFragmentProcessor>::MakeIdx(i, &ptd));
+            sk_sp<GrFragmentProcessor> blockFP(
+                BlockInputFragmentProcessor::Make(std::move(fp)));
+            builder.addColorFragmentProcessor(std::move(blockFP));
 
             drawContext->drawContextPriv().testingOnly_drawBatch(builder, batch);
             drawingManager->flush();

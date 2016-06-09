@@ -172,9 +172,9 @@ private:
     }
 
     struct FlushInfo {
-        SkAutoTUnref<const GrBuffer>            fVertexBuffer;
-        SkAutoTUnref<const GrBuffer>            fIndexBuffer;
-        SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
+        SkAutoTUnref<const GrBuffer> fVertexBuffer;
+        SkAutoTUnref<const GrBuffer> fIndexBuffer;
+        sk_sp<GrGeometryProcessor>   fGeometryProcessor;
         int fVertexOffset;
         int fInstancesToFlush;
     };
@@ -200,13 +200,12 @@ private:
 
         // Setup GrGeometryProcessor
         GrBatchAtlas* atlas = fAtlas;
-        flushInfo.fGeometryProcessor.reset(
-                GrDistanceFieldPathGeoProc::Create(this->color(),
-                                                   this->viewMatrix(),
-                                                   atlas->getTexture(),
-                                                   params,
-                                                   flags,
-                                                   this->usesLocalCoords()));
+        flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(this->color(),
+                                                                        this->viewMatrix(),
+                                                                        atlas->getTexture(),
+                                                                        params,
+                                                                        flags,
+                                                                        this->usesLocalCoords());
 
         // allocate vertices
         size_t vertexStride = flushInfo.fGeometryProcessor->getVertexStride();
@@ -484,7 +483,7 @@ private:
         mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
             flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
             kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
-        target->draw(flushInfo->fGeometryProcessor, mesh);
+        target->draw(flushInfo->fGeometryProcessor.get(), mesh);
         flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
         flushInfo->fInstancesToFlush = 0;
     }

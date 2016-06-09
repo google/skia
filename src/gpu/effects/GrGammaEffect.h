@@ -21,7 +21,7 @@ public:
     /**
     * Creates an effect that applies a gamma curve.
     */
-    static const GrFragmentProcessor* Create(SkScalar gamma);
+    static sk_sp<GrFragmentProcessor> Make(SkScalar gamma);
 
     const char* name() const override { return "Gamma"; }
 

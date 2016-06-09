@@ -213,7 +213,7 @@ bool GrConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvolutionEffect);
 
-const GrFragmentProcessor* GrConvolutionEffect::TestCreate(GrProcessorTestData* d) {
+sk_sp<GrFragmentProcessor> GrConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     Direction dir = d->fRandom->nextBool() ? kX_Direction : kY_Direction;
@@ -228,10 +228,10 @@ const GrFragmentProcessor* GrConvolutionEffect::TestCreate(GrProcessorTestData* 
     }
 
     bool useBounds = d->fRandom->nextBool();
-    return GrConvolutionEffect::Create(d->fTextures[texIdx],
-                                       dir,
-                                       radius,
-                                       kernel,
-                                       useBounds,
-                                       bounds);
+    return GrConvolutionEffect::Make(d->fTextures[texIdx],
+                                     dir,
+                                     radius,
+                                     kernel,
+                                     useBounds,
+                                     bounds);
 }

@@ -180,22 +180,22 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
 
     GrPaint paint;
     // SRGBTODO: AllowSRGBInputs?
-    SkAutoTUnref<const GrFragmentProcessor> bgFP;
+    sk_sp<GrFragmentProcessor> bgFP;
 
     if (backgroundTex) {
         SkMatrix backgroundMatrix;
         backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
         backgroundMatrix.preTranslate(SkIntToScalar(-backgroundOffset.fX),
                                       SkIntToScalar(-backgroundOffset.fY));
-        bgFP.reset(GrTextureDomainEffect::Create(
+        bgFP = GrTextureDomainEffect::Make(
                             backgroundTex.get(), backgroundMatrix,
                             GrTextureDomain::MakeTexelDomain(backgroundTex.get(),
                                                              background->subset()),
                             GrTextureDomain::kDecal_Mode,
-                            GrTextureParams::kNone_FilterMode));
+                            GrTextureParams::kNone_FilterMode);
     } else {
-        bgFP.reset(GrConstColorProcessor::Create(GrColor_TRANSPARENT_BLACK,
-                                                 GrConstColorProcessor::kIgnore_InputMode));
+        bgFP = GrConstColorProcessor::Make(GrColor_TRANSPARENT_BLACK,
+                                             GrConstColorProcessor::kIgnore_InputMode);
     }
 
     if (foregroundTex) {
@@ -204,16 +204,16 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
         foregroundMatrix.preTranslate(SkIntToScalar(-foregroundOffset.fX),
                                       SkIntToScalar(-foregroundOffset.fY));
 
-        SkAutoTUnref<const GrFragmentProcessor> foregroundFP;
+        sk_sp<GrFragmentProcessor> foregroundFP;
 
-        foregroundFP.reset(GrTextureDomainEffect::Create(
+        foregroundFP = GrTextureDomainEffect::Make(
                             foregroundTex.get(), foregroundMatrix,
                             GrTextureDomain::MakeTexelDomain(foregroundTex.get(), 
                                                              foreground->subset()),
                             GrTextureDomain::kDecal_Mode,
-                            GrTextureParams::kNone_FilterMode));
+                            GrTextureParams::kNone_FilterMode);
 
-        paint.addColorFragmentProcessor(foregroundFP.get());
+        paint.addColorFragmentProcessor(std::move(foregroundFP));
 
         // A null fMode is interpreted to mean kSrcOver_Mode (to match raster).
         SkAutoTUnref<SkXfermode> mode(SkSafeRef(fMode.get()));
@@ -228,14 +228,15 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter::filterImageGPU(SkSpecialImage* sour
             mode.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
         }
 
-        sk_sp<const GrFragmentProcessor> xferFP(mode->getFragmentProcessorForImageFilter(bgFP));
+        sk_sp<GrFragmentProcessor> xferFP(
+            mode->makeFragmentProcessorForImageFilter(std::move(bgFP)));
 
         // A null 'xferFP' here means kSrc_Mode was used in which case we can just proceed
         if (xferFP) {
-            paint.addColorFragmentProcessor(xferFP.get());
+            paint.addColorFragmentProcessor(std::move(xferFP));
         }
     } else {
-        paint.addColorFragmentProcessor(bgFP);
+        paint.addColorFragmentProcessor(std::move(bgFP));
     }
 
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);

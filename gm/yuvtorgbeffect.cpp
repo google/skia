@@ -114,18 +114,17 @@ protected:
 
             for (int i = 0; i < 6; ++i) {
                 GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.setXPFactory(
-                    GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
-                SkAutoTUnref<const GrFragmentProcessor> fp(
-                            GrYUVEffect::CreateYUVToRGB(texture[indices[i][0]],
-                                                        texture[indices[i][1]],
-                                                        texture[indices[i][2]],
-                                                        sizes,
-                                                        static_cast<SkYUVColorSpace>(space)));
+                pipelineBuilder.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                sk_sp<GrFragmentProcessor> fp(
+                            GrYUVEffect::MakeYUVToRGB(texture[indices[i][0]],
+                                                      texture[indices[i][1]],
+                                                      texture[indices[i][2]],
+                                                      sizes,
+                                                      static_cast<SkYUVColorSpace>(space)));
                 if (fp) {
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    pipelineBuilder.addColorFragmentProcessor(fp);
+                    pipelineBuilder.addColorFragmentProcessor(std::move(fp));
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));

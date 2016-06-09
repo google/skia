@@ -16,6 +16,13 @@
 #include "SkWriteBuffer.h"
 #include "SkPM4f.h"
 
+#if SK_SUPPORT_GPU
+#include "GrFragmentProcessor.h"
+#include "effects/GrCustomXfermode.h"
+#include "effects/GrPorterDuffXferProcessor.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
+#endif
+
 #define SkAlphaMulAlpha(a, b)   SkMulDiv255Round(a, b)
 
 static inline unsigned saturated_add(unsigned a, unsigned b) {
@@ -985,15 +992,15 @@ bool SkXfermode::asMode(Mode* mode) const {
 }
 
 #if SK_SUPPORT_GPU
-const GrFragmentProcessor* SkXfermode::getFragmentProcessorForImageFilter(
-                                                                const GrFragmentProcessor*) const {
+sk_sp<GrFragmentProcessor> SkXfermode::makeFragmentProcessorForImageFilter(
+                                                                sk_sp<GrFragmentProcessor>) const {
     // This should never be called.
     // TODO: make pure virtual in SkXfermode once Android update lands
     SkASSERT(0);
     return nullptr;
 }
 
-GrXPFactory* SkXfermode::asXPFactory() const {
+sk_sp<GrXPFactory> SkXfermode::asXPFactory() const {
     // This should never be called.
     // TODO: make pure virtual in SkXfermode once Android update lands
     SkASSERT(0);
@@ -1240,25 +1247,21 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 }
 
 #if SK_SUPPORT_GPU
-#include "effects/GrCustomXfermode.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-
-const GrFragmentProcessor* SkProcCoeffXfermode::getFragmentProcessorForImageFilter(
-                                                            const GrFragmentProcessor* dst) const {
+sk_sp<GrFragmentProcessor> SkProcCoeffXfermode::makeFragmentProcessorForImageFilter(
+                                                            sk_sp<GrFragmentProcessor> dst) const {
     SkASSERT(dst);
-    return GrXfermodeFragmentProcessor::CreateFromDstProcessor(dst, fMode);
+    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(dst), fMode);
 }
 
-GrXPFactory* SkProcCoeffXfermode::asXPFactory() const {
+sk_sp<GrXPFactory> SkProcCoeffXfermode::asXPFactory() const {
     if (CANNOT_USE_COEFF != fSrcCoeff) {
-        GrXPFactory* result = GrPorterDuffXPFactory::Create(fMode);
+        sk_sp<GrXPFactory> result(GrPorterDuffXPFactory::Make(fMode));
         SkASSERT(result);
         return result;
     }
 
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    return GrCustomXfermode::CreateXPFactory(fMode);
+    return GrCustomXfermode::MakeXPFactory(fMode);
 }
 #endif
 

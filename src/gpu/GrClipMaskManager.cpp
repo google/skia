@@ -32,8 +32,8 @@ static const int kMaxAnalyticElements = 4;
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask. Besides setting up the
 // stage matrix this also alters the vertex layout
-static sk_sp<const GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
-                                                           const SkIRect &devBound) {
+static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
+                                                     const SkIRect &devBound) {
     SkMatrix mat;
     // We use device coords to compute the texture coordinates. We set our matrix to be a
     // translation to the devBound, and then a scaling matrix to normalized coords.
@@ -42,7 +42,7 @@ static sk_sp<const GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
                      SkIntToScalar(-devBound.fTop));
 
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
-    return sk_sp<const GrFragmentProcessor>(GrTextureDomainEffect::Create(
+    return sk_sp<GrFragmentProcessor>(GrTextureDomainEffect::Make(
                                          result,
                                          mat,
                                          GrTextureDomain::MakeTexelDomain(result, domainTexels),
@@ -156,20 +156,15 @@ static bool get_analytic_clip_processor(const GrReducedClip::ElementList& elemen
                                         bool abortIfAA,
                                         SkVector& clipToRTOffset,
                                         const SkRect* drawBounds,
-                                        sk_sp<const GrFragmentProcessor>* resultFP) {
+                                        sk_sp<GrFragmentProcessor>* resultFP) {
     SkRect boundsInClipSpace;
     if (drawBounds) {
         boundsInClipSpace = *drawBounds;
         boundsInClipSpace.offset(-clipToRTOffset.fX, -clipToRTOffset.fY);
     }
     SkASSERT(elements.count() <= kMaxAnalyticElements);
-    const GrFragmentProcessor* fps[kMaxAnalyticElements];
-    for (int i = 0; i < kMaxAnalyticElements; ++i) {
-        fps[i] = nullptr;
-    }
-    int fpCnt = 0;
+    SkSTArray<kMaxAnalyticElements, sk_sp<GrFragmentProcessor>> fps;
     GrReducedClip::ElementList::Iter iter(elements);
-    bool failed = false;
     while (iter.get()) {
         SkRegion::Op op = iter.get()->getOp();
         bool invert;
@@ -190,18 +185,13 @@ static bool get_analytic_clip_processor(const GrReducedClip::ElementList& elemen
                 // element's primitive, so don't attempt to set skip.
                 break;
             default:
-                failed = true;
-                break;
-        }
-        if (failed) {
-            break;
+                return false;
         }
         if (!skip) {
             GrPrimitiveEdgeType edgeType;
             if (iter.get()->isAA()) {
                 if (abortIfAA) {
-                    failed = true;
-                    break;
+                    return false;
                 }
                 edgeType =
                     invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
@@ -212,41 +202,36 @@ static bool get_analytic_clip_processor(const GrReducedClip::ElementList& elemen
 
             switch (iter.get()->getType()) {
                 case SkClipStack::Element::kPath_Type:
-                    fps[fpCnt] = GrConvexPolyEffect::Create(edgeType, iter.get()->getPath(),
-                                                            &clipToRTOffset);
+                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, iter.get()->getPath(),
+                                                              &clipToRTOffset));
                     break;
                 case SkClipStack::Element::kRRect_Type: {
                     SkRRect rrect = iter.get()->getRRect();
                     rrect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
-                    fps[fpCnt] = GrRRectEffect::Create(edgeType, rrect);
+                    fps.emplace_back(GrRRectEffect::Make(edgeType, rrect));
                     break;
                 }
                 case SkClipStack::Element::kRect_Type: {
                     SkRect rect = iter.get()->getRect();
                     rect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
-                    fps[fpCnt] = GrConvexPolyEffect::Create(edgeType, rect);
+                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, rect));
                     break;
                 }
                 default:
                     break;
             }
-            if (!fps[fpCnt]) {
-                failed = true;
-                break;
+            if (!fps.back()) {
+                return false;
             }
-            fpCnt++;
         }
         iter.next();
     }
 
     *resultFP = nullptr;
-    if (!failed && fpCnt) {
-        resultFP->reset(GrFragmentProcessor::RunInSeries(fps, fpCnt));
+    if (fps.count()) {
+        *resultFP = GrFragmentProcessor::RunInSeries(fps.begin(), fps.count());
     }
-    for (int i = 0; i < fpCnt; ++i) {
-        fps[i]->unref();
-    }
-    return !failed;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,7 +305,7 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
             disallowAnalyticAA = pipelineBuilder.isHWAntialias() ||
                                  pipelineBuilder.hasUserStencilSettings();
         }
-        sk_sp<const GrFragmentProcessor> clipFP;
+        sk_sp<GrFragmentProcessor> clipFP;
         if (elements.isEmpty() ||
             (requiresAA &&
              get_analytic_clip_processor(elements, disallowAnalyticAA, clipToRTOffset, devBounds,
@@ -328,10 +313,10 @@ bool GrClipMaskManager::SetupClipping(GrContext* context,
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
             if (!devBounds || !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
-                out->makeScissoredFPBased(clipFP, scissorSpaceIBounds);
+                out->makeScissoredFPBased(std::move(clipFP), scissorSpaceIBounds);
                 return true;
             }
-            out->makeFPBased(clipFP);
+            out->makeFPBased(std::move(clipFP));
             return true;
         }
     }
@@ -683,7 +668,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                     if (!clipPath.isEmpty()) {
                         if (canRenderDirectToStencil) {
                             GrPaint paint;
-                            SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
+                            paint.setXPFactory(GrDisableColorXPFactory::Make());
                             paint.setAntiAlias(element->isAA());
 
                             GrPathRenderer::DrawPathArgs args;
@@ -724,7 +709,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                                       viewMatrix, element->getRect(), element->isAA(), *pass);
                     } else {
                         GrPaint paint;
-                        SkSafeUnref(paint.setXPFactory(GrDisableColorXPFactory::Create()));
+                        paint.setXPFactory(GrDisableColorXPFactory::Make());
                         paint.setAntiAlias(element->isAA());
 
                         GrPathRenderer::DrawPathArgs args;

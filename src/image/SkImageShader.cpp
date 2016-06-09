@@ -83,7 +83,7 @@ void SkImageShader::toString(SkString* str) const {
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-const GrFragmentProcessor* SkImageShader::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                                      GrContext* context,
                                                      const SkMatrix& viewM,
                                                      const SkMatrix* localMatrix,
@@ -120,17 +120,17 @@ const GrFragmentProcessor* SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> inner;
+    sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner.reset(GrBicubicEffect::Create(texture, matrix, tm));
+        inner = GrBicubicEffect::Make(texture, matrix, tm);
     } else {
-        inner.reset(GrSimpleTextureEffect::Create(texture, matrix, params));
+        inner = GrSimpleTextureEffect::Make(texture, matrix, params);
     }
 
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
-        return SkRef(inner.get());
+        return inner;
     }
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    return sk_sp<GrFragmentProcessor>(GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner)));
 }
 
 #endif

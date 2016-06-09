@@ -35,7 +35,7 @@ public:
         buf.writeMatrix(fDeviceMatrix);
     }
 
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
                                                    SkFilterQuality,
@@ -99,13 +99,13 @@ private:
     GrCoordTransform fDeviceTransform;
 };
 
-const GrFragmentProcessor* DCShader::asFragmentProcessor(GrContext*,
+sk_sp<GrFragmentProcessor> DCShader::asFragmentProcessor(GrContext*,
                                                          const SkMatrix& viewM,
                                                          const SkMatrix* localMatrix,
                                                          SkFilterQuality,
                                                          SkSourceGammaTreatment) const {
-    SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
-    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
+    sk_sp<GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 class DCShaderGM : public GM {

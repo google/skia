@@ -34,8 +34,8 @@ public:
         return str;
     }
 
-    static const GrFragmentProcessor* Create(GrTextureProvider*textureProvider,
-                                             const SkRect& circle, float sigma) {
+    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider*textureProvider,
+                                           const SkRect& circle, float sigma) {
         float offset;
 
         SkAutoTUnref<GrTexture> blurProfile(CreateCircleBlurProfileTexture(textureProvider,
@@ -45,7 +45,8 @@ public:
         if (!blurProfile) {
            return nullptr;
         }
-        return new GrCircleBlurFragmentProcessor(circle, sigma, offset, blurProfile);
+        return sk_sp<GrFragmentProcessor>(
+            new GrCircleBlurFragmentProcessor(circle, sigma, offset, blurProfile));
     }
 
     const SkRect& circle() const { return fCircle; }
