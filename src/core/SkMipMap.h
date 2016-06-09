@@ -18,15 +18,26 @@ class SkDiscardableMemory;
 
 typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
 
+/*
+ * SkMipMap will generate mipmap levels when given a base mipmap level image.
+ *
+ * Any function which deals with mipmap levels indices will start with index 0
+ * being the first mipmap level which was generated. Said another way, it does
+ * not include the base level in its range.
+ */
 class SkMipMap : public SkCachedData {
 public:
     static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc);
     static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
     // Determines how many levels a SkMipMap will have without creating that mipmap.
+    // This does not include the base mipmap level that the user provided when
+    // creating the SkMipMap.
     static int ComputeLevelCount(int baseWidth, int baseHeight);
 
     // Determines the size of a given mipmap level.
+    // |level| is an index into the generated mipmap levels. It does not include
+    // the base level. So index 0 represents mipmap level 1.
     static SkISize ComputeLevelSize(int baseWidth, int baseHeight, int level);
 
     struct Level {
@@ -35,7 +46,13 @@ public:
     };
 
     bool extractLevel(const SkSize& scale, Level*) const;
+
+    // countLevels returns the number of mipmap levels generated (which does not
+    // include the base mipmap level).
     int countLevels() const;
+
+    // |index| is an index into the generated mipmap levels. It does not include
+    // the base level. So index 0 represents mipmap level 1.
     bool getLevel(int index, Level*) const;
 
 protected:

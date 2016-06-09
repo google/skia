@@ -370,9 +370,9 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         return nullptr;
     }
     // whip through our loop to compute the exact size needed
-    size_t  size = 0;
+    size_t size = 0;
     int countLevels = ComputeLevelCount(src.width(), src.height());
-    for (int currentMipLevel = countLevels; currentMipLevel > 0; currentMipLevel--) {
+    for (int currentMipLevel = countLevels; currentMipLevel >= 0; currentMipLevel--) {
         SkISize mipSize = ComputeLevelSize(src.width(), src.height(), currentMipLevel);
         size += SkColorTypeMinRowBytes(ct, mipSize.fWidth) * mipSize.fHeight;
     }
@@ -502,19 +502,19 @@ SkISize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
     }
 
     int maxLevelCount = ComputeLevelCount(baseWidth, baseHeight);
-    if (level > maxLevelCount || level < 0) {
+    if (level >= maxLevelCount || level < 0) {
         return SkISize::Make(0, 0);
     }
-    if (level == 0) {
-        return SkISize::Make(baseWidth, baseHeight);
-    }
-
     // OpenGL's spec requires that each mipmap level have height/width equal to
     // max(1, floor(original_height / 2^i)
     // (or original_width) where i is the mipmap level.
 
-    int width = SkTMax(1, baseWidth >> level);
-    int height = SkTMax(1, baseHeight >> level);
+    // SkMipMap does not include the base mip level.
+    // For example, it contains levels 1-x instead of 0-x.
+    // This is because the image used to create SkMipMap is the base level.
+    // So subtract 1 from the mip level to get the index stored by SkMipMap.
+    int width = SkTMax(1, baseWidth >> (level + 1));
+    int height = SkTMax(1, baseHeight >> (level + 1));
 
     return SkISize::Make(width, height);
 }

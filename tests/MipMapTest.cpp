@@ -64,11 +64,15 @@ static void test_mipmap_generation(int width, int height, int expectedMipLevelCo
 
     const int mipLevelCount = mm->countLevels();
     REPORTER_ASSERT(reporter, mipLevelCount == expectedMipLevelCount);
+    REPORTER_ASSERT(reporter, mipLevelCount == SkMipMap::ComputeLevelCount(width, height));
     for (int i = 0; i < mipLevelCount; ++i) {
         SkMipMap::Level level;
         REPORTER_ASSERT(reporter, mm->getLevel(i, &level));
         // Make sure the mipmaps contain valid data and that the sizes are correct
         REPORTER_ASSERT(reporter, level.fPixmap.addr());
+        SkISize size = SkMipMap::ComputeLevelSize(width, height, i);
+        REPORTER_ASSERT(reporter, level.fPixmap.width() == size.width());
+        REPORTER_ASSERT(reporter, level.fPixmap.height() == size.height());
 
         // + 1 because SkMipMap does not include the base mipmap level.
         int twoToTheMipLevel = 1 << (i + 1);
@@ -161,34 +165,34 @@ struct LevelSizeScenario {
 DEF_TEST(MipMap_ComputeLevelSize, reporter) {
     const LevelSizeScenario tests[] = {
         // Test mipmaps with negative sizes
-        {-100, 100, 1, SkISize::Make(0, 0)},
-        {100, -100, 1, SkISize::Make(0, 0)},
-        {-100, -100, 1, SkISize::Make(0, 0)},
+        {-100, 100, 0, SkISize::Make(0, 0)},
+        {100, -100, 0, SkISize::Make(0, 0)},
+        {-100, -100, 0, SkISize::Make(0, 0)},
 
         // Test mipmaps with 0, 1, 2 as dimensions
         // (SkMipMap::Build requires a min size of 1)
         //
         // 0
-        {0, 100, 1, SkISize::Make(0, 0)},
-        {100, 0, 1, SkISize::Make(0, 0)},
-        {0, 0, 1, SkISize::Make(0, 0)},
+        {0, 100, 0, SkISize::Make(0, 0)},
+        {100, 0, 0, SkISize::Make(0, 0)},
+        {0, 0, 0, SkISize::Make(0, 0)},
         // 1
 
-        {1, 100, 1, SkISize::Make(1, 50)},
-        {100, 1, 1, SkISize::Make(50, 1)},
-        {1, 1, 1, SkISize::Make(0, 0)},
+        {1, 100, 0, SkISize::Make(1, 50)},
+        {100, 1, 0, SkISize::Make(50, 1)},
+        {1, 1, 0, SkISize::Make(0, 0)},
         // 2
-        {2, 100, 1, SkISize::Make(1, 50)},
-        {100, 2, 2, SkISize::Make(25, 1)},
-        {2, 2, 1, SkISize::Make(1, 1)},
+        {2, 100, 0, SkISize::Make(1, 50)},
+        {100, 2, 1, SkISize::Make(25, 1)},
+        {2, 2, 0, SkISize::Make(1, 1)},
 
         // Test a handful of cases
-        {63, 63, 3, SkISize::Make(7, 7)},
-        {64, 64, 3, SkISize::Make(8, 8)},
-        {127, 127, 3, SkISize::Make(15, 15)},
-        {64, 129, 4, SkISize::Make(4, 8)},
-        {255, 32, 7, SkISize::Make(1, 1)},
-        {500, 1000, 2, SkISize::Make(125, 250)},
+        {63, 63, 2, SkISize::Make(7, 7)},
+        {64, 64, 2, SkISize::Make(8, 8)},
+        {127, 127, 2, SkISize::Make(15, 15)},
+        {64, 129, 3, SkISize::Make(4, 8)},
+        {255, 32, 6, SkISize::Make(1, 1)},
+        {500, 1000, 1, SkISize::Make(125, 250)},
     };
 
     for (auto& currentTest : tests) {
