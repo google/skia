@@ -48,6 +48,12 @@ public:
      */
     bool suitableForGpuRasterization(const char** whyNot = nullptr) const;
 
+    /**
+     * Returns the number of commands which are slow to draw on the GPU, capped at the predicate
+     * max.
+     */
+    uint32_t numSlowGpuCommands() { return fNumSlowPaths; }
+
 private:
     uint32_t fNumSlowPaths;
 
