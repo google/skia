@@ -551,8 +551,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // glGenerateMipmap. Our implementation requires mip-level sampling control. Additionally,
     // it can be much slower (especially on mobile GPUs), so we opt-in only when necessary:
     if (fMipMapLevelAndLodControlSupport &&
-        (contextOptions.fDoManualMipmapping ||
-         (kIntel_GrGLVendor == ctxInfo.vendor()) ||
+        ((kIntel_GrGLVendor == ctxInfo.vendor()) ||
          (kNVIDIA_GrGLDriver == ctxInfo.driver() && isMAC) ||
          (kATI_GrGLVendor == ctxInfo.vendor()))) {
         fDoManualMipmapping = true;
