@@ -2514,4 +2514,4 @@ private:
 
 SkFontMgr* SkFontMgr_New_GDI() { return new SkFontMgrGDI; }
 
-#endif
+#endif//defined(SK_BUILD_FOR_WIN32) 
