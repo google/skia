@@ -164,13 +164,8 @@ static void print_status() {
     }
 }
 
-// Yo dawg, I heard you like signals so I caught a signal in your
-// signal handler so you can handle signals while you handle signals.
-// Let's not get into that situation.  Only print if we're the first ones to get a crash signal.
-static std::atomic<bool> in_signal_handler{false};
-
 #if defined(SK_BUILD_FOR_WIN32)
-    static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
+    static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
         static const struct {
             const char* name;
             DWORD code;
@@ -184,50 +179,55 @@ static std::atomic<bool> in_signal_handler{false};
         #undef _
         };
 
-        if (!in_signal_handler.exchange(true)) {
-            const DWORD code = e->ExceptionRecord->ExceptionCode;
-            info("\nCaught exception %u", code);
-            for (const auto& exception : kExceptions) {
-                if (exception.code == code) {
-                    info(" %s", exception.name);
-                }
+        SkAutoTAcquire<SkSpinlock> lock(gMutex);
+
+        const DWORD code = e->ExceptionRecord->ExceptionCode;
+        info("\nCaught exception %u", code);
+        for (const auto& exception : kExceptions) {
+            if (exception.code == code) {
+                info(" %s", exception.name);
             }
-            info("\n");
-            print_status();
-            fflush(stdout);
         }
+        info(", was running:\n");
+        for (auto& task : gRunning) {
+            info("\t%s\n", task.c_str());
+        }
+        fflush(stdout);
+
         // Execute default exception handler... hopefully, exit.
         return EXCEPTION_EXECUTE_HANDLER;
     }
-    static void setup_crash_handler() { SetUnhandledExceptionFilter(handler); }
+    static void setup_crash_handler() { SetUnhandledExceptionFilter(crash_handler); }
 
 #elif !defined(SK_BUILD_FOR_ANDROID)
     #include <execinfo.h>
     #include <signal.h>
     #include <stdlib.h>
 
+    static void crash_handler(int sig) {
+        SkAutoTAcquire<SkSpinlock> lock(gMutex);
+
+        info("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
+        for (auto& task : gRunning) {
+            info("\t%s\n", task.c_str());
+        }
+
+        void* stack[64];
+        int count = backtrace(stack, SK_ARRAY_COUNT(stack));
+        char** symbols = backtrace_symbols(stack, count);
+        info("\nStack trace:\n");
+        for (int i = 0; i < count; i++) {
+            info("    %s\n", symbols[i]);
+        }
+        fflush(stdout);
+
+        _Exit(sig);
+    }
+
     static void setup_crash_handler() {
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
         for (int sig : kSignals) {
-            signal(sig, [](int sig) {
-                if (!in_signal_handler.exchange(true)) {
-                    SkAutoTAcquire<SkSpinlock> lock(gMutex);
-                    info("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
-                    for (auto& task : gRunning) {
-                        info("\t%s\n", task.c_str());
-                    }
-
-                    void* stack[64];
-                    int count = backtrace(stack, SK_ARRAY_COUNT(stack));
-                    char** symbols = backtrace_symbols(stack, count);
-                    info("\nStack trace:\n");
-                    for (int i = 0; i < count; i++) {
-                        info("    %s\n", symbols[i]);
-                    }
-                    fflush(stdout);
-                }
-                _Exit(sig);
-            });
+            signal(sig, crash_handler);
         }
     }
 
