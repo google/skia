@@ -9,6 +9,7 @@
 #define SkNx_sse_DEFINED
 
 #include "SkCpu.h"
+#include <immintrin.h>
 
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
 // If you do, make sure this is in a static inline function... anywhere else risks violating ODR.

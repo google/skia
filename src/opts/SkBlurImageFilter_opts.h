@@ -11,6 +11,10 @@
 #include "SkColorPriv.h"
 #include "SkTypes.h"
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #include <immintrin.h>
+#endif
+
 namespace SK_OPTS_NS {
 
 enum class BlurDirection { kX, kY };
