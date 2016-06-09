@@ -276,12 +276,29 @@ SkImage* SkReadBuffer::readImage() {
         return nullptr;
     }
 
-    sk_sp<SkData> encoded(this->readByteArrayAsData());
-    if (encoded->size() == 0) {
-        // The image could not be encoded at serialization time - return an empty placeholder.
+    auto placeholder = [=] {
         return SkImage::MakeFromGenerator(
             new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height))).release();
+    };
+
+    uint32_t encoded_size = this->getArrayCount();
+    if (encoded_size == 0) {
+        // The image could not be encoded at serialization time - return an empty placeholder.
+        (void)this->readUInt();  // Swallow that encoded_size == 0 sentinel.
+        return placeholder();
     }
+    if (encoded_size == 1) {
+        // We had to encode the image as raw pixels via SkBitmap.
+        (void)this->readUInt();  // Swallow that encoded_size == 1 sentinel.
+        SkBitmap bm;
+        if (SkBitmap::ReadRawPixels(this, &bm)) {
+            return SkImage::MakeFromBitmap(bm).release();
+        }
+        return placeholder();
+    }
+
+    // The SkImage encoded itself.
+    sk_sp<SkData> encoded(this->readByteArrayAsData());
 
     int originX = this->read32();
     int originY = this->read32();

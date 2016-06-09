@@ -163,10 +163,7 @@ def get_args(bot):
       blacklist.extend('_ gm _ composeshader_bitmap'.split(' '))
 
   # skia:4095
-  for test in ['not_native32_bitmap_config',
-               'bleed_image',
-               'bleed_alpha_image',
-               'bleed_alpha_image_shader',
+  for test in ['bleed_image',
                'c_gms',
                'colortype',
                'colortype_xfermodes',
@@ -175,10 +172,15 @@ def get_args(bot):
                'fontmgr_bounds_1_-0.25',
                'fontmgr_bounds',
                'fontmgr_match',
-               'fontmgr_iter',
-               'verylargebitmap',              # Windows only.
-               'verylarge_picture_image']:     # Windows only.
+               'fontmgr_iter']:
     blacklist.extend(['serialize-8888', 'gm', '_', test])
+  if 'Mac' not in bot:
+    for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
+      blacklist.extend(['serialize-8888', 'gm', '_', test])
+  if 'Win' in bot:
+    for test in ['verylargebitmap', 'verylarge_picture_image']:
+      blacklist.extend(['serialize-8888', 'gm', '_', test])
+
   # skia:4769
   for test in ['drawfilter']:
     blacklist.extend([    'sp-8888', 'gm', '_', test])
@@ -238,7 +240,7 @@ def get_args(bot):
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
   if 'TSAN' in bot:
-    match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots. 
+    match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
 
   if blacklist:
     args.append('--blacklist')
