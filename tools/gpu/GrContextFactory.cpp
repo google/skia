@@ -19,7 +19,7 @@
 #if SK_MESA
     #include "gl/mesa/GLTestContext_mesa.h"
 #endif
-#if SK_VULKAN
+#ifdef SK_VULKAN
 #include "vk/VkTestContext.h"
 #endif
 #include "gl/null/NullGLTestContext.h"

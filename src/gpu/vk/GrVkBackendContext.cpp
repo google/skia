@@ -89,12 +89,12 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         instanceExtensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_win32_surface_GrVkExtensionFlag;
     }
-#elif SK_BUILD_FOR_ANDROID
+#elif defined(SK_BUILD_FOR_ANDROID)
     if (extensions.hasInstanceExtension(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_android_surface_GrVkExtensionFlag;
     }
-#elif SK_BUILD_FOR_UNIX
+#elif defined(SK_BUILD_FOR_UNIX)
     if (extensions.hasInstanceExtension(VK_KHR_XCB_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_xcb_surface_GrVkExtensionFlag;

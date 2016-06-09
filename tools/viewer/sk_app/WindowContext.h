@@ -42,6 +42,7 @@ public:
     }
 
     virtual GrBackendContext getBackendContext() = 0;
+    GrContext* getGrContext() const { return fContext; }
 
     sk_sp<SkSurface> createRenderSurface(sk_sp<GrRenderTarget>, int colorBits);
     void presentRenderSurface(sk_sp<SkSurface> renderSurface, sk_sp<GrRenderTarget> rt,
