@@ -314,6 +314,20 @@ struct ICCProfileHeader {
     }
 };
 
+template <class T>
+static bool safe_add(T arg1, T arg2, size_t* result) {
+    SkASSERT(arg1 >= 0);
+    SkASSERT(arg2 >= 0);
+    if (arg1 >= 0 && arg2 <= std::numeric_limits<T>::max() - arg1) {
+        T sum = arg1 + arg2;
+        if (sum <= std::numeric_limits<size_t>::max()) {
+            *result = static_cast<size_t>(sum);
+            return true;
+        }
+    }
+    return false;
+}
+
 struct ICCTag {
     uint32_t fSignature;
     uint32_t fOffset;
@@ -327,7 +341,10 @@ struct ICCTag {
     }
 
     bool valid(size_t len) {
-        return_if_false(fOffset + fLength <= len, "Tag too large for ICC profile");
+        size_t tagEnd;
+        return_if_false(safe_add(fOffset, fLength, &tagEnd),
+                        "Tag too large, overflows integer addition");
+        return_if_false(tagEnd <= len, "Tag too large for ICC profile");
         return true;
     }
 
@@ -364,20 +381,6 @@ bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
     dst[2] = SkFixedToFloat(read_big_endian_int(src + 16));
     SkColorSpacePrintf("XYZ %g %g %g\n", dst[0], dst[1], dst[2]);
     return true;
-}
-
-template <class T>
-static bool safe_add(T arg1, T arg2, size_t* result) {
-    SkASSERT(arg1 >= 0);
-    SkASSERT(arg2 >= 0);
-    if (arg1 >= 0 && arg2 <= std::numeric_limits<T>::max() - arg1) {
-        T sum = arg1 + arg2;
-        if (sum <= std::numeric_limits<size_t>::max()) {
-            *result = static_cast<size_t>(sum);
-            return true;
-        }
-    }
-    return false;
 }
 
 static constexpr uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
@@ -808,8 +811,8 @@ bool load_a2b0(SkColorLookUpTable* colorLUT, SkGammaCurve* gammas, SkMatrix44* t
 }
 
 sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
-    if (len < kICCHeaderSize) {
-        return_null("Data is not large enough to contain an ICC profile");
+    if (!input || len < kICCHeaderSize) {
+        return_null("Data is null or not large enough to contain an ICC profile");
     }
 
     // Create our own copy of the input.
