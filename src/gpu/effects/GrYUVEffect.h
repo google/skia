@@ -20,7 +20,7 @@ namespace GrYUVEffect {
      */
     sk_sp<GrFragmentProcessor> MakeYUVToRGB(GrTexture* yTexture, GrTexture* uTexture,
                                             GrTexture* vTexture, const SkISize sizes[3],
-                                            SkYUVColorSpace colorSpace);
+                                            SkYUVColorSpace colorSpace, bool nv12);
 
     /**
      * Creates a processor that performs color conversion from the passed in processor's RGB

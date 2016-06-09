@@ -64,7 +64,7 @@ class YUVtoRGBEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrFragmentProcessor> Make(GrTexture* yTexture, GrTexture* uTexture,
                                            GrTexture* vTexture, const SkISize sizes[3],
-                                           SkYUVColorSpace colorSpace) {
+                                           SkYUVColorSpace colorSpace, bool nv12) {
         SkScalar w[3], h[3];
         w[0] = SkIntToScalar(sizes[0].fWidth)  / SkIntToScalar(yTexture->width());
         h[0] = SkIntToScalar(sizes[0].fHeight) / SkIntToScalar(yTexture->height());
@@ -85,21 +85,23 @@ public:
              (sizes[2].fHeight != sizes[0].fHeight)) ?
             GrTextureParams::kBilerp_FilterMode :
             GrTextureParams::kNone_FilterMode;
-        return sk_sp<GrFragmentProcessor>(
-            new YUVtoRGBEffect(yTexture, uTexture, vTexture, yuvMatrix, uvFilterMode, colorSpace));
+        return sk_sp<GrFragmentProcessor>(new YUVtoRGBEffect(
+            yTexture, uTexture, vTexture, yuvMatrix, uvFilterMode, colorSpace, nv12));
     }
 
     const char* name() const override { return "YUV to RGB"; }
 
     SkYUVColorSpace getColorSpace() const { return fColorSpace; }
 
+    bool isNV12() const {
+        return fNV12;
+    }
+
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
-        // this class always generates the same code.
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
-
         void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            const YUVtoRGBEffect& effect = args.fFp.cast<YUVtoRGBEffect>();
 
             const char* colorSpaceMatrix = nullptr;
             fMatrixUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
@@ -111,10 +113,15 @@ public:
             fragBuilder->codeAppend(".r,");
             fragBuilder->appendTextureLookup(args.fTexSamplers[1], args.fCoords[1].c_str(),
                                              args.fCoords[1].getType());
-            fragBuilder->codeAppend(".r,");
-            fragBuilder->appendTextureLookup(args.fTexSamplers[2], args.fCoords[2].c_str(),
-                                             args.fCoords[2].getType());
-            fragBuilder->codeAppendf(".r, 1.0) * %s;", colorSpaceMatrix);
+            if (effect.fNV12) {
+                fragBuilder->codeAppendf(".rg,");
+            } else {
+                fragBuilder->codeAppend(".r,");
+                fragBuilder->appendTextureLookup(args.fTexSamplers[2], args.fCoords[2].c_str(),
+                                                 args.fCoords[2].getType());
+                fragBuilder->codeAppendf(".g,");
+            }
+            fragBuilder->codeAppendf("1.0) * %s;", colorSpaceMatrix);
         }
 
     protected:
@@ -143,21 +150,24 @@ public:
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
                    const SkMatrix yuvMatrix[3], GrTextureParams::FilterMode uvFilterMode,
-                   SkYUVColorSpace colorSpace)
-    : fYTransform(kLocal_GrCoordSet, yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
-    , fYAccess(yTexture)
-    , fUTransform(kLocal_GrCoordSet, yuvMatrix[1], uTexture, uvFilterMode)
-    , fUAccess(uTexture, uvFilterMode)
-    , fVTransform(kLocal_GrCoordSet, yuvMatrix[2], vTexture, uvFilterMode)
-    , fVAccess(vTexture, uvFilterMode)
-    , fColorSpace(colorSpace) {
+                   SkYUVColorSpace colorSpace, bool nv12)
+        : fYTransform(kLocal_GrCoordSet, yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
+        , fYAccess(yTexture)
+        , fUTransform(kLocal_GrCoordSet, yuvMatrix[1], uTexture, uvFilterMode)
+        , fUAccess(uTexture, uvFilterMode)
+        , fVAccess(vTexture, uvFilterMode)
+        , fColorSpace(colorSpace)
+        , fNV12(nv12) {
         this->initClassID<YUVtoRGBEffect>();
         this->addCoordTransform(&fYTransform);
         this->addTextureAccess(&fYAccess);
         this->addCoordTransform(&fUTransform);
         this->addTextureAccess(&fUAccess);
-        this->addCoordTransform(&fVTransform);
-        this->addTextureAccess(&fVAccess);
+        if (!fNV12) {
+            fVTransform = GrCoordTransform(kLocal_GrCoordSet, yuvMatrix[2], vTexture, uvFilterMode);
+            this->addCoordTransform(&fVTransform);
+            this->addTextureAccess(&fVAccess);
+        }
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -165,12 +175,12 @@ private:
     }
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
+        b->add32(fNV12);
     }
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const YUVtoRGBEffect& s = sBase.cast<YUVtoRGBEffect>();
-        return fColorSpace == s.getColorSpace();
+        return (fColorSpace == s.getColorSpace()) && (fNV12 == s.isNV12());
     }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
@@ -186,6 +196,7 @@ private:
     GrCoordTransform fVTransform;
     GrTextureAccess fVAccess;
     SkYUVColorSpace fColorSpace;
+    bool fNV12;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -350,11 +361,11 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor>
-GrYUVEffect::MakeYUVToRGB(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                            const SkISize sizes[3], SkYUVColorSpace colorSpace) {
+sk_sp<GrFragmentProcessor> GrYUVEffect::MakeYUVToRGB(GrTexture* yTexture, GrTexture* uTexture,
+                                                     GrTexture* vTexture, const SkISize sizes[3],
+                                                     SkYUVColorSpace colorSpace, bool nv12) {
     SkASSERT(yTexture && uTexture && vTexture && sizes);
-    return YUVtoRGBEffect::Make(yTexture, uTexture, vTexture, sizes, colorSpace);
+    return YUVtoRGBEffect::Make(yTexture, uTexture, vTexture, sizes, colorSpace, nv12);
 }
 
 sk_sp<GrFragmentProcessor>

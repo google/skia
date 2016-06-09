@@ -205,18 +205,23 @@ sk_sp<SkImage> SkImage::MakeFromTextureCopy(GrContext* ctx, const GrBackendTextu
                                    SkBudgeted::kYes);
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorSpace,
-                                                const GrBackendObject yuvTextureHandles[3],
-                                                const SkISize yuvSizes[3],
-                                                GrSurfaceOrigin origin) {
+static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpace colorSpace,
+                                                  bool nv12,
+                                                  const GrBackendObject yuvTextureHandles[],
+                                                  const SkISize yuvSizes[],
+                                                  GrSurfaceOrigin origin) {
     const SkBudgeted budgeted = SkBudgeted::kYes;
 
-    if (yuvSizes[0].fWidth <= 0 || yuvSizes[0].fHeight <= 0 ||
-        yuvSizes[1].fWidth <= 0 || yuvSizes[1].fHeight <= 0 ||
-        yuvSizes[2].fWidth <= 0 || yuvSizes[2].fHeight <= 0) {
+    if (yuvSizes[0].fWidth <= 0 || yuvSizes[0].fHeight <= 0 || yuvSizes[1].fWidth <= 0 ||
+        yuvSizes[1].fHeight <= 0) {
         return nullptr;
     }
-    static const GrPixelConfig kConfig = kAlpha_8_GrPixelConfig;
+    if (!nv12 && (yuvSizes[2].fWidth <= 0 || yuvSizes[2].fHeight <= 0)) {
+        return nullptr;
+    }
+
+    const GrPixelConfig kConfig = nv12 ? kRGBA_8888_GrPixelConfig : kAlpha_8_GrPixelConfig;
+
     GrBackendTextureDesc yDesc;
     yDesc.fConfig = kConfig;
     yDesc.fOrigin = origin;
@@ -233,20 +238,25 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
     uDesc.fWidth = yuvSizes[1].fWidth;
     uDesc.fHeight = yuvSizes[1].fHeight;
 
-    GrBackendTextureDesc vDesc;
-    vDesc.fConfig = kConfig;
-    vDesc.fOrigin = origin;
-    vDesc.fSampleCnt = 0;
-    vDesc.fTextureHandle = yuvTextureHandles[2];
-    vDesc.fWidth = yuvSizes[2].fWidth;
-    vDesc.fHeight = yuvSizes[2].fHeight;
+    sk_sp<GrTexture> yTex(
+        ctx->textureProvider()->wrapBackendTexture(yDesc, kBorrow_GrWrapOwnership));
+    sk_sp<GrTexture> uTex(
+        ctx->textureProvider()->wrapBackendTexture(uDesc, kBorrow_GrWrapOwnership));
+    sk_sp<GrTexture> vTex;
+    if (nv12) {
+        vTex = uTex;
+    } else {
+        GrBackendTextureDesc vDesc;
+        vDesc.fConfig = kConfig;
+        vDesc.fOrigin = origin;
+        vDesc.fSampleCnt = 0;
+        vDesc.fTextureHandle = yuvTextureHandles[2];
+        vDesc.fWidth = yuvSizes[2].fWidth;
+        vDesc.fHeight = yuvSizes[2].fHeight;
 
-    SkAutoTUnref<GrTexture> yTex(ctx->textureProvider()->wrapBackendTexture(
-        yDesc, kBorrow_GrWrapOwnership));
-    SkAutoTUnref<GrTexture> uTex(ctx->textureProvider()->wrapBackendTexture(
-        uDesc, kBorrow_GrWrapOwnership));
-    SkAutoTUnref<GrTexture> vTex(ctx->textureProvider()->wrapBackendTexture(
-        vDesc, kBorrow_GrWrapOwnership));
+        vTex = sk_sp<GrTexture>(
+            ctx->textureProvider()->wrapBackendTexture(vDesc, kBorrow_GrWrapOwnership));
+    }
     if (!yTex || !uTex || !vTex) {
         return nullptr;
     }
@@ -266,8 +276,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
-    paint.addColorFragmentProcessor(GrYUVEffect::MakeYUVToRGB(yTex, uTex, vTex, yuvSizes,
-                                                              colorSpace));
+    paint.addColorFragmentProcessor(
+        GrYUVEffect::MakeYUVToRGB(yTex.get(), uTex.get(), vTex.get(), yuvSizes, colorSpace, nv12));
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
@@ -276,6 +286,19 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace
     return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
                                    kOpaque_SkAlphaType,
                                    drawContext->asTexture().get(), budgeted);
+}
+
+sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
+                                                const GrBackendObject yuvTextureHandles[3],
+                                                const SkISize yuvSizes[3], GrSurfaceOrigin origin) {
+    return make_from_yuv_textures_copy(ctx, colorSpace, false, yuvTextureHandles, yuvSizes, origin);
+}
+
+sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
+                                                 const GrBackendObject yuvTextureHandles[2],
+                                                 const SkISize yuvSizes[2],
+                                                 GrSurfaceOrigin origin) {
+    return make_from_yuv_textures_copy(ctx, colorSpace, true, yuvTextureHandles, yuvSizes, origin);
 }
 
 static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {
