@@ -114,10 +114,6 @@ SkDraw::SkDraw() {
     sk_bzero(this, sizeof(*this));
 }
 
-SkDraw::SkDraw(const SkDraw& src) {
-    memcpy(this, &src, sizeof(*this));
-}
-
 bool SkDraw::computeConservativeLocalClipBounds(SkRect* localBounds) const {
     if (fRC->isEmpty()) {
         return false;

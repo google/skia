@@ -32,7 +32,13 @@ static bool color_type_is_valid(SkColorType colorType) {
 
 SkImageInfo SkImageInfo::Make(int width, int height, SkColorType ct, SkAlphaType at,
                               sk_sp<SkColorSpace> cs) {
-    return SkImageInfo(width, height, ct, at, SkDefaultColorProfile(), std::move(cs));
+    SkColorProfileType pt = SkDefaultColorProfile();
+    // try to keep the enum and the colorspace in sync.
+    // TODO: eliminate the enum entirely, now that we have colorspace objects
+    if (cs && (SkColorSpace::kLinear_GammaNamed != cs->gammaNamed())) {
+        pt = kSRGB_SkColorProfileType;
+    }
+    return SkImageInfo(width, height, ct, at, pt, std::move(cs));
 }
 
 SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {

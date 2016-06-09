@@ -285,6 +285,10 @@ public:
         return SkImageInfo(fWidth, fHeight, newColorType, fAlphaType, fProfileType, fColorSpace);
     }
 
+    SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const {
+        return SkImageInfo::Make(fWidth, fHeight, fColorType, fAlphaType, std::move(cs));
+    }
+
     int bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
 
     int shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }

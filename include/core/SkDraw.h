@@ -30,7 +30,6 @@ class SkRRect;
 class SkDraw {
 public:
     SkDraw();
-    SkDraw(const SkDraw& src);
 
     void    drawPaint(const SkPaint&) const;
     void    drawPoints(SkCanvas::PointMode, size_t count, const SkPoint[],
