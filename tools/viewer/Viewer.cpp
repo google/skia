@@ -53,7 +53,11 @@ DEFINE_string2(match, m, nullptr,
                "If a bench does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
 DEFINE_string(skps, "skps", "Directory to read skps from.");
+#ifdef SK_BUILD_FOR_ANDROID
+DEFINE_bool(vulkan, false, "Run with Vulkan.");
+#else
 DEFINE_bool(vulkan, true, "Run with Vulkan.");
+#endif
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",

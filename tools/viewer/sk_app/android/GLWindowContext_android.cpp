@@ -43,11 +43,17 @@ GLWindowContext_android::~GLWindowContext_android() {
 }
 
 void GLWindowContext_android::onInitializeContext(void* platformData, const DisplayParams& params) {
-    ContextPlatformData_android* androidPlatformData = 
-            reinterpret_cast<ContextPlatformData_android*>(platformData);
+    if (platformData != nullptr) {
+        ContextPlatformData_android* androidPlatformData =
+                reinterpret_cast<ContextPlatformData_android*>(platformData);
+        fNativeWindow = androidPlatformData->fNativeWindow;
+    } else {
+        SkASSERT(fNativeWindow);
+    }
 
-    fWidth = ANativeWindow_getWidth(androidPlatformData->fNativeWindow);
-    fHeight = ANativeWindow_getHeight(androidPlatformData->fNativeWindow);
+
+    fWidth = ANativeWindow_getWidth(fNativeWindow);
+    fHeight = ANativeWindow_getHeight(fNativeWindow);
 
     fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
@@ -81,7 +87,7 @@ void GLWindowContext_android::onInitializeContext(void* platformData, const Disp
     SkASSERT(EGL_NO_CONTEXT != fEGLContext);
 
     fSurface = eglCreateWindowSurface(
-            fDisplay, surfaceConfig, androidPlatformData->fNativeWindow, nullptr);
+            fDisplay, surfaceConfig, fNativeWindow, nullptr);
     SkASSERT(EGL_NO_SURFACE != fSurface);
 
     SkAssertResult(eglMakeCurrent(fDisplay, fSurface, fSurface, fEGLContext));

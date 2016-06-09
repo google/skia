@@ -23,15 +23,12 @@ public:
     void swapBuffers() override;
 
     bool isValid() override { return SkToBool(fNativeWindow); }
-    void resize(uint32_t w, uint32_t h) override {
-        SkDEBUGFAIL("Resize is currently unsupported.");
-    }
-    void setDisplayParams(const DisplayParams& params) override {
-        SkDEBUGFAIL("setDisplayParams is currently unsupported.");
-    }
+    void resize(uint32_t w, uint32_t h) override;
+    void setDisplayParams(const DisplayParams& params) override;
 
 private:
     RasterWindowContext_android(void* platformData, const DisplayParams& params);
+    void setBuffersGeometry();
     sk_sp<SkSurface> fBackbufferSurface = nullptr;
     ANativeWindow* fNativeWindow = nullptr;
     ANativeWindow_Buffer fBuffer;

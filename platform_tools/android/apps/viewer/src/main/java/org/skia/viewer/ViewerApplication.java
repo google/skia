@@ -57,6 +57,9 @@ public class ViewerApplication extends Application {
 
     public void setTitle(String title) {
         mTitle = title; // Similar to mStateJsonStr, we have to store this.
+        if (mTitle.startsWith("Viewer: ")) { // Quick hack to shorten the title
+            mTitle = mTitle.replaceFirst("Viewer: ", "");
+        }
         if (mViewerActivity != null) {
             mViewerActivity.runOnUiThread(new Runnable() {
                 @Override

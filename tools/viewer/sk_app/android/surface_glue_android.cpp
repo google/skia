@@ -124,6 +124,7 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
                 skiaAndroidApp->fNativeWindow = message.fNativeWindow;
                 window_android->initDisplay(skiaAndroidApp->fNativeWindow);
             }
+            window_android->onResize(width, height);
             window_android->setContentRect(0, 0, width, height);
             window_android->paintIfNeeded();
             break;

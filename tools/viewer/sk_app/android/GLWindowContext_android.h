@@ -13,6 +13,8 @@
 
 #include <EGL/egl.h>
 
+struct ANativeWindow;
+
 namespace sk_app {
 
 class GLWindowContext_android : public GLWindowContext {
@@ -32,6 +34,9 @@ private:
     EGLDisplay fDisplay;
     EGLContext fEGLContext;
     EGLSurface fSurface;
+
+    // For setDisplayParams and resize which call onInitializeContext with null platformData
+    ANativeWindow* fNativeWindow = nullptr;
 };
 
 
