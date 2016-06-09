@@ -390,18 +390,13 @@ static void test_basic(skiatest::Reporter* reporter, const GEO& geo) {
     stroke2RoundBevelAndFillDash.setStyle(SkPaint::kStrokeAndFill_Style);
     TestCase stroke2RoundBevelAndFillDashCase(geo, stroke2RoundBevelAndFillDash, reporter);
     expectations.fPEHasValidKey = true;
-    expectations.fPEHasEffect = true;
+    expectations.fPEHasEffect = false;
     expectations.fStrokeApplies = true;
     stroke2RoundBevelAndFillDashCase.testExpectations(reporter, expectations);
     TestCase(geo, stroke2RoundBevelAndFillDash, reporter).compare(
         reporter, stroke2RoundBevelAndFillDashCase, TestCase::kAllSame_ComparisonExpecation);
-
-    stroke2RoundBevelAndFillCase.compare(reporter, stroke2RoundBevelCase,
-                                         TestCase::kSameUpToStroke_ComparisonExpecation);
-    stroke2RoundBevelAndFillDashCase.compare(reporter, stroke2RoundBevelDashCase,
-                                             TestCase::kSameUpToStroke_ComparisonExpecation);
-    stroke2RoundBevelAndFillCase.compare(reporter, stroke2RoundBevelAndFillDashCase,
-                                         TestCase::kSameUpToPE_ComparisonExpecation);
+    stroke2RoundBevelAndFillDashCase.compare(reporter, stroke2RoundBevelAndFillCase,
+                                             TestCase::kAllSame_ComparisonExpecation);
 
     SkPaint hairline;
     hairline.setStyle(SkPaint::kStroke_Style);
@@ -455,6 +450,11 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     strokeAndFill.setStyle(SkPaint::kStrokeAndFill_Style);
     TestCase strokeAndFillCase1(geo, strokeAndFill, reporter, kS1);
     TestCase strokeAndFillCase2(geo, strokeAndFill, reporter, kS2);
+    SkPaint strokeAndFillDash = strokeDash;
+    strokeAndFillDash.setStyle(SkPaint::kStrokeAndFill_Style);
+    // Dash is ignored for stroke and fill
+    TestCase strokeAndFillDashCase1(geo, strokeAndFillDash, reporter, kS1);
+    TestCase strokeAndFillDashCase2(geo, strokeAndFillDash, reporter, kS2);
     // Scale affects the stroke. Though, this can wind up creating a rect when the input is a rect.
     // In that case we wind up with a pure geometry key and the geometries are the same.
     SkRRect rrect;
@@ -469,15 +469,13 @@ static void test_scale(skiatest::Reporter* reporter, const GEO& geo) {
     } else {
         strokeAndFillCase1.compare(reporter, strokeAndFillCase2,
                                    TestCase::kSameUpToStroke_ComparisonExpecation);
+        strokeAndFillDashCase1.compare(reporter, strokeAndFillDashCase2,
+                                       TestCase::kSameUpToStroke_ComparisonExpecation);
     }
-
-    SkPaint strokeAndFillDash = strokeDash;
-    strokeAndFillDash.setStyle(SkPaint::kStrokeAndFill_Style);
-    TestCase strokeAndFillDashCase1(geo, strokeAndFillDash, reporter, kS1);
-    TestCase strokeAndFillDashCase2(geo, strokeAndFillDash, reporter, kS2);
-    // Scale affects the path effect and stroke.
-    strokeAndFillDashCase1.compare(reporter, strokeAndFillDashCase2,
-                               TestCase::kSameUpToPE_ComparisonExpecation);
+    strokeAndFillDashCase1.compare(reporter, strokeAndFillCase1,
+                                   TestCase::kAllSame_ComparisonExpecation);
+    strokeAndFillDashCase2.compare(reporter, strokeAndFillCase2,
+                                   TestCase::kAllSame_ComparisonExpecation);
 }
 
 template <typename GEO, typename T>
@@ -537,19 +535,6 @@ static void test_stroke_param_impl(skiatest::Reporter* reporter, const GEO& geo,
         dashACase.compare(reporter, dashBCase, TestCase::kSameUpToStroke_ComparisonExpecation);
     } else {
         dashACase.compare(reporter, dashBCase, TestCase::kAllSame_ComparisonExpecation);
-    }
-
-    SkPaint dashStrokeAndFillA = dashA, dashStrokeAndFillB = dashB;
-    dashStrokeAndFillA.setStyle(SkPaint::kStrokeAndFill_Style);
-    dashStrokeAndFillB.setStyle(SkPaint::kStrokeAndFill_Style);
-    TestCase dashStrokeAndFillACase(geo, dashStrokeAndFillA, reporter);
-    TestCase dashStrokeAndFillBCase(geo, dashStrokeAndFillB, reporter);
-    if (paramAffectsDashAndStroke) {
-        dashStrokeAndFillACase.compare(reporter, dashStrokeAndFillBCase,
-                                       TestCase::kSameUpToStroke_ComparisonExpecation);
-    } else {
-        dashStrokeAndFillACase.compare(reporter, dashStrokeAndFillBCase,
-                                       TestCase::kAllSame_ComparisonExpecation);
     }
 }
 

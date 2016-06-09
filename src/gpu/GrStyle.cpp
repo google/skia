@@ -106,7 +106,8 @@ void GrStyle::initPathEffect(SkPathEffect* pe) {
     }
     SkPathEffect::DashInfo info;
     if (SkPathEffect::kDash_DashType == pe->asADash(&info)) {
-        if (fStrokeRec.getStyle() != SkStrokeRec::kFill_Style) {
+        SkStrokeRec::Style recStyle = fStrokeRec.getStyle();
+        if (recStyle != SkStrokeRec::kFill_Style && recStyle != SkStrokeRec::kStrokeAndFill_Style) {
             fDashInfo.fType = SkPathEffect::kDash_DashType;
             fDashInfo.fIntervals.reset(info.fCount);
             fDashInfo.fPhase = info.fPhase;
