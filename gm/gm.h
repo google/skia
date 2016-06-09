@@ -34,20 +34,10 @@ struct GrContextOptions;
     DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, SK_ColorWHITE, SkString(#NAME))
 #define DEF_SIMPLE_GM_BG(NAME, CANVAS, W, H, BGCOLOR)\
     DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, SkString(#NAME))
-
-// Disable tail calls in Simple GM functions to make sure they appear on any stack trace.
-#if defined(__clang__)
-    #define DISABLE_TAIL_CALLS __attribute__((optnone))
-#elif defined(__GNUC__)
-    #define DISABLE_TAIL_CALLS __attribute__((optimize("-O1")))
-#else
-    #define DISABLE_TAIL_CALLS /*TODO: MSVC*/
-#endif
-
-#define DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, NAME_STR)              \
-    static void DISABLE_TAIL_CALLS SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS); \
-    DEF_GM(return new skiagm::SimpleGM(NAME_STR, SK_MACRO_CONCAT(NAME, _GM),      \
-                                       SkISize::Make(W, H), BGCOLOR);)            \
+#define DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, NAME_STR)         \
+    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS);               \
+    DEF_GM(return new skiagm::SimpleGM(NAME_STR, SK_MACRO_CONCAT(NAME, _GM), \
+                                       SkISize::Make(W, H), BGCOLOR);)       \
     void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS)
 
 namespace skiagm {
