@@ -408,7 +408,7 @@ void GrDrawContextPriv::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 
 void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,
                                     const GrUserStencilSettings* ss,
-                                    bool doAA,
+                                    bool useHWAA,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& rect) {
     ASSERT_SINGLE_OWNER_PRIV
@@ -419,16 +419,16 @@ void GrDrawContextPriv::stencilRect(const GrFixedClip& clip,
     AutoCheckFlush acf(fDrawContext->fDrawingManager);
 
     GrPaint paint;
-    paint.setAntiAlias(doAA);
+    paint.setAntiAlias(useHWAA);
     paint.setXPFactory(GrDisableColorXPFactory::Make());
 
-    bool useHWAA;
-    SkAutoTUnref<GrDrawBatch> batch(
-        fDrawContext->getFillRectBatch(paint, viewMatrix, rect, &useHWAA));
-    SkASSERT(batch);
+    SkASSERT(!useHWAA || fDrawContext->isStencilBufferMultisampled());
 
     GrPipelineBuilder pipelineBuilder(paint, useHWAA);
     pipelineBuilder.setUserStencil(ss);
+
+    SkAutoTUnref<GrDrawBatch> batch(
+        GrRectBatchFactory::CreateNonAAFill(SK_ColorWHITE, viewMatrix, rect, nullptr, nullptr));
 
     fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, clip, batch);
 }

@@ -24,7 +24,7 @@ public:
 
     void stencilRect(const GrFixedClip& clip,
                      const GrUserStencilSettings* ss,
-                     bool doAA,
+                     bool useHWAA,
                      const SkMatrix& viewMatrix,
                      const SkRect& rect);
 

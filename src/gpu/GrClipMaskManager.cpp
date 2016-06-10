@@ -51,15 +51,6 @@ static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
                                          kDevice_GrCoordSet));
 }
 
-void GrClipMaskManager::DrawNonAARect(GrDrawContext* drawContext,
-                                      const GrFixedClip& clip,
-                                      const SkMatrix& viewMatrix,
-                                      const SkRect& rect,
-                                      bool doAA,
-                                      const GrUserStencilSettings* stencilSettings) {
-    drawContext->drawContextPriv().stencilRect(clip, stencilSettings, doAA, viewMatrix, rect);
-}
-
 // Does the path in 'element' require SW rendering? If so, return true (and,
 // optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
 // 'prOut' to the non-SW path renderer that will do the job).
@@ -600,6 +591,7 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
         // with the existing clip.
         for (GrReducedClip::ElementList::Iter iter(elements.headIter()); iter.get(); iter.next()) {
             const Element* element = iter.get();
+            bool useHWAA = element->isAA() && drawContext->isStencilBufferMultisampled();
 
             bool fillInverted = false;
             // enabled at bottom of loop
@@ -662,8 +654,8 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                          0xffff>()
                 );
                 if (Element::kRect_Type == element->getType()) {
-                    DrawNonAARect(drawContext, clip, viewMatrix,
-                                  element->getRect(), element->isAA(), &kDrawToStencil);
+                    drawContext->drawContextPriv().stencilRect(clip, &kDrawToStencil, useHWAA,
+                                                               viewMatrix, element->getRect());
                 } else {
                     if (!clipPath.isEmpty()) {
                         if (canRenderDirectToStencil) {
@@ -705,8 +697,8 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
 
                 if (drawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
-                        DrawNonAARect(drawContext, clip,
-                                      viewMatrix, element->getRect(), element->isAA(), *pass);
+                        drawContext->drawContextPriv().stencilRect(clip, *pass, useHWAA, viewMatrix,
+                                                                   element->getRect());
                     } else {
                         GrPaint paint;
                         paint.setXPFactory(GrDisableColorXPFactory::Make());
@@ -729,8 +721,8 @@ bool GrClipMaskManager::CreateStencilClipMask(GrContext* context,
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
-                    DrawNonAARect(drawContext, clip, viewMatrix,
-                                  SkRect::Make(clipSpaceIBounds), false, *pass);
+                    drawContext->drawContextPriv().stencilRect(clip, *pass, false, viewMatrix,
+                                                               SkRect::Make(clipSpaceIBounds));
                 }
             }
         }
