@@ -177,7 +177,8 @@ def get_args(bot):
   if 'Mac' not in bot:
     for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
       blacklist.extend(['serialize-8888', 'gm', '_', test])
-  if 'Win' in bot:
+  # It looks like we skip these only for out-of-memory concerns.
+  if 'Win' in bot or 'Android' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
       blacklist.extend(['serialize-8888', 'gm', '_', test])
 
