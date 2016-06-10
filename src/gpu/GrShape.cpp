@@ -24,6 +24,7 @@ GrShape& GrShape::operator=(const GrShape& that) {
             fRRect = that.fRRect;
             fRRectDir = that.fRRectDir;
             fRRectStart = that.fRRectStart;
+            fRRectIsInverted = that.fRRectIsInverted;
             break;
         case Type::kPath:
             if (wasPath) {
@@ -71,13 +72,14 @@ int GrShape::unstyledKeySize() const {
         case Type::kRRect:
             SkASSERT(!fInheritedKey.count());
             SkASSERT(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
-            // + 1 for the direction + start index.
+            // + 1 for the direction, start index, and inverseness.
             return SkRRect::kSizeInMemory / sizeof(uint32_t) + 1;
         case Type::kPath:
             if (fPath.get()->isVolatile()) {
                 return -1;
             } else {
-                return 1;
+                // The key is the path ID and fill type.
+                return 2;
             }
     }
     SkFAIL("Should never get here.");
@@ -99,12 +101,16 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
                 fRRect.writeToMemory(key);
                 key += SkRRect::kSizeInMemory / sizeof(uint32_t);
                 *key = (fRRectDir == SkPath::kCCW_Direction) ? (1 << 31) : 0;
+                *key |= fRRectIsInverted ? (1 << 30) : 0;
                 *key++ |= fRRectStart;
                 SkASSERT(fRRectStart < 8);
                 break;
             case Type::kPath:
                 SkASSERT(!fPath.get()->isVolatile());
                 *key++ = fPath.get()->getGenerationID();
+                // We could canonicalize the fill rule for paths that don't differentiate between
+                // even/odd or winding fill (e.g. convex).
+                *key++ = fPath.get()->getFillType();
                 break;
         }
     }
@@ -163,6 +169,9 @@ GrShape::GrShape(const GrShape& that) : fType(that.fType), fStyle(that.fStyle) {
             return;
         case Type::kRRect:
             fRRect = that.fRRect;
+            fRRectDir = that.fRRectDir;
+            fRRectStart = that.fRRectStart;
+            fRRectIsInverted = that.fRRectIsInverted;
             return;
         case Type::kPath:
             fPath.set(*that.fPath.get());
@@ -230,15 +239,16 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
                 SkRRect rrect;
                 SkPath::Direction dir;
                 unsigned start;
+                bool inverted;
                 Type parentType = AttemptToReduceFromPathImpl(*fPath.get(), &rrect, &dir, &start,
-                                                              nullptr, strokeRec);
+                                                              &inverted, nullptr, strokeRec);
                 switch (parentType) {
                     case Type::kEmpty:
                         tmpParent.init();
                         parentForKey = tmpParent.get();
                         break;
                     case Type::kRRect:
-                        tmpParent.init(rrect, dir, start, GrStyle(strokeRec, nullptr));
+                        tmpParent.init(rrect, dir, start, inverted, GrStyle(strokeRec, nullptr));
                         parentForKey = tmpParent.get();
                     case Type::kPath:
                         break;
@@ -269,9 +279,25 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
     this->setInheritedKey(*parentForKey, apply, scale);
 }
 
+static inline bool rrect_path_is_inverse_filled(const SkPath& path, const SkStrokeRec& strokeRec,
+                                                const SkPathEffect* pe) {
+    // Dashing doesn't use the path fill type. Dashing only works with stroking
+    if (pe && pe->asADash(nullptr)) {
+        pe = nullptr;
+    }
+
+    SkStrokeRec::Style style = strokeRec.getStyle();
+    if (!pe && (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style)) {
+        // stroking ignores the path fill rule.
+        return false;
+    }
+    return path.isInverseFillType();
+}
+
 GrShape::Type GrShape::AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* rrect,
                                                    SkPath::Direction* rrectDir,
                                                    unsigned* rrectStart,
+                                                   bool* rrectIsInverted,
                                                    const SkPathEffect* pe,
                                                    const SkStrokeRec& strokeRec) {
     if (path.isEmpty()) {
@@ -285,6 +311,7 @@ GrShape::Type GrShape::AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* 
         if (!pe) {
             *rrectStart = DefaultRRectDirAndStartIndex(*rrect, false, rrectDir);
         }
+        *rrectIsInverted = rrect_path_is_inverse_filled(path, strokeRec, pe);
         return Type::kRRect;
     }
     SkRect rect;
@@ -297,6 +324,7 @@ GrShape::Type GrShape::AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* 
             // convert from oval indexing to rrect indexiing.
             *rrectStart *= 2;
         }
+        *rrectIsInverted = rrect_path_is_inverse_filled(path, strokeRec, pe);
         return Type::kRRect;
     }
     // When there is a path effect we restrict rect detection to the narrower API that
@@ -310,6 +338,7 @@ GrShape::Type GrShape::AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* 
             *rrectStart *= 2;
         }
         rrect->setRect(rect);
+        *rrectIsInverted = rrect_path_is_inverse_filled(path, strokeRec, pe);
         return Type::kRRect;
     }
     if (!pe) {
@@ -320,6 +349,7 @@ GrShape::Type GrShape::AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* 
                 // Since there is no path effect the dir and start index is immaterial.
                 *rrectDir = kDefaultRRectDir;
                 *rrectStart = kDefaultRRectStart;
+                *rrectIsInverted = rrect_path_is_inverse_filled(path, strokeRec, pe);
                 return Type::kRRect;
             }
         }

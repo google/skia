@@ -44,14 +44,16 @@ public:
 
     explicit GrShape(const SkRRect& rrect)
         : fType(Type::kRRect)
-        , fRRect(rrect) {
+        , fRRect(rrect)
+        , fRRectIsInverted(false) {
         fRRectStart = DefaultRRectDirAndStartIndex(rrect, false, &fRRectDir);
         this->attemptToReduceFromRRect();
     }
 
     explicit GrShape(const SkRect& rect)
         : fType(Type::kRRect)
-        , fRRect(SkRRect::MakeRect(rect)) {
+        , fRRect(SkRRect::MakeRect(rect))
+        , fRRectIsInverted(false) {
         fRRectStart = DefaultRectDirAndStartIndex(rect, false, &fRRectDir);
         this->attemptToReduceFromRRect();
     }
@@ -66,18 +68,26 @@ public:
     GrShape(const SkRRect& rrect, const GrStyle& style)
         : fType(Type::kRRect)
         , fRRect(rrect)
+        , fRRectIsInverted(false)
         , fStyle(style) {
         fRRectStart = DefaultRRectDirAndStartIndex(rrect, style.hasPathEffect(), &fRRectDir);
         this->attemptToReduceFromRRect();
     }
 
-    GrShape(const SkRRect& rrect, SkPath::Direction dir, unsigned start, const GrStyle& style)
+    GrShape(const SkRRect& rrect, SkPath::Direction dir, unsigned start, bool inverted,
+            const GrStyle& style)
         : fType(Type::kRRect)
         , fRRect(rrect)
+        , fRRectIsInverted(inverted)
         , fStyle(style) {
         if (style.pathEffect()) {
             fRRectDir = dir;
             fRRectStart = start;
+            if (fRRect.getType() == SkRRect::kRect_Type) {
+                fRRectStart = (fRRectStart + 1) & 0b110;
+            } else if (fRRect.getType() == SkRRect::kOval_Type) {
+                fRRectStart &= 0b110;
+            }
         } else {
             fRRectStart = DefaultRRectDirAndStartIndex(rrect, false, &fRRectDir);
         }
@@ -87,6 +97,7 @@ public:
     GrShape(const SkRect& rect, const GrStyle& style)
         : fType(Type::kRRect)
         , fRRect(SkRRect::MakeRect(rect))
+        , fRRectIsInverted(false)
         , fStyle(style) {
         fRRectStart = DefaultRectDirAndStartIndex(rect, style.hasPathEffect(), &fRRectDir);
         this->attemptToReduceFromRRect();
@@ -102,6 +113,7 @@ public:
     GrShape(const SkRRect& rrect, const SkPaint& paint)
         : fType(Type::kRRect)
         , fRRect(rrect)
+        , fRRectIsInverted(false)
         , fStyle(paint) {
         fRRectStart = DefaultRRectDirAndStartIndex(rrect, fStyle.hasPathEffect(), &fRRectDir);
         this->attemptToReduceFromRRect();
@@ -110,6 +122,7 @@ public:
     GrShape(const SkRect& rect, const SkPaint& paint)
         : fType(Type::kRRect)
         , fRRect(SkRRect::MakeRect(rect))
+        , fRRectIsInverted(false)
         , fStyle(paint) {
         fRRectStart = DefaultRectDirAndStartIndex(rect, fStyle.hasPathEffect(), &fRRectDir);
         this->attemptToReduceFromRRect();
@@ -136,7 +149,7 @@ public:
     }
 
     /** Returns the unstyled geometry as a rrect if possible. */
-    bool asRRect(SkRRect* rrect, SkPath::Direction* dir, unsigned* start) const {
+    bool asRRect(SkRRect* rrect, SkPath::Direction* dir, unsigned* start, bool* inverted) const {
         if (Type::kRRect != fType) {
             return false;
         }
@@ -148,6 +161,9 @@ public:
         }
         if (start) {
             *start = fRRectStart;
+        }
+        if (inverted) {
+            *inverted = fRRectIsInverted;
         }
         return true;
     }
@@ -161,6 +177,9 @@ public:
             case Type::kRRect:
                 out->reset();
                 out->addRRect(fRRect, fRRectDir, fRRectStart);
+                if (fRRectIsInverted) {
+                    out->setFillType(SkPath::kInverseWinding_FillType);
+                }
                 break;
             case Type::kPath:
                 *out = *fPath.get();
@@ -174,10 +193,16 @@ public:
      */
     bool isEmpty() const { return Type::kEmpty == fType; }
 
-    /** Gets the bounds of the geometry without reflecting the shape's styling. */
+    /**
+     * Gets the bounds of the geometry without reflecting the shape's styling. This ignores
+     * the inverse fill nature of the geometry.
+     */
     const SkRect& bounds() const;
 
-    /** Gets the bounds of the geometry reflecting the shape's styling. */
+    /**
+     * Gets the bounds of the geometry reflecting the shape's styling (ignoring inverse fill
+     * status).
+     */
     void styledBounds(SkRect* bounds) const;
 
     /**
@@ -245,7 +270,8 @@ private:
     void attemptToReduceFromPath() {
         SkASSERT(Type::kPath == fType);
         fType = AttemptToReduceFromPathImpl(*fPath.get(), &fRRect, &fRRectDir, &fRRectStart,
-                                            fStyle.pathEffect(), fStyle.strokeRec());
+                                            &fRRectIsInverted, fStyle.pathEffect(),
+                                            fStyle.strokeRec());
         if (Type::kPath != fType) {
             fPath.reset();
             fInheritedKey.reset(0);
@@ -255,14 +281,24 @@ private:
     void attemptToReduceFromRRect() {
         SkASSERT(Type::kRRect == fType);
         SkASSERT(!fInheritedKey.count());
-        if (fRRect.isEmpty()) {
+        if (fRRectIsInverted) {
+            if (!fStyle.hasNonDashPathEffect()) {
+                SkStrokeRec::Style recStyle = fStyle.strokeRec().getStyle();
+                if (SkStrokeRec::kStroke_Style == recStyle ||
+                    SkStrokeRec::kHairline_Style == recStyle) {
+                    // stroking ignores the path fill rule.
+                    fRRectIsInverted = false;
+                }
+            }
+        } else if (fRRect.isEmpty()) {
             fType = Type::kEmpty;
         }
     }
 
     static Type AttemptToReduceFromPathImpl(const SkPath& path, SkRRect* rrect,
                                             SkPath::Direction* rrectDir, unsigned* rrectStart,
-                                            const SkPathEffect* pe, const SkStrokeRec& strokeRec);
+                                            bool* rrectIsInverted, const SkPathEffect* pe,
+                                            const SkStrokeRec& strokeRec);
 
     static constexpr SkPath::Direction kDefaultRRectDir = SkPath::kCW_Direction;
     static constexpr unsigned kDefaultRRectStart = 0;
@@ -313,6 +349,7 @@ private:
     SkRRect                     fRRect;
     SkPath::Direction           fRRectDir;
     unsigned                    fRRectStart;
+    bool                        fRRectIsInverted;
     SkTLazy<SkPath>             fPath;
     GrStyle                     fStyle;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;
