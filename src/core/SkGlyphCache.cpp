@@ -470,15 +470,13 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef SkAutoTExclusive<SkSpinlock> Exclusive;
-
 size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
     static const size_t minLimit = 256 * 1024;
     if (newLimit < minLimit) {
         newLimit = minLimit;
     }
 
-    Exclusive ac(fLock);
+    SkAutoExclusive ac(fLock);
 
     size_t prevLimit = fCacheSizeLimit;
     fCacheSizeLimit = newLimit;
@@ -491,7 +489,7 @@ int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
         newCount = 0;
     }
 
-    Exclusive ac(fLock);
+    SkAutoExclusive ac(fLock);
 
     int prevCount = fCacheCountLimit;
     fCacheCountLimit = newCount;
@@ -500,7 +498,7 @@ int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
 }
 
 void SkGlyphCache_Globals::purgeAll() {
-    Exclusive ac(fLock);
+    SkAutoExclusive ac(fLock);
     this->internalPurge(fTotalMemoryUsed);
 }
 
@@ -534,7 +532,7 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     SkGlyphCache*         cache;
 
     {
-        Exclusive ac(globals.fLock);
+        SkAutoExclusive ac(globals.fLock);
 
         globals.validate();
 
@@ -647,7 +645,7 @@ void SkGlyphCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
 
 void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
     SkGlyphCache_Globals& globals = get_globals();
-    Exclusive ac(globals.fLock);
+    SkAutoExclusive ac(globals.fLock);
     SkGlyphCache*         cache;
 
     globals.validate();
@@ -660,7 +658,7 @@ void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGlyphCache_Globals::attachCacheToHead(SkGlyphCache* cache) {
-    Exclusive ac(fLock);
+    SkAutoExclusive ac(fLock);
 
     this->validate();
     cache->validate();

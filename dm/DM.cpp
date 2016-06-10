@@ -128,7 +128,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
     vlog("done  %s\n", id.c_str());
     int pending;
     {
-        SkAutoTAcquire<SkSpinlock> lock(gMutex);
+        SkAutoMutexAcquire lock(gMutex);
         for (int i = 0; i < gRunning.count(); i++) {
             if (gRunning[i] == id) {
                 gRunning.removeShuffle(i);
@@ -147,7 +147,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 static void start(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     vlog("start %s\n", id.c_str());
-    SkAutoTAcquire<SkSpinlock> lock(gMutex);
+    SkAutoMutexAcquire lock(gMutex);
     gRunning.push_back(id);
 }
 
@@ -156,7 +156,7 @@ static void print_status() {
         peak = sk_tools::getMaxResidentSetSizeMB();
     SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
 
-    SkAutoTAcquire<SkSpinlock> lock(gMutex);
+    SkAutoMutexAcquire lock(gMutex);
     info("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
          elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
     for (auto& task : gRunning) {
@@ -179,7 +179,7 @@ static void print_status() {
         #undef _
         };
 
-        SkAutoTAcquire<SkSpinlock> lock(gMutex);
+        SkAutoMutexAcquire lock(gMutex);
 
         const DWORD code = e->ExceptionRecord->ExceptionCode;
         info("\nCaught exception %u", code);
@@ -205,7 +205,7 @@ static void print_status() {
     #include <stdlib.h>
 
     static void crash_handler(int sig) {
-        SkAutoTAcquire<SkSpinlock> lock(gMutex);
+        SkAutoMutexAcquire lock(gMutex);
 
         info("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
         for (auto& task : gRunning) {
@@ -1300,7 +1300,7 @@ int dm_main() {
         if (src->veto(sink->flags()) ||
             is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
                            src.options.c_str(), src->name().c_str())) {
-            SkAutoTAcquire<SkSpinlock> lock(gMutex);
+            SkAutoMutexAcquire lock(gMutex);
             gPending--;
             continue;
         }

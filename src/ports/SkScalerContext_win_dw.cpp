@@ -42,7 +42,6 @@
  */
 static SkSharedMutex DWriteFactoryMutex;
 
-typedef SkAutoTExclusive<SkSharedMutex> Exclusive;
 typedef SkAutoSharedMutexShared Shared;
 
 static bool isLCD(const SkScalerContext::Rec& rec) {
@@ -50,7 +49,7 @@ static bool isLCD(const SkScalerContext::Rec& rec) {
 }
 
 static bool is_hinted_without_gasp(DWriteFontTypeface* typeface) {
-    Exclusive l(DWriteFactoryMutex);
+    SkAutoExclusive l(DWriteFactoryMutex);
     AutoTDWriteTable<SkOTTableMaximumProfile> maxp(typeface->fDWriteFontFace.get());
     if (!maxp.fExists) {
         return false;
@@ -120,7 +119,7 @@ static void expand_range_if_gridfit_only(DWriteFontTypeface* typeface, int size,
 }
 
 static bool has_bitmap_strike(DWriteFontTypeface* typeface, PPEMRange range) {
-    Exclusive l(DWriteFactoryMutex);
+    SkAutoExclusive l(DWriteFactoryMutex);
     {
         AutoTDWriteTable<SkOTTableEmbeddedBitmapLocation> eblc(typeface->fDWriteFontFace.get());
         if (!eblc.fExists) {
@@ -363,7 +362,7 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
         DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
     {
-        Exclusive l(DWriteFactoryMutex);
+        SkAutoExclusive l(DWriteFactoryMutex);
         HRVM(fTypeface->fDWriteFontFace->GetGdiCompatibleGlyphMetrics(
                  fTextSizeMeasure,
                  1.0f, // pixelsPerDip
@@ -373,7 +372,7 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
                  &gm),
              "Could not get gdi compatible glyph metrics.");
     } else {
-        Exclusive l(DWriteFactoryMutex);
+        SkAutoExclusive l(DWriteFactoryMutex);
         HRVM(fTypeface->fDWriteFontFace->GetDesignGlyphMetrics(&glyphId, 1, &gm),
              "Could not get design metrics.");
     }
@@ -432,7 +431,7 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
 
     SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
     {
-        Exclusive l(DWriteFactoryMutex);
+        SkAutoExclusive l(DWriteFactoryMutex);
         HRM(fTypeface->fFactory->CreateGlyphRunAnalysis(
             &run,
             1.0f, // pixelsPerDip,
@@ -737,7 +736,7 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
 
         SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
         {
-            Exclusive l(DWriteFactoryMutex);
+            SkAutoExclusive l(DWriteFactoryMutex);
             HRNM(fTypeface->fFactory->CreateGlyphRunAnalysis(&run,
                 1.0f, // pixelsPerDip,
                 &fXform,
@@ -821,7 +820,7 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
         HRVM(SkDWriteGeometrySink::Create(&path, &geometryToPath),
              "Could not create geometry to path converter.");
         {
-            Exclusive l(DWriteFactoryMutex);
+            SkAutoExclusive l(DWriteFactoryMutex);
             HRVM(colorGlyph->glyphRun.fontFace->GetGlyphRunOutline(
                 colorGlyph->glyphRun.fontEmSize,
                 colorGlyph->glyphRun.glyphIndices,
@@ -899,7 +898,7 @@ void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
          "Could not create geometry to path converter.");
     uint16_t glyphId = glyph.getGlyphID();
     {
-        Exclusive l(DWriteFactoryMutex);
+        SkAutoExclusive l(DWriteFactoryMutex);
         //TODO: convert to<->from DIUs? This would make a difference if hinting.
         //It may not be needed, it appears that DirectWrite only hints at em size.
         HRVM(fTypeface->fDWriteFontFace->GetGlyphRunOutline(SkScalarToFloat(fTextSizeRender),
