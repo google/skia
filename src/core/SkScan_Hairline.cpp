@@ -641,7 +641,7 @@ void SkScan::FrameRect(const SkRect& r, const SkPoint& strokeSize,
     outer.set(r.fLeft - rx, r.fTop - ry,
                 r.fRight + rx, r.fBottom + ry);
 
-    if (r.width() <= dx || r.height() <= dx) {
+    if (r.width() <= dx || r.height() <= dy) {
         SkScan::FillRect(outer, clip, blitter);
         return;
     }
