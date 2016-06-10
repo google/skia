@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
+#include "SkDashPathEffect.h"
 
 static SkPath generate_square(SkScalar cx, SkScalar cy, SkScalar w) {
     SkRect rect = SkRect::MakeXYWH(cx - w / 2, cy - w / 2, w, w);
@@ -37,11 +38,26 @@ static SkPath generate_line(SkScalar cx, SkScalar cy, SkScalar l) {
 }
 
 namespace {
-SkPaint::Style styles[] = {
-        SkPaint::kStroke_Style,
-        SkPaint::kStrokeAndFill_Style,
-        SkPaint::kFill_Style
+struct Style {
+    Style(SkPaint::Style paintStyle, sk_sp<SkPathEffect> pe = sk_sp<SkPathEffect>())
+        : fPaintStyle(paintStyle)
+        , fPathEffect(std::move(pe)) {}
+    SkPaint::Style      fPaintStyle;
+    sk_sp<SkPathEffect> fPathEffect;
 };
+
+sk_sp<SkPathEffect> make_dash() {
+    static constexpr SkScalar kIntervals[] = { 4.f, 3.f };
+    return SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 0);
+}
+
+Style styles[] {
+    {SkPaint::kStroke_Style},
+    {SkPaint::kStrokeAndFill_Style},
+    {SkPaint::kFill_Style},
+    {SkPaint::kStroke_Style, make_dash()},
+};
+
 SkScalar pathSizes[] = {
         40,
         10,
@@ -63,62 +79,62 @@ const SkScalar slideBoundary = 5;
 
 }  // namespace
 
-DEF_SIMPLE_GM(inverse_paths, canvas, 800, 900) {
-        SkScalar cx = slideWidth / 2 + slideBoundary;
-        SkScalar cy = slideHeight / 2 + slideBoundary;
-        SkScalar dx = slideWidth + 2 * slideBoundary;
-        SkScalar dy = slideHeight + 2 * slideBoundary;
+DEF_SIMPLE_GM(inverse_paths, canvas, 800, 1200) {
+    SkScalar cx = slideWidth / 2 + slideBoundary;
+    SkScalar cy = slideHeight / 2 + slideBoundary;
+    SkScalar dx = slideWidth + 2 * slideBoundary;
+    SkScalar dy = slideHeight + 2 * slideBoundary;
 
-        SkRect clipRect = SkRect::MakeLTRB(slideBoundary, slideBoundary,
-                                           slideBoundary + slideWidth,
-                                           slideBoundary + slideHeight);
-        SkPaint clipPaint;
-        clipPaint.setStyle(SkPaint::kStroke_Style);
-        clipPaint.setStrokeWidth(SkIntToScalar(2));
+    SkRect clipRect = SkRect::MakeLTRB(slideBoundary, slideBoundary,
+                                       slideBoundary + slideWidth,
+                                       slideBoundary + slideHeight);
+    SkPaint clipPaint;
+    clipPaint.setStyle(SkPaint::kStroke_Style);
+    clipPaint.setStrokeWidth(SkIntToScalar(2));
 
-        SkPaint outlinePaint;
-        outlinePaint.setColor(0x40000000);
-        outlinePaint.setStyle(SkPaint::kStroke_Style);
-        outlinePaint.setStrokeWidth(SkIntToScalar(0));
+    SkPaint outlinePaint;
+    outlinePaint.setColor(0x40000000);
+    outlinePaint.setStyle(SkPaint::kStroke_Style);
+    outlinePaint.setStrokeWidth(SkIntToScalar(0));
 
-        for (size_t styleIndex = 0; styleIndex < SK_ARRAY_COUNT(styles);
-                styleIndex++) {
-            for (size_t sizeIndex = 0; sizeIndex < SK_ARRAY_COUNT(pathSizes);
-                    sizeIndex++) {
-                SkScalar size = pathSizes[sizeIndex];
+    for (size_t styleIndex = 0; styleIndex < SK_ARRAY_COUNT(styles);
+            styleIndex++) {
+        for (size_t sizeIndex = 0; sizeIndex < SK_ARRAY_COUNT(pathSizes);
+                sizeIndex++) {
+            SkScalar size = pathSizes[sizeIndex];
 
-                canvas->save();
+            canvas->save();
 
-                for (size_t widthIndex = 0;
-                        widthIndex < SK_ARRAY_COUNT(strokeWidths);
-                        widthIndex++) {
-                    SkPaint paint;
-                    paint.setColor(0xff007000);
-                    paint.setStrokeWidth(strokeWidths[widthIndex]);
-                    paint.setStyle(styles[styleIndex]);
+            for (size_t widthIndex = 0;
+                    widthIndex < SK_ARRAY_COUNT(strokeWidths);
+                    widthIndex++) {
+                SkPaint paint;
+                paint.setColor(0xff007000);
+                paint.setStrokeWidth(strokeWidths[widthIndex]);
+                paint.setStyle(styles[styleIndex].fPaintStyle);
+                paint.setPathEffect(styles[styleIndex].fPathEffect);
 
-                    for (size_t pathIndex = 0;
-                            pathIndex < SK_ARRAY_COUNT(paths);
-                            pathIndex++) {
-                        canvas->drawRect(clipRect, clipPaint);
+                for (size_t pathIndex = 0;
+                        pathIndex < SK_ARRAY_COUNT(paths);
+                        pathIndex++) {
+                    canvas->drawRect(clipRect, clipPaint);
 
-                        canvas->save();
-                        canvas->clipRect(clipRect);
+                    canvas->save();
+                    canvas->clipRect(clipRect);
 
-                        SkPath path = paths[pathIndex](cx, cy, size);
-                        path.setFillType(SkPath::kInverseWinding_FillType);
-                        canvas->drawPath(path, paint);
+                    SkPath path = paths[pathIndex](cx, cy, size);
+                    path.setFillType(SkPath::kInverseWinding_FillType);
+                    canvas->drawPath(path, paint);
 
-                        path.setFillType(SkPath::kWinding_FillType);
-                        canvas->drawPath(path, outlinePaint);
+                    path.setFillType(SkPath::kWinding_FillType);
+                    canvas->drawPath(path, outlinePaint);
 
-                        canvas->restore();
-                        canvas->translate(dx, 0);
-                    }
+                    canvas->restore();
+                    canvas->translate(dx, 0);
                 }
-
-                canvas->restore();
-                canvas->translate(0, dy);
             }
+            canvas->restore();
+            canvas->translate(0, dy);
         }
+    }
 }
