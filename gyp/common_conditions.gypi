@@ -66,6 +66,8 @@
           '_CRT_SECURE_NO_WARNINGS',
           'GR_GL_FUNCTION_TYPE=__stdcall',
           '_HAS_EXCEPTIONS=0',
+          'WIN32_LEAN_AND_MEAN',
+          'NOMINMAX',
         ],
         'msvs_disabled_warnings': [
             4275,  # An exported class was derived from a class that was not exported

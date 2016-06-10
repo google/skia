@@ -12,7 +12,6 @@
 #include <GL/GL.h>
 #include "win/SkWGL.h"
 
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 namespace {
