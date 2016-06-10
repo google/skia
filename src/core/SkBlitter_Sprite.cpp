@@ -9,7 +9,8 @@
 #include "SkSmallAllocator.h"
 #include "SkSpriteBlitter.h"
 
-SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source) : fSource(source) {}
+SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source)
+    : fSource(source) {}
 
 void SkSpriteBlitter::setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) {
     fDst = dst;
@@ -18,24 +19,32 @@ void SkSpriteBlitter::setup(const SkPixmap& dst, int left, int top, const SkPain
     fPaint = &paint;
 }
 
-#ifdef SK_DEBUG
 void SkSpriteBlitter::blitH(int x, int y, int width) {
     SkDEBUGFAIL("how did we get here?");
+
+    // Fallback to blitRect.
+    this->blitRect(x, y, width, 1);
 }
 
-void SkSpriteBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
-                                const int16_t runs[]) {
+void SkSpriteBlitter::blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) {
     SkDEBUGFAIL("how did we get here?");
+
+    // No fallback strategy.
 }
 
 void SkSpriteBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
     SkDEBUGFAIL("how did we get here?");
+
+    // Fall back to superclass if the code gets here in release mode.
+    INHERITED::blitV(x, y, height, alpha);
 }
 
-void SkSpriteBlitter::blitMask(const SkMask&, const SkIRect& clip) {
+void SkSpriteBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     SkDEBUGFAIL("how did we get here?");
+
+    // Fall back to superclass if the code gets here in release mode.
+    INHERITED::blitMask(mask, clip);
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +53,7 @@ void SkSpriteBlitter::blitMask(const SkMask&, const SkIRect& clip) {
 //      2. paint has no modifiers (i.e. alpha, colorfilter, etc.)
 //      3. xfermode needs no blending: e.g. kSrc_Mode or kSrcOver_Mode + opaque src
 //
-class SkSpriteBlitter_Src_SrcOver : public SkSpriteBlitter {
+class SkSpriteBlitter_Src_SrcOver final : public SkSpriteBlitter {
 public:
     static bool Supports(const SkPixmap& dst, const SkPixmap& src, const SkPaint& paint) {
         if (dst.colorType() != src.colorType()) {
@@ -80,7 +89,8 @@ public:
         return SkXfermode::kSrcOver_Mode == mode;
     }
 
-    SkSpriteBlitter_Src_SrcOver(const SkPixmap& src)  : INHERITED(src) {}
+    SkSpriteBlitter_Src_SrcOver(const SkPixmap& src)
+        : INHERITED(src) {}
 
     void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {
         SkASSERT(Supports(dst, fSource, paint));

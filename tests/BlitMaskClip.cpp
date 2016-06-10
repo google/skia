@@ -24,6 +24,10 @@ public:
         REPORTER_ASSERT(fReporter, right > fBounds.fLeft && right <= fBounds.fRight);
     }
 
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
+        SkDEBUGFAIL("blitAntiH not implemented");
+    }
+
 private:
     SkIRect fBounds;
     skiatest::Reporter* fReporter;

@@ -428,6 +428,7 @@ private:
     PixelAccessor<colorType, colorProfile> fStrategy;
 };
 
+// -- BilerpSampler --------------------------------------------------------------------------------
 // BilerpSampler - use a bilerp filter to create runs of destination pixels.
 template<SkColorType colorType, SkColorProfileType colorProfile, typename Next>
 class BilerpSampler : public SkLinearBitmapPipeline::SampleProcessorInterface {

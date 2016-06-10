@@ -28,16 +28,18 @@ public:
     virtual ~SkBlitter();
 
     /// Blit a horizontal run of one or more pixels.
-    virtual void blitH(int x, int y, int width);
+    virtual void blitH(int x, int y, int width) = 0;
+
     /// Blit a horizontal run of antialiased pixels; runs[] is a *sparse*
     /// zero-terminated run-length encoding of spans of constant alpha values.
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
-                           const int16_t runs[]);
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) = 0;
 
     /// Blit a vertical run of pixels with a constant alpha value.
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
+
     /// Blit a solid rectangle one or more pixels wide.
     virtual void blitRect(int x, int y, int width, int height);
+
     /** Blit a rectangle with one alpha-blended column on the left,
         width (zero or more) opaque pixels, and one alpha-blended column
         on the right.
@@ -45,6 +47,7 @@ public:
     */
     virtual void blitAntiRect(int x, int y, int width, int height,
                               SkAlpha leftAlpha, SkAlpha rightAlpha);
+
     /// Blit a pattern of pixels defined by a rectangle-clipped mask;
     /// typically used for text.
     virtual void blitMask(const SkMask&, const SkIRect& clip);
