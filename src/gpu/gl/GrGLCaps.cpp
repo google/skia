@@ -37,7 +37,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
-    fMultisampleDisableSupport = false;
     fDrawIndirectSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseInstanceSupport = false;
@@ -1107,7 +1106,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
-    r.appendf("Multisample disable support: %s\n", (fMultisampleDisableSupport ? "YES" : "NO"));
     r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));

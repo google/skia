@@ -158,6 +158,7 @@ public:
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
+    bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool usesMixedSamples() const { return fUsesMixedSamples; }
 
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
@@ -294,6 +295,7 @@ protected:
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
+    bool fMultisampleDisableSupport                  : 1;
     bool fUsesMixedSamples                           : 1;
     bool fSupportsInstancedDraws                     : 1;
     bool fFullClearIsFree                            : 1;

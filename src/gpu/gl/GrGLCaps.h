@@ -296,9 +296,6 @@ public:
     /// Is there support for ES2 compatability?
     bool ES2CompatibilitySupport() const { return fES2CompatibilitySupport; }
 
-    /// Can we call glDisable(GL_MULTISAMPLE)?
-    bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
-
     /// Is there support for glDraw*Indirect? Note that the baseInstance fields of indirect draw
     /// commands cannot be used unless we have base instance support.
     bool drawIndirectSupport() const { return fDrawIndirectSupport; }
@@ -398,7 +395,6 @@ private:
     bool fDirectStateAccessSupport : 1;
     bool fDebugSupport : 1;
     bool fES2CompatibilitySupport : 1;
-    bool fMultisampleDisableSupport : 1;
     bool fDrawIndirectSupport : 1;
     bool fMultiDrawIndirectSupport : 1;
     bool fBaseInstanceSupport : 1;
