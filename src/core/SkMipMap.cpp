@@ -11,6 +11,7 @@
 #include "SkHalf.h"
 #include "SkMathPriv.h"
 #include "SkNx.h"
+#include "SkPM4fPriv.h"
 #include "SkTypes.h"
 
 //
@@ -39,6 +40,16 @@ struct ColorTypeFilter_8888 {
         return (uint32_t)((x & 0xFF00FF) | ((x >> 24) & 0xFF00FF00));
     }
 #endif
+};
+
+struct ColorTypeFilter_S32 {
+    typedef uint32_t Type;
+    static Sk4f Expand(uint32_t x) {
+        return Sk4f_fromS32(x);
+    }
+    static uint32_t Compact(const Sk4f& x) {
+        return Sk4f_toS32(x);
+    }
 };
 
 struct ColorTypeFilter_565 {
@@ -293,7 +304,16 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return sk_64_asS32(size);
 }
 
-SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
+static bool treat_like_srgb(const SkImageInfo& info) {
+    if (info.colorSpace()) {
+        return SkColorSpace::k2Dot2Curve_GammaNamed == info.colorSpace()->gammaNamed();
+    } else {
+        return kSRGB_SkColorProfileType == info.profileType();
+    }
+}
+
+SkMipMap* SkMipMap::Build(const SkPixmap& src, SkSourceGammaTreatment treatment,
+                          SkDiscardableFactoryProc fact) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
     FilterProc* proc_1_2 = nullptr;
@@ -307,17 +327,31 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
 
     const SkColorType ct = src.colorType();
     const SkAlphaType at = src.alphaType();
+    const bool srgbGamma = (SkSourceGammaTreatment::kRespect == treatment)
+                            && treat_like_srgb(src.info());
+
     switch (ct) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            proc_1_2 = downsample_1_2<ColorTypeFilter_8888>;
-            proc_1_3 = downsample_1_3<ColorTypeFilter_8888>;
-            proc_2_1 = downsample_2_1<ColorTypeFilter_8888>;
-            proc_2_2 = downsample_2_2<ColorTypeFilter_8888>;
-            proc_2_3 = downsample_2_3<ColorTypeFilter_8888>;
-            proc_3_1 = downsample_3_1<ColorTypeFilter_8888>;
-            proc_3_2 = downsample_3_2<ColorTypeFilter_8888>;
-            proc_3_3 = downsample_3_3<ColorTypeFilter_8888>;
+            if (srgbGamma) {
+                proc_1_2 = downsample_1_2<ColorTypeFilter_S32>;
+                proc_1_3 = downsample_1_3<ColorTypeFilter_S32>;
+                proc_2_1 = downsample_2_1<ColorTypeFilter_S32>;
+                proc_2_2 = downsample_2_2<ColorTypeFilter_S32>;
+                proc_2_3 = downsample_2_3<ColorTypeFilter_S32>;
+                proc_3_1 = downsample_3_1<ColorTypeFilter_S32>;
+                proc_3_2 = downsample_3_2<ColorTypeFilter_S32>;
+                proc_3_3 = downsample_3_3<ColorTypeFilter_S32>;
+            } else {
+                proc_1_2 = downsample_1_2<ColorTypeFilter_8888>;
+                proc_1_3 = downsample_1_3<ColorTypeFilter_8888>;
+                proc_2_1 = downsample_2_1<ColorTypeFilter_8888>;
+                proc_2_2 = downsample_2_2<ColorTypeFilter_8888>;
+                proc_2_3 = downsample_2_3<ColorTypeFilter_8888>;
+                proc_3_1 = downsample_3_1<ColorTypeFilter_8888>;
+                proc_3_2 = downsample_3_2<ColorTypeFilter_8888>;
+                proc_3_3 = downsample_3_3<ColorTypeFilter_8888>;
+            }
             break;
         case kRGB_565_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_565>;
@@ -394,8 +428,10 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     }
 
     // init
+    mipmap->fCS = sk_ref_sp(src.info().colorSpace());
     mipmap->fCount = countLevels;
     mipmap->fLevels = (Level*)mipmap->writable_data();
+    SkASSERT(mipmap->fLevels);
 
     Level* levels = mipmap->fLevels;
     uint8_t*    baseAddr = (uint8_t*)&levels[countLevels];
@@ -440,6 +476,9 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         height = SkTMax(1, height >> 1);
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
 
+        // We make the Info w/o any colorspace, since that storage is not under our control, and
+        // will not be deleted in a controlled fashion. When the caller is given the pixmap for
+        // a given level, we augment this pixmap with fCS (which we do manage).
         new (&levels[i].fPixmap) SkPixmap(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
         levels[i].fScale  = SkSize::Make(SkIntToScalar(width)  / src.width(),
                                          SkIntToScalar(height) / src.height());
@@ -459,6 +498,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     }
     SkASSERT(addr == baseAddr + size);
 
+    SkASSERT(mipmap->fLevels);
     return mipmap;
 }
 
@@ -547,9 +587,7 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
         return false;
     }
     SkASSERT(L >= 0);
-//    int rndLevel = SkScalarRoundToInt(L);
     int level = SkScalarFloorToInt(L);
-//    SkDebugf("mipmap scale=%g L=%g level=%d rndLevel=%d\n", scale, L, level, rndLevel);
 
     SkASSERT(level >= 0);
     if (level <= 0) {
@@ -561,13 +599,16 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
     }
     if (levelPtr) {
         *levelPtr = fLevels[level - 1];
+        // need to augment with our colorspace
+        levelPtr->fPixmap.setColorSpace(fCS);
     }
     return true;
 }
 
 // Helper which extracts a pixmap from the src bitmap
 //
-SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
+SkMipMap* SkMipMap::Build(const SkBitmap& src, SkSourceGammaTreatment treatment,
+                          SkDiscardableFactoryProc fact) {
     SkAutoPixmapUnlock srcUnlocker;
     if (!src.requestLock(&srcUnlocker)) {
         return nullptr;
@@ -577,7 +618,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     if (nullptr == srcPixmap.addr()) {
         sk_throw();
     }
-    return Build(srcPixmap, fact);
+    return Build(srcPixmap, treatment, fact);
 }
 
 int SkMipMap::countLevels() const {

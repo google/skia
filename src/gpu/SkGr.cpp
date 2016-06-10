@@ -345,12 +345,6 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         return texture.release();
     }
 
-    // SkMipMap::Build doesn't handle sRGB data correctly (yet).
-    // Failover to the GL code-path for now.
-    if (kLinear_SkColorProfileType != bitmap.profileType()) {
-        return nullptr;
-    }
-
     SkASSERT(sizeof(int) <= sizeof(uint32_t));
     if (bitmap.width() < 0 || bitmap.height() < 0) {
         return nullptr;
@@ -366,7 +360,7 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         sk_throw();
     }
 
-    SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
+    SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
     if (!mipmaps) {
         return nullptr;
     }

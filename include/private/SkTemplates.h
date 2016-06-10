@@ -434,6 +434,12 @@ T* SkInPlaceNewCheck(void* storage, size_t size, const A1& a1, const A2& a2, con
     return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3) : new T(a1, a2, a3);
 }
 
+template <typename T, typename A1, typename A2, typename A3, typename A4>
+T* SkInPlaceNewCheck(void* storage, size_t size,
+                     const A1& a1, const A2& a2, const A3& a3, const A4& a4) {
+    return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3, a4) : new T(a1, a2, a3, a4);
+}
+
 /**
  * Reserves memory that is aligned on double and pointer boundaries.
  * Hopefully this is sufficient for all practical purposes.

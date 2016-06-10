@@ -677,7 +677,8 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
 
     void* diffuseStateStorage = (char*)storage + sizeof(LightingShaderContext);
     SkBitmapProcState* diffuseState = new (diffuseStateStorage) SkBitmapProcState(fDiffuseMap,
-                                              SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+                                              SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                                                    SkMipMap::DeduceTreatment(rec));
     SkASSERT(diffuseState);
     if (!diffuseState->setup(diffTotalInv, *rec.fPaint)) {
         diffuseState->~SkBitmapProcState();
@@ -686,7 +687,8 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
 
     void* normalStateStorage = (char*)storage + sizeof(LightingShaderContext) + sizeof(SkBitmapProcState);
     SkBitmapProcState* normalState = new (normalStateStorage) SkBitmapProcState(fNormalMap,
-                                            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+                                            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                                                    SkMipMap::DeduceTreatment(rec));
     SkASSERT(normalState);
     if (!normalState->setup(normTotalInv, *rec.fPaint)) {
         diffuseState->~SkBitmapProcState();

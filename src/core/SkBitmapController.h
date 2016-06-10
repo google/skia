@@ -53,13 +53,18 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "SkMipMap.h"
+
 class SkDefaultBitmapController : public SkBitmapController {
 public:
-    SkDefaultBitmapController() {}
+    SkDefaultBitmapController(SkSourceGammaTreatment treatment) : fSrcGammaTreatment(treatment) {}
 
 protected:
     State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
                            void* storage, size_t storageSize) override;
+
+private:
+    const SkSourceGammaTreatment fSrcGammaTreatment;
 };
 
 #endif

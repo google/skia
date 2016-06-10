@@ -37,18 +37,22 @@ extern void Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void*, int, int, u
 #include "SkBitmapProcState_procs.h"
 
 SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmapProvider& provider,
-                                   SkShader::TileMode tmx, SkShader::TileMode tmy)
+                                   SkShader::TileMode tmx, SkShader::TileMode tmy,
+                                   SkSourceGammaTreatment treatment)
     : fProvider(provider)
     , fTileModeX(tmx)
     , fTileModeY(tmy)
+    , fSrcGammaTreatment(treatment)
     , fBMState(nullptr)
 {}
 
 SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmap& bm,
-                                   SkShader::TileMode tmx, SkShader::TileMode tmy)
+                                   SkShader::TileMode tmx, SkShader::TileMode tmy,
+                                   SkSourceGammaTreatment treatment)
     : fProvider(SkBitmapProvider(bm))
     , fTileModeX(tmx)
     , fTileModeY(tmy)
+    , fSrcGammaTreatment(treatment)
     , fBMState(nullptr)
 {}
 
@@ -129,7 +133,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
         allow_ignore_fractional_translate = false;
     }
 
-    SkDefaultBitmapController controller;
+    SkDefaultBitmapController controller(fSrcGammaTreatment);
     fBMState = controller.requestBitmap(fProvider, inv, paint.getFilterQuality(),
                                         fBMStateStorage.get(), fBMStateStorage.size());
     // Note : we allow the controller to return an empty (zero-dimension) result. Should we?

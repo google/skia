@@ -28,8 +28,10 @@ typedef SkFixed3232    SkFractionalInt;
 class SkPaint;
 
 struct SkBitmapProcInfo {
-    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
-    SkBitmapProcInfo(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy);
+    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy,
+                     SkSourceGammaTreatment);
+    SkBitmapProcInfo(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy,
+                     SkSourceGammaTreatment);
     ~SkBitmapProcInfo();
 
     const SkBitmapProvider fProvider;
@@ -43,6 +45,7 @@ struct SkBitmapProcInfo {
     SkShader::TileMode  fTileModeY;
     SkFilterQuality     fFilterQuality;
     SkMatrix::TypeMask  fInvType;
+    SkSourceGammaTreatment fSrcGammaTreatment;
 
     bool init(const SkMatrix& inverse, const SkPaint&);
 
@@ -55,10 +58,12 @@ private:
 };
 
 struct SkBitmapProcState : public SkBitmapProcInfo {
-    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy)
-        : SkBitmapProcInfo(prov, tmx, tmy) {}
-    SkBitmapProcState(const SkBitmap& bitmap, SkShader::TileMode tmx, SkShader::TileMode tmy)
-        : SkBitmapProcInfo(bitmap, tmx, tmy) {}
+    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy,
+                      SkSourceGammaTreatment treatment)
+        : SkBitmapProcInfo(prov, tmx, tmy, treatment) {}
+    SkBitmapProcState(const SkBitmap& bitmap, SkShader::TileMode tmx, SkShader::TileMode tmy,
+                      SkSourceGammaTreatment treatment)
+        : SkBitmapProcInfo(bitmap, tmx, tmy, treatment) {}
 
     bool setup(const SkMatrix& inv, const SkPaint& paint) {
         return this->init(inv, paint) && this->chooseProcs();

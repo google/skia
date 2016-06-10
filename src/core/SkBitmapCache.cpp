@@ -230,18 +230,21 @@ static unsigned gMipMapKeyNamespaceLabel;
 
 struct MipMapKey : public SkResourceCache::Key {
 public:
-    MipMapKey(uint32_t genID, const SkIRect& bounds) : fGenID(genID), fBounds(bounds) {
+    MipMapKey(uint32_t genID, SkSourceGammaTreatment treatment, const SkIRect& bounds)
+        : fGenID(genID), fSrcGammaTreatment(static_cast<uint32_t>(treatment)), fBounds(bounds)
+    {
         this->init(&gMipMapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(genID),
-                   sizeof(fGenID) + sizeof(fBounds));
+                   sizeof(fGenID) + sizeof(fSrcGammaTreatment) + sizeof(fBounds));
     }
 
     uint32_t    fGenID;
+    uint32_t    fSrcGammaTreatment;
     SkIRect     fBounds;
 };
 
 struct MipMapRec : public SkResourceCache::Rec {
-    MipMapRec(const SkBitmap& src, const SkMipMap* result)
-        : fKey(src.getGenerationID(), get_bounds_from_bitmap(src))
+    MipMapRec(const SkBitmap& src, SkSourceGammaTreatment treatment, const SkMipMap* result)
+        : fKey(src.getGenerationID(), treatment, get_bounds_from_bitmap(src))
         , fMipMap(result)
     {
         fMipMap->attachToCacheAndRef();
@@ -279,9 +282,10 @@ private:
 }
 
 const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmapCacheDesc& desc,
+                                          SkSourceGammaTreatment treatment,
                                           SkResourceCache* localCache) {
     // Note: we ignore width/height from desc, just need id and bounds
-    MipMapKey key(desc.fImageID, desc.fBounds);
+    MipMapKey key(desc.fImageID, treatment, desc.fBounds);
     const SkMipMap* result;
 
     if (!CHECK_LOCAL(localCache, find, Find, key, MipMapRec::Finder, &result)) {
@@ -295,10 +299,11 @@ static SkResourceCache::DiscardableFactory get_fact(SkResourceCache* localCache)
                       : SkResourceCache::GetDiscardableFactory();
 }
 
-const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src, SkResourceCache* localCache) {
-    SkMipMap* mipmap = SkMipMap::Build(src, get_fact(localCache));
+const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src, SkSourceGammaTreatment treatment,
+                                         SkResourceCache* localCache) {
+    SkMipMap* mipmap = SkMipMap::Build(src, treatment, get_fact(localCache));
     if (mipmap) {
-        MipMapRec* rec = new MipMapRec(src, mipmap);
+        MipMapRec* rec = new MipMapRec(src, treatment, mipmap);
         CHECK_LOCAL(localCache, add, Add, rec);
         src.pixelRef()->notifyAddedToCache();
     }

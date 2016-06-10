@@ -9,6 +9,7 @@
 
 #include "Resources.h"
 #include "SkGradientShader.h"
+#include "SkPM4fPriv.h"
 
 DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     SkPaint p;
@@ -38,14 +39,14 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     srgbGreyBmp.eraseARGB(0xFF, 0xBC, 0xBC, 0xBC);
 
     SkBitmap mipmapBmp;
-    SkImageInfo mipmapInfo = SkImageInfo::MakeN32(2, 2, kOpaque_SkAlphaType,
-                                                  kSRGB_SkColorProfileType);
+    SkImageInfo mipmapInfo = SkImageInfo::Make(2, 2, kN32_SkColorType, kOpaque_SkAlphaType,
+                                               SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
     mipmapBmp.allocPixels(mipmapInfo);
     SkPMColor* mipmapPixels = reinterpret_cast<SkPMColor*>(mipmapBmp.getPixels());
-    // 0x89 = 255 * linear_to_srgb(0.25f)
-    mipmapPixels[0] = mipmapPixels[3] = SkPackARGB32(0xFF, 0x89, 0x89, 0x89);
-    // 0xE1 = 255 * linear_to_srgb(0.75f)
-    mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, 0xE1, 0xE1, 0xE1);
+    unsigned s25 = 0x89;    // 255 * linear_to_srgb(0.25f)
+    unsigned s75 = 0xE1;    // 255 * linear_to_srgb(0.75f)
+    mipmapPixels[0] = mipmapPixels[3] = SkPackARGB32(0xFF, s25, s25, s25);
+    mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, s75, s75, s75);
 
     SkPaint textPaint;
     textPaint.setColor(SK_ColorWHITE);
