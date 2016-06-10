@@ -2044,7 +2044,11 @@
     "_", 
     "image", 
     "_", 
-    "abnormal.wbmp"
+    "abnormal.wbmp", 
+    "msaa16", 
+    "gm", 
+    "_", 
+    "blurcircles"
   ], 
   "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer": [
     "--config", 

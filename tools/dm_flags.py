@@ -213,6 +213,7 @@ def get_args(bot):
   # Large image that overwhelms older Mac bots
   if 'MacMini4.1-GPU' in bot:
     blacklist.extend('_ image _ abnormal.wbmp'.split(' '))
+    blacklist.extend(['msaa16', 'gm', '_', 'blurcircles'])
 
   match = []
   if 'Valgrind' in bot: # skia:3021
