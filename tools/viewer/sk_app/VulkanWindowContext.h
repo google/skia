@@ -8,6 +8,8 @@
 #ifndef VulkanWindowContext_DEFINED
 #define VulkanWindowContext_DEFINED
 
+#include "SkTypes.h" // required to pull in any SkUserConfig defines
+
 #ifdef SK_VULKAN
 
 #include "vk/GrVkBackendContext.h"

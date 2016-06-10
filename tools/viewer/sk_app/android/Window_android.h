@@ -8,16 +8,11 @@
 #ifndef Window_android_DEFINED
 #define Window_android_DEFINED
 
-#include <android/native_window_jni.h>
-
 #include "../Window.h"
+#include "WindowContext_android.h"
 #include "surface_glue_android.h"
 
 namespace sk_app {
-
-struct ContextPlatformData_android {
-    ANativeWindow* fNativeWindow;
-};
 
 class Window_android : public Window {
 public:

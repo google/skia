@@ -13,6 +13,7 @@
 #include "sk_app/Window.h"
 #include "gm.h"
 #include "SkAnimTimer.h"
+#include "SkTouchGesture.h"
 #include "Slide.h"
 
 class SkCanvas;

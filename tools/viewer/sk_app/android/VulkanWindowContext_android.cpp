@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-#include "Window_android.h"
 #include "../VulkanWindowContext.h"
+#include "WindowContext_android.h"
 
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
