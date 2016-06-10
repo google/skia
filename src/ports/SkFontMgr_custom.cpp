@@ -291,6 +291,19 @@ protected:
         return new SkTypeface_Stream(std::move(data), style, isFixedPitch, false, name);
     }
 
+    SkTypeface* onCreateFromFontData(SkFontData* data) const override {
+        bool isFixedPitch;
+        SkFontStyle style;
+        SkString name;
+        if (!fScanner.scanFont(data->getStream(), data->getIndex(),
+                               &name, &style, &isFixedPitch, nullptr))
+        {
+            return nullptr;
+        }
+        std::unique_ptr<SkFontData> unique_data(data);
+        return new SkTypeface_Stream(std::move(unique_data), style, isFixedPitch, false, name);
+    }
+
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
