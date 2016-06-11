@@ -70,12 +70,13 @@ static void show_mips(SkCanvas* canvas, SkImage* img) {
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
 
-    SkRect dst = SkRect::MakeIWH(img->width(), img->height());
+    // Want to ensure we never draw fractional pixels, so we use an IRect
+    SkIRect dst = SkIRect::MakeWH(img->width(), img->height());
     while (dst.width() > 5) {
-        canvas->drawImageRect(img, dst, &paint);
+        canvas->drawImageRect(img, SkRect::Make(dst), &paint);
         dst.offset(dst.width() + 10, 0);
-        dst.fRight = dst.fLeft + SkScalarHalf(dst.width());
-        dst.fBottom = dst.fTop + SkScalarHalf(dst.height());
+        dst.fRight = dst.fLeft + dst.width()/2;
+        dst.fBottom = dst.fTop + dst.height()/2;
     }
 }
 
