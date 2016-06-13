@@ -350,7 +350,7 @@ void Viewer::drawSlide(SkCanvas* canvas, bool inSplitScreen) {
         SkRect contentRect = fWindow->getContentRect();
         // If inSplitScreen, translate the image half screen to the right.
         // Thus we have two copies of the image on each half of the screen.
-        contentRect.fLeft += inSplitScreen ? (contentRect.fRight - contentRect.fLeft) * 0.5 : 0;
+        contentRect.fLeft += inSplitScreen ? (contentRect.fRight - contentRect.fLeft) * 0.5f : 0f;
         canvas->clipRect(contentRect);
         canvas->translate(contentRect.fLeft, contentRect.fTop);
     }
