@@ -168,6 +168,17 @@ public:
         return true;
     }
 
+    /**
+     * If the unstyled shape is a straight line segment, returns true and sets pts to the endpoints.
+     * An inverse filled line path is still considered a line.
+     */
+     bool asLine(SkPoint pts[2]) const {
+         if (fType != Type::kPath) {
+             return false;
+         }
+         return fPath.get()->isLine(pts);
+     }
+
     /** Returns the unstyled geometry as a path. */
     void asPath(SkPath* out) const {
         switch (fType) {

@@ -325,6 +325,11 @@ void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b
     REPORTER_ASSERT(r, a.knownToBeClosed() == b.knownToBeClosed());
     REPORTER_ASSERT(r, a.bounds() == b.bounds());
     REPORTER_ASSERT(r, a.segmentMask() == b.segmentMask());
+    SkPoint pts[4];
+    REPORTER_ASSERT(r, a.asLine(pts) == b.asLine(pts + 2));
+    if (a.asLine(pts)) {
+        REPORTER_ASSERT(r, pts[2] == pts[0] && pts[3] == pts[1]);
+    }
 }
 
 void TestCase::compare(skiatest::Reporter* r, const TestCase& that,
@@ -1269,6 +1274,8 @@ DEF_TEST(GrShape, reporter) {
         test_path_effect_makes_empty_shape(reporter, r);
         test_path_effect_fails(reporter, r);
         test_make_hairline_path_effect(reporter, r, true);
+        GrShape shape(r);
+        REPORTER_ASSERT(reporter, !shape.asLine(nullptr));
     }
 
     for (auto rr : { SkRRect::MakeRect(SkRect::MakeWH(10, 10)),
@@ -1295,39 +1302,47 @@ DEF_TEST(GrShape, reporter) {
         test_path_effect_makes_empty_shape(reporter, rr);
         test_path_effect_fails(reporter, rr);
         test_make_hairline_path_effect(reporter, rr, true);
+        GrShape shape(rr);
+        REPORTER_ASSERT(reporter, !shape.asLine(nullptr));
     }
 
     struct TestPath {
-        TestPath(const SkPath& path, bool isRRectFill, bool isRRectStroke, const SkRRect& rrect)
+        TestPath(const SkPath& path, bool isRRectFill, bool isRRectStroke, bool isLine, const SkRRect& rrect)
             : fPath(path)
             , fIsRRectForFill(isRRectFill)
             , fIsRRectForStroke(isRRectStroke)
+            , fIsLine(isLine)
             , fRRect(rrect) {}
         SkPath  fPath;
         bool    fIsRRectForFill;
         bool    fIsRRectForStroke;
+        bool    fIsLine;
         SkRRect fRRect;
     };
     SkTArray<TestPath> paths;
 
     SkPath circlePath;
     circlePath.addCircle(10, 10, 10);
-    paths.emplace_back(circlePath, true, true, SkRRect::MakeOval(SkRect::MakeWH(20,20)));
+    paths.emplace_back(circlePath, true, true, false, SkRRect::MakeOval(SkRect::MakeWH(20,20)));
 
     SkPath rectPath;
     rectPath.addRect(SkRect::MakeWH(10, 10));
-    paths.emplace_back(rectPath, true, true, SkRRect::MakeRect(SkRect::MakeWH(10, 10)));
+    paths.emplace_back(rectPath, true, true, false, SkRRect::MakeRect(SkRect::MakeWH(10, 10)));
 
     SkPath openRectPath;
     openRectPath.moveTo(0, 0);
     openRectPath.lineTo(10, 0);
     openRectPath.lineTo(10, 10);
     openRectPath.lineTo(0, 10);
-    paths.emplace_back(openRectPath, true, false, SkRRect::MakeRect(SkRect::MakeWH(10, 10)));
+    paths.emplace_back(openRectPath, true, false, false, SkRRect::MakeRect(SkRect::MakeWH(10, 10)));
 
     SkPath quadPath;
     quadPath.quadTo(10, 10, 5, 8);
-    paths.emplace_back(quadPath, false, false, SkRRect());
+    paths.emplace_back(quadPath, false, false, false, SkRRect());
+
+    SkPath linePath;
+    linePath.lineTo(10, 10);
+    paths.emplace_back(linePath, false, false, true, SkRRect());
 
     for (auto testPath : paths) {
         for (bool inverseFill : {false, true}) {
@@ -1399,6 +1414,8 @@ DEF_TEST(GrShape, reporter) {
             strokePathCase.compare(reporter, strokeRRectCase,
                                    TestCase::kAllSame_ComparisonExpecation);
         }
+        REPORTER_ASSERT(reporter, testPath.fIsLine == fillPathCase.baseShape().asLine(nullptr));
+        REPORTER_ASSERT(reporter, testPath.fIsLine == strokePathCase.baseShape().asLine(nullptr));
     }
 
     // Test a volatile empty path.

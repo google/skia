@@ -6,6 +6,7 @@
  */
 
 #include "GrStyle.h"
+#include "SkDashPathPriv.h"
 
 int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
     GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(SkScalar));
@@ -120,12 +121,29 @@ void GrStyle::initPathEffect(SkPathEffect* pe) {
     }
 }
 
-static inline bool apply_path_effect(SkPath* dst, SkStrokeRec* strokeRec,
-                                     const sk_sp<SkPathEffect>& pe, const SkPath& src) {
-    if (!pe) {
+bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath& src) const {
+    if (!fPathEffect) {
         return false;
     }
-    if (!pe->filterPath(dst, src, strokeRec, nullptr)) {
+    if (SkPathEffect::kDash_DashType == fDashInfo.fType) {
+        // We apply the dash ourselves here rather than using the path effect. This is so that
+        // we can control whether the dasher applies the strokeRec for special cases. Our keying
+        // depends on the strokeRec being applied separately.
+        SkScalar phase = fDashInfo.fPhase;
+        const SkScalar* intervals = fDashInfo.fIntervals.get();
+        int intervalCnt = fDashInfo.fIntervals.count();
+        SkScalar initialLength;
+        int initialIndex;
+        SkScalar intervalLength;
+        SkDashPath::CalcDashParameters(phase, intervals, intervalCnt, &initialLength,
+                                       &initialIndex, &intervalLength);
+        if (!SkDashPath::InternalFilter(dst, src, strokeRec,
+                                        nullptr, intervals, intervalCnt,
+                                        initialLength, initialIndex, intervalLength,
+                                        SkDashPath::StrokeRecApplication::kDisallow)) {
+            return false;
+        }
+    } else if (!fPathEffect->filterPath(dst, src, strokeRec, nullptr)) {
         return false;
     }
     dst->setIsVolatile(true);
@@ -137,7 +155,7 @@ bool GrStyle::applyPathEffectToPath(SkPath *dst, SkStrokeRec *remainingStroke,
     SkASSERT(dst);
     SkStrokeRec strokeRec = fStrokeRec;
     strokeRec.setResScale(resScale);
-    if (!apply_path_effect(dst, &strokeRec, fPathEffect, src)) {
+    if (!this->applyPathEffect(dst, &strokeRec, src)) {
         return false;
     }
     *remainingStroke = strokeRec;
@@ -151,7 +169,7 @@ bool GrStyle::applyToPath(SkPath* dst, SkStrokeRec::InitStyle* style, const SkPa
     SkStrokeRec strokeRec = fStrokeRec;
     strokeRec.setResScale(resScale);
     const SkPath* pathForStrokeRec = &src;
-    if (apply_path_effect(dst, &strokeRec, fPathEffect, src)) {
+    if (this->applyPathEffect(dst, &strokeRec, src)) {
         pathForStrokeRec = dst;
     } else if (fPathEffect) {
         return false;

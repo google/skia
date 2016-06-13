@@ -201,6 +201,8 @@ private:
         SkAutoSTArray<4, SkScalar>  fIntervals;
     };
 
+    bool applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath& src) const;
+
     SkStrokeRec         fStrokeRec;
     sk_sp<SkPathEffect> fPathEffect;
     DashInfo            fDashInfo;

@@ -211,8 +211,8 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
         // Should we consider bounds? Would have to include in key, but it'd be nice to know
         // if the bounds actually modified anything before including in key.
         SkStrokeRec strokeRec = parent.fStyle.strokeRec();
-        strokeRec.setResScale(scale);
-        if (!pe->filterPath(fPath.get(), *srcForPathEffect, &strokeRec, nullptr)) {
+        if (!parent.fStyle.applyPathEffectToPath(fPath.get(), &strokeRec, *srcForPathEffect,
+                                                 scale)) {
             // If the path effect fails then we continue as though there was no path effect.
             // If the original was a rrect that we couldn't canonicalize because of the path
             // effect, then do so now.
