@@ -83,13 +83,12 @@ static uint32_t compute_checksum(const SkTypeface* tf) {
     return SkChecksum::Murmur3(data.begin(), length);
 }
 
-static void serialize_sub(const char* fontName, SkFontStyle style, SkWStream* wstream) {
-    SkFontDescriptor desc;
+static void serialize_sub(const char* fontName, SkTypeface::Style style, SkWStream* wstream) {
+    SkFontDescriptor desc(style);
     SkString subName(SUBNAME_PREFIX);
     subName.append(fontName);
     const char* familyName = subName.c_str();
     desc.setFamilyName(familyName);
-    desc.setStyle(style);
     desc.serialize(wstream);
 #if WHITELIST_DEBUG
     for (int i = 0; i < whitelistCount; ++i) {
@@ -106,14 +105,14 @@ static void serialize_sub(const char* fontName, SkFontStyle style, SkWStream* ws
 
 static bool is_local(const SkTypeface* tf) {
     bool isLocal = false;
-    SkFontDescriptor desc;
+    SkFontDescriptor desc(tf->style());
     tf->getFontDescriptor(&desc, &isLocal);
     return isLocal;
 }
 
 static void serialize_full(const SkTypeface* tf, SkWStream* wstream) {
     bool isLocal = false;
-    SkFontDescriptor desc;
+    SkFontDescriptor desc(tf->style());
     tf->getFontDescriptor(&desc, &isLocal);
 
     // Embed font data if it's a local font.
@@ -125,7 +124,7 @@ static void serialize_full(const SkTypeface* tf, SkWStream* wstream) {
 
 static void serialize_name_only(const SkTypeface* tf, SkWStream* wstream) {
     bool isLocal = false;
-    SkFontDescriptor desc;
+    SkFontDescriptor desc(tf->style());
     tf->getFontDescriptor(&desc, &isLocal);
     SkASSERT(!isLocal);
 #if WHITELIST_DEBUG
@@ -181,7 +180,7 @@ void WhitelistSerializeTypeface(const SkTypeface* tf, SkWStream* wstream) {
 #endif
         whitelist[whitelistIndex].fChecksum = checksum;
     }
-    serialize_sub(fontName, tf->fontStyle(), wstream);
+    serialize_sub(fontName, tf->style(), wstream);
 }
 
 sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* stream) {
@@ -201,7 +200,7 @@ sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* stream) {
     if (!strncmp(SUBNAME_PREFIX, familyName, sizeof(SUBNAME_PREFIX) - 1)) {
         familyName += sizeof(SUBNAME_PREFIX) - 1;
     }
-    return SkTypeface::MakeFromName(familyName, desc.getStyle());
+    return SkTypeface::MakeFromName(familyName, SkFontStyle::FromOldStyle(desc.getStyle()));
 }
 
 bool CheckChecksums() {

@@ -449,7 +449,6 @@ public:
         desc->setFamilyName(get_string(fPattern, FC_FAMILY));
         desc->setFullName(get_string(fPattern, FC_FULLNAME));
         desc->setPostscriptName(get_string(fPattern, FC_POSTSCRIPT_NAME));
-        desc->setStyle(this->fontStyle());
         *serialize = false;
     }
 

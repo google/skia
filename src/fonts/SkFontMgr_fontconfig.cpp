@@ -31,7 +31,6 @@ void SkTypeface_FCI::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocalSt
     SkString name;
     this->getFamilyName(&name);
     desc->setFamilyName(name.c_str());
-    desc->setStyle(this->fontStyle());
     *isLocalStream = SkToBool(this->getLocalStream());
 }
 
