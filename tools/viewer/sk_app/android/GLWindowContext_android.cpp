@@ -86,8 +86,21 @@ void GLWindowContext_android::onInitializeContext(void* platformData, const Disp
             fDisplay, surfaceConfig, nullptr, kEGLContextAttribsForOpenGLES);
     SkASSERT(EGL_NO_CONTEXT != fEGLContext);
 
+    // These values are the same as the corresponding VG colorspace attributes,
+    // which were accepted starting in EGL 1.2. For some reason in 1.4, sRGB
+    // became hidden behind an extension, but it looks like devices aren't
+    // advertising that extension (including Nexus 5X). So just check version?
+    const EGLint srgbWindowAttribs[] = {
+        /*EGL_GL_COLORSPACE_KHR*/ 0x309D, /*EGL_GL_COLORSPACE_SRGB_KHR*/ 0x3089,
+        EGL_NONE,
+    };
+    const EGLint* windowAttribs = nullptr;
+    if (kSRGB_SkColorProfileType == params.fProfileType && majorVersion == 1 && minorVersion >= 2) {
+        windowAttribs = srgbWindowAttribs;
+    }
+
     fSurface = eglCreateWindowSurface(
-            fDisplay, surfaceConfig, fNativeWindow, nullptr);
+            fDisplay, surfaceConfig, fNativeWindow, windowAttribs);
     SkASSERT(EGL_NO_SURFACE != fSurface);
 
     SkAssertResult(eglMakeCurrent(fDisplay, fSurface, fSurface, fEGLContext));
