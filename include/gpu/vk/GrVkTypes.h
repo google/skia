@@ -33,6 +33,7 @@
 struct GrVkAlloc {
     VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
     VkDeviceSize   fOffset;
+    VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
 };
 
 struct GrVkImageInfo {

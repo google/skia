@@ -64,9 +64,9 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
     VkImage image = 0;
     GrVkAlloc alloc;
 
-    VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling)
-        ? VK_IMAGE_LAYOUT_PREINITIALIZED
-        : VK_IMAGE_LAYOUT_UNDEFINED;
+    bool isLinear = VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling;
+    VkImageLayout initialLayout = isLinear ? VK_IMAGE_LAYOUT_PREINITIALIZED
+                                           : VK_IMAGE_LAYOUT_UNDEFINED;
 
     // Create Image
     VkSampleCountFlagBits vkSamples;
@@ -102,7 +102,7 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateImage(gpu->device(), &imageCreateInfo, nullptr,
                                                         &image));
 
-    if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, imageDesc.fMemProps, &alloc)) {
+    if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, isLinear, &alloc)) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
         return false;
     }
@@ -118,11 +118,12 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
 
 void GrVkImage::DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo* info) {
     VK_CALL(gpu, DestroyImage(gpu->device(), info->fImage, nullptr));
-    GrVkMemory::FreeImageMemory(gpu, info->fAlloc);
+    bool isLinear = VK_IMAGE_TILING_LINEAR == info->fImageTiling;
+    GrVkMemory::FreeImageMemory(gpu, isLinear, info->fAlloc);
 }
 
-void GrVkImage::setNewResource(VkImage image, const GrVkAlloc& alloc) {
-    fResource = new Resource(image, alloc);
+void GrVkImage::setNewResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling) {
+    fResource = new Resource(image, alloc, tiling);
 }
 
 GrVkImage::~GrVkImage() {
@@ -146,7 +147,8 @@ void GrVkImage::abandonImage() {
 
 void GrVkImage::Resource::freeGPUData(const GrVkGpu* gpu) const {
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
-    GrVkMemory::FreeImageMemory(gpu, fAlloc);
+    bool isLinear = (VK_IMAGE_TILING_LINEAR == fImageTiling);
+    GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);
 }
 
 void GrVkImage::BorrowedResource::freeGPUData(const GrVkGpu* gpu) const {

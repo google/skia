@@ -54,11 +54,12 @@ protected:
 
     class Resource : public GrVkResource {
     public:
-        Resource(VkBuffer buf, const GrVkAlloc& alloc) 
-            : INHERITED(), fBuffer(buf), fAlloc(alloc) {}
+        Resource(VkBuffer buf, const GrVkAlloc& alloc, Type type)
+            : INHERITED(), fBuffer(buf), fAlloc(alloc), fType(type) {}
 
-        VkBuffer  fBuffer;
-        GrVkAlloc fAlloc;
+        VkBuffer           fBuffer;
+        GrVkAlloc          fAlloc;
+        Type               fType;
 
     private:
         void freeGPUData(const GrVkGpu* gpu) const;

@@ -56,36 +56,22 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& d
         return nullptr;
     }
 
-    VkMemoryPropertyFlags requiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                                             VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-
     if (!GrVkMemory::AllocAndBindBufferMemory(gpu,
                                               buffer,
-                                              requiredMemProps,
+                                              desc.fType,
                                               &alloc)) {
-        // Try again without requiring host cached memory
-        requiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                           VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-        if (!GrVkMemory::AllocAndBindBufferMemory(gpu,
-                                                  buffer,
-                                                  requiredMemProps,
-                                                  &alloc)) {
-            VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
-            return nullptr;
-        }
+        return nullptr;
     }
 
-    const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(buffer, alloc);
+    const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(buffer, alloc, desc.fType);
     if (!resource) {
         VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
-        GrVkMemory::FreeBufferMemory(gpu, alloc);
+        GrVkMemory::FreeBufferMemory(gpu, desc.fType, alloc);
         return nullptr;
     }
 
     return resource;
 }
-
 
 void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
                                   VkAccessFlags srcAccessMask,
@@ -113,7 +99,7 @@ void GrVkBuffer::Resource::freeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(fBuffer);
     SkASSERT(fAlloc.fMemory);
     VK_CALL(gpu, DestroyBuffer(gpu->device(), fBuffer, nullptr));
-    GrVkMemory::FreeBufferMemory(gpu, fAlloc);
+    GrVkMemory::FreeBufferMemory(gpu, fType, fAlloc);
 }
 
 void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {

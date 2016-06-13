@@ -216,7 +216,7 @@ bool GrVkTexture::reallocForMipmap(const GrVkGpu* gpu, uint32_t mipLevels) {
         fLinearTextureView = nullptr;
     }
 
-    this->setNewResource(info.fImage, info.fAlloc);
+    this->setNewResource(info.fImage, info.fAlloc, info.fImageTiling);
     fTextureView = textureView;
     fInfo = info;
     this->texturePriv().setMaxMipMapLevel(mipLevels);

@@ -13,6 +13,7 @@
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
 #include "GrVkIndexBuffer.h"
+#include "GrVkMemory.h"
 #include "GrVkResourceProvider.h"
 #include "GrVkVertexBuffer.h"
 #include "GrVkUtil.h"
@@ -122,6 +123,27 @@ public:
 
     void generateMipmap(GrVkTexture* tex) const;
 
+    // Heaps
+    enum Heap {
+        kLinearImage_Heap = 0,
+        // We separate out small (i.e., <= 16K) images to reduce fragmentation
+        // in the main heap.
+        kOptimalImage_Heap,
+        kSmallOptimalImage_Heap,
+        // We have separate vertex and image heaps, because it's possible that 
+        // a given Vulkan driver may allocate them separately.
+        kVertexBuffer_Heap,
+        kIndexBuffer_Heap,
+        kUniformBuffer_Heap,
+        kCopyReadBuffer_Heap,
+        kCopyWriteBuffer_Heap,
+
+        kLastHeap = kCopyWriteBuffer_Heap
+    };
+    static const int kHeapCount = kLastHeap + 1;
+
+    GrVkHeap* getHeap(Heap heap) const { return fHeaps[heap]; }
+
 private:
     GrVkGpu(GrContext* context, const GrContextOptions& options,
             const GrVkBackendContext* backendContext);
@@ -225,6 +247,8 @@ private:
     VkCommandPool                          fCmdPool;
     GrVkPrimaryCommandBuffer*              fCurrentCmdBuffer;
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
+
+    SkAutoTDelete<GrVkHeap>                fHeaps[kHeapCount];
 
 #ifdef ENABLE_VK_LAYERS
     // For reporting validation layer errors

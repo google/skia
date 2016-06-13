@@ -132,6 +132,16 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fCurrentCmdBuffer = fResourceProvider.createPrimaryCommandBuffer();
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->begin(this);
+
+    // set up our heaps
+    fHeaps[kLinearImage_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 16*1024*1024));
+    fHeaps[kOptimalImage_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 64*1024*1024));
+    fHeaps[kSmallOptimalImage_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 2*1024*1024));
+    fHeaps[kVertexBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSingleAlloc_Strategy, 0));
+    fHeaps[kIndexBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSingleAlloc_Strategy, 0));
+    fHeaps[kUniformBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 64*1024));
+    fHeaps[kCopyReadBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSingleAlloc_Strategy, 0));
+    fHeaps[kCopyWriteBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 16*1024*1024));
 }
 
 GrVkGpu::~GrVkGpu() {
@@ -880,11 +890,8 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-    VkFlags memProps = (srcData && linearTiling) ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT :
-                                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
     VkImage image = VK_NULL_HANDLE;
-    GrVkAlloc alloc = { VK_NULL_HANDLE, 0 };
+    GrVkAlloc alloc = { VK_NULL_HANDLE, 0, 0 };
 
     VkImageTiling imageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
     VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageTiling)
@@ -917,7 +924,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
 
     GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateImage(this->device(), &imageCreateInfo, nullptr, &image));
 
-    if (!GrVkMemory::AllocAndBindImageMemory(this, image, memProps, &alloc)) {
+    if (!GrVkMemory::AllocAndBindImageMemory(this, image, linearTiling, &alloc)) {
         VK_CALL(DestroyImage(this->device(), image, nullptr));
         return 0;
     }
@@ -938,7 +945,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
             err = VK_CALL(MapMemory(fDevice, alloc.fMemory, alloc.fOffset, layout.rowPitch * h,
                                     0, &mapPtr));
             if (err) {
-                GrVkMemory::FreeImageMemory(this, alloc);
+                GrVkMemory::FreeImageMemory(this, linearTiling, alloc);
                 VK_CALL(DestroyImage(this->device(), image, nullptr));
                 return 0;
             }
@@ -989,15 +996,12 @@ bool GrVkGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
 }
 
 void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandon) {
-    const GrVkImageInfo* backend = reinterpret_cast<const GrVkImageInfo*>(id);
-
+    GrVkImageInfo* backend = reinterpret_cast<GrVkImageInfo*>(id);
     if (backend) {
         if (!abandon) {
             // something in the command buffer may still be using this, so force submit
             this->submitCommandBuffer(kForce_SyncQueue);
-
-            GrVkMemory::FreeImageMemory(this, backend->fAlloc);
-            VK_CALL(DestroyImage(this->device(), backend->fImage, nullptr));
+            GrVkImage::DestroyImageInfo(this, backend);
         }
         delete backend;
     }
