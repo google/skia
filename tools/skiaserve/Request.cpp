@@ -71,8 +71,14 @@ SkCanvas* Request::getCanvas() {
 #if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
     GLTestContext* gl = factory->getContextInfo(GrContextFactory::kNativeGL_ContextType,
-                                            GrContextFactory::kNone_ContextOptions).glContext();
-    gl->makeCurrent();
+                                                GrContextFactory::kNone_ContextOptions).glContext();
+    if (!gl) {
+        gl = factory->getContextInfo(GrContextFactory::kMESA_ContextType,
+                                     GrContextFactory::kNone_ContextOptions).glContext();
+    }
+    if (gl) {
+        gl->makeCurrent();
+    }
 #endif
     SkASSERT(fDebugCanvas);
 
@@ -115,10 +121,15 @@ SkData* Request::writeOutSkp() {
 
 GrContext* Request::getContext() {
 #if SK_SUPPORT_GPU
-  return fContextFactory->get(GrContextFactory::kNativeGL_ContextType,
-                              GrContextFactory::kNone_ContextOptions);
+    GrContext* result = fContextFactory->get(GrContextFactory::kNativeGL_ContextType,
+                                             GrContextFactory::kNone_ContextOptions);
+    if (!result) {
+        result = fContextFactory->get(GrContextFactory::kMESA_ContextType,
+                                      GrContextFactory::kNone_ContextOptions);
+    } 
+    return result;
 #else
-  return nullptr;
+    return nullptr;
 #endif
 }
 
