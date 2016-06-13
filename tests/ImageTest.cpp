@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <initializer_list>
+#include <vector>
 #include "DMGpuSupport.h"
 
 #include "SkAutoPixmapStorage.h"
@@ -65,6 +66,15 @@ static sk_sp<SkImage> create_image() {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
     draw_image_test_pattern(surface->getCanvas());
+    return surface->makeImageSnapshot();
+}
+static sk_sp<SkImage> create_image_large() {
+    const SkImageInfo info = SkImageInfo::MakeN32(32000, 32, kOpaque_SkAlphaType);
+    auto surface(SkSurface::MakeRaster(info));
+    surface->getCanvas()->clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    surface->getCanvas()->drawRect(SkRect::MakeXYWH(4000, 2, 28000, 30), paint);
     return surface->makeImageSnapshot();
 }
 
@@ -837,33 +847,45 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     testContext->makeCurrent();
     REPORTER_ASSERT(reporter, proxy);
     struct {
-        std::function<sk_sp<SkImage> ()> fImageFactory;
-        bool                       fExpectation;
+        std::function<sk_sp<SkImage> ()>                      fImageFactory;
+        std::vector<SkImage::DeferredTextureImageUsageParams> fParams;
+        SkFilterQuality                                       fExpectedQuality;
+        int                                                   fExpectedScaleFactor;
+        bool                                                  fExpectation;
     } testCases[] = {
-        { create_image,          true },
-        { create_codec_image,    true },
-        { create_data_image,     true },
-        { create_picture_image,  false },
-        { [context] { return create_gpu_image(context); }, false },
+        { create_image,          {{}}, kNone_SkFilterQuality, 1, true },
+        { create_codec_image,    {{}}, kNone_SkFilterQuality, 1, true },
+        { create_data_image,     {{}}, kNone_SkFilterQuality, 1, true },
+        { create_picture_image,  {{}}, kNone_SkFilterQuality, 1, false },
+        { [context] { return create_gpu_image(context); }, {{}}, kNone_SkFilterQuality, 1, false },
         // Create a texture image in a another GrContext.
         { [testContext, otherContextInfo] {
             otherContextInfo.testContext()->makeCurrent();
             sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
             testContext->makeCurrent();
             return otherContextImage;
-          }, false },
+          }, {{}}, kNone_SkFilterQuality, 1, false },
+        // Create an image that is too large to upload.
+        { create_image_large,    {{}}, kNone_SkFilterQuality, 1, false },
+        // Create an image that is too large, but is scaled to an acceptable size.
+        { create_image_large, {{SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+          kMedium_SkFilterQuality, 16, true},
+        // Create an image with multiple low filter qualities, make sure we round up.
+        { create_image_large, {{SkMatrix::I(), kNone_SkFilterQuality, 4},
+                               {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+          kMedium_SkFilterQuality, 16, true},
+        // Create an image with multiple prescale levels, make sure we chose the minimum scale.
+        { create_image_large, {{SkMatrix::I(), kMedium_SkFilterQuality, 5},
+                               {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+          kMedium_SkFilterQuality, 16, true},
     };
 
 
     for (auto testCase : testCases) {
         sk_sp<SkImage> image(testCase.fImageFactory());
-
-        // This isn't currently used in the implementation, just set any old values.
-        SkImage::DeferredTextureImageUsageParams params;
-        params.fQuality = kLow_SkFilterQuality;
-        params.fMatrix = SkMatrix::I();
-
-        size_t size = image->getDeferredTextureImageData(*proxy, &params, 1, nullptr);
+        size_t size = image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
+                                                         static_cast<int>(testCase.fParams.size()),
+                                                         nullptr);
 
         static const char *const kFS[] = { "fail", "succeed" };
         if (SkToBool(size) != testCase.fExpectation) {
@@ -873,10 +895,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         if (size) {
             void* buffer = sk_malloc_throw(size);
             void* misaligned = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(buffer) + 3);
-            if (image->getDeferredTextureImageData(*proxy, &params, 1, misaligned)) {
+            if (image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
+                                                   static_cast<int>(testCase.fParams.size()),
+                                                   misaligned)) {
                 ERRORF(reporter, "Should fail when buffer is misaligned.");
             }
-            if (!image->getDeferredTextureImageData(*proxy, &params, 1, buffer)) {
+            if (!image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
+                                                    static_cast<int>(testCase.fParams.size()),
+                                                    buffer)) {
                 ERRORF(reporter, "deferred image size succeeded but creation failed.");
             } else {
                 for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
@@ -884,7 +910,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
                         SkImage::MakeFromDeferredTextureImageData(context, buffer, budgeted));
                     REPORTER_ASSERT(reporter, newImage != nullptr);
                     if (newImage) {
-                        check_images_same(reporter, image.get(), newImage.get());
+                        // Scale the image in software for comparison.
+                        SkImageInfo scaled_info = SkImageInfo::MakeN32(
+                                image->width() / testCase.fExpectedScaleFactor,
+                                image->height() / testCase.fExpectedScaleFactor,
+                                image->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+                        SkAutoPixmapStorage scaled;
+                        scaled.alloc(scaled_info);
+                        image->scalePixels(scaled, testCase.fExpectedQuality);
+                        sk_sp<SkImage> scaledImage = SkImage::MakeRasterCopy(scaled);
+                        check_images_same(reporter, scaledImage.get(), newImage.get());
                     }
                     // The other context should not be able to create images from texture data
                     // created by the original context.

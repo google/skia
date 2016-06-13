@@ -16,6 +16,7 @@
 #include "SkGrPixelRef.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
+#include "SkMipMap.h"
 #include "SkPixelRef.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
@@ -374,15 +375,44 @@ private:
 };
 
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
-                                            const DeferredTextureImageUsageParams[],
+                                            const DeferredTextureImageUsageParams params[],
                                             int paramCnt, void* buffer) const {
+    // Extract relevant min/max values from the params array.
+    int lowestPreScaleMipLevel = params[0].fPreScaleMipLevel;
+    SkFilterQuality highestFilterQuality = params[0].fQuality;
+    for (int i = 1; i < paramCnt; ++i) {
+        if (lowestPreScaleMipLevel > params[i].fPreScaleMipLevel)
+            lowestPreScaleMipLevel = params[i].fPreScaleMipLevel;
+        if (highestFilterQuality < params[i].fQuality)
+            highestFilterQuality = params[i].fQuality;
+    }
+
     const bool fillMode = SkToBool(buffer);
     if (fillMode && !SkIsAlign8(reinterpret_cast<intptr_t>(buffer))) {
         return 0;
     }
 
+    // Calculate scaling parameters.
+    bool isScaled = lowestPreScaleMipLevel != 0;
+
+    SkISize scaledSize;
+    if (isScaled) {
+        // SkMipMap::ComputeLevelSize takes an index into an SkMipMap. SkMipMaps don't contain the
+        // base level, so to get an SkMipMap index we must subtract one from the GL MipMap level.
+        scaledSize = SkMipMap::ComputeLevelSize(this->width(), this->height(),
+                                                lowestPreScaleMipLevel - 1);
+    } else {
+        scaledSize = SkISize::Make(this->width(), this->height());
+    }
+
+    // We never want to scale at higher than SW medium quality, as SW medium matches GPU high.
+    SkFilterQuality scaleFilterQuality = highestFilterQuality;
+    if (scaleFilterQuality > kMedium_SkFilterQuality) {
+        scaleFilterQuality = kMedium_SkFilterQuality;
+    }
+
     const int maxTextureSize = proxy.fCaps->maxTextureSize();
-    if (width() > maxTextureSize || height() > maxTextureSize) {
+    if (scaledSize.width() > maxTextureSize || scaledSize.height() > maxTextureSize) {
         return 0;
     }
 
@@ -391,7 +421,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t pixelSize = 0;
     size_t ctSize = 0;
     int ctCount = 0;
-    if (this->peekPixels(&pixmap)) {
+    if (!isScaled && this->peekPixels(&pixmap)) {
         info = pixmap.info();
         pixelSize = SkAlign8(pixmap.getSafeSize());
         if (pixmap.ctable()) {
@@ -403,16 +433,23 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         // In the future we will access the cacherator and get the exact data that we want to (e.g.
         // yuv planes) upload.
         SkAutoTUnref<SkData> data(this->refEncoded());
-        if (!data) {
+        if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }
         SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-        info = SkImageInfo::MakeN32(this->width(), this->height(), at);
+        info = SkImageInfo::MakeN32(scaledSize.width(), scaledSize.height(), at);
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);
-            if (!this->readPixels(pixmap, 0, 0, SkImage::kDisallow_CachingHint)) {
-                return 0;
+            if (isScaled) {
+                if (!this->scalePixels(pixmap, scaleFilterQuality,
+                                       SkImage::kDisallow_CachingHint)) {
+                    return 0;
+                }
+            } else {
+                if (!this->readPixels(pixmap, 0, 0, SkImage::kDisallow_CachingHint)) {
+                    return 0;
+                }
             }
             SkASSERT(!pixmap.ctable());
         }

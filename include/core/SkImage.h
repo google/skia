@@ -352,8 +352,13 @@ public:
 
     /** Drawing params for which a deferred texture image data should be optimized. */
     struct DeferredTextureImageUsageParams {
+        DeferredTextureImageUsageParams() : fPreScaleMipLevel(0) {}
+        DeferredTextureImageUsageParams(const SkMatrix matrix, const SkFilterQuality quality, 
+                                        int preScaleMipLevel)
+            : fMatrix(matrix), fQuality(quality), fPreScaleMipLevel(preScaleMipLevel) {}
         SkMatrix        fMatrix;
         SkFilterQuality fQuality;
+        int             fPreScaleMipLevel;
     };
 
     /**
