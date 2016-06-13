@@ -232,9 +232,11 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawDrawable(fDrawable);
-        this->inval(nullptr);
     }
 
+    bool onAnimate(const SkAnimTimer&) override {
+        return true;
+    }
 #if 0
     // TODO: switch over to use this for our animation
     bool onAnimate(const SkAnimTimer& timer) override {

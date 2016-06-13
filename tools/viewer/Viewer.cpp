@@ -8,6 +8,7 @@
 #include "Viewer.h"
 
 #include "GMSlide.h"
+#include "SampleSlide.h"
 #include "SKPSlide.h"
 
 #include "SkCanvas.h"
@@ -42,7 +43,6 @@ static void on_ui_state_changed_handler(const SkString& stateName, const SkStrin
 }
 
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
-DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifying this builder.");
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
                "Multiple matches may be separated by spaces.\n"
@@ -196,6 +196,14 @@ void Viewer::initSlides() {
         fSlides[fSlides.count() - i - 1] = temp;
     }
 
+    // samples
+    const SkViewRegister* reg = SkViewRegister::Head();
+    while (reg) {
+        sk_sp<Slide> slide(new SampleSlide(reg->factory()));
+        fSlides.push_back(slide);
+        reg = reg->next();
+    }
+
     // SKPs
     for (int i = 0; i < FLAGS_skps.count(); i++) {
         if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
@@ -272,7 +280,7 @@ void Viewer::setupCurrentSlide(int previousSlide) {
 
     this->updateTitle();
     this->updateUIState();
-    fSlides[fCurrentSlide]->load();
+    fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()), SkIntToScalar(fWindow->height()));
     if (previousSlide >= 0) {
         fSlides[previousSlide]->unload();
     }
