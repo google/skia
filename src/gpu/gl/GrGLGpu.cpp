@@ -3192,11 +3192,8 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool allow
     newTexParams.fMinFilter = glMinFilterModes[filterMode];
     newTexParams.fMagFilter = glMagFilterModes[filterMode];
 
-    bool enableSRGBDecode = false;
     if (GrPixelConfigIsSRGB(texture->config())) {
-        enableSRGBDecode = allowSRGBInputs;
-
-        newTexParams.fSRGBDecode = enableSRGBDecode ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
+        newTexParams.fSRGBDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
         if (setAll || newTexParams.fSRGBDecode != oldTexParams.fSRGBDecode) {
             this->setTextureUnit(unitIdx);
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SRGB_DECODE_EXT, newTexParams.fSRGBDecode));
@@ -3208,7 +3205,9 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool allow
     if (GrTextureParams::kMipMap_FilterMode == filterMode) {
         SkASSERT(!texture->texturePriv().mipMapsAreDirty());
         if (GrPixelConfigIsSRGB(texture->config())) {
-            SkASSERT(texture->texturePriv().mipMapsAreSRGBCorrect() == enableSRGBDecode);
+            SkSourceGammaTreatment gammaTreatment = allowSRGBInputs ?
+                SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
+            SkASSERT(texture->texturePriv().gammaTreatment() == gammaTreatment);
         }
     }
 #endif
@@ -3321,8 +3320,10 @@ void GrGLGpu::generateMipmaps(const GrTextureParams& params, bool allowSRGBInput
     // If this is an sRGB texture and the mips were previously built the "other" way
     // (gamma-correct vs. not), then we need to rebuild them. We don't need to check for
     // srgbSupport - we'll *never* get an sRGB pixel config if we don't support it.
+    SkSourceGammaTreatment gammaTreatment = allowSRGBInputs
+        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
     if (GrPixelConfigIsSRGB(texture->config()) &&
-        allowSRGBInputs != texture->texturePriv().mipMapsAreSRGBCorrect()) {
+        gammaTreatment != texture->texturePriv().gammaTreatment()) {
         texture->texturePriv().dirtyMipMaps(true);
     }
 
@@ -3354,9 +3355,10 @@ void GrGLGpu::generateMipmaps(const GrTextureParams& params, bool allowSRGBInput
         GL_CALL(GenerateMipmap(target));
     }
 
-    texture->texturePriv().dirtyMipMaps(false, allowSRGBInputs);
+    texture->texturePriv().dirtyMipMaps(false);
     texture->texturePriv().setMaxMipMapLevel(SkMipMap::ComputeLevelCount(
         texture->width(), texture->height()));
+    texture->texturePriv().setGammaTreatment(gammaTreatment);
 
     // We have potentially set lots of state on the texture. Easiest to dirty it all:
     texture->textureParamsModified();

@@ -29,8 +29,8 @@ public:
         return 0 != (fTexture->fDesc.fFlags & flags);
     }
 
-    void dirtyMipMaps(bool mipMapsDirty, bool sRGBCorrect = false) {
-        fTexture->dirtyMipMaps(mipMapsDirty, sRGBCorrect);
+    void dirtyMipMaps(bool mipMapsDirty) {
+        fTexture->dirtyMipMaps(mipMapsDirty);
     }
 
     bool mipMapsAreDirty() const {
@@ -49,9 +49,10 @@ public:
         return fTexture->fMaxMipMapLevel;
     }
 
-    bool mipMapsAreSRGBCorrect() const {
-        return fTexture->fMipMapsAreSRGBCorrect;
+    void setGammaTreatment(SkSourceGammaTreatment gammaTreatment) const {
+        fTexture->fGammaTreatment = gammaTreatment;
     }
+    SkSourceGammaTreatment gammaTreatment() const { return fTexture->fGammaTreatment; }
 
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
 

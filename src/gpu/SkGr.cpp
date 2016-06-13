@@ -14,6 +14,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
 #include "GrTextureParamsAdjuster.h"
+#include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "GrYUVProvider.h"
@@ -385,8 +386,14 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
     }
 
-    return ctx->textureProvider()->createMipMappedTexture(desc, SkBudgeted::kYes, texels.get(),
-                                                          mipLevelCount);
+    {
+        GrTexture* texture = ctx->textureProvider()->createMipMappedTexture(desc,
+                                                                            SkBudgeted::kYes,
+                                                                            texels.get(),
+                                                                            mipLevelCount);
+        texture->texturePriv().setGammaTreatment(gammaTreatment);
+        return texture;
+    }
 }
 
 GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,

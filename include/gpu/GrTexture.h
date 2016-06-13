@@ -53,7 +53,7 @@ protected:
 private:
     void computeScratchKey(GrScratchKey*) const override;
     size_t onGpuMemorySize() const override;
-    void dirtyMipMaps(bool mipMapsDirty, bool sRGBCorrect);
+    void dirtyMipMaps(bool mipMapsDirty);
 
     enum MipMapsStatus {
         kNotAllocated_MipMapsStatus,
@@ -61,10 +61,10 @@ private:
         kValid_MipMapsStatus
     };
 
-    GrSLType        fSamplerType;
-    MipMapsStatus   fMipMapsStatus;
-    int             fMaxMipMapLevel;
-    bool            fMipMapsAreSRGBCorrect;
+    GrSLType               fSamplerType;
+    MipMapsStatus          fMipMapsStatus;
+    int                    fMaxMipMapLevel;
+    SkSourceGammaTreatment fGammaTreatment;
 
     friend class GrTexturePriv;
 
