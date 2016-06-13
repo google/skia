@@ -43,6 +43,7 @@ protected:
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override {
         desc->setFamilyName(fFamilyName.c_str());
+        desc->setStyle(this->fontStyle());
         *isLocal = !this->isSysFont();
     }
 

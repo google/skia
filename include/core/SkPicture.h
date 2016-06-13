@@ -219,7 +219,10 @@ private:
 
     static_assert(MIN_PICTURE_VERSION <= 43,
                   "Remove SkBitmapSourceDeserializer.");
-    
+
+    static_assert(MIN_PICTURE_VERSION <= 45,
+                  "Remove decoding of old SkTypeface::Style from SkFontDescriptor.cpp.");
+
     static bool IsValidPictInfo(const SkPictInfo& info);
     static sk_sp<SkPicture> Forwardport(const SkPictInfo&,
                                         const SkPictureData*,

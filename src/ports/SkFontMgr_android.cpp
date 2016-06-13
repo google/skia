@@ -85,6 +85,7 @@ public:
         SkASSERT(desc);
         SkASSERT(serialize);
         desc->setFamilyName(fFamilyName.c_str());
+        desc->setStyle(this->fontStyle());
         *serialize = false;
     }
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
