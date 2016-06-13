@@ -36,7 +36,7 @@ RasterWindowContext_android::RasterWindowContext_android(
 }
 
 void RasterWindowContext_android::setBuffersGeometry() {
-    int32_t format;
+    int32_t format = 0;
     switch(fDisplayParams.fColorType) {
         case kRGBA_8888_SkColorType:
             format = WINDOW_FORMAT_RGBA_8888;
@@ -45,7 +45,7 @@ void RasterWindowContext_android::setBuffersGeometry() {
             format = WINDOW_FORMAT_RGB_565;
             break;
         default:
-            SkDEBUGFAIL("Unsupported Android color type");
+            SK_ABORT("Unsupported Android color type");
     }
     ANativeWindow_setBuffersGeometry(fNativeWindow, fWidth, fHeight, format);
 }

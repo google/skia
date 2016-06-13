@@ -8,10 +8,12 @@
 #include "Viewer.h"
 
 #include "GMSlide.h"
+#include "ImageSlide.h"
 #include "SKPSlide.h"
 
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
+#include "SkMetaData.h"
 #include "SkOSFile.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -52,10 +54,13 @@ DEFINE_string2(match, m, nullptr,
                "^ and $ requires an exact match\n"
                "If a bench does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
-DEFINE_string(skps, "skps", "Directory to read skps from.");
 #ifdef SK_BUILD_FOR_ANDROID
+DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
+DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
 DEFINE_bool(vulkan, false, "Run with Vulkan.");
 #else
+DEFINE_string(skps, "skps", "Directory to read skps from.");
+DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 DEFINE_bool(vulkan, true, "Run with Vulkan.");
 #endif
 
@@ -73,10 +78,14 @@ const char* kBackendStateName = "Backend";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
 const char* kFpsStateName = "FPS";
+const char* kSplitScreenStateName = "Split screen";
+const char* kON = "ON";
+const char* kOFF = "OFF";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
+    , fSplitScreen(false)
     , fBackendType(sk_app::Window::kVulkan_BackendType)
     , fZoomCenterX(0.0f)
     , fZoomCenterY(0.0f)
@@ -224,6 +233,19 @@ void Viewer::initSlides() {
             }
         }
     }
+
+    // JPGs
+    for (int i = 0; i < FLAGS_jpgs.count(); i++) {
+        SkOSFile::Iter it(FLAGS_jpgs[i], ".jpg");
+        SkString jpgName;
+        while (it.next(&jpgName)) {
+            SkString path = SkOSPath::Join(FLAGS_jpgs[i], jpgName.c_str());
+            sk_sp<ImageSlide> slide(new ImageSlide(jpgName, path));
+            if (slide) {
+                fSlides.push_back(slide);
+            }
+        }
+    }
 }
 
 
@@ -246,6 +268,9 @@ void Viewer::setupCurrentSlide(int previousSlide) {
     if (fCurrentSlide == previousSlide) {
         return; // no change; do nothing
     }
+
+    // prepare dimensions for image slides
+    fSlides[fCurrentSlide]->load();
 
     fGesture.reset();
     fDefaultMatrix.reset();
@@ -272,7 +297,6 @@ void Viewer::setupCurrentSlide(int previousSlide) {
 
     this->updateTitle();
     this->updateUIState();
-    fSlides[fCurrentSlide]->load();
     if (previousSlide >= 0) {
         fSlides[previousSlide]->unload();
     }
@@ -317,11 +341,16 @@ SkMatrix Viewer::computeMatrix() {
     return m;
 }
 
-void Viewer::onPaint(SkCanvas* canvas) {
+void Viewer::drawSlide(SkCanvas* canvas, bool inSplitScreen) {
+    SkASSERT(!inSplitScreen || fWindow->supportsContentRect());
+
     int count = canvas->save();
 
     if (fWindow->supportsContentRect()) {
         SkRect contentRect = fWindow->getContentRect();
+        // If inSplitScreen, translate the image half screen to the right.
+        // Thus we have two copies of the image on each half of the screen.
+        contentRect.fLeft += inSplitScreen ? (contentRect.fRight - contentRect.fLeft) * 0.5 : 0;
         canvas->clipRect(contentRect);
         canvas->translate(contentRect.fLeft, contentRect.fTop);
     }
@@ -330,8 +359,16 @@ void Viewer::onPaint(SkCanvas* canvas) {
     canvas->concat(fDefaultMatrix);
     canvas->concat(computeMatrix());
 
+    canvas->getMetaData().setBool(kImageColorXformMetaData, inSplitScreen);
     fSlides[fCurrentSlide]->draw(canvas);
     canvas->restoreToCount(count);
+}
+
+void Viewer::onPaint(SkCanvas* canvas) {
+    drawSlide(canvas, false);
+    if (fSplitScreen && fWindow->supportsContentRect()) {
+        drawSlide(canvas, true);
+    }
 
     if (fDisplayStats) {
         drawStats(canvas);
@@ -461,11 +498,20 @@ void Viewer::updateUIState() {
     fpsState[kValue] = SkStringPrintf("%8.3lf ms", measurement).c_str();
     fpsState[kOptions] = Json::Value(Json::arrayValue);
 
+    // Split screen state
+    Json::Value splitScreenState(Json::objectValue);
+    splitScreenState[kName] = kSplitScreenStateName;
+    splitScreenState[kValue] = fSplitScreen ? kON : kOFF;
+    splitScreenState[kOptions] = Json::Value(Json::arrayValue);
+    splitScreenState[kOptions].append(kON);
+    splitScreenState[kOptions].append(kOFF);
+
     Json::Value state(Json::arrayValue);
     state.append(slideState);
     state.append(backendState);
     state.append(softkeyState);
     state.append(fpsState);
+    state.append(splitScreenState);
 
     fWindow->setUIState(state);
 }
@@ -507,6 +553,13 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
         if (!stateValue.equals(kSoftkeyHint)) {
             fCommands.onSoftkey(stateValue);
             updateUIState(); // This is still needed to reset the value to kSoftkeyHint
+        }
+    } else if (stateName.equals(kSplitScreenStateName)) {
+        bool newSplitScreen = stateValue.equals(kON);
+        if (newSplitScreen != fSplitScreen) {
+            fSplitScreen = newSplitScreen;
+            fWindow->inval();
+            updateUIState();
         }
     } else {
         SkDebugf("Unknown stateName: %s", stateName.c_str());

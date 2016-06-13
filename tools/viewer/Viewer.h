@@ -35,6 +35,7 @@ private:
 
     void updateUIState();
 
+    void drawSlide(SkCanvas* canvs, bool inSplitScreen);
     void drawStats(SkCanvas* canvas);
 
     void changeZoomLevel(float delta);
@@ -51,6 +52,9 @@ private:
     int                    fCurrentSlide;
 
     bool                   fDisplayStats;
+
+    // whether to split the screen and draw two copies of the slide, one with sRGB and one without
+    bool                   fSplitScreen;
 
     sk_app::Window::BackendType fBackendType;
 
