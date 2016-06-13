@@ -68,16 +68,6 @@ static sk_sp<SkImage> create_image() {
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
-static sk_sp<SkImage> create_image_large() {
-    const SkImageInfo info = SkImageInfo::MakeN32(32000, 32, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRaster(info));
-    surface->getCanvas()->clear(SK_ColorWHITE);
-    SkPaint paint;
-    paint.setColor(SK_ColorBLACK);
-    surface->getCanvas()->drawRect(SkRect::MakeXYWH(4000, 2, 28000, 30), paint);
-    return surface->makeImageSnapshot();
-}
-
 static SkData* create_image_data(SkImageInfo* info) {
     *info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     const size_t rowBytes = info->minRowBytes();
@@ -100,6 +90,15 @@ static sk_sp<SkImage> create_image_565() {
     const SkImageInfo info = SkImageInfo::Make(20, 20, kRGB_565_SkColorType, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
     draw_image_test_pattern(surface->getCanvas());
+    return surface->makeImageSnapshot();
+}
+static sk_sp<SkImage> create_image_large() {
+    const SkImageInfo info = SkImageInfo::MakeN32(32000, 32, kOpaque_SkAlphaType);
+    auto surface(SkSurface::MakeRaster(info));
+    surface->getCanvas()->clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    surface->getCanvas()->drawRect(SkRect::MakeXYWH(4000, 2, 28000, 30), paint);
     return surface->makeImageSnapshot();
 }
 static sk_sp<SkImage> create_image_ct() {
