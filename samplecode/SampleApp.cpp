@@ -92,9 +92,7 @@ public:
 };
 #endif  // SAMPLE_PDF_FILE_VIEWER
 
-#if SK_COMMAND_BUFFER
-#define DEFAULT_TO_COMMAND_BUFFER 1
-#elif SK_ANGLE
+#if SK_ANGLE
 //#define DEFAULT_TO_ANGLE 1
 #else
 #define DEFAULT_TO_GPU 0 // if 1 default rendering is on GPU
@@ -211,12 +209,6 @@ public:
                 fBackend = kANGLE_BackEndType;
                 break;
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-            case kCommandBuffer_DeviceType:
-                // Command buffer is really the only other odd man out :D
-                fBackend = kCommandBuffer_BackEndType;
-                break;
-#endif // SK_COMMAND_BUFFER
             default:
                 SkASSERT(false);
                 break;
@@ -245,11 +237,6 @@ public:
                 glInterface.reset(sk_gpu_test::CreateANGLEGLInterface());
                 break;
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-            case kCommandBuffer_DeviceType:
-                glInterface.reset(GrGLCreateCommandBufferInterface());
-                break;
-#endif // SK_COMMAND_BUFFER
             default:
                 SkASSERT(false);
                 break;
@@ -744,9 +731,6 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 #if SK_ANGLE
         , SampleWindow::kANGLE_DeviceType
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-        , SampleWindow::kCommandBuffer_DeviceType
-#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
     };
     static_assert(SK_ARRAY_COUNT(gCT) == SampleWindow::kDeviceTypeCnt, "array_size_mismatch");
@@ -913,9 +897,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 #if SK_ANGLE && DEFAULT_TO_ANGLE
     fDeviceType = kANGLE_DeviceType;
 #endif
-#if SK_COMMAND_BUFFER && DEFAULT_TO_COMMAND_BUFFER
-    fDeviceType = kCommandBuffer_DeviceType;
-#endif
 
     fUseClip = false;
     fUsePicture = false;
@@ -963,9 +944,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                   "OpenGL",
 #if SK_ANGLE
                                   "ANGLE",
-#endif
-#if SK_COMMAND_BUFFER
-                                  "Command Buffer",
 #endif
                                   nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'd');
@@ -2100,9 +2078,6 @@ static const char* gDeviceTypePrefix[] = {
 #if SK_ANGLE
     "angle: ",
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-    "command buffer: ",
-#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
 };
 static_assert(SK_ARRAY_COUNT(gDeviceTypePrefix) == SampleWindow::kDeviceTypeCnt,

@@ -29,10 +29,6 @@
 #include <EGL/eglext.h>
 #endif // SK_ANGLE
 
-#if SK_COMMAND_BUFFER
-#include "gl/command_buffer/SkCommandBufferGLContext.h"
-#endif // SK_COMMAND_BUFFER
-
 const int kDefaultWindowWidth = 500;
 const int kDefaultWindowHeight = 500;
 
@@ -64,9 +60,6 @@ SkOSWindow::SkOSWindow(const void* winInit) {
     fContext = EGL_NO_CONTEXT;
     fSurface = EGL_NO_SURFACE;
 #endif
-#if SK_COMMAND_BUFFER
-    fCommandBuffer = nullptr;
-#endif // SK_COMMAND_BUFFER
 
     fHGLRC = NULL;
 #endif
@@ -95,10 +88,6 @@ SkOSWindow::~SkOSWindow() {
         fDisplay = EGL_NO_DISPLAY;
     }
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-    delete fCommandBuffer;
-#endif // SK_COMMAND_BUFFER
-
 #endif // SK_SUPPORT_GPU
     this->closeWindow();
 }
@@ -610,48 +599,6 @@ void SkOSWindow::presentANGLE() {
 }
 #endif // SK_ANGLE
 
-#if SK_COMMAND_BUFFER
-
-bool SkOSWindow::attachCommandBuffer(int msaaSampleCount, AttachmentInfo* info) {
-    if (!fCommandBuffer) {
-        fCommandBuffer = SkCommandBufferGLContext::Create((HWND)fHWND, msaaSampleCount);
-        if (!fCommandBuffer)
-            return false;
-
-        SkAutoTUnref<const GrGLInterface> intf(GrGLCreateCommandBufferInterface());
-        if (intf) {
-            GL_CALL(intf, ClearStencil(0));
-            GL_CALL(intf, ClearColor(0, 0, 0, 0));
-            GL_CALL(intf, StencilMask(0xffffffff));
-            GL_CALL(intf, Clear(GL_STENCIL_BUFFER_BIT |GL_COLOR_BUFFER_BIT));
-        }
-    }
-
-    if (fCommandBuffer->makeCurrent()) {
-        info->fStencilBits = fCommandBuffer->getStencilBits();
-        info->fSampleCount = fCommandBuffer->getSampleCount();
-
-        SkAutoTUnref<const GrGLInterface> intf(GrGLCreateCommandBufferInterface());
-
-        if (intf ) {
-            GL_CALL(intf, Viewport(0, 0, SkScalarRoundToInt(this->width()),
-                                         SkScalarRoundToInt(this->height())));
-        }
-        return true;
-    }
-    return false;
-}
-
-void SkOSWindow::detachCommandBuffer() {
-    delete fCommandBuffer;
-    fCommandBuffer = nullptr;
-}
-
-void SkOSWindow::presentCommandBuffer() {
-    fCommandBuffer->presentCommandBuffer();
-}
-#endif // SK_COMMAND_BUFFER
-
 #endif // SK_SUPPORT_GPU
 
 // return true on success
@@ -677,11 +624,6 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, bool dee
         result = attachANGLE(msaaSampleCount, info);
         break;
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-    case kCommandBuffer_BackEndType:
-        result = attachCommandBuffer(msaaSampleCount, info);
-        break;
-#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
     default:
         SkASSERT(false);
@@ -710,11 +652,6 @@ void SkOSWindow::release() {
         detachANGLE();
         break;
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-    case kCommandBuffer_BackEndType:
-        detachCommandBuffer();
-        break;
-#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
     default:
         SkASSERT(false);
@@ -737,11 +674,6 @@ void SkOSWindow::present() {
         presentANGLE();
         break;
 #endif // SK_ANGLE
-#if SK_COMMAND_BUFFER
-    case kCommandBuffer_BackEndType:
-        presentCommandBuffer();
-        break;
-#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
     default:
         SkASSERT(false);
