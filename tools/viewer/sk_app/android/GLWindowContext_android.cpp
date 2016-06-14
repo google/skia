@@ -86,6 +86,10 @@ void GLWindowContext_android::onInitializeContext(void* platformData, const Disp
             fDisplay, surfaceConfig, nullptr, kEGLContextAttribsForOpenGLES);
     SkASSERT(EGL_NO_CONTEXT != fEGLContext);
 
+//    SkDebugf("EGL: %d.%d", majorVersion, minorVersion);
+//    SkDebugf("Vendor: %s", eglQueryString(fDisplay, EGL_VENDOR));
+//    SkDebugf("Extensions: %s", eglQueryString(fDisplay, EGL_EXTENSIONS));
+
     // These values are the same as the corresponding VG colorspace attributes,
     // which were accepted starting in EGL 1.2. For some reason in 1.4, sRGB
     // became hidden behind an extension, but it looks like devices aren't
@@ -99,8 +103,11 @@ void GLWindowContext_android::onInitializeContext(void* platformData, const Disp
         windowAttribs = srgbWindowAttribs;
     }
 
-    fSurface = eglCreateWindowSurface(
-            fDisplay, surfaceConfig, fNativeWindow, windowAttribs);
+    fSurface = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, windowAttribs);
+    if (EGL_NO_SURFACE == fSurface && windowAttribs) {
+        // Try again without sRGB
+        fSurface = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, nullptr);
+    }
     SkASSERT(EGL_NO_SURFACE != fSurface);
 
     SkAssertResult(eglMakeCurrent(fDisplay, fSurface, fSurface, fEGLContext));
