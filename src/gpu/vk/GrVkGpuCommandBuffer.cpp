@@ -40,6 +40,11 @@ void get_vk_load_store_ops(GrGpuCommandBuffer::LoadAndStoreOp op,
             *loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             *storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             break;
+        default:
+            SK_ABORT("Invalid LoadAndStoreOp");
+            *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            *storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            break;
     }
 }
 
