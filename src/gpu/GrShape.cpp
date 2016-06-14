@@ -281,16 +281,16 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
 
 static inline bool rrect_path_is_inverse_filled(const SkPath& path, const SkStrokeRec& strokeRec,
                                                 const SkPathEffect* pe) {
-    // Dashing doesn't use the path fill type. Dashing only works with stroking
+    // This is currently imitating the questionable behavior of the sw-rasterizer. Inverseness is
+    // respected for stroking but not dashing + stroking. (We make no assumptions about arbitrary
+    // path effects and preserve the path's inverseness.)
+    // skbug.com/5421
     if (pe && pe->asADash(nullptr)) {
-        pe = nullptr;
-    }
-
-    SkStrokeRec::Style style = strokeRec.getStyle();
-    if (!pe && (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style)) {
-        // stroking ignores the path fill rule.
+        SkDEBUGCODE(SkStrokeRec::Style style = strokeRec.getStyle();)
+        SkASSERT(SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style);
         return false;
     }
+
     return path.isInverseFillType();
 }
 

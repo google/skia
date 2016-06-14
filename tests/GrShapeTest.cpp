@@ -281,21 +281,15 @@ void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b
     a.asPath(&pathA);
     b.asPath(&pathB);
 
-    // Having a fill style or non-dash path effect can prevent 'a' but not 'b' from turning an
-    // inverse fill type into a non-inverse fill type.
+    // Having a dash path effect can allow 'a' but not 'b' to turn a inverse fill type into a
+    // non-inverse fill type  (or vice versa).
     bool ignoreInversenessDifference = false;
     if (pathA.isInverseFillType() != pathB.isInverseFillType()) {
         const GrShape* s1 = pathA.isInverseFillType() ? &a : &b;
         const GrShape* s2 = pathA.isInverseFillType() ? &b : &a;
-        SkStrokeRec::Style style1 = s1->style().strokeRec().getStyle();
-        SkStrokeRec::Style style2 = s2->style().strokeRec().getStyle();
-        bool canDropInverse1 = !s1->style().hasNonDashPathEffect() &&
-                                (SkStrokeRec::kStroke_Style == style1 ||
-                                 SkStrokeRec::kHairline_Style == style1);
-        bool canDropInverse2 = !s2->style().hasNonDashPathEffect() &&
-                               (SkStrokeRec::kStroke_Style == style2 ||
-                                SkStrokeRec::kHairline_Style == style2);
-        ignoreInversenessDifference = !canDropInverse1 && canDropInverse2;
+        bool canDropInverse1 = s1->style().isDashed();
+        bool canDropInverse2 = s2->style().isDashed();
+        ignoreInversenessDifference = (canDropInverse1 != canDropInverse2);
     }
 
     if (allowSameRRectButDiffStartAndDir) {
@@ -1094,31 +1088,49 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
         }
     }
 
-    static const SkPath::Direction kDir = SkPath::kCW_Direction; // arbitrary
-    const GrShape& exampleFillCase = shapes[index(false, kDir, 0, kFill, false)];
+    // Get the keys for some example shape instances that we'll use for comparision against the
+    // rest.
+    static constexpr SkPath::Direction kExamplesDir = SkPath::kCW_Direction;
+    static constexpr unsigned kExamplesStart = 0;
+    const GrShape& exampleFillCase = shapes[index(false, kExamplesDir, kExamplesStart, kFill,
+                                                  false)];
     Key exampleFillCaseKey;
     make_key(&exampleFillCaseKey, exampleFillCase);
 
-    const GrShape& exampleStrokeAndFillCase = shapes[index(false, kDir, 0, kStrokeAndFill, false)];
+    const GrShape& exampleStrokeAndFillCase = shapes[index(false, kExamplesDir, kExamplesStart,
+                                                           kStrokeAndFill, false)];
     Key exampleStrokeAndFillCaseKey;
     make_key(&exampleStrokeAndFillCaseKey, exampleStrokeAndFillCase);
 
-    const GrShape& exampleInvFillCase = shapes[index(true, kDir, 0, kFill, false)];
+    const GrShape& exampleInvFillCase = shapes[index(true, kExamplesDir, kExamplesStart, kFill,
+                                                     false)];
     Key exampleInvFillCaseKey;
     make_key(&exampleInvFillCaseKey, exampleInvFillCase);
 
-    const GrShape& exampleInvStrokeAndFillCase =
-            shapes[index(true, kDir, 0, kStrokeAndFill, false)];
+    const GrShape& exampleInvStrokeAndFillCase = shapes[index(true, kExamplesDir, kExamplesStart,
+                                                              kStrokeAndFill, false)];
     Key exampleInvStrokeAndFillCaseKey;
     make_key(&exampleInvStrokeAndFillCaseKey, exampleInvStrokeAndFillCase);
 
-    const GrShape& exampleStrokeCase = shapes[index(false, kDir, 0, kStroke, false)];
+    const GrShape& exampleStrokeCase = shapes[index(false, kExamplesDir, kExamplesStart, kStroke,
+                                                    false)];
     Key exampleStrokeCaseKey;
     make_key(&exampleStrokeCaseKey, exampleStrokeCase);
 
-    const GrShape& exampleHairlineCase = shapes[index(false, kDir, 0, kHairline, false)];
+    const GrShape& exampleInvStrokeCase = shapes[index(true, kExamplesDir, kExamplesStart, kStroke,
+                                                       false)];
+    Key exampleInvStrokeCaseKey;
+    make_key(&exampleInvStrokeCaseKey, exampleInvStrokeCase);
+
+    const GrShape& exampleHairlineCase = shapes[index(false, kExamplesDir, kExamplesStart,
+                                                      kHairline, false)];
     Key exampleHairlineCaseKey;
     make_key(&exampleHairlineCaseKey, exampleHairlineCase);
+
+    const GrShape& exampleInvHairlineCase = shapes[index(true, kExamplesDir, kExamplesStart,
+                                                         kHairline, false)];
+    Key exampleInvHairlineCaseKey;
+    make_key(&exampleInvHairlineCaseKey, exampleInvHairlineCase);
 
     // These are dummy initializations to suppress warnings.
     SkRRect queryRR = SkRRect::MakeEmpty();
@@ -1160,19 +1172,37 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, !queryInverted);
 
+    REPORTER_ASSERT(r, exampleInvHairlineCase.asRRect(&queryRR, &queryDir, &queryStart,
+                                                      &queryInverted));
+    REPORTER_ASSERT(r, queryRR == rrect);
+    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, 0 == queryStart);
+    REPORTER_ASSERT(r, queryInverted);
+
     REPORTER_ASSERT(r, exampleStrokeCase.asRRect(&queryRR, &queryDir, &queryStart, &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
     REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, !queryInverted);
 
+    REPORTER_ASSERT(r, exampleInvStrokeCase.asRRect(&queryRR, &queryDir, &queryStart,
+                                                    &queryInverted));
+    REPORTER_ASSERT(r, queryRR == rrect);
+    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, 0 == queryStart);
+    REPORTER_ASSERT(r, queryInverted);
+
     // Remember that the key reflects the geometry before styling is applied.
     REPORTER_ASSERT(r, exampleFillCaseKey != exampleInvFillCaseKey);
     REPORTER_ASSERT(r, exampleFillCaseKey == exampleStrokeAndFillCaseKey);
     REPORTER_ASSERT(r, exampleFillCaseKey != exampleInvStrokeAndFillCaseKey);
     REPORTER_ASSERT(r, exampleFillCaseKey == exampleStrokeCaseKey);
+    REPORTER_ASSERT(r, exampleFillCaseKey != exampleInvStrokeCaseKey);
     REPORTER_ASSERT(r, exampleFillCaseKey == exampleHairlineCaseKey);
+    REPORTER_ASSERT(r, exampleFillCaseKey != exampleInvHairlineCaseKey);
     REPORTER_ASSERT(r, exampleInvStrokeAndFillCaseKey == exampleInvFillCaseKey);
+    REPORTER_ASSERT(r, exampleInvStrokeAndFillCaseKey == exampleInvStrokeCaseKey);
+    REPORTER_ASSERT(r, exampleInvStrokeAndFillCaseKey == exampleInvHairlineCaseKey);
 
     for (bool inverted : {false, true}) {
         for (SkPath::Direction dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
@@ -1204,13 +1234,13 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
                                                                dash)];
 
                     TestCase e(strokeCase, r);
-                    TestCase f(exampleStrokeCase, r);
                     TestCase g(hairlineCase, r);
-                    TestCase h(exampleHairlineCase, r);
 
-                    // Both hairline and stroke shapes must respect the dashing and both
-                    // ignore inverseness.
+                    // Both hairline and stroke shapes must respect the dashing.
                     if (dash) {
+                        // Dashing always ignores the inverseness. skbug.com/5421
+                        TestCase f(exampleStrokeCase, r);
+                        TestCase h(exampleHairlineCase, r);
                         unsigned expectedStart = canonicalize_rrect_start(start, rrect);
                         REPORTER_ASSERT(r, strokeCase.style().pathEffect());
                         REPORTER_ASSERT(r, hairlineCase.style().pathEffect());
@@ -1238,6 +1268,8 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
                             g.compare(r, h, TestCase::kAllDifferent_ComparisonExpecation);
                         }
                     } else {
+                        TestCase f(inverted ? exampleInvStrokeCase : exampleStrokeCase, r);
+                        TestCase h(inverted ? exampleInvHairlineCase : exampleHairlineCase, r);
                         REPORTER_ASSERT(r, !strokeCase.style().pathEffect());
                         REPORTER_ASSERT(r, !hairlineCase.style().pathEffect());
                         e.compare(r, f, TestCase::kAllSame_ComparisonExpecation);
@@ -1385,6 +1417,7 @@ DEF_TEST(GrShape, reporter) {
             test_make_hairline_path_effect(reporter, path, testPath.fIsRRectForStroke);
         }
     }
+
     for (auto testPath : paths) {
         const SkPath& path = testPath.fPath;
 

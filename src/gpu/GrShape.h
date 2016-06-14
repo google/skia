@@ -293,13 +293,9 @@ private:
         SkASSERT(Type::kRRect == fType);
         SkASSERT(!fInheritedKey.count());
         if (fRRectIsInverted) {
-            if (!fStyle.hasNonDashPathEffect()) {
-                SkStrokeRec::Style recStyle = fStyle.strokeRec().getStyle();
-                if (SkStrokeRec::kStroke_Style == recStyle ||
-                    SkStrokeRec::kHairline_Style == recStyle) {
-                    // stroking ignores the path fill rule.
-                    fRRectIsInverted = false;
-                }
+            if (fStyle.isDashed()) {
+                // Dashing ignores the inverseness (currently). skbug.com/5421
+                fRRectIsInverted = false;
             }
         } else if (fRRect.isEmpty()) {
             fType = Type::kEmpty;
