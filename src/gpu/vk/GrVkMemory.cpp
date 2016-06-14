@@ -59,7 +59,7 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
     VkMemoryPropertyFlags desiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
                                             VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-    uint32_t typeIndex;
+    uint32_t typeIndex = 0;
     if (!get_valid_memory_type_index(gpu->physicalDeviceMemoryProperties(),
                                      memReqs.memoryTypeBits,
                                      desiredMemProps,
@@ -118,7 +118,7 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
     VkMemoryRequirements memReqs;
     GR_VK_CALL(iface, GetImageMemoryRequirements(device, image, &memReqs));
 
-    uint32_t typeIndex;
+    uint32_t typeIndex = 0;
     GrVkHeap* heap;
     if (linearTiling) {
         VkMemoryPropertyFlags desiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
