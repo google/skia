@@ -165,6 +165,11 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& par
     CopyParams copyParams;
     const SkIRect* contentArea = this->contentAreaOrNull();
 
+    if (!context) {
+        // The texture was abandoned.
+        return nullptr;
+    }
+
     if (contentArea && GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
         // If we generate a MIP chain for texture it will read pixel values from outside the content
         // area.
