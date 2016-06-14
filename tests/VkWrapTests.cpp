@@ -53,7 +53,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // alloc is null
     backendCopy.fImage = backendTex->fImage;
-    backendCopy.fAlloc = { VK_NULL_HANDLE, 0 };
+    backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0 };
     tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
     tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
@@ -98,7 +98,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // alloc is null
     backendCopy.fImage = backendTex->fImage;
-    backendCopy.fAlloc = { VK_NULL_HANDLE, 0 };
+    backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0 };
     // can wrap null alloc if borrowing
     rt = gpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, rt);
@@ -143,7 +143,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // alloc is null
     backendCopy.fImage = backendTex->fImage;
-    backendCopy.fAlloc = { VK_NULL_HANDLE, 0 };
+    backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0 };
     tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, !tex);
     tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
