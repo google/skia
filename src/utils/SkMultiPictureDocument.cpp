@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <vector>
+
 #include "SkMultiPictureDocument.h"
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkPicture.h"
@@ -56,18 +58,35 @@ struct NullWStream : public SkWStream {
     size_t fN;
 };
 
+struct Page {
+  Page(SkSize s, sk_sp<SkPicture> c) : fSize(s), fContent(std::move(c)) {}
+  Page(Page&& that) : fSize(that.fSize), fContent(std::move(that.fContent)) {}
+  Page(const Page&) = default;
+  Page& operator=(const Page&) = default;
+  Page& operator=(Page&& that) {
+    fSize = that.fSize;
+    fContent = std::move(that.fContent);
+    return *this;
+  }
+  SkSize fSize;
+  sk_sp<SkPicture> fContent;
+};
+
 struct MultiPictureDocument final : public SkDocument {
     SkPictureRecorder fPictureRecorder;
-    SkTArray<sk_sp<SkPicture>> fPages;
+    SkSize fCurrentPageSize;
+    std::vector<Page> fPages;
     MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool))
         : SkDocument(s, d) {}
     ~MultiPictureDocument() { this->close(); }
 
     SkCanvas* onBeginPage(SkScalar w, SkScalar h, const SkRect& c) override {
+        fCurrentPageSize.set(w, h);
         return trim(fPictureRecorder.beginRecording(w, h), w, h, c);
     }
     void onEndPage() override {
-        fPages.emplace_back(fPictureRecorder.finishRecordingAsPicture());
+        fPages.emplace_back(fCurrentPageSize,
+                            fPictureRecorder.finishRecordingAsPicture());
     }
     bool onClose(SkWStream* wStream) override {
         SkASSERT(wStream);
@@ -75,29 +94,26 @@ struct MultiPictureDocument final : public SkDocument {
         bool good = true;
         good &= wStream->writeText(SkMultiPictureDocumentProtocol::kMagic);
         good &= wStream->write32(SkToU32(1));  // version
-        good &= wStream->write32(SkToU32(fPages.count()));
+        good &= wStream->write32(SkToU32(fPages.size()));
         uint64_t offset = wStream->bytesWritten();
-        offset += fPages.count() * sizeof(SkMultiPictureDocumentProtocol::Entry);
+        offset += fPages.size() * sizeof(SkMultiPictureDocumentProtocol::Entry);
         for (const auto& page : fPages) {
-            SkRect cullRect = page->cullRect();
-            // We recorded a picture at the origin.
-            SkASSERT(cullRect.x() == 0 && cullRect.y() == 0);
             SkMultiPictureDocumentProtocol::Entry entry{
-                    offset, (float)cullRect.right(), (float)cullRect.bottom()};
+                    offset, page.fSize.width(), page.fSize.height()};
             good &= wStream->write(&entry, sizeof(entry));
             NullWStream buffer;
-            page->serialize(&buffer);
+            page.fContent->serialize(&buffer);
             offset += buffer.bytesWritten();
         }
         for (const auto& page : fPages) {
-            page->serialize(wStream);
+            page.fContent->serialize(wStream);
         }
         SkASSERT(wStream->bytesWritten() == offset);
         good &= wStream->writeText("\nEndOfMultiPicture\n");
-        fPages.reset();
+        fPages.clear();
         return good;
     }
-    void onAbort() override { fPages.reset(); }
+    void onAbort() override { fPages.clear(); }
 };
 }
 
