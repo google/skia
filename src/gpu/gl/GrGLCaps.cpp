@@ -696,9 +696,12 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
         }
     }
 
-    if (glslCaps->fSampleVariablesSupport) {
+    if (glslCaps->fSampleVariablesSupport &&
+        ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage")) {
+        // Pre-361 NVIDIA has a bug with NV_sample_mask_override_coverage.
         glslCaps->fSampleMaskOverrideCoverageSupport =
-            ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage");
+            kNVIDIA_GrGLDriver != ctxInfo.driver() ||
+            ctxInfo.driverVersion() >= GR_GL_DRIVER_VER(361,00);
     }
 
     // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
