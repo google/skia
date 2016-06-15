@@ -18,20 +18,19 @@
 static bool DrawDeferredTextureImageData(GrContext* context, SkCanvas* canvas, SkImage* image,
                                          SkImage::DeferredTextureImageUsageParams* params,
                                          SkScalar x, SkScalar y) {
-  size_t deferredSize = 
-      image->getDeferredTextureImageData(*context->threadSafeProxy(), params, 1, nullptr);
-  if (deferredSize == 0) {
-      SkDebugf("\nCould not create DeferredTextureImageData.\n");
-      return false;
-  }
+    SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
+    size_t deferredSize =  image->getDeferredTextureImageData(*proxy, params, 1, nullptr);
+    if (deferredSize == 0) {
+        SkDebugf("\nCould not create DeferredTextureImageData.\n");
+        return false;
+    }
 
-  std::vector<uint8_t> memory;
-  memory.resize(deferredSize);
-  SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
-  image->getDeferredTextureImageData(*proxy, params, 1, memory.data());
-  sk_sp<SkImage> uploadedImage =
-      SkImage::MakeFromDeferredTextureImageData(context, memory.data(), SkBudgeted::kNo);
-  canvas->drawImage(uploadedImage, x, y);
+    std::vector<uint8_t> memory;
+    memory.resize(deferredSize);
+    image->getDeferredTextureImageData(*proxy, params, 1, memory.data());
+    sk_sp<SkImage> uploadedImage =
+        SkImage::MakeFromDeferredTextureImageData(context, memory.data(), SkBudgeted::kNo);
+    canvas->drawImage(uploadedImage, x, y);
 
   return true;
 }
