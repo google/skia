@@ -475,7 +475,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInf
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, contextInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, contextInfo) {
     auto context = contextInfo.grContext();
     auto image = create_gpu_image(context);
     auto info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
