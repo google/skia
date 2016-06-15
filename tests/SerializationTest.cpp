@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
 #include "SkAnnotationKeys.h"
+#include "Resources.h"
 #include "SkCanvas.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
 #include "SkImage.h"
 #include "SkImageSource.h"
-#include "SkLightingShader.h"
 #include "SkMallocPixelRef.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
@@ -22,7 +21,6 @@
 #include "SkWriteBuffer.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkXfermodeImageFilter.h"
-#include "sk_tool_utils.h"
 #include "Test.h"
 
 static const uint32_t kArraySize = 64;
@@ -184,8 +182,8 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
 
-    SkASSERT(bytesWritten <= 4096);
     unsigned char dataWritten[4096];
+    SkASSERT(bytesWritten <= sizeof(dataWritten));
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
@@ -548,43 +546,6 @@ DEF_TEST(Serialization, reporter) {
     }
 
     TestPictureTypefaceSerialization(reporter);
-
-    // Test SkLightingShader/NormalMapSource serialization
-    {
-        const int kTexSize = 2;
-
-        SkLights::Builder builder;
-
-        builder.add(SkLights::Light(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                    SkVector3::Make(1.0f, 0.0f, 0.0f)));
-        builder.add(SkLights::Light(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
-
-        sk_sp<SkLights> fLights = builder.finish();
-
-        SkBitmap diffuse = sk_tool_utils::create_checkerboard_bitmap(
-                kTexSize, kTexSize,
-                sk_tool_utils::color_to_565(0x0),
-                sk_tool_utils::color_to_565(0xFF804020),
-                8);
-
-        SkRect bitmapBounds = SkRect::MakeIWH(diffuse.width(), diffuse.height());
-
-        SkMatrix matrix;
-        SkRect r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
-        matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
-
-        SkVector invNormRotation = { SkScalarSqrt(0.3f), SkScalarSqrt(0.7f) };
-        SkBitmap normals;
-        normals.allocN32Pixels(kTexSize, kTexSize);
-
-        sk_tool_utils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
-        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuse, normals, fLights,
-                invNormRotation, &matrix, &matrix);
-
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
-        // TODO test equality?
-
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

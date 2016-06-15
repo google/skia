@@ -88,8 +88,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPerlinNoiseShader)
     SkGradientShader::InitializeFlattenables();
     SkLightingShader::InitializeFlattenables();
-    SkLightingShader::NormalMapSource::InitializeFlattenables();
-
 
     // PathEffect
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkArcToPathEffect)
