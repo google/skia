@@ -1,0 +1,10 @@
+{
+  'includes': [
+    'infrabots.isolate',
+  ],
+  'variables': {
+    'command': [
+      'python', 'assets/<(ASSET)/download.py', '-t', '${ISOLATED_OUTDIR}', '--gsutil', '<(GSUTIL)',
+    ],
+  },
+}
