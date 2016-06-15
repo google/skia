@@ -474,6 +474,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInf
         }
     }
 }
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, contextInfo) {
+    auto context = contextInfo.grContext();
+    auto image = create_gpu_image(context);
+    auto info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
+    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
+    as_IB(image)->peekTexture()->abandon();
+    surface->getCanvas()->drawImage(image, 0, 0);
+}
+
 #endif
 
 // https://bug.skia.org/4390
