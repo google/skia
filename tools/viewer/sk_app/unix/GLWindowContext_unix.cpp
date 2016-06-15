@@ -90,6 +90,7 @@ void GLWindowContext_unix::onDestroyContext() {
 
 void GLWindowContext_unix::onSwapBuffers() {
     if (fDisplay && fGLContext) {
+        printf("swapping\n");
         glXSwapBuffers(fDisplay, fWindow);
     }
 }

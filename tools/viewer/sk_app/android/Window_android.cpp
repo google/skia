@@ -7,9 +7,7 @@
 
 #include "Window_android.h"
 #include "../GLWindowContext.h"
-#ifdef SK_VULKAN
 #include "../VulkanWindowContext.h"
-#endif
 #include "../RasterWindowContext.h"
 
 namespace sk_app {
@@ -64,17 +62,15 @@ void Window_android::initDisplay(ANativeWindow* window) {
     platformData.fNativeWindow = window;
     switch (fBackendType) {
         case kNativeGL_BackendType:
-        default:
             fWindowContext = GLWindowContext::Create((void*)&platformData, fDisplayParams);
             break;
         case kRaster_BackendType:
             fWindowContext = RasterWindowContext::Create((void*)&platformData, fDisplayParams);
             break;
-#ifdef SK_VULKAN
         case kVulkan_BackendType:
+        default:
             fWindowContext = VulkanWindowContext::Create((void*)&platformData, fDisplayParams);
             break;
-#endif
     }
 }
 

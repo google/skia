@@ -9,7 +9,7 @@
 
 #include "SkSurface.h"
 #include "SkCanvas.h"
-#include "WindowContext.h"
+#include "VulkanWindowContext.h"
 
 namespace sk_app {
 

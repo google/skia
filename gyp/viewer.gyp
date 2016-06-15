@@ -79,10 +79,6 @@
           'sources/': [ ['exclude', '_win.(h|cpp)$'],
           ],
         }],
-	['skia_vulkan == 0', {
-	  'sources/': [ ['exclude', 'Vulkan']
-	  ],
-	}],
       ],
     },
   ],
