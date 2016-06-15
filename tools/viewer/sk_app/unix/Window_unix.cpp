@@ -10,7 +10,9 @@
 #include "SkUtils.h"
 #include "Timer.h"
 #include "../GLWindowContext.h"
+#ifdef SK_VULKAN
 #include "../VulkanWindowContext.h"
+#endif
 #include "Window_unix.h"
 
 extern "C" {
@@ -276,10 +278,11 @@ bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
     platformData.fWindow = fWindow;
     platformData.fVisualInfo = fVisualInfo;
     switch (attachType) {
+#ifdef SK_VULKAN
         case kVulkan_BackendType:
             fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
             break;
-
+#endif
         case kNativeGL_BackendType:
         default:
             fWindowContext = GLWindowContext::Create((void*)&platformData, params);
