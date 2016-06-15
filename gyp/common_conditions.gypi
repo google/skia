@@ -244,6 +244,7 @@
           '-Winit-self',
           '-Wpointer-arith',
           '-Wsign-compare',
+          '-Wvla',
 
           '-Wno-unused-parameter',
         ],
@@ -561,6 +562,7 @@
             '-Winit-self',
             '-Wpointer-arith',
             '-Wsign-compare',
+            '-Wvla',
 
             '-Wno-unused-parameter',
           ],
