@@ -154,6 +154,7 @@
         '<(skia_src_path)/core/SkLayerInfo.h',
         '<(skia_src_path)/core/SkLightingShader.h',
         '<(skia_src_path)/core/SkLightingShader.cpp',
+        '<(skia_src_path)/core/SkLightingShader_NormalSource.cpp',
         '<(skia_src_path)/core/SkLinearBitmapPipeline.cpp',
         '<(skia_src_path)/core/SkLinearBitmapPipeline.h',
         '<(skia_src_path)/core/SkLinearBitmapPipeline_core.h',
