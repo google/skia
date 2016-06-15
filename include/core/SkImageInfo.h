@@ -198,7 +198,9 @@ public:
 
     static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
                             SkColorProfileType pt = kLinear_SkColorProfileType) {
-        return SkImageInfo(width, height, ct, at, pt, nullptr);
+        sk_sp<SkColorSpace> cs = (kSRGB_SkColorProfileType == pt) ?
+                                 SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
+        return SkImageInfo(width, height, ct, at, pt, cs);
     }
 
     static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
@@ -209,7 +211,9 @@ public:
      */
     static SkImageInfo MakeN32(int width, int height, SkAlphaType at,
                                SkColorProfileType pt = kLinear_SkColorProfileType) {
-        return SkImageInfo(width, height, kN32_SkColorType, at, pt, nullptr);
+        sk_sp<SkColorSpace> cs = (kSRGB_SkColorProfileType == pt) ?
+                                 SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
+        return SkImageInfo(width, height, kN32_SkColorType, at, pt, cs);
     }
 
     /**
@@ -217,7 +221,9 @@ public:
      */
     static SkImageInfo MakeN32Premul(int width, int height,
                                      SkColorProfileType pt = kLinear_SkColorProfileType) {
-        return SkImageInfo(width, height, kN32_SkColorType, kPremul_SkAlphaType, pt, nullptr);
+        sk_sp<SkColorSpace> cs = (kSRGB_SkColorProfileType == pt) ?
+                                 SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
+        return SkImageInfo(width, height, kN32_SkColorType, kPremul_SkAlphaType, pt, cs);
     }
 
     /**
