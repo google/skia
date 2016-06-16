@@ -15,7 +15,7 @@
 
 #include <dwrite.h>
 #if SK_HAS_DWRITE_2_H
-#include <dwrite_2.h>
+#  include <dwrite_2.h>
 #endif
 
 class SkGlyph;
@@ -76,9 +76,10 @@ private:
     DWRITE_TEXTURE_TYPE fTextureType;
     DWRITE_MEASURING_MODE fMeasuringMode;
 #if SK_HAS_DWRITE_2_H
-    SkTScopedComPtr<IDWriteFactory2> fFactory2;
-    bool fIsColorFont;
+    DWRITE_TEXT_ANTIALIAS_MODE fAntiAliasMode;
+    DWRITE_GRID_FIT_MODE fGridFitMode;
 #endif
+    bool fIsColorFont;
 };
 
 #endif

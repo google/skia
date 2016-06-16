@@ -34,6 +34,14 @@
 #include <dwrite.h>
 #if SK_HAS_DWRITE_1_H
 #  include <dwrite_1.h>
+#else
+#  pragma message("No dwrite_1.h is available, font metrics may be affected.")
+#endif
+
+#if SK_HAS_DWRITE_2_H
+#  include <dwrite_2.h>
+#else
+#  pragma message("No dwrite_2.h is available, pixel antialiased glyph quality may be affected.")
 #endif
 
 /* Note:
@@ -212,11 +220,9 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
         , fGlyphCount(-1) {
 
 #if SK_HAS_DWRITE_2_H
-    fTypeface->fFactory->QueryInterface<IDWriteFactory2>(&fFactory2);
-
-    SkTScopedComPtr<IDWriteFontFace2> fontFace2;
-    fTypeface->fDWriteFontFace->QueryInterface<IDWriteFontFace2>(&fontFace2);
-    fIsColorFont = fFactory2.get() && fontFace2.get() && fontFace2->IsColorFont();
+    fIsColorFont = fTypeface->fFactory2 &&
+                   fTypeface->fDWriteFontFace2 &&
+                   fTypeface->fDWriteFontFace2->IsColorFont();
 #endif
 
     // In general, all glyphs should use CLEARTYPE_NATURAL_SYMMETRIC
@@ -323,6 +329,30 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
     }
+
+    // DirectWrite2 allows for grayscale hinting.
+#if SK_HAS_DWRITE_2_H
+    fAntiAliasMode = DWRITE_TEXT_ANTIALIAS_MODE_CLEARTYPE;
+#ifndef SK_IGNORE_DW_GRAY_FIX
+    if (fTypeface->fFactory2 && fTypeface->fDWriteFontFace2 &&
+        !isLCD(fRec) && !(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag))
+    {
+        // DWRITE_TEXTURE_ALIASED_1x1 is now misnamed, it must also be used with grayscale.
+        fTextureType = DWRITE_TEXTURE_ALIASED_1x1;
+        fAntiAliasMode = DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE;
+    }
+#endif
+#endif
+
+    // DirectWrite2 allows hinting to be disabled.
+#if SK_HAS_DWRITE_2_H
+    fGridFitMode = DWRITE_GRID_FIT_MODE_ENABLED;
+    if (fTypeface->fFactory2 && fTypeface->fDWriteFontFace2 &&
+        fRec.getHinting() == SkPaint::kNo_Hinting)
+    {
+        fGridFitMode = DWRITE_GRID_FIT_MODE_DISABLED;
+    }
+#endif
 
     if (this->isSubpixel()) {
         fTextSizeMeasure = realTextSize;
@@ -432,16 +462,31 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
     SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
     {
         SkAutoExclusive l(DWriteFactoryMutex);
-        HRM(fTypeface->fFactory->CreateGlyphRunAnalysis(
-            &run,
-            1.0f, // pixelsPerDip,
-            &fXform,
-            renderingMode,
-            fMeasuringMode,
-            0.0f, // baselineOriginX,
-            0.0f, // baselineOriginY,
-            &glyphRunAnalysis),
-            "Could not create glyph run analysis.");
+        if (fTypeface->fFactory2) {
+#if SK_HAS_DWRITE_2_H
+            HRNM(fTypeface->fFactory2->CreateGlyphRunAnalysis(
+                     &run,
+                     &fXform,
+                     renderingMode,
+                     fMeasuringMode,
+                     fGridFitMode,
+                     fAntiAliasMode,
+                     0.0f, // baselineOriginX,
+                     0.0f, // baselineOriginY,
+                     &glyphRunAnalysis),
+                 "Could not create DW2 glyph run analysis.");
+#endif
+        } else {
+            HRNM(fTypeface->fFactory->CreateGlyphRunAnalysis(&run,
+                     1.0f, // pixelsPerDip,
+                     &fXform,
+                     renderingMode,
+                     fMeasuringMode,
+                     0.0f, // baselineOriginX,
+                     0.0f, // baselineOriginY,
+                     &glyphRunAnalysis),
+                "Could not create glyph run analysis.");
+        }
     }
     {
         Shared l(DWriteFactoryMutex);
@@ -498,7 +543,7 @@ bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
     run.isSideways = FALSE;
     run.glyphOffsets = &offset;
 
-    HRESULT hr = fFactory2->TranslateColorGlyphRun(
+    HRESULT hr = fTypeface->fFactory2->TranslateColorGlyphRun(
         0, 0, &run, nullptr, fMeasuringMode, &fXform, 0, colorGlyph);
     if (hr == DWRITE_E_NOCOLOR) {
         return false;
@@ -591,8 +636,6 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
         metrics->fMaxCharWidth = metrics->fXMax - metrics->fXMin;
         return;
     }
-#else
-#  pragma message("No dwrite_1.h is available, font metrics may be affected.")
 #endif
 
     AutoTDWriteTable<SkOTTableHead> head(fTypeface->fDWriteFontFace.get());
@@ -656,6 +699,22 @@ static void bilevel_to_bw(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) 
 }
 
 template<bool APPLY_PREBLEND>
+static void grayscale_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
+                            const uint8_t* table8) {
+    const size_t dstRB = glyph.rowBytes();
+    const U16CPU width = glyph.fWidth;
+    uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(glyph.fImage);
+
+    for (U16CPU y = 0; y < glyph.fHeight; y++) {
+        for (U16CPU i = 0; i < width; i++) {
+            U8CPU a = *(src++);
+            dst[i] = sk_apply_lut_if<APPLY_PREBLEND>(a, table8);
+        }
+        dst = SkTAddOffset<uint8_t>(dst, dstRB);
+    }
+}
+
+template<bool APPLY_PREBLEND>
 static void rgb_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph, const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const U16CPU width = glyph.fWidth;
@@ -668,7 +727,7 @@ static void rgb_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph, cons
             U8CPU b = *(src++);
             dst[i] = sk_apply_lut_if<APPLY_PREBLEND>((r + g + b) / 3, table8);
         }
-        dst = (uint8_t*)((char*)dst + dstRB);
+        dst = SkTAddOffset<uint8_t>(dst, dstRB);
     }
 }
 
@@ -693,7 +752,7 @@ static void rgb_to_lcd16(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
             }
             dst[i] = SkPack888ToRGB16(r, g, b);
         }
-        dst = (uint16_t*)((char*)dst + dstRB);
+        dst = SkTAddOffset<uint16_t>(dst, dstRB);
     }
 }
 
@@ -702,7 +761,7 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
                                            DWRITE_TEXTURE_TYPE textureType)
 {
     int sizeNeeded = glyph.fWidth * glyph.fHeight;
-    if (DWRITE_RENDERING_MODE_ALIASED != renderingMode) {
+    if (DWRITE_TEXTURE_CLEARTYPE_3x1 == textureType) {
         sizeNeeded *= 3;
     }
     if (sizeNeeded > fBits.count()) {
@@ -733,19 +792,33 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
     run.isSideways = FALSE;
     run.glyphOffsets = &offset;
     {
-
         SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
         {
             SkAutoExclusive l(DWriteFactoryMutex);
-            HRNM(fTypeface->fFactory->CreateGlyphRunAnalysis(&run,
-                1.0f, // pixelsPerDip,
-                &fXform,
-                renderingMode,
-                fMeasuringMode,
-                0.0f, // baselineOriginX,
-                0.0f, // baselineOriginY,
-                &glyphRunAnalysis),
-                "Could not create glyph run analysis.");
+            if (fTypeface->fFactory2) {
+#if SK_HAS_DWRITE_2_H
+                HRNM(fTypeface->fFactory2->CreateGlyphRunAnalysis(&run,
+                         &fXform,
+                         renderingMode,
+                         fMeasuringMode,
+                         fGridFitMode,
+                         fAntiAliasMode,
+                         0.0f, // baselineOriginX,
+                         0.0f, // baselineOriginY,
+                         &glyphRunAnalysis),
+                     "Could not create DW2 glyph run analysis.");
+#endif
+            } else {
+                HRNM(fTypeface->fFactory->CreateGlyphRunAnalysis(&run,
+                         1.0f, // pixelsPerDip,
+                         &fXform,
+                         renderingMode,
+                         fMeasuringMode,
+                         0.0f, // baselineOriginX,
+                         0.0f, // baselineOriginY,
+                         &glyphRunAnalysis),
+                     "Could not create glyph run analysis.");
+            }
         }
         //NOTE: this assumes that the glyph has already been measured
         //with an exact same glyph run analysis.
@@ -865,10 +938,18 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
         bilevel_to_bw(src, glyph);
         const_cast<SkGlyph&>(glyph).fMaskFormat = SkMask::kBW_Format;
     } else if (!isLCD(fRec)) {
-        if (fPreBlend.isApplicable()) {
-            rgb_to_a8<true>(src, glyph, fPreBlend.fG);
+        if (textureType == DWRITE_TEXTURE_ALIASED_1x1) {
+            if (fPreBlend.isApplicable()) {
+                grayscale_to_a8<true>(src, glyph, fPreBlend.fG);
+            } else {
+                grayscale_to_a8<false>(src, glyph, fPreBlend.fG);
+            }
         } else {
-            rgb_to_a8<false>(src, glyph, fPreBlend.fG);
+            if (fPreBlend.isApplicable()) {
+                rgb_to_a8<true>(src, glyph, fPreBlend.fG);
+            } else {
+                rgb_to_a8<false>(src, glyph, fPreBlend.fG);
+            }
         }
     } else {
         SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);

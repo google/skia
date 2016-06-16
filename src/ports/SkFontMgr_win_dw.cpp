@@ -17,12 +17,12 @@
 #include "SkTScopedComPtr.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
+#include "SkTypeface_win.h"
 #include "SkTypeface_win_dw.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 
 #include <dwrite.h>
-
 #if SK_HAS_DWRITE_2_H
 #include <dwrite_2.h>
 #endif

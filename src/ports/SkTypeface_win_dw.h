@@ -20,6 +20,9 @@
 #if SK_HAS_DWRITE_1_H
 #  include <dwrite_1.h>
 #endif
+#if SK_HAS_DWRITE_2_H
+#  include <dwrite_2.h>
+#endif
 
 class SkFontDescriptor;
 struct SkScalerContextRec;
@@ -61,10 +64,23 @@ private:
             SkASSERT_RELEASE(nullptr == fDWriteFontFace1.get());
         }
 #endif
+#if SK_HAS_DWRITE_2_H
+        if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace2))) {
+            SkASSERT_RELEASE(nullptr == fDWriteFontFace2.get());
+        }
+        if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
+            SkASSERT_RELEASE(nullptr == fFactory2.get());
+        }
+#endif
     }
 
 public:
     SkTScopedComPtr<IDWriteFactory> fFactory;
+#if SK_HAS_DWRITE_2_H
+    SkTScopedComPtr<IDWriteFactory2> fFactory2;
+#else
+    const decltype(nullptr) fFactory2 = nullptr;
+#endif
     SkTScopedComPtr<IDWriteFontCollectionLoader> fDWriteFontCollectionLoader;
     SkTScopedComPtr<IDWriteFontFileLoader> fDWriteFontFileLoader;
     SkTScopedComPtr<IDWriteFontFamily> fDWriteFontFamily;
@@ -72,6 +88,11 @@ public:
     SkTScopedComPtr<IDWriteFontFace> fDWriteFontFace;
 #if SK_HAS_DWRITE_1_H
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
+#endif
+#if SK_HAS_DWRITE_2_H
+    SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
+#else
+    const decltype(nullptr) fDWriteFontFace2 = nullptr;
 #endif
 
     static DWriteFontTypeface* Create(IDWriteFactory* factory,

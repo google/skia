@@ -252,6 +252,7 @@ SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkScalerContext
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
     if (rec->fFlags & SkScalerContext::kLCD_Vertical_Flag) {
         rec->fMaskFormat = SkMask::kA8_Format;
+        rec->fFlags |= SkScalerContext::kGenA8FromLCD_Flag;
     }
 
     unsigned flagsWeDontSupport = SkScalerContext::kVertical_Flag |
@@ -262,8 +263,10 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
     rec->fFlags &= ~flagsWeDontSupport;
 
     SkPaint::Hinting h = rec->getHinting();
-    // DirectWrite does not provide for hinting hints.
-    h = SkPaint::kSlight_Hinting;
+    // DirectWrite2 allows for hinting to be turned off. Force everything else to normal.
+    if (h != SkPaint::kNo_Hinting || !fFactory2 || !fDWriteFontFace2) {
+        h = SkPaint::kNormal_Hinting;
+    }
     rec->setHinting(h);
 
 #if defined(SK_FONT_HOST_USE_SYSTEM_SETTINGS)
