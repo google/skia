@@ -8,7 +8,7 @@
 #ifndef SkTScopedComPtr_DEFINED
 #define SkTScopedComPtr_DEFINED
 
-#include "../../private/SkLeanWindows.h"
+#include "SkLeanWindows.h"
 
 #ifdef SK_BUILD_FOR_WIN
 
@@ -37,26 +37,30 @@ private:
     T *fPtr;
 
 public:
-    explicit SkTScopedComPtr(T *ptr = NULL) : fPtr(ptr) { }
-    ~SkTScopedComPtr() {
-        this->reset();
-    }
-    T &operator*() const { SkASSERT(fPtr != NULL); return *fPtr; }
-    SkBlockComRef<T> *operator->() const {
-        return static_cast<SkBlockComRef<T>*>(fPtr);
-    }
+    explicit SkTScopedComPtr(T *ptr = nullptr) : fPtr(ptr) { }
+
+    ~SkTScopedComPtr() { this->reset();}
+
+    T &operator*() const { SkASSERT(fPtr != nullptr); return *fPtr; }
+
+    explicit operator bool() const { return fPtr != nullptr; }
+
+    SkBlockComRef<T> *operator->() const { return static_cast<SkBlockComRef<T>*>(fPtr); }
+
     /**
      * Returns the address of the underlying pointer.
      * This is dangerous -- it breaks encapsulation and the reference escapes.
      * Must only be used on instances currently pointing to NULL,
      * and only to initialize the instance.
      */
-    T **operator&() { SkASSERT(fPtr == NULL); return &fPtr; }
+    T **operator&() { SkASSERT(fPtr == nullptr); return &fPtr; }
+
     T *get() const { return fPtr; }
+
     void reset() {
         if (this->fPtr) {
             this->fPtr->Release();
-            this->fPtr = NULL;
+            this->fPtr = nullptr;
         }
     }
 
@@ -68,7 +72,7 @@ public:
 
     T* release() {
         T* temp = this->fPtr;
-        this->fPtr = NULL;
+        this->fPtr = nullptr;
         return temp;
     }
 };

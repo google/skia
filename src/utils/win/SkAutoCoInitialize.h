@@ -12,7 +12,7 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include "../../private/SkLeanWindows.h"
+#include "SkLeanWindows.h"
 
 /**
  * An instance of this class initializes COM on creation

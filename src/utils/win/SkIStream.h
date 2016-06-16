@@ -14,7 +14,7 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include "../../private/SkLeanWindows.h"
+#include "SkLeanWindows.h"
 #include <ole2.h>
 
 class SkStream;

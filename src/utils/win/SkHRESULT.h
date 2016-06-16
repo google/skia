@@ -11,7 +11,7 @@
 #include "SkTypes.h"
 #ifdef SK_BUILD_FOR_WIN
 
-#include "../../private/SkLeanWindows.h"
+#include "SkLeanWindows.h"
 
 void SkTraceHR(const char* file, unsigned long line,
                HRESULT hr, const char* msg);
@@ -39,23 +39,23 @@ If the HRESULT FAILED then the macro will return from the current function.
 In variants ending with 'M' the given message will be traced when FAILED.
 The HR variants will return the HRESULT when FAILED.
 The HRB variants will return false when FAILED.
-The HRN variants will return NULL when FAILED.
+The HRN variants will return nullptr when FAILED.
 The HRV variants will simply return when FAILED.
 The HRZ variants will return 0 when FAILED.
 */
-#define HR(ex) HR_GENERAL(ex, NULL, _hr)
+#define HR(ex) HR_GENERAL(ex, nullptr, _hr)
 #define HRM(ex, msg) HR_GENERAL(ex, msg, _hr)
 
-#define HRB(ex) HR_GENERAL(ex, NULL, false)
+#define HRB(ex) HR_GENERAL(ex, nullptr, false)
 #define HRBM(ex, msg) HR_GENERAL(ex, msg, false)
 
-#define HRN(ex) HR_GENERAL(ex, NULL, NULL)
-#define HRNM(ex, msg) HR_GENERAL(ex, msg, NULL)
+#define HRN(ex) HR_GENERAL(ex, nullptr, nullptr)
+#define HRNM(ex, msg) HR_GENERAL(ex, msg, nullptr)
 
-#define HRV(ex) HR_GENERAL(ex, NULL, )
+#define HRV(ex) HR_GENERAL(ex, nullptr, )
 #define HRVM(ex, msg) HR_GENERAL(ex, msg, )
 
-#define HRZ(ex) HR_GENERAL(ex, NULL, 0)
+#define HRZ(ex) HR_GENERAL(ex, nullptr, 0)
 #define HRZM(ex, msg) HR_GENERAL(ex, msg, 0)
 //@}
 #endif  // SK_BUILD_FOR_WIN

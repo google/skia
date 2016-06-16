@@ -25,13 +25,12 @@
         '../include/private',
         '../include/utils',
         '../include/utils/mac',
-        '../include/utils/unix',
-        '../include/utils/win',
         '../src/core',
         '../src/gpu',
         '../src/image',
         '../src/opts',
         '../src/utils',
+        '../src/utils/win',
       ],
       'sources': [
         'utils.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
@@ -59,16 +58,10 @@
             '../src/utils/mac/SkCreateCGImageRef.cpp',
           ],
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-        },{ #else if 'skia_os not in ["linux", "freebsd", "openbsd", "solaris"]'
-          'include_dirs!': [
-            '../include/utils/unix',
-          ],
-        }],
         [ 'skia_os == "win"', {
           'direct_dependent_settings': {
             'include_dirs': [
-              '../include/utils/win',
+              '../src/utils/win',
             ],
           },
           'sources!': [
@@ -77,14 +70,11 @@
           ],
         },{ #else if 'skia_os != "win"'
           'include_dirs!': [
-            '../include/utils/win',
+            '../src/utils/win',
           ],
           'sources/': [ ['exclude', '_win.(h|cpp)$'],],
           'sources!': [
-            '../include/utils/win/SkAutoCoInitialize.h',
-            '../include/utils/win/SkHRESULT.h',
-            '../include/utils/win/SkIStream.h',
-            '../include/utils/win/SkTScopedComPtr.h',
+            '../src/utils/win/SkAutoCoInitialize.h',
             '../src/utils/win/SkAutoCoInitialize.cpp',
             '../src/utils/win/SkDWrite.h',
             '../src/utils/win/SkDWrite.cpp',
@@ -92,8 +82,11 @@
             '../src/utils/win/SkDWriteFontFileStream.h',
             '../src/utils/win/SkDWriteGeometrySink.cpp',
             '../src/utils/win/SkDWriteGeometrySink.h',
+            '../src/utils/win/SkHRESULT.h',
             '../src/utils/win/SkHRESULT.cpp',
+            '../src/utils/win/SkIStream.h',
             '../src/utils/win/SkIStream.cpp',
+            '../src/utils/win/SkTScopedComPtr.h',
           ],
         }],
       ],
