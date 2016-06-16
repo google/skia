@@ -14,10 +14,12 @@
 
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
+#include "SkDashPathEffect.h"
 #include "SkMetaData.h"
 #include "SkOSFile.h"
 #include "SkRandom.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 
 using namespace sk_app;
 
@@ -371,9 +373,26 @@ void Viewer::drawSlide(SkCanvas* canvas, bool inSplitScreen) {
     canvas->concat(fDefaultMatrix);
     canvas->concat(computeMatrix());
 
-    canvas->getMetaData().setBool(kImageColorXformMetaData, inSplitScreen);
-    fSlides[fCurrentSlide]->draw(canvas);
+    if (inSplitScreen) {
+        sk_sp<SkSurface> offscreenSurface = fWindow->getOffscreenSurface(true);
+        fSlides[fCurrentSlide]->draw(offscreenSurface->getCanvas());
+        sk_sp<SkImage> snapshot = offscreenSurface->makeImageSnapshot();
+        canvas->drawImage(snapshot, 0, 0);
+    } else {
+        fSlides[fCurrentSlide]->draw(canvas);
+    }
+
     canvas->restoreToCount(count);
+
+    if (inSplitScreen) {
+        // Draw split line
+        SkPaint paint;
+        SkScalar intervals[] = {10.0f, 5.0f};
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0.0f));
+        SkRect contentRect = fWindow->getContentRect();
+        SkScalar middleX = (contentRect.fLeft + contentRect.fRight) * 0.5f;
+        canvas->drawLine(middleX, contentRect.fTop, middleX, contentRect.fBottom, paint);
+    }
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {

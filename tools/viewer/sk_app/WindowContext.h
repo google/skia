@@ -44,6 +44,7 @@ public:
     virtual GrBackendContext getBackendContext() = 0;
     GrContext* getGrContext() const { return fContext; }
 
+    sk_sp<SkSurface> createOffscreenSurface(bool sRGB);
     sk_sp<SkSurface> createRenderSurface(sk_sp<GrRenderTarget>, int colorBits);
     void presentRenderSurface(sk_sp<SkSurface> renderSurface, sk_sp<GrRenderTarget> rt,
                               int colorBits);
@@ -58,6 +59,10 @@ protected:
     DisplayParams     fDisplayParams;
     GrPixelConfig     fPixelConfig;
     SkSurfaceProps    fSurfaceProps;
+
+private:
+    sk_sp<SkSurface> createSurface(
+            sk_sp<GrRenderTarget>, int colorBits, bool offscreen, bool forceSRGB);
 };
 
 }   // namespace sk_app

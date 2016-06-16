@@ -15,6 +15,7 @@
 #include "SkJSONCPP.h"
 
 class SkCanvas;
+class SkSurface;
 
 namespace sk_app {
 
@@ -160,6 +161,9 @@ public:
 
     virtual const DisplayParams& getDisplayParams();
     void setDisplayParams(const DisplayParams& params);
+
+    // This is just for the sRGB split screen
+    sk_sp<SkSurface> getOffscreenSurface(bool forceSRGB);
 
 protected:
     Window();
