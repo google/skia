@@ -11,7 +11,7 @@
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
 
-class SkColorSpace : public SkRefCnt {
+class SK_API SkColorSpace : public SkRefCnt {
 public:
 
     /**
