@@ -100,6 +100,7 @@ public:
 
     bool alloc(VkDeviceSize size, VkDeviceSize alignment, uint32_t memoryTypeIndex, 
                GrVkAlloc* alloc) {
+        SkASSERT(size > 0);
         return (*this.*fAllocFunc)(size, alignment, memoryTypeIndex, alloc);
     }
     bool free(const GrVkAlloc& alloc);

@@ -360,6 +360,7 @@ bool GrVkSubHeap::alloc(VkDeviceSize size, GrVkAlloc* alloc) {
 #endif
         }
         fFreeSize -= alignedSize;
+        SkASSERT(alloc->fSize > 0);
 
         return true;
     }
@@ -440,6 +441,28 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
                         uint32_t memoryTypeIndex, GrVkAlloc* alloc) {
     VkDeviceSize alignedSize = align_size(size, alignment);
 
+    // if requested is larger than our subheap allocation, just alloc directly
+    if (alignedSize > fSubHeapSize) {
+        VkMemoryAllocateInfo allocInfo = {
+            VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
+            NULL,                                        // pNext
+            size,                                        // allocationSize
+            memoryTypeIndex,                             // memoryTypeIndex
+        };
+
+        VkResult err = GR_VK_CALL(fGpu->vkInterface(), AllocateMemory(fGpu->device(),
+                                                                      &allocInfo,
+                                                                      nullptr,
+                                                                      &alloc->fMemory));
+        if (VK_SUCCESS != err) {
+            return false;
+        }
+        alloc->fOffset = 0;
+        alloc->fSize = 0;    // hint that this is not a subheap allocation
+        
+        return true;
+    }
+
     // first try to find a subheap that fits our allocation request
     int bestFitIndex = -1;
     VkDeviceSize bestFitSize = 0x7FFFFFFF;
@@ -460,11 +483,19 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
             return true;
         }
         return false;
-    } 
+    }
 
     // need to allocate a new subheap
     SkAutoTDelete<GrVkSubHeap>& subHeap = fSubHeaps.push_back();
     subHeap.reset(new GrVkSubHeap(fGpu, memoryTypeIndex, fSubHeapSize, alignment));
+    // try to recover from failed allocation by only allocating what we need
+    if (subHeap->size() == 0) {
+        VkDeviceSize alignedSize = align_size(size, alignment);
+        subHeap.reset(new GrVkSubHeap(fGpu, memoryTypeIndex, alignedSize, alignment));
+        if (subHeap->size() == 0) {
+            return false;
+        }
+    }
     fAllocSize += fSubHeapSize;
     if (subHeap->alloc(size, alloc)) {
         fUsedSize += alloc->fSize;
@@ -513,6 +544,13 @@ bool GrVkHeap::singleAlloc(VkDeviceSize size, VkDeviceSize alignment,
 }
 
 bool GrVkHeap::free(const GrVkAlloc& alloc) {
+    // a size of 0 means we're using the system heap
+    if (0 == alloc.fSize) {
+        const GrVkInterface* iface = fGpu->vkInterface();
+        GR_VK_CALL(iface, FreeMemory(fGpu->device(), alloc.fMemory, nullptr));
+        return true;
+    }
+
     for (auto i = 0; i < fSubHeaps.count(); ++i) {
         if (fSubHeaps[i]->memory() == alloc.fMemory) {
             fSubHeaps[i]->free(alloc);

@@ -155,6 +155,11 @@ void suballoc_test(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, heap.allocSize() == 128 * 1024 && heap.usedSize() == 40 * 1024);
     heap.free(alloc3);
     REPORTER_ASSERT(reporter, heap.allocSize() == 128 * 1024 && heap.usedSize() == 0 * 1024);
+    // heap should not grow here (allocating more than subheap size)
+    REPORTER_ASSERT(reporter, heap.alloc(128 * 1024, kAlignment, kHeapIndex, &alloc0));
+    REPORTER_ASSERT(reporter, 0 == alloc0.fSize);
+    REPORTER_ASSERT(reporter, heap.allocSize() == 128 * 1024 && heap.usedSize() == 0 * 1024);
+    heap.free(alloc0);
 }
 
 void singlealloc_test(skiatest::Reporter* reporter, GrContext* context) {
