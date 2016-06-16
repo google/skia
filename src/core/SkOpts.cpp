@@ -77,8 +77,10 @@ namespace SkOpts {
 
     decltype(srcover_srgb_srgb) srcover_srgb_srgb = sk_default::srcover_srgb_srgb;
 
-    decltype(color_xform_2Dot2_RGBA_to_8888) color_xform_2Dot2_RGBA_to_8888 =
-            sk_default::color_xform_2Dot2_RGBA_to_8888;
+    decltype(color_xform_RGB1_srgb_to_2dot2)  color_xform_RGB1_srgb_to_2dot2  =
+            sk_default::color_xform_RGB1_srgb_to_2dot2;
+    decltype(color_xform_RGB1_2dot2_to_2dot2) color_xform_RGB1_2dot2_to_2dot2 =
+            sk_default::color_xform_RGB1_2dot2_to_2dot2;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

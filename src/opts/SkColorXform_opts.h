@@ -12,151 +12,236 @@
 
 namespace SK_OPTS_NS {
 
-static uint8_t clamp_float_to_byte(float v) {
-    if (v >= 254.5f) {
-        return 255;
-    } else if (v < 0.5f) {
-        return 0;
-    } else {
-        return (uint8_t) (v + 0.5f);
-    }
-}
+extern const float linear_from_srgb[256] = {
+        0.000000000000000000f, 0.000303526983548838f, 0.000607053967097675f, 0.000910580950646513f,
+        0.001214107934195350f, 0.001517634917744190f, 0.001821161901293030f, 0.002124688884841860f,
+        0.002428215868390700f, 0.002731742851939540f, 0.003034518678424960f, 0.003346535763899160f,
+        0.003676507324047440f, 0.004024717018496310f, 0.004391442037410290f, 0.004776953480693730f,
+        0.005181516702338390f, 0.005605391624202720f, 0.006048833022857060f, 0.006512090792594470f,
+        0.006995410187265390f, 0.007499032043226180f, 0.008023192985384990f, 0.008568125618069310f,
+        0.009134058702220790f, 0.009721217320237850f, 0.010329823029626900f, 0.010960094006488200f,
+        0.011612245179743900f, 0.012286488356915900f, 0.012983032342173000f, 0.013702083047289700f,
+        0.014443843596092500f, 0.015208514422912700f, 0.015996293365509600f, 0.016807375752887400f,
+        0.017641954488384100f, 0.018500220128379700f, 0.019382360956935700f, 0.020288563056652400f,
+        0.021219010376003600f, 0.022173884793387400f, 0.023153366178110400f, 0.024157632448504800f,
+        0.025186859627361600f, 0.026241221894849900f, 0.027320891639074900f, 0.028426039504420800f,
+        0.029556834437808800f, 0.030713443732993600f, 0.031896033073011500f, 0.033104766570885100f,
+        0.034339806808682200f, 0.035601314875020300f, 0.036889450401100000f, 0.038204371595346500f,
+        0.039546235276732800f, 0.040915196906853200f, 0.042311410620809700f, 0.043735029256973500f,
+        0.045186204385675500f, 0.046665086336880100f, 0.048171824226889400f, 0.049706565984127200f,
+        0.051269458374043200f, 0.052860647023180200f, 0.054480276442442400f, 0.056128490049600100f,
+        0.057805430191067200f, 0.059511238162981200f, 0.061246054231617600f, 0.063010017653167700f,
+        0.064803266692905800f, 0.066625938643772900f, 0.068478169844400200f, 0.070360095696595900f,
+        0.072271850682317500f, 0.074213568380149600f, 0.076185381481307900f, 0.078187421805186300f,
+        0.080219820314468300f, 0.082282707129814800f, 0.084376211544148800f, 0.086500462036549800f,
+        0.088655586285772900f, 0.090841711183407700f, 0.093058962846687500f, 0.095307466630964700f,
+        0.097587347141862500f, 0.099898728247113900f, 0.102241733088101000f, 0.104616484091104000f,
+        0.107023102978268000f, 0.109461710778299000f, 0.111932427836906000f, 0.114435373826974000f,
+        0.116970667758511000f, 0.119538427988346000f, 0.122138772229602000f, 0.124771817560950000f,
+        0.127437680435647000f, 0.130136476690364000f, 0.132868321553818000f, 0.135633329655206000f,
+        0.138431615032452000f, 0.141263291140272000f, 0.144128470858058000f, 0.147027266497595000f,
+        0.149959789810609000f, 0.152926151996150000f, 0.155926463707827000f, 0.158960835060880000f,
+        0.162029375639111000f, 0.165132194501668000f, 0.168269400189691000f, 0.171441100732823000f,
+        0.174647403655585000f, 0.177888415983629000f, 0.181164244249860000f, 0.184474994500441000f,
+        0.187820772300678000f, 0.191201682740791000f, 0.194617830441576000f, 0.198069319559949000f,
+        0.201556253794397000f, 0.205078736390317000f, 0.208636870145256000f, 0.212230757414055000f,
+        0.215860500113899000f, 0.219526199729269000f, 0.223227957316809000f, 0.226965873510098000f,
+        0.230740048524349000f, 0.234550582161005000f, 0.238397573812271000f, 0.242281122465555000f,
+        0.246201326707835000f, 0.250158284729953000f, 0.254152094330827000f, 0.258182852921596000f,
+        0.262250657529696000f, 0.266355604802862000f, 0.270497791013066000f, 0.274677312060385000f,
+        0.278894263476810000f, 0.283148740429992000f, 0.287440837726918000f, 0.291770649817536000f,
+        0.296138270798321000f, 0.300543794415777000f, 0.304987314069886000f, 0.309468922817509000f,
+        0.313988713375718000f, 0.318546778125092000f, 0.323143209112951000f, 0.327778098056542000f,
+        0.332451536346179000f, 0.337163615048330000f, 0.341914424908661000f, 0.346704056355030000f,
+        0.351532599500439000f, 0.356400144145944000f, 0.361306779783510000f, 0.366252595598840000f,
+        0.371237680474149000f, 0.376262122990906000f, 0.381326011432530000f, 0.386429433787049000f,
+        0.391572477749723000f, 0.396755230725627000f, 0.401977779832196000f, 0.407240211901737000f,
+        0.412542613483904000f, 0.417885070848138000f, 0.423267669986072000f, 0.428690496613907000f,
+        0.434153636174749000f, 0.439657173840919000f, 0.445201194516228000f, 0.450785782838223000f,
+        0.456411023180405000f, 0.462076999654407000f, 0.467783796112159000f, 0.473531496148010000f,
+        0.479320183100827000f, 0.485149940056070000f, 0.491020849847836000f, 0.496932995060870000f,
+        0.502886458032569000f, 0.508881320854934000f, 0.514917665376521000f, 0.520995573204354000f,
+        0.527115125705813000f, 0.533276404010505000f, 0.539479489012107000f, 0.545724461370187000f,
+        0.552011401512000000f, 0.558340389634268000f, 0.564711505704929000f, 0.571124829464873000f,
+        0.577580440429651000f, 0.584078417891164000f, 0.590618840919337000f, 0.597201788363763000f,
+        0.603827338855338000f, 0.610495570807865000f, 0.617206562419651000f, 0.623960391675076000f,
+        0.630757136346147000f, 0.637596873994033000f, 0.644479681970582000f, 0.651405637419824000f,
+        0.658374817279448000f, 0.665387298282272000f, 0.672443156957688000f, 0.679542469633094000f,
+        0.686685312435314000f, 0.693871761291990000f, 0.701101891932973000f, 0.708375779891687000f,
+        0.715693500506481000f, 0.723055128921969000f, 0.730460740090354000f, 0.737910408772731000f,
+        0.745404209540387000f, 0.752942216776078000f, 0.760524504675292000f, 0.768151147247507000f,
+        0.775822218317423000f, 0.783537791526194000f, 0.791297940332630000f, 0.799102738014409000f,
+        0.806952257669252000f, 0.814846572216101000f, 0.822785754396284000f, 0.830769876774655000f,
+        0.838799011740740000f, 0.846873231509858000f, 0.854992608124234000f, 0.863157213454102000f,
+        0.871367119198797000f, 0.879622396887832000f, 0.887923117881966000f, 0.896269353374266000f,
+        0.904661174391149000f, 0.913098651793419000f, 0.921581856277295000f, 0.930110858375424000f,
+        0.938685728457888000f, 0.947306536733200000f, 0.955973353249286000f, 0.964686247894465000f,
+        0.973445290398413000f, 0.982250550333117000f, 0.991102097113830000f, 1.000000000000000000f,
+};
 
-static void color_xform_2Dot2_RGBA_to_8888_portable(uint32_t* dst, const uint32_t* src, int len,
-                                                    const float matrix[16]) {
-    while (len-- > 0) {
-        float srcFloats[3];
-        srcFloats[0] = (float) ((*src >>  0) & 0xFF);
-        srcFloats[1] = (float) ((*src >>  8) & 0xFF);
-        srcFloats[2] = (float) ((*src >> 16) & 0xFF);
-
-        // Convert to linear.
-        // TODO (msarett):
-        // We should use X^2.2 here instead of X^2.  What is the impact on correctness?
-        // We should be able to get closer to 2.2 at a small performance cost.
-        srcFloats[0] = srcFloats[0] * srcFloats[0];
-        srcFloats[1] = srcFloats[1] * srcFloats[1];
-        srcFloats[2] = srcFloats[2] * srcFloats[2];
-
-        // Convert to dst gamut.
-        float dstFloats[3];
-        // TODO (msarett): matrix[12], matrix[13], and matrix[14] are almost always zero.
-        // Should we have another optimized path that avoids the extra addition when they
-        // are zero?
-        dstFloats[0] = srcFloats[0] * matrix[0] + srcFloats[1] * matrix[4] +
-                       srcFloats[2] * matrix[8] + matrix[12];
-        dstFloats[1] = srcFloats[0] * matrix[1] + srcFloats[1] * matrix[5] +
-                       srcFloats[2] * matrix[9] + matrix[13];
-        dstFloats[2] = srcFloats[0] * matrix[2] + srcFloats[1] * matrix[6] +
-                       srcFloats[2] * matrix[10] + matrix[14];
-
-        // Convert to dst gamma.
-        // TODO (msarett):
-        // We should use X^(1/2.2) here instead of X^(1/2).  What is the impact on correctness?
-        // We should be able to get closer to (1/2.2) at a small performance cost.
-        dstFloats[0] = sqrtf(dstFloats[0]);
-        dstFloats[1] = sqrtf(dstFloats[1]);
-        dstFloats[2] = sqrtf(dstFloats[2]);
-
-        *dst = SkPackARGB32NoCheck(((*src >> 24) & 0xFF),
-                                   clamp_float_to_byte(dstFloats[0]),
-                                   clamp_float_to_byte(dstFloats[1]),
-                                   clamp_float_to_byte(dstFloats[2]));
-
-        dst++;
-        src++;
-    }
-}
+extern const float linear_from_2dot2[256] = {
+        0.000000000000000000f, 0.000005077051900662f, 0.000023328004666099f, 0.000056921765712193f,
+        0.000107187362341244f, 0.000175123977503027f, 0.000261543754548491f, 0.000367136269815943f,
+        0.000492503787191433f, 0.000638182842167022f, 0.000804658499513058f, 0.000992374304074325f,
+        0.001201739522438400f, 0.001433134589671860f, 0.001686915316789280f, 0.001963416213396470f,
+        0.002262953160706430f, 0.002585825596234170f, 0.002932318323938360f, 0.003302703032003640f,
+        0.003697239578900130f, 0.004116177093282750f, 0.004559754922526020f, 0.005028203456855540f,
+        0.005521744850239660f, 0.006040593654849810f, 0.006584957382581690f, 0.007155037004573030f,
+        0.007751027397660610f, 0.008373117745148580f, 0.009021491898012130f, 0.009696328701658230f,
+        0.010397802292555300f, 0.011126082368383200f, 0.011881334434813700f, 0.012663720031582100f,
+        0.013473396940142600f, 0.014310519374884100f, 0.015175238159625200f, 0.016067700890886900f,
+        0.016988052089250000f, 0.017936433339950200f, 0.018912983423721500f, 0.019917838438785700f,
+        0.020951131914781100f, 0.022012994919336500f, 0.023103556157921400f, 0.024222942067534200f,
+        0.025371276904734600f, 0.026548682828472900f, 0.027755279978126000f, 0.028991186547107800f,
+        0.030256518852388700f, 0.031551391400226400f, 0.032875916948383800f, 0.034230206565082000f,
+        0.035614369684918800f, 0.037028514161960200f, 0.038472746320194600f, 0.039947171001525600f,
+        0.041451891611462500f, 0.042987010162657100f, 0.044552627316421400f, 0.046148842422351000f,
+        0.047775753556170600f, 0.049433457555908000f, 0.051122050056493400f, 0.052841625522879000f,
+        0.054592277281760300f, 0.056374097551979800f, 0.058187177473685400f, 0.060031607136313200f,
+        0.061907475605455800f, 0.063814870948677200f, 0.065753880260330100f, 0.067724589685424300f,
+        0.069727084442598800f, 0.071761448846239100f, 0.073827766327784600f, 0.075926119456264800f,
+        0.078056589958101900f, 0.080219258736215100f, 0.082414205888459200f, 0.084641510725429500f,
+        0.086901251787660300f, 0.089193506862247800f, 0.091518352998919500f, 0.093875866525577800f,
+        0.096266123063339700f, 0.098689197541094500f, 0.101145164209600000f, 0.103634096655137000f,
+        0.106156067812744000f, 0.108711149979039000f, 0.111299414824660000f, 0.113920933406333000f,
+        0.116575776178572000f, 0.119264013005047000f, 0.121985713169619000f, 0.124740945387051000f,
+        0.127529777813422000f, 0.130352278056244000f, 0.133208513184300000f, 0.136098549737202000f,
+        0.139022453734703000f, 0.141980290685736000f, 0.144972125597231000f, 0.147998022982685000f,
+        0.151058046870511000f, 0.154152260812165000f, 0.157280727890073000f, 0.160443510725344000f,
+        0.163640671485290000f, 0.166872271890766000f, 0.170138373223312000f, 0.173439036332135000f,
+        0.176774321640903000f, 0.180144289154390000f, 0.183548998464951000f, 0.186988508758844000f,
+        0.190462878822409000f, 0.193972167048093000f, 0.197516431440340000f, 0.201095729621346000f,
+        0.204710118836677000f, 0.208359655960767000f, 0.212044397502288000f, 0.215764399609395000f,
+        0.219519718074868000f, 0.223310408341127000f, 0.227136525505149000f, 0.230998124323267000f,
+        0.234895259215880000f, 0.238827984272048000f, 0.242796353254002000f, 0.246800419601550000f,
+        0.250840236436400000f, 0.254915856566385000f, 0.259027332489606000f, 0.263174716398492000f,
+        0.267358060183772000f, 0.271577415438375000f, 0.275832833461245000f, 0.280124365261085000f,
+        0.284452061560024000f, 0.288815972797219000f, 0.293216149132375000f, 0.297652640449211000f,
+        0.302125496358853000f, 0.306634766203158000f, 0.311180499057984000f, 0.315762743736397000f,
+        0.320381548791810000f, 0.325036962521076000f, 0.329729032967515000f, 0.334457807923889000f,
+        0.339223334935327000f, 0.344025661302187000f, 0.348864834082879000f, 0.353740900096629000f,
+        0.358653905926199000f, 0.363603897920553000f, 0.368590922197487000f, 0.373615024646202000f,
+        0.378676250929840000f, 0.383774646487975000f, 0.388910256539059000f, 0.394083126082829000f,
+        0.399293299902674000f, 0.404540822567962000f, 0.409825738436323000f, 0.415148091655907000f,
+        0.420507926167587000f, 0.425905285707146000f, 0.431340213807410000f, 0.436812753800359000f,
+        0.442322948819202000f, 0.447870841800410000f, 0.453456475485731000f, 0.459079892424160000f,
+        0.464741134973889000f, 0.470440245304218000f, 0.476177265397440000f, 0.481952237050698000f,
+        0.487765201877811000f, 0.493616201311074000f, 0.499505276603030000f, 0.505432468828216000f,
+        0.511397818884880000f, 0.517401367496673000f, 0.523443155214325000f, 0.529523222417277000f,
+        0.535641609315311000f, 0.541798355950137000f, 0.547993502196972000f, 0.554227087766085000f,
+        0.560499152204328000f, 0.566809734896638000f, 0.573158875067523000f, 0.579546611782525000f,
+        0.585972983949661000f, 0.592438030320847000f, 0.598941789493296000f, 0.605484299910907000f,
+        0.612065599865624000f, 0.618685727498780000f, 0.625344720802427000f, 0.632042617620641000f,
+        0.638779455650817000f, 0.645555272444935000f, 0.652370105410821000f, 0.659223991813387000f,
+        0.666116968775851000f, 0.673049073280942000f, 0.680020342172095000f, 0.687030812154625000f,
+        0.694080519796882000f, 0.701169501531402000f, 0.708297793656032000f, 0.715465432335048000f,
+        0.722672453600255000f, 0.729918893352071000f, 0.737204787360605000f, 0.744530171266715000f,
+        0.751895080583051000f, 0.759299550695091000f, 0.766743616862161000f, 0.774227314218442000f,
+        0.781750677773962000f, 0.789313742415586000f, 0.796916542907978000f, 0.804559113894567000f,
+        0.812241489898490000f, 0.819963705323528000f, 0.827725794455034000f, 0.835527791460841000f,
+        0.843369730392169000f, 0.851251645184515000f, 0.859173569658532000f, 0.867135537520905000f,
+        0.875137582365205000f, 0.883179737672745000f, 0.891262036813419000f, 0.899384513046529000f,
+        0.907547199521614000f, 0.915750129279253000f, 0.923993335251873000f, 0.932276850264543000f,
+        0.940600707035753000f, 0.948964938178195000f, 0.957369576199527000f, 0.965814653503130000f,
+        0.974300202388861000f, 0.982826255053791000f, 0.991392843592940000f, 1.000000000000000000f,
+};
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
-static void color_xform_2Dot2_RGBA_to_8888(uint32_t* dst, const uint32_t* src, int len,
-                                           const float matrix[16]) {
+// x^(29/64) is a very good approximation of the true value, x^(1/2.2).
+static __m128 linear_to_2dot2(__m128 x) {
+    // x^(-1/2)
+    __m128 x2  = _mm_rsqrt_ps(x);
+
+    // x^(-1/32)
+    __m128 x32 = _mm_rsqrt_ps(_mm_rsqrt_ps(_mm_rsqrt_ps(_mm_rsqrt_ps(x2))));
+
+    // x^(+1/64)
+    __m128 x64 = _mm_rsqrt_ps(x32);
+
+    // x^(+29/64) = x^(+1/2) * x^(-1/32) * x^(-1/64)
+    // Note that we also scale to the 0-255 range.
+    // These terms can be combined more minimally with 3 muls and 1 reciprocal.  However, this
+    // is faster, because it allows us to start the muls in parallel with the rsqrts.
+    __m128 scale = _mm_set1_ps(255.0f);
+    return _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(scale, _mm_rcp_ps(x2)), x32), _mm_rcp_ps(x64));
+}
+
+static __m128 clamp_0_to_255(__m128 x) {
+    // The order of the arguments is important here.  We want to make sure that NaN
+    // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
+    return _mm_min_ps(_mm_max_ps(x, _mm_setzero_ps()), _mm_set1_ps(255.0f));
+}
+
+template <const float (&linear_from_curve)[256]>
+static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
+                             const float matrix[16]) {
     // Load transformation matrix.
     __m128 rXgXbX = _mm_loadu_ps(&matrix[0]);
     __m128 rYgYbY = _mm_loadu_ps(&matrix[4]);
     __m128 rZgZbZ = _mm_loadu_ps(&matrix[8]);
-    __m128 rQgQbQ = _mm_loadu_ps(&matrix[12]);
 
     while (len >= 4) {
-        // Load 4 pixels and convert them to floats.
-        __m128i rgba = _mm_loadu_si128((const __m128i*) src);
-        __m128i byteMask = _mm_set1_epi32(0xFF);
-        __m128 reds   = _mm_cvtepi32_ps(_mm_and_si128(               rgba,      byteMask));
-        __m128 greens = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(rgba,  8), byteMask));
-        __m128 blues  = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(rgba, 16), byteMask));
-
-        // Convert to linear.
-        // FIXME (msarett):
-        // Should we be more accurate?
-        reds   = _mm_mul_ps(reds, reds);
-        greens = _mm_mul_ps(greens, greens);
-        blues  = _mm_mul_ps(blues, blues);
+        // Convert to linear.  The look-up table has perfect accuracy.
+        __m128 reds   = _mm_setr_ps(linear_from_curve[(src[0] >>  0) & 0xFF],
+                                    linear_from_curve[(src[1] >>  0) & 0xFF],
+                                    linear_from_curve[(src[2] >>  0) & 0xFF],
+                                    linear_from_curve[(src[3] >>  0) & 0xFF]);
+        __m128 greens = _mm_setr_ps(linear_from_curve[(src[0] >>  8) & 0xFF],
+                                    linear_from_curve[(src[1] >>  8) & 0xFF],
+                                    linear_from_curve[(src[2] >>  8) & 0xFF],
+                                    linear_from_curve[(src[3] >>  8) & 0xFF]);
+        __m128 blues  = _mm_setr_ps(linear_from_curve[(src[0] >> 16) & 0xFF],
+                                    linear_from_curve[(src[1] >> 16) & 0xFF],
+                                    linear_from_curve[(src[2] >> 16) & 0xFF],
+                                    linear_from_curve[(src[3] >> 16) & 0xFF]);
 
         // Apply the transformation matrix to dst gamut.
-        // FIXME (msarett):
-        // rQ, gQ, and bQ are almost always zero.  Can we save a couple instructions?
-
-        // Splat rX, rY, rZ, and rQ each across a register.
+        // Splat rX, rY, and rZ each across a register.
         __m128 rX = _mm_shuffle_ps(rXgXbX, rXgXbX, 0x00);
         __m128 rY = _mm_shuffle_ps(rYgYbY, rYgYbY, 0x00);
         __m128 rZ = _mm_shuffle_ps(rZgZbZ, rZgZbZ, 0x00);
-        __m128 rQ = _mm_shuffle_ps(rQgQbQ, rQgQbQ, 0x00);
 
-        // dstReds = rX * reds + rY * greens + rZ * blues + rQ
+        // dstReds = rX * reds + rY * greens + rZ * blues
         __m128 dstReds =                     _mm_mul_ps(reds,   rX);
                dstReds = _mm_add_ps(dstReds, _mm_mul_ps(greens, rY));
                dstReds = _mm_add_ps(dstReds, _mm_mul_ps(blues,  rZ));
-               dstReds = _mm_add_ps(dstReds,                    rQ);
 
-        // Splat gX, gY, gZ, and gQ each across a register.
+        // Splat gX, gY, and gZ each across a register.
         __m128 gX = _mm_shuffle_ps(rXgXbX, rXgXbX, 0x55);
         __m128 gY = _mm_shuffle_ps(rYgYbY, rYgYbY, 0x55);
         __m128 gZ = _mm_shuffle_ps(rZgZbZ, rZgZbZ, 0x55);
-        __m128 gQ = _mm_shuffle_ps(rQgQbQ, rQgQbQ, 0x55);
 
-        // dstGreens = gX * reds + gY * greens + gZ * blues + gQ
+        // dstGreens = gX * reds + gY * greens + gZ * blues
         __m128 dstGreens =                       _mm_mul_ps(reds,   gX);
                dstGreens = _mm_add_ps(dstGreens, _mm_mul_ps(greens, gY));
                dstGreens = _mm_add_ps(dstGreens, _mm_mul_ps(blues,  gZ));
-               dstGreens = _mm_add_ps(dstGreens,                    gQ);
 
-        // Splat bX, bY, bZ, and bQ each across a register.
+        // Splat bX, bY, and bZ each across a register.
         __m128 bX = _mm_shuffle_ps(rXgXbX, rXgXbX, 0xAA);
         __m128 bY = _mm_shuffle_ps(rYgYbY, rYgYbY, 0xAA);
         __m128 bZ = _mm_shuffle_ps(rZgZbZ, rZgZbZ, 0xAA);
-        __m128 bQ = _mm_shuffle_ps(rQgQbQ, rQgQbQ, 0xAA);
 
-        // dstBlues = bX * reds + bY * greens + bZ * blues + bQ
+        // dstBlues = bX * reds + bY * greens + bZ * blues
         __m128 dstBlues =                      _mm_mul_ps(reds,   bX);
                dstBlues = _mm_add_ps(dstBlues, _mm_mul_ps(greens, bY));
                dstBlues = _mm_add_ps(dstBlues, _mm_mul_ps(blues,  bZ));
-               dstBlues = _mm_add_ps(dstBlues,                    bQ);
 
         // Convert to dst gamma.
-        // Note that the reciprocal of the reciprocal sqrt, is just a fast sqrt.
-        // FIXME (msarett):
-        // Should we be more accurate?
-        dstReds   = _mm_rcp_ps(_mm_rsqrt_ps(dstReds));
-        dstGreens = _mm_rcp_ps(_mm_rsqrt_ps(dstGreens));
-        dstBlues  = _mm_rcp_ps(_mm_rsqrt_ps(dstBlues));
+        dstReds   = linear_to_2dot2(dstReds);
+        dstGreens = linear_to_2dot2(dstGreens);
+        dstBlues  = linear_to_2dot2(dstBlues);
 
-        // Clamp floats to 0-255 range.
-        dstReds   = _mm_max_ps(_mm_setzero_ps(), _mm_min_ps(dstReds,   _mm_set1_ps(255.0f)));
-        dstGreens = _mm_max_ps(_mm_setzero_ps(), _mm_min_ps(dstGreens, _mm_set1_ps(255.0f)));
-        dstBlues  = _mm_max_ps(_mm_setzero_ps(), _mm_min_ps(dstBlues,  _mm_set1_ps(255.0f)));
+        // Clamp floats.
+        dstReds   = clamp_0_to_255(dstReds);
+        dstGreens = clamp_0_to_255(dstGreens);
+        dstBlues  = clamp_0_to_255(dstBlues);
 
         // Convert to bytes and store to memory.
-        rgba = _mm_and_si128(_mm_set1_epi32(0xFF000000), rgba);
-#ifdef SK_PMCOLOR_IS_RGBA
+        __m128i rgba = _mm_set1_epi32(0xFF000000);
         rgba = _mm_or_si128(rgba,                _mm_cvtps_epi32(dstReds)       );
         rgba = _mm_or_si128(rgba, _mm_slli_epi32(_mm_cvtps_epi32(dstGreens),  8));
         rgba = _mm_or_si128(rgba, _mm_slli_epi32(_mm_cvtps_epi32(dstBlues),  16));
-#else
-        rgba = _mm_or_si128(rgba,                _mm_cvtps_epi32(dstBlues)      );
-        rgba = _mm_or_si128(rgba, _mm_slli_epi32(_mm_cvtps_epi32(dstGreens),  8));
-        rgba = _mm_or_si128(rgba, _mm_slli_epi32(_mm_cvtps_epi32(dstReds),   16));
-#endif
         _mm_storeu_si128((__m128i*) dst, rgba);
 
         dst += 4;
@@ -164,17 +249,95 @@ static void color_xform_2Dot2_RGBA_to_8888(uint32_t* dst, const uint32_t* src, i
         len -= 4;
     }
 
-    color_xform_2Dot2_RGBA_to_8888_portable(dst, src, len, matrix);
+    while (len > 0) {
+        // Splat the red, green, and blue components.
+        __m128 r = _mm_set1_ps(linear_from_curve[(src[0] >>  0) & 0xFF]),
+               g = _mm_set1_ps(linear_from_curve[(src[0] >>  8) & 0xFF]),
+               b = _mm_set1_ps(linear_from_curve[(src[0] >> 16) & 0xFF]);
+
+        // Apply the transformation matrix to dst gamut.
+        __m128 dstPixel =                      _mm_mul_ps(r, rXgXbX);
+               dstPixel = _mm_add_ps(dstPixel, _mm_mul_ps(g, rYgYbY));
+               dstPixel = _mm_add_ps(dstPixel, _mm_mul_ps(b, rZgZbZ));
+
+        // Convert to dst gamma.
+        dstPixel = linear_to_2dot2(dstPixel);
+
+        // Clamp floats to 0-255 range.
+        dstPixel = clamp_0_to_255(dstPixel);
+
+        // Convert to bytes and store to memory.
+        __m128i dstInts = _mm_cvtps_epi32(dstPixel);
+        __m128i dstBytes = _mm_packus_epi16(_mm_packus_epi16(dstInts, dstInts), dstInts);
+        dstBytes = _mm_or_si128(_mm_set1_epi32(0xFF000000), dstBytes);
+        _mm_store_ss((float*) dst, _mm_castsi128_ps(dstBytes));
+
+        dst += 1;
+        src += 1;
+        len -= 1;
+    }
 }
 
 #else
 
-static void color_xform_2Dot2_RGBA_to_8888(uint32_t* dst, const uint32_t* src, int len,
-                                           const float matrix[16]) {
-    color_xform_2Dot2_RGBA_to_8888_portable(dst, src, len, matrix);
+static uint8_t clamp_float_to_byte(float v) {
+    // The ordering of the logic is a little strange here in order
+    // to make sure we convert NaNs to 0.
+    if (v >= 254.5f) {
+        return 255;
+    } else if (v >= 0.5f) {
+        return (uint8_t) (v + 0.5f);
+    } else {
+        return 0;
+    }
+}
+
+template <const float (&linear_from_curve)[256]>
+static void color_xform_RGB1(uint32_t* dst, const uint32_t* src, int len,
+                             const float matrix[16]) {
+    while (len-- > 0) {
+        // Convert to linear.
+        float srcFloats[3];
+        srcFloats[0] = linear_from_curve[(*src >>  0) & 0xFF];
+        srcFloats[1] = linear_from_curve[(*src >>  8) & 0xFF];
+        srcFloats[2] = linear_from_curve[(*src >> 16) & 0xFF];
+
+        // Convert to dst gamut.
+        float dstFloats[3];
+        dstFloats[0] = srcFloats[0] * matrix[0] + srcFloats[1] * matrix[4] +
+                       srcFloats[2] * matrix[8];
+        dstFloats[1] = srcFloats[0] * matrix[1] + srcFloats[1] * matrix[5] +
+                       srcFloats[2] * matrix[9];
+        dstFloats[2] = srcFloats[0] * matrix[2] + srcFloats[1] * matrix[6] +
+                       srcFloats[2] * matrix[10];
+
+        // Convert to dst gamma.
+        // Note: pow is really, really slow.  We will suffer when SSE2 is not supported.
+        dstFloats[0] = powf(dstFloats[0], (1/2.2f)) * 255.0f;
+        dstFloats[1] = powf(dstFloats[1], (1/2.2f)) * 255.0f;
+        dstFloats[2] = powf(dstFloats[2], (1/2.2f)) * 255.0f;
+
+        *dst = (0xFF                              << 24) |
+               (clamp_float_to_byte(dstFloats[2]) << 16) |
+               (clamp_float_to_byte(dstFloats[1]) <<  8) |
+               (clamp_float_to_byte(dstFloats[0]) <<  0);
+
+        dst++;
+        src++;
+    }
 }
 
 #endif
+
+static void color_xform_RGB1_srgb_to_2dot2(uint32_t* dst, const uint32_t* src, int len,
+                                           const float matrix[16]) {
+    color_xform_RGB1<linear_from_srgb>(dst, src, len, matrix);
+}
+
+static void color_xform_RGB1_2dot2_to_2dot2(uint32_t* dst, const uint32_t* src, int len,
+                                           const float matrix[16]) {
+    color_xform_RGB1<linear_from_2dot2>(dst, src, len, matrix);
+}
 
 }
 

@@ -26,23 +26,36 @@ public:
 
     /**
      *  Apply the color conversion to a src buffer, storing the output in the dst buffer.
-     *  The src is stored in RGBA_8888 and the dst is stored in 8888 platform format.
-     *  The output is not premultiplied.
+     *  The src is opaque and stored in RGBA_8888, and the dst is also opaque and stored
+     *  in 8888 platform format.
      */
-    virtual void xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const = 0;
+    virtual void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const = 0;
 
     virtual ~SkColorSpaceXform() {}
 };
 
-class Sk2Dot2Xform : public SkColorSpaceXform {
+class SkSRGBTo2Dot2Xform : public SkColorSpaceXform {
 public:
 
-    void xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
+    void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
 
 private:
-    Sk2Dot2Xform(const SkMatrix44& srcToDst);
+    SkSRGBTo2Dot2Xform(const SkMatrix44& srcToDst);
 
-    float fSrcToDst[16];
+    float fSrcToDst[12];
+
+    friend class SkColorSpaceXform;
+};
+
+class Sk2Dot2To2Dot2Xform : public SkColorSpaceXform {
+public:
+
+    void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
+
+private:
+    Sk2Dot2To2Dot2Xform(const SkMatrix44& srcToDst);
+
+    float fSrcToDst[12];
 
     friend class SkColorSpaceXform;
 };
@@ -53,7 +66,7 @@ private:
 class SkDefaultXform : public SkColorSpaceXform {
 public:
 
-    void xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
+    void xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const override;
 
 private:
     SkDefaultXform(const sk_sp<SkGammas>& srcGammas, const SkMatrix44& srcToDst,

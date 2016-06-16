@@ -60,7 +60,7 @@ void ColorCodecBench::decodeAndXform() {
         codec->getScanlines(fSrc.get(), 1, 0);
         SkASSERT(1 == rows);
 
-        xform->xform_RGBA_8888((uint32_t*) dst, (uint32_t*) fSrc.get(), fInfo.width());
+        xform->xform_RGB1_8888((uint32_t*) dst, (uint32_t*) fSrc.get(), fInfo.width());
         dst = SkTAddOffset<void>(dst, fInfo.minRowBytes());
     }
 }
@@ -115,7 +115,7 @@ void ColorCodecBench::xformOnly() {
     void* src = fSrc.get();
     for (int y = 0; y < fInfo.height(); y++) {
         // Transform in place
-        xform->xform_RGBA_8888((uint32_t*) dst, (uint32_t*) src, fInfo.width());
+        xform->xform_RGB1_8888((uint32_t*) dst, (uint32_t*) src, fInfo.width());
         dst = SkTAddOffset<void>(dst, fInfo.minRowBytes());
         src = SkTAddOffset<void>(src, fInfo.minRowBytes());
     }

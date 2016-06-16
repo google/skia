@@ -901,7 +901,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
             uint32_t* row = (uint32_t*) bitmap.getPixels();
             for (int y = 0; y < info.height(); y++) {
-                xform->xform_RGBA_8888(row, row, info.width());
+                xform->xform_RGB1_8888(row, row, info.width());
                 row = SkTAddOffset<uint32_t>(row, bitmap.rowBytes());
             }
 

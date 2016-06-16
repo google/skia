@@ -69,10 +69,11 @@ namespace SkOpts {
     // If nsrc < ndst, we loop over src to create a pattern.
     extern void (*srcover_srgb_srgb)(uint32_t* dst, const uint32_t* src, int ndst, int nsrc);
 
-    // Color xform RGBA input into SkPMColor ordered 8888 pixels.  Does not premultiply, and
-    // assumes src and dst gamma curves are both 2.2f exponentials.
-    extern void (*color_xform_2Dot2_RGBA_to_8888)(uint32_t* dst, const uint32_t* src, int len,
-                                                  const float srcToDstMatrix[16]);
+    // Color xform RGB1 pixels.  Does not change byte ordering.
+    extern void (*color_xform_RGB1_srgb_to_2dot2) (uint32_t* dst, const uint32_t* src, int len,
+                                                   const float srcToDstMatrix[16]);
+    extern void (*color_xform_RGB1_2dot2_to_2dot2)(uint32_t* dst, const uint32_t* src, int len,
+                                                   const float srcToDstMatrix[16]);
 }
 
 #endif//SkOpts_DEFINED

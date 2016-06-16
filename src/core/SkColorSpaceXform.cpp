@@ -37,10 +37,16 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
         return nullptr;
     }
 
-    if (SkColorSpace::k2Dot2Curve_GammaNamed == srcSpace->gammaNamed() &&
-        SkColorSpace::k2Dot2Curve_GammaNamed == dstSpace->gammaNamed())
+    if (SkColorSpace::k2Dot2Curve_GammaNamed == dstSpace->gammaNamed() &&
+        0.0f == srcToDst.getFloat(3, 0) &&
+        0.0f == srcToDst.getFloat(3, 1) &&
+        0.0f == srcToDst.getFloat(3, 2))
     {
-        return std::unique_ptr<SkColorSpaceXform>(new Sk2Dot2Xform(srcToDst));
+        if (SkColorSpace::kSRGB_GammaNamed == srcSpace->gammaNamed()) {
+            return std::unique_ptr<SkColorSpaceXform>(new SkSRGBTo2Dot2Xform(srcToDst));
+        } else if (SkColorSpace::k2Dot2Curve_GammaNamed == srcSpace->gammaNamed()) {
+            return std::unique_ptr<SkColorSpaceXform>(new Sk2Dot2To2Dot2Xform(srcToDst));
+        }
     }
 
     return std::unique_ptr<SkColorSpaceXform>(
@@ -49,33 +55,59 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(const sk_sp<SkColorSpa
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sk2Dot2Xform::Sk2Dot2Xform(const SkMatrix44& srcToDst)
-{
-    // Build row major 4x4 matrix:
+static void build_src_to_dst(float srcToDstArray[12], const SkMatrix44& srcToDstMatrix) {
+    // Build the following row major matrix:
     //   rX gX bX 0
     //   rY gY bY 0
     //   rZ gZ bZ 0
-    //   rQ gQ bQ 0
-    fSrcToDst[0] = srcToDst.getFloat(0, 0);
-    fSrcToDst[1] = srcToDst.getFloat(0, 1);
-    fSrcToDst[2] = srcToDst.getFloat(0, 2);
-    fSrcToDst[3] = 0.0f;
-    fSrcToDst[4] = srcToDst.getFloat(1, 0);
-    fSrcToDst[5] = srcToDst.getFloat(1, 1);
-    fSrcToDst[6] = srcToDst.getFloat(1, 2);
-    fSrcToDst[7] = 0.0f;
-    fSrcToDst[8] = srcToDst.getFloat(2, 0);
-    fSrcToDst[9] = srcToDst.getFloat(2, 1);
-    fSrcToDst[10] = srcToDst.getFloat(2, 2);
-    fSrcToDst[11] = 0.0f;
-    fSrcToDst[12] = srcToDst.getFloat(3, 0);
-    fSrcToDst[13] = srcToDst.getFloat(3, 1);
-    fSrcToDst[14] = srcToDst.getFloat(3, 2);
-    fSrcToDst[15] = 0.0f;
+    // Swap R and B if necessary to make sure that we output SkPMColor order.
+#ifdef SK_PMCOLOR_IS_BGRA
+    srcToDstArray[0] = srcToDstMatrix.getFloat(0, 2);
+    srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
+    srcToDstArray[2] = srcToDstMatrix.getFloat(0, 0);
+    srcToDstArray[3] = 0.0f;
+    srcToDstArray[4] = srcToDstMatrix.getFloat(1, 2);
+    srcToDstArray[5] = srcToDstMatrix.getFloat(1, 1);
+    srcToDstArray[6] = srcToDstMatrix.getFloat(1, 0);
+    srcToDstArray[7] = 0.0f;
+    srcToDstArray[8] = srcToDstMatrix.getFloat(2, 2);
+    srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
+    srcToDstArray[10] = srcToDstMatrix.getFloat(2, 0);
+    srcToDstArray[11] = 0.0f;
+#else
+    srcToDstArray[0] = srcToDstMatrix.getFloat(0, 0);
+    srcToDstArray[1] = srcToDstMatrix.getFloat(0, 1);
+    srcToDstArray[2] = srcToDstMatrix.getFloat(0, 2);
+    srcToDstArray[3] = 0.0f;
+    srcToDstArray[4] = srcToDstMatrix.getFloat(1, 0);
+    srcToDstArray[5] = srcToDstMatrix.getFloat(1, 1);
+    srcToDstArray[6] = srcToDstMatrix.getFloat(1, 2);
+    srcToDstArray[7] = 0.0f;
+    srcToDstArray[8] = srcToDstMatrix.getFloat(2, 0);
+    srcToDstArray[9] = srcToDstMatrix.getFloat(2, 1);
+    srcToDstArray[10] = srcToDstMatrix.getFloat(2, 2);
+    srcToDstArray[11] = 0.0f;
+#endif
 }
 
-void Sk2Dot2Xform::xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
-    SkOpts::color_xform_2Dot2_RGBA_to_8888(dst, src, len, fSrcToDst);
+SkSRGBTo2Dot2Xform::SkSRGBTo2Dot2Xform(const SkMatrix44& srcToDst)
+{
+    build_src_to_dst(fSrcToDst, srcToDst);
+}
+
+void SkSRGBTo2Dot2Xform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
+    SkOpts::color_xform_RGB1_srgb_to_2dot2(dst, src, len, fSrcToDst);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+Sk2Dot2To2Dot2Xform::Sk2Dot2To2Dot2Xform(const SkMatrix44& srcToDst)
+{
+    build_src_to_dst(fSrcToDst, srcToDst);
+}
+
+void Sk2Dot2To2Dot2Xform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
+    SkOpts::color_xform_RGB1_2dot2_to_2dot2(dst, src, len, fSrcToDst);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,13 +118,15 @@ static inline float byte_to_float(uint8_t v) {
 
 // Expand range from 0-1 to 0-255, then convert.
 static inline uint8_t clamp_normalized_float_to_byte(float v) {
+    // The ordering of the logic is a little strange here in order
+    // to make sure we convert NaNs to 0.
     v = v * 255.0f;
     if (v >= 254.5f) {
         return 255;
-    } else if (v < 0.5f) {
-        return 0;
-    } else {
+    } else if (v >= 0.5f) {
         return (uint8_t) (v + 0.5f);
+    } else {
+        return 0;
     }
 }
 
@@ -142,7 +176,7 @@ SkDefaultXform::SkDefaultXform(const sk_sp<SkGammas>& srcGammas, const SkMatrix4
     , fDstGammas(dstGammas)
 {}
 
-void SkDefaultXform::xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
+void SkDefaultXform::xform_RGB1_8888(uint32_t* dst, const uint32_t* src, uint32_t len) const {
     while (len-- > 0) {
         // Convert to linear.
         // FIXME (msarett):

@@ -11,6 +11,7 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkBlitRow_opts.h"
 #include "SkBlend_opts.h"
+#include "SkColorXform_opts.h"
 
 #ifndef SK_SUPPORT_LEGACY_X86_BLITS
 
@@ -228,5 +229,8 @@ namespace SkOpts {
         blit_mask_d32_a8 = sk_sse41_new::blit_mask_d32_a8;
     #endif
         blit_row_s32a_opaque = sk_sse41::blit_row_s32a_opaque;
+
+        color_xform_RGB1_srgb_to_2dot2  = sk_sse41::color_xform_RGB1_srgb_to_2dot2;
+        color_xform_RGB1_2dot2_to_2dot2 = sk_sse41::color_xform_RGB1_2dot2_to_2dot2;
     }
 }
