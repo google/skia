@@ -26,7 +26,7 @@ struct Config {
     Benchmark::Backend backend;
     SkColorType color;
     SkAlphaType alpha;
-    SkColorProfileType profile;
+    sk_sp<SkColorSpace> colorSpace;
     int samples;
 #if SK_SUPPORT_GPU
     sk_gpu_test::GrContextFactory::ContextType ctxType;

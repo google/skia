@@ -379,12 +379,14 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline bool SkColorAndProfileAreGammaCorrect(SkColorType ct, SkColorProfileType pt) {
-    return kSRGB_SkColorProfileType == pt || kRGBA_F16_SkColorType == ct;
+static inline bool SkColorAndColorSpaceAreGammaCorrect(SkColorType ct, SkColorSpace* cs) {
+    // Anything with a color-space attached is gamma-correct, as is F16.
+    // To get legacy behavior, you need to ask for non-F16, with a nullptr color space.
+    return (cs != nullptr) || kRGBA_F16_SkColorType == ct;
 }
 
 static inline bool SkImageInfoIsGammaCorrect(const SkImageInfo& info) {
-    return SkColorAndProfileAreGammaCorrect(info.colorType(), info.profileType());
+    return SkColorAndColorSpaceAreGammaCorrect(info.colorType(), info.colorSpace());
 }
 
 #endif

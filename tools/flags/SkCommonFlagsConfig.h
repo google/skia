@@ -53,14 +53,14 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     typedef sk_gpu_test::GrContextFactory::ContextType ContextType;
     SkCommandLineConfigGpu(const SkString& tag, const SkTArray<SkString>& viaParts,
                            ContextType contextType, bool useNVPR, bool useDIText, int samples,
-                           SkColorType colorType, SkColorProfileType profileType);
+                           SkColorType colorType, sk_sp<SkColorSpace> colorSpace);
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
     ContextType getContextType() const { return fContextType; }
     bool getUseNVPR() const { return fUseNVPR; }
     bool getUseDIText() const { return fUseDIText; }
     int getSamples() const { return fSamples; }
     SkColorType getColorType() const { return fColorType; }
-    SkColorProfileType getProfileType() const { return fProfileType; }
+    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
 
   private:
     ContextType fContextType;
@@ -68,7 +68,7 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     bool fUseDIText;
     int fSamples;
     SkColorType fColorType;
-    SkColorProfileType fProfileType;
+    sk_sp<SkColorSpace> fColorSpace;
 };
 #endif
 

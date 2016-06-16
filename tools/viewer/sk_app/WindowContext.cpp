@@ -36,7 +36,7 @@ sk_sp<SkSurface> WindowContext::createRenderSurface(sk_sp<GrRenderTarget> rt, in
         SkImageInfo info = SkImageInfo::Make(fWidth, fHeight,
                                              fDisplayParams.fColorType,
                                              kUnknown_SkAlphaType,
-                                             fDisplayParams.fProfileType);
+                                             fDisplayParams.fColorSpace);
         return SkSurface::MakeRenderTarget(fContext, SkBudgeted::kNo, info,
                                            fDisplayParams.fMSAASampleCount, &props);
     } else {
@@ -52,7 +52,7 @@ void WindowContext::presentRenderSurface(sk_sp<SkSurface> renderSurface, sk_sp<G
         SkImageInfo info = SkImageInfo::Make(fWidth, fHeight,
                                              fDisplayParams.fColorType,
                                              kUnknown_SkAlphaType,
-                                             fDisplayParams.fProfileType);
+                                             fDisplayParams.fColorSpace);
         SkBitmap bm;
         bm.allocPixels(info);
         renderSurface->getCanvas()->readPixels(&bm, 0, 0);
