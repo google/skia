@@ -85,7 +85,6 @@ public:
     int height() const { return fInfo.height(); }
     SkColorType colorType() const { return fInfo.colorType(); }
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
-    SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
     SkColorProfileType profileType() const { return fInfo.profileType(); }
 
     /**

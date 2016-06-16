@@ -802,8 +802,8 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
                 contextOptions = static_cast<GrContextFactory::ContextOptions>(
                     contextOptions | GrContextFactory::kEnableNVPR_ContextOptions);
             }
-            if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
-                                                    gpuConfig->getColorSpace())) {
+            if (SkColorAndProfileAreGammaCorrect(gpuConfig->getColorType(),
+                                                 gpuConfig->getProfileType())) {
                 contextOptions = static_cast<GrContextFactory::ContextOptions>(
                     contextOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
             }
@@ -815,7 +815,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
             }
             return new GPUSink(contextType, contextOptions, gpuConfig->getSamples(),
                                gpuConfig->getUseDIText(), gpuConfig->getColorType(),
-                               sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading);
+                               gpuConfig->getProfileType(), FLAGS_gpu_threading);
         }
     }
 #endif
@@ -827,11 +827,9 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 #endif
 
     if (FLAGS_cpu) {
-        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-
         SINK("565",  RasterSink, kRGB_565_SkColorType);
         SINK("8888", RasterSink, kN32_SkColorType);
-        SINK("srgb", RasterSink, kN32_SkColorType, srgbColorSpace);
+        SINK("srgb", RasterSink, kN32_SkColorType, kSRGB_SkColorProfileType);
         SINK("f16",  RasterSink, kRGBA_F16_SkColorType);
         SINK("pdf",  PDFSink);
         SINK("skp",  SKPSink);

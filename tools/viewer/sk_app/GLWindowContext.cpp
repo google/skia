@@ -47,8 +47,8 @@ void GLWindowContext::initializeContext(void* platformData, const DisplayParams&
     // ... and, if we're using a 10-bit/channel FB0, it doesn't do sRGB conversion on write,
     // so pretend that it's non-sRGB 8888:
     fPixelConfig = fContext->caps()->srgbSupport() &&
-                   SkColorAndColorSpaceAreGammaCorrect(fDisplayParams.fColorType,
-                                                       fDisplayParams.fColorSpace.get()) &&
+                   SkColorAndProfileAreGammaCorrect(fDisplayParams.fColorType,
+                                                    fDisplayParams.fProfileType) &&
                    (fColorBits != 30) ? kSkiaGamma8888_GrPixelConfig : kSkia8888_GrPixelConfig;
 }
 

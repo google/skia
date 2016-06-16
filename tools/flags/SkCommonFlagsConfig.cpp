@@ -192,14 +192,14 @@ SkCommandLineConfig::~SkCommandLineConfig() {
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     const SkString& tag, const SkTArray<SkString>& viaParts,
     ContextType contextType, bool useNVPR, bool useDIText, int samples,
-    SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
+    SkColorType colorType, SkColorProfileType profileType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fUseNVPR(useNVPR)
         , fUseDIText(useDIText)
         , fSamples(samples)
         , fColorType(colorType)
-        , fColorSpace(std::move(colorSpace)) {
+        , fProfileType(profileType) {
 }
 static bool parse_option_int(const SkString& value, int* outInt) {
     if (value.isEmpty()) {
@@ -276,20 +276,20 @@ static bool parse_option_gpu_api(const SkString& value,
 }
 static bool parse_option_gpu_color(const SkString& value,
                                    SkColorType* outColorType,
-                                   sk_sp<SkColorSpace>* outColorSpace) {
+                                   SkColorProfileType* outProfileType) {
     if (value.equals("8888")) {
         *outColorType = kN32_SkColorType;
-        *outColorSpace = nullptr;
+        *outProfileType = kLinear_SkColorProfileType;
         return true;
     }
     if (value.equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
-        *outColorSpace = nullptr;
+        *outProfileType = kLinear_SkColorProfileType;
         return true;
     }
     if (value.equals("srgb")) {
         *outColorType = kN32_SkColorType;
-        *outColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        *outProfileType = kSRGB_SkColorProfileType;
         return true;
     }
     return false;
@@ -309,7 +309,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     int samples = 0;
     bool seenColor = false;
     SkColorType colorType = kN32_SkColorType;
-    sk_sp<SkColorSpace> colorSpace = nullptr;
+    SkColorProfileType profileType = kLinear_SkColorProfileType;
 
     SkTArray<SkString> optionParts;
     SkStrSplit(options.c_str(), ",", kStrict_SkStrSplitMode, &optionParts);
@@ -335,7 +335,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
             valueOk = parse_option_int(value, &samples);
             seenSamples = true;
         } else if (key.equals("color") && !seenColor) {
-            valueOk = parse_option_gpu_color(value, &colorType, &colorSpace);
+            valueOk = parse_option_gpu_color(value, &colorType, &profileType);
             seenColor = true;
         }
         if (!valueOk) {
@@ -343,7 +343,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         }
     }
     return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText, samples,
-                                      colorType, colorSpace);
+                                      colorType, profileType);
 }
 #endif
 

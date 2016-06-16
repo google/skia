@@ -122,8 +122,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     });
     fCommands.addCommand('c', "Modes", "Toggle sRGB color mode", [this]() {
         DisplayParams params = fWindow->getDisplayParams();
-        params.fColorSpace = (nullptr == params.fColorSpace)
-            ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
+        params.fProfileType = (kLinear_SkColorProfileType == params.fProfileType)
+            ? kSRGB_SkColorProfileType : kLinear_SkColorProfileType;
         fWindow->setDisplayParams(params);
         this->updateTitle();
         fWindow->inval();
@@ -266,9 +266,7 @@ Viewer::~Viewer() {
 void Viewer::updateTitle() {
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
-
-    // TODO: For now, any color-space on the window means sRGB
-    if (fWindow->getDisplayParams().fColorSpace) {
+    if (kSRGB_SkColorProfileType == fWindow->getDisplayParams().fProfileType) {
         title.append(" sRGB");
     }
     title.append(kBackendTypeStrings[fBackendType]);

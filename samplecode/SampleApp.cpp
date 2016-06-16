@@ -48,18 +48,17 @@ class GrContext;
 
 const struct {
     SkColorType         fColorType;
-    bool                fSRGB;
+    SkColorProfileType  fProfileType;
     const char*         fName;
 } gConfig[] = {
-    { kN32_SkColorType,      false, "L32" },
-    { kN32_SkColorType,       true, "S32" },
-    { kRGBA_F16_SkColorType, false, "F16" },
+    { kN32_SkColorType,      kLinear_SkColorProfileType, "L32" },
+    { kN32_SkColorType,        kSRGB_SkColorProfileType, "S32" },
+    { kRGBA_F16_SkColorType, kLinear_SkColorProfileType, "F16" },
 };
 
 static const char* find_config_name(const SkImageInfo& info) {
     for (const auto& config : gConfig) {
-        if (config.fColorType == info.colorType() &&
-            config.fSRGB == (info.colorSpace() != nullptr)) {
+        if (config.fColorType == info.colorType() && config.fProfileType == info.profileType()) {
             return config.fName;
         }
     }
@@ -1533,9 +1532,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         return true;
     }
     if (SkOSMenu::FindListIndex(evt, "ColorType", &selected)) {
-        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-        this->setDeviceColorType(gConfig[selected].fColorType,
-                                 gConfig[selected].fSRGB ? srgbColorSpace : nullptr);
+        this->setDeviceColorType(gConfig[selected].fColorType, gConfig[selected].fProfileType);
         return true;
     }
     if (SkOSMenu::FindSwitchState(evt, "Slide Show", nullptr)) {
@@ -1750,8 +1747,8 @@ void SampleWindow::setDeviceType(DeviceType type) {
     this->inval(nullptr);
 }
 
-void SampleWindow::setDeviceColorType(SkColorType ct, sk_sp<SkColorSpace> cs) {
-    this->setColorType(ct, std::move(cs));
+void SampleWindow::setDeviceColorType(SkColorType ct, SkColorProfileType pt) {
+    this->setColorType(ct, pt);
 
     fDevManager->tearDownBackend(this);
     fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
