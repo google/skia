@@ -95,6 +95,9 @@ public:
 
     ~GrVkHeap();
 
+    VkDeviceSize allocSize() const { return fAllocSize; }
+    VkDeviceSize usedSize() const { return fUsedSize; }
+
     bool alloc(VkDeviceSize size, VkDeviceSize alignment, uint32_t memoryTypeIndex, 
                GrVkAlloc* alloc) {
         return (*this.*fAllocFunc)(size, alignment, memoryTypeIndex, alloc);

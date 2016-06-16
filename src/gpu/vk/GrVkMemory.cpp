@@ -375,11 +375,11 @@ void GrVkSubHeap::free(const GrVkAlloc& alloc) {
 
     // find the block right after this allocation
     FreeList::Iter iter = fFreeList.headIter();
+    FreeList::Iter prev;
     while (iter.get() && iter.get()->fOffset < alloc.fOffset) {
+        prev = iter;
         iter.next();
     } 
-    FreeList::Iter prev = iter;
-    prev.prev();
     // we have four cases:
     // we exactly follow the previous one
     Block* block;
@@ -446,7 +446,7 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
     for (auto i = 0; i < fSubHeaps.count(); ++i) {
         if (fSubHeaps[i]->memoryTypeIndex() == memoryTypeIndex) {
             VkDeviceSize heapSize = fSubHeaps[i]->largestBlockSize();
-            if (heapSize > alignedSize && heapSize < bestFitSize) {
+            if (heapSize >= alignedSize && heapSize < bestFitSize) {
                 bestFitIndex = i;
                 bestFitSize = heapSize;
             }
@@ -484,7 +484,7 @@ bool GrVkHeap::singleAlloc(VkDeviceSize size, VkDeviceSize alignment,
     for (auto i = 0; i < fSubHeaps.count(); ++i) {
         if (fSubHeaps[i]->memoryTypeIndex() == memoryTypeIndex && fSubHeaps[i]->unallocated()) {
             VkDeviceSize heapSize = fSubHeaps[i]->size();
-            if (heapSize > alignedSize && heapSize < bestFitSize) {
+            if (heapSize >= alignedSize && heapSize < bestFitSize) {
                 bestFitIndex = i;
                 bestFitSize = heapSize;
             }
