@@ -8,7 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
-#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "SkColorTable.h"
 #include "SkMath.h"
 #include "SkOpts.h"
@@ -172,6 +172,12 @@ static float png_inverted_fixed_point_to_float(png_fixed_point x) {
     return 1.0f / png_fixed_point_to_float(x);
 }
 
+static constexpr float gSRGB_toXYZD50[] {
+    0.4358f, 0.2224f, 0.0139f,    // * R
+    0.3853f, 0.7170f, 0.0971f,    // * G
+    0.1430f, 0.0606f, 0.7139f,    // * B
+};
+
 // Returns a colorSpace object that represents any color space information in
 // the encoded data.  If the encoded data contains no color space, this will
 // return NULL.
@@ -223,6 +229,8 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         for (int i = 0; i < 9; i++) {
             toXYZD50[i] = png_fixed_point_to_float(XYZ[i]);
         }
+        SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+        mat.set3x3ColMajorf(toXYZD50);
 
         if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
             float value = png_inverted_fixed_point_to_float(gamma);
@@ -230,24 +238,16 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
             gammas[1] = value;
             gammas[2] = value;
 
-        } else {
-            // Default to sRGB (gamma = 2.2f) if the image has color space information,
-            // but does not specify gamma.
-            gammas[0] = 2.2f;
-            gammas[1] = 2.2f;
-            gammas[2] = 2.2f;
+            return SkColorSpace_Base::NewRGB(gammas, mat);
         }
 
-        SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
-        mat.set3x3ColMajorf(toXYZD50);
-        return SkColorSpace::NewRGB(gammas, mat);
+        // Default to sRGB gamma if the image has color space information,
+        // but does not specify gamma.
+        return SkColorSpace::NewRGB(SkColorSpace::kSRGB_GammaNamed, mat);
     }
 
     // Last, check for gamma.
     if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
-
-        // Guess a default value for cHRM?  Or should we just give up?
-        // Here we use the identity matrix as a default.
 
         // Set the gammas.
         float value = png_inverted_fixed_point_to_float(gamma);
@@ -255,15 +255,17 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         gammas[1] = value;
         gammas[2] = value;
 
-        return SkColorSpace::NewRGB(gammas, SkMatrix44::I());
+        // Since there is no cHRM, we will guess sRGB gamut.
+        SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+        mat.set3x3ColMajorf(gSRGB_toXYZD50);
+
+        return SkColorSpace_Base::NewRGB(gammas, mat);
     }
 
 #endif // LIBPNG >= 1.6
 
-    // Finally, what should we do if there is no color space information in the PNG?
-    // The specification says that this indicates "gamma is unknown" and that the
-    // "color is device dependent".  I'm assuming we can represent this with NULL.
-    // But should we guess sRGB?  Most images are sRGB, even if they don't specify.
+    // Report that there is no color space information in the PNG.  SkPngCodec is currently
+    // implemented to guess sRGB in this case.
     return nullptr;
 }
 

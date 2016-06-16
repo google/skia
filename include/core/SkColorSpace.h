@@ -23,27 +23,18 @@ public:
         kAdobeRGB_Named,
     };
 
-    /**
-     *  Create an SkColorSpace from the src gamma and a transform from src gamut to D50 XYZ.
-     */
-    static sk_sp<SkColorSpace> NewRGB(const float gammas[3], const SkMatrix44& toXYZD50);
-
-    /**
-     *  Create a common, named SkColorSpace.
-     */
-    static sk_sp<SkColorSpace> NewNamed(Named);
-
-    /**
-     *  Create an SkColorSpace from an ICC profile.
-     */
-    static sk_sp<SkColorSpace> NewICC(const void*, size_t);
-
     enum GammaNamed {
         kLinear_GammaNamed,
 
         /**
-         *  Gamma curve is a close match to the 2.2f exponential curve.  This is by far
-         *  the most common gamma, and is used by sRGB and Adobe RGB profiles.
+         *  Gamma curve is a close match to the canonical sRGB curve, which has
+         *  a short linear segment followed by a 2.4f exponential.
+         */
+        kSRGB_GammaNamed,
+
+        /**
+         *  Gamma curve is a close match to the 2.2f exponential curve.  This is
+         *  used by Adobe RGB profiles and is common on monitors as well.
          */
         k2Dot2Curve_GammaNamed,
 
@@ -55,12 +46,34 @@ public:
         kNonStandard_GammaNamed,
     };
 
+    /**
+     *  Create an SkColorSpace from the src gamma and a transform from src gamut to D50 XYZ.
+     */
+    static sk_sp<SkColorSpace> NewRGB(GammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+
+    /**
+     *  Create a common, named SkColorSpace.
+     */
+    static sk_sp<SkColorSpace> NewNamed(Named);
+
+    /**
+     *  Create an SkColorSpace from an ICC profile.
+     */
+    static sk_sp<SkColorSpace> NewICC(const void*, size_t);
+
     GammaNamed gammaNamed() const { return fGammaNamed; }
 
     /**
      *  Returns the matrix used to transform src gamut to XYZ D50.
      */
     const SkMatrix44& xyz() const { return fToXYZD50; }
+
+    /**
+     *  Returns true if the color space gamma is near enough to be approximated as sRGB.
+     */
+    bool gammaCloseToSRGB() const {
+        return kSRGB_GammaNamed == fGammaNamed || k2Dot2Curve_GammaNamed == fGammaNamed;
+    }
 
 protected:
 

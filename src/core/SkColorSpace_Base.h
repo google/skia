@@ -13,8 +13,17 @@
 #include "SkTemplates.h"
 
 struct SkGammaCurve {
+    bool isNamed() const {
+       bool result = (SkColorSpace::kNonStandard_GammaNamed != fNamed);
+       SkASSERT(!result || (0.0f == fValue));
+       SkASSERT(!result || (0 == fTableSize));
+       SkASSERT(!result || (0.0f == fG && 0.0f == fE));
+       return result;
+    }
+
     bool isValue() const {
         bool result = (0.0f != fValue);
+        SkASSERT(!result || SkColorSpace::kNonStandard_GammaNamed == fNamed);
         SkASSERT(!result || (0 == fTableSize));
         SkASSERT(!result || (0.0f == fG && 0.0f == fE));
         return result;
@@ -22,6 +31,7 @@ struct SkGammaCurve {
 
     bool isTable() const {
         bool result = (0 != fTableSize);
+        SkASSERT(!result || SkColorSpace::kNonStandard_GammaNamed == fNamed);
         SkASSERT(!result || (0.0f == fValue));
         SkASSERT(!result || (0.0f == fG && 0.0f == fE));
         SkASSERT(!result || fTable);
@@ -30,20 +40,24 @@ struct SkGammaCurve {
 
     bool isParametric() const {
         bool result = (0.0f != fG || 0.0f != fE);
+        SkASSERT(!result || SkColorSpace::kNonStandard_GammaNamed == fNamed);
         SkASSERT(!result || (0.0f == fValue));
         SkASSERT(!result || (0 == fTableSize));
         return result;
     }
 
-    // We have three different ways to represent gamma.
-    // (1) A single value:
+    // We have four different ways to represent gamma.
+    // (1) A known, named type:
+    SkColorSpace::GammaNamed fNamed;
+
+    // (2) A single value:
     float                    fValue;
 
-    // (2) A lookup table:
+    // (3) A lookup table:
     uint32_t                 fTableSize;
     std::unique_ptr<float[]> fTable;
 
-    // (3) Parameters for a curve:
+    // (4) Parameters for a curve:
     //     Y = (aX + b)^g + c  for X >= d
     //     Y = eX + f          otherwise
     float                    fG;
@@ -54,12 +68,9 @@ struct SkGammaCurve {
     float                    fE;
     float                    fF;
 
-    SkGammaCurve() {
-        memset(this, 0, sizeof(struct SkGammaCurve));
-    }
-
-    SkGammaCurve(float value)
-        : fValue(value)
+    SkGammaCurve()
+        : fNamed(SkColorSpace::kNonStandard_GammaNamed)
+        , fValue(0.0f)
         , fTableSize(0)
         , fTable(nullptr)
         , fG(0.0f)
@@ -74,8 +85,29 @@ struct SkGammaCurve {
 
 struct SkGammas : public SkRefCnt {
 public:
-    bool isValues() const {
-        return fRed.isValue() && fGreen.isValue() && fBlue.isValue();
+    static SkColorSpace::GammaNamed Named(SkGammaCurve curves[3]) {
+        if (SkColorSpace::kLinear_GammaNamed == curves[0].fNamed &&
+            SkColorSpace::kLinear_GammaNamed == curves[1].fNamed &&
+            SkColorSpace::kLinear_GammaNamed == curves[2].fNamed)
+        {
+            return SkColorSpace::kLinear_GammaNamed;
+        }
+
+        if (SkColorSpace::kSRGB_GammaNamed == curves[0].fNamed &&
+            SkColorSpace::kSRGB_GammaNamed == curves[1].fNamed &&
+            SkColorSpace::kSRGB_GammaNamed == curves[2].fNamed)
+        {
+            return SkColorSpace::kSRGB_GammaNamed;
+        }
+
+        if (SkColorSpace::k2Dot2Curve_GammaNamed == curves[0].fNamed &&
+            SkColorSpace::k2Dot2Curve_GammaNamed == curves[1].fNamed &&
+            SkColorSpace::k2Dot2Curve_GammaNamed == curves[2].fNamed)
+        {
+            return SkColorSpace::k2Dot2Curve_GammaNamed;
+        }
+
+        return SkColorSpace::kNonStandard_GammaNamed;
     }
 
     const SkGammaCurve& operator[](int i) {
@@ -86,12 +118,6 @@ public:
     const SkGammaCurve fRed;
     const SkGammaCurve fGreen;
     const SkGammaCurve fBlue;
-
-    SkGammas(float red, float green, float blue)
-        : fRed(red)
-        , fGreen(green)
-        , fBlue(blue)
-    {}
 
     SkGammas(SkGammaCurve red, SkGammaCurve green, SkGammaCurve blue)
         : fRed(std::move(red))
@@ -120,6 +146,8 @@ struct SkColorLookUpTable {
 class SkColorSpace_Base : public SkColorSpace {
 public:
 
+    static sk_sp<SkColorSpace> NewRGB(float gammas[3], const SkMatrix44& toXYZD50);
+
     const sk_sp<SkGammas>& gammas() const { return fGammas; }
 
     SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
@@ -131,17 +159,14 @@ public:
 
 private:
 
-    static sk_sp<SkColorSpace> NewRGB(const float gammas[3], const SkMatrix44& toXYZD50,
+    static sk_sp<SkColorSpace> NewRGB(GammaNamed gammaNamed, const SkMatrix44& toXYZD50,
                                       sk_sp<SkData> profileData);
 
-    SkColorSpace_Base(sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, Named,
+    SkColorSpace_Base(GammaNamed gammaNamed, const SkMatrix44& toXYZ, Named named,
                       sk_sp<SkData> profileData);
 
-    SkColorSpace_Base(sk_sp<SkGammas> gammas, GammaNamed gammaNamed, const SkMatrix44& toXYZ,
-                      Named, sk_sp<SkData> profileData);
-
-    SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas,
-                      const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
+    SkColorSpace_Base(SkColorLookUpTable* colorLUT, sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ,
+                      sk_sp<SkData> profileData);
 
     SkAutoTDelete<SkColorLookUpTable> fColorLUT;
     sk_sp<SkGammas>                   fGammas;

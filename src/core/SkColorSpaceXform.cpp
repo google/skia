@@ -152,22 +152,27 @@ void SkDefaultXform::xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_
         // be simpler and faster than our current approach.
         float srcFloats[3];
         for (int i = 0; i < 3; i++) {
-            const SkGammaCurve& gamma = (*fSrcGammas)[i];
             uint8_t byte = (*src >> (8 * i)) & 0xFF;
-            if (gamma.isValue()) {
-                srcFloats[i] = pow(byte_to_float(byte), gamma.fValue);
-            } else if (gamma.isTable()) {
-                srcFloats[i] = interp_lut(byte, gamma.fTable.get(), gamma.fTableSize);
-            } else {
-                SkASSERT(gamma.isParametric());
-                float component = byte_to_float(byte);
-                if (component < gamma.fD) {
-                    // Y = E * X + F
-                    srcFloats[i] = gamma.fE * component + gamma.fF;
+            if (fSrcGammas) {
+                const SkGammaCurve& gamma = (*fSrcGammas)[i];
+                if (gamma.isValue()) {
+                    srcFloats[i] = powf(byte_to_float(byte), gamma.fValue);
+                } else if (gamma.isTable()) {
+                    srcFloats[i] = interp_lut(byte, gamma.fTable.get(), gamma.fTableSize);
                 } else {
-                    // Y = (A * X + B)^G + C
-                    srcFloats[i] = pow(gamma.fA * component + gamma.fB, gamma.fG) + gamma.fC;
+                    SkASSERT(gamma.isParametric());
+                    float component = byte_to_float(byte);
+                    if (component < gamma.fD) {
+                        // Y = E * X + F
+                        srcFloats[i] = gamma.fE * component + gamma.fF;
+                    } else {
+                        // Y = (A * X + B)^G + C
+                        srcFloats[i] = powf(gamma.fA * component + gamma.fB, gamma.fG) + gamma.fC;
+                    }
                 }
+            } else {
+                // FIXME: Handle named gammas.
+                srcFloats[i] = powf(byte_to_float(byte), 2.2f);
             }
         }
 
@@ -189,48 +194,54 @@ void SkDefaultXform::xform_RGBA_8888(uint32_t* dst, const uint32_t* src, uint32_
         // QCMS builds a large float lookup table from the gamma info.  Is this faster or
         // better than our approach?
         for (int i = 0; i < 3; i++) {
-            const SkGammaCurve& gamma = (*fDstGammas)[i];
-            if (gamma.isValue()) {
-                dstFloats[i] = pow(dstFloats[i], 1.0f / gamma.fValue);
-            } else if (gamma.isTable()) {
-                // FIXME (msarett):
-                // An inverse table lookup is particularly strange and non-optimal.
-                dstFloats[i] = interp_lut_inv(dstFloats[i], gamma.fTable.get(), gamma.fTableSize);
-            } else {
-                SkASSERT(gamma.isParametric());
-                // FIXME (msarett):
-                // This is a placeholder implementation for inverting parametric gammas.
-                // First, I need to verify if there are actually destination profiles that
-                // require this functionality. Next, I need to explore other possibilities
-                // for this implementation.  The LUT based approach in QCMS would be a good
-                // place to start.
-
-                // We need to take the inverse of a piecewise function.  Assume that
-                // the gamma function is continuous, or this won't make much sense
-                // anyway.
-                // Plug in |fD| to the first equation to calculate the new piecewise
-                // interval.  Then simply use the inverse of the original functions.
-                float interval = gamma.fE * gamma.fD + gamma.fF;
-                if (dstFloats[i] < interval) {
-                    // X = (Y - F) / E
-                    if (0.0f == gamma.fE) {
-                        // The gamma curve for this segment is constant, so the inverse
-                        // is undefined.
-                        dstFloats[i] = 0.0f;
-                    } else {
-                        dstFloats[i] = (dstFloats[i] - gamma.fF) / gamma.fE;
-                    }
+            if (fDstGammas) {
+                const SkGammaCurve& gamma = (*fDstGammas)[i];
+                if (gamma.isValue()) {
+                    dstFloats[i] = powf(dstFloats[i], 1.0f / gamma.fValue);
+                } else if (gamma.isTable()) {
+                    // FIXME (msarett):
+                    // An inverse table lookup is particularly strange and non-optimal.
+                    dstFloats[i] = interp_lut_inv(dstFloats[i], gamma.fTable.get(),
+                                                  gamma.fTableSize);
                 } else {
-                    // X = ((Y - C)^(1 / G) - B) / A
-                    if (0.0f == gamma.fA || 0.0f == gamma.fG) {
-                        // The gamma curve for this segment is constant, so the inverse
-                        // is undefined.
-                        dstFloats[i] = 0.0f;
+                    SkASSERT(gamma.isParametric());
+                    // FIXME (msarett):
+                    // This is a placeholder implementation for inverting parametric gammas.
+                    // First, I need to verify if there are actually destination profiles that
+                    // require this functionality. Next, I need to explore other possibilities
+                    // for this implementation.  The LUT based approach in QCMS would be a good
+                    // place to start.
+
+                    // We need to take the inverse of a piecewise function.  Assume that
+                    // the gamma function is continuous, or this won't make much sense
+                    // anyway.
+                    // Plug in |fD| to the first equation to calculate the new piecewise
+                    // interval.  Then simply use the inverse of the original functions.
+                    float interval = gamma.fE * gamma.fD + gamma.fF;
+                    if (dstFloats[i] < interval) {
+                        // X = (Y - F) / E
+                        if (0.0f == gamma.fE) {
+                            // The gamma curve for this segment is constant, so the inverse
+                            // is undefined.
+                            dstFloats[i] = 0.0f;
+                        } else {
+                            dstFloats[i] = (dstFloats[i] - gamma.fF) / gamma.fE;
+                        }
                     } else {
-                        dstFloats[i] = (pow(dstFloats[i] - gamma.fC, 1.0f / gamma.fG) - gamma.fB)
-                                       / gamma.fA;
+                        // X = ((Y - C)^(1 / G) - B) / A
+                        if (0.0f == gamma.fA || 0.0f == gamma.fG) {
+                            // The gamma curve for this segment is constant, so the inverse
+                            // is undefined.
+                            dstFloats[i] = 0.0f;
+                        } else {
+                            dstFloats[i] = (powf(dstFloats[i] - gamma.fC, 1.0f / gamma.fG) -
+                                            gamma.fB) / gamma.fA;
+                        }
                     }
                 }
+            } else {
+                // FIXME: Handle named gammas.
+                dstFloats[i] = powf(dstFloats[i], 1.0f / 2.2f);
             }
         }
 

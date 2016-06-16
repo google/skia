@@ -306,7 +306,7 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
 
 static bool treat_like_srgb(const SkImageInfo& info) {
     if (info.colorSpace()) {
-        return SkColorSpace::k2Dot2Curve_GammaNamed == info.colorSpace()->gammaNamed();
+        return info.colorSpace()->gammaCloseToSRGB();
     } else {
         return kSRGB_SkColorProfileType == info.profileType();
     }
