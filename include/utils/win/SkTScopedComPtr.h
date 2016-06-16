@@ -37,11 +37,11 @@ private:
     T *fPtr;
 
 public:
-    explicit SkTScopedComPtr(T *ptr = nullptr) : fPtr(ptr) { }
+    explicit SkTScopedComPtr(T *ptr = NULL) : fPtr(ptr) { }
     ~SkTScopedComPtr() {
         this->reset();
     }
-    T &operator*() const { SkASSERT(fPtr != nullptr); return *fPtr; }
+    T &operator*() const { SkASSERT(fPtr != NULL); return *fPtr; }
     SkBlockComRef<T> *operator->() const {
         return static_cast<SkBlockComRef<T>*>(fPtr);
     }
@@ -51,13 +51,12 @@ public:
      * Must only be used on instances currently pointing to NULL,
      * and only to initialize the instance.
      */
-    T **operator&() { SkASSERT(fPtr == nullptr); return &fPtr; }
-    explicit operator bool() const { return fPtr != nullptr; }
+    T **operator&() { SkASSERT(fPtr == NULL); return &fPtr; }
     T *get() const { return fPtr; }
     void reset() {
         if (this->fPtr) {
             this->fPtr->Release();
-            this->fPtr = nullptr;
+            this->fPtr = NULL;
         }
     }
 
@@ -69,7 +68,7 @@ public:
 
     T* release() {
         T* temp = this->fPtr;
-        this->fPtr = nullptr;
+        this->fPtr = NULL;
         return temp;
     }
 };
