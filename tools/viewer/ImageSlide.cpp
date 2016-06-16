@@ -47,7 +47,7 @@ void ImageSlide::load(SkScalar, SkScalar) {
     fOriginalBitmap.deepCopyTo(&fXformedBitmap);
     uint32_t* row = (uint32_t*) fXformedBitmap.getPixels();
     for (int y = 0; y < fXformedBitmap.height(); y++) {
-        xform->xform_RGBA_8888(row, row, fXformedBitmap.width());
+        xform->xform_RGB1_8888(row, row, fXformedBitmap.width());
         row = SkTAddOffset<uint32_t>(row, fXformedBitmap.rowBytes());
     }
     fXformedBitmap.notifyPixelsChanged(); // This is needed for the deepCopy
