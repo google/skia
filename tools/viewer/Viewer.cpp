@@ -9,6 +9,7 @@
 
 #include "GMSlide.h"
 #include "ImageSlide.h"
+#include "SampleSlide.h"
 #include "SKPSlide.h"
 
 #include "SkCanvas.h"
@@ -205,6 +206,14 @@ void Viewer::initSlides() {
         fSlides[fSlides.count() - i - 1] = temp;
     }
 
+    // samples
+    const SkViewRegister* reg = SkViewRegister::Head();
+    while (reg) {
+        sk_sp<Slide> slide(new SampleSlide(reg->factory()));
+        fSlides.push_back(slide);
+        reg = reg->next();
+    }
+
     // SKPs
     for (int i = 0; i < FLAGS_skps.count(); i++) {
         if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
@@ -270,7 +279,7 @@ void Viewer::setupCurrentSlide(int previousSlide) {
     }
 
     // prepare dimensions for image slides
-    fSlides[fCurrentSlide]->load();
+    fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()), SkIntToScalar(fWindow->height()));
 
     fGesture.reset();
     fDefaultMatrix.reset();

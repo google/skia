@@ -20,7 +20,7 @@
 SkTestFont::SkTestFont(const SkTestFontData& fontData)
     : INHERITED()
     , fCharCodes(fontData.fCharCodes)
-    , fCharCodesCount(fontData.fCharCodesCount)
+    , fCharCodesCount(fontData.fCharCodes ? fontData.fCharCodesCount : 0)
     , fWidths(fontData.fWidths)
     , fMetrics(fontData.fMetrics)
     , fName(fontData.fName)

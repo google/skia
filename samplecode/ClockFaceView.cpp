@@ -72,7 +72,14 @@ public:
     : Sk2DPathEffect(matrix), fRadius(radius), fPts(pts) {}
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
-
+    class Registrar {
+    public:
+        Registrar() {
+            SkFlattenable::Register("Dot2DPathEffect",
+                                    Dot2DPathEffect::CreateProc,
+                                    Dot2DPathEffect::GetFlattenableType());
+        }
+    };
 protected:
     void begin(const SkIRect& uvBounds, SkPath* dst) const override {
         if (fPts) {
@@ -100,6 +107,8 @@ private:
 
     typedef Sk2DPathEffect INHERITED;
 };
+
+static Dot2DPathEffect::Registrar gReg0;
 
 sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
