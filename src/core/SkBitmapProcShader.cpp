@@ -305,6 +305,12 @@ bool SkBitmapProcShader::isOpaque() const {
     return fRawBitmap.isOpaque();
 }
 
+bool SkBitmapProcShader::BitmapIsTooBig(const SkBitmap& bm) {
+    static const int kMaxSize = 65535;
+
+    return bm.width() > kMaxSize || bm.height() > kMaxSize;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SkUnPreMultiply.h"
