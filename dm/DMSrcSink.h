@@ -281,7 +281,7 @@ class GPUSink : public Sink {
 public:
     GPUSink(sk_gpu_test::GrContextFactory::ContextType,
             sk_gpu_test::GrContextFactory::ContextOptions,
-            int samples, bool diText, SkColorType colorType, SkColorProfileType profileType,
+            int samples, bool diText, SkColorType colorType, sk_sp<SkColorSpace> colorSpace,
             bool threaded);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
@@ -294,7 +294,7 @@ private:
     int                                             fSampleCount;
     bool                                            fUseDIText;
     SkColorType                                     fColorType;
-    SkColorProfileType                              fProfileType;
+    sk_sp<SkColorSpace>                             fColorSpace;
     bool                                            fThreaded;
 };
 
@@ -318,14 +318,14 @@ public:
 
 class RasterSink : public Sink {
 public:
-    explicit RasterSink(SkColorType, SkColorProfileType=kLinear_SkColorProfileType);
+    explicit RasterSink(SkColorType, sk_sp<SkColorSpace> = nullptr);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
 private:
-    SkColorType        fColorType;
-    SkColorProfileType fProfileType;
+    SkColorType         fColorType;
+    sk_sp<SkColorSpace> fColorSpace;
 };
 
 class SKPSink : public Sink {

@@ -14,14 +14,14 @@ namespace sk_app {
 struct DisplayParams {
     DisplayParams()
         : fColorType(kN32_SkColorType)
-        , fProfileType(kLinear_SkColorProfileType)
+        , fColorSpace(nullptr)
         , fMSAASampleCount(0)
         , fDeepColor(false) {}
 
-    SkColorType        fColorType;
-    SkColorProfileType fProfileType;
-    int                fMSAASampleCount;
-    bool               fDeepColor;
+    SkColorType         fColorType;
+    sk_sp<SkColorSpace> fColorSpace;
+    int                 fMSAASampleCount;
+    bool                fDeepColor;
 };
 
 }   // namespace sk_app

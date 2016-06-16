@@ -37,7 +37,7 @@ protected:
                 return;
             }
             SkImageInfo info = SkImageInfo::Make(fW, fH, kN32_SkColorType, kPremul_SkAlphaType,
-                                                 kSRGB_SkColorProfileType);
+                                                 SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
             fSurface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
         }
 

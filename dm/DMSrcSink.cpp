@@ -1060,14 +1060,14 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  int samples,
                  bool diText,
                  SkColorType colorType,
-                 SkColorProfileType profileType,
+                 sk_sp<SkColorSpace> colorSpace,
                  bool threaded)
     : fContextType(ct)
     , fContextOptions(options)
     , fSampleCount(samples)
     , fUseDIText(diText)
     , fColorType(colorType)
-    , fProfileType(profileType)
+    , fColorSpace(std::move(colorSpace))
     , fThreaded(threaded) {}
 
 void PreAbandonGpuContextErrorHandler(SkError, void*) {}
@@ -1093,7 +1093,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     const SkISize size = src.size();
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), fColorType,
-                          kPremul_SkAlphaType, fProfileType);
+                          kPremul_SkAlphaType, fColorSpace);
 #if SK_SUPPORT_GPU
     GrContext* context = factory.getContextInfo(fContextType, fContextOptions).grContext();
     const int maxDimension = context->caps()->maxTextureSize();
@@ -1213,9 +1213,9 @@ Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-RasterSink::RasterSink(SkColorType colorType, SkColorProfileType profileType)
+RasterSink::RasterSink(SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
     : fColorType(colorType)
-    , fProfileType(profileType) {}
+    , fColorSpace(std::move(colorSpace)) {}
 
 Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
     const SkISize size = src.size();
@@ -1225,7 +1225,7 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 
     SkMallocPixelRef::ZeroedPRFactory factory;
     dst->allocPixels(SkImageInfo::Make(size.width(), size.height(),
-                                       fColorType, alphaType, fProfileType),
+                                       fColorType, alphaType, fColorSpace),
                      &factory,
                      nullptr/*colortable*/);
     SkCanvas canvas(*dst);

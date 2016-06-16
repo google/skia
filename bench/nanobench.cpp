@@ -424,7 +424,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             Benchmark::kGPU_Backend,
             kN32_SkColorType,
             kPremul_SkAlphaType,
-            kLinear_SkColorProfileType,
+            nullptr,
             sampleCount,
             ctxType,
             ctxOptions,
@@ -436,28 +436,29 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
     }
 #endif
 
-    #define CPU_CONFIG(name, backend, color, alpha, profile)                 \
-        if (config->getTag().equals(#name)) {                                \
-            Config config = {                                                \
-                SkString(#name), Benchmark::backend, color, alpha, profile,  \
-                0, kBogusContextType, kBogusContextOptions, false            \
-            };                                                               \
-            configs->push_back(config);                                      \
-            return;                                                          \
+    #define CPU_CONFIG(name, backend, color, alpha, colorSpace)                \
+        if (config->getTag().equals(#name)) {                                  \
+            Config config = {                                                  \
+                SkString(#name), Benchmark::backend, color, alpha, colorSpace, \
+                0, kBogusContextType, kBogusContextOptions, false              \
+            };                                                                 \
+            configs->push_back(config);                                        \
+            return;                                                            \
         }
 
     if (FLAGS_cpu) {
         CPU_CONFIG(nonrendering, kNonRendering_Backend,
-                   kUnknown_SkColorType, kUnpremul_SkAlphaType, kLinear_SkColorProfileType);
+                   kUnknown_SkColorType, kUnpremul_SkAlphaType, nullptr)
 
         CPU_CONFIG(8888, kRaster_Backend,
-                   kN32_SkColorType, kPremul_SkAlphaType, kLinear_SkColorProfileType)
+                   kN32_SkColorType, kPremul_SkAlphaType, nullptr)
         CPU_CONFIG(565,  kRaster_Backend,
-                   kRGB_565_SkColorType, kOpaque_SkAlphaType, kLinear_SkColorProfileType)
+                   kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
+        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
         CPU_CONFIG(srgb, kRaster_Backend,
-                   kN32_SkColorType,  kPremul_SkAlphaType, kSRGB_SkColorProfileType)
+                   kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
         CPU_CONFIG(f16,  kRaster_Backend,
-                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, kLinear_SkColorProfileType)
+                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, nullptr)
     }
 
     #undef CPU_CONFIG
@@ -465,7 +466,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     if (config->getTag().equals("hwui")) {
         Config config = { SkString("hwui"), Benchmark::kHWUI_Backend,
-                          kRGBA_8888_SkColorType, kPremul_SkAlphaType, kLinear_SkColorProfileType,
+                          kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr,
                           0, kBogusContextType, kBogusContextOptions, false };
         configs->push_back(config);
     }
@@ -488,7 +489,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     }
 
     SkImageInfo info = SkImageInfo::Make(bench->getSize().fX, bench->getSize().fY,
-                                         config.color, config.alpha, config.profile);
+                                         config.color, config.alpha, config.colorSpace);
 
     Target* target = nullptr;
 

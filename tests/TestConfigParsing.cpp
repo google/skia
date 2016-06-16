@@ -46,8 +46,7 @@ DEF_TEST(ParseConfigs_Gpu, reporter) {
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseDIText() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorType() == kN32_SkColorType);
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getProfileType()
-                    == kLinear_SkColorProfileType);
+    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorSpace() == nullptr);
 #endif
 }
 
@@ -82,6 +81,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 
     SkCommandLineConfigArray configs;
     ParseConfigs(config1, &configs);
+
+    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
 
     REPORTER_ASSERT(reporter, configs.count() == config1.count());
     for (int i = 0; i < config1.count(); ++i) {
@@ -118,14 +119,11 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, !configs[18]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[19]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[24]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorType()
-                    == kRGBA_F16_SkColorType);
-    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getProfileType()
-                    == kLinear_SkColorProfileType);
-    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType()
-                    == kN32_SkColorType);
-    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getProfileType()
-                    == kSRGB_SkColorProfileType);
+    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
+    REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace() == nullptr);
+    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorType() == kN32_SkColorType);
+    REPORTER_ASSERT(reporter, configs[26]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
+
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     REPORTER_ASSERT(reporter, configs[20]->asConfigGpu());
@@ -157,8 +155,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[30]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorType()  == kN32_SkColorType);
-    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getProfileType() ==
-                              kSRGB_SkColorProfileType);
+    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
     REPORTER_ASSERT(reporter, configs[31]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[31]->asConfigGpu()->getSamples() == 4);
 #ifdef SK_VULKAN

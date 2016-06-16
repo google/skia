@@ -52,7 +52,7 @@ public:
 
     void    resize(int width, int height);
     void    resize(const SkImageInfo&);
-    void    setColorType(SkColorType, SkColorProfileType);
+    void    setColorType(SkColorType, sk_sp<SkColorSpace>);
 
     bool    isDirty() const { return !fDirtyRgn.isEmpty(); }
     bool    update(SkIRect* updateArea);

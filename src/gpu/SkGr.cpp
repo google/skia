@@ -243,7 +243,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *caps);
 
     if (caps->srgbSupport() && !GrPixelConfigIsSRGB(desc.fConfig) &&
-        kSRGB_SkColorProfileType == pixmap.info().profileType()) {
+        pixmap.info().colorSpace() && pixmap.info().colorSpace()->gammaCloseToSRGB()) {
         // We were supplied sRGB as the profile type, but we don't have a suitable pixel config.
         // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
         // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
@@ -418,7 +418,7 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
 
 // alphatype is ignore for now, but if GrPixelConfig is expanded to encompass
 // alpha info, that will be considered.
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProfileType pt,
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, const SkColorSpace* cs,
                                         const GrCaps& caps) {
     // We intentionally ignore profile type for non-8888 formats. Anything we can't support
     // in hardware will be expanded to sRGB 8888 in GrUploadPixmapToTexture.
@@ -432,10 +432,10 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProf
         case kARGB_4444_SkColorType:
             return kRGBA_4444_GrPixelConfig;
         case kRGBA_8888_SkColorType:
-            return (kSRGB_SkColorProfileType == pt && caps.srgbSupport())
+            return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
         case kBGRA_8888_SkColorType:
-            return (kSRGB_SkColorProfileType == pt && caps.srgbSupport())
+            return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
         case kIndex_8_SkColorType:
             return kIndex_8_GrPixelConfig;

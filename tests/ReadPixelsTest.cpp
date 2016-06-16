@@ -424,7 +424,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
                     GrPixelConfig dstConfig =
                             SkImageInfo2GrPixelConfig(gReadPixelsConfigs[c].fColorType,
                                                       gReadPixelsConfigs[c].fAlphaType,
-                                                      kLinear_SkColorProfileType,
+                                                      nullptr,
                                                       *texture->getContext()->caps());
                     uint32_t flags = 0;
                     if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
