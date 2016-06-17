@@ -78,6 +78,7 @@
     '../samplecode/SamplePathClip.cpp',
     '../samplecode/SamplePathFuzz.cpp',
     '../samplecode/SamplePathEffects.cpp',
+    '../samplecode/SamplePathOverstroke.cpp',
     '../samplecode/SamplePictFile.cpp',
     '../samplecode/SamplePoints.cpp',
     '../samplecode/SamplePolyToPoly.cpp',
