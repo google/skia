@@ -42,7 +42,7 @@ SK_API sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src,
                                          sk_shader_tilemode_t tmx,
                                          sk_shader_tilemode_t tmy,
                                          const sk_matrix_t* localMatrix);
-SK_API sk_shader_t* sk_shader_new_picture(const sk_picture_t* src,
+SK_API sk_shader_t* sk_shader_new_picture(sk_picture_t* src,
                                          sk_shader_tilemode_t tmx,
                                          sk_shader_tilemode_t tmy,
                                          const sk_matrix_t* localMatrix,

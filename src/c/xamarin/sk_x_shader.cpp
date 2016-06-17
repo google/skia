@@ -7,7 +7,8 @@
 
 #include "SkShader.h"
 #include "SkComposeShader.h"
-#include "../../include/effects/SkPerlinNoiseShader.h"
+#include "SkColorFilter.h"
+#include "SkPerlinNoiseShader.h"
 
 #include "xamarin/sk_x_shader.h"
 
@@ -15,11 +16,11 @@
 #include "sk_x_types_priv.h"
 
 sk_shader_t* sk_shader_new_empty() {
-    return (sk_shader_t*) SkShader::CreateEmptyShader();
+    return ToShader(SkShader::MakeEmptyShader().release());
 }
 
 sk_shader_t* sk_shader_new_color(sk_color_t color) {
-    return (sk_shader_t*) SkShader::CreateColorShader(color);
+    return ToShader(SkShader::MakeColorShader(color).release());
 }
 
 sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src,
@@ -40,11 +41,11 @@ sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src,
     } else {
         matrix.setIdentity();
     }
-    SkShader* s = SkShader::CreateBitmapShader(*AsBitmap(src), modex, modey, &matrix);
-    return (sk_shader_t*)s;
+    sk_sp<SkShader> s = SkShader::MakeBitmapShader(*AsBitmap(src), modex, modey, &matrix);
+    return ToShader(s.release());
 }
 
-sk_shader_t* sk_shader_new_picture(const sk_picture_t* src,
+sk_shader_t* sk_shader_new_picture(sk_picture_t* src,
                                   sk_shader_tilemode_t tmx,
                                   sk_shader_tilemode_t tmy,
                                   const sk_matrix_t* localMatrix,
@@ -64,14 +65,14 @@ sk_shader_t* sk_shader_new_picture(const sk_picture_t* src,
     else {
         matrix.setIdentity();
     }
-    SkShader* s = SkShader::CreatePictureShader(AsPicture(src), modex, modey, &matrix, AsRect(tile));
-    return (sk_shader_t*)s;
+    sk_sp<SkShader> s = SkShader::MakePictureShader(sk_ref_sp(AsPicture(src)), modex, modey, &matrix, AsRect(tile));
+    return ToShader(s.release());
 }
 
 sk_shader_t* sk_shader_new_color_filter(sk_shader_t* proxy,
                                         sk_colorfilter_t* filter) {
-    SkShader* s = AsShader(proxy)->newWithColorFilter(AsColorFilter(filter));
-    return (sk_shader_t*)s;
+    sk_sp<SkShader> s = AsShader(proxy)->makeWithColorFilter(sk_ref_sp(AsColorFilter(filter)));
+    return ToShader(s.release());
 }
 
 sk_shader_t* sk_shader_new_local_matrix(sk_shader_t* proxy,
@@ -82,8 +83,8 @@ sk_shader_t* sk_shader_new_local_matrix(sk_shader_t* proxy,
     } else {
         matrix.setIdentity();
     }
-    SkShader* s = AsShader(proxy)->newWithLocalMatrix(matrix);
-    return (sk_shader_t*)s;
+    sk_sp<SkShader> s = AsShader(proxy)->makeWithLocalMatrix(matrix);
+    return ToShader(s.release());
 }
 
 sk_shader_t* sk_shader_new_perlin_noise_fractal_noise(
@@ -94,13 +95,13 @@ sk_shader_t* sk_shader_new_perlin_noise_fractal_noise(
     const sk_isize_t* ctileSize) {
 
     const SkISize* tileSize = AsISize(ctileSize);
-    SkShader* s = SkPerlinNoiseShader::CreateFractalNoise(
+    sk_sp<SkShader> s = SkPerlinNoiseShader::MakeFractalNoise(
         baseFrequencyX,
         baseFrequencyY,
         numOctaves,
         seed,
         tileSize);
-    return (sk_shader_t*)s;
+    return ToShader(s.release());
 }
 
 sk_shader_t* sk_shader_new_perlin_noise_turbulence(
@@ -111,21 +112,20 @@ sk_shader_t* sk_shader_new_perlin_noise_turbulence(
     const sk_isize_t* ctileSize) {
 
     const SkISize* tileSize = AsISize(ctileSize);
-    SkShader* s = SkPerlinNoiseShader::CreateTurbulence(
+    sk_sp<SkShader> s = SkPerlinNoiseShader::MakeTurbulence(
         baseFrequencyX,
         baseFrequencyY, 
         numOctaves, 
         seed, 
         tileSize);
-    return (sk_shader_t*)s;
+    return ToShader(s.release());
 }
 
 sk_shader_t* sk_shader_new_compose(
     sk_shader_t* shaderA,
     sk_shader_t* shaderB) {
-
-    SkShader* s = new SkComposeShader(AsShader(shaderA), AsShader(shaderB));
-    return (sk_shader_t*)s;
+    sk_sp<SkShader> s = SkShader::MakeComposeShader(sk_ref_sp(AsShader(shaderA)), sk_ref_sp(AsShader(shaderB)), SkXfermode::kSrcOver_Mode);
+    return ToShader(s.release());
 }
 
 sk_shader_t* sk_shader_new_compose_with_mode(
@@ -137,6 +137,6 @@ sk_shader_t* sk_shader_new_compose_with_mode(
     if (!find_sk(cmode, &mode)) {
         return NULL;
     }
-    SkShader* s = new SkComposeShader(AsShader(shaderA), AsShader(shaderB), SkXfermode::Create(mode));
-    return (sk_shader_t*)s;
+    sk_sp<SkShader> s = SkShader::MakeComposeShader(sk_ref_sp(AsShader(shaderA)), sk_ref_sp(AsShader(shaderB)), mode);
+    return ToShader(s.release());
 }

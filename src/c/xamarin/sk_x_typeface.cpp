@@ -30,29 +30,29 @@ static inline SkTypeface::Style MapStyle(sk_typeface_style_t ostyle)
 
 void sk_typeface_unref(sk_typeface_t* tf)
 {
-    ((SkTypeface *)tf)->unref();
+    AsTypeface(tf)->unref();
 }
 
 sk_typeface_t* sk_typeface_create_from_name(const char *familyName, sk_typeface_style_t sstyle)
 {
     SkTypeface::Style style = MapStyle (sstyle);
-    return (sk_typeface_t *) SkTypeface::CreateFromName (familyName, style);
+    return ToTypeface(SkTypeface::MakeFromName (familyName, style).release());
 }
 
 sk_typeface_t* sk_typeface_create_from_typeface(sk_typeface_t* typeface, sk_typeface_style_t sstyle)
 {
     SkTypeface::Style style = MapStyle (sstyle);
-    return (sk_typeface_t *) SkTypeface::CreateFromTypeface ((SkTypeface *) typeface, style);
+    return ToTypeface(SkTypeface::MakeFromTypeface (AsTypeface(typeface), style).release());
 }
 
 sk_typeface_t* sk_typeface_create_from_file(const char* path, int index)
 {
-    return (sk_typeface_t *) SkTypeface::CreateFromFile (path, index);
+    return ToTypeface(SkTypeface::MakeFromFile (path, index).release());
 }
 
 sk_typeface_t* sk_typeface_create_from_stream(sk_stream_asset_t* stream, int index)
 {
-    return (sk_typeface_t *) SkTypeface::CreateFromStream ((SkStreamAsset*) stream, index);
+    return ToTypeface(SkTypeface::MakeFromStream (AsStreamAsset(stream), index).release());
 }
 
 int sk_typeface_chars_to_glyphs (sk_typeface_t* typeface, const char *chars, sk_encoding_t encoding, uint16_t glyphs [], int glyphCount)
@@ -67,37 +67,37 @@ int sk_typeface_chars_to_glyphs (sk_typeface_t* typeface, const char *chars, sk_
     else
         e = SkTypeface::kUTF8_Encoding;
     
-    return ((SkTypeface *)typeface)->charsToGlyphs(chars, e, glyphs, glyphCount);
+    return (AsTypeface(typeface))->charsToGlyphs(chars, e, glyphs, glyphCount);
 }
 
 int sk_typeface_glyph_count (sk_typeface_t* typeface)
 {
-    return ((SkTypeface*) typeface)->countGlyphs();
+    return AsTypeface(typeface)->countGlyphs();
 }
 
 sk_string_t* sk_typeface_get_family_name(sk_typeface_t* typeface)
 {
     SkString* family_name = new SkString();
-    ((SkTypeface*)typeface)->getFamilyName(family_name);
+    AsTypeface(typeface)->getFamilyName(family_name);
     return ToString(family_name);
 }
 
 int sk_typeface_count_tables(sk_typeface_t* typeface)
 {
-    return ((SkTypeface*)typeface)->countTables();
+    return AsTypeface(typeface)->countTables();
 }
 
 int sk_typeface_get_table_tags(sk_typeface_t* typeface, sk_font_table_tag_t tags[])
 {
-    return ((SkTypeface*)typeface)->getTableTags(tags);
+    return AsTypeface(typeface)->getTableTags(tags);
 }
 
 size_t sk_typeface_get_table_size(sk_typeface_t* typeface, sk_font_table_tag_t tag)
 {
-    return ((SkTypeface*)typeface)->getTableSize(tag);
+    return AsTypeface(typeface)->getTableSize(tag);
 }
 
 size_t sk_typeface_get_table_data(sk_typeface_t* typeface, sk_font_table_tag_t tag, size_t offset, size_t length, void* data)
 {
-    return ((SkTypeface*)typeface)->getTableData(tag, offset, length, data);
+    return AsTypeface(typeface)->getTableData(tag, offset, length, data);
 }

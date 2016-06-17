@@ -16,15 +16,15 @@
 #include "SkDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkImageDecoder.h"
+#include "SkCodec.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPoint3.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "../../include/effects/SkDisplacementMapEffect.h"
-#include "../../include/effects/SkDropShadowImageFilter.h"
-#include "../../include/effects/SkMatrixConvolutionImageFilter.h"
+#include "SkDisplacementMapEffect.h"
+#include "SkDropShadowImageFilter.h"
+#include "SkMatrixConvolutionImageFilter.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"
@@ -37,52 +37,6 @@
 #include "../sk_types_priv.h"
 
 #define MAKE_FROM_TO_NAME(FROM)     g_ ## FROM ## _map
-
-const struct {
-    sk_imagedecoder_mode_t  fC;
-    SkImageDecoder::Mode    fSK;
-} MAKE_FROM_TO_NAME(sk_imagedecoder_mode_t)[] = {
-    { DECODEBOUNDS_SK_IMAGEDECODER_MODE, SkImageDecoder::kDecodeBounds_Mode },
-    { DECODEPIXELS_SK_IMAGEDECODER_MODE, SkImageDecoder::kDecodePixels_Mode },
-};
-#define CType           sk_imagedecoder_mode_t
-#define SKType          SkImageDecoder::Mode
-#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_mode_t)
-#include "../sk_c_from_to.h"
-
-const struct {
-    sk_imagedecoder_result_t  fC;
-    SkImageDecoder::Result    fSK;
-} MAKE_FROM_TO_NAME(sk_imagedecoder_result_t)[] = {
-    { FAILURE_SK_IMAGEDECODER_RESULT,        SkImageDecoder::kFailure        },
-    { PARTIALSUCCESS_SK_IMAGEDECODER_RESULT, SkImageDecoder::kPartialSuccess },
-    { SUCCESS_SK_IMAGEDECODER_RESULT,        SkImageDecoder::kSuccess        },
-};
-#define CType           sk_imagedecoder_result_t
-#define SKType          SkImageDecoder::Result
-#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_result_t)
-#include "../sk_c_from_to.h"
-
-const struct {
-    sk_imagedecoder_format_t  fC;
-    SkImageDecoder::Format    fSK;
-} MAKE_FROM_TO_NAME(sk_imagedecoder_format_t)[] = {
-    { UNKNOWN_SK_IMAGEDECODER_FORMAT, SkImageDecoder::kUnknown_Format },
-    { BMP_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kBMP_Format     },
-    { GIF_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kGIF_Format     },
-    { ICO_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kICO_Format     },
-    { JPEG_SK_IMAGEDECODER_FORMAT,    SkImageDecoder::kJPEG_Format    },
-    { PNG_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kPNG_Format     },
-    { WBMP_SK_IMAGEDECODER_FORMAT,    SkImageDecoder::kWBMP_Format    },
-    { WEBP_SK_IMAGEDECODER_FORMAT,    SkImageDecoder::kWEBP_Format    },
-    { PKM_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kPKM_Format     },
-    { KTX_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kKTX_Format     },
-    { ASTC_SK_IMAGEDECODER_FORMAT,    SkImageDecoder::kASTC_Format    },
-};
-#define CType           sk_imagedecoder_format_t
-#define SKType          SkImageDecoder::Format
-#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_format_t)
-#include "../sk_c_from_to.h"
 
 const struct {
     sk_path_direction_t fC;
@@ -269,11 +223,14 @@ const struct {
     SkColorType     fSK;
 } MAKE_FROM_TO_NAME(sk_colortype_t)[] = {
     { UNKNOWN_SK_COLORTYPE,     kUnknown_SkColorType    },
-    { RGBA_8888_SK_COLORTYPE,   kRGBA_8888_SkColorType  },
-    { BGRA_8888_SK_COLORTYPE,   kBGRA_8888_SkColorType  },
     { ALPHA_8_SK_COLORTYPE,     kAlpha_8_SkColorType    },
     { RGB_565_SK_COLORTYPE,     kRGB_565_SkColorType    },
-    { N_32_SK_COLORTYPE,        kN32_SkColorType        },
+    { ARGB_4444_SK_COLORTYPE,   kARGB_4444_SkColorType  },
+    { RGBA_8888_SK_COLORTYPE,   kRGBA_8888_SkColorType  },
+    { BGRA_8888_SK_COLORTYPE,   kBGRA_8888_SkColorType  },
+    { Index_8_SK_COLORTYPE,     kIndex_8_SkColorType    },
+    { Gray_8_SK_COLORTYPE,      kGray_8_SkColorType     },
+    { RGBA_F16_SK_COLORTYPE,    kRGBA_F16_SkColorType   },
 };
 #define CType           sk_colortype_t
 #define SKType          SkColorType
@@ -284,6 +241,7 @@ const struct {
     sk_alphatype_t  fC;
     SkAlphaType     fSK;
 } MAKE_FROM_TO_NAME(sk_alphatype_t)[] = {
+    { UNKNOWN_SK_ALPHATYPE,     kUnknown_SkAlphaType    },
     { OPAQUE_SK_ALPHATYPE,      kOpaque_SkAlphaType     },
     { PREMUL_SK_ALPHATYPE,      kPremul_SkAlphaType     },
     { UNPREMUL_SK_ALPHATYPE,    kUnpremul_SkAlphaType   },
@@ -377,6 +335,88 @@ const struct {
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_region_op_t)
 #include "../sk_c_from_to.h"
 
+const struct {
+    sk_colorprofiletype_t  fC;
+    SkColorProfileType     fSK;
+} MAKE_FROM_TO_NAME(sk_colorprofiletype_t)[] = {
+    { LINEAR_SK_COLORPROFILETYPE,  kLinear_SkColorProfileType },
+    { SRGB_SK_COLORPROFILETYPE,    kSRGB_SkColorProfileType   },
+};
+#define CType           sk_colorprofiletype_t
+#define SKType          SkColorProfileType
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_colorprofiletype_t)
+#include "../sk_c_from_to.h"
+
+const struct {
+    sk_encoded_format_t  fC;
+    SkEncodedFormat      fSK;
+} MAKE_FROM_TO_NAME(sk_encoded_format_t)[] = {
+    { UNKNOWN_SK_ENCODED_FORMAT, SkEncodedFormat::kUnknown_SkEncodedFormat },
+    { BMP_SK_ENCODED_FORMAT,     SkEncodedFormat::kBMP_SkEncodedFormat     },
+    { GIF_SK_ENCODED_FORMAT,     SkEncodedFormat::kGIF_SkEncodedFormat     },
+    { ICO_SK_ENCODED_FORMAT,     SkEncodedFormat::kICO_SkEncodedFormat     },
+    { JPEG_SK_ENCODED_FORMAT,    SkEncodedFormat::kJPEG_SkEncodedFormat    },
+    { PNG_SK_ENCODED_FORMAT,     SkEncodedFormat::kPNG_SkEncodedFormat     },
+    { WBMP_SK_ENCODED_FORMAT,    SkEncodedFormat::kWBMP_SkEncodedFormat    },
+    { WEBP_SK_ENCODED_FORMAT,    SkEncodedFormat::kWEBP_SkEncodedFormat    },
+    { PKM_SK_ENCODED_FORMAT,     SkEncodedFormat::kPKM_SkEncodedFormat     },
+    { KTX_SK_ENCODED_FORMAT,     SkEncodedFormat::kKTX_SkEncodedFormat     },
+    { ASTC_SK_ENCODED_FORMAT,    SkEncodedFormat::kASTC_SkEncodedFormat    },
+    { DNG_SK_ENCODED_FORMAT,     SkEncodedFormat::kDNG_SkEncodedFormat     },
+};
+#define CType           sk_encoded_format_t
+#define SKType          SkEncodedFormat
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_encoded_format_t)
+#include "../sk_c_from_to.h"
+
+const struct {
+    sk_codec_origin_t  fC;
+    SkCodec::Origin    fSK;
+} MAKE_FROM_TO_NAME(sk_codec_origin_t)[] = {
+    { TOP_LEFT_SK_CODEC_ORIGIN,      SkCodec::kTopLeft_Origin },
+    { TOP_RIGHT_SK_CODEC_ORIGIN,     SkCodec::kTopRight_Origin },
+    { BOTTOM_RIGHT_SK_CODEC_ORIGIN,  SkCodec::kBottomRight_Origin },
+    { BOTTOM_LEFT_SK_CODEC_ORIGIN,   SkCodec::kBottomLeft_Origin },
+    { LEFT_TOP_SK_CODEC_ORIGIN,      SkCodec::kLeftTop_Origin },
+    { RIGHT_TOP_SK_CODEC_ORIGIN,     SkCodec::kRightTop_Origin },
+    { RIGHT_BOTTOM_SK_CODEC_ORIGIN,  SkCodec::kRightBottom_Origin },
+    { LEFT_BOTTOM_SK_CODEC_ORIGIN,   SkCodec::kLeftBottom_Origin },
+};
+#define CType           sk_codec_origin_t
+#define SKType          SkCodec::Origin
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_codec_origin_t)
+#include "../sk_c_from_to.h"
+
+const struct {
+    sk_codec_result_t  fC;
+    SkCodec::Result    fSK;
+} MAKE_FROM_TO_NAME(sk_codec_result_t)[] = {
+    { SUCCESS_SK_CODEC_RESULT,             SkCodec::kSuccess           },
+    { INCOMPLETE_INPUT_SK_CODEC_RESULT,    SkCodec::kIncompleteInput   },
+    { INVALID_CONVERSION_SK_CODEC_RESULT,  SkCodec::kInvalidConversion },
+    { INVALID_SCALE_SK_CODEC_RESULT,       SkCodec::kInvalidScale      },
+    { INVALID_PARAMETERS_SK_CODEC_RESULT,  SkCodec::kInvalidParameters },
+    { INVALID_INPUT_SK_CODEC_RESULT,       SkCodec::kInvalidInput      },
+    { COULD_NOT_REWIND_SK_CODEC_RESULT,    SkCodec::kCouldNotRewind    },
+    { UNIMPLEMENTED_SK_CODEC_RESULT,       SkCodec::kUnimplemented     },
+};
+#define CType           sk_codec_result_t
+#define SKType          SkCodec::Result
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_codec_result_t)
+#include "../sk_c_from_to.h"
+
+const struct {
+    sk_codec_zero_initialized_t  fC;
+    SkCodec::ZeroInitialized     fSK;
+} MAKE_FROM_TO_NAME(sk_codec_zero_initialized_t)[] = {
+    { YES_SK_CODEC_ZERO_INITIALIZED,  SkCodec::kYes_ZeroInitialized  },
+    { NO_SK_CODEC_ZERO_INITIALIZED,   SkCodec::kNo_ZeroInitialized   },
+};
+#define CType           sk_codec_zero_initialized_t
+#define SKType          SkCodec::ZeroInitialized
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_codec_zero_initialized_t)
+#include "../sk_c_from_to.h"
+
 static inline SkRect* AsRect(sk_rect_t* crect) {
     return reinterpret_cast<SkRect*>(crect);
 }
@@ -415,18 +455,6 @@ static inline const SkBitmap& AsBitmap(const sk_bitmap_t& cbitmap) {
 
 static inline SkBitmap* AsBitmap(sk_bitmap_t* cbitmap) {
     return reinterpret_cast<SkBitmap*>(cbitmap);
-}
-
-static inline const SkImageDecoder* AsImageDecoder(const sk_imagedecoder_t* cdecoder) {
-    return reinterpret_cast<const SkImageDecoder*>(cdecoder);
-}
-
-static inline const SkImageDecoder& AsImageDecoder(const sk_imagedecoder_t& cdecoder) {
-    return reinterpret_cast<const SkImageDecoder&>(cdecoder);
-}
-
-static inline SkImageDecoder* AsImageDecoder(sk_imagedecoder_t* cdecoder) {
-    return reinterpret_cast<SkImageDecoder*>(cdecoder);
 }
 
 static inline SkData* AsData(const sk_data_t* cdata) {
@@ -505,6 +533,34 @@ static inline sk_colorfilter_t* ToColorFilter(SkColorFilter* filter) {
     return reinterpret_cast<sk_colorfilter_t*>(filter);
 }
 
+static inline const SkCodec* AsCodec(const sk_codec_t* codec) {
+    return reinterpret_cast<const SkCodec*>(codec);
+}
+
+static inline const SkCodec& AsCodec(const sk_codec_t& codec) {
+    return reinterpret_cast<const SkCodec&>(codec);
+}
+
+static inline SkCodec* AsCodec(sk_codec_t* codec) {
+    return reinterpret_cast<SkCodec*>(codec);
+}
+
+static inline sk_codec_t* ToCodec(SkCodec* codec) {
+    return reinterpret_cast<sk_codec_t*>(codec);
+}
+
+static inline SkTypeface* AsTypeface(sk_typeface_t* typeface) {
+    return reinterpret_cast<SkTypeface*>(typeface);
+}
+
+static inline sk_typeface_t* ToTypeface(SkTypeface* typeface) {
+    return reinterpret_cast<sk_typeface_t*>(typeface);
+}
+
+static inline sk_colorspace_t* ToColorSpace(SkColorSpace* colorspace) {
+    return reinterpret_cast<sk_colorspace_t*>(colorspace);
+}
+
 static inline SkCanvas::PointMode MapPointMode(sk_point_mode_t mode)
 {
     SkCanvas::PointMode pointMode;
@@ -518,41 +574,6 @@ static inline SkCanvas::PointMode MapPointMode(sk_point_mode_t mode)
         return SkCanvas::kPoints_PointMode;
     }
     return pointMode;
-}
-
-static inline bool find_sk(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
-    SkColorType ct;
-    SkAlphaType at;
-
-    if (!find_sk(cinfo.colorType, &ct)) {
-        // optionally report error to client?
-        return false;
-    }
-    if (!find_sk(cinfo.alphaType, &at)) {
-        // optionally report error to client?
-        return false;
-    }
-    if (info) {
-        *info = SkImageInfo::Make(cinfo.width, cinfo.height, ct, at);
-    }
-    return true;
-}
-
-static inline bool find_c(const SkImageInfo& info, sk_imageinfo_t* cinfo)
-{
-    sk_imageinfo_t tempInfo;
-    tempInfo.width = info.width();
-    tempInfo.height = info.height();
-    if (!find_c(info.colorType(), &tempInfo.colorType)) {
-        return false;
-    }
-    if (!find_c(info.alphaType(), &tempInfo.alphaType)) {
-        return false;
-    }
-    if (cinfo) {
-        *cinfo = tempInfo;
-    }
-    return true;
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
@@ -674,6 +695,18 @@ static inline const SkISize* AsISize(const sk_isize_t* p) {
     return reinterpret_cast<const SkISize*>(p);
 }
 
+static inline SkISize* AsISize(sk_isize_t* p) {
+    return reinterpret_cast<SkISize*>(p);
+}
+
+static inline const sk_isize_t& ToISize(const SkISize& p) {
+    return reinterpret_cast<const sk_isize_t&>(p);
+}
+
+static inline const sk_isize_t* ToISize(const SkISize* p) {
+    return reinterpret_cast<const sk_isize_t*>(p);
+}
+
 static inline const SkPoint3& AsPoint3(const sk_point3_t& p) {
     return reinterpret_cast<const SkPoint3&>(p);
 }
@@ -712,6 +745,48 @@ static inline SkDocument* AsDocument(sk_document_t* cdocument) {
 
 static inline sk_document_t* ToDocument(SkDocument* document) {
     return reinterpret_cast<sk_document_t*>(document);
+}
+
+static inline SkImageInfo* AsImageInfo(sk_imageinfo_t* cinfo) {
+    return reinterpret_cast<SkImageInfo*>(cinfo);
+}
+
+static inline const SkImageInfo* AsImageInfo(const sk_imageinfo_t* cinfo) {
+    return reinterpret_cast<const SkImageInfo*>(cinfo);
+}
+
+static inline sk_imageinfo_t* ToImageInfo(SkImageInfo* info) {
+    return reinterpret_cast<sk_imageinfo_t*>(info);
+}
+
+static inline sk_imageinfo_t& ToImageInfo(SkImageInfo& info) {
+    return reinterpret_cast<sk_imageinfo_t&>(info);
+}
+
+static inline const sk_imageinfo_t* ToImageInfo(const SkImageInfo* info) {
+    return reinterpret_cast<const sk_imageinfo_t*>(info);
+}
+
+static inline const sk_imageinfo_t& ToImageInfo(const SkImageInfo& info) {
+    return reinterpret_cast<const sk_imageinfo_t&>(info);
+}
+
+static inline bool find_sk(const sk_codec_options_t& coptions, SkCodec::Options* options) {
+    SkCodec::ZeroInitialized zero;
+
+    if (!find_sk(coptions.fZeroInitialized, &zero)) {
+        // optionally report error to client?
+        return false;
+    }
+
+    if (options) {
+        *options = SkCodec::Options();
+        options->fZeroInitialized = zero;
+        if (coptions.fHasSubset) {
+            options->fSubset = AsIRect((sk_irect_t*)&coptions.fSubset);
+        }
+    }
+    return true;
 }
 
 

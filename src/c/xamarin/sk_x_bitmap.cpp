@@ -73,14 +73,9 @@ sk_bitmap_t* sk_bitmap_new()
     return (sk_bitmap_t*) new SkBitmap();
 }
 
-bool sk_bitmap_get_info(sk_bitmap_t* cbitmap, sk_imageinfo_t* info)
+void sk_bitmap_get_info(sk_bitmap_t* cbitmap, sk_imageinfo_t* info)
 {
-    sk_imageinfo_t cinfo;
-    bool result = find_c(AsBitmap(cbitmap)->info(), &cinfo);
-    if (result) {
-        *info = cinfo;
-    }
-    return result;
+    *info = ToImageInfo(AsBitmap(cbitmap)->info());
 }
 
 void* sk_bitmap_get_pixels(sk_bitmap_t* cbitmap, size_t* length)
@@ -251,10 +246,7 @@ bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requ
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
-    SkImageInfo info;
-    if (!find_sk(*requestedInfo, &info)) {
-        return false;
-    }
+    const SkImageInfo* info = AsImageInfo(requestedInfo);
 
-    return bmp->tryAllocPixels(info, rowBytes);
+    return bmp->tryAllocPixels(*info, rowBytes);
 }

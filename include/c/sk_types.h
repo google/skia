@@ -41,19 +41,28 @@ typedef uint32_t sk_color_t;
 #define sk_color_get_b(c)               (((c) >>  0) & 0xFF)
 
 typedef enum {
-    UNKNOWN_SK_COLORTYPE,
-    RGBA_8888_SK_COLORTYPE,
-    BGRA_8888_SK_COLORTYPE,
+    UNKNOWN_SK_COLORTYPE = 0,
     ALPHA_8_SK_COLORTYPE,
     RGB_565_SK_COLORTYPE,
-    N_32_SK_COLORTYPE,
+    ARGB_4444_SK_COLORTYPE,
+    RGBA_8888_SK_COLORTYPE,
+    BGRA_8888_SK_COLORTYPE,
+    Index_8_SK_COLORTYPE,
+    Gray_8_SK_COLORTYPE,
+    RGBA_F16_SK_COLORTYPE,
 } sk_colortype_t;
 
 typedef enum {
+    UNKNOWN_SK_ALPHATYPE,
     OPAQUE_SK_ALPHATYPE,
     PREMUL_SK_ALPHATYPE,
     UNPREMUL_SK_ALPHATYPE,
 } sk_alphatype_t;
+
+typedef enum {
+    LINEAR_SK_COLORPROFILETYPE,
+    SRGB_SK_COLORPROFILETYPE,
+} sk_colorprofiletype_t;
 
 typedef enum {
     INTERSECT_SK_CLIPTYPE,
@@ -74,10 +83,11 @@ typedef enum {
 SK_API sk_colortype_t sk_colortype_get_default_8888();
 
 typedef struct {
-    int32_t         width;
-    int32_t         height;
-    sk_colortype_t  colorType;
-    sk_alphatype_t  alphaType;
+    int32_t                width;
+    int32_t                height;
+    sk_colortype_t         colorType;
+    sk_alphatype_t         alphaType;
+    sk_colorprofiletype_t  profileType;
 } sk_imageinfo_t;
 
 typedef struct {

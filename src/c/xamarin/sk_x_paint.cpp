@@ -6,6 +6,8 @@
  */
 
 #include "SkPaint.h"
+#include "SkTypeface.h"
+#include "SkColorFilter.h"
 
 #include "xamarin/sk_x_paint.h"
 
@@ -37,7 +39,7 @@ sk_maskfilter_t* sk_paint_get_maskfilter(sk_paint_t* cpaint) {
 }
 
 void sk_paint_set_colorfilter(sk_paint_t* cpaint, sk_colorfilter_t* cfilter) {
-    AsPaint(cpaint)->setColorFilter(AsColorFilter(cfilter));
+    AsPaint(cpaint)->setColorFilter(sk_ref_sp(AsColorFilter(cfilter)));
 }
 
 sk_colorfilter_t* sk_paint_get_colorfilter(sk_paint_t* cpaint) {
@@ -88,12 +90,12 @@ sk_filter_quality_t sk_paint_get_filter_quality(sk_paint_t* cpaint)
 
 sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint)
 {
-    return (sk_typeface_t*) AsPaint(paint)->getTypeface();
+    return ToTypeface(AsPaint(paint)->getTypeface());
 }
 
 void sk_paint_set_typeface(sk_paint_t* paint, sk_typeface_t* typeface)
 {
-    AsPaint(paint)->setTypeface((SkTypeface*) typeface);
+    AsPaint(paint)->setTypeface(sk_ref_sp(AsTypeface(typeface)));
 }
 
 float sk_paint_get_textsize(sk_paint_t* paint)

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "../../include/effects/SkBlurMaskFilter.h"
-#include "../../include/effects/SkTableMaskFilter.h"
+#include "SkBlurMaskFilter.h"
+#include "SkTableMaskFilter.h"
 
 #include "xamarin/sk_x_maskfilter.h"
 
@@ -18,7 +18,7 @@ sk_maskfilter_t* sk_maskfilter_new_emboss(
     const float direction[3],
     float ambient, 
     float specular) {
-    return ToMaskFilter(SkBlurMaskFilter::CreateEmboss(blurSigma, direction, ambient, specular));
+    return ToMaskFilter(SkBlurMaskFilter::MakeEmboss(blurSigma, direction, ambient, specular).release());
 }
 
 sk_maskfilter_t* sk_maskfilter_new_table(const uint8_t table[256]) {

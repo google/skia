@@ -51,11 +51,8 @@ sk_colortype_t sk_colortype_get_default_8888() {
 
 sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pixels,
                                      size_t rowBytes) {
-    SkImageInfo info;
-    if (!from_c_info(*cinfo, &info)) {
-        return NULL;
-    }
-    return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes)).release();
+    const SkImageInfo* info = AsImageInfo(cinfo);
+    return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(*info, pixels, rowBytes)).release();
 }
 
 sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {
@@ -254,33 +251,27 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
 
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
                                     const sk_surfaceprops_t* props) {
-    SkImageInfo info;
-    if (!from_c_info(*cinfo, &info)) {
-        return NULL;
-    }
+    const SkImageInfo* info = AsImageInfo(cinfo);
     SkPixelGeometry geo = kUnknown_SkPixelGeometry;
     if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
         return NULL;
     }
 
     SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::MakeRaster(info, &surfProps).release();
+    return (sk_surface_t*)SkSurface::MakeRaster(*info, &surfProps).release();
 }
 
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pixels,
                                            size_t rowBytes,
                                            const sk_surfaceprops_t* props) {
-    SkImageInfo info;
-    if (!from_c_info(*cinfo, &info)) {
-        return NULL;
-    }
+    const SkImageInfo* info = AsImageInfo(cinfo);
     SkPixelGeometry geo = kUnknown_SkPixelGeometry;
     if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
         return NULL;
     }
 
     SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::MakeRasterDirect(info, pixels, rowBytes, &surfProps).release();
+    return (sk_surface_t*)SkSurface::MakeRasterDirect(*info, pixels, rowBytes, &surfProps).release();
 }
 
 void sk_surface_unref(sk_surface_t* csurf) {

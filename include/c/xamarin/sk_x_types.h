@@ -66,10 +66,6 @@ typedef struct sk_string_t sk_string_t;
     A sk_bitmap_t is an abstraction that specifies a raster bitmap.
 */
 typedef struct sk_bitmap_t sk_bitmap_t;
-/**
-    Base class for decoding compressed images into a sk_bitmap_t
-*/
-typedef struct sk_imagedecoder_t sk_imagedecoder_t;
 typedef struct sk_colorfilter_t sk_colorfilter_t;
 typedef struct sk_imagefilter_t sk_imagefilter_t;
 typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
@@ -83,7 +79,11 @@ typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
 */
 typedef struct sk_typeface_t sk_typeface_t;
 typedef uint32_t sk_font_table_tag_t;
-
+/**
+ *  Abstraction layer directly on top of an image codec.
+ */
+typedef struct sk_codec_t sk_codec_t;
+typedef struct sk_colorspace_t sk_colorspace_t;
 /**
    Various stream types
 */
@@ -111,31 +111,6 @@ typedef enum {
     LINES_SK_POINT_MODE,
     POLYGON_SK_POINT_MODE
 } sk_point_mode_t;
-
-typedef enum {
-    DECODEBOUNDS_SK_IMAGEDECODER_MODE,
-    DECODEPIXELS_SK_IMAGEDECODER_MODE
-} sk_imagedecoder_mode_t;
-
-typedef enum {
-    FAILURE_SK_IMAGEDECODER_RESULT,
-    PARTIALSUCCESS_SK_IMAGEDECODER_RESULT,
-    SUCCESS_SK_IMAGEDECODER_RESULT
-} sk_imagedecoder_result_t;
-
-typedef enum {
-    UNKNOWN_SK_IMAGEDECODER_FORMAT,
-    BMP_SK_IMAGEDECODER_FORMAT,
-    GIF_SK_IMAGEDECODER_FORMAT,
-    ICO_SK_IMAGEDECODER_FORMAT,
-    JPEG_SK_IMAGEDECODER_FORMAT,
-    PNG_SK_IMAGEDECODER_FORMAT,
-    WBMP_SK_IMAGEDECODER_FORMAT,
-    WEBP_SK_IMAGEDECODER_FORMAT,
-    PKM_SK_IMAGEDECODER_FORMAT,
-    KTX_SK_IMAGEDECODER_FORMAT,
-    ASTC_SK_IMAGEDECODER_FORMAT
-} sk_imagedecoder_format_t;
 
 typedef enum {
     LEFT_SK_TEXT_ALIGN,
@@ -221,6 +196,57 @@ typedef enum {
     REVERSE_DIFFERENCE_SK_REGION_OP,  //!< subtract the first region from the op region
     REPLACE_SK_REGION_OP,             //!< replace the dst region with the op region
 } sk_region_op_t;
+
+/**
+ *  Enum describing format of encoded data.
+ */
+typedef enum {
+    UNKNOWN_SK_ENCODED_FORMAT,
+    BMP_SK_ENCODED_FORMAT,
+    GIF_SK_ENCODED_FORMAT,
+    ICO_SK_ENCODED_FORMAT,
+    JPEG_SK_ENCODED_FORMAT,
+    PNG_SK_ENCODED_FORMAT,
+    WBMP_SK_ENCODED_FORMAT,
+    WEBP_SK_ENCODED_FORMAT,
+    PKM_SK_ENCODED_FORMAT,
+    KTX_SK_ENCODED_FORMAT,
+    ASTC_SK_ENCODED_FORMAT,
+    DNG_SK_ENCODED_FORMAT
+} sk_encoded_format_t;
+
+typedef enum {
+    TOP_LEFT_SK_CODEC_ORIGIN     = 1, // Default
+    TOP_RIGHT_SK_CODEC_ORIGIN    = 2, // Reflected across y-axis
+    BOTTOM_RIGHT_SK_CODEC_ORIGIN = 3, // Rotated 180
+    BOTTOM_LEFT_SK_CODEC_ORIGIN  = 4, // Reflected across x-axis
+    LEFT_TOP_SK_CODEC_ORIGIN     = 5, // Reflected across x-axis, Rotated 90 CCW
+    RIGHT_TOP_SK_CODEC_ORIGIN    = 6, // Rotated 90 CW
+    RIGHT_BOTTOM_SK_CODEC_ORIGIN = 7, // Reflected across x-axis, Rotated 90 CW
+    LEFT_BOTTOM_SK_CODEC_ORIGIN  = 8, // Rotated 90 CCW
+} sk_codec_origin_t;
+
+typedef enum {
+    SUCCESS_SK_CODEC_RESULT,
+    INCOMPLETE_INPUT_SK_CODEC_RESULT,
+    INVALID_CONVERSION_SK_CODEC_RESULT,
+    INVALID_SCALE_SK_CODEC_RESULT,
+    INVALID_PARAMETERS_SK_CODEC_RESULT,
+    INVALID_INPUT_SK_CODEC_RESULT,
+    COULD_NOT_REWIND_SK_CODEC_RESULT,
+    UNIMPLEMENTED_SK_CODEC_RESULT,
+} sk_codec_result_t;
+
+typedef enum {
+    YES_SK_CODEC_ZERO_INITIALIZED,
+    NO_SK_CODEC_ZERO_INITIALIZED,
+} sk_codec_zero_initialized_t;
+
+typedef struct {
+    sk_codec_zero_initialized_t fZeroInitialized;
+    sk_irect_t fSubset;
+    bool fHasSubset;
+} sk_codec_options_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 
