@@ -79,6 +79,8 @@ protected:
 
     SkColorSpace(GammaNamed gammaNamed, const SkMatrix44& toXYZD50, Named named);
 
+    friend Named sk_deduce_named_from_colorspace(SkColorSpace*);
+
     const GammaNamed fGammaNamed;
     const SkMatrix44 fToXYZD50;
     const Named      fNamed;

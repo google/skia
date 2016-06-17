@@ -788,7 +788,7 @@ SkShader::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageInfo& 
 #ifdef SK_FORCE_PM4f_FOR_L32_BLITS
     return SkShader::ContextRec::kPM4f_DstType;
 #else
-    return (dstInfo.isSRGB() || dstInfo.colorType() == kRGBA_F16_SkColorType)
+    return (dstInfo.gammaCloseToSRGB() || dstInfo.colorType() == kRGBA_F16_SkColorType)
             ? SkShader::ContextRec::kPM4f_DstType
             : SkShader::ContextRec::kPMColor_DstType;
 #endif
@@ -922,7 +922,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 #ifdef SK_FORCE_PM4f_FOR_L32_BLITS
             if (true)
 #else
-            if (device.info().isSRGB())
+            if (device.info().gammaCloseToSRGB())
 #endif
             {
                 blitter = SkBlitter_ARGB32_Create(device, *paint, shaderContext, allocator);
