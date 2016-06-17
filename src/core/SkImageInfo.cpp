@@ -6,6 +6,7 @@
  */
 
 #include "SkImageInfo.h"
+#include "SkImageInfoPriv.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
@@ -59,6 +60,14 @@ SkColorProfileType SkImageInfo::profileType() const {
             ? kSRGB_SkColorProfileType : kLinear_SkColorProfileType;
 }
 #endif
+
+// Indicate how images and gradients should interpret colors by default.
+bool gDefaultProfileIsSRGB;
+
+SkColorProfileType SkDefaultColorProfile() {
+    return gDefaultProfileIsSRGB ? kSRGB_SkColorProfileType
+                                 : kLinear_SkColorProfileType;
+}
 
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
     return (alphaType >= 0) && (alphaType <= kLastEnum_SkAlphaType);

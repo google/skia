@@ -102,10 +102,8 @@ protected:
 #if SK_SUPPORT_GPU
             // Create a new Canvas to enable DFT
             GrContext* ctx = inputCanvas->getGrContext();
-            SkISize size = onISize();
-            sk_sp<SkColorSpace> colorSpace = sk_ref_sp(inputCanvas->imageInfo().colorSpace());
-            SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(),
-                                                    kPremul_SkAlphaType, colorSpace);
+            SkImageInfo info = SkImageInfo::MakeN32Premul(onISize(),
+                                                          inputCanvas->imageInfo().profileType());
             SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
             uint32_t gammaCorrect = inputCanvas->getProps(&canvasProps)
                 ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;

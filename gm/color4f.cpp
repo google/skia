@@ -73,13 +73,10 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
     // even if it holds sRGB values.
     bg.setColor(0xFFFFFFFF);
 
-    sk_sp<SkColorSpace> colorSpaces[]{
-        nullptr,
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)
-    };
-    for (auto colorSpace : colorSpaces) {
+    SkColorProfileType const profiles[] { kLinear_SkColorProfileType, kSRGB_SkColorProfileType };
+    for (auto profile : profiles) {
         const SkImageInfo info = SkImageInfo::Make(1024, 100, kN32_SkColorType, kPremul_SkAlphaType,
-                                                   colorSpace);
+                                                   profile);
         auto surface(SkSurface::MakeRaster(info));
         surface->getCanvas()->drawPaint(bg);
         draw_into_canvas(surface->getCanvas());

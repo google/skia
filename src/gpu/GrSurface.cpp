@@ -118,11 +118,12 @@ bool GrSurface::readPixels(int left, int top, int width, int height,
 
 SkImageInfo GrSurface::info(SkAlphaType alphaType) const {
     SkColorType colorType;
-    sk_sp<SkColorSpace> colorSpace;
-    if (!GrPixelConfigToColorAndColorSpace(this->config(), &colorType, &colorSpace)) {
+    SkColorProfileType profileType;
+    if (!GrPixelConfig2ColorAndProfileType(this->config(), &colorType, &profileType)) {
         sk_throw();
     }
-    return SkImageInfo::Make(this->width(), this->height(), colorType, alphaType, colorSpace);
+    return SkImageInfo::Make(this->width(), this->height(), colorType, alphaType,
+                             profileType);
 }
 
 // TODO: This should probably be a non-member helper function. It might only be needed in

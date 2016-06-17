@@ -18,7 +18,6 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     const SkScalar tx = sz + 5.0f;
     const SkRect r = SkRect::MakeXYWH(0, 0, sz, sz);
     SkShader::TileMode rpt = SkShader::kRepeat_TileMode;
-    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
 
     SkBitmap ditherBmp;
     ditherBmp.allocN32Pixels(2, 2);
@@ -27,20 +26,21 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     pixels[1] = pixels[2] = SkPackARGB32(0xFF, 0, 0, 0);
 
     SkBitmap linearGreyBmp;
-    SkImageInfo linearGreyInfo = SkImageInfo::MakeN32(szInt, szInt, kOpaque_SkAlphaType, nullptr);
+    SkImageInfo linearGreyInfo = SkImageInfo::MakeN32(szInt, szInt, kOpaque_SkAlphaType,
+                                                      kLinear_SkColorProfileType);
     linearGreyBmp.allocPixels(linearGreyInfo);
     linearGreyBmp.eraseARGB(0xFF, 0x7F, 0x7F, 0x7F);
 
     SkBitmap srgbGreyBmp;
     SkImageInfo srgbGreyInfo = SkImageInfo::MakeN32(szInt, szInt, kOpaque_SkAlphaType,
-                                                    srgbColorSpace);
+                                                    kSRGB_SkColorProfileType);
     srgbGreyBmp.allocPixels(srgbGreyInfo);
     // 0xBC = 255 * linear_to_srgb(0.5f)
     srgbGreyBmp.eraseARGB(0xFF, 0xBC, 0xBC, 0xBC);
 
     SkBitmap mipmapBmp;
     SkImageInfo mipmapInfo = SkImageInfo::Make(2, 2, kN32_SkColorType, kOpaque_SkAlphaType,
-                                               srgbColorSpace);
+                                               SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
     mipmapBmp.allocPixels(mipmapInfo);
     SkPMColor* mipmapPixels = reinterpret_cast<SkPMColor*>(mipmapBmp.getPixels());
     unsigned s25 = 0x89;    // 255 * linear_to_srgb(0.25f)

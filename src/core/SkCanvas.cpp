@@ -1177,7 +1177,6 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool i
                                    const SkPaint* paint) {
     // need to force L32 for now if we have an image filter. Once filters support other colortypes
     // e.g. sRGB or F16, we can remove this check
-    // SRGBTODO: Can we remove this check now?
     const bool hasImageFilter = paint && paint->getImageFilter();
 
     SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
@@ -1186,7 +1185,7 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool i
         return SkImageInfo::MakeN32(w, h, alphaType);
     } else {
         // keep the same characteristics as the prev
-        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, sk_ref_sp(prev.colorSpace()));
+        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, prev.profileType());
     }
 }
 

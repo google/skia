@@ -97,8 +97,8 @@ protected:
 
         canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorWHITE));
 
-        SkImageInfo info = SkImageInfo::MakeN32(kWidth, kHeight, kPremul_SkAlphaType,
-                                                sk_ref_sp(canvas->imageInfo().colorSpace()));
+        SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight,
+                                                      canvas->imageInfo().profileType());
         SkSurfaceProps canvasProps(SkSurfaceProps::kLegacyFontHost_InitType);
         uint32_t gammaCorrect = canvas->getProps(&canvasProps)
             ? canvasProps.flags() & SkSurfaceProps::kGammaCorrect_Flag : 0;

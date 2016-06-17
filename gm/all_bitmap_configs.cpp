@@ -246,13 +246,13 @@ static uint32_t make_pixel(int x, int y, SkAlphaType alphaType) {
 static void make_color_test_bitmap_variant(
     SkColorType colorType,
     SkAlphaType alphaType,
-    sk_sp<SkColorSpace> colorSpace,
+    SkColorProfileType profile,
     SkBitmap* bm)
 {
     SkASSERT(colorType == kRGBA_8888_SkColorType || colorType == kBGRA_8888_SkColorType);
     SkASSERT(alphaType == kPremul_SkAlphaType || alphaType == kUnpremul_SkAlphaType);
     bm->allocPixels(
-        SkImageInfo::Make(SCALE, SCALE, colorType, alphaType, colorSpace));
+        SkImageInfo::Make(SCALE, SCALE, colorType, alphaType, profile));
     SkPixmap pm;
     bm->peekPixels(&pm);
     for (int y = 0; y < bm->height(); y++) {
@@ -265,17 +265,13 @@ static void make_color_test_bitmap_variant(
 DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, 2 * SCALE + 10) {
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
-    sk_sp<SkColorSpace> colorSpaces[] {
-        nullptr,
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)
-    };
-    for (auto colorSpace : colorSpaces) {
+    for (auto profile : {kSRGB_SkColorProfileType, kLinear_SkColorProfileType}) {
         canvas->save();
         for (auto alphaType : {kPremul_SkAlphaType, kUnpremul_SkAlphaType}) {
             canvas->save();
             for (auto colorType : {kRGBA_8888_SkColorType, kBGRA_8888_SkColorType}) {
                 SkBitmap bm;
-                make_color_test_bitmap_variant(colorType, alphaType, colorSpace, &bm);
+                make_color_test_bitmap_variant(colorType, alphaType, profile, &bm);
                 canvas->drawBitmap(bm, 0.0f, 0.0f);
                 canvas->translate(SCALE + 10, 0.0f);
             }

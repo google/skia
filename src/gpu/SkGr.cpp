@@ -453,10 +453,10 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, const SkCol
     return kUnknown_GrPixelConfig;
 }
 
-bool GrPixelConfigToColorAndColorSpace(GrPixelConfig config, SkColorType* ctOut,
-                                       sk_sp<SkColorSpace>* csOut) {
+bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
+                                       SkColorProfileType* ptOut) {
     SkColorType ct;
-    sk_sp<SkColorSpace> cs = nullptr;
+    SkColorProfileType pt = kLinear_SkColorProfileType;
     switch (config) {
         case kAlpha_8_GrPixelConfig:
             ct = kAlpha_8_SkColorType;
@@ -478,11 +478,11 @@ bool GrPixelConfigToColorAndColorSpace(GrPixelConfig config, SkColorType* ctOut,
             break;
         case kSRGBA_8888_GrPixelConfig:
             ct = kRGBA_8888_SkColorType;
-            cs = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+            pt = kSRGB_SkColorProfileType;
             break;
         case kSBGRA_8888_GrPixelConfig:
             ct = kBGRA_8888_SkColorType;
-            cs = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+            pt = kSRGB_SkColorProfileType;
             break;
         case kRGBA_half_GrPixelConfig:
             ct = kRGBA_F16_SkColorType;
@@ -493,8 +493,8 @@ bool GrPixelConfigToColorAndColorSpace(GrPixelConfig config, SkColorType* ctOut,
     if (ctOut) {
         *ctOut = ct;
     }
-    if (csOut) {
-        *csOut = cs;
+    if (ptOut) {
+        *ptOut = pt;
     }
     return true;
 }
@@ -724,9 +724,9 @@ SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque) {
     SkASSERT(h <= desc.fHeight);
 #endif
     const GrPixelConfig config = tex->config();
-    SkColorType ct = kUnknown_SkColorType;
+    SkColorType ct;
     SkAlphaType at = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    if (!GrPixelConfigToColorAndColorSpace(config, &ct, nullptr)) {
+    if (!GrPixelConfig2ColorAndProfileType(config, &ct, nullptr)) {
         ct = kUnknown_SkColorType;
     }
     return SkImageInfo::Make(w, h, ct, at);

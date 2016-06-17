@@ -1025,6 +1025,8 @@ static void start_keepalive() {
     intentionallyLeaked->start();
 }
 
+extern bool gDefaultProfileIsSRGB;
+
 int nanobench_main();
 int nanobench_main() {
     SetupCrashHandler();
@@ -1035,6 +1037,10 @@ int nanobench_main() {
     GrContextOptions grContextOpts;
     gGrFactory.reset(new GrContextFactory(grContextOpts));
 #endif
+
+    if (FLAGS_forceSRGB) {
+        gDefaultProfileIsSRGB = true;
+    }
 
     if (FLAGS_veryVerbose) {
         FLAGS_verbose = true;

@@ -14,6 +14,7 @@
 
 DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
+DECLARE_bool(forceSRGB);
 DECLARE_bool(gpu);
 DECLARE_string(images);
 DECLARE_string(colorImages);

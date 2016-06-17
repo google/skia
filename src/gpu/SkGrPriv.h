@@ -102,7 +102,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
 
-bool GrPixelConfigToColorAndColorSpace(GrPixelConfig, SkColorType*, sk_sp<SkColorSpace>*);
+bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
 
 /**
  *  If the compressed data in the SkData is supported (as a texture format, this returns
