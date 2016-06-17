@@ -13,7 +13,9 @@
 
 #include "SkUtils.h"
 #include "../GLWindowContext.h"
+#ifdef SK_VULKAN
 #include "../VulkanWindowContext.h"
+#endif
 
 namespace sk_app {
 
@@ -275,10 +277,11 @@ bool Window_win::attach(BackendType attachType, const DisplayParams& params) {
         default:
             fWindowContext = GLWindowContext::Create((void*)&platformData, params);
             break;
-
+#ifdef SK_VULKAN
         case kVulkan_BackendType:
             fWindowContext = VulkanWindowContext::Create((void*)&platformData, params);
             break;
+#endif
     }
 
     return (SkToBool(fWindowContext));

@@ -78,7 +78,7 @@
             ],
           },
         }],
-        [ 'skia_os == "linux"', {
+        [ 'skia_os == "linux" and skia_vulkan == 1', {
           'link_settings': {
             'libraries': [
               '-lX11-xcb',
@@ -101,6 +101,10 @@
           'sources/': [ ['exclude', '_win.(h|cpp)$'],
           ],
         }],
+	['skia_vulkan == 0', {
+	  'sources/': [ ['exclude', 'Vulkan']
+	  ],
+	}],
       ],
     },
   ],

@@ -27,7 +27,6 @@
         'pathops_skpclip.gyp:*',
         'dm.gyp:dm',
         'fuzz.gyp:fuzz',
-        'viewer.gyp:viewer',
       ],
       'conditions': [
         [ 'skia_gpu == 0', {
@@ -62,8 +61,8 @@
             'skiaserve.gyp:skiaserve',
           ],
         }],
-        [ 'skia_vulkan == 0 or (skia_os != "win" and skia_os != "android")', {
-          'dependencies!': [
+        [ 'skia_os in ["win", "linux", "android"]', {
+          'dependencies': [
             'viewer.gyp:viewer',
           ],
         }],

@@ -42,7 +42,9 @@ public:
 
     enum BackendType {
         kNativeGL_BackendType,
+#ifdef SK_VULKAN
         kVulkan_BackendType,
+#endif
         kRaster_BackendType,
 
         kLast_BackendType = kRaster_BackendType

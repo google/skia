@@ -69,7 +69,9 @@ DEFINE_bool(vulkan, true, "Run with Vulkan.");
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
+#ifdef SK_VULKAN
     " [Vulkan]",
+#endif
     " [Raster]"
 };
 
@@ -89,7 +91,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
     , fSplitScreen(false)
-    , fBackendType(sk_app::Window::kVulkan_BackendType)
+    , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fZoomCenterX(0.0f)
     , fZoomCenterY(0.0f)
     , fZoomLevel(0.0f)
@@ -105,9 +107,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     SkCommandLineFlags::Parse(argc, argv);
 
+#ifdef SK_VULKAN
     fBackendType = FLAGS_vulkan ? sk_app::Window::kVulkan_BackendType
                                 : sk_app::Window::kNativeGL_BackendType;
-
+#endif
     fWindow = Window::CreateNativeWindow(platformData);
     fWindow->attach(fBackendType, DisplayParams());
 
